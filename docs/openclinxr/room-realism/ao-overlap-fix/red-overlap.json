@@ -1,0 +1,32 @@
+{
+  "glb": "/tmp/ao-red-shell-plain.glb",
+  "wallObject": "bedroom_0/0.wall",
+  "wallPolys": 51,
+  "groupObjects": [
+    "bedroom_0/0.wall"
+  ],
+  "groupMaterials": [
+    "shell_bake_wall"
+  ],
+  "exteriorInWallGroup": [],
+  "res": 512,
+  "paintedTexels": 124057,
+  "interiorTexels": 123420,
+  "overlapTexels": 123448,
+  "overlapEroded": 122880,
+  "overlapFrac": 0.9956246961594555,
+  "overlapFracUnEroded": 0.9950909662493853,
+  "classA_nonVisiblePartner": 1463,
+  "classB_allVisible": 121417,
+  "withExteriorPainter": 0,
+  "allPaintersWallObject": 122880,
+  "wallFacesVisible": 48,
+  "wallFacesTotal": 51,
+  "sameWallFrontBackPairs_01_035m": 0,
+  "oppositeWallPairs_gt1m": 235,
+  "roomCenter": [
+    8.58306884765625e-06,
+    -0.025011301040649414,
+    1.2099831104278564
+  ]
+}

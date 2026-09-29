@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 513,
+    "keep-evidence": 528,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24946,6 +24946,111 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (06-floor-base)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-green/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN (post-fix) runtime frame, pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-green/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN (post-fix) runtime frame, pose 02: dense lattice gone, residual diagonal dots/blotches remain (disclosed)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-green/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN (post-fix) runtime frame, pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-green/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN capture manifest: pose eye/look/fov plus per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-red/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) runtime frame, pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-red/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) runtime frame, pose 02: dense dotted-diamond lattice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-red/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) runtime frame, pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/captures-red/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED capture manifest: pose eye/look/fov plus per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/green-overlap.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN (post-fix) wall UV-overlap measurement: overlapFrac 0.0 of 49,075 painted texels."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/green-wall-uv-overlap.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "GREEN (post-fix) wall UV-overlap visualization."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/red-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) side-by-side vs v2 reference, pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/red-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) side-by-side vs v2 reference, pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/red-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) side-by-side vs v2 reference, pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/red-overlap.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) wall UV-overlap measurement: overlapFrac 0.9956 of 122,880 painted texels."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/red-wall-uv-overlap.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED (pre-fix) wall UV-overlap visualization: dense double-wall overlap."
     }
   ]
 }

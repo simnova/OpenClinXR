@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 212,
     "archive-candidate": 116,
-    "evidence": 136,
+    "evidence": 137,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5202,6 +5202,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-overlap-fix/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions (0.9956 -> 0.0), captures, and the disclosed triangulation-diagonal residual + trim/casing gap follow-ups."
     }
   ]
 }

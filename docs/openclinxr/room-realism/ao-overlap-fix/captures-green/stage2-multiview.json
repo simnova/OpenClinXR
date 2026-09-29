@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/tmp/ao-green2-shell-plain.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.4,
+        "y": 1.6,
+        "z": 0.8
+      },
+      "look": {
+        "x": -0.4,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/tmp/ao-green2/captures/runtime-01-toward-door.png",
+      "pngBytes": 507986,
+      "pngSha256": "9a55c6023fddd532041b0ab29d82b8ab065dc0f2961c7e5f880104cf85a8bb81"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0,
+        "y": 1.6,
+        "z": -3
+      },
+      "look": {
+        "x": 0,
+        "y": 1.35,
+        "z": 3.885
+      },
+      "fov": 48,
+      "poseDx": 0,
+      "png": "/tmp/ao-green2/captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 551968,
+      "pngSha256": "756315d37ea97f72148b154987997eb79622ed8c30bbe8c3748ba5c8eb8d9b7e"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.05,
+        "y": 0.22,
+        "z": 3.45
+      },
+      "look": {
+        "x": 0.05,
+        "y": 0.12,
+        "z": 3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/tmp/ao-green2/captures/runtime-06-floor-base.png",
+      "pngBytes": 306769,
+      "pngSha256": "c2d56951e8aef22f2a709db3a04c4c298f9714e9116cb14b6144d8922d1d6cc8"
+    }
+  ]
+}

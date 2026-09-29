@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/tmp/ao-red-shell-plain.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.4,
+        "y": 1.6,
+        "z": 0.8
+      },
+      "look": {
+        "x": -0.4,
+        "y": 1.25,
+        "z": -3.885
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-01-toward-door.png",
+      "pngBytes": 558683,
+      "pngSha256": "249485e82be512e74dfb6a946b7274a36d6e33887a0e01f4d77bbec05c88b28b"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0,
+        "y": 1.6,
+        "z": -3
+      },
+      "look": {
+        "x": 0,
+        "y": 1.35,
+        "z": 3.885
+      },
+      "fov": 48,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 595439,
+      "pngSha256": "b3360b81d892a8c6ab7840df8f5d27c30aec66576746aed2201290c434f22a26"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.4,
+        "y": 0.55,
+        "z": 0.6
+      },
+      "look": {
+        "x": 1.6,
+        "y": 2.43,
+        "z": -3.2
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-03-ceiling-corner.png",
+      "pngBytes": 733150,
+      "pngSha256": "a72d27e3e51f0df8ab48c6d1cd15e9cfc1b89744f74319c3fa01975d931fe80c"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.5,
+        "y": 1.55,
+        "z": -3.7
+      },
+      "look": {
+        "x": -0.6,
+        "y": 1.2,
+        "z": 2.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-04-door-inside.png",
+      "pngBytes": 553136,
+      "pngSha256": "c5f55a0664b467cdf16132dfe66ccd18a0d492e5f6774ffe521ca548cdd234dd"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.5,
+        "y": 1.5,
+        "z": 0.2
+      },
+      "look": {
+        "x": 0.5,
+        "y": 2.43,
+        "z": -3
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-05-troffer-junction.png",
+      "pngBytes": 576257,
+      "pngSha256": "d107c4f41203f7ae22ebd71df72e30bfad52398ba5ae3b2edadf9a929b93217e"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.05,
+        "y": 0.22,
+        "z": 3.45
+      },
+      "look": {
+        "x": 0.05,
+        "y": 0.12,
+        "z": 3.885
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/tmp/ao-red-captures/runtime-06-floor-base.png",
+      "pngBytes": 330290,
+      "pngSha256": "abe928221aaaa98b945624d5758777f5e392b15a94f32e367e6701896219ee15"
+    }
+  ]
+}

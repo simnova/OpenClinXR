@@ -47,7 +47,10 @@ The shell's TEXCOORD_0 is a per-face cube unwrap, non-overlapping, reused for ba
 The Infinigen room's wall/ceiling UVs are TILED (span -2.6..4.2) and its exterior hull is a
 single collapsed (0,0) point — an AO bake into TEXCOORD_0 there would smear. So every mesh
 gets a SECOND UV layer "AO_UV" via box/cube projection (per material group, so islands
-cannot overlap between meshes sharing a material), the AO bakes into it, and the occlusion
+cannot overlap between meshes sharing a material; within the group each co-planar
+face set -- dominant normal axis + sign + 5 cm plane quantum -- then repacks into
+its own disjoint atlas cell, so opposite interior walls never share texels and the
+per-texel minimum never conflates painters), the AO bakes into it, and the occlusion
 texture references TEXCOORD_1. Base colour keeps TEXCOORD_0 untouched. Cube, not Smart UV
 Project: smart-project's packer collapses most wall faces to zero UV area on ward-shell
 geometry (measured on the shipped inpatient ward wall: 44 of 56 tris single-texel, 78.6%
@@ -68,7 +71,6 @@ from __future__ import annotations
 import argparse
 import math
 import os
-import random
 import statistics
 import sys
 from typing import Dict, List, Tuple
@@ -105,6 +107,15 @@ AO_SAMPLE_SEED = 20260825
 # 70.5 MB > 56. Per-role AO sizes would break the exporter's single-UVMap-link assumption
 # (one material = one image = one size), so the whole pass stays uniform at the budget max.
 AO_DEFAULT_RESOLUTION = 512
+
+# Co-planar group separation (lattice fix): faces sharing a (dominant axis, sign,
+# 5 cm plane quantum) key keep one contiguous island; different keys pack into
+# disjoint atlas cells. 0.05 m separates every distinct wall plane (thickness 0.22 m,
+# opposite walls metres apart, reveal slivers decimetres apart) while exact-coplanar
+# neighbours agree to float noise, far below the quantum.
+COPLANAR_PLANE_QUANTUM_M = 0.05
+# Last separation group count, published for the separation probe (tests only).
+LAST_SEPARATION_BIN_COUNT = 0
 
 GLTF_GROUP_NAMES = ("glTF Material Output", "glTF Settings")
 
@@ -165,7 +176,97 @@ def ensure_ao_uv(mesh_obj: bpy.types.Object) -> str:
     return layer_name
 
 
-def box_project_group(objects: List[bpy.types.Object], layer_name: str) -> None:
+def coplanar_bin_key(nx: float, ny: float, nz: float, cx: float, cy: float, cz: float):
+    """Deterministic co-planar group key for one face (world normal + center).
+
+    Dominant normal axis + sign + plane quantum (signed distance of the face
+    center along its normal, quantized to COPLANAR_PLANE_QUANTUM_M). Exactly
+    co-planar same-facing faces share a key; opposite walls across the room
+    differ in sign and/or quantum, so they never share. Pure function of
+    geometry: no RNG, no Blender dependency."""
+    ax = 0
+    if abs(ny) >= abs(nx) and abs(ny) >= abs(nz):
+        ax = 1
+    elif abs(nz) >= abs(nx) and abs(nz) >= abs(ny):
+        ax = 2
+    n = (nx, ny, nz)[ax]
+    sign = 1 if n >= 0 else -1
+    d = cx * nx + cy * ny + cz * nz
+    return (ax, sign, math.floor(d / COPLANAR_PLANE_QUANTUM_M + 0.5))
+
+
+def separate_coplanar_uv_groups(objects: List[bpy.types.Object], layer_name: str, resolution: int) -> int:
+    """Repack each co-planar group's UVs into its own disjoint atlas cell.
+
+    Runs after the group's cube_project pass: every face keeps its planar
+    projection shape (one affine map per group, so shared edges between
+    same-plane neighbours still match exactly), but groups that used to land
+    on top of each other now occupy disjoint grid cells separated by a 2-texel
+    gutter. One uniform shrink across all groups (capped at 1.0, never outside
+    0..1) preserves equal world-to-UV density. Deterministic: groups sorted by
+    key, no RNG. Returns the group count (also published as
+    LAST_SEPARATION_BIN_COUNT for the separation probe)."""
+    global LAST_SEPARATION_BIN_COUNT
+    entries = []
+    for obj in objects:
+        me = obj.data
+        layer = me.uv_layers.get(layer_name)
+        if layer is None:
+            continue
+        mw = obj.matrix_world
+        nmw = mw.inverted().transposed()
+        for poly in me.polygons:
+            c = mw @ poly.center
+            n = (nmw @ poly.normal).normalized()
+            key = coplanar_bin_key(n.x, n.y, n.z, c.x, c.y, c.z)
+            entries.append((key, obj, list(poly.loop_indices)))
+    bins: Dict = {}
+    for key, obj, loops in entries:
+        bins.setdefault(key, []).append((obj, loops))
+    LAST_SEPARATION_BIN_COUNT = len(bins)
+    if not bins:
+        return 0
+    ordered = sorted(bins)
+    n = len(ordered)
+    cols = math.ceil(math.sqrt(n))
+    rows = math.ceil(n / cols)
+    cell_w, cell_h = 1.0 / cols, 1.0 / rows
+    gutter = 2.0 / resolution
+    bboxes = {}
+    for key in ordered:
+        x0 = y0 = float("inf")
+        x1 = y1 = float("-inf")
+        for obj, loops in bins[key]:
+            uv_data = obj.data.uv_layers[layer_name].data
+            for li in loops:
+                uv = uv_data[li].uv
+                x0 = min(x0, uv.x)
+                y0 = min(y0, uv.y)
+                x1 = max(x1, uv.x)
+                y1 = max(y1, uv.y)
+        bboxes[key] = (x0, y0, x1, y1)
+    scale = 1.0
+    for key in ordered:
+        x0, y0, x1, y1 = bboxes[key]
+        bw, bh = x1 - x0, y1 - y0
+        if bw > 1e-9:
+            scale = min(scale, (cell_w - 2 * gutter) / bw)
+        if bh > 1e-9:
+            scale = min(scale, (cell_h - 2 * gutter) / bh)
+    scale = max(min(scale, 1.0), 1e-6)
+    for index, key in enumerate(ordered):
+        ox, oy = (index % cols) * cell_w, (index // cols) * cell_h
+        x0, y0, _, _ = bboxes[key]
+        for obj, loops in bins[key]:
+            uv_data = obj.data.uv_layers[layer_name].data
+            for li in loops:
+                uv = uv_data[li].uv
+                uv_data[li].uv = (ox + gutter + (uv.x - x0) * scale,
+                                  oy + gutter + (uv.y - y0) * scale)
+    return n
+
+
+def box_project_group(objects: List[bpy.types.Object], layer_name: str, resolution: int = AO_DEFAULT_RESOLUTION) -> None:
     """Unwrap all selected objects' faces into `layer_name` in ONE pass (non-overlapping
     islands across the group). Cube/box projection, NOT Smart UV Project: smart-project's
     packer collapses most wall faces to zero UV area on ward-shell geometry (measured on
@@ -173,7 +274,14 @@ def box_project_group(objects: List[bpy.types.Object], layer_name: str) -> None:
     one flat snapped texel (the wall-facet tonal steps). Planar projection along each
     face's dominant axis cannot collapse a flat quad, so each wall plane becomes one or a
     small few large islands. Same settings as D3b's BAKE_UV box_project_into (0711c8a71):
-    pure function of face geometry, no RNG."""
+    pure function of face geometry, no RNG.
+
+    The single projection pass still lands co-planar parallel faces (double-wall skins,
+    opposite walls across the room) on top of each other, so separate_coplanar_uv_groups
+    repacks each co-planar set into its own disjoint cell afterwards: the fix is geometric
+    (real UV separation), not a different per-texel reducer. `resolution` sizes the
+    inter-cell gutter in texels (2); it defaults to the bake resolution the caller passes
+    to its image, so the gutter is exact there and conservative elsewhere."""
     for obj in objects:
         me = obj.data
         if layer_name in [u.name for u in me.uv_layers]:
@@ -191,6 +299,10 @@ def box_project_group(objects: List[bpy.types.Object], layer_name: str) -> None:
         bpy.ops.uv.cube_project()
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="DESELECT")
+    # Geometric deconfliction (lattice fix): co-planar groups that cube_project
+    # stacked onto the same UV region get disjoint cells, so paint_bounded_ao's
+    # per-texel minimum never arbitrates between two different surfaces.
+    separate_coplanar_uv_groups(objects, layer_name, resolution)
 
 
 def setup_scene() -> None:
@@ -308,22 +420,51 @@ def _barycentric_uv(px, py, a, b, c):
     return l1, l2, 1.0 - l1 - l2
 
 
+def texel_jitter(xx: int, yy: int) -> float:
+    """Deterministic per-texel sample-rotation for one AO image texel.
+
+    Lattice fix, part 2 (within-plane diagonal/vertex steps): the old code drew
+    the rotation from a sequential RNG consumed in face order, so two faces
+    sharing a texel (an edge, a vertex, or a quad fan-diagonal band) sampled
+    the SAME world position with DIFFERENT ray rotations and the per-texel
+    minimum kept the darker -- every shared vertex/edge rendered systematically
+    darker (measured GREEN-coarse pose-02 dotFrac 0.052 vs the 0.025 AO-off
+    floor, dots sited at quad corners). Keying the rotation ONLY on the texel
+    coordinate makes sampling order-independent: every painter of one texel
+    uses the same rays, so co-planar neighbours agree exactly, the minimum
+    becomes a no-op there, and the fan-diagonal blend is spatially continuous.
+    Pure integer hash (MurmurHash3 fmix32 finalizer over xx/yy/seed): no RNG,
+    no Blender dependency, byte-repeatable across runs and machines. Real AO
+    gradients are untouched -- only the rotation field changes, and it stays
+    spatially white (adjacent texels decorrelate). Returns 0..2*pi.
+    """
+    h = (xx * 0x8DA6B343 + yy * 0xD8163841 + AO_SAMPLE_SEED) & 0xFFFFFFFF
+    h ^= h >> 13
+    h = (h * 0x5BD1E995) & 0xFFFFFFFF
+    h ^= h >> 15
+    return (h / 0x100000000) * 2.0 * math.pi
+
+
 def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> bytearray:
     """Fill `img` by evaluating bounded AO PER TEXEL through each object's AO_UV layer.
 
     For every face, texels inside its UV footprint get the AO of their interpolated world
     position (barycentric over the face), so large coarse faces still carry real gradients.
+    Overlapping painters keep the per-texel MINIMUM (`if ao < buf[idx]`): that reducer is
+    retained deliberately -- box_project_group now packs each co-planar group into its own
+    disjoint cell, so the minimum only ever arbitrates shared edges between same-plane
+    neighbours, never two different surfaces.
     Returns a coverage mask (1 = a face footprint wrote the texel): the caller dilates
     uncovered gutter texels from their nearest painted neighbour (dilate_unpainted_texels)
     so bilinear/mip sampling at island borders blends with edge-like values instead of
     the white clear colour.
-    Determinism: a seeded per-texel jitter is consumed in face order, so output does not
-    depend on object order and repeats byte-for-byte across runs.
+    Determinism: the sample rotation is a pure hash of the texel coordinate
+    (texel_jitter), so output does not depend on face/object order and repeats
+    byte-for-byte across runs.
     """
     W, H = img.size
     buf = [1.0] * (W * H)
     covered = bytearray(W * H)
-    rng = random.Random(AO_SAMPLE_SEED)
 
     plans = []
     for obj in objects:
@@ -371,7 +512,10 @@ def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> byte
                         hit = True
                         w = max(0.0, l1) + max(0.0, l2) + max(0.0, l3)
                         wp = corners[i0] * max(0.0, l1) + corners[i1] * max(0.0, l2) + corners[i2] * max(0.0, l3)
-                        jitter = rng.random() * 2.0 * math.pi
+                        # Order-independent rotation: same texel -> same rays
+                        # for every painter (texel_jitter), so shared
+                        # vertices/edges agree and min() is a no-op there.
+                        jitter = texel_jitter(xx, yy)
                         ao_acc += bounded_ao_at(bvh, wp, nrm, jitter) * w
                         w_acc += w
                     if not hit or w_acc <= 0.0:

@@ -1,0 +1,11 @@
+{
+  "glb": "/tmp/ao-green-shell-plain.glb",
+  "wallObject": "bedroom_0/0.wall",
+  "wallPolys": 51,
+  "res": 512,
+  "paintedTexels": 49075,
+  "interiorTexels": 46713,
+  "overlapEroded": 0,
+  "overlapFrac": 0.0,
+  "bins": 8
+}
