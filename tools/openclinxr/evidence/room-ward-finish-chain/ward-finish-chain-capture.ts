@@ -83,6 +83,27 @@ import {
 
 const OUTPUT_DIR =
   process.env["STAGE2_CAPTURE_OUT_DIR"] ?? "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures";
+// STAGE2_AO_INTENSITY (optional, added 2026-09-29 for the ao-cycles-bake job):
+// runtime aoMapIntensity override for every material carrying an aoMap ("1" =
+// unchanged, "0" = AO-off floor renders for the dot-fraction metric). The GLB
+// on disk is untouched; the override applies in-page before each capture.
+const AO_INTENSITY =
+  process.env["STAGE2_AO_INTENSITY"] === undefined ? null : Number(process.env["STAGE2_AO_INTENSITY"]);
+
+const SET_AO_INTENSITY_SOURCE = `
+((intensity) => {
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene || typeof scene.traverse !== "function") return { ok: false, reason: "no-debug-scene" };
+  let n = 0;
+  scene.traverse((o) => {
+    const mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+    for (const m of mats) {
+      if (m && m.aoMap) { m.aoMapIntensity = intensity; if ("needsUpdate" in m) m.needsUpdate = true; n += 1; }
+    }
+  });
+  return { ok: true, materials: n };
+})
+`;
 const STAGE2_GLB = process.env["STAGE2_CAPTURE_GLB"];
 if (!STAGE2_GLB) {
   throw new Error("STAGE2_CAPTURE_GLB is required (stage-2 room GLB path)");
@@ -380,6 +401,17 @@ async function main(): Promise<void> {
 
     const stripped = await page.evaluate(HIDE_NON_ROOM_SOURCE);
     process.stdout.write(`[strip] non-room meshes hidden: ${JSON.stringify(stripped)}\n`);
+    if (AO_INTENSITY !== null) {
+      if (!Number.isFinite(AO_INTENSITY)) throw new Error(`STAGE2_AO_INTENSITY must be a number (got ${process.env["STAGE2_AO_INTENSITY"]})`);
+      const applied = (await page.evaluate(`${SET_AO_INTENSITY_SOURCE}(${AO_INTENSITY})`)) as {
+        ok: boolean;
+        reason?: string;
+        materials?: number;
+      };
+      if (!applied.ok) throw new Error(`aoMapIntensity override failed: ${applied.reason}`);
+      await page.waitForTimeout(400);
+      process.stdout.write(`[ao] aoMapIntensity=${AO_INTENSITY} materials=${applied.materials}\n`);
+    }
 
     const poses = await loadPoses();
     process.stdout.write(

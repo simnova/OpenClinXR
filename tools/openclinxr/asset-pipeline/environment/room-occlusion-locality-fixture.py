@@ -207,7 +207,7 @@ def main() -> None:
         "schemaVersion": "openclinxr.room-occlusion-locality-fixture.v1",
         "mechanism": str(getattr(mod, "AO_MECHANISM", "unknown")),
         "reachMeters": float(getattr(mod, "AO_REACH_METERS", -1)),
-        "samples": 16,
+        "samples": int(getattr(mod, "AO_SAMPLES", 16)),
         "roomMeters": {"w": ROOM_W, "h": ROOM_H},
         "run1": run1,
         "run2": run2,

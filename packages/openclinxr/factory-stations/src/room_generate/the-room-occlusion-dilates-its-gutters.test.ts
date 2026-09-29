@@ -15,9 +15,16 @@ import { describe, expect, it } from "vitest";
  * dilate_unpainted_texels nearest-fills the gutters, so borders blend with
  * edge-like tones. Covered texels are never touched.
  *
- * Runs the REAL functions (imported from the shipped room-occlusion-bake.py,
+ * Runs the REAL function (imported from the shipped room-occlusion-bake.py,
  * not a reimplementation) inside Blender on a two-quad probe with a deliberate
  * UV gutter. Live Blender per dispatch.
+ *
+ * SUPERSEDED 2026-09-29 (cycles_emit_ao): the retired paint_bounded_ao no longer
+ * produces the island values — the probe fills them directly (0.4 content vs 1.0
+ * clear gutter) and rasterizes coverage with the kept rasterize_coverage.
+ * dilate_unpainted_texels itself is UNCHANGED and bake-agnostic; every assertion
+ * below exercises it, not the retired painter. New bake behavior lives in
+ * the-room-occlusion-bakes-with-cycles.
  */
 
 const execFileAsync = promisify(execFile);
@@ -37,13 +44,12 @@ import bpy
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.object.delete()
 
-# Two quads with a world gap; a cube above the left quad dents its AO so the
-# islands carry non-white values (otherwise every assertion below is trivial).
+# Two quads with a world gap (the occluder cube the retired painter needed for
+# non-white islands is gone: island values are filled directly below).
 bpy.ops.mesh.primitive_plane_add(size=1, location=(-0.8, 0, 0))
 left = bpy.context.active_object
 bpy.ops.mesh.primitive_plane_add(size=1, location=(0.8, 0, 0))
 right = bpy.context.active_object
-bpy.ops.mesh.primitive_cube_add(size=0.5, location=(-0.8, 0, 0.45))
 
 # Manual AO_UV split: left quad in u [0, 0.4], right quad in u [0.6, 1.0].
 # The middle 0.2 band is gutter no face covers, whatever the packer does.
@@ -59,14 +65,21 @@ for obj, u0, u1 in ((left, 0.0, 0.4), (right, 0.6, 1.0)):
         ao.data[i].uv = (u0 + bx * (u1 - u0), by)
 
 bpy.context.scene.render.engine = "CYCLES"
-bpy.context.scene.cycles.samples = 1
 
 RES = 64
-bvh = mod.build_scene_bvh()
+# Bake-agnostic coverage (cycles_emit_ao supersession 2026-09-29): footprints
+# rasterized from the AO_UV geometry, not painted by the retired painter.
+covered = mod.rasterize_coverage([left, right], "AO_UV", RES, RES)
 
 def bake_once():
     img = bpy.data.images.new("probe_ao", width=RES, height=RES, alpha=False, float_buffer=False)
-    covered = mod.paint_bounded_ao(img, [left, right], bvh)
+    # Synthetic island content: painted texels get a real value (0.4), gutter
+    # stays at the clear white (1.0) — the shape the retired painter produced.
+    px = []
+    for i in range(RES * RES):
+        v = 0.4 if covered[i] else 1.0
+        px.extend((v, v, v, 1.0))
+    img.pixels.foreach_set(px)
     pre = list(img.pixels)
     filled = mod.dilate_unpainted_texels(img, covered)
     post = list(img.pixels)

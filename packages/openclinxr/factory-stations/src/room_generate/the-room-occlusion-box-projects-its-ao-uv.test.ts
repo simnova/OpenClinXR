@@ -32,6 +32,13 @@ import { describe, expect, it } from "vitest";
  *     interior pairs (wall planes contiguous), 9 islands (was 37), 3 degenerate
  *     singles (was 44), full 512^2 coverage with dilation kept as safety.
  *
+ * SUPERSEDED 2026-09-29 (cycles_emit_ao): the hand-rolled painter retired, so this
+ * probe no longer bakes AO pixels — it rasterizes the same UV footprints with the
+ * kept rasterize_coverage (bake-agnostic UV geometry) and asserts the same island
+ * structure. Box projection itself is UNCHANGED (still the Cycles bake target).
+ * The retired paint_bounded_ao / build_scene_bvh calls were replaced, not the
+ * assertions; the new bake behavior lives in the-room-occlusion-bakes-with-cycles.
+ *
  * AO resolution stays at the budget max: AO_DEFAULT_RESOLUTION = 512, the largest
  * uniform power-of-two keeping shell (37 MB) + AO (4x512^2 = 4 MB) = 41 MB x1.33 =
  * 54.5 MB <= 56 MB. 4x1024^2 would be 53 raw x1.33 = 70.5 MB > 56. The shell-bake
@@ -69,16 +76,16 @@ wall_obj = max([o for o in objs if "wall" in o.name.lower() and "exterior" not i
 for o in objs:
     mod.ensure_ao_uv(o)
 mod.box_project_group(objs, "AO_UV")
-bpy.context.scene.render.engine = "CYCLES"
-bvh = mod.build_scene_bvh()
+# Bake-agnostic footprint (cycles_emit_ao supersession 2026-09-29): the retired
+# paint_bounded_ao / build_scene_bvh pixel bake is replaced by the kept
+# rasterize_coverage over the same AO_UV layer. Per-triangle COUNTS (not AO
+# values) drive the island-boundary assertions below, so no bake is needed.
 RES = 512
-img = bpy.data.images.new("ao_box_probe", width=RES, height=RES, alpha=False, float_buffer=False)
-covered = mod.paint_bounded_ao(img, objs, bvh)
-filled = mod.dilate_unpainted_texels(img, covered)
-px = list(img.pixels)
+covered = mod.rasterize_coverage(objs, "AO_UV", RES, RES)
+filled = 0
+px = None
 def lum(x, y):
-    x = max(0, min(RES - 1, x)); y = max(0, min(RES - 1, y))
-    return px[(y * RES + x) * 4]
+    raise AssertionError("no pixel bake under cycles_emit_ao; counts only")
 me = wall_obj.data
 mw = wall_obj.matrix_world
 nmw = mw.inverted().transposed()
@@ -112,7 +119,6 @@ def samp(uvt):
     return out or [(max(0, min(RES - 1, int((ax + bx + cx) / 3 * RES))), max(0, min(RES - 1, int((ay + by + cy) / 3 * RES))))]
 for f in faces:
     s = samp(f["uv"])
-    f["mean"] = sum(lum(x, y) for x, y in s) / len(s)
     f["count"] = len(s)
 edge = defaultdict(list)
 for idx, f in enumerate(faces):
@@ -150,7 +156,11 @@ describe("the room occlusion bake box-projects its AO UVs", () => {
     const src = readFileSync(BAKE_PY, "utf8");
     expect(src).toContain("box_project_group");
     expect(src).toContain("cube_project");
-    expect(src).not.toContain("smart_project");
+    // No Smart-UV unwrap CALL. Bare "smart_project" also appears in the pre-existing
+    // skirting-skip comment (present on origin/main, where this assertion was already
+    // red); like the sibling separation test, assert on the call form uv.smart_project(.
+    // Fixed 2026-09-29 while superseding the retired painter calls in the driver below.
+    expect(src).not.toContain("uv.smart_project(");
     const m = src.match(/AO_DEFAULT_RESOLUTION\s*=\s*(\d+)/);
     expect(m, "AO_DEFAULT_RESOLUTION must be declared").toBeTruthy();
     expect(Number(m![1])).toBe(512);

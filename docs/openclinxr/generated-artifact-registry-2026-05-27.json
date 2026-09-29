@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 528,
+    "keep-evidence": 538,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -25051,6 +25051,76 @@
       "tracked": true,
       "action": "keep",
       "rationale": "RED (pre-fix) wall UV-overlap visualization: dense double-wall overlap."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/01-toward-door-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake side-by-side vs v2 reference, pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/02-toward-bed-wall-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake side-by-side vs v2 reference, pose 02: dot chains/diamonds/dark-wall artifacts gone."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/06-floor-base-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake side-by-side vs v2 reference, pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 02, real Cycles AO bake (reach 0.5m, 64 samples, CPU)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake runtime frame, pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ao-cycles-bake/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "AO Cycles-bake capture manifest: pose eye/look/fov plus per-capture sha256."
     }
   ]
 }

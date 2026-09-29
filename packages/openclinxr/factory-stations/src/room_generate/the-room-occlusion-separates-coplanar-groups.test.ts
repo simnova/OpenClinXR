@@ -9,6 +9,12 @@ import { describe, expect, it } from "vitest";
 /**
  * AO_UV co-planar-group separation: opposite interior walls must not share texels.
  *
+ * SUPERSEDED 2026-09-29 (cycles_emit_ao): the painter/min-reducer/jitter half of this
+ * contract retired with paint_bounded_ao — the first `it` now asserts their ABSENCE.
+ * Geometric separation itself is KEPT (still the Cycles bake target) and the live
+ * GREEN probe below still exercises it. New bake behavior lives in
+ * the-room-occlusion-bakes-with-cycles.
+ *
  * BACKGROUND: the lattice diagnosis (docs/openclinxr/room-realism/lattice-diagnosis/REPORT.md)
  * measured that box_project_group's single cube-project pass lands co-planar parallel faces
  * (the ward's double-wall construction, walls 0.1-0.35 m apart, plus opposite walls across
@@ -109,21 +115,23 @@ print("PASS-SEPARATION-PROBE" if (frac < 0.02 and nbins >= 4) else "FAIL-SEPARAT
 `;
 
 describe("the room occlusion bake separates co-planar groups into disjoint UV cells", () => {
-  it("keeps cube projection and the min reducer; separation is geometric, not statistical", () => {
+  it("keeps cube projection and geometric separation; the retired min reducer and jitter are gone", () => {
     const src = readFileSync(BAKE_PY, "utf8");
     expect(src).toContain("box_project_group");
     expect(src).toContain("cube_project");
     // No Smart-UV unwrap CALL (comments may still name it: the skirting-skip
     // note on main documents smart_project slivers on dense trim geometry).
     expect(src).not.toContain("uv.smart_project(");
-    // The fix must NOT swap min() for another reducer: conflated painters sharing one
-    // UV region stay conflated under any per-texel statistic.
-    expect(src).toContain("if ao < buf[idx]");
+    // SUPERSEDED 2026-09-29 (cycles_emit_ao): the hand-rolled painter retired, so
+    // its per-texel min() reducer is GONE — the Cycles EMIT bake writes each texel
+    // once through disjoint UV cells, and there is nothing left to arbitrate. New
+    // bake behavior lives in the-room-occlusion-bakes-with-cycles.
+    expect(src, "the retired min() reducer must be gone with paint_bounded_ao").not.toContain("if ao < buf[idx]");
     expect(src).toContain("coplanar_bin_key");
-    // Within-plane residual guard: sampling must be order-independent (texel-hashed
-    // rotation), never a sequential RNG consumed in face order -- the latter makes
-    // shared vertices/edges systematically darker under the min() reducer.
-    expect(src).toContain("texel_jitter");
+    // SUPERSEDED 2026-09-29 (cycles_emit_ao): texel-hashed sampling rotation retired
+    // with the painter — Cycles does the hemisphere sampling now, so no rotation
+    // field (hashed or sequential) may remain.
+    expect(src, "the retired texel_jitter must be gone with paint_bounded_ao").not.toContain("texel_jitter");
     expect(src).not.toContain("rng.random()");
   });
 

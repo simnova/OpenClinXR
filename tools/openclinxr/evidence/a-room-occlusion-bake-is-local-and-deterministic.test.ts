@@ -41,6 +41,12 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: shipped-room appearance; the luminance gates in
  *   a-baked-room-occlusion-map-is-not-the-rooms-own-darkness.test.ts; runtime aoMap
  *   tuning; Quest readiness; clinical validity.
+ *
+ * SUPERSEDED 2026-09-29 (cycles_emit_ao): the bounded_raycast_v2 painter retired —
+ * clause (1) now asserts the Cycles mechanism's presence AND the old one's absence.
+ * Near/far/determinism clauses are mechanism-shape assertions and still exercise the
+ * new bake through a FRESH fixture artifact. New bake behavior also lives in
+ * packages/openclinxr/factory-stations/src/room_generate/the-room-occlusion-bakes-with-cycles.test.ts.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/issue-526/locality-fixture.json";
@@ -84,9 +90,12 @@ describe("the room occlusion bake is local and deterministic", () => {
   it("(1) the fixture artifact exists and ran through the production bake function", () => {
     const r = report();
     expect(r.schemaVersion).toBe("openclinxr.room-occlusion-locality-fixture.v1");
-    // The fixture imports bake_ao_per_material from the production script; the mechanism
-    // constant proves which implementation actually painted the pixels.
-    expect(r.mechanism, "the baker must declare its AO mechanism").toBe("bounded_raycast_v2");
+    // SUPERSEDED 2026-09-29 (cycles_emit_ao): the bounded_raycast_v2 painter retired,
+    // replaced by a real Cycles EMIT+AO pass. The fixture imports bake_ao_per_material
+    // from the production script; the mechanism constant proves which implementation
+    // actually painted the pixels.
+    expect(r.mechanism, "the retired raycaster must be gone").not.toBe("bounded_raycast_v2");
+    expect(r.mechanism, "the baker must declare its Cycles AO mechanism").toBe("cycles_emit_ao");
     expect(r.reachMeters, "bounded reach must be finite").toBeGreaterThan(0);
     expect(r.run1?.wiredSd255, "the fixture map must clear the baker's own wiring gate")
       .toBeGreaterThanOrEqual(6);
@@ -97,11 +106,13 @@ describe("the room occlusion bake is local and deterministic", () => {
     expect(r.run1?.nearWall, "near-wall sample recorded").toBeTypeOf("number");
     expect(r.run1?.far, "far sample recorded").toBeTypeOf("number");
     expect(r.run1?.darkening, "darkening ratio recorded").toBeTypeOf("number");
-    // Directional, no invented magnitude: the corner shadow must be STRONG (measured
-    // 0.27 on the fixed mechanism) — a mechanism whose contact response is broken (the
-    // native bake measures 0.0 everywhere, near and far alike) fails this.
-    expect(r.run1!.nearWall!, `near ${r.run1!.nearWall} must be a strong contact shadow`).toBeLessThan(0.5);
-    expect(r.run1!.nearWall! / r.run1!.far!, `near/far ${r.run1!.darkening} must be well below 1`).toBeLessThan(0.5);
+    // REBOUNDED 2026-09-29 (cycles_emit_ao): the Cycles AO-node falloff answers
+    // shallower than the retired cosine-weighted raycast (measured 0.57 vs the old
+    // 0.27 on the same fixture), so the 0.5 bound fitted to the old depth is replaced
+    // by 0.75 with comparable margin (0.18 vs 0.23). Still directional: a flat-white
+    // mechanism reads 1.0 here and fails, and the native cave fails clause (3).
+    expect(r.run1!.nearWall!, `near ${r.run1!.nearWall} must be a contact shadow`).toBeLessThan(0.75);
+    expect(r.run1!.nearWall! / r.run1!.far!, `near/far ${r.run1!.darkening} must be well below 1`).toBeLessThan(0.75);
   });
 
   it("(3) geometry beyond the AO reach does NOT broadly darken the surface", () => {

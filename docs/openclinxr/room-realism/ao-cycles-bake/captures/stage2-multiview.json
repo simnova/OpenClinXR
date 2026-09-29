@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/.openclinxr/evidence/ao-cycles-bake-chain/infinigen-inpatient-ward.chain.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.42,
+        "y": 1.15,
+        "z": -1.95
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-01-toward-door.png",
+      "pngBytes": 471212,
+      "pngSha256": "4e612da3d41f318cb7a745fdc8396889ac6ccf48bbbf0dbcc86c599e9c1c0b17"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0,
+        "y": 1.85,
+        "z": -1.9
+      },
+      "look": {
+        "x": 0.3,
+        "y": 1.7,
+        "z": 1.95
+      },
+      "fov": 48,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-02-toward-bed-wall.png",
+      "pngBytes": 483116,
+      "pngSha256": "2a8fb1c80ad46232cd129c2fc6efc845dc3382aeb597e505fde7adaf66153197"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.2,
+        "y": 0.55,
+        "z": 0.3
+      },
+      "look": {
+        "x": 0.8,
+        "y": 2.3,
+        "z": -1.6
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-03-ceiling-corner.png",
+      "pngBytes": 863913,
+      "pngSha256": "066a5b6b19655ee872e99833513ee26711ad99e40d17a1bc63d694a1dce717c4"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.25,
+        "y": 1.55,
+        "z": -1.85
+      },
+      "look": {
+        "x": -0.3,
+        "y": 1.2,
+        "z": 1.25
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-04-door-inside.png",
+      "pngBytes": 442990,
+      "pngSha256": "8c1a70e4f63cd0362e379a13cd596db9a9df161873545668f2a951f802734714"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.25,
+        "y": 1.5,
+        "z": 0.1
+      },
+      "look": {
+        "x": 0.25,
+        "y": 2.3,
+        "z": -1.5
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-05-troffer-junction.png",
+      "pngBytes": 991016,
+      "pngSha256": "1575a7e91f2115f3cfc866b518f2af8e8bebf0e4b161eaf8a2ea45ad4e03f0dc"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.22,
+        "z": 1.72
+      },
+      "look": {
+        "x": 0.02,
+        "y": 0.12,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/docs/openclinxr/room-realism/ao-cycles-bake/captures/runtime-06-floor-base.png",
+      "pngBytes": 250625,
+      "pngSha256": "e1909df5efe7d2707a321a297301050593e3082ca5e483898c3058ed5ee05586"
+    }
+  ]
+}

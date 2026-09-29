@@ -10,37 +10,31 @@ depends on clean albedo). The bake is deterministic: same input GLB + fixed para
 same output. No LLM in the path (D1). No light nodes ship (the bake needs none).
 Triangle count untouched.
 
-MECHANISM HISTORY — why native AO cannot ship, measured 2026-08-27 (issue-526):
-  - #349/#345 shipped the native Cycles AO bake type. Blender 5.1 IGNORES
-    `scene.render.bake.max_ray_distance` for the AO bake type (probed 3x in #345, re-probed
-    here: byte-identical bakes at ray=0.0 vs 2.0). It ALSO ignores
-    `world.light_settings.distance` (probed: identical AO at 10/5/2/1/0.5/0 m).
-  - The AO bake's true reach is not under the baker's control and is ~2.4-2.6 m in this
-    build (measured: a ceiling at 2.65 m never occludes the floor; at 2.41 m it fully
-    does; a wall contributes identically at every distance from 0.05 to 2.45 m). The
-    shipped Infinigen rooms are closed boxes with floor-to-ceiling height 2.41-2.65 m and
-    double-walled meshes (faces 0.1-0.35 m apart), so the native bake self-occluded every
-    surface into a dark cave — measured on all fourteen shipped rooms as means of
-    3-55/255 with 95%+ of texels below 64 (issue-526 plant, 8519ebce).
-  - The Cycles "Ambient Occlusion" shader node (Distance input) cannot rescue this: an
-    EMIT bake with the AO node wired returns ~1.0 regardless of distance (probed 2026-08-27)
-    — the node is not evaluated by the bake path.
+MECHANISM HISTORY — why the bake below uses EMIT + Ambient Occlusion node,
+measured 2026-09-29 on Blender 5.1.1 (this worktree), reproducing 2026-08-27 first:
+  - `bpy.ops.object.bake(type='AO')` IGNORES `scene.render.bake.max_ray_distance`
+    (re-probed: byte-identical maps at ray 0.0 vs 1.0 on a 4.3 x 3.9 x 2.4 m box
+    fixture) and `world.light_settings.distance`. Its reach is ~2.4-2.6 m and not
+    under the baker's control, so it self-occludes closed rooms into a cave.
+  - The Cycles "Ambient Occlusion" shader node's Distance input IS honoured by an
+    EMIT bake (ladder on the same fixture, floor planar UV, 32 samples: Distance
+    0.0 = unbounded cave with centre 0.62; 0.3/0.5/1.0 = graded contact falloff
+    with the room centre fully open at 1.0; 3.0 = the 2.4 m ceiling re-enters and
+    the centre drops to 0.62). The 2026-08-27 note claiming EMIT+AO returns ~1.0
+    regardless of distance does not reproduce on this build with the node wired
+    AO.Color -> Emission -> Surface and Distance set on the node input socket.
+  - So the bounded bake is a real Cycles pass after all: per material group, a
+    throwaway override material (Emission lit ONLY by the AO node at the measured
+    reach) shades the group's objects while `bpy.ops.object.bake(type='EMIT')`
+    writes the group's AO image through the same box-projected AO_UV layer the
+    hand-rolled painter used. No BVH, no per-texel Python raycast, no jitter.
 
-ISSUE-526 MECHANISM — bounded deterministic raycast AO ("bounded_raycast_v2"):
-  A per-texel occlusion estimate computed from a BVH over the whole imported scene.
-  Cosine-weighted rays are cast over the hemisphere around each sampled point; ONLY hits
-  within AO_REACH_METERS count as occluders, and hits closer than AO_MIN_HIT_DISTANCE are
-  ignored (a real occluder is a DIFFERENT surface — the sample point sits on its own
-  surface, so any hit at ~0 is the surface's own coplanar plane and must not count; the
-  v1 bake (f81d1c0f) counted those and measured a floor "contact shadow" that was mostly
-  the artifact). Geometry beyond the reach contributes nothing, so contact darkening
-  survives while whole-room self-occlusion is bounded away — an open-room-quality map on
-  a closed room.
-
-  v1's second defect, fixed here: v1 built its BVH from the CURRENT material's meshes only
-  (`bvh = build_bvh(objects)`), so a plaster wall could not occlude a tile floor. This
-  version builds ONE BVH over every mesh in the scene (all materials); cross-material
-  occlusion is the point of a room AO map.
+ISSUE-526 MECHANISM — bounded Cycles EMIT+AO ("cycles_emit_ao"):
+  The AO node's Distance is the hard reach: occluders beyond it contribute
+  nothing, so contact darkening survives while whole-room self-occlusion is
+  bounded away — an open-room-quality map on a closed room. AO_REACH_METERS
+  keeps its name and meaning from the retired raycaster (the radius inside which
+  geometry counts as an occluder); only the evaluation moved into Cycles.
 
 UV handling (the question the brief flagged): the shipped rooms already carry TEXCOORD_0.
 The shell's TEXCOORD_0 is a per-face cube unwrap, non-overlapping, reused for base colour.
@@ -49,8 +43,8 @@ single collapsed (0,0) point — an AO bake into TEXCOORD_0 there would smear. S
 gets a SECOND UV layer "AO_UV" via box/cube projection (per material group, so islands
 cannot overlap between meshes sharing a material; within the group each co-planar
 face set -- dominant normal axis + sign + 5 cm plane quantum -- then repacks into
-its own disjoint atlas cell, so opposite interior walls never share texels and the
-per-texel minimum never conflates painters), the AO bakes into it, and the occlusion
+its own disjoint atlas cell, so opposite interior walls never share texels), the AO
+bakes into it, and the occlusion
 texture references TEXCOORD_1. Base colour keeps TEXCOORD_0 untouched. Cube, not Smart UV
 Project: smart-project's packer collapses most wall faces to zero UV area on ward-shell
 geometry (measured on the shipped inpatient ward wall: 44 of 56 tris single-texel, 78.6%
@@ -61,7 +55,8 @@ small few large islands. Same pattern as D3b's BAKE_UV box_project_into (0711c8a
 
 Usage (inside Blender 5.1 headless):
   blender --background --python room-occlusion-bake.py -- \
-    --input <room.glb> --output <baked.glb> [--resolution 512 (AO_DEFAULT_RESOLUTION, budget max)]
+    --input <room.glb> --output <baked.glb> [--resolution 512 (AO_DEFAULT_RESOLUTION, budget max)] \
+    [--device cpu|metal]
 
 Exit 0 on success; non-zero with a printed error on any bake failure (the input GLB is
 never modified in place).
@@ -76,29 +71,26 @@ import sys
 from typing import Dict, List, Tuple
 
 import bpy
-from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 
-# Distance-bounded AO: only occluders within this radius of a sample point darken it.
-# 2.0 m covers furniture-scale contact darkening in a ~6.5 m room; walls metres away
-# contribute nothing, which is what keeps a CLOSED room from self-occluding to a cave.
-AO_MECHANISM = "bounded_raycast_v2"
-AO_REACH_METERS = 2.0
-# Hits closer than this are the sample's own surface (the ray origin sits ON it): a real
-# occluder is a DIFFERENT surface. v1 counted t~0 coplanar hits and its fixture's
-# "contact shadow" was mostly that artifact (near/far 0.15 with the wall at 0.5 m, where
-# real geometry alone measures ~0.25 on the same scene).
-AO_MIN_HIT_DISTANCE = 0.05
-# Ray origin is lifted this far off the surface along its normal. BVHTree.ray_cast reports
-# a t~0 hit on the ray's own containing triangle for directions inside its normal cone
-# (measured: an up-ray from a floor point returns the floor face at dist=-0.0), which can
-# shadow a real occluder beyond it. Lifting the origin off the surface removes every
-# self/coplanar hit geometrically; the min-distance filter catches any residual.
-AO_RAY_ORIGIN_OFFSET = 0.02
-# Hemisphere sampling per point. Fixed seed -> byte-deterministic output for the same GLB.
-AO_SAMPLES_PER_RING = 16
-AO_RINGS = (30.0, 60.0, 80.0)  # tilt angles from the surface normal, degrees
-AO_SAMPLE_SEED = 20260825
+# Distance-bounded AO via a real Cycles pass (EMIT bake of an Ambient Occlusion
+# node): occluders within this radius of a sample point darken it, geometry
+# beyond the reach contributes nothing.
+# 0.5 m is a measured contact scale, not a guess (box fixture 4.3 x 3.9 x 2.4 m,
+# EMIT+AO ladder 2026-09-29): at 0.5 the wall-base gradient spans ~0.5 m with a
+# strong but open corner (0.45) and edge (0.67), the room centre stays fully open
+# (1.0), and the 2.4 m ceiling plus the 3.9/4.3 m opposite walls sit outside the
+# reach by 4.8x or more. Door reveals (0.1-0.35 m gaps), skirting bases (~0.1 m)
+# and wall-floor junction gradients (~0.2-0.5 m) all fall inside it, so every
+# real contact feature in this room darkens while the room cannot cave.
+AO_MECHANISM = "cycles_emit_ao"
+AO_REACH_METERS = 0.5
+# EMIT bake samples. Noise knee measured on the fixture (mean |S - 128| over the
+# floor image): 16 -> 0.45, 32 -> 0.29, 64 -> 0.12/255 with max 2 and 2.7% of
+# texels differing at all. 64 sits at the knee: doubling to 128 moves almost
+# nothing, while the dot artifacts this bake replaces are ~28/255 deep.
+AO_SAMPLES = 64
+# Fixed Cycles seed -> byte-deterministic output for the same GLB on one device.
+AO_SEED = 20260929
 
 # AO texture resolution: budget-derived, not a bare literal. Texture budget (decoded RGBA8
 # x1.33 mips, ward GLB <= 56 MB; see bake_shell_materials.py's budget table): shell 37 MB
@@ -300,114 +292,40 @@ def box_project_group(objects: List[bpy.types.Object], layer_name: str, resoluti
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="DESELECT")
     # Geometric deconfliction (lattice fix): co-planar groups that cube_project
-    # stacked onto the same UV region get disjoint cells, so paint_bounded_ao's
-    # per-texel minimum never arbitrates between two different surfaces.
+    # stacked onto the same UV region get disjoint cells, so overlapping painters
+    # never arbitrate between two different surfaces in one texel.
     separate_coplanar_uv_groups(objects, layer_name, resolution)
 
 
-def setup_scene() -> None:
+def setup_scene(device: str = "cpu") -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
-    scene.cycles.samples = 16
+    scene.cycles.samples = AO_SAMPLES
+    scene.cycles.seed = AO_SEED
+    if device == "metal":
+        # Same fail-closed pattern as bake_shell_materials.setup_bake_scene:
+        # silently falling back to CPU would misreport the device this bake ran on.
+        prefs = bpy.context.preferences.addons["cycles"].preferences
+        prefs.compute_device_type = "METAL"
+        prefs.get_devices()
+        metal = [d for d in prefs.devices if d.type == "METAL"]
+        if not metal:
+            raise RuntimeError("room occlusion bake --device metal: no METAL Cycles device found")
+        for d in prefs.devices:
+            d.use = d.type == "METAL"
+        scene.cycles.device = "GPU"
+        print(f"[room-ao] device=metal ({len(metal)} Metal device(s) enabled)")
+    elif device == "cpu":
+        scene.cycles.device = "CPU"
+    else:
+        raise RuntimeError(f"room occlusion bake --device must be cpu|metal (got {device!r})")
     if hasattr(scene.cycles, "use_denoising"):
         scene.cycles.use_denoising = False
-    scene.render.bake.margin = 4
+    # Margin 0: island gutters are filled by dilate_unpainted_texels from the
+    # geometric coverage mask below. Any margin > 0 would bleed across the
+    # 2-texel coplanar-separation gutters into neighbouring cells.
+    scene.render.bake.margin = 0
     scene.render.bake.use_clear = True
-    # Kept for provenance: Blender 5.1 ignores this knob on the AO bake type (probed), which
-    # is WHY the bake below no longer uses the native AO bake type at all.
-    scene.render.bake.max_ray_distance = 0.0
-
-
-def build_scene_bvh() -> BVHTree:
-    """ONE BVH over every mesh in the scene, so any surface occludes any other.
-
-    v1 built the BVH from the CURRENT material's meshes only, so a plaster wall could not
-    occlude a tile floor — cross-material occlusion is the point of a room AO map. The
-    occluder set here is the whole room, whatever material each mesh wears."""
-    verts_global: List[Tuple[float, float, float]] = []
-    polys: List[List[int]] = []
-    offset = 0
-    for obj in bpy.context.scene.objects:
-        if obj.type != "MESH":
-            continue
-        me = obj.data
-        mw = obj.matrix_world
-        for v in me.vertices:
-            p = mw @ v.co
-            verts_global.append((p.x, p.y, p.z))
-        for poly in me.polygons:
-            polys.append([offset + i for i in poly.vertices])
-        offset += len(me.vertices)
-    if offset == 0:
-        raise RuntimeError("scene contains no mesh geometry to build an occlusion BVH from")
-    return BVHTree.FromPolygons(verts_global, polys)
-
-
-def bounded_ao_at(bvh: BVHTree, origin, normal, jitter: float) -> float:
-    """Cosine-weighted-ish hemisphere occlusion with a hard distance cap.
-
-    Returns 1.0 (fully open) .. 0.0 (fully occluded within reach). Rays are distributed
-    over the hemisphere around `normal` at fixed tilts; each ray contributes cos(tilt)
-    when it hits something within AO_REACH_METERS at distance >= AO_MIN_HIT_DISTANCE.
-    Beyond-reach geometry never counts, so a closed room cannot darken itself into a cave;
-    closer-than-min hits are the sample's own (co)plane and are ignored, so a floor is not
-    "occluded" by its own tiles.
-
-    The ray origin sits ON the surface: FromPolygons BVHs are single-sided, so a point on a
-    face can only hit geometry whose FRONT faces the ray. The min-distance filter is what
-    removes the coplanar t~0 hits (measured: 1136 of 1440 ceiling rays hit their own
-    coplanar plane in the v1 bake, darkening open ceilings to ~0.15).
-    """
-    total_weight = 0.0
-    hit_weight = 0.0
-    n = normal.normalized()
-    # Orthonormal tangent basis around the normal. t1 = ref.cross(n) (NOT n.cross(ref)):
-    # the latter's handedness left half the azimuths uncovered (measured — a +X wall was
-    # never hit because the sweep only covered -X and ±Y).
-    ref = Vector((1.0, 0.0, 0.0))
-    if abs(n.x) > 0.9:
-        ref = Vector((0.0, 1.0, 0.0))
-    t1 = ref.cross(n).normalized()
-    t2 = n.cross(t1).normalized()
-    origin = origin + n * AO_RAY_ORIGIN_OFFSET
-    for i in range(AO_SAMPLES_PER_RING):
-        phi = 2.0 * math.pi * i / AO_SAMPLES_PER_RING + jitter
-        for tilt_deg in AO_RINGS:
-            tilt = math.radians(tilt_deg)
-            d = math.cos(tilt) * n + math.sin(tilt) * (math.cos(phi) * t1 + math.sin(phi) * t2)
-            d.normalize()
-            weight = math.cos(tilt)
-            total_weight += weight
-            loc, _nrm, _idx, dist = bvh.ray_cast(origin, d, AO_REACH_METERS)
-            if loc is not None and dist >= AO_MIN_HIT_DISTANCE:
-                hit_weight += weight
-    if total_weight <= 0.0:
-        return 1.0
-    return max(0.0, 1.0 - hit_weight / total_weight)
-
-
-def sample_points_for_object(obj: bpy.types.Object):
-    """Per-face world-space (centre, normal, corner positions) for an evaluated mesh.
-
-    The glTF import gives coarse room geometry (tens to hundreds of tris per material), so
-    faces are the natural deterministic sample domain — per-texel evaluation interpolates
-    within each face's UV footprint.
-    """
-    depsgraph = bpy.context.evaluated_depsgraph_get()
-    obj_eval = obj.evaluated_get(depsgraph)
-    me = obj_eval.to_mesh()
-    mw = obj_eval.matrix_world
-    nmw = mw.inverted().transposed()
-    out = []
-    for poly in me.polygons:
-        center_local = poly.center
-        normal_local = poly.normal
-        c = mw @ center_local
-        nrm = (nmw @ normal_local).normalized()
-        corners = [mw @ me.vertices[vi].co for vi in poly.vertices]
-        out.append((c, nrm, corners))
-    obj_eval.to_mesh_clear()
-    return out
 
 
 def _barycentric_uv(px, py, a, b, c):
@@ -420,78 +338,38 @@ def _barycentric_uv(px, py, a, b, c):
     return l1, l2, 1.0 - l1 - l2
 
 
-def texel_jitter(xx: int, yy: int) -> float:
-    """Deterministic per-texel sample-rotation for one AO image texel.
+def rasterize_coverage(objects: List[bpy.types.Object], layer_name: str, W: int, H: int) -> bytearray:
+    """Geometric UV-footprint mask: 1 where a face covers the texel, else 0.
 
-    Lattice fix, part 2 (within-plane diagonal/vertex steps): the old code drew
-    the rotation from a sequential RNG consumed in face order, so two faces
-    sharing a texel (an edge, a vertex, or a quad fan-diagonal band) sampled
-    the SAME world position with DIFFERENT ray rotations and the per-texel
-    minimum kept the darker -- every shared vertex/edge rendered systematically
-    darker (measured GREEN-coarse pose-02 dotFrac 0.052 vs the 0.025 AO-off
-    floor, dots sited at quad corners). Keying the rotation ONLY on the texel
-    coordinate makes sampling order-independent: every painter of one texel
-    uses the same rays, so co-planar neighbours agree exactly, the minimum
-    becomes a no-op there, and the fan-diagonal blend is spatially continuous.
-    Pure integer hash (MurmurHash3 fmix32 finalizer over xx/yy/seed): no RNG,
-    no Blender dependency, byte-repeatable across runs and machines. Real AO
-    gradients are untouched -- only the rotation field changes, and it stays
-    spatially white (adjacent texels decorrelate). Returns 0..2*pi.
+    The native EMIT bake writes only footprint texels and leaves the background
+    at the clear colour; dilate_unpainted_texels needs to know which is which.
+    A texel exactly at the bake's clear value could also be a legitimately fully
+    occluded corner, so coverage is rasterized from the UV geometry (fan
+    triangulation + _barycentric_uv, the same footprint convention the retired
+    painter used) rather than thresholded from pixels. Pure function of the UV
+    layer: no RNG, no scene queries, order-independent.
     """
-    h = (xx * 0x8DA6B343 + yy * 0xD8163841 + AO_SAMPLE_SEED) & 0xFFFFFFFF
-    h ^= h >> 13
-    h = (h * 0x5BD1E995) & 0xFFFFFFFF
-    h ^= h >> 15
-    return (h / 0x100000000) * 2.0 * math.pi
-
-
-def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> bytearray:
-    """Fill `img` by evaluating bounded AO PER TEXEL through each object's AO_UV layer.
-
-    For every face, texels inside its UV footprint get the AO of their interpolated world
-    position (barycentric over the face), so large coarse faces still carry real gradients.
-    Overlapping painters keep the per-texel MINIMUM (`if ao < buf[idx]`): that reducer is
-    retained deliberately -- box_project_group now packs each co-planar group into its own
-    disjoint cell, so the minimum only ever arbitrates shared edges between same-plane
-    neighbours, never two different surfaces.
-    Returns a coverage mask (1 = a face footprint wrote the texel): the caller dilates
-    uncovered gutter texels from their nearest painted neighbour (dilate_unpainted_texels)
-    so bilinear/mip sampling at island borders blends with edge-like values instead of
-    the white clear colour.
-    Determinism: the sample rotation is a pure hash of the texel coordinate
-    (texel_jitter), so output does not depend on face/object order and repeats
-    byte-for-byte across runs.
-    """
-    W, H = img.size
-    buf = [1.0] * (W * H)
     covered = bytearray(W * H)
-
-    plans = []
     for obj in objects:
         me = obj.data
-        layer = me.uv_layers.get("AO_UV")
+        layer = me.uv_layers.get(layer_name)
         if layer is None:
             continue
-        pts = sample_points_for_object(obj)
         uv_data = layer.data
-        faces_uv = [[uv_data[li].uv.copy() for li in poly.loop_indices] for poly in me.polygons]
-        plans.append((pts, faces_uv))
-
-    for pts, faces_uv in plans:
-        for (c, nrm, corners), uvs in zip(pts, faces_uv):
+        for poly in me.polygons:
+            uvs = [uv_data[li].uv for li in poly.loop_indices]
+            if len(uvs) < 3:
+                continue
             us = [u.x for u in uvs]
             vs = [u.y for u in uvs]
             x0 = min(W - 1, max(0, int(min(us) * W)))
             x1 = min(W - 1, max(0, int(max(us) * W)))
             y0 = min(H - 1, max(0, int(min(vs) * H)))
             y1 = min(H - 1, max(0, int(max(vs) * H)))
-            if len(uvs) < 3:
-                continue
             uv_tris = []
             if len(uvs) == 3:
                 uv_tris.append((0, 1, 2))
             else:
-                # Fan-triangulate quads/n-gons so the whole UV footprint is covered.
                 for k in range(1, len(uvs) - 1):
                     uv_tris.append((0, k, k + 1))
             for yy in range(y0, y1 + 1):
@@ -499,38 +377,80 @@ def paint_bounded_ao(img, objects: List[bpy.types.Object], bvh: BVHTree) -> byte
                 py = (yy + 0.5) / H
                 for xx in range(x0, x1 + 1):
                     px = (xx + 0.5) / W
-                    hit = False
-                    ao_acc = 0.0
-                    w_acc = 0.0
                     for (i0, i1, i2) in uv_tris:
                         l1, l2, l3 = _barycentric_uv(
                             px, py,
                             (us[i0], vs[i0]), (us[i1], vs[i1]), (us[i2], vs[i2]),
                         )
-                        if l1 < -0.02 or l2 < -0.02 or l3 < -0.02:
-                            continue
-                        hit = True
-                        w = max(0.0, l1) + max(0.0, l2) + max(0.0, l3)
-                        wp = corners[i0] * max(0.0, l1) + corners[i1] * max(0.0, l2) + corners[i2] * max(0.0, l3)
-                        # Order-independent rotation: same texel -> same rays
-                        # for every painter (texel_jitter), so shared
-                        # vertices/edges agree and min() is a no-op there.
-                        jitter = texel_jitter(xx, yy)
-                        ao_acc += bounded_ao_at(bvh, wp, nrm, jitter) * w
-                        w_acc += w
-                    if not hit or w_acc <= 0.0:
-                        continue
-                    idx = row + xx
-                    ao = ao_acc / w_acc
-                    if ao < buf[idx]:
-                        buf[idx] = ao
-                    covered[idx] = 1
-
-    rgba = []
-    for v in buf:
-        rgba.extend((v, v, v, 1.0))
-    img.pixels.foreach_set(rgba)
+                        if l1 >= -0.02 and l2 >= -0.02 and l3 >= -0.02:
+                            covered[row + xx] = 1
+                            break
     return covered
+
+
+def bake_group_ao_image(img, mat_name: str, objs_: List[bpy.types.Object]) -> None:
+    """Bake one material group's AO image with a real Cycles EMIT+AO pass.
+
+    A throwaway override material shades every slot of the group's objects for
+    the duration of the bake: Emission lit ONLY by an Ambient Occlusion node at
+    AO_REACH_METERS, with the group's AO image as its active texture node fed by
+    an explicit UV Map link to AO_UV (the same layer the shipped tree uses, so
+    the bake target UVs are exactly the wired UVs). The shipped material trees
+    are never touched by the bake itself — no BSDF link surgery, nothing to
+    restore except the object material slots, which are saved and put back, and
+    the override material, which is deleted afterwards. All slots of the group's
+    objects wear the override during the bake (not just the group's own), so no
+    face bakes a non-emissive BSDF into the image.
+    """
+    tmp_name = f"__openclinxr_ao_bake_{mat_name}"
+    if tmp_name in bpy.data.materials:
+        bpy.data.materials.remove(bpy.data.materials[tmp_name], do_unlink=True)
+    tmp = bpy.data.materials.new(tmp_name)
+    tmp.use_nodes = True
+    nt = tmp.node_tree
+    for node in list(nt.nodes):
+        nt.nodes.remove(node)
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    out.location = (300, 0)
+    ao_node = nt.nodes.new("ShaderNodeAmbientOcclusion")
+    ao_node.location = (-200, 0)
+    dist_input = ao_node.inputs.get("Distance")
+    if dist_input is None:
+        raise RuntimeError("room occlusion bake: AO shader node has no Distance input on this build")
+    dist_input.default_value = AO_REACH_METERS
+    emit = nt.nodes.new("ShaderNodeEmission")
+    emit.location = (0, 0)
+    nt.links.new(ao_node.outputs["Color"], emit.inputs["Color"])
+    nt.links.new(emit.outputs["Emission"], out.inputs["Surface"])
+    bake_tex = nt.nodes.new("ShaderNodeTexImage")
+    bake_tex.image = img
+    bake_tex.location = (-700, -300)
+    uv_map = nt.nodes.new("ShaderNodeUVMap")
+    uv_map.uv_map = "AO_UV"
+    uv_map.location = (-900, -300)
+    nt.links.new(uv_map.outputs["UV"], bake_tex.inputs["Vector"])
+    bake_tex.select = True
+    nt.nodes.active = bake_tex
+
+    saved = []
+    for obj in objs_:
+        for i, slot_mat in enumerate(list(obj.data.materials)):
+            saved.append((obj, i, slot_mat))
+            obj.data.materials[i] = tmp
+    try:
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in objs_:
+            obj.select_set(True)
+        bpy.context.view_layer.objects.active = objs_[0]
+        bpy.ops.object.bake(type="EMIT", use_clear=True)
+    finally:
+        for obj, i, slot_mat in saved:
+            try:
+                obj.data.materials[i] = slot_mat
+            except Exception:
+                pass
+        bpy.data.materials.remove(tmp, do_unlink=True)
+        bpy.ops.object.select_all(action="DESELECT")
 
 
 def dilate_unpainted_texels(img, covered: bytearray) -> int:
@@ -584,7 +504,7 @@ def dilate_unpainted_texels(img, covered: bytearray) -> int:
     return filled
 
 
-def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
+def bake_ao_per_material(resolution: int, device: str = "cpu") -> Dict[str, Dict[str, object]]:
     """Bake distance-bounded AO per material into a packed image; wire it into the glTF
     Settings "Occlusion" input via a UV Map node pointing at the second UV set. Returns
     per-material stats including the baked image's luminance sd (0-255) so flat maps can
@@ -597,16 +517,15 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
     it never receives an occlusionTexture at all, regardless of the flat-map skip below.
     Iterate every material slot an object actually carries.
     """
+    # Cycles settings live here (not only in main) so direct callers such as the
+    # locality fixture get the same engine/device/samples/seed as production.
+    setup_scene(device)
     meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     by_mat: Dict[str, List[bpy.types.Object]] = {}
     for obj in meshes:
         mats = [m for m in obj.data.materials if m is not None]
         for mat in mats:
             by_mat.setdefault(mat.name, []).append(obj)
-
-    # One BVH over the WHOLE scene (every material), built once: cross-material
-    # occlusion is the point of a room AO map (v1's per-material BVH defect).
-    scene_bvh = build_scene_bvh()
 
     gltf_group = ensure_gltf_settings_group()
     results: Dict[str, Dict[str, object]] = {}
@@ -695,15 +614,18 @@ def bake_ao_per_material(resolution: int) -> Dict[str, Dict[str, object]]:
             nt.links.remove(link)
         nt.links.new(ao_tex.outputs["Color"], occ_input)
 
-        # Distance-bounded raycast AO (issue-526): fill the image through each object's
-        # AO_UV layer against the WHOLE-scene BVH. Replaces the native Cycles AO bake,
-        # whose reach Blender 5.1 cannot bound (max_ray_distance and world distance both
-        # ignored) and which self-occludes closed rooms to a cave.
-        bpy.ops.object.select_all(action="DESELECT")
-        covered = paint_bounded_ao(img, objs_, scene_bvh)
+        # Bounded Cycles bake (issue-526): EMIT of an Ambient Occlusion node at
+        # AO_REACH_METERS through each object's AO_UV layer. Cross-material
+        # occlusion comes free — Cycles traces the whole visible scene, so a
+        # plaster wall occludes a tile floor with no explicit occluder set.
+        bake_group_ao_image(img, mat_name, objs_)
         # Gutter dilation (wall-facets-ao-seams): nearest-edge fill of the UV-island
-        # background so island borders do not sample the white clear colour at runtime.
+        # background so island borders do not sample the clear colour at runtime.
+        # Coverage is rasterized from the UV geometry (a clear-valued texel can be
+        # a legitimately fully occluded corner, so pixels are never thresholded).
         # Covered texels are untouched, so bake interiors are byte-identical with/without.
+        W, H = img.size
+        covered = rasterize_coverage(objs_, "AO_UV", W, H)
         filled = dilate_unpainted_texels(img, covered)
         img.pack()
         if filled:
@@ -749,6 +671,9 @@ def main() -> None:
     ap.add_argument("--input", required=True)
     ap.add_argument("--output", required=True)
     ap.add_argument("--resolution", type=int, default=AO_DEFAULT_RESOLUTION)
+    ap.add_argument("--device", choices=("cpu", "metal"), default="cpu",
+                    help="Cycles device for the EMIT+AO bake (default cpu; metal is "
+                    "fail-closed when no METAL device exists)")
     args = ap.parse_args(_argv_after_double_dash())
 
     if not os.path.exists(args.input):
@@ -757,8 +682,11 @@ def main() -> None:
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=args.input)
 
-    setup_scene()
-    results = bake_ao_per_material(args.resolution)
+    # Scene/bake settings are applied inside bake_ao_per_material (same call the
+    # locality fixture uses), so production and fixture share engine/device/
+    # samples/seed. CLI contract (--input/--output/--resolution, exit codes)
+    # is unchanged: runRoomGenerate needs no changes.
+    results = bake_ao_per_material(args.resolution, args.device)
     restore_active_uv_layer()
 
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
