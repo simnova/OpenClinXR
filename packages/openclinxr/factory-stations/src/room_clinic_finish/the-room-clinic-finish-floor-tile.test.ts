@@ -29,7 +29,10 @@ function boxPositions(min: [number, number, number], max: [number, number, numbe
   return new Float32Array([x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1]);
 }
 
-const BOX_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]);
+// Bottom faces flipped vs the troffer-test fixture: that winding has
+// outward sides but an inward bottom, and the cove normal-clustered
+// planes need outward normals on every face (verified natively).
+const BOX_INDICES = new Uint16Array([0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]);
 
 async function writeFixtureGlb(outputPath: string): Promise<void> {
   const doc = new Document();

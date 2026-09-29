@@ -384,9 +384,12 @@ def _is_wall_shell(obj_name: str) -> bool:
 def _wall_inner_planes() -> dict:
     """Measure each side's wall inner-face plane from the shell (Blender runtime only).
 
-    Returns {"x0": .., "x1": .., "y0": .., "y1": ..} in world meters: for
-    each side, the slab face closest to the room center. Fails closed when
-    a side has no wall slab (the cove would otherwise hide inside a wall).
+    Normal-clustered: wall polygons with axis-dominant normals vote their
+    center plane per facing; each side takes the vote closest to the room
+    center (the inner face, not the exterior back face). Handles the real
+    merged shell (one "bedroom_0/0.wall" mesh for all sides) and separate
+    slab fixtures uniformly. Returns {"x0", "x1", "y0", "y1", "cx", "cy"}
+    in world meters. Fails closed when a side has no facing polygons.
     """
     import bpy  # type: ignore[import-not-found]
 
@@ -394,31 +397,36 @@ def _wall_inner_planes() -> dict:
               if obj.type == "MESH" and _is_wall_shell(obj.name)]
     if not meshes:
         raise SystemExit("room_clinic_finish: no wall shells for cove placement")
-    cx = sum((obj.matrix_world @ v.co).x for obj in meshes for v in obj.data.vertices)
-    cy = sum((obj.matrix_world @ v.co).y for obj in meshes for v in obj.data.vertices)
-    count = sum(len(obj.data.vertices) for obj in meshes)
-    cx, cy = cx / count, cy / count
-    planes: dict[str, float | None] = {"x0": None, "x1": None, "y0": None, "y1": None}
-    for obj in meshes:
-        xs = [(obj.matrix_world @ v.co).x for v in obj.data.vertices]
-        ys = [(obj.matrix_world @ v.co).y for v in obj.data.vertices]
-        ox0, ox1, oy0, oy1 = min(xs), max(xs), min(ys), max(ys)
-        if (ox1 - ox0) <= (oy1 - oy0):
-            # X-normal slab: inner face is the side toward cx.
-            face = ox1 if (ox0 + ox1) / 2 < cx else ox0
-            key = "x0" if (ox0 + ox1) / 2 < cx else "x1"
-            current = planes[key]
-            planes[key] = face if current is None or (key == "x0" and face > current) or (key == "x1" and face < current) else current
-        else:
-            face = oy1 if (oy0 + oy1) / 2 < cy else oy0
-            key = "y0" if (oy0 + oy1) / 2 < cy else "y1"
-            current = planes[key]
-            planes[key] = face if current is None or (key == "y0" and face > current) or (key == "y1" and face < current) else current
-    missing = [key for key, value in planes.items() if value is None]
-    if missing:
-        raise SystemExit("room_clinic_finish: wall inner face missing for sides %r" % missing)
-    return {"x0": planes["x0"], "x1": planes["x1"], "y0": planes["y0"], "y1": planes["y1"],
-            "cx": cx, "cy": cy}
+    rot = [obj.matrix_world.to_3x3() for obj in meshes]
+    votes: dict[str, list[float]] = {"px": [], "nx": [], "py": [], "ny": []}
+    for obj, rot_mat in zip(meshes, rot):
+        mesh = obj.data
+        for poly in mesh.polygons:
+            world_normal = (rot_mat @ poly.normal).normalized()
+            comps = (abs(world_normal.x), abs(world_normal.y), abs(world_normal.z))
+            if max(comps) < 0.9 or comps[2] == max(comps):
+                continue  # slanted or horizontal: not a wall face
+            center = [0.0, 0.0, 0.0]
+            for loop_index in poly.loop_indices:
+                wv = obj.matrix_world @ mesh.vertices[mesh.loops[loop_index].vertex_index].co
+                center[0] += wv.x
+                center[1] += wv.y
+                center[2] += wv.z
+            count = len(poly.loop_indices)
+            if comps[0] == max(comps):
+                votes["px" if world_normal.x > 0 else "nx"].append(center[0] / count)
+            else:
+                votes["py" if world_normal.y > 0 else "ny"].append(center[1] / count)
+    for key, faces in votes.items():
+        if not faces:
+            raise SystemExit("room_clinic_finish: wall inner face missing (no %s-facing polygons)" % key)
+    planes = {"x0": min(votes["px"]), "x1": max(votes["nx"]),
+              "y0": min(votes["py"]), "y1": max(votes["ny"])}
+    if not (planes["x1"] > planes["x0"] and planes["y1"] > planes["y0"]):
+        raise SystemExit("room_clinic_finish: wall inner planes disagree: %r" % planes)
+    planes["cx"] = (planes["x0"] + planes["x1"]) / 2
+    planes["cy"] = (planes["y0"] + planes["y1"]) / 2
+    return planes
 
 
 def _door_leaf_xy_range() -> dict | None:

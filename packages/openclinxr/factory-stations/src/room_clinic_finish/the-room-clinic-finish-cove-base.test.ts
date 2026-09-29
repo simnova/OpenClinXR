@@ -29,7 +29,10 @@ function boxPositions(min: [number, number, number], max: [number, number, numbe
   return new Float32Array([x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1]);
 }
 
-const BOX_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]);
+// Bottom faces flipped vs the troffer-test fixture: that winding has
+// outward sides but an inward bottom, and the cove normal-clustered
+// planes need outward normals on every face (verified natively).
+const BOX_INDICES = new Uint16Array([0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]);
 
 async function writeFixtureGlb(outputPath: string): Promise<void> {
   const doc = new Document();
@@ -155,6 +158,16 @@ describe("the room clinic finish ward cove base", () => {
     const cove = prepared!.report["emittedCove"] as { doorSide: string; doorGap: number[] };
     expect(cove.doorSide).toBe("y1");
     expect(cove.doorGap!.length).toBe(2);
+    // The x0 run sits against the west inner face (x=-1.93), not the
+    // shell bound (-2.15): plane placement is measured, not bounded.
+    const x0mesh = coves.find((m) => m.getName().includes("openclinxr_cove_x0_"));
+    expect(x0mesh).toBeDefined();
+    const xarr = (x0mesh!.listPrimitives()[0]!.getAttribute("POSITION")!.getArray() as Float32Array);
+    let xsum = 0;
+    for (let i = 0; i < xarr.length; i += 3) xsum += xarr[i] as number;
+    const xmean = xsum / (xarr.length / 3);
+    expect(xmean).toBeGreaterThan(-1.97);
+    expect(xmean).toBeLessThan(-1.89);
   }, 120_000);
 
   it("(4) the cove material is the flat matte vinyl grey", async () => {
