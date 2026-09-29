@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 500,
+    "keep-evidence": 513,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24855,6 +24855,97 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Ref 04 full frame, the reference image measured for the door cross-check."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (01-toward-door) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (02-toward-bed-wall) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (03-ceiling-corner) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (04-door-inside) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (05-troffer-junction) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix runtime capture (06-floor-base) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/captures/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix capture manifest (poses, sha256) for the six runtime captures."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/01-toward-door-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (01-toward-door)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/02-toward-bed-wall-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (02-toward-bed-wall)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/03-ceiling-corner-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (03-ceiling-corner)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/04-door-inside-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (04-door-inside)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/05-troffer-junction-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (05-troffer-junction)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/06-floor-base-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room-dimensions-fix post-fix v2 side-by-side sheet (06-floor-base)."
     }
   ]
 }

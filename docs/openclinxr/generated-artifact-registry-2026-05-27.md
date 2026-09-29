@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 244
-- keep-evidence: 447
+- keep-evidence: 483
 - keep-template: 6
 
 ## Cleanup Actions
@@ -3545,3 +3545,16 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-wall-span-annotated.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-full.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-01-toward-door.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (01-toward-door) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-02-toward-bed-wall.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (02-toward-bed-wall) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-03-ceiling-corner.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (03-ceiling-corner) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-04-door-inside.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (04-door-inside) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-05-troffer-junction.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (05-troffer-junction) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-06-floor-base.png` - keep-evidence; room-dimensions-fix post-fix runtime capture (06-floor-base) against the seed-205 chain GLB at the 4.3x3.9x2.4 footprint, hand-placed pose, no reseat.
+- `docs/openclinxr/room-realism/room-dimensions-fix/captures/stage2-multiview.json` - keep-evidence; room-dimensions-fix post-fix capture manifest (poses, sha256) for the six runtime captures.
+- `docs/openclinxr/room-realism/room-dimensions-fix/01-toward-door-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (01-toward-door).
+- `docs/openclinxr/room-realism/room-dimensions-fix/02-toward-bed-wall-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (02-toward-bed-wall).
+- `docs/openclinxr/room-realism/room-dimensions-fix/03-ceiling-corner-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (03-ceiling-corner).
+- `docs/openclinxr/room-realism/room-dimensions-fix/04-door-inside-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (04-door-inside).
+- `docs/openclinxr/room-realism/room-dimensions-fix/05-troffer-junction-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (05-troffer-junction).
+- `docs/openclinxr/room-realism/room-dimensions-fix/06-floor-base-side-by-side.png` - keep-evidence; room-dimensions-fix post-fix v2 side-by-side sheet (06-floor-base).

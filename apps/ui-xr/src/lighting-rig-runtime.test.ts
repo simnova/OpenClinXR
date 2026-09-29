@@ -65,7 +65,37 @@ describe("lighting-rig-runtime (lighting_design -> ui-xr)", () => {
     expect(lights.every((l) => l.userData.openClinXrLightingRig === true)).toBe(true);
     expect(lights.every((l) => l.castShadow === false)).toBe(true);
     const target = (lights[0] as DirectionalLight).target.position;
-    expect([target.x, target.y, target.z]).toEqual([0, 0, 1.25]);
+    expect(target.x).toBeCloseTo(0, 10);
+    expect(target.y).toBeCloseTo(1.25, 10);
+    expect(target.z).toBeCloseTo(0, 10);
+  });
+
+  it("maps Blender-frame rig positions to three-frame (x, y, z) -> (x, z, -y)", () => {
+    // Frame contract (kept inline: the app composition-root line budget and
+    // the frozen psr-01e review surface together forbid a new documented
+    // package helper for this, so the map lives at the three set() sites in
+    // applyLightingRigOverlay and is pinned here). Rig JSON positions are
+    // Blender-frame (z-up): lighting_design authors them from the footprint
+    // bbox and the room albedo bake consumes them raw inside Blender. The
+    // runtime scene is three-frame (y-up; the glTF exporter performs the
+    // same rotation). Without the map the point fill lands ~5 cm above the
+    // floor (hotspot low on the far wall plus floor spill, measured
+    // 2026-09-29 on the ward chain captures) and the wash/spill
+    // directionals shade the wrong faces (warm/white side-wall split).
+    const scene = new Scene();
+    const lights = applyLightingRigOverlay({ scene, rig: VALID_RIG });
+    const components = (l: { position: { x: number; y: number; z: number } }): number[] => [
+      l.position.x, l.position.y, l.position.z,
+    ];
+    const closeTo = (actual: number[], expected: number[]): void => {
+      expect(actual.length).toBe(expected.length);
+      actual.forEach((v, i) => expect(v).toBeCloseTo(expected[i] ?? 0, 10));
+    };
+    closeTo(components(lights[0] as DirectionalLight), [0, 2.2, 0]);
+    closeTo(components(lights[1] as PointLight), [0, 1.2, 0]);
+    closeTo(components(lights[2] as DirectionalLight), [-1.5, 2.5, 3]);
+    const spillTarget = (lights[2] as DirectionalLight).target.position;
+    closeTo([spillTarget.x, spillTarget.y, spillTarget.z], [0, 1.2, 0]);
   });
 
   it("missing rig (404) falls back to the requested variant, rigApplied=false", async () => {

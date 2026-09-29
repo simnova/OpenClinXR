@@ -61,10 +61,8 @@ export function rigEnergyToThreeIntensity(energy: number): number {
   return Math.min(MAX_THREE_INTENSITY, energy * RIG_ENERGY_TO_THREE);
 }
 
-/**
- * Overlay rig lights on the scene (base variant applied separately).
- * Rig lights never cast shadows — the capture key owns contact shadows.
- */
+/** Overlay rig lights; rig lights never cast shadows. Rig positions are
+ * Blender-frame (x, y, z); mapped to three-frame (x, z, -y) inline below. */
 export function applyLightingRigOverlay(input: {
   scene: Scene;
   renderer?: WebGLRenderer;
@@ -79,16 +77,16 @@ export function applyLightingRigOverlay(input: {
     const intensity = rigEnergyToThreeIntensity(entry.energy);
     if (entry.type === "point") {
       const point = new PointLight(color, intensity, 0, 2);
-      point.position.set(...entry.position);
+      point.position.set(entry.position[0], entry.position[2], -entry.position[1]);
       tagRigLight(point, entry.name);
       input.scene.add(point);
       lights.push(point);
       continue;
     }
     const directional = new DirectionalLight(color, intensity);
-    directional.position.set(...entry.position);
-    const aim = entry.target ?? [cx, cy, cz];
-    directional.target.position.set(...aim);
+    directional.position.set(entry.position[0], entry.position[2], -entry.position[1]);
+    const t = entry.target ?? [cx, cy, cz];
+    directional.target.position.set(t[0], t[2], -t[1]);
     input.scene.add(directional.target);
     tagRigLight(directional, entry.name);
     input.scene.add(directional);

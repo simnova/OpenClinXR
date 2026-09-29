@@ -36,7 +36,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  */
 
 const SHELL = { minX: -2.15, maxX: 2.15, minY: 0, maxY: 2.4, minZ: -1.95, maxZ: 1.95 };
-const CEILING_PLANE = 2.42;
+const CEILING_PLANE = 2.4;
 const TBAR_DROP = 0.06;
 const GRID = 0.6;
 
