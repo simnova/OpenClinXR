@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "openclinxr.floor-skirting-measurements.v1",
+  "floorPose02Box": {
+    "box": [
+      500,
+      640,
+      620,
+      700
+    ],
+    "ref": [
+      214.51,
+      213.52,
+      209.02
+    ],
+    "cap": [
+      215.91,
+      210.31,
+      202.36
+    ],
+    "delta": [
+      1.4,
+      -3.21,
+      -6.66
+    ],
+    "gate": "+-8 per channel"
+  },
+  "floorPose06Patch": {
+    "box": [
+      500,
+      470,
+      780,
+      610
+    ],
+    "ref": [
+      204.96,
+      204.96,
+      202.92
+    ],
+    "cap": [
+      212.82,
+      207.3,
+      199.21
+    ],
+    "delta": [
+      7.86,
+      2.34,
+      -3.71
+    ],
+    "capStd": [
+      1.5,
+      1.557,
+      1.703
+    ],
+    "gate": "+-8 per channel"
+  },
+  "blotch": {
+    "refLowFreqStd": [
+      1.22,
+      1.226,
+      1.237
+    ],
+    "capLowFreqStd": [
+      2.002,
+      2.173,
+      2.473
+    ],
+    "gate": "cap <= ref + 3 per channel"
+  },
+  "seamsPose02": {
+    "ref": {
+      "dips": [
+        [
+          314,
+          9.62
+        ],
+        [
+          890,
+          3.48
+        ]
+      ],
+      "pitchPx": 576.0
+    },
+    "cap": {
+      "dips": [
+        [
+          768,
+          3.38
+        ]
+      ],
+      "pitchPx": null
+    }
+  },
+  "skirtingTopEdge": {
+    "window": {
+      "x": [
+        560,
+        720
+      ],
+      "y": [
+        150,
+        260
+      ]
+    },
+    "ref": {
+      "peaks": [
+        [
+          206,
+          3.83
+        ]
+      ],
+      "maxGrad": 5.94
+    },
+    "cap": {
+      "peaks": [],
+      "maxGrad": 2.68
+    },
+    "gate": "single transition, not two"
+  },
+  "coveHeightsGlb": {
+    "openclinxr_cove_x0_0_mesh": 0.1,
+    "openclinxr_cove_x1_0_mesh": 0.1,
+    "openclinxr_cove_y0_0_mesh": 0.1,
+    "openclinxr_cove_y1_0_mesh": 0.1,
+    "openclinxr_cove_y1_1_mesh": 0.1
+  },
+  "noRegression": {
+    "wallBox": {
+      "box": [
+        500,
+        280,
+        780,
+        420
+      ],
+      "stage1Final": [
+        209.99,
+        206.62,
+        203.06
+      ],
+      "cap": [
+        209.95,
+        206.59,
+        203.03
+      ],
+      "delta": [
+        -0.04,
+        -0.03,
+        -0.03
+      ]
+    },
+    "tileBox": {
+      "box": [
+        600,
+        95,
+        655,
+        145
+      ],
+      "stage1Final": [
+        199.64,
+        193.63,
+        184.33
+      ],
+      "cap": [
+        195.65,
+        189.91,
+        180.73
+      ],
+      "delta": [
+        -3.99,
+        -3.72,
+        -3.6
+      ]
+    },
+    "gate": "+-3 per channel"
+  }
+}

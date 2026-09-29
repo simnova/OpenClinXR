@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 780,
+    "keep-evidence": 794,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26808,6 +26808,104 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Final sheet (06-floor-base): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (01-toward-door): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (02-toward-bed-wall): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (03-ceiling-corner): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (04-door-inside): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (05-troffer-junction): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting runtime frame (06-floor-base): seed-205 chain GLB with the ward vinyl-tile floor field and thin cove base; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting capture manifest: GLB path and per-PNG shas for the six runtime frames."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (01-toward-door): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (02-toward-bed-wall): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (03-ceiling-corner): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (04-door-inside): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (05-troffer-junction): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting sheet (06-floor-base): v2 ref left, tile-floor + cove-base runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/floor-skirting-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Floor-skirting measurements: floor box means vs ref (poses 02/06), low-frequency blotch std, seam dips, skirting top-edge profile, cove GLB heights, wall/tile no-regression."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/stage1-part3-measurements.json",
