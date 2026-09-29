@@ -1,0 +1,122 @@
+{
+ "calibration": "stage-1 per-role albedo reflectance (bake_shell_materials.py ALBEDO_REFLECTANCE_SCALE_BY_ROLE)",
+ "chain": "seed 205, room_generate -> room_clinic_finish ward_photo -> lighting_design clinic_day (all cache-miss on code change)",
+ "grade": {
+  "floor_box": "(500,640,620,700) on pose-02, crop-verified clean floor (std ~0.3), v2 ref (214.5,213.5,209.0)",
+  "pass": "within +/-8 per channel on wall and floor, |R-B| within the ref 6.5 spread",
+  "wall_box": "(500,280,780,420) on pose-02, v2 ref (203.6,202.7,197.1), spread 6.5"
+ },
+ "iterations": [
+  {
+   "floor": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "floor_box": [
+    217.4,
+    211.8,
+    208.2
+   ],
+   "floor_deltas": [
+    2.9,
+    -1.7,
+    -0.8
+   ],
+   "glb_sha256": "d851c5d820d0250857f3883510bda4f09a0f2a44b675d223bd2aa9e6a5310db1",
+   "note": "unscaled textured baseline (skip fix active). Floor PASSES first try. Wall R on target; G/B low -- baked wall albedo measured tint-neutral (linear 0.774,0.774,0.769), so the tilt is the warm rig; first-order runtime-space solve per the calibration pattern.",
+   "wall": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "wall_body": [
+    201.9,
+    192.4,
+    184.0
+   ],
+   "wall_box": [
+    203.4,
+    194.4,
+    186.5
+   ]
+  },
+  {
+   "floor": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "floor_box": [
+    217.4,
+    211.8,
+    208.2
+   ],
+   "glb_sha256": "af904e7fdd7723b4e3200b8a1095665cb6e19fb1b6903d897dbb92958da70cef",
+   "note": "naive per-channel sRGB->linear target/measured ratios. All channels inside +/-8 but B +7.2 near the edge: transfer is superlinear (local log-slopes 1.36-1.84, wall feeds back via bounce).",
+   "wall": [
+    1.02,
+    1.12,
+    1.17
+   ],
+   "wall_box": [
+    206.0,
+    206.9,
+    204.3
+   ],
+   "wall_deltas": [
+    2.4,
+    4.2,
+    7.2
+   ]
+  },
+  {
+   "floor": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "floor_box": [
+    217.4,
+    211.8,
+    208.2
+   ],
+   "floor_deltas": [
+    2.9,
+    -1.7,
+    -0.8
+   ],
+   "floor_verdict": "PASS",
+   "glb_sha256": "4f2e2745021d811679f5ba60964b0321f28be705d7f242ecae4e1805dc95b3ed",
+   "note": "secant step on the superlinear transfer. Wall centered; zero 255-clipped texels in the wall box (variance preserved). Floor bit-identical across calib2/calib3 (scale 1.0 deterministic). PART 1 GRADE: PASS.",
+   "wall": [
+    1.01,
+    1.09,
+    1.12
+   ],
+   "wall_body": [
+    203.2,
+    202.5,
+    198.0
+   ],
+   "wall_box": [
+    204.8,
+    204.1,
+    199.8
+   ],
+   "wall_deltas": [
+    1.2,
+    1.4,
+    2.7
+   ],
+   "wall_r_minus_b": 5.0,
+   "wall_verdict": "PASS"
+  }
+ ],
+ "method": "measure lit runtime output, back-derive the scale (same pattern as generate-tile-face.py / ee6ac843c); multiplicative scales only, never flatten or clip",
+ "scope": {
+  "ceiling": "1.0, out of scope: hidden under the finish T-bar/tile/troffer assembly, no gradeable shell surface",
+  "other": "1.0, out of scope: exterior-hull residue invisible from the interior",
+  "trim": "1.0, out of scope: visible door leaf is a stage-2 finish maple material"
+ }
+}

@@ -113,8 +113,25 @@ ALBEDO_SIZE_BY_ROLE = {"floor": 2048, "wall": 1024, "ceiling": 1024, "trim": 102
 # gradeable shell surface); trim's visible door leaf is a stage-2 finish
 # maple material; "other" is exterior-hull residue invisible from inside.
 ALBEDO_REFLECTANCE_SCALE_BY_ROLE = {
-    "wall": (1.0, 1.0, 1.0),  # iteration 0 (unscaled baseline; calibrate next)
-    "floor": (1.0, 1.0, 1.0),  # iteration 0 (unscaled baseline; calibrate next)
+    # Iteration 1 (measured basis: calib1 bake d851c5d8, scales 1.0, ui-xr
+    # runtime pose-02): wall diffuse body (below the y280-300 specular
+    # streak) read (201.9,192.4,184.0) std ~1-1.8 vs v2 ref
+    # (203.6,202.7,197.1); baked wall albedo is tint-neutral
+    # (linear 0.774,0.774,0.769) so the G/B shortfall is the warm rig, but
+    # per the runtime-space calibration pattern the first-order solve is
+    # per-channel sRGB->linear target/measured ratios (1.02,1.12,1.17).
+    # Calib2 bake af904e7f read full-box (206.0,206.9,204.3) -- all inside
+    # +/-8 but B +7.2 near the edge: the transfer runs superlinear
+    # (local log-slopes 1.36-1.84, brighter wall feeds back via bounce), so
+    # iteration 2 takes one secant step to (1.01,1.09,1.12) per channel.
+    # Calib3 bake 4f2e2745 verifies: full-box (204.8,204.1,199.8), deltas
+    # (+1.2,+1.4,+2.7), |R-B| 5.0 within the ref 6.5 spread; zero 255-clipped
+    # texels in the box (variance preserved, no new clip flats).
+    # Floor passes at 1.0 ((217.4,211.8,208.2) vs ref (214.5,213.5,209.0),
+    # all within +/-8, both bakes bit-identical) so it holds.
+    # Multiplicative: Infinigen variance ships through.
+    "wall": (1.01, 1.09, 1.12),  # iteration 2 (secant refinement)
+    "floor": (1.0, 1.0, 1.0),  # iteration 1: passes unscaled, holds
     "ceiling": (1.0, 1.0, 1.0),  # out of scope: hidden under finish assembly
     "trim": (1.0, 1.0, 1.0),  # out of scope: visible leaf is finish maple
     "other": (1.0, 1.0, 1.0),  # out of scope: exterior residue
