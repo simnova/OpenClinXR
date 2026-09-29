@@ -917,7 +917,7 @@ DOOR_HINGE_KNUCKLE_R_M = 0.006
 
 
 def _door_steel_material():
-    """Brushed-steel furniture material (lite frame, hinge plates)."""
+    """Brushed-steel furniture material (lite frame, hinge plates, lever)."""
     import bpy  # type: ignore[import-not-found]
 
     mat = bpy.data.materials.get(DOOR_STEEL_MATERIAL)
@@ -928,9 +928,12 @@ def _door_steel_material():
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Base Color"].default_value = (0.75, 0.77, 0.79, 1.0)
-    bsdf.inputs["Metallic"].default_value = 0.9
-    bsdf.inputs["Roughness"].default_value = 0.35
+    # Mid metallic, not full: the runtime has no scene environment map, so
+    # a fully metallic surface renders near-black on thin edge-on parts
+    # (measured: hinge plates read as dark slits at metallic 0.9).
+    bsdf.inputs["Base Color"].default_value = (0.78, 0.80, 0.83, 1.0)
+    bsdf.inputs["Metallic"].default_value = 0.65
+    bsdf.inputs["Roughness"].default_value = 0.4
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
@@ -1117,7 +1120,43 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         repainted.append(obj.name)
 
     furnished: dict = {"glass": [], "frame": [], "hinges": [], "casing": repainted,
-                       "opening": None, "openingSource": None}
+                       "opening": None, "openingSource": None, "handle": None,
+                       "lock": None, "hingeSideUsed": None, "facing": []}
+
+    def new_cylinder(name: str, center: list, thin_axis: int, radius: float,
+                     z0: float, z1: float, mat: object, segments: int = 16) -> object:
+        """Straight prism along a world axis with ngon caps (Blender runtime)."""
+        import bpy  # type: ignore[import-not-found]
+        import math
+
+        mesh = bpy.data.meshes.new(name + "_mesh")
+        obj = bpy.data.objects.new(name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        obj["openClinXrFinishDecoration"] = True
+        others = [i for i in range(3) if i != thin_axis]
+        ring0, ring1 = [], []
+        for k in range(segments):
+            a = 2 * math.pi * k / segments
+            base = list(center)
+            base[others[0]] += radius * math.cos(a)
+            base[others[1]] += radius * math.sin(a)
+            p0 = list(base)
+            p1 = list(base)
+            p0[thin_axis] = z0
+            p1[thin_axis] = z1
+            ring0.append(tuple(p0))
+            ring1.append(tuple(p1))
+        n = segments
+        faces = []
+        for k in range(n):
+            k2 = (k + 1) % n
+            faces.append((k, k2, n + k2, n + k))
+        faces.append(tuple(range(n - 1, -1, -1)))
+        faces.append(tuple(range(n, 2 * n)))
+        mesh.from_pydata(ring0 + ring1, [], faces)
+        mesh.update()
+        mesh.materials.append(mat)
+        return obj
 
     def new_box(name: str, center: list, size: list, mat: object) -> object:
         mesh = bpy.data.meshes.new(name + "_mesh")
@@ -1232,28 +1271,205 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             rs[thin] = 2 * LITE_FRAME_PROUD_M + 0.001
             rail = new_box("openclinxr_door_liteframe_%d" % index, rc, rs, steel_m)
             furnished["frame"].append(rail.name)
-        # Hinge plates + knuckles on the hinge jamb edge of the leaf face.
-        if hinge_side in ("+x", "-x", "+y", "-y"):
-            axis = 0 if "x" in hinge_side else 1
-            positive = hinge_side.startswith("+")
-            edge = box["max"][axis] if positive else box["min"][axis]
+        # Satin-steel lever: the Infinigen handle merges into the leaf mesh
+        # and would otherwise inherit the maple photo material. Handle verts
+        # stick out past both slab faces (the pockets only recess inward),
+        # so faces with any vert beyond either slab plane + 8 mm take a
+        # steel slot. The leaf arrives single-slotted (maple).
+        mesh = leaf.data
+        # Slab face planes: AREA-weighted histogram over faces pointing
+        # along the thin axis. (A vert-count histogram fails: the big flat
+        # slab faces carry few verts while the dense handle/spin geometry
+        # wins the bins and the room lever stays maple -- measured
+        # seed-205: 809 room-side protruding faces left on maple.)
+        import mathutils  # type: ignore[import-not-found]
+
+        rot = leaf.matrix_world.to_3x3()
+        area_bins: dict[int, float] = {}
+        for poly in mesh.polygons:
+            wn = (rot @ mathutils.Vector(poly.normal)).normalized()
+            if abs(wn[thin]) < 0.99:
+                continue
+            cx = sum((mesh.vertices[vi].co[0] for vi in poly.vertices), 0.0)
+            cy = sum((mesh.vertices[vi].co[1] for vi in poly.vertices), 0.0)
+            cz = sum((mesh.vertices[vi].co[2] for vi in poly.vertices), 0.0)
+            n = len(poly.vertices)
+            wcent = leaf.matrix_world @ mathutils.Vector((cx / n, cy / n, cz / n))
+            key = int(round(wcent[thin] / 0.002))
+            area_bins[key] = area_bins.get(key, 0.0) + poly.area
+        modes: list[int] = []
+        for cand in sorted(area_bins, key=lambda b: area_bins[b], reverse=True):
+            # Distinct faces only: adjacent 2 mm bins of one jittered slab
+            # face must not read as the two slab planes.
+            if all(abs(cand - kept) * 0.002 >= 0.015 for kept in modes):
+                modes.append(cand)
+            if len(modes) == 2:
+                break
+        planes = sorted(m * 0.002 for m in modes)
+        # Protrusion shortlist: face centroids beyond either slab plane.
+        short: list[int] = []
+        for poly in mesh.polygons:
+            cx = sum((mesh.vertices[vi].co[0] for vi in poly.vertices), 0.0)
+            cy = sum((mesh.vertices[vi].co[1] for vi in poly.vertices), 0.0)
+            cz = sum((mesh.vertices[vi].co[2] for vi in poly.vertices), 0.0)
+            n = len(poly.vertices)
+            wcent = leaf.matrix_world @ mathutils.Vector((cx / n, cy / n, cz / n))
+            t = wcent[thin]
+            if len(planes) == 2 and (t > planes[1] + 0.004 or t < planes[0] - 0.004):
+                short.append(poly.index)
+        # Handle cluster: the lever/rosette is one dense protruding volume,
+        # while warped field/edge faces scatter. Keep the densest 50 mm
+        # (u,v) cell plus its populated 8-neighbours, bbox + 30 mm; assign
+        # steel only inside. (Measured seed-205: a bare plane threshold
+        # paints ~1477 faces, nearly the whole leaf.)
+        handle_polys: list[int] = []
+        if short:
+            cells: dict[tuple[int, int], list[int]] = {}
+            for pi in short:
+                poly = mesh.polygons[pi]
+                n = len(poly.vertices)
+                cu = cv = 0.0
+                for vi in poly.vertices:
+                    wv = leaf.matrix_world @ mesh.vertices[vi].co
+                    cu += wv[ua]
+                    cv += wv[va]
+                key = (int(cu / n / 0.05), int(cv / n / 0.05))
+                cells.setdefault(key, []).append(pi)
+            peak = max(cells, key=lambda k: len(cells[k]))
+            keep_cells = {peak}
+            frontier = [peak]
+            while frontier:
+                ck = frontier.pop()
+                for du in (-1, 0, 1):
+                    for dv in (-1, 0, 1):
+                        nk = (ck[0] + du, ck[1] + dv)
+                        if nk in cells and nk not in keep_cells:
+                            keep_cells.add(nk)
+                            frontier.append(nk)
+            for ck in keep_cells:
+                handle_polys.extend(cells[ck])
+            hus, hvs = [], []
+            for pi in handle_polys:
+                poly = mesh.polygons[pi]
+                for vi in poly.vertices:
+                    wv = leaf.matrix_world @ mesh.vertices[vi].co
+                    hus.append(wv[ua])
+                    hvs.append(wv[va])
+            pad = 0.03
+            cluster = {"u0": min(hus) - pad, "u1": max(hus) + pad,
+                       "v0": min(hvs) - pad, "v1": max(hvs) + pad}
+        else:
+            cluster = None
+        handle = None
+        if len(planes) == 2 and planes[1] - planes[0] > 0.02 and cluster is not None:
+            if all(m is None or m.name != steel_m.name for m in mesh.materials):
+                mesh.materials.append(steel_m)
+            steel_index = next(i for i, m in enumerate(mesh.materials)
+                               if m is not None and m.name == steel_m.name)
+            steel_faces = 0
+            handle_us, handle_vs = [], []
+            for pi in handle_polys:
+                poly = mesh.polygons[pi]
+                poly.material_index = steel_index
+                steel_faces += 1
+                for vi in poly.vertices:
+                    wv = leaf.matrix_world @ mesh.vertices[vi].co
+                    handle_us.append(wv[ua])
+                    handle_vs.append(wv[va])
+            if handle_us:
+                handle = {"u0": round(min(handle_us), 4),
+                          "u1": round(max(handle_us), 4),
+                          "v0": round(min(handle_vs), 4),
+                          "v1": round(max(handle_vs), 4),
+                          "steelFaces": steel_faces}
+        furnished["handle"] = handle
+        # Flat maple facing: the post-simplify leaf field undulates past
+        # the 3 mm gate (large triangulated ngons wander; a bare plane
+        # threshold paints ~1477 of 1868 faces), so the finish lays a true
+        # plane veneer over the room-side field -- four maple boxes around
+        # the lite hole, fronts exactly coplanar, back embedded 2 mm. Same
+        # Object-space maple photo, so the grain reads continuous with the
+        # leaf. The lever rosette emerges through the veneer (intersection
+        # contained under the dome); the lite glass/frame still glaze the
+        # mouth behind the facing front.
+        facing_names: list[str] = []
+        leaf_maple = bpy.data.materials.get("openclinxr_finish_door_photo")
+        if leaf_maple is not None:
+            fwd = face + room_sign * 0.002
+            back = face - room_sign * 0.002
+            fx0 = box["min"][ua] + 0.015
+            fx1 = box["max"][ua] - 0.015
+            fz0 = box["min"][va] + 0.010
+            fz1 = box["max"][va] - 0.015
+            hx0, hx1 = u0 - 0.005, u1 + 0.005
+            hz0, hz1 = v0 - 0.005, v1 + 0.005
+            quads = [
+                ("face_west", fx0, hx0, fz0, fz1),
+                ("face_east", hx1, fx1, fz0, fz1),
+                ("face_south", hx0, hx1, fz0, hz0),
+                ("face_north", hx0, hx1, hz1, fz1),
+            ]
+            for qi, (tag, qu0, qu1, qv0, qv1) in enumerate(quads):
+                if qu1 - qu0 < 0.01 or qv1 - qv0 < 0.01:
+                    continue
+                cc = [0.0, 0.0, 0.0]
+                ss = [0.0, 0.0, 0.0]
+                cc[ua] = (qu0 + qu1) / 2
+                cc[va] = (qv0 + qv1) / 2
+                cc[thin] = (fwd + back) / 2
+                ss[ua] = qu1 - qu0
+                ss[va] = qv1 - qv0
+                ss[thin] = abs(fwd - back)
+                plate = new_box("openclinxr_door_%s_%d" % (tag, qi),
+                                cc, ss, leaf_maple)
+                facing_names.append(plate.name)
+        furnished["facing"] = facing_names
+        # Lock cylinder above the lever, on the room-side face.
+        if handle is not None:
+            lock_u = (handle["u0"] + handle["u1"]) / 2
+            lock_v = handle["v1"] + 0.06
+            lock_c = [0.0, 0.0, 0.0]
+            lock_c[ua] = lock_u
+            lock_c[va] = lock_v
+            lock_c[thin] = face
+            into = face - room_sign * 0.01
+            proud = face + room_sign * 0.015
+            lock_obj = new_cylinder(
+                "openclinxr_door_lock", lock_c, thin, 0.012,
+                min(into, proud), max(into, proud), steel_m)
+            furnished["lock"] = lock_obj.name
+        # Hinge side: opposite the detected handle (the extracted leaf can
+        # mirror leaf-local axes, so the recipe side is not trusted for
+        # placement). The recipe hingeSide mapping is only a fallback for
+        # handle-less input (fixture), guarded to the leaf width axis.
+        hinge_positive: bool | None = None
+        hinge_from = None
+        if handle is not None:
+            handle_uc = (handle["u0"] + handle["u1"]) / 2
+            leaf_uc = (box["min"][ua] + box["max"][ua]) / 2
+            hinge_positive = handle_uc < leaf_uc
+            hinge_from = "handle-detect"
+        elif hinge_side in ("+x", "-x", "+y", "-y"):
+            world_axis = {"x": 0, "y": 1, "z": 2}[hinge_side[1]]
+            if world_axis != ua:
+                raise SystemExit(
+                    "room_clinic_finish: hingeSide %s does not name the leaf "
+                    "width axis (ua=%d)" % (hinge_side, ua))
+            hinge_positive = hinge_side.startswith("+")
+            hinge_from = "recipe-fallback"
+        if hinge_positive is not None:
+            furnished["hingeSideUsed"] = hinge_from
+            edge = box["max"][ua] if hinge_positive else box["min"][ua]
             for index, height in enumerate(DOOR_HINGE_HEIGHTS_M):
                 pc = [0.0, 0.0, 0.0]
                 ps = [0.0, 0.0, 0.0]
-                for i in range(3):
-                    if i == axis:
-                        pc[i] = edge - (0.0 if positive else 0.0)
-                        ps[i] = DOOR_HINGE_PLATE_W_M
-                    elif i == thin:
-                        pc[i] = face + room_sign * 0.001
-                        ps[i] = 0.004
-                    else:
-                        pc[i] = height
-                        ps[i] = DOOR_HINGE_PLATE_H_M
-                # Plate sits half-embedded at the leaf edge so its outer
-                # half reads on the face and its knuckle side reaches the jamb.
-                pc[axis] = edge + (DOOR_HINGE_PLATE_W_M / 4 if positive
-                                   else -DOOR_HINGE_PLATE_W_M / 4)
+                pc[ua] = edge + (DOOR_HINGE_PLATE_W_M / 4 if hinge_positive
+                                 else -DOOR_HINGE_PLATE_W_M / 4)
+                ps[ua] = DOOR_HINGE_PLATE_W_M
+                pc[thin] = face + room_sign * 0.001
+                ps[thin] = 0.004
+                pc[va] = height
+                ps[va] = DOOR_HINGE_PLATE_H_M
                 plate = new_box("openclinxr_door_hinge_%d" % index, pc, ps, steel_m)
                 furnished["hinges"].append(plate.name)
     return furnished

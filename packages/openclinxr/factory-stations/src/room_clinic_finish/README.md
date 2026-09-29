@@ -75,10 +75,23 @@ Infinigen-first was investigated per part and recorded in
   can open outer edges that masquerade as a leaf-spanning rim.
 - Hinges: NOT FOUND in Infinigen (no hinge symbol anywhere under
   `assets/objects/elements/doors/`). The finish adds three steel hinge
-  plates + knuckles on the recipe hinge-side jamb.
-- Lock cylinder: skipped, not refused for cause beyond recovery cost --
-  the Infinigen handle merges into the leaf mesh, so the latch x is not
-  recoverable for placing the cylinder above the lever. Recorded.
+  plates on the jamb opposite the detected handle: the extracted leaf can
+  mirror leaf-local axes, so the recipe hinge side is not trusted for
+  placement (recorded as `hingeSideUsed: handle-detect`). The recipe
+  mapping is only a fallback for handle-less input, guarded to the leaf
+  width axis (fail closed on mismatch).
+- Lever faces + lock cylinder: the pinned Infinigen lever merges into the
+  leaf mesh and would inherit the maple photo material. The finish assigns
+  a steel slot to faces protruding past either slab face + 8 mm
+  (area-weighted slab planes over thin-axis faces: a vert-count histogram
+  fails because the big flat slab faces carry few verts while dense
+  handle/spin geometry wins the bins; pockets only recess inward, so they
+  are untouched) and adds a steel lock cylinder 60 mm above the lever top on
+  the room-side face (`openclinxr_door_lock`). Reported as `handle`
+  (u/v bbox + steel face count). Steel runs mid-metallic (0.65, roughness
+  0.4): the runtime has no scene environment map, so fully metallic thin
+  parts render near-black (measured: hinge plates read as dark slits at
+  metallic 0.9).
 - Casing paint: the casing geometry is Infinigen's (placed at
   `casing_chance = 1.0` by the chain's gin config) but its surface draws
   random metal/wood; Infinigen has no white-painted casing class, so the

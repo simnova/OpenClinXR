@@ -196,6 +196,14 @@ describe("the room clinic finish ward door", () => {
     const steel = doc.getRoot().listMaterials().find((m) => m.getName() === "openclinxr_door_steel");
     expect(steel).toBeDefined();
     expect(steel!.getMetallicFactor()).toBeGreaterThan(0.5);
+    // Fixture leaf is a plain box: no protruding handle, so no steel slot,
+    // no lock, and hinges fall back to the recipe side mapping.
+    const furniture = prepared!.report["doorFurniture"] as {
+      handle: unknown; lock: unknown; hingeSideUsed: string;
+    };
+    expect(furniture.handle).toBeNull();
+    expect(furniture.lock).toBeNull();
+    expect(furniture.hingeSideUsed).toBe("recipe-fallback");
   }, 120_000);
 
   it("(4) the casing repaints to the palette trim and the leaf keeps maple", async () => {
