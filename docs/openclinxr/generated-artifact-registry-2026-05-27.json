@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 719,
+    "keep-evidence": 746,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26388,6 +26388,195 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Part-2 machine-readable ledger: grade sets, iterations, key-probe blocker proof."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 01-toward-door."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 02-toward-bed-wall."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 03-ceiling-corner."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 04-door-inside."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 05-troffer-junction."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 06-floor-base."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only capture manifest."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 01-toward-door. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 02-toward-bed-wall. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 03-ceiling-corner. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 04-door-inside. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 05-troffer-junction. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final state (matte GLB + R3 rig): runtime frame 06-floor-base. 10-patch grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state capture manifest."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (01-toward-door): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (02-toward-bed-wall): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (03-ceiling-corner): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (04-door-inside): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (05-troffer-junction): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 final-state sheet (06-floor-base): v2 ref left, matte+R3 runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte1-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 matte-only sheet (02)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-02-patches-marked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 grade-set overlay on final pose-02: all five boxes verified on their surfaces."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte2-01-patches-marked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 grade-set overlay on final pose-01: all five boxes verified on their surfaces."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte-streak-before.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Streak evidence BEFORE (rig3 glossy): sparkle band crop left of door."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte-streak-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Streak evidence AFTER (matte 0.9): same crop uniform, no glint at native resolution."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-matte-streak-diff.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Amplified rig3-minus-matte1 diffmap isolating the removed full-width specular band (up to 27 units)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-step3-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-3 ledger: matte basis, full R3 10-patch grades, global-infeasibility arithmetic, key-block proof reference."
     }
   ]
 }

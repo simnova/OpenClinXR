@@ -41,7 +41,8 @@
 #     pinned Base Color scalar -- so it adds nothing here)
 #   normal shared 1024^2 (4) + roughness shared 1024^2 (4) = 8 (one atlas
 #     each over ALL kept objects, so every surface keeps relief and finish
-#     variation without per-surface normal images)
+#     variation without per-surface normal images; painted wall samples a
+#     64^2 matte flat for roughness instead -- see WALL_ROUGHNESS)
 #   shell subtotal 37 MB; AO pass (room-occlusion-bake.py AO_DEFAULT_RESOLUTION,
 #     uniform 512 -- the budget max, 4x512^2) adds 4 MB (one image per wired
 #     material: residue "other" ships unwired when uniform and shell
@@ -157,6 +158,18 @@ FILL_ROUGHNESS = (0.9, 0.9, 0.9, 1.0)
 # above), matte and neutral, streak-free.
 SKIRTING_BASE_COLOR_LINEAR = (0.313, 0.323, 0.352, 1.0)
 SKIRTING_ROUGHNESS = 0.9
+
+# Painted-wall matte roughness (step 3, stage1-albedo job 2026-09-29): the
+# shared Infinigen roughness atlas runs satin-gloss on plaster (green mean
+# ~0.72 with low patches), which puts a broad specular lobe toward the
+# pose-01 camera (+21..+24 key-off drop, zero on pose-02) plus a visible
+# horizontal glint streak the matte-paint reference never shows. The wall
+# role samples this flat instead of the shared atlas; trim keeps the atlas
+# (door-frame metal needs its low roughness) and the budget impact is one
+# 64^2 image (~22 KB decoded). Still an Image Texture link, so the
+# albedo/roughness wiring contract the shell-bake tests pin is unchanged.
+WALL_ROUGHNESS = 0.9
+WALL_ROUGHNESS_IMAGE_SIZE = 64
 
 
 def _argv_after_double_dash() -> List[str]:
@@ -486,14 +499,16 @@ def scale_albedo_image(image, scale: Tuple[float, float, float]) -> None:
     image.pixels.foreach_set(px.ravel().tolist())
 
 
-def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, roughness_img):
+def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, roughness_img, wall_roughness_img=None):
     """Fresh Image Texture -> Principled hookup; the procedural tree is gone.
 
     Albedo samples the role's full-coverage layout (index 0, so the later AO
     pass keeps base colour there); normal/roughness sample the shared atlas.
     Skirting is the exception: pinned flat Base Color plus scalar roughness
     (matte vinyl, albedo_img is None so no image nodes); normal relief still
-    samples the shared atlas like every other role.
+    samples the shared atlas like every other role. Wall is the second
+    exception: albedo + normal as usual, but roughness samples the flat
+    matte wall_roughness_img (WALL_ROUGHNESS) instead of the shared atlas.
     """
     import bpy
 
@@ -547,10 +562,14 @@ def build_role_material(role: str, alb_layer: str, albedo_img, normal_img, rough
 
     if role != "skirting":
         # Matte vinyl ships the scalar above; the baked atlas holds trim
-        # metal roughness and must not touch the cove.
+        # metal roughness and must not touch the cove. Painted wall takes
+        # the flat matte image (WALL_ROUGHNESS) instead of the shared atlas
+        # (see the constant: satin Infinigen plaster puts a key-light lobe
+        # toward pose-01 plus a glint streak the reference never shows).
+        wall_flat = (role == "wall")
         rough_tex = nt.nodes.new("ShaderNodeTexImage")
-        rough_tex.image = roughness_img
-        rough_tex.label = "shell roughness"
+        rough_tex.image = (wall_roughness_img if wall_roughness_img is not None else roughness_img) if wall_flat else roughness_img
+        rough_tex.label = "shell roughness (wall matte flat)" if wall_flat else "shell roughness"
         rough_tex.location = (-400, -350)
         nt.links.new(shared_uv.outputs["UV"], rough_tex.inputs["Vector"])
         nt.links.new(rough_tex.outputs["Color"], bsdf.inputs["Roughness"])
@@ -656,6 +675,12 @@ def main() -> Dict[str, object]:
     bake_current_selection("ROUGHNESS", SHARED_UV_LAYER, all_bakeable)
     roughness_img.pack()
     print(f"[shell-bake] ROUGHNESS {SHARED_ROUGHNESS_SIZE}x{SHARED_ROUGHNESS_SIZE} over {len(all_bakeable)} object(s)")
+    # Painted-wall matte flat (WALL_ROUGHNESS): sampled by the wall role
+    # instead of the shared atlas (see build_role_material).
+    wall_roughness_img = new_image("shell_bake_roughness_wall_flat", WALL_ROUGHNESS_IMAGE_SIZE, "Non-Color")
+    flood_image(wall_roughness_img, (WALL_ROUGHNESS, WALL_ROUGHNESS, WALL_ROUGHNESS, 1.0))
+    wall_roughness_img.pack()
+    print(f"[shell-bake] ROUGHNESS wall flat {WALL_ROUGHNESS_IMAGE_SIZE}x{WALL_ROUGHNESS_IMAGE_SIZE} = {WALL_ROUGHNESS}")
 
     summary_roles: Dict[str, object] = {}
     for role in sorted(by_role):
@@ -668,7 +693,7 @@ def main() -> Dict[str, object]:
             # for it; normal relief still samples the shared atlas.
             print(f"[shell-bake] role skirting: pinned flat, no bake ({len(role_objects)} object(s))")
             originals = materials_of(role_objects)
-            role_mat = build_role_material(role, alb_layer, None, normal_img, roughness_img)
+            role_mat = build_role_material(role, alb_layer, None, normal_img, roughness_img, wall_roughness_img)
             assign_role_material(role_objects, role_mat)
             drop_original_materials(originals)
             summary_roles[role] = {
@@ -709,7 +734,7 @@ def main() -> Dict[str, object]:
         print(f"[shell-bake] ALBEDO {role} {size}x{size} over {len(role_bakeable)} object(s)")
 
         originals = materials_of(role_objects)
-        role_mat = build_role_material(role, alb_layer, albedo_img, normal_img, roughness_img)
+        role_mat = build_role_material(role, alb_layer, albedo_img, normal_img, roughness_img, wall_roughness_img)
         assign_role_material(role_objects, role_mat)
         drop_original_materials(originals)
         summary_roles[role] = {

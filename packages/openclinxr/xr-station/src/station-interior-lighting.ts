@@ -126,7 +126,12 @@ export function applyStationInteriorLighting(input: {
     // wash cut (clinic_day washEnergy 0.85 -> 0.55 alongside) dims the
     // walls the washes were blasting; the hemisphere carries the tiles
     // instead. Colours unchanged.
-    const ambient = new HemisphereLight(0xf4f0e8, 0xc0c4c0, 2.5);
+    // R3: ground 0xc0c4c0 -> 0xccd2cc (brighter neutral, sky untouched) --
+    // tiles still need +11..+14 level after R2 while walls need holding
+    // (wash 0.55 -> 0.45 + fill 1.26 -> 1.15 alongside); the ground term
+    // lifts down-facing tiles with only half weight on vertical walls and
+    // nothing on the sky-lit floor.
+    const ambient = new HemisphereLight(0xf4f0e8, 0xccd2cc, 2.5);
     ambient.name = input.ambientLightName;
     tag(ambient, "hemisphere");
     input.scene.add(ambient);

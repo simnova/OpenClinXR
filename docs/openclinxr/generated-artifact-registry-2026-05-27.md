@@ -3689,6 +3689,33 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Key-off probe sheet (01).
 - `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Key-off probe sheet (02).
 - `docs/openclinxr/room-realism/light-balance/stage1-part2-measurements.json` - keep-evidence; keep; Part-2 machine-readable ledger: grade sets, iterations, key-probe blocker proof.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-01-toward-door.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 01-toward-door.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 02-toward-bed-wall.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-03-ceiling-corner.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 03-ceiling-corner.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-04-door-inside.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 04-door-inside.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-05-troffer-junction.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 05-troffer-junction.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/runtime-06-floor-base.png` - keep-evidence; keep; Step-3 matte-only state (GLB 77900759, R2 rig): runtime frame 06-floor-base.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte1/stage2-multiview.json` - keep-evidence; keep; Step-3 matte-only capture manifest.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-01-toward-door.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 01-toward-door. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 02-toward-bed-wall. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-03-ceiling-corner.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 03-ceiling-corner. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-04-door-inside.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 04-door-inside. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-05-troffer-junction.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 05-troffer-junction. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/runtime-06-floor-base.png` - keep-evidence; keep; Step-3 final state (matte GLB + R3 rig): runtime frame 06-floor-base. 10-patch grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-matte2/stage2-multiview.json` - keep-evidence; keep; Step-3 final-state capture manifest.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (01-toward-door): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (02-toward-bed-wall): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (03-ceiling-corner): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (04-door-inside): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (05-troffer-junction): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Step-3 final-state sheet (06-floor-base): v2 ref left, matte+R3 runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte1-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Step-3 matte-only sheet (02).
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-02-patches-marked.png` - keep-evidence; keep; Step-3 grade-set overlay on final pose-02: all five boxes verified on their surfaces.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte2-01-patches-marked.png` - keep-evidence; keep; Step-3 grade-set overlay on final pose-01: all five boxes verified on their surfaces.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte-streak-before.png` - keep-evidence; keep; Streak evidence BEFORE (rig3 glossy): sparkle band crop left of door.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte-streak-after.png` - keep-evidence; keep; Streak evidence AFTER (matte 0.9): same crop uniform, no glint at native resolution.
+- `docs/openclinxr/room-realism/light-balance/stage1-matte-streak-diff.png` - keep-evidence; keep; Amplified rig3-minus-matte1 diffmap isolating the removed full-width specular band (up to 27 units).
+- `docs/openclinxr/room-realism/light-balance/stage1-step3-measurements.json` - keep-evidence; keep; Step-3 ledger: matte basis, full R3 10-patch grades, global-infeasibility arithmetic, key-block proof reference.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.

@@ -113,7 +113,12 @@ const MOOD_PRESETS: Record<LightingMood, MoodPreset> = {
   // (pose-01 +27..+43 over, pose-02 walls +5..+12) while barely touching
   // down-facing tiles; hemisphere (raised to 2.5 alongside) carries the
   // tiles instead. Key/fill energies, temps, exposure unchanged.
-  clinic_day: { keyEnergy: 0.85, fillEnergy: 1.26, washEnergy: 0.55, keyTempK: 5000, fillTempK: 5000, washTempK: 6500, exposure: 0.9 },
+  // R3: washEnergy 0.55 -> 0.45, fillEnergy 1.26 -> 1.15 -- post-matte
+  // re-grade still shows pose-02 left-wall R/B over (+8.3/+10.3) and
+  // backwall-low B over (+6.1, spread -4.5): the 6500K washes graze the low
+  // wall cool. Hemisphere ground goes brighter alongside (tiles need
+  // +11..+14 level) so the wash/fill trim holds walls while tiles lift.
+  clinic_day: { keyEnergy: 0.85, fillEnergy: 1.15, washEnergy: 0.45, keyTempK: 5000, fillTempK: 5000, washTempK: 6500, exposure: 0.9 },
   evening_calm: { keyEnergy: 0.45, fillEnergy: 0.5, washEnergy: 0.4, keyTempK: 2700, fillTempK: 3000, washTempK: 3000, exposure: 0.7 },
 };
 
