@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 456,
+    "keep-evidence": 457,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24477,6 +24477,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "2x2 tiled grading preview of the row-33 flattened tileable painted plaster albedo (JPEG q90); sent to the product owner before wiring."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Single-leaf grading preview of the row-33 door maple leaf crop (leaf aspect 0.95:2.10, JPEG q90, not tiled); sent to the product owner before wiring."
     },
     {
       "path": "docs/openclinxr/room-realism/skirting-fix/red/runtime-01-toward-door.png",
