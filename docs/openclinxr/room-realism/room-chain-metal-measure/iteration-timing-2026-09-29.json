@@ -37,7 +37,49 @@
  },
  "blenderCounts": "every pass start=0 end=0 on both runs (machine-wide ps count); version-probe pass excluded from stage table",
  "cacheBypass": "--no-cache (reads skipped, stores still written); stage keys rotated by run (generate e97e5ac8 both runs; finish 6890a79c vs 46e64c8f; lighting 0115ec41 vs b63a5308)",
- "captureRenderer": "pending Part 2",
+ "captureRenderer": {
+  "finding": "hardware GPU already (ANGLE Metal); no change needed",
+  "rendererHardware": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version), vendor Google Inc. (Apple)",
+  "rendererSoftware": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver), vendor Google Inc. (Google)",
+  "probe": "page.evaluate WEBGL_debug_renderer_info UNMASKED_RENDERER_WEBGL in headless Chromium; hardware string with capture launch args, software string with no args",
+  "launchArgs": [
+   "--disable-gpu-vsync",
+   "--disable-frame-rate-limit",
+   "--use-angle=metal",
+   "--enable-gpu-rasterization",
+   "--ignore-gpu-blocklist"
+  ],
+  "launchConfig": "tools/openclinxr/evidence/room-ward-finish-chain/ward-finish-chain-capture.ts chromium.launch (already carries the Metal flags)",
+  "timing": {
+   "hardwareSixPoseS": 11,
+   "softwareSixPoseS": 34,
+   "glb": ".openclinxr/evidence/ward-finish-chain-timing-cold1/infinigen-inpatient-ward.chain.glb (11440952 bytes)",
+   "note": "end-to-end: portless server + page load + 6 screenshots; software run via uncommitted .openclinxr copy with --disable-gpu, deleted after"
+  },
+  "pixelDiffHwVsSwMean255": {
+   "runtime-01-toward-door.png": 0.1959,
+   "runtime-02-toward-bed-wall.png": 0.1094,
+   "runtime-03-ceiling-corner.png": 0.3174,
+   "runtime-04-door-inside.png": 0.2188,
+   "runtime-05-troffer-junction.png": 0.1074,
+   "runtime-06-floor-base.png": 0.0553
+  },
+  "pixelDiffCenterBoxMean255": {
+   "runtime-01-toward-door.png": 0.3675,
+   "runtime-02-toward-bed-wall.png": 0.0264,
+   "runtime-06-floor-base.png": 0.0499
+  },
+  "pixelDiffMax": {
+   "runtime-01-toward-door.png": 164,
+   "runtime-02-toward-bed-wall.png": 147,
+   "runtime-03-ceiling-corner.png": 145,
+   "runtime-04-door-inside.png": 109,
+   "runtime-05-troffer-junction.png": 21,
+   "runtime-06-floor-base.png": 14
+  },
+  "gradeGate": "mean abs diff > 2/255 on wall/floor boxes keeps software; measured worst full-frame 0.32, worst center-box 0.37 \u2014 gate holds with margin",
+  "decision": "keep hardware (ANGLE Metal) default; no product change (small per-pixel rasterisation differences explained as GPU vs SwiftShader rasterisation, no grade impact)"
+ },
  "date": "2026-09-29",
  "deviceArgs": {
   "albedo": "no --device flag (CPU script; all roles skipped)",
@@ -59,7 +101,7 @@
  "method": "BLENDER timing shim (no product code change): BLENDER=/tmp/room-timing-2026-09-29/blender-shim.sh logs PASS_START/PASS_END with epoch, elapsed_s, machine-wide Blender count at start/end, and --python script name; chain wall time via date +%s around CLI; generate-driver split via durationsMs in ward-chain-report.json",
  "outDirs": {},
  "parts": {
-  "part2": "pending",
+  "part2": "done",
   "part3": "pending"
  },
  "runs": [

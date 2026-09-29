@@ -39,6 +39,27 @@ Where the time goes now: shell Metal bake (~30 s, ~50% of the chain) is the
 remaining wall-clock center; AO (~8 s) is next; generate driver (~8-10 s) and
 the skipped albedo (~3 s) follow; everything else is ~1-2 s each.
 
-## Part 2: capture renderer (pending)
+## Part 2: capture renderer (done — already hardware, no change)
+
+Finding: the six-pose runtime capture already runs on the GPU. Headless
+Chromium with the capture's launch args
+(`--disable-gpu-vsync --disable-frame-rate-limit --use-angle=metal
+--enable-gpu-rasterization --ignore-gpu-blocklist`,
+`ward-finish-chain-capture.ts`) reports
+`ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)`
+via `WEBGL_debug_renderer_info` `UNMASKED_RENDERER_WEBGL` evaluated inside
+the page; the same probe with no flags reports SwiftShader
+(`ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0)
+(0x0000C0DE)), SwiftShader driver)`).
+
+Timing (same 11.4 MB chain GLB, 6 poses, end-to-end incl. portless server +
+page load): hardware 11 s, software (`--disable-gpu` copy) 34 s (~3x).
+Pixel diff HW vs SW (per-pixel mean abs): 0.06-0.32/255 full-frame across
+the six PNGs (worst 0.32 pose 03); center-box means 0.37/0.03/0.05 on poses
+01/02/06. Max single-pixel diffs reach 164 (edges/antialiasing), but every
+mean is an order of magnitude inside the 2/255 grade gate. Explained as GPU
+vs SwiftShader rasterisation differences; no grade impact.
+
+Decision: keep the hardware (ANGLE Metal) default. No product change.
 
 ## Part 3: lit albedo on Metal (pending — cold-chain CPU time 3.2 s is below the 30 s threshold, so no determinism attempt per the job rule; full verdict after Part 2)
