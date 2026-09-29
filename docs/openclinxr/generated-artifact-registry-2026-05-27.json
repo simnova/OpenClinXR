@@ -25382,6 +25382,13 @@
       "rationale": "fresh-run lighting key.json downstream of the divergent bytes."
     },
     {
+      "path": "docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Structured room iteration timing after GPU changes: per-run chain total, per-pass seconds, Blender counts, baseline comparison, renderer finding, lit-albedo decision backing iteration-timing-2026-09-29.md."
+    },
+    {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.json",
       "authority": "keep-evidence",
       "tracked": true,

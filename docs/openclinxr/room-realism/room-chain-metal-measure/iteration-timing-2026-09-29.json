@@ -1,0 +1,115 @@
+{
+ "albedoSkip": {
+  "logLines": [
+   "[room-bake] skipped shell_bake_wall (shell textured albedo shell_bake_albedo_wall, 1 mesh(es)) meanL=210.63",
+   "[room-bake] skipped shell_bake_floor (shell textured albedo shell_bake_albedo_floor, 1 mesh(es)) meanL=171.58",
+   "[room-bake] skipped shell_bake_ceiling (shell textured albedo shell_bake_albedo_ceiling, 1 mesh(es)) meanL=191.96",
+   "[room-bake] skipped shell_bake_other (shell textured albedo shell_bake_albedo_other, 1 mesh(es)) meanL=203.43",
+   "[room-bake] skipped shell_bake_skirting (shell flat wall, 2 mesh(es)) meanL=82.45",
+   "[room-bake] skipped shell_bake_trim (shell textured albedo shell_bake_albedo_trim, 2 mesh(es)) meanL=53.48"
+  ],
+  "reason": "shell-textured-albedo (883ac55cf); no bake op, no rewire"
+ },
+ "aoDevice": {
+  "log": "[room-ao] device=metal (1 Metal device(s) enabled)",
+  "materials": "6 wired=5 skipped=1"
+ },
+ "baseline": {
+  "albedoCpuS": [
+   584.84,
+   571.6
+  ],
+  "aoS": [
+   125.31,
+   126.05
+  ],
+  "aoNote": "old pure-Python raycast; new Cycles AO measures CPU 18s / Metal 8s (ao-cycles-report.md)",
+  "coldTotalS": [
+   954,
+   933,
+   887
+  ],
+  "shellCpuS": [
+   149.76,
+   215.91
+  ],
+  "source": "room-chain-stage-cache/timing.json (cold) + room-chain-metal-measure/report.md (bakes)"
+ },
+ "blenderCounts": "every pass start=0 end=0 on both runs (machine-wide ps count); version-probe pass excluded from stage table",
+ "cacheBypass": "--no-cache (reads skipped, stores still written); stage keys rotated by run (generate e97e5ac8 both runs; finish 6890a79c vs 46e64c8f; lighting 0115ec41 vs b63a5308)",
+ "captureRenderer": "pending Part 2",
+ "date": "2026-09-29",
+ "deviceArgs": {
+  "albedo": "no --device flag (CPU script; all roles skipped)",
+  "ao": "--device metal (run.ts default)",
+  "shell": "--device metal (generate.ts default)"
+ },
+ "fixture": {
+  "doorHinge": "+x",
+  "doorOffsetM": 0.25,
+  "doorWall": "+y",
+  "footprintM": [
+   4.3,
+   3.9,
+   2.4
+  ],
+  "seed": 205
+ },
+ "litAlbedoMetal": "pending Part 3 (cold-chain CPU time 3.2s => below 30s threshold; no determinism attempt per job rule)",
+ "method": "BLENDER timing shim (no product code change): BLENDER=/tmp/room-timing-2026-09-29/blender-shim.sh logs PASS_START/PASS_END with epoch, elapsed_s, machine-wide Blender count at start/end, and --python script name; chain wall time via date +%s around CLI; generate-driver split via durationsMs in ward-chain-report.json",
+ "outDirs": {},
+ "parts": {
+  "part2": "pending",
+  "part3": "pending"
+ },
+ "runs": [
+  {
+   "chainTotalS": 63,
+   "durationsMs": {
+    "extractMs": 2007,
+    "generateMs": 9931,
+    "probeMs": 1383,
+    "shellBakeMs": 30308,
+    "stripMs": 1405
+   },
+   "name": "cold1",
+   "outDir": ".openclinxr/evidence/ward-finish-chain-timing-cold1",
+   "passes": {
+    "albedoSkipS": 3.239,
+    "aoMetalS": 8.19,
+    "composeS": 1.632,
+    "extractS": 1.783,
+    "generateDriverS": 9.931,
+    "lightingS": 1.194,
+    "probeS": 1.175,
+    "shellMetalS": 29.979,
+    "stripS": 1.199
+   }
+  },
+  {
+   "chainTotalS": 59,
+   "durationsMs": {
+    "extractMs": 1795,
+    "generateMs": 7656,
+    "probeMs": 1324,
+    "shellBakeMs": 29892,
+    "stripMs": 1338
+   },
+   "name": "cold2",
+   "outDir": ".openclinxr/evidence/ward-finish-chain-timing-cold2",
+   "passes": {
+    "albedoSkipS": 3.144,
+    "aoMetalS": 8.15,
+    "composeS": 1.627,
+    "extractS": 1.606,
+    "generateDriverS": 7.656,
+    "lightingS": 1.199,
+    "probeS": 1.113,
+    "shellMetalS": 29.694,
+    "stripS": 1.14
+   }
+  }
+ ],
+ "schemaVersion": "openclinxr.room-chain-iteration-timing.v1",
+ "timingShim": "/tmp/room-timing-2026-09-29/blender-shim.sh (scratch, not committed; per-pass logs /tmp/room-timing-2026-09-29/cold{1,2}-passes.log + chain logs cold{1,2}-chain.log)"
+}

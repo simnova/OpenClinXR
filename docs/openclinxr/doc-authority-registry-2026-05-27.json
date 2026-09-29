@@ -5197,6 +5197,13 @@
       "rationale": "Skirting vinyl-cove fix runtime evidence (RED/GREEN seed-205 shell-only captures, diagnosis, calibration); use only when it verifies touched bake behavior."
     },
     {
+      "path": "docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Room iteration wall-clock after GPU changes (seed-205 ward, --no-cache x2): per-stage/per-Blender-pass seconds, concurrent-Blender counts, pre-GPU baseline comparison, capture-renderer finding, lit-albedo-Metal decision."
+    },
+    {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
