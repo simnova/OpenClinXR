@@ -3727,6 +3727,14 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-tile1-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Defect-1 sheet (01): tile-01 residual documented.
 - `docs/openclinxr/room-realism/light-balance/stage1-tile1-ref05-tile-box-verify.png` - keep-evidence; keep; Ref-side box verification: tile-05 box lands on clean reference tile (std 4.4); runtime mismatch is framing (pre-Part-3), not surface.
 - `docs/openclinxr/room-realism/light-balance/stage1-defect1-measurements.json` - keep-evidence; keep; Defect-1 ledger: D1 change, tile grades with G-R, tile-01 residual argument.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/runtime-01-toward-door.png` - keep-evidence; keep; Defect-2 retarget state (key 1.0, target (0.2,-2.2,2.8)): pose-01 grade source.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Defect-2 retarget state: pose-02 grade source (identical to pre-retarget: no regression).
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/stage2-multiview.json` - keep-evidence; keep; Defect-2 retarget manifest (poses 01+02 diagnostic).
+- `docs/openclinxr/room-realism/light-balance/stage1-keyswp-01-toward-door.png` - keep-evidence; keep; Key sweep intermediate (key 1.0, old target): pose-01 frame.
+- `docs/openclinxr/room-realism/light-balance/stage1-keyswp-02-toward-bed-wall.png` - keep-evidence; keep; Key sweep intermediate (key 1.0, old target): pose-02 frame.
+- `docs/openclinxr/room-realism/light-balance/stage1-keyret-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Defect-2 sheet (01): retargeted key runtime vs ref.
+- `docs/openclinxr/room-realism/light-balance/stage1-keyret-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Defect-2 sheet (02): retargeted key runtime vs ref.
+- `docs/openclinxr/room-realism/light-balance/stage1-defect2-measurements.json` - keep-evidence; keep; Defect-2 ledger: sweep, retarget design/grades, no-regression proof, residual infeasibility.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.

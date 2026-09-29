@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 757,
+    "keep-evidence": 765,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26654,6 +26654,62 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Defect-1 ledger: D1 change, tile grades with G-R, tile-01 residual argument."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 retarget state (key 1.0, target (0.2,-2.2,2.8)): pose-01 grade source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 retarget state: pose-02 grade source (identical to pre-retarget: no regression)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-keyret/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 retarget manifest (poses 01+02 diagnostic)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-keyswp-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Key sweep intermediate (key 1.0, old target): pose-01 frame."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-keyswp-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Key sweep intermediate (key 1.0, old target): pose-02 frame."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-keyret-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 sheet (01): retargeted key runtime vs ref."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-keyret-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 sheet (02): retargeted key runtime vs ref."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-defect2-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-2 ledger: sweep, retarget design/grades, no-regression proof, residual infeasibility."
     }
   ]
 }

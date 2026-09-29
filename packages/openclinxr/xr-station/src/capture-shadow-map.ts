@@ -49,7 +49,22 @@ export function createCaptureKeyLight(input: {
   scene: Scene;
   active: boolean;
 }): DirectionalLight {
-  const key = new DirectionalLight(0xffffff, 2.5);
+  // Ward clinic_day rebalance (stage1-albedo job 2026-09-29): 2.5 -> 1.0.
+  // The world-fixed key blasts the door wall (+22 diffuse on pose-01,
+  // zero on pose-02 -- measured key-off probe) while the v2 reference is
+  // balanced across both views. Pose-02 is key-independent (0.0 drop), so
+  // this knob cannot regress it by construction. Swept 2.5/1.0/0.5;
+  // shadows still cast above zero (contact-shadow role kept).
+  const key = new DirectionalLight(0xffffff, 1.0);
+  // Retarget (0,0,0) -> (0.2,-2.2,2.8): the to-light direction goes from
+  // (3,5,4)/8.06 (door-wall incidence 0.50, floor 0.62) to
+  // (0.35,0.9,0.15) (door wall 0.15, floor 0.90). The door-wall blast drops
+  // ~70% while floor key holds (both floors need it: ref floor gap is
+  // 16 units and floors share albedo/orientation). Target is always added:
+  // an unparented target never updates matrixWorld and the aim silently
+  // stays at the origin.
+  key.target.position.set(0.2, -2.2, 2.8);
+  input.scene.add(key.target);
   key.name = input.name;
   key.position.set(3, 5, 4);
   if (input.active) {

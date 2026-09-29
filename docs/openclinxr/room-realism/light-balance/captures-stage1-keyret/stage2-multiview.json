@@ -1,0 +1,5 @@
+{
+ "schemaVersion": "openclinxr.stage2-multiview.v1",
+ "note": "key-retarget state (key 1.0, target (0.2,-2.2,2.8)); poses 01+02 only, diagnostic grade source",
+ "glb": "/tmp/stage1-matte1/infinigen-inpatient-ward.chain.glb"
+}
