@@ -116,8 +116,12 @@ export function applyStationInteriorLighting(input: {
   }
 
   if (input.variantId === "raised_hemisphere_ground") {
-    // Same sky/intensity; ground lifted so inward wall normals are not near-black.
-    const ambient = new HemisphereLight(0xf4f0dc, 0xc8d0dc, 2.2);
+    // Ground lifted so inward wall normals are not near-black, then retuned
+    // toward neutral (light-balance hemisphere job 2026-09-29): the old
+    // blue-heavy ground (0xc8d0dc) pushed down-facing ceiling tiles +15.4
+    // blue over the v2 reference; the near-neutral ground plus a one-step
+    // cooler sky keeps both graded boxes inside +/-8. Same intensity.
+    const ambient = new HemisphereLight(0xf4f0e8, 0xc0c4c0, 2.2);
     ambient.name = input.ambientLightName;
     tag(ambient, "hemisphere");
     input.scene.add(ambient);

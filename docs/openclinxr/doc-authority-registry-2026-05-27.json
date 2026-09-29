@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 139,
+    "evidence": 141,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5244,6 +5244,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Light-balance report: clinic_day rig retune toward neutral, RED/GREEN wall/tile box means against the v2 reference, wall bar pass, tile-B fail disclosed as hemisphere/albedo-limited."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/HEMISPHERE.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Hemisphere retune report: raised_hemisphere_ground sky/ground toward neutral, hemisphere-RED/GREEN wall/tile box means against the v2 reference, tile-B fix with wall bar held."
     }
   ]
 }

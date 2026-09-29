@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/light-balance/apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-01-toward-door.png",
+      "pngBytes": 144261,
+      "pngSha256": "9e1f97529ce60d7ee77670916095f1cf371f3174a0163a81552a924c38f1b18d"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-02-toward-bed-wall.png",
+      "pngBytes": 107599,
+      "pngSha256": "ff361addfe7148a7e731925c0a6c8522e34107aed012b15093d0b6ff1583f221"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.2,
+        "y": 0.55,
+        "z": 0.3
+      },
+      "look": {
+        "x": 0.8,
+        "y": 2.3,
+        "z": -1.6
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-03-ceiling-corner.png",
+      "pngBytes": 457730,
+      "pngSha256": "c4ad45293c502e7bb0f0edeb7c9d756cc21ef3c3b5336d7b09d5d1aeaa9bbc8e"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.25,
+        "y": 1.55,
+        "z": -1.85
+      },
+      "look": {
+        "x": -0.3,
+        "y": 1.2,
+        "z": 1.25
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-04-door-inside.png",
+      "pngBytes": 94024,
+      "pngSha256": "3ea8dac95dd53d7e6d71e1665e5f3713fa2ae1a2d4c841511dcbb6055529eff6"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.25,
+        "y": 1.5,
+        "z": 0.1
+      },
+      "look": {
+        "x": 0.25,
+        "y": 2.3,
+        "z": -1.5
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-05-troffer-junction.png",
+      "pngBytes": 529328,
+      "pngSha256": "dc3642c276b0ffb664c319ff2445b86cdbf373c8e6ed7407f115a981295fca2f"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.22,
+        "z": 1.72
+      },
+      "look": {
+        "x": 0.02,
+        "y": 0.12,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/light-balance/docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-06-floor-base.png",
+      "pngBytes": 12015,
+      "pngSha256": "94a40467b1a00ae3eae3905ffea90e291169a08e4810efacf880b16bd6718713"
+    }
+  ]
+}

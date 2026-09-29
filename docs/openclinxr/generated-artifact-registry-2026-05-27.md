@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 244
-- keep-evidence: 582
+- keep-evidence: 631
 - keep-current: 226
 - keep-evidence: 407
 - keep-template: 6
@@ -3575,6 +3575,33 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/red-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Light-balance RED baseline, un-tuned rig comparison sheet (05-troffer-junction): v2 Imagine reference left, runtime frame right.
 - `docs/openclinxr/room-realism/light-balance/red-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Light-balance RED baseline, un-tuned rig comparison sheet (06-floor-base): v2 Imagine reference left, runtime frame right.
 - `docs/openclinxr/room-realism/light-balance/ward.rig.json` - keep-evidence; keep; Light-balance final code-generated clinic_day rig (key 5000K, fill 3000K, washes 6500K); staged to the public ward rig path.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-01-toward-door.png` - keep-evidence; keep; Hemisphere RED just-landed baseline runtime frame (runtime-01-toward-door).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Hemisphere RED wall-box source: (202.9, 202.4, 198.0), R-B 4.9 PASS.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-03-ceiling-corner.png` - keep-evidence; keep; Hemisphere RED tile-box source: (170.2, 171.6, 175.2), tile-B +15.4 FAIL.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-04-door-inside.png` - keep-evidence; keep; Hemisphere RED just-landed baseline runtime frame (runtime-04-door-inside).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-05-troffer-junction.png` - keep-evidence; keep; Hemisphere RED just-landed baseline runtime frame (runtime-05-troffer-junction).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/runtime-06-floor-base.png` - keep-evidence; keep; Hemisphere RED just-landed baseline runtime frame (runtime-06-floor-base).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-red/stage2-multiview.json` - keep-evidence; keep; Hemisphere RED capture manifest: pose eye/look/fov plus per-capture sha256.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-01-toward-door.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere runtime frame (runtime-01-toward-door).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Hemisphere GREEN wall-box source: (201.9, 200.9, 196.0), R-B 5.9 PASS, no regression.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-03-ceiling-corner.png` - keep-evidence; keep; Hemisphere GREEN tile-box source: (164.1, 162.7, 155.5), all channels PASS.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-04-door-inside.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere runtime frame (runtime-04-door-inside).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-05-troffer-junction.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere runtime frame (runtime-05-troffer-junction).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/runtime-06-floor-base.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere runtime frame (runtime-06-floor-base).
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green/stage2-multiview.json` - keep-evidence; keep; Hemisphere GREEN capture manifest: pose eye/look/fov plus per-capture sha256.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-measurements.json` - keep-evidence; keep; Hemisphere box means: RED/GREEN wall/tile plus per-iteration numbers backing HEMISPHERE.md.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (01-toward-door): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (02-toward-bed-wall): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (03-ceiling-corner): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (04-door-inside): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (05-troffer-junction): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-red-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Hemisphere RED baseline comparison sheet (06-floor-base): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (01-toward-door): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (02-toward-bed-wall): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (03-ceiling-corner): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (04-door-inside): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (05-troffer-junction): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/hemisphere-green-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (06-floor-base): v2 reference left, runtime right.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
