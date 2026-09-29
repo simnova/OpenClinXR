@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 653,
+    "keep-evidence": 668,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -25926,6 +25926,111 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Marked crop showing the prescribed tile-box coordinates (970,315,1100,385) land on the plain wall below the ceiling line in the current pose-03 framing, not on tile -- box std 67.2 vs the ~3-5 expected for clean tile. Evidence for why the tile-recal job's brief box was invalid."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-01-toward-door)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-02-toward-bed-wall). Wall-box source (226.8, 221.1, 215.9); floor-box source (241.0, 238.0, 235.9)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-03-ceiling-corner)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-04-door-inside)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-05-troffer-junction)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set: uncalibrated chain GLB (8264b94c) runtime frame (runtime-06-floor-base)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-recal-red/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED before-set capture manifest: chain GLB path, pose eye/look/fov, per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-01-doorbox-marked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED box overlay on pose-01 marking the door-frame measurement box on the actual capture."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (01-toward-door): v2 reference left, uncalibrated-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-02-boxes-marked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED box overlay on pose-02: wall box (500,280,780,420) on flat wall, floor box (500,640,620,700) on clean floor -- crop-verification for the calibration boxes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (02-toward-bed-wall): v2 reference left, uncalibrated-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (03-ceiling-corner): v2 reference left, uncalibrated-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (04-door-inside): v2 reference left, uncalibrated-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (05-troffer-junction): v2 reference left, uncalibrated-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-recal-red-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1-recal RED comparison sheet (06-floor-base): v2 reference left, uncalibrated-chain runtime right."
     }
   ]
 }
