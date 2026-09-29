@@ -903,6 +903,15 @@ def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
 DOOR_GLASS_MATERIAL = "openclinxr_door_glass"
 DOOR_STEEL_MATERIAL = "openclinxr_door_steel"
 DOOR_CASING_MATERIAL = "openclinxr_finish_casing"
+# Ward casing spec paint (linear-ish albedo): the ref casing reads as a
+# white band at/above the adjacent wall (ref jamb ~189 vs wall ~183), while
+# the palette trim (0.69,0.73,0.75) renders ~174 grey against a ~207 wall.
+# The jamb faces catch raking light (normals ±x vs the wall's +z), so the
+# paint must run brighter than the wall albedo to match it: 0.83/0.88/0.91
+# still rendered ~205, level with the 207 wall.
+# Dedicated constant, not palette trim: other presets use trimAlbedo for
+# wall/trim paint and must not move with the ward casing.
+DOOR_CASING_RGB = (0.95, 0.96, 0.98)
 # Steel lite-frame rail width and room-face pride (metres).
 LITE_FRAME_WIDTH_M = 0.014
 LITE_FRAME_PROUD_M = 0.003
@@ -1104,8 +1113,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
-    trim = palette.get("trimAlbedo", [0.69, 0.73, 0.75])
-    casing_m = _door_casing_material((trim[0], trim[1], trim[2]),
+    casing_m = _door_casing_material(DOOR_CASING_RGB,
                                      float(palette.get("roughness", 0.85)))
     casing_re = re.compile(r"\.door_casing(_\d+)?$")
     repainted: list[str] = []

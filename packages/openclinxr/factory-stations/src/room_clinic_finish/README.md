@@ -100,7 +100,10 @@ Infinigen-first was investigated per part and recorded in
 - Casing paint: the casing geometry is Infinigen's (placed at
   `casing_chance = 1.0` by the chain's gin config) but its surface draws
   random metal/wood; Infinigen has no white-painted casing class, so the
-  finish repaints the kept casing to the palette trim (`openclinxr_finish_casing`).
+  finish repaints the kept casing to the ward spec white
+  (`DOOR_CASING_RGB`, decoupled from palette trim so other presets don't
+  move). The ref casing reads at/above its wall; the palette trim
+  rendered ~174 grey against a ~207 wall.
 
 ## Documented exception: the ward vinyl-tile floor field
 
