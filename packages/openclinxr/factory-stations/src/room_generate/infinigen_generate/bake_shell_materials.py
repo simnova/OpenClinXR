@@ -72,7 +72,7 @@
 #
 # Usage (inside Blender 5.1 headless):
 #   blender --background --python bake_shell_materials.py -- \
-#     --blend <work.blend> --output <baked.blend> [--seed N]
+#     --blend <work.blend> --output <baked.blend> [--seed N] [--device cpu|metal]
 #
 # Fail closed: any error prints a traceback and exits 1 via os._exit (Blender
 # exits 0 on uncaught Python exceptions, so SystemExit alone is not enough).
@@ -216,12 +216,31 @@ def box_project_into(objects: List[object], layer_name: str) -> None:
     bpy.ops.object.select_all(action="DESELECT")
 
 
-def setup_bake_scene(seed: int) -> None:
+def setup_bake_scene(seed: int, device: str = "cpu") -> None:
     import bpy
 
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
-    scene.cycles.device = "CPU"
+    if device == "metal":
+        # Metal GPU backend (measured 2026-09-28, seed-205 ward: ~2.3x mean
+        # wall-time win over CPU with byte-identical baked pixels per device
+        # and <=0.08/255 mean CPU-vs-Metal difference). Fail closed when no
+        # Metal device exists: silently falling back to CPU would misreport
+        # the device this bake ran on.
+        prefs = bpy.context.preferences.addons["cycles"].preferences
+        prefs.compute_device_type = "METAL"
+        prefs.get_devices()
+        metal = [d for d in prefs.devices if d.type == "METAL"]
+        if not metal:
+            raise RuntimeError("shell bake --device metal: no METAL Cycles device found")
+        for d in prefs.devices:
+            d.use = d.type == "METAL"
+        scene.cycles.device = "GPU"
+        print(f"[shell-bake] device=metal ({len(metal)} Metal device(s) enabled)")
+    elif device == "cpu":
+        scene.cycles.device = "CPU"
+    else:
+        raise RuntimeError(f"shell bake --device must be cpu|metal (got {device!r})")
     scene.cycles.samples = BAKE_SAMPLES
     scene.cycles.seed = seed
     if hasattr(scene.cycles, "use_denoising"):
@@ -528,6 +547,16 @@ def main() -> Dict[str, object]:
     ap.add_argument("--blend", required=True)
     ap.add_argument("--output", required=True)
     ap.add_argument("--seed", type=int, default=SHELL_BAKE_SEED)
+    ap.add_argument(
+        "--device",
+        choices=("cpu", "metal"),
+        default="cpu",
+        help="Cycles bake device: cpu (default, historical behaviour) or "
+        "metal (Apple GPU backend; adopted 2026-09-28 after the "
+        "room-chain-metal-measure bake-off showed a mean wall-time win "
+        "with byte-identical baked pixels and <=0.08/255 CPU-vs-Metal "
+        "mean difference on the seed-205 ward)",
+    )
     args = ap.parse_args(_argv_after_double_dash())
 
     if not os.path.exists(args.blend):
@@ -548,7 +577,7 @@ def main() -> Dict[str, object]:
         names = sorted(f"{o.name}[{len([m for m in o.data.materials if m is not None])}m]" for o in by_role[role])
         print(f"[shell-bake] role {role}: {names}")
 
-    setup_bake_scene(args.seed)
+    setup_bake_scene(args.seed, args.device)
 
     # Per-role full-coverage albedo layouts (ALB_<role> created first).
     for role in sorted(by_role):
@@ -661,6 +690,7 @@ def main() -> Dict[str, object]:
     summary = {
         "blend": args.output,
         "seed": args.seed,
+        "device": args.device,
         "sharedUv": SHARED_UV_LAYER,
         "roles": summary_roles,
         "sharedNormal": {"image": "shell_bake_normal", "size": SHARED_NORMAL_SIZE},

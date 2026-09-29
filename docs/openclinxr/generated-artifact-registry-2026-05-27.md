@@ -3529,3 +3529,4 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-lighting-e39fd53c.json` - keep-evidence; keep; lighting key.json rotated downstream of the RED3 bake change.
 - `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-finish-e5dff90a.json` - keep-evidence; keep; fresh-run finish key.json; records the divergent post-generate GLB bytes hash (dfeecfac vs 6106a52a).
 - `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-lighting-3a30477d.json` - keep-evidence; keep; fresh-run lighting key.json downstream of the divergent bytes.
+- `docs/openclinxr/room-realism/room-chain-metal-measure/report.json` - keep-evidence; keep; Structured Metal-vs-CPU bake measurement data: per-run wall time, peak RSS, hash equality, pixel diffs backing report.md's verdict table.

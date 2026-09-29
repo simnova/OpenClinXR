@@ -1,0 +1,220 @@
+{
+ "schemaVersion": "openclinxr.room-chain-metal-measure.v1",
+ "date": "2026-09-28",
+ "fixture": {
+  "seed": 205,
+  "footprintM": [
+   8.77,
+   7.77
+  ],
+  "ceilingClearM": 2.42,
+  "doorWall": "+y",
+  "doorOffsetM": 0.5
+ },
+ "timingSource": "/usr/bin/time -l (maximum resident set size, bytes); wall_s = harness wall clock",
+ "runs": [
+  {
+   "bake": "shell",
+   "run": "cpu1",
+   "device": "CPU",
+   "wall_s": 149.76417899131775,
+   "real_s": 149.71,
+   "user_s": 870.31,
+   "sys_s": 7.49,
+   "peakRssBytes": 1878523904
+  },
+  {
+   "bake": "shell",
+   "run": "cpu2",
+   "device": "CPU",
+   "wall_s": 215.91446590423584,
+   "real_s": 215.83,
+   "user_s": 858.29,
+   "sys_s": 7.42,
+   "peakRssBytes": 1987133440
+  },
+  {
+   "bake": "shell",
+   "run": "metal1",
+   "device": "METAL",
+   "wall_s": 129.43870210647583,
+   "real_s": 129.38,
+   "user_s": 18.65,
+   "sys_s": 5.37,
+   "peakRssBytes": 2518286336
+  },
+  {
+   "bake": "shell",
+   "run": "metal2",
+   "device": "METAL",
+   "wall_s": 29.077710151672363,
+   "real_s": 29.03,
+   "user_s": 18.2,
+   "sys_s": 4.5,
+   "peakRssBytes": 2483191808
+  },
+  {
+   "bake": "albedo",
+   "run": "cpu1",
+   "device": "CPU",
+   "wall_s": 584.8426990509033,
+   "real_s": 584.79,
+   "user_s": 4919.12,
+   "sys_s": 31.72,
+   "peakRssBytes": 7185858560
+  },
+  {
+   "bake": "albedo",
+   "run": "cpu2",
+   "device": "CPU",
+   "wall_s": 571.6034798622131,
+   "real_s": 571.55,
+   "user_s": 4938.81,
+   "sys_s": 30.29,
+   "peakRssBytes": 7244988416
+  },
+  {
+   "bake": "albedo",
+   "run": "metal1",
+   "device": "METAL",
+   "wall_s": 96.67842507362366,
+   "real_s": 96.68,
+   "user_s": 23.6,
+   "sys_s": 4.4,
+   "peakRssBytes": 7575486464
+  },
+  {
+   "bake": "albedo",
+   "run": "metal2",
+   "device": "METAL",
+   "wall_s": 94.180251121521,
+   "real_s": 94.13,
+   "user_s": 23.54,
+   "sys_s": 4.1,
+   "peakRssBytes": 7576682496
+  },
+  {
+   "bake": "ao",
+   "run": "cpu1",
+   "device": "CPU",
+   "wall_s": 125.30909204483032,
+   "real_s": 125.26,
+   "user_s": 124.33,
+   "sys_s": 0.65,
+   "peakRssBytes": 660258816
+  },
+  {
+   "bake": "ao",
+   "run": "cpu2",
+   "device": "CPU",
+   "wall_s": 126.04830384254456,
+   "real_s": 126.0,
+   "user_s": 124.63,
+   "sys_s": 0.63,
+   "peakRssBytes": 657555456
+  },
+  {
+   "bake": "ao",
+   "run": "metal1",
+   "device": "METAL",
+   "wall_s": 124.92573499679565,
+   "real_s": 124.88,
+   "user_s": 123.97,
+   "sys_s": 0.65,
+   "peakRssBytes": 662700032
+  },
+  {
+   "bake": "ao",
+   "run": "metal2",
+   "device": "METAL",
+   "wall_s": 125.42883110046387,
+   "real_s": 125.38,
+   "user_s": 124.26,
+   "sys_s": 0.73,
+   "peakRssBytes": 660160512
+  }
+ ],
+ "means": {
+  "shell": {
+   "CPU": 182.8393,
+   "METAL": 79.2582
+  },
+  "albedo": {
+   "CPU": 578.2231,
+   "METAL": 95.4293
+  },
+  "ao": {
+   "CPU": 125.6787,
+   "METAL": 125.1773
+  }
+ },
+ "determinismPerDevice": {
+  "shell": {
+   "CPU": "identical-pixels",
+   "METAL": "identical-pixels"
+  },
+  "albedo": {
+   "CPU": "identical",
+   "METAL": "differ-1LSB"
+  },
+  "ao": {
+   "CPU": "identical",
+   "METAL": "identical"
+  }
+ },
+ "hashes": {
+  "albedoCpuGlb": "1b31aebd2adb2fe723b3ff07ae7d2cc2a2ec68f31fac5d4ff1c90727e39c50da",
+  "albedoMetalGlb1": "cf8b1849e2b7d442c2116fb9089c1ef7fca0a5173f2ef7efa581c394e4da2e0f",
+  "albedoMetalGlb2": "a87966312613d2528746bcad393ae52f1ed7cb7baf9592a988fbd45bff7f9a18",
+  "aoAllGlb": "efe166a6f17fb141fd1c020a5a422b9f53f80bc3a644d56cb50dca17e4642d64",
+  "shellMetalExtractGlb": "82f299835e7a5aef0f14fc29cbb59f1d0a799f6d5cb50d6c07cdc3f1102b2b36"
+ },
+ "pixelDiffsCpuVsMetalMean255": {
+  "shell": {
+   "ceiling": 0.0801,
+   "floor": 0.0,
+   "other": 0.0,
+   "trim": 0.0004,
+   "wall": 0.0051,
+   "normal": 0.0009,
+   "roughness": 0.0
+  },
+  "albedo": {
+   "ceiling": 0.0175,
+   "floor": 0.0475,
+   "other": 0.0006,
+   "trim": 0.4669,
+   "wall": 0.3993
+  },
+  "ao": {
+   "all_images": 0.0
+  }
+ },
+ "pixelDiffsCpuVsMetalMax255": {
+  "shell": {
+   "ceiling": 3.0,
+   "floor": 1.0,
+   "other": 0.0,
+   "trim": 1.0,
+   "wall": 1.0,
+   "normal": 4.0,
+   "roughness": 0.0
+  },
+  "albedo": {
+   "ceiling": 63.0,
+   "floor": 46.0,
+   "other": 49.0,
+   "trim": 131.0,
+   "wall": 45.0
+  },
+  "ao": {
+   "all_images": 0.0
+  }
+ },
+ "verdicts": {
+  "shell": "ADOPT",
+  "albedo": "NO-CHANGE(fails determinism)",
+  "ao": "NO-CHANGE(no GPU code path; delta within noise)"
+ },
+ "thresholdMean255": 1.0
+}

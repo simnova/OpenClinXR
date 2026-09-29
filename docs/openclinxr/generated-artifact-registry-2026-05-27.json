@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 484,
+    "keep-evidence": 485,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24743,6 +24743,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "fresh-run lighting key.json downstream of the divergent bytes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-metal-measure/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Structured Metal-vs-CPU bake measurement data: per-run wall time, peak RSS, hash equality, pixel diffs backing report.md's verdict table."
     }
   ]
 }

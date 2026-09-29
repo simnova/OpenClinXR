@@ -337,6 +337,14 @@ export async function runInfinigenGenerate(
       workBlend,
       "--seed",
       String(seed),
+      // Metal GPU backend: adopted 2026-09-28 after the
+      // room-chain-metal-measure bake-off (docs/openclinxr/room-realism/
+      // room-chain-metal-measure/report.md) showed a mean wall-time win
+      // with byte-identical baked pixels and <=0.08/255 CPU-vs-Metal mean
+      // difference on the seed-205 ward. The script fails closed when no
+      // Metal device exists.
+      "--device",
+      "metal",
     ],
     { cwd: options.cwd ?? root, timeoutMs },
   );
