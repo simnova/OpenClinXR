@@ -44,6 +44,9 @@ export const ROOM_GENERATE_DOOR_WALLS = ["+x", "-x", "+y", "-y"] as const;
 /** Closed door-style enum; pins the Infinigen door factory. Absent = random draw. */
 export const ROOM_GENERATE_DOOR_STYLES = ["panel", "glass_panel", "louver", "lite"] as const;
 
+/** Closed door-handle enum; pins BaseDoorFactory.handle_type. Absent = random draw. */
+export const ROOM_GENERATE_DOOR_HANDLES = ["knob", "lever", "pull"] as const;
+
 export type RoomGenerateDoorWall = (typeof ROOM_GENERATE_DOOR_WALLS)[number];
 
 function isPositiveNumber(value: unknown): value is number {
@@ -108,6 +111,38 @@ export function validateRoomGenerateOptions(value: Record<string, unknown>): { m
           message: `door.style must be one of "panel", "glass_panel", "louver", "lite" (got ${JSON.stringify(style) ?? "missing"})`,
           path: ["door", "style"],
         });
+      }
+    }
+    if ("handle" in door && door["handle"] !== undefined) {
+      const handle = door["handle"];
+      if (
+        typeof handle !== "string" ||
+        !(ROOM_GENERATE_DOOR_HANDLES as readonly string[]).includes(handle)
+      ) {
+        issues.push({
+          message: `door.handle must be one of "knob", "lever", "pull" (got ${JSON.stringify(handle) ?? "missing"})`,
+          path: ["door", "handle"],
+        });
+      }
+    }
+    if ("liteRect" in door && door["liteRect"] !== undefined) {
+      const rect = door["liteRect"];
+      const ok =
+        Array.isArray(rect) &&
+        rect.length === 4 &&
+        rect.every((v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1) &&
+        (rect[0] as number) < (rect[1] as number) &&
+        (rect[2] as number) < (rect[3] as number);
+      if (!ok) {
+        issues.push({
+          message: "door.liteRect must be [xmin, xmax, ymin, ymax] leaf fractions in [0, 1] with xmin<xmax and ymin<ymax",
+          path: ["door", "liteRect"],
+        });
+      }
+    }
+    for (const dim of ["bevelMm", "casingMarginM"] as const) {
+      if (dim in door && door[dim] !== undefined && !isPositiveNumber(door[dim])) {
+        issues.push({ message: `door.${dim} expected positive number`, path: ["door", dim] });
       }
     }
     for (const dim of ["widthM", "heightM"] as const) {

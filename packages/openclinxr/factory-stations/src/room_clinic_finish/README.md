@@ -38,6 +38,49 @@ confirmed the door leaf now reads correctly (maple leaf, narrow vision lite,
 casing) and asked for this to be documented as a deliberate exception rather
 than left implicit in the code comments.
 
+## Documented exception: the ward door furniture (vision lite + hinges + casing)
+
+Under `ward_photo` the finish furnishes Infinigen's kept leaf and casing
+(`_furnish_ward_door` in `compose.py`, recipe `options.door` carrying the
+hinge side plus the lite fallback fractions, both threaded from the chain's
+`WARD_CHAIN_DOOR` single source). Deliberate exception, recorded 2026-09-29
+after a coordinator pixel grade of the seed-205 chain (v2 references 01/04):
+the ward door rendered as a residential door (recessed panel moulding,
+round knob, no visible casing band, maple-filled vision area).
+
+Infinigen-first was investigated per part and recorded in
+`run_fixed_footprint.py` (ward audit comment on the door-pin flags):
+- Flush leaf, satin lever, narrow vision-lite opening, 55 mm casing face:
+  TAKEN in Infinigen via deterministic driver pins (`--door-handle lever`,
+  `--door-lite-rect`, `--door-bevel-mm 2.5`, `--door-casing-margin-m 0.055`
+  over the pinned `lite` factory). Upstream draws the handle from
+  `choice(["knob","lever","pull"])` (`doors/base.py:56`), the lite dims
+  from uniform branches (`doors/lite.py`), the panel recess depth from
+  `bevel_width` (`doors/base.py:46`), and the casing face from a fixed
+  `margin = 0.11` (`doors/casing.py:32`) -- none gin-configurable, so the
+  driver pins them as post-draw constants (seeded, recorded in the
+  generate report, in the stage cache key via the driver hash + params).
+- Vision glass: NOT FOUND in Infinigen-through-our-bake. `LiteDoorFactory`
+  cuts the opening and tags a glass selection, but
+  `bake_shell_materials.assign_role_material` clears every slot into one
+  `shell_bake_trim` material, so the lite bakes and reads as wood. The
+  finish fits a real-transmission glass pane (`openclinxr_door_glass`,
+  KHR_materials_transmission) plus a steel lite frame; maple stays on the
+  leaf. The opening rect is measured from the leaf's own hole rims
+  (boundary edges of the joined solid); the recipe fractions place it only
+  when the leaf carries no hole, and the run fails closed when neither
+  exists.
+- Hinges: NOT FOUND in Infinigen (no hinge symbol anywhere under
+  `assets/objects/elements/doors/`). The finish adds three steel hinge
+  plates + knuckles on the recipe hinge-side jamb.
+- Lock cylinder: skipped, not refused for cause beyond recovery cost --
+  the Infinigen handle merges into the leaf mesh, so the latch x is not
+  recoverable for placing the cylinder above the lever. Recorded.
+- Casing paint: the casing geometry is Infinigen's (placed at
+  `casing_chance = 1.0` by the chain's gin config) but its surface draws
+  random metal/wood; Infinigen has no white-painted casing class, so the
+  finish repaints the kept casing to the palette trim (`openclinxr_finish_casing`).
+
 ## Documented exception: the ward vinyl-tile floor field
 
 Under `ward_photo` the finish emits a procedural vinyl-tile floor field

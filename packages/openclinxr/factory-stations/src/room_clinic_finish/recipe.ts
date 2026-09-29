@@ -58,7 +58,7 @@ export type RoomFinishRecipe = {
   modules: RoomFinishModule[];
   light: { exposure: "xr"; floorResponse: "xt_matte" };
   /** S5: crash rail gate, off by default (compose.py reads options.crashRail). */
-  options: { crashRail: boolean };
+  options: { crashRail: boolean; door?: { hingeSide: string; lite?: [number, number, number, number] } };
   finishPassLlm: false;
 };
 
@@ -118,6 +118,8 @@ export type RoomFinishRecipeInput = {
   seed: number;
   /** Opt-in crash rail (some other room type may want it); default off. */
   crashRail?: boolean;
+  /** Opt-in door furniture (hinge plates + lite fallback rect); absent = none. */
+  door?: { hingeSide: string; lite?: [number, number, number, number] };
 };
 
 /** Parse + refusal rules shared by plan() and the runner. */
@@ -141,6 +143,33 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
   if (crashRail !== undefined && typeof crashRail !== "boolean") {
     issues.push("crashRail must be a boolean when present");
   }
+  const doorOpt = input["door"] as unknown;
+  let door: { hingeSide: string; lite?: [number, number, number, number] } | undefined;
+  if (doorOpt !== undefined) {
+    const hingeSide = (doorOpt as Record<string, unknown>)?.["hingeSide"];
+    if (
+      typeof hingeSide !== "string" ||
+      !["+x", "-x", "+y", "-y"].includes(hingeSide)
+    ) {
+      issues.push('door.hingeSide must be one of "+x", "-x", "+y", "-y"');
+    } else {
+      door = { hingeSide };
+      const lite = (doorOpt as Record<string, unknown>)?.["lite"];
+      if (lite !== undefined) {
+        const ok =
+          Array.isArray(lite) &&
+          lite.length === 4 &&
+          lite.every((v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1) &&
+          (lite[0] as number) < (lite[1] as number) &&
+          (lite[2] as number) < (lite[3] as number);
+        if (!ok) {
+          issues.push("door.lite must be [xmin, xmax, ymin, ymax] leaf fractions in [0, 1]");
+        } else {
+          door.lite = [...(lite as number[])] as [number, number, number, number];
+        }
+      }
+    }
+  }
   if (issues.length > 0) return { issues };
   return {
     recipe: {
@@ -157,7 +186,7 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
       },
       modules: ROOM_FINISH_MODULES.map((entry) => ({ ...entry })),
       light: { exposure: "xr", floorResponse: "xt_matte" },
-      options: { crashRail: crashRail === true },
+      options: { crashRail: crashRail === true, ...(door !== undefined ? { door } : {}) },
       finishPassLlm: false,
     },
   };

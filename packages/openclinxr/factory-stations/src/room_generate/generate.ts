@@ -33,6 +33,14 @@ export type RoomGenerateDoor = {
   heightM?: number;
   /** Optional Infinigen door-factory pin: "panel" | "glass_panel" | "louver" | "lite". Absent = random draw. */
   style?: string;
+  /** Optional handle pin: "knob" | "lever" | "pull". Absent = factory random draw. */
+  handle?: string;
+  /** Optional vision-lite rect as leaf fractions [xmin, xmax, ymin, ymax]. Absent = factory draw. */
+  liteRect?: [number, number, number, number];
+  /** Optional panel-bevel depth in mm (flush-leaf pin). Absent = factory draw. */
+  bevelMm?: number;
+  /** Optional door-casing face width in metres. Absent = factory 0.11. */
+  casingMarginM?: number;
 };
 
 export type InfinigenGenerateInput = {
@@ -59,7 +67,7 @@ export type InfinigenGenerateReport = {
   footprintMeters: RoomGenerateFootprint;
   /** Effective door (explicit fields plus legacy-pin defaults). */
   door: Required<Pick<RoomGenerateDoor, "doorWall" | "wallOffsetM" | "hingeSide">> &
-    Pick<RoomGenerateDoor, "widthM" | "heightM" | "style">;
+    Pick<RoomGenerateDoor, "widthM" | "heightM" | "style" | "handle" | "liteRect" | "bevelMm" | "casingMarginM">;
   outputDir: string;
   sceneBlend: string;
   workBlend: string;
@@ -202,6 +210,10 @@ export async function runInfinigenGenerate(
     ...(input.door?.widthM !== undefined ? { widthM: input.door.widthM } : {}),
     ...(input.door?.heightM !== undefined ? { heightM: input.door.heightM } : {}),
     ...(input.door?.style !== undefined ? { style: input.door.style } : {}),
+    ...(input.door?.handle !== undefined ? { handle: input.door.handle } : {}),
+    ...(input.door?.liteRect !== undefined ? { liteRect: input.door.liteRect } : {}),
+    ...(input.door?.bevelMm !== undefined ? { bevelMm: input.door.bevelMm } : {}),
+    ...(input.door?.casingMarginM !== undefined ? { casingMarginM: input.door.casingMarginM } : {}),
   };
   const seed = Math.trunc(input.seed);
   const timeoutMs = options.timeoutMs ?? 1_200_000;
@@ -252,6 +264,10 @@ export async function runInfinigenGenerate(
     ...(door.widthM !== undefined ? ["--door-width-m", String(door.widthM)] : []),
     ...(door.heightM !== undefined ? ["--door-height-m", String(door.heightM)] : []),
     ...(door.style !== undefined ? [`--door-style=${door.style}`] : []),
+    ...(door.handle !== undefined ? [`--door-handle=${door.handle}`] : []),
+    ...(door.liteRect !== undefined ? ["--door-lite-rect", (door.liteRect as number[]).join(",")] : []),
+    ...(door.bevelMm !== undefined ? ["--door-bevel-mm", String(door.bevelMm)] : []),
+    ...(door.casingMarginM !== undefined ? ["--door-casing-margin-m", String(door.casingMarginM)] : []),
     "-p",
     "compose_indoors.terrain_enabled=False",
     "compose_indoors.room_windows_enabled=False",

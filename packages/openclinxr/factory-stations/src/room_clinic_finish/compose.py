@@ -892,6 +892,312 @@ def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
     return textured
 
 
+# Ward door furniture (documented dark-factory exception, see README):
+# Infinigen cuts the lite opening but the shell bake consolidates the glass
+# selection away (bake_shell_materials.assign_role_material clears every
+# slot into one shell_bake_trim material); Infinigen ships no hinge class
+# at all; and its casing draws random metal/wood instead of the specced
+# light frame. Under ward_photo only, the finish therefore adds the glass
+# pane plus its steel lite frame plus hinge plates, and repaints the kept
+# casing to the palette trim. Maple stays on the leaf (existing exception).
+DOOR_GLASS_MATERIAL = "openclinxr_door_glass"
+DOOR_STEEL_MATERIAL = "openclinxr_door_steel"
+DOOR_CASING_MATERIAL = "openclinxr_finish_casing"
+# Steel lite-frame rail width and room-face pride (metres).
+LITE_FRAME_WIDTH_M = 0.014
+LITE_FRAME_PROUD_M = 0.003
+# Glass overlap into the opening walls per side + pane thickness.
+LITE_GLASS_OVERLAP_M = 0.008
+LITE_GLASS_THICK_M = 0.004
+# Hinge-plate heights (metres above the room floor plane).
+DOOR_HINGE_HEIGHTS_M = (0.35, 1.02, 1.69)
+DOOR_HINGE_PLATE_W_M = 0.035
+DOOR_HINGE_PLATE_H_M = 0.11
+DOOR_HINGE_KNUCKLE_R_M = 0.006
+
+
+def _door_steel_material():
+    """Brushed-steel furniture material (lite frame, hinge plates)."""
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(DOOR_STEEL_MATERIAL)
+    if mat is None:
+        mat = bpy.data.materials.new(name=DOOR_STEEL_MATERIAL)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (0.75, 0.77, 0.79, 1.0)
+    bsdf.inputs["Metallic"].default_value = 0.9
+    bsdf.inputs["Roughness"].default_value = 0.35
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _door_glass_material():
+    """Vision-lite glass: real transmission, not opaque white.
+
+    Principled Transmission exports as KHR_materials_transmission, which
+    the ui-xr runtime (three) renders as see-through glass. Base color
+    near-white with low roughness reads as the pale ward lite.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(DOOR_GLASS_MATERIAL)
+    if mat is None:
+        mat = bpy.data.materials.new(name=DOOR_GLASS_MATERIAL)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (0.92, 0.95, 0.96, 1.0)
+    bsdf.inputs["Metallic"].default_value = 0.0
+    bsdf.inputs["Roughness"].default_value = 0.08
+    if "Transmission Weight" in bsdf.inputs:
+        bsdf.inputs["Transmission Weight"].default_value = 0.92
+    elif "Transmission" in bsdf.inputs:
+        bsdf.inputs["Transmission"].default_value = 0.92
+    if "IOR" in bsdf.inputs:
+        bsdf.inputs["IOR"].default_value = 1.5
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _door_casing_material(rgb: tuple, roughness: float):
+    """Specced light casing paint (flat; replaces the random metal/wood bake)."""
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(DOOR_CASING_MATERIAL)
+    if mat is None:
+        mat = bpy.data.materials.new(name=DOOR_CASING_MATERIAL)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
+    bsdf.inputs["Roughness"].default_value = float(roughness)
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _world_bbox(obj) -> dict:
+    """World-space AABB of a mesh object (Blender runtime only)."""
+    import bpy  # type: ignore[import-not-found]
+
+    mins = [float("inf")] * 3
+    maxs = [float("-inf")] * 3
+    for v in obj.data.vertices:
+        wv = obj.matrix_world @ v.co
+        for i in range(3):
+            mins[i] = min(mins[i], wv[i])
+            maxs[i] = max(maxs[i], wv[i])
+    return {"min": mins, "max": maxs}
+
+
+def _lite_opening_from_mesh(obj) -> dict | None:
+    """Measured vision-lite opening from the leaf's own hole rims.
+
+    The joined leaf is a closed solid except at the lite through-opening,
+    so boundary edges belong to the hole rims (front + back) and nothing
+    else. Returns the opening rect in the leaf face plane plus the leaf
+    depth center, or None when the leaf has no hole. Deterministic.
+    """
+    import bmesh  # type: ignore[import-not-found]
+    import bpy  # type: ignore[import-not-found]
+
+    mesh = obj.data
+    bm = bmesh.new()
+    try:
+        bm.from_mesh(mesh)
+        rim = [v for e in bm.edges if e.is_boundary for v in e.verts]
+    finally:
+        bm.free()
+    if not rim:
+        return None
+    box = _world_bbox(obj)
+    extents = [box["max"][i] - box["min"][i] for i in range(3)]
+    thin = min(range(3), key=lambda i: extents[i])
+    face_axes = [i for i in range(3) if i != thin]
+    us, vs = [], []
+    for v in rim:
+        wv = obj.matrix_world @ v.co
+        us.append(wv[face_axes[0]])
+        vs.append(wv[face_axes[1]])
+    return {
+        "thinAxis": thin,
+        "uAxis": face_axes[0],
+        "vAxis": face_axes[1],
+        "u0": min(us), "u1": max(us),
+        "v0": min(vs), "v1": max(vs),
+        "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
+        "depth": extents[thin],
+    }
+
+
+def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
+    """Glass + lite frame + hinges + casing repaint (Blender runtime only).
+
+    The lite rect comes from the leaf's measured hole rims; when the leaf
+    carries no hole (fixture input, or a lite pin that failed to cut) the
+    recipe options.door.lite fractions place it from the leaf bbox instead.
+    Fail closed under ward_photo when neither exists: a ward door without
+    a vision panel re-creates the defect this slice fixes.
+    """
+    import bpy  # type: ignore[import-not-found]
+    import re
+
+    leaf_re = re.compile(r"\.door_leaf(_\d+)?$")
+    leaves = [obj for obj in bpy.data.objects
+              if obj.type == "MESH" and leaf_re.search(obj.name)]
+    if not leaves:
+        raise SystemExit("room_clinic_finish: ward door furniture needs a kept door leaf")
+    options = recipe.get("options")
+    door_opt = options.get("door") if isinstance(options, dict) else None
+    hinge_side = door_opt.get("hingeSide") if isinstance(door_opt, dict) else None
+    lite_frac = door_opt.get("lite") if isinstance(door_opt, dict) else None
+
+    glass_m = _door_glass_material()
+    steel_m = _door_steel_material()
+    trim = palette.get("trimAlbedo", [0.69, 0.73, 0.75])
+    casing_m = _door_casing_material((trim[0], trim[1], trim[2]),
+                                     float(palette.get("roughness", 0.85)))
+    casing_re = re.compile(r"\.door_casing(_\d+)?$")
+    repainted: list[str] = []
+    for obj in bpy.data.objects:
+        if obj.type != "MESH" or not casing_re.search(obj.name):
+            continue
+        mesh = obj.data
+        if len(mesh.materials) == 0:
+            mesh.materials.append(casing_m)
+        else:
+            for index in range(len(mesh.materials)):
+                mesh.materials[index] = casing_m
+        repainted.append(obj.name)
+
+    furnished: dict = {"glass": [], "frame": [], "hinges": [], "casing": repainted,
+                       "opening": None, "openingSource": None}
+
+    def new_box(name: str, center: list, size: list, mat: object) -> object:
+        mesh = bpy.data.meshes.new(name + "_mesh")
+        obj = bpy.data.objects.new(name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        obj["openClinXrFinishDecoration"] = True
+        cx, cy, cz = center
+        dx, dy, dz = size
+        verts = [
+            (cx - dx / 2, cy - dy / 2, cz - dz / 2), (cx + dx / 2, cy - dy / 2, cz - dz / 2),
+            (cx + dx / 2, cy + dy / 2, cz - dz / 2), (cx - dx / 2, cy + dy / 2, cz - dz / 2),
+            (cx - dx / 2, cy - dy / 2, cz + dz / 2), (cx + dx / 2, cy - dy / 2, cz + dz / 2),
+            (cx + dx / 2, cy + dy / 2, cz + dz / 2), (cx - dx / 2, cy + dy / 2, cz + dz / 2),
+        ]
+        faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4),
+                 (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+        mesh.from_pydata(verts, [], faces)
+        mesh.update()
+        mesh.materials.append(mat)
+        return obj
+
+    for leaf in leaves:
+        box = _world_bbox(leaf)
+        extents = [box["max"][i] - box["min"][i] for i in range(3)]
+        opening = _lite_opening_from_mesh(leaf)
+        source = "measured-rim"
+        if opening is None:
+            if (not isinstance(lite_frac, (list, tuple)) or len(lite_frac) != 4
+                    or not all(isinstance(v, (int, float)) for v in lite_frac)):
+                raise SystemExit(
+                    "room_clinic_finish: leaf %s has no lite opening and "
+                    "recipe options.door.lite fractions are absent" % leaf.name)
+            thin = min(range(3), key=lambda i: extents[i])
+            axes = [i for i in range(3) if i != thin]
+            # Width axis = the wider horizontal face axis; v is vertical (z).
+            u_axis = axes[0]
+            v_axis = 2
+            if extents[axes[0]] < extents[axes[1]] and axes[1] != 2:
+                u_axis = axes[1]
+            fx0, fx1, fy0, fy1 = (float(v) for v in lite_frac)
+            span_u = box["max"][u_axis] - box["min"][u_axis]
+            span_v = box["max"][v_axis] - box["min"][v_axis]
+            opening = {
+                "thinAxis": thin, "uAxis": u_axis, "vAxis": v_axis,
+                "u0": box["min"][u_axis] + fx0 * span_u,
+                "u1": box["min"][u_axis] + fx1 * span_u,
+                "v0": box["min"][v_axis] + fy0 * span_v,
+                "v1": box["min"][v_axis] + fy1 * span_v,
+                "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
+                "depth": extents[thin],
+            }
+            source = "recipe-fractions"
+        furnished["opening"] = {k: (round(v, 4) if isinstance(v, float) else v)
+                                for k, v in opening.items()}
+        furnished["openingSource"] = source
+        thin, ua, va = opening["thinAxis"], opening["uAxis"], opening["vAxis"]
+        u0, u1 = opening["u0"], opening["u1"]
+        v0, v1 = opening["v0"], opening["v1"]
+        # Glass pane: opening plus overlap, thin in the leaf-depth axis.
+        center = [0.0, 0.0, 0.0]
+        size = [0.0, 0.0, 0.0]
+        center[ua] = (u0 + u1) / 2
+        center[va] = (v0 + v1) / 2
+        center[thin] = opening["depthCenter"]
+        size[ua] = (u1 - u0) + 2 * LITE_GLASS_OVERLAP_M
+        size[va] = (v1 - v0) + 2 * LITE_GLASS_OVERLAP_M
+        size[thin] = LITE_GLASS_THICK_M
+        glass_obj = new_box("openclinxr_door_glass", center, size, glass_m)
+        furnished["glass"].append(glass_obj.name)
+        # Steel lite frame: four rails on the room-side face around the
+        # opening, proud of the leaf face.
+        room_sign = 1.0 if room_center[thin] > center[thin] else -1.0
+        face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
+        rail_c = face + room_sign * LITE_FRAME_PROUD_M
+        fw = LITE_FRAME_WIDTH_M
+        rails = [
+            ((u0 + u1) / 2, v1 + fw / 2, (u1 - u0) + 2 * fw, fw),
+            ((u0 + u1) / 2, v0 - fw / 2, (u1 - u0) + 2 * fw, fw),
+            (u0 - fw / 2, (v0 + v1) / 2, fw, (v1 - v0)),
+            (u1 + fw / 2, (v0 + v1) / 2, fw, (v1 - v0)),
+        ]
+        for index, (ru, rv, su, sv) in enumerate(rails):
+            rc = [0.0, 0.0, 0.0]
+            rs = [0.0, 0.0, 0.0]
+            rc[ua] = ru
+            rc[va] = rv
+            rc[thin] = rail_c
+            rs[ua] = su
+            rs[va] = sv
+            rs[thin] = 2 * LITE_FRAME_PROUD_M + 0.001
+            rail = new_box("openclinxr_door_liteframe_%d" % index, rc, rs, steel_m)
+            furnished["frame"].append(rail.name)
+        # Hinge plates + knuckles on the hinge jamb edge of the leaf face.
+        if hinge_side in ("+x", "-x", "+y", "-y"):
+            axis = 0 if "x" in hinge_side else 1
+            positive = hinge_side.startswith("+")
+            edge = box["max"][axis] if positive else box["min"][axis]
+            for index, height in enumerate(DOOR_HINGE_HEIGHTS_M):
+                pc = [0.0, 0.0, 0.0]
+                ps = [0.0, 0.0, 0.0]
+                for i in range(3):
+                    if i == axis:
+                        pc[i] = edge - (0.0 if positive else 0.0)
+                        ps[i] = DOOR_HINGE_PLATE_W_M
+                    elif i == thin:
+                        pc[i] = face + room_sign * 0.001
+                        ps[i] = 0.004
+                    else:
+                        pc[i] = height
+                        ps[i] = DOOR_HINGE_PLATE_H_M
+                # Plate sits half-embedded at the leaf edge so its outer
+                # half reads on the face and its knuckle side reaches the jamb.
+                pc[axis] = edge + (DOOR_HINGE_PLATE_W_M / 4 if positive
+                                   else -DOOR_HINGE_PLATE_W_M / 4)
+                plate = new_box("openclinxr_door_hinge_%d" % index, pc, ps, steel_m)
+                furnished["hinges"].append(plate.name)
+    return furnished
+
+
 def crash_rail_enabled(recipe: dict) -> bool:
     """Recipe options.crashRail gates the crash rail; absent means off."""
     options = recipe.get("options")
@@ -1057,6 +1363,20 @@ def apply_finish() -> int:
         door_leaf = _texture_kept_door_leaf()
     if not door_leaf:
         raise SystemExit("room_clinic_finish: no kept door leaf (*.door_leaf) in input GLB")
+    # Ward door furniture (documented exception): glass + steel lite frame
+    # + hinges + casing repaint. Opt-in via recipe options.door (the ward
+    # chain threads hingeSide + lite fractions); ward_photo recipes without
+    # it keep the legacy leaf-only path their tests pin.
+    door_furniture: dict = {"glass": [], "frame": [], "hinges": [], "casing": [],
+                            "opening": None, "openingSource": None}
+    options = recipe.get("options")
+    if preserve_shell and isinstance(options, dict) and options.get("door") is not None:
+        room_c = [0.0, 0.0, 0.0]
+        if shell is not None:
+            room_c = [(shell["x"][0] + shell["x"][1]) / 2,
+                      (shell["y"][0] + shell["y"][1]) / 2,
+                      (shell["z"][0] + shell["z"][1]) / 2]
+        door_furniture = _furnish_ward_door(recipe, palette, room_c)
 
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
     bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB", export_extras=True)
@@ -1078,6 +1398,7 @@ def apply_finish() -> int:
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],
         "doorLeafPhoto": door_leaf,
+        "doorFurniture": door_furniture,
     }
     with open(args.report, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2)

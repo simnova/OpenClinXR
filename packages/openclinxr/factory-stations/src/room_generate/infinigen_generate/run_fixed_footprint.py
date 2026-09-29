@@ -77,6 +77,48 @@ def main():
         choices=["panel", "glass_panel", "louver", "lite"],
         default=None,
     )
+    # Ward-door pins (all deterministic constants, no RNG draws; each joins
+    # the room_chain stage cache key via the driver file hash plus the
+    # verbatim stage params in generate.ts/run.ts). Absent keeps upstream
+    # behaviour. Pins require --door-style (applying them to a random-draw
+    # factory would pin only half the draw).
+    #
+    # Infinigen-first audit (ward door defect, seed-205 chain):
+    # - style lite: LiteDoorFactory selectable (doors/lite.py) -- TAKEN.
+    # - handle lever: BaseDoorFactory.handle_type draws
+    #   choice(["knob","lever","pull"]) (doors/base.py:56) with no gin
+    #   binding -- pinned here via subclass override -- TAKEN.
+    # - flush leaf: every factory routes through PanelDoorFactory.bevel
+    #   (doors/panel.py), whose recess depth is bevel_width,
+    #   uniform(0.005, 0.01) (doors/base.py:46), not gin-configurable --
+    #   pinned here to 2.5 mm so the lite-frame step stays inside the
+    #   3 mm DONE-WHEN band -- TAKEN.
+    # - narrow vision lite: LiteDoorFactory dims draw uniform() branches
+    #   (doors/lite.py) with no parameter -- pinned here to the ref
+    #   fractions (about 0.12 m wide x 0.55 m tall, upper handle-opposite
+    #   half) -- TAKEN.
+    # - casing 50-60 mm: DoorCasingFactory.margin is a fixed 0.11
+    #   (doors/casing.py:32), surface random metal/wood (casing.py:35) --
+    #   margin pinned here; surface bake lands in shell_bake_trim and the
+    #   finish repaints the casing to the specced light frame -- TAKEN.
+    # - hinges / lock cylinder: no Infinigen hinge or lock class exists
+    #   (no "hinge" symbol anywhere under assets/objects/elements/doors/)
+    #   -- NOT FOUND in Infinigen; hinges are finish-added geometry,
+    #   the cylinder is skipped (handle x is unrecoverable post-merge).
+    # - vision glass: LiteDoorFactory cuts the opening and assigns a glass
+    #   selection, but bake_shell_materials.assign_role_material clears
+    #   every slot into one shell_bake_trim material, so the lite bakes
+    #   and reads as wood -- NOT FOUND in Infinigen-through-our-bake;
+    #   the finish adds the glass pane plus its steel frame.
+    parser.add_argument(
+        "--door-handle",
+        choices=["knob", "lever", "pull"],
+        default=None,
+    )
+    parser.add_argument("--door-lite-rect", default=None,
+                        help='"xmin,xmax,ymin,ymax" leaf fractions, e.g. "0.64,0.80,0.58,0.87"')
+    parser.add_argument("--door-bevel-mm", type=float, default=None)
+    parser.add_argument("--door-casing-margin-m", type=float, default=None)
     args = parser.parse_args()
     args.overrides = [b for group in args.overrides for b in group]
 
@@ -295,6 +337,96 @@ def main():
         doors_mod.random_door_factory = _pinned_door_factory
         room_decorate.random_door_factory = _pinned_door_factory
         print(f"[fixed_footprint] pinned door factory to {pinned.__name__}", flush=True)
+
+    # Ward-door detail pins (require --door-style; see the flag help above
+    # for the Infinigen-first audit). All constants replace post-draw
+    # values, so no RNG sequence downstream shifts.
+    ward_pins = (
+        args.door_handle is not None
+        or args.door_lite_rect is not None
+        or args.door_bevel_mm is not None
+        or args.door_casing_margin_m is not None
+    )
+    if ward_pins and args.door_style is None:
+        raise SystemExit("run_fixed_footprint: door detail pins require --door-style")
+    lite_rect = None
+    if args.door_lite_rect is not None:
+        try:
+            lite_rect = tuple(float(v) for v in args.door_lite_rect.split(","))
+        except ValueError:
+            raise SystemExit("run_fixed_footprint: --door-lite-rect must be xmin,xmax,ymin,ymax numbers")
+        if len(lite_rect) != 4 or not all(0.0 <= v <= 1.0 for v in lite_rect):
+            raise SystemExit("run_fixed_footprint: --door-lite-rect fractions must be 4 numbers in [0, 1]")
+        if not (lite_rect[0] < lite_rect[1] and lite_rect[2] < lite_rect[3]):
+            raise SystemExit("run_fixed_footprint: --door-lite-rect needs xmin<xmax and ymin<ymax")
+    if args.door_bevel_mm is not None and args.door_bevel_mm <= 0:
+        raise SystemExit("run_fixed_footprint: --door-bevel-mm must be positive")
+    if args.door_casing_margin_m is not None and args.door_casing_margin_m <= 0:
+        raise SystemExit("run_fixed_footprint: --door-casing-margin-m must be positive")
+    if ward_pins:
+        from infinigen.assets.objects.elements import doors as doors_mod
+        from infinigen.assets.objects.elements.doors.lite import LiteDoorFactory
+        from infinigen.assets.objects.elements.doors.louver import LouverDoorFactory
+        from infinigen.assets.objects.elements.doors.panel import (
+            GlassPanelDoorFactory,
+            PanelDoorFactory,
+        )
+        from infinigen.core.constraints.example_solver.room import decorate as room_decorate
+
+        _ward_base = {
+            "panel": PanelDoorFactory,
+            "glass_panel": GlassPanelDoorFactory,
+            "louver": LouverDoorFactory,
+            "lite": LiteDoorFactory,
+        }[args.door_style]
+        _handle = args.door_handle
+        _bevel_m = args.door_bevel_mm / 1000.0 if args.door_bevel_mm is not None else None
+
+        class _WardDoorFactory(_ward_base):  # type: ignore[valid-type,misc]
+            def __init__(self, factory_seed, coarse=False, constants=None):
+                super().__init__(factory_seed, coarse, constants)
+                if _handle is not None:
+                    self.handle_type = _handle
+                if lite_rect is not None and hasattr(self, "x_min"):
+                    self.x_min, self.x_max, self.y_min, self.y_max = lite_rect
+                    self.x_subdivisions = 1
+                    self.y_subdivisions = 1
+                if _bevel_m is not None:
+                    self.bevel_width = _bevel_m
+
+        def _pinned_ward_factory():
+            return _WardDoorFactory
+
+        doors_mod.random_door_factory = _pinned_ward_factory
+        room_decorate.random_door_factory = _pinned_ward_factory
+        print(
+            "[fixed_footprint] ward door pins: handle=%s lite=%s bevel_m=%s casing_margin_m=%s" % (
+                _handle, lite_rect, _bevel_m, args.door_casing_margin_m),
+            flush=True,
+        )
+        if args.door_casing_margin_m is not None:
+            import infinigen.assets.objects.elements as elements_pkg
+            from infinigen.assets.objects.elements.doors import base as doors_base_mod
+
+            _orig_casing = elements_pkg.DoorCasingFactory
+            _casing_margin = float(args.door_casing_margin_m)
+
+            class _WardCasing(_orig_casing):  # type: ignore[valid-type,misc]
+                def __init__(self, factory_seed, coarse=False, constants=None):
+                    super().__init__(factory_seed, coarse, constants)
+                    self.margin = _casing_margin
+
+            # BaseDoorFactory.casing_factory imports DoorCasingFactory from
+            # the elements package at call time, so patching the package
+            # attribute redirects it (verified: base.py casing_factory
+            # property does "from infinigen.assets.objects.elements import
+            # DoorCasingFactory" inside the property body).
+            elements_pkg.DoorCasingFactory = _WardCasing
+            doors_base_mod.DoorCasingFactory = _WardCasing
+            print(
+                "[fixed_footprint] ward casing margin=%.3f" % _casing_margin,
+                flush=True,
+            )
 
     init.apply_gin_configs(
         configs=["base_indoors.gin"] + args.configs,

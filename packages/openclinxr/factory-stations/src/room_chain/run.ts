@@ -54,6 +54,14 @@ export const WARD_CHAIN_DOOR = {
   style: "lite",
   widthM: 0.95,
   heightM: 2.1,
+  // Ward-door pins (Infinigen-first; see run_fixed_footprint.py ward audit):
+  // satin lever (not knob), narrow vision lite as leaf fractions
+  // (about 0.12 m wide x 0.55 m tall, upper handle-opposite half),
+  // 2.5 mm panel bevel (flush-leaf band), 55 mm casing face.
+  handle: "lever",
+  liteRect: [0.64, 0.8, 0.58, 0.87],
+  bevelMm: 2.5,
+  casingMarginM: 0.055,
 };
 export const WARD_CHAIN_PRESET = "ward_photo";
 export const WARD_CHAIN_MOOD = "clinic_day";
@@ -384,6 +392,11 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     environmentId: WARD_CHAIN_ENVIRONMENT_ID,
     preset: WARD_CHAIN_PRESET,
     seed,
+    // Ward door furniture: hinge plates mount on this jamb; the lite
+    // fractions place the glass/frame when the leaf carries no cut
+    // opening (same rect the generate stage cuts). Single source is
+    // WARD_CHAIN_DOOR above.
+    door: { hingeSide: WARD_CHAIN_DOOR.hingeSide, lite: [...WARD_CHAIN_DOOR.liteRect] },
   };
   const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
   const finishResult = await runCachedStage(
