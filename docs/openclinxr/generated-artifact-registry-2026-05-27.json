@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 631,
+    "keep-evidence": 652,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -25156,6 +25156,153 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Hemisphere GREEN tuned-hemisphere comparison sheet (06-floor-base): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-01-toward-door)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-02-toward-bed-wall). Wall-box source: (226.8, 221.1, 215.9), R-B 10.9 FAIL."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-03-ceiling-corner). Prescribed tile box is wall-dominated here (stddev 28.5); see CHAIN-BASELINE.md."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-04-door-inside)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-05-troffer-junction)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-06-floor-base)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-chain-baseline/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline capture manifest: fresh chain GLB path, pose eye/look/fov, per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (01-toward-door): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (02-toward-bed-wall): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (03-ceiling-corner): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (04-door-inside): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (05-troffer-junction): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline comparison sheet (06-floor-base): v2 reference left, fresh-chain runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/chain-baseline-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Chain baseline box means: wall FAIL, prescribed tile box INVALID (wall-dominated), clean-tile patches, backing CHAIN-BASELINE.md."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-01-toward-door), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-02-toward-bed-wall), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-03-ceiling-corner), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-04-door-inside), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-05-troffer-junction), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-06-floor-base), bit-identical to chain-baseline shas."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Prior re-verification capture manifest (pre-existing untracked dir; contents untouched): chain GLB /tmp/light-balance-chain-rerun sha 8264b94c."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-stage-cache/timing.json",

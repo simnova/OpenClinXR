@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 116
 - current-reference: 209
 - decision-record: 44
-- evidence: 141
+- evidence: 142
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -425,6 +425,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/room-realism/light-balance/REPORT.md` - evidence; Light-balance report: clinic_day rig retune toward neutral with RED/GREEN wall/tile box means against the v2 reference (wall bar pass, tile-B fail disclosed).
 - `docs/openclinxr/room-realism/light-balance/HEMISPHERE.md` - evidence; Hemisphere retune report: raised_hemisphere_ground sky/ground toward neutral with hemisphere-RED/GREEN wall/tile box means against the v2 reference (tile-B fix, wall bar holds).
+- `docs/openclinxr/room-realism/light-balance/CHAIN-BASELINE.md` - evidence; Chain baseline report: fresh-chain-GLB wall FAIL with exposure-infeasibility proof, prescribed tile box INVALID (wall-dominated), clean-tile dark/warm measurements, blown DIFFUSE wall-bake root cause; both fix steps blocked.
 - `docs/openclinxr/room-realism/room-chain-metal-measure/report.md` - evidence; Metal-vs-CPU bake measurement report for the three room_generate bakes (shell, albedo, AO): timing, RSS, run-to-run determinism, pixel diffs, and the mechanical adoption verdict (Metal adopted for shell bake only).
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md` - evidence; Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job.
 - `docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md` - evidence; Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job.

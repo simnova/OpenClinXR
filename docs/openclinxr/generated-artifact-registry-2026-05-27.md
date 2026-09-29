@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 244
-- keep-evidence: 631
+- keep-evidence: 652
 - keep-current: 226
 - keep-evidence: 407
 - keep-template: 6
@@ -3602,6 +3602,27 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/hemisphere-green-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (04-door-inside): v2 reference left, runtime right.
 - `docs/openclinxr/room-realism/light-balance/hemisphere-green-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (05-troffer-junction): v2 reference left, runtime right.
 - `docs/openclinxr/room-realism/light-balance/hemisphere-green-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Hemisphere GREEN tuned-hemisphere comparison sheet (06-floor-base): v2 reference left, runtime right.
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-01-toward-door.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-01-toward-door).
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-02-toward-bed-wall). Wall-box source: (226.8, 221.1, 215.9), R-B 10.9 FAIL.
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-03-ceiling-corner.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-03-ceiling-corner). Prescribed tile box is wall-dominated here (stddev 28.5); see CHAIN-BASELINE.md.
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-04-door-inside.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-04-door-inside).
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-05-troffer-junction.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-05-troffer-junction).
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/runtime-06-floor-base.png` - keep-evidence; keep; Chain baseline fresh-chain-GLB (8264b94c) runtime frame (runtime-06-floor-base).
+- `docs/openclinxr/room-realism/light-balance/captures-chain-baseline/stage2-multiview.json` - keep-evidence; keep; Chain baseline capture manifest: fresh chain GLB path, pose eye/look/fov, per-capture sha256.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (01-toward-door): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (02-toward-bed-wall): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (03-ceiling-corner): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (04-door-inside): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (05-troffer-junction): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Chain baseline comparison sheet (06-floor-base): v2 reference left, fresh-chain runtime right.
+- `docs/openclinxr/room-realism/light-balance/chain-baseline-measurements.json` - keep-evidence; keep; Chain baseline box means: wall FAIL, prescribed tile box INVALID (wall-dominated), clean-tile patches, backing CHAIN-BASELINE.md.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-01-toward-door.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-01-toward-door), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-02-toward-bed-wall), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-03-ceiling-corner.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-03-ceiling-corner), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-04-door-inside.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-04-door-inside), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-05-troffer-junction.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-05-troffer-junction), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/runtime-06-floor-base.png` - keep-evidence; keep; Prior re-verification capture (pre-existing untracked dir; contents untouched): fresh-chain-GLB runtime frame (runtime-06-floor-base), bit-identical to chain-baseline shas.
+- `docs/openclinxr/room-realism/light-balance/captures-hemisphere-green-chain/stage2-multiview.json` - keep-evidence; keep; Prior re-verification capture manifest (pre-existing untracked dir; contents untouched): chain GLB /tmp/light-balance-chain-rerun sha 8264b94c.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
