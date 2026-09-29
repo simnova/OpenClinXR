@@ -14,7 +14,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
 
 /**
  * OBSERVABLE: under ward_photo with recipe options.door, the finish furnishes
- * the ward door -- transmission glass pane + steel lite frame + hinge plates
+ * the ward door -- dark glass pane + steel lite frame + hinge plates
  * on the hinge jamb + casing repainted to the palette trim -- while maple
  * stays on the leaf (ward door exception, see README).
  *
@@ -158,7 +158,7 @@ describe("the room clinic finish ward door", () => {
     expect(composeSrc).toContain("openclinxr_finish_casing");
   });
 
-  it("(2) a transmission glass pane lands on the lite fractions", async () => {
+  it("(2) a dark partly-transparent glass pane lands on the lite fractions", async () => {
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const doc = await io.read(prepared!.workGlb);
     const glass = meshByName(doc, "openclinxr_door_glass_mesh");
@@ -174,6 +174,12 @@ describe("the room clinic finish ward door", () => {
     const glassMat = doc.getRoot().listMaterials().find((m) => m.getName() === "openclinxr_door_glass");
     expect(glassMat, "glass material must exist").toBeDefined();
     expect(glassMat!.getBaseColorTexture(), "glass must not be an opaque photo").toBeNull();
+    // Dark glass, not transmission (the runtime has no scene environment
+    // for a transmission pass): near-black albedo, alpha blend.
+    expect(glassMat!.getAlphaMode()).toBe("BLEND");
+    const factor = glassMat!.getBaseColorFactor();
+    for (let i = 0; i < 3; i += 1) expect(factor[i]!).toBeLessThan(0.15);
+    expect(factor[3]!).toBeLessThan(1.0);
     const furniture = prepared!.report["doorFurniture"] as { openingSource: string };
     expect(furniture.openingSource).toBe("recipe-fractions");
   }, 120_000);

@@ -1,0 +1,306 @@
+{
+  "schemaVersion": "openclinxr.door-measurements.v1",
+  "leafFlatGlb": {
+    "facingFrontRangeM": 0.0,
+    "facingPlates": 5,
+    "method": "room-side maple veneer fronts (finish-added true plane); underlying Infinigen leaf field undulates past the band (see compose.py facing comment)",
+    "gate": "front-face depth range <= 0.003 m excluding hardware"
+  },
+  "leverHandle": {
+    "node": "bedroom_0/0.door_leaf",
+    "note": "lever geometry merged into the leaf mesh; steel slot openclinxr_door_steel on protruding faces (see finish report handle bbox)",
+    "leafMaterials": [
+      "openclinxr_door_steel",
+      "openclinxr_finish_door_photo"
+    ],
+    "lockNode": "openclinxr_door_lock",
+    "steelPrimitivesInGlb": 9
+  },
+  "casingGlb": {
+    "jambFaceM": 0.0538,
+    "headFaceM": 0.055,
+    "leafWorldW": 0.9524,
+    "casingWorldW": 1.06,
+    "gate": "0.04-0.07 m head + both jambs"
+  },
+  "visionPanelGlb": {
+    "widthM": 0.1684,
+    "heightM": 0.625,
+    "centerHeightM": 1.5225,
+    "spec": "about 0.1-0.15 m wide by 0.5-0.7 m tall, upper latch-side"
+  },
+  "pose04LeafColor": {
+    "refBox": [
+      600,
+      420,
+      680,
+      500
+    ],
+    "ref": [
+      180.27,
+      170.06,
+      153.19
+    ],
+    "capBox": [
+      560,
+      350,
+      660,
+      450
+    ],
+    "cap": [
+      188.83,
+      171.16,
+      147.13
+    ],
+    "delta": [
+      8.56,
+      1.1,
+      -6.06
+    ],
+    "gate": "+-12 per channel"
+  },
+  "pose04CasingProfile": {
+    "cap": {
+      "row": 300,
+      "xrange": [
+        480,
+        600
+      ],
+      "profile": [
+        204.0,
+        205.0,
+        205.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        206.0,
+        204.0,
+        202.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0,
+        174.0
+      ]
+    },
+    "ref": {
+      "row": 300,
+      "xrange": [
+        520,
+        640
+      ],
+      "profile": [
+        184.0,
+        185.0,
+        185.0,
+        184.0,
+        185.0,
+        184.0,
+        185.0,
+        184.0,
+        185.0,
+        185.0,
+        185.0,
+        185.0,
+        185.0,
+        185.0,
+        186.0,
+        186.0,
+        186.0,
+        186.0,
+        185.0,
+        186.0,
+        186.0,
+        186.0,
+        186.0,
+        187.0,
+        186.0,
+        187.0,
+        187.0,
+        188.0,
+        187.0,
+        187.0,
+        188.0,
+        188.0,
+        188.0,
+        188.0,
+        188.0,
+        189.0,
+        189.0,
+        190.0,
+        190.0,
+        190.0,
+        190.0,
+        190.0,
+        190.0,
+        189.0,
+        189.0,
+        189.0,
+        189.0,
+        190.0,
+        190.0,
+        189.0,
+        189.0,
+        189.0,
+        190.0,
+        190.0,
+        190.0,
+        190.0,
+        189.0,
+        189.0,
+        184.0,
+        175.0
+      ]
+    },
+    "note": "casing reads as a distinct lighter band between wall and leaf"
+  },
+  "ghostCheck": {
+    "windows": [
+      {
+        "x": [
+          505,
+          580
+        ],
+        "y": [
+          135,
+          145
+        ]
+      },
+      {
+        "x": [
+          505,
+          580
+        ],
+        "y": [
+          155,
+          165
+        ]
+      },
+      {
+        "x": [
+          505,
+          580
+        ],
+        "y": [
+          465,
+          475
+        ]
+      }
+    ],
+    "cap": [
+      {
+        "peaks": [
+          [
+            138,
+            6.69
+          ]
+        ],
+        "maxGrad": 17.07
+      },
+      {
+        "peaks": [],
+        "maxGrad": 0.12
+      },
+      {
+        "peaks": [],
+        "maxGrad": 0.12
+      }
+    ],
+    "note": "no raised-panel outline expected on the leaf field; hinge plates at the leaf edge are hardware"
+  },
+  "noRegression": {
+    "wallBox": {
+      "box": [
+        500,
+        280,
+        780,
+        420
+      ],
+      "floorSkirtingCap": [
+        209.95,
+        206.59,
+        203.03
+      ],
+      "cap": [
+        209.95,
+        206.6,
+        203.03
+      ],
+      "delta": [
+        0.0,
+        0.01,
+        0.0
+      ]
+    },
+    "floorBox": {
+      "box": [
+        500,
+        640,
+        620,
+        700
+      ],
+      "floorSkirtingCap": [
+        215.91,
+        210.31,
+        202.36
+      ],
+      "cap": [
+        215.92,
+        210.31,
+        202.36
+      ],
+      "delta": [
+        0.01,
+        0.0,
+        0.0
+      ]
+    },
+    "gate": "+-3 per channel"
+  }
+}

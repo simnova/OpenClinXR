@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 794,
+    "keep-evidence": 812,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26906,6 +26906,132 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Floor-skirting measurements: floor box means vs ref (poses 02/06), low-frequency blotch std, seam dips, skirting top-edge profile, cove GLB heights, wall/tile no-regression."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (01-toward-door): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (02-toward-bed-wall): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (03-ceiling-corner): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (04-door-inside): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (05-troffer-junction): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door runtime frame (06-floor-base): seed-205 chain GLB with furnished ward door (steel lever, dark vision lite, casing, flat maple facing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door capture manifest: GLB path and per-PNG shas for the six standard-pose runtime frames plus the lever closeup pose file reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door/door-closeup-lever-lite.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door lever closeup: straight satin-steel lever, lock cylinder, dark vision lite and frame at inspection distance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (01-toward-door): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (02-toward-bed-wall): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (03-ceiling-corner): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (04-door-inside): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (05-troffer-junction): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door sheet (06-floor-base): v2 ref left, furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door measurements: facing flatness, lever/lock nodes, casing widths, vision size, pose-04 leaf color vs ref, casing profile, ghost check, wall/floor no-regression."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-04-ref-leaf-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Marked leaf box for the pose-04 color gate (door-04-ref-leaf-crop.png)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door-04-cap-leaf-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Marked leaf box for the pose-04 color gate (door-04-cap-leaf-crop.png)."
+    },
+    {
+      "path": "tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door closeup pose input (lever inspection framing); the standard hand-placed-poses.json is untouched."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/stage1-part3-measurements.json",

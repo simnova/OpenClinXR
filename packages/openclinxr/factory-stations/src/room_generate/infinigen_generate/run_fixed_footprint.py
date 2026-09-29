@@ -87,7 +87,9 @@ def main():
     # - style lite: LiteDoorFactory selectable (doors/lite.py) -- TAKEN.
     # - handle lever: BaseDoorFactory.handle_type draws
     #   choice(["knob","lever","pull"]) (doors/base.py:56) with no gin
-    #   binding -- pinned here via subclass override -- TAKEN.
+    #   binding -- pinned here via subclass override -- TAKEN. Straight
+    #   bar: level_type draws wave/cylinder/bent (doors/base.py:89);
+    #   cylinder skips both offset branches in make_levers -- TAKEN.
     # - flush leaf: every factory routes through PanelDoorFactory.bevel
     #   (doors/panel.py), whose recess depth is bevel_width,
     #   uniform(0.005, 0.01) (doors/base.py:46), not gin-configurable --
@@ -103,8 +105,9 @@ def main():
     #   finish repaints the casing to the specced light frame -- TAKEN.
     # - hinges / lock cylinder: no Infinigen hinge or lock class exists
     #   (no "hinge" symbol anywhere under assets/objects/elements/doors/)
-    #   -- NOT FOUND in Infinigen; hinges are finish-added geometry,
-    #   the cylinder is skipped (handle x is unrecoverable post-merge).
+    #   -- NOT FOUND in Infinigen; both are finish-added geometry (hinge
+    #   plates opposite the detected handle; lock cylinder above the
+    #   detected lever).
     # - vision glass: LiteDoorFactory cuts the opening and assigns a glass
     #   selection, but bake_shell_materials.assign_role_material clears
     #   every slot into one shell_bake_trim material, so the lite bakes
@@ -387,6 +390,12 @@ def main():
                 super().__init__(factory_seed, coarse, constants)
                 if _handle is not None:
                     self.handle_type = _handle
+                # Straight lever bar: level_type draws wave/cylinder/bent
+                # (doors/base.py:89); cylinder skips both offset branches in
+                # make_levers, so the bar stays a plain straight extrusion.
+                # Pinned for every ward factory (harmless for knob/pull,
+                # which never read level_type).
+                self.level_type = "cylinder"
                 if lite_rect is not None and hasattr(self, "x_min"):
                     self.x_min, self.x_max, self.y_min, self.y_max = lite_rect
                     self.x_subdivisions = 1

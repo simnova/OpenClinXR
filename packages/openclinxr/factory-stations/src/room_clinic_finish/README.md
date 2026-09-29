@@ -65,10 +65,11 @@ Infinigen-first was investigated per part and recorded in
   boundary edges, verified on the seed-205 `work.blend`) and tags a glass
   selection, but `bake_shell_materials.assign_role_material` clears every
   slot into one `shell_bake_trim` material, so the lite bakes and reads as
-  wood. The finish glazes the pocket mouth with a frosted
-  transmission pane (`openclinxr_door_glass`, KHR_materials_transmission,
-  mid roughness so the maple recess floor blurs into a pale wash) plus a
-  steel lite frame; maple stays on the leaf. The opening rect comes from
+  wood. The finish glazes the pocket mouth with a dark partly-transparent
+  pane (`openclinxr_door_glass`: near-black blue-grey albedo, roughness
+  0.06, alpha blend 0.9 -- not transmission, which the envmap-less
+  runtime renders as an opaque beige slab) plus a steel lite frame; maple
+  stays on the leaf. The opening rect comes from
   the deterministic recipe fractions (single-sourced from the chain's
   `WARD_CHAIN_DOOR`, guarded door-like); a sane measured rim loop only
   cross-checks (recorded as `rimCheck`, never placed), because simplify
@@ -88,10 +89,11 @@ Infinigen-first was investigated per part and recorded in
   handle/spin geometry wins the bins; pockets only recess inward, so they
   are untouched) and adds a steel lock cylinder 60 mm above the lever top on
   the room-side face (`openclinxr_door_lock`). Reported as `handle`
-  (u/v bbox + steel face count). Steel runs mid-metallic (0.65, roughness
-  0.4): the runtime has no scene environment map, so fully metallic thin
-  parts render near-black (measured: hinge plates read as dark slits at
-  metallic 0.9).
+  (u/v bbox + steel face count). Steel is full satin (metallic 1.0,
+  roughness 0.35, light grey) per coordinator grade; the handle geometry
+  itself is a plain straight bar because the driver pins
+  `level_type = "cylinder"` (it draws wave/cylinder/bent, and cylinder
+  skips both offset branches in `make_levers`).
 - Casing paint: the casing geometry is Infinigen's (placed at
   `casing_chance = 1.0` by the chain's gin config) but its surface draws
   random metal/wood; Infinigen has no white-painted casing class, so the

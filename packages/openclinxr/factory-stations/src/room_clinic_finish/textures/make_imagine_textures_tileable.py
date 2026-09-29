@@ -265,12 +265,28 @@ def crop_door_leaf(rgb):
     return rgb[:, x0 : x0 + leaf_w, :]
 
 
+# Ward maple is pale (v2 ref 04 leaf mean ~(180,170,153)); the Imagine row
+# photo renders vivid orange in the runtime (~(207,168,109) at the same
+# box, delta +27/-2/-44, outside the +-12 pose-04 gate). Desaturate the
+# cropped leaf toward Rec.709 luminance by DOOR_DESAT before the
+# normal/roughness derivation (luminance-based, so they barely move).
+DOOR_DESAT = 0.6
+
+
+def desaturate(rgb, amount):
+    """Pull saturation toward luminance: out = lum + (rgb-lum)*(1-amount)."""
+    f = rgb.astype(np.float64)
+    lum = (0.299 * f[:, :, 0] + 0.587 * f[:, :, 1] + 0.114 * f[:, :, 2])
+    out = lum[:, :, None] + (f - lum[:, :, None]) * (1.0 - amount)
+    return np.clip(np.round(out), 0, 255).astype(np.uint8)
+
+
 def main():
     import PIL
 
     record = {
         "script": os.path.basename(__file__),
-        "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling",
+        "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling; ward desaturation toward luminance",
         "pillow": PIL.__version__,
         "numpy": np.__version__,
         "flattenFirst": "per-channel divide by GaussianBlur(radius=FLATTEN_BLUR_RADIUS~=W/8) copy, rescale each channel to its own original mean; applied to kept albedo BEFORE offset/blend",
@@ -343,7 +359,7 @@ def main():
 
     src = os.path.join(TEXTURE_DIR, DOOR_SOURCE)
     rgb = np.asarray(Image.open(src).convert("RGB"))
-    leaf = crop_door_leaf(rgb)
+    leaf = desaturate(crop_door_leaf(rgb), DOOR_DESAT)
     lh, lw = leaf.shape[:2]
     nrm = normal_map_edge(leaf)
     rgh, lo, hi = roughness_map(leaf, mode="edge")
@@ -360,7 +376,7 @@ def main():
     entry = {
         "source": DOOR_SOURCE,
         "sourceMd5": md5(src),
-        "treatment": "center-crop to door leaf aspect 0.95:2.10; single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV",
+        "treatment": "center-crop to door leaf aspect 0.95:2.10 plus desaturation %.1f toward Rec.709 luminance (ward maple is pale; the row photo renders vivid orange, outside the pose-04 +-12 gate); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV" % DOOR_DESAT,
         "sourceSize": [int(rgb.shape[1]), int(rgb.shape[0])],
         "leafSize": [int(lw), int(lh)],
         "leafAspectWH": aspect,

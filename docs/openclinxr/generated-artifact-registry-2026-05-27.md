@@ -3524,6 +3524,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/videos/iwsdk-mpfb-radial-pulse-interaction-poster-2026-09-04.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/viseme-chosen-rung-label-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json` - keep-evidence; keep; Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched.
+- `tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json` - keep-evidence; keep; Door closeup pose input (lever inspection framing); the standard hand-placed-poses.json is untouched.
 - `docs/openclinxr/garment-source-allowlist-template-2026-05-27.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/godot-quest-voice-evidence-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-http3-compatibility-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
@@ -3763,6 +3764,23 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/floor-skirting-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Floor-skirting sheet (05-troffer-junction): v2 ref left, tile-floor + cove-base runtime right.
 - `docs/openclinxr/room-realism/light-balance/floor-skirting-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Floor-skirting sheet (06-floor-base): v2 ref left, tile-floor + cove-base runtime right.
 - `docs/openclinxr/room-realism/light-balance/floor-skirting-measurements.json` - keep-evidence; keep; Floor-skirting measurements: floor box means vs ref (poses 02/06), low-frequency blotch std, seam dips, skirting top-edge profile, cove GLB heights, wall/tile no-regression.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-01-toward-door.png` - keep-evidence; keep; Door runtime frame (01-toward-door): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Door runtime frame (02-toward-bed-wall): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-03-ceiling-corner.png` - keep-evidence; keep; Door runtime frame (03-ceiling-corner): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-04-door-inside.png` - keep-evidence; keep; Door runtime frame (04-door-inside): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-05-troffer-junction.png` - keep-evidence; keep; Door runtime frame (05-troffer-junction): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/runtime-06-floor-base.png` - keep-evidence; keep; Door runtime frame (06-floor-base): seed-205 chain GLB with furnished ward door; standard hand-placed poses; measurement source.
+- `docs/openclinxr/room-realism/light-balance/captures-door/stage2-multiview.json` - keep-evidence; keep; Door capture manifest: GLB path and per-PNG shas for the six standard-pose runtime frames.
+- `docs/openclinxr/room-realism/light-balance/captures-door/door-closeup-lever-lite.png` - keep-evidence; keep; Door lever closeup: straight satin-steel lever, lock cylinder, dark vision lite and frame at inspection distance.
+- `docs/openclinxr/room-realism/light-balance/door-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Door sheet (01-toward-door): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Door sheet (02-toward-bed-wall): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Door sheet (03-ceiling-corner): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Door sheet (04-door-inside): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Door sheet (05-troffer-junction): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Door sheet (06-floor-base): v2 ref left, furnished-door runtime right.
+- `docs/openclinxr/room-realism/light-balance/door-measurements.json` - keep-evidence; keep; Door measurements: facing flatness, lever/lock nodes, casing widths, vision size, pose-04 leaf color vs ref, casing profile, ghost check, wall/floor no-regression.
+- `docs/openclinxr/room-realism/light-balance/door-04-ref-leaf-crop.png` - keep-evidence; keep; Marked leaf box for the pose-04 color gate (ref).
+- `docs/openclinxr/room-realism/light-balance/door-04-cap-leaf-crop.png` - keep-evidence; keep; Marked leaf box for the pose-04 color gate (capture).
 - `docs/openclinxr/room-realism/light-balance/stage1-part3-measurements.json` - keep-evidence; keep; Part-3 ledger: per-pose rounds, features, gates, residuals.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.

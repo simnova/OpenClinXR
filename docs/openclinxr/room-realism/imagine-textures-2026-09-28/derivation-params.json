@@ -1,6 +1,6 @@
 {
   "script": "make_imagine_textures_tileable.py",
-  "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling",
+  "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling; ward desaturation toward luminance",
   "pillow": "12.3.0",
   "numpy": "2.5.1",
   "flattenFirst": "per-channel divide by GaussianBlur(radius=FLATTEN_BLUR_RADIUS~=W/8) copy, rescale each channel to its own original mean; applied to kept albedo BEFORE offset/blend",
@@ -92,7 +92,7 @@
     {
       "source": "door-maple.jpg",
       "sourceMd5": "f26ca3e8e0d124c05e8f3bda9f203f3d",
-      "treatment": "center-crop to door leaf aspect 0.95:2.10; single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV",
+      "treatment": "center-crop to door leaf aspect 0.95:2.10 plus desaturation 0.6 toward Rec.709 luminance (ward maple is pale; the row photo renders vivid orange, outside the pose-04 +-12 gate); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV",
       "sourceSize": [
         1024,
         1024
@@ -107,15 +107,15 @@
       "tiled": null,
       "seamMetric": null,
       "leaf": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-leaf.jpg",
-      "leafMd5": "aec91358877ff6b821ab3a15cfbe1aa9",
+      "leafMd5": "c8661714425d625e691d57a66dd6128c",
       "normal": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-normal.png",
-      "normalMd5": "f0157b48f4c6fe6acceb8b4848d9fede",
+      "normalMd5": "37f3ea169698fd6c96684d84bbb05b27",
       "roughness": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple-roughness.png",
-      "roughnessMd5": "742d966ef73e9622c0eb21453f53e84c",
-      "roughnessStdMin": 0.5571355296527122,
-      "roughnessStdMax": 18.906442574207876,
+      "roughnessMd5": "af32beaf7321a98e83ecf0583da03eef",
+      "roughnessStdMin": 0.557135529061766,
+      "roughnessStdMax": 18.94651720689087,
       "preview": "docs/openclinxr/room-realism/imagine-textures-2026-09-28/preview-leaf-door-maple.jpg",
-      "previewMd5": "b9fe8c87ad8a71f9d5d3dab532b364b8"
+      "previewMd5": "4ffee6d2a67364b574ded2f12f5def26"
     }
   ]
 }

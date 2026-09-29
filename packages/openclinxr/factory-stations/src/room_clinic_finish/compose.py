@@ -928,22 +928,25 @@ def _door_steel_material():
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    # Mid metallic, not full: the runtime has no scene environment map, so
-    # a fully metallic surface renders near-black on thin edge-on parts
-    # (measured: hinge plates read as dark slits at metallic 0.9).
+    # Satin steel per coordinator grade: metallic ~1, roughness ~0.35,
+    # light grey. (Mid-metallic 0.65 was tried for the envmap-less
+    # runtime but the grade directs full satin; verify on the capture.)
     bsdf.inputs["Base Color"].default_value = (0.78, 0.80, 0.83, 1.0)
-    bsdf.inputs["Metallic"].default_value = 0.65
-    bsdf.inputs["Roughness"].default_value = 0.4
+    bsdf.inputs["Metallic"].default_value = 1.0
+    bsdf.inputs["Roughness"].default_value = 0.35
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
 
 def _door_glass_material():
-    """Vision-lite glass: real transmission, not opaque white.
+    """Vision-lite glass: dark tinted, low roughness, partly transparent.
 
-    Principled Transmission exports as KHR_materials_transmission, which
-    the ui-xr runtime (three) renders as see-through glass. Base color
-    near-white with low roughness reads as the pale ward lite.
+    NOT transmission: the ui-xr runtime loads GLBs with a stock three.js
+    GLTFLoader and sets no scene environment, so KHR_materials_transmission
+    renders as an opaque beige slab (measured on the seed-205 captures).
+    Nothing is built behind the opening, so per the grade the pane reads
+    as dark glass instead: near-black blue-grey albedo, roughness 0.06
+    for a specular streak, alpha blend 0.9.
     """
     import bpy  # type: ignore[import-not-found]
 
@@ -951,24 +954,22 @@ def _door_glass_material():
     if mat is None:
         mat = bpy.data.materials.new(name=DOOR_GLASS_MATERIAL)
     mat.use_nodes = True
+    # BLEND exports alphaMode=BLEND; the Alpha socket exports the
+    # baseColorFactor alpha. Opaque would also read dark, but the grade
+    # directs partly-transparent.
+    mat.blend_method = "BLEND"
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Base Color"].default_value = (0.92, 0.95, 0.96, 1.0)
+    bsdf.inputs["Base Color"].default_value = (0.07, 0.09, 0.12, 1.0)
     bsdf.inputs["Metallic"].default_value = 0.0
-    # Frosted ward lite: the Infinigen lite reads as blind recessed pockets
-    # (no through-opening exists to see through), so the pane glazes the
-    # pocket mouth over a maple recess floor -- mid roughness plus partial
-    # transmission blurs that floor into a pale wash instead of a wood
-    # print or an opaque white slab.
-    bsdf.inputs["Roughness"].default_value = 0.45
-    if "Transmission Weight" in bsdf.inputs:
-        bsdf.inputs["Transmission Weight"].default_value = 0.75
-    elif "Transmission" in bsdf.inputs:
-        bsdf.inputs["Transmission"].default_value = 0.75
-    if "IOR" in bsdf.inputs:
-        bsdf.inputs["IOR"].default_value = 1.5
+    bsdf.inputs["Roughness"].default_value = 0.06
+    if "Alpha" in bsdf.inputs:
+        bsdf.inputs["Alpha"].default_value = 0.9
+    for key in ("Transmission Weight", "Transmission"):
+        if key in bsdf.inputs:
+            bsdf.inputs[key].default_value = 0.0
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
@@ -1235,6 +1236,46 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         thin, ua, va = opening["thinAxis"], opening["uAxis"], opening["vAxis"]
         u0, u1 = opening["u0"], opening["u1"]
         v0, v1 = opening["v0"], opening["v1"]
+        # Room-side slab plane from area-weighted thin-axis faces (NOT the
+        # bbox extreme: the bbox includes the protruding handle, so the box
+        # min sits ~90 mm proud of the slab and everything anchored to it
+        # floats -- measured seed-205: the facing buried the whole lever).
+        # Falls back to the bbox extreme for handle-less input.
+        import mathutils  # type: ignore[import-not-found]
+
+        mesh = leaf.data
+        rot = leaf.matrix_world.to_3x3()
+        area_bins: dict[int, float] = {}
+        for poly in mesh.polygons:
+            wn = (rot @ mathutils.Vector(poly.normal)).normalized()
+            if abs(wn[thin]) < 0.99:
+                continue
+            nverts = len(poly.vertices)
+            cx = cy = cz = 0.0
+            for vi in poly.vertices:
+                wv = leaf.matrix_world @ mesh.vertices[vi].co
+                cx += wv[0]
+                cy += wv[1]
+                cz += wv[2]
+            wct = (cx / nverts, cy / nverts, cz / nverts)[thin]
+            key = int(round(wct / 0.002))
+            area_bins[key] = area_bins.get(key, 0.0) + poly.area
+        modes: list[int] = []
+        for cand in sorted(area_bins, key=lambda b: area_bins[b], reverse=True):
+            # Distinct faces only: adjacent 2 mm bins of one jittered slab
+            # face must not read as the two slab planes.
+            if all(abs(cand - kept) * 0.002 >= 0.015 for kept in modes):
+                modes.append(cand)
+            if len(modes) == 2:
+                break
+        planes = sorted(m * 0.002 for m in modes)
+        room_sign = 1.0 if room_center[thin] > (box["min"][thin] + box["max"][thin]) / 2 else -1.0
+        if len(planes) == 2 and planes[1] - planes[0] > 0.02:
+            face = planes[0] if room_sign < 0 else planes[1]
+        else:
+            face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
+        # Facing front plane: 2 mm proud of the slab room face.
+        facing_fwd = face + room_sign * 0.002
         # Glass pane: opening plus overlap, glazed at the pocket mouth --
         # the room-side leaf face sunk 1 mm into the blind recess, so the
         # steel frame (proud 3 mm) overlaps the pane edges all around.
@@ -1242,8 +1283,6 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         size = [0.0, 0.0, 0.0]
         center[ua] = (u0 + u1) / 2
         center[va] = (v0 + v1) / 2
-        room_sign = 1.0 if room_center[thin] > (box["min"][thin] + box["max"][thin]) / 2 else -1.0
-        face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
         center[thin] = face - room_sign * 0.001
         size[ua] = (u1 - u0) + 2 * LITE_GLASS_OVERLAP_M
         size[va] = (v1 - v0) + 2 * LITE_GLASS_OVERLAP_M
@@ -1272,40 +1311,11 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             rail = new_box("openclinxr_door_liteframe_%d" % index, rc, rs, steel_m)
             furnished["frame"].append(rail.name)
         # Satin-steel lever: the Infinigen handle merges into the leaf mesh
-        # and would otherwise inherit the maple photo material. Handle verts
-        # stick out past both slab faces (the pockets only recess inward),
-        # so faces with any vert beyond either slab plane + 8 mm take a
-        # steel slot. The leaf arrives single-slotted (maple).
+        # and would otherwise inherit the maple photo material. Slab planes
+        # come from the area-weighted histogram above; protrusion shortlist
+        # plus density cluster below. The leaf arrives single-slotted
+        # (maple).
         mesh = leaf.data
-        # Slab face planes: AREA-weighted histogram over faces pointing
-        # along the thin axis. (A vert-count histogram fails: the big flat
-        # slab faces carry few verts while the dense handle/spin geometry
-        # wins the bins and the room lever stays maple -- measured
-        # seed-205: 809 room-side protruding faces left on maple.)
-        import mathutils  # type: ignore[import-not-found]
-
-        rot = leaf.matrix_world.to_3x3()
-        area_bins: dict[int, float] = {}
-        for poly in mesh.polygons:
-            wn = (rot @ mathutils.Vector(poly.normal)).normalized()
-            if abs(wn[thin]) < 0.99:
-                continue
-            cx = sum((mesh.vertices[vi].co[0] for vi in poly.vertices), 0.0)
-            cy = sum((mesh.vertices[vi].co[1] for vi in poly.vertices), 0.0)
-            cz = sum((mesh.vertices[vi].co[2] for vi in poly.vertices), 0.0)
-            n = len(poly.vertices)
-            wcent = leaf.matrix_world @ mathutils.Vector((cx / n, cy / n, cz / n))
-            key = int(round(wcent[thin] / 0.002))
-            area_bins[key] = area_bins.get(key, 0.0) + poly.area
-        modes: list[int] = []
-        for cand in sorted(area_bins, key=lambda b: area_bins[b], reverse=True):
-            # Distinct faces only: adjacent 2 mm bins of one jittered slab
-            # face must not read as the two slab planes.
-            if all(abs(cand - kept) * 0.002 >= 0.015 for kept in modes):
-                modes.append(cand)
-            if len(modes) == 2:
-                break
-        planes = sorted(m * 0.002 for m in modes)
         # Protrusion shortlist: face centroids beyond either slab plane.
         short: list[int] = []
         for poly in mesh.polygons:
@@ -1336,16 +1346,17 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
                 key = (int(cu / n / 0.05), int(cv / n / 0.05))
                 cells.setdefault(key, []).append(pi)
             peak = max(cells, key=lambda k: len(cells[k]))
+            # Peak cell plus its populated 8-ring only, with a count floor:
+            # no chained flood fill (measured seed-205: chaining across
+            # sparse warped-field bridge cells merges the handle with far
+            # edge faces and the bbox spans the whole leaf).
+            floor = max(3, int(len(cells[peak]) * 0.05))
             keep_cells = {peak}
-            frontier = [peak]
-            while frontier:
-                ck = frontier.pop()
-                for du in (-1, 0, 1):
-                    for dv in (-1, 0, 1):
-                        nk = (ck[0] + du, ck[1] + dv)
-                        if nk in cells and nk not in keep_cells:
-                            keep_cells.add(nk)
-                            frontier.append(nk)
+            for du in (-1, 0, 1):
+                for dv in (-1, 0, 1):
+                    nk = (peak[0] + du, peak[1] + dv)
+                    if nk in cells and len(cells[nk]) >= floor:
+                        keep_cells.add(nk)
             for ck in keep_cells:
                 handle_polys.extend(cells[ck])
             hus, hvs = [], []
@@ -1358,6 +1369,45 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             pad = 0.03
             cluster = {"u0": min(hus) - pad, "u1": max(hus) + pad,
                        "v0": min(hvs) - pad, "v1": max(hvs) + pad}
+            # One-step connected growth: bar/rosette flanks slope back into
+            # the slab, so their centroids sit inside the ±4 mm band while
+            # sharing verts with confident steel faces. Grow once (not
+            # transitively, to bound leaks into warped field) to faces
+            # sharing any vert with the cluster set, centroid beyond
+            # ±0.5 mm, inside the cluster u/v bbox. The low floor can admit
+            # a one-face outline where the rosette root meets the field;
+            # that reads as a mounting ring.
+            vert_faces: dict[int, list[int]] = {}
+            for pi, poly in enumerate(mesh.polygons):
+                for vi in poly.vertices:
+                    vert_faces.setdefault(vi, []).append(pi)
+            seed_verts: set[int] = set()
+            for pi in handle_polys:
+                seed_verts.update(mesh.polygons[pi].vertices)
+            grown = 0
+            for vi in seed_verts:
+                for pi in vert_faces.get(vi, []):
+                    if pi in handle_polys:
+                        continue
+                    poly = mesh.polygons[pi]
+                    nverts = len(poly.vertices)
+                    cx = cy = cz = 0.0
+                    for vj in poly.vertices:
+                        wv = leaf.matrix_world @ mesh.vertices[vj].co
+                        cx += wv[0]
+                        cy += wv[1]
+                        cz += wv[2]
+                    wct = (cx / nverts, cy / nverts, cz / nverts)[thin]
+                    if not (wct > planes[1] + 0.0005 or wct < planes[0] - 0.0005):
+                        continue
+                    wcu = (cx / nverts, cy / nverts, cz / nverts)[ua]
+                    wcv = (cx / nverts, cy / nverts, cz / nverts)[va]
+                    if not (cluster["u0"] <= wcu <= cluster["u1"]
+                            and cluster["v0"] <= wcv <= cluster["v1"]):
+                        continue
+                    handle_polys.append(pi)
+                    grown += 1
+            furnished["handleGrown"] = grown
         else:
             cluster = None
         handle = None
@@ -1395,7 +1445,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         facing_names: list[str] = []
         leaf_maple = bpy.data.materials.get("openclinxr_finish_door_photo")
         if leaf_maple is not None:
-            fwd = face + room_sign * 0.002
+            fwd = facing_fwd
             back = face - room_sign * 0.002
             fx0 = box["min"][ua] + 0.015
             fx1 = box["max"][ua] - 0.015
@@ -1405,10 +1455,31 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             hz0, hz1 = v0 - 0.005, v1 + 0.005
             quads = [
                 ("face_west", fx0, hx0, fz0, fz1),
-                ("face_east", hx1, fx1, fz0, fz1),
                 ("face_south", hx0, hx1, fz0, hz0),
                 ("face_north", hx0, hx1, hz1, fz1),
             ]
+            # East plate (handle side) with a handle notch: the lever bar
+            # passes over this region, and a solid plate would swallow the
+            # bar tip (measured seed-205: maple sliver over the tip). The
+            # notch rims read as a mounting border; the exposed margin is
+            # mostly hidden behind the rosette/bar.
+            ex0, ex1 = hx1, fx1
+            notch = None
+            if handle is not None:
+                nx0 = max(ex0, handle["u0"] - 0.015)
+                nx1 = min(ex1, handle["u1"] + 0.015)
+                nv0 = max(fz0, handle["v0"] - 0.015)
+                nv1 = min(fz1, handle["v1"] + 0.015)
+                if nx1 > nx0 and nv1 > nv0:
+                    notch = (nx0, nx1, nv0, nv1)
+            if notch is None:
+                quads.append(("face_east", ex0, ex1, fz0, fz1))
+            else:
+                nx0, nx1, nv0, nv1 = notch
+                quads.append(("face_east_north", ex0, ex1, nv1, fz1))
+                quads.append(("face_east_south", ex0, ex1, fz0, nv0))
+                quads.append(("face_east_midwest", ex0, nx0, nv0, nv1))
+                quads.append(("face_east_mideast", nx1, ex1, nv0, nv1))
             for qi, (tag, qu0, qu1, qv0, qv1) in enumerate(quads):
                 if qu1 - qu0 < 0.01 or qv1 - qv0 < 0.01:
                     continue
