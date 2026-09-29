@@ -3716,6 +3716,17 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-matte-streak-after.png` - keep-evidence; keep; Streak evidence AFTER (matte 0.9): same crop uniform, no glint at native resolution.
 - `docs/openclinxr/room-realism/light-balance/stage1-matte-streak-diff.png` - keep-evidence; keep; Amplified rig3-minus-matte1 diffmap isolating the removed full-width specular band (up to 27 units).
 - `docs/openclinxr/room-realism/light-balance/stage1-step3-measurements.json` - keep-evidence; keep; Step-3 ledger: matte basis, full R3 10-patch grades, global-infeasibility arithmetic, key-block proof reference.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-01-toward-door.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 01-toward-door. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 02-toward-bed-wall. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-03-ceiling-corner.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 03-ceiling-corner. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-04-door-inside.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 04-door-inside. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-05-troffer-junction.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 05-troffer-junction. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-06-floor-base.png` - keep-evidence; keep; Defect-1 D1 (neutral ground d8d8d8): runtime frame 06-floor-base. Tile-grade source for 01/02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/stage2-multiview.json` - keep-evidence; keep; Defect-1 D1 capture manifest.
+- `docs/openclinxr/room-realism/light-balance/stage1-tile1-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Defect-1 sheet (02): tile-02 FULL PASS under neutral ground.
+- `docs/openclinxr/room-realism/light-balance/stage1-tile1-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Defect-1 sheet (01): tile-01 residual documented.
+- `docs/openclinxr/room-realism/light-balance/stage1-tile1-ref05-tile-box-verify.png` - keep-evidence; keep; Ref-side box verification: tile-05 box lands on clean reference tile (std 4.4); runtime mismatch is framing (pre-Part-3), not surface.
+- `docs/openclinxr/room-realism/light-balance/stage1-defect1-measurements.json` - keep-evidence; keep; Defect-1 ledger: D1 change, tile grades with G-R, tile-01 residual argument.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 746,
+    "keep-evidence": 757,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26577,6 +26577,83 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Step-3 ledger: matte basis, full R3 10-patch grades, global-infeasibility arithmetic, key-block proof reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 01-toward-door. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 02-toward-bed-wall. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 03-ceiling-corner. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 04-door-inside. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 05-troffer-junction. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 (neutral ground d8d8d8): runtime frame 06-floor-base. Tile-grade source for 01/02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-tile1/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 D1 capture manifest."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-tile1-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 sheet (02): tile-02 FULL PASS under neutral ground."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-tile1-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 sheet (01): tile-01 residual documented."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-tile1-ref05-tile-box-verify.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref-side box verification: tile-05 box lands on clean reference tile (std 4.4); runtime mismatch is framing (pre-Part-3), not surface."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-defect1-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Defect-1 ledger: D1 change, tile grades with G-R, tile-01 residual argument."
     }
   ]
 }

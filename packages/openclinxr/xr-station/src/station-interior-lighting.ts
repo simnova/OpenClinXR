@@ -131,7 +131,11 @@ export function applyStationInteriorLighting(input: {
     // (wash 0.55 -> 0.45 + fill 1.26 -> 1.15 alongside); the ground term
     // lifts down-facing tiles with only half weight on vertical walls and
     // nothing on the sky-lit floor.
-    const ambient = new HemisphereLight(0xf4f0e8, 0xccd2cc, 2.5);
+    // D1: ground 0xccd2cc -> 0xd8d8d8 -- the 0xccd2cc ground ran green-high
+    // (G 210 vs R/B 204) and three.js feeds the ground colour to
+    // down-facing surfaces, so the ceiling read sage green-grey. Neutral
+    // R=G=B plus brighter: tile level lift with the green tilt removed.
+    const ambient = new HemisphereLight(0xf4f0e8, 0xd8d8d8, 2.5);
     ambient.name = input.ambientLightName;
     tag(ambient, "hemisphere");
     input.scene.add(ambient);
