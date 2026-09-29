@@ -138,10 +138,17 @@ SKIRTING_COVE_HEIGHT_M = 0.10
 SKIRTING_COVE_THICKNESS_M = 0.018
 SKIRTING_COVE_RGB_LINEAR = (0.313, 0.323, 0.352)
 SKIRTING_COVE_ROUGHNESS = 0.9
-# Cove base sits on the finish floor field top (field center minz + 0.03,
-# dz 0.05, so the top is minz + 0.055); the bottom 55 mm of the cove box
-# overlap is intentional (no coplanar faces, so no z-fighting).
+# Cove base sits on the finish floor field top (measured shell floor
+# plane plus FLOOR_FIELD_LIFT_M); the foundation overlap below is
+# intentional (no coplanar faces, so no z-fighting).
 SKIRTING_COVE_FOUNDATION_M = 0.055
+# Tile field top lift above the measured shell floor plane: the shell
+# floor is a zero-thickness plane (measured z=0 on the seed-205 ward)
+# while the shell bounds min sits ~0.13 lower (exterior bottom cap), so
+# a bounds-anchored field buries itself (measured: field top -0.055
+# under the shell plane, rendering the shell cloud instead of the
+# tile). 3 mm clears the plane with no coplanar fight.
+FLOOR_FIELD_LIFT_M = 0.003
 # Door-gap casing margin: the door-wall cove run splits around the kept
 # leaf bbox expanded by this much per side along the run axis.
 SKIRTING_DOOR_MARGIN_M = 0.06
@@ -449,6 +456,29 @@ def _door_leaf_xy_range() -> dict | None:
     return {"minX": min(xs), "maxX": max(xs), "minY": min(ys), "maxY": max(ys)}
 
 
+def _shell_floor_top() -> float | None:
+    """Measured shell floor plane height (Blender runtime only).
+
+    Max vertex z over floor-shell objects (bake role_for_object floor:
+    ".floor"/"/floor" in the name, which excludes skirting_floor and the
+    finish field). Fail-soft None when no floor shell exists.
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    top: float | None = None
+    for obj in bpy.data.objects:
+        if obj.type != "MESH" or obj.name.startswith("openclinxr_"):
+            continue
+        lowered = obj.name.lower()
+        if ".floor" not in lowered and "/floor" not in lowered:
+            continue
+        for v in obj.data.vertices:
+            z = (obj.matrix_world @ v.co).z
+            if top is None or z > top:
+                top = z
+    return top
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Clinic room finish compose stage")
     parser.add_argument("--input", required=True, help="input GLB path")
@@ -508,7 +538,7 @@ def classify_mesh(name: str) -> str:
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
                          emit_floor: bool = True, floor_tile_layout: bool = False,
-                         emit_cove: bool = False) -> dict:
+                         emit_cove: bool = False, floor_top: float | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -618,10 +648,14 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # the ward tile exception (floor_tile_layout).
     if emit_floor:
         if floor_tile_layout:
+            if floor_top is None:
+                raise SystemExit("room_clinic_finish: tile field needs a measured shell floor plane")
             floor_m = _photo_uv_material("openclinxr_finish_floor_tile_photo", FLOOR_TILE_TEXTURE_FILE, 0.52,
                                          normal_filename=FLOOR_TILE_NORMAL_FILE,
                                          roughness_filename=FLOOR_TILE_ROUGHNESS_FILE)
-            floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_m)
+            # Top rides 3 mm above the shell plane (never the bounds min).
+            floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
+                                w, d, 0.05, floor_m)
             _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_TILE_MODULE_M)
         else:
             floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
@@ -713,11 +747,13 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         counts["rail"] += 1
     cove_info: dict = {"runs": 0, "doorGap": None}
     if emit_cove:
+        if floor_top is None:
+            raise SystemExit("room_clinic_finish: cove base needs a measured shell floor plane")
         cove_m = _flat_material("openclinxr_finish_cove", SKIRTING_COVE_RGB_LINEAR, SKIRTING_COVE_ROUGHNESS)
         planes = _wall_inner_planes()
         x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
         t = SKIRTING_COVE_THICKNESS_M
-        zc = minz + SKIRTING_COVE_FOUNDATION_M + SKIRTING_COVE_HEIGHT_M / 2
+        zc = floor_top + FLOOR_FIELD_LIFT_M + SKIRTING_COVE_HEIGHT_M / 2
         # Door-wall run splits around the kept leaf bbox (expanded by the
         # casing margin); the leaf sits in the opening, so the leaf's most
         # off-center axis names the door side.
@@ -949,15 +985,19 @@ def apply_finish() -> int:
     # the finish emits the thin cove base instead. Ceiling skirting stays.
     # Other presets keep the legacy trim-paint path above (untouched).
     removed_skirting: list[str] = []
+    measured_floor_top: float | None = None
     if preserve_shell:
         for obj in list(bpy.data.objects):
             if obj.type == "MESH" and _is_shell_floor_skirting(obj.name):
                 removed_skirting.append(obj.name)
                 bpy.data.objects.remove(obj, do_unlink=True)
+        measured_floor_top = _shell_floor_top()
+        if measured_floor_top is None:
+            raise SystemExit("room_clinic_finish: no shell floor plane for tile/cove placement")
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
                                     emit_floor=True, floor_tile_layout=preserve_shell,
-                                    emit_cove=preserve_shell)
+                                    emit_cove=preserve_shell, floor_top=measured_floor_top)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
@@ -989,6 +1029,7 @@ def apply_finish() -> int:
         "emittedCeilingGrid": emitted["ceilingGrid"],
         "emittedCove": emitted["cove"],
         "removedShellSkirting": removed_skirting,
+        "measuredFloorTop": measured_floor_top,
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],
         "doorLeafPhoto": door_leaf,

@@ -51,6 +51,9 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
   addBox("TestRoom_0.wall_north", [-2.15, 0, -1.95], [2.15, 2.4, -1.73]);
   addBox("TestRoom_0.wall_west", [-2.15, 0, -1.95], [-1.93, 2.4, 1.95]);
   addBox("TestRoom_0.wall_east", [1.93, 0, -1.95], [2.15, 2.4, 1.95]);
+  // Shell floor slab (authored Y-UP): the tile field anchors 3 mm above
+  // its top plane, never the shell bounds min.
+  addBox("TestRoom_0.floor", [-2.15, 0, -1.95], [2.15, 0.02, 1.95]);
   addBox("TestRoom_0.door_leaf", [0.0, 0, -1.8], [0.95, 2.1, -1.7]);
   await new NodeIO().write(outputPath, doc);
 }
