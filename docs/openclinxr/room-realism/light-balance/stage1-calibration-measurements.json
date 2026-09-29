@@ -3,7 +3,7 @@
  "chain": "seed 205, room_generate -> room_clinic_finish ward_photo -> lighting_design clinic_day (all cache-miss on code change)",
  "grade": {
   "floor_box": "(500,640,620,700) on pose-02, crop-verified clean floor (std ~0.3), v2 ref (214.5,213.5,209.0)",
-  "pass": "within +/-8 per channel on wall and floor, |R-B| within the ref 6.5 spread",
+  "pass": "Step 1: wall luminance matched (scalar); colour spreads move to Part 2 rig retune on five patches.",
   "wall_box": "(500,280,780,420) on pose-02, v2 ref (203.6,202.7,197.1), spread 6.5"
  },
  "iterations": [
@@ -111,6 +111,36 @@
    ],
    "wall_r_minus_b": 5.0,
    "wall_verdict": "PASS"
+  },
+  {
+   "wall": [
+    1.09,
+    1.09,
+    1.09
+   ],
+   "floor": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "glb_sha256": "c14b75d76fbca6a558ecc611b864dfaa21fdc7510b9bb37b6eca85cdc2da5706",
+   "wall_body": [
+    211.0,
+    202.7,
+    195.4
+   ],
+   "wall_body_lin_lum": 0.6068,
+   "wall_box": [
+    212.3,
+    204.3,
+    197.3
+   ],
+   "floor_box": [
+    217.4,
+    211.8,
+    208.2
+   ],
+   "note": "Iteration 3 (scalar policy): wall body linear luminance 0.6068 vs ref box 0.5929 (within 2.3%%) -- luminance matched, tint neutral by construction. Colour grades move to Part 2."
   }
  ],
  "method": "measure lit runtime output, back-derive the scale (same pattern as generate-tile-face.py / ee6ac843c); multiplicative scales only, never flatten or clip",

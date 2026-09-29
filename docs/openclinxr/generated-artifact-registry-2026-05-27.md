@@ -3657,6 +3657,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-calib3-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Stage1 Part-1 verification sheet (05-troffer-junction): v2 reference left, calibrated-albedo runtime right.
 - `docs/openclinxr/room-realism/light-balance/stage1-calib3-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Stage1 Part-1 verification sheet (06-floor-base): v2 reference left, calibrated-albedo runtime right.
 - `docs/openclinxr/room-realism/light-balance/stage1-calibration-measurements.json` - keep-evidence; keep; Stage1 Part-1 machine-readable ledger: every scale tried with its GLB sha, box means and deltas, scope notes.
+- `docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall.png` - keep-evidence; keep; Stage1 scalar-policy iteration (calib4 GLB c14b75d7, wall 1.09 uniform): pose-02 frame. Wall body lin lum 0.6068 vs ref 0.5929 (luminance matched, tint neutral).
+- `docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Stage1 scalar-policy comparison sheet (02-toward-bed-wall): v2 reference left, scalar-wall runtime right.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.

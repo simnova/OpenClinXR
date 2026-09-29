@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 687,
+    "keep-evidence": 689,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26164,6 +26164,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Stage1 Part-1 machine-readable ledger: every scale tried with its GLB sha, box means and deltas, scope notes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1 scalar-policy iteration (calib4 GLB c14b75d7, wall 1.09 uniform): pose-02 frame. Wall body lin lum 0.6068 vs ref 0.5929 (luminance matched, tint neutral)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stage1 scalar-policy comparison sheet (02-toward-bed-wall): v2 reference left, scalar-wall runtime right."
     }
   ]
 }
