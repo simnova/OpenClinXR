@@ -1,0 +1,178 @@
+{
+  "gates": {
+    "architecture": {
+      "cmd": "pnpm architecture",
+      "result": "PASS",
+      "detail": "12/12 turbo tasks successful in 19.5s (21.3s in the earlier pasted run); the single pasted failure (stale factory-stations arch-index.json) was fixed by pnpm arch:index and the re-run is green."
+    },
+    "prePush": {
+      "cmd": "TURBO_CONCURRENCY=2 pnpm hooks:pre-push",
+      "result": "BLOCKED before any product gate ran",
+      "detail": "Halts at step 2/13 (drift check) on 3 foreign handoff.md files plus follow-on archive fallout, all caused by a concurrent lane's uncommitted 867-line gutting of the doc-authority registry (57 handoff entries -> 6). Read-only experiment: HEAD registry + current files => those 3 failures vanish and none of this job's files fail. Full hook log: logs/pre-push-hook.log."
+    },
+    "unitTests": {
+      "cmd": "vitest run src/room_chain (factory-stations)",
+      "result": "PASS",
+      "detail": "16/16 incl. lighting key-scrub outDir-independence test; biome lint clean."
+    }
+  },
+  "reds": {
+    "red1": {
+      "assertion": "warm < 10% of cold with a cache hit for every stage and zero stage Blender passes",
+      "cold": {
+        "elapsedS": 954,
+        "end": 1790638314,
+        "exit": 0,
+        "keys": {
+          "lighting_design": "9c03cd573e083f2a8ff7f3b49ad78dee140fdec7ea76e9e393f4f8e3ecc36456",
+          "room_clinic_finish": "ac378c436dcb04f42a9db3faf061aaf88720d1ec61366613bcfc8f368512cf91",
+          "room_generate": "f59df54042dae495a6dc8b4107537904dcffbeaeeaf582057108151894422256"
+        },
+        "log": "logs/red1-warm2.log",
+        "misses": [
+          "room_generate",
+          "room_clinic_finish",
+          "lighting_design"
+        ],
+        "outDir": ".openclinxr/evidence/ward-finish-chain-red1-warm",
+        "start": 1790637360
+      },
+      "result": "PASS: 1s vs 954s, all three stages hit, only key-probe Blender execution (single blender --version, separately timed at 0.23s)",
+      "warm": {
+        "elapsedS": 1,
+        "end": 1790638563,
+        "exit": 0,
+        "hits": [
+          "room_generate",
+          "room_clinic_finish",
+          "lighting_design"
+        ],
+        "log": "logs/red1-warm3.log",
+        "outDir": ".openclinxr/evidence/ward-finish-chain-red1-warm3",
+        "ratioVsCold": 0.001048,
+        "start": 1790638562
+      }
+    },
+    "red2": {
+      "assertion": "one-byte compose.py change re-runs finish+lighting, generate still hits",
+      "composeProbe": "comment line appended to compose.py (sha 68e05d3f -> a4fef05a), reverted after (sha back to 68e05d3f, verified)",
+      "elapsedS": 3,
+      "end": 1790638635,
+      "exit": 0,
+      "finish": "MISS 35d8977e + store (key rotated by the comment)",
+      "generate": "HIT f59df540 (generate key independent of compose.py)",
+      "lighting": "MISS 85edfd85 + store (upstream-key invalidation)",
+      "log": "logs/red2.log",
+      "outDir": ".openclinxr/evidence/ward-finish-chain-red2",
+      "result": "PASS. Compose pass separately timed at 1.14s real Blender (Blender init + 2MB GLB import + paint + export), which explains the 3s total. Bonus: comment-only change produced a BYTE-IDENTICAL finish GLB (cmp clean vs pre-change bytes) and byte-identical floor texture bytes (145906B both sides) -- deterministic compose.",
+      "start": 1790638632
+    },
+    "red3": {
+      "assertion": "bake-script change invalidates bake and everything downstream",
+      "bakeProbe": "comment line appended to infinigen_generate/bake_shell_materials.py (sha c9bc42f8 -> changed), reverted after by operator (tree verified clean)",
+      "elapsedS": 933,
+      "end": 1790639728,
+      "exit": 0,
+      "finish": "MISS 9ce6c939 + store (upstream invalidation)",
+      "generate": "MISS 9b07de87 + store (bake script in generate key)",
+      "lighting": "MISS e39fd53c + store (upstream invalidation)",
+      "log": "logs/red3.log",
+      "outDir": ".openclinxr/evidence/ward-finish-chain-red3",
+      "result": "PASS",
+      "start": 1790638795
+    },
+    "red4": {
+      "assertion": "finish GLB bytes IDENTICAL between cached copy and forced-fresh run",
+      "binChunk": {
+        "firstDiffOffset": 1531420,
+        "lengthA": 1983924,
+        "lengthB": 1984116
+      },
+      "cached": {
+        "elapsedS": 1,
+        "end": 1790640317,
+        "exit": 0,
+        "finishGlbSha256": "15a8ef97dc8b85741e94bc691f3d05a4252a23dc835add395f1d272c17bce45a",
+        "finishGlbSize": 2019160,
+        "hits": [
+          "room_generate",
+          "room_clinic_finish",
+          "lighting_design"
+        ],
+        "log": "logs/red4-cached.log",
+        "outDir": ".openclinxr/evidence/ward-finish-chain-red4-cached",
+        "start": 1790640316
+      },
+      "diffRegions": {
+        "accessors": "indices 120-124: POSITION/NORMAL/3xUV counts 7024 vs 7028 (4 vertices); view 127 (indices) same length 17940B, re-indexed",
+        "bin": "only vertex views 122-126 (ARRAY_BUFFER) and index view 127 (ELEMENT_ARRAY_BUFFER) differ; every image bufferView (no target) byte-identical",
+        "buffers": "byteLength 1983924 vs 1984116",
+        "bufferViews": "downstream byteOffset shifts from the 4-vertex delta",
+        "jsonChunk": "equal length 35208, first diff at chunk offset 26253"
+      },
+      "fresh": {
+        "args": [
+          "--no-cache"
+        ],
+        "elapsedS": 887,
+        "end": 1790641211,
+        "exit": 0,
+        "finishGlbSha256": "c947ae87cdd85b1d00840060c0266c48e95bca7b484d0f71f9ebd01d1006683a",
+        "finishGlbSize": 2019352,
+        "log": "logs/red4-fresh.log",
+        "outDir": ".openclinxr/evidence/ward-finish-chain-red4-fresh",
+        "start": 1790640324,
+        "stores": [
+          "room_generate f59df540",
+          "room_clinic_finish e5dff90a",
+          "lighting_design 3a30477d"
+        ]
+      },
+      "honestResult": "FAIL (bytes differ) with named cause, per dispatch: do not weaken the assertion. Only mesh Cube.003 of 45 differs (4 vertices); all baked images bit-identical including the 145906B floor photo; JSON structure identical. Cause: stage-1 post-generate bytes already differed between the two runs (workGlbSha256 6106a52a vs dfeecfac) while every other finish key input (params, env, blenderVersion, infinigen commit+decorate, patches, all script hashes, upstream key f59df540) was EQUAL -- so the 4-vertex delta comes from generate/simplify nondeterminism (Infinigen draw or meshopt vertex order), inherited downstream. The finish stage's own bake/paint work is deterministic on identical input bytes. Cache serve integrity separately verified: stored entry bytes == restored bytes (15a8ef97 both sides).",
+      "jsonChunk": {
+        "firstDiffOffset": 26253,
+        "lengthA": 35208,
+        "lengthB": 35208
+      },
+      "totalBytes": [
+        2019160,
+        2019352
+      ]
+    }
+  },
+  "supplementary": {
+    "prefixedContentionCold": {
+      "elapsedS": 2187,
+      "end": 1790636808,
+      "exitNote": "exit-code capture broken on that run (harness invoked sh instead of zsh, bash pipestatus default yielded 1); chain itself succeeded end-to-end (report + final copy + 3 stores)",
+      "keys": [
+        "05298e54",
+        "cafbab98",
+        "1ae710a2"
+      ],
+      "start": 1790634621
+    },
+    "warmPathScrubBug": {
+      "detail": "first warm run (3s) hit generate+finish but MISSED lighting on the absolute outDir path alone (key 26ceea1a, junk entry, since removed from the live tree by key rotation)",
+      "fixCommit": "b19927174 scrubs roomGlbPath to basename in the lighting key (bytes stay keyed via workGlbSha256); unit test locks outDir-independence plus byte sensitivity",
+      "knownCaveat": "designLightingRig seeds its jitter PRNG over the canonical input INCLUDING roomGlbPath, so rig light positions jitter ~10cm between outDirs while energies/sizes/counts are identical; restored rig JSONs therefore carry their origin outDir's roomGlbPath and jitter. Cross-outDir lighting cache hits serve an equivalent (not bitwise-identical-to-fresh) rig. Kept deliberately: the dispatch requires warm-run all-hit, and the rig pass costs ~1s."
+    }
+  },
+  "cacheKeyFields": [
+    "params (stage input verbatim as run.ts hands it; lighting roomGlbPath scrubbed to basename, bytes covered by workGlbSha256)",
+    "workGlbSha256 (finish/lighting read the work GLB bytes; null for room_generate)",
+    "upstreamKey (generate key feeds finish, finish feeds lighting)",
+    "env.OPENCLINXR_ROOM_REALISM",
+    "blenderVersion (queried blender --version first line)",
+    "infinigen {source, commit (git rev-parse HEAD), decorateSha256}",
+    "patches[] (every *.patch under infinigen_generate, globbed at hash time)",
+    "files[] (per-stage scripts derived from the stage plan functions + station-dir globs + textures + stage TS + room_chain/run.ts + room_chain/cache.ts)"
+  ],
+  "evidenceFiles": {
+    "keyCopies": "keys/key-<red>-<stage>-<shortsha>.json (full key.json: digest + every raw input hash)",
+    "logs": "logs/<red>.log (chain stdout: hit/miss/store lines, stage audits)",
+    "timing": "this file"
+  },
+  "note": "STANDING-LINE substitution for this job: the room_chain pipeline emits GLBs and a rig JSON through headless Blender passes -- no runtime pixels exist anywhere in this path, so there is no v2 reference side-by-side to commit. The dispatch RED section names timing/hash data as the primary evidence instead; this file plus keys/ and logs/ is that machine-checkable record.",
+  "schemaVersion": "openclinxr.room-chain-stage-cache-reds.v1"
+}

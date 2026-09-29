@@ -1,0 +1,54 @@
+{
+  "digest": "85edfd85a91d5618cf89061ba68553a33dd8a66cda5d84266c2b6c135ba5d23d",
+  "inputs": {
+    "schemaVersion": "openclinxr.room-chain-stage-key.v1",
+    "stage": "lighting_design",
+    "params": {
+      "environmentId": "inpatient_ward_room_v1",
+      "roomGlbPath": "ward-chain.work.glb",
+      "bboxJson": "{\"minX\":-4.385,\"maxX\":4.385,\"minY\":-3.885,\"maxY\":3.885,\"minZ\":0,\"maxZ\":2.42}",
+      "castJson": "[{\"actorId\":\"patient\",\"position\":[0,0.5,1]}]",
+      "mood": "clinic_day",
+      "seed": 205
+    },
+    "workGlbSha256": "15a8ef97dc8b85741e94bc691f3d05a4252a23dc835add395f1d272c17bce45a",
+    "upstreamKey": "35d8977ede5f398ae20574fb08220e39ee4b7836ac967d9580122fb25f2209f6",
+    "env": {
+      "OPENCLINXR_ROOM_REALISM": "<unset>"
+    },
+    "blenderVersion": "Blender 5.1.1",
+    "infinigen": {
+      "source": "/Users/patrick/.openclinxr-tools/infinigen/source",
+      "commit": "b11700ebac77695d8f53538705cfdc0cd890c54d",
+      "decorateSha256": "d70103c494d1804d866c85b7424760ad9bc7a7803776e4917a89f2166e91ffee"
+    },
+    "patches": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0001-room-walls-concrete-vertical-kwarg.patch",
+        "sha256": "f3247c4ac4e6f5aec23c6d251e1b6f3b5caf78cecbd2d07c58bb39b51f479aa8"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0003-room-walls-plaster-floors-rug-realism-env.patch",
+        "sha256": "d6a795742d1122981eed80cbfe2e418994a5471bb949cdfa2a665b9ae0176b8b"
+      }
+    ],
+    "files": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/lighting_design/lighting-rig.py",
+        "sha256": "1d9b45cee86be6dccdc6f2cb941fbb917bf0723694c0056ba5986a4eee52b18e"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/lighting_design/run.ts",
+        "sha256": "ed03ffca81e00f3ecc540673ce49e5d7e8f08353ce0fa7b3792a2ebdbb5e0300"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/cache.ts",
+        "sha256": "b879f03da392a998c337f521d28de0d5ff9ae7d2e44081506f2fa89844c75ca0"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/run.ts",
+        "sha256": "b31bd7ec1a987af6076829123602153395482ec89640418358870e8df14d8840"
+      }
+    ]
+  }
+}

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 473,
+    "keep-evidence": 484,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24666,6 +24666,83 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Finish-preserve-shell three.js runtime material probe: per-mesh map/normalMap/roughnessMap presence against the finished chain GLB (eba5a679)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/timing.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RED1-4 wall-clock times, hit/miss outcomes, cache-key field list, RED4 byte-diff analysis; primary evidence for the room-chain stage-cache job."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-generate-f59df540.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "room_generate key.json for the canonical cold run (post-fix keys); full hashed inputs."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-finish-ac378c43.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "room_clinic_finish key.json for the canonical cold run; includes upstream key + work-GLB bytes hash."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-lighting-9c03cd57.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "lighting_design key.json for the canonical cold run (roomGlbPath scrubbed to basename)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red2-finish-35d8977e.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "finish key.json rotated by the RED2 one-byte compose.py comment; generate key untouched."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red2-lighting-85edfd85.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "lighting key.json rotated by upstream invalidation in RED2."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-generate-9b07de87.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "generate key.json rotated by the RED3 bake-script comment."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-finish-9ce6c939.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "finish key.json rotated downstream of the RED3 bake change."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-lighting-e39fd53c.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "lighting key.json rotated downstream of the RED3 bake change."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-finish-e5dff90a.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "fresh-run finish key.json; records the divergent post-generate GLB bytes hash (dfeecfac vs 6106a52a)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-lighting-3a30477d.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "fresh-run lighting key.json downstream of the divergent bytes."
     }
   ]
 }

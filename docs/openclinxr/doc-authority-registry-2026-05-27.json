@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 211,
+    "current-reference": 212,
     "archive-candidate": 116,
     "evidence": 132,
     "temporary": 54,
@@ -4894,6 +4894,13 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules."
+    },
+    {
+      "path": "packages/openclinxr/factory-stations/src/room_chain/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Station README for room_chain stage caching: cache-key input list, and a D9 finding that room_generate's Infinigen GENERATE step is not bit-deterministic run to run (RED4 divergence isolated to stage 1, 4 vertices on Cube.003). Subordinate to protected + drift rules."
     },
     {
       "path": "packages/openclinxr/physics-touch-artifacts/README.md",

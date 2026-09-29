@@ -1,0 +1,91 @@
+{
+  "digest": "ac378c436dcb04f42a9db3faf061aaf88720d1ec61366613bcfc8f368512cf91",
+  "inputs": {
+    "schemaVersion": "openclinxr.room-chain-stage-key.v1",
+    "stage": "room_clinic_finish",
+    "params": {
+      "environmentId": "inpatient_ward_room_v1",
+      "preset": "ward_photo",
+      "seed": 205
+    },
+    "workGlbSha256": "6106a52ad5aa8c2f001cb52a9737221edc2850f2e9e9c8a2729a696abe70affa",
+    "upstreamKey": "f59df54042dae495a6dc8b4107537904dcffbeaeeaf582057108151894422256",
+    "env": {
+      "OPENCLINXR_ROOM_REALISM": "<unset>"
+    },
+    "blenderVersion": "Blender 5.1.1",
+    "infinigen": {
+      "source": "/Users/patrick/.openclinxr-tools/infinigen/source",
+      "commit": "b11700ebac77695d8f53538705cfdc0cd890c54d",
+      "decorateSha256": "d70103c494d1804d866c85b7424760ad9bc7a7803776e4917a89f2166e91ffee"
+    },
+    "patches": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0001-room-walls-concrete-vertical-kwarg.patch",
+        "sha256": "f3247c4ac4e6f5aec23c6d251e1b6f3b5caf78cecbd2d07c58bb39b51f479aa8"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0003-room-walls-plaster-floors-rug-realism-env.patch",
+        "sha256": "d6a795742d1122981eed80cbfe2e418994a5471bb949cdfa2a665b9ae0176b8b"
+      }
+    ],
+    "files": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/cache.ts",
+        "sha256": "b879f03da392a998c337f521d28de0d5ff9ae7d2e44081506f2fa89844c75ca0"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/run.ts",
+        "sha256": "b31bd7ec1a987af6076829123602153395482ec89640418358870e8df14d8840"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/ceiling.py",
+        "sha256": "0e5b8004b0f44d4a17856161179554f18eddded6dc77af6e2aa9e8441d28c3bb"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/compose.py",
+        "sha256": "68e05d3f19da47c3ab912ec543177b665adbbe57f7943564c49ff3d68f1664ff"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/corridor_cues.py",
+        "sha256": "ede4b99dded5ac3ae331d5b6dd531ad932cef445025980e20fc90d4ebca14954"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/door.py",
+        "sha256": "47aeff4c6be95143d0c8fbb9154d3db558769904dbb843de3626da6be4cd6702"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/floor.py",
+        "sha256": "bd814722ae96131c11a4941427d35055094e529a56d9f9266d9f70082ca95d1b"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/geometry.py",
+        "sha256": "c6471689cdfd52acdf502509b709bb019893fee33ae24b4ebc71cf08464bbe0b"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/recipe.ts",
+        "sha256": "b88b404dc352e1fe9cc2f522df12d17e312fe35b5645d9757ff5ca196b8f3dba"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/run.ts",
+        "sha256": "3a1d1f1d9ae90ab83975f56ec6b6b8f79c2b8d3bb575cb7c44b6c2015cd930a6"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face.png",
+        "sha256": "3b005ae5556e23c92927f1225b84427460704026c6fa39be48a5d03afcfd3559"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg",
+        "sha256": "5ffc90fcb4d6ba4588a4cefa9adbf8a82da8d6a34949e111b651d604256fd6b5"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/floor-vinyl.jpg",
+        "sha256": "296d47e86bf80de15ace2cb1d34ee843027c3a32bba029cdb62d48b3020d6a1d"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/generate-tile-face.py",
+        "sha256": "b0320315f560ce3b5e1b398a6ac54130e5cee11bffeab567263891f7ef27b8be"
+      }
+    ]
+  }
+}

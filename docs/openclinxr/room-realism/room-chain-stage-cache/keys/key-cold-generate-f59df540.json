@@ -1,0 +1,101 @@
+{
+  "digest": "f59df54042dae495a6dc8b4107537904dcffbeaeeaf582057108151894422256",
+  "inputs": {
+    "schemaVersion": "openclinxr.room-chain-stage-key.v1",
+    "stage": "room_generate",
+    "params": {
+      "environmentId": "inpatient_ward_room_v1",
+      "infinigenPrompt": "inpatient ward room",
+      "seed": 205,
+      "layoutVariant": "default",
+      "footprintMeters": {
+        "width": 8.77,
+        "depth": 7.77,
+        "ceilingHeight": 2.42
+      },
+      "door": {
+        "doorWall": "+y",
+        "wallOffsetM": 0.5,
+        "hingeSide": "+x",
+        "style": "lite",
+        "widthM": 0.95,
+        "heightM": 2.1
+      }
+    },
+    "workGlbSha256": null,
+    "upstreamKey": null,
+    "env": {
+      "OPENCLINXR_ROOM_REALISM": "<unset>"
+    },
+    "blenderVersion": "Blender 5.1.1",
+    "infinigen": {
+      "source": "/Users/patrick/.openclinxr-tools/infinigen/source",
+      "commit": "b11700ebac77695d8f53538705cfdc0cd890c54d",
+      "decorateSha256": "d70103c494d1804d866c85b7424760ad9bc7a7803776e4917a89f2166e91ffee"
+    },
+    "patches": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0001-room-walls-concrete-vertical-kwarg.patch",
+        "sha256": "f3247c4ac4e6f5aec23c6d251e1b6f3b5caf78cecbd2d07c58bb39b51f479aa8"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/0003-room-walls-plaster-floors-rug-realism-env.patch",
+        "sha256": "d6a795742d1122981eed80cbfe2e418994a5471bb949cdfa2a665b9ae0176b8b"
+      }
+    ],
+    "files": [
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/cache.ts",
+        "sha256": "b879f03da392a998c337f521d28de0d5ff9ae7d2e44081506f2fa89844c75ca0"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_chain/run.ts",
+        "sha256": "b31bd7ec1a987af6076829123602153395482ec89640418358870e8df14d8840"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/generate.ts",
+        "sha256": "694c47f21485f24409ed863d927a7b9224ed1b90045d7244aba728c2708ec9b2"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/bake_shell_materials.py",
+        "sha256": "c9bc42f878c383a7bc6d9222fc1c597b7e0cbfe7385175cf095437dec6b5d6cd"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/fixed_footprint_state.py",
+        "sha256": "da8eeafa21f87d84604569ddc0902a7a00c82ea63cf547c31233133b2cf05262"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/probe_door.py",
+        "sha256": "4ef1088da08d6421048721b2c9ae81165bd4d6fe788ef81891ced65b3249f174"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/run_fixed_footprint.py",
+        "sha256": "60635cfb94cb4fcc8882c09e509a2cbd52b44c994649e30d896816152084ce69"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/strip_room_shell_placeholders.py",
+        "sha256": "9c2cec9c0de0dbdb32272e20b1a79e8c857dd471e7a121543748d9db8f89ac77"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/room-albedo-ao-bake.py",
+        "sha256": "90e547839f445f308730c354ff68572798d0c09165400b7bb206d6bc9c6f606a"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py",
+        "sha256": "7e550aad13d6e8165f0cdad2b265a7ebfb2bdd4025a94ef5ba72eb19fbea677e"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/run.ts",
+        "sha256": "2270af743a3e41db7fd2297378071505daa61ffd19726545c75479826d5aa635"
+      },
+      {
+        "rel": "packages/openclinxr/factory-stations/src/room_generate/simplify.ts",
+        "sha256": "fc8e2e2166ccce297457093b45a2c8fef69c5995b590bbe6848e09d6934ce5b7"
+      },
+      {
+        "rel": "tools/openclinxr/asset-pipeline/environment/infinigen-single-room-extract.py",
+        "sha256": "6cad2665b523328d8531e9780a36300cffa0d4ae86cc59f7490f18d9e195f349"
+      }
+    ]
+  }
+}

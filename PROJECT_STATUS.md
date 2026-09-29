@@ -299,6 +299,12 @@ Anny rail footprint to migrate: **49 of 56** runtime actor references, 7 actors.
 Per-slice detail lives on the GitHub board (HOT plane). This block is the rehydration
 fast-path only: what landed, and what it changed about the factory's capability.
 
+- 2026-09-28: **room_chain stage caching landed; D9 finding — `room_generate`'s Infinigen GENERATE
+  step is not bit-deterministic run to run.** RED4 (cached vs `--no-cache` fresh, identical inputs)
+  found a 4-vertex divergence on `Cube.003` inherited from stage 1, not from the cache logic or any
+  bake/material step (every baked-image bufferView was byte-identical). Full detail:
+  `packages/openclinxr/factory-stations/src/room_chain/README.md`. Not chased further (out of scope).
+
 - 2026-08-11: **ANNY IS INSTALLED — the reference rail is live for the first time** (body_param, D1/D11).
   `anny 0.6.0` (Apache-2.0, NAVER; bundled `data/mpfb2` assets CC0) + `torch 2.13.0` into the mise
   Python the pipeline already uses via `sys.executable`. `import anny` had failed since 2026-08-07, so

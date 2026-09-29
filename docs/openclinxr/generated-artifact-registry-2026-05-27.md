@@ -3518,3 +3518,14 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/quest-manual-performance-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-mixed-reality-manual-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/security-audit-policy-2026-08-02.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/timing.json` - keep-evidence; keep; RED1-4 wall-clock times, hit/miss outcomes, cache-key field list, RED4 byte-diff analysis; primary evidence for the room-chain stage-cache job.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-generate-f59df540.json` - keep-evidence; keep; room_generate key.json for the canonical cold run (post-fix keys); full hashed inputs.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-finish-ac378c43.json` - keep-evidence; keep; room_clinic_finish key.json for the canonical cold run; includes upstream key + work-GLB bytes hash.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-cold-lighting-9c03cd57.json` - keep-evidence; keep; lighting_design key.json for the canonical cold run (roomGlbPath scrubbed to basename).
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red2-finish-35d8977e.json` - keep-evidence; keep; finish key.json rotated by the RED2 one-byte compose.py comment; generate key untouched.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red2-lighting-85edfd85.json` - keep-evidence; keep; lighting key.json rotated by upstream invalidation in RED2.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-generate-9b07de87.json` - keep-evidence; keep; generate key.json rotated by the RED3 bake-script comment.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-finish-9ce6c939.json` - keep-evidence; keep; finish key.json rotated downstream of the RED3 bake change.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red3-lighting-e39fd53c.json` - keep-evidence; keep; lighting key.json rotated downstream of the RED3 bake change.
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-finish-e5dff90a.json` - keep-evidence; keep; fresh-run finish key.json; records the divergent post-generate GLB bytes hash (dfeecfac vs 6106a52a).
+- `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-lighting-3a30477d.json` - keep-evidence; keep; fresh-run lighting key.json downstream of the divergent bytes.
