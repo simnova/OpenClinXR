@@ -129,7 +129,7 @@ TROFFER_EMISSION_STRENGTH = 2.0
 # control points draw random peaks inside FixedSeed -- nothing threads
 # through make_skirting_board() or any gin-configurable), so the specced
 # thin cove is not parameterizable in room_generate -- the finish
-# replaces the shell floor skirting with these boxes. The material name
+# replaces the shell floor skirting with these runs. The material name
 # matches the existing room-albedo-ao-bake.py FINISH_FLAT_SKIP_MATERIALS
 # entry, so a later rebake keeps the flat Base Color; the linear grey
 # below is bake_shell_materials.py SKIRTING_BASE_COLOR_LINEAR (pinned and
@@ -138,10 +138,13 @@ SKIRTING_COVE_HEIGHT_M = 0.10
 SKIRTING_COVE_THICKNESS_M = 0.018
 SKIRTING_COVE_RGB_LINEAR = (0.313, 0.323, 0.352)
 SKIRTING_COVE_ROUGHNESS = 0.9
-# Cove base sits on the finish floor field top (measured shell floor
-# plane plus FLOOR_FIELD_LIFT_M); the foundation overlap below is
-# intentional (no coplanar faces, so no z-fighting).
-SKIRTING_COVE_FOUNDATION_M = 0.055
+# Chamfer cap rise: the run is a wedge prism, not a box -- a flat box top
+# face glares into a bright band (measured seed-205 pose 06: a 195 spike
+# between the 190 wall and the 158 cove face, i.e. the double edge the
+# reference never shows). The chamfer climbs 12 mm over the 18 mm run
+# into the wall, so the wall->cap->face falloff is monotonic and the
+# profile shows one soft edge the width of the reference S-curve.
+SKIRTING_COVE_CHAMFER_M = 0.012
 # Tile field top lift above the measured shell floor plane: the shell
 # floor is a zero-thickness plane (measured z=0 on the seed-205 ward)
 # while the shell bounds min sits ~0.13 lower (exterior bottom cap), so
@@ -753,7 +756,14 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         planes = _wall_inner_planes()
         x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
         t = SKIRTING_COVE_THICKNESS_M
-        zc = floor_top + FLOOR_FIELD_LIFT_M + SKIRTING_COVE_HEIGHT_M / 2
+        # X-side runs (vary along y); y-side runs (vary along x). X-side
+        # runs overshoot by one thickness per end to close the corners.
+        runs: list[tuple] = [
+            ("x0", x0 + t / 2 - 0.002, (y0 - t, y1 + t), "y"),
+            ("x1", x1 - t / 2 + 0.002, (y0 - t, y1 + t), "y"),
+            ("y0", y0 + t / 2 - 0.002, (x0, x1), "x"),
+            ("y1", y1 - t / 2 + 0.002, (x0, x1), "x"),
+        ]
         # Door-wall run splits around the kept leaf bbox (expanded by the
         # casing margin); the leaf sits in the opening, so the leaf's most
         # off-center axis names the door side.
@@ -772,18 +782,63 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 door_side = "y0" if ly < planes["cy"] else "y1"
                 gap = [leaf["minX"] - SKIRTING_DOOR_MARGIN_M, leaf["maxX"] + SKIRTING_DOOR_MARGIN_M]
 
-        def cove_run(name: str, x: float, y: float, dx: float, dy: float) -> None:
-            new_box(name, x, y, zc, dx, dy, SKIRTING_COVE_HEIGHT_M, cove_m)
+        def cove_run(name: str, plane_pos: float, seg_lo: float, seg_hi: float,
+                     axis: str, side: str) -> None:
+            # Wedge prism extruded along the run axis: vertical room face,
+            # chamfer cap climbing into the wall, back buried in the wall.
+            # Cross-section (u = offset from the wall face into the room,
+            # v = height above the field top): (0,0)->(t,0)->(t,H-ch)->(0,H).
+            # Winding below is verified outward face by face (see the
+            # native winding probe in the cove fix commit).
+            t = SKIRTING_COVE_THICKNESS_M
+            h = SKIRTING_COVE_HEIGHT_M
+            ch = SKIRTING_COVE_CHAMFER_M
+            zb = floor_top + FLOOR_FIELD_LIFT_M
+            mesh = bpy.data.meshes.new(name + "_mesh")
+            obj = bpy.data.objects.new(name, mesh)
+            bpy.context.scene.collection.objects.link(obj)
+            obj["openClinXrFinishDecoration"] = True
+            if axis == "y":
+                # Run varies along y at fixed x; wall face at plane_pos,
+                # room lies toward +x (x0 side) or -x (x1 side).
+                direction = 1.0 if side == "x0" else -1.0
+                xw, xr = plane_pos, plane_pos + direction * t
+                verts = [
+                    (xw, seg_lo, zb), (xw, seg_hi, zb), (xr, seg_hi, zb), (xr, seg_lo, zb),
+                    (xw, seg_lo, zb + h), (xw, seg_hi, zb + h),
+                    (xr, seg_hi, zb + h - ch), (xr, seg_lo, zb + h - ch),
+                ]
+            else:
+                direction = 1.0 if side == "y0" else -1.0
+                yw, yr = plane_pos, plane_pos + direction * t
+                verts = [
+                    (seg_lo, yw, zb), (seg_hi, yw, zb), (seg_hi, yr, zb), (seg_lo, yr, zb),
+                    (seg_lo, yw, zb + h), (seg_hi, yw, zb + h),
+                    (seg_hi, yr, zb + h - ch), (seg_lo, yr, zb + h - ch),
+                ]
+            # (bottom, room face, chamfer cap, back, 2 ends). Winding
+            # depends on which side the room lies: FWD when the run axis
+            # and the room direction agree, REV otherwise (verified face
+            # by face with a native winding probe).
+            faces_fwd = [(0, 1, 2, 3), (3, 2, 6, 7), (7, 6, 5, 4),
+                         (1, 0, 4, 5), (0, 3, 7, 4), (1, 2, 6, 5)]
+            faces_rev = [(0, 3, 2, 1), (3, 7, 6, 2), (7, 4, 5, 6),
+                         (1, 5, 4, 0), (0, 4, 7, 3), (1, 5, 6, 2)]
+            use_fwd = (axis == "y") == (direction > 0)
+            mesh.from_pydata(verts, [], faces_fwd if use_fwd else faces_rev)
+            mesh.update()
+            # Safety net: closed manifold, so consistent orientation is
+            # outward regardless of the authored winding above.
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="SELECT")
+            bpy.ops.mesh.normals_make_consistent(inside=False)
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.context.view_layer.objects.active = None
+            mesh.materials.append(cove_m)
+            created.append(name)
             counts["cove"] = counts.get("cove", 0) + 1
 
-        # X-side runs (vary along y); y-side runs (vary along x). X-side
-        # runs overshoot by one thickness per end to close the corners.
-        runs: list[tuple] = [
-            ("x0", x0 + t / 2 - 0.002, (y0 - t, y1 + t), "y"),
-            ("x1", x1 - t / 2 + 0.002, (y0 - t, y1 + t), "y"),
-            ("y0", y0 + t / 2 - 0.002, (x0, x1), "x"),
-            ("y1", y1 - t / 2 + 0.002, (x0, x1), "x"),
-        ]
         for side, plane_pos, (lo, hi), axis in runs:
             if side == door_side and gap is not None:
                 glo, ghi = max(gap[0], lo), min(gap[1], hi)
@@ -795,12 +850,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
             for index, (seg_lo, seg_hi) in enumerate(segments):
                 if seg_hi - seg_lo < 0.01:
                     continue
-                mid = (seg_lo + seg_hi) / 2
-                length = seg_hi - seg_lo
-                if axis == "y":
-                    cove_run("openclinxr_cove_%s_%d" % (side, index), plane_pos, mid, t, length)
-                else:
-                    cove_run("openclinxr_cove_%s_%d" % (side, index), mid, plane_pos, length, t)
+                cove_run("openclinxr_cove_%s_%d" % (side, index), plane_pos, seg_lo, seg_hi,
+                         axis, side)
         cove_info = {"runs": counts.get("cove", 0), "height": SKIRTING_COVE_HEIGHT_M,
                      "thickness": t, "doorSide": door_side, "doorGap": gap}
     return {"meshes": created, "counts": counts, "crashRail": crash_rail, "seed": seed,
