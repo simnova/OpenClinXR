@@ -1,42 +1,42 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
-  "glb": "/tmp/room-dims-chain-run/infinigen-inpatient-ward.chain.glb",
+  "glb": "/tmp/room-dims-chain-rerun-0929/infinigen-inpatient-ward.chain.glb",
   "captures": [
     {
       "id": "runtime-01-toward-door",
       "eye": {
-        "x": -0.2,
+        "x": -0.42,
         "y": 1.6,
-        "z": 0.4
+        "z": 1.62
       },
       "look": {
-        "x": -0.2,
-        "y": 1.25,
+        "x": -0.42,
+        "y": 1.15,
         "z": -1.95
       },
       "fov": 70,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/room-dimensions-fix/docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-01-toward-door.png",
-      "pngBytes": 660771,
-      "pngSha256": "839f12ebac0d05fa5e56d807f925528518473a565cb09b9d7d22201f19f22fd7"
+      "pngBytes": 572590,
+      "pngSha256": "a28e6df933113955d0ea109b93c406a2da38ba557bb57bf088c6dd449b096aeb"
     },
     {
       "id": "runtime-02-toward-bed-wall",
       "eye": {
         "x": 0,
-        "y": 1.6,
+        "y": 1.85,
         "z": -1.9
       },
       "look": {
-        "x": 0,
-        "y": 1.35,
+        "x": 0.3,
+        "y": 1.7,
         "z": 1.95
       },
       "fov": 48,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/room-dimensions-fix/docs/openclinxr/room-realism/room-dimensions-fix/captures/runtime-02-toward-bed-wall.png",
-      "pngBytes": 617380,
-      "pngSha256": "a6d3056f0077c34ff30f796ba1c777151ca536c825531bed1b984973d98bd68d"
+      "pngBytes": 612695,
+      "pngSha256": "bb85044b155fb99a01bfbbc0cc099bfb1fcc0e74facf258fff987df03888dda9"
     },
     {
       "id": "runtime-03-ceiling-corner",
