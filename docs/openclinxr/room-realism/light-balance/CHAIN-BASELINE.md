@@ -55,6 +55,23 @@ src/room_chain/cli.ts --seed 205 --out-dir
   The runtime re-lights an already-lit wall. No exposure scalar fixes a
   clipped-white albedo while keeping the mood ladder and the spread bar.
 
+## CORRECTION (2026-09-29, coordinator review): the root-cause mechanism above is wrong
+
+Line 48-56's "the stage-1 bake is lit / the runtime re-lights an already-lit
+wall" is INCORRECT. `bake_shell_materials.py:633` bakes DIFFUSE with
+`pass_filter={"COLOR"}` -- this is pure albedo, no light contribution
+whatsoever (only the trim role's second GLOSSY COLOR pass, screened in for
+metal, is unrelated to this). The wall reads ~255 because Infinigen's own
+wall material base colour is ~1.0 (near-white), and the bake transcribes
+that unscaled -- not because the bake captured lighting. The measured
+numbers above (wall meanL 177.83 incl. gutters, floor 241.18, trim 232.74,
+the exposure-iteration slope, the ACES-model fit) are unaffected by this
+correction and stand as recorded; only the MECHANISM sentence was wrong.
+Correct framing: this is a missing reflectance remap on raw albedo, not a
+double-lighting defect. The fix is a per-role albedo scale in
+bake_shell_materials.py, not a bake-lighting change. See the follow-up job
+(stage-1 albedo calibration) for the real fix.
+
 ## Step 2 (tile uniform-scale): BLOCKED, prescribed box is wall
 
 - The prescribed tile box (970,315,1100,385) on the chain pose-03 capture

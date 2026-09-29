@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 652,
+    "keep-evidence": 653,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -25919,6 +25919,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "SC-02 scene-closure evidence, carried through from the ward-reference-v2 branch lineage."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/pose03-tile-box-marked-lands-on-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Marked crop showing the prescribed tile-box coordinates (970,315,1100,385) land on the plain wall below the ceiling line in the current pose-03 framing, not on tile -- box std 67.2 vs the ~3-5 expected for clean tile. Evidence for why the tile-recal job's brief box was invalid."
     }
   ]
 }
