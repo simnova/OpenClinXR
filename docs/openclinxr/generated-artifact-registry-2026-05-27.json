@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 779,
+    "keep-evidence": 780,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -25380,6 +25380,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "fresh-run lighting key.json downstream of the divergent bytes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Structured Cycles AO bake Metal-vs-CPU measurement data: per-run wall time, output and AO image hashes, pixel diffs backing ao-cycles-report.md's verdict table."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/report.json",

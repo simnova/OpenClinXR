@@ -275,6 +275,14 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
       options.workGlb,
       "--resolution",
       "512",
+      // Metal GPU backend: adopted 2026-09-29 after the Cycles AO
+      // bake-off (docs/openclinxr/room-realism/
+      // room-chain-metal-measure/ao-cycles-report.md) showed a wall-time
+      // win with byte-identical baked pixels run-to-run on Metal and
+      // 0.0/255 CPU-vs-Metal mean difference on the seed-205 ward. The
+      // script fails closed when no Metal device exists.
+      "--device",
+      "metal",
     ];
     const occlusion = await spawnBlenderProcess(
       options.blender,

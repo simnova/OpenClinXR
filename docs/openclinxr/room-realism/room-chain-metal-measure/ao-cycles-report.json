@@ -1,0 +1,138 @@
+{
+ "adoptionRule": "Adopt Metal only if (a) faster, (b) byte-identical run-to-run on Metal, AND (c) within 1/255 mean absolute difference of CPU on the baked AO image.",
+ "aoImageShas": {
+  "cpu": {
+   "openclinxr_room_ao_shell_bake_ceiling": "4ce93784f7c81eb1819652cb1bf6e2e025078148cdaf79f7dc7133646c8ca732",
+   "openclinxr_room_ao_shell_bake_floor": "49faf380d8df38801f9a5bf269eff574f6813bcad873b887e2a0789c1b3a7053",
+   "openclinxr_room_ao_shell_bake_other": "8ceb00637e9d2d4381e0e5188e3f72200121b2ce9ca8105cd5fd26519e1d67ff",
+   "openclinxr_room_ao_shell_bake_trim": "ace51b8106e367281f96a276d22d9ee46ed63196b6c0be03b7b13bd86485a579",
+   "openclinxr_room_ao_shell_bake_wall": "5aeb68edda123bac70a2fbee8f8e717acf4f4c0c3d5669b6a7d739cf4e7d1bd4"
+  },
+  "metal": {
+   "openclinxr_room_ao_shell_bake_ceiling": "4ce93784f7c81eb1819652cb1bf6e2e025078148cdaf79f7dc7133646c8ca732",
+   "openclinxr_room_ao_shell_bake_floor": "a9828b71d13953fa288a3e55bac151e0f3d36acb40e5b161ee7d690ad5bc376a",
+   "openclinxr_room_ao_shell_bake_other": "8ceb00637e9d2d4381e0e5188e3f72200121b2ce9ca8105cd5fd26519e1d67ff",
+   "openclinxr_room_ao_shell_bake_trim": "ace51b8106e367281f96a276d22d9ee46ed63196b6c0be03b7b13bd86485a579",
+   "openclinxr_room_ao_shell_bake_wall": "f5fe5977231e0d106ec2bd88e4117efc2e19c85e1438573124bef291eecf4e71"
+  }
+ },
+ "bakeMechanism": "cycles_emit_ao",
+ "codeChange": "packages/openclinxr/factory-stations/src/room_generate/run.ts: default occlusionArgs gains --device metal (same pattern as the shell-bake adoption in generate.ts, commit 2723b425c). No script change: room-occlusion-bake.py already accepted --device cpu|metal.",
+ "cpuVsMetalDiff255": {
+  "openclinxr_room_ao_shell_bake_ceiling": {
+   "fracDiffer": 0.0,
+   "maxAbs255": 0.0,
+   "meanAbs255": 0.0
+  },
+  "openclinxr_room_ao_shell_bake_floor": {
+   "fracDiffer": 8e-06,
+   "maxAbs255": 1.0,
+   "meanAbs255": 0.0
+  },
+  "openclinxr_room_ao_shell_bake_other": {
+   "fracDiffer": 0.0,
+   "maxAbs255": 0.0,
+   "meanAbs255": 0.0
+  },
+  "openclinxr_room_ao_shell_bake_trim": {
+   "fracDiffer": 0.0,
+   "maxAbs255": 0.0,
+   "meanAbs255": 0.0
+  },
+  "openclinxr_room_ao_shell_bake_wall": {
+   "fracDiffer": 4e-06,
+   "maxAbs255": 1.0,
+   "meanAbs255": 0.0
+  }
+ },
+ "date": "2026-09-29",
+ "determinismPerDevice": {
+  "CPU": "identical (GLB sha + all 12 extracted image shas match)",
+  "METAL": "identical (GLB sha + all 12 extracted image shas match)"
+ },
+ "deviceEngagement": "Both Metal logs print '[room-ao] device=metal (1 Metal device(s) enabled)'; scene.cycles.device=GPU. A silent CPU fallback cannot produce the 18s -> 8s wall-time drop.",
+ "fixture": {
+  "albedoArgs": "--input <extract.glb> --output ao-input.glb --resolution 1024 (run.ts production defaults; CPU-only script, no --device flag)",
+  "albedoInputSha256": "e045e5620dda350d7acfacf2f6a3bf11a011ee5ac4187d75664b68723b439123",
+  "aoArgs": "--input <ao-input.glb> --output <run output.glb> --resolution 512 --device cpu|metal (run.ts production defaults; reach/samples/seed are script constants)",
+  "aoInputSha256": "9f692d786375018f14774286697923c134c3000234cdc962cf87a311a8d0a509",
+  "aoReachMeters": 0.5,
+  "aoSamples": 64,
+  "aoSeed": 20260929,
+  "bakeScript": "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py",
+  "blender": "5.1.1 (build date 2026-04-14)",
+  "chainOutDir": ".openclinxr/evidence/ao-cycles-measure",
+  "door": {
+   "doorWall": "+y",
+   "heightM": 2.1,
+   "hingeSide": "+x",
+   "style": "lite",
+   "wallOffsetM": 0.25,
+   "widthM": 0.95
+  },
+  "environmentId": "inpatient_ward_room_v1",
+  "fixtureNote": "Fresh seed-205 GENERATE + Metal shell bake + extract + CPU albedo on this machine (stage-cache miss 86ee79b9). The first chain attempt was killed by the tool foreground cap during the albedo pass after extract; the rerun-equivalent fixture path (extract bytes -> albedo with run.ts defaults on a copy) is the exact production stage order, so the AO input is production-faithful. The capture shim recorded no occlusion argv (the kill landed before the occlusion pass); the AO args above are read directly from run.ts.",
+  "footprintM": [
+   4.3,
+   3.9,
+   2.4
+  ],
+  "machine": "Apple M1 Max",
+  "seed": 205
+ },
+ "meansSeconds": {
+  "CPU": 18.0,
+  "METAL": 8.0
+ },
+ "metalSeedFixAttempt": "not needed: Metal was byte-identical run-to-run out of the box (fixed AO_SEED=20260929 already in the script; no use_animated_seed set anywhere in the bake path).",
+ "proofChainRun": {
+  "cli": "room_chain/cli.ts --seed 205 --out-dir .openclinxr/evidence/ao-cycles-measure --no-cache",
+  "date": "2026-09-29",
+  "occlusionLog": "ward-chain.occlusion.stdout.log prints [room-ao] device=metal (1 Metal device(s) enabled), materials=6 wired=5 skipped=1",
+  "finalGlb": "ward-chain.work.glb carries 5 occlusionTexture wirings (openclinxr_room_ao_shell_bake_*)",
+  "outDir": ".openclinxr/evidence/ao-cycles-measure"
+ },
+ "runs": [
+  {
+   "blenderEnd": 0,
+   "blenderStart": 0,
+   "device": "CPU",
+   "outputSha256": "22792de3d3867a65428bfadd47610afabf789898992bdc7d98a1ace086ab9f2f",
+   "run": "cpu1",
+   "seconds": 18
+  },
+  {
+   "blenderEnd": 0,
+   "blenderStart": 0,
+   "device": "CPU",
+   "outputSha256": "22792de3d3867a65428bfadd47610afabf789898992bdc7d98a1ace086ab9f2f",
+   "run": "cpu2",
+   "seconds": 18
+  },
+  {
+   "blenderEnd": 0,
+   "blenderStart": 0,
+   "device": "METAL",
+   "outputSha256": "161d348ee1f5d65fd805e8ecc1cdb27a9504a102245de72b1c7a51abb7bf44c1",
+   "run": "metal1",
+   "seconds": 8
+  },
+  {
+   "blenderEnd": 0,
+   "blenderStart": 0,
+   "device": "METAL",
+   "outputSha256": "161d348ee1f5d65fd805e8ecc1cdb27a9504a102245de72b1c7a51abb7bf44c1",
+   "run": "metal2",
+   "seconds": 8
+  }
+ ],
+ "schemaVersion": "openclinxr.room-ao-cycles-measure.v1",
+ "thresholdMean255": 1.0,
+ "timingSource": "integer wall-clock seconds via date +%s around the Blender spawn; one Blender process at a time; machine-wide count recorded at each run's start and end (all 0/0, uncontaminated). Raw logs and extraction scripts live in /tmp/ao-cycles/ (scratch, not committed).",
+ "verdict": "ADOPT",
+ "verdicts": {
+  "a_faster": "PASS: Metal mean 8s < CPU mean 18s (~2.2x); both runs per device agree exactly.",
+  "b_metalDeterministic": "PASS: byte-identical output GLBs and all 12 extracted images run-to-run on Metal.",
+  "c_within1of255": "PASS: worst per-image mean abs diff rounds to 0.0/255 (floor ~7.6e-06 from ~2 texels at +/-1; wall ~3.8e-06 from ~1 texel); 3 of 5 AO images byte-identical."
+ }
+}

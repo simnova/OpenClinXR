@@ -5197,6 +5197,13 @@
       "rationale": "Skirting vinyl-cove fix runtime evidence (RED/GREEN seed-205 shell-only captures, diagnosis, calibration); use only when it verifies touched bake behavior."
     },
     {
+      "path": "docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Cycles AO bake Metal-vs-CPU re-measurement (seed-205 ward): per-run wall time, run-to-run determinism, CPU-vs-Metal pixel diffs, mechanical adoption verdict (AO adopted for Metal), and the real-CLI chain proof."
+    },
+    {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
