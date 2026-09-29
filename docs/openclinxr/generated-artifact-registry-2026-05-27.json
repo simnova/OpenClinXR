@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 765,
+    "keep-evidence": 779,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -26710,6 +26710,104 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Defect-2 ledger: sweep, retarget design/grades, no-regression proof, residual infeasibility."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 01-toward-door."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 02-toward-bed-wall."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 03-ceiling-corner."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 04-door-inside."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 05-troffer-junction."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final state (matte GLB + R3/D1/key + refit poses): runtime frame 06-floor-base."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-stage1-final/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final-state capture manifest (refit poses, per-capture sha256)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (01-toward-door): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (02-toward-bed-wall): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (03-ceiling-corner): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (04-door-inside): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (05-troffer-junction): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-final-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final sheet (06-floor-base): v2 ref left, final-state runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/stage1-part3-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Part-3 ledger: per-pose rounds, features, gates, residuals."
     }
   ]
 }

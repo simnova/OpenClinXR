@@ -3735,6 +3735,20 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-keyret-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Defect-2 sheet (01): retargeted key runtime vs ref.
 - `docs/openclinxr/room-realism/light-balance/stage1-keyret-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Defect-2 sheet (02): retargeted key runtime vs ref.
 - `docs/openclinxr/room-realism/light-balance/stage1-defect2-measurements.json` - keep-evidence; keep; Defect-2 ledger: sweep, retarget design/grades, no-regression proof, residual infeasibility.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-01-toward-door.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 01-toward-door.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 02-toward-bed-wall.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-03-ceiling-corner.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 03-ceiling-corner.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-04-door-inside.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 04-door-inside.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-05-troffer-junction.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 05-troffer-junction.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/runtime-06-floor-base.png` - keep-evidence; keep; Final state (matte GLB + R3/D1/key + refit poses): runtime frame 06-floor-base.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-final/stage2-multiview.json` - keep-evidence; keep; Final-state capture manifest (refit poses, per-capture sha256).
+- `docs/openclinxr/room-realism/light-balance/stage1-final-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Final sheet (01-toward-door): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-final-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Final sheet (02-toward-bed-wall): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-final-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Final sheet (03-ceiling-corner): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-final-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Final sheet (04-door-inside): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-final-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Final sheet (05-troffer-junction): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-final-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Final sheet (06-floor-base): v2 ref left, final-state runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-part3-measurements.json` - keep-evidence; keep; Part-3 ledger: per-pose rounds, features, gates, residuals.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
