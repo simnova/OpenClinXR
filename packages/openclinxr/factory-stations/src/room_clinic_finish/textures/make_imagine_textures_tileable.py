@@ -268,9 +268,14 @@ def crop_door_leaf(rgb):
 # Ward maple is pale (v2 ref 04 leaf mean ~(180,170,153)); the Imagine row
 # photo renders vivid orange in the runtime (~(207,168,109) at the same
 # box, delta +27/-2/-44, outside the +-12 pose-04 gate). Desaturate the
-# cropped leaf toward Rec.709 luminance by DOOR_DESAT before the
-# normal/roughness derivation (luminance-based, so they barely move).
+# cropped leaf toward Rec.709 luminance by DOOR_DESAT, then apply
+# per-channel LEAF_TONE_GAINS to land the rendered box: desat alone left
+# (188.8,171.2,147.1), R 0.5 over the gate and B cool-pale short, so
+# gains (0.955,0.994,1.041) pull R in and lift B (target ~= ref,
+# B no lower than ref-8). Gains run before the normal/roughness
+# derivation (luminance-based, so they barely move).
 DOOR_DESAT = 0.6
+LEAF_TONE_GAINS = (0.955, 0.994, 1.041)
 
 
 def desaturate(rgb, amount):
@@ -279,6 +284,12 @@ def desaturate(rgb, amount):
     lum = (0.299 * f[:, :, 0] + 0.587 * f[:, :, 1] + 0.114 * f[:, :, 2])
     out = lum[:, :, None] + (f - lum[:, :, None]) * (1.0 - amount)
     return np.clip(np.round(out), 0, 255).astype(np.uint8)
+
+
+def apply_tone_gains(rgb, gains):
+    """Per-channel multiply (render-matched leaf tone), clipped."""
+    f = rgb.astype(np.float64) * np.asarray(gains, dtype=np.float64)[None, None, :]
+    return np.clip(np.round(f), 0, 255).astype(np.uint8)
 
 
 def main():
@@ -359,7 +370,8 @@ def main():
 
     src = os.path.join(TEXTURE_DIR, DOOR_SOURCE)
     rgb = np.asarray(Image.open(src).convert("RGB"))
-    leaf = desaturate(crop_door_leaf(rgb), DOOR_DESAT)
+    leaf = apply_tone_gains(desaturate(crop_door_leaf(rgb), DOOR_DESAT),
+                            LEAF_TONE_GAINS)
     lh, lw = leaf.shape[:2]
     nrm = normal_map_edge(leaf)
     rgh, lo, hi = roughness_map(leaf, mode="edge")
@@ -376,7 +388,7 @@ def main():
     entry = {
         "source": DOOR_SOURCE,
         "sourceMd5": md5(src),
-        "treatment": "center-crop to door leaf aspect 0.95:2.10 plus desaturation %.1f toward Rec.709 luminance (ward maple is pale; the row photo renders vivid orange, outside the pose-04 +-12 gate); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV" % DOOR_DESAT,
+        "treatment": "center-crop to door leaf aspect 0.95:2.10, desaturation %.1f toward Rec.709 luminance plus tone gains %s (render-matched pale ward maple); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV" % (DOOR_DESAT, list(LEAF_TONE_GAINS)),
         "sourceSize": [int(rgb.shape[1]), int(rgb.shape[0])],
         "leafSize": [int(lw), int(lh)],
         "leafAspectWH": aspect,
