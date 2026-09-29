@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 142,
+    "evidence": 143,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5265,6 +5265,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Chain baseline report: fresh-chain-GLB wall FAIL (226.8) with exposure-infeasibility proof, prescribed tile box INVALID (wall-dominated), clean-tile dark/warm measurements, blown DIFFUSE wall-bake root cause; both fix steps blocked."
+    },
+    {
+      "path": "docs/agent-ops/worker-session-time-split-2026-09-29.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate."
     }
   ]
 }

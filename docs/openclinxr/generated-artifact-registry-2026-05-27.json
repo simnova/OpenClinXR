@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 812,
+    "keep-evidence": 813,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -27039,6 +27039,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Part-3 ledger: per-pose rounds, features, gates, residuals."
+    },
+    {
+      "path": "docs/agent-ops/worker-session-time-split-2026-09-29.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Worker session time-split data (2026-09-29): per-session and aggregate model/tool/rate-limit seconds plus schema witnesses."
     }
   ]
 }

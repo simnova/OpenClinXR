@@ -3832,3 +3832,4 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/lens-refit/06-floor-base-side-by-side.png` - keep-evidence; lens-refit v2 side-by-side sheet (06-floor-base): imagine-multiview-v2 reference left, lens-refit runtime frame right.
 - `docs/openclinxr/room-realism/lens-refit/01-toward-door-overlay.png` - keep-evidence; lens-refit 50/50 overlay audit (01-toward-door) for the frame-fraction fit.
 - `docs/openclinxr/room-realism/lens-refit/02-toward-bed-wall-overlay.png` - keep-evidence; lens-refit 50/50 overlay audit (02-toward-bed-wall) for the frame-fraction fit.
+- `docs/agent-ops/worker-session-time-split-2026-09-29.json` - keep-evidence; Worker session time-split data (2026-09-29): per-session and aggregate model/tool/rate-limit seconds plus schema witnesses.
