@@ -121,6 +121,30 @@ CEILING_TBAR_DROP_M = 0.06
 TROFFER_FACE_RGB = (0.93, 0.93, 0.92)
 # Troffer lens readout: emission strength of the flat panel face.
 TROFFER_EMISSION_STRENGTH = 2.0
+# Thin vinyl cove base (documented dark-factory exception, see README):
+# 100 mm tall, ~flush to the wall, single clean top edge, matte vinyl
+# grey. Infinigen-first was investigated and refused: skirting_board.py
+# apply_skirtingboard() takes no height/profile parameters (height draws
+# uniform(0.08, 0.15), thickness uniform(0.02, 0.05), and the profile
+# control points draw random peaks inside FixedSeed -- nothing threads
+# through make_skirting_board() or any gin-configurable), so the specced
+# thin cove is not parameterizable in room_generate -- the finish
+# replaces the shell floor skirting with these boxes. The material name
+# matches the existing room-albedo-ao-bake.py FINISH_FLAT_SKIP_MATERIALS
+# entry, so a later rebake keeps the flat Base Color; the linear grey
+# below is bake_shell_materials.py SKIRTING_BASE_COLOR_LINEAR (pinned and
+# calibrated in runtime space against imagine-multiview-v2 06-floor-base).
+SKIRTING_COVE_HEIGHT_M = 0.10
+SKIRTING_COVE_THICKNESS_M = 0.018
+SKIRTING_COVE_RGB_LINEAR = (0.313, 0.323, 0.352)
+SKIRTING_COVE_ROUGHNESS = 0.9
+# Cove base sits on the finish floor field top (field center minz + 0.03,
+# dz 0.05, so the top is minz + 0.055); the bottom 55 mm of the cove box
+# overlap is intentional (no coplanar faces, so no z-fighting).
+SKIRTING_COVE_FOUNDATION_M = 0.055
+# Door-gap casing margin: the door-wall cove run splits around the kept
+# leaf bbox expanded by this much per side along the run axis.
+SKIRTING_DOOR_MARGIN_M = 0.06
 
 
 def _texture_path(filename: str) -> str:
@@ -330,6 +354,93 @@ def _assign_top_unit_uv(obj, x0: float, x1: float, y0: float, y1: float) -> None
                 uv.data[loop_index].uv = (0.0, 0.0)
 
 
+def _is_shell_floor_skirting(obj_name: str) -> bool:
+    """Post-strip floor-skirting names only (Blender runtime or pure).
+
+    Matches "<room>_<seg>/<seg>.skirting_floor" (strip keep_re) and the raw
+    factory name "skirtingboard_support" (floor). Ceiling names
+    (".skirting_ceiling", "skirtingboard_ceiling") are NOT matched: the
+    ceiling cornice stays untouched.
+    """
+    lowered = obj_name.lower()
+    if "skirting_ceiling" in lowered or "skirtingboard_ceiling" in lowered:
+        return False
+    return "skirting_floor" in lowered or "skirtingboard_support" in lowered
+
+
+def _is_wall_shell(obj_name: str) -> bool:
+    """Wall meshes that carry an inner face the cove base sits against."""
+    lowered = obj_name.lower()
+    if lowered.startswith("openclinxr_"):
+        return False
+    if "wall" not in lowered:
+        return False
+    for part in ("door", "window", "skirt", "skirting", "ceiling", "floor", "trim", "casing"):
+        if part in lowered:
+            return False
+    return True
+
+
+def _wall_inner_planes() -> dict:
+    """Measure each side's wall inner-face plane from the shell (Blender runtime only).
+
+    Returns {"x0": .., "x1": .., "y0": .., "y1": ..} in world meters: for
+    each side, the slab face closest to the room center. Fails closed when
+    a side has no wall slab (the cove would otherwise hide inside a wall).
+    """
+    import bpy  # type: ignore[import-not-found]
+
+    meshes = [obj for obj in bpy.data.objects
+              if obj.type == "MESH" and _is_wall_shell(obj.name)]
+    if not meshes:
+        raise SystemExit("room_clinic_finish: no wall shells for cove placement")
+    cx = sum((obj.matrix_world @ v.co).x for obj in meshes for v in obj.data.vertices)
+    cy = sum((obj.matrix_world @ v.co).y for obj in meshes for v in obj.data.vertices)
+    count = sum(len(obj.data.vertices) for obj in meshes)
+    cx, cy = cx / count, cy / count
+    planes: dict[str, float | None] = {"x0": None, "x1": None, "y0": None, "y1": None}
+    for obj in meshes:
+        xs = [(obj.matrix_world @ v.co).x for v in obj.data.vertices]
+        ys = [(obj.matrix_world @ v.co).y for v in obj.data.vertices]
+        ox0, ox1, oy0, oy1 = min(xs), max(xs), min(ys), max(ys)
+        if (ox1 - ox0) <= (oy1 - oy0):
+            # X-normal slab: inner face is the side toward cx.
+            face = ox1 if (ox0 + ox1) / 2 < cx else ox0
+            key = "x0" if (ox0 + ox1) / 2 < cx else "x1"
+            current = planes[key]
+            planes[key] = face if current is None or (key == "x0" and face > current) or (key == "x1" and face < current) else current
+        else:
+            face = oy1 if (oy0 + oy1) / 2 < cy else oy0
+            key = "y0" if (oy0 + oy1) / 2 < cy else "y1"
+            current = planes[key]
+            planes[key] = face if current is None or (key == "y0" and face > current) or (key == "y1" and face < current) else current
+    missing = [key for key, value in planes.items() if value is None]
+    if missing:
+        raise SystemExit("room_clinic_finish: wall inner face missing for sides %r" % missing)
+    return {"x0": planes["x0"], "x1": planes["x1"], "y0": planes["y0"], "y1": planes["y1"],
+            "cx": cx, "cy": cy}
+
+
+def _door_leaf_xy_range() -> dict | None:
+    """World x/y bbox of the kept door leaves (Blender runtime only)."""
+    import bpy  # type: ignore[import-not-found]
+    import re
+
+    leaf_re = re.compile(r"\.door_leaf(_\d+)?$")
+    xs: list[float] = []
+    ys: list[float] = []
+    for obj in bpy.data.objects:
+        if obj.type != "MESH" or not leaf_re.search(obj.name):
+            continue
+        for v in obj.data.vertices:
+            wv = obj.matrix_world @ v.co
+            xs.append(wv.x)
+            ys.append(wv.y)
+    if not xs:
+        return None
+    return {"minX": min(xs), "maxX": max(xs), "minY": min(ys), "maxY": max(ys)}
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Clinic room finish compose stage")
     parser.add_argument("--input", required=True, help="input GLB path")
@@ -388,7 +499,8 @@ def classify_mesh(name: str) -> str:
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
-                         emit_floor: bool = True, floor_tile_layout: bool = False) -> dict:
+                         emit_floor: bool = True, floor_tile_layout: bool = False,
+                         emit_cove: bool = False) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -591,8 +703,64 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     if crash_rail:
         new_box("openclinxr_crash_rail", cx, miny + 0.02, minz + h * 0.32, w * 0.67, 0.08, 0.15, rail_m)
         counts["rail"] += 1
+    cove_info: dict = {"runs": 0, "doorGap": None}
+    if emit_cove:
+        cove_m = _flat_material("openclinxr_finish_cove", SKIRTING_COVE_RGB_LINEAR, SKIRTING_COVE_ROUGHNESS)
+        planes = _wall_inner_planes()
+        x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
+        t = SKIRTING_COVE_THICKNESS_M
+        zc = minz + SKIRTING_COVE_FOUNDATION_M + SKIRTING_COVE_HEIGHT_M / 2
+        # Door-wall run splits around the kept leaf bbox (expanded by the
+        # casing margin); the leaf sits in the opening, so the leaf's most
+        # off-center axis names the door side.
+        leaf = _door_leaf_xy_range()
+        door_side: str | None = None
+        gap: list[float] | None = None
+        if leaf is not None:
+            lx = (leaf["minX"] + leaf["maxX"]) / 2
+            ly = (leaf["minY"] + leaf["maxY"]) / 2
+            nx = abs(lx - planes["cx"]) / max((x1 - x0) / 2, 1e-6)
+            ny = abs(ly - planes["cy"]) / max((y1 - y0) / 2, 1e-6)
+            if nx >= ny:
+                door_side = "x0" if lx < planes["cx"] else "x1"
+                gap = [leaf["minY"] - SKIRTING_DOOR_MARGIN_M, leaf["maxY"] + SKIRTING_DOOR_MARGIN_M]
+            else:
+                door_side = "y0" if ly < planes["cy"] else "y1"
+                gap = [leaf["minX"] - SKIRTING_DOOR_MARGIN_M, leaf["maxX"] + SKIRTING_DOOR_MARGIN_M]
+
+        def cove_run(name: str, x: float, y: float, dx: float, dy: float) -> None:
+            new_box(name, x, y, zc, dx, dy, SKIRTING_COVE_HEIGHT_M, cove_m)
+            counts["cove"] = counts.get("cove", 0) + 1
+
+        # X-side runs (vary along y); y-side runs (vary along x). X-side
+        # runs overshoot by one thickness per end to close the corners.
+        runs: list[tuple] = [
+            ("x0", x0 + t / 2 - 0.002, (y0 - t, y1 + t), "y"),
+            ("x1", x1 - t / 2 + 0.002, (y0 - t, y1 + t), "y"),
+            ("y0", y0 + t / 2 - 0.002, (x0, x1), "x"),
+            ("y1", y1 - t / 2 + 0.002, (x0, x1), "x"),
+        ]
+        for side, plane_pos, (lo, hi), axis in runs:
+            if side == door_side and gap is not None:
+                glo, ghi = max(gap[0], lo), min(gap[1], hi)
+                if ghi - glo >= (hi - lo) - 1e-6:
+                    continue  # degenerate: leaf spans the run, keep the wall bare
+                segments = [(lo, glo), (ghi, hi)]
+            else:
+                segments = [(lo, hi)]
+            for index, (seg_lo, seg_hi) in enumerate(segments):
+                if seg_hi - seg_lo < 0.01:
+                    continue
+                mid = (seg_lo + seg_hi) / 2
+                length = seg_hi - seg_lo
+                if axis == "y":
+                    cove_run("openclinxr_cove_%s_%d" % (side, index), plane_pos, mid, t, length)
+                else:
+                    cove_run("openclinxr_cove_%s_%d" % (side, index), mid, plane_pos, length, t)
+        cove_info = {"runs": counts.get("cove", 0), "height": SKIRTING_COVE_HEIGHT_M,
+                     "thickness": t, "doorSide": door_side, "doorGap": gap}
     return {"meshes": created, "counts": counts, "crashRail": crash_rail, "seed": seed,
-            "ceilingGrid": ceiling_grid}
+            "ceilingGrid": ceiling_grid, "cove": cove_info}
 
 
 def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
@@ -768,9 +936,20 @@ def apply_finish() -> int:
             if ceiling_inner_z is None or mesh_min_z > ceiling_inner_z:
                 ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
+    # Ward cove exception (see README): the shell floor skirting (random
+    # height/profile white plastic from skirting_board.py) is removed and
+    # the finish emits the thin cove base instead. Ceiling skirting stays.
+    # Other presets keep the legacy trim-paint path above (untouched).
+    removed_skirting: list[str] = []
+    if preserve_shell:
+        for obj in list(bpy.data.objects):
+            if obj.type == "MESH" and _is_shell_floor_skirting(obj.name):
+                removed_skirting.append(obj.name)
+                bpy.data.objects.remove(obj, do_unlink=True)
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
-                                    emit_floor=True, floor_tile_layout=preserve_shell)
+                                    emit_floor=True, floor_tile_layout=preserve_shell,
+                                    emit_cove=preserve_shell)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
@@ -800,6 +979,8 @@ def apply_finish() -> int:
         "emittedMeshes": emitted["counts"],
         "emittedCount": len(emitted["meshes"]),
         "emittedCeilingGrid": emitted["ceilingGrid"],
+        "emittedCove": emitted["cove"],
+        "removedShellSkirting": removed_skirting,
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],
         "doorLeafPhoto": door_leaf,

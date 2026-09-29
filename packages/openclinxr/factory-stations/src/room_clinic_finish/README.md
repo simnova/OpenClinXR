@@ -68,6 +68,31 @@ like the ceiling tile face, and every byte under `textures/` joins the
 `resolveStageKeyFiles`). Other presets keep the legacy 1.2 m
 sheet-vinyl photo field (their tests pin it).
 
+## Documented exception: the ward thin cove base
+
+Under `ward_photo` the finish removes Infinigen's shell floor skirting
+and emits a thin vinyl cove base (`openclinxr_cove_*` runs, material
+`openclinxr_finish_cove`) instead. Deliberate exception, recorded
+2026-09-29 after a coordinator pixel grade of the seed-205 chain (v2
+reference 06): the shell skirting renders as a thick translucent-looking
+band with a double edge line, while the reference shows a thin coved
+vinyl base, 100 mm tall, mid grey, one clean top edge, almost flush.
+
+Infinigen-first was investigated and refused: `apply_skirtingboard()` in
+`assets/objects/wall_decorations/skirting_board.py` takes no
+height/profile parameters (height draws `uniform(0.08, 0.15)`, thickness
+`uniform(0.02, 0.05)`, profile control points draw random peaks inside
+`FixedSeed` -- nothing threads through `make_skirting_board()` or any
+gin-configurable), so the specced cove is not parameterizable in
+`room_generate`. Deterministic and cache-keyed: the cove runs derive
+wall inner-face planes from the shell wall meshes and the door gap from
+the kept leaf bbox at compose time (seed-independent geometry, no
+randomness; `compose.py` joins the finish stage cache key). The 100 mm
+height and matte vinyl grey land inside the existing
+`room-albedo-ao-bake.py` `openclinxr_finish_cove` flat-skip entry and
+the shell `SKIRTING_BASE_COLOR_LINEAR` calibration. Ceiling skirting
+stays untouched; other presets keep the legacy trim-paint path.
+
 ## ward_photo preservation: the shell bake passes through
 
 Under the `ward_photo` preset only (the ward finish chain), `compose.py`

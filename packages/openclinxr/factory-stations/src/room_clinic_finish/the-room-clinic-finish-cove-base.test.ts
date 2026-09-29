@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { copyFileSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -13,14 +13,14 @@ const execFileAsync = promisify(execFile);
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 /**
- * OBSERVABLE: under ward_photo the finish emits the procedural 600 mm
- * vinyl-tile floor field (ward tile exception, see README) instead of
- * passing the shell rubber bake through.
+ * OBSERVABLE: under ward_photo the finish removes the shell floor
+ * skirting and emits the thin (100 mm) vinyl cove base with a door gap
+ * (ward cove exception, see README).
  *
- * On main compose.py has no tile path (ward_photo skips the floor field
- * entirely), so every case below fails there and passes after the change.
- * One real compose.py run (raw Blender spawn, ward_photo recipe) shared by
- * the live cases via beforeAll; the rest pin the mechanism statically.
+ * On main compose.py has no cove path (shell skirting passes through),
+ * so every case below fails there and passes after the change. One real
+ * compose.py run (raw Blender spawn, ward_photo recipe) shared via
+ * beforeAll; the rest pin the mechanism statically.
  */
 
 function boxPositions(min: [number, number, number], max: [number, number, number]): Float32Array<ArrayBuffer> {
@@ -41,14 +41,18 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
     const mesh = doc.createMesh(name).addPrimitive(prim);
     doc.createNode(name).setMesh(mesh);
   };
-  // Four wall slabs (authored Y-UP: height along Y; Blender maps it to
-  // Z on import). One box yields only one slab orientation, and the cove
-  // placement fails closed without all four inner-face planes.
+  // Fixture boxes are authored Y-UP (glTF convention: height along Y;
+  // Blender maps it to Z on import). Blender-space room: x in
+  // [-2.15, 2.15], y in [-1.95, 1.95], z in [0, 2.4]; authored gz = -y.
+  // Four wall slabs: interior x in [-2.15, 2.15], y in [-1.95, 1.95].
   addBox("TestRoom_0.wall_south", [-2.15, 0, 1.73], [2.15, 2.4, 1.95]);
   addBox("TestRoom_0.wall_north", [-2.15, 0, -1.95], [2.15, 2.4, -1.73]);
   addBox("TestRoom_0.wall_west", [-2.15, 0, -1.95], [-1.93, 2.4, 1.95]);
   addBox("TestRoom_0.wall_east", [1.93, 0, -1.95], [2.15, 2.4, 1.95]);
   addBox("TestRoom_0.door_leaf", [0.0, 0, -1.8], [0.95, 2.1, -1.7]);
+  // Fake shell skirting: floor one must go, ceiling one must stay.
+  addBox("TestRoom_0.skirting_floor", [-2.15, 0, 1.9], [2.15, 0.14, 1.95]);
+  addBox("TestRoom_0.skirting_ceiling", [-2.15, 2.26, 1.9], [2.15, 2.4, 1.95]);
   await new NodeIO().write(outputPath, doc);
 }
 
@@ -86,7 +90,7 @@ type Prepared = { workGlb: string; report: Record<string, unknown> };
 let prepared: Prepared | null = null;
 
 async function composeOnce(): Promise<Prepared> {
-  const work = mkdtempSync(path.join(tmpdir(), "clinic-finish-tile-"));
+  const work = mkdtempSync(path.join(tmpdir(), "clinic-finish-cove-"));
   const fixture = path.join(work, "fixture.glb");
   const workGlb = path.join(work, "work.glb");
   const recipePath = path.join(work, "recipe.json");
@@ -106,58 +110,63 @@ async function composeOnce(): Promise<Prepared> {
   return { workGlb, report };
 }
 
-describe("the room clinic finish ward tile floor", () => {
+describe("the room clinic finish ward cove base", () => {
   beforeAll(async () => {
     prepared = await composeOnce();
   }, 300_000);
 
-  it("(1) the tile texture set exists and is generated deterministically", () => {
-    for (const file of ["floor-vinyl-tile.png", "floor-vinyl-tile-derived-normal.png",
-      "floor-vinyl-tile-derived-roughness.png", "generate-floor-tile-face.py"]) {
-      expect(existsSync(path.join(SRC, "textures", file)), file).toBe(true);
-    }
-    const genSrc = readFileSync(path.join(SRC, "textures", "generate-floor-tile-face.py"), "utf8");
-    expect(genSrc).toMatch(/SEED\s*=\s*\d+/);
-    expect(genSrc).toContain("default_rng(SEED)");
-  });
-
-  it("(2) compose wires the tile face under ward_photo with a 0.6 m module", () => {
+  it("(1) compose carries the cove path with a 100 mm height", () => {
     const composeSrc = readFileSync(path.join(SRC, "compose.py"), "utf8");
-    expect(composeSrc).toContain("FLOOR_TILE_MODULE_M = 0.6");
-    expect(composeSrc).toContain("floor-vinyl-tile.png");
-    expect(composeSrc).toContain("openclinxr_finish_floor_tile_photo");
-    expect(composeSrc).toContain("floor_tile_layout");
+    expect(composeSrc).toContain("SKIRTING_COVE_HEIGHT_M = 0.10");
+    expect(composeSrc).toContain("openclinxr_finish_cove");
+    expect(composeSrc).toContain("_is_shell_floor_skirting");
+    expect(composeSrc).toContain("emit_cove");
   });
 
-  it("(3) the ward compose emits a tile floor field, not a skipped shell pass-through", async () => {
+  it("(2) the shell floor skirting is removed and the ceiling skirting stays", async () => {
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const doc = await io.read(prepared!.workGlb);
-    const floorMesh = doc.getRoot().listMeshes().find((m) => m.getName().includes("openclinxr_floor"));
-    expect(floorMesh, "expected an openclinxr_floor_* field under ward_photo").toBeDefined();
-    const mat = floorMesh!.listPrimitives()[0]!.getMaterial();
-    expect(mat?.getName()).toBe("openclinxr_finish_floor_tile_photo");
-    expect(mat!.getBaseColorTexture(), "tile material must carry a baseColorTexture").not.toBeNull();
-    expect(mat!.getNormalTexture(), "tile material must carry a normal map with seam grooves").not.toBeNull();
-    expect(mat!.getMetallicRoughnessTexture(), "tile material must carry a roughness map").not.toBeNull();
+    const names = doc.getRoot().listMeshes().map((m) => m.getName());
+    expect(names.some((n) => n.includes("skirting_floor")), "shell floor skirting must be gone").toBe(false);
+    expect(names.some((n) => n.includes("skirting_ceiling")), "ceiling skirting must stay").toBe(true);
+    expect((prepared!.report["removedShellSkirting"] as string[]).length).toBeGreaterThan(0);
   }, 120_000);
 
-  it("(4) the tile UVs repeat at the 0.6 m module", async () => {
+  it("(3) cove runs stand 0.08-0.12 m tall with a door gap on the leaf wall", async () => {
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const doc = await io.read(prepared!.workGlb);
-    const floorMesh = doc.getRoot().listMeshes().find((m) => m.getName().includes("openclinxr_floor"));
-    expect(floorMesh).toBeDefined();
-    const uvAcc = floorMesh!.listPrimitives()[0]!.getAttribute("TEXCOORD_0");
-    expect(uvAcc, "floor primitive must carry TEXCOORD_0").not.toBeNull();
-    const arr = uvAcc!.getArray() as Float32Array;
-    let minU = Infinity, maxU = -Infinity;
-    for (let i = 0; i < arr.length; i += 2) {
-      const u = arr[i] as number;
-      if (u < minU) minU = u;
-      if (u > maxU) maxU = u;
+    const coves = doc.getRoot().listMeshes().filter((m) => m.getName().includes("openclinxr_cove_"));
+    // 3 full runs + the door wall split in two around the leaf.
+    expect(coves.length).toBe(5);
+    for (const mesh of coves) {
+      let minY = Infinity, maxY = -Infinity;
+      for (const prim of mesh.listPrimitives()) {
+        const arr = prim.getAttribute("POSITION")!.getArray() as Float32Array;
+        for (let i = 1; i < arr.length; i += 3) {
+          const y = arr[i] as number;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+      // glTF y is up: height is the y extent.
+      expect(maxY - minY).toBeGreaterThanOrEqual(0.08);
+      expect(maxY - minY).toBeLessThanOrEqual(0.12);
     }
-    // 4.3 m of floor at a 0.6 m module tiles ~7.2 times; the legacy
-    // 1.2 m sheet repeat would span ~3.6.
-    expect(maxU - minU).toBeGreaterThan(5);
+    const cove = prepared!.report["emittedCove"] as { doorSide: string; doorGap: number[] };
+    expect(cove.doorSide).toBe("y1");
+    expect(cove.doorGap!.length).toBe(2);
+  }, 120_000);
+
+  it("(4) the cove material is the flat matte vinyl grey", async () => {
+    const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+    const doc = await io.read(prepared!.workGlb);
+    const coveMat = doc.getRoot().listMaterials().find((m) => m.getName() === "openclinxr_finish_cove");
+    expect(coveMat).toBeDefined();
+    expect(coveMat!.getBaseColorTexture(), "cove must be flat, no photo").toBeNull();
+    const factor = coveMat!.getBaseColorFactor();
+    for (let i = 0; i < 3; i += 1) {
+      expect(Math.abs(factor[i]! - [0.313, 0.323, 0.352][i]!)).toBeLessThan(0.02);
+    }
   }, 120_000);
 });
 
