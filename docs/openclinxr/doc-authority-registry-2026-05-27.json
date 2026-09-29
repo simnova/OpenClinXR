@@ -7,12 +7,12 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 138,
+    "evidence": 139,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
     "generated-evidence": 11,
-    "historical-synthesis": 17,
+    "historical-synthesis": 18,
     "decision-record": 44
   },
   "entries": [
@@ -3104,6 +3104,13 @@
       "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
     },
     {
+      "path": "docs/_archive/agent-ops/2026-09/2026-08-02-temporal-review-grok-tokens.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Archived copy of the dated agent-ops revision record (in-flight archive op, 2026-09-29); use successor living SSOT, not this file, as law."
+    },
+    {
       "path": "docs/agent-ops/CAPABILITY-EVOLUTION.md",
       "authority": "current-reference",
       "agentInstructionWeight": "high",
@@ -5202,6 +5209,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",

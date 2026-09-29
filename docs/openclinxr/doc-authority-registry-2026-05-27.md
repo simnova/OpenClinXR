@@ -425,3 +425,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/room-realism/room-chain-metal-measure/report.md` - evidence; Metal-vs-CPU bake measurement report for the three room_generate bakes (shell, albedo, AO): timing, RSS, run-to-run determinism, pixel diffs, and the mechanical adoption verdict (Metal adopted for shell bake only).
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md` - evidence; Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job.
+- `docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md` - evidence; Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job.
