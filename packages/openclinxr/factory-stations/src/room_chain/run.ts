@@ -8,9 +8,9 @@
  * so those imports never cross a package boundary and are not part of the
  * package's reviewed public surface (`index.ts` stays untouched).
  *
- * Step 1 (room_generate): fixed-footprint Infinigen GENERATE with the proven
- * stage-2 pin (footprint 8.77 x 7.77 x 2.42, door wall +y offset 0.50,
- * hinge +x, style lite), plus the existing albedo+occlusion bake and
+ * Step 1 (room_generate): fixed-footprint Infinigen GENERATE with the
+ * room-dimensions-fix pin (footprint 4.3 x 3.9 x 2.4, door wall +y offset
+ * 0.25, hinge +x, style lite), plus the existing albedo+occlusion bake and
  * trim-locked simplify -- all inside runRoomGenerate.
  * Step 2 (room_clinic_finish): ward_photo preset compose IN PLACE on the
  * work GLB room_generate produced.
@@ -46,10 +46,10 @@ import {
 export const WARD_CHAIN_ENVIRONMENT_ID = "inpatient_ward_room_v1";
 export const WARD_CHAIN_DEFAULT_SEED = 205;
 export const WARD_CHAIN_OUT_DIR = ".openclinxr/evidence/ward-finish-chain";
-export const WARD_CHAIN_FOOTPRINT = { width: 8.77, depth: 7.77, ceilingHeight: 2.42 };
+export const WARD_CHAIN_FOOTPRINT = { width: 4.3, depth: 3.9, ceilingHeight: 2.4 };
 export const WARD_CHAIN_DOOR = {
   doorWall: "+y",
-  wallOffsetM: 0.5,
+  wallOffsetM: 0.25,
   hingeSide: "+x",
   style: "lite",
   widthM: 0.95,

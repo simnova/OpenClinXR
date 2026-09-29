@@ -19,8 +19,8 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  *
  * Runs the REAL compose.py (raw Blender spawn, no package-internal imports --
  * the runner wrapper is not the subject here) on a fixture shell with exact
- * known bounds (glTF x in [-4.385, 4.385], y in [0, 2.42], z in
- * [-3.885, 3.885], i.e. the ward footprint), then asserts against the
+ * known bounds (glTF x in [-2.15, 2.15], y in [0, 2.4], z in
+ * [-1.95, 1.95], i.e. the ward footprint), then asserts against the
  * exported GLB bytes and the compose report:
  *
  * - a ceiling material carries a baseColorTexture photo distinct from the
@@ -35,7 +35,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  * cases via beforeAll; timeout 5 min.
  */
 
-const SHELL = { minX: -4.385, maxX: 4.385, minY: 0, maxY: 2.42, minZ: -3.885, maxZ: 3.885 };
+const SHELL = { minX: -2.15, maxX: 2.15, minY: 0, maxY: 2.4, minZ: -1.95, maxZ: 1.95 };
 const CEILING_PLANE = 2.42;
 const TBAR_DROP = 0.06;
 const GRID = 0.6;
@@ -249,10 +249,10 @@ describe("the room clinic finish ceiling grid and flush troffer", () => {
     expect(floor.length).toBeGreaterThan(0);
     for (const entry of floor) {
       expect(entry.uv, "floor primitive must carry TEXCOORD_0").not.toBeNull();
-      // 8.77 m of floor at a 1.2 m repeat tiles ~7.3 times; a stretched
+      // 4.3 m of floor at a 1.2 m repeat tiles ~3.6 times; a stretched
       // single image would span at most 1.
-      expect(entry.uv!.maxU - entry.uv!.minU).toBeGreaterThan(5);
-      expect(entry.uv!.maxV - entry.uv!.minV).toBeGreaterThan(5);
+      expect(entry.uv!.maxU - entry.uv!.minU).toBeGreaterThan(2.5);
+      expect(entry.uv!.maxV - entry.uv!.minV).toBeGreaterThan(2.5);
     }
   }, 120_000);
 
@@ -262,8 +262,8 @@ describe("the room clinic finish ceiling grid and flush troffer", () => {
     expect(ceiling.length).toBeGreaterThan(0);
     for (const entry of ceiling) {
       expect(entry.uv, "ceiling primitive must carry TEXCOORD_0").not.toBeNull();
-      // 8.77 m at a 0.6 m repeat (one tile face per repeat, one tile per
-      // 0.6 m module) tiles ~14.6 times: a stretched single image would
+      // 4.3 m at a 0.6 m repeat (one tile face per repeat, one tile per
+      // 0.6 m module) tiles ~7.2 times: a stretched single image would
       // span at most 1.
       expect(entry.uv!.maxU - entry.uv!.minU).toBeGreaterThan(2.5);
       expect(entry.uv!.maxV - entry.uv!.minV).toBeGreaterThan(2.5);

@@ -41,7 +41,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  * cases via beforeAll; timeout 5 min.
  */
 
-const SHELL = { minX: -4.385, maxX: 4.385, minY: 0, maxY: 2.42, minZ: -3.885, maxZ: 3.885 };
+const SHELL = { minX: -2.15, maxX: 2.15, minY: 0, maxY: 2.4, minZ: -1.95, maxZ: 1.95 };
 const GRID = 0.6;
 
 function boxPositions(min: [number, number, number], max: [number, number, number]): Float32Array<ArrayBuffer> {
@@ -260,8 +260,9 @@ describe("the room clinic finish ceiling grid and flat troffer", () => {
     const doc = await io.read(prepared!.workGlb);
     const xStrips = doc.getRoot().listMeshes().filter((m) => m.getName().includes("openclinxr_tbar_x_"));
     const yStrips = doc.getRoot().listMeshes().filter((m) => m.getName().includes("openclinxr_tbar_y_"));
-    expect(xStrips.length, "expected openclinxr_tbar_x_* strip meshes").toBeGreaterThan(10);
-    expect(yStrips.length, "expected openclinxr_tbar_y_* strip meshes").toBeGreaterThan(10);
+    // 4.3 x 3.9 m shell at a 0.6 m module: ~8 x-lines, ~7 y-lines.
+    expect(xStrips.length, "expected openclinxr_tbar_x_* strip meshes").toBeGreaterThan(5);
+    expect(yStrips.length, "expected openclinxr_tbar_y_* strip meshes").toBeGreaterThan(5);
     const aabb = (mesh: { listPrimitives: () => Array<{ getAttribute: (n: string) => { getArray: () => unknown } | null }> }): {
       minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number;
     } => {
@@ -301,7 +302,7 @@ describe("the room clinic finish ceiling grid and flat troffer", () => {
     }
     for (const lines of [xLines, yLines]) {
       const sorted = [...new Set(lines.map((v) => v.toFixed(4)))].map(Number).sort((a, b) => a - b);
-      expect(sorted.length).toBeGreaterThan(10);
+      expect(sorted.length).toBeGreaterThan(5);
       for (let i = 1; i < sorted.length; i += 1) {
         expect(sorted[i]! - sorted[i - 1]!, "consecutive T-bar spacing").toBeCloseTo(GRID, 2);
       }

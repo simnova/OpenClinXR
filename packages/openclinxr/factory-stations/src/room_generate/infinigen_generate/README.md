@@ -3,10 +3,11 @@
 Promoted, generalized evidence from the sibling stage-2 work
 (`wt/infinigen-room`, `infinigen-patches/`): the fixed-footprint State
 injection that bypasses `FloorPlanSolver` annealing and runs the REAL
-`BlueprintSolidifier`, proven to land an 8.77 x 7.77 m interior clear floor
-within 1 mm. The stage-2 door pin was hardcoded to the +y wall at x=+0.50;
-here the wall and along-wall offset are parameters (`--door-wall`,
-`--door-offset`).
+`BlueprintSolidifier`, proven to land a 4.3 x 3.9 m interior clear floor
+within 1 mm. The stage-2 door pin was hardcoded to the +y wall at x=+0.50
+(reference door east of center); the room-dimensions-fix pin is +y at
+x=+0.25 (same relative position on the narrower wall). Here the wall and
+along-wall offset are parameters (`--door-wall`, `--door-offset`).
 
 ## Files
 
@@ -19,7 +20,8 @@ here the wall and along-wall offset are parameters (`--door-wall`,
   `_fixed_exterior_cutters` override, not just a cutter override).
 - `fixed_footprint_state.py` — parametric pre-solidify State builder.
   `configure(interior_width, interior_depth, wall_thickness, door_wall,
-  door_offset)`; defaults reproduce the stage-2 reference exactly.
+  door_offset)`; defaults reproduce the room-dimensions-fix reference
+  (4.3 x 3.9 m, door +y at x=+0.25).
 - `strip_room_shell_placeholders.py` — verbatim promotion of the stage-2
   extract pre-pass: deletes the uncut shell placeholders from a COPY of the
   generation blend so the extract exports only wall/floor/ceiling/exterior.

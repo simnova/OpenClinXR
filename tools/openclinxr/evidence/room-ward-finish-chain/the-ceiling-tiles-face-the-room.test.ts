@@ -22,8 +22,8 @@
  * center where the shipped captures read flat grey. The finished GLB is built
  * by the REAL compose.py (raw Blender spawn, same pattern as the S6
  * ceiling-troffer test -- zero package-internal imports) against a fixture
- * shell that mirrors the measured real shell: ward footprint 8.77 x 7.77 m,
- * down-facing ceiling plane at 2.42 m, exterior cap to 2.53 m, kept door leaf.
+ * shell that mirrors the measured real shell: ward footprint 4.3 x 3.9 m,
+ * down-facing ceiling plane at 2.4 m, exterior cap to 2.51 m, kept door leaf.
  * The page exposes no THREE namespace, so the in-page intersect is a manual
  * Moeller-Trumbore loop honoring material.side exactly as three.js
  * Mesh.raycast culls it; the loop was cross-validated against a real
@@ -61,17 +61,17 @@ import {
 
 const execFileAsync = promisify(execFile);
 
-// Measured real shell (seed-205 chain GLB, 2026-09-28): ceiling plane 2.42 m,
-// exterior top cap 2.53 m. The fixture mirrors both so the pooled-maxz defect
-// replicates exactly: pre-fix tiles land at 2.47 m (hidden), post-fix at
-// 2.36 m (visible).
-const CEILING_PLANE = 2.42;
-const EXTERIOR_TOP = 2.53;
-const HX = 4.385;
-const HZ = 3.885;
+// Measured real shell (seed-205 room-dimensions-fix chain GLB): ceiling plane
+// 2.4 m, exterior top cap 2.51 m. The fixture mirrors both so the
+// pooled-maxz defect replicates exactly: pre-fix tiles land at 2.45 m
+// (hidden), post-fix at 2.34 m (visible).
+const CEILING_PLANE = 2.4;
+const EXTERIOR_TOP = 2.51;
+const HX = 2.15;
+const HZ = 1.95;
 // Pose 03 verbatim from hand-placed-poses.json (three.js room-local coords,
 // the same interpretation loadPoses gives the capture tooling).
-const POSE_03 = { eye: { x: -0.4, y: 0.55, z: 0.6 }, look: { x: 1.6, y: 2.43, z: -3.2 }, fov: 62 };
+const POSE_03 = { eye: { x: -0.2, y: 0.55, z: 0.3 }, look: { x: 0.8, y: 2.3, z: -1.6 }, fov: 62 };
 
 function repoRoot(): string {
   let dir = path.dirname(new URL(import.meta.url).pathname);
@@ -117,7 +117,7 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
   addBox("bedroom_0/0.wall.002", [-HX, 0, HZ - 0.05], [HX, CEILING_PLANE, HZ + 0.05]);
   addBox("bedroom_0/0.wall.003", [-HX, 0, -HZ - 0.05], [HX, CEILING_PLANE, -HZ + 0.05]);
   addBox("bedroom_0/0.exterior", [-HX - 0.065, -0.11, -HZ - 0.065], [HX + 0.065, EXTERIOR_TOP, HZ + 0.065]);
-  addBox("bedroom_0/0.door_leaf", [0.025, 0, -HZ - 0.045], [0.975, 2.1, -HZ + 0.045]);
+  addBox("bedroom_0/0.door_leaf", [-0.225, 0, -HZ - 0.045], [0.725, 2.1, -HZ + 0.045]);
   // The shell ceiling: a down-facing plane at the measured plane height, the
   // real shell's zero-thickness Circle.004. Winding [0,2,1 / 0,3,2] faces -Y.
   const cpos = doc.createAccessor().setType("VEC3").setArray(new Float32Array([

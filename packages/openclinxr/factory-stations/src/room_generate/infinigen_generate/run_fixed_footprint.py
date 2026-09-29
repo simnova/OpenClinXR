@@ -3,8 +3,8 @@
 # Promoted from /Volumes/files/src/openclinxr-wt/infinigen-room
 # tools/openclinxr/asset-pipeline/environment/infinigen-patches/run_fixed_footprint.py
 # and GENERALIZED: footprint dimensions, door wall, and door offset are CLI
-# flags (defaults reproduce the proven stage-2 reference: 8.77 x 7.77 m
-# interior, door on +y at x=+0.50).
+# flags (defaults reproduce the room-dimensions-fix reference: 4.3 x 3.9 m
+# interior, door on +y at x=+0.25).
 #
 # Bypasses FloorPlanSolver annealing: monkeypatches Solver.solve_rooms to
 # hand-build the single-room pre-solidify State (fixed_footprint_state) and
@@ -22,8 +22,8 @@
 #   PYTHONPATH=<this-dir> ../venv/bin/python -m run_fixed_footprint \
 #     --output_folder <out> -s 203 \
 #     -g singleroom disable/clinical_single_furnished \
-#     --interior-width 8.77 --interior-depth 7.77 \
-#     --door-wall +y --door-offset 0.50 \
+#     --interior-width 4.3 --interior-depth 3.9 \
+#     --door-wall +y --door-offset 0.25 \
 #     [--door-style lite] \
 #     -p compose_indoors.terrain_enabled=False compose_indoors.room_windows_enabled=False compose_indoors.solve_large_enabled=False compose_indoors.solve_medium_enabled=False compose_indoors.solve_small_enabled=False populate_doors.n_doors=3 \
 #     -t coarse
@@ -61,11 +61,11 @@ def main():
     # binding. Accept both spellings here.
     parser.add_argument("-p", "--overrides", nargs="+", action="append", default=[])
     parser.add_argument("--task_uniqname", default=None)
-    parser.add_argument("--interior-width", type=float, default=8.77)
-    parser.add_argument("--interior-depth", type=float, default=7.77)
+    parser.add_argument("--interior-width", type=float, default=4.3)
+    parser.add_argument("--interior-depth", type=float, default=3.9)
     parser.add_argument("--wall-thickness", type=float, default=0.22)
     parser.add_argument("--door-wall", default="+y")
-    parser.add_argument("--door-offset", type=float, default=0.50)
+    parser.add_argument("--door-offset", type=float, default=0.25)
     parser.add_argument("--wall-height", type=float, default=None)
     parser.add_argument("--door-width-m", type=float, default=None)
     parser.add_argument("--door-height-m", type=float, default=None)

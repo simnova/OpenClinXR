@@ -26,7 +26,7 @@
  * on the inpatient-ward environment asset path, served from a local file),
  * then query `globalThis.__openClinXrDebugScene` for the camera
  * and place the 6 POSES. Blender (x, y, z) maps to three (x, z, -y).
- * Stage-2 room shares the reference interior footprint (8.77 x 7.77), so the
+ * Stage-2 room shares the reference interior footprint (4.3 x 3.9), so the
  * same camera math applies; no scenario actors are needed for the shot, the
  * scene-closure route is reused only as the environment loader.
  *
@@ -47,7 +47,7 @@
  * - STAGE2_POSES_FILE (optional): JSON file with posed entries
  *   `{ "image"|"id", "eye": [x,y,z], "look": [x,y,z],
  *   "verticalFovDeg"|"fov": N }` in the ROOM-LOCAL frame (GLB-centered:
- *   door-wall inner face z=-3.885, door center x=+0.50). Overrides the
+ *   door-wall inner face z=-1.95, door center x=+0.25). Overrides the
  *   built-in POSES. Used by the hand-placed pose set
  *   (`stage2-camera-fit/hand-placed-poses.json`).
  * - STAGE2_POSE_DX (default 0) rigidly shifts runtime-01/-04 eye.x+look.x so
@@ -95,38 +95,38 @@ const POSE_DX = Number(process.env["STAGE2_POSE_DX"] ?? "0");
 const POSES = [
   {
     id: "runtime-01-toward-door",
-    eye: { x: -0.9, y: 1.6, z: -2.7 },
-    look: { x: 0.6, y: 1.35, z: -4.0 },
+    eye: { x: -0.45, y: 1.6, z: -1.35 },
+    look: { x: 0.3, y: 1.35, z: -2.0 },
     fov: 52,
   },
   {
     id: "runtime-02-toward-bed-wall",
-    eye: { x: 0.5, y: 1.6, z: -3.0 },
-    look: { x: -0.3, y: 1.3, z: 3.885 },
+    eye: { x: 0.25, y: 1.6, z: -1.5 },
+    look: { x: -0.15, y: 1.3, z: 1.95 },
     fov: 55,
   },
   {
     id: "runtime-03-ceiling-corner",
-    eye: { x: -3.5, y: 0.6, z: 3.0 },
-    look: { x: 0.5, y: 2.42, z: -0.5 },
+    eye: { x: -1.75, y: 0.6, z: 1.5 },
+    look: { x: 0.25, y: 2.3, z: -0.25 },
     fov: 62,
   },
   {
     id: "runtime-04-door-inside",
-    eye: { x: 0.5, y: 1.5, z: -1.5 },
-    look: { x: 0.5, y: 1.4, z: -3.885 },
+    eye: { x: 0.25, y: 1.5, z: -0.75 },
+    look: { x: 0.25, y: 1.4, z: -1.95 },
     fov: 50,
   },
   {
     id: "runtime-05-troffer-junction",
-    eye: { x: 1.2, y: 1.9, z: -1.0 },
-    look: { x: 0.0, y: 2.34, z: 0.0 },
+    eye: { x: 0.6, y: 1.9, z: -0.5 },
+    look: { x: 0.0, y: 2.3, z: 0.0 },
     fov: 45,
   },
   {
     id: "runtime-06-floor-base",
-    eye: { x: 0.6, y: 0.55, z: 1.2 },
-    look: { x: -0.3, y: 0.1, z: 3.885 },
+    eye: { x: 0.3, y: 0.55, z: 0.6 },
+    look: { x: -0.15, y: 0.1, z: 1.95 },
     fov: 60,
   },
 ];

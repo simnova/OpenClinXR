@@ -18,8 +18,8 @@
  * a locally composed file, HIDE_NON_ROOM_SOURCE + PLACE_CAMERA_SOURCE copied
  * verbatim from ward-finish-chain-capture.ts (cited below), camera at pose
  * 03's exact eye/look/fov from hand-placed-poses.json -- against a fixture
- * shell that mirrors the measured real shell (ward footprint 8.77 x 7.77 m,
- * down-facing ceiling plane at 2.42 m, exterior cap to 2.53 m, kept door
+ * shell that mirrors the measured real shell (ward footprint 4.3 x 3.9 m,
+ * down-facing ceiling plane at 2.4 m, exterior cap to 2.51 m, kept door
  * leaf), composed by the REAL compose.py with the REAL repo tile texture
  * (raw Blender spawn, same pattern as the ceiling-facing test -- zero
  * package-internal imports). The finished pixels are measured on the
@@ -86,15 +86,15 @@ const WARM_GAP_MAX = 14;
 // within 0.5 per channel, so the box is interior, not an edge gradient.
 const TILE_BOX = { x0: 390, y0: 110, x1: 450, y1: 170 };
 
-// Measured real shell (seed-205 chain GLB, 2026-09-28): ceiling plane 2.42 m,
-// exterior top cap 2.53 m. Mirrors the ceiling-facing test fixture.
-const CEILING_PLANE = 2.42;
-const EXTERIOR_TOP = 2.53;
-const HX = 4.385;
-const HZ = 3.885;
+// Measured real shell (seed-205 room-dimensions-fix chain GLB): ceiling plane
+// 2.4 m, exterior top cap 2.51 m. Mirrors the ceiling-facing test fixture.
+const CEILING_PLANE = 2.4;
+const EXTERIOR_TOP = 2.51;
+const HX = 2.15;
+const HZ = 1.95;
 // Pose 03 verbatim from hand-placed-poses.json (three.js room-local coords,
 // the same interpretation loadPoses gives the capture tooling).
-const POSE_03 = { eye: { x: -0.4, y: 0.55, z: 0.6 }, look: { x: 1.6, y: 2.43, z: -3.2 }, fov: 62 };
+const POSE_03 = { eye: { x: -0.2, y: 0.55, z: 0.3 }, look: { x: 0.8, y: 2.3, z: -1.6 }, fov: 62 };
 
 function repoRoot(): string {
   let dir = path.dirname(new URL(import.meta.url).pathname);
@@ -140,7 +140,7 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
   addBox("bedroom_0/0.wall.002", [-HX, 0, HZ - 0.05], [HX, CEILING_PLANE, HZ + 0.05]);
   addBox("bedroom_0/0.wall.003", [-HX, 0, -HZ - 0.05], [HX, CEILING_PLANE, -HZ + 0.05]);
   addBox("bedroom_0/0.exterior", [-HX - 0.065, -0.11, -HZ - 0.065], [HX + 0.065, EXTERIOR_TOP, HZ + 0.065]);
-  addBox("bedroom_0/0.door_leaf", [0.025, 0, -HZ - 0.045], [0.975, 2.1, -HZ + 0.045]);
+  addBox("bedroom_0/0.door_leaf", [-0.225, 0, -HZ - 0.045], [0.725, 2.1, -HZ + 0.045]);
   // The shell ceiling: a down-facing plane at the measured plane height, the
   // real shell's zero-thickness Circle.004. Winding [0,2,1 / 0,3,2] faces -Y.
   const cpos = doc.createAccessor().setType("VEC3").setArray(new Float32Array([
