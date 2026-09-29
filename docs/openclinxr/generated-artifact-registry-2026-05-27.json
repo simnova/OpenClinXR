@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 571,
+    "keep-evidence": 604,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24736,6 +24736,237 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Finish-preserve-shell three.js runtime material probe: per-mesh map/normalMap/roughnessMap presence against the finished chain GLB (eba5a679)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-01-toward-door) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-02-toward-bed-wall) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-03-ceiling-corner) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-04-door-inside) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-05-troffer-junction) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig runtime frame (runtime-06-floor-base) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-green/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig capture manifest: pose eye/look/fov plus per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-01-toward-door) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-02-toward-bed-wall) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-03-ceiling-corner) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-04-door-inside) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-05-troffer-junction) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig runtime frame (runtime-06-floor-base) against the wired ward GLB; box-measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-red/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig capture manifest: pose eye/look/fov plus per-capture sha256."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (01-toward-door): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (02-toward-bed-wall): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (03-ceiling-corner): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (04-door-inside): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (05-troffer-junction): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/green-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance GREEN tuned rig comparison sheet (06-floor-base): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/iter1-key5000/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance iteration rig (key 4000->5000K response probe); iter3-5 hand-edited, not from code."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/iter2-fill5000/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance iteration rig (fill 4200->5000K response probe); iter3-5 hand-edited, not from code."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/iter3-split/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance iteration rig (throwaway washes-5500K fill-3500K split experiment); iter3-5 hand-edited, not from code."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/iter4-fillhot/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance iteration rig (throwaway washes-6000K fill-3000K-1.4x experiment); iter3-5 hand-edited, not from code."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/iter5-wash6500/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance iteration rig (throwaway washes-6500K confirmation experiment); iter3-5 hand-edited, not from code."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance box means: reference, RED, GREEN wall/tile measurements plus per-iteration numbers backing REPORT.md."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (01-toward-door): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (02-toward-bed-wall): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (03-ceiling-corner): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (04-door-inside): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (05-troffer-junction): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/red-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance RED baseline, un-tuned rig comparison sheet (06-floor-base): v2 Imagine reference left, runtime frame right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ward.rig.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Light-balance final code-generated clinic_day rig (key 5000K, fill 3000K, washes 6500K); staged to the public ward rig path."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-stage-cache/timing.json",

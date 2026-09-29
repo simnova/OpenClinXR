@@ -5237,6 +5237,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions, captures, and disclosed follow-ups. Landed as part of the UV-separation groundwork carried into the Cycles AO bake."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Light-balance report: clinic_day rig retune toward neutral, RED/GREEN wall/tile box means against the v2 reference, wall bar pass, tile-B fail disclosed as hemisphere/albedo-limited."
     }
   ]
 }

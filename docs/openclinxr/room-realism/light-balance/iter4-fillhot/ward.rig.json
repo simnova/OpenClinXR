@@ -59,7 +59,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 6000
     },
     {
       "name": "wash_nx",
@@ -71,7 +71,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 6000
     },
     {
       "name": "wash_py",
@@ -83,7 +83,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 6000
     },
     {
       "name": "wash_ny",
@@ -95,7 +95,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 6000
     },
     {
       "name": "spill",

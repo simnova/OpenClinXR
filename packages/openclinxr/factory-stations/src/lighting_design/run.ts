@@ -95,13 +95,17 @@ type MoodPreset = {
   washEnergy: number;
   keyTempK: number;
   fillTempK: number;
+  /** Wall-wash temperature; split from the fill-point temperature so the
+   * wall cast (wash-dominated) and the ceiling cast (fill-point-dominated)
+   * tune independently. Same 7 lights, same roles; temps only. */
+  washTempK: number;
   exposure: number;
 };
 
 const MOOD_PRESETS: Record<LightingMood, MoodPreset> = {
-  ed_exam_bright: { keyEnergy: 1.0, fillEnergy: 1.0, washEnergy: 1.0, keyTempK: 5000, fillTempK: 5000, exposure: 1.0 },
-  clinic_day: { keyEnergy: 0.85, fillEnergy: 0.9, washEnergy: 0.85, keyTempK: 4000, fillTempK: 4200, exposure: 0.9 },
-  evening_calm: { keyEnergy: 0.45, fillEnergy: 0.5, washEnergy: 0.4, keyTempK: 2700, fillTempK: 3000, exposure: 0.7 },
+  ed_exam_bright: { keyEnergy: 1.0, fillEnergy: 1.0, washEnergy: 1.0, keyTempK: 5000, fillTempK: 5000, washTempK: 5000, exposure: 1.0 },
+  clinic_day: { keyEnergy: 0.85, fillEnergy: 1.26, washEnergy: 0.85, keyTempK: 5000, fillTempK: 3000, washTempK: 6500, exposure: 0.9 },
+  evening_calm: { keyEnergy: 0.45, fillEnergy: 0.5, washEnergy: 0.4, keyTempK: 2700, fillTempK: 3000, washTempK: 3000, exposure: 0.7 },
 };
 
 function fnv1a(input: string): number {
@@ -263,7 +267,7 @@ export function designLightingRig(input: Record<string, unknown>): LightingRig {
       position: at(bbox.maxX - 0.2, cy + jitter(), cz),
       energy: round4(60.0 * energyScale * preset.washEnergy),
       size: wallSize,
-      colorTemperatureK: preset.fillTempK,
+      colorTemperatureK: preset.washTempK,
     },
     {
       name: "wash_nx",
@@ -271,7 +275,7 @@ export function designLightingRig(input: Record<string, unknown>): LightingRig {
       position: at(bbox.minX + 0.2, cy + jitter(), cz),
       energy: round4(60.0 * energyScale * preset.washEnergy),
       size: wallSize,
-      colorTemperatureK: preset.fillTempK,
+      colorTemperatureK: preset.washTempK,
     },
     {
       name: "wash_py",
@@ -279,7 +283,7 @@ export function designLightingRig(input: Record<string, unknown>): LightingRig {
       position: at(cx + jitter(), bbox.maxY - 0.2, cz),
       energy: round4(60.0 * energyScale * preset.washEnergy),
       size: wallSize,
-      colorTemperatureK: preset.fillTempK,
+      colorTemperatureK: preset.washTempK,
     },
     {
       name: "wash_ny",
@@ -287,7 +291,7 @@ export function designLightingRig(input: Record<string, unknown>): LightingRig {
       position: at(cx + jitter(), bbox.minY + 0.2, cz),
       energy: round4(60.0 * energyScale * preset.washEnergy),
       size: wallSize,
-      colorTemperatureK: preset.fillTempK,
+      colorTemperatureK: preset.washTempK,
     },
     {
       name: "spill",

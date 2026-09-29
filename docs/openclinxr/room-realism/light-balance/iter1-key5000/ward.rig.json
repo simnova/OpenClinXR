@@ -45,9 +45,9 @@
         -0.0053,
         1.2
       ],
-      "energy": 248.1231,
+      "energy": 177.2308,
       "size": 0,
-      "colorTemperatureK": 3000
+      "colorTemperatureK": 4200
     },
     {
       "name": "wash_px",
@@ -59,7 +59,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 4200
     },
     {
       "name": "wash_nx",
@@ -71,7 +71,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 4200
     },
     {
       "name": "wash_py",
@@ -83,7 +83,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 4200
     },
     {
       "name": "wash_ny",
@@ -95,7 +95,7 @@
       ],
       "energy": 83.6923,
       "size": 1.32,
-      "colorTemperatureK": 6500
+      "colorTemperatureK": 4200
     },
     {
       "name": "spill",
