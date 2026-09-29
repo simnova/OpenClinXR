@@ -61,19 +61,22 @@ Infinigen-first was investigated per part and recorded in
   driver pins them as post-draw constants (seeded, recorded in the
   generate report, in the stage cache key via the driver hash + params).
 - Vision glass: NOT FOUND in Infinigen-through-our-bake. `LiteDoorFactory`
-  cuts blind recessed pockets (the joined leaf is a closed solid -- 0
-  boundary edges, verified on the seed-205 `work.blend`) and tags a glass
-  selection, but `bake_shell_materials.assign_role_material` clears every
-  slot into one `shell_bake_trim` material, so the lite bakes and reads as
-  wood. The finish glazes the pocket mouth with a dark partly-transparent
+  cuts a real through-opening (verified seed-205 via the glass-attribute
+  bbox: x 0.029..0.154, z 1.309..1.858) and tags a glass selection, but
+  `bake_shell_materials.assign_role_material` clears every slot into one
+  `shell_bake_trim` material, so the lite bakes and reads as wood; and
+  simplify shreds the opening rim (770 micro-boundary loops, no clean
+  rim), so the opening cannot be measured post-simplify either. The finish
+  glazes the opening with a dark partly-transparent
   pane (`openclinxr_door_glass`: near-black blue-grey albedo, roughness
   0.06, alpha blend 0.9 -- not transmission, which the envmap-less
   runtime renders as an opaque beige slab) plus a steel lite frame; maple
   stays on the leaf. The opening rect comes from
-  the deterministic recipe fractions (single-sourced from the chain's
-  `WARD_CHAIN_DOOR`, guarded door-like); a sane measured rim loop only
-  cross-checks (recorded as `rimCheck`, never placed), because simplify
-  can open outer edges that masquerade as a leaf-spanning rim.
+  the deterministic recipe fractions mapped exactly like the factory
+  (leaf-local +x runs toward world -x, over (span - 2*margin) + margin
+  with the pinned panel_margin, all single-sourced from the chain's
+  `WARD_CHAIN_DOOR`); a sane measured rim loop only cross-checks
+  (recorded as `rimCheck`, never placed).
 - Hinges: NOT FOUND in Infinigen (no hinge symbol anywhere under
   `assets/objects/elements/doors/`). The finish adds three steel hinge
   plates on the jamb opposite the detected handle: the extracted leaf can

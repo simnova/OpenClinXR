@@ -1010,11 +1010,10 @@ def _lite_opening_from_mesh(obj) -> dict | None:
     """Measured vision-lite rim loop when the leaf carries a sane one.
 
     Returns the smallest boundary-edge loop bbox covering less than 30% of
-    the leaf face (a vision-lite rim), or None. The joined Infinigen leaf
-    is usually a fully closed solid (the lite reads as blind recessed
-    pockets, 0 boundary edges) or carries simplify-opened outer edges
-    (rim spans the whole leaf) -- neither is a usable opening, so both
-    read as None and the caller falls back to the recipe fractions.
+    the leaf face (a vision-lite rim), or None. Post-simplify leaves carry
+    hundreds of micro-boundary loops and no clean rim (measured seed-205:
+    770 loops, largest 41 edges), so this routinely reads as None and the
+    caller falls back to the recipe fractions.
     Deterministic.
     """
     import bmesh  # type: ignore[import-not-found]
@@ -1080,14 +1079,14 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     """Glass + lite frame + hinges + casing repaint (Blender runtime only).
 
     The lite rect comes from the deterministic recipe options.door.lite
-    fractions mapped onto the kept leaf bbox: the Infinigen lite reads as
-    blind recessed pockets (the joined leaf is a closed solid, 0 boundary
-    edges), and simplify can open outer edges that masquerade as a
-    leaf-spanning rim, so no measured rim is usable for placement. A sane
-    measured rim only cross-checks (recorded as rimCheck, never placed).
-    Fail closed when the fractions are absent or the leaf is not
-    door-like: a ward door without a vision panel re-creates the defect
-    this slice fixes.
+    fractions mapped exactly like the factory (mirror + margin): the
+    Infinigen lite IS a real through-opening (verified seed-205 via the
+    glass-attribute bbox), but simplify shreds its rim into hundreds of
+    micro-boundary loops, so no measured rim is usable for placement. A
+    sane measured rim only cross-checks (recorded as rimCheck, never
+    placed). Fail closed when the fractions/margin are absent or the leaf
+    is not door-like: a ward door without a vision panel re-creates the
+    defect this slice fixes.
     """
     import bpy  # type: ignore[import-not-found]
     import re
@@ -1101,6 +1100,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     door_opt = options.get("door") if isinstance(options, dict) else None
     hinge_side = door_opt.get("hingeSide") if isinstance(door_opt, dict) else None
     lite_frac = door_opt.get("lite") if isinstance(door_opt, dict) else None
+    lite_margin = door_opt.get("margin") if isinstance(door_opt, dict) else None
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
@@ -1182,16 +1182,22 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     for leaf in leaves:
         box = _world_bbox(leaf)
         extents = [box["max"][i] - box["min"][i] for i in range(3)]
-        # Fractions primary: the Infinigen lite reads as blind recessed
-        # pockets (no measurable through-opening), and simplify can open
-        # outer edges that masquerade as a leaf-spanning rim -- so the
-        # deterministic recipe fractions place the opening, and a sane
-        # measured rim only cross-checks (recorded, never placed).
+        # Fractions primary, mapped exactly like the factory: LiteDoorFactory
+        # maps fractions onto (width - 2*margin) + margin in leaf-local
+        # coords, and the placed leaf mirrors leaf-local +x toward world -x
+        # (verified seed-205 against the glass-attribute bbox: true opening
+        # x 0.029..0.154, z 1.309..1.858). A sane measured rim only
+        # cross-checks (recorded, never placed).
         if (not isinstance(lite_frac, (list, tuple)) or len(lite_frac) != 4
                 or not all(isinstance(v, (int, float)) for v in lite_frac)):
             raise SystemExit(
                 "room_clinic_finish: ward door furniture needs "
                 "recipe options.door.lite fractions")
+        if (not isinstance(lite_margin, (int, float))
+                or not lite_margin > 0):
+            raise SystemExit(
+                "room_clinic_finish: ward door furniture needs "
+                "recipe options.door.margin (leaf panel_margin basis)")
         thin = min(range(3), key=lambda i: extents[i])
         axes = [i for i in range(3) if i != thin]
         # Blender space is Z-up: the leaf width is the horizontal face
@@ -1209,14 +1215,20 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             raise SystemExit(
                 "room_clinic_finish: leaf %s bbox %r is not door-like" % (leaf.name, box))
         fx0, fx1, fy0, fy1 = (float(v) for v in lite_frac)
+        m = float(lite_margin)
         span_u = box["max"][width_axis] - box["min"][width_axis]
         span_v = box["max"][height_axis] - box["min"][height_axis]
+        field_u = span_u - 2 * m
+        field_v = span_v - 2 * m
+        if field_u <= 0 or field_v <= 0:
+            raise SystemExit(
+                "room_clinic_finish: options.door.margin %.3f exceeds the leaf" % m)
         opening = {
             "thinAxis": thin, "uAxis": width_axis, "vAxis": height_axis,
-            "u0": box["min"][width_axis] + fx0 * span_u,
-            "u1": box["min"][width_axis] + fx1 * span_u,
-            "v0": box["min"][height_axis] + fy0 * span_v,
-            "v1": box["min"][height_axis] + fy1 * span_v,
+            "u0": box["max"][width_axis] - (m + fx1 * field_u),
+            "u1": box["max"][width_axis] - (m + fx0 * field_u),
+            "v0": box["min"][height_axis] + (m + fy0 * field_v),
+            "v1": box["min"][height_axis] + (m + fy1 * field_v),
             "depthCenter": (box["min"][thin] + box["max"][thin]) / 2,
             "depth": extents[thin],
         }
@@ -1276,9 +1288,9 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
         # Facing front plane: 2 mm proud of the slab room face.
         facing_fwd = face + room_sign * 0.002
-        # Glass pane: opening plus overlap, glazed at the pocket mouth --
-        # the room-side leaf face sunk 1 mm into the blind recess, so the
-        # steel frame (proud 3 mm) overlaps the pane edges all around.
+        # Glass pane: opening plus overlap, glazed at the opening mouth --
+        # the room-side leaf face sunk 1 mm in, so the steel frame
+        # (proud 3 mm) overlaps the pane edges all around.
         center = [0.0, 0.0, 0.0]
         size = [0.0, 0.0, 0.0]
         center[ua] = (u0 + u1) / 2

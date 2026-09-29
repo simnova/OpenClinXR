@@ -62,6 +62,9 @@ export const WARD_CHAIN_DOOR = {
   liteRect: [0.64, 0.8, 0.58, 0.87],
   bevelMm: 2.5,
   casingMarginM: 0.055,
+  // Leaf panel_margin basis for the lite fractions, shared with the
+  // finish mapping (leaf-local +x runs toward world -x: mirrored).
+  panelMarginM: 0.1,
 };
 export const WARD_CHAIN_PRESET = "ward_photo";
 export const WARD_CHAIN_MOOD = "clinic_day";
@@ -394,9 +397,10 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
     seed,
     // Ward door furniture: hinge plates mount on this jamb; the lite
     // fractions place the glass/frame when the leaf carries no cut
-    // opening (same rect the generate stage cuts). Single source is
-    // WARD_CHAIN_DOOR above.
-    door: { hingeSide: WARD_CHAIN_DOOR.hingeSide, lite: [...WARD_CHAIN_DOOR.liteRect] },
+    // opening (same rect the generate stage cuts, mirrored + margin
+    // mapped). Single source is WARD_CHAIN_DOOR above.
+    door: { hingeSide: WARD_CHAIN_DOOR.hingeSide, lite: [...WARD_CHAIN_DOOR.liteRect],
+            margin: WARD_CHAIN_DOOR.panelMarginM },
   };
   const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
   const finishResult = await runCachedStage(

@@ -92,7 +92,7 @@ function wardRecipeJson(): string {
         { module: "geometry", version: "clinic-finish-geometry-v1" },
       ],
       light: { exposure: "xr", floorResponse: "xt_matte" },
-      options: { crashRail: false, door: { hingeSide: "+x", lite: [0.64, 0.8, 0.58, 0.87] } },
+      options: { crashRail: false, door: { hingeSide: "+x", lite: [0.64, 0.8, 0.58, 0.87], margin: 0.1 } },
       finishPassLlm: false,
     },
     null,
@@ -163,8 +163,10 @@ describe("the room clinic finish ward door", () => {
     const doc = await io.read(prepared!.workGlb);
     const glass = meshByName(doc, "openclinxr_door_glass_mesh");
     expect(glass, "glass pane mesh must exist").toBeDefined();
-    // Leaf maps to Blender x 0..0.95, z 0..2.1: lite u = 0.64..0.80 of
-    // 0.95 plus 8 mm overlap per side; v = 0.58..0.87 of 2.1 plus overlap.
+    // Leaf maps to Blender x 0..0.95, z 0..2.1; the factory mapping
+    // mirrors leaf-local +x toward -x over (span - 2*margin) + margin
+    // (margin 0.1): lite u = 0.25..0.37 plus 8 mm overlap per side;
+    // v = 1.20..1.75 plus overlap.
     // glTF is Y-UP (Blender z maps to y), so width is x, height is y.
     const { min, max } = meshExtents(glass!);
     expect(max[0]! - min[0]!).toBeGreaterThan(0.1);

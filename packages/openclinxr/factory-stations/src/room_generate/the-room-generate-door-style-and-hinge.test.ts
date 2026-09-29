@@ -146,10 +146,11 @@ describe("the room generate pins the ward door details", () => {
     expect(messages).toMatch(/door\.liteRect/);
   });
 
-  it("(bevelMm/casingMarginM) non-positive values are refused", () => {
+  it("(bevelMm/casingMarginM/panelMarginM) non-positive values are refused", () => {
     for (const door of [
       { ...DOOR, bevelMm: -1 },
       { ...DOOR, casingMarginM: 0 },
+      { ...DOOR, panelMarginM: -0.1 },
     ]) {
       const planned = planRoomGenerate({ ...BASE, footprintMeters: FOOTPRINT, door });
       expect(planned.issues).not.toBeUndefined();

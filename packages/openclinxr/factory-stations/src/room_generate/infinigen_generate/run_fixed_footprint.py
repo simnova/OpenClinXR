@@ -122,6 +122,8 @@ def main():
                         help='"xmin,xmax,ymin,ymax" leaf fractions, e.g. "0.64,0.80,0.58,0.87"')
     parser.add_argument("--door-bevel-mm", type=float, default=None)
     parser.add_argument("--door-casing-margin-m", type=float, default=None)
+    parser.add_argument("--door-panel-margin-m", type=float, default=None,
+                        help="pin panel_margin (leaf-lite fraction basis) in metres")
     args = parser.parse_args()
     args.overrides = [b for group in args.overrides for b in group]
 
@@ -349,6 +351,7 @@ def main():
         or args.door_lite_rect is not None
         or args.door_bevel_mm is not None
         or args.door_casing_margin_m is not None
+        or args.door_panel_margin_m is not None
     )
     if ward_pins and args.door_style is None:
         raise SystemExit("run_fixed_footprint: door detail pins require --door-style")
@@ -366,6 +369,8 @@ def main():
         raise SystemExit("run_fixed_footprint: --door-bevel-mm must be positive")
     if args.door_casing_margin_m is not None and args.door_casing_margin_m <= 0:
         raise SystemExit("run_fixed_footprint: --door-casing-margin-m must be positive")
+    if args.door_panel_margin_m is not None and args.door_panel_margin_m <= 0:
+        raise SystemExit("run_fixed_footprint: --door-panel-margin-m must be positive")
     if ward_pins:
         from infinigen.assets.objects.elements import doors as doors_mod
         from infinigen.assets.objects.elements.doors.lite import LiteDoorFactory
@@ -383,6 +388,8 @@ def main():
             "lite": LiteDoorFactory,
         }[args.door_style]
         _handle = args.door_handle
+        _panel_margin_m = (float(args.door_panel_margin_m)
+                           if args.door_panel_margin_m is not None else None)
         _bevel_m = args.door_bevel_mm / 1000.0 if args.door_bevel_mm is not None else None
 
         class _WardDoorFactory(_ward_base):  # type: ignore[valid-type,misc]
@@ -396,6 +403,17 @@ def main():
                 # Pinned for every ward factory (harmless for knob/pull,
                 # which never read level_type).
                 self.level_type = "cylinder"
+                # Leaf margin: LiteDoorFactory maps lite fractions onto
+                # (width - 2*panel_margin) + panel_margin in leaf-local
+                # coords, and leaf-local +x runs toward world -x (the placed
+                # leaf is mirrored). The finish replicates this exact mapping
+                # (mirror + margin) to land glass/frame on the true opening
+                # (verified seed-205: glass-attribute bbox x 0.029..0.154,
+                # z 1.309..1.858). Upstream draws panel_margin per seed with
+                # no gin binding -- pinned here so both stages share one
+                # constant via the recipe.
+                if _panel_margin_m is not None:
+                    self.panel_margin = _panel_margin_m
                 if lite_rect is not None and hasattr(self, "x_min"):
                     self.x_min, self.x_max, self.y_min, self.y_max = lite_rect
                     self.x_subdivisions = 1

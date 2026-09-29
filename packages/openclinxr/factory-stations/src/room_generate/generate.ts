@@ -41,6 +41,8 @@ export type RoomGenerateDoor = {
   bevelMm?: number;
   /** Optional door-casing face width in metres. Absent = factory 0.11. */
   casingMarginM?: number;
+  /** Optional leaf panel_margin in metres (lite-fraction basis). Absent = factory draw. */
+  panelMarginM?: number;
 };
 
 export type InfinigenGenerateInput = {
@@ -67,7 +69,7 @@ export type InfinigenGenerateReport = {
   footprintMeters: RoomGenerateFootprint;
   /** Effective door (explicit fields plus legacy-pin defaults). */
   door: Required<Pick<RoomGenerateDoor, "doorWall" | "wallOffsetM" | "hingeSide">> &
-    Pick<RoomGenerateDoor, "widthM" | "heightM" | "style" | "handle" | "liteRect" | "bevelMm" | "casingMarginM">;
+    Pick<RoomGenerateDoor, "widthM" | "heightM" | "style" | "handle" | "liteRect" | "bevelMm" | "casingMarginM" | "panelMarginM">;
   outputDir: string;
   sceneBlend: string;
   workBlend: string;
@@ -214,6 +216,7 @@ export async function runInfinigenGenerate(
     ...(input.door?.liteRect !== undefined ? { liteRect: input.door.liteRect } : {}),
     ...(input.door?.bevelMm !== undefined ? { bevelMm: input.door.bevelMm } : {}),
     ...(input.door?.casingMarginM !== undefined ? { casingMarginM: input.door.casingMarginM } : {}),
+    ...(input.door?.panelMarginM !== undefined ? { panelMarginM: input.door.panelMarginM } : {}),
   };
   const seed = Math.trunc(input.seed);
   const timeoutMs = options.timeoutMs ?? 1_200_000;
@@ -268,6 +271,7 @@ export async function runInfinigenGenerate(
     ...(door.liteRect !== undefined ? ["--door-lite-rect", (door.liteRect as number[]).join(",")] : []),
     ...(door.bevelMm !== undefined ? ["--door-bevel-mm", String(door.bevelMm)] : []),
     ...(door.casingMarginM !== undefined ? ["--door-casing-margin-m", String(door.casingMarginM)] : []),
+    ...(door.panelMarginM !== undefined ? ["--door-panel-margin-m", String(door.panelMarginM)] : []),
     "-p",
     "compose_indoors.terrain_enabled=False",
     "compose_indoors.room_windows_enabled=False",

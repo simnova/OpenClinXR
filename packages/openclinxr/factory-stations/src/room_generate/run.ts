@@ -140,7 +140,7 @@ export function validateRoomGenerateOptions(value: Record<string, unknown>): { m
         });
       }
     }
-    for (const dim of ["bevelMm", "casingMarginM"] as const) {
+    for (const dim of ["bevelMm", "casingMarginM", "panelMarginM"] as const) {
       if (dim in door && door[dim] !== undefined && !isPositiveNumber(door[dim])) {
         issues.push({ message: `door.${dim} expected positive number`, path: ["door", dim] });
       }
