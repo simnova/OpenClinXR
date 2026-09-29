@@ -104,7 +104,16 @@ type MoodPreset = {
 
 const MOOD_PRESETS: Record<LightingMood, MoodPreset> = {
   ed_exam_bright: { keyEnergy: 1.0, fillEnergy: 1.0, washEnergy: 1.0, keyTempK: 5000, fillTempK: 5000, washTempK: 5000, exposure: 1.0 },
-  clinic_day: { keyEnergy: 0.85, fillEnergy: 1.26, washEnergy: 0.85, keyTempK: 5000, fillTempK: 3000, washTempK: 6500, exposure: 0.9 },
+  // clinic_day fill 3000K -> 5000K (R1, stage1-albedo job 2026-09-29): the
+  // warm fill point dominates down-facing ceiling tiles and warms walls on
+  // the calibrated-neutral chain GLB (pose-02 tile R-B +24..+35 vs ref
+  // +7..+11, box/left-wall R +8.6/+8.7 over). Same energy, same 7 lights,
+  // same topology; temperature only. Other moods untouched (ladder intact).
+  // R2: washEnergy 0.85 -> 0.55 -- the four 6500K washes blast the walls
+  // (pose-01 +27..+43 over, pose-02 walls +5..+12) while barely touching
+  // down-facing tiles; hemisphere (raised to 2.5 alongside) carries the
+  // tiles instead. Key/fill energies, temps, exposure unchanged.
+  clinic_day: { keyEnergy: 0.85, fillEnergy: 1.26, washEnergy: 0.55, keyTempK: 5000, fillTempK: 5000, washTempK: 6500, exposure: 0.9 },
   evening_calm: { keyEnergy: 0.45, fillEnergy: 0.5, washEnergy: 0.4, keyTempK: 2700, fillTempK: 3000, washTempK: 3000, exposure: 0.7 },
 };
 

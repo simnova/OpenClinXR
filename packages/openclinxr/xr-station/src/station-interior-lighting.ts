@@ -121,7 +121,12 @@ export function applyStationInteriorLighting(input: {
     // blue-heavy ground (0xc8d0dc) pushed down-facing ceiling tiles +15.4
     // blue over the v2 reference; the near-neutral ground plus a one-step
     // cooler sky keeps both graded boxes inside +/-8. Same intensity.
-    const ambient = new HemisphereLight(0xf4f0e8, 0xc0c4c0, 2.2);
+    // R2 (stage1-albedo job 2026-09-29): intensity 2.2 -> 2.5 -- down-facing
+    // ceiling tiles grade dark (pose-02 tile Delta -16..-21) while the
+    // wash cut (clinic_day washEnergy 0.85 -> 0.55 alongside) dims the
+    // walls the washes were blasting; the hemisphere carries the tiles
+    // instead. Colours unchanged.
+    const ambient = new HemisphereLight(0xf4f0e8, 0xc0c4c0, 2.5);
     ambient.name = input.ambientLightName;
     tag(ambient, "hemisphere");
     input.scene.add(ambient);

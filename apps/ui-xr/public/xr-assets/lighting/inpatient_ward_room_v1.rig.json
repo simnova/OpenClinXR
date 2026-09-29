@@ -5,10 +5,10 @@
   },
   "bbox": {
     "minX": -2.15,
-    "maxX": 2.15,
     "minY": -1.95,
-    "maxY": 1.95,
     "minZ": 0,
+    "maxX": 2.15,
+    "maxY": 1.95,
     "maxZ": 2.4
   },
   "cast": [
@@ -29,8 +29,8 @@
       "name": "key",
       "type": "area",
       "position": [
-        -0.0165,
-        -0.063,
+        -0.0779,
+        0.019,
         2.15
       ],
       "energy": 153.4359,
@@ -41,23 +41,23 @@
       "name": "fill",
       "type": "point",
       "position": [
-        -0.0096,
-        -0.0053,
+        -0.0621,
+        -0.0081,
         1.2
       ],
       "energy": 248.1231,
       "size": 0,
-      "colorTemperatureK": 3000
+      "colorTemperatureK": 5000
     },
     {
       "name": "wash_px",
       "type": "area",
       "position": [
         1.95,
-        0.0645,
+        0.0693,
         1.2
       ],
-      "energy": 83.6923,
+      "energy": 54.1538,
       "size": 1.32,
       "colorTemperatureK": 6500
     },
@@ -66,10 +66,10 @@
       "type": "area",
       "position": [
         -1.95,
-        -0.0355,
+        0.0408,
         1.2
       ],
-      "energy": 83.6923,
+      "energy": 54.1538,
       "size": 1.32,
       "colorTemperatureK": 6500
     },
@@ -77,11 +77,11 @@
       "name": "wash_py",
       "type": "area",
       "position": [
-        0.031,
+        0.0556,
         1.75,
         1.2
       ],
-      "energy": 83.6923,
+      "energy": 54.1538,
       "size": 1.32,
       "colorTemperatureK": 6500
     },
@@ -89,11 +89,11 @@
       "name": "wash_ny",
       "type": "area",
       "position": [
-        0.0382,
+        0.0622,
         -1.75,
         1.2
       ],
-      "energy": 83.6923,
+      "energy": 54.1538,
       "size": 1.32,
       "colorTemperatureK": 6500
     },

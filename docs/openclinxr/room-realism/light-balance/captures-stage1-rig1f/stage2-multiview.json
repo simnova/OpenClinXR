@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/tmp/stage1-calib4/infinigen-inpatient-ward.chain.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-01-toward-door.png",
+      "pngBytes": 632151,
+      "pngSha256": "c440f4e5c9b2497bf5caa051234588ddd5a95d9c3b8907a1a328f3603de91ac0"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-02-toward-bed-wall.png",
+      "pngBytes": 629419,
+      "pngSha256": "a193ff38af2803124d41da5a2f88e5eeebb523b3aa20e673ed786f2be7b8c293"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.2,
+        "y": 0.55,
+        "z": 0.3
+      },
+      "look": {
+        "x": 0.8,
+        "y": 2.3,
+        "z": -1.6
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-03-ceiling-corner.png",
+      "pngBytes": 923590,
+      "pngSha256": "2c62e6ebc50defc163b102b42fefa21766bffe417729e4786e1466b25ece39af"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.25,
+        "y": 1.55,
+        "z": -1.85
+      },
+      "look": {
+        "x": -0.3,
+        "y": 1.2,
+        "z": 1.25
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-04-door-inside.png",
+      "pngBytes": 620072,
+      "pngSha256": "1b81945e0c28ef3891241b702ac3d81d6a2721ddeb839432cf368cb3366055bc"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.25,
+        "y": 1.5,
+        "z": 0.1
+      },
+      "look": {
+        "x": 0.25,
+        "y": 2.3,
+        "z": -1.5
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-05-troffer-junction.png",
+      "pngBytes": 1023333,
+      "pngSha256": "944c79a34405889a89adb460577ae5f6079e690db666801ebf54edd40e156a3b"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.22,
+        "z": 1.72
+      },
+      "look": {
+        "x": 0.02,
+        "y": 0.12,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/stage1-albedo-calibration/docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-06-floor-base.png",
+      "pngBytes": 317008,
+      "pngSha256": "0118738147c69ef02f9ff0bfee28fd63c172a2fe967edde751e96975dc124cb7"
+    }
+  ]
+}

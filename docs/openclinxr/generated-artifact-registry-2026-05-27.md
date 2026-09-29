@@ -3659,6 +3659,36 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/light-balance/stage1-calibration-measurements.json` - keep-evidence; keep; Stage1 Part-1 machine-readable ledger: every scale tried with its GLB sha, box means and deltas, scope notes.
 - `docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall.png` - keep-evidence; keep; Stage1 scalar-policy iteration (calib4 GLB c14b75d7, wall 1.09 uniform): pose-02 frame. Wall body lin lum 0.6068 vs ref 0.5929 (luminance matched, tint neutral).
 - `docs/openclinxr/room-realism/light-balance/stage1-calib4-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Stage1 scalar-policy comparison sheet (02-toward-bed-wall): v2 reference left, scalar-wall runtime right.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-01-toward-door.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 01.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 02.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-03-ceiling-corner.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 03.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-04-door-inside.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 04.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-05-troffer-junction.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 05.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/runtime-06-floor-base.png` - keep-evidence; keep; Part-2 R1 (fill 5000K, frozen seed): runtime frame 06.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig1f/stage2-multiview.json` - keep-evidence; keep; Part-2 R1 capture manifest.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-01-toward-door.png` - keep-evidence; keep; Part-2 R2+hemi (fill 5000K, wash 0.55, hemi 2.5): runtime frame 01. Pose-01 patch-grade source.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-02-toward-bed-wall.png` - keep-evidence; keep; Part-2 R2+hemi (fill 5000K, wash 0.55, hemi 2.5): runtime frame 02. Pose-02 patch-grade source.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-03-ceiling-corner.png` - keep-evidence; keep; Part-2 R2+hemi: runtime frame 03.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-04-door-inside.png` - keep-evidence; keep; Part-2 R2+hemi: runtime frame 04.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-05-troffer-junction.png` - keep-evidence; keep; Part-2 R2+hemi: runtime frame 05.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/runtime-06-floor-base.png` - keep-evidence; keep; Part-2 R2+hemi: runtime frame 06.
+- `docs/openclinxr/room-realism/light-balance/captures-stage1-rig3/stage2-multiview.json` - keep-evidence; keep; Part-2 R2+hemi capture manifest.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig1f-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Part-2 R1 comparison sheet (02): v2 ref left, fill-5000K runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-01-patches-marked.png` - keep-evidence; keep; Part-2 grade-set overlay on rig3 pose-01: all five pose-01 boxes verified on their surfaces.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (01): v2 ref left, retuned runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-02-patches-marked.png` - keep-evidence; keep; Part-2 grade-set overlay on rig3 pose-02: all five pose-02 boxes verified on their surfaces.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (02): v2 ref left, retuned runtime right.
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-03-ceiling-corner-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (03).
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-04-door-inside-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (04).
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-05-troffer-junction-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (05).
+- `docs/openclinxr/room-realism/light-balance/stage1-rig3-06-floor-base-v2-side-by-side.png` - keep-evidence; keep; Part-2 R2+hemi sheet (06).
+- `docs/openclinxr/room-realism/light-balance/stage1-rig2-01-toward-door.png` - keep-evidence; keep; Part-2 R2 wash-cut-only grade source (superseded baseline: dist still hemi 2.2 at capture time, recorded in ledger).
+- `docs/openclinxr/room-realism/light-balance/stage1-rig2-02-toward-bed-wall.png` - keep-evidence; keep; Part-2 R2 wash-cut-only grade source (superseded baseline, see ledger).
+- `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-01-toward-door.png` - keep-evidence; keep; Key-off probe (capture key 2.5->0.0, temporary): pose-01 wall drops 21-24, proving the glossy-lobe blocker for step 3.
+- `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-02-toward-bed-wall.png` - keep-evidence; keep; Key-off probe: pose-02 exactly unchanged (0.0), proving the lobe is view-asymmetric.
+- `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-01-toward-door-v2-side-by-side.png` - keep-evidence; keep; Key-off probe sheet (01).
+- `docs/openclinxr/room-realism/light-balance/stage1-rigkey-probe-02-toward-bed-wall-v2-side-by-side.png` - keep-evidence; keep; Key-off probe sheet (02).
+- `docs/openclinxr/room-realism/light-balance/stage1-part2-measurements.json` - keep-evidence; keep; Part-2 machine-readable ledger: grade sets, iterations, key-probe blocker proof.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
