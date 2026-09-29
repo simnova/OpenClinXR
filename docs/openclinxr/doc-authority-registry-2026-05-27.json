@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 212,
     "archive-candidate": 116,
-    "evidence": 135,
+    "evidence": 136,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5195,6 +5195,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Metal-vs-CPU bake measurement report for the three room_generate bakes (shell, albedo, AO): timing, RSS, run-to-run determinism, pixel diffs, and the mechanical adoption verdict (Metal adopted for shell bake only)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job."
     }
   ]
 }

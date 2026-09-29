@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 485,
+    "keep-evidence": 500,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -24750,6 +24750,111 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Structured Metal-vs-CPU bake measurement data: per-run wall time, peak RSS, hash equality, pixel diffs backing report.md's verdict table."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 01 ceiling-row count crop for depth measurement."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 01 ceiling zoom crop supporting the row-count reproduction."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 01 door bbox crop (0.95 m door) used as a scale cross-check."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-full.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 01 full frame, the reference image measured for depth/door cross-check."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-ceiling-strip.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 back-wall ceiling strip crop for the tile-vertical measurement."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-full.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 full frame, the reference image measured for width."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-left-corner-zoom.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 left back-wall corner zoom, one edge of the width span."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-left-wide.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 left corner wide crop, luminance-gradient edge evidence."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-right-corner-zoom.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 right back-wall corner zoom, the other edge of the width span."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-right-wide.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 right corner wide crop, baseboard-turn edge evidence."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-tile-verticals-y140.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 tile-vertical scanline overlay (y=140) for tile-pitch measurement."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-wall-band.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 wall band crop supporting the width measurement."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-wall-span-annotated.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 02 annotated wall-span overlay, brief's claim vs own measured edges."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-door-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 04 door bbox crop, second door-scale cross-check."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-full.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ref 04 full frame, the reference image measured for the door cross-check."
     }
   ]
 }

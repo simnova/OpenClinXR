@@ -3530,3 +3530,18 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-finish-e5dff90a.json` - keep-evidence; keep; fresh-run finish key.json; records the divergent post-generate GLB bytes hash (dfeecfac vs 6106a52a).
 - `docs/openclinxr/room-realism/room-chain-stage-cache/keys/key-red4-fresh-lighting-3a30477d.json` - keep-evidence; keep; fresh-run lighting key.json downstream of the divergent bytes.
 - `docs/openclinxr/room-realism/room-chain-metal-measure/report.json` - keep-evidence; keep; Structured Metal-vs-CPU bake measurement data: per-run wall time, peak RSS, hash equality, pixel diffs backing report.md's verdict table.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-rows.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-ceiling-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref01-full.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-ceiling-strip.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-full.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-left-corner-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-left-wide.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-right-corner-zoom.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-right-wide.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-tile-verticals-y140.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-wall-band.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref02-wall-span-annotated.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-door-crop.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/ref04-full.png` - keep-evidence; room-dimensions-fix measurement crop/overlay.
