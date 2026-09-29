@@ -8,9 +8,10 @@ the S6 acoustic-tile ceiling field plus one flush troffer, plus the crash
 rail only when recipe options.crashRail is true).
 
 ward_photo preservation (dark-factory rule): under the ward_photo preset the
-flat wall/trim repaint is skipped and the vinyl floor field is not emitted,
-so the shell_bake_wall/floor/ceiling/trim materials pass through untouched;
-the ceiling tile face and door leaf carry full PBR (normal + roughness).
+flat wall/trim repaint is skipped, so the shell_bake_wall/ceiling/trim
+materials pass through untouched with their baked normal/roughness maps;
+the floor field emits with the procedural vinyl-tile face (ward tile
+exception, see README) instead of the shell rubber bake.
 
 S5 scope: the DUAL90 corridor props are gone (exam table, exit sign), the
 hand-built door kit is replaced by the real Infinigen leaf/casing/skirting
@@ -80,6 +81,22 @@ DOOR_ROUGHNESS_FILE = "door-maple-roughness.png"
 # as one stretched texel -- measured 2026-09-28 on a real work GLB: floor
 # primitive carried POSITION+NORMAL only, no TEXCOORD).
 FLOOR_OBJECT_SCALE = 1.0 / 1.2
+# Ward vinyl TILE face (documented dark-factory exception, see README):
+# procedural single-tile face (generate-floor-tile-face.py, seeded), one
+# repeat spans exactly one 0.6 m module, seam borders baked into the
+# albedo plus a matching groove in the derived normal map. The shell
+# BumpyRubberFloor bake cannot produce this: Infinigen ships no
+# vinyl/linoleum material class (assets/materials has plastic, ceramic,
+# wood, fabric -- no vinyl), and the closest tile family
+# (ceramic.Tile.generate in assets/materials/ceramic/tile.py) draws a
+# random shader/shape/scale per seed (log_uniform(1.0, 2.0) shader-space,
+# not metre modules), so a 600 mm speckled vinyl module is not
+# parameterizable in room_generate -- the finish adds it, the same class
+# of addition as the ceiling T-bar/troffer assembly.
+FLOOR_TILE_TEXTURE_FILE = "floor-vinyl-tile.png"
+FLOOR_TILE_NORMAL_FILE = "floor-vinyl-tile-derived-normal.png"
+FLOOR_TILE_ROUGHNESS_FILE = "floor-vinyl-tile-derived-roughness.png"
+FLOOR_TILE_MODULE_M = 0.6
 # Real-world repeats for the baked UV0 coordinates (U = x_m / REPEAT).
 FLOOR_REPEAT_M = 1.2
 CEILING_MODULE_M = 0.6
@@ -371,14 +388,19 @@ def classify_mesh(name: str) -> str:
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
-                         emit_floor: bool = True) -> dict:
+                         emit_floor: bool = True, floor_tile_layout: bool = False) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
 
-    emit_floor=False skips the vinyl floor field (ward_photo dark-factory
-    preservation: the shell_bake_floor is the source of truth for the floor,
-    so no photo overlay covers it). The ceiling tile field always emits: the
+    emit_floor=False skips the floor field entirely (legacy ward_photo
+    dark-factory preservation: the shell_bake_floor was the source of truth
+    for the floor). floor_tile_layout=True (ward tile exception, see
+    README) emits the field with the procedural 600 mm vinyl-tile face
+    instead of the legacy 1.2 m sheet-vinyl photo: the shell rubber bake
+    reads as a low-frequency cloud with no seams, and Infinigen cannot
+    produce the specced tile (see FLOOR_TILE_* comment above), so the
+    finish adds it. The ceiling tile field always emits: the
     T-bar/tile/troffer assembly is what the shell bake structurally cannot
     model, the legitimate finish addition.
 
@@ -431,7 +453,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # openclinxr_ finish meshes are skipped). The door leaf keeps
     # Object-space mapping (its shell-bake atlas has no usable UVs).
     # The ceiling tile face carries full PBR (derived normal + roughness);
-    # the floor vinyl stays albedo-only (ward_photo drops the field anyway).
+    # the ward floor tile likewise (derived normal with seam grooves +
+    # roughness); the legacy sheet-vinyl floor stays albedo-only.
     ceiling_photo_m = _photo_uv_material("openclinxr_finish_ceiling_photo", CEILING_TEXTURE_FILE, 0.9,
                                          normal_filename=CEILING_NORMAL_FILE,
                                          roughness_filename=CEILING_ROUGHNESS_FILE)
@@ -469,13 +492,21 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         return obj
 
     # Vinyl floor field closes the shell, with real-world tiling baked into
-    # UV0 (U = x_m / 1.2, V = y_m / 1.2) so the repeat survives glTF export.
-    # Skipped under ward_photo preservation (emit_floor=False): the shell
-    # floor passes through instead.
+    # UV0 (U = x_m / repeat, V = y_m / repeat) so the repeat survives glTF
+    # export. Sheet vinyl (1.2 m repeat, albedo-only) for the legacy
+    # presets; vinyl tile (0.6 m module, full PBR with seam grooves) for
+    # the ward tile exception (floor_tile_layout).
     if emit_floor:
-        floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
-        floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
-        _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_REPEAT_M)
+        if floor_tile_layout:
+            floor_m = _photo_uv_material("openclinxr_finish_floor_tile_photo", FLOOR_TILE_TEXTURE_FILE, 0.52,
+                                         normal_filename=FLOOR_TILE_NORMAL_FILE,
+                                         roughness_filename=FLOOR_TILE_ROUGHNESS_FILE)
+            floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_m)
+            _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_TILE_MODULE_M)
+        else:
+            floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
+            floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
+            _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_REPEAT_M)
         counts["floor"] += 1
     # S6 ceiling: the acoustic-tile field spans the shell with its underside
     # exactly on the T-bar plane (the shell ceiling's own room-facing face
@@ -642,10 +673,13 @@ def apply_finish() -> int:
     painted = {"wall": 0, "trim": 0, "other": 0}
 
     # ward_photo dark-factory preservation (finish-preserve-shell): the S2
-    # shell bake is the source of truth for wall, floor, ceiling shell, and
+    # shell bake is the source of truth for wall, ceiling shell, and
     # trim (shell_bake_trim landed with the metal-aware glossy pass), so the
     # flat wall/trim repaint is skipped entirely and those materials pass
-    # through untouched with their baked normal/roughness maps. Scoped to
+    # through untouched with their baked normal/roughness maps. The floor
+    # is the documented tile exception (see README): the shell rubber bake
+    # cannot produce the specced 600 mm vinyl tile, so the finish emits the
+    # procedural tile field instead. Scoped to
     # ward_photo only: peds_calm/clinic_day/evening_calm keep the legacy
     # repaint (their tests + fixtures pin that behaviour; no real-chain
     # calibration depends on changing them).
@@ -736,7 +770,7 @@ def apply_finish() -> int:
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
-                                    emit_floor=not preserve_shell)
+                                    emit_floor=True, floor_tile_layout=preserve_shell)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
