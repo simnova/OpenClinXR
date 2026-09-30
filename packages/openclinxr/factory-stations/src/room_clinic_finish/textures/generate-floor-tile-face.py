@@ -6,7 +6,7 @@ renders every tile at the v2 spec module and the grid lines the room shows
 are baked seam borders, never geometry.
 
 Reference anchor (imagine-multiview-v2/02-toward-bed-wall.jpg floor box
-500,640,620,700 and 06-floor-base.jpg floor patches): light grey-beige
+500,640,620,700 and 06-floor-base.jpg floor patches): neutral light-grey
 vinyl tile, mean sRGB ~(214,213,209) in the pose-02 box, fine visible
 seams on a ~600 mm module, fine speckle, NO large-scale mottle (the
 BumpyRubberFloor shell reads as a low-frequency cloud; this texture
@@ -14,13 +14,13 @@ carries zero low-frequency energy by construction: per-pixel grain plus
 sparse darker chips only, so the sigma-8-blur std stays at the ref
 floor, not the cloud).
 
-Runtime calibration: the shell floor bakes albedo center mean
-(169.5,171.3,174.7) sRGB and renders (211.6,207.4,204.1) at the pose-02
-box, i.e. lighting plus ACES pull albedo down by ~1.22x. The tile
-baseline below sits ~1.22x above the lit target (214.5,213.5,209.0) to
-land the rendered mean inside +/-8 per channel with headroom for ACES
-compression (which only pulls the render further down, never up past
-the linear prediction). Same convention as generate-tile-face.py.
+Runtime calibration: the prior baseline rendered R-B=13.6 in poses 01,
+02, and 06 while the references span R-B=2.0..8.2 under the same rig.
+That pose-invariant excess identifies the tile albedo, rather than the
+lighting, as the warm cast. Raising the blue baseline by 14 sRGB units
+neutralises that cast after lighting and ACES; a 0.7-unit red trim keeps
+pose 06 inside the +/-8 channel gate with rounding margin. Green stays
+fixed. Same deterministic seed and grain operators as before.
 
 Seams: a symmetric darkened border (SEAM_PX each side, wraparound-safe)
 plus a matching groove in the derived normal map, so every tile edge in
@@ -41,11 +41,10 @@ from PIL import Image
 
 SIZE = 512
 SEED = 21
-# Runtime-calibrated baseline: the lit-photo floor mean (214.5, 213.5,
-# 209.0) is a RENDERED value, not an albedo -- ~1.22x above it
-# compensates the measured lighting+ACES falloff (see header). Warm
-# grey-beige signature: R ~= G, B ~5 below.
-BASE_RGB = (177.7, 176.5, 170.9)
+# Runtime-calibrated baseline: blue is deliberately 14 sRGB units above
+# the prior 170.9 value to cancel the rig's measured pose-invariant warm
+# shift. Red is trimmed 0.7 for pose-06 channel-margin; green stays fixed.
+BASE_RGB = (177.0, 176.5, 184.9)
 # Fine grain only (no mottle cells: low-frequency energy is the defect).
 # Mostly shared luminance grain (keeps the warm gap) plus an independent
 # per-channel term. Albedo stddev ~7 renders as ~1.5-2.5 after lighting
