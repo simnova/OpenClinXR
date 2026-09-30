@@ -7,7 +7,7 @@
       "measured": 1245,
       "threshold": 1000,
       "owner": "compute facade implementation worker",
-      "reviewedBy": "",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source review fc3d48072ad14acb719714533332c75e09d8ec6a: compute-services-spec publishes 9 infrastructure-neutral contracts (ServiceBase, ComputeProcessResult, BlenderDevice, BlenderRunRequest, BlenderService, GpuJobRunRequest, GpuJobService, SceneCaptureService, ComputeServices); service-local-compute publishes only createLocalComputeServices + LocalComputeServicesOptions; single '.' entrypoints, no wildcard, no re-export duplication; +11 root symbols; 2026-09-30",
       "reason": "The compute facade adds two explicit one-entrypoint packages and 11 symbols to the measured 1234-symbol tree: nine infrastructure-neutral contracts in compute-services-spec and only createLocalComputeServices and LocalComputeServicesOptions in service-local-compute. Contract consumers import the spec directly; the implementation re-exports no contracts. The coordinator must independently review this exact source candidate before criterion 6 can accept it."
     },
     {
@@ -15,7 +15,7 @@
       "measured": 23,
       "threshold": 15,
       "owner": "compute facade implementation worker",
-      "reviewedBy": "",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source review fc3d48072ad14acb719714533332c75e09d8ec6a: compute-services-spec publishes 9 infrastructure-neutral contracts (ServiceBase, ComputeProcessResult, BlenderDevice, BlenderRunRequest, BlenderService, GpuJobRunRequest, GpuJobService, SceneCaptureService, ComputeServices); service-local-compute publishes only createLocalComputeServices + LocalComputeServicesOptions; single '.' entrypoints, no wildcard, no re-export duplication; +11 root symbols; 2026-09-30",
       "reason": "Adding two small reviewed roots changes the population from 47 to 49 packages and lowers the measured median from 24 to 23. The verifier still requires independent review of the exact measurement; reviewedBy is intentionally empty for coordinator review."
     }
   ]
