@@ -1079,13 +1079,17 @@ def _door_glass_material():
     return mat
 
 
-def _assign_face_uv(obj, u_axis: int, v_axis: int) -> None:
-    """Map a box by two world axes so its room face spans UV 0..1."""
+def _assign_face_uv(obj, u_axis: int, v_axis: int,
+                    u_bounds: tuple[float, float] | None = None,
+                    v_bounds: tuple[float, float] | None = None) -> None:
+    """Map a box by world axes, optionally against shared face bounds."""
     mesh = obj.data
     uv_layer = mesh.uv_layers.new(name="UVMap")
     coords = [obj.matrix_world @ vertex.co for vertex in mesh.vertices]
-    u0, u1 = min(v[u_axis] for v in coords), max(v[u_axis] for v in coords)
-    v0, v1 = min(v[v_axis] for v in coords), max(v[v_axis] for v in coords)
+    u0, u1 = (u_bounds if u_bounds is not None else
+              (min(v[u_axis] for v in coords), max(v[u_axis] for v in coords)))
+    v0, v1 = (v_bounds if v_bounds is not None else
+              (min(v[v_axis] for v in coords), max(v[v_axis] for v in coords)))
     for poly in mesh.polygons:
         for loop_index in poly.loop_indices:
             co = coords[mesh.loops[loop_index].vertex_index]
@@ -1243,6 +1247,10 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
+    facing_m = _photo_uv_material(
+        "openclinxr_finish_door_facing", DOOR_LEAF_FILE, 0.48,
+        normal_filename=DOOR_NORMAL_FILE,
+        roughness_filename=DOOR_ROUGHNESS_FILE)
     casing_m = _door_casing_material(DOOR_CASING_RGB,
                                      float(palette.get("roughness", 0.85)))
     reveal_m = _door_reveal_material()
@@ -1637,12 +1645,13 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         # threshold paints ~1477 of 1868 faces), so the finish lays a true
         # plane veneer over the room-side field -- four maple boxes around
         # the lite hole, fronts exactly coplanar, back embedded 2 mm. Same
-        # Object-space maple photo, so the grain reads continuous with the
-        # leaf. The lever rosette emerges through the veneer (intersection
+        # shared full-leaf UV coordinates, so glTF exports real TEXCOORD_0
+        # and the grain reads continuously across every plate. The lever
+        # rosette emerges through the veneer (intersection
         # contained under the dome); the lite glass/frame still glaze the
         # mouth behind the facing front.
         facing_names: list[str] = []
-        leaf_maple = bpy.data.materials.get("openclinxr_finish_door_photo")
+        leaf_maple = facing_m
         if leaf_maple is not None:
             fwd = facing_fwd
             back = face - room_sign * 0.002
@@ -1692,6 +1701,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
                 ss[thin] = abs(fwd - back)
                 plate = new_box("openclinxr_door_%s_%d" % (tag, qi),
                                 cc, ss, leaf_maple)
+                _assign_face_uv(plate, ua, va, (fx0, fx1), (fz0, fz1))
                 facing_names.append(plate.name)
         furnished["facing"] = facing_names
         # Lock cylinder above the lever, on the room-side face.
