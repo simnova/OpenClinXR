@@ -4,11 +4,11 @@
   "exceptions": [
     {
       "target": "rootExportsAtMost",
-      "measured": 1254,
+      "measured": 1245,
       "threshold": 1000,
       "owner": "compute facade implementation worker",
       "reviewedBy": "",
-      "reason": "The compute facade adds two explicit one-entrypoint packages and 20 reviewed symbols to the measured 1234-symbol tree: nine infrastructure-neutral contracts in compute-services-spec and createLocalComputeServices, its options type, and the nine re-exported contracts in service-local-compute. The coordinator must independently review this exact source candidate before criterion 6 can accept it."
+      "reason": "The compute facade adds two explicit one-entrypoint packages and 11 symbols to the measured 1234-symbol tree: nine infrastructure-neutral contracts in compute-services-spec and only createLocalComputeServices and LocalComputeServicesOptions in service-local-compute. Contract consumers import the spec directly; the implementation re-exports no contracts. The coordinator must independently review this exact source candidate before criterion 6 can accept it."
     },
     {
       "target": "medianAtMost",

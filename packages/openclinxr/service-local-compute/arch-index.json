@@ -4,16 +4,7 @@
   "entrypoint": "packages/openclinxr/service-local-compute/src/index.ts",
   "purpose": "Local infrastructure for compute-service contracts: slotted processes and browser capture.",
   "exports": [
-    "BlenderDevice",
-    "BlenderRunRequest",
-    "BlenderService",
-    "ComputeProcessResult",
-    "ComputeServices",
-    "GpuJobRunRequest",
-    "GpuJobService",
     "LocalComputeServicesOptions",
-    "SceneCaptureService",
-    "ServiceBase",
     "createLocalComputeServices"
   ],
   "workspaceDependencies": [

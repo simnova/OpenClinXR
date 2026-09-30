@@ -1,16 +1,7 @@
 {
   "entrypoints": {
     ".": [
-      "BlenderDevice",
-      "BlenderRunRequest",
-      "BlenderService",
-      "ComputeProcessResult",
-      "ComputeServices",
-      "GpuJobRunRequest",
-      "GpuJobService",
       "LocalComputeServicesOptions",
-      "SceneCaptureService",
-      "ServiceBase",
       "createLocalComputeServices"
     ]
   }

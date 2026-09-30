@@ -113,15 +113,3 @@ export function createLocalComputeServices(options: LocalComputeServicesOptions 
     },
   };
 }
-
-export type {
-  BlenderDevice,
-  BlenderRunRequest,
-  BlenderService,
-  ComputeProcessResult,
-  ComputeServices,
-  GpuJobRunRequest,
-  GpuJobService,
-  SceneCaptureService,
-  ServiceBase,
-} from "@openclinxr/compute-services-spec";
