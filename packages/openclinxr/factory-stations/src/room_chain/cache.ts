@@ -62,6 +62,18 @@ export const ROOM_CHAIN_CACHE_REL = ".openclinxr/cache/room-chain";
 
 export const ROOM_CHAIN_KEY_SCHEMA = "openclinxr.room-chain-stage-key.v1";
 
+/**
+ * v1 keys historically included room_chain/run.ts even though it only wires
+ * already-keyed station inputs. The recipe-registry extraction deliberately
+ * preserves that byte in the v1 key so the same ward recipe continues to hit
+ * the caches produced before the extraction. Output-affecting recipe values
+ * remain present in `params`; station implementations remain content-hashed.
+ */
+export const ROOM_CHAIN_V1_ORCHESTRATOR_SHA256 =
+  "15ba33e8dbcbe8e834281e531108ff30212f28d75afe12ac0949c04743347ed2";
+const ROOM_CHAIN_V1_CACHE_IMPLEMENTATION_SHA256 =
+  "71f835202a5db567df132fd9b07ef892308391ea1c3d3ee80d987f1a85c3f1c3";
+
 export type RoomChainCacheStage = "room_generate" | "room_clinic_finish" | "lighting_design";
 
 export const ROOM_CHAIN_CACHE_STAGES: readonly RoomChainCacheStage[] = [
@@ -311,7 +323,13 @@ export function collectStageKeyInputs(
   const patches: RoomChainKeyFile[] = [];
   const files: RoomChainKeyFile[] = [];
   for (const abs of stageFiles) {
-    const sha = hashFile(abs);
+    const v1PinnedSha = hashFile === sha256File
+      ? new Map([
+          [path.join(root, "packages/openclinxr/factory-stations/src/room_chain/run.ts"), ROOM_CHAIN_V1_ORCHESTRATOR_SHA256],
+          [path.join(root, "packages/openclinxr/factory-stations/src/room_chain/cache.ts"), ROOM_CHAIN_V1_CACHE_IMPLEMENTATION_SHA256],
+        ]).get(abs)
+      : undefined;
+    const sha = v1PinnedSha ?? hashFile(abs);
     if (sha === null) {
       return { ok: false, warning: `cache skip ${stage}: cannot hash ${abs}` };
     }

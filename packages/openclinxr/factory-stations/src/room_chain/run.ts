@@ -21,7 +21,8 @@
  * (name + baseColorTexture presence + image bytes) so the floor-white
  * diagnosis reads file state, not renders.
  */
-import { copyFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -32,6 +33,7 @@ import { runLightingDesign } from "../lighting_design/run.js";
 import { repoRoot } from "../repo-root.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
+import { roomChainRecipeFor } from "./recipes.js";
 import {
   collectStageKeyInputs,
   lookupStageCache,
@@ -43,31 +45,7 @@ import {
   type RoomChainCacheStage,
 } from "./cache.js";
 
-export const WARD_CHAIN_ENVIRONMENT_ID = "inpatient_ward_room_v1";
-export const WARD_CHAIN_DEFAULT_SEED = 205;
 export const WARD_CHAIN_OUT_DIR = ".openclinxr/evidence/ward-finish-chain";
-export const WARD_CHAIN_FOOTPRINT = { width: 4.3, depth: 3.9, ceilingHeight: 2.4 };
-export const WARD_CHAIN_DOOR = {
-  doorWall: "+y",
-  wallOffsetM: 0.25,
-  hingeSide: "+x",
-  style: "lite",
-  widthM: 0.95,
-  heightM: 2.1,
-  // Ward-door pins (Infinigen-first; see run_fixed_footprint.py ward audit):
-  // satin lever (not knob), narrow vision lite as leaf fractions
-  // (about 0.12 m wide x 0.55 m tall, upper handle-opposite half),
-  // 2.5 mm panel bevel (flush-leaf band), 55 mm casing face.
-  handle: "lever",
-  liteRect: [0.64, 0.8, 0.58, 0.87],
-  bevelMm: 2.5,
-  casingMarginM: 0.055,
-  // Leaf panel_margin basis for the lite fractions, shared with the
-  // finish mapping (leaf-local +x runs toward world -x: mirrored).
-  panelMarginM: 0.1,
-};
-export const WARD_CHAIN_PRESET = "ward_photo";
-export const WARD_CHAIN_MOOD = "clinic_day";
 // Measured 2026-09-28: a real chain albedo bake took 757 s (log timestamps
 // 03:59:13 to 04:11:50), so the old 600 s per-pass budget SIGTERMed a Blender
 // that had already finished its real work and the timeout race reported the
@@ -75,14 +53,6 @@ export const WARD_CHAIN_MOOD = "clinic_day";
 // keeps real margin over that measured figure; per the D9 operator directive
 // execution duration is refinable and must not fail a good bake.
 export const WARD_CHAIN_PASS_TIMEOUT_MS = 3_600_000;
-export const WARD_CHAIN_BBOX = {
-  minX: -WARD_CHAIN_FOOTPRINT.width / 2,
-  maxX: WARD_CHAIN_FOOTPRINT.width / 2,
-  minY: -WARD_CHAIN_FOOTPRINT.depth / 2,
-  maxY: WARD_CHAIN_FOOTPRINT.depth / 2,
-  minZ: 0,
-  maxZ: WARD_CHAIN_FOOTPRINT.ceilingHeight,
-};
 
 const io = new NodeIO()
   .registerExtensions([...ALL_EXTENSIONS, EXTMeshoptCompression])
@@ -174,7 +144,7 @@ export function parseWardChainArgs(args: readonly string[]): {
   passTimeoutMs: number;
   noCache: boolean;
 } {
-  let seed = WARD_CHAIN_DEFAULT_SEED;
+  let seed = roomChainRecipeFor("inpatient_ward_room_v1")!.defaultSeed;
   let outDir = WARD_CHAIN_OUT_DIR;
   let passTimeoutMs = WARD_CHAIN_PASS_TIMEOUT_MS;
   let noCache = false;
@@ -191,23 +161,7 @@ export function parseWardChainArgs(args: readonly string[]): {
   return { seed, outDir, passTimeoutMs, noCache };
 }
 
-/**
- * Resolve the chain's --out-dir against the repo root, not process.cwd().
- *
- * Third fix in the 44824ba98 -> 9962c6f52 sequence: 44824ba98 absolutized
- * room_generate's workGlb against repoRoot() (Blender spawns run with
- * cwd=repoRoot(), Node I/O resolves against process.cwd()); 9962c6f52
- * absolutized room_chain's outDir but against process.cwd(), which is the
- * PACKAGE directory under `pnpm --filter @openclinxr/factory-stations exec`
- * (the real chain CLI's own invocation shape). The two still disagreed on
- * the BASE: a relative --out-dir landed evidence under
- * packages/openclinxr/factory-stations/.openclinxr/evidence/... while
- * runRoomGenerate resolved the same relative workGlb under the repo root.
- * Resolving here against repoRoot() -- the same base runRoomGenerate uses
- * for options.cwd -- gives one base regardless of the invoker's cwd.
- * Exported so the outDir-resolution logic is unit-testable without running
- * the full GENERATE/bake/finish/lighting sequence.
- */
+/** Resolve relative output paths against the same repo-root base every stage uses. */
 export function resolveChainOutDir(outDirArg: string, base: string = repoRoot()): string {
   return path.resolve(base, outDirArg);
 }
@@ -246,20 +200,36 @@ async function waitForBlenderSlot(): Promise<void> {
 
 export type WardChainCacheStatus = Record<RoomChainCacheStage, { hit: boolean; key: string | null }>;
 
-export async function runWardFinishChain(args = process.argv.slice(2)): Promise<void> {
-  const { seed, outDir: outDirArg, passTimeoutMs, noCache } = parseWardChainArgs(args);
-  // Measured 2026-09-27 (a recurrence of the same class of bug fixed in
-  // room_generate/run.ts): auditMaterials below is pure Node I/O -- it
-  // resolves a relative workGlb against process.cwd(), which is the PACKAGE
-  // directory under `pnpm --filter @openclinxr/factory-stations exec` (the
-  // real CLI invocation shape), not repoRoot(). runRoomGenerate now
-  // absolutizes its own copy of workGlb internally, so stage 1 completes,
-  // but this module's OWN workGlb (used for auditMaterials both before and
-  // after each stage) was still the raw relative string from --out-dir and
-  // ENOENTs the same way. Absolutize outDir once, up front, against
-  // repoRoot() -- the same base runRoomGenerate resolves its workGlb
-  // against -- so every path derived from it (workGlb, recipeJson,
-  // reports, logs) agrees on one base regardless of the caller's cwd.
+export type RoomChainRunOptions = {
+  environmentId: string;
+  seed?: number;
+  outDir?: string;
+  passTimeoutMs?: number;
+  noCache?: boolean;
+};
+
+export type RoomChainRunResult = {
+  environmentId: string;
+  seed: number;
+  cache: WardChainCacheStatus;
+  stageKeys: Record<RoomChainCacheStage, string | null>;
+  workGlb: string;
+  finalGlb: string;
+  rigJson: string;
+  reportPath: string;
+  glbSha256: string;
+  rigSha256: string;
+};
+
+export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomChainRunResult> {
+  const recipe = roomChainRecipeFor(options.environmentId);
+  if (recipe === undefined) throw new Error(`No room-chain recipe for environmentId ${options.environmentId}`);
+  const seed = options.seed ?? recipe.defaultSeed;
+  if (!Number.isFinite(seed)) throw new Error("room-chain seed must be finite");
+  const outDirArg = options.outDir ?? WARD_CHAIN_OUT_DIR;
+  const passTimeoutMs = options.passTimeoutMs ?? WARD_CHAIN_PASS_TIMEOUT_MS;
+  const noCache = options.noCache ?? false;
+  // One base keeps Node audits and Blender stages aligned under package-filtered invocations.
   const outDir = resolveChainOutDir(outDirArg);
   const blender = process.env["BLENDER"] ?? "blender";
   await mkdir(outDir, { recursive: true });
@@ -269,6 +239,14 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   const rigJson = path.join(outDir, "ward-chain.lighting-rig.json");
   const lightingReport = path.join(outDir, "ward-chain.lighting-report.json");
   const chainReportPath = path.join(outDir, "ward-chain-report.json");
+  const bbox = {
+    minX: -recipe.footprintMeters.width / 2,
+    maxX: recipe.footprintMeters.width / 2,
+    minY: -recipe.footprintMeters.depth / 2,
+    maxY: recipe.footprintMeters.depth / 2,
+    minZ: 0,
+    maxZ: recipe.footprintMeters.ceilingHeight,
+  };
   const stageLog = async (stage: string, result: Record<string, unknown>): Promise<void> => {
     const stdout = typeof result["stdout"] === "string" ? (result["stdout"] as string) : "";
     const stderr = typeof result["stderr"] === "string" ? (result["stderr"] as string) : "";
@@ -343,12 +321,12 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   };
 
   const genInput = {
-    environmentId: WARD_CHAIN_ENVIRONMENT_ID,
-    infinigenPrompt: "inpatient ward room",
+    environmentId: recipe.environmentId,
+    infinigenPrompt: recipe.infinigenPrompt,
     seed,
-    layoutVariant: "default",
-    footprintMeters: { ...WARD_CHAIN_FOOTPRINT },
-    door: { ...WARD_CHAIN_DOOR },
+    layoutVariant: recipe.layoutVariant,
+    footprintMeters: { ...recipe.footprintMeters },
+    door: { ...recipe.door, liteRect: [...recipe.door.liteRect] },
   };
   await waitForBlenderSlot();
   process.stdout.write(`[ward-chain] stage 1 room_generate seed=${seed} ...\n`);
@@ -390,17 +368,17 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   // Stage 2: finish compose in place (via the decompressed bridge).
   process.stdout.write(`[ward-chain] decompress meshopt bridge ...\n`);
   await decompressWorkGlb(workGlb);
-  process.stdout.write(`[ward-chain] stage 2 room_clinic_finish preset=${WARD_CHAIN_PRESET} ...\n`);
+  process.stdout.write(`[ward-chain] stage 2 room_clinic_finish preset=${recipe.finishPreset} ...\n`);
   const finishInput = {
-    environmentId: WARD_CHAIN_ENVIRONMENT_ID,
-    preset: WARD_CHAIN_PRESET,
+    environmentId: recipe.environmentId,
+    preset: recipe.finishPreset,
     seed,
     // Ward door furniture: hinge plates mount on this jamb; the lite
     // fractions place the glass/frame when the leaf carries no cut
     // opening (same rect the generate stage cuts, mirrored + margin
-    // mapped). Single source is WARD_CHAIN_DOOR above.
-    door: { hingeSide: WARD_CHAIN_DOOR.hingeSide, lite: [...WARD_CHAIN_DOOR.liteRect],
-            margin: WARD_CHAIN_DOOR.panelMarginM },
+    // mapped). The environment recipe is the single source.
+    door: { hingeSide: recipe.door.hingeSide, lite: [...recipe.door.liteRect],
+            margin: recipe.door.panelMarginM },
   };
   const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
   const finishResult = await runCachedStage(
@@ -426,14 +404,14 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
 
   // Stage 3: lighting rig (JSON only; the GLB is untouched).
   const lightInput = {
-    environmentId: WARD_CHAIN_ENVIRONMENT_ID,
+    environmentId: recipe.environmentId,
     roomGlbPath: workGlb,
-    bboxJson: JSON.stringify(WARD_CHAIN_BBOX),
+    bboxJson: JSON.stringify(bbox),
     castJson: JSON.stringify([{ actorId: "patient", position: [0, 0.5, 1.0] }]),
-    mood: WARD_CHAIN_MOOD,
+    mood: recipe.lightingMood,
     seed,
   };
-  process.stdout.write(`[ward-chain] stage 3 lighting_design mood=${WARD_CHAIN_MOOD} ...\n`);
+  process.stdout.write(`[ward-chain] stage 3 lighting_design mood=${recipe.lightingMood} ...\n`);
   const lightResult = await runCachedStage(
     "lighting_design",
     collectKey("lighting_design", scrubLightingKeyInput(lightInput), workGlb, finishKey),
@@ -455,12 +433,12 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   const report = {
     schemaVersion: "openclinxr.ward-finish-chain.v1",
     generatedAt: new Date().toISOString(),
-    environmentId: WARD_CHAIN_ENVIRONMENT_ID,
+    environmentId: recipe.environmentId,
     seed,
-    footprintMeters: WARD_CHAIN_FOOTPRINT,
-    door: WARD_CHAIN_DOOR,
-    preset: WARD_CHAIN_PRESET,
-    mood: WARD_CHAIN_MOOD,
+    footprintMeters: recipe.footprintMeters,
+    door: recipe.door,
+    preset: recipe.finishPreset,
+    mood: recipe.lightingMood,
     cache: cacheStatus,
     workGlb,
     stages: {
@@ -480,4 +458,28 @@ export async function runWardFinishChain(args = process.argv.slice(2)): Promise<
   const finalCopy = path.join(outDir, "infinigen-inpatient-ward.chain.glb");
   copyFileSync(workGlb, finalCopy);
   process.stdout.write(`[ward-chain] final copy: ${finalCopy} (exists=${existsSync(finalCopy)})\n`);
+  const digest = (file: string): string => createHash("sha256").update(readFileSync(file)).digest("hex");
+  return {
+    environmentId: recipe.environmentId,
+    seed,
+    cache: cacheStatus,
+    stageKeys: Object.fromEntries(Object.entries(cacheStatus).map(([stage, status]) => [stage, status.key])) as Record<RoomChainCacheStage, string | null>,
+    workGlb,
+    finalGlb: finalCopy,
+    rigJson,
+    reportPath: chainReportPath,
+    glbSha256: digest(finalCopy),
+    rigSha256: digest(rigJson),
+  };
+}
+
+export async function runWardFinishChain(args = process.argv.slice(2)): Promise<RoomChainRunResult> {
+  const parsed = parseWardChainArgs(args);
+  return runRoomChain({
+    environmentId: "inpatient_ward_room_v1",
+    seed: parsed.seed,
+    outDir: parsed.outDir,
+    passTimeoutMs: parsed.passTimeoutMs,
+    noCache: parsed.noCache,
+  });
 }

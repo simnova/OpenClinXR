@@ -18,7 +18,7 @@
  *   2. body                  — tools/openclinxr/asset-pipeline/anny/generate_mesh.py build_source_body
  *   3. clothing              — tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts
  *   4. rigging               — tools/openclinxr/asset-pipeline/anny/automate_blender.py (via orchestrate_character.py)
- *   5. room                  — apps/ui-xr/src/station-environment.ts buildStationEnvironment
+ *   5. room                  — factory room-chain recipe when registered; parametric shell fallback otherwise
  *   6. equipment             — apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry
  *   7. staging_placement     — packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement
  *   8. render                — tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms
@@ -83,11 +83,13 @@ import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.j
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
 import {
   planEquipmentGenerate,
+  roomChainRecipeFor,
   runEquipmentGenerate,
   runLipSync,
   runStaging,
   writeLipSyncFixtureWav,
 } from "@openclinxr/factory-stations";
+import { runRoomChain } from "../../../packages/openclinxr/factory-stations/src/room_chain/run.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -326,7 +328,7 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   clothing:
     "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts:76 ROLE_TO_GARMENT_LAYERS (deterministic role->layer map) + resolveHm08UpperGarment",
   rigging: "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-  room: "apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment (parametric station shell builder)",
+  room: "@openclinxr/factory-stations runRoomChain for registered environments; apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment explicit parametric fallback",
   equipment: "apps/ui-xr/src/station-equipment-builders.ts:417 buildDeclaredEquipmentGeometry (parametric equipment builders)",
   staging_placement:
     "packages/openclinxr/asset-registry/src/actor-placement.ts:24 generatedActorPlacement (deterministic scene-manifest placement; slotKind/position/posture per cast role)",
@@ -765,8 +767,28 @@ async function runRiggingStage(
   return { row: makeRow("rigging", "deterministic", artifactPaths, notes) };
 }
 
-/** Station 5: room (buildStationEnvironment). */
-async function runRoomStage(caseId: string, stageDir: string): Promise<StationRun> {
+type ScenarioWithRoomSeed = Scenario & {
+  seed?: number;
+  environment?: Scenario["environment"] & { seed?: number };
+};
+
+/** D13: use an authored case/environment seed, otherwise the recipe's recorded deterministic default. */
+export function roomChainSeedForScenario(scenario: Scenario, defaultSeed: number): number {
+  const seeded = scenario as ScenarioWithRoomSeed;
+  const candidate = seeded.environment?.seed ?? seeded.seed;
+  return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : defaultSeed;
+}
+
+/** Station 5: registered room chain, with an explicit parametric fallback. */
+type RoomStageDependencies = {
+  runChain?: typeof runRoomChain;
+};
+
+export async function runRoomStage(
+  caseId: string,
+  stageDir: string,
+  dependencies: RoomStageDependencies = {},
+): Promise<StationRun> {
   const scenario = findFixtureById(caseId);
   const environmentId = scenario?.environment?.environmentId ?? "";
   if (!environmentId) {
@@ -777,6 +799,36 @@ async function runRoomStage(caseId: string, stageDir: string): Promise<StationRu
     };
   }
   await mkdir(stageDir, { recursive: true });
+  const recipe = roomChainRecipeFor(environmentId);
+  if (recipe !== undefined && scenario !== undefined) {
+    const seed = roomChainSeedForScenario(scenario, recipe.defaultSeed);
+    const chain = await (dependencies.runChain ?? runRoomChain)({ environmentId, seed, outDir: stageDir });
+    const artifactPath = path.join(stageDir, "room-chain-output.json");
+    await writeFile(artifactPath, `${JSON.stringify({
+      schemaVersion: "openclinxr.dark-factory.station-room.v2",
+      station: "room",
+      implementation: IMPLEMENTATIONS.room,
+      roomSource: "room-chain",
+      environmentId,
+      seed,
+      seedSource: seed === recipe.defaultSeed ? "recipe-default" : "scenario",
+      stageCache: chain.cache,
+      stageCacheKeys: chain.stageKeys,
+      outputGlb: relStage(stageDir, path.basename(chain.finalGlb)),
+      outputGlbSha256: chain.glbSha256,
+      lightingRig: relStage(stageDir, path.basename(chain.rigJson)),
+      lightingRigSha256: chain.rigSha256,
+    }, null, 2)}\n`, "utf8");
+    return {
+      row: makeRow("room", "deterministic", [
+        relStage(stageDir, "room-chain-output.json"),
+        relStage(stageDir, path.basename(chain.finalGlb)),
+        relStage(stageDir, path.basename(chain.rigJson)),
+      ], [
+        `RAN room-chain for ${environmentId} seed=${seed}: glb sha256=${chain.glbSha256}; cache ${Object.entries(chain.cache).map(([stage, status]) => `${stage}=${status.hit ? "hit" : "miss"}`).join(", ")}.`,
+      ]),
+    };
+  }
   const shell = buildStationEnvironment({ environmentId });
   const children = (shell.children ?? []).map((child) => ({
     name: child.name,
@@ -790,6 +842,7 @@ async function runRoomStage(caseId: string, stageDir: string): Promise<StationRu
     schemaVersion: "openclinxr.dark-factory.station-room.v1",
     station: "room",
     implementation: IMPLEMENTATIONS.room,
+    roomSource: "parametric",
     environmentId,
     shellName: shell.name,
     shellUserData: {
@@ -808,7 +861,7 @@ async function runRoomStage(caseId: string, stageDir: string): Promise<StationRu
   }, null, 2)}\n`, "utf8");
   return {
     row: makeRow("room", "deterministic", [relStage(stageDir, "room-shell.json")], [
-      `RAN in-process for ${environmentId}: ${children.length} child nodes, environmentId stamped in userData.`,
+      `RAN explicit parametric fallback for ${environmentId}: ${children.length} child nodes, environmentId stamped in userData.`,
     ]),
   };
 }
@@ -1475,7 +1528,7 @@ function executionCommandsFor(): Record<string, string> {
     body: "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
     clothing: "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
     rigging: "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
-    room: "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
+    room: "in-process @openclinxr/factory-stations runRoomChain(<registered environmentId>), else explicit parametric buildStationEnvironment fallback",
     equipment: "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
