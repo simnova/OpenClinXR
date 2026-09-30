@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 813,
+    "keep-evidence": 827,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -27018,6 +27018,104 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Door measurements: facing flatness, lever/lock nodes, casing widths, vision size, pose-04 leaf color vs ref, casing profile, ghost check, wall/floor no-regression."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (01-toward-door): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (02-toward-bed-wall): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (03-ceiling-corner): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (04-door-inside): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (05-troffer-junction): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 runtime frame (06-floor-base): final seed-205 chain GLB (true-opening lite, straight steel lever, pale maple, spec-white casing); standard hand-placed poses; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 capture manifest: GLB path and per-PNG shas for the six standard-pose runtime frames."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door2/door2-closeup-lever-lite.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 lever closeup on the final GLB: straight satin-steel lever, lock cylinder, dark vision lite and frame."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (01-toward-door): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (02-toward-bed-wall): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (03-ceiling-corner): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (04-door-inside): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (05-troffer-junction): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door2-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door2 sheet (06-floor-base): v2 ref left, final furnished-door runtime right."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/door-04-ref-leaf-crop.png",

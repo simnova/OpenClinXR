@@ -2,20 +2,23 @@
 """Door side-by-sides: v2 reference (left) vs runtime capture (right).
 
 Usage (repo root):
-  python3 docs/openclinxr/room-realism/light-balance/door_side_by_side.py
-Reads docs/openclinxr/room-realism/light-balance/captures-door/runtime-*.png
+  python3 docs/openclinxr/room-realism/light-balance/door_side_by_side.py [PREFIX [CAPDIR]]
+Reads docs/openclinxr/room-realism/light-balance/<CAPDIR>/runtime-*.png
   (captured with tools/.../hand-placed-poses.json, the standard set shared
   with the floor-skirting evidence)
-Writes docs/openclinxr/room-realism/light-balance/door-<name>-v2-side-by-side.png
+Writes docs/openclinxr/room-realism/light-balance/<PREFIX><name>-v2-side-by-side.png
+Defaults: PREFIX=door-, CAPDIR=captures-door (door2 set: door2-, captures-door2).
 """
 import os
+import sys
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))))
 LB = os.path.join(ROOT, "docs/openclinxr/room-realism/light-balance")
 REF = os.path.join(ROOT, "docs/openclinxr/room-realism/imagine-multiview-v2")
-CAP = os.path.join(LB, "captures-door")
+PREFIX = sys.argv[1] if len(sys.argv) > 1 else "door-"
+CAP = os.path.join(LB, sys.argv[2] if len(sys.argv) > 2 else "captures-door")
 
 NAMES = ["01-toward-door", "02-toward-bed-wall", "03-ceiling-corner",
          "04-door-inside", "05-troffer-junction", "06-floor-base"]
@@ -38,8 +41,8 @@ def main():
         sheet.paste(cap, (ref.size[0] + DIV, LABEL_H))
         d = ImageDraw.Draw(sheet)
         d.text((10, 10), f"v2 ref {name}", fill=(255, 255, 255))
-        d.text((ref.size[0] + DIV + 10, 10), "runtime door (chain seed 205)", fill=(120, 220, 255))
-        out = os.path.join(LB, f"door-{name}-v2-side-by-side.png")
+        d.text((ref.size[0] + DIV + 10, 10), f"runtime {PREFIX.rstrip('-')} (chain seed 205)", fill=(120, 220, 255))
+        out = os.path.join(LB, f"{PREFIX}{name}-v2-side-by-side.png")
         sheet.save(out)
         print(f"wrote {out}")
 

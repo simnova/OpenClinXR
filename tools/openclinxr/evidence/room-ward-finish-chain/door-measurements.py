@@ -26,6 +26,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 LB = os.path.join(ROOT, "docs/openclinxr/room-realism/light-balance")
 REF = os.path.join(ROOT, "docs/openclinxr/room-realism/imagine-multiview-v2")
 CAP = os.path.join(LB, "captures-door")
+CAP2 = os.path.join(LB, "captures-door2")
 GLB = os.path.join(ROOT, ".openclinxr/evidence/ward-finish-chain",
                    "infinigen-inpatient-ward.chain.glb")
 
@@ -147,15 +148,101 @@ def marked_crop(src, box, dst):
     print(f"wrote {dst}")
 
 
+# Facing-seam gate: max neighbor step over mid-leaf field rows with the
+# hardware masked out (lite unit, handle/lock, leaf edges, casing).
+SEAM_ROWS = (350, 400, 450)
+SEAM_XRANGE = (560, 740)
+SEAM_MASKS = [  # (x0, x1, y0, y1) hardware windows in 1280x720 capture space
+    (550, 700, 190, 400),   # vision unit + frame (covers both the historic
+                            # misplaced rect and the true opening location)
+    (710, 780, 320, 395),   # lever + lock
+]
+
+
+def leaf_seam(cap04):
+    im = np.asarray(Image.open(cap04).convert("L"), dtype=np.float64)
+    # A facing-plate seam is a sustained straight edge: the SAME x hot on
+    # multiple rows. Wood grain (±5) and render glints are isolated points,
+    # so the gate counts row-coherent hot columns, not single max steps.
+    hot_cols = {}
+    for row in SEAM_ROWS:
+        line = im[row, SEAM_XRANGE[0]:SEAM_XRANGE[1]]
+        # Median-5 baseline (floor-script convention): render glints dance
+        # pixel to pixel between captures, while a real plate-boundary
+        # seam is a sustained edge and survives.
+        med = np.array([np.median(line[max(0, i - 2):i + 3])
+                        for i in range(len(line))])
+        # Two-px-apart diffs: single-pixel render speckle (a lone 210 among
+        # 174s) dies in the median and spans one sample; a real
+        # plate-boundary seam is a sustained edge across 2+ px.
+        for x in range(len(med) - 2):
+            gx = SEAM_XRANGE[0] + x
+            if any(x0 <= gx < x1 and y0 <= row < y1 for x0, x1, y0, y1 in SEAM_MASKS):
+                continue
+            step = abs(float(med[x + 2]) - float(med[x]))
+            if step > 3.0:
+                hot_cols.setdefault(gx, []).append([row, round(step, 2)])
+    coherent = {x: rows for x, rows in hot_cols.items() if len(rows) >= 2}
+    worst = 0.0
+    worst_at = None
+    for x, rows in hot_cols.items():
+        for row, step in rows:
+            if step > worst:
+                worst = step
+                worst_at = [x, row]
+    return {"rows": list(SEAM_ROWS), "xrange": list(SEAM_XRANGE),
+            "maxStep": round(worst, 2), "at": worst_at,
+            "coherentCols": coherent,
+            "gate": "no column hot (>3) on 2+ rows (one continuous veneer face)"}
+
+
+def capture_section(capdir):
+    """Pose-04 color, casing profile, ghost, seam, and no-regression for one capture set."""
+    ref04 = os.path.join(REF, "04-door-inside.jpg")
+    cap04 = os.path.join(capdir, "runtime-04-door-inside.png")
+    cap02 = os.path.join(capdir, "runtime-02-toward-bed-wall.png")
+    ref_leaf = box_mean(ref04, REF04_LEAF_BOX)
+    cap_leaf = box_mean(cap04, CAP04_LEAF_BOX)
+    wall_cap = box_mean(cap02, WALL_BOX)
+    floor_cap = box_mean(cap02, FLOOR_BOX)
+    return {
+        "pose04LeafColor": {
+            "refBox": list(REF04_LEAF_BOX), "ref": ref_leaf,
+            "capBox": list(CAP04_LEAF_BOX), "cap": cap_leaf,
+            "delta": [round(c - r, 2) for c, r in zip(cap_leaf, ref_leaf)],
+            "gate": "+-12 per channel",
+        },
+        "pose04CasingProfile": {
+            "cap": {"row": CAP04_JAMB_ROW, "xrange": list(CAP04_JAMB_XRANGE),
+                    "profile": row_profile(cap04, CAP04_JAMB_ROW, CAP04_JAMB_XRANGE, 2)},
+            "ref": {"row": REF04_JAMB_ROW, "xrange": list(REF04_JAMB_XRANGE),
+                    "profile": row_profile(ref04, REF04_JAMB_ROW, REF04_JAMB_XRANGE, 2)},
+            "note": "casing reads as a distinct lighter band between wall and leaf",
+        },
+        "ghostCheck": {
+            "windows": [{"x": list(x), "y": list(y)} for x, y in GHOST_WINDOWS],
+            "cap": [window_peaks(cap04, x, y) for x, y in GHOST_WINDOWS],
+            "note": "no raised-panel outline expected on the leaf field; "
+                    "hinge plates at the leaf edge are hardware",
+        },
+        "leafSeam": leaf_seam(cap04),
+        "noRegression": {
+            "wallBox": {"box": list(WALL_BOX), "floorSkirtingCap": WALL_BASE, "cap": wall_cap,
+                        "delta": [round(c - r, 2) for c, r in zip(wall_cap, WALL_BASE)]},
+            "floorBox": {"box": list(FLOOR_BOX), "floorSkirtingCap": FLOOR_BASE, "cap": floor_cap,
+                         "delta": [round(c - r, 2) for c, r in zip(floor_cap, FLOOR_BASE)]},
+            "gate": "+-3 per channel",
+        },
+    }
+
+
 def main():
     ref04 = os.path.join(REF, "04-door-inside.jpg")
     cap04 = os.path.join(CAP, "runtime-04-door-inside.png")
-    cap02 = os.path.join(CAP, "runtime-02-toward-bed-wall.png")
     marked_crop(ref04, REF04_LEAF_BOX, os.path.join(LB, "door-04-ref-leaf-crop.png"))
     marked_crop(cap04, CAP04_LEAF_BOX, os.path.join(LB, "door-04-cap-leaf-crop.png"))
 
-    ref_leaf = box_mean(ref04, REF04_LEAF_BOX)
-    cap_leaf = box_mean(cap04, CAP04_LEAF_BOX)
+    sec = capture_section(CAP)
 
     json_doc, bin0 = load_glb(GLB)
     leaf_min, leaf_max = node_world_bbox(json_doc, bin0, "bedroom_0/0.door_leaf")
@@ -224,35 +311,14 @@ def main():
             "centerHeightM": round(float(gcy), 4),
             "spec": "about 0.1-0.15 m wide by 0.5-0.7 m tall, upper latch-side",
         },
-        "pose04LeafColor": {
-            "refBox": list(REF04_LEAF_BOX), "ref": ref_leaf,
-            "capBox": list(CAP04_LEAF_BOX), "cap": cap_leaf,
-            "delta": [round(c - r, 2) for c, r in zip(cap_leaf, ref_leaf)],
-            "gate": "+-12 per channel",
-        },
-        "pose04CasingProfile": {
-            "cap": {"row": CAP04_JAMB_ROW, "xrange": list(CAP04_JAMB_XRANGE),
-                    "profile": row_profile(cap04, CAP04_JAMB_ROW, CAP04_JAMB_XRANGE, 2)},
-            "ref": {"row": REF04_JAMB_ROW, "xrange": list(REF04_JAMB_XRANGE),
-                    "profile": row_profile(ref04, REF04_JAMB_ROW, REF04_JAMB_XRANGE, 2)},
-            "note": "casing reads as a distinct lighter band between wall and leaf",
-        },
-        "ghostCheck": {
-            "windows": [{"x": list(x), "y": list(y)} for x, y in GHOST_WINDOWS],
-            "cap": [window_peaks(cap04, x, y) for x, y in GHOST_WINDOWS],
-            "note": "no raised-panel outline expected on the leaf field; "
-                    "hinge plates at the leaf edge are hardware",
-        },
+        "pose04LeafColor": sec["pose04LeafColor"],
+        "pose04CasingProfile": sec["pose04CasingProfile"],
+        "ghostCheck": sec["ghostCheck"],
+        "leafSeam": sec["leafSeam"],
+        "noRegression": sec["noRegression"],
     }
-    wall_cap = box_mean(cap02, WALL_BOX)
-    floor_cap = box_mean(cap02, FLOOR_BOX)
-    result["noRegression"] = {
-        "wallBox": {"box": list(WALL_BOX), "floorSkirtingCap": WALL_BASE, "cap": wall_cap,
-                    "delta": [round(c - r, 2) for c, r in zip(wall_cap, WALL_BASE)]},
-        "floorBox": {"box": list(FLOOR_BOX), "floorSkirtingCap": FLOOR_BASE, "cap": floor_cap,
-                     "delta": [round(c - r, 2) for c, r in zip(floor_cap, FLOOR_BASE)]},
-        "gate": "+-3 per channel",
-    }
+    result["door2"] = capture_section(CAP2)
+    result["door2"]["captures"] = "captures-door2 (final GLB: straight lever, dark glass, pale maple, spec-white casing)"
     out = os.path.join(LB, "door-measurements.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
