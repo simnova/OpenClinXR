@@ -1,0 +1,25 @@
+{
+  "package": "compute-slots",
+  "name": "@openclinxr/compute-slots",
+  "entrypoint": "packages/openclinxr/compute-slots/src/index.ts",
+  "purpose": "Machine-wide lock-file slots for coordinating heavy local subprocesses across agent harnesses.",
+  "exports": [
+    "ComputeSlotLease",
+    "ComputeSlotMeta",
+    "ComputeSlotPoolStatus",
+    "ComputeSlotsStatus",
+    "readComputeSlotsStatus",
+    "withComputeSlot",
+    "withComputeSlotSync"
+  ],
+  "workspaceDependencies": [],
+  "tests": [
+    "src/slots.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/compute-slots test",
+    "typecheck": "pnpm --filter @openclinxr/compute-slots typecheck",
+    "build": "pnpm --filter @openclinxr/compute-slots build",
+    "lint": "pnpm --filter @openclinxr/compute-slots lint"
+  }
+}

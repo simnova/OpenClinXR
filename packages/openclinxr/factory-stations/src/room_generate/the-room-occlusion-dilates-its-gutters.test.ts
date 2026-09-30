@@ -3,6 +3,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -157,11 +158,11 @@ describe("the room occlusion bake dilates its UV gutters", () => {
     const bakePy = path.join(SRC, "room-occlusion-bake.py");
     let output = "";
     try {
-      const result = await execFileAsync(
+      const result = await withComputeSlot("blender", { label: "test:occlusion-gutters", cwd: work }, () => execFileAsync(
         "blender",
         ["--background", "--python", driver, "--", bakePy],
         { cwd: work, timeout: 300_000 },
-      );
+      ));
       output = `${result.stdout}\n${result.stderr}`;
     } catch (error) {
       const failure = error as { stdout?: string; stderr?: string; message?: string };

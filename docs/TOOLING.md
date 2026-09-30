@@ -93,6 +93,19 @@ pnpm env:doctor           # includes LSP bin checks
 
 After changing `.grok/lsp.json`, **restart Grok** so servers reload. Prefer **repo-local** bins over PATH globals. Enable agent tool: `[features] lsp_tools = true` (project + user).
 
+## Compute slots
+
+Heavy local work is machine-gated through lock-file slots: Blender subprocesses use the `blender`
+pool (default 2), and ward runtime capture uses `browser-capture` (default 1). Override the limits
+with `OPENCLINXR_SLOTS_BLENDER` and `OPENCLINXR_SLOTS_BROWSER_CAPTURE`; use
+`OPENCLINXR_LOCK_ROOT` only to isolate tests or a deliberately separate machine context.
+Waiters use per-pool ticket files in an ordered queue directory; dead-PID tickets and holders are
+reclaimed, while a live PID is never evicted based on age.
+
+Run `pnpm compute:slots` to see holders and waiters, or `pnpm compute:slots -- --json` for structured
+output. Briefs no longer need the manual Blender-process-count rule: compute-heavy work queues
+automatically.
+
 ## Package / turbo scripts (agent vs human)
 
 OpenClinXR keeps **boundaries**, package tags, and `--affected` scripts. From ATL we adopt **quiet turbo logs for agents only** — not multi-app `portless` orchestration.

@@ -12,6 +12,7 @@ import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 
 const execFileAsync = promisify(execFile);
 
@@ -537,7 +538,8 @@ export function validateStablegenHumanoidTextureProbeReport(value: unknown): Val
 
 async function probeBlender(executable: string): Promise<{ available: boolean; version: string | null; detail: string | null }> {
   try {
-    const result = await execFileAsync(executable, ["--version"], { timeout: 8_000, maxBuffer: 1024 * 1024 });
+    const result = await withComputeSlot("blender", { label: "blender-version:stablegen" }, () =>
+      execFileAsync(executable, ["--version"], { timeout: 8_000, maxBuffer: 1024 * 1024 }));
     const version = result.stdout.split("\n").find((line) => /^Blender\s+/u.test(line))?.trim() ?? null;
     return { available: true, version, detail: null };
   } catch (error) {

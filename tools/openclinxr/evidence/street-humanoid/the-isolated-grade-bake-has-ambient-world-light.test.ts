@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { decodePng } from "../decode-png.ts";
 
 /**
@@ -76,7 +77,7 @@ describe("the isolated grade bake has ambient world light", () => {
       expect(existsSync(LIGHTING_JSON), "blender missing; SSOT file must still exist").toBe(true);
       return;
     }
-    const run = spawnSync(
+    const run = withComputeSlotSync("blender", { label: "test:street-humanoid-lighting" }, () => spawnSync(
       "blender",
       [
         "--background",
@@ -88,7 +89,7 @@ describe("the isolated grade bake has ambient world light", () => {
         join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/.dump-lighting-unused.png"),
       ],
       { encoding: "utf8", timeout: 60_000 },
-    );
+    ));
     const blob = `${run.stdout}\n${run.stderr}`;
     const match = blob.match(
       /\{[^{}]*"worldBackgroundStrength"[\s\S]*?"liveWorldBackgroundStrength"\s*:\s*[0-9.]+[\s\S]*?\}/,
@@ -135,7 +136,7 @@ describe("the isolated grade bake has ambient world light", () => {
       return;
     }
     const glb = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb");
-    const run = spawnSync(
+    const run = withComputeSlotSync("blender", { label: "test:street-humanoid-bounds" }, () => spawnSync(
       "blender",
       [
         "--background",
@@ -149,7 +150,7 @@ describe("the isolated grade bake has ambient world light", () => {
         join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/.dump-bounds-unused.png"),
       ],
       { encoding: "utf8", timeout: 90_000 },
-    );
+    ));
     const blob = `${run.stdout}\n${run.stderr}`;
     const match = blob.match(/\{[^{}]*"floorZ"\s*:\s*(-?[0-9.]+)[^{}]*\}/);
     expect(match, `dump-bounds produced no AABB JSON: ${blob.slice(-600)}`).toBeTruthy();

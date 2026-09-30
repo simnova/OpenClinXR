@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import {
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
@@ -370,20 +371,22 @@ async function runBlenderEquipmentBake(options: {
       })}\n`,
       "utf8",
     );
-    await execFileAsync(options.blenderPath, ["--background", "--python", scriptPath, "--", configPath], {
-      timeout: BLENDER_EQUIPMENT_COMMAND_TIMEOUT_MS,
-      maxBuffer: 20 * 1024 * 1024,
-    });
+    await withComputeSlot("blender", { label: "medical-equipment-artifacts" }, () =>
+      execFileAsync(options.blenderPath, ["--background", "--python", scriptPath, "--", configPath], {
+        timeout: BLENDER_EQUIPMENT_COMMAND_TIMEOUT_MS,
+        maxBuffer: 20 * 1024 * 1024,
+      }));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
 }
 
 async function readBlenderVersion(blenderPath: string): Promise<string> {
-  const { stdout } = await execFileAsync(blenderPath, ["--version"], {
-    timeout: 15_000,
-    maxBuffer: 1024 * 1024,
-  });
+  const { stdout } = await withComputeSlot("blender", { label: "blender-version:medical-equipment" }, () =>
+    execFileAsync(blenderPath, ["--version"], {
+      timeout: 15_000,
+      maxBuffer: 1024 * 1024,
+    }));
   return stdout.toString().split(/\r?\n/u)[0]?.trim() || "unknown";
 }
 

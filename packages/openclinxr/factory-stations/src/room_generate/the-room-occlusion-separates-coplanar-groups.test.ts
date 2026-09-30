@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -142,10 +143,10 @@ describe("the room occlusion bake separates co-planar groups into disjoint UV ce
     writeFileSync(driver, DRIVER.replaceAll("${WARD_GLB}", WARD_GLB), "utf8");
     let output = "";
     try {
-      const result = await execFileAsync("blender", ["--background", "--python", driver, "--", BAKE_PY, out], {
+      const result = await withComputeSlot("blender", { label: "test:occlusion-coplanar" }, () => execFileAsync("blender", ["--background", "--python", driver, "--", BAKE_PY, out], {
         cwd: work,
         timeout: 600_000,
-      });
+      }));
       output = `${result.stdout}\n${result.stderr}`;
     } catch (error) {
       const failure = error as { stdout?: string; stderr?: string; message?: string };

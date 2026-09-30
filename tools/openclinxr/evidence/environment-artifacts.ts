@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { ROOM_ALBEDO_REL, ROOM_OCCLUSION_REL, runRoomGenerate } from "@openclinxr/factory-stations";
 import {
   type EncounterRuntimeAsset,
@@ -137,7 +138,8 @@ export async function buildEnvironmentArtifactsReport(options?: {
   const placements = await readOptionalJson<Record<string, unknown>>(artifactPaths.equipmentPlacementManifest);
   const zones = Array.isArray(layout?.spatialZones) ? layout.spatialZones : [];
   const equipment = Array.isArray(placements?.equipmentPlacements) ? placements.equipmentPlacements : [];
-  const anchors = zones.flatMap((zone) => isRecord(zone) && Array.isArray(zone.interactionAnchors) ? zone.interactionAnchors : []);
+  const anchors = zones.flatMap((spatialZone) =>
+    isRecord(spatialZone) && Array.isArray(spatialZone.interactionAnchors) ? spatialZone.interactionAnchors : []);
   const realismCueCount = equipment.length + anchors.length;
 
   return {
@@ -449,10 +451,11 @@ async function runBlenderEnvironmentBake(options: {
   const scriptPath = path.join(ENVIRONMENT_ARTIFACTS_OUTPUT_DIR, "generate-ed-exam-bay-shell.py");
   await mkdir(path.dirname(scriptPath), { recursive: true });
   await writeFile(scriptPath, script, "utf8");
-  await execFileAsync(options.blenderPath, ["--background", "--python", scriptPath], {
-    timeout: BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS,
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  await withComputeSlot("blender", { label: "environment-artifacts" }, () =>
+    execFileAsync(options.blenderPath, ["--background", "--python", scriptPath], {
+      timeout: BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS,
+      maxBuffer: 20 * 1024 * 1024,
+    }));
 }
 
 function createEnvironmentBlenderScript(outputPath: string): string {

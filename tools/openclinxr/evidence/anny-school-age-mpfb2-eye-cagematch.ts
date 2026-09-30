@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import {
   validateModelVettingReport,
   type ModelVettingReport,
@@ -85,7 +86,7 @@ async function main(): Promise<void> {
   } else if (options.skipMpfb2Stage) {
     throw new Error("--skip-mpfb2-stage requires an existing output GLB in the public mirror.");
   } else {
-    execSync(
+    withComputeSlotSync("blender", { label: "anny-school-age-mpfb2-eye" }, () => execSync(
       [
         "blender",
         "--background",
@@ -100,7 +101,7 @@ async function main(): Promise<void> {
         mpfb2ReportPath,
       ].join(" "),
       { stdio: "inherit", encoding: "utf8" },
-    );
+    ));
     await copyFile(localArtifactGlb, outputGlbPath);
   }
 

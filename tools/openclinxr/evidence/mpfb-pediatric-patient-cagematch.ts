@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 
 import {
   PEDS_ASTHMA_PATIENT_DECISION_INPUT,
@@ -28,7 +29,7 @@ async function main(): Promise<void> {
   const reportPath = path.join(outputHome.localEvidenceDir, "mpfb-pediatric-patient-cagematch.json");
   await mkdir(path.dirname(outputGlb), { recursive: true });
 
-  execSync(
+  withComputeSlotSync("blender", { label: "mpfb-pediatric-patient-cagematch" }, () => execSync(
     [
       "blender",
       "--background",
@@ -43,7 +44,7 @@ async function main(): Promise<void> {
       String(options.childScale),
     ].join(" "),
     { stdio: "inherit", encoding: "utf8" },
-  );
+  ));
 
   const summary = {
     schemaVersion: "openclinxr.mpfb-pediatric-patient-cagematch-summary.v1",

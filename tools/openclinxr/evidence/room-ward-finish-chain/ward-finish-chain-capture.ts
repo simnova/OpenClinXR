@@ -67,6 +67,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   type PortlessDevServer,
@@ -354,25 +355,28 @@ async function main(): Promise<void> {
 
   let server: PortlessDevServer | null = null;
   try {
-    server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
-    const browser = await chromium.launch({
-      headless: true,
-      args: [
-        "--disable-gpu-vsync",
-        "--disable-frame-rate-limit",
-        "--use-angle=metal",
-        "--enable-gpu-rasterization",
-        "--ignore-gpu-blocklist",
-      ],
-    });
-    const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    const runningServer = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
+    server = runningServer;
+    await withComputeSlot("browser-capture", { label: "ward-finish-chain-capture", cwd: process.cwd() }, async () => {
+      const browser = await chromium.launch({
+        headless: true,
+        args: [
+          "--disable-gpu-vsync",
+          "--disable-frame-rate-limit",
+          "--use-angle=metal",
+          "--enable-gpu-rasterization",
+          "--ignore-gpu-blocklist",
+        ],
+      });
+      try {
+        const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
     await installEnvironmentOverrideRoute(page, FINISHED_WARD_GLB);
 
-    await page.goto(buildSceneClosureUrl(server.url), { waitUntil: "networkidle", timeout: 180_000 });
+        await page.goto(buildSceneClosureUrl(runningServer.url), { waitUntil: "networkidle", timeout: 180_000 });
     await page.waitForFunction(
       () => {
         const g = globalThis as unknown as { __openClinXrDebugScene?: { traverse: (fn: (o: never) => void) => void } };
@@ -394,7 +398,6 @@ async function main(): Promise<void> {
     if ((process.env["STAGE2_DUMP_ONLY"] ?? "0") === "1") {
       const dump = await page.evaluate(DUMP_MESHES_SOURCE);
       process.stdout.write(`[dump] ${JSON.stringify(dump)}\n`);
-      await browser.close();
       process.stdout.write("[done] stage-2 mesh dump (no captures)\n");
       return;
     }
@@ -451,8 +454,11 @@ async function main(): Promise<void> {
       `${JSON.stringify({ schemaVersion: "openclinxr.stage2-multiview.v1", glb: FINISHED_WARD_GLB, captures: manifest }, null, 2)}\n`,
       "utf8",
     );
-    await browser.close();
-    process.stdout.write("[done] stage-2 multiview captured\n");
+        process.stdout.write("[done] stage-2 multiview captured\n");
+      } finally {
+        await browser.close();
+      }
+    });
   } finally {
     if (server) await stopPortlessDevServer(server.proc);
   }

@@ -68,6 +68,9 @@ describe("briefFromIssue", () => {
       "Run builds, the room chain, captures and tests in the FOREGROUND and wait for them.",
     );
     expect(result.prompt).toContain("docs/agent-ops/worker-session-time-split-2026-09-29.md");
+    expect(result.prompt).toContain(
+      "Heavy compute (Blender, capture) is queued by compute slots automatically; do not hand-count processes.",
+    );
   });
 });
 

@@ -3,6 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 
 /**
  * A hair .mhmat WITHOUT texture lines keeps its flat colour (counterweight).
@@ -46,11 +47,11 @@ type ProbeRow = {
 function runProbe(): ProbeRow[] {
   const real = realBobMhclo();
   expect(existsSync(FIXTURE_MHCLO), `fixture mhclo missing: ${FIXTURE_MHCLO}`).toBe(true);
-  const r = spawnSync(
+  const r = withComputeSlotSync("blender", { label: "test:hair-mhmat-flat-colour" }, () => spawnSync(
     BLENDER,
     ["--background", "--factory-startup", "--python-exit-code", "1", "--python", PROBE, "--", FIXTURE_MHCLO, real],
     { encoding: "utf8", timeout: 180_000 },
-  );
+  ));
   expect(r.error, `Blender spawn failed: ${String(r.error)}`).toBeUndefined();
   expect(r.status, `Blender exited ${r.status}: ${r.stderr?.slice(-2000)}`).toBe(0);
   const rows: ProbeRow[] = [];

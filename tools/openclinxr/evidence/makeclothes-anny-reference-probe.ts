@@ -32,6 +32,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -182,7 +183,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; timeoutMs?: number } = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
+  const run = () => new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
     const child = spawn(command, args, {
       cwd: opts.cwd,
       env: process.env,
@@ -212,6 +213,9 @@ function runCmd(
       resolve({ code: code ?? 1, stdout, stderr });
     });
   });
+  return path.basename(command).toLowerCase().includes("blender")
+    ? withComputeSlot("blender", { label: "makeclothes-anny-reference", cwd: opts.cwd }, run)
+    : run();
 }
 
 async function downloadIfNeeded(

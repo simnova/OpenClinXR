@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -106,10 +107,10 @@ describe("the room bake leaves flat materials unbaked", () => {
     );
     let output = "";
     try {
-      const result = await execFileAsync("blender", ["--background", "--python", driver, "--", bakePy], {
+      const result = await withComputeSlot("blender", { label: "test:bake-skips-finish-flat" }, () => execFileAsync("blender", ["--background", "--python", driver, "--", bakePy], {
         cwd: findRepoRoot(),
         timeout: 300_000,
-      });
+      }));
       output = `${result.stdout}\n${result.stderr}`;
     } catch (error) {
       const failure = error as { stdout?: string; stderr?: string; message?: string };

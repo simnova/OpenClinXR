@@ -3,6 +3,7 @@ import { access, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { globFiles, writeJson, readJson } from "../../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
@@ -421,7 +422,8 @@ async function probeLocalStack(input: { blenderExecutable: string; comfyUrl: str
 
 async function probeBlender(blenderExecutable: string): Promise<ToolObservation> {
   try {
-    const result = await execFileAsync(blenderExecutable, ["--version"], { timeout: 8_000, maxBuffer: 1024 * 1024 });
+    const result = await withComputeSlot("blender", { label: "blender-version:anny-skin" }, () =>
+      execFileAsync(blenderExecutable, ["--version"], { timeout: 8_000, maxBuffer: 1024 * 1024 }));
     return {
       status: "available",
       executable: blenderExecutable,
@@ -449,7 +451,8 @@ async function probeBlenderAddons(blenderExecutable: string): Promise<AnnySkinCa
     "print('OPENCLINXR_ADDONS_JSON=' + json.dumps(rows))",
   ].join("\n");
   try {
-    const result = await execFileAsync(blenderExecutable, ["--background", "--python-expr", script], { timeout: 15_000, maxBuffer: 4 * 1024 * 1024 });
+    const result = await withComputeSlot("blender", { label: "anny-skin-cagematch-probe" }, () =>
+      execFileAsync(blenderExecutable, ["--background", "--python-expr", script], { timeout: 15_000, maxBuffer: 4 * 1024 * 1024 }));
     const line = result.stdout.split("\n").find((row) => row.startsWith("OPENCLINXR_ADDONS_JSON="));
     const rows = line ? JSON.parse(line.slice("OPENCLINXR_ADDONS_JSON=".length)) as Array<Record<string, unknown>> : [];
     return {

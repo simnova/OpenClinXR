@@ -68,6 +68,9 @@
       "path": "./packages/openclinxr/conversation-policy"
     },
     {
+      "path": "./packages/openclinxr/compute-slots"
+    },
+    {
       "path": "./packages/openclinxr/data-mongodb"
     },
     {

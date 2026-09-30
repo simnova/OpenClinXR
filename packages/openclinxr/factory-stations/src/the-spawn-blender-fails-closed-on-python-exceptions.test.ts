@@ -3,6 +3,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { describe, expect, it } from "vitest";
 import { runRoomGenerate } from "./index.js";
 
@@ -42,9 +43,9 @@ describe("spawnBlenderProcess exits non-zero on an uncaught Python exception", (
     const work = mkdtempSync(path.join(tmpdir(), "blender-exit-probe-"));
     const probe = path.join(work, "raising_probe.py");
     writeFileSync(probe, RAISING_PROBE, "utf8");
-    const result = await execFileAsync("blender", ["--background", "--python", probe], {
+    const result = await withComputeSlot("blender", { label: "test:raw-blender-python-exit" }, () => execFileAsync("blender", ["--background", "--python", probe], {
       timeout: 300_000,
-    });
+    }));
     expect(result.stderr).toContain("deliberate probe exception");
   }, 300_000);
 

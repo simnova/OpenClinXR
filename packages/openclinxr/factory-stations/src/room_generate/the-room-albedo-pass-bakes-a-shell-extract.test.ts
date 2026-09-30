@@ -5,6 +5,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { describe, expect, it } from "vitest";
 
 const execFileAsync = promisify(execFile);
@@ -37,11 +38,11 @@ describe("the room albedo pass bakes a shell extract", () => {
     const input = path.join(SRC, "fixtures", "extract.glb");
     const output = path.join(work, "baked.glb");
     const script = path.join(SRC, "room-albedo-ao-bake.py");
-    const result = await execFileAsync(
+    const result = await withComputeSlot("blender", { label: "test:albedo-shell-extract" }, () => execFileAsync(
       "blender",
       ["--background", "--python", script, "--", "--input", input, "--output", output, "--resolution", "64"],
       { timeout: 300_000 },
-    )
+    ))
       .then((ok) => ({ code: 0, stdout: ok.stdout, stderr: ok.stderr }))
       .catch((err: { code?: number; stdout?: string; stderr?: string }) => ({
         code: err.code ?? 1,

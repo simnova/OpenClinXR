@@ -43,6 +43,7 @@ import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 // ---------------------------------------------------------------------------
@@ -200,13 +201,14 @@ async function hasUv(glbPath: string): Promise<boolean> {
 
 function runBlender(args: string[], timeoutMs: number): { code: number; stdout: string } {
   try {
-    const stdout = execFileSync(blenderBinary(), args, {
-      encoding: "utf8",
-      cwd: REPO_ROOT,
-      timeout: timeoutMs,
-      stdio: ["ignore", "pipe", "pipe"],
-      maxBuffer: 20 * 1024 * 1024,
-    } as never);
+    const stdout = withComputeSlotSync("blender", { label: "trellis-fleet-recreation", cwd: REPO_ROOT }, () =>
+      execFileSync(blenderBinary(), args, {
+        encoding: "utf8",
+        cwd: REPO_ROOT,
+        timeout: timeoutMs,
+        stdio: ["ignore", "pipe", "pipe"],
+        maxBuffer: 20 * 1024 * 1024,
+      } as never));
     return { code: 0, stdout };
   } catch (err) {
     const e = err as { status?: number; stdout?: string; stderr?: string };

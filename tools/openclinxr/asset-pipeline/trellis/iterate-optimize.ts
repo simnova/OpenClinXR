@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { simplify, simplifyPrimitive, weld, weldPrimitive, quantize } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 
@@ -331,7 +332,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; timeoutMs?: number; env?: NodeJS.ProcessEnv } = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
+  const run = () => new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
     const child = spawn(command, args, {
       cwd: opts.cwd,
       env: opts.env ?? process.env,
@@ -361,6 +362,9 @@ function runCmd(
       resolve({ code: code ?? 1, stdout, stderr });
     });
   });
+  return path.basename(command).toLowerCase().includes("blender")
+    ? withComputeSlot("blender", { label: "trellis-iterate-optimize", cwd: opts.cwd }, run)
+    : run();
 }
 
 type BakeOutcome = {

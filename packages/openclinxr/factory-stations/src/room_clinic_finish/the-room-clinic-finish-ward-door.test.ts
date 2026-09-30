@@ -3,6 +3,7 @@ import { copyFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { describe, expect, it, beforeAll } from "vitest";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
@@ -113,13 +114,13 @@ async function composeOnce(): Promise<Prepared> {
   copyFileSync(fixture, workGlb);
   const { writeFileSync } = await import("node:fs");
   writeFileSync(recipePath, wardRecipeJson(), "utf8");
-  await execFileAsync(
+  await withComputeSlot("blender", { label: "test:clinic-ward-door" }, () => execFileAsync(
     "blender",
     ["--background", "--python", path.join(SRC, "compose.py"), "--",
       "--input", workGlb, "--output", workGlb,
       "--recipe-json", recipePath, "--report", reportPath],
     { timeout: 300_000 },
-  );
+  ));
   const report = JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
   return { workGlb, report };
 }

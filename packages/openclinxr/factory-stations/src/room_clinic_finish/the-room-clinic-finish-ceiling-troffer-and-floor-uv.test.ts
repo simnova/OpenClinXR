@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -105,7 +106,7 @@ async function composeOnce(): Promise<Prepared> {
   copyFileSync(fixture, workGlb);
   const { writeFileSync } = await import("node:fs");
   writeFileSync(recipePath, recipeJson(), "utf8");
-  await execFileAsync(
+  await withComputeSlot("blender", { label: "test:clinic-troffer-floor-uv" }, () => execFileAsync(
     "blender",
     [
       "--background",
@@ -122,7 +123,7 @@ async function composeOnce(): Promise<Prepared> {
       reportPath,
     ],
     { timeout: 300_000 },
-  );
+  ));
   const report = JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
   return { workGlb, report };
 }

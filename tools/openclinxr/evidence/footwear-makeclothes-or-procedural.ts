@@ -16,6 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { NodeIO, type Mesh } from "@gltf-transform/core";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { resolveGarmentLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
 import { packSlugFromPath } from "../asset-pipeline/makeclothes/makehuman-catalogue.js";
 import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
@@ -386,7 +387,8 @@ function resolveBlender(): string {
     "/Applications/Blender.app/Contents/MacOS/Blender",
   ].filter(Boolean) as string[];
   for (const c of candidates) {
-    const r = spawnSync(c, ["--version"], { encoding: "utf8" });
+    const r = withComputeSlotSync("blender", { label: "blender-version:footwear" }, () =>
+      spawnSync(c, ["--version"], { encoding: "utf8" }));
     if (r.status === 0) return c;
   }
   throw new Error("blender not found on PATH");
@@ -553,11 +555,12 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
         "--glb",
         path.join(CANDIDATES_DIR, n),
       ]);
-      const r = spawnSync(
-        blender,
-        ["--background", "--python", gradeScript, "--", "--out", GRADE_PNG_PATH, "--frame", "feet", ...glbArgs],
-        { encoding: "utf8", cwd: REPO_ROOT, maxBuffer: 20 * 1024 * 1024 },
-      );
+      const r = withComputeSlotSync("blender", { label: "footwear-grade", cwd: REPO_ROOT }, () =>
+        spawnSync(
+          blender,
+          ["--background", "--python", gradeScript, "--", "--out", GRADE_PNG_PATH, "--frame", "feet", ...glbArgs],
+          { encoding: "utf8", cwd: REPO_ROOT, maxBuffer: 20 * 1024 * 1024 },
+        ));
       if (r.status !== 0) {
         console.warn(`[#212] grade render failed: ${r.stderr?.slice(-400)}`);
       }

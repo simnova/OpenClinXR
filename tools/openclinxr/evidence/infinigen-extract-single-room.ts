@@ -23,6 +23,7 @@ import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { decimateGlb, measureGlb as measureGlbRoom } from "./room-decimate.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -165,10 +166,10 @@ function blenderJson(blenderBin: string, pyScript: string, timeoutMs = 600_000):
   const tmpScript = path.join(tmpdir(), `ocxr-blender-${randomUUID()}.py`);
   try {
     writeFileSync(tmpScript, pyScript, "utf8");
-    const result = execSync(
+    const result = withComputeSlotSync("blender", { label: "infinigen-extract-single-room" }, () => execSync(
       `${JSON.stringify(blenderBin)} --background --python ${JSON.stringify(tmpScript)}`,
       { encoding: "utf8", timeout: timeoutMs, maxBuffer: 50 * 1024 * 1024 },
-    );
+    ));
     // Find the last JSON-containing line (after Blender preamble)
     const lines = result.split("\n");
     for (let i = lines.length - 1; i >= 0; i--) {

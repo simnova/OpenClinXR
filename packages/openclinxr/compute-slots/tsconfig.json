@@ -8,18 +8,6 @@
     "declarationMap": true,
     "outDir": "dist"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "dist"
-  ],
-  "references": [
-    {
-      "path": "../compute-slots"
-    }
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts", "dist"]
 }

@@ -33,7 +33,9 @@
     "runStaging",
     "writeLipSyncFixtureWav"
   ],
-  "workspaceDependencies": [],
+  "workspaceDependencies": [
+    "@openclinxr/compute-slots"
+  ],
   "tests": [
     "src/clothing_consume/the-clothing-consume-station-builds-per-actor-bodies.test.ts",
     "src/clothing_consume/the-clothing-consume-station-carries-the-refit-contract.test.ts",
@@ -76,6 +78,7 @@
     "src/room_generate/the-shell-bake-gives-trim-a-real-bake.test.ts",
     "src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
+    "src/the-compute-slots-gate-blender.test.ts",
     "src/the-factory-station-schemas-validate.test.ts",
     "src/the-spawn-blender-fails-closed-on-python-exceptions.test.ts",
     "src/the-staging-station-takes-a-signed-plant-vector.test.ts",

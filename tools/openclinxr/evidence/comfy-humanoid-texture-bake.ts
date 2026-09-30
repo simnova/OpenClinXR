@@ -12,6 +12,7 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -277,10 +278,11 @@ function renderDepthViews(glbPath: string, outputDir: string): DepthViewManifest
   ];
 
   const started = Date.now();
-  const r = spawnSync(BLENDER_BIN, args, {
-    timeout: 120_000,
-    encoding: "utf-8",
-  });
+  const r = withComputeSlotSync("blender", { label: "comfy-humanoid-depth-views" }, () =>
+    spawnSync(BLENDER_BIN, args, {
+      timeout: 120_000,
+      encoding: "utf-8",
+    }));
 
   if (r.error) throw new Error(`Blender spawn failed: ${r.error.message}`);
   const elapsed = ((Date.now() - started) / 1000).toFixed(1);

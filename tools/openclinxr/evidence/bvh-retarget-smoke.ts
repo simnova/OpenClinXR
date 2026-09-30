@@ -22,6 +22,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
@@ -90,14 +91,39 @@ function parseArgs(argv: string[]): CliOptions {
 
 async function getBlenderVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execFileAsync("blender", ["--version"], { timeout: 30_000 });
+    const { stdout } = await withComputeSlot("blender", { label: "blender-version:bvh-retarget" }, () =>
+      execFileAsync("blender", ["--version"], { timeout: 30_000 }));
     return stdout.split("\n")[0]?.trim() ?? null;
   } catch {
     return null;
   }
 }
 
-type BakeResult = { exitCode: number; report: any | null; reportPath: string; glbBytes: number };
+type BakeDiagnostics = {
+  fingerprint?: string;
+  blockers?: string[];
+  [key: string]: unknown;
+};
+
+type BakeReport = {
+  diagnostics?: BakeDiagnostics;
+  [key: string]: unknown;
+};
+
+type SmokeReport = {
+  schemaVersion: string;
+  generatedAt: string;
+  claimScope: string;
+  providerBoundary: { localOnly: boolean; externalNetworkUsed: boolean; paidApiUsed: boolean };
+  tool: { command: string; package: string; version: string | null; license: string };
+  input: { mapSet: string; product: boolean; assertDeterministic: boolean; mesh: string };
+  bake: { exitCode: number | null; glbBytes: number; fingerprints: string[] };
+  diagnostics: BakeDiagnostics | null;
+  verdict: { passed: boolean; blockers: string[] };
+  notEvidenceFor: string[];
+};
+
+type BakeResult = { exitCode: number; report: BakeReport | null; reportPath: string; glbBytes: number };
 
 async function runBake(clip: ClipSet, outGlb: string, product: boolean): Promise<BakeResult> {
   const args = [
@@ -124,16 +150,18 @@ async function runBake(clip: ClipSet, outGlb: string, product: boolean): Promise
 
   let exitCode = 0;
   try {
-    await execFileAsync("blender", args, { timeout: BLENDER_TIMEOUT_MS, maxBuffer: 16 * 1024 * 1024 });
-  } catch (e: any) {
-    exitCode = typeof e?.code === "number" ? e.code : 1;
+    await withComputeSlot("blender", { label: "bvh-retarget-smoke" }, () =>
+      execFileAsync("blender", args, { timeout: BLENDER_TIMEOUT_MS, maxBuffer: 16 * 1024 * 1024 }));
+  } catch (error: unknown) {
+    const errorCode = (error as { code?: unknown })?.code;
+    exitCode = typeof errorCode === "number" ? errorCode : 1;
   }
   const reportPath = outGlb.replace(/\.glb$/, ".bvh-retarget-report.json");
-  let report: any = null;
+  let bakeReport: BakeReport | null = null;
   let glbBytes = 0;
-  if (existsSync(reportPath)) report = JSON.parse(await readFile(reportPath, "utf-8"));
+  if (existsSync(reportPath)) bakeReport = JSON.parse(await readFile(reportPath, "utf-8")) as BakeReport;
   if (existsSync(outGlb)) glbBytes = (await readFile(outGlb)).byteLength;
-  return { exitCode, report, reportPath, glbBytes };
+  return { exitCode, report: bakeReport, reportPath, glbBytes };
 }
 
 function structuralGlbBlockers(glbPath: string, bytes: Buffer | null): string[] {
@@ -151,13 +179,13 @@ function structuralGlbBlockers(glbPath: string, bytes: Buffer | null): string[] 
   return blockers;
 }
 
-async function buildReport(opts: CliOptions): Promise<any> {
+async function buildReport(opts: CliOptions): Promise<SmokeReport> {
   const clip = CLIP_SETS[opts.mapSet];
   if (!clip) throw new Error(`Unknown --map set: ${opts.mapSet} (have ${Object.keys(CLIP_SETS).join(",")})`);
   const blenderVersion = await getBlenderVersion();
   const blockers: string[] = [];
   if (!blenderVersion) {
-    return report({
+    return createReport({
       opts,
       blenderVersion: null,
       bakeExit: null,
@@ -170,7 +198,7 @@ async function buildReport(opts: CliOptions): Promise<any> {
 
   const tmp = await mkdtemp(path.join(os.tmpdir(), "bvh-smoke-"));
   const fingerprints: string[] = [];
-  let diagnostics: any = null;
+  let diagnostics: BakeDiagnostics | null = null;
   let bakeExit = 0;
   let glbBytes = 0;
   try {
@@ -200,18 +228,18 @@ async function buildReport(opts: CliOptions): Promise<any> {
     await rm(tmp, { recursive: true, force: true });
   }
 
-  return report({ opts, blenderVersion, bakeExit, diagnostics, glbBytes, fingerprints, blockers });
+  return createReport({ opts, blenderVersion, bakeExit, diagnostics, glbBytes, fingerprints, blockers });
 }
 
-function report(input: {
+function createReport(input: {
   opts: CliOptions;
   blenderVersion: string | null;
   bakeExit: number | null;
-  diagnostics: any;
+  diagnostics: BakeDiagnostics | null;
   glbBytes: number;
   fingerprints: string[];
   blockers: string[];
-}): any {
+}): SmokeReport {
   const uniqueBlockers = [...new Set(input.blockers)];
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -232,7 +260,8 @@ function report(input: {
   };
 }
 
-function validateReport(r: any): { ok: boolean; errors: string[] } {
+function validateReport(value: unknown): { ok: boolean; errors: string[] } {
+  const r = value as Partial<SmokeReport>;
   const errors: string[] = [];
   const req = (cond: boolean, msg: string) => { if (!cond) errors.push(msg); };
   req(r?.schemaVersion === SCHEMA_VERSION, `schemaVersion !== ${SCHEMA_VERSION}`);
@@ -256,7 +285,7 @@ async function main(): Promise<void> {
   if (opts.validatePath || opts.validateLatest) {
     const p = opts.validatePath ?? (await latestPath());
     if (!p) throw new Error("No bvh-retarget-smoke report to validate.");
-    const v = validateReport(await readJson<any>(p));
+    const v = validateReport(await readJson<unknown>(p));
     if (v.ok) { console.log(`Validated ${p}`); return; }
     for (const e of v.errors) console.error(`  ✗ ${e}`);
     process.exitCode = 1;

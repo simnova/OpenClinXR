@@ -38,6 +38,7 @@
  * Same-package relative imports only; not part of the reviewed public surface.
  */
 import { execFileSync } from "node:child_process";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { createHash } from "node:crypto";
 import {
   copyFileSync,
@@ -128,7 +129,8 @@ export function resolveInfinigenSource(): string {
 
 function queryBlenderVersion(blender: string): string | null {
   try {
-    const out = execFileSync(blender, ["--version"], { encoding: "utf8", timeout: 60_000 });
+    const out = withComputeSlotSync("blender", { label: "blender-version:room-chain-cache" }, () =>
+      execFileSync(blender, ["--version"], { encoding: "utf8", timeout: 60_000 }));
     const first = String(out).split("\n")[0]?.trim() ?? "";
     return first.length > 0 ? first : null;
   } catch {

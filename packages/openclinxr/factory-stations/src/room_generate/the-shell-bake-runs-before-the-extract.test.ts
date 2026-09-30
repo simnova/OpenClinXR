@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -204,7 +205,8 @@ else:
 
 async function runBlender(args: string[], cwd: string): Promise<string> {
   try {
-    const result = await execFileAsync("blender", args, { cwd, timeout: 600_000 });
+    const result = await withComputeSlot("blender", { label: "test:shell-bake-order", cwd }, () =>
+      execFileAsync("blender", args, { cwd, timeout: 600_000 }));
     return `${result.stdout}\n${result.stderr}`;
   } catch (error) {
     const failure = error as { stdout?: string; stderr?: string; message?: string };

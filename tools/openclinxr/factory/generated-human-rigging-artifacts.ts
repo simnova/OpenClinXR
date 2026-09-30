@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import {
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
@@ -909,21 +910,23 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
   const inputMesh = options.sourceObjPath || path.resolve("tools/openclinxr/asset-pipeline/anny/anny-neutral-generated-human.obj"); // may be produced by prepare step or seed
   const inputManifest = inputMesh.replace(/\.obj$/, "-manifest.json").replace(/\.glb$/, "-manifest.json");
 
-  await execFileAsync(blenderBin, [
-    "--background", "--python", automate, "--",
-    "--input-mesh", inputMesh,
-    "--input-manifest", inputManifest,
-    "--output-glb", options.glbPath,
-    "--case-id", isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v2",
-    "--actor-role", isPed ? "patient" : "patient",
-  ], { timeout: BLENDER_RIGGING_COMMAND_TIMEOUT_MS, maxBuffer: 20 * 1024 * 1024 });
+  await withComputeSlot("blender", { label: "generated-human-rigging-artifacts" }, () =>
+    execFileAsync(blenderBin, [
+      "--background", "--python", automate, "--",
+      "--input-mesh", inputMesh,
+      "--input-manifest", inputManifest,
+      "--output-glb", options.glbPath,
+      "--case-id", isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v2",
+      "--actor-role", isPed ? "patient" : "patient",
+    ], { timeout: BLENDER_RIGGING_COMMAND_TIMEOUT_MS, maxBuffer: 20 * 1024 * 1024 }));
 }
 
 async function readBlenderVersion(blenderPath: string): Promise<string> {
-  const { stdout } = await execFileAsync(blenderPath, ["--version"], {
-    timeout: 15_000,
-    maxBuffer: 1024 * 1024,
-  });
+  const { stdout } = await withComputeSlot("blender", { label: "blender-version:human-rigging" }, () =>
+    execFileAsync(blenderPath, ["--version"], {
+      timeout: 15_000,
+      maxBuffer: 1024 * 1024,
+    }));
   return stdout.split(/\r?\n/u)[0]?.trim() || "unknown";
 }
 

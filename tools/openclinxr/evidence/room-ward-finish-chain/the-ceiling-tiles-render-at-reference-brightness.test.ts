@@ -53,6 +53,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { type Browser, chromium, type Page } from "playwright";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -308,7 +309,7 @@ describe("the ceiling tiles render at the reference brightness", () => {
     await writeFixtureGlb(fixture);
     await writeFile(workGlb, await readFile(fixture));
     await writeFile(recipePath, recipeJson(), "utf8");
-    await execFileAsync(
+    await withComputeSlot("blender", { label: "test:ward-ceiling-brightness" }, () => execFileAsync(
       "blender",
       [
         "--background",
@@ -325,7 +326,7 @@ describe("the ceiling tiles render at the reference brightness", () => {
         reportPath,
       ],
       { timeout: 300_000 },
-    );
+    ));
     const bytes = await readFile(workGlb);
     const bundleJson = buildSceneClosureBundleJson();
 

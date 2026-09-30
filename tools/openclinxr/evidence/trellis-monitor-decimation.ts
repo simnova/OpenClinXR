@@ -33,6 +33,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { NodeIO, type Document } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 const require = createRequire(import.meta.url);
@@ -407,10 +408,10 @@ function rasterizeView(
     const fA = y2 - y0, fB = x0 - x2, fC = x2 * y0 - x0 * y2;
     const gA = y0 - y1, gB = x1 - x0, gC = x0 * y1 - x1 * y0;
 
-    for (let py = minY; py <= maxY; py++) {
-      const row = py * res;
+    for (let qy = minY; qy <= maxY; qy++) {
+      const row = qy * res;
       for (let qx = minX; qx <= maxX; qx++) {
-        const wx = qx + 0.5, wy = py + 0.5;
+        const wx = qx + 0.5, wy = qy + 0.5;
         const ee = eA * wx + eB * wy + eC;
         const ff = fA * wx + fB * wy + fC;
         const gg = gA * wx + gB * wy + gC;
@@ -660,11 +661,12 @@ function simplifySloppyPath(mesh: RawMesh, ratio: number): Uint32Array {
 /** Blender DECIMATE modifier via the existing benchmark script. */
 function blenderDecimate(mesh: RawMesh, inputPath: string, outputPath: string, ratio: number): Uint32Array | null {
   const blender = process.env["BLENDER_PATH"] || "/opt/homebrew/bin/blender";
-  const res = spawnSync(
-    blender,
-    ["--background", "--python", BLENDER_DECIMATE_SCRIPT, "--", "--input", inputPath, "--output", outputPath, "--ratio", String(ratio)],
-    { timeout: 240_000, encoding: "utf8" },
-  );
+  const res = withComputeSlotSync("blender", { label: "trellis-monitor-decimation" }, () =>
+    spawnSync(
+      blender,
+      ["--background", "--python", BLENDER_DECIMATE_SCRIPT, "--", "--input", inputPath, "--output", outputPath, "--ratio", String(ratio)],
+      { timeout: 240_000, encoding: "utf8" },
+    ));
   if (res.status !== 0) {
     console.warn(`[trellis-monitor-decimation] blender decimate failed: ${(res.stderr ?? "").slice(0, 500)}`);
     return null;

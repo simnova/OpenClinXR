@@ -32,6 +32,7 @@
  */
 
 import { spawn } from "node:child_process";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -149,18 +150,19 @@ function resolveBlender(): string {
 }
 
 function runBlender(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(resolveBlender(), args, { cwd: REPO_ROOT, env: process.env });
-    let stdout = "";
-    let stderr = "";
-    const timer = setTimeout(() => child.kill("SIGTERM"), 600_000);
-    child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString()));
-    child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      resolve({ code: code ?? 1, stdout, stderr });
-    });
-  });
+  return withComputeSlot("blender", { label: "bind-walk-clip-all", cwd: REPO_ROOT }, () =>
+    new Promise((resolve) => {
+      const child = spawn(resolveBlender(), args, { cwd: REPO_ROOT, env: process.env });
+      let stdout = "";
+      let stderr = "";
+      const timer = setTimeout(() => child.kill("SIGTERM"), 600_000);
+      child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString()));
+      child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        resolve({ code: code ?? 1, stdout, stderr });
+      });
+    }));
 }
 
 function runNode(tsxArgs: string[]): Promise<{ code: number; stdout: string; stderr: string }> {

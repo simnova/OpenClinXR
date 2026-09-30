@@ -1,0 +1,13 @@
+{
+  "entrypoints": {
+    ".": [
+      "ComputeSlotLease",
+      "ComputeSlotMeta",
+      "ComputeSlotPoolStatus",
+      "ComputeSlotsStatus",
+      "readComputeSlotsStatus",
+      "withComputeSlot",
+      "withComputeSlotSync"
+    ]
+  }
+}

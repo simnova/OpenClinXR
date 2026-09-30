@@ -48,6 +48,7 @@
  *
  * Header IMMUTABLE — append ## FIXED (#697).
  */
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -244,11 +245,12 @@ function renderSourceSet(force: boolean): void {
   }
   mkdirSync(SOURCE_SET_DIR, { recursive: true });
   process.stdout.write(`[conditioning] rendering ${SOURCE_SET_VIEWS.length}-view source set from ${glb}\n`);
-  const out = execFileSync(
-    blenderBinary(),
-    ["--background", "--python", RENDER_SOURCE_SET_SCRIPT, "--", "--glb", glb, "--out-dir", SOURCE_SET_DIR, "--resolution", "1024"],
-    { encoding: "utf8", cwd: REPO_ROOT, timeout: 1_800_000, maxBuffer: 20 * 1024 * 1024 },
-  );
+  const out = withComputeSlotSync("blender", { label: "trellis-conditioning-source-set", cwd: REPO_ROOT }, () =>
+    execFileSync(
+      blenderBinary(),
+      ["--background", "--python", RENDER_SOURCE_SET_SCRIPT, "--", "--glb", glb, "--out-dir", SOURCE_SET_DIR, "--resolution", "1024"],
+      { encoding: "utf8", cwd: REPO_ROOT, timeout: 1_800_000, maxBuffer: 20 * 1024 * 1024 },
+    ));
   process.stdout.write(out);
   const missing = validateSourceSet();
   if (missing.length > 0) {

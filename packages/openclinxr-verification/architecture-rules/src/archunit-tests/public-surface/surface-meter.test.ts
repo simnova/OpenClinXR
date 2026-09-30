@@ -114,15 +114,15 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 46 roots and 115 declared entrypoints", () => {
+  it("(1) the live tree discovers 47 roots and 116 declared entrypoints", () => {
     const report = measureSurface();
-    expect(report.totals.roots).toBe(46);
+    expect(report.totals.roots).toBe(47);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
-    // approval removes. Re-derived independently by counting `exports` keys in the 46 scoped
+    // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
     // counterfactual-debrief subpath was removed (unpublished post-review entrypoint).
     // The reviewed actor-audio-runtime subpath adds one declared entrypoint; root count is unchanged.
-    expect(report.totals.entrypoints).toBe(115);
+    expect(report.totals.entrypoints).toBe(116);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -149,7 +149,7 @@ describe("compiler-resolved surface meter", () => {
       expect(dirs, arena).toContain(arena);
     }
     const report = measureSurface();
-    expect(report.packages.length).toBe(46);
+    expect(report.packages.length).toBe(47);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

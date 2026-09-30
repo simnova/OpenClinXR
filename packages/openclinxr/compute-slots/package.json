@@ -1,5 +1,5 @@
 {
-  "name": "@openclinxr/factory-stations",
+  "name": "@openclinxr/compute-slots",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,10 +7,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./catalog": {
-      "types": "./dist/catalog.d.ts",
-      "default": "./dist/catalog.js"
     }
   },
   "scripts": {
@@ -20,23 +16,14 @@
     "build": "tsgo --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
-  "dependencies": {
-    "@openclinxr/compute-slots": "workspace:*",
-    "@gltf-transform/core": "^4.3.0",
-    "@gltf-transform/extensions": "^4.3.0",
-    "@gltf-transform/functions": "^4.3.0",
-    "meshoptimizer": "1.0.1"
-  },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
-    "@standard-schema/spec": "1.1.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "files": [
-    "dist",
-    "src/**/*.py"
+    "dist"
   ]
 }

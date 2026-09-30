@@ -28,6 +28,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import {
   examineLowerGarmentCandidates,
   isPermittedGarmentLicense,
@@ -300,7 +301,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; timeoutMs?: number } = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
+  const run = () => new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
     const child = spawn(command, args, {
       cwd: opts.cwd,
       env: process.env,
@@ -330,6 +331,9 @@ function runCmd(
       resolve({ code: code ?? 1, stdout, stderr });
     });
   });
+  return path.basename(command).toLowerCase().includes("blender")
+    ? withComputeSlot("blender", { label: "body-param-cli", cwd: opts.cwd }, run)
+    : run();
 }
 
 async function downloadIfNeeded(

@@ -5,6 +5,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { globFiles } from "../../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
@@ -173,11 +174,12 @@ export async function runBlenderBakeSmoke(input: {
 
   try {
     await writeFile(scriptPath, createBlenderBakePythonScript(outputPath, fixture), "utf8");
-    await execFileAsync("blender", ["--background", "--factory-startup", "--python", scriptPath], {
-      encoding: "utf8",
-      timeout: BLENDER_COMMAND_TIMEOUT_MS,
-      maxBuffer: 4 * 1024 * 1024,
-    });
+    await withComputeSlot("blender", { label: "blender-asset-bake-smoke" }, () =>
+      execFileAsync("blender", ["--background", "--factory-startup", "--python", scriptPath], {
+        encoding: "utf8",
+        timeout: BLENDER_COMMAND_TIMEOUT_MS,
+        maxBuffer: 4 * 1024 * 1024,
+      }));
     const glb = await readFile(outputPath);
 
     return buildBlenderBakeSmokeReportFromGlb({
@@ -591,11 +593,12 @@ bpy.ops.export_scene.gltf(
 }
 
 async function getBlenderVersion(): Promise<string> {
-  const { stdout } = await execFileAsync("blender", ["--version"], {
-    encoding: "utf8",
-    timeout: BLENDER_COMMAND_TIMEOUT_MS,
-    maxBuffer: 1024 * 1024,
-  });
+  const { stdout } = await withComputeSlot("blender", { label: "blender-version:bake-smoke" }, () =>
+    execFileAsync("blender", ["--version"], {
+      encoding: "utf8",
+      timeout: BLENDER_COMMAND_TIMEOUT_MS,
+      maxBuffer: 1024 * 1024,
+    }));
   return stdout.split("\n")[0]?.trim() ?? "unknown";
 }
 

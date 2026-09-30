@@ -785,7 +785,7 @@ export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResul
         ? []
         : packageIndexBriefSection(packagesNamedInIssue(issue, rules, treeRoot), treeRoot)),
       ...boardProtocolSection(issue.taskId),
-      `EXECUTION: Run builds, the room chain, captures and tests in the FOREGROUND and wait for them. Do not background a command and then sleep/poll it; sleep-polling cost 1.8 h of 12.9 h across the 2026-09-29 worker sessions (docs/agent-ops/worker-session-time-split-2026-09-29.md). Background only a server a later command needs (a dev server), and check it with a readiness probe, not a sleep loop.`,
+      `EXECUTION: Run builds, the room chain, captures and tests in the FOREGROUND and wait for them. Do not background a command and then sleep/poll it; sleep-polling cost 1.8 h of 12.9 h across the 2026-09-29 worker sessions (docs/agent-ops/worker-session-time-split-2026-09-29.md). Background only a server a later command needs (a dev server), and check it with a readiness probe, not a sleep loop. Heavy compute (Blender, capture) is queued by compute slots automatically; do not hand-count processes.`,
       ``,
       `VERIFY (stop at first failure): pnpm packages:typecheck:agent && pnpm architecture, then the`,
       `test task for every package you touched: pnpm exec turbo run test --filter <pkg> --force.`,

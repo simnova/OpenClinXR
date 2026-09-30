@@ -10,6 +10,7 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import {
   copyFileSync,
   existsSync,
@@ -266,7 +267,8 @@ function round3(n: number): number {
 
 function findBlender(): string {
   for (const c of ["blender", "/opt/homebrew/bin/blender", "/usr/local/bin/blender"]) {
-    const r = spawnSync(c, ["--version"], { encoding: "utf8" });
+    const r = withComputeSlotSync("blender", { label: "blender-version:hm08-upright" }, () =>
+      spawnSync(c, ["--version"], { encoding: "utf8" }));
     if (r.status === 0) return c;
   }
   throw new Error("blender not found on PATH");
@@ -330,11 +332,12 @@ function runExport(
     "--force-z-up",
     spec.forceZUp ? "true" : "false",
   ];
-  const r = spawnSync(blender, args, {
-    encoding: "utf8",
-    maxBuffer: 20 * 1024 * 1024,
-    cwd: REPO_ROOT,
-  });
+  const r = withComputeSlotSync("blender", { label: "hm08-upright-export", cwd: REPO_ROOT }, () =>
+    spawnSync(blender, args, {
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+      cwd: REPO_ROOT,
+    }));
   let report: Record<string, unknown> = {
     exitCode: r.status,
     stderrTail: (r.stderr ?? "").slice(-2000),
