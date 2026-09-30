@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "openclinxr.room-chain-visual-comparison.v1",
+  "mainRevision": "0d8257c90af28df5da115f183915dde42f1d91d0",
+  "mainGlbSha256": "afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e",
+  "candidateGlbSha256": "70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833",
+  "sharedRigSha256": "a0391d4eefc7bb5c019dedda7e4b406c357afba02f8c10249bc9cec461569ff6",
+  "posesSha256": "40bc9cc2a673c7993acb50ea1a29a91f8858409a7765dc482311f6edd90858d7",
+  "control": "Identical learner runtime and candidate lighting rig in both arms; only the GLB changes. Main bytes served at the learner asset URL by a route override; candidate uses the shipped learner URL. Standard producer hides UI/non-room meshes in both arms.",
+  "notEvidenceFor": [
+    "old-versus-new lighting rig equivalence",
+    "Quest readiness",
+    "clinical validity"
+  ],
+  "metric": "all pixels, all RGB channels; no crop/mask/registration",
+  "thresholdMean255": 0.5,
+  "poses": [
+    {
+      "pose": "runtime-01-toward-door",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0.0000010850694444444444,
+      "maxAbsDiff255": 1,
+      "meanAbsDiffNormalized": 4.2551742919389976e-9,
+      "maxAbsDiffNormalized": 0.00392156862745098,
+      "passed": true
+    },
+    {
+      "pose": "runtime-02-toward-bed-wall",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0,
+      "maxAbsDiff255": 0,
+      "meanAbsDiffNormalized": 0,
+      "maxAbsDiffNormalized": 0,
+      "passed": true
+    },
+    {
+      "pose": "runtime-03-ceiling-corner",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0,
+      "maxAbsDiff255": 0,
+      "meanAbsDiffNormalized": 0,
+      "maxAbsDiffNormalized": 0,
+      "passed": true
+    },
+    {
+      "pose": "runtime-04-door-inside",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0.0000014467592592592592,
+      "maxAbsDiff255": 1,
+      "meanAbsDiffNormalized": 5.67356572258533e-9,
+      "maxAbsDiffNormalized": 0.00392156862745098,
+      "passed": true
+    },
+    {
+      "pose": "runtime-05-troffer-junction",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0,
+      "maxAbsDiff255": 0,
+      "meanAbsDiffNormalized": 0,
+      "maxAbsDiffNormalized": 0,
+      "passed": true
+    },
+    {
+      "pose": "runtime-06-floor-base",
+      "width": 1280,
+      "height": 720,
+      "meanAbsDiff255": 0,
+      "maxAbsDiff255": 0,
+      "meanAbsDiffNormalized": 0,
+      "maxAbsDiffNormalized": 0,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

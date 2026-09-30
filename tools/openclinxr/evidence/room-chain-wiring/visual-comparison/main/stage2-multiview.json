@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T/room-main-capture-phPuVI/main.glb",
+  "mechanism": "playwright-route-override",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-01-toward-door.png",
+      "pngBytes": 684280,
+      "pngSha256": "055d16c4e84c68100674409c6ae9bd7e765cb022c3816938cc48a488090fd231"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-02-toward-bed-wall.png",
+      "pngBytes": 641938,
+      "pngSha256": "548178d920731a6c2dede794a143ef398f798f2fd392765717b9649f55639c61"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-03-ceiling-corner.png",
+      "pngBytes": 1120663,
+      "pngSha256": "99a3bdf2fed28985c78596b1928c5c59abc92aaa4c9c79a539e297a0d29b49c8"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.6,
+        "y": 1.5,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.25,
+        "z": -1.8
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-04-door-inside.png",
+      "pngBytes": 739606,
+      "pngSha256": "ab8593a0f37bc5e60f38e06d7bc5bd0e48c87cbe8c302afe304a11b48fbf72ae"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-05-troffer-junction.png",
+      "pngBytes": 1086002,
+      "pngSha256": "0a6db54f939003b446a83fff3af96d6191a60e81aba348b4759f739171a12578"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.32,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0,
+        "y": -0.05,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/tools/openclinxr/evidence/room-chain-wiring/visual-comparison/main/runtime-06-floor-base.png",
+      "pngBytes": 758834,
+      "pngSha256": "6c070fbaf44cb0913e3687f66ff84868be46f54d5c71ba04d82e99f2ea958a05"
+    }
+  ]
+}
