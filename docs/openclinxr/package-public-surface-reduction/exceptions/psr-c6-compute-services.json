@@ -1,0 +1,22 @@
+{
+  "id": "psr-c6-compute-services",
+  "reviewedSourceCandidate": "",
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1254,
+      "threshold": 1000,
+      "owner": "compute facade implementation worker",
+      "reviewedBy": "",
+      "reason": "The compute facade adds two explicit one-entrypoint packages and 20 reviewed symbols to the measured 1234-symbol tree: nine infrastructure-neutral contracts in compute-services-spec and createLocalComputeServices, its options type, and the nine re-exported contracts in service-local-compute. The coordinator must independently review this exact source candidate before criterion 6 can accept it."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 23,
+      "threshold": 15,
+      "owner": "compute facade implementation worker",
+      "reviewedBy": "",
+      "reason": "Adding two small reviewed roots changes the population from 47 to 49 packages and lowers the measured median from 24 to 23. The verifier still requires independent review of the exact measurement; reviewedBy is intentionally empty for coordinator review."
+    }
+  ]
+}

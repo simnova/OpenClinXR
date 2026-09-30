@@ -1,8 +1,8 @@
-import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import type { BlenderDevice, ComputeProcessResult } from "@openclinxr/compute-services-spec";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute";
 import { repoRoot } from "../repo-root.js";
 
 export const ROOM_GENERATE_MODULE_REL =
@@ -83,51 +83,22 @@ export type InfinigenGenerateReport = {
   durationsMs: Record<string, number>;
 };
 
-function spawnProcess(
-  cmd: string,
-  args: string[],
-  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined> },
-): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(cmd, args, {
-      cwd: opts.cwd,
-      env: { ...process.env, ...opts.env },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    let stdout = "";
-    let stderr = "";
-    const timer =
-      opts.timeoutMs > 0
-        ? setTimeout(() => {
-            child.kill("SIGTERM");
-            setTimeout(() => child.kill("SIGKILL"), 5_000).unref();
-          }, opts.timeoutMs)
-        : null;
-    child.stdout.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString("utf8");
-    });
-    child.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString("utf8");
-    });
-    child.on("error", (err: Error) => {
-      if (timer) clearTimeout(timer);
-      resolve({ code: 127, stdout, stderr: `${stderr}\n${String(err)}` });
-    });
-    child.on("close", (code: number | null) => {
-      if (timer) clearTimeout(timer);
-      resolve({ code: code ?? 1, stdout, stderr });
-    });
-  });
-}
-
 function spawnBlenderPass(
   label: string,
   cmd: string,
   args: string[],
-  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined> },
-): Promise<{ code: number; stdout: string; stderr: string }> {
-  return withComputeSlot("blender", { label: `room-generate:${label}`, cwd: opts.cwd }, () =>
-    spawnProcess(cmd, args, opts));
+  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined>; device?: BlenderDevice },
+): Promise<ComputeProcessResult> {
+  return createLocalComputeServices({
+    cwd: opts.cwd,
+    ...(opts.env === undefined ? {} : { env: opts.env }),
+  }).blender.run({
+    script: cmd,
+    args,
+    label: `room-generate:${label}`,
+    timeoutMs: opts.timeoutMs,
+    ...(opts.device === undefined ? {} : { device: opts.device }),
+  });
 }
 
 function lastLineJson(stdout: string): Record<string, unknown> {
@@ -375,10 +346,8 @@ export async function runInfinigenGenerate(
       // with byte-identical baked pixels and <=0.08/255 CPU-vs-Metal mean
       // difference on the seed-205 ward. The script fails closed when no
       // Metal device exists.
-      "--device",
-      "metal",
     ],
-    { cwd: options.cwd ?? root, timeoutMs },
+    { cwd: options.cwd ?? root, timeoutMs, device: "metal" },
   );
   durationsMs["shellBakeMs"] = Date.now() - started;
   if (shellBaked.code !== 0 || !existsSync(workBlend)) {

@@ -1,0 +1,32 @@
+{
+  "package": "service-local-compute",
+  "name": "@openclinxr/service-local-compute",
+  "entrypoint": "packages/openclinxr/service-local-compute/src/index.ts",
+  "purpose": "Local infrastructure for compute-service contracts: slotted processes and browser capture.",
+  "exports": [
+    "BlenderDevice",
+    "BlenderRunRequest",
+    "BlenderService",
+    "ComputeProcessResult",
+    "ComputeServices",
+    "GpuJobRunRequest",
+    "GpuJobService",
+    "LocalComputeServicesOptions",
+    "SceneCaptureService",
+    "ServiceBase",
+    "createLocalComputeServices"
+  ],
+  "workspaceDependencies": [
+    "@openclinxr/compute-services-spec",
+    "@openclinxr/compute-slots"
+  ],
+  "tests": [
+    "src/local-compute.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/service-local-compute test",
+    "typecheck": "pnpm --filter @openclinxr/service-local-compute typecheck",
+    "build": "pnpm --filter @openclinxr/service-local-compute build",
+    "lint": "pnpm --filter @openclinxr/service-local-compute lint"
+  }
+}

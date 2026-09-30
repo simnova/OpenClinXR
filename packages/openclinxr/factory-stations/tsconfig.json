@@ -19,7 +19,13 @@
   ],
   "references": [
     {
+      "path": "../compute-services-spec"
+    },
+    {
       "path": "../compute-slots"
+    },
+    {
+      "path": "../service-local-compute"
     }
   ]
 }

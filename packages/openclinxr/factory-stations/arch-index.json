@@ -34,7 +34,9 @@
     "writeLipSyncFixtureWav"
   ],
   "workspaceDependencies": [
-    "@openclinxr/compute-slots"
+    "@openclinxr/compute-services-spec",
+    "@openclinxr/compute-slots",
+    "@openclinxr/service-local-compute"
   ],
   "tests": [
     "src/clothing_consume/the-clothing-consume-station-builds-per-actor-bodies.test.ts",

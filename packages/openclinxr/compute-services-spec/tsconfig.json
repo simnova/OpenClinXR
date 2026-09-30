@@ -1,0 +1,13 @@
+{
+  "extends": "@cellix/config-typescript/base",
+  "compilerOptions": {
+    "rootDir": "src",
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist"]
+}

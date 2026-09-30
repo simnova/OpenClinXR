@@ -1,0 +1,25 @@
+{
+  "package": "compute-services-spec",
+  "name": "@openclinxr/compute-services-spec",
+  "entrypoint": "packages/openclinxr/compute-services-spec/src/index.ts",
+  "purpose": "Infrastructure-neutral contracts for expensive Blender, ML/GPU, and scene-capture work.",
+  "exports": [
+    "BlenderDevice",
+    "BlenderRunRequest",
+    "BlenderService",
+    "ComputeProcessResult",
+    "ComputeServices",
+    "GpuJobRunRequest",
+    "GpuJobService",
+    "SceneCaptureService",
+    "ServiceBase"
+  ],
+  "workspaceDependencies": [],
+  "tests": [],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/compute-services-spec test",
+    "typecheck": "pnpm --filter @openclinxr/compute-services-spec typecheck",
+    "build": "pnpm --filter @openclinxr/compute-services-spec build",
+    "lint": "pnpm --filter @openclinxr/compute-services-spec lint"
+  }
+}

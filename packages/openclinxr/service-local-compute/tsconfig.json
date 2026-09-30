@@ -1,0 +1,17 @@
+{
+  "extends": "@cellix/config-typescript/node",
+  "compilerOptions": {
+    "rootDir": "src",
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts", "dist"],
+  "references": [
+    { "path": "../compute-services-spec" },
+    { "path": "../compute-slots" }
+  ]
+}

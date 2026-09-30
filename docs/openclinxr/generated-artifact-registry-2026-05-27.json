@@ -23884,6 +23884,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-services.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Pending independent review of compute-services public-surface measurements; preserves the exact candidate measurements for coordinator review."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-slots.json",
       "authority": "keep-evidence",
       "tracked": true,

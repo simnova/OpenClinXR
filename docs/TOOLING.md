@@ -141,6 +141,21 @@ Run `pnpm compute:slots` to see holders and waiters, or `pnpm compute:slots -- -
 output. Briefs no longer need the manual Blender-process-count rule: compute-heavy work queues
 automatically.
 
+## Compute services
+
+Application and factory code reaches heavy local compute through the interfaces in
+`@openclinxr/compute-services-spec`. The local infrastructure implementation is
+`@openclinxr/service-local-compute`; it owns subprocess and Chromium launch, compute-slot
+acquisition, timeouts, Blender's fail-closed `--python-exit-code 1`, device arguments, and the
+slot usage log. The spec stays free of Node APIs and does not import Cellix API-core: factory
+stations are pipeline tools, not an API application.
+
+Put every new Blender, ML-venv Python, or 3D Chromium launcher in `service-local-compute`, then
+inject or obtain the relevant `BlenderService`, `GpuJobService`, or `SceneCaptureService` facade.
+The architecture rule `heavy-compute-launches-use-the-facade` scans every other TypeScript file
+and freezes existing direct launches at an exact shrink-only ceiling. Migrating a legacy site
+must lower that ceiling; adding or raising it to accommodate a new direct launcher is forbidden.
+
 ## Package / turbo scripts (agent vs human)
 
 OpenClinXR keeps **boundaries**, package tags, and `--affected` scripts. From ATL we adopt **quiet turbo logs for agents only** — not multi-app `portless` orchestration.
