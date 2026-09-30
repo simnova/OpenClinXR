@@ -76,6 +76,7 @@ TROFFER_DIFFUSER_TEXTURE_FILE = "troffer-diffuser-gradient.png"
 DOOR_LEAF_FILE = "door-maple-leaf.jpg"
 DOOR_NORMAL_FILE = "door-maple-normal.png"
 DOOR_ROUGHNESS_FILE = "door-maple-roughness.png"
+DOOR_GLASS_TEXTURE_FILE = "door-glass-reflection.png"
 # Object-space tiling scale. floor-vinyl.jpg is a representative sheet-vinyl
 # patch, so one repeat spans 1.2 m (same convention as the ward-finish
 # lineage's FLOOR_OBJECT_SCALE). Only the kept door leaf still uses
@@ -1046,14 +1047,12 @@ def _door_steel_material():
 
 
 def _door_glass_material():
-    """Vision-lite glass: dark tinted, low roughness, partly transparent.
+    """Vision-lite glass with a light, deterministic reflected corridor field.
 
-    NOT transmission: the ui-xr runtime loads GLBs with a stock three.js
-    GLTFLoader and sets no scene environment, so KHR_materials_transmission
-    renders as an opaque beige slab (measured on the seed-205 captures).
-    Nothing is built behind the opening, so per the grade the pane reads
-    as dark glass instead: near-black blue-grey albedo, roughness 0.06
-    for a specular streak, alpha blend 0.9.
+    The learner runtime has no scene environment for transmission, so a
+    transmissive slab is not a reliable glass cue.  A UV-authored blue-grey
+    reflection texture plus low roughness survives glTF and supplies both
+    the light pane value and the non-flat variation visible in the reference.
     """
     import bpy  # type: ignore[import-not-found]
 
@@ -1061,24 +1060,39 @@ def _door_glass_material():
     if mat is None:
         mat = bpy.data.materials.new(name=DOOR_GLASS_MATERIAL)
     mat.use_nodes = True
-    # BLEND exports alphaMode=BLEND; the Alpha socket exports the
-    # baseColorFactor alpha. Opaque would also read dark, but the grade
-    # directs partly-transparent.
-    mat.blend_method = "BLEND"
     nt = mat.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Base Color"].default_value = (0.07, 0.09, 0.12, 1.0)
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = _load_photo_image(_texture_path(DOOR_GLASS_TEXTURE_FILE))
+    tex.extension = "CLIP"
+    uv = nt.nodes.new("ShaderNodeTexCoord")
+    nt.links.new(uv.outputs["UV"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Metallic"].default_value = 0.0
-    bsdf.inputs["Roughness"].default_value = 0.06
-    if "Alpha" in bsdf.inputs:
-        bsdf.inputs["Alpha"].default_value = 0.9
+    bsdf.inputs["Roughness"].default_value = 0.12
     for key in ("Transmission Weight", "Transmission"):
         if key in bsdf.inputs:
             bsdf.inputs[key].default_value = 0.0
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
+
+
+def _assign_face_uv(obj, u_axis: int, v_axis: int) -> None:
+    """Map a box by two world axes so its room face spans UV 0..1."""
+    mesh = obj.data
+    uv_layer = mesh.uv_layers.new(name="UVMap")
+    coords = [obj.matrix_world @ vertex.co for vertex in mesh.vertices]
+    u0, u1 = min(v[u_axis] for v in coords), max(v[u_axis] for v in coords)
+    v0, v1 = min(v[v_axis] for v in coords), max(v[v_axis] for v in coords)
+    for poly in mesh.polygons:
+        for loop_index in poly.loop_indices:
+            co = coords[mesh.loops[loop_index].vertex_index]
+            uv_layer.data[loop_index].uv = (
+                (co[u_axis] - u0) / max(u1 - u0, 1e-9),
+                (co[v_axis] - v0) / max(v1 - v0, 1e-9),
+            )
 
 
 def _door_casing_material(rgb: tuple, roughness: float):
@@ -1472,6 +1486,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         size[va] = (v1 - v0) + 2 * LITE_GLASS_OVERLAP_M
         size[thin] = LITE_GLASS_THICK_M
         glass_obj = new_box("openclinxr_door_glass", center, size, glass_m)
+        _assign_face_uv(glass_obj, ua, va)
         furnished["glass"].append(glass_obj.name)
         # Steel lite frame: four rails on the room-side face around the
         # opening, proud of the leaf face.
