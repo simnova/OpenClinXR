@@ -12,7 +12,7 @@ import {
 const out = process.env["SHIP_WARD_OUT"] ?? "docs/openclinxr/room-realism/ship-ward-room";
 const asset = "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb";
 const rig = "apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json";
-const chain = ".openclinxr/evidence/ward-finish-chain";
+const chain = process.env["SHIP_WARD_CHAIN_OUT"] ?? ".openclinxr/evidence/ward-finish-chain";
 const seed = Number(process.env["SHIP_WARD_SEED"] ?? "205");
 const digest = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 if (digest(asset) !== digest(`${chain}/infinigen-inpatient-ward.chain.glb`) ||

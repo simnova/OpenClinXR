@@ -1,5 +1,8 @@
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { canonicalizeRoomDoors } from "../room_generate/simplify.js";
 import { repoRoot } from "../repo-root.js";
 import type { StandardFailureResult, StandardResult } from "../catalog-mod.js";
 
@@ -144,6 +147,15 @@ export async function runRoomClinicFinish(
     cwd: options.cwd ?? repoRoot(),
     timeoutMs: options.timeoutMs ?? 600_000,
   });
+  if (result.code === 0 && !result.timedOut) {
+    // Blender's exporter can split equivalent door corners differently across
+    // processes. Publish canonical complete vertex tuples and oriented faces,
+    // not that incidental index topology. No positions/UVs/normals are rounded.
+    const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+    const document = await io.read(options.workGlb);
+    canonicalizeRoomDoors(document);
+    await io.write(options.workGlb, document);
+  }
   return {
     stationId: "room_clinic_finish",
     stageScript,

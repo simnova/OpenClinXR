@@ -1,0 +1,37 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "room-chain-wiring-v1",
+  "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "ebe6ead21077e5f0de1c71c2f7ebb679f356cb61a8716464859a14ce66f1bf74",
+  "packages": [
+    "packages/openclinxr/factory-stations"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./room-chain",
+      "symbol": "ROOM_CHAIN_RECIPES",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "room-chain-wiring implementation worker",
+      "rationale": "The dark-factory multi-case runner and room promotion command select the registered environment recipe through the supported room-chain subpath. Single ward preset/door/seed contract; no lip-sync loader or deep import bridge.",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./room-chain",
+      "symbol": "runRoomChain",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "room-chain-wiring implementation worker",
+      "rationale": "The dark-factory multi-case runner and room promotion command execute the deterministic cached room chain by library call; public-entrypoint tests exercise cwd independence without publishing private cache or CLI helpers.",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30"
+    }
+  ],
+  "reviewedSourceCandidate": "49286f658cf0ddc7b41590b75b1cb09c49bbc05a",
+  "sourceCandidateKind": "git-tree",
+  "sourceCandidateNote": "Exact source tree before unsigned subpath review-metadata updates; prior root-entrypoint signature invalidated by the coordinator. All implementation files match the new candidate.",
+  "frozenReviewGroup": "psr-01e",
+  "activation": "Activated after independent re-review of ./room-chain at source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a. Coordinator reviewedBy text preserved; admissionHash recomputed and explicit allowlist/hash tests activated."
+}

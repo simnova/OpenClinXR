@@ -69,14 +69,14 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer,
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
-import { chromium, type Page } from "../lib/slotted-playwright.js";
+import type { Browser, Page } from "playwright";
 import {
   buildSceneClosureBundleJson,
   buildSceneClosureUrl,
@@ -362,18 +362,8 @@ async function main(): Promise<void> {
   try {
     const runningServer = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
     server = runningServer;
-    await withComputeSlot("browser-capture", { label: "ward-finish-chain-capture", cwd: process.cwd() }, async () => {
-      const browser = await chromium.launch({
-        headless: true,
-        args: [
-          "--disable-gpu-vsync",
-          "--disable-frame-rate-limit",
-          "--use-angle=metal",
-          "--enable-gpu-rasterization",
-          "--ignore-gpu-blocklist",
-        ],
-      });
-      try {
+    await createLocalComputeServices().sceneCapture.withBrowser("ward-finish-chain-capture", async (handle) => {
+      const browser = handle as Browser;
         const page = await browser.newPage({ viewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT } });
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
@@ -531,9 +521,6 @@ async function main(): Promise<void> {
       "utf8",
     );
         process.stdout.write("[done] stage-2 multiview captured\n");
-      } finally {
-        await browser.close();
-      }
     });
   } finally {
     if (server) await stopPortlessDevServer(server.proc);

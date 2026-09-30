@@ -5,8 +5,8 @@
  * ONE work GLB for `inpatient_ward_room_v1`, then reports per-stage material
  * state. The three stage runners are imported by RELATIVE PATH from their
  * sibling station folders: this module lives inside `@openclinxr/factory-stations`,
- * so those imports never cross a package boundary and are not part of the
- * package's reviewed public surface (`index.ts` stays untouched).
+ * so those imports never cross a package boundary. The entrypoint publishes
+ * only runRoomChain and ROOM_CHAIN_RECIPES for case runners and promotion.
  *
  * Step 1 (room_generate): fixed-footprint Infinigen GENERATE with the
  * room-dimensions-fix pin (footprint 4.3 x 3.9 x 2.4, door wall +y offset

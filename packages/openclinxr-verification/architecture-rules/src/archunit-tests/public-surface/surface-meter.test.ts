@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 49 roots and 118 declared entrypoints", () => {
+  it("(1) the live tree discovers 49 roots and 119 declared entrypoints", () => {
     const report = measureSurface();
     expect(report.totals.roots).toBe(49);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
@@ -123,7 +123,8 @@ describe("compiler-resolved surface meter", () => {
     // counterfactual-debrief subpath was removed (unpublished post-review entrypoint).
     // The reviewed actor-audio-runtime subpath adds one declared entrypoint; root count is unchanged.
     // compute-services-spec and service-local-compute each add one reviewed root entrypoint.
-    expect(report.totals.entrypoints).toBe(118);
+    // The independently reviewed room-chain tools add one isolated subpath.
+    expect(report.totals.entrypoints).toBe(119);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

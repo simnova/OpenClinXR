@@ -5,15 +5,6 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
-/** In-process factory-tool bridge without widening the reviewed package entrypoint. */
-export async function loadRoomChainLibrary() {
-  const [recipes, runner] = await Promise.all([
-    import(`../room_chain/${"recipes"}.js`),
-    import(`../room_chain/${"run"}.js`),
-  ]);
-  return { ROOM_CHAIN_RECIPES: recipes.ROOM_CHAIN_RECIPES, runRoomChain: runner.runRoomChain };
-}
-
 const execFileAsync = promisify(execFile);
 
 /** Apple Speech Synthesis default for `say` (words per minute). */

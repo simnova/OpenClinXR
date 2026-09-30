@@ -8,6 +8,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./room-chain": {
+      "types": "./dist/room-chain.d.ts",
+      "default": "./dist/room-chain.js"
+    },
     "./catalog": {
       "types": "./dist/catalog.d.ts",
       "default": "./dist/catalog.js"

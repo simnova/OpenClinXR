@@ -30,6 +30,7 @@
       "runStaging",
       "writeLipSyncFixtureWav"
     ],
+    "./room-chain": ["ROOM_CHAIN_RECIPES", "runRoomChain"],
     "./catalog": [
       "ProductionStationId",
       "factoryStationSchemas",

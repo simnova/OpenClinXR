@@ -219,7 +219,9 @@ function parseLightingInput(value: Record<string, unknown>): { issues: string[] 
   if (issues.length > 0) return { issues };
   const room: { environmentId?: string; roomGlbPath?: string } = {};
   if (typeof environmentId === "string") room.environmentId = environmentId;
-  if (typeof roomGlbPath === "string") room.roomGlbPath = roomGlbPath;
+  // A transport location is not room identity. Keep the portable filename in
+  // both the seeded design input and the published rig, never the output dir.
+  if (typeof roomGlbPath === "string") room.roomGlbPath = path.basename(roomGlbPath);
   return {
     parsed: {
       room,
@@ -389,7 +391,8 @@ export async function runLightingDesign(
   }
   const rig = designLightingRig(planned.value);
   writeFileSync(options.outRigJson, `${JSON.stringify(rig, null, 2)}\n`, "utf8");
-  const roomGlb = options.roomGlb ?? rig.room.roomGlbPath;
+  const roomGlb = options.roomGlb ?? (typeof planned.value["roomGlbPath"] === "string"
+    ? planned.value["roomGlbPath"] : undefined);
   const blenderArgs = [
     "--background",
     "--python",

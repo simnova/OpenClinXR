@@ -2,10 +2,17 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
-import { parseWardChainArgs, resolveChainOutDir } from "./run.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ROOM_CHAIN_RECIPES, runRoomChain } from "@openclinxr/factory-stations/room-chain";
 
-/** Repo root without importing the station internals (keeps the test import ceiling flat). */
+// Observe the public runner's first filesystem boundary, before any compute.
+// This preserves the cwd regression without publishing private CLI helpers.
+const boundary = vi.hoisted(() => ({ mkdir: vi.fn(), stopped: new Error("output-boundary-observed") }));
+vi.mock("node:fs/promises", async (original) => ({
+  ...await original<typeof import("node:fs/promises")>(),
+  mkdir: boundary.mkdir,
+}));
+
 function findRepoRoot(): string {
   let dir = path.dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 12; i += 1) {
@@ -15,80 +22,51 @@ function findRepoRoot(): string {
   throw new Error("repo root not found");
 }
 
-/**
- * Third fix in the 44824ba98 -> 9962c6f52 sequence. 44824ba98 made
- * runRoomGenerate resolve its relative workGlb against repoRoot()
- * (options.cwd ?? repoRoot()); 9962c6f52 absolutized room_chain's outDir
- * but against process.cwd(), which is the PACKAGE directory under
- * `pnpm --filter @openclinxr/factory-stations exec tsx src/room_chain/cli.ts`
- * (the real chain invocation shape). A relative --out-dir therefore landed
- * evidence under packages/openclinxr/factory-stations/.openclinxr/evidence/...
- * while runRoomGenerate resolved the same relative workGlb under the repo
- * root -- two modules, one relative string, two different absolute files.
- *
- * This test reproduces it directly: chdir to a directory that is NOT
- * repoRoot() (as `pnpm --filter ... exec` does), run the CLI's own
- * arg-parsing + resolution path (parseWardChainArgs + resolveChainOutDir,
- * the exact expressions runWardFinishChain uses before deriving workGlb),
- * and assert the resolved outDir is under the repo root -- the same base
- * room_generate uses -- not under process.cwd().
- *
- * room_chain/run.ts is not reachable from the package entrypoint, so this
- * direct import pins nothing public and the test-import ceiling is flat.
- */
-
 let originalCwd: string | null = null;
 let tempCwd: string | null = null;
-
 afterEach(() => {
   if (originalCwd) process.chdir(originalCwd);
   if (tempCwd) rmSync(tempCwd, { recursive: true, force: true });
   originalCwd = null;
   tempCwd = null;
+  boundary.mkdir.mockReset();
 });
 
-describe("runWardFinishChain resolves outDir against repoRoot(), not process.cwd()", () => {
-  it("resolves a relative --out-dir under the repo root when cwd is elsewhere", () => {
+async function outputDirectory(outDir?: string): Promise<string> {
+  boundary.mkdir.mockRejectedValue(boundary.stopped);
+  await expect(runRoomChain({
+    environmentId: ROOM_CHAIN_RECIPES.inpatient_ward_room_v1.environmentId,
+    ...(outDir === undefined ? {} : { outDir }),
+  })).rejects.toBe(boundary.stopped);
+  return boundary.mkdir.mock.lastCall?.[0] as string;
+}
+
+describe("the public room chain resolves outDir against repoRoot(), not process.cwd()", () => {
+  it("resolves a relative output directory under the repo root from another cwd", async () => {
     const root = findRepoRoot();
     originalCwd = process.cwd();
-    // A directory that is NOT repoRoot(), mirroring `pnpm --filter <pkg>
-    // exec` setting cwd to the package directory.
     tempCwd = mkdtempSync(path.join(tmpdir(), "outdir-cwd-probe-"));
     process.chdir(tempCwd);
-    expect(process.cwd()).not.toBe(root);
-
-    const rel = ".openclinxr/evidence/ward-finish-chain";
-    const { outDir: outDirArg } = parseWardChainArgs(["--out-dir", rel]);
-    const outDir = resolveChainOutDir(outDirArg);
-
-    expect(outDir).toBe(path.resolve(root, rel));
-    expect(path.relative(root, outDir).startsWith("..")).toBe(false);
-    expect(path.relative(tempCwd, outDir).startsWith("..")).toBe(true);
+    const relative = ".openclinxr/evidence/ward-finish-chain";
+    expect(await outputDirectory(relative)).toBe(path.resolve(root, relative));
   });
 
-  it("resolves the default outDir to the same base regardless of cwd", () => {
+  it("resolves the default output directory to the same base regardless of cwd", async () => {
     const root = findRepoRoot();
     originalCwd = process.cwd();
     tempCwd = mkdtempSync(path.join(tmpdir(), "outdir-cwd-probe-"));
-
-    const { outDir: defaultArg } = parseWardChainArgs([]);
     process.chdir(tempCwd);
-    const fromTmp = resolveChainOutDir(defaultArg);
+    const fromTmp = await outputDirectory();
     process.chdir(root);
-    const fromRoot = resolveChainOutDir(defaultArg);
-
-    expect(fromTmp).toBe(fromRoot);
-    expect(fromTmp).toBe(path.resolve(root, defaultArg));
+    expect(await outputDirectory()).toBe(fromTmp);
+    expect(fromTmp).toBe(path.join(root, ".openclinxr/evidence/ward-finish-chain"));
   });
 
-  it("passes an absolute --out-dir through unchanged", () => {
-    const root = findRepoRoot();
+  it("passes an absolute output directory through unchanged", async () => {
     originalCwd = process.cwd();
     tempCwd = mkdtempSync(path.join(tmpdir(), "outdir-cwd-probe-"));
     process.chdir(tempCwd);
-
-    const abs = path.join(root, ".openclinxr/evidence/ward-finish-chain");
-    const { outDir: outDirArg } = parseWardChainArgs(["--out-dir", abs]);
-    expect(resolveChainOutDir(outDirArg)).toBe(abs);
+    const absolute = path.join(tempCwd, "output");
+    expect(await outputDirectory(absolute)).toBe(absolute);
   });
 });

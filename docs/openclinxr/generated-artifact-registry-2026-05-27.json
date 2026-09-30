@@ -24222,6 +24222,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-room-chain-wiring.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently signed room-chain subpath public-surface candidate and updated exact measurements."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/raw-inventory.json",
       "authority": "keep-evidence",
       "tracked": true,

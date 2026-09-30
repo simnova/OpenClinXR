@@ -1,0 +1,53 @@
+{
+  "id": "psr-room-chain-wiring",
+  "reviewedSourceCandidate": "49286f658cf0ddc7b41590b75b1cb09c49bbc05a",
+  "sourceCandidateKind": "git-tree",
+  "sourceCandidateNote": "Exact source tree before unsigned subpath review-metadata updates; prior root-entrypoint signature invalidated by the coordinator. All implementation files match the new candidate.",
+  "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30",
+  "requestedExports": [
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./room-chain",
+      "symbol": "ROOM_CHAIN_RECIPES",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": "./room-chain",
+      "symbol": "runRoomChain",
+      "kind": "runtime"
+    }
+  ],
+  "measurements": {
+    "roots": 49,
+    "entrypoints": 119,
+    "rootSymbols": 1245,
+    "occurrences": 1489,
+    "uniqueSymbols": 1469,
+    "duplicateNames": 20,
+    "median": 23,
+    "factoryStationsRootSymbols": 28,
+    "factoryStationsOccurrences": 33,
+    "factoryStationsUniqueSymbols": 30,
+    "factoryStationsTestInternalImports": 18,
+    "factoryStationsTestInternalImportsCeiling": 18
+  },
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1245,
+      "threshold": 1000,
+      "owner": "room-chain-wiring implementation worker",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30",
+      "reason": "Move exactly two runtime symbols off the API-consumed root onto the declared ./room-chain subpath with JS and types. Root exports return to 1245, with no new wildcard or duplicate names. API build succeeds with no bundle allowlist change; independent subpath admission remains required."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 23,
+      "threshold": 15,
+      "owner": "room-chain-wiring implementation worker",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source tree 49286f658cf0ddc7b41590b75b1cb09c49bbc05a: factory-stations subpath './room-chain' (src/room-chain.ts) publishes exactly ROOM_CHAIN_RECIPES and runRoomChain; root '.' unchanged; consumers are tools/openclinxr/dark-factory/multi-case-runner.ts, the room promote CLI and tests; no app imports it, so apps/api bundles without glTF/ktx and no allowlist change; lip_sync bridge removed; 2026-09-30",
+      "reason": "The median is unchanged at 23. This record requests independent review of the exact source candidate, not reuse or alteration of an earlier approval. Public-entrypoint tests reduce internal imports to 18, meeting the unchanged ceiling of 18."
+    }
+  ]
+}

@@ -130,12 +130,12 @@
   - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence. Footprint/door placement are NOT Infinigen inputs (MADR 0043 / #271): this is one reproducible room, not an exact-dimension generator. Clinical identity comes from the parametric fixtures the runtime places.
   - External assets used: false (procedural coarse-stage geometry; baked texture is derived from the geometry, no external textures).
 - `infinigen-inpatient-ward.glb`
-  - SHA-256: `0ca9332ce64223fb11c75251204b2d861a8dc83dc17dfe10c24a44dfd34f92fe`; 9452160 bytes; 6533 triangles; 98 primitives, all authored materials.
+  - SHA-256: `70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833`; 9423020 bytes; 6533 triangles; 98 primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain `room_generate → room_clinic_finish → lighting_design`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
   - Reproduce: `pnpm factory:room:promote -- --environment inpatient_ward_room_v1 --seed 205`. The command runs or cache-hits the chain, installs the GLB and rig, and calls this producer to derive every digest and size pin. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
   - Finish: baked Infinigen wall material, neutral matte paint, runtime-calibrated neutral vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in `room_clinic_finish/textures`; no new external assets in this promotion.
   - Occlusion: separate Cycles AO maps, box-projected AO UVs, four maps at 512²; unchanged zero-coplanar-boundary and <=5 single-texel gates. Floor shell albedo reduced from 2048² to 1024² in the producer; unique decoded RGBA textures including 1.33× mips: 49.2983 MiB <=56 MiB.
-  - Lighting: `lighting/inpatient_ward_room_v1.rig.json`, clinic_day chain output, SHA-256 `3d3ee88ffb152d86923ca6d06c4a6be41902a7a3cffddde27c51e401d875d439`.
+  - Lighting: `lighting/inpatient_ward_room_v1.rig.json`, clinic_day chain output, SHA-256 `a0391d4eefc7bb5c019dedda7e4b406c357afba02f8c10249bc9cec461569ff6`.
   - Evidence: `docs/openclinxr/room-realism/floor-cast` contains six before/after learner-URL captures (no GLB route override), two-way/three-way sheets, exact runtime box grades and budget breakdown. Environment-ID URL mapping is unchanged.
   - Boundaries: not production readiness, Quest readiness, clinical visual validity, scoring or exam-equivalence evidence.
 - `infinigen-pediatric-fever-urgent-care.glb`

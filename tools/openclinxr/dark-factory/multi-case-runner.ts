@@ -57,7 +57,6 @@ import {
 } from "@openclinxr/xr-asset-loading";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 import {
-  loadRoomChainLibrary,
   writeDeterministicLipSyncWav,
 } from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
@@ -91,8 +90,7 @@ import {
   runStaging,
   writeLipSyncFixtureWav,
 } from "@openclinxr/factory-stations";
-
-export { loadRoomChainLibrary };
+import { ROOM_CHAIN_RECIPES, runRoomChain } from "@openclinxr/factory-stations/room-chain";
 
 const execFileAsync = promisify(execFile);
 
@@ -331,7 +329,7 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   clothing:
     "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts:76 ROLE_TO_GARMENT_LAYERS (deterministic role->layer map) + resolveHm08UpperGarment",
   rigging: "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-  room: "@openclinxr/factory-stations runRoomChain for registered environments; apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment explicit parametric fallback",
+  room: "@openclinxr/factory-stations/room-chain runRoomChain for registered environments; apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment explicit parametric fallback",
   equipment: "apps/ui-xr/src/station-equipment-builders.ts:417 buildDeclaredEquipmentGeometry (parametric equipment builders)",
   staging_placement:
     "packages/openclinxr/asset-registry/src/actor-placement.ts:24 generatedActorPlacement (deterministic scene-manifest placement; slotKind/position/posture per cast role)",
@@ -784,7 +782,7 @@ export function roomChainSeedForScenario(scenario: Scenario, defaultSeed: number
 
 /** Station 5: registered room chain, with an explicit parametric fallback. */
 type RoomStageDependencies = {
-  runChain?: Awaited<ReturnType<typeof loadRoomChainLibrary>>["runRoomChain"];
+  runChain?: typeof runRoomChain;
 };
 
 export async function runRoomStage(
@@ -802,11 +800,10 @@ export async function runRoomStage(
     };
   }
   await mkdir(stageDir, { recursive: true });
-  const roomChain = await loadRoomChainLibrary();
-  const recipe = roomChain.ROOM_CHAIN_RECIPES[environmentId as keyof typeof roomChain.ROOM_CHAIN_RECIPES];
+  const recipe = ROOM_CHAIN_RECIPES[environmentId as keyof typeof ROOM_CHAIN_RECIPES];
   if (recipe !== undefined && scenario !== undefined) {
     const seed = roomChainSeedForScenario(scenario, recipe.defaultSeed);
-    const chain = await (dependencies.runChain ?? roomChain.runRoomChain)({ environmentId, seed, outDir: stageDir });
+    const chain = await (dependencies.runChain ?? runRoomChain)({ environmentId, seed, outDir: stageDir });
     const artifactPath = path.join(stageDir, "room-chain-output.json");
     await writeFile(artifactPath, `${JSON.stringify({
       schemaVersion: "openclinxr.dark-factory.station-room.v2",
@@ -1532,7 +1529,7 @@ function executionCommandsFor(): Record<string, string> {
     body: "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
     clothing: "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
     rigging: "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
-    room: "in-process @openclinxr/factory-stations runRoomChain(<registered environmentId>), else explicit parametric buildStationEnvironment fallback",
+    room: "in-process @openclinxr/factory-stations/room-chain runRoomChain(<registered environmentId>), else explicit parametric buildStationEnvironment fallback",
     equipment: "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",

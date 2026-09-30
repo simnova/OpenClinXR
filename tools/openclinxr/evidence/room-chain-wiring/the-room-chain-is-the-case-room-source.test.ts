@@ -4,7 +4,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { loadRoomChainLibrary, runRoomStage } from "../../dark-factory/multi-case-runner.js";
+import { runRoomStage } from "../../dark-factory/multi-case-runner.js";
+import { ROOM_CHAIN_RECIPES, type runRoomChain } from "@openclinxr/factory-stations/room-chain";
 
 let scratch: string | undefined;
 afterEach(() => {
@@ -18,7 +19,6 @@ const shippedSha = createHash("sha256").update(readFileSync(shippedWard)).digest
 
 describe("dark-factory room source selection", () => {
   it("uses the room chain for a registered ward and records its shipped GLB sha", async () => {
-    const { ROOM_CHAIN_RECIPES, runRoomChain } = await loadRoomChainLibrary();
     scratch = mkdtempSync(path.join(tmpdir(), `room-chain-case-${process.pid}-`));
     const fakeChain = async (options: Parameters<typeof runRoomChain>[0]): Promise<Awaited<ReturnType<typeof runRoomChain>>> => {
       const finalGlb = path.join(options.outDir!, "infinigen-inpatient-ward.chain.glb");
@@ -59,7 +59,6 @@ describe("dark-factory room source selection", () => {
   });
 
   it("keeps the ward preset and door declaration only in the exported recipe registry", async () => {
-    const { ROOM_CHAIN_RECIPES } = await loadRoomChainLibrary();
     const runSource = readFileSync(path.join(root, "packages/openclinxr/factory-stations/src/room_chain/run.ts"), "utf8");
     expect(runSource).not.toContain("WARD_CHAIN_DOOR");
     expect(runSource).not.toContain("WARD_CHAIN_PRESET");
@@ -67,14 +66,21 @@ describe("dark-factory room source selection", () => {
     expect(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1.door.liteRect).toEqual([0.64, 0.8, 0.58, 0.87]);
   });
 
-  it("promotes the current ward chain without changing any tracked bytes", () => {
+  it("promotes from two output directories without changing any tracked bytes", () => {
+    scratch = mkdtempSync(path.join(tmpdir(), `room-promote-${process.pid}-`));
+    const dirs = [path.join(scratch, "a"), path.join(scratch, "b")];
     const before = execFileSync("git", ["diff", "--binary", "HEAD"], { cwd: root });
-    execFileSync("pnpm", ["factory:room:promote", "--", "--environment", "inpatient_ward_room_v1"], {
-      cwd: root,
-      stdio: "pipe",
-      timeout: 120_000,
-    });
+    for (const outDir of dirs) {
+      execFileSync("pnpm", ["factory:room:promote", "--", "--environment", "inpatient_ward_room_v1", "--out-dir", outDir], {
+        cwd: root,
+        stdio: "pipe",
+        timeout: 120_000,
+      });
+    }
+    for (const name of ["infinigen-inpatient-ward.chain.glb", "ward-chain.lighting-rig.json"]) {
+      expect(readFileSync(path.join(dirs[0]!, name)).equals(readFileSync(path.join(dirs[1]!, name)))).toBe(true);
+    }
     const after = execFileSync("git", ["diff", "--binary", "HEAD"], { cwd: root });
     expect(after.equals(before)).toBe(true);
-  }, 120_000);
+  }, 240_000);
 });

@@ -21,9 +21,9 @@ import { parseWardChainArgs } from "./run.js";
  * no network. Filesystem reads stay inside the repo (script sources) or a
  * tmp dir; the Blender/Git probes are bypassed via overrides.
  *
- * room_chain/cache.ts is not reachable from the package entrypoint (only
- * cli.ts reaches run.ts, and cli.ts is not an entrypoint), so these direct
- * imports pin nothing public and the test-import ceiling is flat.
+ * Cache primitives and CLI parsing remain private unit-test seams. The public
+ * runRoomChain/ROOM_CHAIN_RECIPES contract is exercised through ./room-chain by the
+ * cwd tests; these private imports count toward the unchanged import ceiling.
  */
 
 const GEN_INPUT = {

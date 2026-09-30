@@ -48,6 +48,13 @@ describe("the lighting_design station emits a deterministic rig", () => {
     expect(rigB).toEqual(rigA);
   });
 
+  it("output directories cannot change the rig or leak into its room identity", () => {
+    const a = designLightingRig(validInput({ roomGlbPath: "/tmp/a/ward-chain.work.glb" }));
+    const b = designLightingRig(validInput({ roomGlbPath: "/different/machine/b/ward-chain.work.glb" }));
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+    expect(a.room.roomGlbPath).toBe("ward-chain.work.glb");
+  });
+
   it("(3) mood variants differ in exposure and energy", () => {
     const bright = designLightingRig(validInput({ mood: "ed_exam_bright" }));
     const calm = designLightingRig(validInput({ mood: "evening_calm" }));

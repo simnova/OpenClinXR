@@ -1,4 +1,4 @@
-import { NodeIO, type Primitive } from "@gltf-transform/core";
+import { NodeIO, type Document, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { meshopt as meshoptFn, simplifyPrimitive as simplifyPrimitiveFn, weldPrimitive as weldPrimitiveFn } from "@gltf-transform/functions";
 import { MeshoptDecoder, MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
@@ -73,6 +73,73 @@ function primitiveIndexCounts(_docMesh: { listPrimitives(): Array<{ getIndices()
 }
 
 void primitiveIndexCounts;
+
+/**
+ * Infinigen's boolean door mesh has stable triangles but process-dependent
+ * face ordering. Meshopt tie-breaking depends on that order. Canonicalize the
+ * complete vertex tuple (including UV seams), preserving triangle winding,
+ * before simplification; never sort positions alone or discard attributes.
+ */
+function canonicalizeDoorPrimitive(prim: Primitive): void {
+  const indices = prim.getIndices();
+  if (!indices) return;
+  const attributes = prim.listSemantics().sort().map((semantic) => prim.getAttribute(semantic)!);
+  const count = attributes[0]?.getCount() ?? 0;
+  const tuple = (index: number): number[] => attributes.flatMap((attribute) => {
+    const values: number[] = [];
+    attribute.getElement(index, values);
+    return values;
+  });
+  const tuples = Array.from({ length: count }, (_,index) => tuple(index));
+  const compare = (a: readonly number[], b: readonly number[]): number => {
+    for (let i = 0; i < a.length; i += 1) {
+      const difference = a[i]! - b[i]!;
+      if (difference !== 0) return difference;
+    }
+    return 0;
+  };
+  const order = Array.from({ length: count }, (_,index) => index).sort((a,b) => compare(tuples[a]!, tuples[b]!));
+  const remap = new Uint32Array(count);
+  const unique: number[] = [];
+  for (const old of order) {
+    if (unique.length === 0 || compare(tuples[old]!, tuples[unique[unique.length - 1]!]!) !== 0) unique.push(old);
+    remap[old] = unique.length - 1;
+  }
+  for (const attribute of attributes) {
+    const source = attribute.getArray()!;
+    const size = attribute.getElementSize();
+    const target = source.slice(0, unique.length * size);
+    for (let i = 0; i < unique.length; i += 1) {
+      for (let c = 0; c < size; c += 1) {
+        const value = source[unique[i]! * size + c]!;
+        // IEEE -0 compares equal to +0 but glTF/meshopt deduplicate bytes.
+        target[i * size + c] = value === 0 ? 0 : value;
+      }
+    }
+    attribute.setArray(target);
+  }
+  const triangles: number[][] = [];
+  for (let i = 0; i < indices.getCount(); i += 3) {
+    const face = [remap[indices.getScalar(i)]!, remap[indices.getScalar(i + 1)]!, remap[indices.getScalar(i + 2)]!];
+    const rotations = [face, [face[1]!, face[2]!, face[0]!], [face[2]!, face[0]!, face[1]!]];
+    rotations.sort(compare);
+    triangles.push(rotations[0]!);
+  }
+  triangles.sort(compare);
+  const target = indices.getArray()!.slice();
+  target.set(triangles.flat());
+  indices.setArray(target);
+}
+
+/** Also used after Blender's finish export, which may split identical corners. */
+export function canonicalizeRoomDoors(doc: Document): void {
+  const meshes = new Set(doc.getRoot().listNodes()
+    .filter((node) => /\.door_leaf(?:_\d+)?$/.test(node.getName()))
+    .map((node) => node.getMesh()));
+  for (const mesh of meshes) {
+    if (mesh) for (const primitive of mesh.listPrimitives()) canonicalizeDoorPrimitive(primitive);
+  }
+}
 
 /**
  * Mesh-space AABB diagonal from live float buffers. Call only pre-compress:
@@ -173,6 +240,7 @@ export async function simplifyRoomAfterBake(workGlb: string): Promise<RoomSimpli
   }
 
   const meshes = doc.getRoot().listMeshes();
+  canonicalizeRoomDoors(doc);
   const beforeByMesh = new Map<string, number>();
   const lockedByMesh = new Map<string, boolean>();
   for (const mesh of meshes) {

@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.lighting-rig.v1",
   "room": {
     "environmentId": "inpatient_ward_room_v1",
-    "roomGlbPath": "/Volumes/files/src/openclinxr-wt/room-chain-wiring/.openclinxr/evidence/room-chain-wiring-branch-repair/ward-chain.work.glb"
+    "roomGlbPath": "ward-chain.work.glb"
   },
   "bbox": {
     "minX": -2.15,
@@ -30,8 +30,8 @@
       "name": "key",
       "type": "area",
       "position": [
-        -0.0281,
-        0.0367,
+        0.0665,
+        0.039,
         2.15
       ],
       "energy": 153.4359,
@@ -42,8 +42,8 @@
       "name": "fill",
       "type": "point",
       "position": [
-        -0.003,
-        -0.0386,
+        0.0592,
+        -0.0739,
         1.2
       ],
       "energy": 226.4615,
@@ -55,7 +55,7 @@
       "type": "area",
       "position": [
         1.95,
-        0.0113,
+        0.0343,
         1.2
       ],
       "energy": 44.3077,
@@ -67,7 +67,7 @@
       "type": "area",
       "position": [
         -1.95,
-        -0.0449,
+        0.0565,
         1.2
       ],
       "energy": 44.3077,
@@ -78,7 +78,7 @@
       "name": "wash_py",
       "type": "area",
       "position": [
-        0.026,
+        0.0608,
         1.75,
         1.2
       ],
@@ -90,7 +90,7 @@
       "name": "wash_ny",
       "type": "area",
       "position": [
-        -0.0362,
+        -0.0374,
         -1.75,
         1.2
       ],

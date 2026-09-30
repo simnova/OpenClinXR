@@ -4,17 +4,19 @@ import {
   productionStationIds,
   type ProductionStationId,
 } from "./catalog.js";
-import { planEquipmentGenerate } from "./equipment_generate/run.js";
-import { planClothingConsume } from "./clothing_consume/run.js";
-import { planBodyParam } from "./body_param/run.js";
-import { planRoomGenerate } from "./room_generate/run.js";
-import { planMotionRetarget } from "./motion_retarget/run.js";
+import {
+  planEquipmentGenerate,
+  planClothingConsume,
+  planBodyParam,
+  planRoomGenerate,
+  planMotionRetarget,
+  applyStationPayloadToCompileSpec,
+} from "./index.js";
+import { runDialogueRuntime } from "./dialogue_runtime/run.js";
 import { planStaging } from "./staging/run.js";
 import { planLipSync } from "./lip_sync/run.js";
 import { planClothingGenerate } from "./clothing_generate/run.js";
 import { planDialogueRuntime } from "./dialogue_runtime/run.js";
-import { applyStationPayloadToCompileSpec } from "./apply-station-payload.js";
-import { runDialogueRuntime } from "./dialogue_runtime/run.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 

@@ -1,7 +1,7 @@
 {
   "file": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
-  "sha256": "0ca9332ce64223fb11c75251204b2d861a8dc83dc17dfe10c24a44dfd34f92fe",
-  "bytes": 9452160,
+  "sha256": "70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833",
+  "bytes": 9423020,
   "byteCeiling": 209715200,
   "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
   "decodedWardCeilingMiB": 56,
@@ -167,8 +167,8 @@
   "primitiveCount": 98,
   "triangles": 6533,
   "materiallessPrimitives": 0,
-  "rigSha256": "3d3ee88ffb152d86923ca6d06c4a6be41902a7a3cffddde27c51e401d875d439",
-  "rigBytes": 2125,
+  "rigSha256": "a0391d4eefc7bb5c019dedda7e4b406c357afba02f8c10249bc9cec461569ff6",
+  "rigBytes": 2019,
   "imageComparison": [
     {
       "name": "shell_bake_normal",

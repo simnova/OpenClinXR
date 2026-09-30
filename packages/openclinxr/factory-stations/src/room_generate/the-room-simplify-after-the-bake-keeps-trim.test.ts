@@ -1,11 +1,11 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { simplifyRoomAfterBake, trimLockReason } from "./simplify.js";
+import { canonicalizeRoomDoors, simplifyRoomAfterBake, trimLockReason } from "./simplify.js";
 
 /**
  * Post-bake room simplify keeps architectural trim and reduces the rest.
@@ -113,6 +113,54 @@ function readingIo(): NodeIO {
 }
 
 describe("the room simplify after the bake keeps trim", () => {
+  it("canonicalizes duplicate exporter corners without dropping UV seams", async () => {
+    const outputs: Uint8Array[] = [];
+    for (const duplicate of [false, true]) {
+      const doc = new Document();
+      const buffer = doc.createBuffer();
+      const xyz = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0];
+      const uv = [0, 0, 1, 0, 0, 1, 0.5, 0.5];
+      if (duplicate) { xyz.push(0, 0, 0); uv.push(0, 0); }
+      const pos = doc.createAccessor().setBuffer(buffer).setType("VEC3").setArray(new Float32Array(xyz));
+      const tex = doc.createAccessor().setBuffer(buffer).setType("VEC2").setArray(new Float32Array(uv));
+      const idx = doc.createAccessor().setBuffer(buffer).setType("SCALAR")
+        .setArray(new Uint16Array(duplicate ? [1, 2, 3, 1, 2, 4] : [0, 1, 2, 3, 1, 2]));
+      const prim = doc.createPrimitive().setAttribute("POSITION", pos).setAttribute("TEXCOORD_0", tex).setIndices(idx);
+      doc.createScene().addChild(doc.createNode("bedroom_0/0.door_leaf").setMesh(doc.createMesh().addPrimitive(prim)));
+      canonicalizeRoomDoors(doc);
+      expect(pos.getCount()).toBe(4);
+      expect(idx.getCount()).toBe(6);
+      outputs.push(await new NodeIO().writeBinary(doc));
+    }
+    expect(outputs[0]).toEqual(outputs[1]);
+  });
+
+  it("door face order and cyclic vertex order cannot change simplified bytes", async () => {
+    const paths = [path.join(workDir, "door-a.glb"), path.join(workDir, "door-b.glb")];
+    for (const [variant, filename] of paths.entries()) {
+      const doc = new Document();
+      const buffer = doc.createBuffer();
+      const positions = gridPositions(2, 20);
+      if (variant === 1) {
+        for (let i = 0; i < positions.length; i += 1) {
+          if (positions[i] === 0) positions[i] = -0;
+        }
+      }
+      const original = gridIndices(20);
+      const faces = Array.from({ length: original.length / 3 }, (_,i) => Array.from(original.slice(i * 3, i * 3 + 3)));
+      if (variant === 1) faces.reverse();
+      const indices = new Uint32Array(faces.flatMap((face) => variant === 0 ? face : [face[1]!, face[2]!, face[0]!]));
+      const pos = doc.createAccessor().setBuffer(buffer).setType("VEC3").setArray(positions);
+      const idx = doc.createAccessor().setBuffer(buffer).setType("SCALAR").setArray(indices);
+      const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx);
+      const mesh = doc.createMesh("door").addPrimitive(prim);
+      doc.createScene().addChild(doc.createNode("bedroom_0/0.door_leaf").setMesh(mesh));
+      await new NodeIO().write(filename, doc);
+      await simplifyRoomAfterBake(filename);
+    }
+    expect(await readFile(paths[0]!)).toEqual(await readFile(paths[1]!));
+  });
+
   it("(1) skirting triangle count is unchanged and wall triangle count is lower", async () => {
     const glbPath = path.join(workDir, "fixture.glb");
     await buildFixtureGlb(glbPath);
