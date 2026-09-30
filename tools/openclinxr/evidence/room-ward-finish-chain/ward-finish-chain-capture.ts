@@ -68,7 +68,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "../lib/slotted-playwright.js";
+import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
 import { withComputeSlot } from "@openclinxr/compute-slots";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
@@ -76,16 +76,21 @@ import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
-import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
+import { chromium, type Page } from "../lib/slotted-playwright.js";
 import {
   buildSceneClosureBundleJson,
   buildSceneClosureUrl,
-  SCENE_CLOSURE_SCENARIO_ID,
   SCENE_CLOSURE_BUNDLE_ROUTE,
+  SCENE_CLOSURE_SCENARIO_ID,
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.ts";
 
 const OUTPUT_DIR =
   process.env["STAGE2_CAPTURE_OUT_DIR"] ?? "docs/openclinxr/room-realism/ward-finish-chain-2026-09-27/captures";
+const VIEWPORT_WIDTH = Number(process.env["STAGE2_VIEWPORT_WIDTH"] ?? "1280");
+const VIEWPORT_HEIGHT = Number(process.env["STAGE2_VIEWPORT_HEIGHT"] ?? "720");
+const PUSH_FRAMES_DIR = process.env["STAGE2_PUSH_FRAMES_DIR"];
+const PUSH_FPS = Number(process.env["STAGE2_PUSH_FPS"] ?? "15");
+const PUSH_DURATION_SECONDS = Number(process.env["STAGE2_PUSH_DURATION_SECONDS"] ?? "10");
 // STAGE2_AO_INTENSITY (optional, added 2026-09-29 for the ao-cycles-bake job):
 // runtime aoMapIntensity override for every material carrying an aoMap ("1" =
 // unchanged, "0" = AO-off floor renders for the dot-fraction metric). The GLB
@@ -309,7 +314,7 @@ const DUMP_MESHES_SOURCE = `
 `;
 
 const HIDE_UI_SOURCE = `
-(() => {
+((viewport) => {
   const canvas = document.querySelector("#station-canvas");
   if (!canvas) return "no-canvas";
   const keeps = new Set();
@@ -321,13 +326,13 @@ const HIDE_UI_SOURCE = `
   canvas.style.setProperty("position", "fixed", "important");
   canvas.style.setProperty("left", "0", "important");
   canvas.style.setProperty("top", "0", "important");
-  canvas.style.setProperty("width", "1280px", "important");
-  canvas.style.setProperty("height", "720px", "important");
+  canvas.style.setProperty("width", viewport.width + "px", "important");
+  canvas.style.setProperty("height", viewport.height + "px", "important");
   canvas.style.setProperty("margin", "0", "important");
   document.body.style.setProperty("margin", "0", "important");
   document.body.style.setProperty("overflow", "hidden", "important");
   return "hidden";
-})()
+})
 `;
 
 async function installEnvironmentOverrideRoute(page: Page, glbPath: string): Promise<void> {
@@ -369,7 +374,7 @@ async function main(): Promise<void> {
         ],
       });
       try {
-        const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+        const page = await browser.newPage({ viewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT } });
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
@@ -396,7 +401,7 @@ async function main(): Promise<void> {
       { timeout: 180_000 },
     );
     await page.waitForTimeout(3000);
-    await page.evaluate(HIDE_UI_SOURCE);
+    await page.evaluate(`${HIDE_UI_SOURCE}(${JSON.stringify({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT })})`);
     await page.waitForTimeout(300);
 
     if ((process.env["STAGE2_DUMP_ONLY"] ?? "0") === "1") {
@@ -426,6 +431,68 @@ async function main(): Promise<void> {
         (process.env["STAGE2_POSES_FILE"] ? ` from ${process.env["STAGE2_POSES_FILE"]}` : " (built-in)") +
         "\n",
     );
+
+    if (PUSH_FRAMES_DIR) {
+      if (!Number.isInteger(PUSH_FPS) || PUSH_FPS <= 0) throw new Error(`STAGE2_PUSH_FPS must be a positive integer (got ${PUSH_FPS})`);
+      if (!Number.isFinite(PUSH_DURATION_SECONDS) || PUSH_DURATION_SECONDS < 1) {
+        throw new Error(`STAGE2_PUSH_DURATION_SECONDS must be at least 1 (got ${PUSH_DURATION_SECONDS})`);
+      }
+      const start = poses.find((pose) => pose.id === "runtime-01-toward-door");
+      const end = poses.find((pose) => pose.id === "runtime-04-door-inside");
+      if (!start || !end) throw new Error("push capture needs runtime-01-toward-door and runtime-04-door-inside poses");
+      const frameCount = Math.round(PUSH_FPS * PUSH_DURATION_SECONDS);
+      const framesDir = path.resolve(process.cwd(), PUSH_FRAMES_DIR);
+      await mkdir(framesDir, { recursive: true });
+      const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+      for (let index = 0; index < frameCount; index += 1) {
+        const linearT = frameCount === 1 ? 1 : index / (frameCount - 1);
+        const t = linearT * linearT * (3 - 2 * linearT);
+        const pose = {
+          id: `door-push-${String(index).padStart(4, "0")}`,
+          eye: {
+            x: lerp(start.eye.x, end.eye.x, t),
+            y: lerp(start.eye.y, end.eye.y, t),
+            z: lerp(start.eye.z, end.eye.z, t),
+          },
+          look: {
+            x: lerp(start.look.x, end.look.x, t),
+            y: lerp(start.look.y, end.look.y, t),
+            z: lerp(start.look.z, end.look.z, t),
+          },
+          fov: lerp(start.fov, end.fov, t),
+        };
+        const placed = (await page.evaluate(`${PLACE_CAMERA_SOURCE}(${JSON.stringify(pose)})`)) as {
+          ok: boolean;
+          reason?: string;
+        };
+        if (!placed.ok) throw new Error(`camera placement failed for ${pose.id}: ${placed.reason}`);
+        if (index === 0) await page.waitForTimeout(400);
+        await page.screenshot({
+          path: path.join(framesDir, `frame-${String(index).padStart(4, "0")}.jpg`),
+          type: "jpeg",
+          quality: 92,
+          fullPage: false,
+        });
+      }
+      await writeFile(
+        path.join(framesDir, "door-push.json"),
+        `${JSON.stringify({
+          schemaVersion: "openclinxr.ward-door-push.v1",
+          glb: FINISHED_WARD_GLB ?? SHIPPED_WARD_URL,
+          mechanism: FINISHED_WARD_GLB ? "playwright-route-override" : "ui-xr-runtime-url",
+          start,
+          end,
+          interpolation: "smoothstep",
+          fps: PUSH_FPS,
+          durationSeconds: PUSH_DURATION_SECONDS,
+          frameCount,
+          viewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT },
+        }, null, 2)}\n`,
+        "utf8",
+      );
+      process.stdout.write(`[done] ${frameCount}-frame door push captured to ${framesDir}\n`);
+      return;
+    }
 
     const manifest: Array<Record<string, unknown>> = [];
     const only = process.env["STAGE2_MULTIVIEW_ONLY"];

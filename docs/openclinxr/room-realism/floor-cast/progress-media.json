@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "openclinxr.floor-cast-progress-media.v1",
+  "captureProducer": "tools/openclinxr/evidence/room-ward-finish-chain/ward-finish-chain-capture.ts",
+  "poses": "tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json",
+  "camera": {
+    "startPose": "runtime-01-toward-door",
+    "endPose": "runtime-04-door-inside",
+    "interpolation": "smoothstep",
+    "sameRoomLocalPath": true
+  },
+  "before": {
+    "commit": "9f2b313c2",
+    "glbSha256": "628d0a4626dcb0b619d1d032302989aac7dd80df4db911ac0d7e7f8df16e3bdf",
+    "mechanism": "ui-xr learner runtime with local GLB route override"
+  },
+  "after": {
+    "commit": "1771a879f",
+    "glbSha256": "afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e",
+    "mechanism": "ui-xr learner runtime shipped URL"
+  },
+  "video": {
+    "file": "docs/assets/ward-door-push-before-after-2026-09-30.mp4",
+    "sha256": "430dbc8e8ca51478f2bcc148a97c4733b3c51d20fbe29804993980f6b70bf191",
+    "codec": "H.264",
+    "pixelFormat": "yuv420p",
+    "width": 1280,
+    "height": 720,
+    "sourceHalfWidth": 1280,
+    "sourceHalfHeight": 360,
+    "framesPerSecond": 15,
+    "frameCountPerHalf": 150,
+    "durationSeconds": 10,
+    "bytes": 932623,
+    "layout": "before top; after shipped bottom"
+  },
+  "poster": {
+    "file": "docs/assets/ward-door-push-before-after-poster-2026-09-30.png",
+    "sha256": "9b8b53c3ba80874ac0a4b6eb1556f371d5da59024047d810ff4ea4df9f03d8cc",
+    "sampleSecond": 9.2
+  },
+  "stills": [
+    {
+      "file": "docs/assets/ward-door-finished-before-after-reference-2026-09-30.jpg",
+      "sha256": "846ae5234f7463c7cb3e4e457d0f48bfa3406445a819f4f73c863fea54571fb2"
+    },
+    {
+      "file": "docs/assets/ward-floor-base-tint-before-after-reference-2026-09-30.jpg",
+      "sha256": "8779fac042136d9a2cb45a2f0200b7b0902ef0b101a17b59f9e36adb1558eba4"
+    },
+    {
+      "file": "docs/assets/ward-floor-room-tint-before-after-reference-2026-09-30.jpg",
+      "sha256": "11908d8cedc8ef6143f5992d0de4b6dd3da36215c10a07ea29daf7b8a8175ddb"
+    }
+  ],
+  "notEvidenceFor": [
+    "headset playback",
+    "Quest performance or readiness",
+    "clinical validity",
+    "scoring validity",
+    "licensure",
+    "production readiness",
+    "exam equivalence"
+  ]
+}

@@ -32,6 +32,12 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 ## Cleanup Actions
 
+- `docs/assets/ward-door-push-before-after-2026-09-30.mp4` - keep-evidence; keep; Entry 121 matched-path UI-XR ward-door push video; desktop-browser evidence, not headset readiness.
+- `docs/assets/ward-door-push-before-after-poster-2026-09-30.png` - keep-evidence; keep; Entry 121 poster from the final second of the matched-path ward-door push.
+- `docs/assets/ward-door-finished-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 121 committed three-way finished-door sheet: before, shipped, and v2 reference.
+- `docs/assets/ward-floor-base-tint-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 121 committed three-way neutral-floor close sheet: before, shipped, and v2 reference.
+- `docs/assets/ward-floor-room-tint-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 121 committed three-way neutral-floor room sheet: before, shipped, and v2 reference.
+- `docs/openclinxr/room-realism/floor-cast/progress-media.json` - keep-evidence; keep; Entry 121 matched camera-path, media digest, codec, dimensions, duration, and poster provenance.
 - `docs/assets/ward-room-before-after-2026-09-30.mp4` - keep-evidence; keep; Entry 120 UI-XR runtime before/after camera-path video for the shipped factory ward; desktop-browser evidence, not headset readiness.
 - `docs/assets/ward-room-before-after-poster-2026-09-30.png` - keep-evidence; keep; Entry 120 poster frame from the UI-XR runtime before/after ward video; desktop-browser evidence, not headset readiness.
 - `docs/assets/ward-room-toward-door-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, toward the door.

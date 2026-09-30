@@ -34,13 +34,43 @@
     }
   ],
   "counts": {
-    "keep-evidence": 920,
+    "keep-evidence": 926,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
   "entries": [
+    {
+      "path": "docs/assets/ward-door-push-before-after-2026-09-30.mp4",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 matched-path UI-XR ward-door push video; desktop-browser evidence, not headset readiness."
+    },
+    {
+      "path": "docs/assets/ward-door-push-before-after-poster-2026-09-30.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 poster from the final second of the matched-path ward-door push."
+    },
+    {
+      "path": "docs/assets/ward-door-finished-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 committed three-way finished-door sheet: before, shipped, and v2 reference."
+    },
+    {
+      "path": "docs/assets/ward-floor-base-tint-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 committed three-way neutral-floor close sheet: before, shipped, and v2 reference."
+    },
+    {
+      "path": "docs/assets/ward-floor-room-tint-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 committed three-way neutral-floor room sheet: before, shipped, and v2 reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/progress-media.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Entry 121 matched camera-path, media digest, codec, dimensions, duration, and poster provenance."
+    },
     {
       "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-01-toward-door.png",
       "authority": "keep-evidence", "tracked": true, "action": "keep",

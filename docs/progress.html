@@ -27,6 +27,61 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-30T1619">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 121 &middot; 2026-09-30 16:19 UTC</p>
+          <h2>The ward door now reads as a finished assembly, and the floor no longer carries the same warm cast in every view.</h2>
+        </div>
+        <p>
+          The door casing landed in commit <code>4a4b3918c</code>, reflective vision glass in <code>a2986e8c4</code>, and across-leaf maple grain in <code>590e9ed1a</code>; the combined door shipped in <code>4b4fa173f</code>. The floor-tile generator was neutralised in <code>f1fcb1a06</code>, then the room and its producer-derived provenance were rebuilt in <code>1771a879f</code>.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata" width="1280" height="720"
+            poster="assets/ward-door-push-before-after-poster-2026-09-30.png"
+            aria-label="A matched slow push toward the ward door. Top: Before. Bottom: After shipped.">
+            <source src="assets/ward-door-push-before-after-2026-09-30.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Top: the pre-door room from commit <code>9f2b313c2</code>. Bottom: the shipped room from <code>1771a879f</code>. Both learner-runtime captures follow the same room-local smoothstep path from pose 01 to pose 04 for 10&nbsp;s at 15&nbsp;fps. Each half is 1280&times;360; the stacked H.264 file is 1280&times;720 and 932,623 bytes. The poster samples 9.2&nbsp;s. Source: <code>docs/openclinxr/room-realism/floor-cast/progress-media.json</code>.
+            </p>
+          </div>
+        </div>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-door-finished-before-after-reference-2026-09-30.jpg" alt="Three-way comparison of the ward door from inside: previous room, finished shipped door, and v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Finished door &mdash; before | after | reference.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-floor-base-tint-before-after-reference-2026-09-30.jpg" alt="Three-way close comparison of the ward floor and cove base before and after neutralising the tile tint, beside the v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Floor and cove base &mdash; before | after | reference.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-floor-room-tint-before-after-reference-2026-09-30.jpg" alt="Three-way room comparison toward the bed wall before and after neutralising the floor tile tint, beside the v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Floor in the room &mdash; before | after | reference.</figcaption>
+          </figure>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Desktop Chromium runtime measurements at native 1280&times;720. RGB and R&minus;B values use 0&ndash;255 channels.</caption>
+            <thead><tr><th scope="col">Surface</th><th scope="col">Measured result</th><th scope="col">Repository evidence</th></tr></thead>
+            <tbody>
+              <tr><td>Door casing</td><td>Left, right and head bands are 15, 13 and 15 px wide. Their mean RGB values are 213.86/212.38/210.71, 213.18/211.93/210.09 and 207.36/205.18/203.34; all width and brightness checks pass.</td><td><code>docs/openclinxr/room-realism/door-finish/runtime-measurements.json</code></td></tr>
+              <tr><td>Vision glass and leaf grain</td><td>Glass mean RGB is 172.06/180.76/175.57 with channel standard deviations 10.219/8.961/9.368 against a 6 floor. Leaf mean RGB is 195.68/149.84/97.56 against 190.3/151.5/103.1; all six leaf-grid texture checks pass.</td><td><code>docs/openclinxr/room-realism/door-finish/runtime-measurements.json</code></td></tr>
+              <tr><td>Floor warmth</td><td>Pose 02 R&minus;B is 5.85 against 5.49 (delta +0.36); pose 06 is 5.63 against 2.04 (delta +3.59); pose 01 is 5.47 against 8.17 (delta &minus;2.70). All are inside the &plusmn;4 gate.</td><td><code>docs/openclinxr/room-realism/floor-cast/runtime-measurements.json</code></td></tr>
+              <tr><td>Floor brightness</td><td>Pose 02 RGB deltas are +1.19/&minus;2.98/+0.83 and pose 06 deltas are +7.68/+2.61/+4.09, inside &plusmn;8/channel. Pose 01 is +13.42/+10.38/+16.12: its darker reference lighting falls outside the mean gate, while its required warmth gate passes.</td><td><code>docs/openclinxr/room-realism/floor-cast/runtime-measurements.json</code></td></tr>
+              <tr><td>Regression and budget</td><td>The largest protected-box change is +2.52 channels against the &plusmn;3 gate. Decoded textures are 49.298&nbsp;MiB against the 56&nbsp;MiB ceiling.</td><td><code>docs/openclinxr/room-realism/floor-cast/runtime-measurements.json</code>; <code>docs/openclinxr/room-realism/floor-cast/shipped-budget.json</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="evidence-note">
+          Door evidence: <code>docs/openclinxr/room-realism/door-finish/</code>. Floor evidence and six-pose learner-runtime capture: <code>docs/openclinxr/room-realism/floor-cast/</code>. Desktop Chromium only.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> headset playback, Quest performance or readiness, clinical validity, scoring validity, licensure, production readiness, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-30T0445">
         <div class="section-heading">
           <p class="eyebrow">Entry 120 &middot; 2026-09-30 04:45 UTC</p>
