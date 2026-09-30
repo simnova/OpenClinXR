@@ -185,3 +185,8 @@ normal/roughness under `ward_photo`; legacy square maple, albedo-only,
 elsewhere) link Normal Map and roughness textures with the same node pattern
 as the shell bake's `build_role_material`. T-bar strips and the troffer lens
 stay flat/emissive geometry additions, untouched.
+
+The ward leaf keeps the source's warm orange chroma. Its tone is calibrated
+against three native-size pose-04 leaf boxes (mean about 190/152/103), not
+the retired 600/420/680/500 box, which is on the wall. Channel contrast is
+raised 1.5x around each source mean so runtime grain remains measurable.

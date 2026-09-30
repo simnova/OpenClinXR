@@ -265,17 +265,16 @@ def crop_door_leaf(rgb):
     return rgb[:, x0 : x0 + leaf_w, :]
 
 
-# Ward maple is pale (v2 ref 04 leaf mean ~(180,170,153)); the Imagine row
-# photo renders vivid orange in the runtime (~(207,168,109) at the same
-# box, delta +27/-2/-44, outside the +-12 pose-04 gate). Desaturate the
-# cropped leaf toward Rec.709 luminance by DOOR_DESAT, then apply
-# per-channel LEAF_TONE_GAINS to land the rendered box: desat alone left
-# (188.8,171.2,147.1), R 0.5 over the gate and B cool-pale short, so
-# gains (0.955,0.994,1.041) pull R in and lift B (target ~= ref,
-# B no lower than ref-8). Gains run before the normal/roughness
-# derivation (luminance-based, so they barely move).
-DOOR_DESAT = 0.6
-LEAF_TONE_GAINS = (0.955, 0.994, 1.041)
+# The real v2 pose-04 leaf is warm orange maple: the mean of three clean
+# native-size leaf boxes is (190.34, 151.53, 103.10), R-B 87.24. The old
+# pale-maple calibration accidentally sampled the wall at (600,420,680,500)
+# and pulled the source 0.6 toward luminance, producing grey-taupe. Preserve
+# the source chroma and apply only modest render-matched channel gains.
+# Gains run before normal/roughness derivation so the visible grain and its
+# derived PBR maps remain coupled.
+DOOR_DESAT = 0.0
+LEAF_TONE_GAINS = (0.92, 0.90, 0.95)
+LEAF_CONTRAST = 1.5
 
 
 def desaturate(rgb, amount):
@@ -292,12 +291,19 @@ def apply_tone_gains(rgb, gains):
     return np.clip(np.round(f), 0, 255).astype(np.uint8)
 
 
+def enhance_channel_contrast(rgb, amount):
+    """Scale deviations around each channel mean without shifting its tone."""
+    f = rgb.astype(np.float64)
+    means = f.mean(axis=(0, 1), keepdims=True)
+    return np.clip(np.round(means + (f - means) * amount), 0, 255).astype(np.uint8)
+
+
 def main():
     import PIL
 
     record = {
         "script": os.path.basename(__file__),
-        "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling; ward desaturation toward luminance",
+        "revision": "row-33: flatten-first for runtime-tiled textures; door leaf-crop, no tiling; warm-orange maple matched to corrected leaf boxes",
         "pillow": PIL.__version__,
         "numpy": np.__version__,
         "flattenFirst": "per-channel divide by GaussianBlur(radius=FLATTEN_BLUR_RADIUS~=W/8) copy, rescale each channel to its own original mean; applied to kept albedo BEFORE offset/blend",
@@ -370,8 +376,11 @@ def main():
 
     src = os.path.join(TEXTURE_DIR, DOOR_SOURCE)
     rgb = np.asarray(Image.open(src).convert("RGB"))
-    leaf = apply_tone_gains(desaturate(crop_door_leaf(rgb), DOOR_DESAT),
-                            LEAF_TONE_GAINS)
+    leaf = enhance_channel_contrast(
+        apply_tone_gains(desaturate(crop_door_leaf(rgb), DOOR_DESAT),
+                         LEAF_TONE_GAINS),
+        LEAF_CONTRAST,
+    )
     lh, lw = leaf.shape[:2]
     nrm = normal_map_edge(leaf)
     rgh, lo, hi = roughness_map(leaf, mode="edge")
@@ -388,7 +397,7 @@ def main():
     entry = {
         "source": DOOR_SOURCE,
         "sourceMd5": md5(src),
-        "treatment": "center-crop to door leaf aspect 0.95:2.10, desaturation %.1f toward Rec.709 luminance plus tone gains %s (render-matched pale ward maple); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV" % (DOOR_DESAT, list(LEAF_TONE_GAINS)),
+        "treatment": "center-crop to door leaf aspect 0.95:2.10, desaturation %.1f toward Rec.709 luminance plus tone gains %s and %.2fx channel contrast about the channel means (render-matched warm-orange ward maple from corrected pose-04 leaf boxes); single UV 0-1 map, no repeat, no offset-tiling pipeline; vision-lite cutout left to leaf mesh/UV" % (DOOR_DESAT, list(LEAF_TONE_GAINS), LEAF_CONTRAST),
         "sourceSize": [int(rgb.shape[1]), int(rgb.shape[0])],
         "leafSize": [int(lw), int(lh)],
         "leafAspectWH": aspect,

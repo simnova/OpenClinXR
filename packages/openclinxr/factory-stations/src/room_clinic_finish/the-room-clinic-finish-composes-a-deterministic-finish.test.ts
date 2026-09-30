@@ -141,6 +141,11 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(existsSync(join(SRC, "textures", "door-maple-leaf.jpg"))).toBe(true);
     expect(existsSync(join(SRC, "textures", "door-maple-normal.png"))).toBe(true);
     expect(existsSync(join(SRC, "textures", "door-maple-roughness.png"))).toBe(true);
+    const texturePipeline = readFileSync(join(SRC, "textures", "make_imagine_textures_tileable.py"), "utf8");
+    // Corrected pose-04 boxes are on the orange maple leaf; the former
+    // 0.6 desaturation was calibrated against a wall crop.
+    expect(texturePipeline).toContain("DOOR_DESAT = 0.0");
+    expect(texturePipeline).toContain("LEAF_CONTRAST = 1.5");
   });
 
   it("(9) S5 finish rework: corridor props deleted, crash rail off by default, no fixed ceiling height", () => {

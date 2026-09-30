@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 827,
+    "keep-evidence": 842,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -27116,6 +27116,111 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Door2 sheet (06-floor-base): v2 ref left, final furnished-door runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (01-toward-door): corrected warm-orange maple; unchanged standard hand-placed pose."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (02-toward-bed-wall): corrected warm-orange maple; wall/floor no-regression source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (03-ceiling-corner): corrected warm-orange maple; unchanged standard hand-placed pose."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (04-door-inside): crop-verified warm-orange maple tone and grain measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (05-troffer-junction): corrected warm-orange maple; unchanged standard hand-placed pose."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 runtime frame (06-floor-base): corrected warm-orange maple; unchanged standard hand-placed pose."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-door3/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 capture manifest: final GLB path and per-PNG shas for the six unchanged standard poses."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (01-toward-door): v2 ref left, corrected-maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (02-toward-bed-wall): v2 ref left, corrected-maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (03-ceiling-corner): v2 ref left, corrected-maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (04-door-inside): v2 ref left, corrected warm-orange maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (05-troffer-junction): v2 ref left, corrected-maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 sheet (06-floor-base): v2 ref left, corrected-maple runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-04-ref-leaf-boxes.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Corrected pose-04 reference overlay: three native-size maple-leaf boxes, replacing the retired wall box."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/door3-04-cap-leaf-box.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Door3 pose-04 overlay: clean runtime leaf box away from glass, lever, casing, and edges."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/door-04-ref-leaf-crop.png",

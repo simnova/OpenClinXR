@@ -4,15 +4,15 @@
 Usage (repo root):
   python3 tools/openclinxr/evidence/room-ward-finish-chain/door-measurements.py
 Writes docs/openclinxr/room-realism/light-balance/door-measurements.json
-Also writes door-04-ref-leaf-crop.png and door-04-cap-leaf-crop.png
-(marked leaf boxes for the pose-04 color gate).
+Also writes door3-04-ref-leaf-boxes.png and door3-04-cap-leaf-box.png
+(marked leaf boxes for the corrected pose-04 color gate).
 
-Boxes are fixed 1280x720 pixel boxes. LEAF boxes were placed on the real
-captures (leaf-only maple in both; see the marked crops): ref04 leaf box
-(600,420,680,500) sits below the ref handle and left of the ref lite;
-cap04 leaf box (560,350,660,450) sits below the cap lite and left of the
-cap handle/lock. Wall/floor boxes are verbatim from
-floor-skirting-measurements.py; their baselines are that file's caps.
+Boxes are fixed 1280x720 pixel boxes. The old ref box
+(600,420,680,500) was on the WALL, not the leaf. The corrected reference
+uses three clean leaf boxes; their channel means are averaged. The runtime
+box (660,250,710,320) is right of the glass, above the lever, and inside
+the leaf/casing edges. Wall/floor boxes are verbatim from
+floor-skirting-measurements.py; door3 compares them directly with door2.
 """
 import json
 import os
@@ -27,11 +27,14 @@ LB = os.path.join(ROOT, "docs/openclinxr/room-realism/light-balance")
 REF = os.path.join(ROOT, "docs/openclinxr/room-realism/imagine-multiview-v2")
 CAP = os.path.join(LB, "captures-door")
 CAP2 = os.path.join(LB, "captures-door2")
+CAP3 = os.path.join(LB, "captures-door3")
 GLB = os.path.join(ROOT, ".openclinxr/evidence/ward-finish-chain",
                    "infinigen-inpatient-ward.chain.glb")
 
-REF04_LEAF_BOX = (600, 420, 680, 500)
-CAP04_LEAF_BOX = (560, 350, 660, 450)
+REF04_LEAF_BOXES = ((700, 350, 800, 450),
+                    (660, 300, 740, 380),
+                    (760, 500, 860, 580))
+CAP04_LEAF_BOX = (660, 250, 710, 320)
 # Casing line-profile rows (mid-leaf) and ranges, native resolution.
 CAP04_JAMB_ROW = 300
 CAP04_JAMB_XRANGE = (480, 600)
@@ -46,12 +49,24 @@ WALL_BOX = (500, 280, 780, 420)
 FLOOR_BOX = (500, 640, 620, 700)
 WALL_BASE = [209.95, 206.59, 203.03]
 FLOOR_BASE = [215.91, 210.31, 202.36]
+DOOR2_VISION_WIDTH_M = 0.1364
 
 
 def box_mean(path, box):
     im = Image.open(path).convert("RGB").crop(box)
     s = ImageStat.Stat(im)
     return [round(v, 2) for v in s.mean]
+
+
+def box_std(path, box):
+    im = Image.open(path).convert("RGB").crop(box)
+    return [round(v, 2) for v in ImageStat.Stat(im).stddev]
+
+
+def averaged_box_stat(path, boxes, stat):
+    values = [stat(path, box) for box in boxes]
+    return [round(sum(row[channel] for row in values) / len(values), 2)
+            for channel in range(3)]
 
 
 def row_profile(path, row, xrange, step=1):
@@ -148,6 +163,16 @@ def marked_crop(src, box, dst):
     print(f"wrote {dst}")
 
 
+def marked_boxes(src, boxes, dst, prefix):
+    im = Image.open(src).convert("RGB")
+    d = ImageDraw.Draw(im)
+    for index, box in enumerate(boxes, 1):
+        d.rectangle(box, outline=(255, 0, 0), width=3)
+        d.text((box[0] + 5, box[1] + 5), f"{prefix}{index}", fill=(255, 0, 0))
+    im.save(dst)
+    print(f"wrote {dst}")
+
+
 # Facing-seam gate: max neighbor step over mid-leaf field rows with the
 # hardware masked out (lite unit, handle/lock, leaf edges, casing).
 SEAM_ROWS = (350, 400, 450)
@@ -196,21 +221,28 @@ def leaf_seam(cap04):
             "gate": "no column hot (>3) on 2+ rows (one continuous veneer face)"}
 
 
-def capture_section(capdir):
+def capture_section(capdir, comparison=None):
     """Pose-04 color, casing profile, ghost, seam, and no-regression for one capture set."""
     ref04 = os.path.join(REF, "04-door-inside.jpg")
     cap04 = os.path.join(capdir, "runtime-04-door-inside.png")
     cap02 = os.path.join(capdir, "runtime-02-toward-bed-wall.png")
-    ref_leaf = box_mean(ref04, REF04_LEAF_BOX)
+    ref_leaf = averaged_box_stat(ref04, REF04_LEAF_BOXES, box_mean)
+    ref_std = averaged_box_stat(ref04, REF04_LEAF_BOXES, box_std)
     cap_leaf = box_mean(cap04, CAP04_LEAF_BOX)
+    cap_std = box_std(cap04, CAP04_LEAF_BOX)
     wall_cap = box_mean(cap02, WALL_BOX)
     floor_cap = box_mean(cap02, FLOOR_BOX)
     return {
         "pose04LeafColor": {
-            "refBox": list(REF04_LEAF_BOX), "ref": ref_leaf,
-            "capBox": list(CAP04_LEAF_BOX), "cap": cap_leaf,
+            "refBoxes": [list(box) for box in REF04_LEAF_BOXES], "ref": ref_leaf,
+            "refStd": ref_std,
+            "capBox": list(CAP04_LEAF_BOX), "cap": cap_leaf, "capStd": cap_std,
             "delta": [round(c - r, 2) for c, r in zip(cap_leaf, ref_leaf)],
-            "gate": "+-12 per channel",
+            "refRB": round(ref_leaf[0] - ref_leaf[2], 2),
+            "capRB": round(cap_leaf[0] - cap_leaf[2], 2),
+            "rbDelta": round((cap_leaf[0] - cap_leaf[2]) - (ref_leaf[0] - ref_leaf[2]), 2),
+            "stdRatio": [round(c / r, 2) for c, r in zip(cap_std, ref_std)],
+            "gate": "+-12 per channel; R-B within +-15; cap std >= 60% of ref std per channel",
         },
         "pose04CasingProfile": {
             "cap": {"row": CAP04_JAMB_ROW, "xrange": list(CAP04_JAMB_XRANGE),
@@ -227,10 +259,10 @@ def capture_section(capdir):
         },
         "leafSeam": leaf_seam(cap04),
         "noRegression": {
-            "wallBox": {"box": list(WALL_BOX), "floorSkirtingCap": WALL_BASE, "cap": wall_cap,
-                        "delta": [round(c - r, 2) for c, r in zip(wall_cap, WALL_BASE)]},
-            "floorBox": {"box": list(FLOOR_BOX), "floorSkirtingCap": FLOOR_BASE, "cap": floor_cap,
-                         "delta": [round(c - r, 2) for c, r in zip(floor_cap, FLOOR_BASE)]},
+            "wallBox": {"box": list(WALL_BOX), "baseline": comparison["wallBox"]["cap"] if comparison else WALL_BASE, "cap": wall_cap,
+                        "delta": [round(c - r, 2) for c, r in zip(wall_cap, comparison["wallBox"]["cap"] if comparison else WALL_BASE)]},
+            "floorBox": {"box": list(FLOOR_BOX), "baseline": comparison["floorBox"]["cap"] if comparison else FLOOR_BASE, "cap": floor_cap,
+                         "delta": [round(c - r, 2) for c, r in zip(floor_cap, comparison["floorBox"]["cap"] if comparison else FLOOR_BASE)]},
             "gate": "+-3 per channel",
         },
     }
@@ -239,8 +271,10 @@ def capture_section(capdir):
 def main():
     ref04 = os.path.join(REF, "04-door-inside.jpg")
     cap04 = os.path.join(CAP, "runtime-04-door-inside.png")
-    marked_crop(ref04, REF04_LEAF_BOX, os.path.join(LB, "door-04-ref-leaf-crop.png"))
-    marked_crop(cap04, CAP04_LEAF_BOX, os.path.join(LB, "door-04-cap-leaf-crop.png"))
+    marked_boxes(ref04, REF04_LEAF_BOXES,
+                 os.path.join(LB, "door3-04-ref-leaf-boxes.png"), "ref-")
+    marked_boxes(os.path.join(CAP3, "runtime-04-door-inside.png"),
+                 (CAP04_LEAF_BOX,), os.path.join(LB, "door3-04-cap-leaf-box.png"), "cap-")
 
     sec = capture_section(CAP)
 
@@ -319,6 +353,14 @@ def main():
     }
     result["door2"] = capture_section(CAP2)
     result["door2"]["captures"] = "captures-door2 (final GLB: straight lever, dark glass, pale maple, spec-white casing)"
+    result["door3"] = capture_section(CAP3, result["door2"]["noRegression"])
+    result["door3"]["visionPanelGlb"] = {
+        "widthM": result["visionPanelGlb"]["widthM"],
+        "door2WidthM": DOOR2_VISION_WIDTH_M,
+        "deltaM": round(result["visionPanelGlb"]["widthM"] - DOOR2_VISION_WIDTH_M, 4),
+        "gate": "unchanged from door2",
+    }
+    result["door3"]["captures"] = "captures-door3 (corrected warm-orange maple; six standard poses unchanged)"
     out = os.path.join(LB, "door-measurements.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
