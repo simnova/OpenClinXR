@@ -131,16 +131,26 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
     expect(bodies, `body triangle count moved from its recorded pre-slice state:\n${bodies.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  // (4) COUNTERWEIGHT: this slice touches lashes. A brow count that moves means the fit order or the
-  //     helper strip was disturbed. Teeth and tongue are in the same extraction and stay helper-held.
-  it("(4) COUNTERWEIGHT: brows stay fitted, teeth and tongue stay helper-retained", async () => {
+  // (4) COUNTERWEIGHT: brows stay fitted; teeth and tongue stay helper-retained EXCEPT the
+  //     parent, which carries fitted CC0 teeth_base + tongue01 (parent-body-naming, 2026-09-28):
+  //     openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh 7,120 tris,
+  //     openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh 448 tris, zero hm08.
+  it("(4) COUNTERWEIGHT: brows stay fitted, teeth and tongue stay helper-retained (parent fitted)", async () => {
+    const PARENT_FITTED: Record<string, RegExp> = {
+      "mpfb-peds-parent-aisha.glb": /openclinxr_fitted_(teeth|tongue)_mpfb_parent_tara_johnson_v1_mesh/,
+    };
     for (const glb of assets()) {
       const ms = await meshes(glb);
       const brow = ms.find((m) => /brow/i.test(m.name));
       expect(brow?.name ?? "", `${glb} lost its fitted eyebrow`).toMatch(/fitted_eyebrow_mindfront_eyebrows_/);
       for (const feature of ["teeth", "tongue"]) {
         const f = ms.find((m) => new RegExp(feature, "i").test(m.name));
-        expect(f?.name ?? "", `${glb} ${feature} left hm08 helper retention`).toMatch(/hm08/);
+        const fitted = PARENT_FITTED[glb];
+        if (fitted) {
+          expect(f?.name ?? "", `${glb} ${feature} left fitted retention`).toMatch(fitted);
+        } else {
+          expect(f?.name ?? "", `${glb} ${feature} left hm08 helper retention`).toMatch(/hm08/);
+        }
       }
     }
   }, 1_800_000);

@@ -69,8 +69,8 @@
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "6ee21f5a0699ee9c63e0463b790aa65230e94c2385862ab1f0f8d9ea40658a40",
- "outputBytes": 9744244,
+ "outputSha256": "171c07be1a632cb13f049c7589d967ef0d2a34a77be658a0507593544ed6b29a",
+ "outputBytes": 38563696,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,

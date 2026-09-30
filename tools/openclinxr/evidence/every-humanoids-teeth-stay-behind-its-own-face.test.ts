@@ -206,6 +206,21 @@ describe("every humanoid's teeth stay behind its own face (#739)", () => {
     expect(p.marginAtRest, "measured +0.0040 after #738").toBeGreaterThan(0);
     expect(p.marginAtCap, "measured +0.0015 after #738").toBeGreaterThan(0);
   });
+
+  /**
+   * (6) FACTORY LOCK (parent-body-naming, 2026-09-30): the parent ships exactly one fitted teeth
+   * mesh and one fitted tongue mesh, zero hm08, with the canonical body name from the factory
+   * naming fix. Measured on the promoted bake at this commit: marginAtRest +0.0035,
+   * marginAtCap +0.0005, tongueGap +0.0048 (instrument logic, read-only).
+   */
+  it("(6) FACTORY LOCK: parent ships exactly 1 fitted teeth + 1 fitted tongue, 0 hm08", async () => {
+    const doc = await new NodeIO().read(`${DIR}/mpfb-peds-parent-aisha.glb`);
+    const names = doc.getRoot().listMeshes().map((m) => m.getName());
+    expect(names.filter((n) => n.startsWith("openclinxr_fitted_teeth_"))).toHaveLength(1);
+    expect(names.filter((n) => n.startsWith("openclinxr_fitted_tongue_"))).toHaveLength(1);
+    expect(names.filter((n) => /hm08/.test(n))).toEqual([]);
+    expect(names.filter((n) => /_body$/.test(n))).toEqual(["mpfb_parent_tara_johnson_v1_body"]);
+  });
 });
 
 // NOT TESTED: how any of the eleven looks — that is a pixel grade, and eleven assets is eleven

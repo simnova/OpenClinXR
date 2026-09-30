@@ -108,6 +108,41 @@ LOWER_GARMENT_BY_REFERENCE = {
 # un-keyed. See female-covering-lower-acquisition-2026-09-12.md.
 MISSING_FEMALE_COVERING_LOWER = "missing_female_covering_lower"
 FEMALE_COVERING_LOWER = "punkduck_female_tight_jeans"
+# Mesh-name identity per eye-colour manifest id. The default-macro path bakes
+# with --eye-colour-reference (a case manifest id such as peds_anxious_parent),
+# but shipped bytes and every evidence/runtime consumer key the body mesh off
+# the CASE ACTOR id (mpfb_parent_tara_johnson_v1_body, matching /_body$/).
+# Naming the body off the manifest id breaks the teeth-behind-face instrument
+# (returns null) and the brows-lashes-teeth body clause. This table maps the
+# manifest id to the shipped mesh prefix; unmapped subjects keep mpfb_<id>.
+MESH_PREFIX_BY_EYE_COLOUR_REFERENCE = {
+    "peds_anxious_parent": "mpfb_parent_tara_johnson_v1",
+}
+
+
+def mesh_prefix_for_subject(subject_id, eye_colour_reference):
+    """Resolve the mesh-name prefix for a baked subject (D1: factory Python)."""
+    if eye_colour_reference:
+        mapped = MESH_PREFIX_BY_EYE_COLOUR_REFERENCE.get(eye_colour_reference)
+        if mapped:
+            return mapped
+    return f"mpfb_{subject_id}"
+
+
+def claim_mesh_data_name(obj, name):
+    """Assign obj.data.name, purging orphan mesh datablocks that would force a `.001`.
+
+    `bpy.ops.object.delete()` leaves orphan mesh data behind; assigning a data
+    name that still exists auto-suffixes `.001`, which breaks the /_body$/
+    convention. Remove zero-user meshes holding the target name first.
+    """
+    for mesh in list(bpy.data.meshes):
+        if mesh.name == name and mesh.users == 0:
+            bpy.data.meshes.remove(mesh)
+    obj.data.name = name
+    return obj.data.name
+
+
 LOWER_GARMENT_BY_OUTPUT_STEM = {
     "mpfb-ob-patient-aisha": FEMALE_COVERING_LOWER,
     "mpfb-peds-parent-aisha": FEMALE_COVERING_LOWER,
@@ -2187,6 +2222,15 @@ def parse_args():
             "JPEG diffuse textures without post-processing the shipped GLB."
         ),
     )
+    parser.add_argument(
+        "--no-body-subdiv",
+        action="store_true",
+        help=(
+            "Skip the post-strip Catmull-Clark body subdiv (#388-era topology). "
+            "Default bakes render_levels=1 (26,756 -> 107,024 tris); pass this to "
+            "match the pre-subdiv shipped 26,756-class body."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -3611,7 +3655,7 @@ def main():
         bpy.context.view_layer.update()
         prefix = f"mpfb_{args.reference}"
         human.name = f"{prefix}_body_mesh"
-        human.data.name = f"{prefix}_body"
+        claim_mesh_data_name(human, f"{prefix}_body")
     else:
         # No reference: default macros UNLESS the case declares a numeric identity
         # (#576). The manifest id comes through --eye-colour-reference (the #519
@@ -3630,8 +3674,11 @@ def main():
 
             TargetService.bake_targets(human)
             bpy.context.view_layer.update()
-        human.name = f"mpfb_{subject_id}_body_mesh"
-        human.data.name = f"mpfb_{subject_id}_body"
+        # Default-macro path: mesh names key off the case actor id, not the
+        # manifest id — materialize_mpfb MESH_PREFIX_BY_EYE_COLOUR_REFERENCE.
+        _mesh_prefix = mesh_prefix_for_subject(subject_id, args.eye_colour_reference)
+        human.name = f"{_mesh_prefix}_body_mesh"
+        claim_mesh_data_name(human, f"{_mesh_prefix}_body")
 
     # #509/#581 — case-declared pregnancy reaches a vertex. The OB fixture declares
     # 34 weeks; before this wiring nothing in the pipeline consumed it (the planted
@@ -4723,8 +4770,13 @@ def main():
         material_type="MAKESKIN",
     )
     bpy.context.view_layer.update()
-    _teeth_asset.data.name = f"openclinxr_fitted_teeth_mpfb_{subject_id}_mesh"
-    _tongue_asset.data.name = f"openclinxr_fitted_tongue_mpfb_{subject_id}_mesh"
+    _mesh_prefix = (
+        f"mpfb_{args.reference}"
+        if args.reference
+        else mesh_prefix_for_subject(subject_id, args.eye_colour_reference)
+    )
+    _teeth_asset.data.name = f"openclinxr_fitted_teeth_{_mesh_prefix}_mesh"
+    _tongue_asset.data.name = f"openclinxr_fitted_tongue_{_mesh_prefix}_mesh"
     for _poly in _teeth_asset.data.polygons:
         _poly.use_smooth = True
     for _poly in _tongue_asset.data.polygons:
@@ -6624,27 +6676,37 @@ def main():
     bpy.context.scene.frame_set(1)  # bake at rest pose — deterministic UV sampling
     # Apply the unapplied body SUBSURF now that every mhclo fit has bound to the
     # 13,380-vert strip. remove_helpers=False: cages already gone.
+    # --no-body-subdiv restores the #388-era 26,756-class body (fitted teeth/tongue
+    # unaffected: they fit at subdiv_levels=0 after this stage).
     from bl_ext.user_default.mpfb.services.exportservice import ExportService as _ExportServiceSubdiv  # noqa: E402
 
-    verts_before_subdiv = len(human.data.vertices)
-    tris_before_subdiv = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
-    _ExportServiceSubdiv.bake_modifiers_remove_helpers(
-        human, bake_masks=False, bake_subdiv=True, remove_helpers=False, also_proxy=True
-    )
-    bpy.context.view_layer.update()
-    print(
-        "BODY_SUBDIV_APPLIED "
-        + json.dumps(
-            {
-                "vertsBefore": verts_before_subdiv,
-                "vertsAfter": len(human.data.vertices),
-                "trisBefore": tris_before_subdiv,
-                "trisAfter": sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons),
-            }
+    if not args.no_body_subdiv:
+        verts_before_subdiv = len(human.data.vertices)
+        tris_before_subdiv = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
+        _ExportServiceSubdiv.bake_modifiers_remove_helpers(
+            human, bake_masks=False, bake_subdiv=True, remove_helpers=False, also_proxy=True
         )
-    )
+        bpy.context.view_layer.update()
+        print(
+            "BODY_SUBDIV_APPLIED "
+            + json.dumps(
+                {
+                    "vertsBefore": verts_before_subdiv,
+                    "vertsAfter": len(human.data.vertices),
+                    "trisBefore": tris_before_subdiv,
+                    "trisAfter": sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons),
+                }
+            )
+        )
+    else:
+        print("BODY_SUBDIV_SKIPPED --no-body-subdiv")
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
+    # Parent path only: MPFB's subdiv bake swaps body mesh data via
+    # data.copy(), which keeps a `.001` suffix on assignment. Re-claim the
+    # exact body name after the swap so the export matches /_body$/.
+    if mesh_prefix_for_subject(subject_id, args.eye_colour_reference) == "mpfb_parent_tara_johnson_v1":
+        claim_mesh_data_name(human, "mpfb_parent_tara_johnson_v1_body")
     bpy.ops.object.shade_smooth()
     print("BODY_SHADE_SMOOTH True")
     if skin_material_name not in [m.name for m in human.data.materials]:
