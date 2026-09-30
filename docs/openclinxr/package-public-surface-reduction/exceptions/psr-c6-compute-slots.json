@@ -1,0 +1,22 @@
+{
+  "id": "psr-c6-compute-slots",
+  "reviewedSourceCandidate": "75c33d2ebb62a75a086edcd9e994991f0107c86f",
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1234,
+      "threshold": 1000,
+      "owner": "compute-slots implementation worker",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source review 75c33d2ebb62a75a086edcd9e994991f0107c86f: packages/openclinxr/compute-slots/src/index.ts publishes exactly 3 runtime + 4 type exports, single '.' entrypoint, no wildcard; 2026-09-29",
+      "reason": "The compute-slots package adds seven explicit contracts to the existing 1227 root symbols: withComputeSlot and withComputeSlotSync gate asynchronous and synchronous Blender launchers, readComputeSlotsStatus supports the status CLI and integration tests, and four named types describe metadata, leases, pool status and machine status. These form one Node-only package consumed through its supported package name by factory-stations and tools. This candidate-specific measurement does not increase the review target or alter historical exceptions."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 24,
+      "threshold": 15,
+      "owner": "compute-slots implementation worker",
+      "reviewedBy": "Claude coordinator (independent of the Codex implementation worker); exact source review 75c33d2ebb62a75a086edcd9e994991f0107c86f: packages/openclinxr/compute-slots/src/index.ts publishes exactly 3 runtime + 4 type exports, single '.' entrypoint, no wildcard; 2026-09-29",
+      "reason": "Adding the seven-symbol compute-slots root changes the population from 46 to 47 packages and reduces the median from 25.5 to 24. The verifier requires an exact independently reviewed measurement even for this decrease. The target remains 15; historical exceptions remain unchanged."
+    }
+  ]
+}

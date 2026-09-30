@@ -3428,6 +3428,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/evidence/psr-09.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/evidence/psr-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-slots.json` - keep-evidence; keep; Independently reviewed compute-slots public-surface measurements; preserves quantitative targets and historical exceptions.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-motion-admission-2026-09-16.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/raw-inventory.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
