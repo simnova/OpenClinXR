@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
  * The two skin-bake stages force `scene.cycles.device = "CPU"` with no stated
  * reason anywhere (no comment, no commit message — see #343 origin cccd5e095).
  * GPU vs CPU rendering can shift baked pixels, which would churn every shipped
- * texture, so the default stays CPU. `--cycles-device metal` opts in: it enables
+ * texture, so the default stays CPU. `--bake-device metal` opts in: it enables
  * the METAL cycles device in preferences and sets GPU only inside the same two
  * forced regions (prev/restore shape kept), falling back to CPU on any failure.
  */
@@ -24,11 +24,16 @@ function mat(): string {
 }
 
 describe("skin-bake cycles device defaults to CPU with a Metal opt-in", () => {
-  it("argparse exposes --cycles-device with default cpu", () => {
+  it("argparse exposes --bake-device with default cpu", () => {
     const src = mat();
-    expect(src, "flag declared").toMatch(/"--cycles-device"/);
-    expect(src, "default is cpu").toMatch(/"--cycles-device"[\s\S]{0,300}?default="cpu"/);
+    expect(src, "flag declared").toMatch(/"--bake-device"/);
+    expect(src, "default is cpu").toMatch(/"--bake-device"[\s\S]{0,300}?default="cpu"/);
     expect(src, "choices cpu/metal").toMatch(/choices=\["cpu",\s*"metal"\]/);
+  });
+
+  it("COUNTERWEIGHT: the old --cycles-device name is gone (Blender-native collision)", () => {
+    const src = mat();
+    expect(src, "no --cycles-device argparse flag").not.toMatch(/"--cycles-device"/);
   });
 
   it("metal sets GPU only inside the two forced regions and falls back to CPU", () => {

@@ -1676,18 +1676,20 @@ def verify_garment_textures_in_glb(glb_path):
     )
 
 
-_CYCLES_DEVICE = "cpu"
+_BAKE_DEVICE = "cpu"
 
 
 def _resolve_cycles_bake_device():
     """Return the Cycles bake device; default CPU keeps shipped textures byte-stable.
 
-    GPU vs CPU rendering can shift baked pixels, so `--cycles-device metal` is
-    opt-in only. On metal, enable the METAL preference devices and return "GPU";
+    GPU vs CPU rendering can shift baked pixels, so `--bake-device metal` is
+    opt-in only (--cycles-device is a Blender-native flag and cannot be reused
+    here: Blender 5.1 intercepts it after `--` and hard-fails before Python
+    runs). On metal, enable the METAL preference devices and return "GPU";
     on any Metal failure (no device, exception) log and return "CPU" — never
     hard-fail a bake for the accelerator.
     """
-    if _CYCLES_DEVICE != "metal":
+    if _BAKE_DEVICE != "metal":
         return "CPU"
     try:
         prefs = bpy.context.preferences.addons.get("cycles")
@@ -2258,13 +2260,22 @@ def parse_args():
         ),
     )
     parser.add_argument(
-        "--cycles-device",
+        "--bake-device",
         default="cpu",
         choices=["cpu", "metal"],
         help=(
             "Cycles bake device for the two skin-bake stages. Default cpu keeps "
             "shipped textures byte-stable; metal enables the METAL Cycles device "
-            "and bakes on GPU (falls back to CPU on any Metal failure)."
+            "and bakes on GPU (falls back to CPU on any Metal failure). Named "
+            "--bake-device because --cycles-device is Blender-native."
+        ),
+    )
+    parser.add_argument(
+        "--print-bake-device",
+        action="store_true",
+        help=(
+            "Resolve the bake device via _resolve_cycles_bake_device, print "
+            "BAKE_DEVICE=<CPU|GPU>, then exit before any bake work."
         ),
     )
     parser.add_argument(
@@ -3606,8 +3617,11 @@ def replay_seated_rest_bind(actor_glb):
 
 def main():
     args = parse_args()
-    global _CYCLES_DEVICE
-    _CYCLES_DEVICE = args.cycles_device
+    global _BAKE_DEVICE
+    _BAKE_DEVICE = args.bake_device
+    if args.print_bake_device:
+        print(f"BAKE_DEVICE={_resolve_cycles_bake_device()}")
+        return
     # #687 — D13: a bake must say who it is baking. The naming identity comes from
     # --reference (measured-reference path) or --eye-colour-reference (the manifest-id
     # channel the default-macro path already uses to carry the authored identity,
