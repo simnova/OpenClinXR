@@ -104,6 +104,9 @@ importers:
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
+      '@openclinxr/service-local-compute':
+        specifier: workspace:*
+        version: link:packages/openclinxr/service-local-compute
       '@openclinxr/xr-asset-loading':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-asset-loading

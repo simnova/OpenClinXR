@@ -38,6 +38,7 @@ function runProcess(input: {
   cwd: string;
   timeoutMs: number;
   env: Record<string, string | undefined>;
+  timeoutKillGraceMs?: number | false;
 }): Promise<ComputeProcessResult> {
   return new Promise((resolve) => {
     const child = spawn(input.command, input.args, {
@@ -58,7 +59,9 @@ function runProcess(input: {
       ? setTimeout(() => {
           timedOut = true;
           child.kill("SIGTERM");
-          setTimeout(() => child.kill("SIGKILL"), 5_000).unref();
+          if (input.timeoutKillGraceMs !== false) {
+            setTimeout(() => child.kill("SIGKILL"), input.timeoutKillGraceMs ?? 5_000).unref();
+          }
         }, input.timeoutMs)
       : null;
     child.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString("utf8"); });
@@ -80,12 +83,24 @@ export function createLocalComputeServices(options: LocalComputeServicesOptions 
   return {
     blender: {
       run: (request) => {
-        const args = failClosedBlenderArgs([
+        const requestedArgs = [
           ...request.args,
           ...(request.device === undefined ? [] : ["--device", request.device]),
-        ]);
+        ];
+        const args = request.ensurePythonExitCode === false
+          ? requestedArgs
+          : failClosedBlenderArgs(requestedArgs);
         return withComputeSlot("blender", { label: request.label, cwd }, () =>
-          runProcess({ command: request.script, args, cwd, timeoutMs: request.timeoutMs, env }));
+          runProcess({
+            command: request.script,
+            args,
+            cwd,
+            timeoutMs: request.timeoutMs,
+            env,
+            ...(request.timeoutKillGraceMs === undefined
+              ? {}
+              : { timeoutKillGraceMs: request.timeoutKillGraceMs }),
+          }));
       },
     },
     gpuJob: {

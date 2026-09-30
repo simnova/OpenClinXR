@@ -32,12 +32,12 @@
  */
 
 import { spawn } from "node:child_process";
-import { withComputeSlot } from "@openclinxr/compute-slots";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute";
 import { measureStanceGroundAdvance } from "@openclinxr/xr-humanoid-animation/case-owned-approach-runtime";
 // Same package (repo-root package.json, no package.json under either tools/ subtree) as this
 // file — not a cross-package reach, so it is outside the shrink-only frozen-boundary freeze that
@@ -149,20 +149,16 @@ function resolveBlender(): string {
   return "blender";
 }
 
-function runBlender(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
-  return withComputeSlot("blender", { label: "bind-walk-clip-all", cwd: REPO_ROOT }, () =>
-    new Promise((resolve) => {
-      const child = spawn(resolveBlender(), args, { cwd: REPO_ROOT, env: process.env });
-      let stdout = "";
-      let stderr = "";
-      const timer = setTimeout(() => child.kill("SIGTERM"), 600_000);
-      child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString()));
-      child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
-      child.on("close", (code) => {
-        clearTimeout(timer);
-        resolve({ code: code ?? 1, stdout, stderr });
-      });
-    }));
+async function runBlender(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
+  const result = await createLocalComputeServices({ cwd: REPO_ROOT, env: process.env }).blender.run({
+    script: resolveBlender(),
+    args,
+    label: "bind-walk-clip-all",
+    timeoutMs: 600_000,
+    ensurePythonExitCode: false,
+    timeoutKillGraceMs: false,
+  });
+  return { code: result.code, stdout: result.stdout, stderr: result.stderr };
 }
 
 function runNode(tsxArgs: string[]): Promise<{ code: number; stdout: string; stderr: string }> {

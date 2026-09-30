@@ -27,8 +27,8 @@ describe("heavy local compute launches use the compute-services facade", () => {
     expect(checkDirectComputeLaunchFreeze(0, sites)[0]).toContain("do NOT raise the ceiling");
   });
 
-  it("shows the two migrated sites paid the count down", () => {
-    expect(DIRECT_COMPUTE_LAUNCH_INITIAL_COUNT - DIRECT_COMPUTE_LAUNCH_CEILING).toBe(2);
+  it("shows the three migrated sites paid the count down", () => {
+    expect(DIRECT_COMPUTE_LAUNCH_INITIAL_COUNT - DIRECT_COMPUTE_LAUNCH_CEILING).toBe(3);
   });
 
   it("does not mistake comments or strings for launches", () => {

@@ -39,6 +39,24 @@ describe("local compute services", () => {
     expect(readFileSync(path.join(root, "locks", "usage.jsonl"), "utf8")).toContain('"label":"test:blender"');
   });
 
+  it("preserves a legacy Blender argv when requested", async () => {
+    const root = tempRoot();
+    const executable = path.join(root, "blender-stub.mjs");
+    writeFileSync(executable, "#!/usr/bin/env node\nprocess.stdout.write(JSON.stringify(process.argv.slice(2)));\n");
+    chmodSync(executable, 0o755);
+    const result = await createLocalComputeServices({ cwd: root }).blender.run({
+      script: executable,
+      args: ["--background", "--python", "stage.py", "--", "--output", "actor.glb"],
+      label: "test:blender-preserve-argv",
+      timeoutMs: 5_000,
+      ensurePythonExitCode: false,
+      timeoutKillGraceMs: false,
+    });
+    expect(JSON.parse(result.stdout)).toEqual([
+      "--background", "--python", "stage.py", "--", "--output", "actor.glb",
+    ]);
+  });
+
   it("reports timeout and closes a captured browser", async () => {
     const root = tempRoot();
     const executable = path.join(root, "slow.mjs");

@@ -25,6 +25,10 @@ export type BlenderRunRequest = {
   args: string[];
   label: string;
   timeoutMs: number;
+  /** Preserve a legacy launcher's argv when false; defaults to fail-closed Python execution. */
+  ensurePythonExitCode?: boolean;
+  /** Send SIGKILL this many milliseconds after a timeout SIGTERM; false preserves SIGTERM-only callers. */
+  timeoutKillGraceMs?: number | false;
   /** Appended as `--device <device>` after the supplied script arguments. */
   device?: BlenderDevice;
 };
