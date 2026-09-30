@@ -26,6 +26,11 @@ Speckle: the same runtime capture showed per-pixel grain (albedo stddev
 ~3.5x and pinholes are 2x2 blobs; the strengthened large-scale mottle
 (~12 cm cells, resolved at runtime scale) carries the rendered stddev
 over the >= 2 floor.
+
+Floor-change recalibration (2026-09-29): the clean pose-03 tile box moved
+from (199.64, 193.63, 184.33) to (195.65, 189.91, 180.73), a per-channel
+drop of (3.99, 3.72, 3.60) with unchanged ceiling geometry. The measured
+runtime transfer is ~0.81, so +5 albedo units restores ~4 rendered units.
 Regenerate:  python3 generate-tile-face.py
 Writes:      ceiling-tile-face.png (512x512 RGB, in this directory).
 """
@@ -51,7 +56,7 @@ SEED = 14
 # RENDERED value, not an albedo -- 1.23x above it compensates the measured
 # ~0.81 lighting+ACES falloff (see header). R~=G with B ~7 below keeps the
 # reference warm signature.
-BASE_RGB = (196.6, 196.6, 189.2)
+BASE_RGB = (201.6, 201.6, 194.2)
 # Grain: mostly shared luminance grain (keeps the warm gap) plus an
 # independent per-channel term. ~3.5x the naive amplitudes: single-pixel
 # grain minifies away at runtime scale (albedo stddev 4.24 rendered as

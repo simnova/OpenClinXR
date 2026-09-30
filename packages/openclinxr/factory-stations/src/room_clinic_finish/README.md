@@ -135,6 +135,21 @@ like the ceiling tile face, and every byte under `textures/` joins the
 `resolveStageKeyFiles`). Other presets keep the legacy 1.2 m
 sheet-vinyl photo field (their tests pin it).
 
+## Documented exception: suspended ceiling system and LED troffer
+
+The acoustic tile field, T-bar grid, and 2x4 LED panel are emitted by
+`room_clinic_finish`. Infinigen-first was investigated and refused: the room
+generator provides a structural ceiling surface but has no selectable asset
+class for a suspended acoustic ceiling assembly or a framed lay-in LED panel.
+The finish therefore adds the missing system without replacing the baked wall
+shell. The troffer uses four named 30 mm painted-metal frame nodes around a
+slightly recessed, deterministic centre-bright diffuser texture; it does not
+use the rejected photographed louvre fixture. All dimensions and texture bytes
+join the finish-stage cache key through `compose.py` and `textures/`.
+The grid keeps the reference 24 mm member width, uses off-white rather than
+pure-white paint, and overlays 3 mm darker lips on both sides so tile faces
+meet each member with a small shadowed reveal instead of a flat bright stripe.
+
 ## Documented exception: the ward thin cove base
 
 Under `ward_photo` the finish removes Infinigen's shell floor skirting
@@ -183,8 +198,9 @@ face (procedural `ceiling-tile-face.png` plus derived normal/roughness) and
 the door leaf (leaf-aspect `door-maple-leaf.jpg` plus derived
 normal/roughness under `ward_photo`; legacy square maple, albedo-only,
 elsewhere) link Normal Map and roughness textures with the same node pattern
-as the shell bake's `build_role_material`. T-bar strips and the troffer lens
-stay flat/emissive geometry additions, untouched.
+as the shell bake's `build_role_material`. T-bar strips stay flat geometry;
+the troffer diffuser carries its generated gradient as both base colour and
+emissive texture inside the separate metal frame.
 
 The ward leaf keeps the source's warm orange chroma. Its tone is calibrated
 against three native-size pose-04 leaf boxes (mean about 190/152/103), not

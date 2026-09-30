@@ -1,21 +1,20 @@
 import { execFile } from "node:child_process";
 import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import path from "node:path";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { describe, expect, it, beforeAll } from "vitest";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { beforeAll, describe, expect, it } from "vitest";
 
 const execFileAsync = promisify(execFile);
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 /**
  * OBSERVABLE: the room_clinic_finish ceiling shows ONE grid (real T-bar
- * strips) over a structure-free tile face, and the troffer is a flat
- * emissive panel with no photo texture (S6 ceiling/troffer rework).
+ * strips) over a structure-free tile face, and the troffer is an inset
+ * gradient diffuser in a real slim frame (S6 ceiling/troffer rework).
  *
  * Defects (graded 2026-09-28 on poses 03/05 at native resolution):
  * (1) ceiling-acoustic-tile.jpg photographed a 4x4 tile patch WITH its own
@@ -23,8 +22,8 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  *     showed two overlapping misaligned grids. The replacement tile-face
  *     texture holds speckle only; the grid lines are real strip geometry.
  * (2) troffer-light.jpg photographed a yellow egg-crate louvre fixture, not
- *     the v2 flat 600x1200 lay-in LED panel. The replacement troffer
- *     material is a flat near-white emissive face with no image at all.
+ *     the v2 flat 600x1200 lay-in LED panel. The replacement troffer has a
+ *     deterministic centre-bright diffuser texture and a 30 mm metal frame.
  *
  * Runs the REAL compose.py (raw Blender spawn, no package-internal imports)
  * on the same fixture shell as the S6 ceiling-troffer test, then asserts
@@ -35,7 +34,8 @@ const SRC = dirname(fileURLToPath(import.meta.url));
  *   interior mean (live PIL/numpy analysis on temp files);
  * - real openclinxr_tbar_* strip meshes sit on the 0.6 m grid lines within
  *   5 mm, 24 mm wide, underside 2 mm proud of the T-bar plane;
- * - the troffer material is emissive AND carries no texture in any slot.
+ * - the troffer has a named 20-40 mm frame in the exported GLB;
+ * - the diffuser material is emissive and carries the gradient texture.
  *
  * Live Blender in this test per dispatch; one compose run shared by all
  * cases via beforeAll; timeout 5 min.
@@ -307,16 +307,42 @@ describe("the room clinic finish ceiling grid and flat troffer", () => {
         expect(sorted[i]! - sorted[i - 1]!, "consecutive T-bar spacing").toBeCloseTo(GRID, 2);
       }
     }
+    const edgeMeshes = doc.getRoot().listMeshes().filter((m) => m.getName().includes("openclinxr_tbar_edge_"));
+    expect(edgeMeshes.length, "two shadowed edge/reveal strips per T-bar span").toBe(2 * (xStrips.length + yStrips.length));
+    const materials = doc.getRoot().listMaterials();
+    const tbarMaterial = materials.find((material) => material.getName() === "openclinxr_finish_tbar");
+    const edgeMaterial = materials.find((material) => material.getName() === "openclinxr_finish_tbar_edge");
+    expect(tbarMaterial, "off-white T-bar material").toBeDefined();
+    expect(edgeMaterial, "shadowed T-bar edge material").toBeDefined();
+    expect(tbarMaterial!.getBaseColorFactor()[0]).toBeLessThan(0.9);
+    expect(edgeMaterial!.getBaseColorFactor()[0]).toBeLessThan(tbarMaterial!.getBaseColorFactor()[0]!);
   }, 120_000);
 
-  it("(3) the troffer material is emissive and carries no image texture at all", async () => {
+  it("(3) the troffer exports a named 20-40 mm metal frame", async () => {
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const doc = await io.read(prepared!.workGlb);
-    const trofferMat = doc.getRoot().listMaterials().find((m) => m.getName().includes("troffer"));
+    const frameNodes = doc.getRoot().listNodes().filter((n) => n.getName().startsWith("openclinxr_troffer_frame_"));
+    expect(frameNodes.length, "named troffer frame nodes in the GLB").toBe(4);
+    for (const node of frameNodes) {
+      const mesh = node.getMesh();
+      expect(mesh, `${node.getName()} carries frame geometry`).not.toBeNull();
+      const position = mesh!.listPrimitives()[0]!.getAttribute("POSITION")!;
+      const min = position.getMin([]);
+      const max = position.getMax([]);
+      const dimensions = max.map((value, index) => value - min[index]!).sort((a, b) => a - b);
+      expect(dimensions[1], `${node.getName()} visible frame width`).toBeGreaterThanOrEqual(0.02);
+      expect(dimensions[1], `${node.getName()} visible frame width`).toBeLessThanOrEqual(0.04);
+    }
+  }, 120_000);
+
+  it("(4) the troffer diffuser is emissive and carries its gradient texture", async () => {
+    const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+    const doc = await io.read(prepared!.workGlb);
+    const trofferMat = doc.getRoot().listMaterials().find((m) => m.getName().includes("troffer_diffuser"));
     expect(trofferMat, "expected a troffer material in the export").toBeDefined();
     expect(Math.max(...trofferMat!.getEmissiveFactor())).toBeGreaterThan(0);
-    expect(trofferMat!.getBaseColorTexture(), "no louvre photo on baseColor").toBeNull();
-    expect(trofferMat!.getEmissiveTexture(), "no photo on emissive").toBeNull();
+    expect(trofferMat!.getBaseColorTexture(), "gradient diffuser on baseColor").not.toBeNull();
+    expect(trofferMat!.getEmissiveTexture(), "gradient diffuser on emissive").not.toBeNull();
     expect(trofferMat!.getNormalTexture(), "no photo on normal").toBeNull();
     expect(trofferMat!.getOcclusionTexture(), "no photo on occlusion").toBeNull();
     expect(trofferMat!.getMetallicRoughnessTexture(), "no photo on metallicRoughness").toBeNull();

@@ -169,7 +169,8 @@ def place_rig_probe_lights(rig_lights: List[Dict[str, object]]) -> None:
 # medium/light gray. These materials keep their flat Base Color: no bake
 # image, no texture link. Gated on the exact finish-pipeline material name
 # so the shared bank pipeline (shader_plaster etc.) is unaffected.
-FINISH_FLAT_SKIP_MATERIALS = ("openclinxr_finish_wall", "openclinxr_finish_cove", "openclinxr_finish_tbar")
+FINISH_FLAT_SKIP_MATERIALS = ("openclinxr_finish_wall", "openclinxr_finish_cove", "openclinxr_finish_tbar",
+                                "openclinxr_finish_tbar_edge", "openclinxr_finish_troffer_frame")
 # Shell skirting ships a pinned matte vinyl grey (shell_bake_skirting: flat
 # Base Color scalar, no albedo image). The lit DIFFUSE rebake below would bake
 # shading into that flat -- the same defect class the finish flats skip for

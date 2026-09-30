@@ -1,13 +1,12 @@
 import { execFile } from "node:child_process";
 import { copyFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import path from "node:path";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { describe, expect, it, beforeAll } from "vitest";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { beforeAll, describe, expect, it } from "vitest";
 
 const execFileAsync = promisify(execFile);
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -202,20 +201,22 @@ describe("the room clinic finish ceiling grid and flush troffer", () => {
     expect(Math.abs(grid.origin[0] / GRID - Math.round(grid.origin[0] / GRID))).toBeLessThan(1e-6);
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const doc = await io.read(prepared!.workGlb);
-    const trofferMesh = doc.getRoot().listMeshes().find((m) => m.getName().includes("troffer"));
-    expect(trofferMesh, "expected a troffer mesh in the export").toBeDefined();
+    const trofferMeshes = doc.getRoot().listMeshes().filter((m) => m.getName().includes("troffer"));
+    expect(trofferMeshes.length, "expected diffuser and frame meshes in the export").toBe(5);
     let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, maxY = -Infinity;
-    for (const prim of trofferMesh!.listPrimitives()) {
-      const arr = (prim.getAttribute("POSITION")!.getArray() as Float32Array);
-      for (let i = 0; i < arr.length; i += 3) {
-        const x = arr[i] as number;
-        const y = arr[i + 1] as number;
-        const z = arr[i + 2] as number;
-        if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
-        if (z < minZ) minZ = z;
-        if (z > maxZ) maxZ = z;
-        if (y > maxY) maxY = y;
+    for (const mesh of trofferMeshes) {
+      for (const prim of mesh.listPrimitives()) {
+        const arr = (prim.getAttribute("POSITION")!.getArray() as Float32Array);
+        for (let i = 0; i < arr.length; i += 3) {
+          const x = arr[i] as number;
+          const y = arr[i + 1] as number;
+          const z = arr[i + 2] as number;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (z < minZ) minZ = z;
+          if (z > maxZ) maxZ = z;
+          if (y > maxY) maxY = y;
+        }
       }
     }
     // glTF y is up: the AABB top is the troffer face nearest the ceiling plane.
