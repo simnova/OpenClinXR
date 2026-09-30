@@ -26817,6 +26817,132 @@
       "rationale": "Final sheet (06-floor-base): v2 ref left, final-state runtime right."
     },
     {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (01-toward-door): seed-205 chain GLB with slim T-bar grid and framed luminous troffer; measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (02-toward-bed-wall): seed-205 chain GLB with slim T-bar grid and framed luminous troffer; tile measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (03-ceiling-corner): seed-205 chain GLB with slim T-bar grid and framed luminous troffer; tile measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (04-door-inside): seed-205 chain GLB with slim T-bar grid and framed luminous troffer."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (05-troffer-junction): seed-205 chain GLB; diffuser brightness/gradient and T-bar profile measurement source."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling runtime frame (06-floor-base): seed-205 chain GLB with slim T-bar grid and framed luminous troffer."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/captures-ceiling/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling capture manifest: GLB path and per-PNG shas for the six standard-pose runtime frames."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-01-toward-door-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (01-toward-door): v2 ref left, ceiling-finish runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-02-toward-bed-wall-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (02-toward-bed-wall): v2 ref left, ceiling-finish runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-03-ceiling-corner-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (03-ceiling-corner): v2 ref left, ceiling-finish runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-04-door-inside-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (04-door-inside): v2 ref left, ceiling-finish runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-05-troffer-junction-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (05-troffer-junction): v2 ref left, framed luminous-troffer runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-06-floor-base-v2-side-by-side.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling sheet (06-floor-base): v2 ref left, ceiling-finish runtime right."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-02-cap-tile-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling pose-02 runtime tile measurement box overlay."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-02-ref-tile-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling pose-02 v2-reference tile measurement box overlay."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-03-cap-tile-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling pose-03 runtime tile measurement box overlay."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-03-ref-tile-crop.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling pose-03 v2-reference tile measurement box overlay."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/light-balance/ceiling-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ceiling acceptance measurements: troffer frame nodes/width, diffuser brightness/clipping/gradient, matched T-bar profiles, tile patches, and wall/floor no-regression."
+    },
+    {
       "path": "docs/openclinxr/room-realism/light-balance/captures-floor-skirting/runtime-01-toward-door.png",
       "authority": "keep-evidence",
       "tracked": true,

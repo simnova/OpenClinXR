@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/ceiling-codex/.openclinxr/evidence/ward-finish-chain/ward-chain.work.glb",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-01-toward-door.png",
+      "pngBytes": 636490,
+      "pngSha256": "6cfc5a29a27af6fa815a6c66c524bf7e98fb4f15b346f84a665d14d9df4308ba"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-02-toward-bed-wall.png",
+      "pngBytes": 633409,
+      "pngSha256": "8867d51a6425da01937438aff1f1c2324ebe379ce94dbcc141d26df72e5af1d4"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-03-ceiling-corner.png",
+      "pngBytes": 1088364,
+      "pngSha256": "3861e033c46d8fcc9ae5e57d4a8bdf06b583d32e0a1e33771be072c3e8b59d83"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.6,
+        "y": 1.5,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.25,
+        "z": -1.8
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-04-door-inside.png",
+      "pngBytes": 632608,
+      "pngSha256": "c249c5debf0b9634493da98e82504e43f361bd27dea4d80610621ea9775b8a85"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-05-troffer-junction.png",
+      "pngBytes": 1068042,
+      "pngSha256": "e3d44a891bcda776c7d280681786a7fc5aa19babb55e4432f54a3a426b28864b"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.32,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0,
+        "y": -0.05,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ceiling-codex/docs/openclinxr/room-realism/light-balance/captures-ceiling/runtime-06-floor-base.png",
+      "pngBytes": 774565,
+      "pngSha256": "64e89e39c14ed859c621e32c93c1ff32f8bb11ba2e9a6e241ca87fd46b8798a0"
+    }
+  ]
+}
