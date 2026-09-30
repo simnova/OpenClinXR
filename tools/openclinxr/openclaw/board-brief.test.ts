@@ -60,6 +60,15 @@ describe("briefFromIssue", () => {
     expect(result.prompt).toContain("Strictness deltas");
     expect(result.prompt).toContain("Fix the deferred strictness deltas.");
   });
+
+  it("instructs every worker to run long commands in the foreground and cites the measurement", () => {
+    const result = briefFromIssue({ number: 28, title: "Strictness deltas", body: withProofs });
+    if (!result.dispatchable) throw new Error("expected dispatchable brief");
+    expect(result.prompt).toContain(
+      "Run builds, the room chain, captures and tests in the FOREGROUND and wait for them.",
+    );
+    expect(result.prompt).toContain("docs/agent-ops/worker-session-time-split-2026-09-29.md");
+  });
 });
 
 describe("done_when extraction stops at the bullet list", () => {
