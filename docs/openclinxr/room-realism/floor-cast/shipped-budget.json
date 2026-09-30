@@ -1,7 +1,7 @@
 {
   "file": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
-  "sha256": "afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e",
-  "bytes": 9451824,
+  "sha256": "0ca9332ce64223fb11c75251204b2d861a8dc83dc17dfe10c24a44dfd34f92fe",
+  "bytes": 9452160,
   "byteCeiling": 209715200,
   "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
   "decodedWardCeilingMiB": 56,
@@ -167,8 +167,8 @@
   "primitiveCount": 98,
   "triangles": 6533,
   "materiallessPrimitives": 0,
-  "rigSha256": "a060ded8b52959b496e8e58246f5c7ea03e7275b01eb746760e9189477299f5f",
-  "rigBytes": 2104,
+  "rigSha256": "3d3ee88ffb152d86923ca6d06c4a6be41902a7a3cffddde27c51e401d875d439",
+  "rigBytes": 2125,
   "imageComparison": [
     {
       "name": "shell_bake_normal",
@@ -257,7 +257,7 @@
     },
     {
       "name": "door-glass-reflection",
-      "beforeMiBWithMips": 0.665,
+      "beforeMiBWithMips": null,
       "afterMiBWithMips": 0.665
     },
     {

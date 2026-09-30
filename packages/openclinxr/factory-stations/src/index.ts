@@ -60,13 +60,5 @@ export {
   runRoomGenerate,
 } from "./room_generate/run.js";
 export {
-  ROOM_CHAIN_RECIPES,
-  roomChainRecipeFor,
-} from "./room_chain/recipes.js";
-export type {
-  RoomChainEnvironmentId,
-  RoomChainRecipe,
-} from "./room_chain/recipes.js";
-export {
   runStaging,
 } from "./staging/run.js";

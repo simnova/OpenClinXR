@@ -33,12 +33,12 @@ those pixels and the tracked v2 references.
 
 `ship-ward-provenance.ts` re-read the installed GLB and rig, required them to
 equal the chain outputs, and produced `shipped-budget.json` plus the runtime
-provenance entry. The shipped GLB is 9,451,824 bytes, SHA-256
-`afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e`,
+provenance entry. The shipped GLB is 9,452,160 bytes, SHA-256
+`0ca9332ce64223fb11c75251204b2d861a8dc83dc17dfe10c24a44dfd34f92fe`,
 with 6,533 triangles, 98 primitives, zero material-less primitives, and
 49.2983 MiB decoded RGBA including the 1.33× mip allowance (limit 56 MiB).
 The rig SHA-256 is
-`a060ded8b52959b496e8e58246f5c7ea03e7275b01eb746760e9189477299f5f`.
+`3d3ee88ffb152d86923ca6d06c4a6be41902a7a3cffddde27c51e401d875d439`.
 SC-06 was rerun through its live runtime observer and re-derived
 `geom-v1-d983811a-17`, door shift −0.7699999046 m, and board shift
 +0.7699999046 m.

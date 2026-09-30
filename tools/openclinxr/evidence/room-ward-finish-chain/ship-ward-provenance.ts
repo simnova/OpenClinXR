@@ -1,13 +1,19 @@
 /** Run after the chain, live captures and SC-06 freeze; derive, never transcribe, asset pins. */
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
-import { produceSupineControlFreeze } from "../supine-control-freeze/supine-control-freeze.js";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  computeSupineControlFreeze,
+  produceSupineControlFreeze,
+  readSupineControlFreeze,
+  supineControlFreezeIsStillValid,
+} from "../supine-control-freeze/supine-control-freeze.js";
 
 const out = process.env["SHIP_WARD_OUT"] ?? "docs/openclinxr/room-realism/ship-ward-room";
 const asset = "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb";
 const rig = "apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json";
 const chain = ".openclinxr/evidence/ward-finish-chain";
+const seed = Number(process.env["SHIP_WARD_SEED"] ?? "205");
 const digest = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 if (digest(asset) !== digest(`${chain}/infinigen-inpatient-ward.chain.glb`) ||
     digest(rig) !== digest(`${chain}/ward-chain.lighting-rig.json`)) {
@@ -34,8 +40,8 @@ writeFileSync(`${out}/shipped-budget.json`,JSON.stringify({...budget,
 const provenancePath = "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md";
 const entry = `- \`infinigen-inpatient-ward.glb\`
   - SHA-256: \`${budget.sha256}\`; ${budget.bytes} bytes; ${budget.triangles} triangles; ${budget.primitiveCount} primitives, all authored materials.
-  - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain \`room_generate → room_clinic_finish → lighting_design\`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
-  - Reproduce: \`pnpm --filter @openclinxr/factory-stations exec tsx src/room_chain/cli.ts --seed 205 --out-dir .openclinxr/evidence/ward-finish-chain --pass-timeout-ms 3600000\`, copy final GLB and rig, then run \`tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts\` with tsx. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
+  - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed ${seed}, factory chain \`room_generate → room_clinic_finish → lighting_design\`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
+  - Reproduce: \`pnpm factory:room:promote -- --environment inpatient_ward_room_v1 --seed ${seed}\`. The command runs or cache-hits the chain, installs the GLB and rig, and calls this producer to derive every digest and size pin. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
   - Finish: baked Infinigen wall material, neutral matte paint, runtime-calibrated neutral vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in \`room_clinic_finish/textures\`; no new external assets in this promotion.
   - Occlusion: separate Cycles AO maps, box-projected AO UVs, four maps at 512²; unchanged zero-coplanar-boundary and <=5 single-texel gates. Floor shell albedo reduced from 2048² to 1024² in the producer; unique decoded RGBA textures including 1.33× mips: ${budget.decodedMiBWithMips.toFixed(4)} MiB <=56 MiB.
   - Lighting: \`lighting/inpatient_ward_room_v1.rig.json\`, clinic_day chain output, SHA-256 \`${digest(rig)}\`.
@@ -44,11 +50,25 @@ const entry = `- \`infinigen-inpatient-ward.glb\`
 `;
 writeFileSync(provenancePath,readFileSync(provenancePath,"utf8").replace(
   /- `infinigen-inpatient-ward\.glb`\n[\s\S]*?(?=- `infinigen-pediatric-fever)/,entry));
-const produced = produceSupineControlFreeze({
-  observedBy:"floor-cast worker: real UI-XR six-pose runtime capture and SC-06 live hull observation",
-  observedAtIso:new Date().toISOString(),
-  reason:"Authorized seed-205 ward floor tint promotion; pose 01/02/06 floor warmth and exact runtime channel grades pass without wall, ceiling, troffer, or door regression. Rebaseline records changed room bytes, not a claim that the old control is unchanged.",
-});
-if (!produced.produced) throw new Error(produced.reason);
-writeFileSync("tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",JSON.stringify(produced.freeze,null,2)+"\n");
+const readerAuditPath = `${out}/READER-AUDIT.md`;
+if (existsSync(readerAuditPath)) {
+  const readerAudit = readFileSync(readerAuditPath, "utf8")
+    .replace(
+      /The shipped GLB is [\d,]+ bytes, SHA-256\n`[a-f0-9]{64}`,\nwith [\s\S]*?\(limit 56 MiB\)\./,
+      `The shipped GLB is ${budget.bytes.toLocaleString("en-US")} bytes, SHA-256\n\`${budget.sha256}\`,\nwith ${budget.triangles.toLocaleString("en-US")} triangles, ${budget.primitiveCount} primitives, zero material-less primitives, and\n${budget.decodedMiBWithMips.toFixed(4)} MiB decoded RGBA including the 1.33× mip allowance (limit 56 MiB).`,
+    )
+    .replace(/The rig SHA-256 is\n`[a-f0-9]{64}`\./, `The rig SHA-256 is\n\`${digest(rig)}\`.`);
+  writeFileSync(readerAuditPath, readerAudit);
+}
+const recorded = readSupineControlFreeze();
+const current = computeSupineControlFreeze(process.cwd());
+if (recorded === null || !supineControlFreezeIsStillValid(recorded, current).valid) {
+  const produced = produceSupineControlFreeze({
+    observedBy:"factory:room:promote deterministic asset promotion",
+    observedAtIso:new Date().toISOString(),
+    reason:`Room-chain promotion changed the installed ${asset} bytes; provenance and byte counts were re-derived by the supported producer.`,
+  });
+  if (!produced.produced) throw new Error(produced.reason);
+  writeFileSync("tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",JSON.stringify(produced.freeze,null,2)+"\n");
+}
 console.log(JSON.stringify({assetSha256:budget.sha256,rigSha256:digest(rig),decodedMiB:budget.decodedMiBWithMips}));

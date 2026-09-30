@@ -56,7 +56,10 @@ import {
   type AssetLoadingContext,
 } from "@openclinxr/xr-asset-loading";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
-import { writeDeterministicLipSyncWav } from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
+import {
+  loadRoomChainLibrary,
+  writeDeterministicLipSyncWav,
+} from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
@@ -83,13 +86,13 @@ import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.j
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
 import {
   planEquipmentGenerate,
-  roomChainRecipeFor,
   runEquipmentGenerate,
   runLipSync,
   runStaging,
   writeLipSyncFixtureWav,
 } from "@openclinxr/factory-stations";
-import { runRoomChain } from "../../../packages/openclinxr/factory-stations/src/room_chain/run.js";
+
+export { loadRoomChainLibrary };
 
 const execFileAsync = promisify(execFile);
 
@@ -781,7 +784,7 @@ export function roomChainSeedForScenario(scenario: Scenario, defaultSeed: number
 
 /** Station 5: registered room chain, with an explicit parametric fallback. */
 type RoomStageDependencies = {
-  runChain?: typeof runRoomChain;
+  runChain?: Awaited<ReturnType<typeof loadRoomChainLibrary>>["runRoomChain"];
 };
 
 export async function runRoomStage(
@@ -799,10 +802,11 @@ export async function runRoomStage(
     };
   }
   await mkdir(stageDir, { recursive: true });
-  const recipe = roomChainRecipeFor(environmentId);
+  const roomChain = await loadRoomChainLibrary();
+  const recipe = roomChain.ROOM_CHAIN_RECIPES[environmentId as keyof typeof roomChain.ROOM_CHAIN_RECIPES];
   if (recipe !== undefined && scenario !== undefined) {
     const seed = roomChainSeedForScenario(scenario, recipe.defaultSeed);
-    const chain = await (dependencies.runChain ?? runRoomChain)({ environmentId, seed, outDir: stageDir });
+    const chain = await (dependencies.runChain ?? roomChain.runRoomChain)({ environmentId, seed, outDir: stageDir });
     const artifactPath = path.join(stageDir, "room-chain-output.json");
     await writeFile(artifactPath, `${JSON.stringify({
       schemaVersion: "openclinxr.dark-factory.station-room.v2",
@@ -825,7 +829,7 @@ export async function runRoomStage(
         relStage(stageDir, path.basename(chain.finalGlb)),
         relStage(stageDir, path.basename(chain.rigJson)),
       ], [
-        `RAN room-chain for ${environmentId} seed=${seed}: glb sha256=${chain.glbSha256}; cache ${Object.entries(chain.cache).map(([stage, status]) => `${stage}=${status.hit ? "hit" : "miss"}`).join(", ")}.`,
+        `RAN room-chain for ${environmentId} seed=${seed}: glb sha256=${chain.glbSha256}; cache ${Object.entries(chain.cache).map(([stage, status]) => `${stage}=${(status as { hit: boolean }).hit ? "hit" : "miss"}`).join(", ")}.`,
       ]),
     };
   }

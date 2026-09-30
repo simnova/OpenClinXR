@@ -144,7 +144,7 @@ export function parseWardChainArgs(args: readonly string[]): {
   passTimeoutMs: number;
   noCache: boolean;
 } {
-  let seed = roomChainRecipeFor("inpatient_ward_room_v1")!.defaultSeed;
+  let seed = roomChainRecipeFor("inpatient_ward_room_v1")?.defaultSeed ?? 205;
   let outDir = WARD_CHAIN_OUT_DIR;
   let passTimeoutMs = WARD_CHAIN_PASS_TIMEOUT_MS;
   let noCache = false;
