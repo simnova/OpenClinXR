@@ -130,13 +130,13 @@
   - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence. Footprint/door placement are NOT Infinigen inputs (MADR 0043 / #271): this is one reproducible room, not an exact-dimension generator. Clinical identity comes from the parametric fixtures the runtime places.
   - External assets used: false (procedural coarse-stage geometry; baked texture is derived from the geometry, no external textures).
 - `infinigen-inpatient-ward.glb`
-  - SHA-256: `338162bcaa6357297a07edc6ba33e098adc461b1d6caa3e2e42080201b0f9621`; 9451868 bytes; 6533 triangles; 98 primitives, all authored materials.
+  - SHA-256: `afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e`; 9451824 bytes; 6533 triangles; 98 primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain `room_generate → room_clinic_finish → lighting_design`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
   - Reproduce: `pnpm --filter @openclinxr/factory-stations exec tsx src/room_chain/cli.ts --seed 205 --out-dir .openclinxr/evidence/ward-finish-chain --pass-timeout-ms 3600000`, copy final GLB and rig, then run `tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts` with tsx. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
-  - Finish: baked Infinigen wall material, neutral matte paint, vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in `room_clinic_finish/textures`; no new external assets in this promotion.
+  - Finish: baked Infinigen wall material, neutral matte paint, runtime-calibrated neutral vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in `room_clinic_finish/textures`; no new external assets in this promotion.
   - Occlusion: separate Cycles AO maps, box-projected AO UVs, four maps at 512²; unchanged zero-coplanar-boundary and <=5 single-texel gates. Floor shell albedo reduced from 2048² to 1024² in the producer; unique decoded RGBA textures including 1.33× mips: 49.2983 MiB <=56 MiB.
-  - Lighting: `lighting/inpatient_ward_room_v1.rig.json`, clinic_day chain output, SHA-256 `fe731a6a8afb12b8e938c2ba03c524658a458577285a5302c51fb5863f91659e`.
-  - Evidence: `docs/openclinxr/room-realism/door-finish` contains six before/after learner-URL captures (no GLB route override), two-way/three-way sheets, exact runtime box grades and budget breakdown. Environment-ID URL mapping is unchanged.
+  - Lighting: `lighting/inpatient_ward_room_v1.rig.json`, clinic_day chain output, SHA-256 `a060ded8b52959b496e8e58246f5c7ea03e7275b01eb746760e9189477299f5f`.
+  - Evidence: `docs/openclinxr/room-realism/floor-cast` contains six before/after learner-URL captures (no GLB route override), two-way/three-way sheets, exact runtime box grades and budget breakdown. Environment-ID URL mapping is unchanged.
   - Boundaries: not production readiness, Quest readiness, clinical visual validity, scoring or exam-equivalence evidence.
 - `infinigen-pediatric-fever-urgent-care.glb`
   - SHA-256: `32002a78ee22f1b4cc72611cf35e1e4ce66c1180dba44a48b0e1fd3a72373101`

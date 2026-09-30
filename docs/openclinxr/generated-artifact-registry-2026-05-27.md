@@ -3890,6 +3890,34 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/ship-ward-room/runtime-measurements.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
 - `docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
 - `docs/openclinxr/room-realism/ship-ward-room/ship-verification.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-01-toward-door.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-02-toward-bed-wall.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-03-ceiling-corner.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-04-door-inside.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-05-troffer-junction.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/runtime-06-floor-base.png` - keep-evidence; Ward floor cast before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/before/stage2-multiview.json` - keep-evidence; Ward floor cast before learner-runtime capture manifest; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-01-toward-door.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-02-toward-bed-wall.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-03-ceiling-corner.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-04-door-inside.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-05-troffer-junction.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/runtime-06-floor-base.png` - keep-evidence; Ward floor cast after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/after/stage2-multiview.json` - keep-evidence; Ward floor cast after learner-runtime capture manifest; not headset readiness.
+- `docs/openclinxr/room-realism/floor-cast/01-toward-door-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/01-toward-door-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/02-toward-bed-wall-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/02-toward-bed-wall-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/03-ceiling-corner-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/03-ceiling-corner-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/04-door-inside-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/04-door-inside-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/05-troffer-junction-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/05-troffer-junction-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/06-floor-base-before-after.jpg` - keep-evidence; Ward floor cast learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/floor-cast/06-floor-base-before-after-reference.jpg` - keep-evidence; Ward floor cast learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/floor-cast/runtime-measurements.json` - keep-evidence; Ward floor cast crop-verified measurements and no-regression grades.
+- `docs/openclinxr/room-realism/floor-cast/shipped-budget.json` - keep-evidence; Ward floor cast producer-derived digest and decoded-memory budget.
 - `docs/openclinxr/room-realism/door-finish/before/runtime-01-toward-door.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
 - `docs/openclinxr/room-realism/door-finish/before/runtime-02-toward-bed-wall.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
 - `docs/openclinxr/room-realism/door-finish/before/runtime-03-ceiling-corner.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.

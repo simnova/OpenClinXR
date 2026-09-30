@@ -34,13 +34,153 @@
     }
   ],
   "counts": {
-    "keep-evidence": 892,
+    "keep-evidence": 920,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
   "entries": [
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/before/stage2-multiview.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast before learner-runtime capture manifest; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-01-toward-door.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-04-door-inside.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/runtime-06-floor-base.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/after/stage2-multiview.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast after learner-runtime capture manifest; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/01-toward-door-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/01-toward-door-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/02-toward-bed-wall-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/02-toward-bed-wall-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/03-ceiling-corner-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/03-ceiling-corner-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/04-door-inside-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/04-door-inside-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/05-troffer-junction-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/05-troffer-junction-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/06-floor-base-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/06-floor-base-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast learner-runtime before-after-v2-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/runtime-measurements.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast crop-verified measurements and no-regression grades."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/shipped-budget.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward floor cast producer-derived digest and decoded-memory budget."
+    },
     {
       "path": "docs/openclinxr/room-realism/door-finish/before/runtime-01-toward-door.png",
       "authority": "keep-evidence", "tracked": true, "action": "keep",

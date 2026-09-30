@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 144,
+    "evidence": 145,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -16,6 +16,13 @@
     "decision-record": 44
   },
   "entries": [
+    {
+      "path": "docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit."
+    },
     {
       "path": "docs/openclinxr/room-realism/door-finish/READER-AUDIT.md",
       "authority": "evidence",

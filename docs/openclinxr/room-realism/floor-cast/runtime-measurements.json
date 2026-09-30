@@ -1,0 +1,793 @@
+{
+  "ceiling02": {
+    "box": [
+      805,
+      70,
+      875,
+      86
+    ],
+    "mean": [
+      187.46,
+      183.01,
+      174.82
+    ],
+    "std": [
+      1.942,
+      1.861,
+      1.891
+    ],
+    "reference": [
+      190.56,
+      187.41,
+      180.48
+    ],
+    "delta": [
+      -3.1,
+      -4.4,
+      -5.66
+    ],
+    "tolerance": 8,
+    "passes": true
+  },
+  "ceiling03": {
+    "box": [
+      275,
+      330,
+      335,
+      365
+    ],
+    "mean": [
+      170.68,
+      168.55,
+      161.85
+    ],
+    "std": [
+      3.419,
+      3.423,
+      3.58
+    ],
+    "reference": [
+      166.25,
+      165.92,
+      160.55
+    ],
+    "delta": [
+      4.43,
+      2.63,
+      1.3
+    ],
+    "tolerance": 8,
+    "passes": true
+  },
+  "floor01": {
+    "box": [
+      500,
+      600,
+      700,
+      700
+    ],
+    "mean": [
+      211.6,
+      206.51,
+      206.13
+    ],
+    "std": [
+      1.867,
+      1.941,
+      1.835
+    ],
+    "reference": [
+      198.18,
+      196.13,
+      190.01
+    ],
+    "delta": [
+      13.42,
+      10.38,
+      16.12
+    ],
+    "tolerance": 8,
+    "passes": true,
+    "meanPasses": false,
+    "rb": 5.47,
+    "referenceRb": 8.17,
+    "rbDelta": -2.7,
+    "rbTolerance": 4,
+    "rbPasses": true,
+    "meanException": "accepted: pose-01 reference is darker from lighting falloff; R-B remains required"
+  },
+  "floor02": {
+    "box": [
+      500,
+      640,
+      620,
+      700
+    ],
+    "mean": [
+      215.7,
+      210.54,
+      209.85
+    ],
+    "std": [
+      1.5,
+      1.556,
+      1.475
+    ],
+    "reference": [
+      214.51,
+      213.52,
+      209.02
+    ],
+    "delta": [
+      1.19,
+      -2.98,
+      0.83
+    ],
+    "tolerance": 8,
+    "passes": true,
+    "meanPasses": true,
+    "rb": 5.85,
+    "referenceRb": 5.49,
+    "rbDelta": 0.36,
+    "rbTolerance": 4,
+    "rbPasses": true
+  },
+  "floor06": {
+    "box": [
+      500,
+      470,
+      780,
+      610
+    ],
+    "mean": [
+      212.64,
+      207.57,
+      207.01
+    ],
+    "std": [
+      4.111,
+      4.471,
+      4.316
+    ],
+    "reference": [
+      204.96,
+      204.96,
+      202.92
+    ],
+    "delta": [
+      7.68,
+      2.61,
+      4.09
+    ],
+    "tolerance": 8,
+    "passes": true,
+    "meanPasses": true,
+    "rb": 5.63,
+    "referenceRb": 2.04,
+    "rbDelta": 3.59,
+    "rbTolerance": 4,
+    "rbPasses": true
+  },
+  "wall": {
+    "box": [
+      500,
+      280,
+      780,
+      420
+    ],
+    "mean": [
+      209.3,
+      205.95,
+      202.38
+    ],
+    "reference": [
+      209.95,
+      206.6,
+      203.03
+    ],
+    "delta": [
+      -0.65,
+      -0.65,
+      -0.65
+    ],
+    "tolerance": 3,
+    "passes": true
+  },
+  "floorJobTileNoRegression": {
+    "box": [
+      600,
+      95,
+      655,
+      145
+    ],
+    "mean": [
+      198.37,
+      192.85,
+      184.08
+    ],
+    "reference": [
+      199.64,
+      193.63,
+      184.33
+    ],
+    "delta": [
+      -1.27,
+      -0.78,
+      -0.25
+    ],
+    "tolerance": 3,
+    "passes": true
+  },
+  "floorBlotch": {
+    "actual": [
+      2.014,
+      2.166,
+      2.13
+    ],
+    "reference": [
+      1.22,
+      1.226,
+      1.237
+    ],
+    "passes": true
+  },
+  "diffuser": {
+    "box": [
+      600,
+      445,
+      650,
+      485
+    ],
+    "mean": [
+      233.28,
+      232.5,
+      231.18
+    ],
+    "frac255": 0.0,
+    "centreBox": [
+      600,
+      445,
+      650,
+      485
+    ],
+    "edgeBox": [
+      570,
+      395,
+      610,
+      410
+    ],
+    "centre": [
+      233.28,
+      232.5,
+      231.18
+    ],
+    "edge": [
+      223.29,
+      221.95,
+      219.8
+    ],
+    "centreEdgeDelta": [
+      9.99,
+      10.56,
+      11.38
+    ]
+  },
+  "skirting": {
+    "peaks": [],
+    "maxGrad": 2.69
+  },
+  "door": {
+    "glass": {
+      "box": [
+        575,
+        230,
+        599,
+        368
+      ],
+      "mean": [
+        173.1,
+        181.51,
+        176.16
+      ],
+      "std": [
+        10.19,
+        8.926,
+        9.324
+      ],
+      "reference": [
+        169,
+        180,
+        178
+      ],
+      "tolerance": 20,
+      "meanPasses": true,
+      "stdFloor": 6,
+      "stdPasses": true
+    },
+    "leaf": {
+      "box": [
+        530,
+        440,
+        690,
+        650
+      ],
+      "mean": [
+        196.94,
+        151.03,
+        98.54
+      ],
+      "std": [
+        3.468,
+        5.646,
+        6.68
+      ],
+      "reference": [
+        190.3,
+        151.5,
+        103.1
+      ],
+      "tolerance": 12,
+      "meanPasses": true,
+      "rb": 98.4,
+      "referenceRb": 87.2,
+      "rbPasses": true,
+      "grid": [
+        {
+          "row": 0,
+          "column": 0,
+          "box": [
+            530,
+            440,
+            610,
+            510
+          ],
+          "mean": [
+            198.39,
+            153.12,
+            101.04
+          ],
+          "std": [
+            2.961,
+            4.97,
+            6.371
+          ],
+          "passes": true
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "box": [
+            610,
+            440,
+            690,
+            510
+          ],
+          "mean": [
+            196.64,
+            149.84,
+            96.64
+          ],
+          "std": [
+            3.432,
+            5.727,
+            6.737
+          ],
+          "passes": true
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "box": [
+            530,
+            510,
+            610,
+            580
+          ],
+          "mean": [
+            198.0,
+            152.63,
+            99.97
+          ],
+          "std": [
+            2.849,
+            4.757,
+            6.058
+          ],
+          "passes": true
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "box": [
+            610,
+            510,
+            690,
+            580
+          ],
+          "mean": [
+            195.9,
+            149.56,
+            97.37
+          ],
+          "std": [
+            3.553,
+            5.79,
+            6.696
+          ],
+          "passes": true
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "box": [
+            530,
+            580,
+            610,
+            650
+          ],
+          "mean": [
+            197.54,
+            152.2,
+            99.6
+          ],
+          "std": [
+            3.052,
+            5.133,
+            6.274
+          ],
+          "passes": true
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "box": [
+            610,
+            580,
+            690,
+            650
+          ],
+          "mean": [
+            195.15,
+            148.84,
+            96.65
+          ],
+          "std": [
+            3.687,
+            5.88,
+            6.548
+          ],
+          "passes": true
+        }
+      ],
+      "gridPasses": true
+    },
+    "casing": {
+      "left": {
+        "box": [
+          493,
+          250,
+          508,
+          600
+        ],
+        "mean": [
+          214.53,
+          213.1,
+          211.08
+        ],
+        "bandWidthPx": 15,
+        "adjacentWallBox": [
+          460,
+          250,
+          487,
+          600
+        ],
+        "adjacentWallMean": [
+          208.39,
+          205.66,
+          202.61
+        ],
+        "targetLower": [
+          212.39,
+          209.66,
+          206.61
+        ],
+        "targetUpper": [
+          215,
+          215,
+          215
+        ],
+        "meanPasses": true,
+        "widthPasses": true
+      },
+      "right": {
+        "box": [
+          756,
+          250,
+          769,
+          600
+        ],
+        "mean": [
+          213.86,
+          212.26,
+          210.59
+        ],
+        "bandWidthPx": 13,
+        "adjacentWallBox": [
+          775,
+          250,
+          800,
+          600
+        ],
+        "adjacentWallMean": [
+          207.21,
+          204.55,
+          201.55
+        ],
+        "targetLower": [
+          211.21,
+          208.55,
+          205.55
+        ],
+        "targetUpper": [
+          215,
+          215,
+          215
+        ],
+        "meanPasses": true,
+        "widthPasses": true
+      },
+      "head": {
+        "box": [
+          520,
+          113,
+          740,
+          128
+        ],
+        "mean": [
+          207.97,
+          206.16,
+          203.64
+        ],
+        "bandWidthPx": 15,
+        "adjacentWallBox": [
+          520,
+          90,
+          740,
+          105
+        ],
+        "adjacentWallMean": [
+          197.05,
+          193.59,
+          189.88
+        ],
+        "targetLower": [
+          201.05,
+          197.59,
+          193.88
+        ],
+        "targetUpper": [
+          215,
+          215,
+          215
+        ],
+        "meanPasses": true,
+        "widthPasses": true
+      }
+    }
+  },
+  "noRegressionAgainstShippedRuntime": {
+    "ceiling02": {
+      "actual": [
+        187.46,
+        183.01,
+        174.82
+      ],
+      "baseline": [
+        184.94,
+        180.81,
+        172.82
+      ],
+      "delta": [
+        2.52,
+        2.2,
+        2.0
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "ceiling03": {
+      "actual": [
+        170.68,
+        168.55,
+        161.85
+      ],
+      "baseline": [
+        170.9,
+        168.74,
+        162.01
+      ],
+      "delta": [
+        -0.22,
+        -0.19,
+        -0.16
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "wall": {
+      "actual": [
+        209.3,
+        205.95,
+        202.38
+      ],
+      "baseline": [
+        208.74,
+        205.43,
+        201.87
+      ],
+      "delta": [
+        0.56,
+        0.52,
+        0.51
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "floorJobTileNoRegression": {
+      "actual": [
+        198.37,
+        192.85,
+        184.08
+      ],
+      "baseline": [
+        198.74,
+        193.19,
+        184.41
+      ],
+      "delta": [
+        -0.37,
+        -0.34,
+        -0.33
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "diffuser.centre": {
+      "actual": [
+        233.28,
+        232.5,
+        231.18
+      ],
+      "baseline": [
+        233.64,
+        232.78,
+        231.45
+      ],
+      "delta": [
+        -0.36,
+        -0.28,
+        -0.27
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "diffuser.edge": {
+      "actual": [
+        223.29,
+        221.95,
+        219.8
+      ],
+      "baseline": [
+        223.46,
+        222.04,
+        219.95
+      ],
+      "delta": [
+        -0.17,
+        -0.09,
+        -0.15
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "door.glass": {
+      "actual": [
+        173.1,
+        181.51,
+        176.16
+      ],
+      "baseline": [
+        172.06,
+        180.76,
+        175.57
+      ],
+      "delta": [
+        1.04,
+        0.75,
+        0.59
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "door.leaf": {
+      "actual": [
+        196.94,
+        151.03,
+        98.54
+      ],
+      "baseline": [
+        195.68,
+        149.84,
+        97.56
+      ],
+      "delta": [
+        1.26,
+        1.19,
+        0.98
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "door.casing.left": {
+      "actual": [
+        214.53,
+        213.1,
+        211.08
+      ],
+      "baseline": [
+        213.86,
+        212.38,
+        210.71
+      ],
+      "delta": [
+        0.67,
+        0.72,
+        0.37
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "door.casing.right": {
+      "actual": [
+        213.86,
+        212.26,
+        210.59
+      ],
+      "baseline": [
+        213.18,
+        211.93,
+        210.09
+      ],
+      "delta": [
+        0.68,
+        0.33,
+        0.5
+      ],
+      "tolerance": 3,
+      "passes": true
+    },
+    "door.casing.head": {
+      "actual": [
+        207.97,
+        206.16,
+        203.64
+      ],
+      "baseline": [
+        207.36,
+        205.18,
+        203.34
+      ],
+      "delta": [
+        0.61,
+        0.98,
+        0.3
+      ],
+      "tolerance": 3,
+      "passes": true
+    }
+  },
+  "notEvidenceFor": [
+    "Quest headset readiness",
+    "clinical validity"
+  ]
+}

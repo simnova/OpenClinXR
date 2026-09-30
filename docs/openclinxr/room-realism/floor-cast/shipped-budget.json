@@ -1,0 +1,285 @@
+{
+  "file": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "sha256": "afe8fa8d7e128d8a5769ed645c7ba84723f1657996f4e46b26a542df9090b00e",
+  "bytes": 9451824,
+  "byteCeiling": 209715200,
+  "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
+  "decodedWardCeilingMiB": 56,
+  "decodedCeilingSource": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
+  "decodedMiBWithMips": 49.2983203125,
+  "images": [
+    {
+      "name": "shell_bake_normal",
+      "encodedBytes": 1732713,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "shell_bake_albedo_ceiling",
+      "encodedBytes": 1117217,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "shell_bake_albedo_floor",
+      "encodedBytes": 989930,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "door-maple-normal",
+      "encodedBytes": 933651,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "ceiling-tile-face",
+      "encodedBytes": 632201,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_albedo_wall",
+      "encodedBytes": 607381,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "floor-vinyl-tile",
+      "encodedBytes": 535640,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "ceiling-tile-face-derived-normal",
+      "encodedBytes": 442270,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "door-maple-roughness",
+      "encodedBytes": 408274,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "floor-vinyl-tile-derived-normal",
+      "encodedBytes": 407846,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "floor-vinyl-tile-derived-roughness",
+      "encodedBytes": 332334,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "ceiling-tile-face-derived-roughness",
+      "encodedBytes": 277966,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "door-maple-leaf",
+      "encodedBytes": 136325,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_ceiling",
+      "encodedBytes": 79049,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_floor",
+      "encodedBytes": 78342,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_wall",
+      "encodedBytes": 39664,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_roughness",
+      "encodedBytes": 19313,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "door-glass-reflection",
+      "encodedBytes": 14624,
+      "width": 256,
+      "height": 512,
+      "decodedRgbaBytes": 524288
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_other",
+      "encodedBytes": 11902,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "troffer-diffuser-gradient",
+      "encodedBytes": 6330,
+      "width": 256,
+      "height": 128,
+      "decodedRgbaBytes": 131072
+    },
+    {
+      "name": "shell_bake_albedo_other",
+      "encodedBytes": 5807,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_roughness_wall_flat",
+      "encodedBytes": 413,
+      "width": 64,
+      "height": 64,
+      "decodedRgbaBytes": 16384
+    }
+  ],
+  "meshCount": 97,
+  "primitiveCount": 98,
+  "triangles": 6533,
+  "materiallessPrimitives": 0,
+  "rigSha256": "a060ded8b52959b496e8e58246f5c7ea03e7275b01eb746760e9189477299f5f",
+  "rigBytes": 2104,
+  "imageComparison": [
+    {
+      "name": "shell_bake_normal",
+      "beforeMiBWithMips": 5.32,
+      "afterMiBWithMips": 5.32
+    },
+    {
+      "name": "shell_bake_albedo_ceiling",
+      "beforeMiBWithMips": 5.32,
+      "afterMiBWithMips": 5.32
+    },
+    {
+      "name": "shell_bake_albedo_floor",
+      "beforeMiBWithMips": 5.32,
+      "afterMiBWithMips": 5.32
+    },
+    {
+      "name": "door-maple-normal",
+      "beforeMiBWithMips": 2.4054296875000003,
+      "afterMiBWithMips": 2.4054296875000003
+    },
+    {
+      "name": "ceiling-tile-face",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "shell_bake_albedo_wall",
+      "beforeMiBWithMips": 5.32,
+      "afterMiBWithMips": 5.32
+    },
+    {
+      "name": "floor-vinyl-tile",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "ceiling-tile-face-derived-normal",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "door-maple-roughness",
+      "beforeMiBWithMips": 2.4054296875000003,
+      "afterMiBWithMips": 2.4054296875000003
+    },
+    {
+      "name": "floor-vinyl-tile-derived-normal",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "floor-vinyl-tile-derived-roughness",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "ceiling-tile-face-derived-roughness",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "door-maple-leaf",
+      "beforeMiBWithMips": 2.4054296875000003,
+      "afterMiBWithMips": 2.4054296875000003
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_ceiling",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_floor",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_wall",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "shell_bake_roughness",
+      "beforeMiBWithMips": 5.32,
+      "afterMiBWithMips": 5.32
+    },
+    {
+      "name": "door-glass-reflection",
+      "beforeMiBWithMips": 0.665,
+      "afterMiBWithMips": 0.665
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_other",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "troffer-diffuser-gradient",
+      "beforeMiBWithMips": 0.16625,
+      "afterMiBWithMips": 0.16625
+    },
+    {
+      "name": "shell_bake_albedo_other",
+      "beforeMiBWithMips": 1.33,
+      "afterMiBWithMips": 1.33
+    },
+    {
+      "name": "shell_bake_roughness_wall_flat",
+      "beforeMiBWithMips": 0.02078125,
+      "afterMiBWithMips": 0.02078125
+    }
+  ],
+  "producer": "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts"
+}

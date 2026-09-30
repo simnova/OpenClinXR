@@ -36,7 +36,7 @@ const entry = `- \`infinigen-inpatient-ward.glb\`
   - SHA-256: \`${budget.sha256}\`; ${budget.bytes} bytes; ${budget.triangles} triangles; ${budget.primitiveCount} primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain \`room_generate → room_clinic_finish → lighting_design\`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
   - Reproduce: \`pnpm --filter @openclinxr/factory-stations exec tsx src/room_chain/cli.ts --seed 205 --out-dir .openclinxr/evidence/ward-finish-chain --pass-timeout-ms 3600000\`, copy final GLB and rig, then run \`tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts\` with tsx. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
-  - Finish: baked Infinigen wall material, neutral matte paint, vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in \`room_clinic_finish/textures\`; no new external assets in this promotion.
+  - Finish: baked Infinigen wall material, neutral matte paint, runtime-calibrated neutral vinyl tile, cove base, hospital door, framed troffer and slim T-bar. Procedural/derived finish texture lineage remains in \`room_clinic_finish/textures\`; no new external assets in this promotion.
   - Occlusion: separate Cycles AO maps, box-projected AO UVs, four maps at 512²; unchanged zero-coplanar-boundary and <=5 single-texel gates. Floor shell albedo reduced from 2048² to 1024² in the producer; unique decoded RGBA textures including 1.33× mips: ${budget.decodedMiBWithMips.toFixed(4)} MiB <=56 MiB.
   - Lighting: \`lighting/inpatient_ward_room_v1.rig.json\`, clinic_day chain output, SHA-256 \`${digest(rig)}\`.
   - Evidence: \`${out}\` contains six before/after learner-URL captures (no GLB route override), two-way/three-way sheets, exact runtime box grades and budget breakdown. Environment-ID URL mapping is unchanged.
@@ -45,9 +45,9 @@ const entry = `- \`infinigen-inpatient-ward.glb\`
 writeFileSync(provenancePath,readFileSync(provenancePath,"utf8").replace(
   /- `infinigen-inpatient-ward\.glb`\n[\s\S]*?(?=- `infinigen-pediatric-fever)/,entry));
 const produced = produceSupineControlFreeze({
-  observedBy:"door-finish worker: real UI-XR six-pose runtime capture and SC-06 live hull observation",
+  observedBy:"floor-cast worker: real UI-XR six-pose runtime capture and SC-06 live hull observation",
   observedAtIso:new Date().toISOString(),
-  reason:"Authorized seed-205 ward door finish promotion; casing, glass, veneer and exact runtime ceiling/floor/wall grades pass. Rebaseline records changed room bytes, not a claim that the old control is unchanged.",
+  reason:"Authorized seed-205 ward floor tint promotion; pose 01/02/06 floor warmth and exact runtime channel grades pass without wall, ceiling, troffer, or door regression. Rebaseline records changed room bytes, not a claim that the old control is unchanged.",
 });
 if (!produced.produced) throw new Error(produced.reason);
 writeFileSync("tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",JSON.stringify(produced.freeze,null,2)+"\n");

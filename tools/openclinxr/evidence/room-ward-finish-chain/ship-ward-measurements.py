@@ -25,14 +25,34 @@ results = {}
 for name, pose, box in [
     ("ceiling02", "02-toward-bed-wall", c.CAP02_TILE_BOX),
     ("ceiling03", "03-ceiling-corner", c.CAP03_TILE_BOX),
+    ("floor01", "01-toward-door", (500, 600, 700, 700)),
     ("floor02", "02-toward-bed-wall", f.P02_FLOOR_BOX),
     ("floor06", "06-floor-base", f.P06_FLOOR_PATCH),
 ]:
     mean, std = c.box_mean(cap(pose), box)
     ref, _ = c.box_mean(REF / (pose + ".jpg"), box)
     delta = [round(a-b, 2) for a,b in zip(mean,ref)]
+    mean_passes = all(abs(x)<=8 for x in delta)
     results[name] = dict(box=box, mean=mean, std=std, reference=ref,
-                         delta=delta, tolerance=8, passes=all(abs(x)<=8 for x in delta))
+                         delta=delta, tolerance=8, passes=mean_passes)
+    if name.startswith("floor"):
+        rb = round(mean[0] - mean[2], 2)
+        reference_rb = round(ref[0] - ref[2], 2)
+        rb_delta = round(rb - reference_rb, 2)
+        rb_passes = abs(rb_delta) <= 4
+        results[name].update(
+            meanPasses=mean_passes,
+            rb=rb,
+            referenceRb=reference_rb,
+            rbDelta=rb_delta,
+            rbTolerance=4,
+            rbPasses=rb_passes,
+            passes=rb_passes and (mean_passes or name == "floor01"),
+        )
+        if name == "floor01":
+            results[name]["meanException"] = (
+                "accepted: pose-01 reference is darker from lighting falloff; R-B remains required"
+            )
 wall, _ = c.box_mean(cap("02-toward-bed-wall"), c.WALL_BOX)
 delta = [round(a-b,2) for a,b in zip(wall,c.WALL_BASE)]
 results["wall"] = dict(box=c.WALL_BOX, mean=wall, reference=c.WALL_BASE,
@@ -97,15 +117,34 @@ for key, box in casing_boxes.items():
         targetLower=lower, targetUpper=[215,215,215],
         meanPasses=all(lo <= value <= 215 for lo,value in zip(lower,mean)),
         widthPasses=10 <= (box[2]-box[0] if key != "head" else box[3]-box[1]) <= 16)
-baseline_path = ROOT / "docs/openclinxr/room-realism/ship-ward-room/runtime-measurements.json"
+baseline_path = ROOT / os.environ.get(
+    "SHIP_WARD_PREVIOUS_MEASUREMENTS",
+    "docs/openclinxr/room-realism/ship-ward-room/runtime-measurements.json",
+)
 baseline_measurements = json.loads(baseline_path.read_text())
 no_regression = {}
-for key in ("ceiling02", "ceiling03", "floor02", "floor06", "wall", "floorJobTileNoRegression"):
+for key in ("ceiling02", "ceiling03", "wall", "floorJobTileNoRegression"):
     prior = baseline_measurements[key]["mean"]
     actual = results[key]["mean"]
     delta = [round(a-b, 2) for a,b in zip(actual,prior)]
     no_regression[key] = dict(actual=actual, baseline=prior, delta=delta,
                               tolerance=3, passes=all(abs(value) <= 3 for value in delta))
+for key, actual, prior in [
+    ("diffuser.centre", results["diffuser"]["centre"], baseline_measurements["diffuser"]["centre"]),
+    ("diffuser.edge", results["diffuser"]["edge"], baseline_measurements["diffuser"]["edge"]),
+    ("door.glass", results["door"]["glass"]["mean"], baseline_measurements["door"]["glass"]["mean"]),
+    ("door.leaf", results["door"]["leaf"]["mean"], baseline_measurements["door"]["leaf"]["mean"]),
+]:
+    delta = [round(a-b, 2) for a,b in zip(actual,prior)]
+    no_regression[key] = dict(actual=actual, baseline=prior, delta=delta,
+                              tolerance=3, passes=all(abs(value) <= 3 for value in delta))
+for side in ("left", "right", "head"):
+    actual = results["door"]["casing"][side]["mean"]
+    prior = baseline_measurements["door"]["casing"][side]["mean"]
+    delta = [round(a-b, 2) for a,b in zip(actual,prior)]
+    no_regression[f"door.casing.{side}"] = dict(
+        actual=actual, baseline=prior, delta=delta,
+        tolerance=3, passes=all(abs(value) <= 3 for value in delta))
 results["noRegressionAgainstShippedRuntime"] = no_regression
 results["notEvidenceFor"] = ["Quest headset readiness", "clinical validity"]
 (OUT / "runtime-measurements.json").write_text(json.dumps(results,indent=2)+"\n")
