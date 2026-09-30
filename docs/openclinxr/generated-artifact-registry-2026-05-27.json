@@ -42,6 +42,41 @@
   },
   "entries": [
     {
+      "path": "docs/assets/ward-room-before-after-2026-09-30.mp4",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Entry 120 UI-XR runtime before/after camera-path video for the shipped factory ward; desktop-browser evidence, not headset readiness."
+    },
+    {
+      "path": "docs/assets/ward-room-before-after-poster-2026-09-30.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Entry 120 poster frame from the UI-XR runtime before/after ward video; desktop-browser evidence, not headset readiness."
+    },
+    {
+      "path": "docs/assets/ward-room-toward-door-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, toward the door."
+    },
+    {
+      "path": "docs/assets/ward-room-door-inside-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, facing the door from inside."
+    },
+    {
+      "path": "docs/assets/ward-room-floor-base-before-after-reference-2026-09-30.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, floor and cove base."
+    },
+    {
       "path": "docs/openclinxr/room-realism/ship-ward-room/after/runtime-01-toward-door.png",
       "authority": "keep-evidence",
       "tracked": true,

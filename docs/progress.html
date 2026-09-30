@@ -27,6 +27,65 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-09-30T0445">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 120 &middot; 2026-09-30 04:45 UTC</p>
+          <h2>The inpatient ward room now reaches learners from the factory chain.</h2>
+        </div>
+        <p>
+          The UI-XR runtime now serves the factory output at <code>apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb</code>. For a learner, that room contains the Infinigen wall texture in neutral matte paint, a 600&nbsp;mm vinyl-tile floor, a 100&nbsp;mm cove base, a hospital door with a flat maple leaf, vision panel, steel lever and frame, and a framed luminous troffer in a 24&nbsp;mm T-bar grid.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+            poster="assets/ward-room-before-after-poster-2026-09-30.png"
+            aria-label="The same slow camera path through the UI-XR inpatient ward. Left: the previous room. Right: the shipped factory room.">
+            <source src="assets/ward-room-before-after-2026-09-30.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Left: before, recovered from the room GLB with SHA-256 <code>0b568439…</code>. Right: commit <code>9f2b313c2</code>. Both halves use the same 8-second eased camera path, the real UI-XR learner runtime, and the shipped ward lighting rig; only the room GLB differs.
+            </p>
+          </div>
+        </div>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-room-toward-door-before-after-reference-2026-09-30.jpg" alt="Three-way comparison toward the ward door: previous runtime room, shipped factory room, and v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Toward door &mdash; before | after | reference.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-room-door-inside-before-after-reference-2026-09-30.jpg" alt="Three-way comparison from inside the ward facing the door: previous runtime room, shipped factory room, and v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Door from inside &mdash; before | after | reference.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/ward-room-floor-base-before-after-reference-2026-09-30.jpg" alt="Three-way close comparison of the ward floor and cove base: previous runtime room, shipped factory room, and v2 reference." width="1280" height="250" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Floor and cove base &mdash; before | after | reference.</figcaption>
+          </figure>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Per-surface grades against the v2 reference images. RGB deltas are capture minus reference, in 0&ndash;255 channel values.</caption>
+            <thead><tr><th scope="col">Surface</th><th scope="col">Measured grade</th><th scope="col">Repository evidence</th></tr></thead>
+            <tbody>
+              <tr><td>Floor and cove base</td><td>Floor RGB deltas: +1.40, &minus;3.21, &minus;6.66 at pose 02 and +7.86, +2.34, &minus;3.71 at pose 06, inside the &plusmn;8/channel gate. All five cove meshes measure 0.100&nbsp;m high.</td><td><code>docs/openclinxr/room-realism/light-balance/floor-skirting-measurements.json</code></td></tr>
+              <tr><td>Ceiling, troffer and grid</td><td>Tile RGB deltas: &minus;2.57, &minus;3.94, &minus;5.21 at pose 02 and +4.62, +2.78, +1.43 at pose 03, inside the &plusmn;8/channel gate. Troffer centre RGB is 233.30, 232.51, 231.19; the T-bar is 8 px against 7 px in the reference (+14.3%, inside &plusmn;30%).</td><td><code>docs/openclinxr/room-realism/light-balance/ceiling-measurements.json</code></td></tr>
+              <tr><td>Door, door3</td><td>Leaf RGB deltas: +6.06, +0.03, &minus;3.86, inside the &plusmn;12/channel gate. R&minus;B differs by +9.92 against a &plusmn;15 gate; texture standard-deviation ratios are 0.74, 1.18 and 1.29 against a 0.60 floor.</td><td><code>docs/openclinxr/room-realism/light-balance/door-measurements.json</code>, <code>door3</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The cold factory chain moved from 887&ndash;954&nbsp;s to 59&ndash;63&nbsp;s (<code>docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.md</code>). Decoded textures are 48.6&nbsp;MiB under the 56&nbsp;MiB budget (<code>docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json</code>).
+        </p>
+        <p class="status-copy">
+          <strong>Not yet:</strong> the door casing does not yet read as a white frame, the vision glass is flat dark rather than reflective, and the leaf grain shows mainly in one strip.
+        </p>
+        <p class="evidence-note">
+          Shipped in commit <code>9f2b313c2</code>. Desktop Chromium runtime capture at 1280&times;720 per source frame; no headset claim.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> headset playback, Quest performance or readiness, clinical validity, scoring validity, licensure, production readiness, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-28T0230">
         <div class="section-heading">
           <p class="eyebrow">Entry 119 &middot; 2026-09-28 02:30 UTC</p>

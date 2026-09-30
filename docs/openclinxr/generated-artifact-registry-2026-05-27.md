@@ -32,6 +32,11 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 ## Cleanup Actions
 
+- `docs/assets/ward-room-before-after-2026-09-30.mp4` - keep-evidence; keep; Entry 120 UI-XR runtime before/after camera-path video for the shipped factory ward; desktop-browser evidence, not headset readiness.
+- `docs/assets/ward-room-before-after-poster-2026-09-30.png` - keep-evidence; keep; Entry 120 poster frame from the UI-XR runtime before/after ward video; desktop-browser evidence, not headset readiness.
+- `docs/assets/ward-room-toward-door-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, toward the door.
+- `docs/assets/ward-room-door-inside-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, facing the door from inside.
+- `docs/assets/ward-room-floor-base-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 120 committed three-way ward sheet: before, shipped factory room, and v2 reference, floor and cove base.
 - `.agent-factory/e18e-hygiene-summary-current.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
 - `.openclinxr/asset-production/anny-real-smoke/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-appendage-motion/peds_patient_child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
