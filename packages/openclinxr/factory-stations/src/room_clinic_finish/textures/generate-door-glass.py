@@ -26,7 +26,7 @@ for y in range(HEIGHT):
         diagonal = 18.0 * math.exp(-((x / WIDTH - (0.22 + 0.38 * y / HEIGHT)) / 0.10) ** 2)
         vignette = -10.0 * ((2.0 * x / WIDTH - 1.0) ** 2)
         value = wave + mullion + diagonal + vignette
-        pixels.append((clamp(194 + value), clamp(205 + value), clamp(203 + value)))
+        pixels.append((clamp(162 + value), clamp(178 + value), clamp(176 + value)))
 
 image = Image.new("RGB", (WIDTH, HEIGHT))
 image.putdata(pixels)

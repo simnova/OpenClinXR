@@ -3890,3 +3890,31 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/ship-ward-room/runtime-measurements.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
 - `docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
 - `docs/openclinxr/room-realism/ship-ward-room/ship-verification.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-01-toward-door.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-02-toward-bed-wall.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-03-ceiling-corner.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-04-door-inside.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-05-troffer-junction.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/runtime-06-floor-base.png` - keep-evidence; Ward door finish before learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/before/stage2-multiview.json` - keep-evidence; Ward door finish before learner-runtime capture manifest.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-01-toward-door.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-02-toward-bed-wall.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-03-ceiling-corner.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-04-door-inside.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-05-troffer-junction.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/runtime-06-floor-base.png` - keep-evidence; Ward door finish after learner-runtime capture; not headset readiness.
+- `docs/openclinxr/room-realism/door-finish/after/stage2-multiview.json` - keep-evidence; Ward door finish after learner-runtime capture manifest.
+- `docs/openclinxr/room-realism/door-finish/01-toward-door-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/01-toward-door-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/02-toward-bed-wall-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/02-toward-bed-wall-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/03-ceiling-corner-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/03-ceiling-corner-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/04-door-inside-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/04-door-inside-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/05-troffer-junction-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/05-troffer-junction-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/06-floor-base-before-after.jpg` - keep-evidence; Ward door finish learner-runtime before-after sheet.
+- `docs/openclinxr/room-realism/door-finish/06-floor-base-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
+- `docs/openclinxr/room-realism/door-finish/runtime-measurements.json` - keep-evidence; Ward door finish crop-verified measurements and no-regression grades.
+- `docs/openclinxr/room-realism/door-finish/shipped-budget.json` - keep-evidence; Ward door finish producer-derived digest and decoded-memory budget.

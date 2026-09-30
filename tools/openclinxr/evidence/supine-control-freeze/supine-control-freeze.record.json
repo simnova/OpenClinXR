@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.supine-control-freeze.v1",
   "scenarioId": "ward_delirium_med_rec_v1",
   "assetSha256ByPath": {
-    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "628d0a4626dcb0b619d1d032302989aac7dd80df4db911ac0d7e7f8df16e3bdf",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "338162bcaa6357297a07edc6ba33e098adc461b1d6caa3e2e42080201b0f9621",
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "f89a16c89429788e649a89dc0b665dbae7d26c36d6b26f3736a2c8281db9a503",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
@@ -17,11 +17,11 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "ship-ward-room worker: real UI-XR six-pose runtime capture and SC-06 live hull observation",
-    "observedAtIso": "2026-09-30T03:50:52.735Z",
-    "reason": "Authorized seed-205 ward chain promotion; all room property gates and exact runtime ceiling/floor/wall grades pass. Rebaseline records changed room bytes, not a claim that the old control is unchanged.",
+    "observedBy": "door-finish worker: real UI-XR six-pose runtime capture and SC-06 live hull observation",
+    "observedAtIso": "2026-09-30T14:49:29.594Z",
+    "reason": "Authorized seed-205 ward door finish promotion; casing, glass, veneer and exact runtime ceiling/floor/wall grades pass. Rebaseline records changed room bytes, not a claim that the old control is unchanged.",
     "byteCountByPath": {
-      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9426504,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9451868,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 3573420,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 4062632,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 19149628,

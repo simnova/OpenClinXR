@@ -34,13 +34,153 @@
     }
   ],
   "counts": {
-    "keep-evidence": 864,
+    "keep-evidence": 892,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
   "entries": [
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/before/stage2-multiview.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before learner-runtime capture manifest; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-01-toward-door.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-04-door-inside.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/runtime-06-floor-base.png",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/after/stage2-multiview.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish after learner-runtime capture manifest; not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/01-toward-door-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/01-toward-door-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/02-toward-bed-wall-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/02-toward-bed-wall-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/03-ceiling-corner-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/03-ceiling-corner-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/04-door-inside-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/04-door-inside-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/05-troffer-junction-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/05-troffer-junction-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/06-floor-base-before-after.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/06-floor-base-before-after-reference.jpg",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish before-after-v2-reference learner-runtime sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/runtime-measurements.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish crop-verified runtime measurements and no-regression grades."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/shipped-budget.json",
+      "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward door finish producer-derived asset digest and decoded-memory budget."
+    },
     {
       "path": "docs/assets/ward-room-before-after-2026-09-30.mp4",
       "authority": "keep-evidence",

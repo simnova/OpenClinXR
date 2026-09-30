@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "mechanism": "ui-xr-runtime-url",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-01-toward-door.png",
+      "pngBytes": 652590,
+      "pngSha256": "c695914efbb0b6a1b79c5161269dccb10a1a4c77412bd7514440ffaf53359564"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 618305,
+      "pngSha256": "43114ca59e185b48990306df9a613250780a774aa9a4500c411372d5f82acdfc"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 1096932,
+      "pngSha256": "8a5a0ef03befa92f9df22663a68e764728b08fa17088f7f0b7917728dad10be4"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.6,
+        "y": 1.5,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.25,
+        "z": -1.8
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-04-door-inside.png",
+      "pngBytes": 687912,
+      "pngSha256": "e42fae3b17cb9fba17817eec2e1a6969f89f2233c3396db296fab849dafb5139"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-05-troffer-junction.png",
+      "pngBytes": 1078099,
+      "pngSha256": "bc0c07685eab86a466900cd5c9759b89c9144f571d23422770d7bed10663d3b3"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.32,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0,
+        "y": -0.05,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/door-finish/docs/openclinxr/room-realism/door-finish/before/runtime-06-floor-base.png",
+      "pngBytes": 761129,
+      "pngSha256": "440b72b94a41542411bf5b276c110ac5af0f15532b99c375966e5a3e27cbb4fb"
+    }
+  ]
+}

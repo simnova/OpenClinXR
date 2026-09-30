@@ -996,12 +996,11 @@ DOOR_REVEAL_MATERIAL = "openclinxr_door_reveal"
 # Ward casing spec paint (linear-ish albedo): the ref casing reads as a
 # white band at/above the adjacent wall (ref jamb ~189 vs wall ~183), while
 # the palette trim (0.69,0.73,0.75) renders ~174 grey against a ~207 wall.
-# The jamb faces catch raking light (normals ±x vs the wall's +z), so the
-# paint must run brighter than the wall albedo to match it: 0.83/0.88/0.91
-# still rendered ~205, level with the 207 wall.
+# The finish-depth skin catches the room light differently on jamb and head;
+# 0.79/0.81/0.83 renders 207-214 across those faces, at least wall+4 and <=215.
 # Dedicated constant, not palette trim: other presets use trimAlbedo for
 # wall/trim paint and must not move with the ward casing.
-DOOR_CASING_RGB = (0.95, 0.96, 0.98)
+DOOR_CASING_RGB = (0.79, 0.81, 0.83)
 # The simplified Infinigen casing survives the chain but its room-side face
 # sits behind the finish veneer/wall plane.  A finish-depth trim skin keeps
 # the factory casing as the structural source while making its specified
@@ -1009,8 +1008,13 @@ DOOR_CASING_RGB = (0.95, 0.96, 0.98)
 # between the light casing and maple leaf in the reference.
 DOOR_CASING_FACE_M = 0.055
 DOOR_REVEAL_WIDTH_M = 0.009
-DOOR_CASING_PROUD_M = 0.006
-DOOR_REVEAL_RGB = (0.075, 0.08, 0.085)
+# The leaf room face sits about 130 mm behind the wall's room face on the
+# seed-205 opening.  A 150 mm offset puts the trim front ~20 mm proud of the
+# wall; its 12 mm skin then remains fully visible instead of z-fighting or
+# disappearing behind the wall surface.
+DOOR_CASING_PROUD_M = 0.150
+DOOR_CASING_DEPTH_M = 0.012
+DOOR_REVEAL_RGB = (0.005, 0.006, 0.007)
 # Steel lite-frame rail width and room-face pride (metres).
 LITE_FRAME_WIDTH_M = 0.014
 LITE_FRAME_PROUD_M = 0.003
@@ -1441,7 +1445,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         # the wall/veneer.  These three fronts sit 4 mm ahead of the veneer,
         # so neither the wall nor facing can occlude them.  No sill is added.
         casing_front = face + room_sign * DOOR_CASING_PROUD_M
-        casing_back = face - room_sign * 0.001
+        casing_back = casing_front - room_sign * DOOR_CASING_DEPTH_M
         casing_depth = abs(casing_front - casing_back)
         leaf_u0, leaf_u1 = box["min"][ua], box["max"][ua]
         leaf_v0, leaf_v1 = box["min"][va], box["max"][va]

@@ -19,6 +19,11 @@ const images = doc.getRoot().listTextures().map((texture) => {
   };
 }).sort((a, b) => b.encodedBytes - a.encodedBytes);
 const decodedMiBWithMips = images.reduce((sum, image) => sum + image.decodedRgbaBytes, 0) * 1.33 / 1024 ** 2;
+const primitives = doc.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives());
+const triangles = primitives.reduce((sum, primitive) => {
+  const indices = primitive.getIndices();
+  return sum + (indices ? indices.getCount() / 3 : (primitive.getAttribute("POSITION")?.getCount() ?? 0) / 3);
+}, 0);
 console.log(JSON.stringify({
   file, sha256: createHash("sha256").update(bytes).digest("hex"), bytes: bytes.length,
   byteCeiling: 200 * 1024 ** 2,
@@ -27,5 +32,7 @@ console.log(JSON.stringify({
   decodedCeilingSource: "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
   decodedMiBWithMips, images,
   meshCount: doc.getRoot().listMeshes().length,
-  materiallessPrimitives: doc.getRoot().listMeshes().flatMap((mesh) => mesh.listPrimitives()).filter((primitive) => !primitive.getMaterial()).length,
+  primitiveCount: primitives.length,
+  triangles,
+  materiallessPrimitives: primitives.filter((primitive) => !primitive.getMaterial()).length,
 }, null, 2));

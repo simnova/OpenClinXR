@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 143,
+    "evidence": 144,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -16,6 +16,13 @@
     "decision-record": 44
   },
   "entries": [
+    {
+      "path": "docs/openclinxr/room-realism/door-finish/READER-AUDIT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit."
+    },
     {
       "path": "docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md",
       "authority": "evidence",

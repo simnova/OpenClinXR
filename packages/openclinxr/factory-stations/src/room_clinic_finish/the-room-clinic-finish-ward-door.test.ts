@@ -225,9 +225,9 @@ describe("the room clinic finish ward door", () => {
     const casingMat = doc.getRoot().listMaterials().find((m) => m.getName() === "openclinxr_finish_casing");
     expect(casingMat, "casing paint must exist").toBeDefined();
     const factor = casingMat!.getBaseColorFactor();
-    // Ward casing spec white (DOOR_CASING_RGB), decoupled from palette trim.
+    // Ward casing light paint (DOOR_CASING_RGB), decoupled from palette trim.
     for (let i = 0; i < 3; i += 1) {
-      expect(Math.abs(factor[i]! - [0.95, 0.96, 0.98][i]!)).toBeLessThan(0.02);
+      expect(Math.abs(factor[i]! - [0.79, 0.81, 0.83][i]!)).toBeLessThan(0.02);
     }
     const furniture = prepared!.report["doorFurniture"] as { casing: string[] };
     expect(furniture.casing.length).toBe(3);
