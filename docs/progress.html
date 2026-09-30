@@ -36,15 +36,15 @@
           The UI-XR runtime now serves the factory output at <code>apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb</code>. For a learner, that room contains the Infinigen wall texture in neutral matte paint, a 600&nbsp;mm vinyl-tile floor, a 100&nbsp;mm cove base, a hospital door with a flat maple leaf, vision panel, steel lever and frame, and a framed luminous troffer in a 24&nbsp;mm T-bar grid.
         </p>
         <div class="motion-proof" style="margin-top:16px;">
-          <video class="motion-proof__video" controls loop playsinline preload="metadata"
+          <video class="motion-proof__video" controls loop playsinline preload="metadata" width="1280" height="1440" style="aspect-ratio:8 / 9; height:auto;"
             poster="assets/ward-room-before-after-poster-2026-09-30.png"
-            aria-label="The same slow camera path through the UI-XR inpatient ward. Left: the previous room. Right: the shipped factory room.">
+            aria-label="A slow yaw pan from learner eye height in each ward. Top: Before. Bottom: After (shipped).">
             <source src="assets/ward-room-before-after-2026-09-30.mp4" type="video/mp4">
             Your browser does not support this video.
           </video>
           <div>
             <p class="status-copy">
-              Left: before, recovered from the room GLB with SHA-256 <code>0b568439…</code>. Right: commit <code>9f2b313c2</code>. Both halves use the same 8-second eased camera path, the real UI-XR learner runtime, and the shipped ward lighting rig; only the room GLB differs.
+              Top: Before, room GLB SHA-256 <code>0b568439…</code>. Bottom: After (shipped), commit <code>9f2b313c2</code>. Each camera stands at 1.6&nbsp;m, 1&nbsp;m toward +Z from its own room's GLB-bounds centre, and pans 210&deg; over 14&nbsp;s (&minus;105&deg; to +105&deg; about the &minus;Z direction), pitched 5&deg; down with a 100&deg; vertical field of view. Both use the real UI-XR learner runtime and shipped ward lighting rig. Each half is 1280&times;720 at 15&nbsp;fps; the poster is from the middle of the pan.
             </p>
           </div>
         </div>
