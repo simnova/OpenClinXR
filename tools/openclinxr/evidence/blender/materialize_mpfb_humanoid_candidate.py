@@ -1676,6 +1676,41 @@ def verify_garment_textures_in_glb(glb_path):
     )
 
 
+_CYCLES_DEVICE = "cpu"
+
+
+def _resolve_cycles_bake_device():
+    """Return the Cycles bake device; default CPU keeps shipped textures byte-stable.
+
+    GPU vs CPU rendering can shift baked pixels, so `--cycles-device metal` is
+    opt-in only. On metal, enable the METAL preference devices and return "GPU";
+    on any Metal failure (no device, exception) log and return "CPU" — never
+    hard-fail a bake for the accelerator.
+    """
+    if _CYCLES_DEVICE != "metal":
+        return "CPU"
+    try:
+        prefs = bpy.context.preferences.addons.get("cycles")
+        if prefs is not None:
+            cprefs = prefs.preferences
+            try:
+                cprefs.compute_device_type = "METAL"
+            except Exception:
+                pass
+            cprefs.get_devices()
+            metal = [d for d in cprefs.devices if getattr(d, "type", "") == "METAL"]
+            if not metal:
+                print("CYCLES_DEVICE metal requested but no METAL device found; falling back to CPU")
+                return "CPU"
+            for d in metal:
+                d.use = True
+            return "GPU"
+        print("CYCLES_DEVICE cycles addon preferences missing; falling back to CPU")
+    except Exception as exc:
+        print(f"CYCLES_DEVICE metal setup failed ({exc}); falling back to CPU")
+    return "CPU"
+
+
 def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resolution=1024):
     """#343 — bake the SHIPPED enhanced_skin node tree to a glTF baseColorTexture.
 
@@ -1702,7 +1737,7 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     prev_engine = scene.render.engine
     prev_device = getattr(scene.cycles, "device", "CPU")
     scene.render.engine = "CYCLES"
-    scene.cycles.device = "CPU"
+    scene.cycles.device = _resolve_cycles_bake_device()
     scene.render.bake.use_pass_direct = False
     scene.render.bake.use_pass_indirect = False
     scene.render.bake.use_pass_color = True
@@ -1984,7 +2019,7 @@ def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolut
     prev_device = getattr(scene.cycles, "device", "CPU")
     prev_normal_space = getattr(scene.render.bake, "normal_space", None)
     scene.render.engine = "CYCLES"
-    scene.cycles.device = "CPU"
+    scene.cycles.device = _resolve_cycles_bake_device()
     try:
         scene.render.bake.normal_space = "TANGENT"
     except Exception:
@@ -2220,6 +2255,16 @@ def parse_args():
             "tightjeans PNG with a JPEG when baking.  The override key is matched "
             "case-insensitively against the material name.  Allows the bake path to produce "
             "JPEG diffuse textures without post-processing the shipped GLB."
+        ),
+    )
+    parser.add_argument(
+        "--cycles-device",
+        default="cpu",
+        choices=["cpu", "metal"],
+        help=(
+            "Cycles bake device for the two skin-bake stages. Default cpu keeps "
+            "shipped textures byte-stable; metal enables the METAL Cycles device "
+            "and bakes on GPU (falls back to CPU on any Metal failure)."
         ),
     )
     parser.add_argument(
@@ -3561,6 +3606,8 @@ def replay_seated_rest_bind(actor_glb):
 
 def main():
     args = parse_args()
+    global _CYCLES_DEVICE
+    _CYCLES_DEVICE = args.cycles_device
     # #687 — D13: a bake must say who it is baking. The naming identity comes from
     # --reference (measured-reference path) or --eye-colour-reference (the manifest-id
     # channel the default-macro path already uses to carry the authored identity,
