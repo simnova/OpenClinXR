@@ -1,6 +1,6 @@
 {
   "id": "psr-c6-compute-services",
-  "reviewedSourceCandidate": "",
+  "reviewedSourceCandidate": "fc3d48072ad14acb719714533332c75e09d8ec6a",
   "exceptions": [
     {
       "target": "rootExportsAtMost",
