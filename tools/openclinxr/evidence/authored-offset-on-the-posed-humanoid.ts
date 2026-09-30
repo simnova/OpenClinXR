@@ -30,7 +30,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { type Page, chromium } from "playwright";
+import { type Page, chromium } from "./lib/slotted-playwright.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { SKINNED_WORLD_SAMPLING_SOURCE } from "./lib/skinned-world-sampling.js";
 import { newEvidencePage } from "./lib/evidence-page.js";

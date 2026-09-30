@@ -95,12 +95,47 @@ After changing `.grok/lsp.json`, **restart Grok** so servers reload. Prefer **re
 
 ## Compute slots
 
-Heavy local work is machine-gated through lock-file slots: Blender subprocesses use the `blender`
-pool (default 2), and ward runtime capture uses `browser-capture` (default 1). Override the limits
-with `OPENCLINXR_SLOTS_BLENDER` and `OPENCLINXR_SLOTS_BROWSER_CAPTURE`; use
+Heavy local work is machine-gated through lock-file slots: Blender and bpy subprocesses use the
+`blender` pool (default 2), WebGL Chromium captures use `browser-capture` (default 1), and local
+GPU/ML work (Torch, MPS, MLX, TRELLIS, and ComfyUI generation) uses `gpu` (default 1). Override
+the limits with `OPENCLINXR_SLOTS_BLENDER`, `OPENCLINXR_SLOTS_BROWSER_CAPTURE`, and
+`OPENCLINXR_SLOTS_GPU`; use
 `OPENCLINXR_LOCK_ROOT` only to isolate tests or a deliberately separate machine context.
 Waiters use per-pool ticket files in an ordered queue directory; dead-PID tickets and holders are
 reclaimed, while a live PID is never evicted based on age.
+
+Acquisition is re-entrant per async process context and pool. A nested `withComputeSlot("blender")`
+inside an existing Blender hold reuses that lease (with a counted nested hold), while unrelated
+concurrent calls in the same Node process still queue normally.
+
+Launcher classification:
+
+- `blender`: `spawnBlenderProcess`; all direct Blender launchers listed by the package/evidence
+  adapters; and every `room_generate/generate.ts` child pass (`generate` venv Python importing bpy,
+  `strip`, Metal `shell-bake`, `extract`, and `probe`). Each room pass releases before the next so
+  queued Blender work can interleave. The standalone Infinigen evidence launchers
+  (`infinigen-empty-shell.ts`, `infinigen-single-room-shell.ts`,
+  `infinigen-shell-trim-override.ts`, `infinigen-constraint-language.ts`, and
+  `infinigen-indoors-cagematch-probe.ts`) also acquire this pool around each bpy subprocess.
+- `gpu`: `factory-stations/equipment_generate/run.ts` TRELLIS bake;
+  `asset-pipeline/trellis/trellis-hatch-cli.ts` bake;
+  `evidence/trellis-metal-subject-isolation.ts` bake;
+  `evidence/trellis-conditioning-run.ts` arm bakes; and
+  `evidence/comfy-humanoid-texture-bake.ts` ComfyUI request-to-result generation.
+  `asset-pipeline/trellis/trellis-bake-cli.ts` reaches the slotted equipment station rather than
+  launching independently.
+- `browser-capture`: every direct 3D `chromium.launch` under `tools/openclinxr/evidence/**`, plus
+  `benchmarks/glb-optimization/benchmark-glb-optimization.ts` and
+  `tests/openclinxr/assembled-exam-learner-faculty.spec.ts`. The shared Playwright adapter holds the
+  lease through `Browser.close()` or disconnect, not merely through launch. Left unslotted as pure
+  DOM captures: `capture-factory-station-cards.mts` and `capture-worldview-site.mts`.
+- Not heavy: `trellis/factory-case-cli.ts` (tsx dispatcher; downstream stations acquire);
+  `trellis/iterate-optimize.ts` non-Blender paths (Node/CPU transforms; its Blender paths already
+  acquire `blender`); `trellis/trellis-pack-cli.ts` (CPU gltfpack); TRELLIS rederive/tests (git or
+  test subprocesses); TRELLIS conditioning geometry measurement (CPU-only GLB inspection despite
+  using the TRELLIS venv); Comfy texture PIL grid assembly (CPU); local-runtime and local-provider
+  probes (`which`, version/help, hardware/module discovery only—no inference); and Kimodo scripts
+  (no TypeScript subprocess launcher exists; currently manual Python entrypoints).
 
 Run `pnpm compute:slots` to see holders and waiters, or `pnpm compute:slots -- --json` for structured
 output. Briefs no longer need the manual Blender-process-count rule: compute-heavy work queues

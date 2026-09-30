@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium } from "../../../lib/slotted-playwright.js";
 import { type Object3D, Scene } from "three";
 import {
   composeSupportedActorWorldPosition,

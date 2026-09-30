@@ -26,6 +26,7 @@
  * do not invent a fourth capture script.
  */
 
+import { spawn } from "node:child_process";
 import {
   copyFileSync,
   existsSync,
@@ -35,10 +36,9 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
-import { spawn } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -196,7 +196,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; env?: NodeJS.ProcessEnv; timeoutMs?: number } = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
+  return withComputeSlot("blender", { label: "infinigen-indoors-cagematch", cwd: opts.cwd }, () => new Promise((resolve) => {
     const child = spawn(command, args, {
       cwd: opts.cwd,
       env: { ...process.env, ...opts.env },
@@ -225,7 +225,7 @@ function runCmd(
       if (timer) clearTimeout(timer);
       resolve({ code: code ?? 1, stdout, stderr });
     });
-  });
+  }));
 }
 
 function resolvePython(): string {

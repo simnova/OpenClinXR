@@ -66,7 +66,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { withComputeSlot } from "@openclinxr/compute-slots";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {

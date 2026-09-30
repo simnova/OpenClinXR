@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
+import { type Browser, type BrowserContext, chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer,

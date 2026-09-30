@@ -20,7 +20,7 @@ import { NodeIO, type Document, type Node as GltfNode } from "@gltf-transform/co
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import type { BrowserPageCanvas, BrowserPageGlContext } from "./browser-dom.js";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";

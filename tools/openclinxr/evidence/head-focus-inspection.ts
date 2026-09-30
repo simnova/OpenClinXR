@@ -30,7 +30,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Document, type Mesh } from "@gltf-transform/core";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   deriveHeadBoxFromPoints,

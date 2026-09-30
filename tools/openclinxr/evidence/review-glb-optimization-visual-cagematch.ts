@@ -1,7 +1,7 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import { glob } from "tinyglobby";
 import {
   validateModelVettingReport,

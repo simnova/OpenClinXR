@@ -12,11 +12,11 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { withComputeSlot, withComputeSlotSync } from "@openclinxr/compute-slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 // tools/openclinxr/evidence → repo root is three levels up
@@ -592,7 +592,11 @@ export async function inspectComfyHumanoidTextureBake(): Promise<BakeMeasure> {
     // Step 2: Run ComfyUI depth→image for each view
     console.log("Step 2: running ComfyUI depth→image...");
     const seed = 231001;
-    const comfyResults = await runComfyDepthViews(depthManifest, evidenceDir, seed);
+    const comfyResults = await withComputeSlot(
+      "gpu",
+      { label: "comfy-humanoid-texture", cwd: REPO_ROOT },
+      () => runComfyDepthViews(depthManifest, evidenceDir, seed),
+    );
 
     // Step 3: Compile Comfy outputs into an "after" contact sheet
     console.log("Step 3: compiling after sheet...");

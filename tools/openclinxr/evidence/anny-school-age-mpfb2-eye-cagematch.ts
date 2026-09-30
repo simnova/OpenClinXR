@@ -2,7 +2,7 @@ import { execSync, spawn, type ChildProcessWithoutNullStreams } from "node:child
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import {
   validateModelVettingReport,

@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 import { NodeIO, type Document } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression, KHRDracoMeshCompression, KHRTextureBasisu } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "../../tools/openclinxr/evidence/lib/slotted-playwright.js";
 
 const require = createRequire(import.meta.url);
 const draco3d = require("draco3d") as { createDecoderModule: () => Promise<unknown> };

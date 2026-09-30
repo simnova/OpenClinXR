@@ -1,4 +1,9 @@
 #!/usr/bin/env tsx
+
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 /**
  * #697 — controlled TRELLIS conditioning comparison: four arms, one seed, one source set.
  *
@@ -49,14 +54,9 @@
  * Header IMMUTABLE — append ## FIXED (#697).
  */
 import { withComputeSlotSync } from "@openclinxr/compute-slots";
-
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { chromium } from "playwright";
-import { runGlbGradeCapture } from "./model-vetting-glb-grade-capture.js";
 import { buildContactSheet } from "./isolated-subject-harness.js";
+import { chromium } from "./lib/slotted-playwright.js";
+import { runGlbGradeCapture } from "./model-vetting-glb-grade-capture.js";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -311,13 +311,14 @@ function bakeArm(arm: ArmDef, seed: number, force: boolean): void {
     `[conditioning] ${arm.armId}: bake (${arm.views.length} view${arm.views.length > 1 ? "s" : ""}, seed ${seed}, fresh subprocess)...\n`,
   );
   const t0 = Date.now();
-  const out = execFileSync(VENV_PYTHON, argv, {
-    encoding: "utf8",
-    cwd: REPO_ROOT,
-    timeout: BAKE_TIMEOUT_MS,
-    env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  const out = withComputeSlotSync("gpu", { label: `trellis-conditioning:${arm.armId}`, cwd: REPO_ROOT }, () =>
+    execFileSync(VENV_PYTHON, argv, {
+      encoding: "utf8",
+      cwd: REPO_ROOT,
+      timeout: BAKE_TIMEOUT_MS,
+      env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
+      maxBuffer: 20 * 1024 * 1024,
+    }));
   process.stdout.write(out);
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   const measure = armBakeMeasure(arm.armId);

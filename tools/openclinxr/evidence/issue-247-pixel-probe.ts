@@ -7,7 +7,7 @@
  */
 import path from "node:path";
 import { createRequire } from "node:module";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,

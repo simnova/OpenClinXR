@@ -22,7 +22,7 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NodeIO, type Document, type Node as GltfNode } from "@gltf-transform/core";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   validateModelVettingReport,
   type ModelVettingCandidate,

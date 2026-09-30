@@ -23,7 +23,7 @@
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   spawnPortlessDevServer, stopPortlessDevServer,
   type PortlessDevServer,

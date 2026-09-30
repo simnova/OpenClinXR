@@ -1,8 +1,9 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: browser evidence globals are dynamically injected
 import { existsSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 
 /** Role keys for dual-role sleeveDeform capture (ui-xr-parent-nurse-sleeve-deform-capture-v1). */
 type CaptureRole = "patient" | "parent" | "nurse";

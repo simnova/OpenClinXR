@@ -16,7 +16,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {

@@ -4,7 +4,7 @@ import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } 
 import { createServer } from "node:http";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium } from "../lib/slotted-playwright.js";
 
 const REPO = join(fileURLToPath(new URL(".", import.meta.url)), "../../../..");
 const OUT = join(REPO, "tools/openclinxr/evidence/motion-backend-bakeoff");

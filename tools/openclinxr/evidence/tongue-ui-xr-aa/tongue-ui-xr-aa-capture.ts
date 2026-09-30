@@ -24,7 +24,7 @@ import { mkdirSync, readFileSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));

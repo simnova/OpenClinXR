@@ -69,7 +69,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer, stopPortlessDevServer,

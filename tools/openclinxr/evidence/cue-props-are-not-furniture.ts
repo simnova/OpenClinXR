@@ -13,7 +13,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   classifyRoomProp,
   type RoomPropClass,

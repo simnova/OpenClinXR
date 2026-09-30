@@ -37,7 +37,7 @@ import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inflateSync } from "node:zlib";
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, chromium, type Page } from "../lib/slotted-playwright.js";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   type PortlessDevServer,

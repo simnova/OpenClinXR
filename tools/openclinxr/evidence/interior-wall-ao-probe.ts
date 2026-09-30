@@ -15,7 +15,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 import {
   spawnPortlessDevServer,

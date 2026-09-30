@@ -13,7 +13,7 @@
  */
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "../lib/slotted-playwright.js";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   spawnPortlessDevServer,

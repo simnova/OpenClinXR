@@ -1,7 +1,7 @@
 import { execSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import type { ModelVettingReport } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 import { buildCagematchOutputHome, ensureCagematchOutputHome } from "./generated-output-home.js";
 

@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import {
   buildRoomCaptureUrl, reframeCameraForRoom, waitForHumanoidAssetsLoaded, waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";

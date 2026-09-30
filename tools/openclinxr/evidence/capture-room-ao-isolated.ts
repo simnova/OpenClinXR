@@ -18,7 +18,7 @@ import {
 } from "./interior-wall-lighting-variants.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { buildRoomCaptureUrl, waitForStationShell } from "./ui-xr-environment-room-capture.js";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = pathResolve(HERE, "../../..");

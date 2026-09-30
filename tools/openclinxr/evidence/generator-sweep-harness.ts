@@ -42,7 +42,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 // three is not a root dep — resolve from ui-xr (same pattern as in-process builder imports).
 import {
   Box3,

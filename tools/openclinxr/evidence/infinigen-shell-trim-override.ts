@@ -10,6 +10,7 @@
  * notEvidenceFor: adoption, Quest worn readiness, clinical validity, ui-xr wiring.
  */
 
+import { spawn } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -19,10 +20,10 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
-import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -107,7 +108,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; env?: NodeJS.ProcessEnv; timeoutMs?: number } = {},
 ): Promise<{ code: number; stdout: string; stderr: string; timedOut: boolean }> {
-  return new Promise((resolve) => {
+  return withComputeSlot("blender", { label: "infinigen-shell-trim", cwd: opts.cwd }, () => new Promise((resolve) => {
     let timedOut = false;
     const child = spawn(command, args, {
       cwd: opts.cwd,
@@ -138,7 +139,7 @@ function runCmd(
       if (timer) clearTimeout(timer);
       resolve({ code: code ?? 1, stdout, stderr, timedOut });
     });
-  });
+  }));
 }
 
 function isUnderTmp(resolved: string): boolean {

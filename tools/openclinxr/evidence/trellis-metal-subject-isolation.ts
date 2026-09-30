@@ -28,12 +28,13 @@
  */
 
 import { execFile } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 const __dirname = path.resolve(fileURLToPath(import.meta.url), "..");
@@ -254,7 +255,8 @@ function runBakeProcess(
   outputDir: string,
   env: NodeJS.ProcessEnv,
 ): Promise<BakeResult> {
-  return new Promise((resolve, reject) => {
+  return withComputeSlot("gpu", { label: `trellis-metal:${subject.subjectId}`, cwd: TRELLIS_ROOT }, () =>
+    new Promise((resolve, reject) => {
     const scriptPath = path.resolve(__dirname, "blender/run_bake_isolated.py");
 
     const args = [
@@ -332,7 +334,7 @@ function runBakeProcess(
       writeFileSync(measurePath, JSON.stringify(blocked, null, 2) + "\n");
       resolve(blocked);
     });
-  });
+    }));
 }
 
 /**

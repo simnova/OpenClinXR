@@ -4,7 +4,7 @@
  * the subject AABB the page computed, so the refusal can be traced (body bounds vs the
  * derivation's silhouette profile).
  */
-import { chromium } from "playwright";
+import { chromium } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 
 const ED_ACTORS = [

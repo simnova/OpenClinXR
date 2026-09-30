@@ -4,7 +4,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { buildRoomCaptureUrl } from "./ui-xr-environment-room-capture.js";
 

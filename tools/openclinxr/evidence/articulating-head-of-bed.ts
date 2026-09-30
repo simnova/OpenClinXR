@@ -13,7 +13,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 import {
   spawnPortlessDevServer, stopPortlessDevServer,

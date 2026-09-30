@@ -25,7 +25,7 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { computeMeasurementTreeStamp } from "./lib/measurement-tree-stamp.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {

@@ -1,3 +1,4 @@
+// biome-ignore-all lint/nursery/noShadow: helper parameter mirrors the owning browser lifetime
 /**
  * #462 — isolated AA-vs-rest still pair on the shipped peds parent, AFTER the visemes02
  * bake reached it.
@@ -24,7 +25,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer, stopPortlessDevServer,

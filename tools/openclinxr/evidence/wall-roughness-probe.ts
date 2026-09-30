@@ -17,7 +17,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { resolveStationInteriorLightingVariantId } from "@openclinxr/xr-station";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 import {

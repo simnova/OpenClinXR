@@ -23,7 +23,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   INSIDE_OVERLAP_FRACTION_THRESHOLD,
   listShippedScenarioManifestIds,

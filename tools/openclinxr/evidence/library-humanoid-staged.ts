@@ -14,7 +14,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";

@@ -11,7 +11,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page, type Route } from "playwright";
+import { chromium, type Page, type Route } from "./lib/slotted-playwright.js";
 import {
   tryReadStampedArtifact,
   withTreeStamp,

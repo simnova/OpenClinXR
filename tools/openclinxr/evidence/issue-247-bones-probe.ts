@@ -3,7 +3,7 @@
  * Reports shoulder/wrist world positions (arm hang vs T-pose) and the EFFECTIVE
  * (ancestor-aware) visibility of the ragdoll-collision-proxy groups.
  */
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,

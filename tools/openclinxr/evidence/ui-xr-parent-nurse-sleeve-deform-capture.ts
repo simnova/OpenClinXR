@@ -1,8 +1,9 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: browser evidence globals are dynamically injected
 import { statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { isRuntimeHumanoidAssetPath } from "../../../packages/openclinxr/asset-registry/src/humanoid-asset-path.js";
 
 type CliOptions = {

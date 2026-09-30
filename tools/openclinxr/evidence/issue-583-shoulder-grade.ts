@@ -11,7 +11,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 const OUT_DIR = ".openclinxr/evidence/issue-583";

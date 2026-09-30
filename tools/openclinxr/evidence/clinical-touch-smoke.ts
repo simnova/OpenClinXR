@@ -24,7 +24,7 @@ import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import {
   spawnPortlessDevServer,

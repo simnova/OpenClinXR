@@ -1,8 +1,9 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: browser evidence globals are dynamically injected
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import type { ModelVettingReport } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 import type { ModelVettingCaptureArtifactMap } from "./model-vetting-capture-manifest.js";
 import { synthesizeEphemeralReportForGlb } from "./model-vetting-glb-grade-capture.js";

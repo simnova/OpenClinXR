@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import { sceneClosureCaseDocument } from "../../../../tools/openclinxr/factory/scene-closure-case-source.js";
 import { newEvidencePage } from "../lib/evidence-page.js";

@@ -44,7 +44,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { NodeIO } from "@gltf-transform/core";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { PEDS_ASTHMA_SCENARIO_ID, resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {

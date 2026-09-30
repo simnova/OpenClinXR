@@ -30,7 +30,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
   listShippedCastScenarioIds,

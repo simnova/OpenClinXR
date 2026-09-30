@@ -38,7 +38,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 import {
   spawnPortlessDevServer, stopPortlessDevServer,

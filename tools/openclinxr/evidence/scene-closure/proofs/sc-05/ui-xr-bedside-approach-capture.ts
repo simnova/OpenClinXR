@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "../../../lib/slotted-playwright.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import { sceneClosureCaseDocument } from "../../../../factory/scene-closure-case-source.js";
 import { newEvidencePage } from "../../../lib/evidence-page.js";

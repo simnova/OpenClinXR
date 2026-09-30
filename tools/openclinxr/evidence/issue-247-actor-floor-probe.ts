@@ -11,7 +11,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { execSync } from "node:child_process";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {

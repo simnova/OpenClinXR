@@ -20,7 +20,7 @@ import {
   type Object3D,
 } from "../../../apps/ui-xr/node_modules/three/build/three.module.js";
 import { GLTFLoader } from "../../../apps/ui-xr/node_modules/three/examples/jsm/loaders/GLTFLoader.js";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   assignMissingRoomPrimitiveMaterials,
   isGltfMissingAuthoredMaterial,

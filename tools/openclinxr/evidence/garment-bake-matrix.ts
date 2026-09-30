@@ -1,3 +1,4 @@
+// biome-ignore-all lint/nursery/noShadow: preserve established report field naming
 /**
  * #195 — Blender garment coefficient bake-matrix harness.
  *
@@ -34,7 +35,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 import { NodeIO, type Document } from "@gltf-transform/core";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

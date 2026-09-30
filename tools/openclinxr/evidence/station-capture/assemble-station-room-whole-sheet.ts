@@ -9,7 +9,7 @@ import { copyFileSync, mkdirSync, readFileSync, statSync, writeFileSync } from "
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium } from "../lib/slotted-playwright.js";
 import { buildContactSheet } from "../isolated-subject-harness.js";
 import {
   captureStationEnvironmentRooms,

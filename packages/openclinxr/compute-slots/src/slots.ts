@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
 import {
   appendFileSync,
@@ -5,19 +6,20 @@ import {
   existsSync,
   mkdirSync,
   openSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   statSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { appendFile, mkdir, open, readFile, readdir, stat, unlink } from "node:fs/promises";
+import { appendFile, mkdir, open, readdir, readFile, stat, unlink } from "node:fs/promises";
 import { homedir, hostname } from "node:os";
 import path from "node:path";
 
-const DEFAULT_SIZES = { blender: 2, "browser-capture": 1 } as const;
+const DEFAULT_SIZES = { blender: 2, "browser-capture": 1, gpu: 1 } as const;
 const activeClaims = new Map<string, ActiveClaim>();
 const activeTickets = new Set<string>();
+const heldPools = new AsyncLocalStorage<Map<string, ReentrantHold>>();
 let signalHandlersInstalled = false;
 
 export type ComputeSlotMeta = { label: string; cwd?: string };
@@ -31,6 +33,7 @@ type HolderFile = ComputeSlotMeta & {
 };
 type TicketFile = { pid: number; hostname: string; createdAt: string; label: string; cwd: string };
 type ActiveClaim = { pool: string; label: string; cwd: string; token: string; acquiredAt: number; waitedMs: number };
+type ReentrantHold = { lease: ComputeSlotLease; count: number };
 
 export type ComputeSlotPoolStatus = {
   pool: string;
@@ -185,6 +188,16 @@ export async function withComputeSlot<T>(
   meta: ComputeSlotMeta,
   fn: (lease: ComputeSlotLease) => Promise<T> | T,
 ): Promise<T> {
+  const inherited = heldPools.getStore()?.get(pool);
+  if (inherited) {
+    inherited.count += 1;
+    try {
+      return await fn(inherited.lease);
+    } finally {
+      inherited.count -= 1;
+    }
+  }
+
   const root = lockRoot();
   const poolDir = path.join(root, pool);
   const queueDir = path.join(poolDir, "queue");
@@ -229,7 +242,10 @@ export async function withComputeSlot<T>(
   activeClaims.set(claim.file, active);
   let exit = "ok";
   try {
-    return await fn({ pool, slot: claim.slot, waitedMs });
+    const lease = { pool, slot: claim.slot, waitedMs };
+    const context = new Map(heldPools.getStore());
+    context.set(pool, { lease, count: 1 });
+    return await heldPools.run(context, () => fn(lease));
   } catch (error) {
     exit = "throw";
     throw error;
@@ -306,6 +322,16 @@ const syncSleepArray = new Int32Array(new SharedArrayBuffer(4));
 
 /** Synchronous adapter for command-line tools that already use spawnSync/execFileSync. */
 export function withComputeSlotSync<T>(pool: string, meta: ComputeSlotMeta, fn: (lease: ComputeSlotLease) => T): T {
+  const inherited = heldPools.getStore()?.get(pool);
+  if (inherited) {
+    inherited.count += 1;
+    try {
+      return fn(inherited.lease);
+    } finally {
+      inherited.count -= 1;
+    }
+  }
+
   const root = lockRoot();
   const poolDir = path.join(root, pool);
   const queueDir = path.join(poolDir, "queue");
@@ -355,7 +381,10 @@ export function withComputeSlotSync<T>(pool: string, meta: ComputeSlotMeta, fn: 
   activeClaims.set(claim.file, active);
   let exit = "ok";
   try {
-    return fn({ pool, slot: claim.slot, waitedMs });
+    const lease = { pool, slot: claim.slot, waitedMs };
+    const context = new Map(heldPools.getStore());
+    context.set(pool, { lease, count: 1 });
+    return heldPools.run(context, () => fn(lease));
   } catch (error) {
     exit = "throw";
     throw error;

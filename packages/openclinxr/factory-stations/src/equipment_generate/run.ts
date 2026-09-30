@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 import { factoryStationSchemas } from "../catalog.js";
 import type { StationPlan, StationRunner } from "../runner.js";
 import {
@@ -9,7 +10,6 @@ import {
   repoRoot,
   resolveExistingViewPaths,
 } from "./subjects.js";
-
 export type EquipmentGeneratePlan = StationPlan & {
   subjectId: string;
   packId: string;
@@ -437,13 +437,14 @@ export function runEquipmentGenerate(input: unknown, options: EquipmentGenerateR
   if (options.extraArgv) argv.push(...options.extraArgv);
   for (const img of plan.inputImagePaths) argv.push("--input-image", img);
 
-  execFileSync(venvPython, argv, {
-    encoding: "utf8",
-    cwd: root,
-    timeout: 3_600_000,
-    env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
-    maxBuffer: 10 * 1024 * 1024,
-  });
+  withComputeSlotSync("gpu", { label: `equipment-generate:${plan.subjectId}`, cwd: root }, () =>
+    execFileSync(venvPython, argv, {
+      encoding: "utf8",
+      cwd: root,
+      timeout: 3_600_000,
+      env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
+      maxBuffer: 10 * 1024 * 1024,
+    }));
 
   const reportPath = path.join(plan.outputDir, "bake-measure.json");
   if (existsSync(reportPath)) {

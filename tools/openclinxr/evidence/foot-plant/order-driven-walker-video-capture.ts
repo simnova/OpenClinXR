@@ -36,7 +36,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, chromium, type Page } from "../lib/slotted-playwright.js";
 import { newEvidencePage } from "../lib/evidence-page.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import {

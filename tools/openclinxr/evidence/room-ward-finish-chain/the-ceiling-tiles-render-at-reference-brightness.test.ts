@@ -55,7 +55,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { withComputeSlot } from "@openclinxr/compute-slots";
 import { Document, NodeIO } from "@gltf-transform/core";
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, chromium, type Page } from "../lib/slotted-playwright.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {

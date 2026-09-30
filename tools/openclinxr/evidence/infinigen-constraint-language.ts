@@ -30,6 +30,8 @@
  * clinical validity, Quest worn readiness, door placement control, production
  * promotion.
  */
+
+import { spawn } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -38,7 +40,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -109,7 +111,7 @@ function runCmd(
   args: string[],
   opts: { cwd?: string; timeoutMs?: number; env?: NodeJS.ProcessEnv } = {},
 ): Promise<{ code: number; stdout: string; stderr: string; timedOut: boolean }> {
-  return new Promise((resolve) => {
+  return withComputeSlot("blender", { label: "infinigen-constraint-language", cwd: opts.cwd }, () => new Promise((resolve) => {
     let timedOut = false;
     const child = spawn(command, args, {
       cwd: opts.cwd,
@@ -140,7 +142,7 @@ function runCmd(
       if (timer) clearTimeout(timer);
       resolve({ code: code ?? 1, stdout, stderr, timedOut });
     });
-  });
+  }));
 }
 
 function resolveInstall(): { source: string | null; python: string | null } {

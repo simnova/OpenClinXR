@@ -35,7 +35,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { PEDS_ASTHMA_SCENARIO_ID, resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import { ROOM_CAPTURE_MODE, buildRoomCaptureUrl, waitForStationShell } from "./ui-xr-environment-room-capture.js";

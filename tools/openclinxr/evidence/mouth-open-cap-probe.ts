@@ -1,3 +1,4 @@
+// biome-ignore-all lint/nursery/noShadow: helper parameter mirrors the owning browser lifetime
 /**
  * #460 — cap FACS `mouth-open` at 0.3, evidenced by mid-face vertex displacement + face-framed stills.
  *
@@ -40,7 +41,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer, stopPortlessDevServer,

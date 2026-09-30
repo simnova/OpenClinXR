@@ -28,7 +28,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, test, expect } from "@playwright/test";
+import { chromium, test, expect } from "../../tools/openclinxr/evidence/lib/slotted-playwright-test.js";
 
 const SPEC_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SPEC_DIR, "../..");

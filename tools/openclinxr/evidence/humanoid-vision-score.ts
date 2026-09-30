@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: browser evidence globals are dynamically injected
 /**
  * humanoid-vision-score.ts — headless generation-quality vision scoring for
  * Humanoid Generation Studio candidates.
@@ -27,7 +28,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises"
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { estimateUsdFromSplit } from "../../../packages/openclinxr/agent-loop/src/model-pricing.js";
 import {
   spawnPortlessDevServer,

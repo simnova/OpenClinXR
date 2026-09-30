@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 
 type CliOptions = {
   port: number;

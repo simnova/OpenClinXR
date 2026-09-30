@@ -17,7 +17,7 @@
 import { createServer, type Server } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "../lib/slotted-playwright.js";
 
 const REPO = process.cwd();
 const COMMIT = "9b6f76ddc";

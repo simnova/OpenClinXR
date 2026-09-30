@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noExplicitAny: legacy evidence payloads are intentionally schema-free
 /**
  * bvh-retarget-lab-smoke.ts — three.js-side render gate for retargeted locomotion GLBs.
  *
@@ -15,7 +16,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium } from "playwright";
+import { chromium } from "./lib/slotted-playwright.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 
 const SCHEMA_VERSION = "openclinxr.bvh-retarget-lab-smoke.v1";

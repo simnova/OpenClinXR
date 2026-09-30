@@ -21,8 +21,9 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { createRequire } from "node:module";
+import path from "node:path";
+import { withComputeSlotSync } from "@openclinxr/compute-slots";
 
 const require = createRequire(import.meta.url);
 
@@ -435,13 +436,14 @@ function liveHatch(subjectId: string, prompt: string, seed: number): void {
       TRELLIS_ROOT,
     ];
     const tBake = Date.now();
-    const bakeOut = execFileSync(VENV_PYTHON, bakeArgv, {
-      encoding: "utf8",
-      cwd: REPO_ROOT,
-      timeout: 3_600_000,
-      env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
-      maxBuffer: 10 * 1024 * 1024,
-    });
+    const bakeOut = withComputeSlotSync("gpu", { label: `trellis-hatch:${subjectId}`, cwd: REPO_ROOT }, () =>
+      execFileSync(VENV_PYTHON, bakeArgv, {
+        encoding: "utf8",
+        cwd: REPO_ROOT,
+        timeout: 3_600_000,
+        env: { ...process.env, PYTHONUNBUFFERED: "1", PYTORCH_ENABLE_MPS_FALLBACK: "1" },
+        maxBuffer: 10 * 1024 * 1024,
+      }));
     process.stdout.write(bakeOut);
     process.stdout.write(
       `[factory:trellis:hatch] ${subjectId}: bake completed in ${((Date.now() - tBake) / 1000).toFixed(1)}s\n`,

@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { withComputeSlot } from "@openclinxr/compute-slots";
 import { repoRoot } from "../repo-root.js";
 
 export const ROOM_GENERATE_MODULE_REL =
@@ -119,6 +120,16 @@ function spawnProcess(
   });
 }
 
+function spawnBlenderPass(
+  label: string,
+  cmd: string,
+  args: string[],
+  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined> },
+): Promise<{ code: number; stdout: string; stderr: string }> {
+  return withComputeSlot("blender", { label: `room-generate:${label}`, cwd: opts.cwd }, () =>
+    spawnProcess(cmd, args, opts));
+}
+
 function lastLineJson(stdout: string): Record<string, unknown> {
   const lines = stdout.split("\n").map((line) => line.trim()).filter(Boolean);
   for (let i = lines.length - 1; i >= 0; i -= 1) {
@@ -128,7 +139,6 @@ function lastLineJson(stdout: string): Record<string, unknown> {
         return parsed as Record<string, unknown>;
       }
     } catch {
-      continue;
     }
   }
   throw new Error(`no JSON summary line in process output:\n${stdout.slice(-2000)}`);
@@ -283,7 +293,7 @@ export async function runInfinigenGenerate(
     "coarse",
   ];
   let started = Date.now();
-  const generated = await spawnProcess(venvPython, driverArgs, {
+  const generated = await spawnBlenderPass("generate", venvPython, driverArgs, {
     cwd: infinigenSource,
     timeoutMs,
     // OPENCLINXR_ROOM_REALISM=1 pins room_walls to Plaster (S4 shell
@@ -307,7 +317,8 @@ export async function runInfinigenGenerate(
   }
 
   started = Date.now();
-  const stripped = await spawnProcess(
+  const stripped = await spawnBlenderPass(
+    "strip",
     options.blender,
     [
       "--background",
@@ -344,7 +355,8 @@ export async function runInfinigenGenerate(
   // the unchanged extract below then exports the now-baked blend. In place:
   // workBlend is the strip output and the extract input.
   started = Date.now();
-  const shellBaked = await spawnProcess(
+  const shellBaked = await spawnBlenderPass(
+    "shell-bake",
     options.blender,
     [
       "--background",
@@ -382,7 +394,8 @@ export async function runInfinigenGenerate(
   }
 
   started = Date.now();
-  const extracted = await spawnProcess(
+  const extracted = await spawnBlenderPass(
+    "extract",
     options.blender,
     [
       "--background",
@@ -425,7 +438,8 @@ export async function runInfinigenGenerate(
   }
 
   started = Date.now();
-  const probed = await spawnProcess(
+  const probed = await spawnBlenderPass(
+    "probe",
     options.blender,
     [
       "--background",
