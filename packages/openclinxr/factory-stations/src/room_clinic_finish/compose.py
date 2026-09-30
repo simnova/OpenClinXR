@@ -991,6 +991,7 @@ def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
 DOOR_GLASS_MATERIAL = "openclinxr_door_glass"
 DOOR_STEEL_MATERIAL = "openclinxr_door_steel"
 DOOR_CASING_MATERIAL = "openclinxr_finish_casing"
+DOOR_REVEAL_MATERIAL = "openclinxr_door_reveal"
 # Ward casing spec paint (linear-ish albedo): the ref casing reads as a
 # white band at/above the adjacent wall (ref jamb ~189 vs wall ~183), while
 # the palette trim (0.69,0.73,0.75) renders ~174 grey against a ~207 wall.
@@ -1000,6 +1001,15 @@ DOOR_CASING_MATERIAL = "openclinxr_finish_casing"
 # Dedicated constant, not palette trim: other presets use trimAlbedo for
 # wall/trim paint and must not move with the ward casing.
 DOOR_CASING_RGB = (0.95, 0.96, 0.98)
+# The simplified Infinigen casing survives the chain but its room-side face
+# sits behind the finish veneer/wall plane.  A finish-depth trim skin keeps
+# the factory casing as the structural source while making its specified
+# 55 mm face visible.  The adjacent 9 mm shadow gap is the dark reveal seen
+# between the light casing and maple leaf in the reference.
+DOOR_CASING_FACE_M = 0.055
+DOOR_REVEAL_WIDTH_M = 0.009
+DOOR_CASING_PROUD_M = 0.006
+DOOR_REVEAL_RGB = (0.075, 0.08, 0.085)
 # Steel lite-frame rail width and room-face pride (metres).
 LITE_FRAME_WIDTH_M = 0.014
 LITE_FRAME_PROUD_M = 0.003
@@ -1085,6 +1095,24 @@ def _door_casing_material(rgb: tuple, roughness: float):
     bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
     bsdf.inputs["Base Color"].default_value = (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
     bsdf.inputs["Roughness"].default_value = float(roughness)
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _door_reveal_material():
+    """Dark painted shadow-gap between the casing face and door leaf."""
+    import bpy  # type: ignore[import-not-found]
+
+    mat = bpy.data.materials.get(DOOR_REVEAL_MATERIAL)
+    if mat is None:
+        mat = bpy.data.materials.new(name=DOOR_REVEAL_MATERIAL)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (*DOOR_REVEAL_RGB, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.82
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     return mat
 
@@ -1203,6 +1231,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
     steel_m = _door_steel_material()
     casing_m = _door_casing_material(DOOR_CASING_RGB,
                                      float(palette.get("roughness", 0.85)))
+    reveal_m = _door_reveal_material()
     casing_re = re.compile(r"\.door_casing(_\d+)?$")
     repainted: list[str] = []
     for obj in bpy.data.objects:
@@ -1217,6 +1246,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         repainted.append(obj.name)
 
     furnished: dict = {"glass": [], "frame": [], "hinges": [], "casing": repainted,
+                       "casingFaces": [], "reveals": [],
                        "opening": None, "openingSource": None, "handle": None,
                        "lock": None, "hingeSideUsed": None, "facing": []}
 
@@ -1384,6 +1414,52 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
             face = (box["max"][thin] if room_sign > 0 else box["min"][thin])
         # Facing front plane: 2 mm proud of the slab room face.
         facing_fwd = face + room_sign * 0.002
+        # Finish-depth casing skin.  The kept Infinigen casing remains the
+        # structural source, but its simplified room face can finish behind
+        # the wall/veneer.  These three fronts sit 4 mm ahead of the veneer,
+        # so neither the wall nor facing can occlude them.  No sill is added.
+        casing_front = face + room_sign * DOOR_CASING_PROUD_M
+        casing_back = face - room_sign * 0.001
+        casing_depth = abs(casing_front - casing_back)
+        leaf_u0, leaf_u1 = box["min"][ua], box["max"][ua]
+        leaf_v0, leaf_v1 = box["min"][va], box["max"][va]
+
+        def trim_box(name: str, u0_: float, u1_: float, v0_: float, v1_: float,
+                     material: object) -> object:
+            cc = [0.0, 0.0, 0.0]
+            ss = [0.0, 0.0, 0.0]
+            cc[ua] = (u0_ + u1_) / 2
+            cc[va] = (v0_ + v1_) / 2
+            cc[thin] = (casing_front + casing_back) / 2
+            ss[ua] = u1_ - u0_
+            ss[va] = v1_ - v0_
+            ss[thin] = casing_depth
+            return new_box(name, cc, ss, material)
+
+        casing_parts = [
+            ("jamb_left", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
+             leaf_u0 - DOOR_REVEAL_WIDTH_M, leaf_v0, leaf_v1),
+            ("jamb_right", leaf_u1 + DOOR_REVEAL_WIDTH_M,
+             leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M, leaf_v0, leaf_v1),
+            ("head", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
+             leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M,
+             leaf_v1, leaf_v1 + DOOR_CASING_FACE_M),
+        ]
+        for tag, cu0, cu1, cv0, cv1 in casing_parts:
+            part = trim_box("openclinxr_door_casing_%s" % tag,
+                            cu0, cu1, cv0, cv1, casing_m)
+            furnished["casingFaces"].append(part.name)
+        reveal_parts = [
+            ("left", leaf_u0 - DOOR_REVEAL_WIDTH_M, leaf_u0, leaf_v0, leaf_v1),
+            ("right", leaf_u1, leaf_u1 + DOOR_REVEAL_WIDTH_M, leaf_v0, leaf_v1),
+            ("head", leaf_u0 - DOOR_REVEAL_WIDTH_M,
+             leaf_u1 + DOOR_REVEAL_WIDTH_M, leaf_v1,
+             leaf_v1 + DOOR_REVEAL_WIDTH_M),
+        ]
+        for tag, ru0, ru1, rv0, rv1 in reveal_parts:
+            part = trim_box("openclinxr_door_reveal_%s" % tag,
+                            ru0, ru1, rv0, rv1, reveal_m)
+            furnished["reveals"].append(part.name)
         # Glass pane: opening plus overlap, glazed at the opening mouth --
         # the room-side leaf face sunk 1 mm in, so the steel frame
         # (proud 3 mm) overlaps the pane edges all around.
