@@ -96,7 +96,9 @@ BAKE_SAMPLES = 4
 BAKE_MARGIN_PX = 4
 
 # Decoded RGBA8 bytes per image size (w*h*4); the budget table lives above.
-ALBEDO_SIZE_BY_ROLE = {"floor": 2048, "wall": 1024, "ceiling": 1024, "trim": 1024, "other": 512}
+# Complete clinic finish adds textures beyond the shell budget. A 1024 floor
+# saves 12 MiB raw / 15.96 MiB mipmapped while retaining the >=1024 role floor.
+ALBEDO_SIZE_BY_ROLE = {"floor": 1024, "wall": 1024, "ceiling": 1024, "trim": 1024, "other": 512}
 # Per-role reflectance scale on the baked COLOR albedo (linear RGB
 # multipliers, applied multiplicatively so Infinigen's texture variance and
 # detail survive -- never a flatten or clip). The COLOR bake transcribes

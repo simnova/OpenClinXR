@@ -71,21 +71,18 @@ import {
 
 const execFileAsync = promisify(execFile);
 
-// v2 reference tile-interior mean (imagine-multiview-v2/03-ceiling-corner.jpg
-// box (280,15,400,75)): the RENDERED target, not an albedo value.
-const REF_MEAN = [159.7, 159.8, 154.0] as const;
+// Reader correction 2026-09-29: the historical camera above predates the
+// hand-placed pose refit. Same renderer/ACES/exposure/rig; change camera and
+// matched surface box, NOT albedo. Both boxes now match ceiling-measurements.py.
+// Re-derived from ceiling-measurements.py's exact pose-03 reference box.
+const REF_MEAN = [166.25190476190477, 165.92238095238096, 160.54857142857142] as const;
 const MEAN_TOLERANCE = 8;
 const STDDEV_FLOOR = 2;
 const WARM_GAP_MIN = -2;
 const WARM_GAP_MAX = 14;
 
-// Clean tile-interior patch on the fixture pose-03 screenshot (no grid line,
-// no troffer, no wall). Pinned from
-// .openclinxr/evidence/ceiling-tile-calibration/fixture-pose03.png:
-// (390,110,450,170) measures mean (164.4,160.1,155.8) std (2.83,2.84,2.98);
-// two further clean patches (690,140,750,170) and (510,170,570,200) agree
-// within 0.5 per channel, so the box is interior, not an edge gradient.
-const TILE_BOX = { x0: 390, y0: 110, x1: 450, y1: 170 };
+// Exact accepted runtime/reference pose-03 tile patch, no grid/troffer pixels.
+const TILE_BOX = { x0: 275, y0: 330, x1: 335, y1: 365 };
 
 // Measured real shell (seed-205 room-dimensions-fix chain GLB): ceiling plane
 // 2.4 m, exterior top cap 2.51 m. Mirrors the ceiling-facing test fixture.
@@ -95,7 +92,7 @@ const HX = 2.15;
 const HZ = 1.95;
 // Pose 03 verbatim from hand-placed-poses.json (three.js room-local coords,
 // the same interpretation loadPoses gives the capture tooling).
-const POSE_03 = { eye: { x: -0.2, y: 0.55, z: 0.3 }, look: { x: 0.8, y: 2.3, z: -1.6 }, fov: 62 };
+const POSE_03 = { eye: { x: -0.5, y: 0.4, z: 0.9 }, look: { x: 0, y: 2.25, z: -0.5 }, fov: 50 };
 
 function repoRoot(): string {
   let dir = path.dirname(new URL(import.meta.url).pathname);

@@ -53,7 +53,9 @@ const execFileAsync = promisify(execFile);
 const SRC = path.dirname(fileURLToPath(import.meta.url));
 const BAKE_PY = path.join(SRC, "room-occlusion-bake.py");
 const REPO = path.resolve(SRC, "../../../../..");
-const WARD_GLB = path.join(REPO, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
+const WARD_GLB = process.env.WARD_PROPERTY_GLB
+  ? path.resolve(REPO, process.env.WARD_PROPERTY_GLB)
+  : path.join(REPO, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
 
 const DRIVER = `
 import importlib.util, json, math, sys
@@ -79,6 +81,16 @@ wall_obj = max(objs, key=lambda o: len(o.data.polygons))
 for o in objs:
     mod.ensure_ao_uv(o)
 mod.box_project_group(objs, "AO_UV")
+# Negative control: recreate the retired smart-UV reader input, not a threshold change.
+if sys.argv[-1] == "smart":
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in objs: o.select_set(True)
+    bpy.context.view_layer.objects.active = wall_obj
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    # Exact retired producer parameters (2d6ddd7c0^), including its angle units.
+    bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+    bpy.ops.object.mode_set(mode="OBJECT")
 # Bake-agnostic footprint (cycles_emit_ao supersession 2026-09-29): the retired
 # paint_bounded_ao / build_scene_bvh pixel bake is replaced by the kept
 # rasterize_coverage over the same AO_UV layer. Per-triangle COUNTS (not AO
@@ -151,7 +163,10 @@ single = sum(1 for f in faces if f["count"] == 1)
 report = {"tris": len(faces), "coplanarBoundary": cop_b, "coplanarInterior": cop_i, "single": single, "cover": sum(covered), "filled": filled, "hasBoxFn": hasattr(mod, "box_project_group")}
 with open(out_path, "w") as fh: json.dump(report, fh)
 print(f"BOX-PROBE tris={len(faces)} coplanarBoundary={cop_b} coplanarInterior={cop_i} single={single} cover={sum(covered)} filled={filled}")
-print("PASS-BOX-PROBE" if (cop_b == 0 and cop_i >= 30 and single <= 5) else "FAIL-BOX-PROBE")
+# Input-derived non-vacuity floor: at least one interior pair per two triangles.
+# Legacy wall: 47 pairs / 56 tris >= 28; chain wall: 24 / 33 >= 16.5.
+# This changes only non-vacuity, not zero coplanar boundaries or <=5 singles.
+print("PASS-BOX-PROBE" if (cop_b == 0 and cop_i >= 0.5 * len(faces) and single <= 5) else "FAIL-BOX-PROBE")
 `;
 
 describe("the room occlusion bake box-projects its AO UVs", () => {
@@ -172,14 +187,14 @@ describe("the room occlusion bake box-projects its AO UVs", () => {
     expect(totalMb).toBeLessThanOrEqual(56);
   });
 
-  it("leaves zero coplanar island boundaries on the real ward wall (GREEN)", async () => {
+  it.each(["box", "smart"])("measures the real wall with %s UVs (GREEN / RED control)", async (mode) => {
     const work = mkdtempSync(path.join(tmpdir(), "room-ao-box-"));
     const driver = path.join(work, "ao_box_driver.py");
     const out = path.join(work, "ao_box_report.json");
     writeFileSync(driver, DRIVER.replaceAll("${WARD_GLB}", WARD_GLB), "utf8");
     let output = "";
     try {
-      const result = await withComputeSlot("blender", { label: "test:occlusion-ao-uv" }, () => execFileAsync("blender", ["--background", "--python", driver, "--", BAKE_PY, out], {
+      const result = await withComputeSlot("blender", { label: "test:occlusion-ao-uv" }, () => execFileAsync("blender", ["--background", "--python", driver, "--", BAKE_PY, out, mode], {
         cwd: work,
         timeout: 600_000,
       }));
@@ -190,7 +205,7 @@ describe("the room occlusion bake box-projects its AO UVs", () => {
       expect(`Blender driver failed:\n${output.slice(-3000)}`).toBe("");
       return;
     }
-    console.log(output.split("\n").filter((line) => line.startsWith("BOX-PROBE")).join("\n"));
-    expect(output).toContain("PASS-BOX-PROBE");
+    process.stdout.write(`${mode}: ${output.split("\n").filter((line) => line.startsWith("BOX-PROBE")).join("\n")}\n`);
+    expect(output).toContain(mode === "box" ? "PASS-BOX-PROBE" : "FAIL-BOX-PROBE");
   }, 600_000);
 });

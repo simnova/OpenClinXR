@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.room-primitive-material-probe.v1",
-  "generatedAt": "2026-08-21T18:49:24.985Z",
+  "generatedAt": "2026-09-30T03:53:02.816Z",
   "room": "infinigen-primary-care-clinic",
   "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
   "claimScope": "whether every primitive in the shipped Infinigen room shells carries a material in the live three.js scene graph after loader-side plaster-derived assignment; GLBs unmodified",
@@ -159,13 +159,13 @@
       "glb": "infinigen-ed-exam-bay.glb",
       "prims": [
         {
-          "mesh": "dining-room_00wall",
-          "material": "shader_plaster.014",
+          "mesh": "Circle042",
+          "material": "shader_plaster.010",
           "visible": true,
           "worldExtent": [
-            6.3755340576171875,
-            2.401069164276123,
-            6.375534534454346
+            3.0000020819575197,
+            2.41426420211792,
+            5.882132966248161
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -175,13 +175,13 @@
           ]
         },
         {
-          "mesh": "dining-room_00floor",
-          "material": "shader_ceramic_shader_square_tile_tile.002",
+          "mesh": "Circle042_1",
+          "material": "shader_plaster.027",
           "visible": true,
           "worldExtent": [
-            6.3755340576171875,
-            2.9802322387695312e-8,
-            6.25106954574585
+            0.0000012334189954943398,
+            2.41426420211792,
+            2.9999994204771916
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -191,13 +191,29 @@
           ]
         },
         {
-          "mesh": "dining-room_00ceiling",
-          "material": "shader_plaster.021",
+          "mesh": "bedroom_02floor",
+          "material": "shader_wood_shader_staggered_tile_tile.001",
           "visible": true,
           "worldExtent": [
-            6.251069068908691,
+            2.8821341393672153,
+            2.2351741790771484e-8,
+            5.882132922471618
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02ceiling",
+          "material": "shader_plaster.030",
+          "visible": true,
+          "worldExtent": [
+            2.7642661530001895,
             0,
-            6.25106954574585
+            5.764264459267627
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -207,17 +223,17 @@
           ]
         },
         {
-          "mesh": "dining-room_00exterior",
-          "material": "shader_plaster.014__load_fill",
+          "mesh": "bedroom_02exterior",
+          "material": "shader_plaster.010__load_fill",
           "assignedAtLoad": true,
           "visible": true,
           "worldExtent": [
-            6.5,
+            3.0000021257340634,
             2.6500000953674316,
-            6.5
+            6.000000908838466
           ],
           "side": "DoubleSide",
-          "materialSource": "shader_plaster.014",
+          "materialSource": "shader_plaster.010",
           "baseColor": [
             1,
             1,
@@ -317,13 +333,1357 @@
       "glb": "infinigen-inpatient-ward.glb",
       "prims": [
         {
-          "mesh": "bedroom_00wall",
-          "material": "shader_plaster.007",
+          "mesh": "openclinxr_floor_field",
+          "material": "openclinxr_finish_floor_tile_photo",
           "visible": true,
           "worldExtent": [
-            9.000001190570835,
-            2.447732448577881,
-            7.884795594191715
+            4.519999980926514,
+            0.04999999841675162,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_ceiling_tiles",
+          "material": "openclinxr_finish_ceiling_photo",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_troffer_diffuser",
+          "material": "openclinxr_finish_troffer_diffuser",
+          "visible": true,
+          "worldExtent": [
+            1.1399999856948853,
+            0.00599980354309082,
+            0.5399999935179949
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_troffer_frame_long_0",
+          "material": "openclinxr_finish_troffer_frame",
+          "visible": true,
+          "worldExtent": [
+            1.2000000476837158,
+            0.011999845504760742,
+            0.029999999329447746
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.9,
+            0.9,
+            0.88
+          ]
+        },
+        {
+          "mesh": "openclinxr_troffer_frame_long_1",
+          "material": "openclinxr_finish_troffer_frame",
+          "visible": true,
+          "worldExtent": [
+            1.2000000476837158,
+            0.011999845504760742,
+            0.030000030994415283
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.9,
+            0.9,
+            0.88
+          ]
+        },
+        {
+          "mesh": "openclinxr_troffer_frame_short_0",
+          "material": "openclinxr_finish_troffer_frame",
+          "visible": true,
+          "worldExtent": [
+            0.030000030994415283,
+            0.011999845504760742,
+            0.5399999935179949
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.9,
+            0.9,
+            0.88
+          ]
+        },
+        {
+          "mesh": "openclinxr_troffer_frame_short_1",
+          "material": "openclinxr_finish_troffer_frame",
+          "visible": true,
+          "worldExtent": [
+            0.030000030994415283,
+            0.011999845504760742,
+            0.5399999935179949
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.9,
+            0.9,
+            0.88
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_1_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000048637390137,
+            0.019999980926513672,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_1_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_1_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_2_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000048637390137,
+            0.019999980926513672,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_2_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_2_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_3_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.02399998903274536,
+            0.019999980926513672,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_3_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0029999613761901855,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_3_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_3_1",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.02399998903274536,
+            0.019999980926513672,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_3_1_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0029999613761901855,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_3_1_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_4_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000000208616257,
+            0.019999980926513672,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_4_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0030000004917383194,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_4_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0030000004917383194,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_4_1",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000000208616257,
+            0.019999980926513672,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_4_1_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0030000004917383194,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_4_1_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0030000004917383194,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_5_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.02399998903274536,
+            0.019999980926513672,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_5_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_5_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0029999613761901855,
+            0.0019998550415039062,
+            2.139981985092163
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_5_1",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.02399998903274536,
+            0.019999980926513672,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_5_1_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_5_1_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.0029999613761901855,
+            0.0019998550415039062,
+            1.6999462842941284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_6_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000048637390137,
+            0.019999980926513672,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_6_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_6_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_x_7_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            0.024000048637390137,
+            0.019999980926513672,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_7_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_x_7_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            0.003000020980834961,
+            0.0019998550415039062,
+            4.439928293228149
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_1_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            0.024000048637390137
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_1_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_1_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_2_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            0.024000048637390137
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_2_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_2_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_3_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            0.02399998903274536
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_3_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.0029999613761901855
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_3_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_4_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.019999980926513672,
+            0.024000000208616257
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_4_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0030000004917383194
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_4_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0030000004917383194
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_4_1",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.019999980926513672,
+            0.024000000208616257
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_4_1_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0030000004917383194
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_4_1_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0030000004917383194
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_5_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.019999980926513672,
+            0.02399998903274536
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_5_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_5_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0029999613761901855
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_5_1",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.019999980926513672,
+            0.02399998903274536
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_5_1_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_5_1_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            1.659999966621399,
+            0.0019998550415039062,
+            0.0029999613761901855
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_6_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            0.024000048637390137
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_6_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_6_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_y_7_0",
+          "material": "openclinxr_finish_tbar",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.019999980926513672,
+            0.024000048637390137
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.72,
+            0.72,
+            0.7
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_7_0_0",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_tbar_edge_y_7_0_1",
+          "material": "openclinxr_finish_tbar_edge",
+          "visible": true,
+          "worldExtent": [
+            4.519999980926514,
+            0.0019998550415039062,
+            0.003000020980834961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.42,
+            0.42,
+            0.4
+          ]
+        },
+        {
+          "mesh": "openclinxr_cove_x0_0",
+          "material": "openclinxr_finish_cove",
+          "visible": true,
+          "worldExtent": [
+            0.01900005340576172,
+            0.10000000009313226,
+            3.9362748861312866
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "openclinxr_cove_x1_0",
+          "material": "openclinxr_finish_cove",
+          "visible": true,
+          "worldExtent": [
+            0.01900005340576172,
+            0.10000000009313226,
+            3.9362748861312866
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "openclinxr_cove_y0_0",
+          "material": "openclinxr_finish_cove",
+          "visible": true,
+          "worldExtent": [
+            4.300000190734863,
+            0.10000000009313226,
+            0.01900005340576172
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "openclinxr_cove_y1_0",
+          "material": "openclinxr_finish_cove",
+          "visible": true,
+          "worldExtent": [
+            1.8652612268924713,
+            0.10000000009313226,
+            0.018999934196472168
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "openclinxr_cove_y1_1",
+          "material": "openclinxr_finish_cove",
+          "visible": true,
+          "worldExtent": [
+            1.3623263239860535,
+            0.10000000009313226,
+            0.018999934196472168
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_glass",
+          "material": "openclinxr_door_glass",
+          "visible": true,
+          "worldExtent": [
+            0.13638602383434772,
+            0.5670000314712524,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.07,
+            0.09,
+            0.12
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_liteframe_0",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.14838602021336555,
+            0.0140000581741333,
+            0.006999969482421875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_liteframe_1",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.14838602021336555,
+            0.01399993896484375,
+            0.006999969482421875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_liteframe_2",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.014000000432133675,
+            0.5509999990463257,
+            0.006999969482421875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_liteframe_3",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.013999998569488525,
+            0.5509999990463257,
+            0.006999969482421875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_west_0",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.2304825261235237,
+            2.074999799951911,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_south_1",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.13038601726293564,
+            1.1869999077171087,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_north_2",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.13038601726293564,
+            0.3269999027252197,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_east_north_3",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.5615441054105759,
+            1.0378998517990112,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_east_south_4",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.5615441054105759,
+            0.9294000174850225,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_face_east_midwest_5",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.38707034289836884,
+            0.1076999306678772,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_lock",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.02399998903274536,
+            0.023999929428100586,
+            0.02499985694885254
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_hinge_0",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.03500001132488251,
+            0.11000001430511475,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_hinge_1",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.03500001132488251,
+            0.11000007390975952,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "openclinxr_door_hinge_2",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.03500001132488251,
+            0.11000001430511475,
+            0.003999948501586914
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
+          ]
+        },
+        {
+          "mesh": "bedroom_00wall",
+          "material": "shell_bake_wall",
+          "visible": true,
+          "worldExtent": [
+            4.300000190734863,
+            2.400189375054083,
+            4.010245113633175
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -334,12 +1694,12 @@
         },
         {
           "mesh": "bedroom_00floor",
-          "material": "shader_dirt_shader_staggered_tile_tile",
+          "material": "shell_bake_floor",
           "visible": true,
           "worldExtent": [
-            9.000001173175281,
-            0.014071866869926453,
-            7.769590067839786
+            4.300000190734863,
+            0,
+            4.010245113633175
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -350,12 +1710,12 @@
         },
         {
           "mesh": "bedroom_00ceiling",
-          "material": "shader_plaster.020",
+          "material": "shell_bake_ceiling",
           "visible": true,
           "worldExtent": [
-            8.76958964363423,
-            0.014071941375732422,
-            7.769589794630034
+            4.300000190734863,
+            0,
+            3.900012284656441
           ],
           "side": "DoubleSide",
           "baseColor": [
@@ -366,20 +1726,82 @@
         },
         {
           "mesh": "bedroom_00exterior",
-          "material": "shader_plaster.007__load_fill",
-          "assignedAtLoad": true,
+          "material": "shell_bake_other",
           "visible": true,
           "worldExtent": [
-            9.000001207966456,
-            2.6500000953674316,
-            8.000001597380802
+            4.519999980926514,
+            2.6201019772592815,
+            4.11996344496734
           ],
           "side": "DoubleSide",
-          "materialSource": "shader_plaster.007",
           "baseColor": [
             1,
             1,
             1
+          ]
+        },
+        {
+          "mesh": "bedroom_00skirting_ceiling",
+          "material": "shell_bake_skirting",
+          "visible": true,
+          "worldExtent": [
+            4.300000190734863,
+            0.08923612558294991,
+            3.900012284656441
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        },
+        {
+          "mesh": "bedroom_00door_casing",
+          "material": "openclinxr_finish_casing",
+          "visible": true,
+          "worldExtent": [
+            1.0599730464389512,
+            2.1549999713897705,
+            0.3198927303532342
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.95,
+            0.96,
+            0.98
+          ]
+        },
+        {
+          "mesh": "Cube003",
+          "material": "openclinxr_finish_door_photo",
+          "visible": true,
+          "worldExtent": [
+            0.9604956859480049,
+            2.0999999046325684,
+            0.28262268198973284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "Cube003_1",
+          "material": "openclinxr_door_steel",
+          "visible": true,
+          "worldExtent": [
+            0.1611060431119289,
+            0.07767570671847501,
+            0.24230736612727743
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            0.78,
+            0.8,
+            0.83
           ]
         }
       ]
@@ -754,8 +2176,8 @@
           ]
         }
       ],
-      "wallRegionMeanL": 27.06,
-      "ceilingRegionMeanL": 32.75
+      "wallRegionMeanL": 104.87,
+      "ceilingRegionMeanL": 99.89
     },
     {
       "glb": "infinigen-stepdown.glb",
@@ -2152,20 +3574,20 @@
     }
   ],
   "glbSha256": {
-    "infinigen-adult-ed-abdominal-bay.glb": "54f9172c9b0846a40325e24364f583ab55774912ec1a24b528edd23118edabca",
-    "infinigen-behavioral-health-private.glb": "5cf3695848ee6a53abdaf9b6aa4439590569a87c1f1dd424d9a685eab0cf7afa",
-    "infinigen-ed-exam-bay.glb": "a3b5e68699e3e709a1863b999576ca7c92960daf2059f2313dc51067cfadc5f4",
-    "infinigen-ed-stroke-bay.glb": "dd30ef77081c535dbe9ed9cb233c6637643c3bf1651327034d34b7d566401fb6",
-    "infinigen-inpatient-ward.glb": "9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae",
-    "infinigen-ob-triage.glb": "f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625",
-    "infinigen-oncology-consult.glb": "65969fe479bcb6e07e7a1ffdbd314cfb3be0449a8199edc9e79549e33ec9415b",
-    "infinigen-pediatric-fever-urgent-care.glb": "8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9",
-    "infinigen-pediatric-urgent-care-bay.glb": "731fed258393fc386a669b626ad78e9b0d42c7652d9230177e19c3226d7eff9e",
-    "infinigen-primary-care-clinic.glb": "a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8",
-    "infinigen-stepdown.glb": "6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b",
-    "infinigen-surgical-ward.glb": "491c43d6fba5974ff330edc64ae85f1b43e1b201678622a4ae74b2383be37656",
-    "infinigen-telehealth-home-visit.glb": "476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01",
-    "infinigen-urgent-care-clinic.glb": "5aa1c6f1f086109f23e736839cb9130660955f22bf9394fd58f9b01ea412c7a6",
+    "infinigen-adult-ed-abdominal-bay.glb": "44031c8f65b8ff07817da62307530421f6c6a94a1acc32fce5d9001f09fc9ad4",
+    "infinigen-behavioral-health-private.glb": "c32e6762325986afb4cde31f8add01b1f075c649a5f94e628bf0e688c44f71bc",
+    "infinigen-ed-exam-bay.glb": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
+    "infinigen-ed-stroke-bay.glb": "fa6e57c760d4c1d049dd8224ae907f1b67e23d0a801e164c0218ad3fc018c8b9",
+    "infinigen-inpatient-ward.glb": "628d0a4626dcb0b619d1d032302989aac7dd80df4db911ac0d7e7f8df16e3bdf",
+    "infinigen-ob-triage.glb": "10c8c29845f29824567668d23901641963a1125b5c34db4b49546a2be8ea60e6",
+    "infinigen-oncology-consult.glb": "d0d4c0c45a98c2297fabb37b0122692a5700465883c586bde6f892241af79f3a",
+    "infinigen-pediatric-fever-urgent-care.glb": "c199f2a3755323dfe552b18152fe5387d3d4005d749a6692f6ebd80ae83337f2",
+    "infinigen-pediatric-urgent-care-bay.glb": "cbbe1240553f387e157cfa865d417190353f1b04bc6be09795928733e8d09e96",
+    "infinigen-primary-care-clinic.glb": "9e1973038b17d018cc114c3ac84ce7a9fe5da870416cd39480c45c8a010bb1e0",
+    "infinigen-stepdown.glb": "f89a16c89429788e649a89dc0b665dbae7d26c36d6b26f3736a2c8281db9a503",
+    "infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
+    "infinigen-telehealth-home-visit.glb": "e614032797809025856dcf39fc55fcc4f46e34a66d8dc7cd36ee8b7bc42f3e67",
+    "infinigen-urgent-care-clinic.glb": "b14813a66dface508118c1b314d7bc4eb283bead5defd76b95842ab5e77049ac",
     "ed-exam-bay-shell.glb": "e390697fea990ea41701fc220224c94b1be2b18ce4cde9778e892261c07124f9"
   }
 }

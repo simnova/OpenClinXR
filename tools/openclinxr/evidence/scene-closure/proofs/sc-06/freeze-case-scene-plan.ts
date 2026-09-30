@@ -415,6 +415,7 @@ async function freezeOneCase(config: CaseConfig) {
   const parametricDigest = geometryRevisionDigest(parametricGeometry);
 
   const live = await captureLiveHullObservation(bundleJson, config, isBootstrap);
+  process.stdout.write(`sc-06 live observation [${config.caseId}]: ${JSON.stringify(live)}\n`);
   applyLiveHullReanchor(scene, live.reanchor);
   const geometry = observeMountedApproachGeometry(scene as never, {
     supportInstanceId: `${config.environmentId}:stretcher`,

@@ -93,11 +93,12 @@ const ENV = "apps/ui-xr/public/xr-assets/environment";
 const ARTIFACT = "tools/openclinxr/evidence/room-primitive-material-probe.json";
 const PRIMARY = "infinigen-primary-care-clinic.glb";
 
-/** Measured 2026-08-21 on the shipped bytes. The file must KEEP these — clause (2). */
+/** Historical defect counts; authorized seed-205 ward replacement tightens its pin to zero. */
 const NO_MATERIAL_IN_FILE: Record<string, number> = {
   "infinigen-adult-ed-abdominal-bay.glb": 1, "infinigen-behavioral-health-private.glb": 1,
   "infinigen-ed-exam-bay.glb": 1, "infinigen-ed-stroke-bay.glb": 1,
-  "infinigen-inpatient-ward.glb": 1, "infinigen-ob-triage.glb": 1,
+  // Seed-205 chain authors every material: tighten the historical known-defect pin.
+  "infinigen-inpatient-ward.glb": 0, "infinigen-ob-triage.glb": 1,
   "infinigen-oncology-consult.glb": 1, "infinigen-pediatric-fever-urgent-care.glb": 1,
   "infinigen-pediatric-urgent-care-bay.glb": 1, "infinigen-primary-care-clinic.glb": 1,
   "infinigen-stepdown.glb": 1, "infinigen-surgical-ward.glb": 1,
@@ -141,9 +142,11 @@ describe("every room primitive has a material", () => {
     expect(dirty, "shells still carrying a material-less primitive at load").toEqual([]);
   });
 
-  it("(3) COUNTERWEIGHT: the shipped GLBs still CONTAIN the material-less primitive — no asset rewrite", async () => {
+  it("(3) COUNTERWEIGHT: legacy defect counts stay pinned; promoted ward has zero", async () => {
     // Rooms campaign is CLOSED. Rewriting the GLB satisfies (1)(2) and is refused here. Read off the
     // FILE with NodeIO deliberately: this is the one clause that must not go through the loader.
+    // Coordinator authorized the chain promotion: ward's historical bare primitive
+    // was a known defect, not a required property. All other rooms remain pinned.
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const still: Record<string, number> = {};
     for (const glb of Object.keys(NO_MATERIAL_IN_FILE)) {
@@ -153,7 +156,7 @@ describe("every room primitive has a material", () => {
       for (const me of doc.getRoot().listMeshes()) for (const p of me.listPrimitives()) if (!p.getMaterial()) n += 1;
       still[glb] = n;
     }
-    expect(still, "the shipped bytes must be untouched — assign at LOAD, never in the asset")
+    expect(still, "legacy defect counts unchanged; promoted ward authors every material")
       .toEqual(NO_MATERIAL_IN_FILE);
   });
 

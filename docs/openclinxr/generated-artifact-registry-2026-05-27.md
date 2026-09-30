@@ -3862,3 +3862,25 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/ship-ward-room/before/stage2-multiview.json` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
 - `docs/openclinxr/room-realism/ship-ward-room/budget.json` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
 - `docs/openclinxr/room-realism/ship-ward-room/verification.json` - keep-evidence; Structured test results, measurements and gate transcripts.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-01-toward-door.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-02-toward-bed-wall.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-03-ceiling-corner.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-04-door-inside.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-05-troffer-junction.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/runtime-06-floor-base.png` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/after/stage2-multiview.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/01-toward-door-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/01-toward-door-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/02-toward-bed-wall-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/02-toward-bed-wall-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/03-ceiling-corner-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/03-ceiling-corner-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/04-door-inside-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/04-door-inside-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/05-troffer-junction-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/05-troffer-junction-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/06-floor-base-before-after.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/06-floor-base-before-after-reference.jpg` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/runtime-measurements.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.
+- `docs/openclinxr/room-realism/ship-ward-room/ship-verification.json` - keep-evidence; Seed-205 shipped ward learner-URL evidence, derived measurements, or gate results; not headset readiness.

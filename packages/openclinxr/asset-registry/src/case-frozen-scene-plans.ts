@@ -102,7 +102,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
         "solverVersion": "openclinxr.bedside-layout-solver.v1",
         "rigRevision": "mpfb2_standard_137_joint",
         "clipRevision": "openclinxr_retarget_walk_source",
-        "geometryRevision": "geom-v1-c83aeaee-17",
+        "geometryRevision": "geom-v1-d983811a-17",
         "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1"
       },
       "variation": {
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-d46713f1560b51fca238c56893add74d",
+      "planRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-d46713f1560b51fca238c56893add74d"
+        "acknowledgedPlanRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

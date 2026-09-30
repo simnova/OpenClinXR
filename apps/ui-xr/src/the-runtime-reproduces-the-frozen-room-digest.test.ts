@@ -101,10 +101,12 @@ const WARD = SCENE_CLOSURE_ENVIRONMENT_ID;
 const SUPPORT = `${WARD}:stretcher`;
 const CASE_ID = SCENE_CLOSURE_CASE_ID;
 /** Live digest measured after Infinigen reanchor; not a target. */
-const REANCHORED_DIGEST = "geom-v1-c83aeaee-17";
+// Seed-205 chain promotion: re-derived by SC-06's live-runtime producer.
+// See ship-ward-room verification: smaller hull moves both anchors inward.
+const REANCHORED_DIGEST = "geom-v1-d983811a-17";
 /** Measured movedMeters from reanchorWallFixturesToRoom on infinigen-inpatient-ward.glb. */
-const DOOR_REANCHOR_METERS = 1.4647948216987885;
-const BOARD_REANCHOR_METERS = -1.4647949591247098;
+const DOOR_REANCHOR_METERS = -0.7699999046325683;
+const BOARD_REANCHOR_METERS = 0.7699999046325683;
 
 function digestOf(scene: Scene): string {
   return geometryRevisionDigest(observeMountedApproachGeometry(scene, { supportInstanceId: SUPPORT }));

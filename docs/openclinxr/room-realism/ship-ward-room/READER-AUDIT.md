@@ -1,8 +1,55 @@
 # Ward shipment reader audit
 
-The seed-205 candidate is withheld. Assertions and thresholds are unchanged.
-The original runtime GLB and lighting rig are retained. No Quest, clinical,
-scoring, production-readiness or exam-equivalence claim is made.
+The seed-205 chain is now promoted after coordinator-authorized reader and
+historical-pin corrections. No Quest, clinical, scoring, production-readiness
+or exam-equivalence claim is made. The original withheld-candidate audit below
+is retained as history; this section supersedes its shipment decision.
+
+## Promotion review
+
+- Reverted the uniform −14 ceiling albedo change. On exact accepted runtime
+  boxes it produced deltas −15.71/−17.02/−18.98 (02) and
+  −7.55/−9.32/−11.26 (03), outside ±8. The test used the obsolete
+  eye (−.2,.55,.3), look (.8,2.3,−1.6), FOV 62 and box (390,110,450,170).
+  Current pose 03 is eye (−.5,.4,.9), look (0,2.25,−.5), FOV 50;
+  box (275,330,335,365) is shared with ceiling-measurements.py and its
+  reference mean is re-derived with PIL. Lighting, exposure and ACES renderer
+  are unchanged. Corrected candidate render: 170.1/168.1/161.4, stddev
+  3.43/3.41/3.58. Synthetic fixture also passes: 169.4/167.5/160.9.
+- AO non-vacuity derives from input triangle count: interior pairs ≥0.5×tris.
+  Historical header measured 47/56 (floor 28); new room 24/33 (floor 16.5).
+  Zero coplanar boundaries and singles ≤5 remain unchanged. Exact retired
+  smart-project parameters (angle_limit=66.0, island_margin=.02) fail on
+  the new input: boundary=1, interior=23, singles=21; box projection passes
+  boundary=0, interior=24, singles=3. Re-reading the pre-fix git asset
+  (2d6ddd7c0^) with the material-role reader selects a 94-triangle wall:
+  smart=36 boundaries/53 interiors/52 singles; box=0/89/0. This independently
+  fails RED, without claiming that the new role reader selects the historical
+  56-triangle mesh.
+- Materials: historical clause 3 deliberately pinned the known bare primitive
+  to prove a loader-side repair. Authorized ward replacement tightens 1→0;
+  all other room pins remain. Full probe producer rerun: 92 authored ward
+  primitives, no loader repair needed, no bare live primitives.
+- Chain floor albedo 2048→1024 saves 15.96 MiB including mips: total
+  64.5933→48.6333 MiB, below 56. Per-image before/after is in
+  shipped-budget.json; all other image dimensions unchanged. Encoded GLB
+  9,426,504 bytes, below the 200 MiB soft cap.
+- Runtime exact-box grades: ceiling02 −5.41/−6.42/−7.51; ceiling03
+  +3.84/+2.14/+0.88; floor02 +1.79/−2.84/−6.28; floor06
+  +7.92/+2.40/−3.64 (all ±8). Wall no-regression −.85/−.84/−.85;
+  historical floor-job tile box −2.48/−1.90/−1.32 (both ±3).
+  Diffuser 233.26/232.49/231.17, no clipping, positive edge gradient;
+  floor low-frequency variation remains within ref+3.
+- All six before and after captures use the actual shipped UI-XR URL,
+  STAGE2_CAPTURE_GLB unset, no route override. Twelve comparison sheets
+  are generated from these pixels and the v2 references.
+- Digests re-derived by SC-06 live-runtime producer, not copied from a sidecar:
+  geom-v1-d983811a-17, door shift −.7699999046 m, board +.7699999046 m.
+  Supine byte freeze is explicitly re-produced with observer/reason, not
+  silently treated as unchanged. Provenance/budget producer checks shipped
+  GLB and rig equal chain outputs before deriving SHA-256.
+- Final test and gate transcripts: ship-verification.json. Earlier failed
+  probes remain in verification.json as historical evidence.
 
 ## Reproduction
 

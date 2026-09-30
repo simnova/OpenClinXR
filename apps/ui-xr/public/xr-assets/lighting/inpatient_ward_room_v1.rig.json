@@ -1,14 +1,15 @@
 {
   "schemaVersion": "openclinxr.lighting-rig.v1",
   "room": {
-    "environmentId": "inpatient_ward_room_v1"
+    "environmentId": "inpatient_ward_room_v1",
+    "roomGlbPath": "/Volumes/files/src/openclinxr-wt/ship-ward-room/.openclinxr/evidence/ward-finish-chain/ward-chain.work.glb"
   },
   "bbox": {
     "minX": -2.15,
-    "minY": -1.95,
-    "minZ": 0,
     "maxX": 2.15,
+    "minY": -1.95,
     "maxY": 1.95,
+    "minZ": 0,
     "maxZ": 2.4
   },
   "cast": [
@@ -29,8 +30,8 @@
       "name": "key",
       "type": "area",
       "position": [
-        -0.0779,
-        0.019,
+        -0.0587,
+        -0.0147,
         2.15
       ],
       "energy": 153.4359,
@@ -41,8 +42,8 @@
       "name": "fill",
       "type": "point",
       "position": [
-        -0.0621,
-        -0.0081,
+        0.0657,
+        -0.0013,
         1.2
       ],
       "energy": 226.4615,
@@ -54,7 +55,7 @@
       "type": "area",
       "position": [
         1.95,
-        0.0693,
+        -0.0565,
         1.2
       ],
       "energy": 44.3077,
@@ -66,7 +67,7 @@
       "type": "area",
       "position": [
         -1.95,
-        0.0408,
+        -0.0028,
         1.2
       ],
       "energy": 44.3077,
@@ -77,7 +78,7 @@
       "name": "wash_py",
       "type": "area",
       "position": [
-        0.0556,
+        0.0459,
         1.75,
         1.2
       ],
@@ -89,7 +90,7 @@
       "name": "wash_ny",
       "type": "area",
       "position": [
-        0.0622,
+        0.0205,
         -1.75,
         1.2
       ],
