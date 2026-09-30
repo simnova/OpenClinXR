@@ -1,0 +1,161 @@
+{
+  "file": ".openclinxr/evidence/ward-finish-chain/infinigen-inpatient-ward.chain.glb",
+  "sha256": "c9a1a9e9bbabb8321ba7264c6e6dd250516c4e929acd28ec6e91ab0fff752fec",
+  "bytes": 11582208,
+  "byteCeiling": 209715200,
+  "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
+  "decodedWardCeilingMiB": 56,
+  "decodedCeilingSource": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
+  "decodedMiBWithMips": 64.5933203125,
+  "images": [
+    {
+      "name": "shell_bake_albedo_floor",
+      "encodedBytes": 3145241,
+      "width": 2048,
+      "height": 2048,
+      "decodedRgbaBytes": 16777216
+    },
+    {
+      "name": "shell_bake_normal",
+      "encodedBytes": 1732713,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "shell_bake_albedo_ceiling",
+      "encodedBytes": 1117217,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "door-maple-normal",
+      "encodedBytes": 933651,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "ceiling-tile-face",
+      "encodedBytes": 632276,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_albedo_wall",
+      "encodedBytes": 607381,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "floor-vinyl-tile",
+      "encodedBytes": 535588,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "ceiling-tile-face-derived-normal",
+      "encodedBytes": 442270,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "door-maple-roughness",
+      "encodedBytes": 408274,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "floor-vinyl-tile-derived-normal",
+      "encodedBytes": 407846,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "floor-vinyl-tile-derived-roughness",
+      "encodedBytes": 332334,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "ceiling-tile-face-derived-roughness",
+      "encodedBytes": 277966,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "door-maple-leaf",
+      "encodedBytes": 136325,
+      "width": 463,
+      "height": 1024,
+      "decodedRgbaBytes": 1896448
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_ceiling",
+      "encodedBytes": 79049,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_floor",
+      "encodedBytes": 78342,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_wall",
+      "encodedBytes": 39664,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_roughness",
+      "encodedBytes": 19313,
+      "width": 1024,
+      "height": 1024,
+      "decodedRgbaBytes": 4194304
+    },
+    {
+      "name": "openclinxr_room_ao_shell_bake_other",
+      "encodedBytes": 11902,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "troffer-diffuser-gradient",
+      "encodedBytes": 6330,
+      "width": 256,
+      "height": 128,
+      "decodedRgbaBytes": 131072
+    },
+    {
+      "name": "shell_bake_albedo_other",
+      "encodedBytes": 5807,
+      "width": 512,
+      "height": 512,
+      "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "shell_bake_roughness_wall_flat",
+      "encodedBytes": 413,
+      "width": 64,
+      "height": 64,
+      "decodedRgbaBytes": 16384
+    }
+  ],
+  "meshCount": 91,
+  "materiallessPrimitives": 0
+}

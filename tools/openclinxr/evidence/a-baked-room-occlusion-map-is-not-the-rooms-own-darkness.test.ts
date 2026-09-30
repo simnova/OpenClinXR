@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { decodePng } from "./decode-png.js";
 
 /**
@@ -86,7 +87,7 @@ import { decodePng } from "./decode-png.js";
 
 const ENV = "apps/ui-xr/public/xr-assets/environment";
 const HAND_BUILT = "ed-exam-bay-shell.glb";
-const BAKER = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.py";
+const BAKER = "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py";
 
 /** The known-good wall, pinned by clause (3). Measured on HEAD 81d06dd6. */
 const KNOWN_GOOD_WALL = "ed_bay_soft_blue_wall";
@@ -98,7 +99,7 @@ let cache: AoMap[] | null = null;
 /** Every shipped room AO texture, decoded once. Bytes only — no loader, no scene, no capture. */
 async function census(): Promise<AoMap[]> {
   if (cache) return cache;
-  const io = new NodeIO();
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const rows: AoMap[] = [];
   for (const file of readdirSync(ENV).filter((f) => f.endsWith(".glb")).sort()) {
     const doc = await io.read(`${ENV}/${file}`);
@@ -149,6 +150,7 @@ async function census(): Promise<AoMap[]> {
     }
   }
   cache = rows;
+  process.stdout.write(`[ward-ao] ${JSON.stringify(rows.filter((r) => r.glb === "infinigen-inpatient-ward.glb"))}\n`);
   return rows;
 }
 

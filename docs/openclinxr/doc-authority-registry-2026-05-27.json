@@ -17,6 +17,13 @@
   },
   "entries": [
     {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Ward candidate reader corrections, measured property conflicts, ceiling fix, and encoded/decoded budget audit."
+    },
+    {
       "path": ".agents/skills/agent-session-continuity/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",

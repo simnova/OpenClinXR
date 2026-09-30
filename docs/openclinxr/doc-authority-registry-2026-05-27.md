@@ -432,3 +432,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md` - evidence; Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job.
 - `docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md` - evidence; Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job.
 - `docs/agent-ops/worker-session-time-split-2026-09-29.md` - evidence; Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate.
+- `docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md` - evidence; Ward candidate reader corrections, property conflicts, ceiling fix, and size audit.

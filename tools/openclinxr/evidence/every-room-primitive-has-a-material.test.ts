@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 
 /**
  * **14 of 15 shipped room shells render roughly a third of their geometry as void, and it has been
@@ -143,7 +144,7 @@ describe("every room primitive has a material", () => {
   it("(3) COUNTERWEIGHT: the shipped GLBs still CONTAIN the material-less primitive — no asset rewrite", async () => {
     // Rooms campaign is CLOSED. Rewriting the GLB satisfies (1)(2) and is refused here. Read off the
     // FILE with NodeIO deliberately: this is the one clause that must not go through the loader.
-    const io = new NodeIO();
+    const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const still: Record<string, number> = {};
     for (const glb of Object.keys(NO_MATERIAL_IN_FILE)) {
       if (!existsSync(`${ENV}/${glb}`)) { still[glb] = -1; continue; }

@@ -118,7 +118,7 @@ function boxPositions(min: [number, number, number], max: [number, number, numbe
 }
 
 const BOX_INDICES = new Uint16Array([
-  0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7,
+  0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7,
   0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5,
   2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7,
 ]);
@@ -126,10 +126,13 @@ const BOX_INDICES = new Uint16Array([
 async function writeFixtureGlb(outputPath: string): Promise<void> {
   const doc = new Document();
   const buffer = doc.createBuffer();
+  // Match the chain's authored materials; bare fixture slabs trigger the
+  // runtime's legacy missing-wall repair before a ceiling can be measured.
+  const shellMaterial = doc.createMaterial("fixture_shell_dielectric").setMetallicFactor(0).setRoughnessFactor(0.9);
   const addBox = (name: string, min: [number, number, number], max: [number, number, number]): void => {
     const pos = doc.createAccessor().setType("VEC3").setArray(boxPositions(min, max)).setBuffer(buffer);
     const idx = doc.createAccessor().setType("SCALAR").setArray(BOX_INDICES).setBuffer(buffer);
-    const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx);
+    const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx).setMaterial(shellMaterial);
     const mesh = doc.createMesh(name).addPrimitive(prim);
     doc.createNode(name).setMesh(mesh);
   };
@@ -149,7 +152,7 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
     HX, CEILING_PLANE, HZ, HX, CEILING_PLANE, -HZ,
   ])).setBuffer(buffer);
   const cidx = doc.createAccessor().setType("SCALAR").setArray(new Uint16Array([0, 2, 1, 0, 3, 2])).setBuffer(buffer);
-  const cprim = doc.createPrimitive().setAttribute("POSITION", cpos).setIndices(cidx);
+  const cprim = doc.createPrimitive().setAttribute("POSITION", cpos).setIndices(cidx).setMaterial(shellMaterial);
   const cmesh = doc.createMesh("bedroom_0/0.ceiling").addPrimitive(cprim);
   doc.createNode("bedroom_0/0.ceiling").setMesh(cmesh);
   await new NodeIO().write(outputPath, doc);
@@ -327,7 +330,8 @@ describe("the ceiling tiles render at the reference brightness", () => {
       ],
       { timeout: 300_000 },
     ));
-    const bytes = await readFile(workGlb);
+    // Optional reader input: retain the rendered-pixel assertions for a completed chain GLB.
+    const bytes = await readFile(process.env.WARD_PROPERTY_GLB ?? workGlb);
     const bundleJson = buildSceneClosureBundleJson();
 
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
@@ -342,6 +346,7 @@ describe("the ceiling tiles render at the reference brightness", () => {
       ],
     });
     const page: Page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    page.on("pageerror", (error) => process.stderr.write(`[ceiling-runtime] ${error.message}\n`));
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
@@ -413,9 +418,9 @@ describe("the ceiling tiles render at the reference brightness", () => {
 
   it("the rendered tile interior lands within tolerance of the v2 reference mean", async () => {
     expect(shot, "beforeAll screenshot produced measurements").not.toBeNull();
-    console.log(
+    process.stdout.write(
       `fixture pose-03 tile box mean=(${shot!.mean.map((v) => v.toFixed(1)).join(",")}) ` +
-        `std=(${shot!.std.map((v) => v.toFixed(2)).join(",")})`,
+        `std=(${shot!.std.map((v) => v.toFixed(2)).join(",")})\n`,
     );
     for (const [index, channel] of ["R", "G", "B"].entries()) {
       expect(

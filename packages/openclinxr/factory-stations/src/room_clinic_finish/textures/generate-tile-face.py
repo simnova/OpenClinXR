@@ -56,7 +56,10 @@ SEED = 14
 # RENDERED value, not an albedo -- 1.23x above it compensates the measured
 # ~0.81 lighting+ACES falloff (see header). R~=G with B ~7 below keeps the
 # reference warm signature.
-BASE_RGB = (201.6, 201.6, 194.2)
+# Seed-205 complete chain with the shipped hemisphere and clinic_day rig
+# measured (172.9, 170.4, 163.5), above the reference by (13.2, 10.6, 9.5).
+# Lower the common albedo baseline; preserve grain, seed, resolution and hue.
+BASE_RGB = (187.6, 187.6, 180.2)
 # Grain: mostly shared luminance grain (keeps the warm gap) plus an
 # independent per-channel term. ~3.5x the naive amplitudes: single-pixel
 # grain minifies away at runtime scale (albedo stddev 4.24 rendered as

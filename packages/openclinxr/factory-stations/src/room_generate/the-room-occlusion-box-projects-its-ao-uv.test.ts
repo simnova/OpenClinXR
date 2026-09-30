@@ -71,9 +71,11 @@ for block in (bpy.data.materials, bpy.data.images, bpy.data.meshes):
         try: block.remove(item)
         except Exception: pass
 bpy.ops.import_scene.gltf(filepath=r"${WARD_GLB}")
-wall_mat = "openclinxr_finish_wall"
-objs = [o for o in bpy.context.scene.objects if o.type == "MESH" and wall_mat in [m.name if m else "" for m in o.data.materials]]
-wall_obj = max([o for o in objs if "wall" in o.name.lower() and "exterior" not in o.name.lower()], key=lambda o: len(o.data.polygons))
+# The chain retains the Infinigen material role even when glTF renames meshes
+# to Circle.002; legacy photo-finish rooms use openclinxr_finish_wall.
+wall_mats = {"openclinxr_finish_wall", "shell_bake_wall"}
+objs = [o for o in bpy.context.scene.objects if o.type == "MESH" and wall_mats.intersection(m.name for m in o.data.materials if m)]
+wall_obj = max(objs, key=lambda o: len(o.data.polygons))
 for o in objs:
     mod.ensure_ao_uv(o)
 mod.box_project_group(objs, "AO_UV")
@@ -188,6 +190,7 @@ describe("the room occlusion bake box-projects its AO UVs", () => {
       expect(`Blender driver failed:\n${output.slice(-3000)}`).toBe("");
       return;
     }
+    console.log(output.split("\n").filter((line) => line.startsWith("BOX-PROBE")).join("\n"));
     expect(output).toContain("PASS-BOX-PROBE");
   }, 600_000);
 });

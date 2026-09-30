@@ -3853,3 +3853,12 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/lens-refit/01-toward-door-overlay.png` - keep-evidence; lens-refit 50/50 overlay audit (01-toward-door) for the frame-fraction fit.
 - `docs/openclinxr/room-realism/lens-refit/02-toward-bed-wall-overlay.png` - keep-evidence; lens-refit 50/50 overlay audit (02-toward-bed-wall) for the frame-fraction fit.
 - `docs/agent-ops/worker-session-time-split-2026-09-29.json` - keep-evidence; Worker session time-split data (2026-09-29): per-session and aggregate model/tool/rate-limit seconds plus schema witnesses.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-01-toward-door.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-02-toward-bed-wall.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-03-ceiling-corner.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-04-door-inside.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-05-troffer-junction.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/runtime-06-floor-base.png` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/before/stage2-multiview.json` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/budget.json` - keep-evidence; Ward shipment reader audit measurements, captures, or verification.
+- `docs/openclinxr/room-realism/ship-ward-room/verification.json` - keep-evidence; Structured test results, measurements and gate transcripts.

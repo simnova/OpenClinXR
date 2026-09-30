@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "glb": "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  "mechanism": "ui-xr-runtime-url",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-01-toward-door.png",
+      "pngBytes": 136836,
+      "pngSha256": "6d87ded569e62148e2c0f4f89fba151dd61c73f72f74ff3b8f54aef2ca7527ac"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 99894,
+      "pngSha256": "394745daa4f757aaa897ad5fd4cf2ffd64c70a8ec7ceb9095a8fb2cb611b6d8e"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 629339,
+      "pngSha256": "7f521aa5d35390048053e47ebe6674739bdbf2553e37efe34561668e5eca3372"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.6,
+        "y": 1.5,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.25,
+        "z": -1.8
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-04-door-inside.png",
+      "pngBytes": 125357,
+      "pngSha256": "f49c0bc71e07871b6ccfa19a3d0f0f8c71f7fd802fb201279e1834e8631d6029"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-05-troffer-junction.png",
+      "pngBytes": 539989,
+      "pngSha256": "c6d34b103588ea8cd7abdae7e4bf224e99c491dceb3753140ca0091c8ba76ec5"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.02,
+        "y": 0.32,
+        "z": 1.45
+      },
+      "look": {
+        "x": 0,
+        "y": -0.05,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/ship-ward-room/docs/openclinxr/room-realism/ship-ward-room/before/runtime-06-floor-base.png",
+      "pngBytes": 6492,
+      "pngSha256": "5df928d5311f7d17f63560984f7fb251011327b6ba2f0a4db68ba93953a437ad"
+    }
+  ]
+}

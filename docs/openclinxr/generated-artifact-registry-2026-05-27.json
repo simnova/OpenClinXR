@@ -42,6 +42,69 @@
   },
   "entries": [
     {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/verification.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Structured ward reader verification results, passing gates and unresolved candidate contract conflicts."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ship-ward-room/budget.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward shipment reader audit: candidate property measurements, pre-ship runtime captures, and verification; no readiness claim."
+    },
+    {
       "path": ".agent-factory/benchmark-gate-report.json",
       "authority": "keep-evidence",
       "tracked": true,

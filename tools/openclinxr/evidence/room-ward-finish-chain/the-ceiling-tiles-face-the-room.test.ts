@@ -95,7 +95,7 @@ function boxPositions(min: [number, number, number], max: [number, number, numbe
 }
 
 const BOX_INDICES = new Uint16Array([
-  0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7,
+  0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7,
   0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5,
   2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7,
 ]);
@@ -103,10 +103,13 @@ const BOX_INDICES = new Uint16Array([
 async function writeFixtureGlb(outputPath: string): Promise<void> {
   const doc = new Document();
   const buffer = doc.createBuffer();
+  // A complete fixture must carry authored shell materials, as the new chain
+  // does; the runtime's legacy missing-wall repair rejects bare floor slabs.
+  const shellMaterial = doc.createMaterial("fixture_shell_dielectric").setMetallicFactor(0).setRoughnessFactor(0.9);
   const addBox = (name: string, min: [number, number, number], max: [number, number, number]): void => {
     const pos = doc.createAccessor().setType("VEC3").setArray(boxPositions(min, max)).setBuffer(buffer);
     const idx = doc.createAccessor().setType("SCALAR").setArray(BOX_INDICES).setBuffer(buffer);
-    const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx);
+    const prim = doc.createPrimitive().setAttribute("POSITION", pos).setIndices(idx).setMaterial(shellMaterial);
     const mesh = doc.createMesh(name).addPrimitive(prim);
     doc.createNode(name).setMesh(mesh);
   };
@@ -126,7 +129,7 @@ async function writeFixtureGlb(outputPath: string): Promise<void> {
     HX, CEILING_PLANE, HZ, HX, CEILING_PLANE, -HZ,
   ])).setBuffer(buffer);
   const cidx = doc.createAccessor().setType("SCALAR").setArray(new Uint16Array([0, 2, 1, 0, 3, 2])).setBuffer(buffer);
-  const cprim = doc.createPrimitive().setAttribute("POSITION", cpos).setIndices(cidx);
+  const cprim = doc.createPrimitive().setAttribute("POSITION", cpos).setIndices(cidx).setMaterial(shellMaterial);
   const cmesh = doc.createMesh("bedroom_0/0.ceiling").addPrimitive(cprim);
   doc.createNode("bedroom_0/0.ceiling").setMesh(cmesh);
   await new NodeIO().write(outputPath, doc);
@@ -331,6 +334,10 @@ let server: PortlessDevServer | null = null;
 let browser: Browser | null = null;
 
 async function composeFixture(): Promise<{ workGlb: string; report: Record<string, unknown> }> {
+  // Optional reader input: exercise the same runtime ray assertion on a completed chain GLB.
+  if (process.env.WARD_PROPERTY_GLB) {
+    return { workGlb: path.resolve(process.env.WARD_PROPERTY_GLB), report: {} };
+  }
   const root = repoRoot();
   const work = path.join(tmpdir(), `ceiling-facing-${process.pid}`);
   await mkdir(work, { recursive: true });
@@ -386,6 +393,7 @@ describe("the ceiling tiles face the room at the pose-03 camera", () => {
       ],
     });
     const page: Page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    page.on("pageerror", (error) => process.stderr.write(`[ceiling-runtime] ${error.message}\n`));
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
@@ -430,6 +438,7 @@ describe("the ceiling tiles face the room at the pose-03 camera", () => {
   it("the frame-center ray first hits the tile field, not the shell ceiling", async () => {
     expect(ray, "beforeAll raycast produced a result").not.toBeNull();
     if (ray === null || !ray.ok) throw new Error(`in-page raycast failed: ${JSON.stringify(ray)}`);
+    process.stdout.write(`[ceiling-ray] ${JSON.stringify(ray)}\n`);
     expect(
       ray.first,
       `expected at least one room hit along the pose-03 center ray (ordered: ${JSON.stringify(ray.ordered)})`,

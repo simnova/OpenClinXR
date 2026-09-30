@@ -12,8 +12,9 @@
  * at capture time (no reseat); non-room meshes hide by ancestry under
  * `openclinxr.station-environment.infinigen-room`.
  *
- * STAGE2_CAPTURE_GLB points at the WIRED shipped file so the capture serves
- * the exact bytes a learner loads; placement is the runtime's own.
+ * With STAGE2_CAPTURE_GLB unset, the UI-XR dev server serves the shipped
+ * runtime URL directly (the learner path). Set STAGE2_CAPTURE_GLB only for an
+ * explicit local-file override used by pre-ship comparison work.
  * (Original stage-2 header follows.)
  *
  * 6 runtime frames matching the Imagine multiview
@@ -31,7 +32,8 @@
  * scene-closure route is reused only as the environment loader.
  *
  * Stage-2 deltas vs the reference script:
- * - GLB comes from STAGE2_CAPTURE_GLB (required); no baked-finish default.
+ * - GLB comes from the shipped UI-XR runtime URL by default. An optional
+ *   STAGE2_CAPTURE_GLB overrides that URL for pre-ship comparison work.
  * - HIDE keeps by ANCESTRY, not by name (neither the reference keep-regex
  *   nor an adapted one): the Blender->glTF path renames the wall parts to
  *   bare primitive names (`bedroom_00wall/Circle002`, `Circle002_1` --
@@ -106,10 +108,8 @@ const SET_AO_INTENSITY_SOURCE = `
 })
 `;
 const STAGE2_GLB = process.env["STAGE2_CAPTURE_GLB"];
-if (!STAGE2_GLB) {
-  throw new Error("STAGE2_CAPTURE_GLB is required (stage-2 room GLB path)");
-}
-const FINISHED_WARD_GLB = path.resolve(process.cwd(), STAGE2_GLB);
+const SHIPPED_WARD_URL = "/xr-assets/environment/infinigen-inpatient-ward.glb";
+const FINISHED_WARD_GLB = STAGE2_GLB ? path.resolve(process.cwd(), STAGE2_GLB) : null;
 
 // Rigid x-shift for the two door-framing poses (see header). 0 = verbatim POSES.
 const POSE_DX = Number(process.env["STAGE2_POSE_DX"] ?? "0");
@@ -374,7 +374,11 @@ async function main(): Promise<void> {
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    await installEnvironmentOverrideRoute(page, FINISHED_WARD_GLB);
+    if (FINISHED_WARD_GLB) {
+      await installEnvironmentOverrideRoute(page, FINISHED_WARD_GLB);
+    } else {
+      process.stderr.write(`[environment] loading shipped runtime URL ${SHIPPED_WARD_URL} (no route override)\n`);
+    }
 
         await page.goto(buildSceneClosureUrl(runningServer.url), { waitUntil: "networkidle", timeout: 180_000 });
     await page.waitForFunction(
@@ -451,7 +455,12 @@ async function main(): Promise<void> {
     }
     await writeFile(
       path.join(outputDir, "stage2-multiview.json"),
-      `${JSON.stringify({ schemaVersion: "openclinxr.stage2-multiview.v1", glb: FINISHED_WARD_GLB, captures: manifest }, null, 2)}\n`,
+      `${JSON.stringify({
+        schemaVersion: "openclinxr.stage2-multiview.v1",
+        glb: FINISHED_WARD_GLB ?? SHIPPED_WARD_URL,
+        mechanism: FINISHED_WARD_GLB ? "playwright-route-override" : "ui-xr-runtime-url",
+        captures: manifest,
+      }, null, 2)}\n`,
       "utf8",
     );
         process.stdout.write("[done] stage-2 multiview captured\n");
