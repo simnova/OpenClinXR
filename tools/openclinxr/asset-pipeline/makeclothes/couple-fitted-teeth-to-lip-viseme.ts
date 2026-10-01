@@ -11,10 +11,13 @@
  *
  * An opening morph is a per-vertex POSITION delta. A rigid translation seats
  * the front shell, then each arch-face crown gets its own posterior Z, and
- * side crowns (|x| > 12 mm) also tuck inward in X. Samples that are 0.2–8 mm
- * closer to the legacy head camera than the lip are then pushed back along
- * that view. Samples already behind, and samples more than 8 mm in front,
- * stay. After `applyJawOpenToRoot` for that viseme, each front shell's mean
+ * side crowns (|x| > 12 mm) also tuck inward in X. Arch samples that are
+ * 0.2–8 mm closer to the legacy head camera than the lip are pushed back
+ * along that view. A triangle with an arch-face vertex is sampled at its
+ * centroid and its three edge midpoints, and those samples in the same
+ * 0.2–8 mm band are pushed back the same way. Samples already behind, and
+ * samples more than 8 mm in front, stay. After `applyJawOpenToRoot` for that
+ * viseme, each front shell's mean
  * distance to the nearest body vertex is between 0.5 mm and 2 mm, with the
  * lip still in front of the crowns (+Z). Upper crowns are not pulled forward
  * of that seat. Nothing is pulled forward of the skin along the camera.
@@ -485,6 +488,8 @@ type Pose = {
   teethTargetNames: string[];
   teethSkinned: SkinnedMesh;
   teethSkeleton: Skeleton;
+  /** Triangle list of the fitted teeth primitive. Three indices per face. */
+  teethIndex: Uint32Array;
   bodyPos: Float32Array;
   bodyJoints: ArrayLike<number>;
   bodyWeights: ArrayLike<number>;
@@ -565,11 +570,14 @@ function buildPose(doc: Awaited<ReturnType<NodeIO["read"]>>): Pose {
     skinned.morphTargetInfluences = targetNames.map(() => 0);
     skinned.bind(skeleton, new Matrix4());
     (nodeMap.get(node) ?? root).add(skinned);
-    return { positions, jointArray, weightArray, targets, targetNames, skinned, skeleton, jointNodes };
+    const indexAccessor = prim.getIndices();
+    const meshIndex = indexAccessor ? Uint32Array.from(indexArray(indexAccessor)) : new Uint32Array(0);
+    return { positions, jointArray, weightArray, targets, targetNames, skinned, skeleton, jointNodes, meshIndex };
   };
 
   const teeth = attach(/fitted_teeth/i);
   const body = attach(/_body$/i);
+  if (teeth.meshIndex.length < 3) throw new Error("fitted teeth have no triangles");
   return {
     root,
     teethPos: teeth.positions,
@@ -579,6 +587,7 @@ function buildPose(doc: Awaited<ReturnType<NodeIO["read"]>>): Pose {
     teethTargetNames: teeth.targetNames,
     teethSkinned: teeth.skinned,
     teethSkeleton: teeth.skeleton,
+    teethIndex: teeth.meshIndex,
     bodyPos: body.positions,
     bodyJoints: body.jointArray,
     bodyWeights: body.weightArray,
@@ -903,12 +912,14 @@ export type CameraLipCut = {
   samples: CameraLipSample[];
 };
 
+type CameraLipPoint = { x: number; y: number; z: number; verts: number[] };
+
 /**
- * Arch-face vertices plus edge midpoints, scored against the legacy head camera.
+ * Score world points against the legacy head camera.
  * A sample is in front when its camera z exceeds the closest body vertex within 6 px
  * among body verts with world y in [1.43, 1.56] and |x| <= 0.06.
  */
-export function cameraLipCutCounts(teethBase: Float32Array, teethWorld: Float32Array, bodyWorld: Float32Array): CameraLipCut {
+function scoreCameraLipPoints(bodyWorld: Float32Array, points: readonly CameraLipPoint[]): CameraLipCut {
   const camera = legacyHeadCamera();
   const inverse = camera.matrixWorldInverse;
   const scratch = new Vector3();
@@ -935,37 +946,6 @@ export function cameraLipCutCounts(teethBase: Float32Array, teethWorld: Float32A
     if (list) list.push(index);
     else bins.set(key, [index]);
   }
-  const face = restArchFace(teethBase);
-  const points: { x: number; y: number; z: number; verts: number[] }[] = [];
-  const pushVertex = (vertex: number): void => {
-    points.push({
-      x: teethWorld[vertex * 3] ?? 0,
-      y: teethWorld[vertex * 3 + 1] ?? 0,
-      z: teethWorld[vertex * 3 + 2] ?? 0,
-      verts: [vertex],
-    });
-  };
-  for (const vertex of face.upper) pushVertex(vertex);
-  for (const vertex of face.lower) pushVertex(vertex);
-  const collect = (row: readonly number[]): void => {
-    for (let a = 0; a < row.length; a += 1) {
-      const av = row[a] ?? 0;
-      const ax = teethWorld[av * 3] ?? 0;
-      const ay = teethWorld[av * 3 + 1] ?? 0;
-      const az = teethWorld[av * 3 + 2] ?? 0;
-      for (let b = a + 1; b < Math.min(row.length, a + CAMERA_LIP_PAIR_WINDOW); b += 1) {
-        const bv = row[b] ?? 0;
-        const bx = teethWorld[bv * 3] ?? 0;
-        const by = teethWorld[bv * 3 + 1] ?? 0;
-        const bz = teethWorld[bv * 3 + 2] ?? 0;
-        const d2 = (ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2;
-        if (d2 === 0 || d2 > CAMERA_LIP_PAIR_M * CAMERA_LIP_PAIR_M) continue;
-        points.push({ x: (ax + bx) / 2, y: (ay + by) / 2, z: (az + bz) / 2, verts: [av, bv] });
-      }
-    }
-  };
-  collect(face.upper);
-  collect(face.lower);
   let near = 0;
   let mid = 0;
   let far = 0;
@@ -999,6 +979,86 @@ export function cameraLipCutCounts(teethBase: Float32Array, teethWorld: Float32A
     }
   }
   return { near, mid, far, maxMm: +(maxInFront * 1000).toFixed(2), samples };
+}
+
+/**
+ * Arch-face vertices plus edge midpoints, scored against the legacy head camera.
+ * A sample is in front when its camera z exceeds the closest body vertex within 6 px
+ * among body verts with world y in [1.43, 1.56] and |x| <= 0.06.
+ */
+export function cameraLipCutCounts(teethBase: Float32Array, teethWorld: Float32Array, bodyWorld: Float32Array): CameraLipCut {
+  const face = restArchFace(teethBase);
+  const points: CameraLipPoint[] = [];
+  const pushVertex = (vertex: number): void => {
+    points.push({
+      x: teethWorld[vertex * 3] ?? 0,
+      y: teethWorld[vertex * 3 + 1] ?? 0,
+      z: teethWorld[vertex * 3 + 2] ?? 0,
+      verts: [vertex],
+    });
+  };
+  for (const vertex of face.upper) pushVertex(vertex);
+  for (const vertex of face.lower) pushVertex(vertex);
+  const collect = (row: readonly number[]): void => {
+    for (let a = 0; a < row.length; a += 1) {
+      const av = row[a] ?? 0;
+      const ax = teethWorld[av * 3] ?? 0;
+      const ay = teethWorld[av * 3 + 1] ?? 0;
+      const az = teethWorld[av * 3 + 2] ?? 0;
+      for (let b = a + 1; b < Math.min(row.length, a + CAMERA_LIP_PAIR_WINDOW); b += 1) {
+        const bv = row[b] ?? 0;
+        const bx = teethWorld[bv * 3] ?? 0;
+        const by = teethWorld[bv * 3 + 1] ?? 0;
+        const bz = teethWorld[bv * 3 + 2] ?? 0;
+        const d2 = (ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2;
+        if (d2 === 0 || d2 > CAMERA_LIP_PAIR_M * CAMERA_LIP_PAIR_M) continue;
+        points.push({ x: (ax + bx) / 2, y: (ay + by) / 2, z: (az + bz) / 2, verts: [av, bv] });
+      }
+    }
+  };
+  collect(face.upper);
+  collect(face.lower);
+  return scoreCameraLipPoints(bodyWorld, points);
+}
+
+/**
+ * Centroid and three edge midpoints of every teeth triangle that contains a
+ * rest-pose arch-face vertex. Same camera and buckets as cameraLipCutCounts.
+ * A vertex behind the lip can still belong to a triangle that crosses it.
+ */
+export function cameraLipTriangleCutCounts(
+  teethBase: Float32Array,
+  teethWorld: Float32Array,
+  bodyWorld: Float32Array,
+  triangles: ArrayLike<number>,
+): CameraLipCut {
+  const face = restArchFace(teethBase);
+  const arch = new Set<number>([...face.upper, ...face.lower]);
+  const points: CameraLipPoint[] = [];
+  const at = (vertex: number): [number, number, number] => [
+    teethWorld[vertex * 3] ?? 0,
+    teethWorld[vertex * 3 + 1] ?? 0,
+    teethWorld[vertex * 3 + 2] ?? 0,
+  ];
+  for (let tri = 0; tri + 2 < triangles.length; tri += 3) {
+    const a = triangles[tri] ?? 0;
+    const b = triangles[tri + 1] ?? 0;
+    const c = triangles[tri + 2] ?? 0;
+    if (!arch.has(a) && !arch.has(b) && !arch.has(c)) continue;
+    const pa = at(a);
+    const pb = at(b);
+    const pc = at(c);
+    points.push({
+      x: (pa[0] + pb[0] + pc[0]) / 3,
+      y: (pa[1] + pb[1] + pc[1]) / 3,
+      z: (pa[2] + pb[2] + pc[2]) / 3,
+      verts: [a, b, c],
+    });
+    points.push({ x: (pa[0] + pb[0]) / 2, y: (pa[1] + pb[1]) / 2, z: (pa[2] + pb[2]) / 2, verts: [a, b] });
+    points.push({ x: (pb[0] + pc[0]) / 2, y: (pb[1] + pc[1]) / 2, z: (pb[2] + pc[2]) / 2, verts: [b, c] });
+    points.push({ x: (pc[0] + pa[0]) / 2, y: (pc[1] + pa[1]) / 2, z: (pc[2] + pa[2]) / 2, verts: [c, a] });
+  }
+  return scoreCameraLipPoints(bodyWorld, points);
 }
 
 /** Half-width of the anterior lip rim in a world-Y slice. 0 when the slice is empty. */
@@ -1275,6 +1335,55 @@ function solveShells(
       if (applied === 0) break;
     }
   };
+  // Triangle samples only. Vertex samples stay on the path above. A far
+  // vertex sample caps t so the >8 mm vertex bucket cannot fall to 0.
+  const seatTriangleLip = (): void => {
+    for (let iter = 0; iter < 8; iter += 1) {
+      posedNow = poseOff();
+      const cut = cameraLipTriangleCutCounts(pose.teethPos, posedNow, bodyWorld, pose.teethIndex);
+      const vertexCut = cameraLipCutCounts(pose.teethPos, posedNow, bodyWorld);
+      const want = new Map<number, number>();
+      const cap = new Map<number, number>();
+      for (const sample of vertexCut.samples) {
+        if (lipCut(sample.excessM) || !(sample.cz < 0)) continue;
+        const limit = (sample.frontZ + CAMERA_LIP_MID_MM / 1000 + 1e-5) / sample.cz;
+        for (const vertex of sample.verts) {
+          const prev = cap.get(vertex);
+          if (prev === undefined || limit < prev) cap.set(vertex, limit);
+        }
+      }
+      const rememberWant = (sample: CameraLipSample): void => {
+        if (!lipCut(sample.excessM) || !(sample.cz < 0)) return;
+        const t = (sample.frontZ - 0.00005) / sample.cz;
+        if (!(t > 1)) return;
+        for (const vertex of sample.verts) {
+          const prev = want.get(vertex);
+          if (prev === undefined || t > prev) want.set(vertex, t);
+        }
+      };
+      for (const sample of cut.samples) rememberWant(sample);
+      for (const sample of vertexCut.samples) rememberWant(sample);
+      if (want.size === 0) break;
+      let applied = 0;
+      for (const [vertex, requested] of want) {
+        if (!jawSet.has(vertex) && !headSet.has(vertex)) continue;
+        let t = requested;
+        const limit = cap.get(vertex);
+        if (limit !== undefined && t > limit) {
+          if (limit > 1 + 1e-9) t = limit;
+          else continue;
+        }
+        const wx = posedNow[vertex * 3] ?? 0;
+        const wy = posedNow[vertex * 3 + 1] ?? 0;
+        const wz = posedNow[vertex * 3 + 2] ?? 0;
+        worldOff[vertex * 3] = camX + t * (wx - camX) - (teethWorld[vertex * 3] ?? 0);
+        worldOff[vertex * 3 + 1] = camY + t * (wy - camY) - (teethWorld[vertex * 3 + 1] ?? 0);
+        worldOff[vertex * 3 + 2] = camZ + t * (wz - camZ) - (teethWorld[vertex * 3 + 2] ?? 0);
+        applied += 1;
+      }
+      if (applied === 0) break;
+    }
+  };
   const beforeCamera = cameraLipCutCounts(pose.teethPos, poseOff(), bodyWorld);
   seatCameraLip();
   posedNow = poseOff();
@@ -1291,6 +1400,32 @@ function solveShells(
   }
   if ((viseme === "viseme_aa" || viseme === "viseme_E") && beforeCamera.far > 0 && afterCamera.far === 0) {
     throw new Error(`${viseme} camera opening bucket dropped to 0`);
+  }
+  const beforeTriangles = cameraLipTriangleCutCounts(pose.teethPos, poseOff(), bodyWorld, pose.teethIndex);
+  seatTriangleLip();
+  posedNow = poseOff();
+  const seatedTri = archFaceIndices(pose.teethPos, posedNow);
+  retreat(seatedTri.lower, posedNow, jawLead, lowerLeadTarget, false);
+  retreat(seatedTri.upper, posedNow, anyLead, -LEAD_PAST_M, true);
+  seatTriangleLip();
+  posedNow = poseOff();
+  const afterTriangles = cameraLipTriangleCutCounts(pose.teethPos, posedNow, bodyWorld, pose.teethIndex);
+  const afterVertex = cameraLipCutCounts(pose.teethPos, posedNow, bodyWorld);
+  if (afterVertex.near > 0) {
+    throw new Error(
+      `${viseme} vertex camera lip cut returned at ${afterVertex.near}/${afterVertex.mid}/${afterVertex.far}`,
+    );
+  }
+  if ((viseme === "viseme_aa" || viseme === "viseme_E") && beforeCamera.far > 0 && afterVertex.far === 0) {
+    throw new Error(`${viseme} camera opening bucket dropped to 0`);
+  }
+  if (afterTriangles.near > 0 || afterTriangles.mid > 0) {
+    throw new Error(
+      `${viseme} triangle lip cut stayed at ${afterTriangles.near}/${afterTriangles.mid}/${afterTriangles.far} max ${afterTriangles.maxMm} mm (was ${beforeTriangles.near}/${beforeTriangles.mid}/${beforeTriangles.far})`,
+    );
+  }
+  if ((viseme === "viseme_aa" || viseme === "viseme_E") && beforeTriangles.far > 0 && afterTriangles.far === 0) {
+    throw new Error(`${viseme} triangle opening bucket dropped to 0`);
   }
   posedNow = poseOff();
   const upper = frontShellMeanGap(posedNow, shells.upper, bodyWorld);

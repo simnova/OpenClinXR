@@ -839,5 +839,27 @@
         { "name": "viseme_PP", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 0, "maxMm": 0 }
       ]
     }
+  },
+  "cameraLipTriangles": {
+    "instrument": "Same legacy head camera and body window as cameraLip. Samples are the centroid and three edge midpoints of every teeth triangle that contains at least one rest-pose arch-face vertex. A sample is in front when its camera z exceeds the front-most body vertex within 6 px. Buckets are inclusive: 0.2–2 mm, 2–8 mm, and more than 8 mm. Shared edges are counted once per triangle. The >8 mm bucket stays.",
+    "before": {
+      "commit": "83f19558a65db28d2986a6d214ab5ec79d7b46d2",
+      "glbSha256": "8a16b1d77752f6ba19091e45c9dbd7e0c28934579c3aa4d424f4db4d25596cc5",
+      "rows": [
+        { "name": "viseme_aa", "mm0_2to2": 138, "mm2to8": 14, "mmOver8": 43, "maxMm": 44.02 },
+        { "name": "viseme_E", "mm0_2to2": 110, "mm2to8": 28, "mmOver8": 18, "maxMm": 67.84 },
+        { "name": "viseme_FF", "mm0_2to2": 55, "mm2to8": 5, "mmOver8": 0, "maxMm": 3.56 },
+        { "name": "viseme_PP", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 4, "maxMm": 106.34 }
+      ]
+    },
+    "after": {
+      "glbSha256": "5e860a64d463f8dd921a9da038b50d754c71737c39dffac51e9b6bb9c59ed03e",
+      "rows": [
+        { "name": "viseme_aa", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 43, "maxMm": 44.02 },
+        { "name": "viseme_E", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 18, "maxMm": 66.97 },
+        { "name": "viseme_FF", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 0, "maxMm": 0 },
+        { "name": "viseme_PP", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 4, "maxMm": 106.34 }
+      ]
+    }
   }
 }

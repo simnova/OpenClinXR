@@ -1,14 +1,14 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.viseme-realism.v1",
-  "generatedAt": "2026-10-01T22:06:00.000Z",
+  "generatedAt": "2026-10-01T22:28:53Z",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "baselineFile": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
   "baselineGlbSha256": "b95f4606db278e4becc8768d3bf2c661efa05dab0d962113d7646499b3ae7302",
   "baselineOpeningMeanM": 0.004500010969270264,
-  "afterOpeningMeanM": 0.00148358224896191,
-  "ratio": 0.3296841405705489,
+  "afterOpeningMeanM": 0.0014684249849584536,
+  "ratio": 0.32631586789144607,
   "bar": 0.8,
-  "reduction": 0.6703158594294512,
+  "reduction": 0.6736841321085539,
   "restUpperM": 0.0070959803651845605,
   "restLowerM": 0.01066643650740738,
   "recordedRestUpperM": 0.0070959803651845605,
@@ -22,11 +22,11 @@
       "landmarkCount": 224,
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.844,
-      "afterUpperM": 0.0012302100177231136,
-      "afterLowerM": 0.001837553403911367,
-      "afterUpperMm": 1.23,
-      "afterLowerMm": 1.838,
-      "afterShellMeanM": 0.0015338817108172403
+      "afterUpperM": 0.0012284813055280209,
+      "afterLowerM": 0.0018159189730031495,
+      "afterUpperMm": 1.228,
+      "afterLowerMm": 1.816,
+      "afterShellMeanM": 0.0015222001392655852
     },
     {
       "name": "viseme_CH",
@@ -37,10 +37,10 @@
       "beforeUpperMm": 1.25,
       "beforeLowerMm": 1.898,
       "afterUpperM": 0.0012504967411615605,
-      "afterLowerM": 0.0016054946745001717,
+      "afterLowerM": 0.0015655766611604974,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.605,
-      "afterShellMeanM": 0.001427995707830866
+      "afterLowerMm": 1.566,
+      "afterShellMeanM": 0.001408036701161029
     },
     {
       "name": "viseme_DD",
@@ -50,11 +50,11 @@
       "landmarkCount": 30,
       "beforeUpperMm": 1.248,
       "beforeLowerMm": 1.663,
-      "afterUpperM": 0.0012052108283350106,
-      "afterLowerM": 0.0019763508880711943,
-      "afterUpperMm": 1.205,
-      "afterLowerMm": 1.976,
-      "afterShellMeanM": 0.0015907808582031023
+      "afterUpperM": 0.001200889735941306,
+      "afterLowerM": 0.0019436899516943095,
+      "afterUpperMm": 1.201,
+      "afterLowerMm": 1.944,
+      "afterShellMeanM": 0.0015722898438178079
     },
     {
       "name": "viseme_E",
@@ -64,11 +64,11 @@
       "landmarkCount": 7,
       "beforeUpperMm": 5.458,
       "beforeLowerMm": 9.346,
-      "afterUpperM": 0.0012528071225436734,
-      "afterLowerM": 0.0016407825827954657,
-      "afterUpperMm": 1.253,
-      "afterLowerMm": 1.641,
-      "afterShellMeanM": 0.0014467948526695694
+      "afterUpperM": 0.0012443791731310834,
+      "afterLowerM": 0.0016123346647474934,
+      "afterUpperMm": 1.244,
+      "afterLowerMm": 1.612,
+      "afterShellMeanM": 0.0014283569189392884
     },
     {
       "name": "viseme_FF",
@@ -79,10 +79,10 @@
       "beforeUpperMm": 5.078,
       "beforeLowerMm": 10.005,
       "afterUpperM": 0.0012469708395160977,
-      "afterLowerM": 0.0017584494709443517,
+      "afterLowerM": 0.0017064583168341888,
       "afterUpperMm": 1.247,
-      "afterLowerMm": 1.758,
-      "afterShellMeanM": 0.0015027101552302247
+      "afterLowerMm": 1.706,
+      "afterShellMeanM": 0.0014767145781751432
     },
     {
       "name": "viseme_I",
@@ -92,11 +92,11 @@
       "landmarkCount": 22,
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.758,
-      "afterUpperM": 0.0012235042520095552,
-      "afterLowerM": 0.0016166232817952416,
-      "afterUpperMm": 1.224,
-      "afterLowerMm": 1.617,
-      "afterShellMeanM": 0.0014200637669023984
+      "afterUpperM": 0.0011960611449725004,
+      "afterLowerM": 0.0015849227969788543,
+      "afterUpperMm": 1.196,
+      "afterLowerMm": 1.585,
+      "afterShellMeanM": 0.0013904919709756772
     },
     {
       "name": "viseme_kk",
@@ -106,11 +106,11 @@
       "landmarkCount": 27,
       "beforeUpperMm": 1.277,
       "beforeLowerMm": 1.652,
-      "afterUpperM": 0.0012215146551399032,
-      "afterLowerM": 0.0015638471989724574,
-      "afterUpperMm": 1.222,
-      "afterLowerMm": 1.564,
-      "afterShellMeanM": 0.0013926809270561804
+      "afterUpperM": 0.0011898889015105746,
+      "afterLowerM": 0.001535844897023625,
+      "afterUpperMm": 1.19,
+      "afterLowerMm": 1.536,
+      "afterShellMeanM": 0.0013628668992671
     },
     {
       "name": "viseme_nn",
@@ -120,11 +120,11 @@
       "landmarkCount": 17,
       "beforeUpperMm": 6.468,
       "beforeLowerMm": 10.14,
-      "afterUpperM": 0.0012497702090302828,
-      "afterLowerM": 0.0016489736285410844,
-      "afterUpperMm": 1.25,
-      "afterLowerMm": 1.649,
-      "afterShellMeanM": 0.0014493719187856835
+      "afterUpperM": 0.0012486469450707946,
+      "afterLowerM": 0.0016157652350642425,
+      "afterUpperMm": 1.249,
+      "afterLowerMm": 1.616,
+      "afterShellMeanM": 0.0014322060900675187
     },
     {
       "name": "viseme_O",
@@ -135,10 +135,10 @@
       "beforeUpperMm": 1.252,
       "beforeLowerMm": 1.884,
       "afterUpperM": 0.0012491192661179935,
-      "afterLowerM": 0.001657233152601196,
+      "afterLowerM": 0.0016546205549867786,
       "afterUpperMm": 1.249,
-      "afterLowerMm": 1.657,
-      "afterShellMeanM": 0.0014531762093595948
+      "afterLowerMm": 1.655,
+      "afterShellMeanM": 0.001451869910552386
     },
     {
       "name": "viseme_PP",
@@ -163,10 +163,10 @@
       "beforeUpperMm": 5.321,
       "beforeLowerMm": 9.014,
       "afterUpperM": 0.001251037977971203,
-      "afterLowerM": 0.0016976830808480602,
+      "afterLowerM": 0.0016856830929710546,
       "afterUpperMm": 1.251,
-      "afterLowerMm": 1.698,
-      "afterShellMeanM": 0.0014743605294096317
+      "afterLowerMm": 1.686,
+      "afterShellMeanM": 0.0014683605354711287
     },
     {
       "name": "viseme_sil",
@@ -190,11 +190,11 @@
       "landmarkCount": 29,
       "beforeUpperMm": 1.246,
       "beforeLowerMm": 1.989,
-      "afterUpperM": 0.0012248947845376254,
-      "afterLowerM": 0.0018647441204772514,
-      "afterUpperMm": 1.225,
-      "afterLowerMm": 1.865,
-      "afterShellMeanM": 0.0015448194525074384
+      "afterUpperM": 0.0012219609748801022,
+      "afterLowerM": 0.0018602707151524327,
+      "afterUpperMm": 1.222,
+      "afterLowerMm": 1.86,
+      "afterShellMeanM": 0.0015411158450162675
     },
     {
       "name": "viseme_TH",
@@ -204,11 +204,11 @@
       "landmarkCount": 15,
       "beforeUpperMm": 5.972,
       "beforeLowerMm": 10.745,
-      "afterUpperM": 0.0012468790219290896,
-      "afterLowerM": 0.0017731355780399118,
-      "afterUpperMm": 1.247,
-      "afterLowerMm": 1.773,
-      "afterShellMeanM": 0.0015100072999845006
+      "afterUpperM": 0.0012460128373621552,
+      "afterLowerM": 0.0017699888412181263,
+      "afterUpperMm": 1.246,
+      "afterLowerMm": 1.77,
+      "afterShellMeanM": 0.0015080008392901407
     },
     {
       "name": "viseme_U",
@@ -218,11 +218,11 @@
       "landmarkCount": 0,
       "beforeUpperMm": 7.63,
       "beforeLowerMm": 10.362,
-      "afterUpperM": 0.0012466737313050296,
+      "afterUpperM": 0.0012208511007298802,
       "afterLowerM": 0.0018331779641917738,
-      "afterUpperMm": 1.247,
+      "afterUpperMm": 1.221,
       "afterLowerMm": 1.833,
-      "afterShellMeanM": 0.0015399258477484016
+      "afterShellMeanM": 0.0015270145324608269
     }
   ],
   "stills": [

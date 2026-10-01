@@ -24,6 +24,7 @@ import {
   archFaceIndices,
   archFaceLead,
   cameraLipCutCounts,
+  cameraLipTriangleCutCounts,
   frontShellIndices,
   frontShellMeanGap,
   jawDescendantVertexMask,
@@ -93,6 +94,7 @@ type Loaded = {
   jawIndex: number;
   headIndex: number;
   bodyJointNodes: GltfNode[];
+  teethIndex: Uint32Array;
 };
 
 let loaded: Loaded;
@@ -191,6 +193,7 @@ function attachMesh(
   targets: Float32Array[];
   names: string[];
   jointNodes: { getName: () => string }[];
+  indices: Uint32Array;
 } {
   const mesh = doc.getRoot().listMeshes().find((item) => meshName.test(item.getName()));
   if (!mesh) throw new Error(`mesh ${meshName} missing`);
@@ -227,7 +230,10 @@ function attachMesh(
   skinned.morphTargetInfluences = names.map(() => 0);
   skinned.bind(skeleton, new Matrix4());
   (nodeMap.get(node) ?? root).add(skinned);
-  return { skinned, skeleton, positions, joints, weights, targets, names, jointNodes };
+  const indexAccessor = prim.getIndices();
+  const indexArray = indexAccessor?.getArray();
+  const indices = indexArray ? Uint32Array.from(indexArray) : new Uint32Array(0);
+  return { skinned, skeleton, positions, joints, weights, targets, names, jointNodes, indices };
 }
 
 function buildHierarchy(doc: Awaited<ReturnType<NodeIO["read"]>>): { root: Group; nodeMap: Map<unknown, Bone | Group> } {
@@ -340,6 +346,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
       jawIndex,
       headIndex,
       bodyJointNodes: body.jointNodes as GltfNode[],
+      teethIndex: teeth.indices,
     };
   }, 120_000);
 
@@ -628,6 +635,25 @@ describe("parent fitted teeth follow the lip viseme", () => {
       expect(byName.get(name)?.near, `${name} 0.2–2 mm`).toBe(0);
     }
     expect(byName.get("viseme_PP")).toEqual({ name: "viseme_PP", near: 0, mid: 0, far: 0, maxMm: 0 });
+    expect(byName.get("viseme_aa")?.far ?? 0).toBeGreaterThan(0);
+    expect(byName.get("viseme_E")?.far ?? 0).toBeGreaterThan(0);
+  }, 120_000);
+
+  it("keeps arch-triangle samples out of the 0.2–8 mm camera lip cut on aa, E, and FF", () => {
+    const names = ["viseme_aa", "viseme_E", "viseme_FF", "viseme_PP"] as const;
+    const rows = names.map((name) => {
+      const posed = poseNamed(loaded, name);
+      const cut = cameraLipTriangleCutCounts(loaded.teethPos, posed.teethWorld, posed.bodyWorld, loaded.teethIndex);
+      return { name, near: cut.near, mid: cut.mid, far: cut.far, maxMm: cut.maxMm };
+    });
+    console.log(JSON.stringify(rows));
+    const byName = new Map(rows.map((row) => [row.name, row]));
+    for (const name of ["viseme_aa", "viseme_E", "viseme_FF"] as const) {
+      expect(byName.get(name)?.near, `${name} triangle 0.2–2 mm`).toBe(0);
+      expect(byName.get(name)?.mid, `${name} triangle 2–8 mm`).toBe(0);
+    }
+    expect(byName.get("viseme_PP")?.near).toBe(0);
+    expect(byName.get("viseme_PP")?.mid).toBe(0);
     expect(byName.get("viseme_aa")?.far ?? 0).toBeGreaterThan(0);
     expect(byName.get("viseme_E")?.far ?? 0).toBeGreaterThan(0);
   }, 120_000);
