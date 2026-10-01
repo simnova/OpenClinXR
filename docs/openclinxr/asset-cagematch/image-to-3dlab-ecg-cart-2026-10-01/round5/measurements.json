@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-measurements.v1",
+  "date": "2026-10-01",
+  "measuredAgainstCommit": "ec42fa03cfe415dcc38685c3c756bbb3e4240dd9",
+  "status": "coordinator grade pending; MADR 0059 Decision unchanged",
+  "conditioning": {
+    "path": "../inputs/ecg-cart-oracle-matted.png",
+    "sha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "viewCount": 1
+  },
+  "commonBudget": { "trianglesMax": 40000, "decodedTextureMiBMax": 16 },
+  "arms": [
+    {
+      "id": "r5-a-decimate-before-bake",
+      "source": "seed7-default",
+      "pipeline": ["decode", "to_glb_decimate_40000", "uv_unwrap", "pbr_bake_512"],
+      "wallSeconds": 771.868,
+      "peakRssBytes": 14236221440,
+      "weldedComponents": 9,
+      "largestShare": 0.9149816782221285,
+      "boundaryEdges": 1393,
+      "budgetTriangles": 37933,
+      "decodedTextureMiB": 2,
+      "bytes": 1738648,
+      "silhouetteIou": 0.7407079744652156,
+      "sha256": "9e78dc7704928894c34be929362c7011ffb1dff6f6e9951563e583de4a1ebf29"
+    },
+    {
+      "id": "r5-b-island-filter",
+      "pipeline": ["weld_5dp", "drop_components_below_0.01_percent", "to_glb_decimate_40000", "uv_unwrap", "pbr_bake_512"],
+      "wallSeconds": 57.75,
+      "peakRssBytes": 25903185920,
+      "fullResolutionComponentsBefore": 25,
+      "fullResolutionComponentsAfter": 4,
+      "droppedComponentCount": 21,
+      "largestDroppedFaces": 408,
+      "multiPartGuardTriggered": false,
+      "retainedComponentFaces": [6999638, 145206, 144288, 143598],
+      "weldedComponents": 9,
+      "largestShare": 0.9153876323702445,
+      "boundaryEdges": 1477,
+      "budgetTriangles": 38245,
+      "decodedTextureMiB": 2,
+      "bytes": 1775324,
+      "silhouetteIou": 0.7406940423480632,
+      "sha256": "0cb771e388b3348d7c1023da1eed87a2f3725a3a1f3ff3a0d8fcc621bd094fb8",
+      "droppedComponents": "arms/r5-b-island-filter/report.json#/treatment/filter/dropped"
+    },
+    {
+      "id": "r5-c-cpu-fill",
+      "pipeline": ["cpu_fill_holes", "to_glb_decimate_40000", "uv_unwrap", "pbr_bake_512"],
+      "wallSeconds": 66.9,
+      "peakRssBytes": 27662581760,
+      "fullResolutionBoundaryEdgesBefore": 32048,
+      "fullResolutionBoundaryEdgesAfter": 31686,
+      "fullResolutionFacesAdded": 182,
+      "weldedComponents": 10,
+      "largestShare": 0.9165510987838703,
+      "boundaryEdges": 1357,
+      "budgetTriangles": 37496,
+      "decodedTextureMiB": 2,
+      "bytes": 1748900,
+      "silhouetteIou": 0.7405824339178663,
+      "sha256": "4c194c4595cbccd9c4b30bfa086b7a9fbf170de7b1934c51dda4f6c675e7ed64"
+    },
+    {
+      "id": "r5-d-cpu-remesh",
+      "outcome": "not_runnable_off_metal",
+      "wallSeconds": 1.217,
+      "peakRssBytes": 277741568,
+      "reason": "Installed remesh_narrow_band_dc is cumesh.metal_remeshing only; no CPU fallback exists, and the M1 Metal path already failed on unsupported float atomics in Round 3.",
+      "innerShellCheck": "not_applicable_no_mesh",
+      "report": "arms/r5-d-cpu-remesh/report.json"
+    },
+    {
+      "id": "r5-e-seeds-sampler",
+      "selectionRule": "fewest welded components, then boundary edges",
+      "winner": "seed7-default",
+      "variants": [
+        {"id":"seed42-default","wallSeconds":963.552,"peakRssBytes":14812823552,"weldedComponents":44,"largestShare":0.8907318053880177,"boundaryEdges":4971,"budgetTriangles":39793,"decodedTextureMiB":2,"silhouetteIou":0.7797421423095686},
+        {"id":"seed7-default","wallSeconds":771.868,"peakRssBytes":14236221440,"weldedComponents":9,"largestShare":0.9149816782221285,"boundaryEdges":1393,"budgetTriangles":37933,"decodedTextureMiB":2,"silhouetteIou":0.7407079744652156},
+        {"id":"seed123-default","wallSeconds":1281.936,"peakRssBytes":16936353792,"weldedComponents":75,"largestShare":0.9132498485154514,"boundaryEdges":7402,"budgetTriangles":39608,"decodedTextureMiB":2,"silhouetteIou":0.7602628915264027},
+        {"id":"seed42-fast6","wallSeconds":636.627,"peakRssBytes":16810901504,"weldedComponents":75,"largestShare":0.8790016423898118,"boundaryEdges":4299,"budgetTriangles":37141,"decodedTextureMiB":2,"silhouetteIou":0.7389524556232452}
+      ]
+    },
+    {
+      "id": "r5-best",
+      "source": "seed7-default",
+      "pipeline": ["cpu_fill_holes", "weld_5dp", "drop_components_below_0.01_percent", "to_glb_decimate_40000", "uv_unwrap", "pbr_bake_512"],
+      "wallSeconds": 88.257,
+      "peakRssBytes": 27593392128,
+      "fullResolutionComponentsBefore": 25,
+      "fullResolutionComponentsAfter": 4,
+      "fullResolutionBoundaryEdgesBefore": 32048,
+      "fullResolutionBoundaryEdgesAfter": 31686,
+      "weldedComponents": 8,
+      "largestShare": 0.9167551332176795,
+      "boundaryEdges": 1419,
+      "budgetTriangles": 38621,
+      "decodedTextureMiB": 2,
+      "bytes": 1753988,
+      "silhouetteIou": 0.7407572525805297,
+      "sha256": "98e324af4163d6d73d79a4f253ac55d12eee0f3a68be99a7a89ce9b017269bc5"
+    }
+  ],
+  "comparison": {
+    "round4T4": {"weldedComponents":1,"largestShare":1.0,"boundaryEdges":3044,"budgetTriangles":39860,"decodedTextureMiB":2,"silhouetteIou":0.7812974371144473},
+    "r5BestHasFewestR5Components": true,
+    "r5CHasFewestR5BoundaryEdges": true
+  },
+  "evidence": {
+    "contactSheet": "contact-sheet-raw-budget.png",
+    "seedScreen": "seed-screen-raw-budget.png",
+    "columnBaseCasterCrops": "column-base-caster-crops-budget.png",
+    "frontPanelCrops": "front-panel-crops-budget.png",
+    "cropBoxes": {"columnBaseCaster":[300,690,1010,1260],"frontPanel":[270,130,800,770]},
+    "magnification": "individual crops are 2x NEAREST"
+  },
+  "checkpointRetention": "Decoded full-resolution .pt checkpoints were ephemeral local scratch and removed after all derived arms/raw grade exports completed.",
+  "visualVerdict": null,
+  "claimScope": "one ECG-cart Round-5 treatment matrix on one M1 Max",
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "runtime adoption", "a coordinator adoption decision"]
+}

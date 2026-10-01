@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "openclinxr.trellis2-ecg-cart-round5-best.v1",
+  "status": "candidate for coordinator grade; MADR 0059 Decision unchanged",
+  "conditioning": {
+    "path": "../inputs/ecg-cart-oracle-matted.png",
+    "sha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "viewCount": 1
+  },
+  "generation": {
+    "seed": 7,
+    "pipelineType": "1024_cascade",
+    "samplerTier": "vendor_default",
+    "samplers": {
+      "sparseStructure": {"steps":12,"guidanceStrength":7.5,"guidanceRescale":0.7,"guidanceInterval":[0.6,1.0],"rescaleT":5.0},
+      "shapeSlat": {"steps":12,"guidanceStrength":7.5,"guidanceRescale":0.5,"guidanceInterval":[0.6,1.0],"rescaleT":3.0},
+      "texSlat": {"steps":12,"guidanceStrength":1.0,"guidanceRescale":0.0,"guidanceInterval":[0.6,0.9],"rescaleT":3.0}
+    },
+    "remesh": false,
+    "rawGradeExport": {"path":"raw/seed7-default/ecg-cart.glb","triangles":279169,"textureSize":2048,"sha256":"d046dc0d1e571618aad29319698a15ccf057db99848d96da49d6fd42305643c6"}
+  },
+  "pipelineOrder": [
+    "CPU trimesh.repair.fill_holes on full-resolution decoded mesh",
+    "position weld at 5 decimals",
+    "component split and 0.01%-face island filter with >=10% non-main guard",
+    "TRELLIS.2 to_glb decimation target 40000",
+    "UV unwrap",
+    "512px PBR texture bake"
+  ],
+  "islandFilter": {
+    "componentsBefore": 25,
+    "componentsAfter": 4,
+    "thresholdShare": 0.0001,
+    "thresholdFaces": 744,
+    "multiPartGuardTriggered": false,
+    "keptComponentFaces": [6999818,145206,144290,143598],
+    "droppedComponentCount": 21,
+    "droppedComponentDetails": "arms/r5-best/report.json#/treatment/filter/dropped"
+  },
+  "cpuFill": {
+    "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+    "boundaryEdgesBefore": 32048,
+    "boundaryEdgesAfter": 31686,
+    "facesAdded": 182
+  },
+  "result": {
+    "path": "arms/r5-best/ecg-cart.glb",
+    "triangles": 38621,
+    "decodedTextureMiB": 2,
+    "bytes": 1753988,
+    "weldedComponents": 8,
+    "largestShare": 0.9167551332176795,
+    "boundaryEdges": 1419,
+    "silhouetteIou": 0.7407572525805297,
+    "sha256": "98e324af4163d6d73d79a4f253ac55d12eee0f3a68be99a7a89ce9b017269bc5"
+  },
+  "execution": {
+    "generationWallSeconds": 771.868,
+    "generationPeakRssBytes": 14236221440,
+    "combinationWallSeconds": 88.257,
+    "combinationPeakRssBytes": 27593392128,
+    "compute": "foreground GpuJobService gpu slot; BlenderService for grade renders"
+  },
+  "revisions": {
+    "openClinXrBaseCommit": "ec42fa03cfe415dcc38685c3c756bbb3e4240dd9",
+    "trellis2Weights": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "dinov3Weights": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+  },
+  "checkpointRetention": "ephemeral decoded checkpoint removed after deriving all arms",
+  "licence": "TRELLIS.2 MIT plus DINOv3 commercial use permitted per MADR 0049; no territory limit.",
+  "claimScope": "reproduction of the measured Round-5 candidate from the fixed single conditioning image",
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "runtime adoption", "adoption before coordinator grade"]
+}

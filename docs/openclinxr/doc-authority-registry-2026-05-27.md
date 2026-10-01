@@ -438,4 +438,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md` - evidence; Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit.
 - `docs/openclinxr/room-realism/door-finish/READER-AUDIT.md` - evidence; Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - evidence; ECG-cart image-to-3dlab measurements, grade inputs, blockers, and claim boundaries.
-- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
+- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; TRELLIS.2 Round-4 T4 adopted for the ECG cart; Round-5 candidate grade pending without changing the decision.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json` - evidence; Round 5 R5-BEST reproduction manifest subordinate to MADR 0059; not an adoption decision.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json` - evidence; Round 5 machine-readable treatment and topology measurements; coordinator visual grade remains authoritative.

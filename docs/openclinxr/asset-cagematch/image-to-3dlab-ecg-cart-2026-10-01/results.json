@@ -1,5 +1,36 @@
 {
   "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "round5": {
+    "date": "2026-10-01",
+    "status": "decision evidence complete; coordinator grade pending; MADR 0059 Decision unchanged",
+    "backend": "trellis2",
+    "conditioning": "single view; byte-identical Round 1-4 matted oracle",
+    "commonBudget": {"trianglesMax":40000,"decodedTextureMiBMax":16},
+    "selectionRule": "R5-E winner by fewest welded components, then boundary edges",
+    "seedWinner": "seed7-default",
+    "treatments": [
+      {"id":"r5-a-decimate-before-bake","wallSeconds":771.868,"peakRssBytes":14236221440,"weldedComponents":9,"largestShare":0.9149816782221285,"boundaryEdges":1393,"budgetTriangles":37933,"decodedTextureMiB":2,"silhouetteIou":0.7407079744652156},
+      {"id":"r5-b-island-filter","wallSeconds":57.75,"peakRssBytes":25903185920,"fullResolutionComponents":"25 -> 4","droppedComponents":21,"weldedComponents":9,"largestShare":0.9153876323702445,"boundaryEdges":1477,"budgetTriangles":38245,"decodedTextureMiB":2,"silhouetteIou":0.7406940423480632},
+      {"id":"r5-c-cpu-fill","wallSeconds":66.9,"peakRssBytes":27662581760,"fullResolutionBoundaryEdges":"32048 -> 31686","weldedComponents":10,"largestShare":0.9165510987838703,"boundaryEdges":1357,"budgetTriangles":37496,"decodedTextureMiB":2,"silhouetteIou":0.7405824339178663},
+      {"id":"r5-d-cpu-remesh","outcome":"not_runnable_off_metal","wallSeconds":1.217,"peakRssBytes":277741568,"reason":"installed remesher is cumesh Metal-only; no CPU fallback; Round 3 Metal float-atomic failure remains","innerShellCheck":"not_applicable_no_mesh"},
+      {"id":"r5-e-seeds-sampler","winner":"seed7-default","variants":"round5/measurements.json#/arms/4/variants"},
+      {"id":"r5-best","pipeline":"CPU fill -> weld -> guarded island filter -> to_glb decimation -> UV unwrap -> 512px bake","wallSeconds":88.257,"peakRssBytes":27593392128,"weldedComponents":8,"largestShare":0.9167551332176795,"boundaryEdges":1419,"budgetTriangles":38621,"decodedTextureMiB":2,"silhouetteIou":0.7407572525805297,"sha256":"98e324af4163d6d73d79a4f253ac55d12eee0f3a68be99a7a89ce9b017269bc5"}
+    ],
+    "seedScreen": [
+      {"id":"seed42-default","wallSeconds":963.552,"peakRssBytes":14812823552,"weldedComponents":44,"boundaryEdges":4971,"budgetTriangles":39793},
+      {"id":"seed7-default","wallSeconds":771.868,"peakRssBytes":14236221440,"weldedComponents":9,"boundaryEdges":1393,"budgetTriangles":37933},
+      {"id":"seed123-default","wallSeconds":1281.936,"peakRssBytes":16936353792,"weldedComponents":75,"boundaryEdges":7402,"budgetTriangles":39608},
+      {"id":"seed42-fast6","wallSeconds":636.627,"peakRssBytes":16810901504,"weldedComponents":75,"boundaryEdges":4299,"budgetTriangles":37141}
+    ],
+    "manifest": "round5/recommended-manifest.json",
+    "measurements": "round5/measurements.json",
+    "contactSheet": "round5/contact-sheet-raw-budget.png",
+    "seedContactSheet": "round5/seed-screen-raw-budget.png",
+    "columnBaseCasterCrops": "round5/column-base-caster-crops-budget.png",
+    "frontPanelCrops": "round5/front-panel-crops-budget.png",
+    "visualVerdict": null,
+    "decisionChanged": false
+  },
   "round4": {
     "date": "2026-10-01",
     "status": "decision evidence complete; coordinator grade pending; MADR Decision unchanged",
@@ -189,8 +220,8 @@
   },
   "measuredAt": "2026-10-01",
   "measuredAgainstCommit": "4385291c7c819237632b9d094117ca5fd5a805b1",
-  "status": "pending_coordinator_grade",
-  "decision": "pending coordinator grade",
+  "status": "round4_adopted_round5_grade_pending",
+  "decision": "TRELLIS.2 Round-4 T4 remains adopted; Round 5 does not change the decision",
   "claimScope": "local M1 Max ECG-cart generation, optimization, and fixed-camera evidence",
   "notEvidenceFor": [
     "Quest readiness",

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-seed-arm.v1",
+  "input": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "conditioning": "single_view",
+  "seed": 123,
+  "samplerTier": "vendor_default",
+  "effectiveSamplerParams": {
+    "sparse_structure_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.7,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 5.0
+    },
+    "shape_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.5,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 3.0
+    },
+    "tex_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 1.0,
+      "guidance_rescale": 0.0,
+      "guidance_interval": [
+        0.6,
+        0.9
+      ],
+      "rescale_t": 3.0
+    }
+  },
+  "pipelineType": "1024_cascade",
+  "rawFaces": 16838056,
+  "pipelineOrder": "decode -> to_glb decimation -> UV unwrap -> 512px PBR bake",
+  "remesh": false,
+  "decimationTarget": 40000,
+  "textureSize": 512,
+  "triangles": 39608,
+  "bytes": 2045196,
+  "sha256": "c067bbf4b0df22e1480a6c723bc37b5eb334081a6b4710e6a450b1a5b1d986da",
+  "checkpoint": {
+    "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed123-default/decoded-mesh.pt",
+    "bytes": 637040847
+  },
+  "timingsSeconds": {
+    "pipelineLoad": 6.293579816818237,
+    "samplingAndDecode": 1179.4702398777008,
+    "decimateUvBakeExport": 93.485769033432,
+    "total": 1280.3267028331757
+  },
+  "claimScope": "one ECG-cart Round-5 seed/sampler arm on the local M1 Max",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "gpu",
+  "command": "/usr/bin/time",
+  "args": [
+    "-l",
+    "/Users/patrick/.openclinxr-tools/trellis2-apple/venv/bin/python3",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/probe-cpu-remesh.py",
+    "--out",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-d-cpu-remesh/report.json"
+  ],
+  "start": "2026-10-01T20:00:41.278Z",
+  "end": "2026-10-01T20:00:42.495Z",
+  "wallSeconds": 1.217,
+  "code": 0,
+  "stdout": "{\"schemaVersion\": \"openclinxr.ecg-cart-round5-remesh-probe.v1\", \"requested\": {\"remesh\": true, \"remeshBand\": 1, \"remeshProject\": 0, \"device\": \"cpu\"}, \"outcome\": \"not_runnable_off_metal\", \"hasMps\": true, \"hasCuda\": false, \"hasRemesh\": true, \"remeshImplementation\": \"cumesh.metal_remeshing.remesh_narrow_band_dc\", \"cpuFallbackPresent\": false, \"sourceObservation\": \"trellis2.backends only assigns remesh_narrow_band_dc from cumesh when the Metal/CUDA mesh backend loads; unlike simplify/fill, there is no trimesh or fast_simplification CPU remesh branch\", \"sourceContainsBothNames\": true, \"reason\": \"This host exposes only the cumesh Metal remesher. Round 3 already failed its float-atomic kernel on M1, and forcing CPU disables the only remesh symbol. No R5-D mesh was fabricated; inner-shell inspection is therefore not applicable.\", \"innerShellCheck\": \"not_applicable_no_mesh\", \"claimScope\": \"installed TRELLIS.2 Apple backend capability probe\", \"notEvidenceFor\": [\"general CPU remesh impossibility\", \"Quest readiness\", \"runtime adoption\"]}\n",
+  "stderr": "        1.20 real         1.02 user         0.15 sys\n           277741568  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               22499  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   1  messages sent\n                   0  messages received\n                   0  signals received\n                  27  voluntary context switches\n                 538  involuntary context switches\n          8777129505  instructions retired\n          3710879581  cycles elapsed\n           208421752  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

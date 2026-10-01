@@ -1,0 +1,107 @@
+{
+  "weldDecimals": 5,
+  "assets": [
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t4-uv64-512/ecg-cart.glb",
+      "triangles": 39860,
+      "weldedTriangles": 39860,
+      "verticesBeforeWeld": 51969,
+      "verticesAfterWeld": 15026,
+      "weldedComponents": 1,
+      "largestComponentFaces": 39860,
+      "largestShare": 1.0,
+      "boundaryEdges": 3044,
+      "componentFaceCounts": [
+        39860
+      ]
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed7-default/ecg-cart.glb",
+      "triangles": 37933,
+      "weldedTriangles": 37933,
+      "verticesBeforeWeld": 25902,
+      "verticesAfterWeld": 19545,
+      "weldedComponents": 9,
+      "largestComponentFaces": 34708,
+      "largestShare": 0.9149816782221285,
+      "boundaryEdges": 1393,
+      "componentFaceCounts": [
+        34708,
+        791,
+        787,
+        771,
+        441,
+        295,
+        134,
+        5,
+        1
+      ]
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-b-island-filter/ecg-cart.glb",
+      "triangles": 38245,
+      "weldedTriangles": 38245,
+      "verticesBeforeWeld": 26244,
+      "verticesAfterWeld": 19748,
+      "weldedComponents": 9,
+      "largestComponentFaces": 35009,
+      "largestShare": 0.9153876323702445,
+      "boundaryEdges": 1477,
+      "componentFaceCounts": [
+        35009,
+        788,
+        775,
+        770,
+        749,
+        131,
+        16,
+        4,
+        3
+      ]
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-c-cpu-fill/ecg-cart.glb",
+      "triangles": 37496,
+      "weldedTriangles": 37496,
+      "verticesBeforeWeld": 25869,
+      "verticesAfterWeld": 19316,
+      "weldedComponents": 10,
+      "largestComponentFaces": 34367,
+      "largestShare": 0.9165510987838703,
+      "boundaryEdges": 1357,
+      "componentFaceCounts": [
+        34367,
+        776,
+        767,
+        712,
+        439,
+        295,
+        129,
+        6,
+        3,
+        2
+      ]
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-best/ecg-cart.glb",
+      "triangles": 38621,
+      "weldedTriangles": 38621,
+      "verticesBeforeWeld": 25791,
+      "verticesAfterWeld": 19905,
+      "weldedComponents": 8,
+      "largestComponentFaces": 35406,
+      "largestShare": 0.9167551332176795,
+      "boundaryEdges": 1419,
+      "componentFaceCounts": [
+        35406,
+        805,
+        769,
+        754,
+        746,
+        135,
+        4,
+        2
+      ]
+    }
+  ]
+}

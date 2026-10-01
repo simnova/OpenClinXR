@@ -1,0 +1,112 @@
+{
+  "mainContactSheet": "contact-sheet-raw-budget.png",
+  "seedContactSheet": "seed-screen-raw-budget.png",
+  "mainColumns": [
+    "control",
+    "T4 adopted",
+    "R5-A pre-bake",
+    "R5-B filter",
+    "R5-C CPU fill",
+    "R5-D unavailable",
+    "R5-E seed winner",
+    "R5-BEST C\u2192B\u2192A"
+  ],
+  "rows": [
+    "raw",
+    "budget"
+  ],
+  "columnBaseCasterCrop": {
+    "box": [
+      300,
+      690,
+      1010,
+      1260
+    ],
+    "sheet": "column-base-caster-crops-budget.png",
+    "individuals": [
+      {
+        "column": "control",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/control-2x-nearest.png"
+      },
+      {
+        "column": "T4 adopted",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/t4-adopted-2x-nearest.png"
+      },
+      {
+        "column": "R5-A pre-bake",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-a-pre-bake-2x-nearest.png"
+      },
+      {
+        "column": "R5-B filter",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-b-island-filter-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-b-filter-2x-nearest.png"
+      },
+      {
+        "column": "R5-C CPU fill",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-c-cpu-fill-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-c-cpu-fill-2x-nearest.png"
+      },
+      {
+        "column": "R5-E seed winner",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-e-seed-winner-2x-nearest.png"
+      },
+      {
+        "column": "R5-BEST C\u2192B\u2192A",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-best-c-b-a-2x-nearest.png"
+      }
+    ]
+  },
+  "frontPanelCrop": {
+    "box": [
+      270,
+      130,
+      800,
+      770
+    ],
+    "sheet": "front-panel-crops-budget.png",
+    "individuals": [
+      {
+        "column": "control",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/control-2x-nearest.png"
+      },
+      {
+        "column": "T4 adopted",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/t4-adopted-2x-nearest.png"
+      },
+      {
+        "column": "R5-A pre-bake",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-a-pre-bake-2x-nearest.png"
+      },
+      {
+        "column": "R5-B filter",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-b-island-filter-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-b-filter-2x-nearest.png"
+      },
+      {
+        "column": "R5-C CPU fill",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-c-cpu-fill-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-c-cpu-fill-2x-nearest.png"
+      },
+      {
+        "column": "R5-E seed winner",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-e-seed-winner-2x-nearest.png"
+      },
+      {
+        "column": "R5-BEST C\u2192B\u2192A",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-best-c-b-a-2x-nearest.png"
+      }
+    ]
+  },
+  "magnification": "individual crops are 2x NEAREST; sheets retain native crop pixels",
+  "dPlaceholder": "No mesh: installed remesh backend is Metal-only and Round 3 hit unsupported float atomics."
+}

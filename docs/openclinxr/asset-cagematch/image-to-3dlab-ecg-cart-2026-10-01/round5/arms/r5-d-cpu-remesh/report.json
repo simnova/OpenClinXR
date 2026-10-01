@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-remesh-probe.v1",
+  "requested": {
+    "remesh": true,
+    "remeshBand": 1,
+    "remeshProject": 0,
+    "device": "cpu"
+  },
+  "outcome": "not_runnable_off_metal",
+  "hasMps": true,
+  "hasCuda": false,
+  "hasRemesh": true,
+  "remeshImplementation": "cumesh.metal_remeshing.remesh_narrow_band_dc",
+  "cpuFallbackPresent": false,
+  "sourceObservation": "trellis2.backends only assigns remesh_narrow_band_dc from cumesh when the Metal/CUDA mesh backend loads; unlike simplify/fill, there is no trimesh or fast_simplification CPU remesh branch",
+  "sourceContainsBothNames": true,
+  "reason": "This host exposes only the cumesh Metal remesher. Round 3 already failed its float-atomic kernel on M1, and forcing CPU disables the only remesh symbol. No R5-D mesh was fabricated; inner-shell inspection is therefore not applicable.",
+  "innerShellCheck": "not_applicable_no_mesh",
+  "claimScope": "installed TRELLIS.2 Apple backend capability probe",
+  "notEvidenceFor": [
+    "general CPU remesh impossibility",
+    "Quest readiness",
+    "runtime adoption"
+  ]
+}

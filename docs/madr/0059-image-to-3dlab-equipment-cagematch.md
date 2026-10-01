@@ -105,3 +105,11 @@ Follow-ups: (1) wire the T4 manifest into the factory's trellis bake station so 
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.
+
+## Round 5 evidence — decision unchanged
+
+Round 5 tested pre-bake decimation, guarded island filtering, CPU hole fill, CPU-remesh availability, and seed/sampler selection against the same conditioning image and frozen camera/lights. The adopted decision remains Round-4 T4 pending coordinator grade of these new native-pixel inputs.
+
+Seed 7 won the mechanical screen (9 welded components, 1,393 boundary edges). Seed 42 default measured 44/4,971; seed 123 default 75/7,402; seed-42 fast-6 75/4,299. Fast-6 reduced wall time but did not reduce component count. The guarded filter reduced the full-resolution mesh from 25 to four retained components before export, preserving the 94.16% body and three ~1.9% structural parts while dropping 21 components no larger than 408 faces. No non-main component reached the ≥10% amputation guard.
+
+CPU fill reduced full-resolution boundary edges 32,048→31,686. CPU remesh could not be executed: this installation exposes only the cumesh Metal remesher and no CPU fallback; Round 3 already established that the relevant Metal path fails on M1 float atomics, so no inner-shell verdict exists. R5-BEST uses C→B→A and produces 38,621 triangles, 2 MiB decoded textures, 8 welded components, 91.68% largest share, 1,419 boundary edges and IoU 0.740757. This is a coordinator-grade candidate, not an adoption change. Evidence and exact manifest: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/`.

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1065,
+    "keep-evidence": 1170,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -29517,6 +29517,741 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Round 4 TRELLIS.2 ECG-cart evidence; coordinator grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-b-island-filter/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-b-island-filter/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-best/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-best/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-c-cpu-fill/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-c-cpu-fill/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/r5-d-cpu-remesh/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed123-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed123-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed42-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed42-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed42-fast6/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed42-fast6/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed7-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed7-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/column-base-caster-crops-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/contact-sheet-raw-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/control-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-a-pre-bake-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-b-filter-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-best-c-b-a-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-c-cpu-fill-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/r5-e-seed-winner-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-column-base-caster/t4-adopted-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/control-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-a-pre-bake-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-b-filter-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-best-c-b-a-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-c-cpu-fill-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/r5-e-seed-winner-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/crops-front-panel/t4-adopted-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/evidence-layout.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/r5-b-island-filter.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/r5-best.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/r5-c-cpu-fill.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/r5-d-cpu-remesh-probe.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/raw-seed123-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/raw-seed42-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/raw-seed42-fast6.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/raw-seed7-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/render-round5.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/seed123-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/seed42-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/seed42-fast6.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/executions/seed7-default.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/front-panel-crops-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed123-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed123-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed42-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed42-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed42-fast6/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed42-fast6/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed7-default/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/raw/seed7-default/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-b-island-filter-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-b-island-filter-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-c-cpu-fill-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-c-cpu-fill-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed123-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed123-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed123-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed123-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-fast6-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-fast6-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-fast6-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed42-fast6-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/seed7-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/seed-screen-raw-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/seed-topology.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/seed7-fullres-topology.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouette-iou.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-b-island-filter-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-b-island-filter-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-best-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-best-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-c-cpu-fill-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/r5-c-cpu-fill-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed123-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed123-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed123-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed123-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-fast6-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-fast6-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-fast6-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed42-fast6-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed7-default-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed7-default-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed7-default-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/silhouettes/seed7-default-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/treatment-topology.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
     },
     {
       "path": "docs/openclinxr/room-realism/ceiling-cornice/junction-measurements.json",

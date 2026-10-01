@@ -2,9 +2,9 @@
 
 Date: 2026-10-01
 
-Status: **pending coordinator grade**
+Status: **Round-4 T4 adopted; Round-5 coordinator grade pending**
 
-Decision: **pending coordinator grade**
+Decision: **TRELLIS.2 + UV weights 64/64 + 512px (Round-4 T4) remains adopted; Round 5 does not change it**
 
 ## Outcome
 
@@ -129,3 +129,23 @@ Because generation, remesh and texture sampling were exonerated, no 22-minute TR
 The [raw/budget sheet](round4/contact-sheet-raw-budget.png) is control | Round-3 TRELLIS.2 | T1 | T2 | T3 | T4. The four treatment raw cells intentionally reuse the byte-identical Round-3 raw render because only budgeting changed. The [column/base crop sheet](round4/column-base-crops-budget.png) and [individual 2× NEAREST crops](round4/crops-column-base/) use the identical 1280-pixel crop box **(left=300, top=690, right=1010, bottom=1260)**. T1 leaves large column streaks, T2 reduces them, and T3/T4 clear the severe corruption while keeping the seven buttons and six coloured ring connectors. Caster edge noise remains, already visible in the raw source.
 
 T4 is the evidence recommendation, not an adoption decision: it is geometry-identical to T3, has identical IoU, retains the fixed-camera front-panel read, and reduces decoded texture memory from 8 MiB to 2 MiB with only slight softening. Its exact seed, all sampler/export parameters, weight revisions and optimizer settings are in [recommended-manifest.json](round4/recommended-manifest.json). Full measurements, process receipts, GLBs, masks and claims are under `round4/`; no Quest, clinical, runtime-adoption or general-backend claim is made.
+
+## Round 5
+
+2026-10-01. Coordinator grade pending; MADR 0059's Round-4 T4 decision is unchanged. All four new TRELLIS.2 generations used the identical single conditioning image and every TRELLIS/Blender process ran foreground-only through the compute facade. The budget remains ≤40,000 triangles and ≤16 MiB decoded textures.
+
+| arm | wall | peak RSS | welded comps | largest share | boundary edges | budget tris | decoded MiB | IoU |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| R5-A pre-bake decimation, seed 7 | 771.868 s | 14,236,221,440 B | 9 | 91.50% | 1,393 | 37,933 | 2 | 0.740708 |
+| R5-B guarded island filter | 57.750 s | 25,903,185,920 B | 9 | 91.54% | 1,477 | 38,245 | 2 | 0.740694 |
+| R5-C CPU fill | 66.900 s | 27,662,581,760 B | 10 | 91.66% | 1,357 | 37,496 | 2 | 0.740582 |
+| R5-D CPU remesh | 1.217 s probe | 277,741,568 B | — | — | — | — | — | — |
+| R5-BEST C→B→A | 88.257 s after generation | 27,593,392,128 B | **8** | 91.68% | 1,419 | 38,621 | 2 | 0.740757 |
+
+R5-A moved simplification into TRELLIS.2 `to_glb`, before UV unwrap and PBR bake, instead of simplifying the finished GLB. Seed 7 was selected mechanically from R5-E: 9 welded components / 1,393 boundary edges, versus seed 42 default 44 / 4,971, seed 123 default 75 / 7,402, and seed-42 fast-6 75 / 4,299. The fast tier reduced seed-42 wall time from 963.552 s to 636.627 s but did not reduce components in this cart trial.
+
+R5-B welded at five decimal places before component splitting. The full-resolution seed-7 mesh had 25 components: a 94.16% main body, three retained parts at 1.93–1.95% each, and 21 fragments at 408 faces or fewer. The 0.01%-of-faces threshold was 744 faces. No non-main component reached the ≥10% multi-part guard; all three substantial parts were retained. Every dropped component's face count, center and diagonal is recorded in `arms/r5-b-island-filter/report.json`.
+
+R5-C used the installed TRELLIS CPU fallback (`trimesh.repair.fill_holes`) on the 7.43M-face mesh. It added 182 faces and reduced full-resolution boundary edges from 32,048 to 31,686 (1.13%). This current MPS pipeline had already performed decode-time fill, so the residual CPU gain is much smaller than the older TRELLIS.2 #169 report. R5-D could not run off-Metal: the installed remesher is `cumesh.metal_remeshing.remesh_narrow_band_dc`, with no CPU branch, while the M1 Metal path already failed on unsupported float atomics in Round 3. No R5-D mesh or inner-shell verdict is fabricated.
+
+R5-BEST combines CPU fill → five-decimal weld → guarded island filter → TRELLIS in-export 40k decimation → UV unwrap → 512px bake. It has the fewest final welded components among R5 arms; R5-C has the fewest boundary edges. Grade the [main raw/budget sheet](round5/contact-sheet-raw-budget.png), [four-seed sheet](round5/seed-screen-raw-budget.png), [column/base/caster crops](round5/column-base-caster-crops-budget.png), and [front-panel crops](round5/front-panel-crops-budget.png). Individual 2× NEAREST crops and native 1280px stills are retained. No worker visual winner is assigned.
