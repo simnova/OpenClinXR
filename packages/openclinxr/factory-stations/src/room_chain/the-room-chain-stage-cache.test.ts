@@ -305,11 +305,44 @@ describe("room-chain --no-cache flag", () => {
 });
 
 describe("room-chain recipe registry", () => {
+  it("registers every shipped Infinigen room with its recorded deterministic seed", () => {
+    expect(Object.keys(ROOM_CHAIN_RECIPES)).toHaveLength(14);
+    expect(Object.fromEntries(Object.entries(ROOM_CHAIN_RECIPES).map(([id, recipe]) => [id, recipe.defaultSeed]))).toMatchObject({
+      ed_exam_bay_v1: 22,
+      pediatric_urgent_care_bay_v1: 13,
+      primary_care_clinic_room_v1: 1,
+      ed_stroke_bay_v1: 2,
+      adult_ed_abdominal_bay_v1: 0,
+      telehealth_home_visit_v1: 14,
+      behavioral_health_private_room_v1: 16,
+      oncology_consult_room_v1: 17,
+      urgent_care_clinic_room_v1: 22,
+      surgical_ward_room_v1: 25,
+      ob_triage_room_v1: 27,
+      inpatient_ward_room_v1: 205,
+      stepdown_room_v1: 205,
+      pediatric_fever_urgent_care_bay_v1: 34,
+    });
+  });
+
+  it("keeps home and behavioral rooms out of the hospital finish profile", () => {
+    const home = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.telehealth_home_visit_v1);
+    expect(home.finish?.floor.kind).toBe("wood-plank");
+    expect(home.finish?.ceiling).toMatchObject({ kind: "painted", troffer: false });
+    expect(home.finish?.door.kind).toBe("residential");
+    expect(home.door.style).toBe("panel");
+    expect(home.door.liteRect).toBeUndefined();
+    const behavioral = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.behavioral_health_private_room_v1);
+    expect(behavioral.finish?.door).toMatchObject({ kind: "behavioral-solid", casing: false, lite: false, hinges: false });
+    expect(behavioral.finish?.ceiling.kind).toBe("painted");
+  });
+
   it("accepts the shipped ward recipe", () => {
     const ward = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, "inpatient_ward_room_v1");
     expect(ward.finish?.preserveShell).toBe(true);
     expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
     expect(ward.finish?.ceiling).toEqual({
+      kind: "acoustic-tbar",
       troffer: true,
       tbarMm: 24,
       cornice: "wall-angle",
@@ -338,7 +371,7 @@ describe("room-chain recipe registry", () => {
       ...shipped,
       finish: shipped.finish && {
         ...shipped.finish,
-        ceiling: { troffer: true, tbarMm: 24 },
+        ceiling: { kind: "acoustic-tbar" as const, troffer: true, tbarMm: 24 },
       },
     };
     expect(validateRoomChainRecipe(legacy).finish?.ceiling.cornice).toBeUndefined();

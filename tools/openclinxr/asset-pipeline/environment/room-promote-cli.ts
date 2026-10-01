@@ -8,6 +8,18 @@ import { decodePng } from "../../evidence/decode-png.js";
 import { writeRoomEvidencePoses } from "./derive-room-evidence-poses.js";
 
 const RUNTIME_PATHS: Record<string, { glb: string; rig: string; provenanceOut?: string }> = {
+  ed_exam_bay_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb", rig: "apps/ui-xr/public/xr-assets/lighting/ed_exam_bay_v1.rig.json" },
+  pediatric_urgent_care_bay_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb", rig: "apps/ui-xr/public/xr-assets/lighting/pediatric_urgent_care_bay_v1.rig.json" },
+  primary_care_clinic_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb", rig: "apps/ui-xr/public/xr-assets/lighting/primary_care_clinic_room_v1.rig.json" },
+  ed_stroke_bay_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb", rig: "apps/ui-xr/public/xr-assets/lighting/ed_stroke_bay_v1.rig.json" },
+  adult_ed_abdominal_bay_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb", rig: "apps/ui-xr/public/xr-assets/lighting/adult_ed_abdominal_bay_v1.rig.json" },
+  telehealth_home_visit_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-telehealth-home-visit.glb", rig: "apps/ui-xr/public/xr-assets/lighting/telehealth_home_visit_v1.rig.json" },
+  behavioral_health_private_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-behavioral-health-private.glb", rig: "apps/ui-xr/public/xr-assets/lighting/behavioral_health_private_room_v1.rig.json" },
+  oncology_consult_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-oncology-consult.glb", rig: "apps/ui-xr/public/xr-assets/lighting/oncology_consult_room_v1.rig.json" },
+  urgent_care_clinic_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-urgent-care-clinic.glb", rig: "apps/ui-xr/public/xr-assets/lighting/urgent_care_clinic_room_v1.rig.json" },
+  surgical_ward_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb", rig: "apps/ui-xr/public/xr-assets/lighting/surgical_ward_room_v1.rig.json" },
+  ob_triage_room_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-ob-triage.glb", rig: "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json" },
+  pediatric_fever_urgent_care_bay_v1: { glb: "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb", rig: "apps/ui-xr/public/xr-assets/lighting/pediatric_fever_urgent_care_bay_v1.rig.json" },
   inpatient_ward_room_v1: {
     glb: "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
     rig: "apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json",

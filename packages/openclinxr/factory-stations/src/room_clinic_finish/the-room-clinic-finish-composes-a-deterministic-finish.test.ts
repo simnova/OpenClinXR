@@ -151,9 +151,9 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     const finish = {
       preserveShell: true,
       floor: { kind: "vinyl-tile", moduleM: 0.6 },
-      cove: { heightM: 0.1 },
+      cove: { kind: "cove", heightM: 0.1 },
       door: { kind: "hospital", photoPbr: true, casing: true, lite: true, lever: true, hinges: true },
-      ceiling: { troffer: true, tbarMm: 24 },
+      ceiling: { kind: "acoustic-tbar", troffer: true, tbarMm: 24 },
       wallMatteRoughness: 0.85,
       neutralTints: { casingRgb: [0.79, 0.81, 0.83], coveRgb: [0.313, 0.323, 0.352] },
     };

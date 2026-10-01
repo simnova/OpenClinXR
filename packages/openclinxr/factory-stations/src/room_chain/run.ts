@@ -335,7 +335,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     seed,
     layoutVariant: recipe.layoutVariant,
     footprintMeters: { ...recipe.footprintMeters },
-    door: { ...recipe.door, liteRect: [...recipe.door.liteRect] },
+    door: { ...recipe.door, ...(recipe.door.liteRect === undefined ? {} : { liteRect: [...recipe.door.liteRect] }) },
   };
   await waitForBlenderSlot();
   process.stdout.write(`[ward-chain] stage 1 room_generate seed=${seed} ...\n`);
@@ -387,7 +387,8 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     // fractions place the glass/frame when the leaf carries no cut
     // opening (same rect the generate stage cuts, mirrored + margin
     // mapped). The environment recipe is the single source.
-    door: { hingeSide: recipe.door.hingeSide, lite: [...recipe.door.liteRect],
+    door: { hingeSide: recipe.door.hingeSide,
+            ...(recipe.door.liteRect === undefined ? {} : { lite: [...recipe.door.liteRect] }),
             margin: recipe.door.panelMarginM,
             ...(recipe.door.transom === undefined ? {} : { transom: recipe.door.transom }),
             ...(recipe.door.kickPlate === undefined ? {} : { kickPlate: recipe.door.kickPlate }) },

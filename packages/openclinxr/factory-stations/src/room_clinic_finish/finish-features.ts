@@ -1,10 +1,10 @@
 /** Strict, data-driven feature contract consumed by the clinic-finish stage. */
 export type RoomFinishFeatures = {
   preserveShell: boolean;
-  floor: { kind: "vinyl-tile"; moduleM: number };
-  cove: { heightM: number };
+  floor: { kind: "vinyl-tile" | "sheet-vinyl" | "wood-plank"; moduleM: number };
+  cove: { kind: "cove" | "baseboard" | "none"; heightM: number };
   door: {
-    kind: "hospital";
+    kind: "hospital" | "behavioral-solid" | "residential";
     photoPbr: boolean;
     casing: boolean;
     lite: boolean;
@@ -12,6 +12,7 @@ export type RoomFinishFeatures = {
     hinges: boolean;
   };
   ceiling: {
+    kind: "acoustic-tbar" | "painted";
     troffer: boolean;
     tbarMm: number;
     cornice?: "none" | "wall-angle";
@@ -34,9 +35,9 @@ export class RoomFinishFeatureValidationError extends Error {
 const KEYS = {
   root: ["preserveShell", "floor", "cove", "door", "ceiling", "wallMatteRoughness", "neutralTints"],
   floor: ["kind", "moduleM"],
-  cove: ["heightM"],
+  cove: ["kind", "heightM"],
   door: ["kind", "photoPbr", "casing", "lite", "lever", "hinges"],
-  ceiling: ["troffer", "tbarMm", "cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"],
+  ceiling: ["kind", "troffer", "tbarMm", "cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"],
   neutralTints: ["casingRgb", "coveRgb"],
 } as const;
 
@@ -92,18 +93,23 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
   const ceiling = record(root["ceiling"], `${path}.ceiling`);
   const neutralTints = record(root["neutralTints"], `${path}.neutralTints`);
   exactKeys(floor, KEYS.floor, `${path}.floor`);
-  exactKeys(cove, KEYS.cove, `${path}.cove`);
+  exactKeys(cove, KEYS.cove, `${path}.cove`, ["kind"]);
   exactKeys(door, KEYS.door, `${path}.door`);
-  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"]);
+  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["kind", "cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"]);
   exactKeys(neutralTints, KEYS.neutralTints, `${path}.neutralTints`);
-  if (floor["kind"] !== "vinyl-tile") throw new RoomFinishFeatureValidationError(`${path}.floor.kind must be vinyl-tile`);
-  if (door["kind"] !== "hospital") throw new RoomFinishFeatureValidationError(`${path}.door.kind must be hospital`);
+  if (!["vinyl-tile", "sheet-vinyl", "wood-plank"].includes(String(floor["kind"]))) throw new RoomFinishFeatureValidationError(`${path}.floor.kind must be vinyl-tile, sheet-vinyl or wood-plank`);
+  const coveKind = cove["kind"] ?? "cove";
+  const ceilingKind = ceiling["kind"] ?? "acoustic-tbar";
+  if (!["cove", "baseboard", "none"].includes(String(coveKind))) throw new RoomFinishFeatureValidationError(`${path}.cove.kind must be cove, baseboard or none`);
+  if (!["hospital", "behavioral-solid", "residential"].includes(String(door["kind"]))) throw new RoomFinishFeatureValidationError(`${path}.door.kind must be hospital, behavioral-solid or residential`);
+  if (!["acoustic-tbar", "painted"].includes(String(ceilingKind))) throw new RoomFinishFeatureValidationError(`${path}.ceiling.kind must be acoustic-tbar or painted`);
+  if (ceilingKind === "painted" && ceiling["troffer"] !== false) throw new RoomFinishFeatureValidationError(`${path}.ceiling.troffer must be false for a painted ceiling`);
   return {
     preserveShell: boolean(root["preserveShell"], `${path}.preserveShell`),
-    floor: { kind: "vinyl-tile", moduleM: finiteInRange(floor["moduleM"], `${path}.floor.moduleM`, 0, 10) },
-    cove: { heightM: finiteInRange(cove["heightM"], `${path}.cove.heightM`, 0, 1) },
+    floor: { kind: floor["kind"] as RoomFinishFeatures["floor"]["kind"], moduleM: finiteInRange(floor["moduleM"], `${path}.floor.moduleM`, 0, 10) },
+    cove: { kind: coveKind as RoomFinishFeatures["cove"]["kind"], heightM: finiteInRange(cove["heightM"], `${path}.cove.heightM`, 0, 1) },
     door: {
-      kind: "hospital",
+      kind: door["kind"] as RoomFinishFeatures["door"]["kind"],
       photoPbr: boolean(door["photoPbr"], `${path}.door.photoPbr`),
       casing: boolean(door["casing"], `${path}.door.casing`),
       lite: boolean(door["lite"], `${path}.door.lite`),
@@ -111,6 +117,7 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
       hinges: boolean(door["hinges"], `${path}.door.hinges`),
     },
     ceiling: {
+      kind: ceilingKind as RoomFinishFeatures["ceiling"]["kind"],
       troffer: boolean(ceiling["troffer"], `${path}.ceiling.troffer`),
       tbarMm: finiteInRange(ceiling["tbarMm"], `${path}.ceiling.tbarMm`, 0, 100),
       ...(ceiling["cornice"] === undefined

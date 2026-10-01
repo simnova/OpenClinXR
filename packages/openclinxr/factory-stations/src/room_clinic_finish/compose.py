@@ -569,10 +569,12 @@ def classify_mesh(name: str) -> str:
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
-                         emit_floor: bool = True, floor_tile_layout: bool = False,
+                         emit_floor: bool = True, floor_kind: str = "sheet-vinyl",
+                         floor_tile_layout: bool = False,
                          floor_tile_module_m: float = FLOOR_TILE_MODULE_M,
                          emit_cove: bool = False, cove_height_m: float = SKIRTING_COVE_HEIGHT_M,
                          cove_rgb: tuple = SKIRTING_COVE_RGB_LINEAR,
+                         ceiling_kind: str = "acoustic-tbar",
                          emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
                          floor_top: float | None = None,
                          cornice_mode: str | None = None,
@@ -700,13 +702,22 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # presets; vinyl tile (0.6 m module, full PBR with seam grooves) for
     # the ward tile exception (floor_tile_layout).
     if emit_floor:
-        if floor_tile_layout:
+        if floor_kind == "vinyl-tile" or floor_tile_layout:
             if floor_top is None:
                 raise SystemExit("room_clinic_finish: tile field needs a measured shell floor plane")
             floor_m = _photo_uv_material("openclinxr_finish_floor_tile_photo", FLOOR_TILE_TEXTURE_FILE, 0.52,
                                          normal_filename=FLOOR_TILE_NORMAL_FILE,
                                          roughness_filename=FLOOR_TILE_ROUGHNESS_FILE)
             # Top rides 3 mm above the shell plane (never the bounds min).
+            floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
+                                w, d, 0.05, floor_m)
+            _assign_world_xy_uv(floor_obj, 1.0 / floor_tile_module_m)
+        elif floor_kind == "wood-plank":
+            if floor_top is None:
+                raise SystemExit("room_clinic_finish: wood floor needs a measured shell floor plane")
+            floor_m = _photo_uv_material("openclinxr_finish_floor_wood_plank", DOOR_LEAF_FILE, 0.58,
+                                         normal_filename=DOOR_NORMAL_FILE,
+                                         roughness_filename=DOOR_ROUGHNESS_FILE)
             floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
                                 w, d, 0.05, floor_m)
             _assign_world_xy_uv(floor_obj, 1.0 / floor_tile_module_m)
@@ -726,12 +737,17 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # z-fighting): edges snap to the grid origin below, so every long edge
     # lands on a 0.6 m line.
     ceiling_plane_z = ceiling_z if ceiling_z is not None else maxz
-    tbar_z = ceiling_plane_z - CEILING_TBAR_DROP_M
+    tbar_z = ceiling_plane_z - (CEILING_TBAR_DROP_M if ceiling_kind == "acoustic-tbar" else 0.0)
     tile_inset = (cornice_width_m
                   if cornice_mode == "wall-angle" and cornice_profile == "flush" else 0.0)
-    ceil_obj = new_box("openclinxr_ceiling_tiles", cx, cy, tbar_z + 0.01,
-                       w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_photo_m)
-    _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
+    ceiling_material = (ceiling_photo_m if ceiling_kind == "acoustic-tbar" else
+                        _flat_material("openclinxr_finish_painted_ceiling",
+                                       tuple(pal.get("trimAlbedo", (0.9, 0.89, 0.86))), 0.9))
+    ceiling_name = "openclinxr_ceiling_tiles" if ceiling_kind == "acoustic-tbar" else "openclinxr_ceiling_painted"
+    ceil_obj = new_box(ceiling_name, cx, cy, tbar_z + 0.01,
+                       w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_material)
+    if ceiling_kind == "acoustic-tbar":
+        _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
     counts["ceiling"] += 1
     grid_ox = math.floor(minx / CEILING_MODULE_M) * CEILING_MODULE_M
     grid_oy = math.floor(miny / CEILING_MODULE_M) * CEILING_MODULE_M
@@ -741,7 +757,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     frame = TROFFER_FRAME_WIDTH_M
     diffuser_x0, diffuser_x1 = troffer_x0 + frame, troffer_x1 - frame
     diffuser_y0, diffuser_y1 = troffer_y0 + frame, troffer_y1 - frame
-    if emit_troffer:
+    if ceiling_kind == "acoustic-tbar" and emit_troffer:
         troffer_obj = new_box(
             "openclinxr_troffer_diffuser",
             (diffuser_x0 + diffuser_x1) / 2,
@@ -778,10 +794,12 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     tbar_lines_y: list[float] = []
     tbar_count = 0
     strip_margin = tbar_width_m / 2 + 0.002
+    grid_maxx = maxx if ceiling_kind == "acoustic-tbar" else minx - 1.0
+    grid_maxy = maxy if ceiling_kind == "acoustic-tbar" else miny - 1.0
     kx = math.ceil((minx - grid_ox) / CEILING_MODULE_M)
     while True:
         line = grid_ox + kx * CEILING_MODULE_M
-        if line > maxx + 1e-6:
+        if line > grid_maxx + 1e-6:
             break
         if line >= minx - 1e-6:
             tbar_lines_x.append(line)
@@ -806,7 +824,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     ky = math.ceil((miny - grid_oy) / CEILING_MODULE_M)
     while True:
         line = grid_oy + ky * CEILING_MODULE_M
-        if line > maxy + 1e-6:
+        if line > grid_maxy + 1e-6:
             break
         if line >= miny - 1e-6:
             tbar_lines_y.append(line)
@@ -911,6 +929,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                                                  if cornice_profile == "flush" else thick),
                            "verticalBelowTileM": (thick if cornice_profile == "flush" else leg)})
     ceiling_grid = {
+        "kind": ceiling_kind,
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
         "tbarWidth": tbar_width_m,
@@ -925,7 +944,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                     "frameNodes": ["openclinxr_troffer_frame_long_0",
                                    "openclinxr_troffer_frame_long_1",
                                    "openclinxr_troffer_frame_short_0",
-                                   "openclinxr_troffer_frame_short_1"]} if emit_troffer else None),
+                                   "openclinxr_troffer_frame_short_1"]} if ceiling_kind == "acoustic-tbar" and emit_troffer else None),
     }
     # Crash rail along corridor wall, off by default
     if crash_rail:
@@ -2194,19 +2213,24 @@ def apply_finish() -> int:
         measured_floor_top = _shell_floor_top()
         if measured_floor_top is None:
             raise SystemExit("room_clinic_finish: no shell floor plane for tile/cove placement")
-    floor_tile_layout = floor_feature is not None and floor_feature.get("kind") == "vinyl-tile"
+    floor_kind = floor_feature.get("kind", "sheet-vinyl") if floor_feature else "sheet-vinyl"
+    floor_tile_layout = floor_kind == "vinyl-tile"
     floor_module_m = float(floor_feature.get("moduleM", FLOOR_TILE_MODULE_M)) if floor_feature else FLOOR_TILE_MODULE_M
     cove_height_m = float(cove_feature.get("heightM", SKIRTING_COVE_HEIGHT_M)) if cove_feature else SKIRTING_COVE_HEIGHT_M
     cove_rgb = tuple(neutral_tints.get("coveRgb", SKIRTING_COVE_RGB_LINEAR))
     tbar_width_m = (float(ceiling_feature.get("tbarMm", TBAR_WIDTH_M * 1000)) / 1000
                     if ceiling_feature else TBAR_WIDTH_M)
+    ceiling_kind = ceiling_feature.get("kind", "acoustic-tbar") if ceiling_feature else "acoustic-tbar"
     emit_troffer = ceiling_feature.get("troffer", True) is True if ceiling_feature else True
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
-                                    emit_floor=True, floor_tile_layout=floor_tile_layout,
+                                    emit_floor=True, floor_kind=floor_kind,
+                                    floor_tile_layout=floor_tile_layout,
                                     floor_tile_module_m=floor_module_m,
-                                    emit_cove=cove_feature is not None, cove_height_m=cove_height_m,
-                                    cove_rgb=cove_rgb, emit_troffer=emit_troffer,
+                                    emit_cove=(cove_feature is not None and cove_feature.get("kind") != "none"),
+                                    cove_height_m=cove_height_m,
+                                    cove_rgb=cove_rgb, ceiling_kind=ceiling_kind,
+                                    emit_troffer=emit_troffer,
                                     tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
                                     cornice_mode=cornice_mode,
                                     cornice_profile=cornice_profile,

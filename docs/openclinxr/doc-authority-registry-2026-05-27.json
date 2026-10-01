@@ -5356,6 +5356,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/RECIPES.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet."
     }
   ]
 }
