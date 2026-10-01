@@ -5,11 +5,15 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ROOM_CHAIN_RECIPES, runRoomChain } from "@openclinxr/factory-stations/room-chain";
 
-const RUNTIME_PATHS: Record<string, { glb: string; rig: string; provenanceOut: string }> = {
+const RUNTIME_PATHS: Record<string, { glb: string; rig: string; provenanceOut?: string }> = {
   inpatient_ward_room_v1: {
     glb: "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
     rig: "apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json",
     provenanceOut: "docs/openclinxr/room-realism/floor-cast",
+  },
+  stepdown_room_v1: {
+    glb: "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
+    rig: "apps/ui-xr/public/xr-assets/lighting/stepdown_room_v1.rig.json",
   },
 };
 
@@ -47,14 +51,16 @@ export async function promoteRoom(args = process.argv.slice(2)): Promise<void> {
   });
   copyFileSync(chain.finalGlb, runtime.glb);
   copyFileSync(chain.rigJson, runtime.rig);
-  execFileSync(process.execPath, [
-    path.join("node_modules", "tsx", "dist", "cli.mjs"),
-    "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts",
-  ], {
-    cwd: process.cwd(),
-    stdio: "inherit",
-    env: { ...process.env, SHIP_WARD_OUT: runtime.provenanceOut, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb) },
-  });
+  if (runtime.provenanceOut !== undefined) {
+    execFileSync(process.execPath, [
+      path.join("node_modules", "tsx", "dist", "cli.mjs"),
+      "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts",
+    ], {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      env: { ...process.env, SHIP_WARD_OUT: runtime.provenanceOut, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb) },
+    });
+  }
   const after = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, digest(file)]));
   const changed = Object.keys(after).filter((file) => before[file] !== after[file]);
   process.stdout.write(`${JSON.stringify({ environmentId, seed, cache: chain.cache, before, after, changed }, null, 2)}\n`);

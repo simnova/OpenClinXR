@@ -3,7 +3,7 @@
   "scenarioId": "ward_delirium_med_rec_v1",
   "assetSha256ByPath": {
     "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833",
-    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "f89a16c89429788e649a89dc0b665dbae7d26c36d6b26f3736a2c8281db9a503",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "78b3a762a32bfb8ada656fa816652ead3083546996ba76bf8fd9b9f983031c58",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
@@ -18,11 +18,11 @@
   },
   "producedFrom": {
     "observedBy": "factory:room:promote deterministic asset promotion",
-    "observedAtIso": "2026-09-30T22:34:26.082Z",
-    "reason": "Room-chain promotion changed the installed apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb bytes; provenance and byte counts were re-derived by the supported producer.",
+    "observedAtIso": "2026-10-01T04:00:40.678Z",
+    "reason": "Room-chain promotion changed the installed stepdown environment bytes; provenance and byte counts were re-derived by the supported producer.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9423020,
-      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 3573420,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9585828,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 4062632,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 19149628,
       "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10529172,

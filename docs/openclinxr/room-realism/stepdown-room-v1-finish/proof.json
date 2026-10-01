@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.room-finish-proof.v1",
+  "environmentId": "stepdown_room_v1",
+  "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+  "seed": 205,
+  "beforeSha256": "f89a16c89429788e649a89dc0b665dbae7d26c36d6b26f3736a2c8281db9a503",
+  "afterSha256": "78b3a762a32bfb8ada656fa816652ead3083546996ba76bf8fd9b9f983031c58",
+  "afterBytes": 9585828,
+  "decodedMiBWithMips": 50.6283203125,
+  "decodedLimitMiB": 56,
+  "primitiveCount": 110,
+  "materiallessPrimitives": 0,
+  "blackFlatMaterials": 0,
+  "roomSource": "room-chain",
+  "capture": {
+    "poses": 6,
+    "before": "before/stage2-multiview.json",
+    "after": "after/stage2-multiview.json",
+    "afterMechanism": "ui-xr-runtime-url",
+    "reference": null,
+    "referenceNote": "No independent stepdown visual reference exists."
+  },
+  "notEvidenceFor": [
+    "clinical validity",
+    "exam equivalence",
+    "Quest readiness",
+    "production readiness"
+  ]
+}

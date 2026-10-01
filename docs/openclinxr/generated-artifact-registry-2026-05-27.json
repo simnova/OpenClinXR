@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 926,
+    "keep-evidence": 948,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -27972,6 +27972,76 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Worker session time-split data (2026-09-29): per-session and aggregate model/tool/rate-limit seconds plus schema witnesses."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Stepdown room-chain promoted GLB digest, primitive/material gate, and decoded-texture budget."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/proof.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Stepdown room-chain seed, before/after digests, learner-runtime capture paths, and claim boundaries."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/stage2-multiview.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Six-pose learner-runtime manifest for the prior shipped stepdown GLB."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/stage2-multiview.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Six-pose learner-runtime manifest for the promoted stepdown runtime URL."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-02-toward-bed-wall.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-03-ceiling-corner.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-04-door-inside.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-05-troffer-junction.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-06-floor-base.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Prior shipped stepdown learner-runtime pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-01-toward-door.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-02-toward-bed-wall.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-03-ceiling-corner.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-04-door-inside.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-05-troffer-junction.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-06-floor-base.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Promoted stepdown learner-runtime pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-01-toward-door-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 01 before-after-no-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-02-toward-bed-wall-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 02 before-after-no-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-03-ceiling-corner-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 03 before-after-no-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-04-door-inside-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 04 before-after-no-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-05-troffer-junction-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 05 before-after-no-reference sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-06-floor-base-before-after-no-reference.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Stepdown pose 06 before-after-no-reference sheet."
     }
   ]
 }

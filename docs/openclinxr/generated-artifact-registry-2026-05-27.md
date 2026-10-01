@@ -3954,3 +3954,25 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/door-finish/06-floor-base-before-after-reference.jpg` - keep-evidence; Ward door finish learner-runtime before-after-v2-reference sheet.
 - `docs/openclinxr/room-realism/door-finish/runtime-measurements.json` - keep-evidence; Ward door finish crop-verified measurements and no-regression grades.
 - `docs/openclinxr/room-realism/door-finish/shipped-budget.json` - keep-evidence; Ward door finish producer-derived digest and decoded-memory budget.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json` - keep-evidence; Stepdown promoted-room digest, material gate, and decoded-texture budget.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/proof.json` - keep-evidence; Stepdown seed, hashes, runtime paths, and claim boundaries.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/stage2-multiview.json` - keep-evidence; Six-pose prior-shipped learner-runtime manifest.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/stage2-multiview.json` - keep-evidence; Six-pose promoted learner-runtime manifest.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png` - keep-evidence; Prior shipped stepdown pose 01.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-02-toward-bed-wall.png` - keep-evidence; Prior shipped stepdown pose 02.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-03-ceiling-corner.png` - keep-evidence; Prior shipped stepdown pose 03.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-04-door-inside.png` - keep-evidence; Prior shipped stepdown pose 04.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-05-troffer-junction.png` - keep-evidence; Prior shipped stepdown pose 05.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-06-floor-base.png` - keep-evidence; Prior shipped stepdown pose 06.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-01-toward-door.png` - keep-evidence; Promoted stepdown pose 01.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-02-toward-bed-wall.png` - keep-evidence; Promoted stepdown pose 02.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-03-ceiling-corner.png` - keep-evidence; Promoted stepdown pose 03.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-04-door-inside.png` - keep-evidence; Promoted stepdown pose 04.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-05-troffer-junction.png` - keep-evidence; Promoted stepdown pose 05.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-06-floor-base.png` - keep-evidence; Promoted stepdown pose 06.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-01-toward-door-before-after-no-reference.png` - keep-evidence; Stepdown pose 01 before-after-no-reference sheet.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-02-toward-bed-wall-before-after-no-reference.png` - keep-evidence; Stepdown pose 02 before-after-no-reference sheet.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-03-ceiling-corner-before-after-no-reference.png` - keep-evidence; Stepdown pose 03 before-after-no-reference sheet.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-04-door-inside-before-after-no-reference.png` - keep-evidence; Stepdown pose 04 before-after-no-reference sheet.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-05-troffer-junction-before-after-no-reference.png` - keep-evidence; Stepdown pose 05 before-after-no-reference sheet.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-06-floor-base-before-after-no-reference.png` - keep-evidence; Stepdown pose 06 before-after-no-reference sheet.

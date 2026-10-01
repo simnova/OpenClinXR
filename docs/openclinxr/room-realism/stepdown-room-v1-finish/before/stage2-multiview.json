@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "stepdown_room_v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/room-recipes/.openclinxr/evidence/room-recipes-job2/stepdown-before/infinigen-stepdown.glb",
+  "mechanism": "playwright-route-override",
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.45,
+        "y": 1.6,
+        "z": -1.35
+      },
+      "look": {
+        "x": 0.3,
+        "y": 1.35,
+        "z": -2
+      },
+      "fov": 52,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png",
+      "pngBytes": 314781,
+      "pngSha256": "21904a1c5b70229321a9d3220819a1becc426b1d0aab4a79eae9d98c99035011"
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": 0.25,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": -0.15,
+        "y": 1.3,
+        "z": 1.95
+      },
+      "fov": 55,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 257526,
+      "pngSha256": "bf9a700c76d2d657cce4c0df89e6e9d93d07f4166653853ac929b08261de0497"
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -1.75,
+        "y": 0.6,
+        "z": 1.5
+      },
+      "look": {
+        "x": 0.25,
+        "y": 2.3,
+        "z": -0.25
+      },
+      "fov": 62,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 627346,
+      "pngSha256": "c11fd820ef4d4372ba57539076b21028deab15ba0ca1f3d41e90683120f1279e"
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": 0.25,
+        "y": 1.5,
+        "z": -0.75
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.4,
+        "z": -1.95
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-04-door-inside.png",
+      "pngBytes": 81865,
+      "pngSha256": "5b60afeeee2157f316c7a91e45be9cd250e5585d29f429b5064f8b72fc0a9305"
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": 0.6,
+        "y": 1.9,
+        "z": -0.5
+      },
+      "look": {
+        "x": 0,
+        "y": 2.3,
+        "z": 0
+      },
+      "fov": 45,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-05-troffer-junction.png",
+      "pngBytes": 616203,
+      "pngSha256": "c1284abca68efa2adb09390eb7df4a33e476f43cd761b7373f9a90361bbb219c"
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": 0.3,
+        "y": 0.55,
+        "z": 0.6
+      },
+      "look": {
+        "x": -0.15,
+        "y": 0.1,
+        "z": 1.95
+      },
+      "fov": 60,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-06-floor-base.png",
+      "pngBytes": 124540,
+      "pngSha256": "58b086ac5a77c60ed296f6684c682459ef583e359bdb266879fdd84b232e3d16"
+    }
+  ]
+}

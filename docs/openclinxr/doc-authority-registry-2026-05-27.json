@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 213,
     "archive-candidate": 116,
-    "evidence": 145,
+    "evidence": 146,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5272,6 +5272,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions, captures, and disclosed follow-ups. Landed as part of the UV-separation groundwork carried into the Cycles AO bake."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Step-down room data-driven finish promotion report with learner-runtime before/after six-pose sheets, GLB material and geometry gates, decoded texture budget, hashes, and no-reference disclosure."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/REPORT.md",

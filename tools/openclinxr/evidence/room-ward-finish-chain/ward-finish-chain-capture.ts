@@ -113,7 +113,13 @@ const SET_AO_INTENSITY_SOURCE = `
 })
 `;
 const STAGE2_GLB = process.env["STAGE2_CAPTURE_GLB"];
-const SHIPPED_WARD_URL = "/xr-assets/environment/infinigen-inpatient-ward.glb";
+const CAPTURE_ENVIRONMENT_ID = process.env["STAGE2_ENVIRONMENT_ID"] ?? "inpatient_ward_room_v1";
+const ENVIRONMENT_URLS: Record<string, string> = {
+  inpatient_ward_room_v1: "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  stepdown_room_v1: "/xr-assets/environment/infinigen-stepdown.glb",
+};
+const SHIPPED_WARD_URL = ENVIRONMENT_URLS[CAPTURE_ENVIRONMENT_ID];
+if (SHIPPED_WARD_URL === undefined) throw new Error(`no capture URL for ${CAPTURE_ENVIRONMENT_ID}`);
 const FINISHED_WARD_GLB = STAGE2_GLB ? path.resolve(process.cwd(), STAGE2_GLB) : null;
 
 // Rigid x-shift for the two door-framing poses (see header). 0 = verbatim POSES.
@@ -338,7 +344,7 @@ const HIDE_UI_SOURCE = `
 async function installEnvironmentOverrideRoute(page: Page, glbPath: string): Promise<void> {
   const bytes = await readFile(glbPath);
   const sha256 = createHash("sha256").update(bytes).digest("hex");
-  const pattern = `**/xr-assets/environment/infinigen-inpatient-ward.glb`;
+  const pattern = `**${SHIPPED_WARD_URL}`;
   await page.route(pattern, async (route) => {
     process.stderr.write(
       `[environment] served ${glbPath} (sha256 ${sha256.slice(0, 12)}…, ${bytes.length} bytes)\n`,
@@ -351,8 +357,12 @@ async function main(): Promise<void> {
   const outputDir = path.resolve(process.cwd(), OUTPUT_DIR);
   await mkdir(outputDir, { recursive: true });
 
-  const bundleJson = buildSceneClosureBundleJson();
-  const bundle = JSON.parse(bundleJson) as { actors: Array<{ actorId: string; role: string }> };
+  const bundle = JSON.parse(buildSceneClosureBundleJson()) as {
+    actors: Array<{ actorId: string; role: string }>;
+    sceneManifest: { environmentId: string };
+  };
+  bundle.sceneManifest.environmentId = CAPTURE_ENVIRONMENT_ID;
+  const bundleJson = `${JSON.stringify(bundle, null, 2)}\n`;
   const walkerRole = CASE_FROZEN_SCENE_PLANS[SCENE_CLOSURE_SCENARIO_ID]?.case.walkerRole;
   if (!walkerRole) throw new Error("no frozen walkerRole for scene-closure scenario");
   const walker = bundle.actors.find((actor) => actor.role === walkerRole);
@@ -514,6 +524,7 @@ async function main(): Promise<void> {
       path.join(outputDir, "stage2-multiview.json"),
       `${JSON.stringify({
         schemaVersion: "openclinxr.stage2-multiview.v1",
+        environmentId: CAPTURE_ENVIRONMENT_ID,
         glb: FINISHED_WARD_GLB ?? SHIPPED_WARD_URL,
         mechanism: FINISHED_WARD_GLB ? "playwright-route-override" : "ui-xr-runtime-url",
         captures: manifest,
