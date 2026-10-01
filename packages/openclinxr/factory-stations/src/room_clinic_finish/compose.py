@@ -1263,7 +1263,8 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
     furnished: dict = {"glass": [], "frame": [], "hinges": [], "casing": repainted,
                        "casingFaces": [], "reveals": [],
                        "opening": None, "openingSource": None, "handle": None,
-                       "lock": None, "hingeSideUsed": None, "facing": []}
+                       "lock": None, "hingeSideUsed": None, "facing": [],
+                       "transom": None}
 
     def new_cylinder(name: str, center: list, thin_axis: int, radius: float,
                      z0: float, z1: float, mat: object, segments: int = 16) -> object:
@@ -1439,6 +1440,44 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
         leaf_u0, leaf_u1 = box["min"][ua], box["max"][ua]
         leaf_v0, leaf_v1 = box["min"][va], box["max"][va]
 
+        # Measure the shell opening head at the door-wall inner plane. The
+        # Infinigen step-down shell carries its two aperture-edge vertices
+        # all the way to the 2.6 m ceiling; the ward carries them only to
+        # the 2.1 m leaf head. A declared transom treatment is applied only
+        # when the clear height above the finished 55 mm casing head exceeds
+        # half that casing face (27.5 mm): smaller deltas are normal mesh
+        # tolerance, not a visible transom opening.
+        transom_mode = door_opt.get("transom") if isinstance(door_opt, dict) else None
+        if transom_mode not in (None, "infill", "tall-casing"):
+            raise SystemExit("room_clinic_finish: door.transom must be infill or tall-casing")
+        wall_planes = _wall_inner_planes()
+        plane_pair = ((wall_planes["x0"], wall_planes["x1"])
+                      if thin == 0 else (wall_planes["y0"], wall_planes["y1"]))
+        leaf_depth_center = (box["min"][thin] + box["max"][thin]) / 2
+        wall_plane = min(plane_pair, key=lambda value: abs(value - leaf_depth_center))
+        opening_head_candidates: list[float] = []
+        wall_material = None
+        for wall_obj in bpy.data.objects:
+            if wall_obj.type != "MESH" or not _is_wall_shell(wall_obj.name):
+                continue
+            if wall_material is None:
+                wall_material = next(
+                    (mat for mat in wall_obj.data.materials
+                     if mat is not None and "shell_bake_wall" in mat.name),
+                    next((mat for mat in wall_obj.data.materials if mat is not None), None))
+            for vertex in wall_obj.data.vertices:
+                wv = wall_obj.matrix_world @ vertex.co
+                if (abs(wv[thin] - wall_plane) <= 0.02
+                        and leaf_u0 - 0.03 <= wv[ua] <= leaf_u1 + 0.03
+                        and wv[va] >= leaf_v1 - 0.01):
+                    opening_head_candidates.append(float(wv[va]))
+        opening_head = (min(opening_head_candidates)
+                        if opening_head_candidates else leaf_v1 + DOOR_CASING_FACE_M)
+        casing_head = leaf_v1 + DOOR_CASING_FACE_M
+        transom_gap = opening_head - casing_head
+        close_transom = (transom_mode is not None
+                         and transom_gap > DOOR_CASING_FACE_M / 2)
+
         def trim_box(name: str, u0_: float, u1_: float, v0_: float, v1_: float,
                      material: object) -> object:
             cc = [0.0, 0.0, 0.0]
@@ -1451,6 +1490,9 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             ss[thin] = casing_depth
             return new_box(name, cc, ss, material)
 
+        casing_head_top = (opening_head
+                           if close_transom and transom_mode == "tall-casing"
+                           else casing_head)
         casing_parts = [
             ("jamb_left", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
              leaf_u0 - DOOR_REVEAL_WIDTH_M, leaf_v0, leaf_v1),
@@ -1458,7 +1500,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
              leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M, leaf_v0, leaf_v1),
             ("head", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
              leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M,
-             leaf_v1, leaf_v1 + DOOR_CASING_FACE_M),
+             leaf_v1, casing_head_top),
         ]
         for tag, cu0, cu1, cv0, cv1 in casing_parts:
             part = trim_box("openclinxr_door_casing_%s" % tag,
@@ -1475,6 +1517,56 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             part = trim_box("openclinxr_door_reveal_%s" % tag,
                             ru0, ru1, rv0, rv1, reveal_m)
             furnished["reveals"].append(part.name)
+        if close_transom and transom_mode == "infill":
+            if wall_material is None:
+                raise SystemExit("room_clinic_finish: transom infill needs the shell wall material")
+            # The room face is exactly the measured wall plane; 12 mm of
+            # thickness is buried into the wall, never proud into the room.
+            transom_front = wall_plane
+            transom_back = wall_plane - room_sign * DOOR_CASING_DEPTH_M
+            tc = [0.0, 0.0, 0.0]
+            ts = [0.0, 0.0, 0.0]
+            tc[ua] = (leaf_u0 + leaf_u1) / 2
+            tc[va] = (casing_head + opening_head) / 2
+            tc[thin] = (transom_front + transom_back) / 2
+            ts[ua] = leaf_u1 - leaf_u0
+            ts[va] = opening_head - casing_head
+            ts[thin] = abs(transom_front - transom_back)
+            # The shell's baked atlas cannot be projected onto new geometry:
+            # UV (0,0) is a dark unrelated texel. Use the same recipe wall
+            # paint and matte roughness as the shell wall, without an image
+            # node, so the flush patch reads as continuous wall under the
+            # runtime light instead of as an arbitrary atlas swatch.
+            transom_material = _flat_material(
+                "openclinxr_finish_transom_wall",
+                # The baked wall atlas carries about 0.90 of the nominal
+                # recipe paint after its bake. Match that measured wall
+                # response rather than rendering the unbaked nominal value
+                # ~10 RGB levels too bright beside it.
+                tuple(float(channel) * 0.90
+                      for channel in palette.get("wallAlbedo", (0.72, 0.74, 0.72))),
+                float(palette.get("roughness", 0.85)))
+            transom = new_box("openclinxr_door_transom_infill", tc, ts, transom_material)
+            furnished["transom"] = {
+                "mode": transom_mode,
+                "node": transom.name,
+                "openingHeadM": round(opening_head, 4),
+                "casingHeadM": round(casing_head, 4),
+                "gapM": round(transom_gap, 4),
+                "thresholdM": round(DOOR_CASING_FACE_M / 2, 4),
+                "wallPlaneM": round(wall_plane, 4),
+                "wallMaterialSource": wall_material.name,
+            }
+        elif close_transom:
+            furnished["transom"] = {
+                "mode": transom_mode,
+                "node": "openclinxr_door_casing_head",
+                "openingHeadM": round(opening_head, 4),
+                "casingHeadM": round(casing_head, 4),
+                "gapM": round(transom_gap, 4),
+                "thresholdM": round(DOOR_CASING_FACE_M / 2, 4),
+                "wallPlaneM": round(wall_plane, 4),
+            }
         # Glass pane: opening plus overlap, glazed at the opening mouth --
         # the room-side leaf face sunk 1 mm in, so the steel frame
         # (proud 3 mm) overlaps the pane edges all around.

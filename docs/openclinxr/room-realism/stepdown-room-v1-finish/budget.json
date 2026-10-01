@@ -1,7 +1,7 @@
 {
   "file": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
-  "sha256": "78b3a762a32bfb8ada656fa816652ead3083546996ba76bf8fd9b9f983031c58",
-  "bytes": 9585828,
+  "sha256": "ec1b74d306a30fdd0d5f21874543d933808ebaeb357a80f2ce58dfa3f6967fb0",
+  "bytes": 9587248,
   "byteCeiling": 209715200,
   "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
   "decodedWardCeilingMiB": 56,
@@ -170,8 +170,8 @@
       "decodedRgbaBytes": 16384
     }
   ],
-  "meshCount": 109,
-  "primitiveCount": 110,
-  "triangles": 6904,
+  "meshCount": 110,
+  "primitiveCount": 111,
+  "triangles": 6916,
   "materiallessPrimitives": 0
 }

@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 244
-- keep-evidence: 652
+- keep-evidence: 653
 - keep-current: 226
 - keep-evidence: 407
 - keep-template: 6
@@ -3956,6 +3956,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/door-finish/shipped-budget.json` - keep-evidence; Ward door finish producer-derived digest and decoded-memory budget.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json` - keep-evidence; Stepdown promoted-room digest, material gate, and decoded-texture budget.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/proof.json` - keep-evidence; Stepdown seed, hashes, runtime paths, and claim boundaries.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/transom-proof.json` - keep-evidence; Stepdown opening/casing/gap measurement, transom node/plane/material proof, crop-verified RGB boxes, and ward no-op control.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/stage2-multiview.json` - keep-evidence; Six-pose prior-shipped learner-runtime manifest.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/after/stage2-multiview.json` - keep-evidence; Six-pose promoted learner-runtime manifest.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png` - keep-evidence; Prior shipped stepdown pose 01.

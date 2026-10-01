@@ -310,6 +310,8 @@ describe("room-chain recipe registry", () => {
     expect(ward.finish?.preserveShell).toBe(true);
     expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
     expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24 });
+    expect(ward.door.transom).toBeUndefined();
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.door.transom).toBe("infill");
   });
 
   it("fails closed with a named error on an unknown field", () => {

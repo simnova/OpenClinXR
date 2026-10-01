@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
   "environmentId": "stepdown_room_v1",
   "sourceGlb": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
-  "sourceGlbSha256": "78b3a762a32bfb8ada656fa816652ead3083546996ba76bf8fd9b9f983031c58",
+  "sourceGlbSha256": "ec1b74d306a30fdd0d5f21874543d933808ebaeb357a80f2ce58dfa3f6967fb0",
   "roomBounds": {
     "min": [
       -3.1,

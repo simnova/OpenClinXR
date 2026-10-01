@@ -61,7 +61,7 @@ export type RoomFinishRecipe = {
   modules: RoomFinishModule[];
   light: { exposure: "xr"; floorResponse: "xt_matte" };
   /** S5: crash rail gate, off by default (compose.py reads options.crashRail). */
-  options: { crashRail: boolean; door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number } };
+  options: { crashRail: boolean; door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number; transom?: "infill" | "tall-casing" } };
   /** Optional feature block. Absence preserves every legacy preset behavior. */
   finish?: RoomFinishFeatures;
   finishPassLlm: false;
@@ -124,7 +124,7 @@ export type RoomFinishRecipeInput = {
   /** Opt-in crash rail (some other room type may want it); default off. */
   crashRail?: boolean;
   /** Opt-in door furniture (hinge plates + lite fallback rect + leaf margin basis); absent = none. */
-  door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number };
+  door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number; transom?: "infill" | "tall-casing" };
   finish?: RoomFinishFeatures;
 };
 
@@ -150,7 +150,7 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
     issues.push("crashRail must be a boolean when present");
   }
   const doorOpt = input["door"] as unknown;
-  let door: { hingeSide: string; lite?: [number, number, number, number]; margin?: number } | undefined;
+  let door: { hingeSide: string; lite?: [number, number, number, number]; margin?: number; transom?: "infill" | "tall-casing" } | undefined;
   if (doorOpt !== undefined) {
     const hingeSide = (doorOpt as Record<string, unknown>)?.["hingeSide"];
     if (
@@ -180,6 +180,14 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
           issues.push("door.margin must be a positive number when present");
         } else {
           door.margin = margin;
+        }
+      }
+      const transom = (doorOpt as Record<string, unknown>)?.["transom"];
+      if (transom !== undefined) {
+        if (transom !== "infill" && transom !== "tall-casing") {
+          issues.push("door.transom must be infill or tall-casing when present");
+        } else {
+          door.transom = transom;
         }
       }
     }

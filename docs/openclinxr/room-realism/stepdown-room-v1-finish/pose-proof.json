@@ -150,9 +150,9 @@
       },
       "runtime-03-ceiling-corner": {
         "subject": "troffer-diffuser",
-        "pixels": 78784,
+        "pixels": 78910,
         "framePixels": 921600,
-        "frameFraction": 0.08548611,
+        "frameFraction": 0.08562283,
         "passed": true
       },
       "runtime-04-door-inside": {
@@ -164,9 +164,9 @@
       },
       "runtime-05-troffer-junction": {
         "subject": "troffer-diffuser",
-        "pixels": 17251,
+        "pixels": 17319,
         "framePixels": 921600,
-        "frameFraction": 0.01871853,
+        "frameFraction": 0.01879232,
         "passed": true
       },
       "runtime-06-floor-base": {

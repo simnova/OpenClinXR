@@ -9,7 +9,10 @@ const evidence = "docs/openclinxr/room-realism/stepdown-room-v1-finish";
 const capture = "tools/openclinxr/evidence/room-ward-finish-chain/ward-finish-chain-capture.ts";
 const poses = `${evidence}/derived-poses.json`;
 const current = "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb";
-const priorRevision = "f57c4fb48^";
+// The before arm is always the checked-in shipped asset; the after arm is
+// the working-tree promote. This keeps each defect-fix comparison local to
+// the bytes it actually replaces instead of a historical room-chain debut.
+const priorRevision = "HEAD";
 const sha = (bytes: Uint8Array): string => createHash("sha256").update(bytes).digest("hex");
 const scratch = mkdtempSync(path.join(tmpdir(), `stepdown-derived-${process.pid}-`));
 
@@ -41,7 +44,7 @@ try {
   process.stdout.write(`${JSON.stringify({
     priorRevision,
     beforeSha256: sha(priorBytes),
-    afterSha256: sha(execFileSync("git", ["show", `HEAD:${current}`], { maxBuffer: 32 * 1024 * 1024 })),
+    afterSha256: sha(readFileSync(current)),
     poses,
   }, null, 2)}\n`);
 } finally {
