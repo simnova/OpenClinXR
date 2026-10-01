@@ -14,15 +14,18 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
+import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, SkinnedMesh, Vector3 } from "three";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   CLEAR_BAND_M,
   FRONT_SHELL_GAP_MAX_M,
   FRONT_SHELL_GAP_MIN_M,
+  archFaceIndices,
+  archFaceLead,
   frontShellIndices,
   frontShellMeanGap,
+  jawDescendantVertexMask,
   jawWeightSum,
   LOWER_LIP_MIN_VERTS,
   measureTeethVisemeGaps,
@@ -33,7 +36,10 @@ import {
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
 } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
-import { JAW_OPEN_TEETH_CLEAR_RADIANS } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
+import {
+  JAW_OPEN_TEETH_CLEAR_RADIANS,
+  jawOpenRadiansForPhoneme,
+} from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -59,6 +65,11 @@ const PRE_MORPH_SHA = "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20a
 const RECORDED_REST_UPPER_M = 0.0070959803651845605;
 const RECORDED_REST_LOWER_M = 0.01066643650740738;
 const REST_TOLERANCE_M = 0.001;
+/** PP and sil stay this far behind any skin. Metres. */
+const CLOSED_LEAD_MAX_M = -0.01;
+const LOWER_LEAD_VISEMES = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U"] as const;
+const UPPER_LEAD_VISEMES = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP"] as const;
+const CLOSED_LEAD_VISEMES = ["viseme_PP", "viseme_sil"] as const;
 
 type Loaded = {
   root: Group;
@@ -80,6 +91,7 @@ type Loaded = {
   lowerShell: number[];
   jawIndex: number;
   headIndex: number;
+  bodyJointNodes: GltfNode[];
 };
 
 let loaded: Loaded;
@@ -278,6 +290,15 @@ function inGapBand(metres: number): boolean {
   return metres >= FRONT_SHELL_GAP_MIN_M && metres <= FRONT_SHELL_GAP_MAX_M;
 }
 
+function poseNamed(state: Loaded, name: string): { teethWorld: Float32Array; bodyWorld: Float32Array } {
+  state.teeth.morphTargetInfluences.fill(0);
+  state.body.morphTargetInfluences.fill(0);
+  applyVisemeWeights(state.teeth, { [name]: 1 });
+  applyVisemeWeights(state.body, { [name]: 1 });
+  applyJawOpenToRoot(state.root, jawOpenRadiansForPhoneme(name.replace(/^viseme_/i, "")));
+  return { teethWorld: teethPosed(state), bodyWorld: bodyPosed(state) };
+}
+
 describe("parent fitted teeth follow the lip viseme", () => {
   beforeAll(async () => {
     const doc = await new NodeIO().read(GLB);
@@ -317,6 +338,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
       lowerShell: shells.lower,
       jawIndex,
       headIndex,
+      bodyJointNodes: body.jointNodes as GltfNode[],
     };
   }, 120_000);
 
@@ -351,7 +373,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
 
-  it("writes one rigid head translation and one rigid jaw translation per opening viseme, and no mouth-open target", async () => {
+  it("writes a per-vertex teeth delta for each viseme target, and no mouth-open target", async () => {
     const plan = await planTeethVisemeTargets(GLB);
     const names = Object.keys(loaded.teeth.morphTargetDictionary ?? {});
     expect(names).toEqual(plan.targets.map((target) => target.name));
@@ -364,23 +386,34 @@ describe("parent fitted teeth follow the lip viseme", () => {
       expect(target!.landmarkCount).toBeLessThan(LOWER_LIP_MIN_VERTS);
     }
     expect(names.every((name) => name.startsWith("viseme_"))).toBe(true);
-    const aa = plan.targets.find((target) => target.name === "viseme_aa");
-    const aaIndex = loaded.teeth.morphTargetDictionary?.viseme_aa;
-    expect(aa).toBeDefined();
-    expect(aaIndex).toBeTypeOf("number");
-    const delta = loaded.teethTargets[aaIndex!]!;
     const jawWeighted = new Set(plan.jawWeighted);
     const headWeighted = new Set(plan.headWeighted);
     expect(jawWeighted.size).toBe(2180);
     expect([...jawWeighted].some((vertex) => headWeighted.has(vertex))).toBe(false);
+    for (const target of plan.targets) {
+      const index = loaded.teeth.morphTargetDictionary?.[target.name];
+      expect(index, target.name).toBeTypeOf("number");
+      const baked = loaded.teethTargets[index!]!;
+      expect(baked.length, target.name).toBe(target.delta.length);
+      for (let i = 0; i < target.delta.length; i += 1) {
+        expect(baked[i], `${target.name}[${i}]`).toBeCloseTo(target.delta[i] ?? 0, 5);
+      }
+      if (target.name === "viseme_PP") {
+        expect(target.delta.every((value) => value === 0)).toBe(true);
+      }
+    }
+    const aa = plan.targets.find((target) => target.name === "viseme_aa");
+    expect(aa).toBeDefined();
+    const jawDz = new Set<number>();
+    for (const vertex of jawWeighted) {
+      jawDz.add(Math.round((aa!.delta[vertex * 3 + 2] ?? 0) * 1e6));
+    }
+    expect(jawDz.size).toBeGreaterThan(1);
     for (let vertex = 0; vertex < loaded.teethPos.length / 3; vertex += 1) {
-      const dx = delta[vertex * 3] ?? 0;
-      const dy = delta[vertex * 3 + 1] ?? 0;
-      const dz = delta[vertex * 3 + 2] ?? 0;
-      const expected = jawWeighted.has(vertex) ? aa!.jawDelta : headWeighted.has(vertex) ? aa!.headDelta : [0, 0, 0];
-      expect(dx).toBeCloseTo(expected[0], 5);
-      expect(dy).toBeCloseTo(expected[1], 5);
-      expect(dz).toBeCloseTo(expected[2], 5);
+      if (jawWeighted.has(vertex) || headWeighted.has(vertex)) continue;
+      expect(aa!.delta[vertex * 3] ?? 0).toBe(0);
+      expect(aa!.delta[vertex * 3 + 1] ?? 0).toBe(0);
+      expect(aa!.delta[vertex * 3 + 2] ?? 0).toBe(0);
     }
   }, 300_000);
 
@@ -524,6 +557,62 @@ describe("parent fitted teeth follow the lip viseme", () => {
       expect(file.readUInt32BE(20), name).toBe(960);
     }
   });
+
+  it("keeps every arch-face crown behind the skin it can cross", () => {
+    const jawSkin = jawDescendantVertexMask(loaded.bodyJoints, loaded.bodyWeights, loaded.bodyJointNodes);
+    expect(jawSkin.some((bit) => bit === 1)).toBe(true);
+    const names = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP", "viseme_sil"];
+    const rows = names.map((name) => {
+      const posed = poseNamed(loaded, name);
+      const face = archFaceIndices(loaded.teethPos, posed.teethWorld);
+      return {
+        name,
+        upperCount: face.upper.length,
+        lowerCount: face.lower.length,
+        lowerVsJaw: archFaceLead(posed.teethWorld, face.lower, posed.bodyWorld, jawSkin),
+        lowerVsAny: archFaceLead(posed.teethWorld, face.lower, posed.bodyWorld, null),
+        upperVsAny: archFaceLead(posed.teethWorld, face.upper, posed.bodyWorld, null),
+      };
+    });
+    expect(rows.every((row) => row.lowerCount > 0 && row.upperCount > 0)).toBe(true);
+    const failures: string[] = [];
+    for (const row of rows) {
+      if ((LOWER_LEAD_VISEMES as readonly string[]).includes(row.name) && !(row.lowerVsJaw.max <= -FRONT_SHELL_GAP_MIN_M)) {
+        failures.push(
+          `${row.name} lower vs jaw max ${row.lowerVsJaw.max} at |x| ${row.lowerVsJaw.atAbsXM} (limit ${-FRONT_SHELL_GAP_MIN_M})`,
+        );
+      }
+      if ((UPPER_LEAD_VISEMES as readonly string[]).includes(row.name) && !(row.upperVsAny.max < 0)) {
+        failures.push(`${row.name} upper vs any max ${row.upperVsAny.max} (limit < 0)`);
+      }
+      if ((CLOSED_LEAD_VISEMES as readonly string[]).includes(row.name)) {
+        if (!(row.upperVsAny.max <= CLOSED_LEAD_MAX_M)) {
+          failures.push(`${row.name} upper vs any max ${row.upperVsAny.max} (closed limit ${CLOSED_LEAD_MAX_M})`);
+        }
+        if (!(row.lowerVsAny.max <= CLOSED_LEAD_MAX_M)) {
+          failures.push(`${row.name} lower vs any max ${row.lowerVsAny.max} (closed limit ${CLOSED_LEAD_MAX_M})`);
+        }
+      }
+    }
+    const mm = (value: number) => (Number.isFinite(value) ? Math.round(value * 1e6) / 1e3 : value);
+    const printable = rows.map((row) => ({
+      name: row.name,
+      lowerVsJawMaxM: row.lowerVsJaw.max,
+      lowerVsJawMaxMm: mm(row.lowerVsJaw.max),
+      lowerVsJawAtAbsXM: row.lowerVsJaw.atAbsXM,
+      lowerVsJawBandsMm: row.lowerVsJaw.bands.map((band) => ({ absXMm: band.absXMm, maxMm: mm(band.max) })),
+      lowerVsJawMissing: row.lowerVsJaw.missing,
+      upperVsAnyMaxM: row.upperVsAny.max,
+      upperVsAnyMaxMm: mm(row.upperVsAny.max),
+      upperVsAnyBandsMm: row.upperVsAny.bands.map((band) => ({ absXMm: band.absXMm, maxMm: mm(band.max) })),
+      lowerVsAnyMaxM: row.lowerVsAny.max,
+      lowerVsAnyMaxMm: mm(row.lowerVsAny.max),
+      faceUpper: row.upperCount,
+      faceLower: row.lowerCount,
+    }));
+    console.log(JSON.stringify(printable, null, 2));
+    expect(failures, JSON.stringify(printable)).toEqual([]);
+  }, 120_000);
 
   it("does not require the motion-bind copy, which has no fitted teeth mesh", () => {
     const meshes = readGlbJson(MOTION_BIND).meshes ?? [];

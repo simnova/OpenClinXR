@@ -68,12 +68,13 @@
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
   "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756.",
   "2026-10-01: appended viseme_* POSITION morphs on openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh. Vertices with jaw weight >= 0.5 translate by that body viseme's jaw-descendant lower-lip landmark centroid; every other tooth vertex stays at delta 0. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that appended the morphs.",
-  "2026-10-01: solved a teeth POSITION morph for every opening body viseme, including viseme_E, viseme_FF, viseme_nn, viseme_RR, viseme_TH, and viseme_U, from the front-shell gap. Each opening target is one rigid translation of the jaw-weighted vertices and one rigid translation of the head-weighted vertices. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs."
+  "2026-10-01: solved a teeth POSITION morph for every opening body viseme, including viseme_E, viseme_FF, viseme_nn, viseme_RR, viseme_TH, and viseme_U, from the front-shell gap. Each opening target is one rigid translation of the jaw-weighted vertices and one rigid translation of the head-weighted vertices. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
+  "2026-10-01: opening teeth viseme POSITION deltas are per vertex. The rigid front-shell translation still seats the mean nearest-body gap in 0.5-2 mm. Arch-face crowns then take a posterior Z so lower lead versus jaw-descendant skin is at most -0.5 mm, and side crowns with base |x| > 12 mm also take an inward X. Upper Z is not moved forward of that rigid seat. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Base POSITION, vertex count, and skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs."
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "ff92ce303a8a63bac4390c9fd54dd65b24b8cda3ef12d1621b55597371238097",
- "outputBytes": 39322976,
+ "outputSha256": "d4162ff30a9abc908358fa8136b627f9cc0911e5cd956aab6262075970e214fc",
+ "outputBytes": 39322948,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,

@@ -9,11 +9,12 @@
  * writes zeros (viseme_PP). viseme_sil stays off the teeth. No `mouth-open`
  * target is added. Skin weights are not changed.
  *
- * An opening morph is one rigid translation of the jaw-weighted vertices and
- * one rigid translation of the head-weighted vertices. After
+ * An opening morph is a per-vertex POSITION delta. A rigid translation seats
+ * the front shell, then each arch-face crown gets its own posterior Z, and
+ * side crowns (|x| > 12 mm) also tuck inward in X. After
  * `applyJawOpenToRoot` for that viseme, each front shell's mean distance to
  * the nearest body vertex is between 0.5 mm and 2 mm, with the lip still in
- * front of the crowns (+Z).
+ * front of the crowns (+Z). Upper crowns are not pulled forward of that seat.
  *
  * Front shell: |x| <= 0.012, clear of the teeth median by 6 mm, and within
  * 4 mm of that row's max z, on the base POSITION accessor.
@@ -48,6 +49,15 @@ export const FRONT_SHELL_Z_BAND_M = 0.004;
 export const FRONT_SHELL_GAP_MIN_M = 0.0005;
 export const FRONT_SHELL_GAP_MAX_M = 0.002;
 const FRONT_SHELL_GAP_AIM_M = 0.00125;
+/** Arch face: 2 mm world-x bins, verts within 2 mm of that bin's world max z. */
+const ARCH_BIN_M = 0.002;
+const ARCH_FACE_Z_M = 0.002;
+/** Lead window: body verts within 6 mm in x and y. */
+const LEAD_WINDOW_M = 0.006;
+/** Land this far past the lead limit so the compare is not a float tie. */
+const LEAD_PAST_M = 0.00001;
+const COMMISSURE_Z_BAND_M = 0.004;
+const COMMISSURE_INSET_M = 0.001;
 
 const GLB_MAGIC = 0x46546c67;
 const GLB_JSON = 0x4e4f534a;
@@ -442,8 +452,11 @@ export function lowerLipLandmark(
 export type TeethVisemeTarget = {
   name: string;
   landmarkCount: number;
+  /** Rigid front-shell translation, bone-local. Side crowns are not this vector. */
   jawDelta: Vec3;
   headDelta: Vec3;
+  /** Per-vertex POSITION delta in the same space as the base accessor. */
+  delta: Float32Array;
   /** Front-shell gaps after the solved deltas and the shipped jaw rotation, metres. */
   upperGapM: number;
   lowerGapM: number;
@@ -669,25 +682,175 @@ export async function measureTeethVisemeGaps(glbPath: string): Promise<{
   };
 }
 
-function groupsDelta(
-  base: Float32Array,
-  jawWeighted: readonly number[],
-  jawDelta: Vec3,
-  headWeighted: readonly number[],
-  headDelta: Vec3,
-): Float32Array {
-  const out = new Float32Array(base);
-  for (const vertex of jawWeighted) {
-    out[vertex * 3] = (out[vertex * 3] ?? 0) + jawDelta[0];
-    out[vertex * 3 + 1] = (out[vertex * 3 + 1] ?? 0) + jawDelta[1];
-    out[vertex * 3 + 2] = (out[vertex * 3 + 2] ?? 0) + jawDelta[2];
+/**
+ * Arch face after the pose. Row membership is base Y, clear of the median.
+ * Each 2 mm world-x bin keeps verts within 2 mm of that bin's world max z.
+ */
+export function archFaceIndices(base: Float32Array, world: Float32Array): { upper: number[]; lower: number[] } {
+  const count = base.length / 3;
+  const ys: number[] = [];
+  for (let vertex = 0; vertex < count; vertex += 1) ys.push(base[vertex * 3 + 1] ?? 0);
+  const mid = median(ys);
+  const upperRow: number[] = [];
+  const lowerRow: number[] = [];
+  for (let vertex = 0; vertex < count; vertex += 1) {
+    const y = ys[vertex] ?? 0;
+    if (y > mid + CLEAR_BAND_M) upperRow.push(vertex);
+    else if (y < mid - CLEAR_BAND_M) lowerRow.push(vertex);
   }
-  for (const vertex of headWeighted) {
-    out[vertex * 3] = (out[vertex * 3] ?? 0) + headDelta[0];
-    out[vertex * 3 + 1] = (out[vertex * 3 + 1] ?? 0) + headDelta[1];
-    out[vertex * 3 + 2] = (out[vertex * 3 + 2] ?? 0) + headDelta[2];
+  const face = (row: number[]): number[] => {
+    const bins = new Map<number, number[]>();
+    for (const vertex of row) {
+      const bin = Math.floor((world[vertex * 3] ?? 0) / ARCH_BIN_M);
+      const list = bins.get(bin);
+      if (list) list.push(vertex);
+      else bins.set(bin, [vertex]);
+    }
+    const out: number[] = [];
+    for (const list of bins.values()) {
+      let maxZ = -Infinity;
+      for (const vertex of list) maxZ = Math.max(maxZ, world[vertex * 3 + 2] ?? 0);
+      for (const vertex of list) {
+        if ((world[vertex * 3 + 2] ?? 0) >= maxZ - ARCH_FACE_Z_M) out.push(vertex);
+      }
+    }
+    return out;
+  };
+  return { upper: face(upperRow), lower: face(lowerRow) };
+}
+
+export function jawDescendantVertexMask(
+  joints: ArrayLike<number>,
+  weights: ArrayLike<number>,
+  jointNodes: readonly GltfNode[],
+): Uint8Array {
+  const count = weights.length / 4;
+  const mask = new Uint8Array(count);
+  const jawish = jointNodes.map((node) => isJawDescendant(node));
+  for (let vertex = 0; vertex < count; vertex += 1) {
+    if (jawish[dominantJoint(joints, weights, vertex)]) mask[vertex] = 1;
   }
-  return out;
+  return mask;
+}
+
+type LeadGrid = { body: Float32Array; buckets: Map<number, number[]> };
+
+function buildLeadGrid(bodyWorld: Float32Array, allow: Uint8Array | null): LeadGrid {
+  const buckets = new Map<number, number[]>();
+  const key = (ix: number, iy: number) => ix * 73856093 + iy * 19349663;
+  const count = bodyWorld.length / 3;
+  for (let lip = 0; lip < count; lip += 1) {
+    if (allow && allow[lip] === 0) continue;
+    const ix = Math.floor((bodyWorld[lip * 3] ?? 0) / LEAD_WINDOW_M);
+    const iy = Math.floor((bodyWorld[lip * 3 + 1] ?? 0) / LEAD_WINDOW_M);
+    const bucketKey = key(ix, iy);
+    const bucket = buckets.get(bucketKey);
+    if (bucket) bucket.push(lip);
+    else buckets.set(bucketKey, [lip]);
+  }
+  return { body: bodyWorld, buckets };
+}
+
+/** Tooth world z minus the max z of body verts within 6 mm in x and y. +Infinity when none. */
+function leadAt(grid: LeadGrid, x: number, y: number, z: number): number {
+  const ix = Math.floor(x / LEAD_WINDOW_M);
+  const iy = Math.floor(y / LEAD_WINDOW_M);
+  const key = (cx: number, cy: number) => cx * 73856093 + cy * 19349663;
+  let skinZ = -Infinity;
+  const body = grid.body;
+  for (let ox = -1; ox <= 1; ox += 1) {
+    for (let oy = -1; oy <= 1; oy += 1) {
+      const bucket = grid.buckets.get(key(ix + ox, iy + oy));
+      if (!bucket) continue;
+      for (const lip of bucket) {
+        if (Math.abs((body[lip * 3] ?? 0) - x) > LEAD_WINDOW_M) continue;
+        if (Math.abs((body[lip * 3 + 1] ?? 0) - y) > LEAD_WINDOW_M) continue;
+        const bz = body[lip * 3 + 2] ?? 0;
+        if (bz > skinZ) skinZ = bz;
+      }
+    }
+  }
+  return skinZ === -Infinity ? Infinity : z - skinZ;
+}
+
+export type ArchLeadStats = {
+  max: number;
+  atAbsXM: number;
+  count: number;
+  missing: number;
+  bands: { absXMm: string; max: number }[];
+};
+
+/** Max lead of an arch face. Bands are world |x| in 10 mm steps. */
+export function archFaceLead(
+  teethWorld: Float32Array,
+  face: readonly number[],
+  bodyWorld: Float32Array,
+  allow: Uint8Array | null,
+): ArchLeadStats {
+  const grid = buildLeadGrid(bodyWorld, allow);
+  const bandEdges = [0, 0.01, 0.02, 0.03, Infinity];
+  const bandMax = bandEdges.slice(0, -1).map(() => -Infinity);
+  let max = -Infinity;
+  let atAbsXM = 0;
+  let count = 0;
+  let missing = 0;
+  for (const vertex of face) {
+    const x = teethWorld[vertex * 3] ?? 0;
+    const y = teethWorld[vertex * 3 + 1] ?? 0;
+    const z = teethWorld[vertex * 3 + 2] ?? 0;
+    const lead = leadAt(grid, x, y, z);
+    if (!Number.isFinite(lead)) {
+      missing += 1;
+      continue;
+    }
+    count += 1;
+    const absX = Math.abs(x);
+    for (let band = 0; band < bandMax.length; band += 1) {
+      if (absX >= bandEdges[band]! && absX < bandEdges[band + 1]! && lead > bandMax[band]!) bandMax[band] = lead;
+    }
+    if (lead > max) {
+      max = lead;
+      atAbsXM = absX;
+    }
+  }
+  const labels = ["0-10", "10-20", "20-30", "30+"];
+  return {
+    max,
+    atAbsXM,
+    count,
+    missing,
+    bands: labels.map((absXMm, index) => ({ absXMm, max: bandMax[index]! })),
+  };
+}
+
+/** Half-width of the anterior lip rim in a world-Y slice. 0 when the slice is empty. */
+function commissureHalfM(bodyWorld: Float32Array, allow: Uint8Array | null, yMin: number, yMax: number): number {
+  const count = bodyWorld.length / 3;
+  let maxZ = -Infinity;
+  for (let lip = 0; lip < count; lip += 1) {
+    if (allow && allow[lip] === 0) continue;
+    const y = bodyWorld[lip * 3 + 1] ?? 0;
+    if (y < yMin || y > yMax) continue;
+    maxZ = Math.max(maxZ, bodyWorld[lip * 3 + 2] ?? 0);
+  }
+  if (maxZ === -Infinity) return 0;
+  let half = 0;
+  for (let lip = 0; lip < count; lip += 1) {
+    if (allow && allow[lip] === 0) continue;
+    const y = bodyWorld[lip * 3 + 1] ?? 0;
+    if (y < yMin || y > yMax) continue;
+    if ((bodyWorld[lip * 3 + 2] ?? 0) < maxZ - COMMISSURE_Z_BAND_M) continue;
+    half = Math.max(half, Math.abs(bodyWorld[lip * 3] ?? 0));
+  }
+  return half;
+}
+
+function tuckAbsX(absX: number, outer: number, limit: number): number {
+  if (absX <= FRONT_SHELL_ABS_X_M || absX <= limit || outer <= FRONT_SHELL_ABS_X_M) return absX;
+  const span = outer - FRONT_SHELL_ABS_X_M;
+  const t = Math.min(1, Math.max(0, (absX - FRONT_SHELL_ABS_X_M) / span));
+  return FRONT_SHELL_ABS_X_M + t * Math.max(0, limit - FRONT_SHELL_ABS_X_M);
 }
 
 function solveShells(
@@ -699,7 +862,7 @@ function solveShells(
   viseme: string,
   jawIndex: number,
   headIndex: number,
-): { jawDelta: Vec3; headDelta: Vec3; upperGapM: number; lowerGapM: number } {
+): { jawDelta: Vec3; headDelta: Vec3; delta: Float32Array; upperGapM: number; lowerGapM: number } {
   const bodyMorph = morphTarget(pose.bodySkinned);
   bodyMorph.morphTargetInfluences.fill(0);
   applyVisemeWeights(bodyMorph, { [viseme]: 1 });
@@ -725,23 +888,189 @@ function solveShells(
   }
   const headDelta = applyLinear(headInv, upperSolved.offset);
   const jawDelta = applyLinear(jawInv, lowerSolved.offset);
-  const posed = skinMesh(
-    groupsDelta(pose.teethPos, jawWeighted, jawDelta, headWeighted, headDelta),
-    pose.teethJoints,
-    pose.teethWeights,
-    teethMats,
-  );
-  const upper = frontShellMeanGap(posed, shells.upper, bodyWorld);
-  const lower = frontShellMeanGap(posed, shells.lower, bodyWorld);
+  const count = pose.teethPos.length / 3;
+  const jawSet = new Set(jawWeighted);
+  const headSet = new Set(headWeighted);
+  const worldOff = new Float32Array(count * 3);
+  const rigidZ = new Float32Array(count);
+  for (const vertex of jawWeighted) {
+    worldOff[vertex * 3] = lowerSolved.offset[0];
+    worldOff[vertex * 3 + 1] = lowerSolved.offset[1];
+    worldOff[vertex * 3 + 2] = lowerSolved.offset[2];
+    rigidZ[vertex] = lowerSolved.offset[2];
+  }
+  for (const vertex of headWeighted) {
+    worldOff[vertex * 3] = upperSolved.offset[0];
+    worldOff[vertex * 3 + 1] = upperSolved.offset[1];
+    worldOff[vertex * 3 + 2] = upperSolved.offset[2];
+    rigidZ[vertex] = upperSolved.offset[2];
+  }
+  const jawMask = jawDescendantVertexMask(pose.bodyJoints, pose.bodyWeights, pose.jointNodes);
+  const jawLead = buildLeadGrid(bodyWorld, jawMask);
+  const anyLead = buildLeadGrid(bodyWorld, null);
+  const desiredX = new Float32Array(count);
+  desiredX.fill(Number.NaN);
+
+  const poseOff = (): Float32Array => {
+    const local = new Float32Array(count * 3);
+    for (let vertex = 0; vertex < count; vertex += 1) {
+      const off: Vec3 = [worldOff[vertex * 3] ?? 0, worldOff[vertex * 3 + 1] ?? 0, worldOff[vertex * 3 + 2] ?? 0];
+      const delta = jawSet.has(vertex) ? applyLinear(jawInv, off) : headSet.has(vertex) ? applyLinear(headInv, off) : ([0, 0, 0] as Vec3);
+      local[vertex * 3] = delta[0];
+      local[vertex * 3 + 1] = delta[1];
+      local[vertex * 3 + 2] = delta[2];
+    }
+    const moved = new Float32Array(pose.teethPos.length);
+    for (let i = 0; i < moved.length; i += 1) moved[i] = (pose.teethPos[i] ?? 0) + (local[i] ?? 0);
+    return skinMesh(moved, pose.teethJoints, pose.teethWeights, teethMats);
+  };
+
+  const planTuck = (verts: readonly number[], posed: Float32Array, allow: Uint8Array | null): number => {
+    if (verts.length === 0) return 0;
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    for (const vertex of verts) {
+      const y = posed[vertex * 3 + 1] ?? 0;
+      if (y < yMin) yMin = y;
+      if (y > yMax) yMax = y;
+    }
+    const half = commissureHalfM(bodyWorld, allow, yMin - LEAD_WINDOW_M, yMax + LEAD_WINDOW_M);
+    if (half <= 0) return 0;
+    const limit = half - COMMISSURE_INSET_M;
+    let outer = 0;
+    for (const vertex of verts) {
+      if (Math.abs(pose.teethPos[vertex * 3] ?? 0) <= FRONT_SHELL_ABS_X_M) continue;
+      outer = Math.max(outer, Math.abs((teethWorld[vertex * 3] ?? 0) + (jawSet.has(vertex) ? lowerSolved.offset[0] : upperSolved.offset[0])));
+    }
+    let added = 0;
+    for (const vertex of verts) {
+      if (Number.isFinite(desiredX[vertex])) continue;
+      if (Math.abs(pose.teethPos[vertex * 3] ?? 0) <= FRONT_SHELL_ABS_X_M) continue;
+      const rigidX = (teethWorld[vertex * 3] ?? 0) + (jawSet.has(vertex) ? lowerSolved.offset[0] : upperSolved.offset[0]);
+      const next = tuckAbsX(Math.abs(rigidX), outer, limit);
+      if (next < Math.abs(rigidX) - 1e-6) {
+        desiredX[vertex] = Math.sign(rigidX || (pose.teethPos[vertex * 3] ?? 0)) * next;
+        added += 1;
+      }
+    }
+    return added;
+  };
+
+  const applyDesiredX = (): void => {
+    for (let vertex = 0; vertex < count; vertex += 1) {
+      if (!Number.isFinite(desiredX[vertex])) continue;
+      worldOff[vertex * 3] = (desiredX[vertex] ?? 0) - (teethWorld[vertex * 3] ?? 0);
+    }
+  };
+
+  const retreat = (verts: readonly number[], posed: Float32Array, leadGrid: LeadGrid, targetLead: number, onlyIfAhead: boolean): number => {
+    let moves = 0;
+    for (const vertex of verts) {
+      if (!jawSet.has(vertex) && !headSet.has(vertex)) continue;
+      const lead = leadAt(leadGrid, posed[vertex * 3] ?? 0, posed[vertex * 3 + 1] ?? 0, posed[vertex * 3 + 2] ?? 0);
+      if (!Number.isFinite(lead)) continue;
+      if (onlyIfAhead ? lead < 0 : lead <= targetLead) continue;
+      let nextOff = (worldOff[vertex * 3 + 2] ?? 0) + (targetLead - lead);
+      const cap = rigidZ[vertex] ?? nextOff;
+      if (nextOff > cap) nextOff = cap;
+      if (nextOff < (worldOff[vertex * 3 + 2] ?? 0) - 1e-9) {
+        worldOff[vertex * 3 + 2] = nextOff;
+        moves += 1;
+      }
+    }
+    return moves;
+  };
+
+  let posedNow = poseOff();
+  planTuck(archFaceIndices(pose.teethPos, posedNow).lower, posedNow, jawMask);
+  planTuck(archFaceIndices(pose.teethPos, posedNow).upper, posedNow, null);
+  for (let iter = 0; iter < 12; iter += 1) {
+    applyDesiredX();
+    posedNow = poseOff();
+    const face = archFaceIndices(pose.teethPos, posedNow);
+    const added = planTuck(face.lower, posedNow, jawMask) + planTuck(face.upper, posedNow, null);
+    applyDesiredX();
+    posedNow = poseOff();
+    const seated = archFaceIndices(pose.teethPos, posedNow);
+    const moves =
+      retreat(seated.lower, posedNow, jawLead, -FRONT_SHELL_GAP_MIN_M - LEAD_PAST_M, false) +
+      retreat(seated.upper, posedNow, anyLead, -LEAD_PAST_M, true);
+    if (added === 0 && moves === 0) break;
+  }
+  // Retreating arch-face crowns that already sit in the front shell widens the
+  // mean nearest-body gap. Pull other lower-shell crowns forward, stopping at
+  // the lead limit, until that mean is back inside 0.5–2 mm. Upper Z never
+  // moves forward of the rigid seat.
+  const lowerLeadTarget = -FRONT_SHELL_GAP_MIN_M - LEAD_PAST_M;
+  const shiftLowerShell = (posed: Float32Array): number => {
+    const shell = shells.lower;
+    const gap = frontShellMeanGap(posed, shell, bodyWorld);
+    const tooFar = gap.meanM > FRONT_SHELL_GAP_MAX_M;
+    const tooClose = gap.meanM < FRONT_SHELL_GAP_MIN_M || gap.dirM[2] <= 0;
+    if (!tooFar && !tooClose) return 0;
+    const error = tooFar ? gap.meanM - FRONT_SHELL_GAP_AIM_M : FRONT_SHELL_GAP_AIM_M - gap.meanM;
+    const room = new Map<number, number>();
+    for (const vertex of shell) {
+      if (!jawSet.has(vertex)) continue;
+      const lead = leadAt(jawLead, posed[vertex * 3] ?? 0, posed[vertex * 3 + 1] ?? 0, posed[vertex * 3 + 2] ?? 0);
+      if (tooFar) {
+        if (!Number.isFinite(lead)) continue;
+        const forward = lowerLeadTarget - lead;
+        if (forward > 1e-6) room.set(vertex, forward);
+      } else {
+        room.set(vertex, error);
+      }
+    }
+    if (room.size === 0) return 0;
+    const step = error * (shell.length / room.size);
+    let moves = 0;
+    for (const [vertex, available] of room) {
+      const dz = Math.min(step, available);
+      if (dz <= 1e-6) continue;
+      const sign = tooFar ? 1 : -1;
+      worldOff[vertex * 3 + 2] = (worldOff[vertex * 3 + 2] ?? 0) + sign * dz;
+      moves += 1;
+    }
+    return moves;
+  };
+  for (let pass = 0; pass < 6; pass += 1) {
+    posedNow = poseOff();
+    const shifted = shiftLowerShell(posedNow);
+    if (shifted === 0) break;
+    posedNow = poseOff();
+    const seated = archFaceIndices(pose.teethPos, posedNow);
+    retreat(seated.lower, posedNow, jawLead, lowerLeadTarget, false);
+    retreat(seated.upper, posedNow, anyLead, -LEAD_PAST_M, true);
+  }
+  posedNow = poseOff();
+  const upper = frontShellMeanGap(posedNow, shells.upper, bodyWorld);
+  const lower = frontShellMeanGap(posedNow, shells.lower, bodyWorld);
   if (!gapInBand(upper) || !gapInBand(lower)) {
     throw new Error(
-      `${viseme} skinned front shells stayed at ${(upper.meanM * 1000).toFixed(2)} mm upper / ${(lower.meanM * 1000).toFixed(2)} mm lower`,
+      `${viseme} per-vertex front shells stayed at ${(upper.meanM * 1000).toFixed(2)} mm upper / ${(lower.meanM * 1000).toFixed(2)} mm lower`,
     );
   }
-  return { jawDelta, headDelta, upperGapM: upper.meanM, lowerGapM: lower.meanM };
+  const seated = archFaceIndices(pose.teethPos, posedNow);
+  const lowerLead = archFaceLead(posedNow, seated.lower, bodyWorld, jawMask);
+  const upperLead = archFaceLead(posedNow, seated.upper, bodyWorld, null);
+  if (!(lowerLead.max <= -FRONT_SHELL_GAP_MIN_M)) {
+    throw new Error(`${viseme} lower arch lead ${(lowerLead.max * 1000).toFixed(2)} mm`);
+  }
+  if (!(upperLead.max < 0)) {
+    throw new Error(`${viseme} upper arch lead ${(upperLead.max * 1000).toFixed(2)} mm`);
+  }
+  const local = new Float32Array(count * 3);
+  for (let vertex = 0; vertex < count; vertex += 1) {
+    const off: Vec3 = [worldOff[vertex * 3] ?? 0, worldOff[vertex * 3 + 1] ?? 0, worldOff[vertex * 3 + 2] ?? 0];
+    const delta = jawSet.has(vertex) ? applyLinear(jawInv, off) : headSet.has(vertex) ? applyLinear(headInv, off) : ([0, 0, 0] as Vec3);
+    local[vertex * 3] = delta[0];
+    local[vertex * 3 + 1] = delta[1];
+    local[vertex * 3 + 2] = delta[2];
+  }
+  return { jawDelta, headDelta, delta: local, upperGapM: upper.meanM, lowerGapM: lower.meanM };
 }
 
-/** Rigid head and jaw translations for every body viseme whose landmark is large enough. */
+/** Per-vertex teeth deltas for every opening body viseme. Closed visemes with a landmark write zeros. */
 export async function planTeethVisemeTargets(glbPath: string): Promise<{
   teethName: string;
   targets: TeethVisemeTarget[];
@@ -830,6 +1159,7 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
         landmarkCount: landmark.length,
         jawDelta: [0, 0, 0],
         headDelta: [0, 0, 0],
+        delta: new Float32Array(pose.teethPos.length),
         upperGapM: frontShellMeanGap(teethWorld, shells.upper, bodyWorld).meanM,
         lowerGapM: frontShellMeanGap(teethWorld, shells.lower, bodyWorld).meanM,
       });
@@ -846,27 +1176,6 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
     upperCount: shells.upper.length,
     lowerCount: shells.lower.length,
   };
-}
-
-function teethDelta(
-  count: number,
-  jawWeighted: readonly number[],
-  jawDelta: Vec3,
-  headWeighted: readonly number[],
-  headDelta: Vec3,
-): Float32Array {
-  const out = new Float32Array(count * 3);
-  for (const vertex of jawWeighted) {
-    out[vertex * 3] = jawDelta[0];
-    out[vertex * 3 + 1] = jawDelta[1];
-    out[vertex * 3 + 2] = jawDelta[2];
-  }
-  for (const vertex of headWeighted) {
-    out[vertex * 3] = headDelta[0];
-    out[vertex * 3 + 1] = headDelta[1];
-    out[vertex * 3 + 2] = headDelta[2];
-  }
-  return out;
 }
 
 function bounds(values: Float32Array): { min: Vec3; max: Vec3 } {
@@ -998,7 +1307,8 @@ export async function coupleFittedTeethToLipViseme(glbPath: string): Promise<Tee
   const existingIndex = new Map(existing.map((name, index) => [name, index]));
   const targets: { POSITION: number }[] = [];
   for (const planned of plan.targets) {
-    const values = teethDelta(plan.teethCount, plan.jawWeighted, planned.jawDelta, plan.headWeighted, planned.headDelta);
+    const values = planned.delta;
+    if (values.length !== plan.teethCount * 3) throw new Error(`${planned.name} delta length ${values.length}`);
     const prior = existingIndex.get(planned.name);
     if (prior !== undefined) {
       const accessorIndex = primitive.targets?.[prior]?.POSITION;

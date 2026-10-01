@@ -1,14 +1,14 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.viseme-realism.v1",
-  "generatedAt": "2026-10-01T18:40:00.000Z",
+  "generatedAt": "2026-10-01T20:57:14.877Z",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "baselineFile": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
   "baselineGlbSha256": "b95f4606db278e4becc8768d3bf2c661efa05dab0d962113d7646499b3ae7302",
   "baselineOpeningMeanM": 0.004500010969270264,
-  "afterOpeningMeanM": 0.0015048788829411881,
-  "ratio": 0.3344167143630816,
+  "afterOpeningMeanM": 0.0015122399527046106,
+  "ratio": 0.33605250365641665,
   "bar": 0.8,
-  "reduction": 0.6655832856369184,
+  "reduction": 0.6639474963435834,
   "restUpperM": 0.0070959803651845605,
   "restLowerM": 0.01066643650740738,
   "recordedRestUpperM": 0.0070959803651845605,
@@ -23,10 +23,10 @@
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.844,
       "afterUpperM": 0.0012521009676074034,
-      "afterLowerM": 0.001996950516855232,
+      "afterLowerM": 0.001918951346087978,
       "afterUpperMm": 1.252,
-      "afterLowerMm": 1.997,
-      "afterShellMeanM": 0.0016245257422313178
+      "afterLowerMm": 1.919,
+      "afterShellMeanM": 0.0015855261568476907
     },
     {
       "name": "viseme_CH",
@@ -37,10 +37,10 @@
       "beforeUpperMm": 1.25,
       "beforeLowerMm": 1.898,
       "afterUpperM": 0.0012504967411615605,
-      "afterLowerM": 0.0017055203596372222,
+      "afterLowerM": 0.0016616384231893857,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.706,
-      "afterShellMeanM": 0.0014780085503993913
+      "afterLowerMm": 1.662,
+      "afterShellMeanM": 0.001456067582175473
     },
     {
       "name": "viseme_DD",
@@ -50,11 +50,11 @@
       "landmarkCount": 30,
       "beforeUpperMm": 1.248,
       "beforeLowerMm": 1.663,
-      "afterUpperM": 0.0012544029108998538,
-      "afterLowerM": 0.0018495734740704341,
-      "afterUpperMm": 1.254,
-      "afterLowerMm": 1.85,
-      "afterShellMeanM": 0.001551988192485144
+      "afterUpperM": 0.0012444045484382889,
+      "afterLowerM": 0.0019863295994119513,
+      "afterUpperMm": 1.244,
+      "afterLowerMm": 1.986,
+      "afterShellMeanM": 0.00161536707392512
     },
     {
       "name": "viseme_E",
@@ -65,10 +65,10 @@
       "beforeUpperMm": 5.458,
       "beforeLowerMm": 9.346,
       "afterUpperM": 0.0012528071225436734,
-      "afterLowerM": 0.0017453228556888873,
+      "afterLowerM": 0.0016780311550739064,
       "afterUpperMm": 1.253,
-      "afterLowerMm": 1.745,
-      "afterShellMeanM": 0.0014990649891162802
+      "afterLowerMm": 1.678,
+      "afterShellMeanM": 0.00146541913880879
     },
     {
       "name": "viseme_FF",
@@ -93,10 +93,10 @@
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.758,
       "afterUpperM": 0.0012505310399085622,
-      "afterLowerM": 0.0017576472530671907,
+      "afterLowerM": 0.0017140789890260743,
       "afterUpperMm": 1.251,
-      "afterLowerMm": 1.758,
-      "afterShellMeanM": 0.0015040891464878764
+      "afterLowerMm": 1.714,
+      "afterShellMeanM": 0.0014823050144673181
     },
     {
       "name": "viseme_kk",
@@ -107,10 +107,10 @@
       "beforeUpperMm": 1.277,
       "beforeLowerMm": 1.652,
       "afterUpperM": 0.0012765933520120455,
-      "afterLowerM": 0.0016519557983548057,
+      "afterLowerM": 0.001612459019693307,
       "afterUpperMm": 1.277,
-      "afterLowerMm": 1.652,
-      "afterShellMeanM": 0.0014642745751834256
+      "afterLowerMm": 1.612,
+      "afterShellMeanM": 0.0014445261858526764
     },
     {
       "name": "viseme_nn",
@@ -121,10 +121,10 @@
       "beforeUpperMm": 6.468,
       "beforeLowerMm": 10.14,
       "afterUpperM": 0.0012497702090302828,
-      "afterLowerM": 0.001763414305071441,
+      "afterLowerM": 0.0017283716146335585,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.763,
-      "afterShellMeanM": 0.0015065922570508619
+      "afterLowerMm": 1.728,
+      "afterShellMeanM": 0.0014890709118319206
     },
     {
       "name": "viseme_O",
@@ -134,11 +134,11 @@
       "landmarkCount": 168,
       "beforeUpperMm": 1.252,
       "beforeLowerMm": 1.884,
-      "afterUpperM": 0.001249122220292965,
-      "afterLowerM": 0.0017414421816509325,
+      "afterUpperM": 0.0012491192661179935,
+      "afterLowerM": 0.0016803385140440612,
       "afterUpperMm": 1.249,
-      "afterLowerMm": 1.741,
-      "afterShellMeanM": 0.0014952822009719488
+      "afterLowerMm": 1.68,
+      "afterShellMeanM": 0.0014647288900810273
     },
     {
       "name": "viseme_PP",
@@ -163,10 +163,10 @@
       "beforeUpperMm": 5.321,
       "beforeLowerMm": 9.014,
       "afterUpperM": 0.001251037977971203,
-      "afterLowerM": 0.001813091629758039,
+      "afterLowerM": 0.001744497094065945,
       "afterUpperMm": 1.251,
-      "afterLowerMm": 1.813,
-      "afterShellMeanM": 0.001532064803864621
+      "afterLowerMm": 1.744,
+      "afterShellMeanM": 0.0014977675360185738
     },
     {
       "name": "viseme_sil",
@@ -191,10 +191,10 @@
       "beforeUpperMm": 1.246,
       "beforeLowerMm": 1.989,
       "afterUpperM": 0.001249088274127509,
-      "afterLowerM": 0.0017444935463968038,
+      "afterLowerM": 0.001877676511245852,
       "afterUpperMm": 1.249,
-      "afterLowerMm": 1.744,
-      "afterShellMeanM": 0.0014967909102621565
+      "afterLowerMm": 1.878,
+      "afterShellMeanM": 0.0015633823926866806
     },
     {
       "name": "viseme_TH",
@@ -205,10 +205,10 @@
       "beforeUpperMm": 5.972,
       "beforeLowerMm": 10.745,
       "afterUpperM": 0.0012468790219290896,
-      "afterLowerM": 0.0016273168685190657,
+      "afterLowerM": 0.0017731355780399118,
       "afterUpperMm": 1.247,
-      "afterLowerMm": 1.627,
-      "afterShellMeanM": 0.0014370979452240776
+      "afterLowerMm": 1.773,
+      "afterShellMeanM": 0.0015100072999845006
     },
     {
       "name": "viseme_U",
@@ -219,10 +219,10 @@
       "beforeUpperMm": 7.63,
       "beforeLowerMm": 10.362,
       "afterUpperM": 0.0012496240213574405,
-      "afterLowerM": 0.0016105678891481308,
+      "afterLowerM": 0.0018331779641917738,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.611,
-      "afterShellMeanM": 0.0014300959552527857
+      "afterLowerMm": 1.833,
+      "afterShellMeanM": 0.0015414009927746072
     }
   ],
   "stills": [

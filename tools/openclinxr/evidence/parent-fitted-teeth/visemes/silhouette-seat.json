@@ -1,0 +1,821 @@
+{
+  "schemaVersion": "openclinxr.parent-fitted-teeth.silhouette-seat.v1",
+  "instrument": "Arch face: row membership is base Y, clear of the teeth Y median by 0.006 m. Each 2 mm world-x bin keeps verts within 2 mm of that bin's world max z. Lead is tooth world z minus the max z of body verts within 6 mm in x and y, after applyVisemeWeights at weight 1 and applyJawOpenToRoot. Positive lead means the crown is in front of that skin. Missing means no body vert in the window; those verts are excluded from the max. Band maxMm is rounded to 0.001 mm; null means no arch-face vert in that world |x| band.",
+  "references": {
+    "lowerOpening": "jaw-descendant skin. Clause is viseme_aa, viseme_E, viseme_I, viseme_O, viseme_U. Limit -0.0005 m.",
+    "upper": "any body vert. Clause is viseme_aa, viseme_E, viseme_I, viseme_O, viseme_U, viseme_FF, viseme_PP. Limit < 0.",
+    "closed": "any body vert, both rows. Clause is viseme_PP and viseme_sil. Limit -0.010 m."
+  },
+  "before": {
+    "glbSha256": "ff92ce303a8a63bac4390c9fd54dd65b24b8cda3ef12d1621b55597371238097",
+    "pose": "rigid per-arch translation, commit 318add292",
+    "rows": [
+      {
+        "name": "viseme_aa",
+        "lowerVsJaw": {
+          "maxM": 0.00239003449678421,
+          "atAbsXM": 0.03047068789601326,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": 1.336
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": 1.055
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -1.377
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": 2.39
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": 0.0013357996940612793
+        },
+        "upperVsAny": {
+          "maxM": -0.0003731846809387207,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.373
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.06
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -4.036
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_E",
+        "lowerVsJaw": {
+          "maxM": 0.0012751668691635132,
+          "atAbsXM": 0.0036108612548559904,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": 1.275
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.651
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -6.604
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": 0.0012751668691635132
+        },
+        "upperVsAny": {
+          "maxM": -0.0009080171585083008,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.908
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.832
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -7.636
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_I",
+        "lowerVsJaw": {
+          "maxM": 0.0008684992790222168,
+          "atAbsXM": 0.0036108610220253468,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": 0.868
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.267
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -4.741
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": 0.0008684992790222168
+        },
+        "upperVsAny": {
+          "maxM": -0.0005731880664825439,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.573
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.236
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -3.236
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_O",
+        "lowerVsJaw": {
+          "maxM": 0.0013494938611984253,
+          "atAbsXM": 0.0036108612548559904,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": 1.349
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.819
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -6
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": 0.0013494938611984253
+        },
+        "upperVsAny": {
+          "maxM": -0.0006731897592544556,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.673
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.725
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -7.116
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_U",
+        "lowerVsJaw": {
+          "maxM": 0.0070412009954452515,
+          "atAbsXM": 0.008112206123769283,
+          "missing": 22,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": 7.041
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": 4.65
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -2.298
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0036043524742126465
+        },
+        "upperVsAny": {
+          "maxM": -0.0012730509042739868,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -1.273
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.388
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -4.484
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_FF",
+        "lowerVsJaw": {
+          "maxM": -0.0011814236640930176,
+          "atAbsXM": 0.0036108610220253468,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -1.181
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.667
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -6.967
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0011814236640930176
+        },
+        "upperVsAny": {
+          "maxM": -0.00017304718494415283,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.173
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.636
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -5.082
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_PP",
+        "lowerVsJaw": {
+          "maxM": -0.020049184560775757,
+          "atAbsXM": 0.013582936488091946,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -20.147
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -20.049
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -24.886
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.020049184560775757
+        },
+        "upperVsAny": {
+          "maxM": -0.015902996063232422,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -15.903
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -16.693
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -22.008
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_sil",
+        "lowerVsJaw": {
+          "maxM": -0.018687933683395386,
+          "atAbsXM": 0.0036108610220253468,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -18.688
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -18.94
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -23.986
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.018893912434577942
+        },
+        "upperVsAny": {
+          "maxM": -0.01806432008743286,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -18.579
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -18.064
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -23.336
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "after": {
+    "glbSha256": "d4162ff30a9abc908358fa8136b627f9cc0911e5cd956aab6262075970e214fc",
+    "pose": "per-vertex teeth viseme delta",
+    "rows": [
+      {
+        "name": "viseme_aa",
+        "lowerVsJaw": {
+          "maxM": -0.0005100071430206299,
+          "atAbsXM": 0.005666205659508705,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -41.067
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0005100071430206299
+        },
+        "upperVsAny": {
+          "maxM": -0.0003731846809387207,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.373
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.436
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_E",
+        "lowerVsJaw": {
+          "maxM": -0.0005100071430206299,
+          "atAbsXM": 0.0005817248020321131,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.651
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0005100071430206299
+        },
+        "upperVsAny": {
+          "maxM": -0.0009080171585083008,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.908
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.832
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_I",
+        "lowerVsJaw": {
+          "maxM": -0.0005100071430206299,
+          "atAbsXM": 0.0005817248020321131,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0005100071430206299
+        },
+        "upperVsAny": {
+          "maxM": -0.0005731880664825439,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.573
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.789
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_O",
+        "lowerVsJaw": {
+          "maxM": -0.0005100071430206299,
+          "atAbsXM": 0.000581724860239774,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.819
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0005100071430206299
+        },
+        "upperVsAny": {
+          "maxM": -0.0006731897592544556,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.673
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.725
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_U",
+        "lowerVsJaw": {
+          "maxM": -0.0005100071430206299,
+          "atAbsXM": 0.0005817248020321131,
+          "missing": 10,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -0.51
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0036043524742126465
+        },
+        "upperVsAny": {
+          "maxM": -0.0012730509042739868,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -1.273
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -2.525
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_FF",
+        "lowerVsJaw": {
+          "maxM": -0.0011814236640930176,
+          "atAbsXM": 0.0036108610220253468,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -1.181
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.667
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.0011814236640930176
+        },
+        "upperVsAny": {
+          "maxM": -0.00017304718494415283,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -0.173
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -1.636
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": null
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_PP",
+        "lowerVsJaw": {
+          "maxM": -0.020049184560775757,
+          "atAbsXM": 0.013582936488091946,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -20.147
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -20.049
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -24.886
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.020049184560775757
+        },
+        "upperVsAny": {
+          "maxM": -0.015902996063232422,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -15.903
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -16.693
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -22.008
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      },
+      {
+        "name": "viseme_sil",
+        "lowerVsJaw": {
+          "maxM": -0.018687933683395386,
+          "atAbsXM": 0.0036108610220253468,
+          "missing": 0,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -18.688
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -18.94
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -23.986
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        },
+        "lowerVsAny": {
+          "maxM": -0.018893912434577942
+        },
+        "upperVsAny": {
+          "maxM": -0.01806432008743286,
+          "bandsMm": [
+            {
+              "absXMm": "0-10",
+              "maxMm": -18.579
+            },
+            {
+              "absXMm": "10-20",
+              "maxMm": -18.064
+            },
+            {
+              "absXMm": "20-30",
+              "maxMm": -23.336
+            },
+            {
+              "absXMm": "30+",
+              "maxMm": null
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
