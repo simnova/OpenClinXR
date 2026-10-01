@@ -11,7 +11,7 @@
     "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
     "environmentId": "stepdown_room_v1",
     "sourceGlb": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
-    "sourceGlbSha256": "b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e",
+    "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
     "roomBounds": {
       "min": [
         -3.1,
@@ -340,8 +340,8 @@
       "fov": 80.077249,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-01-toward-door.png",
-      "pngBytes": 655204,
-      "pngSha256": "b70a0b66847ac9850a3edb552287943ecffddc676fc732ea845c38b416acb804",
+      "pngBytes": 654222,
+      "pngSha256": "75ea4c8518534e0c2e55d9f53142c68526b8eff446f5dbe8dec58ce595beb669",
       "nearPlaneM": 0.1,
       "wallClearanceM": {
         "x": 2.38542,
@@ -396,8 +396,8 @@
       "fov": 60.679094,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-03-ceiling-corner.png",
-      "pngBytes": 921301,
-      "pngSha256": "34eb5239f51aaf59ade621e184ce3b2cee6a8b8023a2ed3a5d5884816a05e509",
+      "pngBytes": 921059,
+      "pngSha256": "b805da24f69df8b10a3af61d7039dca11bfff00930633939b497be78884c6e52",
       "nearPlaneM": 0.1,
       "wallClearanceM": {
         "x": 2.37907,
@@ -424,8 +424,8 @@
       "fov": 51.731135,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-04-door-inside.png",
-      "pngBytes": 690040,
-      "pngSha256": "f5b61a2ddea90927a6e0efe891c0043facef199b64c5bdd8d3f7e640c8902e94",
+      "pngBytes": 687880,
+      "pngSha256": "edcd9198974fb7d72629d88ed95ef06a4c7ccc75e5fc1bb6e93f1acb39f0f11e",
       "nearPlaneM": 0.1,
       "wallClearanceM": {
         "x": 2.125886,
@@ -452,8 +452,8 @@
       "fov": 44,
       "poseDx": 0,
       "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-05-troffer-junction.png",
-      "pngBytes": 947674,
-      "pngSha256": "3acc3c291105c8dfaf8880f861b3d57ed6d847ca2e6c8218da38b5cd7b13417a",
+      "pngBytes": 947603,
+      "pngSha256": "e68ddc1e6b550227369c3fd61e0fdc3a4e2ef3c6294c933aa5084760680c5264",
       "nearPlaneM": 0.1,
       "wallClearanceM": {
         "x": 0.3,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -51,6 +52,30 @@ def metrics(path: Path, kind: str) -> dict:
         steps = np.abs(np.diff(columns, axis=0))
         result["infillVsWall"]["boundaryProfileBox"] = list(boxes["boundaryProfile"])
         result["infillVsWall"]["maximumBoundaryColumnStep"] = round(float(np.max(steps)), 2)
+        # Crop-verified scan follows the perspective slope of the door foot.
+        # It crosses the middle of both the old 180 mm and new 250 mm plate.
+        xs = np.arange(527, 716)
+        ys = np.rint(650 - 0.18 * (xs - 527)).astype(int)
+        scan = array[ys, xs]
+        neutral = np.ptp(scan, axis=1) < 18
+        plate_xs = xs[neutral]
+        polygon = [(531, 620), (710, 588), (710, 633), (531, 665)]
+        mask_image = Image.new("L", (1280, 720))
+        ImageDraw.Draw(mask_image).polygon(polygon, fill=255)
+        plate_pixels = array[(np.asarray(mask_image) > 0) & (np.ptp(array, axis=2) < 18)]
+        weights = np.array([0.2126, 0.7152, 0.0722])
+        result["captureSha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        result["kickPlate"] = {
+            "scanEndpoints": [[527, 650], [715, 616]],
+            "leafWidthPixels": len(xs),
+            "plateWidthPixels": int(len(plate_xs)),
+            "widthFractionOfLeaf": round(float(neutral.mean()), 4),
+            "meanPolygon": polygon,
+            "meanRgb": plate_pixels.mean(axis=0).round(2).tolist(),
+            "meanLuminance": round(float((plate_pixels @ weights).mean()), 2),
+            "leafMeanLuminance": round(float(np.array(result["leaf"]["meanRgb"]) @ weights), 2),
+            "method": "Rec.709 weights on encoded RGB (0-255); neutral plate pixels inside crop-verified polygon; width counts neutral pixels along perspective-matched scan within the leaf.",
+        }
     return result
 
 
@@ -69,6 +94,9 @@ def overlay(paths: list[tuple[str, Path, str]], output: Path) -> None:
             x0, y0, x1, y1 = box
             draw.rectangle((offset + x0, y0 + 40, offset + x1, y1 + 40), outline=colours[name], width=3)
             draw.text((offset + x0 + 3, y0 + 43), name, fill=colours[name])
+        if kind == "runtime":
+            draw.line([(offset + 527, 690), (offset + 715, 656)], fill="#00ffff", width=2)
+            draw.polygon([(offset + x, y + 40) for x, y in [(531, 620), (710, 588), (710, 633), (531, 665)]], outline="#ff66ff", width=2)
     canvas.save(output)
 
 
@@ -88,16 +116,18 @@ def main() -> None:
     report = {
         "schemaVersion": "openclinxr.stepdown-door-reference-measurements.v1",
         "pose": "derived learner-runtime pose 04",
+        "sourceGlbSha256": hashlib.sha256((ROOT / "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb").read_bytes()).hexdigest(),
         "reference": reference,
         "before": before,
         "after": after,
-        "gates": {"infillWallMaxAbsChannelDelta": 3, "boundaryMaximumColumnStep": 4},
+        "gates": {"infillWallMaxAbsChannelDelta": 3, "boundaryMaximumColumnStep": 4,
+                  "minimumPlateLeafWidthFraction": 0.9, "minimumPlateLeafLuminanceRatio": 1.0},
         "cropVerification": "Native 1280x720 boxes avoid ceiling, casing, lite, lever, and floor; overlay proof is door-reference-measurement-boxes.png.",
         "notEvidenceFor": ["clinical validity", "exam equivalence", "Quest readiness", "production readiness"],
     }
     (EVIDENCE / "door-reference-measurements.json").write_text(json.dumps(report, indent=2) + "\n")
     overlay([
-        ("BEFORE — shipped ec42fa03c", before_path, "runtime"),
+        ("BEFORE — shipped 113d0964f", before_path, "runtime"),
         ("AFTER — corrected finish", after_path, "runtime"),
         ("REFERENCE — operator-selected option A", REFERENCE, "reference"),
     ], EVIDENCE / "door-reference-measurement-boxes.png")

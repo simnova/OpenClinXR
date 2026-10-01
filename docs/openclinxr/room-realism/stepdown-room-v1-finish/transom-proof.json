@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.room-transom-proof.v1",
   "environmentId": "stepdown_room_v1",
-  "sourceGlbSha256": "b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e",
+  "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
   "measurementMeters": {
     "openingHead": 2.6,
     "doorAndCasingHead": 2.155,

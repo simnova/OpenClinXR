@@ -1,6 +1,7 @@
 {
   "schemaVersion": "openclinxr.stepdown-door-reference-measurements.v1",
   "pose": "derived learner-runtime pose 04",
+  "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
   "reference": {
     "wall": {
       "box": [
@@ -84,9 +85,9 @@
         140
       ],
       "meanRgb": [
-        207.74,
-        206.29,
-        202.16
+        204.71,
+        203.21,
+        199.0
       ]
     },
     "leaf": {
@@ -117,9 +118,9 @@
     },
     "infillVsWall": {
       "deltaRgb": [
-        4.31,
-        5.8,
-        4.92
+        1.28,
+        2.72,
+        1.76
       ],
       "boundaryProfileBox": [
         480,
@@ -127,7 +128,49 @@
         575,
         140
       ],
-      "maximumBoundaryColumnStep": 4.68
+      "maximumBoundaryColumnStep": 3.43
+    },
+    "captureSha256": "f5b61a2ddea90927a6e0efe891c0043facef199b64c5bdd8d3f7e640c8902e94",
+    "kickPlate": {
+      "scanEndpoints": [
+        [
+          527,
+          650
+        ],
+        [
+          715,
+          616
+        ]
+      ],
+      "leafWidthPixels": 189,
+      "plateWidthPixels": 146,
+      "widthFractionOfLeaf": 0.7725,
+      "meanPolygon": [
+        [
+          531,
+          620
+        ],
+        [
+          710,
+          588
+        ],
+        [
+          710,
+          633
+        ],
+        [
+          531,
+          665
+        ]
+      ],
+      "meanRgb": [
+        130.81,
+        130.43,
+        129.29
+      ],
+      "meanLuminance": 130.43,
+      "leafMeanLuminance": 163.48,
+      "method": "Rec.709 weights on encoded RGB (0-255); neutral plate pixels inside crop-verified polygon; width counts neutral pixels along perspective-matched scan within the leaf."
     },
     "leafVsReference": {
       "deltaRgb": [
@@ -211,6 +254,48 @@
       ],
       "maximumBoundaryColumnStep": 3.43
     },
+    "captureSha256": "edcd9198974fb7d72629d88ed95ef06a4c7ccc75e5fc1bb6e93f1acb39f0f11e",
+    "kickPlate": {
+      "scanEndpoints": [
+        [
+          527,
+          650
+        ],
+        [
+          715,
+          616
+        ]
+      ],
+      "leafWidthPixels": 189,
+      "plateWidthPixels": 186,
+      "widthFractionOfLeaf": 0.9841,
+      "meanPolygon": [
+        [
+          531,
+          620
+        ],
+        [
+          710,
+          588
+        ],
+        [
+          710,
+          633
+        ],
+        [
+          531,
+          665
+        ]
+      ],
+      "meanRgb": [
+        180.68,
+        182.63,
+        183.52
+      ],
+      "meanLuminance": 182.28,
+      "leafMeanLuminance": 163.48,
+      "method": "Rec.709 weights on encoded RGB (0-255); neutral plate pixels inside crop-verified polygon; width counts neutral pixels along perspective-matched scan within the leaf."
+    },
     "leafVsReference": {
       "deltaRgb": [
         29.63,
@@ -228,7 +313,9 @@
   },
   "gates": {
     "infillWallMaxAbsChannelDelta": 3,
-    "boundaryMaximumColumnStep": 4
+    "boundaryMaximumColumnStep": 4,
+    "minimumPlateLeafWidthFraction": 0.9,
+    "minimumPlateLeafLuminanceRatio": 1.0
   },
   "cropVerification": "Native 1280x720 boxes avoid ceiling, casing, lite, lever, and floor; overlay proof is door-reference-measurement-boxes.png.",
   "notEvidenceFor": [

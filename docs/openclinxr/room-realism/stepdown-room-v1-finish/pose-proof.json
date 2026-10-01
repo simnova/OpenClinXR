@@ -136,9 +136,9 @@
     "presence": {
       "runtime-01-toward-door": {
         "subject": "door-maple",
-        "pixels": 30268,
+        "pixels": 28485,
         "framePixels": 921600,
-        "frameFraction": 0.03284288,
+        "frameFraction": 0.0309082,
         "passed": true
       },
       "runtime-02-toward-bed-wall": {
@@ -150,16 +150,16 @@
       },
       "runtime-03-ceiling-corner": {
         "subject": "troffer-diffuser",
-        "pixels": 78864,
+        "pixels": 78868,
         "framePixels": 921600,
-        "frameFraction": 0.08557292,
+        "frameFraction": 0.08557726,
         "passed": true
       },
       "runtime-04-door-inside": {
         "subject": "door-maple",
-        "pixels": 80278,
+        "pixels": 75599,
         "framePixels": 921600,
-        "frameFraction": 0.0871072,
+        "frameFraction": 0.08203016,
         "passed": true
       },
       "runtime-05-troffer-junction": {

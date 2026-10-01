@@ -1,12 +1,12 @@
 {
   "file": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
-  "sha256": "b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e",
-  "bytes": 9588660,
+  "sha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
+  "bytes": 9595148,
   "byteCeiling": 209715200,
   "byteCeilingSource": "tools/openclinxr/evidence/infinigen-empty-shell.ts:WEBXR_GLB_SOFT_CAP_BYTES",
   "decodedWardCeilingMiB": 56,
   "decodedCeilingSource": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
-  "decodedMiBWithMips": 50.6283203125,
+  "decodedMiBWithMips": 50.669882812500006,
   "images": [
     {
       "name": "shell_bake_normal",
@@ -154,6 +154,13 @@
       "width": 512,
       "height": 512,
       "decodedRgbaBytes": 1048576
+    },
+    {
+      "name": "kick_plate_baked_reflection",
+      "encodedBytes": 5506,
+      "width": 128,
+      "height": 64,
+      "decodedRgbaBytes": 32768
     },
     {
       "name": "openclinxr_room_ao_shell_bake_skirting",

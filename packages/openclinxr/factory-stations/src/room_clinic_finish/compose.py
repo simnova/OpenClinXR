@@ -1014,11 +1014,11 @@ DOOR_HINGE_HEIGHTS_M = (0.35, 1.02, 1.69)
 DOOR_HINGE_PLATE_W_M = 0.035
 DOOR_HINGE_PLATE_H_M = 0.11
 DOOR_HINGE_KNUCKLE_R_M = 0.006
-# Reference-door stainless kick plate: 180 mm high, inset 15 mm from the
+# Reference-door stainless kick plate: 250 mm high, inset 15 mm from the
 # leaf edges and floor. It remains recipe-gated so the ward stays byte-identical.
-DOOR_KICK_PLATE_HEIGHT_M = 0.18
+DOOR_KICK_PLATE_HEIGHT_M = 0.25
 DOOR_KICK_PLATE_MARGIN_M = 0.015
-DOOR_KICK_PLATE_PROUD_M = 0.004
+DOOR_KICK_PLATE_PROUD_M = 0.002
 
 
 def _door_steel_material():
@@ -1073,6 +1073,40 @@ def _door_glass_material():
         if key in bsdf.inputs:
             bsdf.inputs[key].default_value = 0.0
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _door_kick_plate_material(steel):
+    """Satin steel with baked indirect reflection for the envmap-less room.
+
+    Retain the lever's metallic BRDF for direct highlights. The emission
+    texture represents reflected room fill, not a luminous light fixture.
+    Only the opted-in plate consumes it; shared steel stays unchanged.
+    """
+    import bpy  # type: ignore[import-not-found]
+    import math
+
+    mat = steel.copy()
+    mat.name = "openclinxr_door_kick_plate_steel"
+    image = bpy.data.images.new("kick_plate_baked_reflection", width=128, height=64)
+    pixels = []
+    for y in range(64):
+        for x in range(128):
+            u, v = x / 127, y / 63
+            highlight = math.exp(-((u - 0.42) / 0.32) ** 2)
+            brush = 0.006 * math.sin(y * 2.4)
+            value = 0.42 + 0.18 * highlight + 0.04 * v + brush
+            pixels.extend((value * 0.97, value * 0.99, value, 1.0))
+    image.pixels.foreach_set(pixels)
+    image.pack()
+    nt = mat.node_tree
+    bsdf = next(node for node in nt.nodes if node.type == "BSDF_PRINCIPLED")
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = image
+    uv = nt.nodes.new("ShaderNodeTexCoord")
+    nt.links.new(uv.outputs["UV"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
+    bsdf.inputs["Emission Strength"].default_value = 1.5
     return mat
 
 
@@ -1248,11 +1282,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
-    # The learner runtime carries no reflective environment, so fully metallic
-    # stainless renders nearly black on this broad face. A neutral diffuse
-    # proxy preserves the reference's mid-grey satin read in that runtime.
-    kick_plate_m = _flat_material(
-        "openclinxr_door_kick_plate_steel", (0.20, 0.21, 0.22), 0.35)
+    kick_plate_m = _door_kick_plate_material(steel_m) if kick_plate else None
     facing_m = _photo_uv_material(
         "openclinxr_finish_door_facing", DOOR_LEAF_FILE, 0.48,
         normal_filename=DOOR_NORMAL_FILE,
@@ -1809,6 +1839,17 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             kp_v1 = min(leaf_v1, kp_v0 + DOOR_KICK_PLATE_HEIGHT_M)
             kp_front = facing_fwd + room_sign * DOOR_KICK_PLATE_PROUD_M
             kp_back = facing_fwd
+            # The simplified source slab bulges through the planar veneer at
+            # the bottom right. Flatten its lower field behind the facing;
+            # increasing plate depth would leave it floating off the leaf.
+            inverse = leaf.matrix_world.inverted()
+            for vertex in leaf.data.vertices:
+                world = leaf.matrix_world @ vertex.co
+                if (world[va] <= kp_v1 + DOOR_KICK_PLATE_MARGIN_M
+                        and room_sign * (world[thin] - face) > 0):
+                    world[thin] = face
+                    vertex.co = inverse @ world
+            leaf.data.update()
             kp_center = [0.0, 0.0, 0.0]
             kp_size = [0.0, 0.0, 0.0]
             kp_center[ua] = (kp_u0 + kp_u1) / 2
@@ -1818,6 +1859,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             kp_size[va] = kp_v1 - kp_v0
             kp_size[thin] = abs(kp_front - kp_back)
             kp_obj = new_box("openclinxr_door_kick_plate", kp_center, kp_size, kick_plate_m)
+            _assign_face_uv(kp_obj, ua, va)
             furnished["kickPlate"] = kp_obj.name
         # Lock cylinder above the lever, on the room-side face.
         if handle is not None:

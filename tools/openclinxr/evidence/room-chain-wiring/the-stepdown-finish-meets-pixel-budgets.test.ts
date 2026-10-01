@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
@@ -33,7 +34,7 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
   it("stays within the 56 MiB decoded RGBA budget", () => {
     expect(budget.materiallessPrimitives).toBe(0);
     expect(budget.decodedMiBWithMips).toBeLessThanOrEqual(56);
-    expect(budget.sha256).toBe("b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e");
+    expect(budget.sha256).toBe(createHash("sha256").update(readFileSync(glb)).digest("hex"));
   });
 
   it("closes only the declared stepdown transom, flush to the shell wall", async () => {
@@ -67,5 +68,29 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
   it("matches the transom infill to the adjacent rendered wall", () => {
     expect(doorMeasurements.after.infillVsWall.deltaRgb.every((channel: number) => Math.abs(channel) <= 3)).toBe(true);
     expect(doorMeasurements.after.infillVsWall.maximumBoundaryColumnStep).toBeLessThanOrEqual(4);
+  });
+
+  it("keeps the stainless kick plate full-width, 250 mm tall, and flush to the facing", async () => {
+    const doc = await new NodeIO().registerExtensions(ALL_EXTENSIONS).read(glb);
+    const nodes = doc.getRoot().listNodes();
+    const plate = nodes.find((node) => node.getName() === "openclinxr_door_kick_plate")!;
+    const leaf = nodes.find((node) => node.getName().endsWith(".door_leaf"))!;
+    const facing = nodes.find((node) => node.getName() === "openclinxr_door_face_south_1")!;
+    const p = getBounds(plate), l = getBounds(leaf), f = getBounds(facing);
+    expect((p.max[0] - p.min[0]) / (l.max[0] - l.min[0])).toBeGreaterThanOrEqual(0.9);
+    expect(p.min[0] - l.min[0]).toBeCloseTo(0.015, 4);
+    expect(l.max[0] - p.max[0]).toBeCloseTo(0.015, 4);
+    expect(p.max[1] - p.min[1]).toBeCloseTo(0.25, 4);
+    expect(p.max[2] - f.max[2]).toBeGreaterThan(0);
+    expect(p.max[2] - f.max[2]).toBeLessThanOrEqual(0.002001);
+    const material = plate.getMesh()!.listPrimitives()[0]!.getMaterial()!;
+    expect(material.getMetallicFactor()).toBeCloseTo(1);
+    expect(material.getRoughnessFactor()).toBeCloseTo(0.35);
+    expect(material.getBaseColorFactor().slice(0, 3).every((channel) => channel >= 0.75)).toBe(true);
+    expect(doorMeasurements.after.kickPlate.widthFractionOfLeaf).toBeGreaterThanOrEqual(0.9);
+    expect(doorMeasurements.after.kickPlate.meanLuminance).toBeGreaterThanOrEqual(doorMeasurements.after.kickPlate.leafMeanLuminance);
+    const capture = path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-04-door-inside.png");
+    expect(doorMeasurements.after.captureSha256).toBe(createHash("sha256").update(readFileSync(capture)).digest("hex"));
+    expect(doorMeasurements.sourceGlbSha256).toBe(budget.sha256);
   });
 });
