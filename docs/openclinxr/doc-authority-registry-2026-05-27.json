@@ -5384,6 +5384,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-04.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes."
     }
   ]
 }
