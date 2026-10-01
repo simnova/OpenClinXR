@@ -19,6 +19,7 @@ export type RoomClinicFinishRunner = {
 };
 import { spawnBlenderProcess } from "../spawn-blender.js";
 import { designRoomFinishRecipe } from "./recipe.js";
+import type { RoomFinishFeatures } from "./finish-features.js";
 
 /**
  * room_clinic_finish: deterministic finish pass over the baked clinic room.
@@ -46,6 +47,7 @@ export type RoomClinicFinishPlanInput = {
   preset: string;
   seed: number;
   modules?: string[];
+  finish?: RoomFinishFeatures;
 };
 
 const CLINIC_FINISH_MODULE_FILES = ["ceiling", "floor", "door", "corridor_cues", "geometry"] as const;

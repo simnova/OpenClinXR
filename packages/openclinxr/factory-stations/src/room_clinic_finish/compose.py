@@ -556,7 +556,11 @@ def classify_mesh(name: str) -> str:
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
                          emit_floor: bool = True, floor_tile_layout: bool = False,
-                         emit_cove: bool = False, floor_top: float | None = None) -> dict:
+                         floor_tile_module_m: float = FLOOR_TILE_MODULE_M,
+                         emit_cove: bool = False, cove_height_m: float = SKIRTING_COVE_HEIGHT_M,
+                         cove_rgb: tuple = SKIRTING_COVE_RGB_LINEAR,
+                         emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
+                         floor_top: float | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -684,7 +688,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
             # Top rides 3 mm above the shell plane (never the bounds min).
             floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
                                 w, d, 0.05, floor_m)
-            _assign_world_xy_uv(floor_obj, 1.0 / FLOOR_TILE_MODULE_M)
+            _assign_world_xy_uv(floor_obj, 1.0 / floor_tile_module_m)
         else:
             floor_photo_m = _photo_uv_material("openclinxr_finish_floor_photo", FLOOR_TEXTURE_FILE, 0.45)
             floor_obj = new_box("openclinxr_floor_field", cx, cy, minz + 0.03, w, d, 0.05, floor_photo_m)
@@ -713,50 +717,34 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     frame = TROFFER_FRAME_WIDTH_M
     diffuser_x0, diffuser_x1 = troffer_x0 + frame, troffer_x1 - frame
     diffuser_y0, diffuser_y1 = troffer_y0 + frame, troffer_y1 - frame
-    troffer_obj = new_box(
-        "openclinxr_troffer_diffuser",
-        (diffuser_x0 + diffuser_x1) / 2,
-        (diffuser_y0 + diffuser_y1) / 2,
-        tbar_z - 0.001 - TROFFER_DIFFUSER_DEPTH_M / 2,
-        diffuser_x1 - diffuser_x0,
-        diffuser_y1 - diffuser_y0,
-        TROFFER_DIFFUSER_DEPTH_M,
-        troffer_m,
-    )
-    _assign_top_unit_uv(troffer_obj, diffuser_x0, diffuser_x1, diffuser_y0, diffuser_y1)
-    frame_z = tbar_z - 0.001 - TROFFER_FRAME_DEPTH_M / 2
-    new_box(
-        "openclinxr_troffer_frame_long_0",
-        (troffer_x0 + troffer_x1) / 2,
-        troffer_y0 + frame / 2,
-        frame_z,
-        TROFFER_LONG_M,
-        frame,
-        TROFFER_FRAME_DEPTH_M,
-        troffer_frame_m,
-    )
-    new_box(
-        "openclinxr_troffer_frame_long_1",
-        (troffer_x0 + troffer_x1) / 2,
-        troffer_y1 - frame / 2,
-        frame_z,
-        TROFFER_LONG_M,
-        frame,
-        TROFFER_FRAME_DEPTH_M,
-        troffer_frame_m,
-    )
-    for index, x in enumerate((troffer_x0 + frame / 2, troffer_x1 - frame / 2)):
-        new_box(
-            "openclinxr_troffer_frame_short_%d" % index,
-            x,
+    if emit_troffer:
+        troffer_obj = new_box(
+            "openclinxr_troffer_diffuser",
+            (diffuser_x0 + diffuser_x1) / 2,
             (diffuser_y0 + diffuser_y1) / 2,
-            frame_z,
-            frame,
+            tbar_z - 0.001 - TROFFER_DIFFUSER_DEPTH_M / 2,
+            diffuser_x1 - diffuser_x0,
             diffuser_y1 - diffuser_y0,
-            TROFFER_FRAME_DEPTH_M,
-            troffer_frame_m,
+            TROFFER_DIFFUSER_DEPTH_M,
+            troffer_m,
         )
-    counts["troffer"] += 1
+        _assign_top_unit_uv(troffer_obj, diffuser_x0, diffuser_x1, diffuser_y0, diffuser_y1)
+        frame_z = tbar_z - 0.001 - TROFFER_FRAME_DEPTH_M / 2
+        new_box(
+            "openclinxr_troffer_frame_long_0", (troffer_x0 + troffer_x1) / 2,
+            troffer_y0 + frame / 2,
+            frame_z,
+            TROFFER_LONG_M, frame, TROFFER_FRAME_DEPTH_M, troffer_frame_m)
+        new_box(
+            "openclinxr_troffer_frame_long_1", (troffer_x0 + troffer_x1) / 2,
+            troffer_y1 - frame / 2, frame_z,
+            TROFFER_LONG_M, frame, TROFFER_FRAME_DEPTH_M, troffer_frame_m)
+        for index, x in enumerate((troffer_x0 + frame / 2, troffer_x1 - frame / 2)):
+            new_box(
+                "openclinxr_troffer_frame_short_%d" % index, x,
+                (diffuser_y0 + diffuser_y1) / 2, frame_z, frame,
+                diffuser_y1 - diffuser_y0, TROFFER_FRAME_DEPTH_M, troffer_frame_m)
+        counts["troffer"] += 1
     # Real T-bar grid: 24 mm white strips on the 0.6 m module lines anchored
     # to the grid origin above, 2 mm proud of the tile underside so they read
     # as geometry instead of hiding in the tile slab. Strips stop at the
@@ -765,7 +753,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     tbar_lines_x: list[float] = []
     tbar_lines_y: list[float] = []
     tbar_count = 0
-    strip_margin = TBAR_WIDTH_M / 2 + 0.002
+    strip_margin = tbar_width_m / 2 + 0.002
     kx = math.ceil((minx - grid_ox) / CEILING_MODULE_M)
     while True:
         line = grid_ox + kx * CEILING_MODULE_M
@@ -774,16 +762,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         if line >= minx - 1e-6:
             tbar_lines_x.append(line)
             spans = [(miny, maxy)]
-            if troffer_x0 - strip_margin <= line <= troffer_x1 + strip_margin:
+            if emit_troffer and troffer_x0 - strip_margin <= line <= troffer_x1 + strip_margin:
                 spans = [(miny, troffer_y0), (troffer_y1, maxy)]
             for index, (ya, yb) in enumerate(spans):
                 if yb - ya < 0.001:
                     continue
                 new_box("openclinxr_tbar_x_%d_%d" % (kx, index), line, (ya + yb) / 2,
-                        tbar_z - TBAR_PROUD_M + 0.01, TBAR_WIDTH_M, yb - ya, 0.02, tbar_m)
+                        tbar_z - TBAR_PROUD_M + 0.01, tbar_width_m, yb - ya, 0.02, tbar_m)
                 for edge_index, edge_x in enumerate((
-                    line - TBAR_WIDTH_M / 2 + TBAR_EDGE_WIDTH_M / 2,
-                    line + TBAR_WIDTH_M / 2 - TBAR_EDGE_WIDTH_M / 2,
+                    line - tbar_width_m / 2 + TBAR_EDGE_WIDTH_M / 2,
+                    line + tbar_width_m / 2 - TBAR_EDGE_WIDTH_M / 2,
                 )):
                     new_box("openclinxr_tbar_edge_x_%d_%d_%d" % (kx, index, edge_index),
                             edge_x, (ya + yb) / 2,
@@ -799,16 +787,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         if line >= miny - 1e-6:
             tbar_lines_y.append(line)
             spans = [(minx, maxx)]
-            if troffer_y0 - strip_margin <= line <= troffer_y1 + strip_margin:
+            if emit_troffer and troffer_y0 - strip_margin <= line <= troffer_y1 + strip_margin:
                 spans = [(minx, troffer_x0), (troffer_x1, maxx)]
             for index, (xa, xb) in enumerate(spans):
                 if xb - xa < 0.001:
                     continue
                 new_box("openclinxr_tbar_y_%d_%d" % (ky, index), (xa + xb) / 2, line,
-                        tbar_z - TBAR_PROUD_M + 0.01, xb - xa, TBAR_WIDTH_M, 0.02, tbar_m)
+                        tbar_z - TBAR_PROUD_M + 0.01, xb - xa, tbar_width_m, 0.02, tbar_m)
                 for edge_index, edge_y in enumerate((
-                    line - TBAR_WIDTH_M / 2 + TBAR_EDGE_WIDTH_M / 2,
-                    line + TBAR_WIDTH_M / 2 - TBAR_EDGE_WIDTH_M / 2,
+                    line - tbar_width_m / 2 + TBAR_EDGE_WIDTH_M / 2,
+                    line + tbar_width_m / 2 - TBAR_EDGE_WIDTH_M / 2,
                 )):
                     new_box("openclinxr_tbar_edge_y_%d_%d_%d" % (ky, index, edge_index),
                             (xa + xb) / 2, edge_y,
@@ -820,19 +808,19 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     ceiling_grid = {
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
-        "tbarWidth": TBAR_WIDTH_M,
+        "tbarWidth": tbar_width_m,
         "tbarEdgeWidth": TBAR_EDGE_WIDTH_M,
         "tbarZ": tbar_z,
         "shellCeilingZ": ceiling_plane_z,
         "tbarLinesX": tbar_lines_x,
         "tbarLinesY": tbar_lines_y,
-        "troffer": {"minX": troffer_x0, "maxX": troffer_x1,
+        "troffer": ({"minX": troffer_x0, "maxX": troffer_x1,
                     "minY": troffer_y0, "maxY": troffer_y1, "topZ": tbar_z - 0.001,
                     "frameWidth": TROFFER_FRAME_WIDTH_M,
                     "frameNodes": ["openclinxr_troffer_frame_long_0",
                                    "openclinxr_troffer_frame_long_1",
                                    "openclinxr_troffer_frame_short_0",
-                                   "openclinxr_troffer_frame_short_1"]},
+                                   "openclinxr_troffer_frame_short_1"]} if emit_troffer else None),
     }
     # Crash rail along corridor wall, off by default
     if crash_rail:
@@ -842,7 +830,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     if emit_cove:
         if floor_top is None:
             raise SystemExit("room_clinic_finish: cove base needs a measured shell floor plane")
-        cove_m = _flat_material("openclinxr_finish_cove", SKIRTING_COVE_RGB_LINEAR, SKIRTING_COVE_ROUGHNESS)
+        cove_m = _flat_material("openclinxr_finish_cove", cove_rgb, SKIRTING_COVE_ROUGHNESS)
         planes = _wall_inner_planes()
         x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
         t = SKIRTING_COVE_THICKNESS_M
@@ -883,7 +871,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
             # triangles (closed solid, so normals_make_consistent below
             # orients outward regardless of authored winding).
             t = SKIRTING_COVE_THICKNESS_M
-            h = SKIRTING_COVE_HEIGHT_M
+            h = cove_height_m
             zb = floor_top + FLOOR_FIELD_LIFT_M
             mesh = bpy.data.meshes.new(name + "_mesh")
             obj = bpy.data.objects.new(name, mesh)
@@ -935,7 +923,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                     continue
                 cove_run("openclinxr_cove_%s_%d" % (side, index), plane_pos, seg_lo, seg_hi,
                          axis, side)
-        cove_info = {"runs": counts.get("cove", 0), "height": SKIRTING_COVE_HEIGHT_M,
+        cove_info = {"runs": counts.get("cove", 0), "height": cove_height_m,
                      "thickness": t, "doorSide": door_side, "doorGap": gap}
     return {"meshes": created, "counts": counts, "crashRail": crash_rail, "seed": seed,
             "ceilingGrid": ceiling_grid, "cove": cove_info}
@@ -1222,7 +1210,8 @@ def _lite_opening_from_mesh(obj) -> dict | None:
         bm.free()
 
 
-def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
+def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
+                       casing_rgb: tuple = DOOR_CASING_RGB) -> dict:
     """Glass + lite frame + hinges + casing repaint (Blender runtime only).
 
     The lite rect comes from the deterministic recipe options.door.lite
@@ -1255,7 +1244,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list) -> dict:
         "openclinxr_finish_door_facing", DOOR_LEAF_FILE, 0.48,
         normal_filename=DOOR_NORMAL_FILE,
         roughness_filename=DOOR_ROUGHNESS_FILE)
-    casing_m = _door_casing_material(DOOR_CASING_RGB,
+    casing_m = _door_casing_material(casing_rgb,
                                      float(palette.get("roughness", 0.85)))
     reveal_m = _door_reveal_material()
     casing_re = re.compile(r"\.door_casing(_\d+)?$")
@@ -1796,18 +1785,26 @@ def apply_finish() -> int:
     bpy.ops.object.select_all(action="DESELECT")
     painted = {"wall": 0, "trim": 0, "other": 0}
 
-    # ward_photo dark-factory preservation (finish-preserve-shell): the S2
+    # Data-driven preservation: the S2
     # shell bake is the source of truth for wall, ceiling shell, and
     # trim (shell_bake_trim landed with the metal-aware glossy pass), so the
     # flat wall/trim repaint is skipped entirely and those materials pass
     # through untouched with their baked normal/roughness maps. The floor
     # is the documented tile exception (see README): the shell rubber bake
     # cannot produce the specced 600 mm vinyl tile, so the finish emits the
-    # procedural tile field instead. Scoped to
-    # ward_photo only: peds_calm/clinic_day/evening_calm keep the legacy
-    # repaint (their tests + fixtures pin that behaviour; no real-chain
-    # calibration depends on changing them).
-    preserve_shell = recipe.get("preset") == "ward_photo"
+    # procedural tile field instead. Recipes without a finish block keep the
+    # legacy repaint path byte-for-byte.
+    finish = recipe.get("finish")
+    if finish is not None and not isinstance(finish, dict):
+        raise ValueError("recipe.finish must be an object when present")
+    finish = finish if isinstance(finish, dict) else {}
+    preserve_shell = finish.get("preserveShell", False) is True
+    floor_feature = finish.get("floor") if isinstance(finish.get("floor"), dict) else None
+    cove_feature = finish.get("cove") if isinstance(finish.get("cove"), dict) else None
+    door_feature = finish.get("door") if isinstance(finish.get("door"), dict) else None
+    ceiling_feature = finish.get("ceiling") if isinstance(finish.get("ceiling"), dict) else None
+    neutral_tints = finish.get("neutralTints") if isinstance(finish.get("neutralTints"), dict) else {}
+    wall_matte_roughness = finish.get("wallMatteRoughness", palette.get("roughness", 0.85))
 
     def ensure_material(name: str, albedo: list) -> object:
         material = bpy.data.materials.get(name)
@@ -1823,7 +1820,7 @@ def apply_finish() -> int:
         if principled is not None:
             r, g, b = (float(channel) for channel in albedo)
             principled.inputs["Base Color"].default_value = (r, g, b, 1.0)
-            roughness = palette.get("roughness", 0.85)
+            roughness = wall_matte_roughness
             if "Roughness" in principled.inputs:
                 principled.inputs["Roughness"].default_value = float(roughness)
         return material
@@ -1892,13 +1889,13 @@ def apply_finish() -> int:
             if ceiling_inner_z is None or mesh_min_z > ceiling_inner_z:
                 ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
-    # Ward cove exception (see README): the shell floor skirting (random
+    # Recipe cove feature (see README): the shell floor skirting (random
     # height/profile white plastic from skirting_board.py) is removed and
     # the finish emits the thin cove base instead. Ceiling skirting stays.
     # Other presets keep the legacy trim-paint path above (untouched).
     removed_skirting: list[str] = []
     measured_floor_top: float | None = None
-    if preserve_shell:
+    if cove_feature is not None or floor_feature is not None:
         for obj in list(bpy.data.objects):
             if obj.type == "MESH" and _is_shell_floor_skirting(obj.name):
                 removed_skirting.append(obj.name)
@@ -1906,10 +1903,20 @@ def apply_finish() -> int:
         measured_floor_top = _shell_floor_top()
         if measured_floor_top is None:
             raise SystemExit("room_clinic_finish: no shell floor plane for tile/cove placement")
+    floor_tile_layout = floor_feature is not None and floor_feature.get("kind") == "vinyl-tile"
+    floor_module_m = float(floor_feature.get("moduleM", FLOOR_TILE_MODULE_M)) if floor_feature else FLOOR_TILE_MODULE_M
+    cove_height_m = float(cove_feature.get("heightM", SKIRTING_COVE_HEIGHT_M)) if cove_feature else SKIRTING_COVE_HEIGHT_M
+    cove_rgb = tuple(neutral_tints.get("coveRgb", SKIRTING_COVE_RGB_LINEAR))
+    tbar_width_m = (float(ceiling_feature.get("tbarMm", TBAR_WIDTH_M * 1000)) / 1000
+                    if ceiling_feature else TBAR_WIDTH_M)
+    emit_troffer = ceiling_feature.get("troffer", True) is True if ceiling_feature else True
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
-                                    emit_floor=True, floor_tile_layout=preserve_shell,
-                                    emit_cove=preserve_shell, floor_top=measured_floor_top)
+                                    emit_floor=True, floor_tile_layout=floor_tile_layout,
+                                    floor_tile_module_m=floor_module_m,
+                                    emit_cove=cove_feature is not None, cove_height_m=cove_height_m,
+                                    cove_rgb=cove_rgb, emit_troffer=emit_troffer,
+                                    tbar_width_m=tbar_width_m, floor_top=measured_floor_top)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
@@ -1918,7 +1925,7 @@ def apply_finish() -> int:
     # has no maple-veneer class), now as the leaf-aspect crop with full PBR.
     # Fail closed when the strip did not keep
     # a leaf: a finish without a door would re-create the dark-hole capture.
-    if preserve_shell:
+    if door_feature is not None and door_feature.get("photoPbr") is True:
         door_leaf = _texture_kept_door_leaf(DOOR_LEAF_FILE, DOOR_NORMAL_FILE, DOOR_ROUGHNESS_FILE)
     else:
         door_leaf = _texture_kept_door_leaf()
@@ -1931,13 +1938,17 @@ def apply_finish() -> int:
     door_furniture: dict = {"glass": [], "frame": [], "hinges": [], "casing": [],
                             "opening": None, "openingSource": None}
     options = recipe.get("options")
-    if preserve_shell and isinstance(options, dict) and options.get("door") is not None:
+    hospital_door = (door_feature is not None and door_feature.get("kind") == "hospital"
+                     and all(door_feature.get(name) is True
+                             for name in ("casing", "lite", "lever", "hinges")))
+    if hospital_door and isinstance(options, dict) and options.get("door") is not None:
         room_c = [0.0, 0.0, 0.0]
         if shell is not None:
             room_c = [(shell["x"][0] + shell["x"][1]) / 2,
                       (shell["y"][0] + shell["y"][1]) / 2,
                       (shell["z"][0] + shell["z"][1]) / 2]
-        door_furniture = _furnish_ward_door(recipe, palette, room_c)
+        casing_rgb = tuple(neutral_tints.get("casingRgb", DOOR_CASING_RGB))
+        door_furniture = _furnish_ward_door(recipe, palette, room_c, casing_rgb)
 
     bpy.ops.wm.save_as_mainfile(filepath=args.output.replace(".glb", ".blend"))
     bpy.ops.export_scene.gltf(filepath=args.output, export_format="GLB", export_extras=True)
@@ -1946,6 +1957,7 @@ def apply_finish() -> int:
         "schemaVersion": RECIPE_SCHEMA_VERSION,
         "environmentId": recipe.get("environmentId"),
         "preset": recipe.get("preset"),
+        "finish": finish or None,
         "preserveShell": preserve_shell,
         "painted": painted,
         "signageAnchors": stamped,

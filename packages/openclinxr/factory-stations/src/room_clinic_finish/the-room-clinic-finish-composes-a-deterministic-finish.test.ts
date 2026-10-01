@@ -119,11 +119,10 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     expect(existsSync(join(SRC, "textures", "ceiling-tile-face.png"))).toBe(true);
   });
 
-  it("(8b) ward_photo preserves the shell bake and wires full PBR on tile + leaf", () => {
+  it("(8b) finish features preserve the shell bake and wire full PBR on tile + leaf", () => {
     const composeSrc = readFileSync(join(SRC, "compose.py"), "utf8");
-    // ward_photo scope: flat repaint + vinyl floor field gated off so the
-    // shell_bake_* materials pass through; other presets keep legacy paint.
-    expect(composeSrc).toContain('recipe.get("preset") == "ward_photo"');
+    expect(composeSrc).not.toContain('recipe.get("preset") == "ward_photo"');
+    expect(composeSrc).toContain('finish.get("preserveShell", False)');
     expect(composeSrc).toContain("preserve_shell");
     expect(composeSrc).toContain("emit_floor");
     // Ceiling tile face: procedural albedo plus derived normal/roughness via
@@ -146,6 +145,39 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     // 0.6 desaturation was calibrated against a wall crop.
     expect(texturePipeline).toContain("DOOR_DESAT = 0.0");
     expect(texturePipeline).toContain("LEAF_CONTRAST = 1.5");
+  });
+
+  it("(8c) validates the complete ward feature block and fails closed on an unknown field", () => {
+    const finish = {
+      preserveShell: true,
+      floor: { kind: "vinyl-tile", moduleM: 0.6 },
+      cove: { heightM: 0.1 },
+      door: { kind: "hospital", photoPbr: true, casing: true, lite: true, lever: true, hinges: true },
+      ceiling: { troffer: true, tbarMm: 24 },
+      wallMatteRoughness: 0.85,
+      neutralTints: { casingRgb: [0.79, 0.81, 0.83], coveRgb: [0.313, 0.323, 0.352] },
+    };
+    const valid = planRoomClinicFinish(validInput({ finish }));
+    expect(valid.issues).toBeUndefined();
+    if (valid.issues !== undefined) return;
+    expect((valid.plan["recipe"] as { finish: { floor: unknown } }).finish.floor)
+      .toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
+    const invalid = planRoomClinicFinish(validInput({ finish: { ...finish, surprise: true } }));
+    expect(invalid.issues?.map((issue) => issue.message).join("; "))
+      .toMatch(/RoomFinishFeatureValidationError:.*unknown field.*surprise/);
+  });
+
+  it("(8d) preserves the legacy no-finish recipe contract", () => {
+    const legacy = designRoomFinishRecipe(validInput({ preset: "clinic_day" }) as {
+      environmentId: string; preset: string; seed: number;
+    });
+    expect(legacy).not.toHaveProperty("finish");
+    expect(legacy.options).toEqual({ crashRail: false });
+    expect(legacy.palette).toEqual({
+      wallAlbedo: [0.9, 0.9, 0.88], trimAlbedo: [0.96, 0.96, 0.94],
+      accentAlbedo: [0.25, 0.5, 0.68], roughness: 0.8,
+      signageAnchors: ["door_header", "exam_table_foot"],
+    });
   });
 
   it("(9) S5 finish rework: corridor props deleted, crash rail off by default, no fixed ceiling height", () => {

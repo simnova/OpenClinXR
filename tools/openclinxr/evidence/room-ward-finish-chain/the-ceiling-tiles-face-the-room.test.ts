@@ -142,6 +142,15 @@ function recipeJson(): string {
       environmentId: "inpatient_ward_room_v1",
       preset: "ward_photo",
       seed: 7,
+      finish: {
+        preserveShell: true,
+        floor: { kind: "vinyl-tile", moduleM: 0.6 },
+        cove: { heightM: 0.1 },
+        door: { kind: "hospital", photoPbr: true, casing: true, lite: true, lever: true, hinges: true },
+        ceiling: { troffer: true, tbarMm: 24 },
+        wallMatteRoughness: 0.85,
+        neutralTints: { casingRgb: [0.79, 0.81, 0.83], coveRgb: [0.313, 0.323, 0.352] },
+      },
       palette: {
         wallAlbedo: [0.9, 0.9, 0.88],
         trimAlbedo: [0.96, 0.96, 0.94],

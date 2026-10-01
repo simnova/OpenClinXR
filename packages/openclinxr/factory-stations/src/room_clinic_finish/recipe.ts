@@ -11,6 +11,8 @@
  * ranges; the finish pass paints materials and emits finish geometry.
  */
 
+import { type RoomFinishFeatures, validateRoomFinishFeatures } from "./finish-features.js";
+
 export const ROOM_CLINIC_FINISH_SCHEMA_VERSION = "openclinxr.room-clinic-finish.v1";
 
 /** Closed finish-preset enum. No free text: the factory stays deterministic. */
@@ -26,6 +28,7 @@ export const ROOM_FINISH_KNOWN_ROOMS = [
   "urgent_care_clinic_room_v1",
   "pediatric_fever_urgent_care_bay_v1",
   "inpatient_ward_room_v1",
+  "stepdown_room_v1",
 ] as const;
 
 export type RoomFinishPalette = {
@@ -59,6 +62,8 @@ export type RoomFinishRecipe = {
   light: { exposure: "xr"; floorResponse: "xt_matte" };
   /** S5: crash rail gate, off by default (compose.py reads options.crashRail). */
   options: { crashRail: boolean; door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number } };
+  /** Optional feature block. Absence preserves every legacy preset behavior. */
+  finish?: RoomFinishFeatures;
   finishPassLlm: false;
 };
 
@@ -120,6 +125,7 @@ export type RoomFinishRecipeInput = {
   crashRail?: boolean;
   /** Opt-in door furniture (hinge plates + lite fallback rect + leaf margin basis); absent = none. */
   door?: { hingeSide: string; lite?: [number, number, number, number]; margin?: number };
+  finish?: RoomFinishFeatures;
 };
 
 /** Parse + refusal rules shared by plan() and the runner. */
@@ -179,6 +185,15 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
     }
   }
   if (issues.length > 0) return { issues };
+  let finish: RoomFinishFeatures | undefined;
+  if (input["finish"] !== undefined) {
+    try {
+      finish = validateRoomFinishFeatures(input["finish"], "finish");
+    } catch (error) {
+      issues.push(error instanceof Error ? `${error.name}: ${error.message}` : String(error));
+    }
+  }
+  if (issues.length > 0) return { issues };
   return {
     recipe: {
       schemaVersion: ROOM_CLINIC_FINISH_SCHEMA_VERSION,
@@ -195,6 +210,7 @@ export function parseRoomFinishRecipe(input: Record<string, unknown>): { issues:
       modules: ROOM_FINISH_MODULES.map((entry) => ({ ...entry })),
       light: { exposure: "xr", floorResponse: "xt_matte" },
       options: { crashRail: crashRail === true, ...(door !== undefined ? { door } : {}) },
+      ...(finish === undefined ? {} : { finish }),
       finishPassLlm: false,
     },
   };

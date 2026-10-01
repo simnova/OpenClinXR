@@ -1,8 +1,8 @@
 /**
- * Ward finish chain, package-internal orchestration (ward-finish-chain slice).
+ * Room finish chain, package-internal orchestration (ward-finish-chain lineage).
  *
  * Runs room_generate -> room_clinic_finish -> lighting_design in sequence on
- * ONE work GLB for `inpatient_ward_room_v1`, then reports per-stage material
+ * one registered environment recipe, then reports per-stage material
  * state. The three stage runners are imported by RELATIVE PATH from their
  * sibling station folders: this module lives inside `@openclinxr/factory-stations`,
  * so those imports never cross a package boundary. The entrypoint publishes
@@ -12,7 +12,7 @@
  * room-dimensions-fix pin (footprint 4.3 x 3.9 x 2.4, door wall +y offset
  * 0.25, hinge +x, style lite), plus the existing albedo+occlusion bake and
  * trim-locked simplify -- all inside runRoomGenerate.
- * Step 2 (room_clinic_finish): ward_photo preset compose IN PLACE on the
+ * Step 2 (room_clinic_finish): recipe-driven finish compose IN PLACE on the
  * work GLB room_generate produced.
  * Step 3 (lighting_design): clinic_day rig computed against the footprint
  * bbox; writes the rig JSON the runtime/bake consume. Does not touch the GLB.
@@ -34,6 +34,7 @@ import { repoRoot } from "../repo-root.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
 import { roomChainRecipeFor } from "./recipes.js";
+export { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
 import {
   collectStageKeyInputs,
   lookupStageCache,
@@ -373,6 +374,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     environmentId: recipe.environmentId,
     preset: recipe.finishPreset,
     seed,
+    ...(recipe.finish === undefined ? {} : { finish: recipe.finish }),
     // Ward door furniture: hinge plates mount on this jamb; the lite
     // fractions place the glass/frame when the leaf carries no cut
     // opening (same rect the generate stage cuts, mirrored + margin
@@ -438,6 +440,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     footprintMeters: recipe.footprintMeters,
     door: recipe.door,
     preset: recipe.finishPreset,
+    finish: recipe.finish,
     mood: recipe.lightingMood,
     cache: cacheStatus,
     workGlb,
@@ -455,7 +458,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
   );
 
   // Convenience copy: the exact file Task 2 wires as the shipped environment.
-  const finalCopy = path.join(outDir, "infinigen-inpatient-ward.chain.glb");
+  const finalCopy = path.join(outDir, `infinigen-${recipe.environmentId.replace(/_room_v\d+$/, "").replaceAll("_", "-")}.chain.glb`);
   copyFileSync(workGlb, finalCopy);
   process.stdout.write(`[ward-chain] final copy: ${finalCopy} (exists=${existsSync(finalCopy)})\n`);
   const digest = (file: string): string => createHash("sha256").update(readFileSync(file)).digest("hex");

@@ -40,7 +40,8 @@ than left implicit in the code comments.
 
 ## Documented exception: the ward door furniture (vision lite + hinges + casing)
 
-Under `ward_photo` the finish furnishes Infinigen's kept leaf and casing
+When `finish.door.kind` is `hospital` and its feature flags are enabled, the
+finish furnishes Infinigen's kept leaf and casing
 (`_furnish_ward_door` in `compose.py`, recipe `options.door` carrying the
 hinge side plus the lite fallback fractions, both threaded from the chain's
 `WARD_CHAIN_DOOR` single source). Deliberate exception, recorded 2026-09-29
@@ -107,7 +108,7 @@ Infinigen-first was investigated per part and recorded in
 
 ## Documented exception: the ward vinyl-tile floor field
 
-Under `ward_photo` the finish emits a procedural vinyl-tile floor field
+When `finish.floor.kind` is `vinyl-tile`, the finish emits a procedural floor field
 (`openclinxr_floor_field`, material `openclinxr_finish_floor_tile_photo`)
 that covers the shell `shell_bake_floor`, instead of passing the shell
 floor through. This is a deliberate exception to the dark-factory rule,
@@ -152,7 +153,7 @@ meet each member with a small shadowed reveal instead of a flat bright stripe.
 
 ## Documented exception: the ward thin cove base
 
-Under `ward_photo` the finish removes Infinigen's shell floor skirting
+When `finish.cove` is present, the finish removes Infinigen's shell floor skirting
 and emits a thin vinyl cove base (`openclinxr_cove_*` runs, material
 `openclinxr_finish_cove`) instead. Deliberate exception, recorded
 2026-09-29 after a coordinator pixel grade of the seed-205 chain (v2
@@ -179,25 +180,23 @@ height and matte vinyl grey land inside the existing
 the shell `SKIRTING_BASE_COLOR_LINEAR` calibration. Ceiling skirting
 stays untouched; other presets keep the legacy trim-paint path.
 
-## ward_photo preservation: the shell bake passes through
+## Data-driven preservation: the shell bake passes through
 
-Under the `ward_photo` preset only (the ward finish chain), `compose.py`
-does not repaint wall/trim and does not emit the vinyl floor field: the
-`shell_bake_wall/floor/ceiling/trim` materials pass through untouched with
+When `finish.preserveShell` is true, `compose.py` does not repaint wall/trim;
+the `shell_bake_wall/floor/ceiling/trim` materials pass through untouched with
 their baked normal/roughness maps. Rationale: the shell bake is the source
 of truth for anything Infinigen can represent, and the finish previously
 rebuilt every material from scratch, discarding the neutral-plaster palette,
 the BumpyRubberFloor calibration, the trim-role bake, the box-projection UV
 work, and the baked maps (measured: every `openclinxr_finish_*` material
-shipped null normal/roughness textures). Scoped to `ward_photo`:
-`peds_calm`/`clinic_day`/`evening_calm` keep the legacy repaint (their tests
-pin it; no real-chain calibration depends on changing them).
+shipped null normal/roughness textures). Recipes with no `finish` block keep
+the legacy repaint (their tests pin that behavior).
 
 Finish-added surfaces keep full PBR under every preset: the ceiling tile
 face (procedural `ceiling-tile-face.png` plus derived normal/roughness) and
 the door leaf (leaf-aspect `door-maple-leaf.jpg` plus derived
-normal/roughness under `ward_photo`; legacy square maple, albedo-only,
-elsewhere) link Normal Map and roughness textures with the same node pattern
+normal/roughness when `finish.door.photoPbr` is true; legacy square maple,
+albedo-only otherwise) link Normal Map and roughness textures with the same node pattern
 as the shell bake's `build_role_material`. T-bar strips stay flat geometry;
 the troffer diffuser carries its generated gradient as both base colour and
 emissive texture inside the separate metal frame.
