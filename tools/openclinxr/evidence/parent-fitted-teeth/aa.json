@@ -1,14 +1,15 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.v1",
-  "generatedAt": "2026-09-30T21:05:00.000Z",
+  "generatedAt": "2026-10-01T01:46:43.316Z",
   "glb": "/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "glbSha256": "171c07be1a632cb13f049c7589d967ef0d2a34a77be658a0507593544ed6b29a",
+  "glbSha256": "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20af3f4331",
   "jawRadians": 0.15086,
+  "measuredJawX": 2.780581794444813,
   "teethMesh": "openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh",
   "teethTris": 7120,
   "tongueMesh": "openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh",
   "tongueTris": 448,
-  "claimScope": "parent ships fitted CC0 teeth and tongue with positive clearance",
+  "claimScope": "parent tongue re-aim AA",
   "notEvidenceFor": [
     "clinical",
     "Quest",

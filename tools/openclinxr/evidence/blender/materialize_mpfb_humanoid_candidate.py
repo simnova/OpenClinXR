@@ -4865,6 +4865,59 @@ def main():
         f"tris {_tongue_tris} material {[_tongue_mat.name]} licence {_tongue_lic_raw!r}"
     )
 
+    # Parent mouth realism: re-aimed tongue offset in the POSED frame + floor clamp.
+    # The prior blind local forward push crossed the teeth plane (gap -0.00324).
+    # Forward is confirmed against the jaw bone as posed-frame -Y; the offset uses
+    # a larger forward component, and the floor clamp keeps tongue verts below the
+    # teeth band so the tongue cannot rise into it.
+    _tongue_arm = next(
+        (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
+    )
+    _jaw_bone = _tongue_arm.pose.bones.get("jaw") if _tongue_arm else None
+    if _jaw_bone is not None:
+        from mathutils import Vector as _Vec
+        _jaw_fwd = (_jaw_bone.matrix @ _Vec((0.0, -1.0, 0.0, 0.0))).xyz.normalized()
+        _tongue_mesh = _tongue_asset.data
+        _teeth_world_z = [
+            (_teeth_asset.matrix_world @ v.co).z for v in _teeth_asset.data.vertices
+        ]
+        _teeth_floor = min(_teeth_world_z)
+        _TONGUE_FWD_MM = 6.0
+        _TONGUE_FLOOR_MARGIN_MM = 1.0
+        _iw = _tongue_asset.matrix_world.inverted()
+        _fwd_local = (_iw.to_3x3() @ _jaw_fwd) * (_TONGUE_FWD_MM / 1000.0)
+        _floor_local_z = None
+        for _v in _tongue_mesh.vertices:
+            _v.co = _v.co + _fwd_local
+        bpy.context.view_layer.update()
+        _iw2 = _tongue_asset.matrix_world.inverted()
+        # Shape-preserving floor clamp: single rigid translate so the mesh keeps
+        # its thickness. The prior per-vertex set-to-plane flattened the tongue
+        # to zero Y extent (degenerate sheet).
+        _cap = _teeth_floor - (_TONGUE_FLOOR_MARGIN_MM / 1000.0)
+        _overshoot = max(
+            (_tongue_asset.matrix_world @ _v.co).z - _cap
+            for _v in _tongue_mesh.vertices
+        )
+        _clamped = 0
+        if _overshoot > 0.0:
+            _down_local = _iw2.to_3x3() @ _Vec((0.0, 0.0, -_overshoot))
+            for _v in _tongue_mesh.vertices:
+                _v.co = _v.co + _down_local
+            _clamped = len(_tongue_mesh.vertices)
+        bpy.context.view_layer.update()
+        _tw = [(_tongue_asset.matrix_world @ _v.co) for _v in _tongue_mesh.vertices]
+        _ty = [c.y for c in _tw]
+        _tz = [c.z for c in _tw]
+        print(
+            f"TONGUE_REAIM fwd_mm={_TONGUE_FWD_MM} floor_margin_mm={_TONGUE_FLOOR_MARGIN_MM} "
+            f"jaw_fwd=({ _jaw_fwd.x:.4f},{_jaw_fwd.y:.4f},{_jaw_fwd.z:.4f}) "
+            f"teeth_floor_z={_teeth_floor:.6f} clamped={_clamped} "
+            f"tongue_y=[{min(_ty):.6f},{max(_ty):.6f}] tongue_z=[{min(_tz):.6f},{max(_tz):.6f}]"
+        )
+    else:
+        print("TONGUE_REAIM skipped: jaw bone missing")
+
     # #542 — SELECTIVE retention of hm08 feature helpers BEFORE the #318 strip.
     # Teeth / tongue / eyelashes live in HelperGeometry alongside fitting cages.
     # Extract them onto separate named meshes first; then remove_helpers=True still
