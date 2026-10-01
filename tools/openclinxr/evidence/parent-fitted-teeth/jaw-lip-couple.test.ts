@@ -23,6 +23,7 @@ import {
   FRONT_SHELL_GAP_MIN_M,
   archFaceIndices,
   archFaceLead,
+  cameraLipCutCounts,
   frontShellIndices,
   frontShellMeanGap,
   jawDescendantVertexMask,
@@ -612,6 +613,23 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }));
     console.log(JSON.stringify(printable, null, 2));
     expect(failures, JSON.stringify(printable)).toEqual([]);
+  }, 120_000);
+
+  it("keeps arch samples out of the 0.2–2 mm camera lip cut on aa, E, and FF", () => {
+    const names = ["viseme_aa", "viseme_E", "viseme_FF", "viseme_PP"] as const;
+    const rows = names.map((name) => {
+      const posed = poseNamed(loaded, name);
+      const cut = cameraLipCutCounts(loaded.teethPos, posed.teethWorld, posed.bodyWorld);
+      return { name, near: cut.near, mid: cut.mid, far: cut.far, maxMm: cut.maxMm };
+    });
+    console.log(JSON.stringify(rows));
+    const byName = new Map(rows.map((row) => [row.name, row]));
+    for (const name of ["viseme_aa", "viseme_E", "viseme_FF"] as const) {
+      expect(byName.get(name)?.near, `${name} 0.2–2 mm`).toBe(0);
+    }
+    expect(byName.get("viseme_PP")).toEqual({ name: "viseme_PP", near: 0, mid: 0, far: 0, maxMm: 0 });
+    expect(byName.get("viseme_aa")?.far ?? 0).toBeGreaterThan(0);
+    expect(byName.get("viseme_E")?.far ?? 0).toBeGreaterThan(0);
   }, 120_000);
 
   it("does not require the motion-bind copy, which has no fitted teeth mesh", () => {

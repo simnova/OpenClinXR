@@ -1,14 +1,14 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.viseme-realism.v1",
-  "generatedAt": "2026-10-01T20:57:14.877Z",
+  "generatedAt": "2026-10-01T22:06:00.000Z",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "baselineFile": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
   "baselineGlbSha256": "b95f4606db278e4becc8768d3bf2c661efa05dab0d962113d7646499b3ae7302",
   "baselineOpeningMeanM": 0.004500010969270264,
-  "afterOpeningMeanM": 0.0015122399527046106,
-  "ratio": 0.33605250365641665,
+  "afterOpeningMeanM": 0.00148358224896191,
+  "ratio": 0.3296841405705489,
   "bar": 0.8,
-  "reduction": 0.6639474963435834,
+  "reduction": 0.6703158594294512,
   "restUpperM": 0.0070959803651845605,
   "restLowerM": 0.01066643650740738,
   "recordedRestUpperM": 0.0070959803651845605,
@@ -22,11 +22,11 @@
       "landmarkCount": 224,
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.844,
-      "afterUpperM": 0.0012521009676074034,
-      "afterLowerM": 0.001918951346087978,
-      "afterUpperMm": 1.252,
-      "afterLowerMm": 1.919,
-      "afterShellMeanM": 0.0015855261568476907
+      "afterUpperM": 0.0012302100177231136,
+      "afterLowerM": 0.001837553403911367,
+      "afterUpperMm": 1.23,
+      "afterLowerMm": 1.838,
+      "afterShellMeanM": 0.0015338817108172403
     },
     {
       "name": "viseme_CH",
@@ -37,10 +37,10 @@
       "beforeUpperMm": 1.25,
       "beforeLowerMm": 1.898,
       "afterUpperM": 0.0012504967411615605,
-      "afterLowerM": 0.0016616384231893857,
+      "afterLowerM": 0.0016054946745001717,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.662,
-      "afterShellMeanM": 0.001456067582175473
+      "afterLowerMm": 1.605,
+      "afterShellMeanM": 0.001427995707830866
     },
     {
       "name": "viseme_DD",
@@ -50,11 +50,11 @@
       "landmarkCount": 30,
       "beforeUpperMm": 1.248,
       "beforeLowerMm": 1.663,
-      "afterUpperM": 0.0012444045484382889,
-      "afterLowerM": 0.0019863295994119513,
-      "afterUpperMm": 1.244,
-      "afterLowerMm": 1.986,
-      "afterShellMeanM": 0.00161536707392512
+      "afterUpperM": 0.0012052108283350106,
+      "afterLowerM": 0.0019763508880711943,
+      "afterUpperMm": 1.205,
+      "afterLowerMm": 1.976,
+      "afterShellMeanM": 0.0015907808582031023
     },
     {
       "name": "viseme_E",
@@ -65,10 +65,10 @@
       "beforeUpperMm": 5.458,
       "beforeLowerMm": 9.346,
       "afterUpperM": 0.0012528071225436734,
-      "afterLowerM": 0.0016780311550739064,
+      "afterLowerM": 0.0016407825827954657,
       "afterUpperMm": 1.253,
-      "afterLowerMm": 1.678,
-      "afterShellMeanM": 0.00146541913880879
+      "afterLowerMm": 1.641,
+      "afterShellMeanM": 0.0014467948526695694
     },
     {
       "name": "viseme_FF",
@@ -79,10 +79,10 @@
       "beforeUpperMm": 5.078,
       "beforeLowerMm": 10.005,
       "afterUpperM": 0.0012469708395160977,
-      "afterLowerM": 0.001840129579895023,
+      "afterLowerM": 0.0017584494709443517,
       "afterUpperMm": 1.247,
-      "afterLowerMm": 1.84,
-      "afterShellMeanM": 0.0015435502097055605
+      "afterLowerMm": 1.758,
+      "afterShellMeanM": 0.0015027101552302247
     },
     {
       "name": "viseme_I",
@@ -92,11 +92,11 @@
       "landmarkCount": 22,
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.758,
-      "afterUpperM": 0.0012505310399085622,
-      "afterLowerM": 0.0017140789890260743,
-      "afterUpperMm": 1.251,
-      "afterLowerMm": 1.714,
-      "afterShellMeanM": 0.0014823050144673181
+      "afterUpperM": 0.0012235042520095552,
+      "afterLowerM": 0.0016166232817952416,
+      "afterUpperMm": 1.224,
+      "afterLowerMm": 1.617,
+      "afterShellMeanM": 0.0014200637669023984
     },
     {
       "name": "viseme_kk",
@@ -106,11 +106,11 @@
       "landmarkCount": 27,
       "beforeUpperMm": 1.277,
       "beforeLowerMm": 1.652,
-      "afterUpperM": 0.0012765933520120455,
-      "afterLowerM": 0.001612459019693307,
-      "afterUpperMm": 1.277,
-      "afterLowerMm": 1.612,
-      "afterShellMeanM": 0.0014445261858526764
+      "afterUpperM": 0.0012215146551399032,
+      "afterLowerM": 0.0015638471989724574,
+      "afterUpperMm": 1.222,
+      "afterLowerMm": 1.564,
+      "afterShellMeanM": 0.0013926809270561804
     },
     {
       "name": "viseme_nn",
@@ -121,10 +121,10 @@
       "beforeUpperMm": 6.468,
       "beforeLowerMm": 10.14,
       "afterUpperM": 0.0012497702090302828,
-      "afterLowerM": 0.0017283716146335585,
+      "afterLowerM": 0.0016489736285410844,
       "afterUpperMm": 1.25,
-      "afterLowerMm": 1.728,
-      "afterShellMeanM": 0.0014890709118319206
+      "afterLowerMm": 1.649,
+      "afterShellMeanM": 0.0014493719187856835
     },
     {
       "name": "viseme_O",
@@ -135,10 +135,10 @@
       "beforeUpperMm": 1.252,
       "beforeLowerMm": 1.884,
       "afterUpperM": 0.0012491192661179935,
-      "afterLowerM": 0.0016803385140440612,
+      "afterLowerM": 0.001657233152601196,
       "afterUpperMm": 1.249,
-      "afterLowerMm": 1.68,
-      "afterShellMeanM": 0.0014647288900810273
+      "afterLowerMm": 1.657,
+      "afterShellMeanM": 0.0014531762093595948
     },
     {
       "name": "viseme_PP",
@@ -163,10 +163,10 @@
       "beforeUpperMm": 5.321,
       "beforeLowerMm": 9.014,
       "afterUpperM": 0.001251037977971203,
-      "afterLowerM": 0.001744497094065945,
+      "afterLowerM": 0.0016976830808480602,
       "afterUpperMm": 1.251,
-      "afterLowerMm": 1.744,
-      "afterShellMeanM": 0.0014977675360185738
+      "afterLowerMm": 1.698,
+      "afterShellMeanM": 0.0014743605294096317
     },
     {
       "name": "viseme_sil",
@@ -190,11 +190,11 @@
       "landmarkCount": 29,
       "beforeUpperMm": 1.246,
       "beforeLowerMm": 1.989,
-      "afterUpperM": 0.001249088274127509,
-      "afterLowerM": 0.001877676511245852,
-      "afterUpperMm": 1.249,
-      "afterLowerMm": 1.878,
-      "afterShellMeanM": 0.0015633823926866806
+      "afterUpperM": 0.0012248947845376254,
+      "afterLowerM": 0.0018647441204772514,
+      "afterUpperMm": 1.225,
+      "afterLowerMm": 1.865,
+      "afterShellMeanM": 0.0015448194525074384
     },
     {
       "name": "viseme_TH",
@@ -218,11 +218,11 @@
       "landmarkCount": 0,
       "beforeUpperMm": 7.63,
       "beforeLowerMm": 10.362,
-      "afterUpperM": 0.0012496240213574405,
+      "afterUpperM": 0.0012466737313050296,
       "afterLowerM": 0.0018331779641917738,
-      "afterUpperMm": 1.25,
+      "afterUpperMm": 1.247,
       "afterLowerMm": 1.833,
-      "afterShellMeanM": 0.0015414009927746072
+      "afterShellMeanM": 0.0015399258477484016
     }
   ],
   "stills": [

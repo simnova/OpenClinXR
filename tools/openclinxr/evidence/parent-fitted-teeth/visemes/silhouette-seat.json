@@ -817,5 +817,27 @@
         }
       }
     ]
+  },
+  "cameraLip": {
+    "instrument": "Legacy head camera, same for every viseme. PerspectiveCamera fov 35, aspect 1280/960, near 0.01, far 50. Position 0.5297281360924244, 1.68536235332489, 0.8719936575591564. lookAt 0.0017281360924243927, 1.5586723208427429, 0.05599365755915642. The camera looks down its -Z, so a larger camera-space z is closer. Samples are rest-pose arch-face vertices (round 2 mm x bins, verts within 2 mm of that bin's rest max z, row clear of the teeth Y median by 0.006 m) plus posed edge midpoints of face-array neighbors within 7 slots and 2.5 mm. A sample is in front when its camera z exceeds the closest body vertex within 6 px, among body verts with world y in [1.43, 1.56] and |x| <= 0.06 that project inside 1280x960. Buckets are inclusive: 0.2–2 mm, 2–8 mm, and more than 8 mm. The 0.2–2 mm bucket is the lip cut. The >8 mm bucket is teeth in the opening in front of the throat.",
+    "before": {
+      "commit": "aa4b4785a1f519063ff1d5178fc974735ece7b22",
+      "glbSha256": "d4162ff30a9abc908358fa8136b627f9cc0911e5cd956aab6262075970e214fc",
+      "rows": [
+        { "name": "viseme_aa", "mm0_2to2": 99, "mm2to8": 6, "mmOver8": 4, "maxMm": 41.15 },
+        { "name": "viseme_E", "mm0_2to2": 32, "mm2to8": 0, "mmOver8": 1, "maxMm": 19.26 },
+        { "name": "viseme_FF", "mm0_2to2": 14, "mm2to8": 2, "mmOver8": 0, "maxMm": 3.19 },
+        { "name": "viseme_PP", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 0, "maxMm": 0 }
+      ]
+    },
+    "after": {
+      "glbSha256": "8a16b1d77752f6ba19091e45c9dbd7e0c28934579c3aa4d424f4db4d25596cc5",
+      "rows": [
+        { "name": "viseme_aa", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 4, "maxMm": 41.15 },
+        { "name": "viseme_E", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 1, "maxMm": 19.26 },
+        { "name": "viseme_FF", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 0, "maxMm": 0 },
+        { "name": "viseme_PP", "mm0_2to2": 0, "mm2to8": 0, "mmOver8": 0, "maxMm": 0 }
+      ]
+    }
   }
 }

@@ -11,10 +11,13 @@
  *
  * An opening morph is a per-vertex POSITION delta. A rigid translation seats
  * the front shell, then each arch-face crown gets its own posterior Z, and
- * side crowns (|x| > 12 mm) also tuck inward in X. After
- * `applyJawOpenToRoot` for that viseme, each front shell's mean distance to
- * the nearest body vertex is between 0.5 mm and 2 mm, with the lip still in
- * front of the crowns (+Z). Upper crowns are not pulled forward of that seat.
+ * side crowns (|x| > 12 mm) also tuck inward in X. Samples that are 0.2–8 mm
+ * closer to the legacy head camera than the lip are then pushed back along
+ * that view. Samples already behind, and samples more than 8 mm in front,
+ * stay. After `applyJawOpenToRoot` for that viseme, each front shell's mean
+ * distance to the nearest body vertex is between 0.5 mm and 2 mm, with the
+ * lip still in front of the crowns (+Z). Upper crowns are not pulled forward
+ * of that seat. Nothing is pulled forward of the skin along the camera.
  *
  * Front shell: |x| <= 0.012, clear of the teeth median by 6 mm, and within
  * 4 mm of that row's max z, on the base POSITION accessor.
@@ -28,7 +31,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, SkinnedMesh, Vector3 } from "three";
+import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, PerspectiveCamera, Skeleton, SkinnedMesh, Vector3 } from "three";
 import { applyVisemeWeights, type MorphTargetLike } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
 import {
@@ -56,6 +59,17 @@ const ARCH_FACE_Z_M = 0.002;
 const LEAD_WINDOW_M = 0.006;
 /** Land this far past the lead limit so the compare is not a float tie. */
 const LEAD_PAST_M = 0.00001;
+/** Legacy head camera. Same numbers for every viseme. A larger camera-space z is closer. */
+const HEAD_VIEW_W = 1280;
+const HEAD_VIEW_H = 960;
+const HEAD_CAMERA_POSITION: Vec3 = [0.5297281360924244, 1.68536235332489, 0.8719936575591564];
+const HEAD_CAMERA_LOOK: Vec3 = [0.0017281360924243927, 1.5586723208427429, 0.05599365755915642];
+/** Rest-pose arch face, round x bins. Pairs are posed neighbors within 7 slots and 2.5 mm. */
+const CAMERA_LIP_PAIR_WINDOW = 8;
+const CAMERA_LIP_PAIR_M = 0.0025;
+const CAMERA_LIP_IN_FRONT_M = 0.0002;
+const CAMERA_LIP_NEAR_MM = 2;
+const CAMERA_LIP_MID_MM = 8;
 const COMMISSURE_Z_BAND_M = 0.004;
 const COMMISSURE_INSET_M = 0.001;
 
@@ -824,6 +838,169 @@ export function archFaceLead(
   };
 }
 
+let legacyHeadCameraCache: PerspectiveCamera | null = null;
+
+function legacyHeadCamera(): PerspectiveCamera {
+  if (legacyHeadCameraCache) return legacyHeadCameraCache;
+  const camera = new PerspectiveCamera(35, HEAD_VIEW_W / HEAD_VIEW_H, 0.01, 50);
+  camera.position.set(HEAD_CAMERA_POSITION[0], HEAD_CAMERA_POSITION[1], HEAD_CAMERA_POSITION[2]);
+  camera.lookAt(HEAD_CAMERA_LOOK[0], HEAD_CAMERA_LOOK[1], HEAD_CAMERA_LOOK[2]);
+  camera.updateMatrixWorld(true);
+  legacyHeadCameraCache = camera;
+  return camera;
+}
+
+/** Anterior arch on the rest POSITION. Round 2 mm x bins, verts within 2 mm of that bin's rest max z. */
+function restArchFace(base: Float32Array): { upper: number[]; lower: number[] } {
+  const count = base.length / 3;
+  const ys: number[] = [];
+  for (let vertex = 0; vertex < count; vertex += 1) ys.push(base[vertex * 3 + 1] ?? 0);
+  const mid = median(ys);
+  const upperRow: number[] = [];
+  const lowerRow: number[] = [];
+  for (let vertex = 0; vertex < count; vertex += 1) {
+    const y = ys[vertex] ?? 0;
+    if (y > mid + CLEAR_BAND_M) upperRow.push(vertex);
+    else if (y < mid - CLEAR_BAND_M) lowerRow.push(vertex);
+  }
+  const face = (row: number[]): number[] => {
+    const bins = new Map<number, number[]>();
+    for (const vertex of row) {
+      const bin = Math.round((base[vertex * 3] ?? 0) / ARCH_BIN_M);
+      const list = bins.get(bin);
+      if (list) list.push(vertex);
+      else bins.set(bin, [vertex]);
+    }
+    const out: number[] = [];
+    for (const list of bins.values()) {
+      let maxZ = -Infinity;
+      for (const vertex of list) maxZ = Math.max(maxZ, base[vertex * 3 + 2] ?? 0);
+      for (const vertex of list) {
+        if ((base[vertex * 3 + 2] ?? 0) >= maxZ - ARCH_FACE_Z_M) out.push(vertex);
+      }
+    }
+    return out;
+  };
+  return { upper: face(upperRow), lower: face(lowerRow) };
+}
+
+export type CameraLipSample = {
+  /** Camera z of the sample minus the closest body camera z within 6 px. Positive is closer to the camera. */
+  excessM: number;
+  cz: number;
+  frontZ: number;
+  verts: readonly number[];
+};
+
+export type CameraLipCut = {
+  /** 0.2–2 mm in front of the lip. Inclusive of 2 mm. */
+  near: number;
+  /** 2–8 mm in front. Inclusive of 8 mm. */
+  mid: number;
+  /** More than 8 mm in front. Opening in front of the throat, not a lip cut. */
+  far: number;
+  maxMm: number;
+  samples: CameraLipSample[];
+};
+
+/**
+ * Arch-face vertices plus edge midpoints, scored against the legacy head camera.
+ * A sample is in front when its camera z exceeds the closest body vertex within 6 px
+ * among body verts with world y in [1.43, 1.56] and |x| <= 0.06.
+ */
+export function cameraLipCutCounts(teethBase: Float32Array, teethWorld: Float32Array, bodyWorld: Float32Array): CameraLipCut {
+  const camera = legacyHeadCamera();
+  const inverse = camera.matrixWorldInverse;
+  const scratch = new Vector3();
+  const project = (x: number, y: number, z: number): { px: number; py: number; cz: number } => {
+    scratch.set(x, y, z).applyMatrix4(inverse);
+    const cz = scratch.z;
+    scratch.set(x, y, z).project(camera);
+    return { px: (scratch.x * 0.5 + 0.5) * HEAD_VIEW_W, py: (-scratch.y * 0.5 + 0.5) * HEAD_VIEW_H, cz };
+  };
+  const lip: { px: number; py: number; cz: number }[] = [];
+  for (let vertex = 0; vertex < bodyWorld.length / 3; vertex += 1) {
+    const x = bodyWorld[vertex * 3] ?? 0;
+    const y = bodyWorld[vertex * 3 + 1] ?? 0;
+    const z = bodyWorld[vertex * 3 + 2] ?? 0;
+    if (y < 1.43 || y > 1.56 || Math.abs(x) > 0.06) continue;
+    const projected = project(x, y, z);
+    if (projected.px < 0 || projected.px > HEAD_VIEW_W || projected.py < 0 || projected.py > HEAD_VIEW_H) continue;
+    lip.push(projected);
+  }
+  const bins = new Map<number, number[]>();
+  for (let index = 0; index < lip.length; index += 1) {
+    const key = Math.floor(lip[index]!.px / 4) + Math.floor(lip[index]!.py / 4) * 400;
+    const list = bins.get(key);
+    if (list) list.push(index);
+    else bins.set(key, [index]);
+  }
+  const face = restArchFace(teethBase);
+  const points: { x: number; y: number; z: number; verts: number[] }[] = [];
+  const pushVertex = (vertex: number): void => {
+    points.push({
+      x: teethWorld[vertex * 3] ?? 0,
+      y: teethWorld[vertex * 3 + 1] ?? 0,
+      z: teethWorld[vertex * 3 + 2] ?? 0,
+      verts: [vertex],
+    });
+  };
+  for (const vertex of face.upper) pushVertex(vertex);
+  for (const vertex of face.lower) pushVertex(vertex);
+  const collect = (row: readonly number[]): void => {
+    for (let a = 0; a < row.length; a += 1) {
+      const av = row[a] ?? 0;
+      const ax = teethWorld[av * 3] ?? 0;
+      const ay = teethWorld[av * 3 + 1] ?? 0;
+      const az = teethWorld[av * 3 + 2] ?? 0;
+      for (let b = a + 1; b < Math.min(row.length, a + CAMERA_LIP_PAIR_WINDOW); b += 1) {
+        const bv = row[b] ?? 0;
+        const bx = teethWorld[bv * 3] ?? 0;
+        const by = teethWorld[bv * 3 + 1] ?? 0;
+        const bz = teethWorld[bv * 3 + 2] ?? 0;
+        const d2 = (ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2;
+        if (d2 === 0 || d2 > CAMERA_LIP_PAIR_M * CAMERA_LIP_PAIR_M) continue;
+        points.push({ x: (ax + bx) / 2, y: (ay + by) / 2, z: (az + bz) / 2, verts: [av, bv] });
+      }
+    }
+  };
+  collect(face.upper);
+  collect(face.lower);
+  let near = 0;
+  let mid = 0;
+  let far = 0;
+  let maxInFront = 0;
+  const samples: CameraLipSample[] = [];
+  for (const point of points) {
+    const tooth = project(point.x, point.y, point.z);
+    let frontZ = -Infinity;
+    const cx = Math.floor(tooth.px / 4);
+    const cy = Math.floor(tooth.py / 4);
+    for (let oy = -2; oy <= 2; oy += 1) {
+      for (let ox = -2; ox <= 2; ox += 1) {
+        const list = bins.get(cx + ox + (cy + oy) * 400);
+        if (!list) continue;
+        for (const index of list) {
+          const other = lip[index]!;
+          const d2 = (other.px - tooth.px) ** 2 + (other.py - tooth.py) ** 2;
+          if (d2 <= 36 && other.cz > frontZ) frontZ = other.cz;
+        }
+      }
+    }
+    if (frontZ === -Infinity) continue;
+    const excessM = tooth.cz - frontZ;
+    if (excessM > CAMERA_LIP_IN_FRONT_M) {
+      const mm = excessM * 1000;
+      if (mm <= CAMERA_LIP_NEAR_MM) near += 1;
+      else if (mm <= CAMERA_LIP_MID_MM) mid += 1;
+      else far += 1;
+      if (excessM > maxInFront) maxInFront = excessM;
+      samples.push({ excessM, cz: tooth.cz, frontZ, verts: point.verts });
+    }
+  }
+  return { near, mid, far, maxMm: +(maxInFront * 1000).toFixed(2), samples };
+}
+
 /** Half-width of the anterior lip rim in a world-Y slice. 0 when the slice is empty. */
 function commissureHalfM(bodyWorld: Float32Array, allow: Uint8Array | null, yMin: number, yMax: number): number {
   const count = bodyWorld.length / 3;
@@ -1041,6 +1218,79 @@ function solveShells(
     const seated = archFaceIndices(pose.teethPos, posedNow);
     retreat(seated.lower, posedNow, jawLead, lowerLeadTarget, false);
     retreat(seated.upper, posedNow, anyLead, -LEAD_PAST_M, true);
+  }
+  // Push only the 0.2–8 mm camera-lip samples back along the view. A larger
+  // camera-space z is closer. t > 1 moves the sample away from the camera
+  // without changing its pixel. Far samples (>8 mm) cap t so they stay there.
+  const camera = legacyHeadCamera();
+  const camX = camera.position.x;
+  const camY = camera.position.y;
+  const camZ = camera.position.z;
+  const lipCut = (excessM: number): boolean => {
+    if (!(excessM > CAMERA_LIP_IN_FRONT_M)) return false;
+    const mm = excessM * 1000;
+    return mm <= CAMERA_LIP_MID_MM;
+  };
+  const seatCameraLip = (): void => {
+    for (let iter = 0; iter < 8; iter += 1) {
+      posedNow = poseOff();
+      const cut = cameraLipCutCounts(pose.teethPos, posedNow, bodyWorld);
+      const want = new Map<number, number>();
+      const cap = new Map<number, number>();
+      for (const sample of cut.samples) {
+        if (lipCut(sample.excessM) || !(sample.cz < 0)) continue;
+        const limit = (sample.frontZ + CAMERA_LIP_MID_MM / 1000 + 1e-5) / sample.cz;
+        for (const vertex of sample.verts) {
+          const prev = cap.get(vertex);
+          if (prev === undefined || limit < prev) cap.set(vertex, limit);
+        }
+      }
+      for (const sample of cut.samples) {
+        if (!lipCut(sample.excessM) || !(sample.cz < 0)) continue;
+        const t = (sample.frontZ - 0.00005) / sample.cz;
+        if (!(t > 1)) continue;
+        for (const vertex of sample.verts) {
+          const prev = want.get(vertex);
+          if (prev === undefined || t > prev) want.set(vertex, t);
+        }
+      }
+      if (want.size === 0) break;
+      let applied = 0;
+      for (const [vertex, requested] of want) {
+        if (!jawSet.has(vertex) && !headSet.has(vertex)) continue;
+        let t = requested;
+        const limit = cap.get(vertex);
+        if (limit !== undefined && t > limit) {
+          if (limit > 1 + 1e-9) t = limit;
+          else continue;
+        }
+        const wx = posedNow[vertex * 3] ?? 0;
+        const wy = posedNow[vertex * 3 + 1] ?? 0;
+        const wz = posedNow[vertex * 3 + 2] ?? 0;
+        worldOff[vertex * 3] = camX + t * (wx - camX) - (teethWorld[vertex * 3] ?? 0);
+        worldOff[vertex * 3 + 1] = camY + t * (wy - camY) - (teethWorld[vertex * 3 + 1] ?? 0);
+        worldOff[vertex * 3 + 2] = camZ + t * (wz - camZ) - (teethWorld[vertex * 3 + 2] ?? 0);
+        applied += 1;
+      }
+      if (applied === 0) break;
+    }
+  };
+  const beforeCamera = cameraLipCutCounts(pose.teethPos, poseOff(), bodyWorld);
+  seatCameraLip();
+  posedNow = poseOff();
+  const seatedLead = archFaceIndices(pose.teethPos, posedNow);
+  retreat(seatedLead.lower, posedNow, jawLead, lowerLeadTarget, false);
+  retreat(seatedLead.upper, posedNow, anyLead, -LEAD_PAST_M, true);
+  seatCameraLip();
+  posedNow = poseOff();
+  const afterCamera = cameraLipCutCounts(pose.teethPos, posedNow, bodyWorld);
+  if (afterCamera.near > 0) {
+    throw new Error(
+      `${viseme} camera lip cut stayed at ${afterCamera.near}/${afterCamera.mid}/${afterCamera.far} max ${afterCamera.maxMm} mm`,
+    );
+  }
+  if ((viseme === "viseme_aa" || viseme === "viseme_E") && beforeCamera.far > 0 && afterCamera.far === 0) {
+    throw new Error(`${viseme} camera opening bucket dropped to 0`);
   }
   posedNow = poseOff();
   const upper = frontShellMeanGap(posedNow, shells.upper, bodyWorld);
