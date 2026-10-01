@@ -228,7 +228,7 @@ describe("the dialogue authoring workflow rejects unsafe seeds", () => {
   });
 
   it("rejects unknown actors and fabricated live-provider claims", async () => {
-    const { rerender } = render(
+    const { container, rerender } = render(
       <ScenarioAuthoringWorkspace
         initialScenario={edChestPainScenario}
         initialSeeds={[
@@ -240,13 +240,15 @@ describe("the dialogue authoring workflow rejects unsafe seeds", () => {
         previewCatalog={async (input) => respondLikeLandedPreviewRoute(input)}
       />,
     );
+    const validationFailures = container.querySelector<HTMLElement>('[aria-label="Seed validation failures"]');
+    const publicationGate = container.querySelector<HTMLElement>('[aria-label="Dialogue seed publication gate"]');
+    expect(validationFailures).not.toBeNull();
+    expect(publicationGate).not.toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Seed validation failures")).toHaveTextContent(
-        "unknown_actor:consultant_not_in_cast_v1",
-      );
+      expect(validationFailures).toHaveTextContent("unknown_actor:consultant_not_in_cast_v1");
     });
-    expect(screen.getByLabelText("Dialogue seed publication gate")).toHaveTextContent("blocked");
+    expect(publicationGate).toHaveTextContent("blocked");
 
     rerender(
       <ScenarioAuthoringWorkspace
@@ -258,9 +260,7 @@ describe("the dialogue authoring workflow rejects unsafe seeds", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Seed validation failures")).toHaveTextContent(
-        "fabricated_provider_claim:live_provider",
-      );
+      expect(validationFailures).toHaveTextContent("fabricated_provider_claim:live_provider");
     });
 
     rerender(
@@ -273,11 +273,9 @@ describe("the dialogue authoring workflow rejects unsafe seeds", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Seed validation failures")).toHaveTextContent(
-        "fabricated_provider_claim:grok-reasoning-provider",
-      );
+      expect(validationFailures).toHaveTextContent("fabricated_provider_claim:grok-reasoning-provider");
     });
-    expect(screen.getByLabelText("Dialogue seed publication gate")).toHaveTextContent("fabricated_provider_claim");
+    expect(publicationGate).toHaveTextContent("fabricated_provider_claim");
     expect(screen.getByLabelText("Dialogue seed claim boundary")).toHaveTextContent("Live provider disabled");
     expect(screen.getByLabelText("Dialogue seed publication gate")).not.toHaveTextContent("live provider enabled");
   });

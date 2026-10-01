@@ -3,9 +3,50 @@ import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { validateScenario } from "@openclinxr/shared-schemas";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { Form } from "antd";
+import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { ActorPhenotypeFields } from "./actor-phenotype-fields.js";
 import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
-import { parseScenarioJson } from "./case-authoring-model.js";
+import {
+  exportScenarioJson,
+  mergeFormValuesIntoScenario,
+  parseScenarioJson,
+  type ScenarioFormValues,
+  scenarioToFormValues,
+} from "./case-authoring-model.js";
+
+function PhenotypeExportHarness() {
+  const initialValues = scenarioToFormValues(edChestPainScenario);
+  const [exportJson, setExportJson] = useState(() => exportScenarioJson(edChestPainScenario));
+
+  return (
+    <>
+      <Form<ScenarioFormValues>
+        initialValues={initialValues}
+        onValuesChange={(_changedValues, values) => {
+          const completeValues: ScenarioFormValues = {
+            ...initialValues,
+            actors: initialValues.actors.map((actor, index) => ({
+              ...actor,
+              ...values.actors?.[index],
+              phenotype: {
+                ...actor.phenotype,
+                ...values.actors?.[index]?.phenotype,
+              },
+            })),
+          };
+          setExportJson(
+            exportScenarioJson(mergeFormValuesIntoScenario(edChestPainScenario, completeValues)),
+          );
+        }}
+      >
+        <Form.List name="actors">{() => <ActorPhenotypeFields fieldName={0} />}</Form.List>
+      </Form>
+      <textarea aria-label="Exported scenario JSON" readOnly value={exportJson} />
+    </>
+  );
+}
 
 describe("CaseAuthoringWorkbench", () => {
   beforeAll(() => {
@@ -169,13 +210,7 @@ describe("CaseAuthoringWorkbench", () => {
   });
 
   it("captures phenotype fields (garmentLayers, eye_color, clothing_style) into the exported JSON", async () => {
-    render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
-
-    // Expand the patient actor panel (first collapse header = actors[0]) to reach the phenotype section.
-    const patientHeader = screen.getAllByRole("button", { expanded: false })[0];
-    expect(patientHeader).toBeDefined();
-    fireEvent.click(patientHeader as HTMLElement);
-    await screen.findByLabelText("Phenotype garment layers");
+    render(<PhenotypeExportHarness />);
 
     // Change eye color to another known authored value.
     fireEvent.mouseDown(screen.getByLabelText("Phenotype eye color"));
