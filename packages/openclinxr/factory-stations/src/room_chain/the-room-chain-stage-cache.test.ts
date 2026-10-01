@@ -344,5 +344,35 @@ describe("room-chain recipe registry", () => {
     expect(() => validateRoomChainRecipe(invalid)).toThrow(
       /ceiling\.cornice must be none or wall-angle/,
     );
+    const variants = {
+      ...shipped,
+      finish: shipped.finish && {
+        ...shipped.finish,
+        ceiling: {
+          ...shipped.finish.ceiling,
+          corniceWidthMm: 15,
+          corniceColorSource: "wall" as const,
+        },
+      },
+    };
+    expect(validateRoomChainRecipe(variants).finish?.ceiling).toMatchObject({
+      cornice: "wall-angle",
+      corniceWidthMm: 15,
+      corniceColorSource: "wall",
+    });
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceWidthMm: 0 },
+      },
+    })).toThrow(/corniceWidthMm must be > 0/);
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceColorSource: "ceiling" },
+      },
+    })).toThrow(/corniceColorSource must be tbar or wall/);
   });
 });

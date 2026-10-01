@@ -4228,3 +4228,60 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw/three_quarter_right.png` - keep-evidence; Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/topology-budget.json` - keep-evidence; Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/visual-verification.json` - keep-evidence; Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending.
+- `docs/openclinxr/room-realism/cornice-ab/measurements.json` - keep-evidence; Machine-readable native-pixel cornice A/B luminance and V1 seam measurements.
+- `docs/openclinxr/room-realism/cornice-ab/ward/crops/01-toward-door-junction-4x.png` - keep-evidence; Ward pose 01 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/ward/crops/02-toward-bed-wall-junction-4x.png` - keep-evidence; Ward pose 02 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/ward/crops/03-ceiling-corner-junction-4x.png` - keep-evidence; Ward pose 03 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/ward/crops/05-troffer-junction-junction-4x.png` - keep-evidence; Ward pose 05 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/crops/01-toward-door-junction-4x.png` - keep-evidence; Step-down pose 01 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/crops/02-toward-bed-wall-junction-4x.png` - keep-evidence; Step-down pose 02 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/crops/04-door-inside-junction-4x.png` - keep-evidence; Step-down pose 04 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/crops/05-troffer-junction-junction-4x.png` - keep-evidence; Step-down pose 05 four-arm cornice junction crop at 4x nearest-neighbour.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/01-toward-door-v1-v2-v3-v4-v2-reference.jpg` - keep-evidence; Ward pose 01 learner-runtime cornice A/B sheet with v2 visual reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/02-toward-bed-wall-v1-v2-v3-v4-v2-reference.jpg` - keep-evidence; Ward pose 02 learner-runtime cornice A/B sheet with v2 visual reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/03-ceiling-corner-v1-v2-v3-v4-v2-reference.jpg` - keep-evidence; Ward pose 03 learner-runtime cornice A/B sheet with v2 visual reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/05-troffer-junction-v1-v2-v3-v4-v2-reference.jpg` - keep-evidence; Ward pose 05 learner-runtime cornice A/B sheet with v2 visual reference.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/01-toward-door-v1-v2-v3-v4.jpg` - keep-evidence; Step-down pose 01 learner-runtime cornice A/B sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/02-toward-bed-wall-v1-v2-v3-v4.jpg` - keep-evidence; Step-down pose 02 learner-runtime cornice A/B sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/04-door-inside-v1-v2-v3-v4.jpg` - keep-evidence; Step-down pose 04 learner-runtime cornice A/B sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/05-troffer-junction-v1-v2-v3-v4.jpg` - keep-evidence; Step-down pose 05 learner-runtime cornice A/B sheet.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-01-toward-door.png` - keep-evidence; Ward V1 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V1 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-03-ceiling-corner.png` - keep-evidence; Ward V1 learner-runtime cornice A/B capture at fixed pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-05-troffer-junction.png` - keep-evidence; Ward V1 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v1/stage2-multiview.json` - keep-evidence; Ward V1 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-01-toward-door.png` - keep-evidence; Ward V2 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V2 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-03-ceiling-corner.png` - keep-evidence; Ward V2 learner-runtime cornice A/B capture at fixed pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-05-troffer-junction.png` - keep-evidence; Ward V2 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v2/stage2-multiview.json` - keep-evidence; Ward V2 shipped learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-01-toward-door.png` - keep-evidence; Ward V3 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V3 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-03-ceiling-corner.png` - keep-evidence; Ward V3 learner-runtime cornice A/B capture at fixed pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-05-troffer-junction.png` - keep-evidence; Ward V3 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v3/stage2-multiview.json` - keep-evidence; Ward V3 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-01-toward-door.png` - keep-evidence; Ward V4 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V4 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-03-ceiling-corner.png` - keep-evidence; Ward V4 learner-runtime cornice A/B capture at fixed pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-05-troffer-junction.png` - keep-evidence; Ward V4 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4/stage2-multiview.json` - keep-evidence; Ward V4 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-01-toward-door.png` - keep-evidence; Step-down V1 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V1 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-04-door-inside.png` - keep-evidence; Step-down V1 learner-runtime cornice A/B capture at fixed pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-05-troffer-junction.png` - keep-evidence; Step-down V1 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v1/stage2-multiview.json` - keep-evidence; Step-down V1 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-01-toward-door.png` - keep-evidence; Step-down V2 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V2 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-04-door-inside.png` - keep-evidence; Step-down V2 learner-runtime cornice A/B capture at fixed pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-05-troffer-junction.png` - keep-evidence; Step-down V2 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v2/stage2-multiview.json` - keep-evidence; Step-down V2 shipped learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-01-toward-door.png` - keep-evidence; Step-down V3 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V3 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-04-door-inside.png` - keep-evidence; Step-down V3 learner-runtime cornice A/B capture at fixed pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-05-troffer-junction.png` - keep-evidence; Step-down V3 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v3/stage2-multiview.json` - keep-evidence; Step-down V3 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-01-toward-door.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-04-door-inside.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-05-troffer-junction.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/stage2-multiview.json` - keep-evidence; Step-down V4 learner-runtime capture manifest and camera provenance.

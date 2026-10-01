@@ -11,7 +11,13 @@ export type RoomFinishFeatures = {
     lever: boolean;
     hinges: boolean;
   };
-  ceiling: { troffer: boolean; tbarMm: number; cornice?: "none" | "wall-angle" };
+  ceiling: {
+    troffer: boolean;
+    tbarMm: number;
+    cornice?: "none" | "wall-angle";
+    corniceWidthMm?: number;
+    corniceColorSource?: "tbar" | "wall";
+  };
   wallMatteRoughness: number;
   neutralTints: {
     casingRgb: readonly [number, number, number];
@@ -28,7 +34,7 @@ const KEYS = {
   floor: ["kind", "moduleM"],
   cove: ["heightM"],
   door: ["kind", "photoPbr", "casing", "lite", "lever", "hinges"],
-  ceiling: ["troffer", "tbarMm", "cornice"],
+  ceiling: ["troffer", "tbarMm", "cornice", "corniceWidthMm", "corniceColorSource"],
   neutralTints: ["casingRgb", "coveRgb"],
 } as const;
 
@@ -86,7 +92,7 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
   exactKeys(floor, KEYS.floor, `${path}.floor`);
   exactKeys(cove, KEYS.cove, `${path}.cove`);
   exactKeys(door, KEYS.door, `${path}.door`);
-  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice"]);
+  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice", "corniceWidthMm", "corniceColorSource"]);
   exactKeys(neutralTints, KEYS.neutralTints, `${path}.neutralTints`);
   if (floor["kind"] !== "vinyl-tile") throw new RoomFinishFeatureValidationError(`${path}.floor.kind must be vinyl-tile`);
   if (door["kind"] !== "hospital") throw new RoomFinishFeatureValidationError(`${path}.door.kind must be hospital`);
@@ -112,6 +118,18 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
           : (() => {
               throw new RoomFinishFeatureValidationError(
                 `${path}.ceiling.cornice must be none or wall-angle when present`,
+              );
+            })()),
+      ...(ceiling["corniceWidthMm"] === undefined
+        ? {}
+        : { corniceWidthMm: finiteInRange(ceiling["corniceWidthMm"], `${path}.ceiling.corniceWidthMm`, 0, 100) }),
+      ...(ceiling["corniceColorSource"] === undefined
+        ? {}
+        : ceiling["corniceColorSource"] === "tbar" || ceiling["corniceColorSource"] === "wall"
+          ? { corniceColorSource: ceiling["corniceColorSource"] }
+          : (() => {
+              throw new RoomFinishFeatureValidationError(
+                `${path}.ceiling.corniceColorSource must be tbar or wall when present`,
               );
             })()),
     },

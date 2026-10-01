@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 214,
     "archive-candidate": 116,
-    "evidence": 147,
+    "evidence": 148,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5335,6 +5335,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Ceiling-cornice diagnosis, recipe-driven wall-angle replacement, learner-runtime luminance grades, surface-regression result, and decoded-budget summary."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Operator-facing four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof."
     }
   ]
 }

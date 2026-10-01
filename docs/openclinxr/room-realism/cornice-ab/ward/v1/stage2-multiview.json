@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "inpatient_ward_room_v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/cornice-ab/.openclinxr/evidence/cornice-ab/inpatient_ward_room_v1/v1/infinigen-inpatient-ward.chain.glb",
+  "mechanism": "playwright-route-override",
+  "poseSource": {
+    "kind": "explicit",
+    "path": "tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json"
+  },
+  "poseDerivation": null,
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-ab/docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-01-toward-door.png",
+      "pngBytes": 684566,
+      "pngSha256": "31e5c9a228225f11e337dae0291819a0111acabad99cb2cfbfbef9b577e8b82e",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-ab/docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-02-toward-bed-wall.png",
+      "pngBytes": 642235,
+      "pngSha256": "174fd3862f011d1062f464d7aa4c9d8f661c537c4e18f4a7ce70b4fba54d9e6e",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-ab/docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-03-ceiling-corner.png",
+      "pngBytes": 1119749,
+      "pngSha256": "f1ca66eff1ce271dccfe7202779b85f885a3027ba959d3968c2f402a54b1c27a",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-ab/docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-05-troffer-junction.png",
+      "pngBytes": 1085415,
+      "pngSha256": "8d2066c27c2c4a68b3c6bc27fe651d6c528ce66990651c50b354aeada550f22c",
+      "nearPlaneM": 0.1
+    }
+  ]
+}

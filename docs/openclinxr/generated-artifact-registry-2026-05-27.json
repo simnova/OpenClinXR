@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1210,
+    "keep-evidence": 1267,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -30896,6 +30896,405 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Machine-readable native-pixel cornice A/B luminance and V1 seam measurements."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/crops/01-toward-door-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 01 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/crops/02-toward-bed-wall-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 02 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/crops/03-ceiling-corner-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 03 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/crops/05-troffer-junction-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 05 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/crops/01-toward-door-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 01 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/crops/02-toward-bed-wall-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 02 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/crops/04-door-inside-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 04 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/crops/05-troffer-junction-junction-4x.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 05 four-arm cornice junction crop at 4x nearest-neighbour."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/01-toward-door-v1-v2-v3-v4-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 01 learner-runtime cornice A/B sheet with v2 visual reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/02-toward-bed-wall-v1-v2-v3-v4-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 02 learner-runtime cornice A/B sheet with v2 visual reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/03-ceiling-corner-v1-v2-v3-v4-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 03 learner-runtime cornice A/B sheet with v2 visual reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/05-troffer-junction-v1-v2-v3-v4-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward pose 05 learner-runtime cornice A/B sheet with v2 visual reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/01-toward-door-v1-v2-v3-v4.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 01 learner-runtime cornice A/B sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/02-toward-bed-wall-v1-v2-v3-v4.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 02 learner-runtime cornice A/B sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/04-door-inside-v1-v2-v3-v4.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 04 learner-runtime cornice A/B sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/05-troffer-junction-v1-v2-v3-v4.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down pose 05 learner-runtime cornice A/B sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V1 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V1 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V1 learner-runtime cornice A/B capture at fixed pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V1 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v1/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V1 learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V2 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V2 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V2 learner-runtime cornice A/B capture at fixed pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V2 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v2/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V2 shipped learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V3 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V3 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V3 learner-runtime cornice A/B capture at fixed pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V3 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v3/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V3 learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V4 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V4 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V4 learner-runtime cornice A/B capture at fixed pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V4 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward V4 learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V1 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V1 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V1 learner-runtime cornice A/B capture at fixed pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V1 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V1 learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V2 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V2 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V2 learner-runtime cornice A/B capture at fixed pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V2 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V2 shipped learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V3 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V3 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V3 learner-runtime cornice A/B capture at fixed pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V3 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V3 learner-runtime capture manifest and camera provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V4 learner-runtime cornice A/B capture at fixed pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V4 learner-runtime cornice A/B capture at fixed pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V4 learner-runtime cornice A/B capture at fixed pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V4 learner-runtime cornice A/B capture at fixed pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down V4 learner-runtime capture manifest and camera provenance."
     }
   ]
 }

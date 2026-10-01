@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 116
 - current-reference: 210
 - decision-record: 44
-- evidence: 142
+- evidence: 143
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -441,3 +441,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; TRELLIS.2 Round-4 T4 adopted for the ECG cart; Round-5 candidate grade pending without changing the decision.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json` - evidence; Round 5 R5-BEST reproduction manifest subordinate to MADR 0059; not an adoption decision.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json` - evidence; Round 5 machine-readable treatment and topology measurements; coordinator visual grade remains authoritative.
+- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
+- `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.

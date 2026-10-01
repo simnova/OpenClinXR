@@ -521,8 +521,9 @@ async function main(): Promise<void> {
 
     const manifest: Array<Record<string, unknown>> = [];
     const only = process.env["STAGE2_MULTIVIEW_ONLY"];
+    const selected = only ? new Set(only.split(",").map((value) => value.trim()).filter(Boolean)) : null;
     for (const base of poses) {
-      if (only && base.id !== only) continue;
+      if (selected && !selected.has(base.id)) continue;
       const pose =
         base.id === "runtime-01-toward-door" || base.id === "runtime-04-door-inside"
           ? {

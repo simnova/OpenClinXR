@@ -572,7 +572,10 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                          cove_rgb: tuple = SKIRTING_COVE_RGB_LINEAR,
                          emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
                          floor_top: float | None = None,
-                         cornice_mode: str | None = None) -> dict:
+                         cornice_mode: str | None = None,
+                         cornice_width_m: float = WALL_ANGLE_LEG_M,
+                         cornice_color_source: str = "tbar",
+                         wall_material: object | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -818,13 +821,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 tbar_count += 1
         ky += 1
     counts["tbar"] = tbar_count
-    wall_angle: dict = {"mode": cornice_mode, "legM": WALL_ANGLE_LEG_M,
+    wall_angle: dict = {"mode": cornice_mode, "legM": cornice_width_m,
                         "thicknessM": WALL_ANGLE_THICKNESS_M, "runs": 0,
                         "material": None}
     if cornice_mode == "wall-angle":
         planes = _wall_inner_planes()
         x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
-        leg, thick = WALL_ANGLE_LEG_M, WALL_ANGLE_THICKNESS_M
+        leg, thick = cornice_width_m, WALL_ANGLE_THICKNESS_M
+        angle_material = wall_material if cornice_color_source == "wall" else tbar_m
+        if angle_material is None:
+            raise ValueError("wall cornice colour requires the room wall material")
         z_vertical = tbar_z - leg / 2
         z_horizontal = tbar_z - thick / 2
         # Each wall gets a vertical leg and an inward horizontal leg. Runs
@@ -848,10 +854,10 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
              x1 - x0, leg, thick),
         ]
         for name, x, y, z, dx, dy, dz in wall_angle_runs:
-            new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, tbar_m)
+            new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, angle_material)
         counts["wallAngle"] = len(wall_angle_runs)
         wall_angle.update({"runs": len(wall_angle_runs),
-                           "material": "openclinxr_finish_tbar", "z": tbar_z})
+                           "material": angle_material.name, "z": tbar_z})
     ceiling_grid = {
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
@@ -2104,6 +2110,11 @@ def apply_finish() -> int:
     cornice_mode = ceiling_feature.get("cornice") if ceiling_feature else None
     if cornice_mode not in (None, "none", "wall-angle"):
         raise ValueError("recipe.finish.ceiling.cornice must be none or wall-angle when present")
+    cornice_width_m = (float(ceiling_feature.get("corniceWidthMm", WALL_ANGLE_LEG_M * 1000)) / 1000
+                       if ceiling_feature else WALL_ANGLE_LEG_M)
+    cornice_color_source = ceiling_feature.get("corniceColorSource", "tbar") if ceiling_feature else "tbar"
+    if cornice_color_source not in ("tbar", "wall"):
+        raise ValueError("recipe.finish.ceiling.corniceColorSource must be tbar or wall when present")
     removed_cornice: list[str] = []
     if cornice_mode is not None:
         for obj in list(bpy.data.objects):
@@ -2139,7 +2150,10 @@ def apply_finish() -> int:
                                     emit_cove=cove_feature is not None, cove_height_m=cove_height_m,
                                     cove_rgb=cove_rgb, emit_troffer=emit_troffer,
                                     tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
-                                    cornice_mode=cornice_mode)
+                                    cornice_mode=cornice_mode,
+                                    cornice_width_m=cornice_width_m,
+                                    cornice_color_source=cornice_color_source,
+                                    wall_material=wall_material)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
