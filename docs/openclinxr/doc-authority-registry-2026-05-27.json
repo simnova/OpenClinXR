@@ -5377,6 +5377,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-03.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes."
     }
   ]
 }

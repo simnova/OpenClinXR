@@ -1,134 +1,119 @@
 {
   "schemaVersion": "openclinxr.lighting-rig.v1",
   "room": {
-    "environmentId": "surgical_ward_room_v1"
+    "environmentId": "surgical_ward_room_v1",
+    "roomGlbPath": "ward-chain.work.glb"
   },
   "bbox": {
-    "minX": -3.75,
-    "minY": -3.75,
-    "minZ": -0.1013,
-    "maxX": 3.75,
-    "maxY": 3.75,
-    "maxZ": 2.5487
+    "minX": -3.7,
+    "maxX": 3.7,
+    "minY": -3.7,
+    "maxY": 3.7,
+    "minZ": 0,
+    "maxZ": 2.65
   },
   "cast": [
     {
-      "actorId": "patient_priya_shah_v1",
+      "actorId": "patient",
       "position": [
         0,
-        0,
-        0
-      ]
-    },
-    {
-      "actorId": "floor_nurse_bennett_v1",
-      "position": [
-        -0.8,
-        0.95,
-        0.75
-      ]
-    },
-    {
-      "actorId": "surgery_resident_kim_v1",
-      "position": [
-        0.8,
-        0.95,
-        0.3
+        0.5,
+        1
       ]
     }
   ],
   "mood": "clinic_day",
-  "seed": 7,
+  "seed": 25,
   "exposure": 0.9,
   "lights": [
     {
       "name": "key",
       "type": "area",
       "position": [
-        -0.0133,
-        0.0671,
-        2.2987
+        0.1247,
+        0.0649,
+        2.4
       ],
-      "energy": 79.7867,
-      "size": 3.375,
-      "colorTemperatureK": 4000
+      "energy": 80.8649,
+      "size": 3.33,
+      "colorTemperatureK": 5000
     },
     {
       "name": "fill",
       "type": "point",
       "position": [
-        0.1373,
-        0.0406,
-        1.2237
+        0.1259,
+        -0.1177,
+        1.325
       ],
-      "energy": 92.16,
+      "energy": 119.3514,
       "size": 0,
-      "colorTemperatureK": 4200
+      "colorTemperatureK": 5000
     },
     {
       "name": "wash_px",
       "type": "area",
       "position": [
-        3.55,
-        0.0726,
-        1.2237
+        3.5,
+        -0.0182,
+        1.325
       ],
-      "energy": 43.52,
+      "energy": 23.3514,
       "size": 1.4575,
-      "colorTemperatureK": 4200
+      "colorTemperatureK": 6500
     },
     {
       "name": "wash_nx",
       "type": "area",
       "position": [
-        -3.55,
-        -0.0243,
-        1.2237
+        -3.5,
+        0.0467,
+        1.325
       ],
-      "energy": 43.52,
+      "energy": 23.3514,
       "size": 1.4575,
-      "colorTemperatureK": 4200
+      "colorTemperatureK": 6500
     },
     {
       "name": "wash_py",
       "type": "area",
       "position": [
-        -0.0191,
-        3.55,
-        1.2237
+        -0.0838,
+        3.5,
+        1.325
       ],
-      "energy": 43.52,
+      "energy": 23.3514,
       "size": 1.4575,
-      "colorTemperatureK": 4200
+      "colorTemperatureK": 6500
     },
     {
       "name": "wash_ny",
       "type": "area",
       "position": [
-        -0.0348,
-        -3.55,
-        1.2237
+        0.0949,
+        -3.5,
+        1.325
       ],
-      "energy": 43.52,
+      "energy": 23.3514,
       "size": 1.4575,
-      "colorTemperatureK": 4200
+      "colorTemperatureK": 6500
     },
     {
       "name": "spill",
       "type": "directional",
       "position": [
-        -3.75,
-        -3.75,
-        2.5487
+        -3.7,
+        -3.7,
+        2.65
       ],
       "target": [
         0,
         0,
-        1.2237
+        1.325
       ],
-      "energy": 18.1333,
+      "energy": 18.3784,
       "size": 0,
-      "colorTemperatureK": 4000
+      "colorTemperatureK": 5000
     }
   ],
   "bakePathLlm": false
