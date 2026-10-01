@@ -14,7 +14,12 @@ import {
   stageKeyDigest,
   storeStageCache,
 } from "./cache.js";
-import { parseWardChainArgs } from "./run.js";
+import {
+  parseWardChainArgs,
+  RoomChainRecipeValidationError,
+  validateRoomChainRecipe,
+} from "./run.js";
+import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
 
 /**
  * Room-chain stage cache unit tests. Pure: no Blender, no Infinigen install,
@@ -296,5 +301,21 @@ describe("room-chain --no-cache flag", () => {
     expect(parseWardChainArgs([]).noCache).toBe(false);
     expect(parseWardChainArgs(["--no-cache"]).noCache).toBe(true);
     expect(parseWardChainArgs(["--seed", "205", "--no-cache"]).noCache).toBe(true);
+  });
+});
+
+describe("room-chain recipe registry", () => {
+  it("accepts the shipped ward recipe", () => {
+    const ward = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, "inpatient_ward_room_v1");
+    expect(ward.finish?.preserveShell).toBe(true);
+    expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
+    expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24 });
+  });
+
+  it("fails closed with a named error on an unknown field", () => {
+    expect(() => validateRoomChainRecipe({ ...ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, typo: true }))
+      .toThrow(RoomChainRecipeValidationError);
+    expect(() => validateRoomChainRecipe({ ...ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, typo: true }))
+      .toThrow(/unknown field.*typo/);
   });
 });
