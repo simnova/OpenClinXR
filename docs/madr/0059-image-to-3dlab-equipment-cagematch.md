@@ -58,6 +58,20 @@ Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/ro
 
 Decision unchanged: **TRELLIS control stays.** Re-open only when TRELLIS.2 access is granted (one run, same budget), or if a Hunyuan release exposes paint conditioning.
 
+## Round 3 evidence
+
+2026-10-01. DINOv3 access worked after the coordinator's 16:54 UTC confirmation. Same conditioning image, frozen camera/lights and ≤40k / ≤16 MiB common budget. The Decision above is unchanged; coordinator grade pending.
+
+| backend / export variant | job wall total | peak RSS | raw tris | budget tris | decoded MiB | IoU raw / budget |
+|---|---:|---:|---:|---:|---:|---:|
+| TRELLIS.2 clean Apple Space port, CPU-pre-cap recovery | 1,395.77 s | 41,961,652,224 B | 297,289 | 38,697 | 8 (10.67 with mips) | 0.781307 / 0.781238 |
+
+Default export failed after 1,343.430 s on the M1's unsupported float atomic operation in Metal `propagate_cost_kernel`. A non-remeshing-only checkpoint retry failed identically (12.016 s). The same decoded checkpoint then exported successfully (40.327 s) with `remesh=False`, CPU pre-cap 300k and Metal target 400k, avoiding Metal simplification. No resampling or recolouring. The wall total includes all three jobs; end-to-end elapsed time including diagnosis gaps was 1,495.136 s. Other heavy compute-slot holders were 0/0 at every boundary. This is a documented recovery variant, not a successful default export or an independent replay.
+
+The standard optimize-station ladder plateaued above 88k. Installed meshoptimizer's attribute-aware `Permissive` seam relaxation reached 38,697 triangles; two WebP PBR maps were downsized from 2048² to 1024², keeping bindings/factors. No visual-survival claim is inferred from meeting budget or IoU. DINOv3 revision: `ea8dc2863c51be0a264bab82070e3e8836b02d51`; lab commit remains `5ed8e9850d23515c424abc62fbca498e6da52f27`.
+
+Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/` contains raw/budget GLBs, stills, masks, attempt logs, timing receipts, exact recovery/optimization scripts and provenance. `renders/contact-sheet-budget.png` fills the TRELLIS.2 column and is also copied to the Round 2 budget-sheet path; the other three columns remain pixel-identical. Mixed-sheet provenance retains the Hunyuan US-hosted-only territory flag. Full numbers and caveats are in REPORT.md and results.json Round 3. No worker grade is added.
+
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.

@@ -1,4 +1,5 @@
 {
+  "round3Update": "Budget sheet TRELLIS.2 placeholder replaced in Round 3; first three columns pixel-identical. See ../../round3/renders/provenance.json. Raw sheet unchanged.",
   "renderer": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
   "execution": "BlenderService",
   "cameraFreeze": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",

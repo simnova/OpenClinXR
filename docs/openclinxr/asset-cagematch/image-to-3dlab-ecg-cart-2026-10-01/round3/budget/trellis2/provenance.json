@@ -1,0 +1,84 @@
+{
+  "backend": "trellis2",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "spaceCommit": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+  "applePortPin": "6055b868734af6e12769d229d90580e775fae9f0",
+  "weightRevisions": {
+    "trellis2": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "dinov3": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+  },
+  "input": "../../../inputs/ecg-cart-oracle-matted.png",
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "license": "image-to-3dlab Apache-2.0; TRELLIS.2 MIT; DINOv3 separate licence allowing commercial use per MADR 0049; accepted gated access. Tool classification commercial-conditional.",
+  "territoryFlag": "No Hunyuan-derived content in this individual TRELLIS.2 asset.",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "production adoption",
+    "coordinator visual grade"
+  ],
+  "sha256": "12c79ef7f20a7176325c2e5bf5f87cee092b7e0efde2e54a8cd9993e77a26fd0",
+  "bytes": 2134416,
+  "triangles": 38697,
+  "textures": [
+    {
+      "size": [
+        1024,
+        1024
+      ],
+      "mime": "image/webp",
+      "bytes": 151074
+    },
+    {
+      "size": [
+        1024,
+        1024
+      ],
+      "mime": "image/webp",
+      "bytes": 40462
+    }
+  ],
+  "decodedMiB": 8,
+  "mipmappedMiB": 10.666666666666666,
+  "materials": [
+    {
+      "base": true,
+      "normal": false,
+      "mr": true,
+      "metallic": 1,
+      "roughness": 1,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": "OPAQUE"
+    }
+  ],
+  "source": "../../raw/trellis2/ecg-cart.glb",
+  "sourceSha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+  "operations": {
+    "station": "iterate-optimize followed by meshoptimizer simplifyWithAttributes",
+    "standardLadderBest40kRetarget": 88537,
+    "meshoptimizerVersion": "1.0.1",
+    "flags": [
+      "Permissive"
+    ],
+    "normalWeights": [
+      1,
+      1,
+      1
+    ],
+    "uvWeights": [
+      1,
+      1
+    ],
+    "errorLimit": 1,
+    "reportedError": 0.012900687754154205,
+    "textureResize": "gltf-transform resize --width 1024 --height 1024; two WebP maps; PBR bindings/factors unchanged",
+    "report": "round3/budget/trellis2/seam-budget.json"
+  },
+  "reproduction": "Run ../../reproduce-seam-budget.mts with pnpm exec tsx: <raw.glb> <intermediate.glb> <seam-report.json>; then pnpm exec gltf-transform resize <intermediate.glb> <budget.glb> --width 1024 --height 1024.",
+  "materialRetention": "Base-colour and metallic/roughness maps retained, along with all factors, UVs and normals; no hand-recolouring or re-UV."
+}

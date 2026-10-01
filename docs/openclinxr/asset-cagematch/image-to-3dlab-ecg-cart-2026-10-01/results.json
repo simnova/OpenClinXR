@@ -1,5 +1,93 @@
 {
   "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "round3": {
+    "date": "2026-10-01",
+    "status": "pending coordinator grade; MADR Decision unchanged",
+    "backend": "trellis2",
+    "variant": "image-to-3dlab clean trellis-space-mac; CPU pre-cap export recovery",
+    "dinov3Access": {
+      "status": "ACCESS OK",
+      "coordinatorVerifiedAt": "2026-10-01T16:54:00Z",
+      "evidence": "DINOv3 loaded and all sampling stages completed; no additional access probe needed",
+      "revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+    },
+    "conditioningSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "commonBudget": {
+      "trianglesMax": 40000,
+      "decodedTextureMiBMax": 16
+    },
+    "wallSeconds": 1395.773592458,
+    "elapsedWallSeconds": 1495.136,
+    "measurement": "Sum of three foreground GpuJobService job wall times, including failed export and recovery; elapsedWallSeconds additionally includes diagnosis gaps. Excludes environment check, optimize and renders.",
+    "peakRssBytes": 41961652224,
+    "rssMeasurement": "Maximum /usr/bin/time -l maximum resident set size across attempts; not GPU memory.",
+    "concurrentHeavyProcessesAtStart": 0,
+    "concurrentHeavyProcessesAtEnd": 0,
+    "heavyCountDefinition": "Other GPU/Blender compute-slot holders at each job boundary; 0/0 for all three attempts.",
+    "rawTriangles": 297289,
+    "budgetTriangles": 38697,
+    "rawDecodedTextureMiB": 32,
+    "decodedTextureMiB": 8,
+    "decodedTextureWithMipsMiB": 10.666666666666666,
+    "silhouetteIou": {
+      "raw": 0.781307038678191,
+      "budget": 0.781238369308598
+    },
+    "rawSha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+    "budgetSha256": "12c79ef7f20a7176325c2e5bf5f87cee092b7e0efde2e54a8cd9993e77a26fd0",
+    "attempts": [
+      {
+        "wallSeconds": 1343.430446417,
+        "peakRssBytes": 41961652224,
+        "exitCode": 1,
+        "reason": "Metal propagate_cost_kernel unsupported float atomic operation",
+        "execution": "round3/raw/trellis2/initial-execution.json"
+      },
+      {
+        "wallSeconds": 12.01582025,
+        "peakRssBytes": 5742542848,
+        "exitCode": 1,
+        "reason": "remesh=false alone still invokes the unsupported Metal simplifier",
+        "execution": "round3/raw/trellis2/nonremesh-execution.json"
+      },
+      {
+        "wallSeconds": 40.327325791,
+        "peakRssBytes": 9214017536,
+        "exitCode": 0,
+        "reason": "same decoded checkpoint; remesh=false, CPU pre-cap=300000, Metal target=400000 so unsupported simplify is skipped",
+        "execution": "round3/raw/trellis2/cpu-precap-execution.json"
+      }
+    ],
+    "optimization": {
+      "station": "iterate-optimize followed by meshoptimizer simplifyWithAttributes",
+      "standardLadderBest40kRetarget": 88537,
+      "meshoptimizerVersion": "1.0.1",
+      "flags": [
+        "Permissive"
+      ],
+      "normalWeights": [
+        1,
+        1,
+        1
+      ],
+      "uvWeights": [
+        1,
+        1
+      ],
+      "errorLimit": 1,
+      "reportedError": 0.012900687754154205,
+      "textureResize": "gltf-transform resize --width 1024 --height 1024; two WebP maps; PBR bindings/factors unchanged",
+      "report": "round3/budget/trellis2/seam-budget.json"
+    },
+    "reproducibility": "One sampling run only; export recovered from checkpoint, not an independent replay. No byte-identity claim. Original Pixal3D replay remains the one-backend repeat trial.",
+    "contactSheet": "round3/renders/contact-sheet-budget.png",
+    "updatedRound2Sheet": "round2/renders/contact-sheet-budget.png",
+    "firstThreeColumnsPixelIdentical": true,
+    "rawStill": "round3/renders/trellis2-raw/three_quarter_right.png",
+    "budgetStill": "round3/renders/trellis2-budget/three_quarter_right.png",
+    "provenance": "round3/raw/trellis2/provenance.json",
+    "visualVerdict": null
+  },
   "round2": {
     "date": "2026-10-01",
     "status": "pending coordinator re-grade; MADR Decision unchanged",

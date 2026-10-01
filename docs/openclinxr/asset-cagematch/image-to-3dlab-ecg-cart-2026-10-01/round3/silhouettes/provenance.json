@@ -1,0 +1,21 @@
+{
+  "renderer": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+  "execution": "BlenderService",
+  "cameraFreeze": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",
+  "resolution": [
+    1280,
+    1280
+  ],
+  "view": "three_quarter_right",
+  "treatmentExtent": 0.9682512283325195,
+  "normalization": "Uniform render-only normalization; same frozen 50mm camera, key/fill/rim and EEVEE settings as prior rounds.",
+  "territoryFlag": "Individual TRELLIS.2 masks contain no Hunyuan-derived content.",
+  "visualVerdict": null,
+  "alphaThreshold": 16,
+  "oracle": "../../inputs/ecg-cart-oracle-matted.png",
+  "resize": "Lanczos to 1280x1280",
+  "silhouetteIou": {
+    "raw": 0.781307038678191,
+    "budget": 0.781238369308598
+  }
+}

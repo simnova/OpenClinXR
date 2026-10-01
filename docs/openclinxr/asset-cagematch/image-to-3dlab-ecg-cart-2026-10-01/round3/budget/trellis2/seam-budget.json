@@ -1,0 +1,26 @@
+{
+  "method": "meshoptimizer simplifyWithAttributes",
+  "reason": "Existing iterate-optimize ladder plateaus above 88k on UV/normal seams",
+  "flags": [
+    "Permissive"
+  ],
+  "attributeWeights": {
+    "normal": [
+      1,
+      1,
+      1
+    ],
+    "uv": [
+      1,
+      1
+    ]
+  },
+  "targetTriangles": 40000,
+  "targetError": 1,
+  "reportedError": 0.012900687754154205,
+  "inputTriangles": 297289,
+  "triangles": 38697,
+  "vertices": 46154,
+  "materialChanges": false,
+  "note": "Seam constraints relaxed; attribute-aware error used. Not a visual survival verdict."
+}

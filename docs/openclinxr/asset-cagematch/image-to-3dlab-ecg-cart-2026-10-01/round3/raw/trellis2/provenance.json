@@ -1,0 +1,133 @@
+{
+  "backend": "trellis2",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "spaceCommit": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+  "applePortPin": "6055b868734af6e12769d229d90580e775fae9f0",
+  "weightRevisions": {
+    "trellis2": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "dinov3": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+  },
+  "input": "../../../inputs/ecg-cart-oracle-matted.png",
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "license": "image-to-3dlab Apache-2.0; TRELLIS.2 MIT; DINOv3 separate licence allowing commercial use per MADR 0049; accepted gated access. Tool classification commercial-conditional.",
+  "territoryFlag": "No Hunyuan-derived content in this individual TRELLIS.2 asset.",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "production adoption",
+    "coordinator visual grade"
+  ],
+  "sha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+  "bytes": 12425028,
+  "triangles": 297289,
+  "textures": [
+    {
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp",
+      "bytes": 665836
+    },
+    {
+      "size": [
+        2048,
+        2048
+      ],
+      "mime": "image/webp",
+      "bytes": 110932
+    }
+  ],
+  "decodedMiB": 32,
+  "mipmappedMiB": 42.666666666666664,
+  "materials": [
+    {
+      "base": true,
+      "normal": false,
+      "mr": true,
+      "metallic": 1,
+      "roughness": 1,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": "OPAQUE"
+    }
+  ],
+  "execution": {
+    "wallSeconds": 1395.773592458,
+    "elapsedWallSeconds": 1495.136,
+    "measurement": "Sum of three foreground GpuJobService job wall times, including failed export and recovery; elapsedWallSeconds additionally includes diagnosis gaps. Excludes environment check, optimize and renders.",
+    "peakRssBytes": 41961652224,
+    "rssMeasurement": "Maximum /usr/bin/time -l maximum resident set size across attempts; not GPU memory.",
+    "concurrentHeavyProcessesAtStart": 0,
+    "concurrentHeavyProcessesAtEnd": 0,
+    "heavyCountDefinition": "Other GPU/Blender compute-slot holders at each job boundary; 0/0 for all three attempts."
+  },
+  "parameters": {
+    "seed": 42,
+    "resolution": 1024,
+    "pipeline": "1024_cascade",
+    "attention": "sdpa",
+    "loadRemBg": false,
+    "textureSize": 2048,
+    "samplingSteps": [
+      12,
+      12,
+      12
+    ],
+    "remesh": false,
+    "preCapFaces": 300000,
+    "decimationTarget": 400000
+  },
+  "exportRecovery": "Default export and non-remeshing-only retry failed on M1 unsupported float atomics. Successful recovery used the same decode checkpoint and built-in CPU pre-cap to avoid Metal simplification. No tool source or weights modified; run-time remesh override retained in ../../reproduce-export.py.",
+  "manifest": "ecg-cart.json",
+  "manifestCaveat": "Upstream resume manifest params.seed=0 is the demo default; top-level seed=42 comes from the actual checkpoint and is authoritative. load_decode_bundle timing includes bake; use total or facade wall, not their sum.",
+  "reproduction": {
+    "cwd": "/Users/patrick/.openclinxr-tools/image-to-3dlab",
+    "facade": "GpuJobService",
+    "interpreter": "vendor/trellis-space-mac/.venv/bin/python",
+    "initialArgs": [
+      "scripts/trellis_space_generate.py",
+      "<same input>",
+      "<scratch>/ecg-cart.glb",
+      "--seed",
+      "42",
+      "--resolution",
+      "1024",
+      "--texture-size",
+      "2048"
+    ],
+    "exportArgs": [
+      "<round3>/reproduce-export.py",
+      "<export.log>",
+      "scripts/trellis_space_generate.py",
+      "<output.glb>",
+      "--from-decode",
+      "<scratch>/ecg-cart_decode.pt",
+      "--texture-size",
+      "2048",
+      "--pre-cap",
+      "300000",
+      "--decimation-target",
+      "400000"
+    ],
+    "env": {
+      "PYTHONUNBUFFERED": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "1"
+    }
+  },
+  "reproducibility": "One sampling run only; export recovered from checkpoint, not an independent replay. No byte-identity claim. Original Pixal3D replay remains the one-backend repeat trial.",
+  "diskBytesApprox": {
+    "toolCheckoutAndEnvironments": 26068992000,
+    "dinov3Cache": 1212571648
+  },
+  "checkpoint": {
+    "path": ".openclinxr/round3-trellis/ecg-cart_decode.pt",
+    "bytes": 314095917,
+    "sha256": "c5824565f88c360319fcf8af884511d4d74d73d48bb62fdc8a5c5d285dc15c5e",
+    "retention": "local scratch only; not committed"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "renderer": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+  "execution": "BlenderService",
+  "cameraFreeze": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",
+  "resolution": [
+    1280,
+    1280
+  ],
+  "view": "three_quarter_right",
+  "treatmentExtent": 0.9682512283325195,
+  "normalization": "Uniform render-only normalization; same frozen 50mm camera, key/fill/rim and EEVEE settings as prior rounds.",
+  "contactSheet": {
+    "size": [
+      5120,
+      1360
+    ],
+    "columns": [
+      "control",
+      "Hunyuan3D-MLX 2.0",
+      "Stable Fast 3D",
+      "TRELLIS.2"
+    ],
+    "firstThreeColumnsPixelIdentical": true,
+    "alsoReplaces": "../../round2/renders/contact-sheet-budget.png"
+  },
+  "territoryFlag": "Contact sheet includes Hunyuan-derived pixels: US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "visualVerdict": null
+}
