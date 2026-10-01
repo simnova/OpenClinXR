@@ -1,26 +1,28 @@
 /**
  * Couple a fitted-teeth primitive to the body viseme targets.
  *
- * For each body `viseme_*` target whose lower-lip landmark has at least 20
- * vertices, write one POSITION morph on the teeth primitive. An opening viseme
- * (the shipped applier's jaw aperture for that name is above zero) gets one
- * rigid translation of the jaw-weighted vertices and one rigid translation of
- * the head-weighted vertices. The translations are solved so that, after the
- * jaw rotation `applyJawOpenToRoot` applies for that viseme, each front shell's
- * mean distance to the nearest body vertex is between 0.5 mm and 2 mm, with
- * the lip still in front of the crowns (+Z). A closed viseme (jaw aperture 0,
- * including viseme_PP) writes zeros — a rest-pose shove of the base mesh is
- * not the fix. No `mouth-open` target is added. Skin weights are not changed.
+ * Every opening body `viseme_*` (jaw aperture above zero) gets one POSITION
+ * morph on the teeth primitive, solved from the front-shell gap. The old
+ * lower-lip landmark does not gate that solve: E, FF, nn, RR, TH, and U were
+ * skipped when the landmark had fewer than 20 vertices, and the teeth then
+ * had no translation. A closed viseme still needs that landmark before it
+ * writes zeros (viseme_PP). viseme_sil stays off the teeth. No `mouth-open`
+ * target is added. Skin weights are not changed.
+ *
+ * An opening morph is one rigid translation of the jaw-weighted vertices and
+ * one rigid translation of the head-weighted vertices. After
+ * `applyJawOpenToRoot` for that viseme, each front shell's mean distance to
+ * the nearest body vertex is between 0.5 mm and 2 mm, with the lip still in
+ * front of the crowns (+Z).
  *
  * Front shell: |x| <= 0.012, clear of the teeth median by 6 mm, and within
  * 4 mm of that row's max z, on the base POSITION accessor.
  *
  * Landmark, measured on the parent body primitive 0 before this morph existed:
  * |x| <= 0.03, y in [1.448, 1.488], morph delta y < -2 mm, and the dominant
- * joint is `jaw` or a descendant of `jaw`. The landmark only decides which
- * visemes get a target. It is not the translation.
+ * joint is `jaw` or a descendant of `jaw`. It is not the translation.
  *
- * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts <glb> [--dry]
+ * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts <glb> [--dry|--measure]
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -28,7 +30,10 @@ import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, SkinnedMesh, Vector3 } from "three";
 import { applyVisemeWeights, type MorphTargetLike } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
-import { jawOpenRadiansForPhoneme } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
+import {
+  jawApertureFractionTable,
+  jawOpenRadiansForPhoneme,
+} from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
 
 export const LOWER_LIP_ABS_X_MAX = 0.03;
 export const LOWER_LIP_Y_MIN = 1.448;
@@ -384,16 +389,17 @@ function solveWorldOffset(
 ): { offset: Vec3; gap: { meanM: number; dirM: Vec3 } } {
   const zero = gapAgainstGrid(teethWorld, shell, grid, [0, 0, 0]);
   const best = { offset: [0, 0, 0] as Vec3, gap: zero, score: scoreGap(zero) };
-  // The jaw hinge swings crowns back by about 15 mm. A 1 mm lattice over that
-  // volume finds the basin; the finer lattice below pulls the mean into band.
-  for (let z = -0.002; z <= 0.018; z += 0.001) {
-    for (let y = -0.02; y <= 0.006; y += 0.001) {
-      for (let x = -0.008; x <= 0.008; x += 0.001) {
-        remember(teethWorld, shell, grid, [x, y, z], best);
+  // Partial jaw openings leave the shells 5–11 mm behind the lip. A 2 mm
+  // lattice covers that swing, including shapes the lip landmark never marked.
+  // Integer steps keep the sample on the lattice instead of drifting with 0.002.
+  for (let iz = -2; iz <= 12; iz += 1) {
+    for (let iy = -12; iy <= 4; iy += 1) {
+      for (let ix = -5; ix <= 5; ix += 1) {
+        remember(teethWorld, shell, grid, [ix * 0.002, iy * 0.002, iz * 0.002], best);
       }
     }
   }
-  considerOffsets(teethWorld, shell, grid, best.offset, 0.00025, 0.002, best);
+  considerOffsets(teethWorld, shell, grid, best.offset, 0.0005, 0.002, best);
   let polish = 0.0004;
   for (let round = 0; round < 12 && polish >= 0.00005; round += 1) {
     let improved = false;
@@ -448,11 +454,15 @@ type Pose = {
   teethPos: Float32Array;
   teethJoints: ArrayLike<number>;
   teethWeights: ArrayLike<number>;
+  teethTargets: Float32Array[];
+  teethTargetNames: string[];
+  teethSkinned: SkinnedMesh;
   teethSkeleton: Skeleton;
   bodyPos: Float32Array;
   bodyJoints: ArrayLike<number>;
   bodyWeights: ArrayLike<number>;
   bodyTargets: Float32Array[];
+  bodyTargetNames: string[];
   bodySkinned: SkinnedMesh;
   bodySkeleton: Skeleton;
   jointNodes: GltfNode[];
@@ -528,7 +538,7 @@ function buildPose(doc: Awaited<ReturnType<NodeIO["read"]>>): Pose {
     skinned.morphTargetInfluences = targetNames.map(() => 0);
     skinned.bind(skeleton, new Matrix4());
     (nodeMap.get(node) ?? root).add(skinned);
-    return { positions, jointArray, weightArray, targets, skinned, skeleton, jointNodes };
+    return { positions, jointArray, weightArray, targets, targetNames, skinned, skeleton, jointNodes };
   };
 
   const teeth = attach(/fitted_teeth/i);
@@ -538,14 +548,124 @@ function buildPose(doc: Awaited<ReturnType<NodeIO["read"]>>): Pose {
     teethPos: teeth.positions,
     teethJoints: teeth.jointArray,
     teethWeights: teeth.weightArray,
+    teethTargets: teeth.targets,
+    teethTargetNames: teeth.targetNames,
+    teethSkinned: teeth.skinned,
     teethSkeleton: teeth.skeleton,
     bodyPos: body.positions,
     bodyJoints: body.jointArray,
     bodyWeights: body.weightArray,
     bodyTargets: body.targets,
+    bodyTargetNames: body.targetNames,
     bodySkinned: body.skinned,
     bodySkeleton: body.skeleton,
     jointNodes: body.jointNodes,
+  };
+}
+
+export type MeasuredVisemeGap = {
+  name: string;
+  jawFraction: number;
+  jawOpenRadians: number;
+  teethTargetApplied: boolean;
+  landmarkCount: number;
+  upperM: number;
+  lowerM: number;
+};
+
+/** Jaw-aperture fraction for a body `viseme_*` name. Unknown tokens use the driver's 0.25 partial. */
+export function jawFractionForVisemeName(name: string): number {
+  const phoneme = name.replace(/^viseme_/i, "").trim().toLowerCase();
+  if (!phoneme || phoneme === "sil" || phoneme === "silence" || phoneme === "rest") return 0;
+  const fraction = jawApertureFractionTable()[phoneme];
+  return typeof fraction === "number" ? fraction : 0.25;
+}
+
+/** Mean of the per-viseme upper/lower front-shell means, over jaw fractions above zero. */
+export function openingMeanShellM(
+  rows: readonly { jawFraction: number; upperM: number; lowerM: number }[],
+): number {
+  const opening = rows.filter((row) => row.jawFraction > 0);
+  if (opening.length === 0) throw new Error("no jaw-opening viseme");
+  let sum = 0;
+  for (const row of opening) sum += (row.upperM + row.lowerM) / 2;
+  return sum / opening.length;
+}
+
+/**
+ * Front-shell gaps for every body viseme, through applyVisemeWeights and applyJawOpenToRoot.
+ * A teeth target is applied only when that name already exists on the teeth mesh. Missing
+ * names stay at the base teeth, which is the pre-solve measurement for those shapes.
+ */
+export async function measureTeethVisemeGaps(glbPath: string): Promise<{
+  teethName: string;
+  teethTargets: string[];
+  restUpperM: number;
+  restLowerM: number;
+  rows: MeasuredVisemeGap[];
+  openingMeanM: number;
+}> {
+  const doc = await new NodeIO().read(glbPath);
+  const pose = buildPose(doc);
+  const shells = frontShellIndices(pose.teethPos);
+  const bodyMorph = morphTarget(pose.bodySkinned);
+  const teethInfluences = pose.teethSkinned.morphTargetInfluences;
+  const teethDictionary = pose.teethSkinned.morphTargetDictionary;
+  if (!teethInfluences || !teethDictionary) throw new Error(`${pose.teethSkinned.name} has no morph targets`);
+
+  const restTeeth = skinMesh(pose.teethPos, pose.teethJoints, pose.teethWeights, boneMatrices(pose.root, pose.teethSkeleton));
+  const restBody = skinMesh(pose.bodyPos, pose.bodyJoints, pose.bodyWeights, boneMatrices(pose.root, pose.bodySkeleton));
+  const restUpperM = frontShellMeanGap(restTeeth, shells.upper, restBody).meanM;
+  const restLowerM = frontShellMeanGap(restTeeth, shells.lower, restBody).meanM;
+
+  const rows: MeasuredVisemeGap[] = [];
+  for (let index = 0; index < pose.bodyTargetNames.length; index += 1) {
+    const name = pose.bodyTargetNames[index]!;
+    if (!name.toLowerCase().startsWith("viseme_")) continue;
+    const deltas = pose.bodyTargets[index] ?? new Float32Array(pose.bodyPos.length);
+    const landmarkCount = lowerLipLandmark(
+      pose.bodyPos,
+      deltas,
+      pose.bodyJoints,
+      pose.bodyWeights,
+      pose.jointNodes,
+    ).length;
+    bodyMorph.morphTargetInfluences.fill(0);
+    teethInfluences.fill(0);
+    applyVisemeWeights(bodyMorph, { [name]: 1 });
+    const teethTargetApplied = pose.teethTargetNames.includes(name);
+    if (teethTargetApplied) applyVisemeWeights({ morphTargetDictionary: teethDictionary, morphTargetInfluences: teethInfluences }, { [name]: 1 });
+    const jawOpenRadians = jawOpenRadiansForPhoneme(name.replace(/^viseme_/i, ""));
+    applyJawOpenToRoot(pose.root, jawOpenRadians);
+    const teethWorld = skinMesh(
+      morphed(pose.teethPos, pose.teethTargets, teethInfluences),
+      pose.teethJoints,
+      pose.teethWeights,
+      boneMatrices(pose.root, pose.teethSkeleton),
+    );
+    const bodyWorld = skinMesh(
+      morphed(pose.bodyPos, pose.bodyTargets, bodyMorph.morphTargetInfluences),
+      pose.bodyJoints,
+      pose.bodyWeights,
+      boneMatrices(pose.root, pose.bodySkeleton),
+    );
+    rows.push({
+      name,
+      jawFraction: jawFractionForVisemeName(name),
+      jawOpenRadians,
+      teethTargetApplied,
+      landmarkCount,
+      upperM: frontShellMeanGap(teethWorld, shells.upper, bodyWorld).meanM,
+      lowerM: frontShellMeanGap(teethWorld, shells.lower, bodyWorld).meanM,
+    });
+  }
+  return {
+    teethName: pose.teethSkinned.name,
+    teethTargets: pose.teethTargetNames,
+    restUpperM,
+    restLowerM,
+    rows,
+    openingMeanM: openingMeanShellM(rows),
   };
 }
 
@@ -678,8 +798,21 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
     const accessor = target?.getAttribute("POSITION");
     if (!accessor) continue;
     const landmark = lowerLipLandmark(pose.bodyPos, floatArray(accessor), pose.bodyJoints, pose.bodyWeights, pose.jointNodes);
-    if (landmark.length < LOWER_LIP_MIN_VERTS) continue;
     const jawRadians = jawOpenRadiansForPhoneme(name.replace(/^viseme_/i, ""));
+    // Opening shapes are solved from the front-shell gap. The landmark count
+    // only gates a closed viseme (PP writes zeros; sil stays off the teeth).
+    if (jawRadians > 1e-8) {
+      const started = Date.now();
+      const solved = solveShells(pose, jawWeighted, headWeighted, shells, jawRadians, name, jawIndex, headIndex);
+      if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+        process.stderr.write(
+          `${name} ${(solved.upperGapM * 1000).toFixed(2)}/${(solved.lowerGapM * 1000).toFixed(2)} mm ${((Date.now() - started) / 1000).toFixed(1)}s\n`,
+        );
+      }
+      targets.push({ name, landmarkCount: landmark.length, ...solved });
+      continue;
+    }
+    if (landmark.length < LOWER_LIP_MIN_VERTS) continue;
     if (jawRadians <= 1e-8) {
       const bodyMorph = morphTarget(pose.bodySkinned);
       bodyMorph.morphTargetInfluences.fill(0);
@@ -700,10 +833,7 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
         upperGapM: frontShellMeanGap(teethWorld, shells.upper, bodyWorld).meanM,
         lowerGapM: frontShellMeanGap(teethWorld, shells.lower, bodyWorld).meanM,
       });
-      continue;
     }
-    const solved = solveShells(pose, jawWeighted, headWeighted, shells, jawRadians, name, jawIndex, headIndex);
-    targets.push({ name, landmarkCount: landmark.length, ...solved });
   }
   return {
     teethName: teeth.getName(),
@@ -763,6 +893,31 @@ type GlbJson = {
   }[];
 };
 
+function appendTargetBytes(
+  json: GlbJson,
+  bin: Buffer,
+  values: Float32Array,
+  count: number,
+): { bin: Buffer; accessor: number } {
+  let next = bin;
+  if (next.length % 4 !== 0) next = Buffer.concat([next, Buffer.alloc(4 - (next.length % 4))]);
+  const bytes = Buffer.from(values.buffer, values.byteOffset, values.byteLength);
+  const { min, max } = bounds(values);
+  const view = json.bufferViews.length;
+  json.bufferViews.push({ buffer: 0, byteOffset: next.length, byteLength: bytes.length, target: ARRAY_BUFFER });
+  const accessor = json.accessors.length;
+  json.accessors.push({
+    bufferView: view,
+    byteOffset: 0,
+    componentType: FLOAT,
+    count,
+    type: "VEC3",
+    min,
+    max,
+  });
+  return { bin: Buffer.concat([next, bytes]), accessor };
+}
+
 function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, values: Float32Array, count: number): void {
   const accessor = json.accessors[accessorIndex] as {
     bufferView: number;
@@ -813,7 +968,7 @@ function writeGlb(json: GlbJson, bin: Buffer, glbPath: string): void {
 /** Write solved teeth viseme morphs. Existing targets with the same names are overwritten in place. */
 export async function coupleFittedTeethToLipViseme(glbPath: string): Promise<TeethVisemeTarget[]> {
   const plan = await planTeethVisemeTargets(glbPath);
-  if (plan.targets.length === 0) throw new Error(`no viseme landmark cleared ${LOWER_LIP_MIN_VERTS} verts in ${glbPath}`);
+  if (plan.targets.length === 0) throw new Error(`no teeth viseme target was solved for ${glbPath}`);
   if (plan.targets.some((target) => target.name === "mouth-open")) {
     throw new Error("refusing to add a mouth-open teeth target");
   }
@@ -837,48 +992,29 @@ export async function coupleFittedTeethToLipViseme(glbPath: string): Promise<Tee
     throw new Error("refusing to keep a mouth-open teeth target");
   }
   const plannedNames = plan.targets.map((target) => target.name);
-  if (existing.some((name) => name.toLowerCase().startsWith("viseme_"))) {
-    if (existing.length !== plannedNames.length || existing.some((name, index) => name !== plannedNames[index])) {
-      throw new Error(`refusing to rewrite ${plan.teethName}: target names differ from the plan`);
-    }
-    for (let index = 0; index < plan.targets.length; index += 1) {
-      const planned = plan.targets[index]!;
-      const accessorIndex = primitive.targets?.[index]?.POSITION;
-      if (typeof accessorIndex !== "number") throw new Error(`missing POSITION on ${planned.name}`);
-      writeTargetBytes(
-        json,
-        bin,
-        accessorIndex,
-        teethDelta(plan.teethCount, plan.jawWeighted, planned.jawDelta, plan.headWeighted, planned.headDelta),
-        plan.teethCount,
-      );
-    }
-  } else {
-    if (bin.length % 4 !== 0) bin = Buffer.concat([bin, Buffer.alloc(4 - (bin.length % 4))]);
-    const targets: { POSITION: number }[] = [];
-    for (const planned of plan.targets) {
-      const values = teethDelta(plan.teethCount, plan.jawWeighted, planned.jawDelta, plan.headWeighted, planned.headDelta);
-      const bytes = Buffer.from(values.buffer, values.byteOffset, values.byteLength);
-      const { min, max } = bounds(values);
-      const view = json.bufferViews.length;
-      json.bufferViews.push({ buffer: 0, byteOffset: bin.length, byteLength: bytes.length, target: ARRAY_BUFFER });
-      const accessor = json.accessors.length;
-      json.accessors.push({
-        bufferView: view,
-        byteOffset: 0,
-        componentType: FLOAT,
-        count: plan.teethCount,
-        type: "VEC3",
-        min,
-        max,
-      });
-      targets.push({ POSITION: accessor });
-      bin = Buffer.concat([bin, bytes]);
-    }
-    primitive.targets = targets;
-    teeth.extras = { ...(teeth.extras ?? {}), targetNames: plannedNames };
-    json.buffers[0]!.byteLength = bin.length;
+  for (const name of existing) {
+    if (!plannedNames.includes(name)) throw new Error(`refusing to drop teeth target ${name}`);
   }
+  const existingIndex = new Map(existing.map((name, index) => [name, index]));
+  const targets: { POSITION: number }[] = [];
+  for (const planned of plan.targets) {
+    const values = teethDelta(plan.teethCount, plan.jawWeighted, planned.jawDelta, plan.headWeighted, planned.headDelta);
+    const prior = existingIndex.get(planned.name);
+    if (prior !== undefined) {
+      const accessorIndex = primitive.targets?.[prior]?.POSITION;
+      if (typeof accessorIndex !== "number") throw new Error(`missing POSITION on ${planned.name}`);
+      writeTargetBytes(json, bin, accessorIndex, values, plan.teethCount);
+      targets.push({ POSITION: accessorIndex });
+    } else {
+      const appended = appendTargetBytes(json, bin, values, plan.teethCount);
+      // Buffer.concat's generic is wider than Buffer.from's. The bytes are the same buffer.
+      bin = appended.bin as typeof bin;
+      targets.push({ POSITION: appended.accessor });
+    }
+  }
+  primitive.targets = targets;
+  teeth.extras = { ...(teeth.extras ?? {}), targetNames: plannedNames };
+  json.buffers[0]!.byteLength = bin.length;
 
   writeGlb(json, bin, glbPath);
   return plan.targets;
@@ -904,10 +1040,48 @@ function planSummary(plan: Awaited<ReturnType<typeof planTeethVisemeTargets>>) {
   };
 }
 
+function measureSummary(measured: Awaited<ReturnType<typeof measureTeethVisemeGaps>>) {
+  const mm = (value: number) => Math.round(value * 1e6) / 1e3;
+  const rows = measured.rows.map((row) => ({
+    name: row.name,
+    jawFraction: row.jawFraction,
+    jawOpenRadians: row.jawOpenRadians,
+    teethTargetApplied: row.teethTargetApplied,
+    landmarkCount: row.landmarkCount,
+    upperM: row.upperM,
+    lowerM: row.lowerM,
+    upperMm: mm(row.upperM),
+    lowerMm: mm(row.lowerM),
+    shellMeanM: (row.upperM + row.lowerM) / 2,
+    shellMeanMm: mm((row.upperM + row.lowerM) / 2),
+  }));
+  return {
+    teethName: measured.teethName,
+    teethTargets: measured.teethTargets,
+    restUpperM: measured.restUpperM,
+    restLowerM: measured.restLowerM,
+    restUpperMm: mm(measured.restUpperM),
+    restLowerMm: mm(measured.restLowerM),
+    rows,
+    openingMeanM: measured.openingMeanM,
+    openingMeanMm: mm(measured.openingMeanM),
+  };
+}
+
 async function main(): Promise<void> {
   const dry = process.argv.includes("--dry");
-  const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
-  if (!glbPath) throw new Error("usage: couple-fitted-teeth-to-lip-viseme.ts <glb> [--dry]");
+  const measure = process.argv.includes("--measure");
+  const outFlag = process.argv.indexOf("--out");
+  const outPath = outFlag >= 0 ? process.argv[outFlag + 1] : undefined;
+  const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--") && arg !== outPath);
+  if (!glbPath) throw new Error("usage: couple-fitted-teeth-to-lip-viseme.ts <glb> [--dry|--measure] [--out file]");
+  if (measure) {
+    const measured = measureSummary(await measureTeethVisemeGaps(glbPath));
+    const text = `${JSON.stringify(measured, null, 2)}\n`;
+    if (outPath) writeFileSync(outPath, text);
+    process.stdout.write(text);
+    return;
+  }
   if (dry) {
     const plan = await planTeethVisemeTargets(glbPath);
     process.stdout.write(`${JSON.stringify(planSummary(plan), null, 2)}\n`);
