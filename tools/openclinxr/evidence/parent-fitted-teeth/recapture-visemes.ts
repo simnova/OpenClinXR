@@ -155,7 +155,20 @@ async function openShot(page: Page, serverUrl: string, phoneme: string, target: 
   }
 }
 
+function selectedShots() {
+  const args = process.argv.slice(2).filter((arg: string) => arg !== "--");
+  if (args.length === 0) return [...SHOTS];
+  const shots = SHOTS.filter(
+    (shot) => args.includes(shot.file) || args.includes(shot.phoneme) || args.includes(shot.phoneme.toLowerCase()),
+  );
+  if (shots.length !== args.length) {
+    throw new Error(`unknown viseme shot in: ${args.join(" ")}`);
+  }
+  return [...shots];
+}
+
 async function main(): Promise<void> {
+  const shots = selectedShots();
   const script = applierSource();
   let server: PortlessDevServer | undefined;
   const browser = await chromium.launch({ headless: true });
@@ -170,7 +183,7 @@ async function main(): Promise<void> {
     page.setDefaultNavigationTimeout(240_000);
     await page.addInitScript(script);
     const written: string[] = [];
-    for (const shot of SHOTS) {
+    for (const shot of shots) {
       await openShot(page, server.url, shot.phoneme, shot.target);
       const measure = await page.evaluate(measureSource(shot.target)) as {
         teethInfluence: number | null;

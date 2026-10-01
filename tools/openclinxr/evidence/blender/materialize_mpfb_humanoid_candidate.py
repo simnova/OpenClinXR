@@ -6825,26 +6825,48 @@ def main():
     print("BODY_SHADE_SMOOTH True")
     if skin_material_name not in [m.name for m in human.data.materials]:
         raise RuntimeError(f"#343: skin material {skin_material_name} missing before bake")
-    bake_png = output.parent / f"{output.stem}.skin-baked.png"
-    baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
-    if args.reference == "ed_chest_pain_nurse_adult":
-        _blender_dir = pathlib.Path(__file__).resolve().parent
-        if str(_blender_dir) not in sys.path:
-            sys.path.insert(0, str(_blender_dir))
-        from inpaint_skin_atlas_throat import inpaint_throat_island  # noqa: E402
+    # Keeper UV sheet, when this subject has one. The albedo is the unwrapped
+    # body map in the station directory, not the quad sheet's pore tile.
+    # Subjects with no directory keep the procedural enhanced_skin bake.
+    _skin_sheet_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/skin"
+    if str(_skin_sheet_dir) not in sys.path:
+        sys.path.insert(0, str(_skin_sheet_dir))
+    from mpfb_skin_sheet import load_skin_sheet_images, skin_sheet_for_subject  # noqa: E402
 
-        _throat = inpaint_throat_island(str(bake_png))
-        print("THROAT_INPAINT " + json.dumps(_throat))
-        baked_img.reload()
+    _sheet = skin_sheet_for_subject(subject_id)
+    _sheet_rough = None
+    _sheet_cavity = None
+    if _sheet is not None:
+        _loaded = load_skin_sheet_images(_sheet)
+        baked_img = _loaded["albedo"]
+        baked_normal_img = _loaded["normal"]
+        _sheet_rough = _loaded["roughness"]
+        _sheet_cavity = _loaded["cavity"]
+        print(
+            "SKIN_SHEET "
+            + json.dumps({key: str(_sheet[key]) for key in ("subjectId", "albedo", "normal", "roughness", "cavity")})
+        )
+    else:
+        bake_png = output.parent / f"{output.stem}.skin-baked.png"
+        baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
+        if args.reference == "ed_chest_pain_nurse_adult":
+            _blender_dir = pathlib.Path(__file__).resolve().parent
+            if str(_blender_dir) not in sys.path:
+                sys.path.insert(0, str(_blender_dir))
+            from inpaint_skin_atlas_throat import inpaint_throat_island  # noqa: E402
 
-    # #370 — bake the shipped enhanced_skin shader's perturbed normal (procedural
-    # pores) to a tangent-space normal map. Runs BEFORE the node-tree rebuild below
-    # so the enhanced_skin Bump -> Principled Normal wiring is still present; the
-    # rebuild then re-wires the baked image as the glTF normalTexture.
-    normal_png = output.parent / f"{output.stem}.skin-normal.png"
-    baked_normal_img = bake_skin_normal_to_texture(
-        human, skin_material_name, str(normal_png), resolution=1024
-    )
+            _throat = inpaint_throat_island(str(bake_png))
+            print("THROAT_INPAINT " + json.dumps(_throat))
+            baked_img.reload()
+
+        # #370 — bake the shipped enhanced_skin shader's perturbed normal (procedural
+        # pores) to a tangent-space normal map. Runs BEFORE the node-tree rebuild below
+        # so the enhanced_skin Bump -> Principled Normal wiring is still present; the
+        # rebuild then re-wires the baked image as the glTF normalTexture.
+        normal_png = output.parent / f"{output.stem}.skin-normal.png"
+        baked_normal_img = bake_skin_normal_to_texture(
+            human, skin_material_name, str(normal_png), resolution=1024
+        )
 
     # #359 — the texture-mask hairline route (#341 rounds 10-16) is REMOVED. The #358 head-framed
     # comparison graded it as damage (roughly half the scalp bare skin, a hard pixel-stair-stepped
@@ -6885,6 +6907,11 @@ def main():
     export_skin.node_tree.links.new(normal_tex_node.outputs["Color"], normal_map_node.inputs["Color"])
     export_skin.node_tree.links.new(normal_map_node.outputs["Normal"], bsdf.inputs["Normal"])
     export_skin.node_tree.links.new(bsdf.outputs["BSDF"], out_node.inputs["Surface"])
+    if _sheet_rough is not None:
+        from mpfb_skin_sheet import wire_skin_sheet_channels  # noqa: E402
+
+        _sheet_wired = wire_skin_sheet_channels(export_skin, _sheet_rough, _sheet_cavity)
+        print("SKIN_SHEET_WIRED " + json.dumps(_sheet_wired))
     export_skin.diffuse_color = (0.68, 0.53, 0.44, 1.0)
     print(
         f"SKIN_MATERIAL_EXPORTABLE {export_skin.name} "

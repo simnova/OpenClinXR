@@ -1,0 +1,9 @@
+{
+  "schema": "openclinxr.skin-sheet-cavity-export.v1",
+  "blender": "5.1.1",
+  "date": "2026-10-01",
+  "probe": "Plane. Principled Base Color = albedo.png, Normal Map = normal.png, Roughness = roughness.png at factor 1, Metallic factor 0. Cavity.png Color linked to a glTF Material Output group Occlusion socket.",
+  "exporterKeepsCavity": true,
+  "packing": "occlusionTexture and metallicRoughnessTexture share one image. R is cavity, G is roughness, B is 255. metallicFactor is 0. albedo and normal stay separate images and matched the source PNGs byte for byte in the probe.",
+  "shippedOn": "mpfb_skin_peds_anxious_parent of apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb by image-buffer replace, not a full materialize, so the fitted-teeth viseme targets stay."
+}
