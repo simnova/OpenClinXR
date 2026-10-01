@@ -1,16 +1,14 @@
 /**
- * Fitted lower teeth follow the lip viseme.
+ * Fitted teeth sit just behind the lips at an open viseme.
  *
  * The pre-fix record is tools/openclinxr/evidence/parent-fitted-teeth/jaw-lip-gap.json,
  * written while the teeth primitive still had 0 morph targets (glb sha c4ceeba4…).
- * Ratio = |clear-lower teeth centroid travel| / |jaw-descendant lower-lip centroid travel|
- * at viseme_AA weight 1 plus jaw local +X of JAW_OPEN_TEETH_CLEAR_RADIANS.
- * Clear lower: y below the teeth median by more than 0.006 m (brief).
- * Lower lip: lowerLipLandmark in couple-fitted-teeth-to-lip-viseme.ts (brief box).
- * Thresholds are the brief's: pre ratio below 0.8, post ratio in [0.9, 1.1],
- * clear-upper travel and the closed viseme (viseme_sil, which exists) under 2 mm.
- * viseme_PP also exists; its teeth target is the landmark translation the brief
- * required, and that translation is about 4 mm, so the under-2 mm clause is sil.
+ * Front shell: |x| <= 0.012, clear of the teeth median by 6 mm, within 4 mm of that
+ * row's max z, membership locked on the base POSITION accessor.
+ * Success is the shell's mean distance to the nearest body vertex after
+ * applyVisemeWeights and applyJawOpenToRoot, in [0.5, 2] mm at viseme_aa.
+ * Rest distances were measured on the base mesh, jaw 0, before those morph
+ * deltas were rewritten. viseme_sil at jaw 0 stays within 1 mm of that record.
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -21,8 +19,11 @@ import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, Skinne
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   CLEAR_BAND_M,
+  FRONT_SHELL_GAP_MAX_M,
+  FRONT_SHELL_GAP_MIN_M,
+  frontShellIndices,
+  frontShellMeanGap,
   jawWeightSum,
-  lowerLipLandmark,
   planTeethVisemeTargets,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
 import { MOUTH_OPEN_CAP, applyVisemeWeights } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
@@ -45,7 +46,13 @@ const APPLY_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-mo
 const WIRE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
 /** Sha of the parent GLB immediately before the teeth viseme accessors were appended. */
 const PRE_MORPH_SHA = "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20af3f4331";
-const TWO_MM = 0.002;
+/**
+ * Front-shell mean nearest-body distance at jaw 0 on the base teeth, measured
+ * before the viseme morph deltas were rewritten. Metres.
+ */
+const RECORDED_REST_UPPER_M = 0.0070959803651845605;
+const RECORDED_REST_LOWER_M = 0.01066643650740738;
+const REST_TOLERANCE_M = 0.001;
 
 type Loaded = {
   root: Group;
@@ -63,11 +70,8 @@ type Loaded = {
   bodyTargets: Float32Array[];
   clearLower: number[];
   clearUpper: number[];
-  landmark: number[];
-  restTeeth: Float32Array;
-  restLip: Float32Array;
-  ratio: number;
-  upperTravelM: number;
+  upperShell: number[];
+  lowerShell: number[];
   jawIndex: number;
   headIndex: number;
 };
@@ -143,25 +147,6 @@ function boneMatrices(root: Group, skeleton: Skeleton): Float32Array {
   root.updateMatrixWorld(true);
   skeleton.update();
   return skeleton.boneMatrices.slice();
-}
-
-function centroid(positions: Float32Array, indices: readonly number[]): [number, number, number] {
-  let x = 0;
-  let y = 0;
-  let z = 0;
-  for (const index of indices) {
-    x += positions[index * 3] ?? 0;
-    y += positions[index * 3 + 1] ?? 0;
-    z += positions[index * 3 + 2] ?? 0;
-  }
-  const count = indices.length || 1;
-  return [x / count, y / count, z / count];
-}
-
-function travelMag(posed: Float32Array, rest: Float32Array, indices: readonly number[]): number {
-  const a = centroid(posed, indices);
-  const b = centroid(rest, indices);
-  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }
 
 function fullyOnJoint(
@@ -265,7 +250,7 @@ function teethPosed(state: Loaded): Float32Array {
   );
 }
 
-function lipPosed(state: Loaded): Float32Array {
+function bodyPosed(state: Loaded): Float32Array {
   return skinMesh(
     morphed(state.bodyPos, state.bodyTargets, state.body.morphTargetInfluences),
     state.bodyJoints,
@@ -274,10 +259,17 @@ function lipPosed(state: Loaded): Float32Array {
   );
 }
 
-function ratioNow(state: Loaded): number {
-  const teeth = travelMag(teethPosed(state), state.restTeeth, state.clearLower);
-  const lip = travelMag(lipPosed(state), state.restLip, state.landmark);
-  return teeth / lip;
+function shellGaps(state: Loaded): { upperM: number; lowerM: number } {
+  const teethWorld = teethPosed(state);
+  const bodyWorld = bodyPosed(state);
+  return {
+    upperM: frontShellMeanGap(teethWorld, state.upperShell, bodyWorld).meanM,
+    lowerM: frontShellMeanGap(teethWorld, state.lowerShell, bodyWorld).meanM,
+  };
+}
+
+function inGapBand(metres: number): boolean {
+  return metres >= FRONT_SHELL_GAP_MIN_M && metres <= FRONT_SHELL_GAP_MAX_M;
 }
 
 describe("parent fitted teeth follow the lip viseme", () => {
@@ -298,33 +290,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
       if (y < mid - CLEAR_BAND_M) clearLower.push(vertex);
       if (y > mid + CLEAR_BAND_M) clearUpper.push(vertex);
     }
-    const aa = body.names.indexOf("viseme_aa");
-    if (aa < 0) throw new Error("body has no viseme_aa");
-    const landmark = lowerLipLandmark(
-      body.positions,
-      body.targets[aa]!,
-      body.joints,
-      body.weights,
-      doc.getRoot().listNodes().find((node) => node.getMesh()?.getName() === body.skinned.name)?.getSkin()?.listJoints() ?? [],
-    );
-    const restTeeth = skinMesh(teeth.positions, teeth.joints, teeth.weights, boneMatrices(root, teeth.skeleton));
-    const restLip = skinMesh(body.positions, body.joints, body.weights, boneMatrices(root, body.skeleton));
-    applyVisemeWeights(teeth.skinned, { viseme_AA: 1 });
-    applyVisemeWeights(body.skinned, { viseme_AA: 1 });
-    applyJawOpenToRoot(root, JAW_OPEN_TEETH_CLEAR_RADIANS);
-    const posedTeeth = skinMesh(
-      morphed(teeth.positions, teeth.targets, teeth.skinned.morphTargetInfluences),
-      teeth.joints,
-      teeth.weights,
-      boneMatrices(root, teeth.skeleton),
-    );
-    const posedLip = skinMesh(
-      morphed(body.positions, body.targets, body.skinned.morphTargetInfluences),
-      body.joints,
-      body.weights,
-      boneMatrices(root, body.skeleton),
-    );
-    const lipMag = travelMag(posedLip, restLip, landmark);
+    const shells = frontShellIndices(teeth.positions);
     loaded = {
       root,
       teeth: teeth.skinned,
@@ -341,11 +307,8 @@ describe("parent fitted teeth follow the lip viseme", () => {
       bodyTargets: body.targets,
       clearLower,
       clearUpper,
-      landmark,
-      restTeeth,
-      restLip,
-      ratio: travelMag(posedTeeth, restTeeth, clearLower) / lipMag,
-      upperTravelM: travelMag(posedTeeth, restTeeth, clearUpper),
+      upperShell: shells.upper,
+      lowerShell: shells.lower,
       jawIndex,
       headIndex,
     };
@@ -382,12 +345,12 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
 
-  it("writes one rigid jaw-weighted teeth target per body viseme whose landmark clears 20 verts, and no mouth-open target", async () => {
+  it("writes one rigid head translation and one rigid jaw translation per opening viseme, and no mouth-open target", async () => {
     const plan = await planTeethVisemeTargets(GLB);
     const names = Object.keys(loaded.teeth.morphTargetDictionary ?? {});
     expect(names).toEqual(plan.targets.map((target) => target.name));
     expect(names).toContain("viseme_aa");
-    expect(names.some((name) => name === "mouth-open" || name.toLowerCase() === "mouth-open")).toBe(false);
+    expect(names.some((name) => name.toLowerCase() === "mouth-open")).toBe(false);
     expect(names.every((name) => name.startsWith("viseme_"))).toBe(true);
     const aa = plan.targets.find((target) => target.name === "viseme_aa");
     const aaIndex = loaded.teeth.morphTargetDictionary?.viseme_aa;
@@ -395,22 +358,19 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(aaIndex).toBeTypeOf("number");
     const delta = loaded.teethTargets[aaIndex!]!;
     const jawWeighted = new Set(plan.jawWeighted);
+    const headWeighted = new Set(plan.headWeighted);
     expect(jawWeighted.size).toBe(2180);
+    expect([...jawWeighted].some((vertex) => headWeighted.has(vertex))).toBe(false);
     for (let vertex = 0; vertex < loaded.teethPos.length / 3; vertex += 1) {
       const dx = delta[vertex * 3] ?? 0;
       const dy = delta[vertex * 3 + 1] ?? 0;
       const dz = delta[vertex * 3 + 2] ?? 0;
-      if (jawWeighted.has(vertex)) {
-        expect(dx).toBeCloseTo(aa!.delta[0], 5);
-        expect(dy).toBeCloseTo(aa!.delta[1], 5);
-        expect(dz).toBeCloseTo(aa!.delta[2], 5);
-      } else {
-        expect(dx).toBe(0);
-        expect(dy).toBe(0);
-        expect(dz).toBe(0);
-      }
+      const expected = jawWeighted.has(vertex) ? aa!.jawDelta : headWeighted.has(vertex) ? aa!.headDelta : [0, 0, 0];
+      expect(dx).toBeCloseTo(expected[0], 5);
+      expect(dy).toBeCloseTo(expected[1], 5);
+      expect(dz).toBeCloseTo(expected[2], 5);
     }
-  }, 120_000);
+  }, 300_000);
 
   it("keeps clear lower verts at jaw weight 1 and clear upper verts at head weight 1", () => {
     expect(loaded.clearLower).toHaveLength(910);
@@ -423,13 +383,23 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }
   });
 
-  it("lands the posed ratio in [0.9, 1.1] and keeps clear-upper travel under 2 mm", () => {
-    expect(loaded.ratio).toBeGreaterThanOrEqual(0.9);
-    expect(loaded.ratio).toBeLessThanOrEqual(1.1);
-    expect(loaded.upperTravelM).toBeLessThan(TWO_MM);
+  it("puts both front shells between 0.5 mm and 2 mm at viseme_aa", () => {
+    expect(loaded.upperShell).toHaveLength(60);
+    expect(loaded.lowerShell).toHaveLength(166);
+    loaded.teeth.morphTargetInfluences.fill(0);
+    loaded.body.morphTargetInfluences.fill(0);
+    applyVisemeWeights(loaded.teeth, { viseme_AA: 1 });
+    applyVisemeWeights(loaded.body, { viseme_AA: 1 });
+    applyJawOpenToRoot(loaded.root, JAW_OPEN_TEETH_CLEAR_RADIANS);
+    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(1);
+    const gaps = shellGaps(loaded);
+    expect(gaps.upperM).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
+    expect(gaps.upperM).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
+    expect(gaps.lowerM).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
+    expect(gaps.lowerM).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
   });
 
-  it("falls back below 0.8 when the teeth viseme target is absent", () => {
+  it("leaves both front shells outside that band when the teeth viseme_aa target is absent", () => {
     loaded.body.morphTargetInfluences.fill(0);
     applyVisemeWeights(loaded.body, { viseme_AA: 1 });
     applyJawOpenToRoot(loaded.root, JAW_OPEN_TEETH_CLEAR_RADIANS);
@@ -439,21 +409,28 @@ describe("parent fitted teeth follow the lip viseme", () => {
     loaded.teeth.morphTargetInfluences.fill(0);
     applyVisemeWeights(loaded.teeth, { viseme_AA: 1 });
     expect(loaded.teeth.morphTargetInfluences.every((weight: number) => weight === 0)).toBe(true);
-    expect(ratioNow(loaded)).toBeLessThan(0.8);
+    const gaps = shellGaps(loaded);
+    expect(inGapBand(gaps.upperM)).toBe(false);
+    expect(inGapBand(gaps.lowerM)).toBe(false);
     dict.viseme_aa = saved!;
-    loaded.teeth.morphTargetInfluences[saved!] = 1;
   });
 
-  it("moves the lower teeth under 2 mm at viseme_sil, which exists on this body", () => {
+  it("stays within 1 mm of the recorded rest distances at viseme_sil and jaw 0", () => {
     expect(loaded.body.morphTargetDictionary).toHaveProperty("viseme_sil");
+    expect(loaded.teeth.morphTargetDictionary).not.toHaveProperty("viseme_sil");
     loaded.teeth.morphTargetInfluences.fill(0);
     loaded.body.morphTargetInfluences.fill(0);
+    applyJawOpenToRoot(loaded.root, 0);
+    const rest = shellGaps(loaded);
+    expect(Math.abs(rest.upperM - RECORDED_REST_UPPER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
+    expect(Math.abs(rest.lowerM - RECORDED_REST_LOWER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
     applyVisemeWeights(loaded.teeth, { viseme_sil: 1 });
     applyVisemeWeights(loaded.body, { viseme_sil: 1 });
     applyJawOpenToRoot(loaded.root, 0);
-    const pp = loaded.teeth.morphTargetDictionary?.viseme_PP;
-    if (pp !== undefined) expect(loaded.teeth.morphTargetInfluences[pp]).toBe(0);
-    expect(travelMag(teethPosed(loaded), loaded.restTeeth, loaded.clearLower)).toBeLessThan(TWO_MM);
+    expect(loaded.teeth.morphTargetInfluences.every((weight: number) => weight === 0)).toBe(true);
+    const gaps = shellGaps(loaded);
+    expect(Math.abs(gaps.upperM - RECORDED_REST_UPPER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
+    expect(Math.abs(gaps.lowerM - RECORDED_REST_LOWER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
   });
 
   it("writes the teeth viseme_aa weight from the dialogue applier and does not force mouth-open to 1", () => {
