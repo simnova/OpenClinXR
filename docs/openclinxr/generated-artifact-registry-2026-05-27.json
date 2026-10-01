@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1170,
+    "keep-evidence": 1210,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -30252,6 +30252,286 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Round 5 TRELLIS.2 ECG-cart treatment or coordinator-grade input; visual grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/budget/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/budget/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/check-column.py",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/collect-results.py",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/column-base-caster-crops-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/column-sections.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/compose-evidence.py",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/contact-sheet-raw-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/control-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5-best-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5b-round-3-seed-+-best-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/t4-adopted-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/control-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5-best-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5b-round-3-seed-+-best-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/t4-adopted-2x-nearest.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/evidence-layout.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/executions/best.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/executions/generation.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/executions/raw.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/executions/render-round5b.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/front-panel-crops-budget.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/generate-round3.py",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/generation.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/raw/ecg-cart.glb",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/raw/report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/recommended-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/render-round5b.mts",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouette-iou.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-budget/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-budget/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw/pack-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw/three_quarter_right.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/topology-budget.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/visual-verification.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Round 5b exact Round-3 settings plus R5-BEST pipeline evidence/reproducer; coordinator overall grade pending."
     },
     {
       "path": "docs/openclinxr/room-realism/ceiling-cornice/junction-measurements.json",

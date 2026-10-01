@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5b-feature-verification.v1",
+  "verificationBy": "worker; requested feature checks only, coordinator overall grade pending",
+  "method": "Native 1280px renders and 2x NEAREST crops inspected; three mesh cross sections compared with Round-3 raw geometry.",
+  "panel": {
+    "sevenButtonsVisible": true,
+    "buttonColorsLeftToRight": ["teal", "teal", "purple", "purple", "orange", "orange", "orange"],
+    "twoMiddlePurpleButtonsPreserved": true,
+    "sixConnectorsVisible": true,
+    "connectorColorsLeftToRight": ["red", "blue", "yellow", "black", "red", "blue"],
+    "yellowConnectorPreserved": true,
+    "crop": "crops-front-panel/r5b-round-3-seed-+-best-2x-nearest.png"
+  },
+  "column": {
+    "round3FormPreserved": true,
+    "description": "Round-3/T4 broad-faced, approximately square column form restored, with rounded/bevelled corners; not an exact mathematical square.",
+    "maximumSampledWidthDifferenceRelativeToRound3": "less than 0.15% at y=-0.25,-0.20,-0.15",
+    "geometryEvidence": "column-sections.json",
+    "crop": "crops-column-base-caster/r5b-round-3-seed-+-best-2x-nearest.png"
+  },
+  "residuals": [
+    "Visible patchy cabinet-rim and base-edge defects",
+    "Small dark caster notches remain",
+    "Final mesh has 47 welded components and 5152 boundary edges, more than seed7 R5-BEST"
+  ],
+  "overallGrade": null,
+  "decisionChanged": false
+}

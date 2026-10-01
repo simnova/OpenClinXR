@@ -1,0 +1,76 @@
+{
+  "mainContactSheet": "contact-sheet-raw-budget.png",
+  "mainColumns": [
+    "control",
+    "T4 adopted",
+    "R5-BEST",
+    "R5b round-3 seed + BEST"
+  ],
+  "rows": [
+    "raw",
+    "budget"
+  ],
+  "columnBaseCasterCrop": {
+    "box": [
+      300,
+      690,
+      1010,
+      1260
+    ],
+    "sheet": "column-base-caster-crops-budget.png",
+    "individuals": [
+      {
+        "column": "control",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/control-2x-nearest.png"
+      },
+      {
+        "column": "T4 adopted",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/t4-adopted-2x-nearest.png"
+      },
+      {
+        "column": "R5-BEST",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5-best-2x-nearest.png"
+      },
+      {
+        "column": "R5b round-3 seed + BEST",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5b-round-3-seed-+-best-2x-nearest.png"
+      }
+    ]
+  },
+  "frontPanelCrop": {
+    "box": [
+      270,
+      130,
+      800,
+      770
+    ],
+    "sheet": "front-panel-crops-budget.png",
+    "individuals": [
+      {
+        "column": "control",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/control-2x-nearest.png"
+      },
+      {
+        "column": "T4 adopted",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/t4-adopted-2x-nearest.png"
+      },
+      {
+        "column": "R5-BEST",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5-best-2x-nearest.png"
+      },
+      {
+        "column": "R5b round-3 seed + BEST",
+        "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png",
+        "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5b-round-3-seed-+-best-2x-nearest.png"
+      }
+    ]
+  },
+  "magnification": "individual crops are 2x NEAREST; sheets retain native crop pixels"
+}

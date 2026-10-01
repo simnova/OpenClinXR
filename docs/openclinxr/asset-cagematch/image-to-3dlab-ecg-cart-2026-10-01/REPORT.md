@@ -2,9 +2,9 @@
 
 Date: 2026-10-01
 
-Status: **Round-4 T4 adopted; Round-5 coordinator grade pending**
+Status: **Round-4 T4 adopted; Round-5 grade received; Round-5b evidence ready for coordinator grade**
 
-Decision: **TRELLIS.2 + UV weights 64/64 + 512px (Round-4 T4) remains adopted; Round 5 does not change it**
+Decision: **TRELLIS.2 + UV weights 64/64 + 512px (Round-4 T4) remains adopted; Round 5b does not change it**
 
 ## Outcome
 
@@ -149,3 +149,26 @@ R5-B welded at five decimal places before component splitting. The full-resoluti
 R5-C used the installed TRELLIS CPU fallback (`trimesh.repair.fill_holes`) on the 7.43M-face mesh. It added 182 faces and reduced full-resolution boundary edges from 32,048 to 31,686 (1.13%). This current MPS pipeline had already performed decode-time fill, so the residual CPU gain is much smaller than the older TRELLIS.2 #169 report. R5-D could not run off-Metal: the installed remesher is `cumesh.metal_remeshing.remesh_narrow_band_dc`, with no CPU branch, while the M1 Metal path already failed on unsupported float atomics in Round 3. No R5-D mesh or inner-shell verdict is fabricated.
 
 R5-BEST combines CPU fill → five-decimal weld → guarded island filter → TRELLIS in-export 40k decimation → UV unwrap → 512px bake. It has the fewest final welded components among R5 arms; R5-C has the fewest boundary edges. Grade the [main raw/budget sheet](round5/contact-sheet-raw-budget.png), [four-seed sheet](round5/seed-screen-raw-budget.png), [column/base/caster crops](round5/column-base-caster-crops-budget.png), and [front-panel crops](round5/front-panel-crops-budget.png). Individual 2× NEAREST crops and native 1280px stills are retained. No worker visual winner is assigned.
+
+### Round 5 coordinator grade (native crops, MY GRADE)
+
+The coordinator grades the R5-BEST pipeline as a clear surface-quality win: clean column, base and casters without streaks or speckle, and a crisp panel. The seed-7 generation loses likeness: its two middle buttons are red instead of the oracle's purple, and its column is a tapered hexagonal prism instead of the oracle/Round-3 square column. IoU fell from 0.781 to 0.741. This motivates Round 5b: reproduce the Round-3 generation and apply the R5-BEST post-generation pipeline. This grade does not change the adopted Round-4 T4 decision.
+
+## Round 5b
+
+2026-10-01. **Decision unchanged; coordinator overall grade pending.** This run restores Round 3's generation settings and applies the unchanged Round-5 BEST treatment. Seed 42, 1024 cascade, 12/12/12 steps, all guidance values, SDPA dense/sparse attention, RGBA preprocessing with no background remover, pinned generator/source and cached model revisions match `round3/raw/trellis2/provenance.json` and its accompanying manifest. Round 5 used the separate Apple/MLX generation path, so seed and step count alone would not reproduce Round 3. This is a fresh sampling run, not an export of the old checkpoint; the decode hash differs and no byte-identity claim is made.
+
+The generation produced 8,804,219 faces after the original runner removed 4,003 invalid-index faces. CPU fill added 361 faces and reduced boundary edges **48,874 → 48,117**. After five-decimal welding, the guarded 0.01%-face filter retained one component with 8,804,120 faces and dropped 17 tiny parts (largest 225 faces; threshold 881); no non-main part met the ≥10% guard. Dropped-part details are in [budget/report.json](round5b/budget/report.json). The resulting mesh went through `to_glb` decimation at 40,000, UV unwrap and 512 px PBR bake, in that order.
+
+| result | welded comps | largest share | boundary edges | triangles | decoded MiB | GLB MiB | IoU |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| control | — | — | — | — | — | — | 0.714060 |
+| adopted T4 | 1 | 100% | 3,044 | 39,860 | 2 | — | 0.781297 |
+| R5-BEST seed 7 | 8 | 91.68% | 1,419 | 38,621 | 2 | 1.673 | 0.740757 |
+| **R5b round-3 seed + BEST** | **47** | **81.995%** | **5,152** | **37,462** | **2** | **1.703** | **0.781192** |
+
+Generation wall/RSS: **1,218.154 s / 20,837,892,096 B**. BEST treatment: **123.035 s / 32,447,135,744 B**. Raw-grade export (300k target, 2048 px): **60.505 s / 32,645,890,048 B**, 298,347 triangles, IoU 0.781433. Every TRELLIS process held the facade's GPU slot; the four foreground fixed-camera render/mask jobs used BlenderService and include time/RSS in [execution receipts](round5b/executions/). RSS is process resident memory, not GPU allocation.
+
+Requested feature verification: both middle buttons are purple, all seven buttons and six connectors including yellow remain visible. The broad-faced Round-3/T4 column form is restored; its three sampled XZ cross-section widths match Round 3 within 0.15%. The corners remain rounded/bevelled, so this is not a claim of an exact mathematical square. See [feature verification](round5b/visual-verification.json) and [mesh cross sections](round5b/column-sections.json). Patchy cabinet-rim/base-edge defects and small caster notches remain visible; the higher final component/boundary counts above are retained as counter-evidence. No overall worker grade or adoption change is assigned.
+
+The [raw/budget sheet](round5b/contact-sheet-raw-budget.png) adds **R5b round-3 seed + BEST** beside control, T4 and R5-BEST. The [column/base/caster crops](round5b/column-base-caster-crops-budget.png) use the same **(300,690)-(1010,1260)** box; [front-panel crops](round5b/front-panel-crops-budget.png) use **(270,130)-(800,770)**. Sheets preserve native crop pixels; individual crops are 2× NEAREST. [R5b manifest](round5b/recommended-manifest.json) and [measurements](round5b/measurements.json) retain settings, metrics, hashes and provenance. The decoded checkpoint and latents remain local ignored scratch for exact postprocess replay.

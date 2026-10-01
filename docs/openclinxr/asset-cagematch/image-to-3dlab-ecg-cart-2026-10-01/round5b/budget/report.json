@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-treatment.v1",
+  "sourceCheckpoint": ".openclinxr/round5b-replay-20261001/decoded-mesh.pt",
+  "sourceSeed": 42,
+  "sourceSteps": 12,
+  "treatment": {
+    "mode": "best",
+    "pipeline": [
+      "cpu_fill_holes",
+      "weld_5dp",
+      "island_filter",
+      "to_glb_decimate_40000",
+      "uv_unwrap",
+      "pbr_bake_512"
+    ],
+    "fill": {
+      "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+      "fillReturnWatertight": false,
+      "changed": true,
+      "facesBefore": 8804219,
+      "facesAfter": 8804580,
+      "boundaryEdgesBefore": 48874,
+      "boundaryEdgesAfter": 48117
+    },
+    "weld": {
+      "verticesBefore": 4343258,
+      "verticesAfter": 4343051,
+      "degenerateFacesDropped": 5
+    },
+    "filter": {
+      "thresholdShare": 0.0001,
+      "thresholdFaces": 881,
+      "componentsBefore": 18,
+      "componentsAfter": 1,
+      "keptComponentFaces": [
+        8804120
+      ],
+      "multiPartGuardTriggered": false,
+      "dropped": [
+        {
+          "label": 136,
+          "faces": 225,
+          "share": 2.55548961761357e-05,
+          "center": [
+            -0.27537500858306885,
+            0.16679999232292175,
+            0.2901250123977661
+          ],
+          "diagonal": 0.05917062610387802
+        },
+        {
+          "label": 138,
+          "faces": 57,
+          "share": 6.4739070312877114e-06,
+          "center": [
+            -0.2753649950027466,
+            0.16681499779224396,
+            0.23543000221252441
+          ],
+          "diagonal": 0.012500962242484093
+        },
+        {
+          "label": 137,
+          "faces": 49,
+          "share": 5.565288500580664e-06,
+          "center": [
+            -0.2753700017929077,
+            0.16680499911308289,
+            0.25106000900268555
+          ],
+          "diagonal": 0.012522920034825802
+        },
+        {
+          "label": 141,
+          "faces": 29,
+          "share": 3.293742173813046e-06,
+          "center": [
+            -0.2749350070953369,
+            0.16680499911308289,
+            0.3297699987888336
+          ],
+          "diagonal": 0.013506627641618252
+        },
+        {
+          "label": 144,
+          "faces": 27,
+          "share": 3.0665875411362842e-06,
+          "center": [
+            -0.27487000823020935,
+            0.166934996843338,
+            0.3789849877357483
+          ],
+          "diagonal": 0.008845233358442783
+        },
+        {
+          "label": 143,
+          "faces": 19,
+          "share": 2.1579690104292373e-06,
+          "center": [
+            -0.2749449908733368,
+            0.166934996843338,
+            0.3623799979686737
+          ],
+          "diagonal": 0.008853471837937832
+        },
+        {
+          "label": 142,
+          "faces": 17,
+          "share": 1.9308143777524754e-06,
+          "center": [
+            -0.2752950191497803,
+            0.166920006275177,
+            0.3467499911785126
+          ],
+          "diagonal": 0.008769002743065357
+        },
+        {
+          "label": 400,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            -0.2382899969816208,
+            0.1826300024986267,
+            -0.376384973526001
+          ],
+          "diagonal": 0.0015879875281825662
+        },
+        {
+          "label": 1384,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            0.07129500061273575,
+            -0.039104998111724854,
+            -0.07390500605106354
+          ],
+          "diagonal": 0.0009048180654644966
+        },
+        {
+          "label": 1072,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.046834997832775116,
+            0.16455499827861786,
+            0.46336501836776733
+          ],
+          "diagonal": 0.001972709782421589
+        },
+        {
+          "label": 1150,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.054624997079372406,
+            0.1645199954509735,
+            0.2504599988460541
+          ],
+          "diagonal": 0.001955745043233037
+        },
+        {
+          "label": 603,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.087909996509552,
+            0.165010005235672,
+            0.075204998254776
+          ],
+          "diagonal": 0.0013944593956694007
+        },
+        {
+          "label": 607,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.08596000075340271,
+            0.165010005235672,
+            0.07717999815940857
+          ],
+          "diagonal": 0.0014024260453879833
+        },
+        {
+          "label": 1702,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1454249918460846,
+            0.16504499316215515,
+            0.04605500027537346
+          ],
+          "diagonal": 0.0012326855212450027
+        },
+        {
+          "label": 1709,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1513650119304657,
+            0.16504999995231628,
+            0.046025000512599945
+          ],
+          "diagonal": 0.0012741247192025185
+        },
+        {
+          "label": 1710,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.15323500335216522,
+            0.16504499316215515,
+            0.046049997210502625
+          ],
+          "diagonal": 0.001240077894181013
+        },
+        {
+          "label": 1749,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.17670999467372894,
+            0.16505999863147736,
+            0.0460050031542778
+          ],
+          "diagonal": 0.0012114874552935362
+        }
+      ]
+    },
+    "preExportFaces": 8804120
+  },
+  "remesh": false,
+  "triangles": 37462,
+  "decodedTextureMiB": 2.0,
+  "bytes": 1785892,
+  "sha256": "93843fea3abe0439ed383fd9342227fe3b3cdba436972e0544aeaad13bb8b750",
+  "timingsSeconds": {
+    "export": 51.14562702178955,
+    "total": 120.87673306465149
+  },
+  "claimScope": "one ECG-cart Round-5 CPU topology treatment and pre-bake decimation",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}
