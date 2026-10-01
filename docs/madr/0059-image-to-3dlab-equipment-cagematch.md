@@ -50,6 +50,14 @@ DINOv3 returned 403 at **16:09:06.328497 UTC** and **16:20:43.449277 UTC**, 2026
 
 Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/`; native-tile contact sheets are `renders/contact-sheet-raw.png` and `renders/contact-sheet-budget.png`. Full measurements and provenance are in the parent `results.json` Round 2 object and sidecars. No worker visual grade or adoption decision is added.
 
+### Round 2 coordinator grade (2026-10-01, native 5120 px budget sheet, MY GRADE)
+
+- **Stable Fast 3D: rejected.** Fast (42.8 s, CPU) and in budget (29,108 tris, 8 MiB), but the result is a lumpy untextured blob: no screen, buttons, connectors or casters (IoU 0.705).
+- **Hunyuan3D-MLX at the common budget (40,000 tris, 8 MiB, IoU 0.786): still not adopted.** Budgeting kept its detail, so the size objection is resolved. Three remain: the body is white against the oracle's grey, the tool exposes no colour or prompt control to fix it (the paint stage cannot be steered, so a fix would be hand-recolouring, which D1 forbids); coloured blobs are smeared across the base plate; and its weights are US-only (MADR 0046).
+- **TRELLIS.2: still no verdict.** DINOv3 returned 403 at 16:09 and 16:20 UTC after the operator requested access; Meta approval pending.
+
+Decision unchanged: **TRELLIS control stays.** Re-open only when TRELLIS.2 access is granted (one run, same budget), or if a Hunyuan release exposes paint conditioning.
+
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.
