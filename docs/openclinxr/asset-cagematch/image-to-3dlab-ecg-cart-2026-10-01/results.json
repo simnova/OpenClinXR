@@ -1,5 +1,44 @@
 {
   "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "round4": {
+    "date": "2026-10-01",
+    "status": "decision evidence complete; coordinator grade pending; MADR Decision unchanged",
+    "backend": "trellis2",
+    "diagnosis": {
+      "stage": "Round-3 optimize/decimation: permissive UV-seam relaxation",
+      "basis": "Severe column/base streaks are absent from raw textured and both clay renders, and present only after Round-3 budgeting.",
+      "evidence": "round4/diagnosis-stage-sheet.png"
+    },
+    "treatmentCount": 4,
+    "generationRerun": false,
+    "generationRerunReason": "Diagnosis exonerated generation/remesh/texture sampling; treatments changed only the implicated optimizer UV weight, plus one texture-memory reduction.",
+    "commonBudget": {
+      "trianglesMax": 40000,
+      "decodedTextureMiBMax": 16
+    },
+    "sharedRaw": {
+      "triangles": 297289,
+      "sha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+      "silhouetteIou": 0.781307038678191
+    },
+    "treatments": [
+      {"id": "t1-uv4", "uvWeight": 4, "textureSize": 1024, "wallSeconds": 3.262, "peakRssBytes": 620150784, "budgetTriangles": 38477, "decodedTextureMiB": 8, "silhouetteIou": 0.7812023423347516, "sha256": "33e208de6c412b780f28b3581794ee1d115225b1c4a966227bc7813fae6f1291"},
+      {"id": "t2-uv16", "uvWeight": 16, "textureSize": 1024, "wallSeconds": 2.393, "peakRssBytes": 604520448, "budgetTriangles": 39627, "decodedTextureMiB": 8, "silhouetteIou": 0.7813361379583434, "sha256": "d2e7a6a07ffa59516eac01d85ad3691cbb9fc3af6e5efe1f26039e93789cec7f"},
+      {"id": "t3-uv64", "uvWeight": 64, "textureSize": 1024, "wallSeconds": 2.416, "peakRssBytes": 619970560, "budgetTriangles": 39860, "decodedTextureMiB": 8, "silhouetteIou": 0.7812974371144473, "sha256": "622dc76560ed91a7dbcef0ef8a46af62407ada9a036ab5e2bbc30da7252f1726"},
+      {"id": "t4-uv64-512", "uvWeight": 64, "textureSize": 512, "wallSeconds": 2.018, "peakRssBytes": 582483968, "budgetTriangles": 39860, "decodedTextureMiB": 2, "silhouetteIou": 0.7812974371144473, "sha256": "0a55256c4007fa4bb98e3b16145fc1cb0d74977b31b100de4737ed7daa7ec930", "memoryTreatment": true}
+    ],
+    "evidenceRecommendation": "t4-uv64-512",
+    "recommendationReason": "T3/T4 clear the severe column/base streaks while preserving the front-panel read; T4 matches T3 geometry and IoU at 2 MiB decoded textures instead of 8 MiB.",
+    "contactSheet": "round4/contact-sheet-raw-budget.png",
+    "cropSheet": "round4/column-base-crops-budget.png",
+    "cropBox1280Pixels": [300, 690, 1010, 1260],
+    "cropMagnification": "2x NEAREST",
+    "manifest": "round4/recommended-manifest.json",
+    "measurements": "round4/measurements.json",
+    "execution": "All optimizer treatments used foreground GpuJobService with the gpu slot; all Blender diagnosis/renders used BlenderService.",
+    "visualVerdict": null,
+    "decisionChanged": false
+  },
   "round3": {
     "date": "2026-10-01",
     "status": "pending coordinator grade; MADR Decision unchanged",

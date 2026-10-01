@@ -5313,14 +5313,14 @@
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, blockers, provenance boundaries, and pending coordinator decision."
+      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, provenance boundaries, and Round 4 TRELLIS.2 optimizer diagnosis/treatments; coordinator re-grade pending."
     },
     {
       "path": "docs/madr/0059-image-to-3dlab-equipment-cagematch.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
-      "rationale": "Proposed decision record for the ECG-cart image-to-3dlab equipment cagematch; visual decision remains pending coordinator grade."
+      "rationale": "Current ECG-cart image-to-3dlab equipment cagematch decision record; not-adopted decision retained while Round 4 evidence awaits coordinator grade."
     }
   ]
 }

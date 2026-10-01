@@ -1,0 +1,30 @@
+{
+  "kind": "blender",
+  "command": "/opt/homebrew/bin/blender",
+  "args": [
+    "--background",
+    "--python",
+    "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+    "--",
+    "--glb",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t1-uv4/ecg-cart.glb",
+    "--out-dir",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t1-uv4-budget",
+    "--resolution",
+    "1280",
+    "--freeze-in",
+    "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",
+    "--normalize-extent",
+    "0.9682512283325195",
+    "--only-view",
+    "three_quarter_right.png"
+  ],
+  "start": "2026-10-01T18:00:47.945Z",
+  "end": "2026-10-01T18:00:49.993Z",
+  "wallSeconds": 2.048,
+  "code": 0,
+  "stdout": "[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1400dea50>: Failed to establish a new connection: [Errno 61] Connection refused'))\n[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1409bf610>: Failed to establish a new connection: [Errno 61] Connection refused'))\n14:00:48 | INFO: Data are loaded, start creating Blender stuff\n14:00:48 | INFO: Blender create Mesh node geometry_0\n14:00:48 | INFO: glTF import finished in 0.08s\n00:01.722  render           | Saved: 'docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t1-uv4-budget/three_quarter_right.png'\n{\"rendered\": \"three_quarter_right.png\", \"bytes\": 1427221, \"elev\": 14.0, \"azim\": 40.0}\n{\"ok\": true, \"views\": 1, \"outDir\": \"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t1-uv4-budget\"}\nBlender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)\n\nBlender quit\n",
+  "stderr": "/Volumes/files/src/openclinxr-wt/cart-trellis2/tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py:96: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world.use_nodes = True\n",
+  "timedOut": false,
+  "signal": null
+}

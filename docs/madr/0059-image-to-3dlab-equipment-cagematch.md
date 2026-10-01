@@ -78,6 +78,21 @@ Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/ro
 
 Decision after three rounds: **TRELLIS control stays for now.** Next step, if pursued: a TRELLIS.2 round aimed at the column/base texture corruption (its texture-bake resolution and remesh settings, through our own `~/.openclinxr-tools/trellis2-apple` station so it runs inside the factory's compute slots). Adopt it if the corruption clears while the front-panel likeness holds.
 
+## Round 4 evidence
+
+2026-10-01; coordinator grade pending. **The Decision above is unchanged.** A four-way raw-textured/raw-clay/budget-textured/budget-clay isolation names the fault stage: the severe column/base streaks are absent from both clay renders and from the raw source texture, then appear in the Round-3 budget texture. They were introduced by Round 3's permissive meshopt UV-seam relaxation, not by TRELLIS geometry generation or its texture model. Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/diagnosis-stage-sheet.png`.
+
+That diagnosis constrained the bounded treatment sweep to the implicated optimizer UV weights. All four results meet ≤40k triangles and ≤16 MiB decoded texture memory:
+
+| treatment | UV weight | texture | wall | peak RSS | tris | decoded MiB | budget IoU |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| T1 | 4 | 1024² | 3.262 s | 620,150,784 B | 38,477 | 8 | 0.781202 |
+| T2 | 16 | 1024² | 2.393 s | 604,520,448 B | 39,627 | 8 | 0.781336 |
+| T3 | 64 | 1024² | 2.416 s | 619,970,560 B | 39,860 | 8 | 0.781297 |
+| T4 memory | 64 | 512² | 2.018 s | 582,483,968 B | 39,860 | 2 | 0.781297 |
+
+T3 and T4 remove the severe column/base streaks while preserving the seven-button/six-ring front-panel read; the raw-source caster noise remains. T4 is the evidence recommendation because the 512² maps preserve T3's geometry and IoU while cutting decoded texture memory 75%, with slight softening visible at native pixels. Grade the [two-row contact sheet](../openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/contact-sheet-raw-budget.png) and the [column/base crop sheet](../openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/column-base-crops-budget.png); individual crops are 2× NEAREST from the same `(300,690,1010,1260)` box. Exact reproduction parameters and revisions are in `round4/recommended-manifest.json`. No Decision text was changed.
+
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.

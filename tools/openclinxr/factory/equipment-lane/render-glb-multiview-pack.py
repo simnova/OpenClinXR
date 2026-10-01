@@ -120,6 +120,28 @@ def setup_world_light() -> None:
     area("Rim", Vector((0.2, 2.5, 2.0)), 60, 1.5)
 
 
+def apply_material_mode(mode: str) -> None:
+    """Optionally replace imported materials for geometry-only diagnosis."""
+    if mode == "source":
+        return
+    if mode != "clay":
+        raise ValueError(f"unknown material mode: {mode}")
+    material = bpy.data.materials.new("DiagnosticClay")
+    material.diffuse_color = (0.42, 0.45, 0.48, 1.0)
+    material.use_nodes = True
+    principled = material.node_tree.nodes.get("Principled BSDF")
+    if principled is None:
+        raise RuntimeError("diagnostic clay material has no Principled BSDF")
+    principled.inputs["Base Color"].default_value = (0.42, 0.45, 0.48, 1.0)
+    principled.inputs["Metallic"].default_value = 0.0
+    principled.inputs["Roughness"].default_value = 0.72
+    for obj in bpy.data.objects:
+        if obj.type != "MESH":
+            continue
+        obj.data.materials.clear()
+        obj.data.materials.append(material)
+
+
 def setup_camera(center: Vector, radius: float, elev_deg: float, azim_deg: float) -> bpy.types.Object:
     cam_data = bpy.data.cameras.new("PackCam")
     cam_data.lens = 50
@@ -178,6 +200,8 @@ def main() -> None:
 
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=glb)
+    material_mode = args.get("material-mode", "source")
+    apply_material_mode(material_mode)
     bpy.context.view_layer.update()
     mins, maxs = mesh_bounds()
     size = maxs - mins
@@ -268,6 +292,7 @@ def main() -> None:
         "preset": preset,
         "resolution": resolution,
         "transparent": transparent,
+        "materialMode": material_mode,
         "center": [center.x, center.y, center.z],
         "extentM": extent,
         "radiusM": radius,

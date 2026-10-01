@@ -1,0 +1,44 @@
+{
+  "method": "meshoptimizer simplifyWithAttributes",
+  "diagnosis": "Round-3 corruption is introduced by Permissive UV-seam relaxation, not raw geometry or raw texture generation",
+  "input": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/raw/trellis2/ecg-cart.glb",
+  "output": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t2-uv16/ecg-cart.glb",
+  "inputTriangles": 297289,
+  "targetTriangles": 40000,
+  "triangles": 39627,
+  "vertices": 50455,
+  "flags": [
+    "Permissive"
+  ],
+  "targetError": 1,
+  "reportedError": 0.02797134965658188,
+  "attributeWeights": {
+    "normal": [
+      1,
+      1,
+      1
+    ],
+    "uv": [
+      16,
+      16
+    ]
+  },
+  "textureResize": {
+    "width": 1024,
+    "height": 1024,
+    "filter": "Lanczos3",
+    "format": "WebP"
+  },
+  "decodedTextureBytes": 8388608,
+  "decodedTextureMiB": 8,
+  "outputBytes": 2336280,
+  "outputSha256": "d2e7a6a07ffa59516eac01d85ad3691cbb9fc3af6e5efe1f26039e93789cec7f",
+  "wallSeconds": 1.723014834,
+  "materialChanges": false,
+  "claimScope": "one ECG-cart optimizer treatment under the round-4 common budget",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}

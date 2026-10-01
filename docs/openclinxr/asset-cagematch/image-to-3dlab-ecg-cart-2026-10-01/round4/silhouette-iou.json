@@ -1,0 +1,10 @@
+{
+  "protocol": "alpha >= 16 at 1280x1280 against the Lanczos-resized common BiRefNet-matted Imagine oracle",
+  "sharedRaw": 0.781307038678191,
+  "treatments": {
+    "t1-uv4": 0.7812023423347516,
+    "t2-uv16": 0.7813361379583434,
+    "t3-uv64": 0.7812974371144473,
+    "t4-uv64-512": 0.7812974371144473
+  }
+}

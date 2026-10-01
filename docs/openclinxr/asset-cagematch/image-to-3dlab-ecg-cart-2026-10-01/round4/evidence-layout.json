@@ -1,0 +1,58 @@
+{
+  "contactSheet": "contact-sheet-raw-budget.png",
+  "diagnosisSheet": "diagnosis-stage-sheet.png",
+  "rows": [
+    "raw",
+    "budget"
+  ],
+  "columns": [
+    "control",
+    "round-3 TRELLIS.2",
+    "T1 UV=4",
+    "T2 UV=16",
+    "T3 UV=64",
+    "T4 UV=64, 512px"
+  ],
+  "treatmentRawNote": "All four optimizer treatments share the exact Round-3 raw GLB/render.",
+  "cropBox1280Pixels": [
+    300,
+    690,
+    1010,
+    1260
+  ],
+  "cropBoxConvention": "left, top, right, bottom",
+  "magnification": "2x NEAREST; no invented interpolation",
+  "cropSheet": "column-base-crops-budget.png",
+  "individualCrops": [
+    {
+      "column": "control",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/control-budget-2x-nearest.png"
+    },
+    {
+      "column": "round-3 TRELLIS.2",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/renders/trellis2-budget/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/round-3-trellis2-budget-2x-nearest.png"
+    },
+    {
+      "column": "T1 UV=4",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t1-uv4-budget/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/t1-uv4-budget-2x-nearest.png"
+    },
+    {
+      "column": "T2 UV=16",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t2-uv16-budget/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/t2-uv16-budget-2x-nearest.png"
+    },
+    {
+      "column": "T3 UV=64",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t3-uv64-budget/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/t3-uv64-budget-2x-nearest.png"
+    },
+    {
+      "column": "T4 UV=64, 512px",
+      "source": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/cart-trellis2/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/crops-column-base/t4-uv64-512px-budget-2x-nearest.png"
+    }
+  ]
+}
