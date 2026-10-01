@@ -1,6 +1,6 @@
 # 0059 — image-to-3dlab equipment cagematch
 
-- Status: **proposed**
+- Status: **decided: not adopted (follow-up recorded)**
 - Date: 2026-10-01
 - Deciders: coordinator native-pixel grade pending
 - Relates to: MADR 0046 (territory/revenue gates), MADR 0049 (third-party model posture), ECG-cart cagematch plan dated 2026-08-31
