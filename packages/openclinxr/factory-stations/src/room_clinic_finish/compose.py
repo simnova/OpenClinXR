@@ -2003,7 +2003,9 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
         # Hinge side: opposite the detected handle (the extracted leaf can
         # mirror leaf-local axes, so the recipe side is not trusted for
         # placement). The recipe hingeSide mapping is only a fallback for
-        # handle-less input (fixture), guarded to the leaf width axis.
+        # handle-less input (fixture). Its sign remains meaningful after GLB
+        # import, while the authored x/y axis can rotate with the extracted
+        # leaf, so apply the sign to the measured width axis.
         hinge_positive: bool | None = None
         hinge_from = None
         if handle is not None:
@@ -2012,11 +2014,6 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             hinge_positive = handle_uc < leaf_uc
             hinge_from = "handle-detect"
         elif hinge_side in ("+x", "-x", "+y", "-y"):
-            world_axis = {"x": 0, "y": 1, "z": 2}[hinge_side[1]]
-            if world_axis != ua:
-                raise SystemExit(
-                    "room_clinic_finish: hingeSide %s does not name the leaf "
-                    "width axis (ua=%d)" % (hinge_side, ua))
             hinge_positive = hinge_side.startswith("+")
             hinge_from = "recipe-fallback"
         if hinge_positive is not None:

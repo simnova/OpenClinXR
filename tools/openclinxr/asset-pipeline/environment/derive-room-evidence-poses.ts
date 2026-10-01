@@ -256,8 +256,11 @@ export async function deriveRoomEvidencePoses(glbPath: string, recipe: RoomEvide
   const nodes = document.getRoot().listNodes();
   const features = {
     doorWithCasing: collect(nodes, /door_leaf|door_casing|hospital_door|casing/iu, "door/casing"),
-    troffer: collect(nodes, /openclinxr_troffer_(?:diffuser|frame)/iu, "troffer"),
-    tbar: collect(nodes, /openclinxr_tbar_(?:x|y|edge)/iu, "T-bar"),
+    // Painted-ceiling room types intentionally have neither a troffer nor a
+    // T-bar. Anchor their two ceiling views to the generated ceiling field so
+    // promotion remains geometry-derived instead of inventing a room-id pose.
+    troffer: collect(nodes, /openclinxr_troffer_(?:diffuser|frame)|openclinxr_ceiling_painted/iu, "troffer or painted ceiling"),
+    tbar: collect(nodes, /openclinxr_tbar_(?:x|y|edge)|openclinxr_ceiling_painted/iu, "T-bar or painted ceiling"),
     cove: collect(nodes, /openclinxr_cove_/iu, "cove"),
   };
   return deriveRoomEvidencePosesFromGeometry(

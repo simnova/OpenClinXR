@@ -1,75 +1,52 @@
 {
   "schemaVersion": "openclinxr.lighting-rig.v1",
   "room": {
-    "environmentId": "ed_stroke_bay_v1"
+    "environmentId": "ed_stroke_bay_v1",
+    "roomGlbPath": "ward-chain.work.glb"
   },
   "bbox": {
-    "minX": -3.5,
-    "minY": -3.5,
-    "minZ": -0.1126,
-    "maxX": 3.5,
-    "maxY": 3.5,
-    "maxZ": 2.5374
+    "minX": -3.445,
+    "maxX": 3.445,
+    "minY": -3.385,
+    "maxY": 3.385,
+    "minZ": 0,
+    "maxZ": 2.65
   },
   "cast": [
     {
-      "actorId": "patient_samuel_brooks_v1",
+      "actorId": "patient",
       "position": [
         0,
-        0,
-        0
-      ]
-    },
-    {
-      "actorId": "son_eric_brooks_v1",
-      "position": [
-        -0.8,
-        0.95,
-        0.75
-      ]
-    },
-    {
-      "actorId": "stroke_nurse_chen_v1",
-      "position": [
-        0.8,
-        0.95,
-        0.3
-      ]
-    },
-    {
-      "actorId": "neurology_consultant_phone_v1",
-      "position": [
-        1.95,
-        0.95,
-        0.15
+        0.5,
+        1
       ]
     }
   ],
   "mood": "ed_exam_bright",
-  "seed": 7,
+  "seed": 2,
   "exposure": 1,
   "lights": [
     {
       "name": "key",
       "type": "area",
       "position": [
-        -0.0008,
-        0.0836,
-        2.2874
+        -0.0376,
+        -0.1146,
+        2.4
       ],
-      "energy": 100.5714,
-      "size": 3.15,
+      "energy": 103.9882,
+      "size": 3.0465,
       "colorTemperatureK": 5000
     },
     {
       "name": "fill",
       "type": "point",
       "position": [
-        0.0505,
-        0.0143,
-        1.2124
+        -0.1114,
+        0.0696,
+        1.325
       ],
-      "energy": 109.7143,
+      "energy": 113.4417,
       "size": 0,
       "colorTemperatureK": 5000
     },
@@ -77,11 +54,11 @@
       "name": "wash_px",
       "type": "area",
       "position": [
-        3.3,
-        0.0498,
-        1.2124
+        3.245,
+        0.0469,
+        1.325
       ],
-      "energy": 54.8571,
+      "energy": 56.7208,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -89,11 +66,11 @@
       "name": "wash_nx",
       "type": "area",
       "position": [
-        -3.3,
-        0.0663,
-        1.2124
+        -3.245,
+        -0.0903,
+        1.325
       ],
-      "energy": 54.8571,
+      "energy": 56.7208,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -101,11 +78,11 @@
       "name": "wash_py",
       "type": "area",
       "position": [
-        0.1397,
-        3.3,
-        1.2124
+        -0.1253,
+        3.185,
+        1.325
       ],
-      "energy": 54.8571,
+      "energy": 56.7208,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -113,11 +90,11 @@
       "name": "wash_ny",
       "type": "area",
       "position": [
-        -0.016,
-        -3.3,
-        1.2124
+        0.0735,
+        -3.185,
+        1.325
       ],
-      "energy": 54.8571,
+      "energy": 56.7208,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -125,16 +102,16 @@
       "name": "spill",
       "type": "directional",
       "position": [
-        -3.5,
-        -3.5,
-        2.5374
+        -3.445,
+        -3.385,
+        2.65
       ],
       "target": [
         0,
         0,
-        1.2124
+        1.325
       ],
-      "energy": 22.8571,
+      "energy": 23.6337,
       "size": 0,
       "colorTemperatureK": 5000
     }

@@ -449,3 +449,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - evidence; Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage.
 - `docs/openclinxr/room-realism/rooms-regen/RECIPES.md` - evidence; Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet.
 - `docs/openclinxr/room-realism/rooms-regen/BATCH-01.md` - evidence; First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-02.md` - evidence; Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures.

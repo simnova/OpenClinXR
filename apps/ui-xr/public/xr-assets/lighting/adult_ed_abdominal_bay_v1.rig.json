@@ -1,67 +1,52 @@
 {
   "schemaVersion": "openclinxr.lighting-rig.v1",
   "room": {
-    "environmentId": "adult_ed_abdominal_bay_v1"
+    "environmentId": "adult_ed_abdominal_bay_v1",
+    "roomGlbPath": "ward-chain.work.glb"
   },
   "bbox": {
-    "minX": -3.25,
-    "minY": -3.25,
-    "minZ": -0.1245,
-    "maxX": 3.25,
-    "maxY": 3.25,
-    "maxZ": 2.5255
+    "minX": -3.125,
+    "maxX": 3.125,
+    "minY": -3.125,
+    "maxY": 3.125,
+    "minZ": 0,
+    "maxZ": 2.65
   },
   "cast": [
     {
-      "actorId": "patient_elena_vasquez_v1",
+      "actorId": "patient",
       "position": [
         0,
-        0,
-        0
-      ]
-    },
-    {
-      "actorId": "partner_diego_vasquez_v1",
-      "position": [
-        -0.8,
-        0.95,
-        0.75
-      ]
-    },
-    {
-      "actorId": "nurse_priya_nair_v1",
-      "position": [
-        0.8,
-        0.95,
-        0.3
+        0.5,
+        1
       ]
     }
   ],
   "mood": "ed_exam_bright",
-  "seed": 7,
+  "seed": 0,
   "exposure": 1,
   "lights": [
     {
       "name": "key",
       "type": "area",
       "position": [
-        0.014,
-        0.0724,
-        2.2755
+        -0.0763,
+        -0.0069,
+        2.4
       ],
-      "energy": 108.3077,
-      "size": 2.925,
+      "energy": 112.64,
+      "size": 2.8125,
       "colorTemperatureK": 5000
     },
     {
       "name": "fill",
       "type": "point",
       "position": [
-        -0.0657,
-        -0.0729,
-        1.2005
+        -0.0601,
+        0.0883,
+        1.325
       ],
-      "energy": 118.1538,
+      "energy": 122.88,
       "size": 0,
       "colorTemperatureK": 5000
     },
@@ -69,11 +54,11 @@
       "name": "wash_px",
       "type": "area",
       "position": [
-        3.05,
-        0.118,
-        1.2005
+        2.925,
+        -0.0555,
+        1.325
       ],
-      "energy": 59.0769,
+      "energy": 61.44,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -81,11 +66,11 @@
       "name": "wash_nx",
       "type": "area",
       "position": [
-        -3.05,
-        0.0056,
-        1.2005
+        -2.925,
+        0.0667,
+        1.325
       ],
-      "energy": 59.0769,
+      "energy": 61.44,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -93,11 +78,11 @@
       "name": "wash_py",
       "type": "area",
       "position": [
-        -0.0476,
-        3.05,
-        1.2005
+        0.1058,
+        2.925,
+        1.325
       ],
-      "energy": 59.0769,
+      "energy": 61.44,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -105,11 +90,11 @@
       "name": "wash_ny",
       "type": "area",
       "position": [
-        0.0989,
-        -3.05,
-        1.2005
+        0.0019,
+        -2.925,
+        1.325
       ],
-      "energy": 59.0769,
+      "energy": 61.44,
       "size": 1.4575,
       "colorTemperatureK": 5000
     },
@@ -117,16 +102,16 @@
       "name": "spill",
       "type": "directional",
       "position": [
-        -3.25,
-        -3.25,
-        2.5255
+        -3.125,
+        -3.125,
+        2.65
       ],
       "target": [
         0,
         0,
-        1.2005
+        1.325
       ],
-      "energy": 24.6154,
+      "energy": 25.6,
       "size": 0,
       "colorTemperatureK": 5000
     }

@@ -5370,6 +5370,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-02.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures."
     }
   ]
 }
