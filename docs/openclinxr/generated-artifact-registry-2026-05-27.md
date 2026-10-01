@@ -4377,3 +4377,4 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-colour.png` - keep-evidence; Round 6 pre-to_glb full-resolution voxel-colour stage isolation.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-clay.png` - keep-evidence; Round 6 pre-to_glb full-resolution clay stage isolation.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/topology.json` - keep-evidence; Round 6 A0/A1 five-decimal-weld topology counts.
+- `docs/openclinxr/room-realism/rooms-regen/INVENTORY.json` - keep-evidence; Machine-readable pre-regeneration room inventory supporting the paired inventory report.

@@ -5349,6 +5349,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Flush cornice tile/T-bar/wall comparison, immutable prior A/B, same-pose gap/flicker and ceiling contrast measurements, selected tile promotion."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/INVENTORY.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage."
     }
   ]
 }

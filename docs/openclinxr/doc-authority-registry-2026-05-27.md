@@ -446,3 +446,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
 - `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.
 - `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - evidence; Flush material comparison and selected tile promotion, with historical A/B preserved.
+- `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - evidence; Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage.
