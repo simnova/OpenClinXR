@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.stepdown-door-reference-measurements.v1",
   "pose": "derived learner-runtime pose 04",
-  "sourceGlbSha256": "3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca",
+  "sourceGlbSha256": "40dfbb57c8bdcd5521d76571325c4fe955420e13d11567e5e5c3d11f99e79c8b",
   "reference": {
     "wall": {
       "box": [
@@ -130,7 +130,7 @@
       ],
       "maximumBoundaryColumnStep": 3.43
     },
-    "captureSha256": "f5b61a2ddea90927a6e0efe891c0043facef199b64c5bdd8d3f7e640c8902e94",
+    "captureSha256": "a1709d5a0001dd1de81eba53d59995789c1a0f3b27b31c63a00b9e86fba94b97",
     "kickPlate": {
       "scanEndpoints": [
         [
@@ -143,8 +143,8 @@
         ]
       ],
       "leafWidthPixels": 189,
-      "plateWidthPixels": 146,
-      "widthFractionOfLeaf": 0.7725,
+      "plateWidthPixels": 186,
+      "widthFractionOfLeaf": 0.9841,
       "meanPolygon": [
         [
           531,
@@ -164,11 +164,11 @@
         ]
       ],
       "meanRgb": [
-        130.81,
-        130.43,
-        129.29
+        180.68,
+        182.63,
+        183.52
       ],
-      "meanLuminance": 130.43,
+      "meanLuminance": 182.28,
       "leafMeanLuminance": 163.48,
       "method": "Rec.709 weights on encoded RGB (0-255); neutral plate pixels inside crop-verified polygon; width counts neutral pixels along perspective-matched scan within the leaf."
     },
@@ -254,7 +254,7 @@
       ],
       "maximumBoundaryColumnStep": 3.43
     },
-    "captureSha256": "edcd9198974fb7d72629d88ed95ef06a4c7ccc75e5fc1bb6e93f1acb39f0f11e",
+    "captureSha256": "2c4a0897ed127317607546c0d1e5f7f825cdebc1b884dfc24de85cf7bb338db1",
     "kickPlate": {
       "scanEndpoints": [
         [

@@ -309,8 +309,15 @@ describe("room-chain recipe registry", () => {
     const ward = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, "inpatient_ward_room_v1");
     expect(ward.finish?.preserveShell).toBe(true);
     expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
-    expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24, cornice: "wall-angle" });
-    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.finish?.ceiling.cornice).toBe("wall-angle");
+    expect(ward.finish?.ceiling).toEqual({
+      troffer: true,
+      tbarMm: 24,
+      cornice: "wall-angle",
+      corniceProfile: "flush",
+      corniceWidthMm: 24,
+      corniceColorSource: "wall",
+    });
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.finish?.ceiling).toEqual(ward.finish?.ceiling);
     expect(ward.door.transom).toBeUndefined();
     expect(ward.door.kickPlate).toBeUndefined();
     expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.door.transom).toBe("infill");
@@ -352,6 +359,7 @@ describe("room-chain recipe registry", () => {
           ...shipped.finish.ceiling,
           corniceWidthMm: 15,
           corniceColorSource: "wall" as const,
+          corniceProfile: "angle" as const,
         },
       },
     };
@@ -359,6 +367,7 @@ describe("room-chain recipe registry", () => {
       cornice: "wall-angle",
       corniceWidthMm: 15,
       corniceColorSource: "wall",
+      corniceProfile: "angle",
     });
     expect(() => validateRoomChainRecipe({
       ...variants,
@@ -374,5 +383,12 @@ describe("room-chain recipe registry", () => {
         ceiling: { ...variants.finish.ceiling, corniceColorSource: "ceiling" },
       },
     })).toThrow(/corniceColorSource must be tbar or wall/);
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceProfile: "stepped" },
+      },
+    })).toThrow(/corniceProfile must be angle or flush/);
   });
 });

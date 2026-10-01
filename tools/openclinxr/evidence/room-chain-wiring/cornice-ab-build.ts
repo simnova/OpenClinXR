@@ -8,8 +8,9 @@ const root = ".openclinxr/evidence/cornice-ab";
 const environments = ["inpatient_ward_room_v1", "stepdown_room_v1"] as const;
 const variants = {
   v1: { cornice: "none" as const },
-  v3: { cornice: "wall-angle" as const, corniceWidthMm: 15, corniceColorSource: "tbar" as const },
-  v4: { cornice: "wall-angle" as const, corniceWidthMm: 24, corniceColorSource: "wall" as const },
+  v3: { cornice: "wall-angle" as const, corniceProfile: "angle" as const, corniceWidthMm: 15, corniceColorSource: "tbar" as const },
+  v4: { cornice: "wall-angle" as const, corniceProfile: "angle" as const, corniceWidthMm: 24, corniceColorSource: "wall" as const },
+  "v4-flush": { cornice: "wall-angle" as const, corniceProfile: "flush" as const, corniceWidthMm: 24, corniceColorSource: "wall" as const },
 };
 const sha256 = (file: string): string => createHash("sha256").update(readFileSync(file)).digest("hex");
 const results: Record<string, unknown> = {};

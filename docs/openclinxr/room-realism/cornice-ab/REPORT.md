@@ -1,23 +1,25 @@
-# Ceiling perimeter trim A/B
+# Ceiling perimeter trim V4-flush promotion
 
-This packet presents four learner-runtime arms without selecting a winner. V1 removes the cornice; V2 is the checked-in 24 mm T-bar off-white wall angle; V3 uses a 15 mm leg in the same T-bar material; V4 uses a 24 mm leg with the room wall material. The operator decides from the full sheets and 4× native-pixel junction crops.
+The selected default for the ward and step-down rooms is V4-flush: a wall-coloured 24 mm horizontal perimeter leg whose underside is coplanar with the acoustic-tile faces. The tile field is inset 24 mm rather than overlapped, the wall-side angle edge extends only 3 mm below the tile plane, and a wall-coplanar 0.5 mm paint band masks the shell's baked contact-shadow seam without creating a lip.
+
+Measured from GLB accessor bounds (Blender Z exports as glTF Y), both the shipped `6f9fdda4a` wall angle and rebuilt V4 have 24.000 mm horizontal and vertical legs. Their horizontal underside is 3.000 mm below the tile face and the vertical leg reaches 24.000 mm below it. V4-flush measures 24.000 mm wide, 0.000 mm underside offset, and 3.000 mm vertical edge below the tile face.
 
 ## Measurements
 
-Values are junction-band mean minus adjacent-wall mean in Rec.709 luminance points. More negative is darker than the adjacent wall. `measurements.json` contains the band, wall, and crop boxes and all source-image paths. The V2 reference delta is the same-camera checked-in V2 arm; ward sheets additionally carry the prior v2 visual-reference image as a fifth panel.
+Values are junction-band mean minus adjacent-wall mean in Rec.709 luminance points. More negative is darker than the adjacent wall. `measurements.json` contains the band, wall, and crop boxes and all source-image paths. The V2 reference delta is the same-camera checked-in V2 arm; ward sheets additionally carry the prior v2 visual-reference image as a fourth panel.
 
-| Room / pose | V1 none | V2 current / reference delta | V3 15 mm T-bar | V4 24 mm wall-coloured | V1 pixels < wall−40 |
-|---|---:|---:|---:|---:|---:|
-| Ward 01 | -38.96 | -5.57 | -13.27 | -5.08 | 590 / 1,400 |
-| Ward 02 | -43.76 | -1.49 | -13.91 | -0.90 | 868 / 1,800 |
-| Ward 03 | -40.35 | +0.41 | -13.24 | +1.13 | 150 / 300 |
-| Ward 05 | -38.40 | -6.62 | -18.53 | -6.17 | 184 / 420 |
-| Step-down 01 | -35.79 | -15.96 | -21.93 | -15.65 | 780 / 2,750 |
-| Step-down 02 | -27.79 | -13.05 | -17.48 | -12.81 | 558 / 3,000 |
-| Step-down 04 | -50.46 | +14.94 | -3.24 | +15.73 | 41 / 44 |
-| Step-down 05 | -34.36 | -9.84 | -18.24 | -9.73 | 406 / 1,120 |
+| Room / pose | V2 delta | V4 delta | V4-flush delta | Flush − V2 | Gap pixels | Repeat mean diff |
+|---|---:|---:|---:|---:|---:|---:|
+| Ward 01 | -5.57 | -5.08 | +3.42 | +8.99 | 0 | 0.0000 |
+| Ward 02 | -1.49 | -0.90 | +5.94 | +7.43 | 0 | 0.0000 |
+| Ward 03 | +0.41 | +1.13 | +13.66 | +13.25 | 0 | 0.0000 |
+| Ward 05 | -6.62 | -6.17 | -1.73 | +4.89 | 0 | 0.0000 |
+| Step-down 01 | -15.96 | -15.65 | -12.40 | +3.56 | 0 | 0.0000 |
+| Step-down 02 | -13.05 | -12.81 | -10.95 | +2.10 | 0 | 0.0000 |
+| Step-down 04 | +14.94 | +15.73 | +29.69 | +14.75 | 0 | 0.0000 |
+| Step-down 05 | -9.84 | -9.73 | -4.58 | +5.26 | 0 | 0.0000 |
 
-The V1 count is taken inside the named junction-band box, using that pose/variant's adjacent-wall mean minus 40 as the threshold. It is a seam/gap indicator, not a pass/fail rule.
+Gap pixels are pixels below adjacent-wall luminance minus 40 that belong to a horizontal run of at least five native pixels; isolated texture/shadow specks are retained as raw counts in `measurements.json` but are not gaps. V1's earlier raw metric found 41–868 dark pixels. V4-flush has zero seam-run pixels in every pose. Its two captures are byte-identical per pose, giving 0.0000 mean channel difference (<0.5). Adjacent-wall luminance is identical to V2 in every pose, and the 49.2983/49.3399 MiB ward/step-down decoded budgets remain below 56 MiB.
 
 ## Native-pixel boxes and sheets
 
@@ -34,15 +36,13 @@ The V1 count is taken inside the named junction-band box, using that pose/varian
 
 Full sheets are under `ward/sheets/` and `stepdown/sheets/`. The corresponding 4× nearest-neighbour crops are under `ward/crops/` and `stepdown/crops/`; one native source pixel is a visible 4×4 block. Ward uses hand-placed poses 01/02/03/05. Step-down uses the frozen derived-pose file for 01/02/04/05. Every arm is a 1280×720 learner-runtime capture with the same room-specific camera.
 
-## Build and no-op proof
+## Build and promotion proof
 
-V1/V3/V4 were built through `runRoomChain` only under `.openclinxr/evidence/cornice-ab/<environment>/<variant>` and were not promoted. Their SHA-256 values are:
+V4 and V4-flush were built through `runRoomChain`. Default promotion re-derived both rooms and their six pose pins. The installed results are:
 
-| Room | V1 | V3 | V4 |
-|---|---|---|---|
-| Ward | `011060ac7df47cfada4a5daea78da241c7b6be4aece6aeccb116d9728de8fd11` | `44cd0f019a57be2893ff15ee35b46921e3592535f4c3e028ce927e1fd4eb7ede` | `5b5908c3856835c178ff7123c70c6ef756e8f7aaf55ce01d47fa7a737646081e` |
-| Step-down | `db43739615ac2a98b180aab6ef1156084f8211277e8bb4a646fcc3c61fc92625` | `048493427084311d2c288916e0f213c7ccd6c703927d7708ed0d726fb3bdcb61` | `e004e3a4370c44e24361ff714b16b95ec516ee162eb1c28267511c5f188d7a22` |
-
-Default promote was run for both rooms. Step-down reproduced its checked-in GLB exactly; ward's rebuilt GLB differed only in one normal-map channel by 1/255 and its PNG/container encoding, so promotion's content-equivalence guard retained the checked-in bytes. Both commands reported `changed: []`. Final shipped GLB hashes remain `0048430f5361df1398edcacb65e8bd829cfb72f1ecf7b6ff0fef86ee6e504b18` (ward) and `3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca` (step-down).
+| Room | V4 angle | Promoted V4-flush |
+|---|---|---|
+| Ward | `b91a7d6d8f4406cb52f2d1f69770dfc5e5cf275e6a247cfdbe890e70957f5b21` | `a25fc5680a64d7c73c6732eda76e968dd82d3594404c6b64ac2258f0847bffac` |
+| Step-down | `e004e3a4370c44e24361ff714b16b95ec516ee162eb1c28267511c5f188d7a22` | `40dfbb57c8bdcd5521d76571325c4fe955420e13d11567e5e5c3d11f99e79c8b` |
 
 These captures are not evidence for Quest-headset readiness or clinical validity.

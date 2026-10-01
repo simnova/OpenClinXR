@@ -4285,3 +4285,31 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-04-door-inside.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 04.
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-05-troffer-junction.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 05.
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/stage2-multiview.json` - keep-evidence; Step-down V4 learner-runtime capture manifest and camera provenance.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/01-toward-door-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 01 V2/V4/V4-flush sheet with v2 reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/02-toward-bed-wall-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 02 V2/V4/V4-flush sheet with v2 reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/03-ceiling-corner-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 03 V2/V4/V4-flush sheet with v2 reference.
+- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/05-troffer-junction-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 05 V2/V4/V4-flush sheet with v2 reference.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/01-toward-door-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 01 V2/V4/V4-flush sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/02-toward-bed-wall-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 02 V2/V4/V4-flush sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/04-door-inside-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 04 V2/V4/V4-flush sheet.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/05-troffer-junction-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 05 V2/V4/V4-flush sheet.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-01-toward-door.png` - keep-evidence; Ward selected V4-flush capture pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-02-toward-bed-wall.png` - keep-evidence; Ward selected V4-flush capture pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-03-ceiling-corner.png` - keep-evidence; Ward selected V4-flush capture pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-05-troffer-junction.png` - keep-evidence; Ward selected V4-flush capture pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/stage2-multiview.json` - keep-evidence; Ward selected V4-flush capture manifest.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-01-toward-door.png` - keep-evidence; Ward V4-flush repeat pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V4-flush repeat pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-03-ceiling-corner.png` - keep-evidence; Ward V4-flush repeat pose 03.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-05-troffer-junction.png` - keep-evidence; Ward V4-flush repeat pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/stage2-multiview.json` - keep-evidence; Ward V4-flush repeat capture manifest.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-01-toward-door.png` - keep-evidence; Step-down selected V4-flush capture pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down selected V4-flush capture pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-04-door-inside.png` - keep-evidence; Step-down selected V4-flush capture pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-05-troffer-junction.png` - keep-evidence; Step-down selected V4-flush capture pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/stage2-multiview.json` - keep-evidence; Step-down selected V4-flush capture manifest.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-01-toward-door.png` - keep-evidence; Step-down V4-flush repeat pose 01.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V4-flush repeat pose 02.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-04-door-inside.png` - keep-evidence; Step-down V4-flush repeat pose 04.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-05-troffer-junction.png` - keep-evidence; Step-down V4-flush repeat pose 05.
+- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/stage2-multiview.json` - keep-evidence; Step-down V4-flush repeat capture manifest.

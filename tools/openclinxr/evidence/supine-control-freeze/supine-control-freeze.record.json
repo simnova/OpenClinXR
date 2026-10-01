@@ -2,8 +2,8 @@
   "schemaVersion": "openclinxr.supine-control-freeze.v1",
   "scenarioId": "ward_delirium_med_rec_v1",
   "assetSha256ByPath": {
-    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "0048430f5361df1398edcacb65e8bd829cfb72f1ecf7b6ff0fef86ee6e504b18",
-    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "a25fc5680a64d7c73c6732eda76e968dd82d3594404c6b64ac2258f0847bffac",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "40dfbb57c8bdcd5521d76571325c4fe955420e13d11567e5e5c3d11f99e79c8b",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
@@ -18,11 +18,11 @@
   },
   "producedFrom": {
     "observedBy": "factory:room:promote deterministic asset promotion",
-    "observedAtIso": "2026-10-01T20:24:48.882Z",
+    "observedAtIso": "2026-10-01T21:50:36.612Z",
     "reason": "Room-chain promotion changed the installed apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb bytes; provenance and byte counts were re-derived by the supported producer.",
     "byteCountByPath": {
-      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9213764,
-      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9299936,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9218804,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9304980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 4062632,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 19149628,
       "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10529172,

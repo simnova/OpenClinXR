@@ -21,8 +21,8 @@ const rooms = {
 } as const;
 
 for (const [room, config] of Object.entries(rooms)) {
-  for (const variant of ["v1", "v2", "v3", "v4"] as const) {
-    const key = `${config.environmentId}/${variant}`;
+  for (const outputVariant of ["v4-flush", "v4-flush-repeat"] as const) {
+    const key = `${config.environmentId}/v4-flush`;
     const glb = buildManifest.results[key]?.finalGlb;
     if (!glb) throw new Error(`missing GLB in build manifest: ${key}`);
     execFileSync("pnpm", ["exec", "tsx", capture], {
@@ -30,7 +30,7 @@ for (const [room, config] of Object.entries(rooms)) {
       timeout: 600_000,
       env: {
         ...process.env,
-        STAGE2_CAPTURE_OUT_DIR: path.join("docs/openclinxr/room-realism/cornice-ab", room, variant),
+        STAGE2_CAPTURE_OUT_DIR: path.join("docs/openclinxr/room-realism/cornice-ab", room, outputVariant),
         STAGE2_CAPTURE_GLB: glb,
         STAGE2_ENVIRONMENT_ID: config.environmentId,
         STAGE2_POSES_FILE: config.posesFile,

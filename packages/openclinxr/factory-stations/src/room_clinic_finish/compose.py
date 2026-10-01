@@ -116,6 +116,9 @@ TBAR_WIDTH_M = 0.024
 # only when the recipe asks for it; absent recipe data keeps legacy meshes.
 WALL_ANGLE_LEG_M = 0.024
 WALL_ANGLE_THICKNESS_M = 0.003
+# The flush profile cuts the tile field back by its 24 mm leg, so its visible
+# underside can share the exact tile-face plane without coplanar overlap.
+WALL_ANGLE_FLUSH_OFFSET_M = 0.0
 # Narrow darker lips on both sides of the painted T-bar. They preserve the
 # real 24 mm member while giving the runtime line profile a shadowed edge and
 # a small reveal against the acoustic tile instead of a flat white stripe.
@@ -573,6 +576,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                          emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
                          floor_top: float | None = None,
                          cornice_mode: str | None = None,
+                         cornice_profile: str = "angle",
                          cornice_width_m: float = WALL_ANGLE_LEG_M,
                          cornice_color_source: str = "tbar",
                          wall_material: object | None = None) -> dict:
@@ -722,7 +726,10 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # lands on a 0.6 m line.
     ceiling_plane_z = ceiling_z if ceiling_z is not None else maxz
     tbar_z = ceiling_plane_z - CEILING_TBAR_DROP_M
-    ceil_obj = new_box("openclinxr_ceiling_tiles", cx, cy, tbar_z + 0.01, w, d, 0.02, ceiling_photo_m)
+    tile_inset = (cornice_width_m
+                  if cornice_mode == "wall-angle" and cornice_profile == "flush" else 0.0)
+    ceil_obj = new_box("openclinxr_ceiling_tiles", cx, cy, tbar_z + 0.01,
+                       w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_photo_m)
     _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
     counts["ceiling"] += 1
     grid_ox = math.floor(minx / CEILING_MODULE_M) * CEILING_MODULE_M
@@ -821,7 +828,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 tbar_count += 1
         ky += 1
     counts["tbar"] = tbar_count
-    wall_angle: dict = {"mode": cornice_mode, "legM": cornice_width_m,
+    wall_angle: dict = {"mode": cornice_mode, "profile": cornice_profile,
+                        "legM": cornice_width_m,
                         "thicknessM": WALL_ANGLE_THICKNESS_M, "runs": 0,
                         "material": None}
     if cornice_mode == "wall-angle":
@@ -831,33 +839,69 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         angle_material = wall_material if cornice_color_source == "wall" else tbar_m
         if angle_material is None:
             raise ValueError("wall cornice colour requires the room wall material")
-        z_vertical = tbar_z - leg / 2
-        z_horizontal = tbar_z - thick / 2
+        if cornice_profile == "flush" and cornice_color_source == "wall":
+            angle_material = _flat_material(
+                "openclinxr_finish_wall", tuple(pal.get("wallAlbedo", (0.72, 0.74, 0.76))),
+                0.85, emissive=True, emission_strength=0.35)
+        if cornice_profile == "flush":
+            # Keep only a 3 mm wall-side edge below the tile face. The tile
+            # field is inset by the leg width, so the horizontal underside is
+            # exactly coplanar without overlapping faces or z-fighting.
+            vertical_height = thick
+            z_vertical = tbar_z - vertical_height / 2
+            z_horizontal = tbar_z - WALL_ANGLE_FLUSH_OFFSET_M + thick / 2
+        else:
+            vertical_height = leg
+            z_vertical = tbar_z - leg / 2
+            z_horizontal = tbar_z - thick / 2
         # Each wall gets a vertical leg and an inward horizontal leg. Runs
         # overlap by one leg at corners, closing the tile-to-wall junction.
         wall_angle_runs = [
             ("x0_vertical", x0 + thick / 2, (y0 + y1) / 2, z_vertical,
-             thick, y1 - y0, leg),
+             thick, y1 - y0, vertical_height),
             ("x0_horizontal", x0 + leg / 2, (y0 + y1) / 2, z_horizontal,
              leg, y1 - y0, thick),
             ("x1_vertical", x1 - thick / 2, (y0 + y1) / 2, z_vertical,
-             thick, y1 - y0, leg),
+             thick, y1 - y0, vertical_height),
             ("x1_horizontal", x1 - leg / 2, (y0 + y1) / 2, z_horizontal,
              leg, y1 - y0, thick),
             ("y0_vertical", (x0 + x1) / 2, y0 + thick / 2, z_vertical,
-             x1 - x0, thick, leg),
+             x1 - x0, thick, vertical_height),
             ("y0_horizontal", (x0 + x1) / 2, y0 + leg / 2, z_horizontal,
              x1 - x0, leg, thick),
             ("y1_vertical", (x0 + x1) / 2, y1 - thick / 2, z_vertical,
-             x1 - x0, thick, leg),
+             x1 - x0, thick, vertical_height),
             ("y1_horizontal", (x0 + x1) / 2, y1 - leg / 2, z_horizontal,
              x1 - x0, leg, thick),
         ]
         for name, x, y, z, dx, dy, dz in wall_angle_runs:
             new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, angle_material)
+        if cornice_profile == "flush":
+            # A sub-millimetre, wall-coplanar paint band masks the shell's
+            # baked contact-shadow seam. It is not an angle leg: it protrudes
+            # only 0.5 mm from the wall and carries no horizontal ledge.
+            band_t = 0.0005
+            band_z = tbar_z - leg / 2
+            wall_edge_bands = [
+                ("x0", x0 + band_t / 2, (y0 + y1) / 2, band_z,
+                 band_t, y1 - y0, leg),
+                ("x1", x1 - band_t / 2, (y0 + y1) / 2, band_z,
+                 band_t, y1 - y0, leg),
+                ("y0", (x0 + x1) / 2, y0 + band_t / 2, band_z,
+                 x1 - x0, band_t, leg),
+                ("y1", (x0 + x1) / 2, y1 - band_t / 2, band_z,
+                 x1 - x0, band_t, leg),
+            ]
+            for name, x, y, z, dx, dy, dz in wall_edge_bands:
+                new_box("openclinxr_wall_edge_band_%s" % name,
+                        x, y, z, dx, dy, dz, angle_material)
+            wall_angle["edgeBandProtrusionM"] = band_t
         counts["wallAngle"] = len(wall_angle_runs)
         wall_angle.update({"runs": len(wall_angle_runs),
-                           "material": angle_material.name, "z": tbar_z})
+                           "material": angle_material.name, "z": tbar_z,
+                           "undersideOffsetM": (WALL_ANGLE_FLUSH_OFFSET_M
+                                                 if cornice_profile == "flush" else thick),
+                           "verticalBelowTileM": (thick if cornice_profile == "flush" else leg)})
     ceiling_grid = {
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
@@ -2112,6 +2156,9 @@ def apply_finish() -> int:
         raise ValueError("recipe.finish.ceiling.cornice must be none or wall-angle when present")
     cornice_width_m = (float(ceiling_feature.get("corniceWidthMm", WALL_ANGLE_LEG_M * 1000)) / 1000
                        if ceiling_feature else WALL_ANGLE_LEG_M)
+    cornice_profile = ceiling_feature.get("corniceProfile", "angle") if ceiling_feature else "angle"
+    if cornice_profile not in ("angle", "flush"):
+        raise ValueError("recipe.finish.ceiling.corniceProfile must be angle or flush when present")
     cornice_color_source = ceiling_feature.get("corniceColorSource", "tbar") if ceiling_feature else "tbar"
     if cornice_color_source not in ("tbar", "wall"):
         raise ValueError("recipe.finish.ceiling.corniceColorSource must be tbar or wall when present")
@@ -2151,6 +2198,7 @@ def apply_finish() -> int:
                                     cove_rgb=cove_rgb, emit_troffer=emit_troffer,
                                     tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
                                     cornice_mode=cornice_mode,
+                                    cornice_profile=cornice_profile,
                                     cornice_width_m=cornice_width_m,
                                     cornice_color_source=cornice_color_source,
                                     wall_material=wall_material)
