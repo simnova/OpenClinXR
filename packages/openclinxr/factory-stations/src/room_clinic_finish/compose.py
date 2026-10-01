@@ -111,6 +111,11 @@ CEILING_MODULE_M = 0.6
 CEILING_REPEAT_M = CEILING_MODULE_M
 # White T-bar strip width (24 mm) on the 0.6 m module.
 TBAR_WIDTH_M = 0.024
+# Slim perimeter wall angle: a 24 mm x 24 mm painted-metal L using the
+# exact T-bar material. It replaces Infinigen's decorative ceiling cornice
+# only when the recipe asks for it; absent recipe data keeps legacy meshes.
+WALL_ANGLE_LEG_M = 0.024
+WALL_ANGLE_THICKNESS_M = 0.003
 # Narrow darker lips on both sides of the painted T-bar. They preserve the
 # real 24 mm member while giving the runtime line profile a shadowed edge and
 # a small reveal against the acoustic tile instead of a flat white stripe.
@@ -393,6 +398,12 @@ def _is_shell_floor_skirting(obj_name: str) -> bool:
     return "skirting_floor" in lowered or "skirtingboard_support" in lowered
 
 
+def _is_shell_ceiling_cornice(obj_name: str) -> bool:
+    """Match only Infinigen's decorative ceiling skirting/cornice."""
+    lowered = obj_name.lower()
+    return "skirting_ceiling" in lowered or "skirtingboard_ceiling" in lowered
+
+
 def _is_wall_shell(obj_name: str) -> bool:
     """Wall meshes that carry an inner face the cove base sits against."""
     lowered = obj_name.lower()
@@ -560,7 +571,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                          emit_cove: bool = False, cove_height_m: float = SKIRTING_COVE_HEIGHT_M,
                          cove_rgb: tuple = SKIRTING_COVE_RGB_LINEAR,
                          emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
-                         floor_top: float | None = None) -> dict:
+                         floor_top: float | None = None,
+                         cornice_mode: str | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -601,7 +613,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
     w, d, h = maxx - minx, maxy - miny, maxz - minz
     created: list[str] = []
-    counts = {"floor": 0, "ceiling": 0, "troffer": 0, "rail": 0}
+    counts = {"floor": 0, "ceiling": 0, "troffer": 0, "rail": 0,
+              "wallAngle": 0}
 
     def mat_for(name: str, albedo: list, roughness: float):
         m = bpy.data.materials.get(name)
@@ -805,6 +818,40 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 tbar_count += 1
         ky += 1
     counts["tbar"] = tbar_count
+    wall_angle: dict = {"mode": cornice_mode, "legM": WALL_ANGLE_LEG_M,
+                        "thicknessM": WALL_ANGLE_THICKNESS_M, "runs": 0,
+                        "material": None}
+    if cornice_mode == "wall-angle":
+        planes = _wall_inner_planes()
+        x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
+        leg, thick = WALL_ANGLE_LEG_M, WALL_ANGLE_THICKNESS_M
+        z_vertical = tbar_z - leg / 2
+        z_horizontal = tbar_z - thick / 2
+        # Each wall gets a vertical leg and an inward horizontal leg. Runs
+        # overlap by one leg at corners, closing the tile-to-wall junction.
+        wall_angle_runs = [
+            ("x0_vertical", x0 + thick / 2, (y0 + y1) / 2, z_vertical,
+             thick, y1 - y0, leg),
+            ("x0_horizontal", x0 + leg / 2, (y0 + y1) / 2, z_horizontal,
+             leg, y1 - y0, thick),
+            ("x1_vertical", x1 - thick / 2, (y0 + y1) / 2, z_vertical,
+             thick, y1 - y0, leg),
+            ("x1_horizontal", x1 - leg / 2, (y0 + y1) / 2, z_horizontal,
+             leg, y1 - y0, thick),
+            ("y0_vertical", (x0 + x1) / 2, y0 + thick / 2, z_vertical,
+             x1 - x0, thick, leg),
+            ("y0_horizontal", (x0 + x1) / 2, y0 + leg / 2, z_horizontal,
+             x1 - x0, leg, thick),
+            ("y1_vertical", (x0 + x1) / 2, y1 - thick / 2, z_vertical,
+             x1 - x0, thick, leg),
+            ("y1_horizontal", (x0 + x1) / 2, y1 - leg / 2, z_horizontal,
+             x1 - x0, leg, thick),
+        ]
+        for name, x, y, z, dx, dy, dz in wall_angle_runs:
+            new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, tbar_m)
+        counts["wallAngle"] = len(wall_angle_runs)
+        wall_angle.update({"runs": len(wall_angle_runs),
+                           "material": "openclinxr_finish_tbar", "z": tbar_z})
     ceiling_grid = {
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
@@ -926,7 +973,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         cove_info = {"runs": counts.get("cove", 0), "height": cove_height_m,
                      "thickness": t, "doorSide": door_side, "doorGap": gap}
     return {"meshes": created, "counts": counts, "crashRail": crash_rail, "seed": seed,
-            "ceilingGrid": ceiling_grid, "cove": cove_info}
+            "ceilingGrid": ceiling_grid, "cove": cove_info,
+            "wallAngle": wall_angle}
 
 
 def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
@@ -2053,10 +2101,20 @@ def apply_finish() -> int:
             if ceiling_inner_z is None or mesh_min_z > ceiling_inner_z:
                 ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
+    cornice_mode = ceiling_feature.get("cornice") if ceiling_feature else None
+    if cornice_mode not in (None, "none", "wall-angle"):
+        raise ValueError("recipe.finish.ceiling.cornice must be none or wall-angle when present")
+    removed_cornice: list[str] = []
+    if cornice_mode is not None:
+        for obj in list(bpy.data.objects):
+            if obj.type == "MESH" and _is_shell_ceiling_cornice(obj.name):
+                removed_cornice.append(obj.name)
+                bpy.data.objects.remove(obj, do_unlink=True)
     # Recipe cove feature (see README): the shell floor skirting (random
     # height/profile white plastic from skirting_board.py) is removed and
-    # the finish emits the thin cove base instead. Ceiling skirting stays.
-    # Other presets keep the legacy trim-paint path above (untouched).
+    # the finish emits the thin cove base instead. Ceiling skirting is
+    # independently controlled by ceiling.cornice above; absent mode keeps
+    # the legacy mesh. Other presets keep the legacy path untouched.
     removed_skirting: list[str] = []
     measured_floor_top: float | None = None
     if cove_feature is not None or floor_feature is not None:
@@ -2080,7 +2138,8 @@ def apply_finish() -> int:
                                     floor_tile_module_m=floor_module_m,
                                     emit_cove=cove_feature is not None, cove_height_m=cove_height_m,
                                     cove_rgb=cove_rgb, emit_troffer=emit_troffer,
-                                    tbar_width_m=tbar_width_m, floor_top=measured_floor_top)
+                                    tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
+                                    cornice_mode=cornice_mode)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
@@ -2129,8 +2188,10 @@ def apply_finish() -> int:
         "emittedMeshes": emitted["counts"],
         "emittedCount": len(emitted["meshes"]),
         "emittedCeilingGrid": emitted["ceilingGrid"],
+        "emittedWallAngle": emitted["wallAngle"],
         "emittedCove": emitted["cove"],
         "removedShellSkirting": removed_skirting,
+        "removedShellCornice": removed_cornice,
         "measuredFloorTop": measured_floor_top,
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],

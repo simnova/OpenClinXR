@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   canonicalJson,
@@ -19,7 +20,6 @@ import {
   RoomChainRecipeValidationError,
   validateRoomChainRecipe,
 } from "./run.js";
-import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
 
 /**
  * Room-chain stage cache unit tests. Pure: no Blender, no Infinigen install,
@@ -309,7 +309,8 @@ describe("room-chain recipe registry", () => {
     const ward = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, "inpatient_ward_room_v1");
     expect(ward.finish?.preserveShell).toBe(true);
     expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
-    expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24 });
+    expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24, cornice: "wall-angle" });
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.finish?.ceiling.cornice).toBe("wall-angle");
     expect(ward.door.transom).toBeUndefined();
     expect(ward.door.kickPlate).toBeUndefined();
     expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.door.transom).toBe("infill");
@@ -321,5 +322,27 @@ describe("room-chain recipe registry", () => {
       .toThrow(RoomChainRecipeValidationError);
     expect(() => validateRoomChainRecipe({ ...ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, typo: true }))
       .toThrow(/unknown field.*typo/);
+  });
+
+  it("validates optional ceiling cornice modes and preserves legacy omission", () => {
+    const shipped = ROOM_CHAIN_RECIPES.inpatient_ward_room_v1;
+    const legacy = {
+      ...shipped,
+      finish: shipped.finish && {
+        ...shipped.finish,
+        ceiling: { troffer: true, tbarMm: 24 },
+      },
+    };
+    expect(validateRoomChainRecipe(legacy).finish?.ceiling.cornice).toBeUndefined();
+    const invalid = {
+      ...legacy,
+      finish: legacy.finish && {
+        ...legacy.finish,
+        ceiling: { ...legacy.finish.ceiling, cornice: "dark-band" },
+      },
+    };
+    expect(() => validateRoomChainRecipe(invalid)).toThrow(
+      /ceiling\.cornice must be none or wall-angle/,
+    );
   });
 });

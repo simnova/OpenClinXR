@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.stepdown-door-reference-measurements.v1",
   "pose": "derived learner-runtime pose 04",
-  "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
+  "sourceGlbSha256": "3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca",
   "reference": {
     "wall": {
       "box": [

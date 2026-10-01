@@ -11,7 +11,7 @@ export type RoomFinishFeatures = {
     lever: boolean;
     hinges: boolean;
   };
-  ceiling: { troffer: boolean; tbarMm: number };
+  ceiling: { troffer: boolean; tbarMm: number; cornice?: "none" | "wall-angle" };
   wallMatteRoughness: number;
   neutralTints: {
     casingRgb: readonly [number, number, number];
@@ -28,7 +28,7 @@ const KEYS = {
   floor: ["kind", "moduleM"],
   cove: ["heightM"],
   door: ["kind", "photoPbr", "casing", "lite", "lever", "hinges"],
-  ceiling: ["troffer", "tbarMm"],
+  ceiling: ["troffer", "tbarMm", "cornice"],
   neutralTints: ["casingRgb", "coveRgb"],
 } as const;
 
@@ -39,12 +39,17 @@ function record(value: unknown, path: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function exactKeys(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
+function exactKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  path: string,
+  optional: readonly string[] = [],
+): void {
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new RoomFinishFeatureValidationError(`${path} has unknown field(s): ${unknown.join(", ")}`);
   }
-  const missing = allowed.filter((key) => !(key in value));
+  const missing = allowed.filter((key) => !optional.includes(key) && !(key in value));
   if (missing.length > 0) {
     throw new RoomFinishFeatureValidationError(`${path} is missing field(s): ${missing.join(", ")}`);
   }
@@ -81,7 +86,7 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
   exactKeys(floor, KEYS.floor, `${path}.floor`);
   exactKeys(cove, KEYS.cove, `${path}.cove`);
   exactKeys(door, KEYS.door, `${path}.door`);
-  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`);
+  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice"]);
   exactKeys(neutralTints, KEYS.neutralTints, `${path}.neutralTints`);
   if (floor["kind"] !== "vinyl-tile") throw new RoomFinishFeatureValidationError(`${path}.floor.kind must be vinyl-tile`);
   if (door["kind"] !== "hospital") throw new RoomFinishFeatureValidationError(`${path}.door.kind must be hospital`);
@@ -100,6 +105,15 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
     ceiling: {
       troffer: boolean(ceiling["troffer"], `${path}.ceiling.troffer`),
       tbarMm: finiteInRange(ceiling["tbarMm"], `${path}.ceiling.tbarMm`, 0, 100),
+      ...(ceiling["cornice"] === undefined
+        ? {}
+        : ceiling["cornice"] === "none" || ceiling["cornice"] === "wall-angle"
+          ? { cornice: ceiling["cornice"] }
+          : (() => {
+              throw new RoomFinishFeatureValidationError(
+                `${path}.ceiling.cornice must be none or wall-angle when present`,
+              );
+            })()),
     },
     wallMatteRoughness: finiteInRange(root["wallMatteRoughness"], `${path}.wallMatteRoughness`, 0, 1),
     neutralTints: {

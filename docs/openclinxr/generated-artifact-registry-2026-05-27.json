@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1013,
+    "keep-evidence": 1065,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -29517,6 +29517,370 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Round 4 TRELLIS.2 ECG-cart evidence; coordinator grade pending."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/junction-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Machine-readable crop-verified before/after wall-ceiling luminance grades with ward v2 reference comparisons."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime six-pose capture manifest for the ceiling-cornice comparison."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime six-pose capture manifest for the ceiling-cornice comparison."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/junction-boxes/01-toward-door-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/junction-boxes/01-toward-door-before.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/junction-boxes/02-toward-bed-wall-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/junction-boxes/02-toward-bed-wall-before.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/01-toward-door-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/02-toward-bed-wall-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/03-ceiling-corner-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/04-door-inside-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/05-troffer-junction-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/sheets/06-floor-base-before-after.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Step-down learner-runtime before/after ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime after capture of the recipe-driven T-bar wall angle."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime six-pose capture manifest for the ceiling-cornice comparison."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime before capture of the shipped dark ceiling cornice."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime six-pose capture manifest for the ceiling-cornice comparison."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/01-toward-door-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/01-toward-door-before.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/01-toward-door-v2-reference.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/02-toward-bed-wall-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/02-toward-bed-wall-before.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/junction-boxes/02-toward-bed-wall-v2-reference.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Crop-box overlay proving the wall-ceiling junction and adjacent-wall measurement regions."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/runtime-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward door-finish/floor-cast no-regression measurements rerun against the promoted wall-angle room."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/01-toward-door-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/02-toward-bed-wall-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/03-ceiling-corner-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/04-door-inside-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/05-troffer-junction-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/ceiling-cornice/ward/sheets/06-floor-base-before-after-v2-reference.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Ward learner-runtime before/after/v2-reference ceiling-cornice comparison sheet."
     }
   ]
 }
