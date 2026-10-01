@@ -9,6 +9,7 @@ const root = path.resolve(import.meta.dirname, "../../../..");
 const glb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb");
 const wardGlb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
 const budget = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json"), "utf8"));
+const doorMeasurements = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurements.json"), "utf8"));
 
 describe("the shipped stepdown room carries its data-driven clinical finish", () => {
   it("gives every primitive a material and emits the floor, cove, door, and troffer", async () => {
@@ -23,6 +24,7 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     for (const required of [
       "openclinxr_floor_field", "openclinxr_cove_", "openclinxr_door_glass",
       "openclinxr_door_casing_", "openclinxr_troffer_diffuser", "openclinxr_tbar_",
+      "openclinxr_door_kick_plate",
     ]) {
       expect(names.some((name) => name.includes(required)), `missing ${required}`).toBe(true);
     }
@@ -31,7 +33,7 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
   it("stays within the 56 MiB decoded RGBA budget", () => {
     expect(budget.materiallessPrimitives).toBe(0);
     expect(budget.decodedMiBWithMips).toBeLessThanOrEqual(56);
-    expect(budget.sha256).toBe("ec1b74d306a30fdd0d5f21874543d933808ebaeb357a80f2ce58dfa3f6967fb0");
+    expect(budget.sha256).toBe("b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e");
   });
 
   it("closes only the declared stepdown transom, flush to the shell wall", async () => {
@@ -41,6 +43,7 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     const transom = stepdown.getRoot().listNodes().find((node) => node.getName() === "openclinxr_door_transom_infill");
     expect(transom, "stepdown transom infill node").toBeDefined();
     expect(ward.getRoot().listNodes().some((node) => node.getName().includes("door_transom"))).toBe(false);
+    expect(ward.getRoot().listNodes().some((node) => node.getName().includes("door_kick_plate"))).toBe(false);
     expect(transom!.getMesh()!.listPrimitives()[0]!.getMaterial()!.getName()).toBe("openclinxr_finish_transom_wall");
 
     const transomPlane = getBounds(transom!).max[2];
@@ -59,5 +62,10 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     const nearestWallPlane = nearbyWallPlanes.reduce((nearest, value) =>
       Math.abs(value - transomPlane) < Math.abs(nearest - transomPlane) ? value : nearest);
     expect(Math.abs(transomPlane - nearestWallPlane)).toBeLessThanOrEqual(0.005);
+  });
+
+  it("matches the transom infill to the adjacent rendered wall", () => {
+    expect(doorMeasurements.after.infillVsWall.deltaRgb.every((channel: number) => Math.abs(channel) <= 3)).toBe(true);
+    expect(doorMeasurements.after.infillVsWall.maximumBoundaryColumnStep).toBeLessThanOrEqual(4);
   });
 });

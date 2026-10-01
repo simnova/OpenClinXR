@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 213,
+    "current-reference": 214,
     "archive-candidate": 116,
     "evidence": 146,
     "temporary": 54,
@@ -5321,6 +5321,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current ECG-cart image-to-3dlab equipment cagematch decision record; not-adopted decision retained while Round 4 evidence awaits coordinator grade."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference."
     }
   ]
 }

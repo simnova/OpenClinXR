@@ -25,13 +25,19 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 244
-- keep-evidence: 653
+- keep-evidence: 659
 - keep-current: 226
 - keep-evidence: 407
 - keep-template: 6
 
 ## Cleanup Actions
 
+- `docs/openclinxr/asset-licence-records/row-33-operator-generated-grok-imagine-stepdown-door-reference.json` - keep-evidence; keep; Operator-generated (not third-party) provenance record for the selected step-down door reference.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - keep-evidence; keep; Exact Grok Imagine prompts for the selected step-down door reference and its rejected alternatives; retain as provenance.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/reference-door.jpg` - keep-evidence; keep; Operator-selected Grok Imagine Option A target reference for the recipe-driven step-down door finish.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurement-boxes.png` - keep-evidence; keep; Matched crop boxes used to audit step-down door infill, leaf, and casing colour measurements.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurements.json` - keep-evidence; keep; Machine-readable before/after/reference step-down door colour and boundary-profile measurements.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-04-door-inside-before-after-reference.png` - keep-evidence; keep; Learner-runtime pose 04 before/after sheet paired with the selected door reference.
 - `docs/assets/ward-door-push-before-after-2026-09-30.mp4` - keep-evidence; keep; Entry 121 matched-path UI-XR ward-door push video; desktop-browser evidence, not headset readiness.
 - `docs/assets/ward-door-push-before-after-poster-2026-09-30.png` - keep-evidence; keep; Entry 121 poster from the final second of the matched-path ward-door push.
 - `docs/assets/ward-door-finished-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 121 committed three-way finished-door sheet: before, shipped, and v2 reference.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.room-transom-proof.v1",
   "environmentId": "stepdown_room_v1",
-  "sourceGlbSha256": "ec1b74d306a30fdd0d5f21874543d933808ebaeb357a80f2ce58dfa3f6967fb0",
+  "sourceGlbSha256": "b5a3eb6f87b39458b1c45b8a3421603bde8e739541fa602d770423f72da5458e",
   "measurementMeters": {
     "openingHead": 2.6,
     "doorAndCasingHead": 2.155,
@@ -21,33 +21,35 @@
       "pose": "runtime-01-toward-door",
       "transomBox": [650, 185, 760, 225],
       "adjacentWallBox": [520, 185, 630, 225],
-      "transomMeanRgb": [207.5, 206.16, 202.08],
+      "transomMeanRgb": [204.48, 203.09, 198.9],
       "adjacentWallMeanRgb": [202.84, 199.99, 196.77],
-      "deltaRgb": [4.66, 6.17, 5.31],
-      "minimumChannel": 201
+      "deltaRgb": [1.64, 3.1, 2.12],
+      "minimumChannel": 198
     },
     {
       "pose": "runtime-04-door-inside",
       "transomBox": [555, 75, 690, 140],
       "adjacentWallBox": [370, 75, 500, 140],
-      "transomMeanRgb": [207.39, 206.04, 201.96],
+      "transomMeanRgb": [204.38, 202.98, 198.82],
       "adjacentWallMeanRgb": [203.74, 200.89, 197.7],
-      "deltaRgb": [3.65, 5.15, 4.26],
+      "deltaRgb": [0.64, 2.09, 1.12],
       "minimumChannel": 156
     },
     {
       "pose": "runtime-05-troffer-junction",
       "transomBox": [370, 500, 465, 550],
       "adjacentWallBox": [250, 490, 340, 530],
-      "transomMeanRgb": [205.7, 204.34, 200.19],
+      "transomMeanRgb": [202.81, 201.43, 197.21],
       "adjacentWallMeanRgb": [202.4, 199.44, 196.13],
-      "deltaRgb": [3.3, 4.9, 4.06],
+      "deltaRgb": [0.41, 1.99, 1.08],
       "minimumChannel": 158
     }
   ],
   "cropVerification": "Each box was inspected against its full-resolution 1280x720 learner-runtime capture and lies inside the former navy transom region or a clean adjacent wall patch; no box crosses the casing, crown trim, ceiling, or door leaf.",
   "pixelGate": {
-    "maximumAbsoluteMeanDeltaPerChannel": 8,
+    "matchedPose04Measurement": "door-reference-measurements.json",
+    "maximumAbsoluteMeanDeltaPerChannel": 3,
+    "maximumBoundaryColumnStep": 4,
     "minimumAllowedChannel": 80,
     "passed": true
   },

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1007,
+    "keep-evidence": 1013,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -29468,6 +29468,48 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Round 4 TRELLIS.2 ECG-cart evidence; coordinator grade pending."
+    },
+    {
+      "path": "docs/openclinxr/asset-licence-records/row-33-operator-generated-grok-imagine-stepdown-door-reference.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-generated (not third-party) provenance record for the selected step-down door reference."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Exact Grok Imagine prompts for the selected step-down door reference and its rejected alternatives; retain as provenance."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-door-ideas/reference-door.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Operator-selected Grok Imagine Option A target reference for the recipe-driven step-down door finish."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurement-boxes.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Matched crop boxes used to audit step-down door infill, leaf, and casing colour measurements."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurements.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Machine-readable before/after/reference step-down door colour and boundary-profile measurements."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-04-door-inside-before-after-reference.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Learner-runtime pose 04 before/after sheet paired with the selected door reference."
     },
     {
       "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t4-uv64-512/report.json",

@@ -20,6 +20,7 @@ export type RoomChainRecipe = {
     casingMarginM: number;
     panelMarginM: number;
     transom?: "infill" | "tall-casing";
+    kickPlate?: boolean;
   };
   finishPreset: string;
   finish?: RoomFinishFeatures;
@@ -32,7 +33,7 @@ export class RoomChainRecipeValidationError extends Error {
 
 const RECIPE_KEYS = ["environmentId", "defaultSeed", "infinigenPrompt", "layoutVariant", "footprintMeters", "door", "finishPreset", "finish", "lightingMood"] as const;
 const FOOTPRINT_KEYS = ["width", "depth", "ceilingHeight"] as const;
-const DOOR_KEYS = ["doorWall", "wallOffsetM", "hingeSide", "style", "widthM", "heightM", "handle", "liteRect", "bevelMm", "casingMarginM", "panelMarginM", "transom"] as const;
+const DOOR_KEYS = ["doorWall", "wallOffsetM", "hingeSide", "style", "widthM", "heightM", "handle", "liteRect", "bevelMm", "casingMarginM", "panelMarginM", "transom", "kickPlate"] as const;
 
 function object(value: unknown, path: string): Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new RoomChainRecipeValidationError(`${path} must be an object`);
@@ -71,6 +72,7 @@ export function validateRoomChainRecipe(value: unknown, registryKey?: string): R
   if (door["style"] !== "lite") throw new RoomChainRecipeValidationError(`${path}.door.style must be lite`);
   if (door["handle"] !== "lever") throw new RoomChainRecipeValidationError(`${path}.door.handle must be lever`);
   if (door["transom"] !== undefined && !["infill", "tall-casing"].includes(String(door["transom"]))) throw new RoomChainRecipeValidationError(`${path}.door.transom must be infill or tall-casing when present`);
+  if (door["kickPlate"] !== undefined && typeof door["kickPlate"] !== "boolean") throw new RoomChainRecipeValidationError(`${path}.door.kickPlate must be a boolean when present`);
   const liteRect = door["liteRect"];
   if (!Array.isArray(liteRect) || liteRect.length !== 4 || liteRect.some((part) => typeof part !== "number" || !Number.isFinite(part) || part < 0 || part > 1)) throw new RoomChainRecipeValidationError(`${path}.door.liteRect must be four finite fractions in [0, 1]`);
   const finish = recipe["finish"] === undefined ? undefined : validateRoomFinishFeatures(recipe["finish"], `${path}.finish`);
@@ -97,6 +99,7 @@ export function validateRoomChainRecipe(value: unknown, registryKey?: string): R
       casingMarginM: finite(door["casingMarginM"], `${path}.door.casingMarginM`, true),
       panelMarginM: finite(door["panelMarginM"], `${path}.door.panelMarginM`, true),
       ...(door["transom"] === undefined ? {} : { transom: door["transom"] as "infill" | "tall-casing" }),
+      ...(door["kickPlate"] === undefined ? {} : { kickPlate: door["kickPlate"] as boolean }),
     },
     finishPreset: string(recipe["finishPreset"], `${path}.finishPreset`),
     ...(finish === undefined ? {} : { finish }),
@@ -144,7 +147,8 @@ export const ROOM_CHAIN_RECIPES = defineRoomChainRecipes({
     door: {
       doorWall: "+y", wallOffsetM: 0.25, hingeSide: "+x", style: "lite",
       widthM: 0.95, heightM: 2.1, handle: "lever", liteRect: [0.64, 0.8, 0.58, 0.87],
-      bevelMm: 2.5, casingMarginM: 0.055, panelMarginM: 0.1, transom: "infill",
+      bevelMm: 2.5, casingMarginM: 0.055, panelMarginM: 0.1,
+      transom: "infill", kickPlate: true,
     },
     finishPreset: "ward_photo",
     finish: WARD_LIKE_FINISH,

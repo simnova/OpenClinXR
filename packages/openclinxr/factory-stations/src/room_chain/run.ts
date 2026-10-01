@@ -381,7 +381,8 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     // mapped). The environment recipe is the single source.
     door: { hingeSide: recipe.door.hingeSide, lite: [...recipe.door.liteRect],
             margin: recipe.door.panelMarginM,
-            ...(recipe.door.transom === undefined ? {} : { transom: recipe.door.transom }) },
+            ...(recipe.door.transom === undefined ? {} : { transom: recipe.door.transom }),
+            ...(recipe.door.kickPlate === undefined ? {} : { kickPlate: recipe.door.kickPlate }) },
   };
   const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
   const finishResult = await runCachedStage(

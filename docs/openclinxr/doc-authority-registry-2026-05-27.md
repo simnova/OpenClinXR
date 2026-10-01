@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 107
 - archive-candidate: 116
-- current-reference: 209
+- current-reference: 210
 - decision-record: 44
 - evidence: 142
 - generated-evidence: 11
@@ -217,6 +217,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/mongodb-memory-server-test-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/openclaw-runbook-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - current-reference; Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference.
 - `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/session-state-websocket-message-design.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

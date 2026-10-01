@@ -1014,6 +1014,11 @@ DOOR_HINGE_HEIGHTS_M = (0.35, 1.02, 1.69)
 DOOR_HINGE_PLATE_W_M = 0.035
 DOOR_HINGE_PLATE_H_M = 0.11
 DOOR_HINGE_KNUCKLE_R_M = 0.006
+# Reference-door stainless kick plate: 180 mm high, inset 15 mm from the
+# leaf edges and floor. It remains recipe-gated so the ward stays byte-identical.
+DOOR_KICK_PLATE_HEIGHT_M = 0.18
+DOOR_KICK_PLATE_MARGIN_M = 0.015
+DOOR_KICK_PLATE_PROUD_M = 0.004
 
 
 def _door_steel_material():
@@ -1237,9 +1242,17 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
     hinge_side = door_opt.get("hingeSide") if isinstance(door_opt, dict) else None
     lite_frac = door_opt.get("lite") if isinstance(door_opt, dict) else None
     lite_margin = door_opt.get("margin") if isinstance(door_opt, dict) else None
+    kick_plate = door_opt.get("kickPlate", False) if isinstance(door_opt, dict) else False
+    if not isinstance(kick_plate, bool):
+        raise SystemExit("room_clinic_finish: door.kickPlate must be boolean")
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
+    # The learner runtime carries no reflective environment, so fully metallic
+    # stainless renders nearly black on this broad face. A neutral diffuse
+    # proxy preserves the reference's mid-grey satin read in that runtime.
+    kick_plate_m = _flat_material(
+        "openclinxr_door_kick_plate_steel", (0.20, 0.21, 0.22), 0.35)
     facing_m = _photo_uv_material(
         "openclinxr_finish_door_facing", DOOR_LEAF_FILE, 0.48,
         normal_filename=DOOR_NORMAL_FILE,
@@ -1264,7 +1277,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
                        "casingFaces": [], "reveals": [],
                        "opening": None, "openingSource": None, "handle": None,
                        "lock": None, "hingeSideUsed": None, "facing": [],
-                       "transom": None}
+                       "transom": None, "kickPlate": None}
 
     def new_cylinder(name: str, center: list, thin_axis: int, radius: float,
                      z0: float, z1: float, mat: object, segments: int = 16) -> object:
@@ -1543,7 +1556,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
                 # recipe paint after its bake. Match that measured wall
                 # response rather than rendering the unbaked nominal value
                 # ~10 RGB levels too bright beside it.
-                tuple(float(channel) * 0.90
+                tuple(float(channel) * 0.845
                       for channel in palette.get("wallAlbedo", (0.72, 0.74, 0.72))),
                 float(palette.get("roughness", 0.85)))
             transom = new_box("openclinxr_door_transom_infill", tc, ts, transom_material)
@@ -1789,6 +1802,23 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
                 _assign_face_uv(plate, ua, va, (fx0, fx1), (fz0, fz1))
                 facing_names.append(plate.name)
         furnished["facing"] = facing_names
+        if kick_plate:
+            kp_u0 = leaf_u0 + DOOR_KICK_PLATE_MARGIN_M
+            kp_u1 = leaf_u1 - DOOR_KICK_PLATE_MARGIN_M
+            kp_v0 = leaf_v0 + DOOR_KICK_PLATE_MARGIN_M
+            kp_v1 = min(leaf_v1, kp_v0 + DOOR_KICK_PLATE_HEIGHT_M)
+            kp_front = facing_fwd + room_sign * DOOR_KICK_PLATE_PROUD_M
+            kp_back = facing_fwd
+            kp_center = [0.0, 0.0, 0.0]
+            kp_size = [0.0, 0.0, 0.0]
+            kp_center[ua] = (kp_u0 + kp_u1) / 2
+            kp_center[va] = (kp_v0 + kp_v1) / 2
+            kp_center[thin] = (kp_front + kp_back) / 2
+            kp_size[ua] = kp_u1 - kp_u0
+            kp_size[va] = kp_v1 - kp_v0
+            kp_size[thin] = abs(kp_front - kp_back)
+            kp_obj = new_box("openclinxr_door_kick_plate", kp_center, kp_size, kick_plate_m)
+            furnished["kickPlate"] = kp_obj.name
         # Lock cylinder above the lever, on the room-side face.
         if handle is not None:
             lock_u = (handle["u0"] + handle["u1"]) / 2
