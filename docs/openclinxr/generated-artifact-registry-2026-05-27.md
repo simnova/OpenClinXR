@@ -4369,3 +4369,11 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
 - `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
 - `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/results.json` - keep-evidence; Round 6 frozen-checkpoint metric results and stop-rule record; Decision unchanged.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/best-manifest.json` - keep-evidence; Round 6 A0 evidence-best manifest; coordinator grade pending.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/a0/ecg-cart.glb` - keep-evidence; Round 6 A0 copied byte-identical Round-5b control.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/a1/ecg-cart.glb` - keep-evidence; Round 6 exact-A0-geometry 35-degree split-normal 2048-to-512 bake treatment.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/contact-sheet-raw-budget.png` - keep-evidence; Round 6 fixed-camera raw-full-resolution versus A0/A1 budget contact sheet.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-colour.png` - keep-evidence; Round 6 pre-to_glb full-resolution voxel-colour stage isolation.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-clay.png` - keep-evidence; Round 6 pre-to_glb full-resolution clay stage isolation.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/topology.json` - keep-evidence; Round 6 A0/A1 five-decimal-weld topology counts.

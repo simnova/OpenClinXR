@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round6.v1",
+  "checkpointSha256": "72eec814cc84539bca019a3dc0143e7c8d18a42fd0e21bdf7bae3cb2fc79edca",
+  "stageIsolation": {
+    "finding": "generation-side: white speckle and softened cabinet/column corners are visible in the decoded full-resolution voxel-colour render before to_glb",
+    "colour": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-colour.png",
+    "clay": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-clay.png"
+  },
+  "thresholds": {
+    "derivation": "All treatment thresholds are frozen from A0 before reading A1: speckle <= A0 count; each corner/rim width <= its A0 width; each feature dE2000 <= its A0 dE2000. Triangle/decoded budgets are the round hard gates; IoU is sanity-only.",
+    "budget": {
+      "trianglesMax": 40000,
+      "decodedMiBMax": 16
+    },
+    "bezelSpeckleMax": 5905,
+    "cornerShadingWidthsMaxPx": {
+      "column_top_left": 55,
+      "column_top_right": 66,
+      "column_bottom_left": 76,
+      "column_bottom_right": 74,
+      "cabinet_rim": 70
+    },
+    "panelDE2000MaxByFeature": {
+      "button-1": 10.325064815065184,
+      "button-2": 11.684484859553656,
+      "button-3": 20.332738961854865,
+      "button-4": 22.266268223914484,
+      "button-5": 16.935452606320155,
+      "button-6": 17.060956057167807,
+      "button-7": 25.11562390209244,
+      "connector-1": 30.257840500746127,
+      "connector-2": 29.121283256992204,
+      "connector-3": 40.09927592485228,
+      "connector-4": 11.991582081019633,
+      "connector-5": 24.199893225379864,
+      "connector-6": 30.865058330999222
+    },
+    "k": 4.0,
+    "sigma": 0.4453292787075043,
+    "sigmaPatch": [
+      380,
+      507,
+      520,
+      516
+    ],
+    "medianKernel": "5x5",
+    "bezelMask": {
+      "outer": [
+        286,
+        138,
+        770,
+        530
+      ],
+      "inner": [
+        306,
+        158,
+        748,
+        504
+      ],
+      "dilationPx": 3
+    }
+  },
+  "points": {
+    "oracle": [
+      [
+        470,
+        442
+      ],
+      [
+        526,
+        442
+      ],
+      [
+        580,
+        442
+      ],
+      [
+        634,
+        442
+      ],
+      [
+        684,
+        442
+      ],
+      [
+        732,
+        442
+      ],
+      [
+        780,
+        442
+      ],
+      [
+        476,
+        531
+      ],
+      [
+        544,
+        531
+      ],
+      [
+        609,
+        531
+      ],
+      [
+        664,
+        531
+      ],
+      [
+        720,
+        531
+      ],
+      [
+        774,
+        531
+      ]
+    ],
+    "candidate": [
+      [
+        318,
+        550
+      ],
+      [
+        372,
+        555
+      ],
+      [
+        430,
+        560
+      ],
+      [
+        492,
+        566
+      ],
+      [
+        570,
+        576
+      ],
+      [
+        642,
+        584
+      ],
+      [
+        706,
+        590
+      ],
+      [
+        344,
+        650
+      ],
+      [
+        402,
+        655
+      ],
+      [
+        459,
+        662
+      ],
+      [
+        525,
+        669
+      ],
+      [
+        590,
+        678
+      ],
+      [
+        663,
+        686
+      ]
+    ],
+    "features": [
+      "button-1",
+      "button-2",
+      "button-3",
+      "button-4",
+      "button-5",
+      "button-6",
+      "button-7",
+      "connector-1",
+      "connector-2",
+      "connector-3",
+      "connector-4",
+      "connector-5",
+      "connector-6"
+    ],
+    "cornerProfiles": {
+      "column_top_left": [
+        [
+          475,
+          790
+        ],
+        [
+          585,
+          790
+        ]
+      ],
+      "column_top_right": [
+        [
+          630,
+          790
+        ],
+        [
+          735,
+          790
+        ]
+      ],
+      "column_bottom_left": [
+        [
+          470,
+          925
+        ],
+        [
+          585,
+          925
+        ]
+      ],
+      "column_bottom_right": [
+        [
+          630,
+          925
+        ],
+        [
+          745,
+          925
+        ]
+      ],
+      "cabinet_rim": [
+        [
+          700,
+          745
+        ],
+        [
+          810,
+          745
+        ]
+      ]
+    }
+  },
+  "arms": {
+    "a0": {
+      "triangles": 37462,
+      "decodedMiB": 2.0,
+      "weldedComponents": 47,
+      "boundaryEdges": 5152,
+      "bezelSpeckleCount": 5905,
+      "cornerShadingWidthsPx": {
+        "column_top_left": 55,
+        "column_top_right": 66,
+        "column_bottom_left": 76,
+        "column_bottom_right": 74,
+        "cabinet_rim": 70
+      },
+      "cornerShadingWidthMedianPx": 70.0,
+      "panelDE2000": {
+        "button-1": 10.325064815065184,
+        "button-2": 11.684484859553656,
+        "button-3": 20.332738961854865,
+        "button-4": 22.266268223914484,
+        "button-5": 16.935452606320155,
+        "button-6": 17.060956057167807,
+        "button-7": 25.11562390209244,
+        "connector-1": 30.257840500746127,
+        "connector-2": 29.121283256992204,
+        "connector-3": 40.09927592485228,
+        "connector-4": 11.991582081019633,
+        "connector-5": 24.199893225379864,
+        "connector-6": 30.865058330999222
+      },
+      "panelDE2000Max": 40.09927592485228,
+      "panelDE2000Mean": 22.32734790353522,
+      "colourSurvival": {
+        "purple": true,
+        "yellow": true
+      },
+      "silhouetteIoU": 0.7811918416421216,
+      "passes": {
+        "budget": true,
+        "speckle": true,
+        "cornerWidths": true,
+        "panelDE": true
+      }
+    },
+    "a1": {
+      "triangles": 37462,
+      "decodedMiB": 2.0,
+      "weldedComponents": 47,
+      "boundaryEdges": 5152,
+      "bezelSpeckleCount": 3929,
+      "cornerShadingWidthsPx": {
+        "column_top_left": 53,
+        "column_top_right": 71,
+        "column_bottom_left": 72,
+        "column_bottom_right": 92,
+        "cabinet_rim": 72
+      },
+      "cornerShadingWidthMedianPx": 72.0,
+      "panelDE2000": {
+        "button-1": 10.320787962090323,
+        "button-2": 11.667049630508647,
+        "button-3": 20.374158145370156,
+        "button-4": 20.608441284564115,
+        "button-5": 16.609500980881464,
+        "button-6": 16.642494492265293,
+        "button-7": 24.047622868688432,
+        "connector-1": 31.044129931841876,
+        "connector-2": 30.556874617367953,
+        "connector-3": 42.63442536687564,
+        "connector-4": 12.227605593982581,
+        "connector-5": 23.948464837982893,
+        "connector-6": 29.230483152679426
+      },
+      "panelDE2000Max": 42.63442536687564,
+      "panelDE2000Mean": 22.30092606654606,
+      "colourSurvival": {
+        "purple": true,
+        "yellow": true
+      },
+      "silhouetteIoU": 0.7811918416421216,
+      "passes": {
+        "budget": true,
+        "speckle": true,
+        "cornerWidths": false,
+        "panelDE": false
+      }
+    }
+  },
+  "stopRule": {
+    "triggered": true,
+    "reason": "A0 raw full-resolution render already shows speckle",
+    "a2": "not measured; Blender Collapse was interrupted immediately after A1 when raw inspection triggered the stop rule; no A2 artifact/result retained and no tearing step can be named",
+    "a3": "skipped"
+  },
+  "timingAndPeakRss": {
+    "stageIsolationPrep": {
+      "seconds": 122.44553399085999,
+      "peakRssBytes": 6751649792
+    },
+    "stageIsolationRenderColourAndClay": {
+      "seconds": 6.62,
+      "peakRssBytes": 4633280512
+    },
+    "a0Round5bPostprocess": {
+      "seconds": 120.87673306465149,
+      "peakRssBytes": 32447135744
+    },
+    "a1ExactGeometryRebakeNormalSplitAndExport": {
+      "seconds": 5.826345920562744,
+      "peakRssBytes": 3171942400
+    },
+    "a0Render": {
+      "seconds": 1.87,
+      "peakRssBytes": 529727488
+    },
+    "a1Render": {
+      "seconds": 1.89,
+      "peakRssBytes": 531939328
+    }
+  },
+  "crops": {
+    "bezel": {
+      "raw": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/bezel/raw.png",
+      "a0": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/bezel/a0.png",
+      "a1": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/bezel/a1.png"
+    },
+    "corners-column-base-casters": {
+      "raw": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/corners-column-base-casters/raw.png",
+      "a0": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/corners-column-base-casters/a0.png",
+      "a1": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/corners-column-base-casters/a1.png"
+    },
+    "front-panel": {
+      "raw": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/front-panel/raw.png",
+      "a0": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/front-panel/a0.png",
+      "a1": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/crops/front-panel/a1.png"
+    }
+  },
+  "contactSheet": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/contact-sheet-raw-budget.png",
+  "codeCitations": [
+    "~/.openclinxr-tools/trellis2-apple/src/o-voxel/o_voxel/postprocess.py:253-279 (cumesh simplify/repair chain)",
+    "~/.openclinxr-tools/trellis2-apple/src/o-voxel/o_voxel/postprocess.py:329-344 (UV unwrap and unsplit smooth vertex normals)",
+    "~/.openclinxr-tools/trellis2-apple/src/o-voxel/o_voxel/postprocess.py:376-394 (one raster sample/texel, full-res closest-point snap, trilinear sample)",
+    "~/.openclinxr-tools/trellis2-apple/src/o-voxel/o_voxel/postprocess.py:450-455 (Telea inpaint, base r=3)",
+    "~/.openclinxr-tools/trellis2-apple/src/trellis2/pipelines/trellis2_texturing.py:291-319 (user mesh and keep-existing-UV branch)"
+  ]
+}

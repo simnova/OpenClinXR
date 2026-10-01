@@ -441,6 +441,8 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; TRELLIS.2 Round-4 T4 adopted for the ECG cart; Round-5 candidate grade pending without changing the decision.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json` - evidence; Round 5 R5-BEST reproduction manifest subordinate to MADR 0059; not an adoption decision.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json` - evidence; Round 5 machine-readable treatment and topology measurements; coordinator visual grade remains authoritative.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/results.json` - evidence; Round 6 frozen-checkpoint stage isolation, A0-derived thresholds, A0/A1 measurements, and stop-rule record; Decision unchanged.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/best-manifest.json` - evidence; Round 6 evidence-best A0 manifest subordinate to MADR 0059; not a new adoption decision.
 - `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
 - `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.
 - `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - evidence; Flush material comparison and selected tile promotion, with historical A/B preserved.

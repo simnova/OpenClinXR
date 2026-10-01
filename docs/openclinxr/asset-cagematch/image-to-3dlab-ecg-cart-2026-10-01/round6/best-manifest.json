@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round6-best.v1",
+  "bestArm": "a0",
+  "asset": "/Volumes/files/src/openclinxr-wt/cart-round6/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/a0/ecg-cart.glb",
+  "sha256": "93843fea3abe0439ed383fd9342227fe3b3cdba436972e0544aeaad13bb8b750",
+  "metrics": {
+    "triangles": 37462,
+    "decodedMiB": 2.0,
+    "weldedComponents": 47,
+    "boundaryEdges": 5152,
+    "bezelSpeckleCount": 5905,
+    "cornerShadingWidthsPx": {
+      "column_top_left": 55,
+      "column_top_right": 66,
+      "column_bottom_left": 76,
+      "column_bottom_right": 74,
+      "cabinet_rim": 70
+    },
+    "cornerShadingWidthMedianPx": 70.0,
+    "panelDE2000": {
+      "button-1": 10.325064815065184,
+      "button-2": 11.684484859553656,
+      "button-3": 20.332738961854865,
+      "button-4": 22.266268223914484,
+      "button-5": 16.935452606320155,
+      "button-6": 17.060956057167807,
+      "button-7": 25.11562390209244,
+      "connector-1": 30.257840500746127,
+      "connector-2": 29.121283256992204,
+      "connector-3": 40.09927592485228,
+      "connector-4": 11.991582081019633,
+      "connector-5": 24.199893225379864,
+      "connector-6": 30.865058330999222
+    },
+    "panelDE2000Max": 40.09927592485228,
+    "panelDE2000Mean": 22.32734790353522,
+    "colourSurvival": {
+      "purple": true,
+      "yellow": true
+    },
+    "silhouetteIoU": 0.7811918416421216,
+    "passes": {
+      "budget": true,
+      "speckle": true,
+      "cornerWidths": true,
+      "panelDE": true
+    }
+  },
+  "selection": "A0 remains best: A1 reduces bezel speckle but exceeds A0-derived corner widths and per-feature dE thresholds; A2/A3 stopped by the generation-side speckle rule",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}
