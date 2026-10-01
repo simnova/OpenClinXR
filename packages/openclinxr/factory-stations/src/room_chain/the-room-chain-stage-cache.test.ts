@@ -314,6 +314,7 @@ describe("room-chain recipe registry", () => {
       tbarMm: 24,
       cornice: "wall-angle",
       corniceProfile: "flush",
+      corniceMaterial: "tile",
       corniceWidthMm: 24,
       corniceColorSource: "wall",
     });
@@ -390,5 +391,13 @@ describe("room-chain recipe registry", () => {
         ceiling: { ...variants.finish.ceiling, corniceProfile: "stepped" },
       },
     })).toThrow(/corniceProfile must be angle or flush/);
+    for (const corniceMaterial of ["tile", "tbar", "wall"] as const) {
+      expect(validateRoomChainRecipe({ ...variants, finish: {
+        ...variants.finish, ceiling: { ...variants.finish.ceiling, corniceMaterial },
+      } }).finish?.ceiling.corniceMaterial).toBe(corniceMaterial);
+    }
+    expect(() => validateRoomChainRecipe({ ...variants, finish: {
+      ...variants.finish, ceiling: { ...variants.finish.ceiling, corniceMaterial: "plastic" },
+    } })).toThrow(/corniceMaterial must be tile, tbar or wall/);
   });
 });

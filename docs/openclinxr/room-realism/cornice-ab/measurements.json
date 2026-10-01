@@ -1,10 +1,11 @@
 {
-  "schemaVersion": "openclinxr.cornice-flush-measurements.v1",
-  "method": "Rec.709 luminance over fixed native 1280x720 learner-runtime boxes; gap threshold is adjacent-wall mean minus 40; flicker is absolute per-channel mean across two captures",
+  "schemaVersion": "openclinxr.cornice-ab-measurements.v1",
+  "method": "Rec.709 luminance over fixed native 1280x720 learner-runtime boxes; V1 seam threshold is adjacent-wall mean minus 40",
   "variants": {
+    "v1": "none",
     "v2": "24 mm T-bar off-white (checked-in shipped GLB)",
-    "v4": "24 mm wall material/colour, 24 mm vertical step",
-    "v4-flush": "24 mm wall material/colour, coplanar underside, tile field inset 24 mm, 3 mm vertical edge below tile"
+    "v3": "15 mm T-bar off-white",
+    "v4": "24 mm wall material/colour"
   },
   "rooms": {
     "ward": {
@@ -17,6 +18,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-01-toward-door.png",
+            "bandBox": [
+              360,
+              183,
+              560,
+              190
+            ],
+            "bandMeanLuminance": 152.62,
+            "adjacentWallBox": [
+              360,
+              198,
+              560,
+              218
+            ],
+            "adjacentWallMeanLuminance": 191.58,
+            "bandMinusWallLuminance": -38.96,
+            "gapSeam": {
+              "junctionBox": [
+                360,
+                183,
+                560,
+                190
+              ],
+              "thresholdLuminance": 151.58,
+              "pixelsDarkerThanWallMinus40": 590,
+              "pixelCount": 1400
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-01-toward-door.png",
             "bandBox": [
@@ -35,6 +65,24 @@
             "adjacentWallMeanLuminance": 191.58,
             "bandMinusWallLuminance": -5.57
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-01-toward-door.png",
+            "bandBox": [
+              360,
+              183,
+              560,
+              190
+            ],
+            "bandMeanLuminance": 178.31,
+            "adjacentWallBox": [
+              360,
+              198,
+              560,
+              218
+            ],
+            "adjacentWallMeanLuminance": 191.58,
+            "bandMinusWallLuminance": -13.27
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-01-toward-door.png",
             "bandBox": [
@@ -52,66 +100,9 @@
             ],
             "adjacentWallMeanLuminance": 191.58,
             "bandMinusWallLuminance": -5.08
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-01-toward-door.png",
-            "bandBox": [
-              360,
-              183,
-              560,
-              190
-            ],
-            "bandMeanLuminance": 195.01,
-            "adjacentWallBox": [
-              360,
-              198,
-              560,
-              218
-            ],
-            "adjacentWallMeanLuminance": 191.58,
-            "bandMinusWallLuminance": 3.42,
-            "gapSeam": {
-              "junctionBox": [
-                360,
-                183,
-                560,
-                190
-              ],
-              "thresholdLuminance": 151.58,
-              "pixelsDarkerThanWallMinus40": 0,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 1400
-            },
-            "junctionDeltaVsV2": 8.99,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-01-toward-door.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            },
-            "v2VisualReferenceDelta": 10.35
           }
         },
-        "v2ReferenceDelta": -5.57,
-        "v2VisualReference": {
-          "image": "docs/openclinxr/room-realism/imagine-multiview-v2/01-toward-door.jpg",
-          "bandBox": [
-            360,
-            183,
-            560,
-            190
-          ],
-          "bandMeanLuminance": 159.61,
-          "adjacentWallBox": [
-            360,
-            198,
-            560,
-            218
-          ],
-          "adjacentWallMeanLuminance": 166.54,
-          "bandMinusWallLuminance": -6.93
-        }
+        "v2ReferenceDelta": -5.57
       },
       "02-toward-bed-wall": {
         "cropBox": [
@@ -122,6 +113,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-02-toward-bed-wall.png",
+            "bandBox": [
+              300,
+              143,
+              500,
+              152
+            ],
+            "bandMeanLuminance": 144.32,
+            "adjacentWallBox": [
+              300,
+              165,
+              500,
+              185
+            ],
+            "adjacentWallMeanLuminance": 188.08,
+            "bandMinusWallLuminance": -43.76,
+            "gapSeam": {
+              "junctionBox": [
+                300,
+                143,
+                500,
+                152
+              ],
+              "thresholdLuminance": 148.08,
+              "pixelsDarkerThanWallMinus40": 868,
+              "pixelCount": 1800
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-02-toward-bed-wall.png",
             "bandBox": [
@@ -140,6 +160,24 @@
             "adjacentWallMeanLuminance": 188.08,
             "bandMinusWallLuminance": -1.49
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-02-toward-bed-wall.png",
+            "bandBox": [
+              300,
+              143,
+              500,
+              152
+            ],
+            "bandMeanLuminance": 174.17,
+            "adjacentWallBox": [
+              300,
+              165,
+              500,
+              185
+            ],
+            "adjacentWallMeanLuminance": 188.08,
+            "bandMinusWallLuminance": -13.91
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-02-toward-bed-wall.png",
             "bandBox": [
@@ -157,66 +195,9 @@
             ],
             "adjacentWallMeanLuminance": 188.08,
             "bandMinusWallLuminance": -0.9
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-02-toward-bed-wall.png",
-            "bandBox": [
-              300,
-              143,
-              500,
-              152
-            ],
-            "bandMeanLuminance": 194.02,
-            "adjacentWallBox": [
-              300,
-              165,
-              500,
-              185
-            ],
-            "adjacentWallMeanLuminance": 188.08,
-            "bandMinusWallLuminance": 5.94,
-            "gapSeam": {
-              "junctionBox": [
-                300,
-                143,
-                500,
-                152
-              ],
-              "thresholdLuminance": 148.08,
-              "pixelsDarkerThanWallMinus40": 0,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 1800
-            },
-            "junctionDeltaVsV2": 7.43,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-02-toward-bed-wall.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            },
-            "v2VisualReferenceDelta": -12.06
           }
         },
-        "v2ReferenceDelta": -1.49,
-        "v2VisualReference": {
-          "image": "docs/openclinxr/room-realism/imagine-multiview-v2/02-toward-bed-wall.jpg",
-          "bandBox": [
-            300,
-            143,
-            500,
-            152
-          ],
-          "bandMeanLuminance": 177.82,
-          "adjacentWallBox": [
-            300,
-            165,
-            500,
-            185
-          ],
-          "adjacentWallMeanLuminance": 159.82,
-          "bandMinusWallLuminance": 18.0
-        }
+        "v2ReferenceDelta": -1.49
       },
       "03-ceiling-corner": {
         "cropBox": [
@@ -227,6 +208,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-03-ceiling-corner.png",
+            "bandBox": [
+              50,
+              492,
+              100,
+              498
+            ],
+            "bandMeanLuminance": 149.4,
+            "adjacentWallBox": [
+              50,
+              510,
+              100,
+              530
+            ],
+            "adjacentWallMeanLuminance": 189.74,
+            "bandMinusWallLuminance": -40.35,
+            "gapSeam": {
+              "junctionBox": [
+                50,
+                492,
+                100,
+                498
+              ],
+              "thresholdLuminance": 149.74,
+              "pixelsDarkerThanWallMinus40": 150,
+              "pixelCount": 300
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-03-ceiling-corner.png",
             "bandBox": [
@@ -245,6 +255,24 @@
             "adjacentWallMeanLuminance": 189.74,
             "bandMinusWallLuminance": 0.41
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-03-ceiling-corner.png",
+            "bandBox": [
+              50,
+              492,
+              100,
+              498
+            ],
+            "bandMeanLuminance": 176.5,
+            "adjacentWallBox": [
+              50,
+              510,
+              100,
+              530
+            ],
+            "adjacentWallMeanLuminance": 189.74,
+            "bandMinusWallLuminance": -13.24
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-03-ceiling-corner.png",
             "bandBox": [
@@ -262,66 +290,9 @@
             ],
             "adjacentWallMeanLuminance": 189.74,
             "bandMinusWallLuminance": 1.13
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-03-ceiling-corner.png",
-            "bandBox": [
-              50,
-              492,
-              100,
-              498
-            ],
-            "bandMeanLuminance": 203.4,
-            "adjacentWallBox": [
-              50,
-              510,
-              100,
-              530
-            ],
-            "adjacentWallMeanLuminance": 189.74,
-            "bandMinusWallLuminance": 13.66,
-            "gapSeam": {
-              "junctionBox": [
-                50,
-                492,
-                100,
-                498
-              ],
-              "thresholdLuminance": 149.74,
-              "pixelsDarkerThanWallMinus40": 0,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 300
-            },
-            "junctionDeltaVsV2": 13.25,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-03-ceiling-corner.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            },
-            "v2VisualReferenceDelta": 14.19
           }
         },
-        "v2ReferenceDelta": 0.41,
-        "v2VisualReference": {
-          "image": "docs/openclinxr/room-realism/imagine-multiview-v2/03-ceiling-corner.jpg",
-          "bandBox": [
-            50,
-            492,
-            100,
-            498
-          ],
-          "bandMeanLuminance": 189.12,
-          "adjacentWallBox": [
-            50,
-            510,
-            100,
-            530
-          ],
-          "adjacentWallMeanLuminance": 189.65,
-          "bandMinusWallLuminance": -0.53
-        }
+        "v2ReferenceDelta": 0.41
       },
       "05-troffer-junction": {
         "cropBox": [
@@ -332,6 +303,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v1/runtime-05-troffer-junction.png",
+            "bandBox": [
+              900,
+              633,
+              960,
+              640
+            ],
+            "bandMeanLuminance": 151.03,
+            "adjacentWallBox": [
+              900,
+              650,
+              960,
+              670
+            ],
+            "adjacentWallMeanLuminance": 189.43,
+            "bandMinusWallLuminance": -38.4,
+            "gapSeam": {
+              "junctionBox": [
+                900,
+                633,
+                960,
+                640
+              ],
+              "thresholdLuminance": 149.43,
+              "pixelsDarkerThanWallMinus40": 184,
+              "pixelCount": 420
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v2/runtime-05-troffer-junction.png",
             "bandBox": [
@@ -350,6 +350,24 @@
             "adjacentWallMeanLuminance": 189.43,
             "bandMinusWallLuminance": -6.62
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v3/runtime-05-troffer-junction.png",
+            "bandBox": [
+              900,
+              633,
+              960,
+              640
+            ],
+            "bandMeanLuminance": 170.9,
+            "adjacentWallBox": [
+              900,
+              650,
+              960,
+              670
+            ],
+            "adjacentWallMeanLuminance": 189.43,
+            "bandMinusWallLuminance": -18.53
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4/runtime-05-troffer-junction.png",
             "bandBox": [
@@ -367,66 +385,9 @@
             ],
             "adjacentWallMeanLuminance": 189.43,
             "bandMinusWallLuminance": -6.17
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-05-troffer-junction.png",
-            "bandBox": [
-              900,
-              633,
-              960,
-              640
-            ],
-            "bandMeanLuminance": 187.69,
-            "adjacentWallBox": [
-              900,
-              650,
-              960,
-              670
-            ],
-            "adjacentWallMeanLuminance": 189.43,
-            "bandMinusWallLuminance": -1.73,
-            "gapSeam": {
-              "junctionBox": [
-                900,
-                633,
-                960,
-                640
-              ],
-              "thresholdLuminance": 149.43,
-              "pixelsDarkerThanWallMinus40": 18,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 420
-            },
-            "junctionDeltaVsV2": 4.89,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-05-troffer-junction.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            },
-            "v2VisualReferenceDelta": -0.86
           }
         },
-        "v2ReferenceDelta": -6.62,
-        "v2VisualReference": {
-          "image": "docs/openclinxr/room-realism/imagine-multiview-v2/05-troffer-junction.jpg",
-          "bandBox": [
-            900,
-            633,
-            960,
-            640
-          ],
-          "bandMeanLuminance": 201.79,
-          "adjacentWallBox": [
-            900,
-            650,
-            960,
-            670
-          ],
-          "adjacentWallMeanLuminance": 202.67,
-          "bandMinusWallLuminance": -0.87
-        }
+        "v2ReferenceDelta": -6.62
       }
     },
     "stepdown": {
@@ -439,6 +400,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-01-toward-door.png",
+            "bandBox": [
+              200,
+              149,
+              450,
+              160
+            ],
+            "bandMeanLuminance": 158.34,
+            "adjacentWallBox": [
+              200,
+              172,
+              450,
+              192
+            ],
+            "adjacentWallMeanLuminance": 194.13,
+            "bandMinusWallLuminance": -35.79,
+            "gapSeam": {
+              "junctionBox": [
+                200,
+                149,
+                450,
+                160
+              ],
+              "thresholdLuminance": 154.13,
+              "pixelsDarkerThanWallMinus40": 780,
+              "pixelCount": 2750
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-01-toward-door.png",
             "bandBox": [
@@ -457,6 +447,24 @@
             "adjacentWallMeanLuminance": 194.13,
             "bandMinusWallLuminance": -15.96
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-01-toward-door.png",
+            "bandBox": [
+              200,
+              149,
+              450,
+              160
+            ],
+            "bandMeanLuminance": 172.2,
+            "adjacentWallBox": [
+              200,
+              172,
+              450,
+              192
+            ],
+            "adjacentWallMeanLuminance": 194.13,
+            "bandMinusWallLuminance": -21.93
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-01-toward-door.png",
             "bandBox": [
@@ -474,44 +482,6 @@
             ],
             "adjacentWallMeanLuminance": 194.13,
             "bandMinusWallLuminance": -15.65
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-01-toward-door.png",
-            "bandBox": [
-              200,
-              149,
-              450,
-              160
-            ],
-            "bandMeanLuminance": 181.73,
-            "adjacentWallBox": [
-              200,
-              172,
-              450,
-              192
-            ],
-            "adjacentWallMeanLuminance": 194.13,
-            "bandMinusWallLuminance": -12.4,
-            "gapSeam": {
-              "junctionBox": [
-                200,
-                149,
-                450,
-                160
-              ],
-              "thresholdLuminance": 154.13,
-              "pixelsDarkerThanWallMinus40": 5,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 2750
-            },
-            "junctionDeltaVsV2": 3.56,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-01-toward-door.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            }
           }
         },
         "v2ReferenceDelta": -15.96
@@ -525,6 +495,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-02-toward-bed-wall.png",
+            "bandBox": [
+              350,
+              198,
+              650,
+              208
+            ],
+            "bandMeanLuminance": 165.11,
+            "adjacentWallBox": [
+              350,
+              218,
+              650,
+              238
+            ],
+            "adjacentWallMeanLuminance": 192.89,
+            "bandMinusWallLuminance": -27.79,
+            "gapSeam": {
+              "junctionBox": [
+                350,
+                198,
+                650,
+                208
+              ],
+              "thresholdLuminance": 152.89,
+              "pixelsDarkerThanWallMinus40": 558,
+              "pixelCount": 3000
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-02-toward-bed-wall.png",
             "bandBox": [
@@ -543,6 +542,24 @@
             "adjacentWallMeanLuminance": 192.89,
             "bandMinusWallLuminance": -13.05
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-02-toward-bed-wall.png",
+            "bandBox": [
+              350,
+              198,
+              650,
+              208
+            ],
+            "bandMeanLuminance": 175.41,
+            "adjacentWallBox": [
+              350,
+              218,
+              650,
+              238
+            ],
+            "adjacentWallMeanLuminance": 192.89,
+            "bandMinusWallLuminance": -17.48
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-02-toward-bed-wall.png",
             "bandBox": [
@@ -560,44 +577,6 @@
             ],
             "adjacentWallMeanLuminance": 192.89,
             "bandMinusWallLuminance": -12.81
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-02-toward-bed-wall.png",
-            "bandBox": [
-              350,
-              198,
-              650,
-              208
-            ],
-            "bandMeanLuminance": 181.95,
-            "adjacentWallBox": [
-              350,
-              218,
-              650,
-              238
-            ],
-            "adjacentWallMeanLuminance": 192.89,
-            "bandMinusWallLuminance": -10.95,
-            "gapSeam": {
-              "junctionBox": [
-                350,
-                198,
-                650,
-                208
-              ],
-              "thresholdLuminance": 152.89,
-              "pixelsDarkerThanWallMinus40": 2,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 3000
-            },
-            "junctionDeltaVsV2": 2.1,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-02-toward-bed-wall.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            }
           }
         },
         "v2ReferenceDelta": -13.05
@@ -611,6 +590,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-04-door-inside.png",
+            "bandBox": [
+              820,
+              96,
+              831,
+              100
+            ],
+            "bandMeanLuminance": 141.43,
+            "adjacentWallBox": [
+              820,
+              110,
+              831,
+              120
+            ],
+            "adjacentWallMeanLuminance": 191.89,
+            "bandMinusWallLuminance": -50.46,
+            "gapSeam": {
+              "junctionBox": [
+                820,
+                96,
+                831,
+                100
+              ],
+              "thresholdLuminance": 151.89,
+              "pixelsDarkerThanWallMinus40": 41,
+              "pixelCount": 44
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-04-door-inside.png",
             "bandBox": [
@@ -629,6 +637,24 @@
             "adjacentWallMeanLuminance": 191.89,
             "bandMinusWallLuminance": 14.94
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-04-door-inside.png",
+            "bandBox": [
+              820,
+              96,
+              831,
+              100
+            ],
+            "bandMeanLuminance": 188.65,
+            "adjacentWallBox": [
+              820,
+              110,
+              831,
+              120
+            ],
+            "adjacentWallMeanLuminance": 191.89,
+            "bandMinusWallLuminance": -3.24
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-04-door-inside.png",
             "bandBox": [
@@ -646,44 +672,6 @@
             ],
             "adjacentWallMeanLuminance": 191.89,
             "bandMinusWallLuminance": 15.73
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-04-door-inside.png",
-            "bandBox": [
-              820,
-              96,
-              831,
-              100
-            ],
-            "bandMeanLuminance": 221.58,
-            "adjacentWallBox": [
-              820,
-              110,
-              831,
-              120
-            ],
-            "adjacentWallMeanLuminance": 191.89,
-            "bandMinusWallLuminance": 29.69,
-            "gapSeam": {
-              "junctionBox": [
-                820,
-                96,
-                831,
-                100
-              ],
-              "thresholdLuminance": 151.89,
-              "pixelsDarkerThanWallMinus40": 0,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 44
-            },
-            "junctionDeltaVsV2": 14.75,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-04-door-inside.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            }
           }
         },
         "v2ReferenceDelta": 14.94
@@ -697,6 +685,35 @@
         ],
         "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
         "measurements": {
+          "v1": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/runtime-05-troffer-junction.png",
+            "bandBox": [
+              900,
+              557,
+              1040,
+              565
+            ],
+            "bandMeanLuminance": 163.55,
+            "adjacentWallBox": [
+              900,
+              580,
+              1040,
+              600
+            ],
+            "adjacentWallMeanLuminance": 197.91,
+            "bandMinusWallLuminance": -34.36,
+            "gapSeam": {
+              "junctionBox": [
+                900,
+                557,
+                1040,
+                565
+              ],
+              "thresholdLuminance": 157.91,
+              "pixelsDarkerThanWallMinus40": 406,
+              "pixelCount": 1120
+            }
+          },
           "v2": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v2/runtime-05-troffer-junction.png",
             "bandBox": [
@@ -715,6 +732,24 @@
             "adjacentWallMeanLuminance": 197.91,
             "bandMinusWallLuminance": -9.84
           },
+          "v3": {
+            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/runtime-05-troffer-junction.png",
+            "bandBox": [
+              900,
+              557,
+              1040,
+              565
+            ],
+            "bandMeanLuminance": 179.66,
+            "adjacentWallBox": [
+              900,
+              580,
+              1040,
+              600
+            ],
+            "adjacentWallMeanLuminance": 197.91,
+            "bandMinusWallLuminance": -18.24
+          },
           "v4": {
             "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-05-troffer-junction.png",
             "bandBox": [
@@ -732,44 +767,6 @@
             ],
             "adjacentWallMeanLuminance": 197.91,
             "bandMinusWallLuminance": -9.73
-          },
-          "v4-flush": {
-            "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-05-troffer-junction.png",
-            "bandBox": [
-              900,
-              557,
-              1040,
-              565
-            ],
-            "bandMeanLuminance": 193.32,
-            "adjacentWallBox": [
-              900,
-              580,
-              1040,
-              600
-            ],
-            "adjacentWallMeanLuminance": 197.91,
-            "bandMinusWallLuminance": -4.58,
-            "gapSeam": {
-              "junctionBox": [
-                900,
-                557,
-                1040,
-                565
-              ],
-              "thresholdLuminance": 157.91,
-              "pixelsDarkerThanWallMinus40": 5,
-              "minimumHorizontalRunPx": 5,
-              "gapPixels": 0,
-              "pixelCount": 1120
-            },
-            "junctionDeltaVsV2": 5.26,
-            "adjacentWallDeltaVsV2": 0.0,
-            "repeatCapture": {
-              "image": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-05-troffer-junction.png",
-              "meanAbsoluteChannelDifference": 0.0,
-              "flickerPassLt0_5": true
-            }
           }
         },
         "v2ReferenceDelta": -9.84

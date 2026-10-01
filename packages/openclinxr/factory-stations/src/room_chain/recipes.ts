@@ -122,6 +122,7 @@ const WARD_LIKE_FINISH = {
     tbarMm: 24,
     cornice: "wall-angle",
     corniceProfile: "flush",
+    corniceMaterial: "tile",
     corniceWidthMm: 24,
     corniceColorSource: "wall",
   },

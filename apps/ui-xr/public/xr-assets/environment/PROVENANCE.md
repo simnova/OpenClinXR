@@ -110,12 +110,12 @@
   - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence. Footprint/door placement are NOT Infinigen inputs (MADR 0043 / #271): this is one reproducible room, not an exact-dimension generator. Clinical identity comes from the parametric fixtures the runtime places.
   - External assets used: false (procedural coarse-stage geometry; baked texture is derived from the geometry, no external textures).
 - `infinigen-stepdown.glb`
-  - SHA-256: `40dfbb57c8bdcd5521d76571325c4fe955420e13d11567e5e5c3d11f99e79c8b`; 9304980 bytes; 4184 triangles; 123 primitives, all authored materials.
+  - SHA-256: `4c459f7f2f2953019e397e324416ff78f973a139e12ac86669681cb6622f70f2`; 9308164 bytes; 4184 triangles; 123 primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain `room_generate → room_clinic_finish → lighting_design`; step-down footprint 6.2 × 3.25 × 2.6 m.
-  - Reproduce: `pnpm factory:room:promote -- --environment stepdown_room_v1 --seed 205`. The command installs the GLB and rig and derives the six room-evidence poses.
-  - Finish: baked Infinigen wall material, neutral matte paint, vinyl tile, grey cove base, hospital door with wall-matched transom infill, framed troffer, T-bar grid, and wall-coloured 24 mm flush perimeter trim. Its underside is coplanar with the tile faces, the vertical edge is 3 mm, and the tile field is inset 24 mm to prevent z-fighting. The decorative Infinigen ceiling-skirt mesh is removed by the declared recipe.
+  - Reproduce: `pnpm exec tsx tools/openclinxr/evidence/room-chain-wiring/cornice-flush-promote.ts`; promotes both measured candidates and derives their six poses and budgets without rewriting historical evidence.
+  - Finish: baked Infinigen walls, neutral matte paint, vinyl tile, cove, hospital door, troffer and T-bar grid. The complete 24 mm flush cornice uses the ceiling-tile PBR material with continuous world-XY UVs, including its edge closure. Underside offset is 0 mm, vertical angle edge is 3 mm, and the tile field is inset 24 mm to avoid z-fighting. No new external assets.
   - Budget: 49.3399 MiB decoded RGBA including the 1.33× mip allowance (limit 56 MiB). Lighting rig `lighting/stepdown_room_v1.rig.json` SHA-256 `4d8b800f5c971f909a4bb578da034ce2fc2e8e2aaf61c4ec08ff6c9e2921c20e`.
-  - Evidence: `docs/openclinxr/room-realism/cornice-ab` contains the selected V4-flush learner-runtime captures, repeat captures, comparison sheets, 4× junction crops, and junction grades.
+  - Evidence: `docs/openclinxr/room-realism/cornice-flush` contains V2/wall/tile/T-bar learner-runtime comparisons, 4× crops, repeat captures, wall/ceiling contrasts, and regenerated promotion pins. Earlier cornice-ab evidence is preserved byte-for-byte.
   - Boundaries: not production readiness, Quest readiness, clinical visual validity, scoring or exam-equivalence evidence.
 - `infinigen-ob-triage.glb`
   - SHA-256: `c12e24e4edea6ebbb019549880ddcefc3cfe3ce54e45d8edc9c3e57f9b03bcfd`
@@ -128,13 +128,13 @@
   - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence. Footprint/door placement are NOT Infinigen inputs (MADR 0043 / #271): this is one reproducible room, not an exact-dimension generator. Clinical identity comes from the parametric fixtures the runtime places.
   - External assets used: false (procedural coarse-stage geometry; baked texture is derived from the geometry, no external textures).
 - `infinigen-inpatient-ward.glb`
-  - SHA-256: `a25fc5680a64d7c73c6732eda76e968dd82d3594404c6b64ac2258f0847bffac`; 9218804 bytes; 4007 triangles; 109 primitives, all authored materials.
+  - SHA-256: `8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea`; 9221980 bytes; 4007 triangles; 109 primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed 205, factory chain `room_generate → room_clinic_finish → lighting_design`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
-  - Reproduce: `pnpm factory:room:promote -- --environment inpatient_ward_room_v1 --seed 205`. The command runs or cache-hits the chain, installs the GLB and rig, and calls this producer to derive every digest and size pin. Scene-plan sidecar is independently re-derived by the SC-06 live-runtime freeze producer.
-  - Finish: baked Infinigen wall material, neutral matte paint, runtime-calibrated neutral vinyl tile, cove base, hospital door, framed troffer, slim T-bar, and wall-coloured 24 mm flush perimeter trim. Its underside is coplanar with the tile faces, the vertical edge is 3 mm, and the tile field is inset 24 mm to prevent z-fighting. Procedural/derived finish texture lineage remains in `room_clinic_finish/textures`; no new external assets in this promotion.
+  - Reproduce: `pnpm exec tsx tools/openclinxr/evidence/room-chain-wiring/cornice-flush-promote.ts`; promotes both measured candidates and derives their six poses and budgets without rewriting historical evidence.
+  - Finish: baked Infinigen walls, neutral matte paint, vinyl tile, cove, hospital door, troffer and T-bar grid. The complete 24 mm flush cornice uses the ceiling-tile PBR material with continuous world-XY UVs, including its edge closure. Underside offset is 0 mm, vertical angle edge is 3 mm, and the tile field is inset 24 mm to avoid z-fighting. No new external assets.
   - Occlusion: separate Cycles AO maps, box-projected AO UVs, four maps at 512²; unchanged zero-coplanar-boundary and <=5 single-texel gates. Floor shell albedo reduced from 2048² to 1024² in the producer; unique decoded RGBA textures including 1.33× mips: 49.2983 MiB <=56 MiB.
   - Lighting: `lighting/inpatient_ward_room_v1.rig.json`, clinic_day chain output, SHA-256 `a0391d4eefc7bb5c019dedda7e4b406c357afba02f8c10249bc9cec461569ff6`.
-  - Evidence: `docs/openclinxr/room-realism/cornice-ab` contains the selected V4-flush learner-runtime captures, repeat captures, comparison sheets, 4× junction crops, and junction grades. `docs/openclinxr/room-realism/floor-cast` retains the six-view floor evidence and budget breakdown. Environment-ID URL mapping is unchanged.
+  - Evidence: `docs/openclinxr/room-realism/cornice-flush` contains V2/wall/tile/T-bar learner-runtime comparisons, 4× crops, repeat captures, wall/ceiling contrasts, and regenerated promotion pins. Earlier cornice-ab evidence is preserved byte-for-byte.
   - Boundaries: not production readiness, Quest readiness, clinical visual validity, scoring or exam-equivalence evidence.
 - `infinigen-pediatric-fever-urgent-care.glb`
   - SHA-256: `32002a78ee22f1b4cc72611cf35e1e4ce66c1180dba44a48b0e1fd3a72373101`

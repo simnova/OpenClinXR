@@ -135,7 +135,7 @@ export async function promoteRoom(args = process.argv.slice(2)): Promise<void> {
     ], {
       cwd: process.cwd(),
       stdio: "inherit",
-      env: { ...process.env, SHIP_WARD_OUT: runtime.provenanceOut, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb) },
+      env: { ...process.env, SHIP_WARD_OUT: process.env["SHIP_WARD_OUT"] ?? runtime.provenanceOut, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb) },
     });
   }
   const after = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, digest(file)]));

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1295,
+    "keep-evidence": 1351,
     "ignore-local-cache": 2771,
     "keep-current": 244,
     "keep-compatibility-input": 24,
@@ -31296,117 +31296,89 @@
       "action": "keep",
       "rationale": "Step-down V4 learner-runtime capture manifest and camera provenance."
     },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/01-toward-door-v2-v4-v4-flush-v2-reference.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward pose 01 V2/V4/V4-flush learner-runtime comparison with v2 visual reference."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/02-toward-bed-wall-v2-v4-v4-flush-v2-reference.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward pose 02 V2/V4/V4-flush learner-runtime comparison with v2 visual reference."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/03-ceiling-corner-v2-v4-v4-flush-v2-reference.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward pose 03 V2/V4/V4-flush learner-runtime comparison with v2 visual reference."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/sheets/05-troffer-junction-v2-v4-v4-flush-v2-reference.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward pose 05 V2/V4/V4-flush learner-runtime comparison with v2 visual reference."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/01-toward-door-v2-v4-v4-flush.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down pose 01 V2/V4/V4-flush learner-runtime comparison."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/02-toward-bed-wall-v2-v4-v4-flush.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down pose 02 V2/V4/V4-flush learner-runtime comparison."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/04-door-inside-v2-v4-v4-flush.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down pose 04 V2/V4/V4-flush learner-runtime comparison."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/05-troffer-junction-v2-v4-v4-flush.jpg",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down pose 05 V2/V4/V4-flush learner-runtime comparison."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-01-toward-door.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush selected learner-runtime capture at fixed pose 01."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-02-toward-bed-wall.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush selected learner-runtime capture at fixed pose 02."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-03-ceiling-corner.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush selected learner-runtime capture at fixed pose 03."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-05-troffer-junction.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush selected learner-runtime capture at fixed pose 05."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/stage2-multiview.json",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush selected capture manifest and camera provenance."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-01-toward-door.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush repeat capture for pose 01 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-02-toward-bed-wall.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush repeat capture for pose 02 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-03-ceiling-corner.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush repeat capture for pose 03 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-05-troffer-junction.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush repeat capture for pose 05 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/stage2-multiview.json",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward V4-flush repeat capture manifest and camera provenance."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-01-toward-door.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush selected learner-runtime capture at fixed pose 01."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-02-toward-bed-wall.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush selected learner-runtime capture at fixed pose 02."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-04-door-inside.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush selected learner-runtime capture at fixed pose 04."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-05-troffer-junction.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush selected learner-runtime capture at fixed pose 05."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/stage2-multiview.json",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush selected capture manifest and camera provenance."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-01-toward-door.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush repeat capture for pose 01 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-02-toward-bed-wall.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush repeat capture for pose 02 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-04-door-inside.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush repeat capture for pose 04 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-05-troffer-junction.png",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush repeat capture for pose 05 flicker audit."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/stage2-multiview.json",
-      "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Step-down V4-flush repeat capture manifest and camera provenance."
-    }
+    {"path":"docs/openclinxr/room-realism/cornice-flush/build-manifest.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/measurements.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/crops/01-toward-door-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/crops/02-toward-bed-wall-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/crops/04-door-inside-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/crops/05-troffer-junction-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurement-boxes.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurements.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/promoted-poses.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/01-toward-door-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/02-toward-bed-wall-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/04-door-inside-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/05-troffer-junction-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/shipped-budget.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-04-door-inside.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/crops/01-toward-door-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/crops/02-toward-bed-wall-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/crops/03-ceiling-corner-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/crops/05-troffer-junction-junction-4x.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/promoted-poses.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/sheets/01-toward-door-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/sheets/02-toward-bed-wall-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/sheets/03-ceiling-corner-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/sheets/05-troffer-junction-materials.jpg","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/shipped-budget.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-01-toward-door.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-02-toward-bed-wall.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-03-ceiling-corner.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-05-troffer-junction.png","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."},
+    {"path":"docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/stage2-multiview.json","authority":"keep-evidence","tracked":true,"action":"keep","rationale":"Flush cornice material comparison, runtime capture or derived promotion evidence; historical A/B retained unchanged."}
   ]
 }

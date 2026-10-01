@@ -4285,31 +4285,87 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-04-door-inside.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 04.
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/runtime-05-troffer-junction.png` - keep-evidence; Step-down V4 learner-runtime cornice A/B capture at fixed pose 05.
 - `docs/openclinxr/room-realism/cornice-ab/stepdown/v4/stage2-multiview.json` - keep-evidence; Step-down V4 learner-runtime capture manifest and camera provenance.
-- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/01-toward-door-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 01 V2/V4/V4-flush sheet with v2 reference.
-- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/02-toward-bed-wall-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 02 V2/V4/V4-flush sheet with v2 reference.
-- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/03-ceiling-corner-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 03 V2/V4/V4-flush sheet with v2 reference.
-- `docs/openclinxr/room-realism/cornice-ab/ward/sheets/05-troffer-junction-v2-v4-v4-flush-v2-reference.jpg` - keep-evidence; Ward pose 05 V2/V4/V4-flush sheet with v2 reference.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/01-toward-door-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 01 V2/V4/V4-flush sheet.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/02-toward-bed-wall-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 02 V2/V4/V4-flush sheet.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/04-door-inside-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 04 V2/V4/V4-flush sheet.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/sheets/05-troffer-junction-v2-v4-v4-flush.jpg` - keep-evidence; Step-down pose 05 V2/V4/V4-flush sheet.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-01-toward-door.png` - keep-evidence; Ward selected V4-flush capture pose 01.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-02-toward-bed-wall.png` - keep-evidence; Ward selected V4-flush capture pose 02.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-03-ceiling-corner.png` - keep-evidence; Ward selected V4-flush capture pose 03.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/runtime-05-troffer-junction.png` - keep-evidence; Ward selected V4-flush capture pose 05.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush/stage2-multiview.json` - keep-evidence; Ward selected V4-flush capture manifest.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-01-toward-door.png` - keep-evidence; Ward V4-flush repeat pose 01.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Ward V4-flush repeat pose 02.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-03-ceiling-corner.png` - keep-evidence; Ward V4-flush repeat pose 03.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/runtime-05-troffer-junction.png` - keep-evidence; Ward V4-flush repeat pose 05.
-- `docs/openclinxr/room-realism/cornice-ab/ward/v4-flush-repeat/stage2-multiview.json` - keep-evidence; Ward V4-flush repeat capture manifest.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-01-toward-door.png` - keep-evidence; Step-down selected V4-flush capture pose 01.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down selected V4-flush capture pose 02.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-04-door-inside.png` - keep-evidence; Step-down selected V4-flush capture pose 04.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/runtime-05-troffer-junction.png` - keep-evidence; Step-down selected V4-flush capture pose 05.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush/stage2-multiview.json` - keep-evidence; Step-down selected V4-flush capture manifest.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-01-toward-door.png` - keep-evidence; Step-down V4-flush repeat pose 01.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Step-down V4-flush repeat pose 02.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-04-door-inside.png` - keep-evidence; Step-down V4-flush repeat pose 04.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/runtime-05-troffer-junction.png` - keep-evidence; Step-down V4-flush repeat pose 05.
-- `docs/openclinxr/room-realism/cornice-ab/stepdown/v4-flush-repeat/stage2-multiview.json` - keep-evidence; Step-down V4-flush repeat capture manifest.
+- `docs/openclinxr/room-realism/cornice-flush/build-manifest.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/measurements.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/crops/01-toward-door-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/crops/02-toward-bed-wall-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/crops/04-door-inside-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/crops/05-troffer-junction-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurement-boxes.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurements.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/promoted-poses.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/01-toward-door-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/02-toward-bed-wall-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/04-door-inside-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/sheets/05-troffer-junction-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/shipped-budget.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tbar/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-04-door-inside.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-wall/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/crops/01-toward-door-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/crops/02-toward-bed-wall-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/crops/03-ceiling-corner-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/crops/05-troffer-junction-junction-4x.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/promoted-poses.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/sheets/01-toward-door-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/sheets/02-toward-bed-wall-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/sheets/03-ceiling-corner-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/sheets/05-troffer-junction-materials.jpg` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/shipped-budget.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tbar/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall-repeat/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-01-toward-door.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-02-toward-bed-wall.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-03-ceiling-corner.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/runtime-05-troffer-junction.png` - keep-evidence; Flush cornice material comparison and promotion evidence.
+- `docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-wall/stage2-multiview.json` - keep-evidence; Flush cornice material comparison and promotion evidence.

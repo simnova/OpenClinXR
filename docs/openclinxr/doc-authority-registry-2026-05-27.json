@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 214,
     "archive-candidate": 116,
-    "evidence": 148,
+    "evidence": 149,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5341,7 +5341,14 @@
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Operator-selected V4-flush ward and step-down ceiling-cornice promotion, measured GLB offsets, learner-runtime sheets, junction crops, gap/flicker grades, and promoted asset pins."
+      "rationale": "Operator-facing four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/cornice-flush/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Flush cornice tile/T-bar/wall comparison, immutable prior A/B, same-pose gap/flicker and ceiling contrast measurements, selected tile promotion."
     }
   ]
 }

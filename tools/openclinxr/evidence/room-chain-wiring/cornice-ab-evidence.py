@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageStat
 ROOT = Path(__file__).resolve().parents[4]
 EVIDENCE = ROOT / "docs/openclinxr/room-realism/cornice-ab"
 REFERENCE = ROOT / "docs/openclinxr/room-realism/imagine-multiview-v2"
-VARIANTS = ("v2", "v4", "v4-flush")
+VARIANTS = ("v1", "v2", "v3", "v4")
 POSES = {
     "ward": ("01-toward-door", "02-toward-bed-wall", "03-ceiling-corner", "05-troffer-junction"),
     "stepdown": ("01-toward-door", "02-toward-bed-wall", "04-door-inside", "05-troffer-junction"),
@@ -51,29 +51,11 @@ def measure(path: Path, boxes: dict[str, list[int]], gap: bool) -> dict:
     }
     if gap:
         threshold = wall_l - 40
-        band_image = image.crop(tuple(boxes["band"]))
-        pixels = list(band_image.get_flattened_data())
-        # A seam is a horizontal run, not isolated texture/shadow specks.
-        # Five native pixels is deliberately below V1's visible continuous
-        # runs while rejecting the final flush arm's <=4 px isolated marks.
-        seam_pixels = 0
-        for y in range(band_image.height):
-            run = 0
-            for x in range(band_image.width):
-                if luminance(band_image.getpixel((x, y))) < threshold:
-                    run += 1
-                else:
-                    if run >= 5:
-                        seam_pixels += run
-                    run = 0
-            if run >= 5:
-                seam_pixels += run
+        pixels = image.crop(tuple(boxes["band"])).get_flattened_data()
         result["gapSeam"] = {
             "junctionBox": boxes["band"],
             "thresholdLuminance": round(threshold, 2),
             "pixelsDarkerThanWallMinus40": sum(1 for pixel in pixels if luminance(pixel) < threshold),
-            "minimumHorizontalRunPx": 5,
-            "gapPixels": seam_pixels,
             "pixelCount": len(pixels),
         }
     return result
@@ -110,12 +92,13 @@ def crop_sheet(paths: list[Path], labels: list[str], box: list[int], output: Pat
 
 def main() -> None:
     result = {
-        "schemaVersion": "openclinxr.cornice-flush-measurements.v1",
-        "method": "Rec.709 luminance over fixed native 1280x720 learner-runtime boxes; gap threshold is adjacent-wall mean minus 40; flicker is absolute per-channel mean across two captures",
+        "schemaVersion": "openclinxr.cornice-ab-measurements.v1",
+        "method": "Rec.709 luminance over fixed native 1280x720 learner-runtime boxes; V1 seam threshold is adjacent-wall mean minus 40",
         "variants": {
+            "v1": "none",
             "v2": "24 mm T-bar off-white (checked-in shipped GLB)",
-            "v4": "24 mm wall material/colour, 24 mm vertical step",
-            "v4-flush": "24 mm wall material/colour, coplanar underside, tile field inset 24 mm, 3 mm vertical edge below tile",
+            "v3": "15 mm T-bar off-white",
+            "v4": "24 mm wall material/colour",
         },
         "rooms": {},
         "notEvidenceFor": ["Quest headset readiness", "clinical validity"],
@@ -129,47 +112,17 @@ def main() -> None:
             if room == "ward":
                 paths.append(REFERENCE / f"{pose}.jpg")
                 labels.append("v2 visual reference")
-            labelled_sheet(paths, labels, EVIDENCE / room / "sheets" / f"{pose}-v2-v4-v4-flush{'-v2-reference' if room == 'ward' else ''}.jpg")
+            labelled_sheet(paths, labels, EVIDENCE / room / "sheets" / f"{pose}-v1-v2-v3-v4{'-v2-reference' if room == 'ward' else ''}.jpg")
             crop_sheet(paths, labels, boxes["crop"], EVIDENCE / room / "crops" / f"{pose}-junction-4x.png")
             measurements = {
-                variant: measure(path, boxes, gap=variant == "v4-flush")
-                for variant, path in zip(VARIANTS, paths[:3])
+                variant: measure(path, boxes, gap=variant == "v1")
+                for variant, path in zip(VARIANTS, paths[:4])
             }
-            measurements["v4-flush"]["junctionDeltaVsV2"] = round(
-                measurements["v4-flush"]["bandMinusWallLuminance"]
-                - measurements["v2"]["bandMinusWallLuminance"], 2)
-            measurements["v4-flush"]["adjacentWallDeltaVsV2"] = round(
-                measurements["v4-flush"]["adjacentWallMeanLuminance"]
-                - measurements["v2"]["adjacentWallMeanLuminance"], 2)
-            first = Image.open(paths[2]).convert("RGB")
-            repeat_path = EVIDENCE / room / "v4-flush-repeat" / f"runtime-{pose}.png"
-            repeat = Image.open(repeat_path).convert("RGB")
-            if first.size != repeat.size:
-                raise ValueError(f"repeat capture size mismatch: {repeat_path}")
-            diff_sum = sum(
-                abs(left - right)
-                for left_pixel, right_pixel in zip(first.get_flattened_data(), repeat.get_flattened_data())
-                for left, right in zip(left_pixel, right_pixel)
-            )
-            mean_diff = diff_sum / (first.width * first.height * 3)
-            measurements["v4-flush"]["repeatCapture"] = {
-                "image": str(repeat_path.relative_to(ROOT)),
-                "meanAbsoluteChannelDifference": round(mean_diff, 4),
-                "flickerPassLt0_5": mean_diff < 0.5,
-            }
-            if room == "ward":
-                reference_measurement = measure(paths[3], boxes, gap=False)
-                measurements["v4-flush"]["v2VisualReferenceDelta"] = round(
-                    measurements["v4-flush"]["bandMinusWallLuminance"]
-                    - reference_measurement["bandMinusWallLuminance"], 2)
-            else:
-                reference_measurement = None
             room_result[pose] = {
                 "cropBox": boxes["crop"],
                 "cropScale": "4x nearest-neighbour (one native pixel is a 4x4 block)",
                 "measurements": measurements,
                 "v2ReferenceDelta": measurements["v2"]["bandMinusWallLuminance"],
-                **({"v2VisualReference": reference_measurement} if reference_measurement else {}),
             }
         result["rooms"][room] = room_result
     (EVIDENCE / "measurements.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")

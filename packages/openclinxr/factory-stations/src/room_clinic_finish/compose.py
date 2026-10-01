@@ -577,6 +577,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                          floor_top: float | None = None,
                          cornice_mode: str | None = None,
                          cornice_profile: str = "angle",
+                         cornice_material: str | None = None,
                          cornice_width_m: float = WALL_ANGLE_LEG_M,
                          cornice_color_source: str = "tbar",
                          wall_material: object | None = None) -> dict:
@@ -836,13 +837,16 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         planes = _wall_inner_planes()
         x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
         leg, thick = cornice_width_m, WALL_ANGLE_THICKNESS_M
-        angle_material = wall_material if cornice_color_source == "wall" else tbar_m
+        material_choice = cornice_material or cornice_color_source
+        angle_material = {"wall": wall_material, "tbar": tbar_m, "tile": ceiling_photo_m}[material_choice]
         if angle_material is None:
             raise ValueError("wall cornice colour requires the room wall material")
-        if cornice_profile == "flush" and cornice_color_source == "wall":
-            angle_material = _flat_material(
+        if cornice_profile == "flush":
+            edge_band_material = _flat_material(
                 "openclinxr_finish_wall", tuple(pal.get("wallAlbedo", (0.72, 0.74, 0.76))),
                 0.85, emissive=True, emission_strength=0.35)
+            if material_choice == "wall":
+                angle_material = edge_band_material
         if cornice_profile == "flush":
             # Keep only a 3 mm wall-side edge below the tile face. The tile
             # field is inset by the leg width, so the horizontal underside is
@@ -875,7 +879,9 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
              x1 - x0, leg, thick),
         ]
         for name, x, y, z, dx, dy, dz in wall_angle_runs:
-            new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, angle_material)
+            trim = new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, angle_material)
+            if material_choice == "tile":
+                _assign_world_xy_uv(trim, 1.0 / CEILING_REPEAT_M)
         if cornice_profile == "flush":
             # A sub-millimetre, wall-coplanar paint band masks the shell's
             # baked contact-shadow seam. It is not an angle leg: it protrudes
@@ -893,8 +899,10 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                  x1 - x0, band_t, leg),
             ]
             for name, x, y, z, dx, dy, dz in wall_edge_bands:
-                new_box("openclinxr_wall_edge_band_%s" % name,
-                        x, y, z, dx, dy, dz, angle_material)
+                edge = new_box("openclinxr_wall_edge_band_%s" % name,
+                               x, y, z, dx, dy, dz, angle_material)
+                if material_choice == "tile":
+                    _assign_world_xy_uv(edge, 1.0 / CEILING_REPEAT_M)
             wall_angle["edgeBandProtrusionM"] = band_t
         counts["wallAngle"] = len(wall_angle_runs)
         wall_angle.update({"runs": len(wall_angle_runs),
@@ -2157,6 +2165,9 @@ def apply_finish() -> int:
     cornice_width_m = (float(ceiling_feature.get("corniceWidthMm", WALL_ANGLE_LEG_M * 1000)) / 1000
                        if ceiling_feature else WALL_ANGLE_LEG_M)
     cornice_profile = ceiling_feature.get("corniceProfile", "angle") if ceiling_feature else "angle"
+    cornice_material = ceiling_feature.get("corniceMaterial") if ceiling_feature else None
+    if cornice_material is not None and cornice_material not in ("tile", "tbar", "wall"):
+        raise ValueError("recipe.finish.ceiling.corniceMaterial must be tile, tbar or wall")
     if cornice_profile not in ("angle", "flush"):
         raise ValueError("recipe.finish.ceiling.corniceProfile must be angle or flush when present")
     cornice_color_source = ceiling_feature.get("corniceColorSource", "tbar") if ceiling_feature else "tbar"
@@ -2199,6 +2210,7 @@ def apply_finish() -> int:
                                     tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
                                     cornice_mode=cornice_mode,
                                     cornice_profile=cornice_profile,
+                                    cornice_material=cornice_material,
                                     cornice_width_m=cornice_width_m,
                                     cornice_color_source=cornice_color_source,
                                     wall_material=wall_material)

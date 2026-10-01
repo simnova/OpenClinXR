@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -14,6 +16,7 @@ type GlbJson = {
   accessors?: Array<{ min?: number[]; max?: number[] }>;
   materials?: Array<{
     name?: string;
+    emissiveFactor?: number[];
     pbrMetallicRoughness?: { baseColorFactor?: number[] };
   }>;
 };
@@ -38,17 +41,20 @@ function jsonChunk(file: string): GlbJson {
 }
 
 type CorniceMeasurements = {
+  selection: { chosen: string; meanAbsoluteError: Record<string, number> };
   rooms: Record<string, Record<string, {
-    measurements: { "v4-flush": {
+    measurements: { "v4-flush-tile": {
+      image: string;
+      captureSha256: string;
       gapSeam: { gapPixels: number };
-      repeatCapture: { meanAbsoluteChannelDifference: number };
+      repeatCapture: { image: string; captureSha256: string; meanAbsoluteChannelDifference: number };
     } };
   }>>;
 };
 
 describe("the shipped room ceiling cornice", () => {
   for (const room of rooms) {
-    it(`${path.basename(room)} ships the wall-material 24 mm flush profile`, () => {
+    it(`${path.basename(room)} ships the ceiling-tile 24 mm flush profile`, () => {
       const glb = jsonChunk(room);
       const nodes = glb.nodes ?? [];
       expect(nodes.some((node) => /skirting_ceiling|skirtingboard_ceiling/iu.test(node.name ?? "")))
@@ -59,13 +65,19 @@ describe("the shipped room ceiling cornice", () => {
       expect(tiles).toBeDefined();
       // Blender Z exports as glTF Y. The tile underside is the minimum Y.
       const tileFaceY = nodeBounds(glb, tiles!).min[1] ?? NaN;
-      for (const node of angles) {
+      const edges = nodes.filter((node) => (node.name ?? "").startsWith("openclinxr_wall_edge_band_"));
+      expect(edges).toHaveLength(4);
+      for (const node of [...angles, ...edges]) {
         const mesh = glb.meshes?.[node.mesh ?? -1];
         expect(mesh).toBeDefined();
         for (const primitive of mesh?.primitives ?? []) {
           const material = glb.materials?.[primitive.material ?? -1];
-          expect(material?.name).toBe("openclinxr_finish_wall");
+          expect(material?.name).toBe("openclinxr_finish_ceiling_photo");
+          expect(primitive.material).toBe(glb.meshes?.[tiles?.mesh ?? -1]?.primitives?.[0]?.material);
+          expect((material?.emissiveFactor ?? [0, 0, 0]).every((value) => value === 0)).toBe(true);
         }
+      }
+      for (const node of angles) {
         const bounds = nodeBounds(glb, node);
         const belowTileMm = (tileFaceY - (bounds.min[1] ?? NaN)) * 1000;
         if (node.name?.endsWith("_horizontal")) {
@@ -84,13 +96,28 @@ describe("the shipped room ceiling cornice", () => {
 
   it("has zero continuous gap pixels and no repeat-capture flicker", () => {
     const evidence = JSON.parse(readFileSync(path.join(
-      root, "docs/openclinxr/room-realism/cornice-ab/measurements.json",
+      root, "docs/openclinxr/room-realism/cornice-flush/measurements.json",
     ), "utf8")) as CorniceMeasurements;
     for (const poses of Object.values(evidence.rooms)) {
       for (const pose of Object.values(poses)) {
-        expect(pose.measurements["v4-flush"].gapSeam.gapPixels).toBe(0);
-        expect(pose.measurements["v4-flush"].repeatCapture.meanAbsoluteChannelDifference).toBeLessThan(0.5);
+        expect(pose.measurements["v4-flush-tile"].gapSeam.gapPixels).toBe(0);
+        expect(pose.measurements["v4-flush-tile"].repeatCapture.meanAbsoluteChannelDifference).toBeLessThan(0.5);
+        for (const capture of [pose.measurements["v4-flush-tile"], pose.measurements["v4-flush-tile"].repeatCapture]) {
+          expect(createHash("sha256").update(readFileSync(path.join(root, capture.image))).digest("hex")).toBe(capture.captureSha256);
+        }
       }
+    }
+    expect(evidence.selection.chosen).toBe("v4-flush-tile");
+    const scores = evidence.selection.meanAbsoluteError;
+    expect(scores["v4-flush-tile"]).toBeLessThan(scores["v4-flush-wall"] ?? 0);
+    expect(scores["v4-flush-tile"]).toBeLessThan(scores["v4-flush-tbar"] ?? 0);
+  });
+
+  it("preserves every original cornice A/B artifact byte-for-byte", () => {
+    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", "8408b14f1", "docs/openclinxr/room-realism/cornice-ab"], { cwd: root, encoding: "utf8" }).trim().split("\n");
+    expect(files.length).toBeGreaterThan(8);
+    for (const file of files) {
+      expect(readFileSync(path.join(root, file)).equals(execFileSync("git", ["show", `8408b14f1:${file}`], { cwd: root, maxBuffer: 10_000_000 })), file).toBe(true);
     }
   });
 });

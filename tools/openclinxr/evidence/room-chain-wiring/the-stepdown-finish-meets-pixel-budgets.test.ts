@@ -9,8 +9,8 @@ import { describe, expect, it } from "vitest";
 const root = path.resolve(import.meta.dirname, "../../../..");
 const glb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb");
 const wardGlb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
-const budget = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json"), "utf8"));
-const doorMeasurements = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurements.json"), "utf8"));
+const budget = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/shipped-budget.json"), "utf8"));
+const doorMeasurements = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurements.json"), "utf8"));
 
 describe("the shipped stepdown room carries its data-driven clinical finish", () => {
   it("gives every primitive a material and emits the floor, cove, door, and troffer", async () => {
@@ -89,7 +89,7 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     expect(material.getBaseColorFactor().slice(0, 3).every((channel) => channel >= 0.75)).toBe(true);
     expect(doorMeasurements.after.kickPlate.widthFractionOfLeaf).toBeGreaterThanOrEqual(0.9);
     expect(doorMeasurements.after.kickPlate.meanLuminance).toBeGreaterThanOrEqual(doorMeasurements.after.kickPlate.leafMeanLuminance);
-    const capture = path.join(root, "docs/openclinxr/room-realism/stepdown-room-v1-finish/after/runtime-04-door-inside.png");
+    const capture = path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-04-door-inside.png");
     expect(doorMeasurements.after.captureSha256).toBe(createHash("sha256").update(readFileSync(capture)).digest("hex"));
     expect(doorMeasurements.sourceGlbSha256).toBe(budget.sha256);
   });

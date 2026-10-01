@@ -16,6 +16,7 @@ export type RoomFinishFeatures = {
     tbarMm: number;
     cornice?: "none" | "wall-angle";
     corniceProfile?: "angle" | "flush";
+    corniceMaterial?: "tile" | "tbar" | "wall";
     corniceWidthMm?: number;
     corniceColorSource?: "tbar" | "wall";
   };
@@ -35,7 +36,7 @@ const KEYS = {
   floor: ["kind", "moduleM"],
   cove: ["heightM"],
   door: ["kind", "photoPbr", "casing", "lite", "lever", "hinges"],
-  ceiling: ["troffer", "tbarMm", "cornice", "corniceProfile", "corniceWidthMm", "corniceColorSource"],
+  ceiling: ["troffer", "tbarMm", "cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"],
   neutralTints: ["casingRgb", "coveRgb"],
 } as const;
 
@@ -93,7 +94,7 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
   exactKeys(floor, KEYS.floor, `${path}.floor`);
   exactKeys(cove, KEYS.cove, `${path}.cove`);
   exactKeys(door, KEYS.door, `${path}.door`);
-  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice", "corniceProfile", "corniceWidthMm", "corniceColorSource"]);
+  exactKeys(ceiling, KEYS.ceiling, `${path}.ceiling`, ["cornice", "corniceProfile", "corniceMaterial", "corniceWidthMm", "corniceColorSource"]);
   exactKeys(neutralTints, KEYS.neutralTints, `${path}.neutralTints`);
   if (floor["kind"] !== "vinyl-tile") throw new RoomFinishFeatureValidationError(`${path}.floor.kind must be vinyl-tile`);
   if (door["kind"] !== "hospital") throw new RoomFinishFeatureValidationError(`${path}.door.kind must be hospital`);
@@ -124,6 +125,13 @@ export function validateRoomFinishFeatures(value: unknown, path = "finish"): Roo
       ...(ceiling["corniceWidthMm"] === undefined
         ? {}
         : { corniceWidthMm: finiteInRange(ceiling["corniceWidthMm"], `${path}.ceiling.corniceWidthMm`, 0, 100) }),
+      ...(ceiling["corniceMaterial"] === undefined
+        ? {}
+        : ceiling["corniceMaterial"] === "tile" || ceiling["corniceMaterial"] === "tbar" || ceiling["corniceMaterial"] === "wall"
+          ? { corniceMaterial: ceiling["corniceMaterial"] }
+          : (() => {
+              throw new RoomFinishFeatureValidationError(`${path}.ceiling.corniceMaterial must be tile, tbar or wall`);
+            })()),
       ...(ceiling["corniceProfile"] === undefined
         ? {}
         : ceiling["corniceProfile"] === "angle" || ceiling["corniceProfile"] === "flush"
