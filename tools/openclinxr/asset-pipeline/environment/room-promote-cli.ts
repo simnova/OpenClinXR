@@ -4,6 +4,7 @@ import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ROOM_CHAIN_RECIPES, runRoomChain } from "@openclinxr/factory-stations/room-chain";
+import { writeRoomEvidencePoses } from "./derive-room-evidence-poses.js";
 
 const RUNTIME_PATHS: Record<string, { glb: string; rig: string; provenanceOut?: string }> = {
   inpatient_ward_room_v1: {
@@ -51,6 +52,8 @@ export async function promoteRoom(args = process.argv.slice(2)): Promise<void> {
   });
   copyFileSync(chain.finalGlb, runtime.glb);
   copyFileSync(chain.rigJson, runtime.rig);
+  const evidencePosesPath = path.join(outDir, "room-evidence-poses.json");
+  const evidencePoses = await writeRoomEvidencePoses(chain.finalGlb, recipe, evidencePosesPath);
   if (runtime.provenanceOut !== undefined) {
     execFileSync(process.execPath, [
       path.join("node_modules", "tsx", "dist", "cli.mjs"),
@@ -63,7 +66,21 @@ export async function promoteRoom(args = process.argv.slice(2)): Promise<void> {
   }
   const after = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, digest(file)]));
   const changed = Object.keys(after).filter((file) => before[file] !== after[file]);
-  process.stdout.write(`${JSON.stringify({ environmentId, seed, cache: chain.cache, before, after, changed }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({
+    environmentId,
+    seed,
+    cache: chain.cache,
+    before,
+    after,
+    changed,
+    evidencePoses: {
+      path: evidencePosesPath,
+      sha256: digest(evidencePosesPath),
+      sourceGlbSha256: evidencePoses.sourceGlbSha256,
+      count: evidencePoses.poses.length,
+      clearanceM: evidencePoses.clearanceM,
+    },
+  }, null, 2)}\n`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

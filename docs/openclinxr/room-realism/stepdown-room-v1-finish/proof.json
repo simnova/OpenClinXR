@@ -14,11 +14,23 @@
   "roomSource": "room-chain",
   "capture": {
     "poses": 6,
+    "poseSource": "derived-poses.json",
+    "poseProof": "pose-proof.json",
     "before": "before/stage2-multiview.json",
     "after": "after/stage2-multiview.json",
     "afterMechanism": "ui-xr-runtime-url",
     "reference": null,
     "referenceNote": "No independent stepdown visual reference exists."
+  },
+  "derivedPoseGate": {
+    "minimumWallClearanceM": 0.3,
+    "maximumWallClearanceM": 0.875,
+    "liveCameraNearPlaneM": 0.1,
+    "subjectPresencePassed": true,
+    "doorFullyInFrame": ["runtime-01-toward-door", "runtime-04-door-inside"],
+    "wardDeltaPercentagePoints": [0.0065, 0.0, 4.3117, -1.1023, -0.6507, -2.6852],
+    "wardTolerancePercentagePoints": 5,
+    "passed": true
   },
   "notEvidenceFor": [
     "clinical validity",

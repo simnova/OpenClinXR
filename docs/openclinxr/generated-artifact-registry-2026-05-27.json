@@ -27982,6 +27982,62 @@
       "rationale": "Stepdown room-chain seed, before/after digests, learner-runtime capture paths, and claim boundaries."
     },
     {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/derived-poses.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Stepdown six-pose derivation from recipe wall planes and measured GLB door, troffer, T-bar, and cove bounds."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-poses.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Ward derived-pose artifact used only for parity checking; the committed ward hand-placed poses remain unchanged."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/pose-proof.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Per-pose ward frame-fraction deltas plus stepdown live near-plane, wall-clearance, and subject-pixel presence proof."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/stage2-multiview.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Fresh learner-runtime manifest for the unchanged hand-placed ward control."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/stage2-multiview.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
+      "rationale": "Fresh learner-runtime manifest for the ward derived-pose parity arm."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-01-toward-door.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-02-toward-bed-wall.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-03-ceiling-corner.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-04-door-inside.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-05-troffer-junction.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-hand-control/runtime-06-floor-base.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward hand-placed parity control pose 06."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-01-toward-door.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 01."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-02-toward-bed-wall.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 02."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-03-ceiling-corner.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 03."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-04-door-inside.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 04."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-05-troffer-junction.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 05."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/ward-derived-check/runtime-06-floor-base.png", "authority": "keep-evidence", "tracked": true, "action": "keep", "rationale": "Ward derived parity pose 06."
+    },
+    {
       "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/before/stage2-multiview.json", "authority": "keep-evidence", "tracked": true, "action": "keep",
       "rationale": "Six-pose learner-runtime manifest for the prior shipped stepdown GLB."
     },
