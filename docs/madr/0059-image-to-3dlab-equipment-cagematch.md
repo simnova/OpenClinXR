@@ -34,6 +34,22 @@ Coordinator grade, 2026-10-01, native 2560 px contact sheets (MY GRADE) against 
 
 Follow-up worth one more round: Hunyuan3D-MLX with its paint stage constrained to the oracle's grey, optimized to <= 40k tris and <= 16 MiB textures, re-graded against control.
 
+## Round 2 evidence
+
+2026-10-01; coordinator re-grade pending. The Decision above is unchanged. Same conditioning image and frozen camera/lights; ≤40k triangles and ≤16 MiB decoded textures for all available challengers.
+
+| backend | wall | raw tris | budget tris | decoded MiB | IoU raw / budget |
+|---|---:|---:|---:|---:|---:|
+| Hunyuan3D-MLX 2.0 | 889.46 s (round-one mesh reused) | 300,000 | 40,000 | 8 | 0.786432 / 0.786460 |
+| Stable Fast 3D (CPU) | 42.80 s | 29,108 | 29,108 | 8 | 0.705130 / 0.705130 |
+| TRELLIS.2 | pending Meta approval | — | — | — | — |
+
+Hunyuan's pinned paint stage exposes no body-colour or text-prompt control, so paint was not rerun. The existing 40k optimize-station rung now has two 1024² PBR maps; its territory flag remains US-hosted only. SF3D completed through the supported CPU path after a 445.84 s MPS attempt was terminated while waiting on Metal SVD. CPU peak RSS was 11,114,381,312 B; raw geometry already fits the budget, and PBR maps/factors were retained. Both outputs use 10.67 MiB including full mip chains.
+
+DINOv3 returned 403 at **16:09:06.328497 UTC** and **16:20:43.449277 UTC**, 2026-10-01: **pending Meta approval**. Exactly two authenticated probes; no TRELLIS.2 inference attempt.
+
+Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/`; native-tile contact sheets are `renders/contact-sheet-raw.png` and `renders/contact-sheet-budget.png`. Full measurements and provenance are in the parent `results.json` Round 2 object and sidecars. No worker visual grade or adoption decision is added.
+
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.

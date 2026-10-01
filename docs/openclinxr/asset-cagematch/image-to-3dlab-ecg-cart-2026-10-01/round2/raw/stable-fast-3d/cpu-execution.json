@@ -1,0 +1,56 @@
+{
+  "start": "2026-10-01T16:17:26.315Z",
+  "end": "2026-10-01T16:18:09.114Z",
+  "wallSeconds": 42.796803958,
+  "slotsStart": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "slotsEnd": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "code": 0,
+  "stdout": "After Remesh 14556 29108\n/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/raw/stable-fast-3d/conditional/ecg-cart-oracle-matted__sf3d__commercial-conditional__57c43640519d.glb\n/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/raw/stable-fast-3d/conditional/ecg-cart-oracle-matted__sf3d__commercial-conditional__57c43640519d.provenance.json\n",
+  "stderr": "/Users/patrick/.openclinxr-tools/image-to-3dlab/.venv/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n       42.78 real        80.46 user         5.89 sys\n         11114381312  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n             1329347  page reclaims\n                 995  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                 118  messages sent\n                 308  messages received\n                   0  signals received\n                 280  voluntary context switches\n              100931  involuntary context switches\n        660595851905  instructions retired\n        246740396343  cycles elapsed\n         10518684744  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

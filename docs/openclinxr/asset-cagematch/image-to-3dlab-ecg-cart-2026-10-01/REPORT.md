@@ -64,3 +64,23 @@ Every retained Hunyuan output is flagged **US-hosted deployment only; blocked fr
 ## Claim boundary
 
 This evidence can support a coordinator decision about one ECG-cart cagematch on one M1 Max. It does not establish Quest readiness, clinical fidelity, production adoption, or a general backend ranking.
+
+## Round 2
+
+2026-10-01. Coordinator re-grade pending; the MADR Decision is unchanged. Same conditioning image and frozen camera/lights as round one. Common candidate budget: ≤40,000 triangles and ≤16 MiB decoded textures. All ML and Blender execution used the compute facade in the foreground.
+
+| backend | generation wall | peak RSS | heavy start/end | raw tris | budget tris | decoded MiB (with mips) | IoU raw / budget |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Hunyuan3D-MLX 2.0 | 889.46 s (round-one reuse) | 10,075,832,320 B | 0/0 | 300,000 | 40,000 | 8 (10.67) | 0.786432 / 0.786460 |
+| Stable Fast 3D, CPU | 42.80 s | 11,114,381,312 B | 0/0 | 29,108 | 29,108 | 8 (10.67) | 0.705130 / 0.705130 |
+| TRELLIS.2 | pending Meta approval | — | — | — | — | — | — |
+
+Stable Fast 3D access worked. The first MPS attempt included downloading weights and was manually terminated after 445.84 s, with peak RSS 9,208,217,600 B and heavy-holder counts 0/0. A process sample showed it waiting on Metal `linalg_svd` after internal geometry generation; no GLB had been exported. The supported `--cpu` retry completed with cached weights. RSS is `/usr/bin/time -l` maximum resident set size; timings include load/setup. Both attempt logs are retained in `round2/raw/stable-fast-3d/`. Weight revisions and PBR texture dimensions/bytes are in its `provenance.json`. No SF3D reproducibility claim is made.
+
+Hunyuan **has no exposed body-colour/text-prompt control** in the pinned Xiong wrapper or `run_paint_pbr.py`. Controls cover image/mesh inputs, seed, resolution, sampling steps/scheduler and super-resolution; guidance is fixed at 3.0. Its paint was not rerun and textures were not hand-recoloured. The existing optimize-station 40k rung was reused, with base-colour and metallic/roughness maps downsized from 4096² to 1024² using Lanczos3. Hunyuan outputs and derived contact-sheet pixels retain the **US-hosted only; EU/UK/South Korea excluded** territory flag.
+
+SF3D's raw 29,108 triangles already satisfy the budget. `iterate-optimize` selected raw geometry; the 1024 texture cap preserved dimensions and re-encoded its base-colour and normal JPEG maps. Metallic/roughness factors remain intact. Both candidates consume 8 MiB RGBA8 before mipmaps and 10.67 MiB with mipmaps.
+
+DINOv3 authenticated HEAD probes: **403 at 2026-10-01 16:09:06.328497 UTC** and **403 at 16:20:43.449277 UTC**. Exactly two probes were made. Disposition: **pending Meta approval**; TRELLIS.2 inference was not started.
+
+Grade [raw sheet](round2/renders/contact-sheet-raw.png) and [budget sheet](round2/renders/contact-sheet-budget.png), each 5120×1360 with native 1280 px tiles: control | Hunyuan | SF3D | pending-access placeholder. The unchanged control and Hunyuan raw renders are reused from round one; new candidates/budget outputs use the same renderer, frozen 50 mm camera and lights. IoU uses the round-one alpha/Lanczos protocol; control remains 0.714060. No worker visual verdict is assigned. Optimizer intermediate-rung paths in retained reports are historical local execution paths; only the selected GLBs are retained.

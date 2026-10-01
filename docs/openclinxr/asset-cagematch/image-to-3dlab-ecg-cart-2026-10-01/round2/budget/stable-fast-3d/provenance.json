@@ -1,0 +1,15 @@
+{
+  "backend": "stable-fast-3d",
+  "source": "../../raw/stable-fast-3d/ecg-cart.glb",
+  "sourceSha256": "9bb2c4ff860cde1bb636d35e91c8e9ee9973bce9bb8f05f2a9f15d9068614693",
+  "derivation": "iterate-optimize selected the already-under-budget raw geometry, then gltf-transform resize --width 1024 --height 1024 retained map dimensions and re-encoded JPEG bytes. PBR base-colour and normal slots plus metallic/roughness factors retained.",
+  "output": "ecg-cart.glb",
+  "sha256": "c2753251cfeb15b90f3712d1234a2654b4992798614fa8c84b7c2feee182f536",
+  "bytes": 1232712,
+  "triangles": 29108,
+  "textures": [{"size":[1024,1024],"mime":"image/jpeg","bytes":112906},{"size":[1024,1024],"mime":"image/jpeg","bytes":177027}],
+  "decodedRgbaNoMipsMiB": 8,
+  "decodedRgbaWithMipsMiB": 10.666666666666666,
+  "license": "Stability AI Community License; MADR 0046",
+  "notEvidenceFor": ["Quest readiness","clinical accuracy","production adoption"]
+}

@@ -1,0 +1,56 @@
+{
+  "start": "2026-10-01T16:09:46.190Z",
+  "end": "2026-10-01T16:17:12.057Z",
+  "wallSeconds": 445.83932829099996,
+  "slotsStart": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "slotsEnd": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "code": 1,
+  "stdout": "After Remesh 14556 29108\n",
+  "stderr": "/Users/patrick/.openclinxr-tools/image-to-3dlab/.venv/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\ntime: command terminated abnormally\n      445.84 real        18.95 user        13.81 sys\n          9208217600  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              727524  page reclaims\n               15813  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                 165  messages sent\n              837406  messages received\n                   0  signals received\n               12223  voluntary context switches\n              172598  involuntary context switches\n        188058358165  instructions retired\n         79876327007  cycles elapsed\n          9345911208  peak memory footprint\n/opt/homebrew/Cellar/python@3.11/3.11.8/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown\n  warnings.warn('resource_tracker: There appear to be %d '\n",
+  "timedOut": false,
+  "signal": "SIGTERM"
+}

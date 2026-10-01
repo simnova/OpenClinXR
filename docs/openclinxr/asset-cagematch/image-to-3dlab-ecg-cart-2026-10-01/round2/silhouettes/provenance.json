@@ -1,0 +1,7 @@
+{
+  "derivation": "Same fixed-camera BlenderService renders with transparent film for alpha IoU.",
+  "territoryFlag": "Hunyuan-derived masks: US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "threshold": 16,
+  "oracleResize": "Pillow Lanczos to 1280x1280",
+  "notEvidenceFor": ["clinical accuracy","coordinator visual grade"]
+}

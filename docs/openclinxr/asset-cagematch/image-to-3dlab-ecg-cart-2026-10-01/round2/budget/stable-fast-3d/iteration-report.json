@@ -1,0 +1,213 @@
+{
+  "skill": "trellis-vr-equipment-optimize",
+  "technique": "3-iter high-error direct targets + weld + quantize; quality-preserving champion",
+  "measuredAt": "2026-10-01T16:18:34.956Z",
+  "input": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/raw/stable-fast-3d/ecg-cart.glb",
+  "rawTriangleCount": 29108,
+  "budgets": {
+    "propShare": 40000,
+    "propPreferred": 80000,
+    "propAcceptable": 120000,
+    "stationSoft": 60000,
+    "hardSkeleton": 180000,
+    "stretchOptional": 25000,
+    "note": "Quest 3 native scene ~1.3–1.8M tris (Meta). Prefer ≤80k prop with grade; ≤40k is share pressure only. Not worn-headset evidence."
+  },
+  "rungs": [
+    {
+      "iter": 0,
+      "technique": "raw",
+      "targetTris": null,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1192596,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/champion.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_hard180k",
+      "targetTris": 180000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-hard180k.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_acceptable120k",
+      "targetTris": 120000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-acceptable120k.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_preferred80k",
+      "targetTris": 80000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-preferred80k.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_station60k",
+      "targetTris": 60000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-station60k.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_share40k",
+      "targetTris": 40000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-share40k.glb"
+    },
+    {
+      "iter": 1,
+      "technique": "direct_high_error_stretch25k",
+      "targetTris": 25000,
+      "ratio": 0.8588704136319912,
+      "triangleCount": 25000,
+      "bytes": 921360,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter1-stretch25k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_hard180k",
+      "targetTris": 180000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-hard180k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_acceptable120k",
+      "targetTris": 120000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-acceptable120k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_preferred80k",
+      "targetTris": 80000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-preferred80k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_station60k",
+      "targetTris": 60000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-station60k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_share40k",
+      "targetTris": 40000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 1017688,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-share40k.glb"
+    },
+    {
+      "iter": 2,
+      "technique": "weld_high_error_stretch25k",
+      "targetTris": 25000,
+      "ratio": 0.8588704136319912,
+      "triangleCount": 25000,
+      "bytes": 921296,
+      "aabbVolume": 0.2868739012043494,
+      "volumeRatioToRaw": 1,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter2-weld-stretch25k.glb"
+    },
+    {
+      "iter": 3,
+      "technique": "quantize_from_direct_high_error_hard180k",
+      "targetTris": 180000,
+      "ratio": 1,
+      "triangleCount": 29108,
+      "bytes": 795904,
+      "aabbVolume": 122502031986208,
+      "volumeRatioToRaw": 427023969318651.6,
+      "featureSurvival": "ok",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/iter3-best-quantize.glb"
+    }
+  ],
+  "champion": {
+    "technique": "raw",
+    "triangleCount": 29108,
+    "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round2-sf3d-opt/champion.glb",
+    "underPropShare": true,
+    "underStationSoft": true,
+    "underPropPreferred": true,
+    "underPropAcceptable": true,
+    "underHard": true
+  },
+  "bakeStage": null,
+  "renderStage": null,
+  "claimScope": [
+    "meshopt high-error direct targets from TRELLIS raw",
+    "weld before simplify",
+    "quality-preserving champion under prop preferred (80k)",
+    "not evidence for Quest worn readiness"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness",
+    "clinical accuracy",
+    "photoreal quality",
+    "learner runtime adoption"
+  ],
+  "provenVsChainLadder": {
+    "note": "Chain ratios with default error plateaued ~186k on photoreal and ~59k on hard-surface; direct high-error targets force lower counts when topology allows. Do not force stretch25k when preferred band grades."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "components": [
+    {
+      "commercial_status": "commercial-clear",
+      "component": "rembg/birefnet-general-lite",
+      "license": "MIT (BiRefNet)",
+      "purpose": "background removal"
+    }
+  ],
+  "created_at": "2026-10-01T16:18:08.145162+00:00",
+  "input": {
+    "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+    "sha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "source": "user-provided"
+  },
+  "intent": {
+    "commercial_intent": false,
+    "distribution": "private",
+    "use_case": "showcase"
+  },
+  "license": {
+    "conditions": [
+      "Commercial registration required.",
+      "Enterprise license required at or above the applicable annual-revenue threshold."
+    ],
+    "name": "Stability AI Community License",
+    "url": "https://huggingface.co/stabilityai/stable-fast-3d/blob/main/LICENSE.md"
+  },
+  "model": {
+    "backend": "sf3d",
+    "parameters": {
+      "bake_target_faces": null,
+      "foreground_ratio": 0.85,
+      "material_mode": null,
+      "material_normalized": null,
+      "model": "stabilityai/stable-fast-3d",
+      "pipeline_type": null,
+      "pre_simplify_cap": null,
+      "remesh": "none",
+      "seed": null,
+      "steps": null,
+      "target_vertices": -1,
+      "texture_backend": null,
+      "texture_resolution": 1024,
+      "texture_size": null,
+      "trellis_remesh": null,
+      "trellis_remesh_project": null
+    }
+  },
+  "output": {
+    "classification": "commercial-conditional",
+    "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round2/raw/stable-fast-3d/conditional/ecg-cart-oracle-matted__sf3d__commercial-conditional__57c43640519d.glb",
+    "sha256": "9bb2c4ff860cde1bb636d35e91c8e9ee9973bce9bb8f05f2a9f15d9068614693"
+  },
+  "run_id": "57c43640519d",
+  "schema_version": 1,
+  "software": {
+    "backend_revision": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+    "packages": {
+      "rembg": "2.0.57",
+      "torch": "2.14.1",
+      "torchvision": "0.29.1",
+      "transformers": "4.42.3",
+      "trimesh": "4.4.1"
+    },
+    "pipeline_revision": {
+      "commit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+      "dirty": false
+    }
+  },
+  "source_manifest": null
+}

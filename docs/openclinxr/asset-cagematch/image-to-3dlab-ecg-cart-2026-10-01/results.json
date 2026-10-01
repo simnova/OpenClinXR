@@ -1,5 +1,65 @@
 {
   "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "round2": {
+    "date": "2026-10-01",
+    "status": "pending coordinator re-grade; MADR Decision unchanged",
+    "commonBudget": {"trianglesMax":40000,"decodedTextureMiBMax":16,"accounting":"RGBA8 no mips; both outputs also fit with full mip chains"},
+    "conditioningSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "hunyuanColourControl": {
+      "available": false,
+      "paintRerun": false,
+      "finding": "Pinned scripts/hunyuan_mlx_xiong_generate.py and hunyuan_mlx/paint/scripts/run_paint_pbr.py expose no text-prompt or body-colour control. Image/mesh, seed, resolution, steps, scheduler and super-resolution are exposed; guidance is hard-coded to 3.0. No hand-recolouring performed."
+    },
+    "dinov3Access": {
+      "status": "pending Meta approval",
+      "endpoint": "https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m/resolve/main/config.json",
+      "method": "authenticated HEAD, exactly two probes",
+      "probes": [{"timestamp":"2026-10-01T16:09:06.328497+00:00","httpStatus":403},{"timestamp":"2026-10-01T16:20:43.449277+00:00","httpStatus":403}]
+    },
+    "backends": [
+      {
+        "id":"hunyuan3d-mlx-2.0",
+        "generation":"round-one mesh reused",
+        "wallSeconds":889.46,
+        "peakRssBytes":10075832320,
+        "concurrentHeavyProcessesAtStart":0,
+        "concurrentHeavyProcessesAtEnd":0,
+        "rawTriangles":300000,
+        "budgetTriangles":40000,
+        "decodedTextureMiB":8,
+        "decodedTextureWithMipsMiB":10.666666666666666,
+        "budgetSha256":"d55d96455906793cb32ed9ac2e44588ed27b8f64a927b221542f53d1196c3818",
+        "silhouetteIou":{"raw":0.7864320180089518,"budget":0.7864596113137396},
+        "optimization":"Existing iterate-optimize direct 40k rung; both PNG PBR maps resized from 4096 to 1024 with gltf-transform Lanczos3.",
+        "territoryFlag":"US-hosted deployment only; blocked from EU, UK, and South Korea",
+        "provenance":"round2/budget/hunyuan3d-mlx-2.0/provenance.json"
+      },
+      {
+        "id":"stable-fast-3d",
+        "outcome":"mesh produced on supported CPU path",
+        "wallSeconds":42.796803958,
+        "peakRssBytes":11114381312,
+        "concurrentHeavyProcessesAtStart":0,
+        "concurrentHeavyProcessesAtEnd":0,
+        "measurement":"Foreground GpuJobService, /usr/bin/time -l maximum RSS; wall includes model load but cached downloads.",
+        "mpsAttempt":{"wallSeconds":445.839328291,"peakRssBytes":9208217600,"concurrentHeavyProcessesAtStart":0,"concurrentHeavyProcessesAtEnd":0,"outcome":"manually terminated during prolonged Metal linalg_svd wait; no exported mesh","includesInitialDownloads":true},
+        "rawTriangles":29108,
+        "budgetTriangles":29108,
+        "decodedTextureMiB":8,
+        "decodedTextureWithMipsMiB":10.666666666666666,
+        "rawSha256":"9bb2c4ff860cde1bb636d35e91c8e9ee9973bce9bb8f05f2a9f15d9068614693",
+        "budgetSha256":"c2753251cfeb15b90f3712d1234a2654b4992798614fa8c84b7c2feee182f536",
+        "silhouetteIou":{"raw":0.7051303113820286,"budget":0.7051303113820286},
+        "optimization":"iterate-optimize selected raw geometry because it already fits. gltf-transform 1024 resize re-encoded existing 1024 JPEG maps. Base colour, normal map, metallic/roughness factors retained.",
+        "reproducibility":"not replayed; round-one Pixal3D trial remains the requested one-backend replay",
+        "provenance":"round2/raw/stable-fast-3d/provenance.json"
+      },
+      {"id":"trellis2","outcome":"pending Meta approval","wallSeconds":null,"rawTriangles":null,"budgetTriangles":null,"decodedTextureMiB":null,"silhouetteIou":null}
+    ],
+    "renderProtocol":"Same frozen 50 mm camera, EEVEE key/fill/rim and 1280-square native stills as round one; render-only extent normalization. Unchanged control/Hunyuan raw stills reused. Contact sheets retain full 1280 px tiles (5120x1360). No visual verdict assigned.",
+    "controlSilhouetteIou":0.7140599133401471,
+    "contactSheets":{"raw":"round2/renders/contact-sheet-raw.png","budget":"round2/renders/contact-sheet-budget.png"}
+  },
   "measuredAt": "2026-10-01",
   "measuredAgainstCommit": "4385291c7c819237632b9d094117ca5fd5a805b1",
   "status": "pending_coordinator_grade",
