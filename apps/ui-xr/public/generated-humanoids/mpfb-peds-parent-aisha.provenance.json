@@ -66,12 +66,13 @@
   "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared \u2014 the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
   "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
-  "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756."
+  "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756.",
+  "2026-10-01: appended viseme_* POSITION morphs on openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh. Vertices with jaw weight >= 0.5 translate by that body viseme's jaw-descendant lower-lip landmark centroid; every other tooth vertex stays at delta 0. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that appended the morphs."
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20af3f4331",
- "outputBytes": 38563496,
+ "outputSha256": "01ac7f3c73d708f48bf551a1ac4e5ce373621d330c609e53dc5bfd1ed3686780",
+ "outputBytes": 38996988,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "openclinxr.parent-fitted-teeth.jaw-lip-gap.v1",
+  "generatedAt": "2026-10-01T16:40:00.000Z",
+  "writtenBeforeTeethVisemeMorph": true,
+  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "glbSha256": "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20af3f4331",
+  "teethMesh": "openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh",
+  "teethVertexCount": 4494,
+  "teethMorphTargetCount": 0,
+  "teethMedianY": 1.4939450025558472,
+  "clearLower": {
+    "rule": "y below the teeth median by more than 0.006 m",
+    "count": 910,
+    "allWeightedToJawAt1": true
+  },
+  "clearUpper": {
+    "rule": "y above the teeth median by more than 0.006 m",
+    "count": 716,
+    "allWeightedToHeadAt1": true
+  },
+  "jawOpenRadians": 0.15086,
+  "jawWeightedCount": 2180,
+  "jawWeightedTeethCentroidTravelM": [
+    1.219032556855589e-10,
+    -0.007551348920262324,
+    -0.005492471134580609
+  ],
+  "jawWorldOrigin": [
+    -2.8145179998677288e-8,
+    1.52062040348496,
+    0.06326337577395086
+  ],
+  "hingeAxisWorld": [1, 0, 0],
+  "jawLocalRestX": 2.629721794444813,
+  "bodyMesh": "mpfb_parent_tara_johnson_v1_body",
+  "bodyPrimitive": 0,
+  "bodyTarget": "viseme_aa",
+  "lowerLipLandmark": {
+    "absXMax": 0.03,
+    "yMin": 1.448,
+    "yMax": 1.488,
+    "deltaYBelowM": -0.002,
+    "dominantJoint": "jaw or a descendant of jaw",
+    "count": 224,
+    "morphCentroidDeltaM": [
+      0.00001964286223353286,
+      -0.010431692536388125,
+      -0.007691071668107595
+    ]
+  },
+  "pose": "viseme_aa weight 1 plus jaw local +X 0.15086 rad, before any teeth viseme target",
+  "lowerTeethCentroidTravelM": [
+    1.2406137460442497e-10,
+    -0.00791548294025457,
+    -0.006289082069645874
+  ],
+  "lowerLipCentroidTravelM": [
+    0.00001964310741762811,
+    -0.017265811562538147,
+    -0.015528173751330796
+  ],
+  "magnitudeRatio": 0.43536455029739374,
+  "resolveMorphTargetVisemeAA": "viseme_aa",
+  "claimScope": "pre-morph gap between jaw-only lower teeth and the jaw-descendant lower lip at viseme_aa",
+  "notEvidenceFor": ["clinical", "Quest", "pixel grade"]
+}

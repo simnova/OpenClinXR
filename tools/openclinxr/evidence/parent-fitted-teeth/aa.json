@@ -1,15 +1,29 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.v1",
-  "generatedAt": "2026-10-01T01:46:43.316Z",
+  "generatedAt": "2026-10-01T14:41:55.195Z",
   "glb": "/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "glbSha256": "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20af3f4331",
-  "jawRadians": 0.15086,
-  "measuredJawX": 2.780581794444813,
+  "glbSha256": "01ac7f3c73d708f48bf551a1ac4e5ce373621d330c609e53dc5bfd1ed3686780",
+  "viewport": {
+    "width": 1280,
+    "height": 960
+  },
+  "focus": "head",
+  "focusKind": "head_box",
+  "applier": "applyDialogueVisemeTimelineToRoot",
+  "phonemeSequence": [
+    "AA"
+  ],
+  "progress": 0,
+  "activeTargetName": "viseme_aa",
+  "jawRadians": 0.150861,
+  "measuredJawX": 2.780582794444813,
+  "teethVisemeAaInfluence": 1,
+  "mouthOpenInfluence": 0,
   "teethMesh": "openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh",
   "teethTris": 7120,
   "tongueMesh": "openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh",
   "tongueTris": 448,
-  "claimScope": "parent tongue re-aim AA",
+  "claimScope": "parent fitted lower teeth follow viseme_aa through the shipped applier",
   "notEvidenceFor": [
     "clinical",
     "Quest",
