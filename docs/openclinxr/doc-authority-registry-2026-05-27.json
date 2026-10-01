@@ -5363,6 +5363,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-01.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure."
     }
   ]
 }
