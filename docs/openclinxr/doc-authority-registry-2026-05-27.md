@@ -436,3 +436,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md` - evidence; Ward candidate reader corrections, property conflicts, ceiling fix, and size audit.
 - `docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md` - evidence; Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit.
 - `docs/openclinxr/room-realism/door-finish/READER-AUDIT.md` - evidence; Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - evidence; ECG-cart image-to-3dlab measurements, grade inputs, blockers, and claim boundaries.
+- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.

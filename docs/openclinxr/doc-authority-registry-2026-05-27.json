@@ -5307,6 +5307,20 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, blockers, provenance boundaries, and pending coordinator decision."
+    },
+    {
+      "path": "docs/madr/0059-image-to-3dlab-equipment-cagematch.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Proposed decision record for the ECG-cart image-to-3dlab equipment cagematch; visual decision remains pending coordinator grade."
     }
   ]
 }

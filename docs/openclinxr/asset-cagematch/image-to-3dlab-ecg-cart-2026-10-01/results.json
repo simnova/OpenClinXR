@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "measuredAt": "2026-10-01",
+  "measuredAgainstCommit": "4385291c7c819237632b9d094117ca5fd5a805b1",
+  "status": "pending_coordinator_grade",
+  "decision": "pending coordinator grade",
+  "claimScope": "local M1 Max ECG-cart generation, optimization, and fixed-camera evidence",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption",
+    "a visual winner before coordinator native-pixel grade"
+  ],
+  "install": {
+    "path": "~/.openclinxr-tools/image-to-3dlab",
+    "commit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+    "diskBytesApprox": 26080264192,
+    "sharedTrellisWeightCacheBytesApprox": 14819926016,
+    "u2netCacheBytesApprox": 408875008,
+    "reusedExistingTrellis2Checkout": false,
+    "reuseNote": "The existing trellis2-apple source checkout was dirty and at a different commit; only its shared Hugging Face weight cache was reused.",
+    "sourceRevisions": {
+      "pixal3dVendor": "d1b4926452f9e09702b891db5f05acc845e153ed",
+      "stableFast3dVendor": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+      "trellis2Space": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+      "trellis2ApplePin": "6055b868734af6e12769d229d90580e775fae9f0"
+    },
+    "weightRevisions": {
+      "pixal3d": "46d399ac986f45a0d7f5b1ca5058614d8729a131",
+      "birefnetGguf": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "hunyuanShape20": "9cd649ba6913f7a852e3286bad86bfa9a2d83dcf",
+      "hunyuanPaint": "b56e8b86b4d1e62b0bb3bbef7e2070d6ec22620e",
+      "trellis2_4b": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "stableFast3d": "f0c9a8ffd62cb1bbc8a7a53c9f87a0be1b6be778",
+      "dinov3": null
+    }
+  },
+  "input": {
+    "singleView": "inputs/ecg-cart-oracle-matted.png",
+    "singleViewSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "oracleSingleSha256": "3be74fd259fee38002bae8e096eef3837462cadbc4c0cd1155bc27cf7f6f7d8f",
+    "oracleMultiviewPackSha256": "377f90f7180fe9b559c3b515ebb13ae108fc14e4d5937ca229116a0d38aac7c0",
+    "multiviewExecution": "No backend exposed a working exact multi-image path through the pinned image-to-3dlab CLI on this host; the TRELLIS.2 CLI advertised multi-view but its Apple Space runner accepted one image. No collage was substituted."
+  },
+  "control": {
+    "rawTriangles": 973639,
+    "rawSha256": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+    "optimizedTriangles": 34443,
+    "optimizedSha256": "c2b8c81fc661581a2ffa9173588b79c4937d09f2d5463f6224261e3cdf4359b9",
+    "frozenExtent": 0.9682512283325195,
+    "render": "renders/control/three_quarter_right.png",
+    "silhouetteIou": 0.71406
+  },
+  "renderProtocol": {
+    "renderer": "Blender EEVEE via BlenderService",
+    "script": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+    "resolution": [1280, 1280],
+    "view": "three_quarter_right",
+    "cameraAndLights": "frozen from control",
+    "treatmentScale": "uniform render-only normalization to control extent; source GLBs unchanged"
+  },
+  "silhouetteMetric": {
+    "definition": "intersection-over-union of alpha >= 16 at 1280x1280 against the Lanczos-resized common BiRefNet-matted Imagine oracle",
+    "oracle": "inputs/ecg-cart-oracle-matted.png"
+  },
+  "backends": [
+    {
+      "id": "pixal3d",
+      "outcome": "gradeable",
+      "conditioning": "single_view",
+      "parameters": {"seed": 42, "steps": 8, "gss": 10.0, "fovRadians": 0.34906585, "resolution": 1024},
+      "run1": {
+        "wallSeconds": 467.64,
+        "peakRssBytes": 5098602496,
+        "concurrentHeavyProcessesAtStart": 1,
+        "concurrentHeavyProcessesAtEnd": 0,
+        "concurrentHeavyProcessNote": "one browser capture holder at start; zero GPU/Blender holders",
+        "rawTriangles": 987666,
+        "rawBytes": 37277492,
+        "rawSha256": "a895a10214bcb37439275e8ee362099843f431bf3a2c5f628943a9230c55782c"
+      },
+      "run2": {
+        "wallSeconds": 457.55,
+        "peakRssBytes": 5087232000,
+        "rawTriangles": 987666,
+        "rawBytes": 37277492,
+        "rawSha256": "faa9a4c9b26557f038b9744f7fbf6ea4d77aac3f40b45e0ad732cb2f007d11fa"
+      },
+      "reproducibility": {"replayedFromManifest": true, "byteIdentical": false},
+      "textures": {
+        "embedded": [{"format": "WebP", "width": 4096, "height": 4096, "compressedBytes": 1251766}, {"format": "WebP", "width": 4096, "height": 4096, "compressedBytes": 42312}],
+        "decodedRgbaNoMipsMiB": 128.0
+      },
+      "optimized": {
+        "triangles": 73790,
+        "bytes": 5273180,
+        "sha256": "d88fb4216872546912876b9d31eb53b5fd38de0a777cde9a8fb1a65de8f89d14",
+        "underPreferred80k": true,
+        "underStretch40k": false,
+        "note": "Initial 40k targets plateaued near 103k-106k; retargeting the 120k rung produced 73,790 tris."
+      },
+      "silhouetteIou": {"raw": 0.726054, "optimized": 0.725203},
+      "renders": {"raw": "renders/pixal3d-raw/three_quarter_right.png", "optimized": "renders/pixal3d-opt/three_quarter_right.png"}
+    },
+    {
+      "id": "hunyuan3d-mlx-2.0",
+      "variant": "Xiong full pipeline 2.0, quantize8, octree512; paint resolution 512, texture 4096",
+      "outcome": "gradeable",
+      "conditioning": "single_view",
+      "wallSeconds": 889.46,
+      "peakRssBytes": 10075832320,
+      "concurrentHeavyProcessesAtStart": 0,
+      "concurrentHeavyProcessesAtEnd": 0,
+      "rawTriangles": 300000,
+      "rawBytes": 23866240,
+      "rawSha256": "d3d7b939ee25d3c8e4b1aeb8e6ecfa94d37760af98aac8b2a7b0177bc0968c0c",
+      "wrapperRecovery": "Generation and painting completed; the wrapper's final os.replace crossed filesystems and raised EXDEV. The completed exact output was recovered by byte-preserving copy.",
+      "reproducibility": {"replayedFromManifest": false, "byteIdentical": null, "note": "The task requested one backend replay; Pixal3D was replayed."},
+      "textures": {
+        "embedded": [{"format": "PNG", "width": 4096, "height": 4096, "compressedBytes": 8005832}, {"format": "PNG", "width": 4096, "height": 4096, "compressedBytes": 8402960}],
+        "decodedRgbaNoMipsMiB": 128.0
+      },
+      "optimized": {
+        "triangles": 80000,
+        "bytes": 18878116,
+        "sha256": "237983a194c720b125a0d37a61da68b64bd61e64466a00d68c0876c8b23d0edb",
+        "underPreferred80k": true,
+        "stretch40kAvailable": true,
+        "stretch40kSha256": "43470e8a37ce5f7df77a8caec047835bfbe308ec53f2788b09830b08b2205aa8"
+      },
+      "silhouetteIou": {"raw": 0.786432, "optimized": 0.786464},
+      "territoryFlag": "US-hosted deployment only; output is blocked from EU, UK, and South Korea under MADR 0046.",
+      "renders": {"raw": "renders/hunyuan3d-mlx-2.0-raw/three_quarter_right.png", "optimized": "renders/hunyuan3d-mlx-2.0-opt/three_quarter_right.png"}
+    },
+    {
+      "id": "stable-fast-3d",
+      "outcome": "access_blocked",
+      "conditioning": "not_run",
+      "wallSeconds": null,
+      "peakRssBytes": null,
+      "rawTriangles": null,
+      "optimizedTriangles": null,
+      "decodedTextureMiB": null,
+      "reproducibility": null,
+      "blocker": "The pinned code and Metal extensions installed, but the gated Hugging Face model weights required authentication."
+    },
+    {
+      "id": "trellis2",
+      "outcome": "access_blocked",
+      "conditioning": "single_view_attempted",
+      "wallSeconds": 133.9,
+      "peakRssBytes": 20841693184,
+      "concurrentHeavyProcessesAtStart": 0,
+      "concurrentHeavyProcessesAtEnd": 0,
+      "rawTriangles": null,
+      "optimizedTriangles": null,
+      "decodedTextureMiB": null,
+      "reproducibility": null,
+      "blocker": "Inference stopped at gated facebook/dinov3-vitl16-pretrain-lvd1689m download (HTTP 403). The 4B TRELLIS weight cache was present.",
+      "multiview": "The pinned lab CLI advertises multi-view, but its Apple Space runner accepts one image; no collage fallback was used."
+    }
+  ],
+  "contactSheets": {
+    "raw": "renders/contact-sheet-raw.png",
+    "optimized": "renders/contact-sheet-optimized.png",
+    "blockedColumns": ["stable-fast-3d", "trellis2"]
+  }
+}

@@ -3976,3 +3976,45 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-04-door-inside-before-after-no-reference.png` - keep-evidence; Stepdown pose 04 before-after-no-reference sheet.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-05-troffer-junction-before-after-no-reference.png` - keep-evidence; Stepdown pose 05 before-after-no-reference sheet.
 - `docs/openclinxr/room-realism/stepdown-room-v1-finish/sheets/runtime-06-floor-base-before-after-no-reference.png` - keep-evidence; Stepdown pose 06 before-after-no-reference sheet.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - keep-evidence; image-to-3dlab ECG-cart cagematch report and claim boundary.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/results.json` - keep-evidence; machine-readable install, performance, geometry, texture, reproducibility, and IoU measurements.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/contact-sheet-raw.png` - keep-evidence; frozen-camera raw comparison with explicit blocked-backend columns.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/contact-sheet-optimized.png` - keep-evidence; frozen-camera optimized comparison with explicit blocked-backend columns.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run1/ecg-cart.glb` - keep-evidence; first Pixal3D raw ECG-cart treatment.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run2/ecg-cart.glb` - keep-evidence; manifest replay for byte-reproducibility measurement.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/pixal3d/champion.glb` - keep-evidence; 73,790-triangle Pixal3D preferred-band grade target.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/ecg-cart.glb` - keep-evidence; Hunyuan3D-MLX raw ECG-cart treatment, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/champion.glb` - keep-evidence; 80,000-triangle Hunyuan3D-MLX grade target, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/iter1-share40k.glb` - keep-evidence; Hunyuan3D-MLX 40,000-triangle stretch rung, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png` - keep-evidence; Common matted Imagine oracle input.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run1/ecg-cart.json` - keep-evidence; Pixal3D run-one manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run1/provenance.json` - keep-evidence; Pixal3D run-one provenance.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run2/ecg-cart.json` - keep-evidence; Pixal3D replay manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run2/provenance.json` - keep-evidence; Pixal3D replay provenance.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/pixal3d/iteration-report.json` - keep-evidence; Pixal3D optimize-station measurements.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/pixal3d/provenance.json` - keep-evidence; Pixal3D optimized-asset provenance.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/provenance.json` - keep-evidence; Hunyuan raw provenance and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/iteration-report.json` - keep-evidence; Hunyuan optimize-station measurements.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/provenance.json` - keep-evidence; Hunyuan optimized provenance and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/stable-fast-3d/provenance.json` - keep-evidence; Stable Fast 3D access-blocked provenance.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/trellis2/provenance.json` - keep-evidence; TRELLIS.2 access-blocked provenance.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/pack-manifest.json` - keep-evidence; Fixed-control grade-render manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png` - keep-evidence; Fixed-control grade still.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/pixal3d-raw/pack-manifest.json` - keep-evidence; Pixal3D raw render manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/pixal3d-raw/three_quarter_right.png` - keep-evidence; Pixal3D raw grade still.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/pixal3d-opt/pack-manifest.json` - keep-evidence; Pixal3D optimized render manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/pixal3d-opt/three_quarter_right.png` - keep-evidence; Pixal3D optimized grade still.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/hunyuan3d-mlx-2.0-raw/pack-manifest.json` - keep-evidence; Hunyuan raw render manifest and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/hunyuan3d-mlx-2.0-raw/three_quarter_right.png` - keep-evidence; Hunyuan raw grade still, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/hunyuan3d-mlx-2.0-opt/pack-manifest.json` - keep-evidence; Hunyuan optimized render manifest and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/hunyuan3d-mlx-2.0-opt/three_quarter_right.png` - keep-evidence; Hunyuan optimized grade still, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/control/pack-manifest.json` - keep-evidence; Transparent control silhouette manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/control/three_quarter_right.png` - keep-evidence; Control silhouette IoU input.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/pixal3d-raw/pack-manifest.json` - keep-evidence; Transparent Pixal3D raw silhouette manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/pixal3d-raw/three_quarter_right.png` - keep-evidence; Pixal3D raw silhouette IoU input.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/pixal3d-opt/pack-manifest.json` - keep-evidence; Transparent Pixal3D optimized silhouette manifest.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/pixal3d-opt/three_quarter_right.png` - keep-evidence; Pixal3D optimized silhouette IoU input.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-raw/pack-manifest.json` - keep-evidence; Transparent Hunyuan raw silhouette manifest and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-raw/three_quarter_right.png` - keep-evidence; Hunyuan raw silhouette input, US-hosted deployment only.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-opt/pack-manifest.json` - keep-evidence; Transparent Hunyuan optimized silhouette manifest and territory flag.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-opt/three_quarter_right.png` - keep-evidence; Hunyuan optimized silhouette input, US-hosted deployment only.

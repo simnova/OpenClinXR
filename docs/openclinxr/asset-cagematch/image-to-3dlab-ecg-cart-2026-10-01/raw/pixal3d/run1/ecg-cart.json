@@ -1,0 +1,29 @@
+{
+  "backend": "pixal3d",
+  "components": [],
+  "input": {
+    "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+    "sha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82"
+  },
+  "license": {
+    "name": "MIT (code + flow weights); DINOv3 License (bundled encoder)",
+    "url": "https://huggingface.co/raven38/pixal3d-sv-q8_0-v1"
+  },
+  "output": {
+    "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run1/ecg-cart.glb",
+    "sha256": "a895a10214bcb37439275e8ee362099843f431bf3a2c5f628943a9230c55782c"
+  },
+  "parameters": {
+    "fov": 0.3490658503988659,
+    "gsh": null,
+    "gss": 10.0,
+    "matted": true,
+    "res": 1024,
+    "seed": 42,
+    "steps": 8
+  },
+  "schema_version": 1,
+  "timings_seconds": {
+    "total": 467.5
+  }
+}
