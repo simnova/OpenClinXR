@@ -72,6 +72,12 @@ The standard optimize-station ladder plateaued above 88k. Installed meshoptimize
 
 Evidence: `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/` contains raw/budget GLBs, stills, masks, attempt logs, timing receipts, exact recovery/optimization scripts and provenance. `renders/contact-sheet-budget.png` fills the TRELLIS.2 column and is also copied to the Round 2 budget-sheet path; the other three columns remain pixel-identical. Mixed-sheet provenance retains the Hunyuan US-hosted-only territory flag. Full numbers and caveats are in REPORT.md and results.json Round 3. No worker grade is added.
 
+### Round 3 coordinator grade (2026-10-01, native 5120 px budget sheet, MY GRADE)
+
+- **TRELLIS.2 (via image-to-3dlab, budget 38,697 tris, 8 MiB, IoU 0.781): the strongest challenger, not adopted yet.** Its front panel is the closest match to the oracle of any candidate, control included. It has all seven buttons in the oracle's teal, purple and orange; all six ring connectors in the oracle's red, blue, YELLOW and black order (control and Hunyuan both lose yellow); a grey body; and a black screen. Against it: its column and base carry dark mottled texture corruption and streaks, and the casters are noisy. It took 1,396 s of compute and 39 GiB peak RSS, so on this 64 GB machine it cannot share the GPU slot with other heavy work. Licence: MIT plus DINOv3 (commercial use permitted, MADR 0049), with no territory limit.
+
+Decision after three rounds: **TRELLIS control stays for now.** Next step, if pursued: a TRELLIS.2 round aimed at the column/base texture corruption (its texture-bake resolution and remesh settings, through our own `~/.openclinxr-tools/trellis2-apple` station so it runs inside the factory's compute slots). Adopt it if the corruption clears while the front-panel likeness holds.
+
 ## Consequences if accepted
 
 The coordinator must grade the native raw and optimized stills against the Imagine oracle and fixed control before selecting, rejecting, or promoting a backend. Silhouette IoU is supporting shape evidence, not the decision. An access-blocked backend has no quality verdict. No result here is Quest, clinical-validity, or runtime-adoption evidence.
