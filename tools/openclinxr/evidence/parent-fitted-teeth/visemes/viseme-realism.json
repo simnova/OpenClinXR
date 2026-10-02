@@ -1,14 +1,14 @@
 {
   "schemaVersion": "openclinxr.parent-fitted-teeth.viseme-realism.v1",
-  "generatedAt": "2026-10-01T22:28:53Z",
+  "generatedAt": "2026-10-02T00:18:15Z",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "baselineFile": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
   "baselineGlbSha256": "b95f4606db278e4becc8768d3bf2c661efa05dab0d962113d7646499b3ae7302",
   "baselineOpeningMeanM": 0.004500010969270264,
-  "afterOpeningMeanM": 0.0014684249849584536,
-  "ratio": 0.32631586789144607,
+  "afterOpeningMeanM": 0.0014684795077846507,
+  "ratio": 0.32632798404551083,
   "bar": 0.8,
-  "reduction": 0.6736841321085539,
+  "reduction": 0.6736720159544891,
   "restUpperM": 0.0070959803651845605,
   "restLowerM": 0.01066643650740738,
   "recordedRestUpperM": 0.0070959803651845605,
@@ -23,10 +23,10 @@
       "beforeUpperMm": 1.251,
       "beforeLowerMm": 1.844,
       "afterUpperM": 0.0012284813055280209,
-      "afterLowerM": 0.0018159189730031495,
+      "afterLowerM": 0.0018173365664842683,
       "afterUpperMm": 1.228,
-      "afterLowerMm": 1.816,
-      "afterShellMeanM": 0.0015222001392655852
+      "afterLowerMm": 1.817,
+      "afterShellMeanM": 0.0015229089360061446
     },
     {
       "name": "viseme_CH",

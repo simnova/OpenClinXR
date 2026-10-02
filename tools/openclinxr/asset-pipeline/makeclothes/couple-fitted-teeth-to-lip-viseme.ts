@@ -16,7 +16,10 @@
  * along that view. A triangle with an arch-face vertex is sampled at its
  * centroid and its three edge midpoints, and those samples in the same
  * 0.2–8 mm band are pushed back the same way. Samples already behind, and
- * samples more than 8 mm in front, stay. After `applyJawOpenToRoot` for that
+ * samples more than 8 mm in front, stay. On viseme_aa, pale crown pixels that
+ * touch the lip in the posed-head still are raycast. A tooth face that is the
+ * first hit moves back along that ray until the body is first. A face the ray
+ * already hits behind the lip stays. After `applyJawOpenToRoot` for that
  * viseme, each front shell's mean
  * distance to the nearest body vertex is between 0.5 mm and 2 mm, with the
  * lip still in front of the crowns (+Z). Upper crowns are not pulled forward
@@ -34,7 +37,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, PerspectiveCamera, Skeleton, SkinnedMesh, Vector3 } from "three";
+import { Bone, BufferAttribute, BufferGeometry, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Skeleton, SkinnedMesh, Vector2, Vector3 } from "three";
 import { applyVisemeWeights, type MorphTargetLike } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
 import {
@@ -67,6 +70,27 @@ const HEAD_VIEW_W = 1280;
 const HEAD_VIEW_H = 960;
 const HEAD_CAMERA_POSITION: Vec3 = [0.5297281360924244, 1.68536235332489, 0.8719936575591564];
 const HEAD_CAMERA_LOOK: Vec3 = [0.0017281360924243927, 1.5586723208427429, 0.05599365755915642];
+/**
+ * Posed-head frame for the aa still: resolveFocus(root, "head") after
+ * viseme_aa weight 1 and applyJawOpenToRoot, then frameCamera with no view.
+ * fov 35, aspect 1280/960, near 0.01.
+ */
+const AA_POSED_HEAD_CAM_POS: Vec3 = [0.5297281100153923, 1.6853621745109557, 0.8720436230152845];
+const AA_POSED_HEAD_CAM_LOOK: Vec3 = [0.0017281100153923035, 1.5586721479892731, 0.05604362301528454];
+/** Pale crown pixels that touch a pink lip pixel in the aa corner and lower crops. */
+const AA_LIP_RAY_PIXELS: ReadonlyArray<readonly [number, number]> = [
+  [586, 614], [580, 615], [584, 615], [585, 615], [586, 615], [587, 615], [588, 615],
+  [584, 616], [588, 616], [588, 617],
+  [600, 645], [601, 645], [602, 645],
+  [581, 646], [582, 646], [583, 646], [584, 646], [585, 646],
+  [589, 646], [590, 646], [591, 646], [592, 646], [593, 646], [594, 646],
+  [600, 646], [602, 646], [603, 646],
+  [586, 647], [594, 647], [595, 647], [603, 647],
+  [581, 649], [582, 649], [583, 649], [583, 650], [584, 650], [585, 650], [595, 650],
+  [552, 635], [573, 646], [574, 646], [575, 646],
+];
+/** Slide a hit tooth this far past the lip so the body stays the first hit. */
+const AA_LIP_RAY_PAST_M = 0.00005;
 /** Rest-pose arch face, round x bins. Pairs are posed neighbors within 7 slots and 2.5 mm. */
 const CAMERA_LIP_PAIR_WINDOW = 8;
 const CAMERA_LIP_PAIR_M = 0.0025;
@@ -497,6 +521,8 @@ type Pose = {
   bodyTargetNames: string[];
   bodySkinned: SkinnedMesh;
   bodySkeleton: Skeleton;
+  /** Triangle list of the body primitive. Three indices per face. */
+  bodyIndex: Uint32Array;
   jointNodes: GltfNode[];
 };
 
@@ -595,6 +621,7 @@ function buildPose(doc: Awaited<ReturnType<NodeIO["read"]>>): Pose {
     bodyTargetNames: body.targetNames,
     bodySkinned: body.skinned,
     bodySkeleton: body.skeleton,
+    bodyIndex: body.meshIndex,
     jointNodes: body.jointNodes,
   };
 }
@@ -1427,7 +1454,77 @@ function solveShells(
   if ((viseme === "viseme_aa" || viseme === "viseme_E") && beforeTriangles.far > 0 && afterTriangles.far === 0) {
     throw new Error(`${viseme} triangle opening bucket dropped to 0`);
   }
+  const seatPosedHeadPixelRays = (): void => {
+    if (viseme !== "viseme_aa") return;
+    if (pose.bodyIndex.length < 3) throw new Error("body has no triangles for the aa lip ray");
+    const posedHeadCamera = new PerspectiveCamera(35, HEAD_VIEW_W / HEAD_VIEW_H, 0.01, 100);
+    posedHeadCamera.position.set(AA_POSED_HEAD_CAM_POS[0], AA_POSED_HEAD_CAM_POS[1], AA_POSED_HEAD_CAM_POS[2]);
+    posedHeadCamera.lookAt(AA_POSED_HEAD_CAM_LOOK[0], AA_POSED_HEAD_CAM_LOOK[1], AA_POSED_HEAD_CAM_LOOK[2]);
+    posedHeadCamera.updateMatrixWorld(true);
+    const raycaster = new Raycaster();
+    const ndc = new Vector2();
+    const bodyGeo = new BufferGeometry();
+    bodyGeo.setAttribute("position", new BufferAttribute(bodyWorld, 3));
+    bodyGeo.setIndex(new BufferAttribute(pose.bodyIndex, 1));
+    bodyGeo.computeBoundingSphere();
+    const bodyMesh = new Mesh(bodyGeo, new MeshBasicMaterial({ side: DoubleSide }));
+    for (let iter = 0; iter < 12; iter += 1) {
+      posedNow = poseOff();
+      const teethGeo = new BufferGeometry();
+      teethGeo.setAttribute("position", new BufferAttribute(posedNow, 3));
+      teethGeo.setIndex(new BufferAttribute(pose.teethIndex, 1));
+      teethGeo.computeBoundingSphere();
+      const teethMesh = new Mesh(teethGeo, new MeshBasicMaterial({ side: DoubleSide }));
+      const want = new Map<number, { excess: number; x: number; y: number; z: number }>();
+      for (const [px, py] of AA_LIP_RAY_PIXELS) {
+        ndc.set(((px + 0.5) / HEAD_VIEW_W) * 2 - 1, 1 - ((py + 0.5) / HEAD_VIEW_H) * 2);
+        raycaster.setFromCamera(ndc, posedHeadCamera);
+        const hits = raycaster.intersectObjects([teethMesh, bodyMesh], false);
+        const first = hits[0];
+        if (!first || first.object !== teethMesh || !first.face) continue;
+        let bodyHit: (typeof hits)[number] | undefined;
+        for (const hit of hits) {
+          if (hit.object === bodyMesh) {
+            bodyHit = hit;
+            break;
+          }
+        }
+        if (!bodyHit) continue;
+        const excess = bodyHit.distance - first.distance + AA_LIP_RAY_PAST_M;
+        if (!(excess > 0)) continue;
+        const dir = raycaster.ray.direction;
+        for (const vertex of [first.face.a, first.face.b, first.face.c]) {
+          if (!jawSet.has(vertex) && !headSet.has(vertex)) continue;
+          const prev = want.get(vertex);
+          if (!prev || excess > prev.excess) want.set(vertex, { excess, x: dir.x, y: dir.y, z: dir.z });
+        }
+      }
+      if (want.size === 0) return;
+      for (const [vertex, slide] of want) {
+        const wx = posedNow[vertex * 3] ?? 0;
+        const wy = posedNow[vertex * 3 + 1] ?? 0;
+        const wz = posedNow[vertex * 3 + 2] ?? 0;
+        worldOff[vertex * 3] = wx + slide.x * slide.excess - (teethWorld[vertex * 3] ?? 0);
+        worldOff[vertex * 3 + 1] = wy + slide.y * slide.excess - (teethWorld[vertex * 3 + 1] ?? 0);
+        worldOff[vertex * 3 + 2] = wz + slide.z * slide.excess - (teethWorld[vertex * 3 + 2] ?? 0);
+      }
+    }
+    throw new Error(`${viseme} posed-head lip rays still hit teeth first`);
+  };
+  seatPosedHeadPixelRays();
   posedNow = poseOff();
+  if (viseme === "viseme_aa") {
+    const rayVertex = cameraLipCutCounts(pose.teethPos, posedNow, bodyWorld);
+    const rayTri = cameraLipTriangleCutCounts(pose.teethPos, posedNow, bodyWorld, pose.teethIndex);
+    if (rayVertex.near > 0 || rayVertex.mid > 0) {
+      throw new Error(`${viseme} pixel ray moved a vertex into the camera lip band ${rayVertex.near}/${rayVertex.mid}`);
+    }
+    if (rayTri.near > 0 || rayTri.mid > 0) {
+      throw new Error(`${viseme} pixel ray moved a triangle into the camera lip band ${rayTri.near}/${rayTri.mid}`);
+    }
+    if (afterVertex.far > 0 && rayVertex.far === 0) throw new Error(`${viseme} camera opening bucket dropped to 0`);
+    if (afterTriangles.far > 0 && rayTri.far === 0) throw new Error(`${viseme} triangle opening bucket dropped to 0`);
+  }
   const upper = frontShellMeanGap(posedNow, shells.upper, bodyWorld);
   const lower = frontShellMeanGap(posedNow, shells.lower, bodyWorld);
   if (!gapInBand(upper) || !gapInBand(lower)) {
