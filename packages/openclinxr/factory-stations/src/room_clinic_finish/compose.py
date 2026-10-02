@@ -1151,6 +1151,10 @@ DOOR_HINGE_KNUCKLE_R_M = 0.006
 # leaf edges and floor. It remains recipe-gated so the ward stays byte-identical.
 DOOR_KICK_PLATE_HEIGHT_M = 0.25
 DOOR_KICK_PLATE_MARGIN_M = 0.015
+# The shell floor field rides 3 mm above its measured plane. Starting the
+# visible veneer and kick plate at the same height closes the photographed
+# white under-leaf slit without intersecting the finish floor.
+DOOR_LEAF_BOTTOM_CLEARANCE_M = FLOOR_FIELD_LIFT_M
 DOOR_KICK_PLATE_PROUD_M = 0.002
 
 
@@ -1918,7 +1922,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             back = face - room_sign * 0.002
             fx0 = box["min"][ua] + 0.015
             fx1 = box["max"][ua] - 0.015
-            fz0 = box["min"][va] + 0.010
+            fz0 = box["min"][va] + DOOR_LEAF_BOTTOM_CLEARANCE_M
             fz1 = box["max"][va] - 0.015
             hx0, hx1 = u0 - 0.005, u1 + 0.005
             hz0, hz1 = v0 - 0.005, v1 + 0.005
@@ -1968,7 +1972,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
         if kick_plate:
             kp_u0 = leaf_u0 + DOOR_KICK_PLATE_MARGIN_M
             kp_u1 = leaf_u1 - DOOR_KICK_PLATE_MARGIN_M
-            kp_v0 = leaf_v0 + DOOR_KICK_PLATE_MARGIN_M
+            kp_v0 = leaf_v0 + DOOR_LEAF_BOTTOM_CLEARANCE_M
             kp_v1 = min(leaf_v1, kp_v0 + DOOR_KICK_PLATE_HEIGHT_M)
             kp_front = facing_fwd + room_sign * DOOR_KICK_PLATE_PROUD_M
             kp_back = facing_fwd
