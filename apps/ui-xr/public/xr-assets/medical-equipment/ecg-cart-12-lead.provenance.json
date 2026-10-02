@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "openclinxr.medical-equipment-provenance.v1",
+  "derivationMode": "trellis_r5best_promote",
+  "scenarioId": null,
+  "assetId": "ecg_cart_equipment",
+  "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+  "sourceRecordPath": "FILL:bake-measure.json path",
+  "generatorMode": "trellis_metal_image_to_mesh_via_trellis2_apple_r5best",
+  "sourceKind": "trellis_generated_derivative",
+  "usesRealTrellisForwardPass": true,
+  "backgroundRemovalUsed": false,
+  "textureMode": "trellis_baked_material",
+  "animationMode": "none_static_equipment",
+  "optimizationMode": "r5_best_cpu_fill_weld_guarded_island_filter_pre_bake_decimate_40000_bake_512",
+  "realismGrade": null,
+  "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "trellis_metal_image_to_shape_to_mesh_to_glb_v1",
+    "conditioningImage": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+    "conditioningImageSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "seed": 42,
+    "stationInput": {
+      "subjectId": "ecg-cart",
+      "packId": "ecg-cart",
+      "seed": 42,
+      "remesh": false,
+      "viewCount": 1,
+      "decimationTarget": 40000,
+      "exportTreatment": "r5-best"
+    },
+    "treatmentScript": "packages/openclinxr/factory-stations/src/equipment_generate/r5_best_treatment.py",
+    "treatmentScriptSourceSha256": "4d0725e3aefaf83cf6eeaf13253b28d0781ff38ba87fcb4ac68869d4f603abf5",
+    "bakeReportPath": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/bake-measure.json",
+    "bakeOutputDir": ".openclinxr/evidence/trellis-bake/ecg-cart (gitignored; bake-measure.json copied to factory-wiring/)",
+    "freezeRecordPath": "tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json",
+    "freezePublishedPath": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart.glb",
+    "derivationNote": "Station bake (equipment_generate exportTreatment r5-best, seed 42) published hash-verified to ecg-cart.glb and froze; this runtime file is promoted byte-identical from the frozen GLB (sha256 01e11ed0cb790f532d010026c3d0ede770c54f17ddb25740c4c3a5dc3e6e9266)."
+  },
+  "licenseChain": {
+    "status": "verified_at_pipeline_setup_not_reverified_at_promote",
+    "tool": "microsoft/TRELLIS.2-4B via pedronaugusto/trellis2-apple fork",
+    "toolLicense": "MIT (Microsoft's, preserved through the fork)",
+    "licenseSource": "docs/madr/0049-third-party-asset-licence-posture.md + GitHub API + LICENSE",
+    "sourceRecordClaimsSupported": [
+      "TRELLIS.2-4B is MIT (HF API).",
+      "trellis2-apple preserves Microsoft's MIT through the fork (GitHub API + LICENSE).",
+      "Background removal (RMBG-2.0, CC BY-NC 4.0) was SKIPPED; the pipeline path contains no background remover."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "mesh_regeneration_from_trellis_package",
+      "background_removal"
+    ],
+    "explicitUnknown": [
+      "Whether the generated GLB is a 'derivative work of the DINO Materials' (DINOv3 pretrain used inside shape generation, custom licence permitting commercial use) is a lawyer question recorded unanswered in MADR 0049; only the GLB is shipped, never model weights.",
+      "Input reference image provenance is not re-asserted at promote time; chain is bake report + freeze record + treatment record."
+    ],
+    "notes": "Local Apple-Silicon TRELLIS generation only; no cloud/paid APIs. Do not treat this record as a full licence enumeration of every transitive dependency."
+  },
+  "derivativeLineage": {
+    "status": "trellis_r5best_promote_derivative",
+    "caseId": null,
+    "assetId": "ecg_cart_equipment",
+    "reuseKey": "ecg_cart_equipment:trellis_r5best_seed42",
+    "method": "station_bake_exportTreatment_r5_best_then_publish_freeze_then_promote_byte_identical_to_tracked_library",
+    "promotedFrom": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart.glb",
+    "publishedAs": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/ (front + three-quarter EEVEE renders)"
+  },
+  "toolVersion": "openclinxr-trellis-r5best-promote-v1",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
+  ],
+  "sourceNotes": [
+    "MADR 0059 round 5b adopts TRELLIS.2 round-3 seed (42) generation plus the R5-BEST post-generation pipeline for the ECG cart.",
+    "Station bake: wall 965.7 s (shape gen 815.4 s, export+treatment 66.3 s); raw 11,990,792 faces; island filter 35 -> 7 kept; final 37,828 tris, 1,794,068 bytes, 512 px PBR (2 MiB decoded), 40 welded components, 4,426 boundary edges.",
+    "Static equipment; no rigging, no animation, no skinning."
+  ],
+  "claimScope": "local_tracked_equipment_glb_wiring_not_readiness",
+  "promotionGates": false,
+  "outputSha256": "01e11ed0cb790f532d010026c3d0ede770c54f17ddb25740c4c3a5dc3e6e9266",
+  "outputBytes": 1794068,
+  "generatedAt": "2026-10-02T16:37:09.424Z",
+  "method": "promote_byte_identical_frozen_glb_to_tracked_library"
+}

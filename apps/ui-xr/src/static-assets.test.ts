@@ -73,7 +73,7 @@ const generatedSceneAssetHashes = {
   // rendered triangle, node, and AABB is unchanged — see PROVENANCE.md and each asset's
   // finalizeStation provenance block for the measured before/after. wall-clock-analog.glb was
   // already clean (byte-identical, hash unchanged).
-  "medical-equipment/ecg-cart-12-lead.glb": "a6a34c19458a77c81899f31407027fa922b640b279d2a78464eb1aefe9799027",
+  "medical-equipment/ecg-cart-12-lead.glb": "01e11ed0cb790f532d010026c3d0ede770c54f17ddb25740c4c3a5dc3e6e9266",
   "medical-equipment/iv-pole-with-pump.glb": "778b1173cc6c8732e55c4949c24789a517fe993c6f3a46f1f80fb1ff5f829c2c",
   "medical-equipment/wall-clock-analog.glb": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
   "medical-equipment/bedside-monitor-generated.glb": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",

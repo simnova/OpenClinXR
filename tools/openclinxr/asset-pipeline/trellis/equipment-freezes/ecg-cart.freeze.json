@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "openclinxr.equipment-runtime-freeze.v1",
+  "generatedAt": "2026-10-02T16:37:09.424Z",
+  "subjectId": "ecg-cart",
+  "displayName": "12-lead ECG cart",
+  "seed": 42,
+  "remesh": false,
+  "decimationTarget": 40000,
+  "bakeOutputDir": "/Volumes/files/src/openclinxr-wt/cart-factory-wiring/.openclinxr/evidence/trellis-bake/ecg-cart",
+  "glbExportName": "ecg-cart.glb",
+  "glbSha256": "01e11ed0cb790f532d010026c3d0ede770c54f17ddb25740c4c3a5dc3e6e9266",
+  "runtimeAssetUrl": "/xr-assets/medical-equipment/ecg-cart.glb",
+  "claimScope": [
+    "equipment_generate_station_publishes_hash_verified_glb_before_freeze"
+  ],
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_accuracy_or_device_equivalence",
+    "production_asset_readiness",
+    "replacement_of_parametric_equipment_builders"
+  ]
+}
