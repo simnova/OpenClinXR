@@ -452,3 +452,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/rooms-regen/BATCH-02.md` - evidence; Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures.
 - `docs/openclinxr/room-realism/rooms-regen/BATCH-03.md` - evidence; Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes.
 - `docs/openclinxr/room-realism/rooms-regen/BATCH-04.md` - evidence; Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes.
+- `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - evidence; Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects.

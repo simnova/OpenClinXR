@@ -1,0 +1,860 @@
+{
+  "schemaVersion": "openclinxr.rooms-regen-results.v1",
+  "generatedAt": "2026-10-02T00:00:31.060Z",
+  "sourceRevision": "b0bc59909",
+  "warmFleetConcurrentWallMs": 14583,
+  "totals": {
+    "coldPerRoomWallMs": 1095531,
+    "warmPerRoomWallMs": 59136,
+    "cpuPassTotalsMs": {
+      "generate": 147157,
+      "strip": 83071,
+      "extract": 130298,
+      "probe": 40558,
+      "litAlbedo": 17000,
+      "roomClinicFinish": 14000,
+      "lightingDesign": 14000
+    }
+  },
+  "metalDecisionRule": "adopt only when faster, byte-identical run-to-run, and maximum CPU pixel delta is <= 1/255",
+  "initialFailuresRecovered": [
+    {
+      "environmentId": "ed_stroke_bay_v1",
+      "stage": "room_clinic_finish",
+      "error": "hingeSide +x does not name the leaf width axis (ua=1)"
+    },
+    {
+      "environmentId": "behavioral_health_private_room_v1",
+      "stage": "evidence-pose derivation after lighting_design",
+      "error": "room evidence pose derivation requires troffer nodes"
+    }
+  ],
+  "rows": [
+    {
+      "environmentId": "ed_exam_bay_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 22,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 45718,
+        "warmTotal": 2647,
+        "roomGenerate": 43718,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 8106,
+          "stripMs": 1011,
+          "shellBakeMs": 25096,
+          "extractMs": 1426,
+          "probeMs": 1079,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+        "bytes": 10183432,
+        "sha256": "60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47",
+        "triangles": 3672,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 115,
+        "primitivesWithMaterial": 115,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/ed_exam_bay_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "pediatric_urgent_care_bay_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 13,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 55384,
+        "warmTotal": 12256,
+        "roomGenerate": 53384,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 7821,
+          "stripMs": 2099,
+          "shellBakeMs": 27164,
+          "extractMs": 3485,
+          "probeMs": 2815,
+          "litAlbedoMs": 2000,
+          "ambientOcclusionMs": 8000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+        "bytes": 8781436,
+        "sha256": "3d5e58ce0a4154f90d6a245be6b88b440e71fe926e8d009164c094be48020a71",
+        "triangles": 3331,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 121,
+        "primitivesWithMaterial": 121,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/pediatric_urgent_care_bay_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "primary_care_clinic_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 1,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 57977,
+        "warmTotal": 4451,
+        "roomGenerate": 55977,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 8190,
+          "stripMs": 2927,
+          "shellBakeMs": 30817,
+          "extractMs": 3022,
+          "probeMs": 4021,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb",
+        "bytes": 9667304,
+        "sha256": "1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009",
+        "triangles": 4297,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 133,
+        "primitivesWithMaterial": 133,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/primary_care_clinic_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "ed_stroke_bay_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 2,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 101190,
+        "warmTotal": 4202,
+        "roomGenerate": 99190,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 15850,
+          "stripMs": 3574,
+          "shellBakeMs": 65481,
+          "extractMs": 2879,
+          "probeMs": 4406,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb",
+        "bytes": 8951772,
+        "sha256": "8466bf6e1dc761e10f091989c2b543096ea45071bd29c80877208235faf42058",
+        "triangles": 3512,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 132,
+        "primitivesWithMaterial": 132,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/ed_stroke_bay_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "adult_ed_abdominal_bay_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 0,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 93315,
+        "warmTotal": 2182,
+        "roomGenerate": 91315,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 7553,
+          "stripMs": 8806,
+          "shellBakeMs": 31033,
+          "extractMs": 30840,
+          "probeMs": 6083,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
+        "bytes": 9267736,
+        "sha256": "755c293a04564b1503fd8960467795791c235455f9c0793d1c1a73f2e2defab1",
+        "triangles": 3803,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 133,
+        "primitivesWithMaterial": 133,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/adult_ed_abdominal_bay_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "telehealth_home_visit_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 14,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 102745,
+        "warmTotal": 5125,
+        "roomGenerate": 100745,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 16304,
+          "stripMs": 3038,
+          "shellBakeMs": 67787,
+          "extractMs": 3181,
+          "probeMs": 2435,
+          "litAlbedoMs": 2000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+        "bytes": 6558636,
+        "sha256": "30fbaa470c1e636a2de5513371f28a3a0fe0e570b43c493cf154cf4fc56556d1",
+        "triangles": 2581,
+        "decodedTextureBytes": 37163008,
+        "decodedTextureMiB": 35.441,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 13,
+        "primitivesWithMaterial": 13,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/telehealth_home_visit_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "behavioral_health_private_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 16,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 45956,
+        "warmTotal": 3698,
+        "roomGenerate": 43956,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 6074,
+          "stripMs": 934,
+          "shellBakeMs": 28702,
+          "extractMs": 1316,
+          "probeMs": 930,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 5000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-behavioral-health-private.glb",
+        "bytes": 6938628,
+        "sha256": "393d0b0ee131cee0a50075de1737c82c3ed689e04133e956d683e4f4d5ed147c",
+        "triangles": 2809,
+        "decodedTextureBytes": 41357312,
+        "decodedTextureMiB": 39.441,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 13,
+        "primitivesWithMaterial": 13,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/behavioral_health_private_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "oncology_consult_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 17,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 99940,
+        "warmTotal": 3115,
+        "roomGenerate": 97940,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 7200,
+          "stripMs": 10733,
+          "shellBakeMs": 38660,
+          "extractMs": 32106,
+          "probeMs": 2241,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-oncology-consult.glb",
+        "bytes": 8090368,
+        "sha256": "9320e8b2010e1c3adf9fc447e393342b2538a60e226ac15f6b24b03f55760835",
+        "triangles": 3735,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 121,
+        "primitivesWithMaterial": 121,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/oncology_consult_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "urgent_care_clinic_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 22,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 99079,
+        "warmTotal": 2756,
+        "roomGenerate": 97079,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 9461,
+          "stripMs": 9084,
+          "shellBakeMs": 36541,
+          "extractMs": 31406,
+          "probeMs": 3587,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-urgent-care-clinic.glb",
+        "bytes": 9763148,
+        "sha256": "f0f1d6ea7c4a7a945392d5ef89d98844c8b1fc2f7babce758c1f85014bab870d",
+        "triangles": 4122,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 148,
+        "primitivesWithMaterial": 148,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/urgent_care_clinic_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "surgical_ward_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 25,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 101040,
+        "warmTotal": 3296,
+        "roomGenerate": 99040,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 15455,
+          "stripMs": 3423,
+          "shellBakeMs": 65591,
+          "extractMs": 4764,
+          "probeMs": 2807,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb",
+        "bytes": 9007736,
+        "sha256": "f3e01851171cb79ea4300db5ad5d5fb925bc64033861ca4cc237cb18ab25805a",
+        "triangles": 4054,
+        "decodedTextureBytes": 38899712,
+        "decodedTextureMiB": 37.098,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 147,
+        "primitivesWithMaterial": 147,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/surgical_ward_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "ob_triage_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 27,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 94803,
+        "warmTotal": 4593,
+        "roomGenerate": 92803,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 15013,
+          "stripMs": 2841,
+          "shellBakeMs": 58107,
+          "extractMs": 6800,
+          "probeMs": 3042,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ob-triage.glb",
+        "bytes": 8947524,
+        "sha256": "554698bd4bafe08ec0bfc9c888c2a2543185b4133229ecd04faf284fc3f5a74e",
+        "triangles": 4193,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 128,
+        "primitivesWithMaterial": 128,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/ob_triage_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "pediatric_fever_urgent_care_bay_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 34,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 57440,
+        "warmTotal": 3623,
+        "roomGenerate": 55440,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 9320,
+          "stripMs": 2420,
+          "shellBakeMs": 28945,
+          "extractMs": 3807,
+          "probeMs": 2948,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 7000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+        "bytes": 10282736,
+        "sha256": "c65f0ff52fce7207f201a652fd298393af159aad53cd6fa5994ebe0a583376fb",
+        "triangles": 4574,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 129,
+        "primitivesWithMaterial": 129,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/pediatric_fever_urgent_care_bay_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "inpatient_ward_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 205,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 58677,
+        "warmTotal": 2304,
+        "roomGenerate": 56677,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 7095,
+          "stripMs": 3230,
+          "shellBakeMs": 33741,
+          "extractMs": 1960,
+          "probeMs": 2651,
+          "litAlbedoMs": 2000,
+          "ambientOcclusionMs": 6000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+        "bytes": 9221980,
+        "sha256": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
+        "triangles": 4007,
+        "decodedTextureBytes": 38866944,
+        "decodedTextureMiB": 37.066,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 109,
+        "primitivesWithMaterial": 109,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/inpatient_ward_room_v1/before-after-sheet.png"
+    },
+    {
+      "environmentId": "stepdown_room_v1",
+      "status": "ok",
+      "failedStage": null,
+      "seed": 205,
+      "cache": {
+        "cold": {
+          "room_generate": "miss",
+          "room_clinic_finish": "miss",
+          "lighting_design": "miss"
+        },
+        "warm": {
+          "room_generate": "hit",
+          "room_clinic_finish": "hit",
+          "lighting_design": "hit"
+        }
+      },
+      "wallMs": {
+        "coldTotal": 82267,
+        "warmTotal": 4888,
+        "roomGenerate": 80267,
+        "roomClinicFinish": 1000,
+        "lightingDesign": 1000,
+        "roomGeneratePasses": {
+          "generateMs": 13715,
+          "stripMs": 28951,
+          "shellBakeMs": 26782,
+          "extractMs": 3306,
+          "probeMs": 1513,
+          "litAlbedoMs": 1000,
+          "ambientOcclusionMs": 5000
+        }
+      },
+      "devices": {
+        "generate": "CPU",
+        "strip": "CPU",
+        "shellBake": "Metal",
+        "extract": "CPU",
+        "probe": "CPU",
+        "litAlbedo": "CPU",
+        "ambientOcclusion": "Metal",
+        "roomClinicFinish": "CPU",
+        "lightingDesign": "CPU"
+      },
+      "glb": {
+        "path": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
+        "bytes": 9308164,
+        "sha256": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
+        "triangles": 4184,
+        "decodedTextureBytes": 38899712,
+        "decodedTextureMiB": 37.098,
+        "decodedTextureBudgetMiB": 56,
+        "decodedTextureBudgetPass": true,
+        "primitives": 123,
+        "primitivesWithMaterial": 123,
+        "everyPrimitiveHasMaterial": true
+      },
+      "sheet": "docs/openclinxr/room-realism/rooms-regen/sheets/stepdown_room_v1/before-after-sheet.png"
+    }
+  ]
+}

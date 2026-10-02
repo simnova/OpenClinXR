@@ -122,8 +122,20 @@ const SET_AO_INTENSITY_SOURCE = `
 const STAGE2_GLB = process.env["STAGE2_CAPTURE_GLB"];
 const CAPTURE_ENVIRONMENT_ID = process.env["STAGE2_ENVIRONMENT_ID"] ?? "inpatient_ward_room_v1";
 const ENVIRONMENT_URLS: Record<string, string> = {
+  adult_ed_abdominal_bay_v1: "/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
+  behavioral_health_private_room_v1: "/xr-assets/environment/infinigen-behavioral-health-private.glb",
+  ed_exam_bay_v1: "/xr-assets/environment/infinigen-ed-exam-bay.glb",
+  ed_stroke_bay_v1: "/xr-assets/environment/infinigen-ed-stroke-bay.glb",
   inpatient_ward_room_v1: "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  ob_triage_room_v1: "/xr-assets/environment/infinigen-ob-triage.glb",
+  oncology_consult_room_v1: "/xr-assets/environment/infinigen-oncology-consult.glb",
+  pediatric_fever_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+  pediatric_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+  primary_care_clinic_room_v1: "/xr-assets/environment/infinigen-primary-care-clinic.glb",
   stepdown_room_v1: "/xr-assets/environment/infinigen-stepdown.glb",
+  surgical_ward_room_v1: "/xr-assets/environment/infinigen-surgical-ward.glb",
+  telehealth_home_visit_v1: "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+  urgent_care_clinic_room_v1: "/xr-assets/environment/infinigen-urgent-care-clinic.glb",
 };
 const SHIPPED_WARD_URL = ENVIRONMENT_URLS[CAPTURE_ENVIRONMENT_ID];
 if (SHIPPED_WARD_URL === undefined) throw new Error(`no capture URL for ${CAPTURE_ENVIRONMENT_ID}`);

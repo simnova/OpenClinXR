@@ -4378,3 +4378,24 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-clay.png` - keep-evidence; Round 6 pre-to_glb full-resolution clay stage isolation.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/topology.json` - keep-evidence; Round 6 A0/A1 five-decimal-weld topology counts.
 - `docs/openclinxr/room-realism/rooms-regen/INVENTORY.json` - keep-evidence; Machine-readable pre-regeneration room inventory supporting the paired inventory report.
+- `docs/openclinxr/room-realism/rooms-regen/RESULTS.json` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/behavioral-ceiling.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/home-ceiling.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/low-pose-occlusion.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/stepdown-transom.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/stroke-door.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/crops/surgical-door-gap.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/adult_ed_abdominal_bay_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/behavioral_health_private_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/ed_exam_bay_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/ed_stroke_bay_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/inpatient_ward_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/ob_triage_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/oncology_consult_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/pediatric_fever_urgent_care_bay_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/pediatric_urgent_care_bay_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/primary_care_clinic_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/stepdown_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/surgical_ward_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/telehealth_home_visit_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.
+- `docs/openclinxr/room-realism/rooms-regen/sheets/urgent_care_clinic_room_v1/before-after-sheet.png` - keep-evidence; Room fleet regeneration machine result or learner-runtime visual evidence.

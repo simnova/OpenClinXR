@@ -5391,6 +5391,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects."
     }
   ]
 }
