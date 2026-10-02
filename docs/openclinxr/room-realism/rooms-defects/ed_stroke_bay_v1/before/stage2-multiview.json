@@ -1,0 +1,509 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "ed_stroke_bay_v1",
+  "glb": "git:HEAD:apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb",
+  "mechanism": "playwright-route-override",
+  "poseSource": {
+    "kind": "explicit",
+    "path": ".openclinxr/evidence/rooms-defects/ed_stroke_bay_v1/room-evidence-poses.json"
+  },
+  "poseDerivation": {
+    "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
+    "environmentId": "ed_stroke_bay_v1",
+    "sourceGlb": "/Volumes/files/src/openclinxr-wt/rooms-defects/.openclinxr/evidence/rooms-defects/ed_stroke_bay_v1/infinigen-ed-stroke-bay-v1.chain.glb",
+    "sourceGlbSha256": "59a3a280b7e4ad05bfe0b587ea453efc36c3084af8a9530a983bfaf51bf4580a",
+    "roomBounds": {
+      "min": [
+        -3.445,
+        0,
+        -3.385
+      ],
+      "max": [
+        3.445,
+        2.65,
+        3.385
+      ]
+    },
+    "featureBounds": {
+      "doorWithCasing": {
+        "min": [
+          -0.288931,
+          0,
+          -3.574946
+        ],
+        "max": [
+          0.788931,
+          2.155,
+          -3.224
+        ],
+        "nodes": [
+          "bedroom_0/0.door_casing",
+          "bedroom_0/0.door_leaf",
+          "openclinxr_door_casing_head",
+          "openclinxr_door_casing_jamb_left",
+          "openclinxr_door_casing_jamb_right"
+        ]
+      },
+      "troffer": {
+        "min": [
+          -0.6,
+          2.577,
+          0
+        ],
+        "max": [
+          0.6,
+          2.589,
+          0.6
+        ],
+        "nodes": [
+          "openclinxr_troffer_diffuser",
+          "openclinxr_troffer_frame_long_0",
+          "openclinxr_troffer_frame_long_1",
+          "openclinxr_troffer_frame_short_0",
+          "openclinxr_troffer_frame_short_1"
+        ]
+      },
+      "tbar": {
+        "min": [
+          -3.555,
+          2.587,
+          -3.574946
+        ],
+        "max": [
+          3.555,
+          2.608,
+          3.575112
+        ],
+        "nodes": [
+          "openclinxr_tbar_edge_x_10_0_0",
+          "openclinxr_tbar_edge_x_10_0_1",
+          "openclinxr_tbar_edge_x_11_0_0",
+          "openclinxr_tbar_edge_x_11_0_1",
+          "openclinxr_tbar_edge_x_1_0_0",
+          "openclinxr_tbar_edge_x_1_0_1",
+          "openclinxr_tbar_edge_x_2_0_0",
+          "openclinxr_tbar_edge_x_2_0_1",
+          "openclinxr_tbar_edge_x_3_0_0",
+          "openclinxr_tbar_edge_x_3_0_1",
+          "openclinxr_tbar_edge_x_4_0_0",
+          "openclinxr_tbar_edge_x_4_0_1",
+          "openclinxr_tbar_edge_x_5_0_0",
+          "openclinxr_tbar_edge_x_5_0_1",
+          "openclinxr_tbar_edge_x_5_1_0",
+          "openclinxr_tbar_edge_x_5_1_1",
+          "openclinxr_tbar_edge_x_6_0_0",
+          "openclinxr_tbar_edge_x_6_0_1",
+          "openclinxr_tbar_edge_x_6_1_0",
+          "openclinxr_tbar_edge_x_6_1_1",
+          "openclinxr_tbar_edge_x_7_0_0",
+          "openclinxr_tbar_edge_x_7_0_1",
+          "openclinxr_tbar_edge_x_7_1_0",
+          "openclinxr_tbar_edge_x_7_1_1",
+          "openclinxr_tbar_edge_x_8_0_0",
+          "openclinxr_tbar_edge_x_8_0_1",
+          "openclinxr_tbar_edge_x_9_0_0",
+          "openclinxr_tbar_edge_x_9_0_1",
+          "openclinxr_tbar_edge_y_10_0_0",
+          "openclinxr_tbar_edge_y_10_0_1",
+          "openclinxr_tbar_edge_y_11_0_0",
+          "openclinxr_tbar_edge_y_11_0_1",
+          "openclinxr_tbar_edge_y_1_0_0",
+          "openclinxr_tbar_edge_y_1_0_1",
+          "openclinxr_tbar_edge_y_2_0_0",
+          "openclinxr_tbar_edge_y_2_0_1",
+          "openclinxr_tbar_edge_y_3_0_0",
+          "openclinxr_tbar_edge_y_3_0_1",
+          "openclinxr_tbar_edge_y_4_0_0",
+          "openclinxr_tbar_edge_y_4_0_1",
+          "openclinxr_tbar_edge_y_5_0_0",
+          "openclinxr_tbar_edge_y_5_0_1",
+          "openclinxr_tbar_edge_y_5_1_0",
+          "openclinxr_tbar_edge_y_5_1_1",
+          "openclinxr_tbar_edge_y_6_0_0",
+          "openclinxr_tbar_edge_y_6_0_1",
+          "openclinxr_tbar_edge_y_6_1_0",
+          "openclinxr_tbar_edge_y_6_1_1",
+          "openclinxr_tbar_edge_y_7_0_0",
+          "openclinxr_tbar_edge_y_7_0_1",
+          "openclinxr_tbar_edge_y_8_0_0",
+          "openclinxr_tbar_edge_y_8_0_1",
+          "openclinxr_tbar_edge_y_9_0_0",
+          "openclinxr_tbar_edge_y_9_0_1",
+          "openclinxr_tbar_x_10_0",
+          "openclinxr_tbar_x_11_0",
+          "openclinxr_tbar_x_1_0",
+          "openclinxr_tbar_x_2_0",
+          "openclinxr_tbar_x_3_0",
+          "openclinxr_tbar_x_4_0",
+          "openclinxr_tbar_x_5_0",
+          "openclinxr_tbar_x_5_1",
+          "openclinxr_tbar_x_6_0",
+          "openclinxr_tbar_x_6_1",
+          "openclinxr_tbar_x_7_0",
+          "openclinxr_tbar_x_7_1",
+          "openclinxr_tbar_x_8_0",
+          "openclinxr_tbar_x_9_0",
+          "openclinxr_tbar_y_10_0",
+          "openclinxr_tbar_y_11_0",
+          "openclinxr_tbar_y_1_0",
+          "openclinxr_tbar_y_2_0",
+          "openclinxr_tbar_y_3_0",
+          "openclinxr_tbar_y_4_0",
+          "openclinxr_tbar_y_5_0",
+          "openclinxr_tbar_y_5_1",
+          "openclinxr_tbar_y_6_0",
+          "openclinxr_tbar_y_6_1",
+          "openclinxr_tbar_y_7_0",
+          "openclinxr_tbar_y_8_0",
+          "openclinxr_tbar_y_9_0"
+        ]
+      },
+      "cove": {
+        "min": [
+          -3.445,
+          0.003,
+          -3.323191
+        ],
+        "max": [
+          3.445,
+          0.103,
+          3.482954
+        ],
+        "nodes": [
+          "openclinxr_cove_x0_0",
+          "openclinxr_cove_x1_0",
+          "openclinxr_cove_y0_0",
+          "openclinxr_cove_y1_0",
+          "openclinxr_cove_y1_1"
+        ]
+      }
+    },
+    "rules": {
+      "standingEyeHeightM": 1.6,
+      "lowEyeHeightM": 0.32,
+      "minimumWallClearanceM": 0.3,
+      "lensRefitFrameFractions": {
+        "01-door-width": 0.117,
+        "01-wall-span": 0.492,
+        "02-wall-span": 0.642,
+        "03-troffer-center": [
+          0.535,
+          0.401
+        ],
+        "04-door-height": 0.721,
+        "05-troffer-center": [
+          0.478,
+          0.615
+        ],
+        "06-cove-top-row": 0.25,
+        "06-floor-side-row": 0.472
+      }
+    },
+    "poses": [
+      {
+        "id": "runtime-01-toward-door",
+        "image": "01-toward-door.jpg",
+        "eye": [
+          -0.823558,
+          1.6,
+          2.812154
+        ],
+        "look": [
+          -0.278767,
+          1.347083,
+          -3.235
+        ],
+        "verticalFovDeg": 43.93526,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye; 0.30 m wall inset; door+casing centre from GLB; ward lens-refit 70deg family (door width 0.117W)."
+      },
+      {
+        "id": "runtime-02-toward-bed-wall",
+        "image": "02-toward-bed-wall.jpg",
+        "eye": [
+          -0.480698,
+          1.6,
+          -2.603846
+        ],
+        "look": [
+          0,
+          1.380208,
+          3.235
+        ],
+        "verticalFovDeg": 52.283245,
+        "subject": "opposite-wall",
+        "derivation": "Standing eye inside door wall; aims at its recipe-derived opposite wall; ward lens-refit 56deg wall-span family."
+      },
+      {
+        "id": "runtime-03-ceiling-corner",
+        "image": "03-ceiling-corner.jpg",
+        "eye": [
+          -0.801163,
+          1.6,
+          1.562308
+        ],
+        "look": [
+          0,
+          2.5,
+          -0.567949
+        ],
+        "verticalFovDeg": 31.387386,
+        "subject": "ceiling-corner",
+        "derivation": "Standing eye; measured troffer anchors the ceiling/corner look; 52deg is the capture-measured standing-eye refit of the ward 50deg ceiling family."
+      },
+      {
+        "id": "runtime-04-door-inside",
+        "image": "04-door-inside.jpg",
+        "eye": [
+          -1.111977,
+          1.6,
+          2.812154
+        ],
+        "look": [
+          0.25,
+          1.380208,
+          -3.235
+        ],
+        "verticalFovDeg": 26.204398,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye on the room interior diagonal; full measured door+casing target; ward lens-refit 44deg (door height 0.721H)."
+      },
+      {
+        "id": "runtime-05-troffer-junction",
+        "image": "05-troffer-junction.jpg",
+        "eye": [
+          -3.145,
+          1.6,
+          2.603846
+        ],
+        "look": [
+          0,
+          2.95,
+          0.3
+        ],
+        "verticalFovDeg": 44,
+        "subject": "troffer-and-tbar",
+        "derivation": "Standing eye at exact 0.30 m side clearance; measured troffer centre plus measured surrounding T-bars; ward lens-refit 44deg junction family."
+      },
+      {
+        "id": "runtime-06-floor-base",
+        "image": "06-floor-base.jpg",
+        "eye": [
+          -0.032047,
+          0.32,
+          0
+        ],
+        "look": [
+          0,
+          0.05,
+          3.385
+        ],
+        "verticalFovDeg": 33.386244,
+        "subject": "floor-cove-junction",
+        "derivation": "Only low eye; room-centre standoff gives half-room sightline clearance to the measured cove/floor target; ward lens-refit 55deg cove-profile family."
+      }
+    ],
+    "clearanceM": {
+      "runtime-01-toward-door": {
+        "x": 2.621442,
+        "z": 0.572846,
+        "minimum": 0.572846
+      },
+      "runtime-02-toward-bed-wall": {
+        "x": 2.964302,
+        "z": 0.781154,
+        "minimum": 0.781154
+      },
+      "runtime-03-ceiling-corner": {
+        "x": 2.643837,
+        "z": 1.822692,
+        "minimum": 1.822692
+      },
+      "runtime-04-door-inside": {
+        "x": 2.333023,
+        "z": 0.572846,
+        "minimum": 0.572846
+      },
+      "runtime-05-troffer-junction": {
+        "x": 0.3,
+        "z": 0.781154,
+        "minimum": 0.3
+      },
+      "runtime-06-floor-base": {
+        "x": 3.412953,
+        "z": 3.385,
+        "minimum": 3.385
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.823558,
+        "y": 1.6,
+        "z": 2.812154
+      },
+      "look": {
+        "x": -0.278767,
+        "y": 1.347083,
+        "z": -3.235
+      },
+      "fov": 43.93526,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-01-toward-door.png",
+      "pngBytes": 733937,
+      "pngSha256": "3ba0ec809494bc40d734b2c05b1aee9d561b8686312d324d567e559beeda6afb",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.621442,
+        "z": 0.572846,
+        "minimum": 0.572846
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.480698,
+        "y": 1.6,
+        "z": -2.603846
+      },
+      "look": {
+        "x": 0,
+        "y": 1.380208,
+        "z": 3.235
+      },
+      "fov": 52.283245,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 717927,
+      "pngSha256": "eb6e0543ef6013caed1aa7db3669b760fbaf1891bea0b3a4974563ce37943fa8",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.964302,
+        "z": 0.781154,
+        "minimum": 0.781154
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.801163,
+        "y": 1.6,
+        "z": 1.562308
+      },
+      "look": {
+        "x": 0,
+        "y": 2.5,
+        "z": -0.567949
+      },
+      "fov": 31.387386,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 906705,
+      "pngSha256": "6572f7ac9a0ebb7e52f315b53fc7925077be44d9a605d9e301bfa1209aa7cda5",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.643837,
+        "z": 1.822692,
+        "minimum": 1.822692
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -1.111977,
+        "y": 1.6,
+        "z": 2.812154
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.380208,
+        "z": -3.235
+      },
+      "fov": 26.204398,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-04-door-inside.png",
+      "pngBytes": 863605,
+      "pngSha256": "bf03b1232264979f0563c27e08d415d12ae5f738d7dab96b7c99423f74e01b73",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.333023,
+        "z": 0.572846,
+        "minimum": 0.572846
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -3.145,
+        "y": 1.6,
+        "z": 2.603846
+      },
+      "look": {
+        "x": 0,
+        "y": 2.95,
+        "z": 0.3
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-05-troffer-junction.png",
+      "pngBytes": 967451,
+      "pngSha256": "5baaea497497cb4ee16ba435cfa4c31fb62e6797b581105f4cd209ce5859573f",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 0.3,
+        "z": 0.781154,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.032047,
+        "y": 0.32,
+        "z": 0
+      },
+      "look": {
+        "x": 0,
+        "y": 0.05,
+        "z": 3.385
+      },
+      "fov": 33.386244,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-06-floor-base.png",
+      "pngBytes": 608748,
+      "pngSha256": "da6250b2e312bceaad3635017ccd0a6f17ed8584263a353fb7b486f63c495727",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 3.412953,
+        "z": 3.385,
+        "minimum": 3.385
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    }
+  ]
+}

@@ -1,0 +1,422 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "behavioral_health_private_room_v1",
+  "glb": "git:HEAD:apps/ui-xr/public/xr-assets/environment/infinigen-behavioral-health-private.glb",
+  "mechanism": "playwright-route-override",
+  "poseSource": {
+    "kind": "explicit",
+    "path": ".openclinxr/evidence/rooms-defects/behavioral_health_private_room_v1/room-evidence-poses.json"
+  },
+  "poseDerivation": {
+    "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
+    "environmentId": "behavioral_health_private_room_v1",
+    "sourceGlb": "/Volumes/files/src/openclinxr-wt/rooms-defects/.openclinxr/evidence/rooms-defects/behavioral_health_private_room_v1/infinigen-behavioral-health-private.chain.glb",
+    "sourceGlbSha256": "c44c0ffd7dc660b9aecc9a49ac483a64a7ed34889c6518010af8130318df6591",
+    "roomBounds": {
+      "min": [
+        -2.5,
+        0,
+        -2.94
+      ],
+      "max": [
+        2.5,
+        2.65,
+        2.94
+      ]
+    },
+    "featureBounds": {
+      "doorWithCasing": {
+        "min": [
+          -0.25497,
+          0,
+          -3.129961
+        ],
+        "max": [
+          0.75497,
+          2.105,
+          -2.810038
+        ],
+        "nodes": [
+          "bedroom_0/0.door_casing",
+          "bedroom_0/0.door_leaf"
+        ]
+      },
+      "troffer": {
+        "min": [
+          -2.609911,
+          2.65,
+          -3.129961
+        ],
+        "max": [
+          2.609911,
+          2.67,
+          3.13
+        ],
+        "nodes": [
+          "openclinxr_ceiling_painted"
+        ]
+      },
+      "tbar": {
+        "min": [
+          -2.609911,
+          2.65,
+          -3.129961
+        ],
+        "max": [
+          2.609911,
+          2.67,
+          3.13
+        ],
+        "nodes": [
+          "openclinxr_ceiling_painted"
+        ]
+      },
+      "cove": {
+        "min": [
+          -2.499962,
+          0.003,
+          -2.877951
+        ],
+        "max": [
+          2.499962,
+          0.103,
+          3.038
+        ],
+        "nodes": [
+          "openclinxr_cove_x0_0",
+          "openclinxr_cove_x1_0",
+          "openclinxr_cove_y0_0",
+          "openclinxr_cove_y1_0",
+          "openclinxr_cove_y1_1"
+        ]
+      }
+    },
+    "rules": {
+      "standingEyeHeightM": 1.6,
+      "lowEyeHeightM": 0.32,
+      "minimumWallClearanceM": 0.3,
+      "lensRefitFrameFractions": {
+        "01-door-width": 0.117,
+        "01-wall-span": 0.492,
+        "02-wall-span": 0.642,
+        "03-troffer-center": [
+          0.535,
+          0.401
+        ],
+        "04-door-height": 0.721,
+        "05-troffer-center": [
+          0.478,
+          0.615
+        ],
+        "06-cove-top-row": 0.25,
+        "06-floor-side-row": 0.472
+      }
+    },
+    "poses": [
+      {
+        "id": "runtime-01-toward-door",
+        "image": "01-toward-door.jpg",
+        "eye": [
+          -0.52907,
+          1.6,
+          2.442462
+        ],
+        "look": [
+          -0.133721,
+          1.347083,
+          -2.79
+        ],
+        "verticalFovDeg": 49.822514,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye; 0.30 m wall inset; door+casing centre from GLB; ward lens-refit 70deg family (door width 0.117W)."
+      },
+      {
+        "id": "runtime-02-toward-bed-wall",
+        "image": "02-toward-bed-wall.jpg",
+        "eye": [
+          -0.348837,
+          1.6,
+          -2.261538
+        ],
+        "look": [
+          0,
+          1.380208,
+          2.79
+        ],
+        "verticalFovDeg": 44.594606,
+        "subject": "opposite-wall",
+        "derivation": "Standing eye inside door wall; aims at its recipe-derived opposite wall; ward lens-refit 56deg wall-span family."
+      },
+      {
+        "id": "runtime-03-ceiling-corner",
+        "image": "03-ceiling-corner.jpg",
+        "eye": [
+          -0.581395,
+          1.6,
+          1.356923
+        ],
+        "look": [
+          0,
+          2.5,
+          -0.753827
+        ],
+        "verticalFovDeg": 35.852384,
+        "subject": "ceiling-corner",
+        "derivation": "Standing eye; measured troffer anchors the ceiling/corner look; 52deg is the capture-measured standing-eye refit of the ward 50deg ceiling family."
+      },
+      {
+        "id": "runtime-04-door-inside",
+        "image": "04-door-inside.jpg",
+        "eye": [
+          -0.738372,
+          1.6,
+          2.442462
+        ],
+        "look": [
+          0.25,
+          1.380208,
+          -2.79
+        ],
+        "verticalFovDeg": 30.002928,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye on the room interior diagonal; full measured door+casing target; ward lens-refit 44deg (door height 0.721H)."
+      },
+      {
+        "id": "runtime-05-troffer-junction",
+        "image": "05-troffer-junction.jpg",
+        "eye": [
+          -2.2,
+          1.6,
+          2.261538
+        ],
+        "look": [
+          0,
+          2.95,
+          0.000019
+        ],
+        "verticalFovDeg": 44,
+        "subject": "troffer-and-tbar",
+        "derivation": "Standing eye at exact 0.30 m side clearance; measured troffer centre plus measured surrounding T-bars; ward lens-refit 44deg junction family."
+      },
+      {
+        "id": "runtime-06-floor-base",
+        "image": "06-floor-base.jpg",
+        "eye": [
+          -0.023256,
+          0.32,
+          0
+        ],
+        "look": [
+          0,
+          0.05,
+          2.94
+        ],
+        "verticalFovDeg": 38.096931,
+        "subject": "floor-cove-junction",
+        "derivation": "Only low eye; room-centre standoff gives half-room sightline clearance to the measured cove/floor target; ward lens-refit 55deg cove-profile family."
+      }
+    ],
+    "clearanceM": {
+      "runtime-01-toward-door": {
+        "x": 1.97093,
+        "z": 0.497538,
+        "minimum": 0.497538
+      },
+      "runtime-02-toward-bed-wall": {
+        "x": 2.151163,
+        "z": 0.678462,
+        "minimum": 0.678462
+      },
+      "runtime-03-ceiling-corner": {
+        "x": 1.918605,
+        "z": 1.583077,
+        "minimum": 1.583077
+      },
+      "runtime-04-door-inside": {
+        "x": 1.761628,
+        "z": 0.497538,
+        "minimum": 0.497538
+      },
+      "runtime-05-troffer-junction": {
+        "x": 0.3,
+        "z": 0.678462,
+        "minimum": 0.3
+      },
+      "runtime-06-floor-base": {
+        "x": 2.476744,
+        "z": 2.94,
+        "minimum": 2.476744
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.52907,
+        "y": 1.6,
+        "z": 2.442462
+      },
+      "look": {
+        "x": -0.133721,
+        "y": 1.347083,
+        "z": -2.79
+      },
+      "fov": 49.822514,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-01-toward-door.png",
+      "pngBytes": 586916,
+      "pngSha256": "6859b6db38323f429da9f1e285013e39e05135ff900ea4570ca44be042ce033c",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 1.97093,
+        "z": 0.497538,
+        "minimum": 0.497538
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.348837,
+        "y": 1.6,
+        "z": -2.261538
+      },
+      "look": {
+        "x": 0,
+        "y": 1.380208,
+        "z": 2.79
+      },
+      "fov": 44.594606,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 555150,
+      "pngSha256": "7d2d5973b4bb9e7e980f6a5c6181f4bb67e790d2afe3614786f1288beccf572d",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.151163,
+        "z": 0.678462,
+        "minimum": 0.678462
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.581395,
+        "y": 1.6,
+        "z": 1.356923
+      },
+      "look": {
+        "x": 0,
+        "y": 2.5,
+        "z": -0.753827
+      },
+      "fov": 35.852384,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 223364,
+      "pngSha256": "e20a1a373f435c2b36e61a8ec397b7eac500fa2bdb914403147fd9acf4778b91",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 1.918605,
+        "z": 1.583077,
+        "minimum": 1.583077
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.738372,
+        "y": 1.6,
+        "z": 2.442462
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.380208,
+        "z": -2.79
+      },
+      "fov": 30.002928,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-04-door-inside.png",
+      "pngBytes": 728520,
+      "pngSha256": "ae905060495a834065baf03b75cf3384daa976d942447f2f4df8ae4d211bf7c9",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 1.761628,
+        "z": 0.497538,
+        "minimum": 0.497538
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -2.2,
+        "y": 1.6,
+        "z": 2.261538
+      },
+      "look": {
+        "x": 0,
+        "y": 2.95,
+        "z": 0.000019
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-05-troffer-junction.png",
+      "pngBytes": 685790,
+      "pngSha256": "c38d60a1d299ea77b2237c1704380351408d81caf8a16e2738b27311e74cdc45",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 0.3,
+        "z": 0.678462,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.023256,
+        "y": 0.32,
+        "z": 0
+      },
+      "look": {
+        "x": 0,
+        "y": 0.05,
+        "z": 2.94
+      },
+      "fov": 38.096931,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/rooms-defects/docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-06-floor-base.png",
+      "pngBytes": 426571,
+      "pngSha256": "0a05b6238049ec8bec8f1691798e20e1a18c6304a3aa624edbe4639273e37662",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.476744,
+        "z": 2.94,
+        "minimum": 2.476744
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
+    }
+  ]
+}

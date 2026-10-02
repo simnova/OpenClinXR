@@ -5398,6 +5398,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence."
     }
   ]
 }

@@ -32268,6 +32268,762 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Round 6 frozen-checkpoint full-resolution topology and preparation record."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-01-toward-door-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-02-toward-bed-wall-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-03-ceiling-corner-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-04-door-inside-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-05-troffer-junction-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/sheets/runtime-06-floor-base-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-01-toward-door-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-02-toward-bed-wall-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-03-ceiling-corner-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-04-door-inside-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-05-troffer-junction-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/sheets/runtime-06-floor-base-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-01-toward-door-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-02-toward-bed-wall-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-03-ceiling-corner-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-04-door-inside-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-05-troffer-junction-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/sheets/runtime-06-floor-base-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-01-toward-door-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-02-toward-bed-wall-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-03-ceiling-corner-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-04-door-inside-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-05-troffer-junction-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/sheets/runtime-06-floor-base-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-a/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/behavioral_health_private_room_v1/after-b/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-a/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/ed_stroke_bay_v1/after-b/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-a/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/telehealth_home_visit_v1/after-b/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/before/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-a/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-01-toward-door.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-02-toward-bed-wall.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-03-ceiling-corner.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-04-door-inside.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-05-troffer-junction.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/runtime-06-floor-base.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects learner-runtime capture (frozen derived poses; before=HEAD GLB, after-a/after-b=re-promoted GLB repeatability pair); desktop evidence, not headset readiness."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-defects/surgical_ward_room_v1/after-b/stage2-multiview.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Rooms-defects capture manifest (pose derivation, source GLB hashes, per-pose clearances)."
     }
   ]
 }

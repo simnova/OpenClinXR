@@ -2,20 +2,20 @@
 
 ## 2026-10-01 room-factory fleet regeneration
 
-This table is the current-byte authority for the fourteen encounter rooms and supersedes their historical SHA/source notes below. Every row was regenerated or semantically revalidated through `room_generate → room_clinic_finish → lighting_design` and promoted with `pnpm factory:room:promote`; seeds are the one-time recorded D13 pins. No external texture or model asset was added. Full measurements and learner-runtime evidence are in `docs/openclinxr/room-realism/rooms-regen/RESULTS.json` and `REPORT.md`.
+This table is the current-byte authority for the fourteen encounter rooms and supersedes their historical SHA/source notes below. Every row was regenerated or semantically revalidated through `room_generate → room_clinic_finish → lighting_design` and promoted with `pnpm factory:room:promote`; seeds are the one-time recorded D13 pins. No external texture or model asset was added. Full measurements and learner-runtime evidence are in `docs/openclinxr/room-realism/rooms-regen/RESULTS.json` and `REPORT.md`. Four rooms were re-promoted on 2026-10-02 for the graded defects (painted-ceiling shell removal; door-leaf close in casing plane with parent-safe extract centering; surgical leaf undercut; derived low-pose standoff) under `docs/openclinxr/room-realism/rooms-defects/REPORT.md`; seeds unchanged, chain unchanged, only those four SHA cells updated.
 
 | Shipped GLB | Seed | Current SHA-256 |
 |---|---:|---|
 | `infinigen-ed-exam-bay.glb` | 22 | `60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47` |
 | `infinigen-pediatric-urgent-care-bay.glb` | 13 | `3d5e58ce0a4154f90d6a245be6b88b440e71fe926e8d009164c094be48020a71` |
 | `infinigen-primary-care-clinic.glb` | 1 | `1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009` |
-| `infinigen-ed-stroke-bay.glb` | 2 | `8466bf6e1dc761e10f091989c2b543096ea45071bd29c80877208235faf42058` |
+| `infinigen-ed-stroke-bay.glb` | 2 | `59a3a280b7e4ad05bfe0b587ea453efc36c3084af8a9530a983bfaf51bf4580a` |
 | `infinigen-adult-ed-abdominal-bay.glb` | 0 | `755c293a04564b1503fd8960467795791c235455f9c0793d1c1a73f2e2defab1` |
-| `infinigen-telehealth-home-visit.glb` | 14 | `30fbaa470c1e636a2de5513371f28a3a0fe0e570b43c493cf154cf4fc56556d1` |
-| `infinigen-behavioral-health-private.glb` | 16 | `393d0b0ee131cee0a50075de1737c82c3ed689e04133e956d683e4f4d5ed147c` |
+| `infinigen-telehealth-home-visit.glb` | 14 | `98e48550a8d84e78e3a9c850324dac1a0fe51345c1bf44faa21574e998144c40` |
+| `infinigen-behavioral-health-private.glb` | 16 | `c44c0ffd7dc660b9aecc9a49ac483a64a7ed34889c6518010af8130318df6591` |
 | `infinigen-oncology-consult.glb` | 17 | `9320e8b2010e1c3adf9fc447e393342b2538a60e226ac15f6b24b03f55760835` |
 | `infinigen-urgent-care-clinic.glb` | 22 | `f0f1d6ea7c4a7a945392d5ef89d98844c8b1fc2f7babce758c1f85014bab870d` |
-| `infinigen-surgical-ward.glb` | 25 | `f3e01851171cb79ea4300db5ad5d5fb925bc64033861ca4cc237cb18ab25805a` |
+| `infinigen-surgical-ward.glb` | 25 | `e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27` |
 | `infinigen-ob-triage.glb` | 27 | `554698bd4bafe08ec0bfc9c888c2a2543185b4133229ecd04faf284fc3f5a74e` |
 | `infinigen-pediatric-fever-urgent-care.glb` | 34 | `c65f0ff52fce7207f201a652fd298393af159aad53cd6fa5994ebe0a583376fb` |
 | `infinigen-inpatient-ward.glb` | 205 | `8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea` |
