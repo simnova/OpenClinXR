@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
+import { describe, expect, it } from "vitest";
 import { occlusionExcludeFlags, validateRoomGenerateOptions } from "../room_generate/run.js";
 import { paintedCeilingOcclusionExcludes } from "./recipes.js";
 

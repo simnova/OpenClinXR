@@ -35,9 +35,6 @@ import { repoRoot } from "../repo-root.js";
 import { type RoomFinishFeatures, validateRoomFinishFeatures } from "../room_clinic_finish/finish-features.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
-import { occlusionExcludesParam, roomChainRecipeFor } from "./recipes.js";
-
-export { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
 import {
   type CollectStageKeyResult,
   collectStageKeyInputs,
@@ -48,6 +45,7 @@ import {
   scrubLightingKeyInput,
   storeStageCache,
 } from "./cache.js";
+import { occlusionExcludesParam, roomChainRecipeFor } from "./recipes.js";
 
 export const WARD_CHAIN_OUT_DIR = ".openclinxr/evidence/ward-finish-chain";
 // Measured 2026-09-28: a real chain albedo bake took 757 s (log timestamps

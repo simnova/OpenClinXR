@@ -15,11 +15,8 @@ import {
   stageKeyDigest,
   storeStageCache,
 } from "./cache.js";
-import {
-  parseWardChainArgs,
-  RoomChainRecipeValidationError,
-  validateRoomChainRecipe,
-} from "./run.js";
+import { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
+import { parseWardChainArgs } from "./run.js";
 
 /**
  * Room-chain stage cache unit tests. Pure: no Blender, no Infinigen install,
