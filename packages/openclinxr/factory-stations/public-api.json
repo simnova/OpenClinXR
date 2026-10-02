@@ -13,6 +13,7 @@
       "applyStationPayloadToCompileSpec",
       "factoryStationSchemas",
       "findEquipmentSubject",
+      "occlusionExcludeFlags",
       "planBodyParam",
       "planClothingConsume",
       "planEquipmentGenerate",
@@ -30,7 +31,7 @@
       "runStaging",
       "writeLipSyncFixtureWav"
     ],
-    "./room-chain": ["ROOM_CHAIN_RECIPES", "runRoomChain"],
+    "./room-chain": ["ROOM_CHAIN_RECIPES", "paintedCeilingOcclusionExcludes", "runRoomChain"],
     "./catalog": [
       "ProductionStationId",
       "factoryStationSchemas",

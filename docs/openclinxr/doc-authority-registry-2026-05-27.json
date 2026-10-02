@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 214,
     "archive-candidate": 116,
-    "evidence": 150,
+    "evidence": 151,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5412,6 +5412,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/brown-band/FIX.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Brown-band factory fix record: phantom-shadow mechanism, bake/finish changes, before/after proof numbers, promotion hashes, pinning tests."
     }
   ]
 }

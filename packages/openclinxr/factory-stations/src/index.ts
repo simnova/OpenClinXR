@@ -56,6 +56,7 @@ export {
 } from "./motion_retarget/run.js";
 export {
   planRoomGenerate,
+  occlusionExcludeFlags,
   ROOM_ALBEDO_REL,
   ROOM_OCCLUSION_REL,
   runRoomGenerate,

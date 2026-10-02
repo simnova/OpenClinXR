@@ -3,7 +3,8 @@ import { type Node, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
 import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { decodePng } from "../../evidence/decode-png.js";
 import { deriveRoomEvidencePosesFromGeometry, type RoomEvidencePoseArtifact } from "./derive-room-evidence-poses.js";
 
 const ROOT = path.resolve(import.meta.dirname, "../../../..");
@@ -129,4 +130,111 @@ describe("the regenerated room defect mechanisms stay fixed", () => {
     expect(Math.abs(low.look[2] - low.eye[2])).toBe(recipe.footprintMeters.depth / 2);
     expect(low.look[1]).toBeGreaterThanOrEqual(0.05);
   });
+
+  it.each(["behavioral", "home"] as const)(
+    "%s painted slab meets the wall faces with buried edges and no coplanar tie",
+    async (room) => {
+      // Brown-band fix: the slab spans wall-inner-face to wall-inner-face
+      // (the wall shell carries the inner planes) with ~1 mm burial, and
+      // its underside rides 1 mm below the wall top so the dark top cap
+      // can win no depth tie at glancing angles.
+      const all = await nodes(room);
+      const boxOf = (pattern: RegExp): Bounds => {
+        const found = all.map(bounds).filter((value, index) => value !== null && pattern.test(all[index]!.getName()));
+        expect(found, `${pattern} node missing`).toHaveLength(1);
+        return found[0]!;
+      };
+      const slab = boxOf(/^openclinxr_ceiling_painted$/u);
+      const wall = boxOf(/[/.]wall$/u);
+      // Slab edges at the wall inner planes: the pooled-bounds span used to
+      // run ~11 cm past them (visible soffit ring); 10 mm separates fixed.
+      expect(Math.abs(slab.min[0] - wall.min[0]), "slab x0 at wall face").toBeLessThanOrEqual(0.01);
+      expect(Math.abs(slab.max[0] - wall.max[0]), "slab x1 at wall face").toBeLessThanOrEqual(0.01);
+      // Underside strictly below the wall top: tie impossible, gap subpixel.
+      expect(wall.max[1] - slab.min[1], "slab drop below wall top").toBeGreaterThanOrEqual(0.0005);
+      expect(wall.max[1] - slab.min[1], "slab drop below wall top").toBeLessThanOrEqual(0.002);
+    },
+  );
+
+  it.each(["behavioral", "home"] as const)(
+    "%s wall-top occlusion is open (no phantom cornice/ceiling shadow)",
+    async (room) => {
+      // Brown-band mechanism pin on shipped bytes: the wall-top faces must
+      // sample open occlusion. Before the fix their AO islands baked dark
+      // against the removed cornice + shell ceiling (centroids ~0).
+      await MeshoptDecoder.ready;
+      const io = new NodeIO().registerExtensions([...ALL_EXTENSIONS, EXTMeshoptCompression])
+        .registerDependencies({ "meshopt.decoder": MeshoptDecoder });
+      const doc = await io.read(path.join(ROOT, rooms[room]));
+      const root = doc.getRoot();
+      const wallNode = root.listNodes().find((node) => /[/.]wall$/u.test(node.getName()))!;
+      expect(wallNode, "wall node").toBeDefined();
+      const wallMaterial = wallNode.getMesh()!.listPrimitives()[0]!.getMaterial()!;
+      const occlusionBytes = wallMaterial.getOcclusionTexture()!.getImage()!;
+      const decoded = decodePng(new Uint8Array(occlusionBytes));
+      expect(decoded, "wall AO decodes").not.toBeNull();
+      expect(decoded!.greyscale, "wall AO is single-channel").toBe(true);
+      const matrix = Array.from(wallNode.getWorldMatrix(), Number);
+      const world = (x: number, y: number, z: number): [number, number, number] => [
+        matrix[0]! * x + matrix[4]! * y + matrix[8]! * z + matrix[12]!,
+        matrix[1]! * x + matrix[5]! * y + matrix[9]! * z + matrix[13]!,
+        matrix[2]! * x + matrix[6]! * y + matrix[10]! * z + matrix[14]!,
+      ];
+      const at = (u: number, v: number): number => {
+        const x = Math.min(decoded!.w - 1, Math.max(0, Math.floor((((u % 1) + 1) % 1) * decoded!.w)));
+        const y = Math.min(decoded!.h - 1, Math.max(0, Math.floor((1 - (((v % 1) + 1) % 1)) * decoded!.h)));
+        return decoded!.r[y * decoded!.w + x]!;
+      };
+      // Vertical wall-top faces only (door-header soffits and other
+      // horizontal faces keep their legitimate enclosure darkening). Per
+      // face the median of a 5x5 UV-grid sampling stands in for fragment
+      // coverage: island interiors read open while 1-texel border rims may
+      // stay dark. Before the fix the interiors baked ~0 (median ~0).
+      const medians: number[] = [];
+      for (const primitive of wallNode.getMesh()!.listPrimitives()) {
+        const position = primitive.getAttribute("POSITION")!;
+        const normal = primitive.getAttribute("NORMAL")!;
+        const uv = primitive.getAttribute("TEXCOORD_2")!;
+        const indices = primitive.getIndices();
+        const triangles: number[] = indices
+          ? Array.from(indices.getArray()!, Number)
+          : Array.from({ length: position.getCount() }, (_, index) => index);
+        for (let t = 0; t + 2 < triangles.length; t += 3) {
+          const corners = [triangles[t]!, triangles[t + 1]!, triangles[t + 2]!].map((index) => {
+            const point: number[] = [];
+            position.getElement(index, point);
+            const direction: number[] = [];
+            normal.getElement(index, direction);
+            const texel: number[] = [];
+            uv.getElement(index, texel);
+            return { world: world(point[0]!, point[1]!, point[2]!), normalY: direction[1]!, uv: texel };
+          });
+          if (Math.min(...corners.map((corner) => corner.world[1])) < 2.0) continue;
+          if (Math.max(...corners.map((corner) => Math.abs(corner.normalY))) > 0.5) continue;
+          const uvs = corners.map((corner) => corner.uv);
+          const [a, b, c] = [uvs[0]!, uvs[1]!, uvs[2]!];
+          const det = (b[1]! - c[1]!) * (a[0]! - c[0]!) + (c[0]! - b[0]!) * (a[1]! - c[1]!);
+          if (Math.abs(det) < 1e-12) continue;
+          const hits: number[] = [];
+          for (let iu = 0; iu <= 8; iu += 1) {
+            for (let iv = 0; iv <= 8 - iu; iv += 1) {
+              const w0 = iu / 8;
+              const w1 = iv / 8;
+              const w2 = 1 - w0 - w1;
+              hits.push(at(a[0]! * w2 + b[0]! * w0 + c[0]! * w1, a[1]! * w2 + b[1]! * w0 + c[1]! * w1));
+            }
+          }
+          if (hits.length < 3) continue;
+          hits.sort((aa, bb) => aa - bb);
+          medians.push(hits[Math.floor(hits.length / 2)]!);
+        }
+      }
+      expect(medians.length, "wall-top faces sampled").toBeGreaterThan(0);
+      // Measured fixed GLBs: 173 (behavioral) and 200+ (home). Before the
+      // fix the same faces baked ~0 (phantom cornice/ceiling shadow), so
+      // 150 separates fixed from regressed with margin on both sides.
+      const mean = medians.reduce((sum, value) => sum + value, 0) / medians.length;
+      expect(mean, `wall-top AO median-mean ${mean.toFixed(1)} over ${medians.length} faces`).toBeGreaterThanOrEqual(150);
+    },
+  );
 });

@@ -235,6 +235,7 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // (positive dims, closed doorWall enum) is enforced in planRoomGenerate.
     footprintMeters: { type: "object", required: false, description: "interior clear-floor target { width, depth, ceilingHeight } in meters" },
     door: { type: "object", required: false, description: "{ doorWall: '+x'|'-x'|'+y'|'-y', wallOffsetM, hingeSide (perpendicular axis to doorWall), widthM, heightM, style?: 'panel'|'glass_panel'|'louver'|'lite' }" },
+    occlusionExcludes: { type: "object", required: false, description: "{ shellCornice?: boolean, shellCeiling?: boolean }: finish-removed shell the occlusion bake must not count as occluders (painted ceilings delete both)" },
   }),
   equipment_generate: defineStation("equipment_generate", {
     subjectId: { type: "string", required: true },

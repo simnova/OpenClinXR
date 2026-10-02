@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "telehealth_home_visit_v1",
+  "glb": "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+  "mechanism": "ui-xr-runtime-url",
+  "poseSource": {
+    "kind": "explicit",
+    "path": "docs/openclinxr/room-realism/brown-band/frozen-poses-telehealth_home_visit_v1.json"
+  },
+  "poseDerivation": null,
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -1.230233,
+        "y": 1.6,
+        "z": 2.650154
+      },
+      "look": {
+        "x": -0.47907,
+        "y": 1.347083,
+        "z": -3.04
+      },
+      "fov": 46.344421,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-01-toward-door.png",
+      "pngBytes": 474513,
+      "pngSha256": "d9d885ee1402ef693820e0159a94678a1ce7c71cc86fbbe5409b991ab89e10c7",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.662791,
+        "y": 1.6,
+        "z": -2.453846
+      },
+      "look": {
+        "x": 0,
+        "y": 1.380208,
+        "z": 3.04
+      },
+      "fov": 71.362819,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-02-toward-bed-wall.png",
+      "pngBytes": 387417,
+      "pngSha256": "34857707fe0975981b9fafacbe3507f1a27c23e667b9a1024e252f87a21f288a",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -1.104651,
+        "y": 1.6,
+        "z": 1.472308
+      },
+      "look": {
+        "x": 0,
+        "y": 2.5,
+        "z": -0.81787
+      },
+      "fov": 33.203241,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-03-ceiling-corner.png",
+      "pngBytes": 210490,
+      "pngSha256": "a075fea1aaa9897f6b2a3bdf275ee7e9b7c61a3950d627e3553fd3981e66063a",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -1.627907,
+        "y": 1.6,
+        "z": 2.650154
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.380208,
+        "z": -3.04
+      },
+      "fov": 27.746037,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-04-door-inside.png",
+      "pngBytes": 659118,
+      "pngSha256": "e0e20afb424f7d0d88e03de86195612283df79734903372d593f4adcfe3e4978",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -4.45,
+        "y": 1.6,
+        "z": 2.453846
+      },
+      "look": {
+        "x": 0,
+        "y": 2.95,
+        "z": 0.000079
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-05-troffer-junction.png",
+      "pngBytes": 233978,
+      "pngSha256": "d3e5ebf81a2f234171e84cf68a867876b3847ac402c4003d6d3fd201c7db9aa2",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.044186,
+        "y": 0.32,
+        "z": 0
+      },
+      "look": {
+        "x": 0,
+        "y": 0.05,
+        "z": 3.19
+      },
+      "fov": 35.303698,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-telehealth/runtime-06-floor-base.png",
+      "pngBytes": 477501,
+      "pngSha256": "5dcbbd4250142d8cd1a73428defdcdda143367e54158e7c38d7e2364d5e2b047",
+      "nearPlaneM": 0.1
+    }
+  ]
+}

@@ -455,3 +455,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - evidence; Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects.
 - `docs/openclinxr/room-realism/rooms-defects/REPORT.md` - evidence; Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence.
 - `docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md` - evidence; Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism.
+- `docs/openclinxr/room-realism/brown-band/FIX.md` - evidence; Brown-band factory fix record: phantom-shadow mechanism, bake/finish changes, before/after proof numbers, promotion hashes, pinning tests.

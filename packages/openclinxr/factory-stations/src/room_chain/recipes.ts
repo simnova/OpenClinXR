@@ -113,6 +113,30 @@ function defineRoomChainRecipes<const T extends Record<string, RoomChainRecipe>>
   return recipes;
 }
 
+/**
+ * Brown-band fix: a painted ceiling finish deletes the shell cornice and
+ * the shell ceiling plane AFTER the occlusion bake, so the bake must not
+ * count them as occluders (phantom contact shadow, browned by the warm
+ * rig). Returns the stage-1 occlusionExcludes payload for painted
+ * finishes, undefined otherwise (other rooms keep identical stage-1 keys).
+ */
+export function paintedCeilingOcclusionExcludes(
+  finish: Pick<RoomFinishFeatures, "ceiling"> | undefined,
+): { shellCornice: true; shellCeiling: true } | undefined {
+  if (finish?.ceiling?.kind === "painted") {
+    return { shellCornice: true, shellCeiling: true };
+  }
+  return undefined;
+}
+
+/** Spread-ready form for a room_generate input: `{}` unless the finish paints the ceiling. */
+export function occlusionExcludesParam(
+  finish: Pick<RoomFinishFeatures, "ceiling"> | undefined,
+): { occlusionExcludes?: { shellCornice: true; shellCeiling: true } } {
+  const occlusionExcludes = paintedCeilingOcclusionExcludes(finish);
+  return occlusionExcludes === undefined ? {} : { occlusionExcludes };
+}
+
 const WARD_LIKE_FINISH = {
   preserveShell: true,
   floor: { kind: "vinyl-tile", moduleM: 0.6 },

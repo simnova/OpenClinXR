@@ -35,10 +35,9 @@ import { repoRoot } from "../repo-root.js";
 import { type RoomFinishFeatures, validateRoomFinishFeatures } from "../room_clinic_finish/finish-features.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
-import { roomChainRecipeFor } from "./recipes.js";
+import { occlusionExcludesParam, roomChainRecipeFor } from "./recipes.js";
 
 export { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
-
 import {
   type CollectStageKeyResult,
   collectStageKeyInputs,
@@ -336,6 +335,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     layoutVariant: recipe.layoutVariant,
     footprintMeters: { ...recipe.footprintMeters },
     door: { ...recipe.door, ...(recipe.door.liteRect === undefined ? {} : { liteRect: [...recipe.door.liteRect] }) },
+    ...occlusionExcludesParam(effectiveFinish),
   };
   await waitForBlenderSlot();
   process.stdout.write(`[ward-chain] stage 1 room_generate seed=${seed} ...\n`);

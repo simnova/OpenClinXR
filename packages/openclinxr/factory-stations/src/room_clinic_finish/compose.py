@@ -752,10 +752,26 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                         _flat_material("openclinxr_finish_painted_ceiling",
                                        tuple(pal.get("trimAlbedo", (0.9, 0.89, 0.86))), 0.9))
     ceiling_name = "openclinxr_ceiling_tiles" if ceiling_kind == "acoustic-tbar" else "openclinxr_ceiling_painted"
-    ceil_obj = new_box(ceiling_name, cx, cy, tbar_z + 0.01,
-                       w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_material)
     if ceiling_kind == "acoustic-tbar":
+        ceil_obj = new_box(ceiling_name, cx, cy, tbar_z + 0.01,
+                           w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_material)
         _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
+    else:
+        # Painted slab spans wall-inner-face to wall-inner-face (brown-band
+        # fix): the pooled-bounds span ran ~11 cm past the wall faces, and
+        # the resulting visible soffit ring foreshortened to a brown edge
+        # line under the warm rig. 5 mm of burial keeps every slab edge
+        # hidden inside the wall with no coplanar faces.
+        planes = _wall_inner_planes()
+        bury = 0.001
+        sx0, sx1 = planes["x0"] - bury, planes["x1"] + bury
+        sy0, sy1 = planes["y0"] - bury, planes["y1"] + bury
+        # Underside rides 1 mm below the wall-top plane (same convention as
+        # the troffer lens): the wall top cap and the slab underside would
+        # otherwise be exactly coplanar over the burial strip, and the
+        # tie breaks toward the dark cap at glancing angles.
+        ceil_obj = new_box(ceiling_name, (sx0 + sx1) / 2, (sy0 + sy1) / 2, tbar_z + 0.01 - 0.001,
+                           sx1 - sx0, sy1 - sy0, 0.02, ceiling_material)
     counts["ceiling"] += 1
     grid_ox = math.floor(minx / CEILING_MODULE_M) * CEILING_MODULE_M
     grid_oy = math.floor(miny / CEILING_MODULE_M) * CEILING_MODULE_M

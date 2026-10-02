@@ -11,8 +11,8 @@ This table is the current-byte authority for the fourteen encounter rooms and su
 | `infinigen-primary-care-clinic.glb` | 1 | `1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009` |
 | `infinigen-ed-stroke-bay.glb` | 2 | `59a3a280b7e4ad05bfe0b587ea453efc36c3084af8a9530a983bfaf51bf4580a` |
 | `infinigen-adult-ed-abdominal-bay.glb` | 0 | `755c293a04564b1503fd8960467795791c235455f9c0793d1c1a73f2e2defab1` |
-| `infinigen-telehealth-home-visit.glb` | 14 | `98e48550a8d84e78e3a9c850324dac1a0fe51345c1bf44faa21574e998144c40` |
-| `infinigen-behavioral-health-private.glb` | 16 | `c44c0ffd7dc660b9aecc9a49ac483a64a7ed34889c6518010af8130318df6591` |
+| `infinigen-telehealth-home-visit.glb` | 14 | `858d00645180789a57f016355d20f3a126b38754972824728bc4ff1a974b171b` |
+| `infinigen-behavioral-health-private.glb` | 16 | `d2c13bf0c983672fc2a5e5d2a868ce9ebabcbcfd98ae66cb1064eeaa3d272506` |
 | `infinigen-oncology-consult.glb` | 17 | `9320e8b2010e1c3adf9fc447e393342b2538a60e226ac15f6b24b03f55760835` |
 | `infinigen-urgent-care-clinic.glb` | 22 | `f0f1d6ea7c4a7a945392d5ef89d98844c8b1fc2f7babce758c1f85014bab870d` |
 | `infinigen-surgical-ward.glb` | 25 | `e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27` |
