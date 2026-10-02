@@ -77,7 +77,7 @@ const HEAD_CAMERA_LOOK: Vec3 = [0.0017281360924243927, 1.5586723208427429, 0.055
  */
 const AA_POSED_HEAD_CAM_POS: Vec3 = [0.5297281100153923, 1.6853621745109557, 0.8720436230152845];
 const AA_POSED_HEAD_CAM_LOOK: Vec3 = [0.0017281100153923035, 1.5586721479892731, 0.05604362301528454];
-/** Pale crown pixels that touch a pink lip pixel in the aa corner and lower crops. */
+/** Pale crown pixels that touch a pink lip pixel on the posed-head aa still. */
 const AA_LIP_RAY_PIXELS: ReadonlyArray<readonly [number, number]> = [
   [586, 614], [580, 615], [584, 615], [585, 615], [586, 615], [587, 615], [588, 615],
   [584, 616], [588, 616], [588, 617],
@@ -88,6 +88,8 @@ const AA_LIP_RAY_PIXELS: ReadonlyArray<readonly [number, number]> = [
   [586, 647], [594, 647], [595, 647], [603, 647],
   [581, 649], [582, 649], [583, 649], [583, 650], [584, 650], [585, 650], [595, 650],
   [552, 635], [573, 646], [574, 646], [575, 646],
+  [578, 614], [585, 617], [586, 617], [587, 617], [552, 629],
+  [589, 647], [601, 647], [589, 648], [602, 648],
 ];
 /** Slide a hit tooth this far past the lip so the body stays the first hit. */
 const AA_LIP_RAY_PAST_M = 0.00005;
