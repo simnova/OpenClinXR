@@ -4,8 +4,8 @@ import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
 import { spawnBlenderProcess } from "../spawn-blender.js";
-import { runInfinigenGenerate, type InfinigenGenerateReport } from "./generate.js";
-import { simplifyRoomAfterBake, type RoomSimplifyReport } from "./simplify.js";
+import { type InfinigenGenerateReport, runInfinigenGenerate } from "./generate.js";
+import { type RoomSimplifyReport, simplifyRoomAfterBake } from "./simplify.js";
 
 export const ROOM_ALBEDO_REL =
   "packages/openclinxr/factory-stations/src/room_generate/room-albedo-ao-bake.py";
@@ -35,6 +35,8 @@ export function planRoomGenerate(input: unknown): StationPlanResult {
   const plan: Record<string, unknown> = { ...planned.plan };
   if ("footprintMeters" in planned.value) plan["footprintMeters"] = planned.value["footprintMeters"];
   if ("door" in planned.value) plan["door"] = planned.value["door"];
+  const excludeFlags = occlusionExcludeFlags(planned.value);
+  if (excludeFlags.length > 0) plan["occlusionExcludeFlags"] = excludeFlags;
   return { value: planned.value, plan: { mode: "dry-run", stationId: "room_generate", ...plan } };
 }
 

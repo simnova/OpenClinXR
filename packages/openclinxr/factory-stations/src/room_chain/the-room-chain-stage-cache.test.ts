@@ -15,8 +15,12 @@ import {
   stageKeyDigest,
   storeStageCache,
 } from "./cache.js";
-import { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
-import { parseWardChainArgs } from "./run.js";
+import {
+  paintedCeilingOcclusionExcludes,
+  parseWardChainArgs,
+  RoomChainRecipeValidationError,
+  validateRoomChainRecipe,
+} from "./run.js";
 
 /**
  * Room-chain stage cache unit tests. Pure: no Blender, no Infinigen install,
@@ -429,5 +433,25 @@ describe("room-chain recipe registry", () => {
     expect(() => validateRoomChainRecipe({ ...variants, finish: {
       ...variants.finish, ceiling: { ...variants.finish.ceiling, corniceMaterial: "plastic" },
     } })).toThrow(/corniceMaterial must be tile, tbar or wall/);
+  });
+});
+
+/**
+ * Brown-band pin: a painted-ceiling finish deletes the shell cornice and the
+ * shell ceiling plane after the occlusion bake, so the stage-1 bake must
+ * exclude both as occluders. Acoustic-tbar rooms keep no excludes (identical
+ * stage-1 keys, byte-identical GLBs).
+ */
+describe("painted-ceiling bakes exclude the finish-removed occluders", () => {
+  it("returns both excludes for exactly the two painted-ceiling recipes", () => {
+    const painted = Object.values(ROOM_CHAIN_RECIPES).filter((r) => r.finish?.ceiling?.kind === "painted");
+    expect(painted.map((r) => r.environmentId).sort()).toEqual([
+      "behavioral_health_private_room_v1",
+      "telehealth_home_visit_v1",
+    ]);
+    for (const recipe of Object.values(ROOM_CHAIN_RECIPES)) {
+      const expected = recipe.finish?.ceiling?.kind === "painted" ? { shellCornice: true, shellCeiling: true } : undefined;
+      expect(paintedCeilingOcclusionExcludes(recipe.finish)).toEqual(expected);
+    }
   });
 });

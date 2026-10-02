@@ -47,6 +47,8 @@ import {
 } from "./cache.js";
 import { occlusionExcludesParam, roomChainRecipeFor } from "./recipes.js";
 
+export { paintedCeilingOcclusionExcludes, RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
+
 export const WARD_CHAIN_OUT_DIR = ".openclinxr/evidence/ward-finish-chain";
 // Measured 2026-09-28: a real chain albedo bake took 757 s (log timestamps
 // 03:59:13 to 04:11:50), so the old 600 s per-pass budget SIGTERMed a Blender
