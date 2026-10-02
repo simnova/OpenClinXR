@@ -407,6 +407,14 @@ def _is_shell_ceiling_cornice(obj_name: str) -> bool:
     return "skirting_ceiling" in lowered or "skirtingboard_ceiling" in lowered
 
 
+def _is_shell_ceiling(obj_name: str) -> bool:
+    """Match the retained Infinigen ceiling plane, never finish geometry."""
+    lowered = obj_name.lower()
+    return (not lowered.startswith("openclinxr_")
+            and (lowered.endswith(".ceiling") or "/ceiling" in lowered)
+            and not _is_shell_ceiling_cornice(obj_name))
+
+
 def _is_wall_shell(obj_name: str) -> bool:
     """Wall meshes that carry an inner face the cove base sits against."""
     lowered = obj_name.lower()
@@ -2195,6 +2203,18 @@ def apply_finish() -> int:
             if obj.type == "MESH" and _is_shell_ceiling_cornice(obj.name):
                 removed_cornice.append(obj.name)
                 bpy.data.objects.remove(obj, do_unlink=True)
+    # A painted finish is the ceiling surface, not a veneer on top of the
+    # shell ceiling. The emitted slab's underside is intentionally anchored
+    # at ceiling_inner_z; retaining the shell plane at that same height made
+    # two exactly coplanar surfaces and produced the stair-stepped green/grey
+    # patches seen in the fleet capture. Acoustic T-bar stays 60 mm below the
+    # shell and therefore keeps the shell ceiling.
+    removed_shell_ceiling: list[str] = []
+    if ceiling_feature is not None and ceiling_feature.get("kind") == "painted":
+        for obj in list(bpy.data.objects):
+            if obj.type == "MESH" and _is_shell_ceiling(obj.name):
+                removed_shell_ceiling.append(obj.name)
+                bpy.data.objects.remove(obj, do_unlink=True)
     # Recipe cove feature (see README): the shell floor skirting (random
     # height/profile white plastic from skirting_board.py) is removed and
     # the finish emits the thin cove base instead. Ceiling skirting is
@@ -2287,6 +2307,7 @@ def apply_finish() -> int:
         "emittedCove": emitted["cove"],
         "removedShellSkirting": removed_skirting,
         "removedShellCornice": removed_cornice,
+        "removedShellCeiling": removed_shell_ceiling,
         "measuredFloorTop": measured_floor_top,
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],
