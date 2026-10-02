@@ -1,6 +1,6 @@
 # 0059 — image-to-3dlab equipment cagematch
 
-- Status: **decided: TRELLIS.2 adopted for the ECG cart (round 5b: round-3 seed + R5-BEST pipeline); wired into `equipment_generate` as `exportTreatment: "r5-best"` and published 2026-10-02 (see `factory-wiring/GRADE.md`)**
+- Status: **decided: TRELLIS.2 adopted for the ECG cart (round 5b: round-3 seed + R5-BEST pipeline); wired into `equipment_generate` as `exportTreatment: "r5-best"` and published 2026-10-02 (see `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md`)**
 - Date: 2026-10-01
 - Deciders: coordinator native-pixel grade pending
 - Relates to: MADR 0046 (territory/revenue gates), MADR 0049 (third-party model posture), ECG-cart cagematch plan dated 2026-08-31
