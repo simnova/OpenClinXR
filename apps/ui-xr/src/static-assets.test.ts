@@ -83,7 +83,20 @@ const generatedSceneAssetHashes = {
   "medical-equipment/exam-table-sketchfab-ccby.glb": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
   "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
-  "environment/infinigen-ed-exam-bay.glb": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
+  "environment/infinigen-ed-exam-bay.glb": "60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47",
+  "environment/infinigen-pediatric-urgent-care-bay.glb": "3d5e58ce0a4154f90d6a245be6b88b440e71fe926e8d009164c094be48020a71",
+  "environment/infinigen-primary-care-clinic.glb": "1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009",
+  "environment/infinigen-ed-stroke-bay.glb": "8466bf6e1dc761e10f091989c2b543096ea45071bd29c80877208235faf42058",
+  "environment/infinigen-adult-ed-abdominal-bay.glb": "755c293a04564b1503fd8960467795791c235455f9c0793d1c1a73f2e2defab1",
+  "environment/infinigen-telehealth-home-visit.glb": "30fbaa470c1e636a2de5513371f28a3a0fe0e570b43c493cf154cf4fc56556d1",
+  "environment/infinigen-behavioral-health-private.glb": "393d0b0ee131cee0a50075de1737c82c3ed689e04133e956d683e4f4d5ed147c",
+  "environment/infinigen-oncology-consult.glb": "9320e8b2010e1c3adf9fc447e393342b2538a60e226ac15f6b24b03f55760835",
+  "environment/infinigen-urgent-care-clinic.glb": "f0f1d6ea7c4a7a945392d5ef89d98844c8b1fc2f7babce758c1f85014bab870d",
+  "environment/infinigen-surgical-ward.glb": "f3e01851171cb79ea4300db5ad5d5fb925bc64033861ca4cc237cb18ab25805a",
+  "environment/infinigen-ob-triage.glb": "554698bd4bafe08ec0bfc9c888c2a2543185b4133229ecd04faf284fc3f5a74e",
+  "environment/infinigen-pediatric-fever-urgent-care.glb": "c65f0ff52fce7207f201a652fd298393af159aad53cd6fa5994ebe0a583376fb",
+  "environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
+  "environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
 } as const;
 
 describe("static browser assets", () => {
