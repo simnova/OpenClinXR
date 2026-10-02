@@ -168,6 +168,12 @@ export function deriveRoomEvidencePosesFromGeometry(
   const bedInset = Math.max(inset, depth * (0.33 / 3.9));
   const doorInside = doorWallZ + -doorSign * Math.max(inset, depth * (0.45 / 3.9));
   const bedInside = oppositeWallZ + doorSign * bedInset;
+  // The cove subject sits on the opposite wall, but a 0.30 m camera standoff
+  // is inside the cove's near-field occlusion envelope at low eye height.
+  // Put the low camera at the room centre and retain the geometry-derived
+  // wall target. This gives at least half-room depth of sightline clearance
+  // while keeping the view entirely recipe-derived.
+  const lowEyeZ = (doorWallZ + oppositeWallZ) / 2;
   const sideNearDoor = Math.max(room.min[0] + inset, Math.min(room.max[0] - inset, doorCenterX - width * (0.67 / 4.3)));
   const centerX = (room.min[0] + room.max[0]) / 2;
   const image = (id: EvidencePoseId): string => `${id.replace(/^runtime-/, "")}.jpg`;
@@ -209,10 +215,10 @@ export function deriveRoomEvidencePosesFromGeometry(
     },
     {
       id: "runtime-06-floor-base", image: image("runtime-06-floor-base"),
-      eye: tuple(centerX - width * (0.02 / 4.3), 0.32, bedInside),
-      look: tuple(centerX, -0.05, oppositeWallZ),
+      eye: tuple(centerX - width * (0.02 / 4.3), 0.32, lowEyeZ),
+      look: tuple(centerX, 0.05, oppositeWallZ),
       verticalFovDeg: depthScaledFov(55, depth), subject: "floor-cove-junction",
-      derivation: "Only low eye; measured cove nodes prove the floor/base subject; ward lens-refit 55deg cove-profile family.",
+      derivation: "Only low eye; room-centre standoff gives half-room sightline clearance to the measured cove/floor target; ward lens-refit 55deg cove-profile family.",
     },
   ];
   const clearanceM = Object.fromEntries(poses.map((pose) => [pose.id, clearance(pose.eye, room)])) as RoomEvidencePoseArtifact["clearanceM"];
