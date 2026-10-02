@@ -244,6 +244,8 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     remesh: { type: "boolean", required: true },
     viewCount: { type: "number", required: true },
     decimationTarget: { type: "number", required: true, description: "schema-only field for card derivation" },
+    // Opt-in R5-BEST export treatment (MADR 0059 round 5b). Optional; absent = legacy path.
+    exportTreatment: { type: "enum", values: ["r5-best"], required: false, description: "R5-BEST post-generation treatment" },
   }),
   staging: defineStation("staging", {
     actorId: { type: "string", required: true },

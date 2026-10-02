@@ -217,6 +217,11 @@ def main():
                         help="Final decimation target faces (default 300000)")
     parser.add_argument("--texture-size", type=int, default=2048,
                         help="Baked texture resolution (default 2048)")
+    parser.add_argument("--export-treatment", choices=("none", "r5-best"), default="none",
+                        help="R5-BEST post-generation treatment (MADR 0059): CPU hole fill + "
+                             "5dp weld + guarded island filter on the decoded mesh before to_glb")
+    parser.add_argument("--island-threshold-share", type=float, default=0.0001,
+                        help="Island filter face share (R5-BEST default 0.0001)")
     _add_sampler_args(parser)
     args = parser.parse_args()
     sampler_overrides = _collect_sampler_overrides(args)
@@ -421,6 +426,50 @@ def main():
         write_result()
         return 1
 
+    # R5-BEST export treatment (MADR 0059): CPU topology repair on the decoded
+    # mesh before to_glb. Helpers come from the promoted station script so the
+    # evidence path and this factory path share one implementation; "none" skips
+    # everything below and preserves today's behaviour exactly.
+    treatment_report: dict = {"mode": "none", "pipeline": []}
+    export_vertices = mesh.vertices
+    export_faces = mesh.faces
+    if args.export_treatment == "r5-best":
+        from pathlib import Path as _Path
+
+        import numpy as _np
+        import torch as _torch
+
+        _station_dir = _Path(__file__).resolve().parents[4] / (
+            "packages/openclinxr/factory-stations/src/equipment_generate")
+        sys.path.insert(0, str(_station_dir))
+        import r5_best_treatment as _r5_best
+
+        def _to_numpy(value):
+            if _torch.is_tensor(value):
+                return value.detach().cpu().numpy()
+            return _np.asarray(value)
+
+        _treat_vertices = _to_numpy(mesh.vertices).astype(_np.float32)
+        _treat_faces = _to_numpy(mesh.faces).astype(_np.int64)
+        _treat_vertices, _treat_faces, _fill_report = _r5_best.cpu_fill(_treat_vertices, _treat_faces)
+        treatment_report = {"mode": "best", "pipeline": ["cpu_fill_holes"]}
+        treatment_report["fill"] = _fill_report
+        _treat_vertices, _treat_faces, _weld_report = _r5_best.weld(_treat_vertices, _treat_faces)
+        treatment_report["pipeline"].append("weld_5dp")
+        treatment_report["weld"] = _weld_report
+        _treat_vertices, _treat_faces, _filter_report = _r5_best.component_filter(
+            _treat_vertices, _treat_faces, args.island_threshold_share)
+        treatment_report["pipeline"].append("island_filter")
+        treatment_report["filter"] = _filter_report
+        treatment_report["preExportFaces"] = int(len(_treat_faces))
+        export_vertices = _torch.from_numpy(_treat_vertices)
+        export_faces = _torch.from_numpy(_treat_faces)
+        print(f"[ISOLATED:{subject_id}] R5-BEST treatment: "
+              f"fill {_fill_report['facesBefore']}->{_fill_report['facesAfter']} faces, "
+              f"filter {_filter_report['componentsBefore']}->{_filter_report['componentsAfter']} components",
+              flush=True)
+    result["treatment"] = treatment_report
+
     # GLB export
     output_glb = os.path.join(output_dir, f"{subject_id}.glb")
     try:
@@ -446,8 +495,8 @@ def main():
               f"raw_faces={raw_faces})...", flush=True)
         t_export = time.time()
         to_glb_kwargs = dict(
-            vertices=mesh.vertices,
-            faces=mesh.faces,
+            vertices=export_vertices,
+            faces=export_faces,
             attr_volume=mesh.attrs,
             coords=mesh.coords,
             attr_layout=mesh.layout,
@@ -508,6 +557,12 @@ def main():
             f"Mesh: {total_tris} tris, {file_size} bytes. "
             f"Shape gen: {shape_time:.1f}s, Export: {export_time:.1f}s."
         )
+        if treatment_report["pipeline"]:
+            treatment_report["pipeline"].extend([
+                f"to_glb_decimate_{decimation_target}",
+                "uv_unwrap",
+                f"pbr_bake_{texture_size}",
+            ])
 
     except Exception as e:
         result["stages"]["glb_export"] = f"throws: {type(e).__name__}"
