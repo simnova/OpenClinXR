@@ -1,0 +1,41 @@
+{
+  "room": "telehealth_home_visit_v1",
+  "pose": {
+    "eye": {
+      "x": -1.104651,
+      "y": 1.6,
+      "z": 1.472308
+    },
+    "look": {
+      "x": 0,
+      "y": 2.5,
+      "z": -0.81787
+    },
+    "fov": 33.203241
+  },
+  "probes": [
+    [
+      640,
+      526
+    ],
+    [
+      1150,
+      587
+    ],
+    [
+      1200,
+      592
+    ],
+    [
+      300,
+      493
+    ]
+  ],
+  "shots": {
+    "bb-base": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-telehealth/bb-base.png",
+    "bb-ao-off": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-telehealth/bb-ao-off.png",
+    "bb-lights-white": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-telehealth/bb-lights-white.png",
+    "bb-albedo-flat": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-telehealth/bb-albedo-flat.png",
+    "bb-restored": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-telehealth/bb-restored.png"
+  }
+}

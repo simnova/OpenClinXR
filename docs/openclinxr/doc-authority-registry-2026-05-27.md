@@ -454,3 +454,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/rooms-regen/BATCH-04.md` - evidence; Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes.
 - `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - evidence; Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects.
 - `docs/openclinxr/room-realism/rooms-defects/REPORT.md` - evidence; Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence.
+- `docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md` - evidence; Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism.

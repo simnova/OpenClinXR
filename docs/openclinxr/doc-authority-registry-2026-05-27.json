@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 214,
     "archive-candidate": 116,
-    "evidence": 149,
+    "evidence": 150,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5405,6 +5405,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism."
     }
   ]
 }
