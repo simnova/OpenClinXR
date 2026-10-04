@@ -1,0 +1,1024 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
+  "kind": "ui_xr_environment_room_capture",
+  "generatedAt": "2026-10-04T05:01:46.131Z",
+  "captureMode": "scene-overview",
+  "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
+  "claimScope": [
+    "parametric_station_shell_rendered_in_ui_xr",
+    "live_shell_facts_read_from_running_page"
+  ],
+  "notEvidenceFor": [
+    "clinical_room_realism",
+    "quest_readiness",
+    "kit_bashed_or_generated_room_assets",
+    "exam_equivalence"
+  ],
+  "entries": [
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "imagePath": "adult_abdominal_pain_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 133,
+          "interiorSizeMeters": [
+            6.46999979019165,
+            2.69700805231885,
+            6.789946556091309
+          ],
+          "interiorMin": [
+            -3.234999895095825,
+            -0.04699995741248131,
+            -4.144973278045654
+          ],
+          "interiorMax": [
+            3.234999895095825,
+            2.6500080949063687,
+            2.6449732780456543
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.27169143901063497,
+            2,
+            -1.2986279731082275
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "adult_ed_abdominal_bay_v1",
+        "floorColor": 5594984,
+        "roomDepthMeters": 3.4,
+        "roomWidthMeters": 6.8,
+        "roomHeightMeters": 2.65,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.80 look=-0.64,1.00,-0.21 nearestActor=0.98m rejected=-2.7/2.4 2.7/2.4 0.0/2.4 -1.4/2.4 1.4/2.4 -2.7/1.8 2.7/1.8 0.0/1.8 -1.4/1.8 1.4/1.8 -2.7/1.1 2.7/1.1 0.0/1.1 -1.4/1.1 1.4/1.1 interiorMaxZ=2.64 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.1944 actorOverlap=0.3369 actorFixtureOverlap=1.5702 placardBack=0 meanFacingDeg=41.3 eye=0.27,2.00,-1.30 look=0.96,0.82,0.36",
+        "cameraEye": [
+          0.27169143901063497,
+          2,
+          -1.2986279731082275
+        ],
+        "cameraLook": [
+          0.9605216172677964,
+          0.8185897508948382,
+          0.3643551854120887
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "imagePath": "clinic_abdominal_pain_interpreter_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 148,
+          "interiorSizeMeters": [
+            7.720283031463623,
+            2.6969886124134064,
+            8.539946556091309
+          ],
+          "interiorMin": [
+            -3.8601415157318115,
+            -0.04699999839067459,
+            -4.769973307847977
+          ],
+          "interiorMax": [
+            3.8601415157318115,
+            2.649988614022732,
+            3.769973248243332
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            1.8757812636096862,
+            2.16,
+            -2.3590200492276483
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "urgent_care_clinic_room_v1",
+        "floorColor": 6254951,
+        "roomDepthMeters": 2.9,
+        "roomWidthMeters": 5.5,
+        "roomHeightMeters": 2.5,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,2.92 look=0.21,1.00,0.15 nearestActor=2.35m rejected=-3.4/3.5 3.4/3.5 0.0/3.5 -1.7/3.5 1.7/3.5 -3.4/2.9 3.4/2.9 0.0/2.9 -1.7/2.9 1.7/2.9 -3.4/1.8 3.4/1.8 0.0/1.8 -1.7/1.8 1.7/1.8 interiorMaxZ=3.77 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.5000 actorOverlap=0.0000 actorFixtureOverlap=0.9340 placardBack=0 meanFacingDeg=32.1 eye=1.88,2.16,-2.36 look=0.21,0.74,0.14",
+        "cameraEye": [
+          1.8757812636096862,
+          2.16,
+          -2.3590200492276483
+        ],
+        "cameraLook": [
+          0.2090705645508797,
+          0.7436764794104869,
+          0.13538878767998763
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "imagePath": "ed_chest_pain_priority_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 115,
+          "interiorSizeMeters": [
+            6.1020002365112305,
+            2.697000063955784,
+            3.4220056961168637
+          ],
+          "interiorMin": [
+            -3.0510001182556152,
+            -0.0469999685883522,
+            -2.486002848058432
+          ],
+          "interiorMax": [
+            3.0510001182556152,
+            2.6500000953674316,
+            0.9360028480584317
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.2849541583456173,
+            2,
+            -1.3176806591382297
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "ed_exam_bay_v1",
+        "floorColor": 5858155,
+        "roomDepthMeters": 3.45,
+        "roomWidthMeters": 7,
+        "roomHeightMeters": 2.65,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,0.58 look=0.04,1.00,0.08 nearestActor=0.09m rejected=-2.6/0.7 2.6/0.7 0.0/0.7 -1.3/0.7 1.3/0.7 -2.6/0.6 2.6/0.6 0.0/0.6 -1.3/0.6 1.3/0.6 -2.6/0.4 2.6/0.4 0.0/0.4 -1.3/0.4 1.3/0.4 interiorMaxZ=0.94 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.2222 actorOverlap=0.3164 actorFixtureOverlap=1.1747 placardBack=0 meanFacingDeg=38.8 eye=0.28,2.00,-1.32 look=0.97,0.81,0.35",
+        "cameraEye": [
+          0.2849541583456173,
+          2,
+          -1.3176806591382297
+        ],
+        "cameraLook": [
+          0.9737843366027787,
+          0.8138628943359246,
+          0.3453024993820865
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "imagePath": "ed_chest_pain_priority_v2-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 115,
+          "interiorSizeMeters": [
+            6.1020002365112305,
+            2.697000063955784,
+            3.4220056961168637
+          ],
+          "interiorMin": [
+            -3.0510001182556152,
+            -0.0469999685883522,
+            -2.486002848058432
+          ],
+          "interiorMax": [
+            3.0510001182556152,
+            2.6500000953674316,
+            0.9360028480584317
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.9629950602238702,
+            2.16,
+            -1.4421674615155853
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "ed_exam_bay_v1",
+        "floorColor": 5858155,
+        "roomDepthMeters": 3.45,
+        "roomWidthMeters": 7,
+        "roomHeightMeters": 2.65,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,0.62 look=0.04,1.00,0.12 nearestActor=0.06m rejected=-2.6/0.7 2.6/0.7 0.0/0.7 -1.3/0.7 1.3/0.7 -2.6/0.6 2.6/0.6 0.0/0.6 -1.3/0.6 1.3/0.6 -2.6/0.4 2.6/0.4 0.0/0.4 -1.3/0.4 1.3/0.4 interiorMaxZ=0.94 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.2014 actorOverlap=0.1640 actorFixtureOverlap=0.7882 placardBack=0 meanFacingDeg=17.9 eye=0.96,2.16,-1.44 look=0.96,0.82,0.36",
+        "cameraEye": [
+          0.9629950602238702,
+          2.16,
+          -1.4421674615155853
+        ],
+        "cameraLook": [
+          0.9629950602238699,
+          0.8153482716818278,
+          0.35783253848441476
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "imagePath": "ed_stroke_alert_handoff_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 133,
+          "interiorSizeMeters": [
+            7.110000133514404,
+            2.6970000602304935,
+            7.150058031082153
+          ],
+          "interiorMin": [
+            -3.555000066757202,
+            -0.046999964863061905,
+            -4.425029020492202
+          ],
+          "interiorMax": [
+            3.555000066757202,
+            2.6500000953674316,
+            2.725029010589951
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            1.4431137975806831,
+            1.68,
+            -2.646238282080432
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "ed_stroke_bay_v1",
+        "floorColor": 5200483,
+        "roomDepthMeters": 3.6,
+        "roomWidthMeters": 7.2,
+        "roomHeightMeters": 2.65,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.88 look=0.23,1.00,0.34 nearestActor=1.04m rejected=-3.1/2.5 3.1/2.5 0.0/2.5 -1.5/2.5 1.5/2.5 -3.1/1.9 3.1/1.9 0.0/1.9 -1.5/1.9 1.5/1.9 -3.1/1.4 3.1/1.4 0.0/1.4 -1.5/1.4 1.5/1.4 interiorMaxZ=2.73 wallThickness=0.000 refine=orbit standing=3/3 nearOcclusion=0.0000 foregroundPartition=0.4792 actorOverlap=0.1532 actorFixtureOverlap=0.3182 placardBack=0 meanFacingDeg=24.1 eye=1.44,1.68,-2.65 look=0.22,0.82,0.31",
+        "cameraEye": [
+          1.4431137975806831,
+          1.68,
+          -2.646238282080432
+        ],
+        "cameraLook": [
+          0.2185268140123955,
+          0.824794135189434,
+          0.31017622195568567
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 3,
+          "total": 3
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "imagePath": "ob_headache_preeclampsia_triage_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 128,
+          "interiorSizeMeters": [
+            6.21999979019165,
+            2.69708314538002,
+            5.340099334716797
+          ],
+          "interiorMin": [
+            -3.109999895095825,
+            -0.046999961137771606,
+            -3.2450496673583986
+          ],
+          "interiorMax": [
+            3.109999895095825,
+            2.6500831842422485,
+            2.0950496673583983
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.4006560135096766,
+            1.68,
+            -0.9699838955295335
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "ob_triage_room_v1",
+        "floorColor": 7696248,
+        "roomDepthMeters": 3.05,
+        "roomWidthMeters": 5.9,
+        "roomHeightMeters": 2.55,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.25 look=-0.33,1.00,0.06 nearestActor=0.88m rejected=-2.6/1.8 2.6/1.8 0.0/1.8 -1.3/1.8 1.3/1.8 -2.6/1.2 2.6/1.2 0.0/1.2 -1.3/1.2 1.3/1.2 -2.6/1.0 2.6/1.0 0.0/1.0 -1.3/1.0 1.3/1.0 interiorMaxZ=2.10 wallThickness=0.000 refine=orbit standing=1/1 nearOcclusion=0.0000 foregroundPartition=0.1111 actorOverlap=0.0000 actorFixtureOverlap=0.4371 placardBack=0 meanFacingDeg=54.2 eye=0.40,1.68,-0.97 look=-0.73,0.74,0.16",
+        "cameraEye": [
+          0.4006560135096766,
+          1.68,
+          -0.9699838955295335
+        ],
+        "cameraLook": [
+          -0.7307148363887996,
+          0.7390478604851404,
+          0.16138695436894263
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 1,
+          "total": 1
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "imagePath": "oncology_bad_news_family_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 121,
+          "interiorSizeMeters": [
+            5.71999979019165,
+            2.6971060261130333,
+            5.799845218658447
+          ],
+          "interiorMin": [
+            -2.859999895095825,
+            -0.046999961137771606,
+            -3.4999226093292237
+          ],
+          "interiorMax": [
+            2.859999895095825,
+            2.6501060649752617,
+            2.2999226093292235
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            1.383560553022702,
+            2.16,
+            -2.583600323540113
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "oncology_consult_room_v1",
+        "floorColor": 6840947,
+        "roomDepthMeters": 3.1,
+        "roomWidthMeters": 5.8,
+        "roomHeightMeters": 2.55,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.45 look=0.24,1.00,0.18 nearestActor=0.93m rejected=-2.4/2.1 2.4/2.1 0.0/2.1 -1.2/2.1 1.2/2.1 -2.4/1.5 2.4/1.5 0.0/1.5 -1.2/1.5 1.2/1.5 -2.4/1.1 2.4/1.1 0.0/1.1 -1.2/1.1 1.2/1.1 interiorMaxZ=2.30 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.5556 actorOverlap=0.0000 actorFixtureOverlap=0.8888 placardBack=0 meanFacingDeg=34.1 eye=1.38,2.16,-2.58 look=0.24,0.73,0.19",
+        "cameraEye": [
+          1.383560553022702,
+          2.16,
+          -2.583600323540113
+        ],
+        "cameraLook": [
+          0.23551025592743235,
+          0.725946355774918,
+          0.18803827399374703
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "imagePath": "peds_asthma_parent_anxiety_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 121,
+          "interiorSizeMeters": [
+            5.610000133514404,
+            2.6970000565052032,
+            5.819817304611206
+          ],
+          "interiorMin": [
+            -2.805000066757202,
+            -0.046999961137771606,
+            -3.4349086638685353
+          ],
+          "interiorMax": [
+            2.805000066757202,
+            2.6500000953674316,
+            2.3849086407426707
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.5472697926138935,
+            2.16,
+            -2.411945537653466
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "pediatric_urgent_care_bay_v1",
+        "floorColor": 6321018,
+        "roomDepthMeters": 2.95,
+        "roomWidthMeters": 5.4,
+        "roomHeightMeters": 2.5,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.54 look=-0.01,1.00,-0.02 nearestActor=0.68m rejected=-2.3/2.1 2.3/2.1 0.0/2.1 -1.2/2.1 1.2/2.1 -2.3/1.5 2.3/1.5 0.0/1.5 -1.2/1.5 1.2/1.5 -2.3/1.1 2.3/1.1 0.0/1.1 -1.2/1.1 1.2/1.1 interiorMaxZ=2.38 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0069 foregroundPartition=0.5347 actorOverlap=0.0000 actorFixtureOverlap=2.7075 placardBack=0 meanFacingDeg=14.4 eye=0.55,2.16,-2.41 look=0.08,0.69,-0.06",
+        "cameraEye": [
+          0.5472697926138935,
+          2.16,
+          -2.411945537653466
+        ],
+        "cameraLook": [
+          0.07905301977518486,
+          0.6943764973622895,
+          -0.0580608646857132
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0.006944444444444444,
+          "nearRayCount": 1,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "imagePath": "peds_fever_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 129,
+          "interiorSizeMeters": [
+            6.71999979019165,
+            2.697044947207459,
+            7.039946556091309
+          ],
+          "interiorMin": [
+            -3.359999895095825,
+            -0.04699999839067459,
+            -4.044973278045655
+          ],
+          "interiorMax": [
+            3.359999895095825,
+            2.6500449488167845,
+            2.994973278045654
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.21026738669194633,
+            1.52,
+            -1.5145056572636602
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "pediatric_fever_urgent_care_bay_v1",
+        "floorColor": 6321018,
+        "roomDepthMeters": 2.95,
+        "roomWidthMeters": 5.4,
+        "roomHeightMeters": 2.5,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,2.15 look=-0.61,1.00,-0.13 nearestActor=1.31m rejected=-2.9/2.7 2.9/2.7 0.0/2.7 -1.4/2.7 1.4/2.7 -2.9/2.1 2.9/2.1 0.0/2.1 -1.4/2.1 1.4/2.1 -2.9/1.3 2.9/1.3 0.0/1.3 -1.4/1.3 1.4/1.3 interiorMaxZ=2.99 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.1944 actorOverlap=0.2896 actorFixtureOverlap=1.1927 placardBack=0 meanFacingDeg=40.9 eye=0.21,1.52,-1.51 look=0.98,0.83,0.33",
+        "cameraEye": [
+          0.21026738669194633,
+          1.52,
+          -1.5145056572636602
+        ],
+        "cameraLook": [
+          0.9756342514221257,
+          0.8291026689554314,
+          0.33325340775891354
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "imagePath": "postop_fever_consult_pressure_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 146,
+          "interiorSizeMeters": [
+            7.619999885559082,
+            2.696985747665167,
+            7.779946327209473
+          ],
+          "interiorMin": [
+            -3.809999942779541,
+            -0.04699999839067459,
+            -4.539973163604737
+          ],
+          "interiorMax": [
+            3.809999942779541,
+            2.6499857492744923,
+            3.239973163604736
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            1.7306556386475829,
+            2,
+            -1.9615895335873006
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "surgical_ward_room_v1",
+        "floorColor": 7562845,
+        "roomDepthMeters": 3.2,
+        "roomWidthMeters": 6,
+        "roomHeightMeters": 2.6,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,2.39 look=0.23,1.00,0.13 nearestActor=1.53m rejected=-3.3/3.0 3.3/3.0 0.0/3.0 -1.7/3.0 1.7/3.0 -3.3/2.4 3.3/2.4 0.0/2.4 -1.7/2.4 1.7/2.4 -3.3/1.6 3.3/1.6 0.0/1.6 -1.7/1.6 1.7/1.6 interiorMaxZ=3.24 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.2014 actorOverlap=0.0000 actorFixtureOverlap=0.7929 placardBack=0 meanFacingDeg=13.7 eye=1.73,2.00,-1.96 look=1.26,0.82,0.39",
+        "cameraEye": [
+          1.7306556386475829,
+          2,
+          -1.9615895335873006
+        ],
+        "cameraLook": [
+          1.2624388658088743,
+          0.8234280971210493,
+          0.3922951393804524
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "imagePath": "primary_care_dyslipidemia_joint_pain_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 133,
+          "interiorSizeMeters": [
+            6.71999979019165,
+            2.6970000565052032,
+            6.800454139709473
+          ],
+          "interiorMin": [
+            -3.359999895095825,
+            -0.046999961137771606,
+            -3.8502270698547365
+          ],
+          "interiorMax": [
+            3.359999895095825,
+            2.6500000953674316,
+            2.950227069854736
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.27925887919506487,
+            2,
+            -1.299301124791115
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "primary_care_clinic_room_v1",
+        "floorColor": 6583435,
+        "roomDepthMeters": 2.8,
+        "roomWidthMeters": 5,
+        "roomHeightMeters": 2.45,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,2.10 look=-0.08,1.00,0.09 nearestActor=1.32m rejected=-2.9/2.7 2.9/2.7 0.0/2.7 -1.4/2.7 1.4/2.7 -2.9/2.1 2.9/2.1 0.0/2.1 -1.4/2.1 1.4/2.1 -2.9/1.4 2.9/1.4 0.0/1.4 -1.4/1.4 1.4/1.4 interiorMaxZ=2.95 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.2569 actorOverlap=0.3339 actorFixtureOverlap=1.9212 placardBack=0 meanFacingDeg=41.3 eye=0.28,2.00,-1.30 look=0.97,0.81,0.36",
+        "cameraEye": [
+          0.27925887919506487,
+          2,
+          -1.299301124791115
+        ],
+        "cameraLook": [
+          0.9680890574522263,
+          0.810934571575419,
+          0.3636820337292012
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "imagePath": "psych_suicidal_ideation_safety_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 12,
+          "interiorSizeMeters": [
+            5.219821453094482,
+            2.7740369960665703,
+            6.259961219753457
+          ],
+          "interiorMin": [
+            -2.609910726547241,
+            -0.10503684729337692,
+            -3.6799806098767287
+          ],
+          "interiorMax": [
+            2.609910726547241,
+            2.6690001487731934,
+            2.5799806098767286
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.2879733967057594,
+            2,
+            -1.3267637077035446
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "behavioral_health_private_room_v1",
+        "floorColor": 7041664,
+        "roomDepthMeters": 3,
+        "roomWidthMeters": 5.6,
+        "roomHeightMeters": 2.5,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,1.73 look=-0.08,1.00,0.10 nearestActor=0.94m rejected=-2.1/2.3 2.1/2.3 0.0/2.3 -1.1/2.3 1.1/2.3 -2.1/1.7 2.1/1.7 0.0/1.7 -1.1/1.7 1.1/1.7 -2.1/1.2 2.1/1.2 0.0/1.2 -1.1/1.2 1.1/1.2 interiorMaxZ=2.58 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0069 foregroundPartition=0.1736 actorOverlap=0.3087 actorFixtureOverlap=1.6706 placardBack=0 meanFacingDeg=41.0 eye=0.29,2.00,-1.33 look=0.98,0.82,0.34",
+        "cameraEye": [
+          0.2879733967057594,
+          2,
+          -1.3267637077035446
+        ],
+        "cameraLook": [
+          0.9768035749629208,
+          0.8237338853182584,
+          0.3362194508167718
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0.006944444444444444,
+          "nearRayCount": 1,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "imagePath": "stepdown_sepsis_nurse_escalation_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 123,
+          "interiorSizeMeters": [
+            6.420000076293945,
+            2.6470001116394997,
+            3.789896292506634
+          ],
+          "interiorMin": [
+            -3.2100000381469727,
+            -0.0469999685883522,
+            -2.569948167589068
+          ],
+          "interiorMax": [
+            3.2100000381469727,
+            2.6000001430511475,
+            1.219948124917566
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            -1.5076774774707293,
+            2.1500001430511473,
+            -0.15692549639914755
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "stepdown_room_v1",
+        "floorColor": 6055536,
+        "roomDepthMeters": 3.25,
+        "roomWidthMeters": 6.2,
+        "roomHeightMeters": 2.6,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,0.63 look=0.20,1.00,0.13 nearestActor=0.02m rejected=-2.7/1.0 2.7/1.0 0.0/1.0 -1.4/1.0 1.4/1.0 -2.7/0.6 2.7/0.6 0.0/0.6 -1.4/0.6 1.4/0.6 -2.7/0.5 2.7/0.5 0.0/0.5 -1.4/0.5 1.4/0.5 interiorMaxZ=1.22 wallThickness=0.000 refine=orbit standing=2/2 nearOcclusion=0.0000 foregroundPartition=0.5486 actorOverlap=0.1384 actorFixtureOverlap=0.6211 placardBack=0 meanFacingDeg=87.6 eye=-1.51,2.15,-0.16 look=1.24,0.83,0.39",
+        "cameraEye": [
+          -1.5076774774707293,
+          2.1500001430511473,
+          -0.15692549639914755
+        ],
+        "cameraLook": [
+          1.2385213076583153,
+          0.8271494651691307,
+          0.3893274052460127
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 2
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "imagePath": "telehealth_diabetes_health_literacy_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 12,
+          "interiorSizeMeters": [
+            9.720000267028809,
+            2.7159886918962,
+            6.760080429043008
+          ],
+          "interiorMin": [
+            -4.860000133514404,
+            -0.04699999839067459,
+            -3.705040214521504
+          ],
+          "interiorMax": [
+            4.860000133514404,
+            2.6689886935055256,
+            3.055040214521504
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            1.4714636415127331,
+            2.16,
+            -2.212458385479624
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "telehealth_home_visit_v1",
+        "floorColor": 9136404,
+        "roomDepthMeters": 2.55,
+        "roomWidthMeters": 5.2,
+        "roomHeightMeters": 2.4,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,2.21 look=0.47,1.00,0.17 nearestActor=1.37m rejected=-4.4/2.8 4.4/2.8 0.0/2.8 -2.2/2.8 2.2/2.8 -4.4/2.2 4.4/2.2 0.0/2.2 -2.2/2.2 2.2/2.2 -4.4/1.5 4.4/1.5 0.0/1.5 -2.2/1.5 2.2/1.5 interiorMaxZ=3.06 wallThickness=0.000 refine=orbit standing=3/3 nearOcclusion=0.0000 foregroundPartition=0.4931 actorOverlap=0.2839 actorFixtureOverlap=1.3834 placardBack=0 meanFacingDeg=23.2 eye=1.47,2.16,-2.21 look=0.48,0.65,0.19",
+        "cameraEye": [
+          1.4714636415127331,
+          2.16,
+          -2.212458385479624
+        ],
+        "cameraLook": [
+          0.4764867173634993,
+          0.6469670081433804,
+          0.18962839904972142
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 3,
+          "total": 3
+        },
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "imagePath": "ward_delirium_med_rec_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 109,
+          "interiorSizeMeters": [
+            4.519999980926514,
+            2.44709471124969,
+            4.439928293228149
+          ],
+          "interiorMin": [
+            -2.259999990463257,
+            -0.0469999760389328,
+            -2.8449641466140747
+          ],
+          "interiorMax": [
+            2.259999990463257,
+            2.4000947352107573,
+            1.5949641466140747
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            0.3245681794856322,
+            1.68,
+            -1.897778078405023
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "inpatient_ward_room_v1",
+        "floorColor": 5923950,
+        "roomDepthMeters": 3.15,
+        "roomWidthMeters": 6,
+        "roomHeightMeters": 2.55,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=0.00,1.68,0.75 look=0.21,1.00,0.09 nearestActor=0.07m rejected=-1.8/1.3 1.8/1.3 0.0/1.3 -0.9/1.3 0.9/1.3 -1.8/0.7 1.8/0.7 0.0/0.7 -0.9/0.7 0.9/0.7 -1.8/0.7 1.8/0.7 0.0/0.7 -0.9/0.7 0.9/0.7 interiorMaxZ=1.59 wallThickness=0.000 refine=orbit standing=3/3 nearOcclusion=0.0139 foregroundPartition=0.4444 actorOverlap=0.5035 actorFixtureOverlap=1.4338 placardBack=0 meanFacingDeg=69.6 eye=0.32,1.68,-1.90 look=1.24,0.81,0.32",
+        "cameraEye": [
+          0.3245681794856322,
+          1.68,
+          -1.897778078405023
+        ],
+        "cameraLook": [
+          1.2430084171618474,
+          0.8101145318298291,
+          0.31953279962206504
+        ],
+        "refineTag": "orbit",
+        "standingActorContainment": {
+          "contained": 3,
+          "total": 3
+        },
+        "nearOcclusion": {
+          "fraction": 0.013888888888888888,
+          "nearRayCount": 2,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    }
+  ]
+}

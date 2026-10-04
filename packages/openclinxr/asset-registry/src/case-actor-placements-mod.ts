@@ -50,12 +50,17 @@ export type AuthoredCasePlacement = {
  */
 export type CaseScenarioSource = {
   scenarioId: string;
+  title?: string | undefined;
   actors?: readonly {
     actorId: string;
     role: string;
     placement?: AuthoredCasePlacement | undefined;
   }[] | undefined;
-  environment?: { environmentId?: string | undefined } | undefined;
+  environment?: {
+    environmentId?: string | undefined;
+    name?: string | undefined;
+    description?: string | undefined;
+  } | undefined;
   environmentId?: string | undefined;
   assetNeeds?: readonly { assetId: string }[] | undefined;
   /** What the case DECIDED about equipment, as opposed to described. Absent = today's defaults. */

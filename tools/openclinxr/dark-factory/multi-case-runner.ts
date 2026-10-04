@@ -72,6 +72,7 @@ import {
   resolveHm08UpperGarment,
 } from "../asset-pipeline/makeclothes/garment-selection-by-role.js";
 import { captureStationEnvironmentRooms } from "../evidence/ui-xr-environment-room-capture.js";
+import { classifyRenderCapture } from "./render-capture-classification.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
 import {
   compileEncounterMaterialization,
@@ -1010,13 +1011,19 @@ async function runRenderStage(
     if (!entry) {
       throw new Error(`capture manifest for ${caseId} has no entry (entries=${manifest.entries.length})`);
     }
+    const capturePath = path.join(outputDir, entry.imagePath);
+    const classified = classifyRenderCapture({
+      captureExists: await existsPath(capturePath),
+      containment: entry.liveShell.standingActorContainment,
+    });
     return {
-      row: makeRow("render", "deterministic", [
+      row: makeRow("render", classified.classification, [
         relStage(stageDir, `capture/${entry.imagePath}`),
         relStage(stageDir, "capture/capture-manifest.json"),
       ], [
         `RAN live: loaded ${caseId} in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.`,
         `Live env=${entry.liveShell.environmentId ?? "?"}; capture-manifest source=live_scene.`,
+        classified.note,
       ]),
     };
   } catch (err) {

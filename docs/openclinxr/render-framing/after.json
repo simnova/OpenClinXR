@@ -1,0 +1,307 @@
+{
+  "schemaVersion": "openclinxr.render-framing-measurements.v1",
+  "phase": "after",
+  "nearOcclusionRaycastMethod": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m",
+  "entries": [
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "eye": [
+        0.27169143901063497,
+        2,
+        -1.2986279731082275
+      ],
+      "look": [
+        0.9605216172677964,
+        0.8185897508948382,
+        0.3643551854120887
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "eye": [
+        1.8757812636096862,
+        2.16,
+        -2.3590200492276483
+      ],
+      "look": [
+        0.2090705645508797,
+        0.7436764794104869,
+        0.13538878767998763
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "eye": [
+        0.2849541583456173,
+        2,
+        -1.3176806591382297
+      ],
+      "look": [
+        0.9737843366027787,
+        0.8138628943359246,
+        0.3453024993820865
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "eye": [
+        0.9629950602238702,
+        2.16,
+        -1.4421674615155853
+      ],
+      "look": [
+        0.9629950602238699,
+        0.8153482716818278,
+        0.35783253848441476
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "eye": [
+        1.4431137975806831,
+        1.68,
+        -2.646238282080432
+      ],
+      "look": [
+        0.2185268140123955,
+        0.824794135189434,
+        0.31017622195568567
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "eye": [
+        0.4006560135096766,
+        1.68,
+        -0.9699838955295335
+      ],
+      "look": [
+        -0.7307148363887996,
+        0.7390478604851404,
+        0.16138695436894263
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 1,
+        "total": 1
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "eye": [
+        1.383560553022702,
+        2.16,
+        -2.583600323540113
+      ],
+      "look": [
+        0.23551025592743235,
+        0.725946355774918,
+        0.18803827399374703
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "eye": [
+        0.5472697926138935,
+        2.16,
+        -2.411945537653466
+      ],
+      "look": [
+        0.07905301977518486,
+        0.6943764973622895,
+        -0.0580608646857132
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0.006944444444444444,
+      "visualReviewStatus": "still_bad_fixture_foreground"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "eye": [
+        0.21026738669194633,
+        1.52,
+        -1.5145056572636602
+      ],
+      "look": [
+        0.9756342514221257,
+        0.8291026689554314,
+        0.33325340775891354
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "eye": [
+        1.7306556386475829,
+        2,
+        -1.9615895335873006
+      ],
+      "look": [
+        1.2624388658088743,
+        0.8234280971210493,
+        0.3922951393804524
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "eye": [
+        0.27925887919506487,
+        2,
+        -1.299301124791115
+      ],
+      "look": [
+        0.9680890574522263,
+        0.810934571575419,
+        0.3636820337292012
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "eye": [
+        0.2879733967057594,
+        2,
+        -1.3267637077035446
+      ],
+      "look": [
+        0.9768035749629208,
+        0.8237338853182584,
+        0.3362194508167718
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0.006944444444444444,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "eye": [
+        -1.5076774774707293,
+        2.1500001430511473,
+        -0.15692549639914755
+      ],
+      "look": [
+        1.2385213076583153,
+        0.8271494651691307,
+        0.3893274052460127
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "eye": [
+        1.4714636415127331,
+        2.16,
+        -2.212458385479624
+      ],
+      "look": [
+        0.4764867173634993,
+        0.6469670081433804,
+        0.18962839904972142
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "nearOcclusionFraction": 0,
+      "visualReviewStatus": "not_flagged"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "eye": [
+        0.3245681794856322,
+        1.68,
+        -1.897778078405023
+      ],
+      "look": [
+        1.2430084171618474,
+        0.8101145318298291,
+        0.31953279962206504
+      ],
+      "refineTag": "orbit",
+      "standingActorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "nearOcclusionFraction": 0.013888888888888888,
+      "visualReviewStatus": "not_flagged"
+    }
+  ]
+}
