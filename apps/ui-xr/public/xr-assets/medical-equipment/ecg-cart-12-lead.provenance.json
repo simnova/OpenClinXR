@@ -4,7 +4,7 @@
   "scenarioId": null,
   "assetId": "ecg_cart_equipment",
   "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
-  "sourceRecordPath": "FILL:bake-measure.json path",
+  "sourceRecordPath": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/bake-measure.json",
   "generatorMode": "trellis_metal_image_to_mesh_via_trellis2_apple_r5best",
   "sourceKind": "trellis_generated_derivative",
   "usesRealTrellisForwardPass": true,
