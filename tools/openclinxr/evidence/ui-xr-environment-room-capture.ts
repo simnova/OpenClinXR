@@ -61,7 +61,10 @@ export type LiveShell = {
   cameraEye?: [number, number, number];
   cameraLook?: [number, number, number];
   refineTag?: string;
+  actorContainment?: { contained: number; total: number };
   standingActorContainment?: { contained: number; total: number };
+  meanFacingDeg?: number;
+  framingConstraintsMet?: boolean;
   nearOcclusion?: NearOcclusionReading;
   /**
    * #342 — the generated room, read from the LOADED SCENE.
@@ -640,7 +643,10 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     let cameraEye: [number, number, number] | undefined;
     let cameraLook: [number, number, number] | undefined;
     let refineTag: string | undefined;
+    let actorContainment: { contained: number; total: number } | undefined;
     let standingActorContainment: { contained: number; total: number } | undefined;
+    let meanFacingDeg: number | undefined;
+    let framingConstraintsMet: boolean | undefined;
     if (typeof scene.traverse === "function") {
       scene.traverse((object) => {
         const framing = object.userData?.openClinXrCameraFraming;
@@ -666,8 +672,17 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           const containment = camera.userData?.openClinXrActorContainment;
           if (typeof containment === "string") {
             const match = /^(\d+)\/(\d+)$/u.exec(containment);
+            if (match) actorContainment = { contained: Number(match[1]), total: Number(match[2]) };
+          }
+          const standingContainment = camera.userData?.openClinXrStandingActorContainment;
+          if (typeof standingContainment === "string") {
+            const match = /^(\d+)\/(\d+)$/u.exec(standingContainment);
             if (match) standingActorContainment = { contained: Number(match[1]), total: Number(match[2]) };
           }
+          const rawFacing = camera.userData?.openClinXrMeanFacingDeg;
+          if (typeof rawFacing === "number") meanFacingDeg = rawFacing;
+          const rawConstraints = camera.userData?.openClinXrFramingConstraintsMet;
+          if (typeof rawConstraints === "boolean") framingConstraintsMet = rawConstraints;
         }
       });
     }
@@ -687,7 +702,10 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       cameraEye,
       cameraLook,
       refineTag,
+      actorContainment,
       standingActorContainment,
+      meanFacingDeg,
+      framingConstraintsMet,
     };
   });
 }
@@ -1434,7 +1452,10 @@ export async function captureStationEnvironmentRooms(
               cameraEye: liveAfter.cameraEye,
               cameraLook: liveAfter.cameraLook,
               refineTag: liveAfter.refineTag,
+              actorContainment: liveAfter.actorContainment,
               standingActorContainment: liveAfter.standingActorContainment,
+              meanFacingDeg: liveAfter.meanFacingDeg,
+              framingConstraintsMet: liveAfter.framingConstraintsMet,
               nearOcclusion,
             },
           });

@@ -143,8 +143,9 @@ export async function readNearOcclusionFromPage(page: Page): Promise<NearOcclusi
     const worldBoxOf = function (object) {
       const geometry = object.geometry;
       if (!geometry) return null;
+      if (object.isSkinnedMesh && typeof object.computeBoundingBox === "function") object.computeBoundingBox();
       if (!geometry.boundingBox && typeof geometry.computeBoundingBox === "function") geometry.computeBoundingBox();
-      const bounds = geometry.boundingBox;
+      const bounds = object.isSkinnedMesh && object.boundingBox ? object.boundingBox : geometry.boundingBox;
       const matrix = object.matrixWorld && object.matrixWorld.elements;
       if (!bounds || !matrix) return null;
       const xs = [bounds.min.x, bounds.max.x], ys = [bounds.min.y, bounds.max.y], zs = [bounds.min.z, bounds.max.z];

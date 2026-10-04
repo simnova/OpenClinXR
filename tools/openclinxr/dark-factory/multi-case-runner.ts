@@ -1014,7 +1014,8 @@ async function runRenderStage(
     const capturePath = path.join(outputDir, entry.imagePath);
     const classified = classifyRenderCapture({
       captureExists: await existsPath(capturePath),
-      containment: entry.liveShell.standingActorContainment,
+      containment: entry.liveShell.actorContainment,
+      meanFacingDeg: entry.liveShell.meanFacingDeg,
     });
     return {
       row: makeRow("render", classified.classification, [
