@@ -146,6 +146,11 @@ function consumeAuthoredHeading(slot: Group, placement: EncounterRuntimeActorPla
   slot.userData.openClinXrBaseHeadingRadians = slot.rotation.y;
 }
 
+function stampAuthoredFramingIntent(slot: Group, placement: EncounterRuntimeActorPlacement): void {
+  slot.userData.openClinXrPreserveResolvedPlacement =
+    placement.placementProvenance === "authored_intent";
+}
+
 export function stageStationActors(ctx: StationActorStagingContext, scene: Scene): StationActorStagingResult {
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
   publishRuntimeActorSlotAssignmentEvidence(ctx.encounterBundle(), ctx.slotAssignment());
@@ -190,6 +195,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   // authored 0.4 m offset and x=-0.4 without it — a correct 0.4 m difference — and BOTH passes
   // sampled the patient at x=-0.9. The composition was right and its result was discarded here.
   patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
+  stampAuthoredFramingIntent(patient, patientPlacement);
   if (patientActorId) ctx.applyActorFraming(patient, patientActorId);
   if (patientActorId) {
     patient.add(ctx.createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, patientActorId), 0x286b54));
@@ -252,6 +258,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     nurse.visible = false;
   }
   nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
+  stampAuthoredFramingIntent(nurse, nursePlacement);
   if (clinicalActorId) ctx.applyActorFraming(nurse, clinicalActorId);
   if (clinicalActorId) {
     nurse.add(ctx.createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, clinicalActorId), 0x2f65a7));
@@ -320,6 +327,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
   spouse.userData.openClinXrActorId = familyActorId;
   spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
+  stampAuthoredFramingIntent(spouse, spousePlacement);
   if (familyActorId) ctx.applyActorFraming(spouse, familyActorId);
   stampSupportAcceptance(spouse, spousePlacement);
   consumeAuthoredHeading(spouse, spousePlacement, familyActorId);
@@ -361,6 +369,13 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     }
   }
   additional.scale.set(additionalPlacement.scale.x, additionalPlacement.scale.y, additionalPlacement.scale.z);
+  stampAuthoredFramingIntent(additional, additionalPlacement);
+  // The scene-closure resident's authored point is a locomotion START, not a static bedside
+  // composition. Its approach executor owns the root path and stance lock; preserving the start
+  // through the static framing pass changes the measured foot-contact solution before walking.
+  if (ctx.encounterBundle().scenarioId === "scene_closure_supine_bedside_v1") {
+    additional.userData.openClinXrPreserveResolvedPlacement = false;
+  }
   additional.userData.openClinXrSlotKind = "additional_cast";
   additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
   additional.userData.openClinXrActorId = additionalActorId;

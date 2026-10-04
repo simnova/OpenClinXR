@@ -95,6 +95,8 @@ type CliOptions = {
   scenarioId: string;
   outputPath: string;
   writeAzurite: boolean;
+  refreshPublicPlacements: boolean;
+  publicRoot: string;
   validateLatest: boolean;
   help: boolean;
 };
@@ -109,6 +111,11 @@ export async function runGeneratedEdStationRuntimeBundleCli(args = process.argv.
   const options = parseCliOptions(args);
   if (options.help) {
     process.stdout.write(`${helpText()}\n`);
+    return;
+  }
+  if (options.refreshPublicPlacements) {
+    await refreshPublicActorPlacements(options.scenarioId, options.publicRoot);
+    process.stdout.write(`Refreshed public actor placements for ${options.scenarioId}\n`);
     return;
   }
   if (options.validateLatest) {
@@ -1246,20 +1253,35 @@ function runtimeActorPlacementsForScenario(
   const used = new Set([patient.actorId, team.actorId, ...(family ? [family.actorId] : [])]);
   // Team-adjacent clinical secondary — not doorway (x:0.35 z:1.15). See #123.
   const additional = preset.actors.find((actor) => !used.has(actor.actorId));
-  const withAuthoredOffset = (
+  const withAuthoredPlacement = (
     actorId: string,
     fallback: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string],
   ): EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] => {
-    const offset = authored[actorId];
-    if (!offset) return fallback;
-    return { ...fallback, position: { x: offset.x, y: offset.y, z: offset.z } };
+    const placement = authored[actorId];
+    if (!placement) return fallback;
+    const posture = postureForAuthoredSupport(placement.supportSurface);
+    if (posture === "standing") {
+      return {
+        ...fallback,
+        posture,
+        placementProvenance: "authored_intent",
+        position: { ...placement.plantOffsetMeters },
+        ...(typeof placement.headingRadians === "number" ? { headingRadians: placement.headingRadians } : {}),
+      };
+    }
+    return {
+      ...fallback,
+      posture,
+      placementProvenance: "authored_intent",
+      plantOffsetMeters: { ...placement.plantOffsetMeters },
+    };
   };
   const placements: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] = {
-    [patient.actorId]: withAuthoredOffset(patient.actorId, { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" }),
-    [team.actorId]: withAuthoredOffset(team.actorId, { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" }),
+    [patient.actorId]: withAuthoredPlacement(patient.actorId, { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" }),
+    [team.actorId]: withAuthoredPlacement(team.actorId, { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" }),
   };
   if (family && family.actorId !== patient.actorId && family.actorId !== team.actorId) {
-    placements[family.actorId] = withAuthoredOffset(family.actorId, {
+    placements[family.actorId] = withAuthoredPlacement(family.actorId, {
       slotKind: "family_or_observer",
       position: { x: -2.0, y: 0.95, z: 0.7 },
       scale: { x: 1, y: 1, z: 1 },
@@ -1274,7 +1296,7 @@ function runtimeActorPlacementsForScenario(
         : additional.role === "respiratory_therapist"
           ? "Respiratory"
           : "Cast";
-    placements[additional.actorId] = withAuthoredOffset(additional.actorId, {
+    placements[additional.actorId] = withAuthoredPlacement(additional.actorId, {
       slotKind: "additional_cast",
       position: { x: 1.95, y: 0.95, z: 0.15 },
       scale: { x: 1, y: 1, z: 1 },
@@ -1282,23 +1304,83 @@ function runtimeActorPlacementsForScenario(
       labelPrefix: clinicalSecondaryLabel,
     });
   }
+  const resolvedPositionForHeading = (
+    placement: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string],
+  ): { x: number; z: number } => {
+    const offset = placement.plantOffsetMeters ?? { x: 0, y: 0, z: 0 };
+    if (placement.posture === "supine") return { x: -0.9 + offset.x, z: -0.1 + offset.z };
+    if (placement.posture === "seated") {
+      const chair = placement.slotKind === "family_or_observer"
+        ? { x: -0.55, z: -0.75 }
+        : { x: -1.55, z: -0.85 };
+      return { x: chair.x + offset.x, z: chair.z + offset.z };
+    }
+    return { x: placement.position.x, z: placement.position.z };
+  };
+  const patientPlacement = placements[patient.actorId];
+  if (patientPlacement) {
+    const patientTarget = resolvedPositionForHeading(patientPlacement);
+    for (const [actorId, placement] of Object.entries(placements)) {
+      if (actorId === patient.actorId) continue;
+      const actorPosition = resolvedPositionForHeading(placement);
+      placement.headingRadians = authored[actorId]?.headingRadians ?? Math.atan2(
+        patientTarget.x - actorPosition.x,
+        patientTarget.z - actorPosition.z,
+      );
+    }
+  }
   return placements;
 }
 
-/** Authored plant offsets per actor, read from the case fixture. Absent when the case authors none. */
-type CaseAuthoredPlantOffset = { plantOffsetMeters?: { x: number; y: number; z: number } } | null | undefined;
-type CaseActorWithPlantOffset = { actors?: Array<{ actorId: string; placement?: CaseAuthoredPlantOffset }> } | undefined;
-type PlantOffset = { x: number; y: number; z: number };
-function readAuthoredPlacementsForScenario(scenarioId: string): Record<string, PlantOffset> {
-  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId) as CaseActorWithPlantOffset | undefined;
-  const out: Record<string, PlantOffset> = {};
+type AuthoredPlacement = {
+  supportSurface: "stretcher" | "bed" | "chair" | "none";
+  plantOffsetMeters: { x: number; y: number; z: number };
+  headingRadians?: number | undefined;
+};
+type CaseActorWithPlantOffset = { actors?: Array<{ actorId: string; placement?: Partial<AuthoredPlacement> | null }> } | undefined;
+function readAuthoredPlacementsForScenario(scenarioId: string): Record<string, AuthoredPlacement> {
+  const fixtureScenarioId = scenarioId === "ed_chest_pain_priority_v2"
+    ? "ed_chest_pain_priority_v1"
+    : scenarioId;
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === fixtureScenarioId) as CaseActorWithPlantOffset | undefined;
+  const out: Record<string, AuthoredPlacement> = {};
   for (const actor of scenario?.actors ?? []) {
     const offset = actor.placement?.plantOffsetMeters;
+    const supportSurface = actor.placement?.supportSurface;
     if (typeof offset !== "object" || offset === null) continue;
     if (typeof offset.x !== "number" || typeof offset.y !== "number" || typeof offset.z !== "number") continue;
-    out[actor.actorId] = { x: offset.x, y: offset.y, z: offset.z };
+    if (supportSurface !== "stretcher" && supportSurface !== "bed" && supportSurface !== "chair" && supportSurface !== "none") continue;
+    const headingRadians = actor.placement?.headingRadians;
+    out[actor.actorId] = {
+      supportSurface,
+      plantOffsetMeters: { x: offset.x, y: offset.y, z: offset.z },
+      ...(typeof headingRadians === "number" ? { headingRadians } : {}),
+    };
   }
   return out;
+}
+
+function postureForAuthoredSupport(supportSurface: AuthoredPlacement["supportSurface"]): "standing" | "seated" | "supine" {
+  if (supportSurface === "chair") return "seated";
+  if (supportSurface === "stretcher" || supportSurface === "bed") return "supine";
+  return "standing";
+}
+
+export async function refreshPublicActorPlacements(
+  scenarioId: string,
+  publicRoot = "apps/ui-xr/public/xr-assets/generated",
+): Promise<void> {
+  const preset = scenarioRuntimePreset(scenarioId);
+  const actorPlacements = runtimeActorPlacementsForScenario(preset);
+  const stationDir = path.join(publicRoot, scenarioId);
+  const bundlePath = path.join(stationDir, "learner-runtime-bundle.v1.json");
+  const manifestPath = path.join(stationDir, "scene-manifest.v1.json");
+  const bundle = JSON.parse(await readFile(bundlePath, "utf8")) as LearnerRuntimeAssetBundle;
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as EncounterRuntimeAssetBundle["sceneManifest"];
+  bundle.sceneManifest.actorPlacements = actorPlacements;
+  manifest.actorPlacements = actorPlacements;
+  await writeFile(bundlePath, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
 function runtimeEquipmentPlacementsForScenario(
@@ -1436,11 +1518,13 @@ function createScenarioRuntimeSceneManifest(
 }
 
 function parseCliOptions(args: string[]): CliOptions {
-  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, validateLatest: false, help: false };
+  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, refreshPublicPlacements: false, publicRoot: "apps/ui-xr/public/xr-assets/generated", validateLatest: false, help: false };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === "--help" || arg === "-h") options.help = true;
     else if (arg === "--write-azurite") options.writeAzurite = true;
+    else if (arg === "--refresh-public-placements") options.refreshPublicPlacements = true;
+    else if (arg === "--public-root") options.publicRoot = requireNext(args, ++index, arg);
     else if (arg === "--validate-latest") options.validateLatest = true;
     else if (arg === "--human-report") options.humanReportPath = requireNext(args, ++index, arg);
     else if (arg === "--equipment-report") options.equipmentReportPath = requireNext(args, ++index, arg);
@@ -1459,7 +1543,7 @@ function requireNext(args: string[], index: number, flag: string): string {
 }
 
 function helpText(): string {
-  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
+  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --refresh-public-placements Refresh actorPlacements in the shipped bundle and manifest", "  --public-root <path>        Public generated-bundle root used by placement refresh", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
 }
 
 function parseRuntimeAssetReviewDecisions(value: unknown): RuntimeAssetReviewDecision[] {

@@ -34,6 +34,7 @@ export function postureForSupportSurface(supportSurface: string | undefined): Au
 export type AuthoredCasePlacement = {
   supportSurface?: string | undefined;
   plantOffsetMeters?: { x: number; y: number; z: number } | undefined;
+  headingRadians?: number | undefined;
 };
 
 /**

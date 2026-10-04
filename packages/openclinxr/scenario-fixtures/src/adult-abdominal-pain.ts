@@ -48,6 +48,10 @@ export const adultAbdominalPainScenario: Scenario = {
         "Pain migrated from periumbilical area to right lower quadrant overnight",
         "Anorexia and low-grade fever started this morning",
       ],
+      placement: {
+        supportSurface: "stretcher",
+        plantOffsetMeters: { x: 0, y: 0, z: 0 },
+      },
       // Multi-region clinical-touch map (notEvidenceFor clinical validity / scoring).
       // RLQ maximal guarding (rebound-style); other abdomen + chest milder — exam-distinct responses.
       bodyMechanics: {
@@ -134,6 +138,11 @@ export const adultAbdominalPainScenario: Scenario = {
         culturalLanguageNotes: ["family-centered communication", "plain English", "preserve respect"],
       },
       hiddenFacts: ["Knows patient delayed seeking care overnight hoping pain would pass"],
+      placement: {
+        supportSurface: "none",
+        plantOffsetMeters: { x: 0.1, y: 0, z: 0.7 },
+        headingRadians: -2.246,
+      },
     },
     {
       actorId: "nurse_priya_nair_v1",
@@ -153,6 +162,11 @@ export const adultAbdominalPainScenario: Scenario = {
         culturalLanguageNotes: ["professional concise language", "closed-loop communication", "avoid blame"],
       },
       hiddenFacts: ["Low-grade fever and tachycardia worsen if surgical consult is delayed past minute eight"],
+      placement: {
+        supportSurface: "none",
+        plantOffsetMeters: { x: 0.75, y: 0, z: 0.7 },
+        headingRadians: -2.022,
+      },
     },
   ],
   requiredTraceTags: [

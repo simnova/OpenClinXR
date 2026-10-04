@@ -39,6 +39,7 @@ export const psychiatricSafetyScenario: Scenario = {
         ["trauma-informed phrasing", "plain confidentiality limits", "nonjudgmental suicide-risk language"],
       ),
       hiddenFacts: ["Has thought about overdosing on medication at home", "A close friend died recently"],
+      placement: { supportSurface: "chair", plantOffsetMeters: { x: 0, y: 0, z: 0 } },
     },
     {
       actorId: "partner_sam_reed_v1",
@@ -57,6 +58,7 @@ export const psychiatricSafetyScenario: Scenario = {
         ["consent-aware partner involvement", "clear safety exceptions", "avoid blame"],
       ),
       hiddenFacts: ["Found a concerning text message last night"],
+      placement: { supportSurface: "chair", plantOffsetMeters: { x: 0, y: 0, z: 0 } },
     },
     {
       actorId: "behavioral_health_nurse_owens_v1",
@@ -75,6 +77,7 @@ export const psychiatricSafetyScenario: Scenario = {
         ["behavioral-health safety workflow", "closed-loop escalation", "dignity-preserving observation"],
       ),
       hiddenFacts: ["Can arrange one-to-one observation and remove belongings if escalated"],
+      placement: { supportSurface: "none", plantOffsetMeters: { x: 0.1, y: 0, z: 0.7 }, headingRadians: -2.325 },
     },
   ],
   requiredTraceTags: [

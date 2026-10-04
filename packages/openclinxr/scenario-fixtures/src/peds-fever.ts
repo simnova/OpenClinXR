@@ -48,6 +48,10 @@ export const pedsFeverScenario: Scenario = {
         "Fever has been continuous for three days despite antipyretics",
         "Neck stiffness and reduced oral intake started overnight",
       ],
+      placement: {
+        supportSurface: "stretcher",
+        plantOffsetMeters: { x: 0, y: 0, z: 0 },
+      },
       // Multi-region clinical-touch map (notEvidenceFor clinical validity). Optional additive.
       // Keeps peds bank examinable across abdomen + chest; RLQ most sensitive for exam contrast.
       bodyMechanics: {
@@ -136,6 +140,10 @@ export const pedsFeverScenario: Scenario = {
         culturalLanguageNotes: ["family-centered communication", "avoid blame", "explain pediatric urgency plainly"],
       },
       hiddenFacts: ["Has delayed coming in overnight because clinic was closed"],
+      placement: {
+        supportSurface: "chair",
+        plantOffsetMeters: { x: 0, y: 0, z: -0.2 },
+      },
     },
     {
       actorId: "nurse_aisha_brooks_v1",
@@ -156,6 +164,13 @@ export const pedsFeverScenario: Scenario = {
         culturalLanguageNotes: ["professional concise language", "closed-loop communication", "pediatric safety framing"],
       },
       hiddenFacts: ["Temperature rises to 40.1 C if antipyretic and reassessment are not requested"],
+      placement: {
+        supportSurface: "none",
+        plantOffsetMeters: { x: 0.1, y: 0, z: 0.7 },
+        // The pediatric bay's learner approach and stretcher are nearly opposite from this slot;
+        // the bisecting yaw keeps both in the nurse's forward hemisphere.
+        headingRadians: -0.8,
+      },
     },
   ],
   requiredTraceTags: [

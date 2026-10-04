@@ -165,9 +165,9 @@
     "stationContext": {
       "title": "ED Chest Pain",
       "subtitle": "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
-      "chiefConcern": "Not charted \u2014 obtain chief concern during the encounter",
+      "chiefConcern": "Not charted — obtain chief concern during the encounter",
       "initialVitals": "BP 152/92, HR 104, RR 20, SpO2 96%",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Emergency department station scene",
       "canvasAriaLabel": "3D emergency department bay preview",
       "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
@@ -358,47 +358,60 @@
       "patient_robert_hayes_v1": {
         "slotKind": "primary_patient",
         "position": {
-          "x": 0,
-          "y": 0,
-          "z": -1.2
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
         },
         "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
         },
-        "verticalOffsetMeters": 0,
-        "labelPrefix": "Patient"
+        "verticalOffsetMeters": -0.98,
+        "labelPrefix": "Patient",
+        "posture": "supine",
+        "placementProvenance": "authored_intent",
+        "plantOffsetMeters": {
+          "x": 0.45,
+          "y": 0,
+          "z": -0.2
+        }
       },
       "nurse_maria_alvarez_v1": {
         "slotKind": "clinical_team",
         "position": {
-          "x": -1.2,
+          "x": -0.95,
           "y": 0,
-          "z": -0.8
+          "z": -0.95
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "verticalOffsetMeters": 0,
-        "labelPrefix": "Nurse"
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Team",
+        "posture": "standing",
+        "placementProvenance": "authored_intent",
+        "headingRadians": 1.57
       },
       "spouse_anna_hayes_v1": {
         "slotKind": "family_or_observer",
         "position": {
-          "x": 1.2,
+          "x": -1.6,
           "y": 0,
-          "z": -0.8
+          "z": -0.95
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "verticalOffsetMeters": 0,
-        "labelPrefix": "Family"
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Family",
+        "posture": "standing",
+        "placementProvenance": "authored_intent",
+        "headingRadians": 1.57
       }
     },
     "equipmentPlacements": {},

@@ -160,6 +160,10 @@ export const edChestPainScenario: Scenario = {
         accessoryMarkers: [],
         fitProfile: "adult_standard_fit",
       },
+      placement: {
+        supportSurface: "stretcher",
+        plantOffsetMeters: { x: 0.45, y: 0, z: -0.2 },
+      },
     },
     {
       actorId: "spouse_anna_hayes_v1",
@@ -179,6 +183,11 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["family-centered communication", "plain English", "preserve respect"],
       },
       hiddenFacts: ["Knows patient skipped blood pressure medication this week"],
+      placement: {
+        supportSurface: "none",
+        plantOffsetMeters: { x: -1.6, y: 0, z: -0.95 },
+        headingRadians: 1.57,
+      },
     },
     {
       actorId: "nurse_maria_alvarez_v1",
@@ -198,18 +207,12 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["professional concise language", "closed-loop communication", "avoid blame"],
       },
       hiddenFacts: ["Repeat blood pressure is falling and patient looks worse at minute seven"],
-      // Staged 2026-09-26 (room-obstacles): the shared clinical-team literal (1.78, 0.42) measures
-      // 0.142 m inside the rig-derived 0.234 m standing footprint of ecg-paper-strip once the ED
-      // room props carry their own real bounds (`edExamBayRoomProps` in runtime-bundles.ts) --
-      // every route out of that literal was blocked. (1.9, -0.3) clears every measured ED room
-      // prop (patient-blanket, iv-tubing-line, call-light-remote, nurse-task-tray, ecg-paper-strip,
-      // monitor-lead-cable, ekg-leads-on-bed, trash-liner-fold, clipboard-case-notes, bed-wheel-
-      // locks) by a clean margin -- checked directly against `bedsideClearanceViolations` before
-      // freezing. This overrides the shared literal for THIS actor only; the shared literal itself
-      // is unmoved.
+      // The narrow bay needs a side-on bedside yaw: both patient and learner remain in the
+      // nurse's forward hemisphere without forcing the overview camera into the stretcher.
       placement: {
         supportSurface: "none",
-        plantOffsetMeters: { x: 1.9, y: 0, z: -0.3 },
+        plantOffsetMeters: { x: -0.95, y: 0, z: -0.95 },
+        headingRadians: 1.57,
       },
     },
   ],
