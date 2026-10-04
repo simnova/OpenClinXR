@@ -1016,6 +1016,7 @@ async function runRenderStage(
       captureExists: await existsPath(capturePath),
       containment: entry.liveShell.actorContainment,
       meanFacingDeg: entry.liveShell.meanFacingDeg,
+      nearOcclusionFraction: entry.liveShell.nearOcclusion?.fraction,
     });
     return {
       row: makeRow("render", classified.classification, [
