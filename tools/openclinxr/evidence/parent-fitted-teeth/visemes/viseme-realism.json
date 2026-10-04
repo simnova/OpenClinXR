@@ -5,10 +5,10 @@
   "baselineFile": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
   "baselineGlbSha256": "b95f4606db278e4becc8768d3bf2c661efa05dab0d962113d7646499b3ae7302",
   "baselineOpeningMeanM": 0.004500010969270264,
-  "afterOpeningMeanM": 0.0014684795077846507,
-  "ratio": 0.32632798404551083,
+  "afterOpeningMeanM": 0.0015298654800248715,
+  "ratio": 0.3399692779577733,
   "bar": 0.8,
-  "reduction": 0.6736720159544891,
+  "reduction": 0.6600307220422267,
   "restUpperM": 0.0070959803651845605,
   "restLowerM": 0.01066643650740738,
   "recordedRestUpperM": 0.0070959803651845605,
@@ -26,7 +26,7 @@
       "afterLowerM": 0.0018173365664842683,
       "afterUpperMm": 1.228,
       "afterLowerMm": 1.817,
-      "afterShellMeanM": 0.0015229089360061446
+      "afterShellMeanM": 0.0015229089360061447
     },
     {
       "name": "viseme_CH",
