@@ -48,6 +48,7 @@
     "src/equipment_generate/the-equipment-generate-r5-best-treatment.test.ts",
     "src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
     "src/lighting_design/the-lighting-design-station-emits-a-deterministic-rig.test.ts",
+    "src/lip_sync/the-lip-sync-speech-synth-cache-key-and-voice-map.test.ts",
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
     "src/room_chain/the-room-chain-resolves-outdir-against-repo-root.test.ts",

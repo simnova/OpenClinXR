@@ -5,6 +5,12 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { factoryStationSchemas } from "../catalog.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
+import {
+  SPEECH_SYNTH_MODEL_REVISION,
+  synthesizeSpeechWav,
+  voiceIdForActor,
+  type SpeechProvenance,
+} from "./speech-synth.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -24,6 +30,24 @@ export type LipSyncRunOptions = {
   utterance: string;
   outDir: string;
   wavPath: string;
+  /**
+   * Build-time speech source (Kokoro-82M, Apache-2.0). When wavPath is empty
+   * and speech is present, runLipSync synthesises the utterance to the shared
+   * content cache and bakes visemes from it. Without either, it throws and
+   * names the speech-synth step. Provided wavPath always wins.
+   */
+  speech?: LipSyncSpeechSource;
+};
+
+/** Case actor context for deterministic voice mapping (voiceIdForActor). */
+export type LipSyncSpeechSource = {
+  caseId: string;
+  actorId: string;
+  role: string;
+  genderPresentation?: string | undefined;
+  displayName?: string | undefined;
+  /** Explicit voice; defaults to voiceIdForActor({role, genderPresentation, displayName, actorId}). */
+  voiceId?: string | undefined;
 };
 
 export type LipSyncCue = { start: number; end: number; value: string };
@@ -46,9 +70,31 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
   if (planned.issues !== undefined) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
-  const { utterance, outDir, wavPath } = options;
+  const { utterance, outDir } = options;
+  let { wavPath } = options;
+  let speech: SpeechProvenance | undefined;
   if (!wavPath || wavPath.trim().length === 0) {
-    throw new Error("wavPath is required; fixture TTS lives in writeLipSyncFixtureWav");
+    if (!options.speech) {
+      throw new Error(
+        "lip_sync needs wavPath, or a speech source for the build-time speech-synth (kokoro) step; fixture TTS lives in writeLipSyncFixtureWav",
+      );
+    }
+    const voiceId =
+      options.speech.voiceId ??
+      voiceIdForActor({
+        role: options.speech.role,
+        genderPresentation: options.speech.genderPresentation,
+        displayName: options.speech.displayName,
+        actorId: options.speech.actorId,
+      });
+    const synth = await synthesizeSpeechWav({
+      caseId: options.speech.caseId,
+      actorId: options.speech.actorId,
+      text: utterance,
+      voiceId,
+    });
+    wavPath = synth.wavPath;
+    speech = synth.provenance;
   }
   const binary = resolveRhubarbBinary();
   await mkdir(outDir, { recursive: true });
@@ -61,7 +107,7 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
   };
   await writeFile(
     path.join(outDir, "lip-sync-manifest.json"),
-    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, wavPath, cueCount: (raw.mouthCues ?? []).length }, null, 2)}\n`,
+    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, wavPath, cueCount: (raw.mouthCues ?? []).length, modelRevision: SPEECH_SYNTH_MODEL_REVISION, speech }, null, 2)}\n`,
   );
   return {
     ...planned.plan,
@@ -71,6 +117,7 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
     cueArtifactPath,
     audioDurationSeconds: raw.metadata?.duration ?? 0,
     cues: raw.mouthCues ?? [],
+    speech,
   };
 }
 

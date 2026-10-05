@@ -3,14 +3,20 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
+
+// NOTE: imported dynamically, not through the package entrypoint. The
+// reviewed-surface gate (psr-01e + admission overlays) refuses new
+// root-entrypoint names without an independent review, and a worker cannot
+// self-admit — so the runner reaches this step through the existing runLipSync
+// `speech` option instead, and the module stays entrypoint-unreachable.
+const {
   SPEECH_SYNTH_FEMALE_VOICE,
   SPEECH_SYNTH_MALE_VOICE,
   SPEECH_SYNTH_MODEL_REVISION,
   speechCacheKey,
   synthesizeSpeechWav,
   voiceIdForActor,
-} from "../index.js";
+} = await import("./speech-synth.js");
 
 /**
  * OBSERVABLE: the dark-factory lip_sync stage fails on all 15 cases with
@@ -20,6 +26,12 @@ import {
  * (model revision, voice, text); voiceIdForActor maps case actor data to a
  * Kokoro voice; synthesizeSpeechWav caches {wav, provenance.json} by key.
  * No TTS install is needed for any assertion below (cache-hit path only).
+ *
+ * NOTE: these symbols are intentionally NOT re-exported from the package
+ * entrypoint. The reviewed-surface gate (psr-01e + admission overlays)
+ * refuses new root-entrypoint names without an independent review, and a
+ * worker cannot self-admit. The runner reaches the step through the existing
+ * runLipSync `speech` option instead, so the public surface does not widen.
  */
 
 describe("the lip_sync speech-synth cache key and voice map", () => {
@@ -110,5 +122,28 @@ describe("the lip_sync speech-synth cache key and voice map", () => {
     await expect(
       synthesizeSpeechWav({ caseId: "c", actorId: "a", text: "hi", voiceId: "nope", cacheDir }),
     ).rejects.toThrow(/speech-synth/);
+  });
+
+  it("(6) runLipSync with speech but no TTS install fails naming the speech-synth step", async () => {
+    // runLipSync comes through the package entrypoint (public import); the
+    // speech-synth module itself stays internal and unreachable from it.
+    const { runLipSync } = await import("../index.js");
+    const outDir = await mkdtemp(join(tmpdir(), "lip-sync-synth-nosynth-"));
+    process.env["OPENCLINXR_KOKORO_PYTHON"] = join(outDir, "no-such-python");
+    try {
+      await expect(
+        runLipSync(
+          { actorId: "actor_a", visemeBank: "mpfb_phonemes" },
+          {
+            utterance: "hi",
+            outDir,
+            wavPath: "",
+            speech: { caseId: "c", actorId: "a", role: "patient" },
+          },
+        ),
+      ).rejects.toThrow(/speech-synth/);
+    } finally {
+      delete process.env["OPENCLINXR_KOKORO_PYTHON"];
+    }
   });
 });

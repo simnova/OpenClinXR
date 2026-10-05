@@ -26,6 +26,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - keep-compatibility-input: 24
 - keep-current: 253
 - keep-evidence: 1745
+- keep-evidence: 1735
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3724,6 +3725,14 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-08-19.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/per-case.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/README.md` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/peds-asthma-af_heart.mouth-cues.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/peds-asthma-af_heart.wav` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/peds-fever-af_heart.mouth-cues.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/peds-fever-af_heart.wav` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/psych-safety-af_heart.mouth-cues.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/lipsync-speech/samples/psych-safety-af_heart.wav` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/local-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

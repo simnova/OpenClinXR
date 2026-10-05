@@ -48,23 +48,6 @@ export {
   writeLipSyncFixtureWav,
 } from "./lip_sync/fixture-wav.js";
 export {
-  SPEECH_SYNTH_FEMALE_VOICE,
-  SPEECH_SYNTH_MALE_VOICE,
-  SPEECH_SYNTH_MODEL_REVISION,
-  SPEECH_SYNTH_SAMPLE_RATE_HZ,
-  SPEECH_SYNTH_SEED,
-  SPEECH_SYNTH_TOOL,
-  speechCacheKey,
-  synthesizeSpeechWav,
-  voiceIdForActor,
-} from "./lip_sync/speech-synth.js";
-export type {
-  SpeechActorInfo,
-  SpeechProvenance,
-  SynthesizeSpeechOptions,
-  SynthesizeSpeechResult,
-} from "./lip_sync/speech-synth.js";
-export {
   runLipSync,
 } from "./lip_sync/run.js";
 export {

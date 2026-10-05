@@ -26,7 +26,6 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
 
 const execFileAsync = promisify(execFile);
 
@@ -43,9 +42,9 @@ export const SPEECH_SYNTH_PHONEMIZER = "espeak-ng 1.52.0 (GPL-3.0, build-time on
 
 export type SpeechActorInfo = {
   role: string;
-  genderPresentation?: string;
-  displayName?: string;
-  actorId?: string;
+  genderPresentation?: string | undefined;
+  displayName?: string | undefined;
+  actorId?: string | undefined;
 };
 
 const CHILD_TOKENS = new Set([
@@ -153,8 +152,59 @@ function resolveKokoroPython(): string {
 }
 
 function resolveSynthHelper(): string {
-  return path.join(path.dirname(fileURLToPath(import.meta.url)), "kokoro_synth.py");
+  // Embedded below as KOKORO_SYNTH_PY; written to tmp at synth time so the
+  // helper always ships with the module (dist never copies sibling .py files).
+  return path.join(tmpdir(), `lip-sync-kokoro-synth-${process.pid}.py`);
 }
+
+/**
+ * Kokoro synthesis helper (runs under ~/.openclinxr-tools/kokoro/venv).
+ * Seeded (torch + numpy + random) for byte-deterministic WAV output.
+ */
+const KOKORO_SYNTH_PY = `from __future__ import annotations
+
+import argparse
+import json
+import random
+import sys
+
+import numpy as np
+import soundfile as sf
+import torch
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Synthesize one line with Kokoro-82M")
+    parser.add_argument("--text", required=True)
+    parser.add_argument("--voice", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--lang", default="a")
+    args = parser.parse_args()
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
+    from kokoro import KPipeline
+
+    pipeline = KPipeline(lang_code=args.lang)
+    chunks = []
+    for _gs, _ps, audio in pipeline(args.text, voice=args.voice):
+        chunks.append(audio)
+    if not chunks:
+        print(json.dumps({"ok": False, "error": "no audio chunks"}))
+        return 1
+    import numpy
+    wave = numpy.concatenate(chunks, axis=0)
+    sf.write(args.out, wave, 24000, subtype="PCM_16")
+    print(json.dumps({"ok": True, "sampleRateHz": 24000, "frames": int(wave.shape[0])}))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+`;
 
 function resolveWavCacheDir(): string {
   const override = process.env["OPENCLINXR_SPEECH_WAV_CACHE"];
@@ -234,7 +284,9 @@ export async function synthesizeSpeechWav(options: SynthesizeSpeechOptions): Pro
 
   const python = resolveKokoroPython();
   const helper = resolveSynthHelper();
-  const staging = path.join(await mkdirTmp(), `${key}.wav`);
+  const tmp = await mkdirTmp();
+  await writeFile(helper, KOKORO_SYNTH_PY, "utf8");
+  const staging = path.join(tmp, `${key}.wav`);
   try {
     await execFileAsync(python, [helper, "--text", text, "--voice", voiceId, "--out", staging, "--seed", "0"], {
       env: {

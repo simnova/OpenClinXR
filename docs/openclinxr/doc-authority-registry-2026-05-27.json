@@ -4098,6 +4098,13 @@
       "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
+      "path": "docs/openclinxr/lipsync-speech/README.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "lipsync-speech slice record: Kokoro voice map, cache key, determinism, per-case evidence index."
+    },
+    {
       "path": "docs/openclinxr/model-provider-and-voice-routing.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
