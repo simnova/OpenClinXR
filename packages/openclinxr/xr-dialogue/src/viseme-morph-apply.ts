@@ -103,3 +103,23 @@ export function applyVisemeWeights(
     influences[index] = resolved === CAPPED_FACS_TARGET ? Math.min(MOUTH_OPEN_CAP, clamped) : clamped;
   }
 }
+
+/** Half strength on a viseme_* key. Teeth meshes use JAW_TEETH_GAIN; other meshes use LIP_VISEME_GAIN. */
+export const LIP_VISEME_GAIN = 0.5;
+export const JAW_TEETH_GAIN = 0.5;
+
+export function lipVisemeWeights(
+  mesh: MorphTargetLike & { name?: string },
+  weights: Record<string, number>,
+): Record<string, number> {
+  const name = typeof mesh.name === "string" ? mesh.name.toLowerCase() : "";
+  const visemeGain = name.includes("teeth") ? JAW_TEETH_GAIN : LIP_VISEME_GAIN;
+  const available = new Set(Object.keys(mesh.morphTargetDictionary));
+  const scaled: Record<string, number> = {};
+  for (const [key, weight] of Object.entries(weights)) {
+    const resolved = resolveMorphTarget(key, available);
+    const gain = resolved?.toLowerCase().startsWith("viseme_") ? visemeGain : 1;
+    scaled[key] = weight * gain;
+  }
+  return scaled;
+}

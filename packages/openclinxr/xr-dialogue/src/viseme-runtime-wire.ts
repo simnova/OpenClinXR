@@ -22,8 +22,11 @@ import {
 } from "./viseme-timeline-drive.js";
 import {
   applyVisemeWeights,
+  JAW_TEETH_GAIN,
+  lipVisemeWeights,
   type MorphTargetLike,
 } from "./viseme-morph-apply.js";
+export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
   attachBakedCuesToSpeech,
   bakedCuesDurationMs,
@@ -315,7 +318,7 @@ export function applyDialogueVisemeTimelineToRoot(
   const clampedProgress = Math.min(1, Math.max(0, input.progress));
   const { frame, index } = pickFrame(frames, clampedProgress);
   const weights = frame.weights;
-  const jawOpenRadians = frame.jawOpenRadians ?? 0;
+  const jawOpenRadians = (frame.jawOpenRadians ?? 0) * JAW_TEETH_GAIN;
   const jawFraction = Math.min(1, Math.max(0, jawOpenRadians / JAW_OPEN_TEETH_CLEAR_RADIANS));
 
   let appliedMeshCount = 0;
@@ -324,7 +327,7 @@ export function applyDialogueVisemeTimelineToRoot(
     if (!mesh?.morphTargetDictionary || !mesh.morphTargetInfluences?.length) {
       return;
     }
-    applyVisemeWeights(mesh, weights);
+    applyVisemeWeights(mesh, lipVisemeWeights(mesh, weights));
     appliedMeshCount += 1;
   });
   const jawBonesTouched = applyJawOpenToRoot(root, jawOpenRadians);

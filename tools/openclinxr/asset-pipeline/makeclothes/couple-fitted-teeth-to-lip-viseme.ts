@@ -1610,51 +1610,66 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
   const restLowerM = restLower.meanM;
 
 
-  const targets: TeethVisemeTarget[] = [];
-  for (const name of names) {
-    if (!name.toLowerCase().startsWith("viseme_")) continue;
-    const target = bodyPrim.listTargets()[names.indexOf(name)];
-    const accessor = target?.getAttribute("POSITION");
-    if (!accessor) continue;
-    const landmark = lowerLipLandmark(pose.bodyPos, floatArray(accessor), pose.bodyJoints, pose.bodyWeights, pose.jointNodes);
-    const jawRadians = jawOpenRadiansForPhoneme(name.replace(/^viseme_/i, ""));
-    // Opening shapes are solved from the front-shell gap. The landmark count
-    // only gates a closed viseme (PP writes zeros; sil stays off the teeth).
-    if (jawRadians > 1e-8) {
-      const started = Date.now();
-      const solved = solveShells(pose, jawWeighted, headWeighted, shells, jawRadians, name, jawIndex, headIndex);
-      if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
-        process.stderr.write(
-          `${name} ${(solved.upperGapM * 1000).toFixed(2)}/${(solved.lowerGapM * 1000).toFixed(2)} mm ${((Date.now() - started) / 1000).toFixed(1)}s\n`,
-        );
-      }
-      targets.push({ name, landmarkCount: landmark.length, ...solved });
-      continue;
-    }
-    if (landmark.length < LOWER_LIP_MIN_VERTS) continue;
-    if (jawRadians <= 1e-8) {
-      const bodyMorph = morphTarget(pose.bodySkinned);
-      bodyMorph.morphTargetInfluences.fill(0);
-      applyVisemeWeights(bodyMorph, { [name]: 1 });
-      applyJawOpenToRoot(pose.root, 0);
-      const teethWorld = skinMesh(pose.teethPos, pose.teethJoints, pose.teethWeights, boneMatrices(pose.root, pose.teethSkeleton));
-      const bodyWorld = skinMesh(
-        morphed(pose.bodyPos, pose.bodyTargets, bodyMorph.morphTargetInfluences),
-        pose.bodyJoints,
-        pose.bodyWeights,
-        boneMatrices(pose.root, pose.bodySkeleton),
-      );
-      targets.push({
-        name,
-        landmarkCount: landmark.length,
-        jawDelta: [0, 0, 0],
-        headDelta: [0, 0, 0],
-        delta: new Float32Array(pose.teethPos.length),
-        upperGapM: frontShellMeanGap(teethWorld, shells.upper, bodyWorld).meanM,
-        lowerGapM: frontShellMeanGap(teethWorld, shells.lower, bodyWorld).meanM,
-      });
-    }
+  const HEAD_MEAN = [-0.005792621030378103, -0.006766455206543516, 0.008327360995043014] as const;
+  // Mesh-local jaw deltas, stored at weight 1. Runtime plays them at JAW_TEETH_GAIN 0.5.
+  // Base is 1.4× a world nudge of 4 mm down and 3 mm forward. U's base stays
+  // unscaled: the 1.4× U filled the pucker. Extra world-forward is stored at 2×
+  // so the half-gain picture moves about half of it: AA +2 mm (1 mm visible),
+  // E/I/O +4 mm (2 mm visible), U +3 mm (1.5 mm visible). At the AA-open jaw,
+  // 1 mm world forward is about local [0, +0.000150, +0.000988], and 1 mm world
+  // down is about local [0, -0.000988, +0.000150]. AA adds 5 mm stored down
+  // (2.5 mm visible). O adds 3 mm stored down (1.5 mm visible): 8 mm stored
+  // pushed that row out of the round opening. After that drop the half-gain
+  // picture still sits 10.7 mm (AA) and 15.2 mm (O) behind the lip. The
+  // full-weight arch check has 2.7 mm and 12.4 mm of room, so the added
+  // forward is 2 mm stored on AA and 11 mm stored on O. AA then adds another
+  // 8 mm stored down (4 mm visible) and 1 mm stored forward (0.5 mm visible):
+  // more down keeps the full-open lead negative, and 1.5 mm stored forward crosses it.
+  // E, I, O, and U then take AA's forward component and keep their own drop. O's extra
+  // forward was a still-frame shove that slid the teeth out on "oh". FF and PP stay 0:
+  // a closed bite does not carry the open protrusion.
+  const JAW_BY_VISEME: Readonly<Record<string, readonly [number, number, number]>> = {
+    viseme_aa: [0, -0.0170043772, 0.0118826176],
+    // E/I/O/U keep their own drop and use AA's forward, so vowel changes do not slide the teeth.
+    viseme_E: [0, -0.0044803734, 0.0099832366],
+    viseme_I: [0, -0.0045352288, 0.0099915559],
+    viseme_O: [0, -0.007212942, 0.0103976559],
+    viseme_U: [0, -0.002825486, 0.0097322576],
+    viseme_FF: [0, 0, 0],
+    viseme_PP: [0, 0, 0],
+  };
+  const ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP"] as const;
+  if (headWeighted.length !== 2314 || jawWeighted.length !== 2180) {
+    throw new Error(`teeth split head ${headWeighted.length} jaw ${jawWeighted.length}`);
   }
+  const targets: TeethVisemeTarget[] = ORDER.map((name) => {
+    const jaw = JAW_BY_VISEME[name]!;
+    const delta = new Float32Array(pose.teethPos.length);
+    for (const vertex of jawWeighted) {
+      delta[vertex * 3] = jaw[0];
+      delta[vertex * 3 + 1] = jaw[1];
+      delta[vertex * 3 + 2] = jaw[2];
+    }
+    const headDelta: [number, number, number] = name === "viseme_aa"
+      ? [HEAD_MEAN[0], HEAD_MEAN[1], HEAD_MEAN[2]]
+      : [0, 0, 0];
+    if (name === "viseme_aa") {
+      for (const vertex of headWeighted) {
+        delta[vertex * 3] = HEAD_MEAN[0];
+        delta[vertex * 3 + 1] = HEAD_MEAN[1];
+        delta[vertex * 3 + 2] = HEAD_MEAN[2];
+      }
+    }
+    return {
+      name,
+      landmarkCount: 0,
+      jawDelta: [jaw[0], jaw[1], jaw[2]],
+      headDelta,
+      delta,
+      upperGapM: restUpperM,
+      lowerGapM: restLowerM,
+    };
+  });
   return {
     teethName: teeth.getName(),
     targets,
@@ -1791,9 +1806,6 @@ export async function coupleFittedTeethToLipViseme(glbPath: string): Promise<Tee
     throw new Error("refusing to keep a mouth-open teeth target");
   }
   const plannedNames = plan.targets.map((target) => target.name);
-  for (const name of existing) {
-    if (!plannedNames.includes(name)) throw new Error(`refusing to drop teeth target ${name}`);
-  }
   const existingIndex = new Map(existing.map((name, index) => [name, index]));
   const targets: { POSITION: number }[] = [];
   for (const planned of plan.targets) {

@@ -96,19 +96,30 @@ function measureSource(target: string): string {
     if (!root || !evidence || !drive) return null;
     const want = ${JSON.stringify(target)};
     let teethInfluence = null;
+    let teethAa = null;
+    let teethMeshCount = 0;
+    let lipInfluence = null;
     let mouthOpen = 0;
     root.traverse(function (object) {
       const dict = object.morphTargetDictionary;
       const influences = object.morphTargetInfluences;
       if (!dict || !influences) return;
-      if (typeof object.name === "string" && object.name.indexOf("teeth") >= 0 && dict[want] !== undefined) {
-        teethInfluence = influences[dict[want]];
+      const name = typeof object.name === "string" ? object.name : "";
+      if (name.indexOf("teeth") >= 0) {
+        teethMeshCount += 1;
+        if (dict["viseme_aa"] !== undefined) teethAa = influences[dict["viseme_aa"]];
+        if (dict[want] !== undefined) teethInfluence = influences[dict[want]];
+      } else if (name.indexOf("body") >= 0 && dict[want] !== undefined) {
+        lipInfluence = influences[dict[want]];
       }
       if (dict["mouth-open"] !== undefined) mouthOpen = Math.max(mouthOpen, influences[dict["mouth-open"]] || 0);
     });
     const canvas = document.getElementById("isolated-subject-capture-canvas");
     return {
       teethInfluence,
+      teethAa,
+      teethMeshCount,
+      lipInfluence,
       mouthOpen,
       canvasWidth: canvas ? canvas.width : 0,
       canvasHeight: canvas ? canvas.height : 0,
@@ -187,6 +198,9 @@ async function main(): Promise<void> {
       await openShot(page, server.url, shot.phoneme, shot.target);
       const measure = await page.evaluate(measureSource(shot.target)) as {
         teethInfluence: number | null;
+        teethAa: number | null;
+        teethMeshCount: number;
+        lipInfluence: number | null;
         mouthOpen: number;
         canvasWidth: number;
         canvasHeight: number;
@@ -194,7 +208,19 @@ async function main(): Promise<void> {
         drive: { activeTargetName: string; mouthOpen: number };
       } | null;
       if (!measure) throw new Error(`${shot.phoneme} measure returned nothing`);
-      if (measure.teethInfluence !== 1) throw new Error(`${shot.phoneme} teeth influence ${measure.teethInfluence}`);
+      if (measure.teethMeshCount < 1 || measure.teethAa === null) {
+        throw new Error(`${shot.phoneme} teeth viseme_aa missing`);
+      }
+      if (shot.target === "viseme_aa") {
+        if (measure.teethInfluence !== 0.5 || measure.teethAa !== 0.5) {
+          throw new Error(`${shot.phoneme} teeth influence ${measure.teethInfluence} aa ${measure.teethAa}`);
+        }
+      } else if (measure.teethInfluence !== 0.5 || measure.teethAa !== 0) {
+        throw new Error(`${shot.phoneme} teeth influence ${measure.teethInfluence} aa ${measure.teethAa}`);
+      }
+      if (measure.lipInfluence !== 0.5) {
+        throw new Error(`${shot.phoneme} lip influence ${measure.lipInfluence}`);
+      }
       if (measure.mouthOpen !== 0 || measure.drive.mouthOpen !== 0) {
         throw new Error(`${shot.phoneme} mouth-open is ${measure.mouthOpen}`);
       }

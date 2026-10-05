@@ -169,6 +169,7 @@ declare global {
     __openClinXrSupineJointDump?: SupineJointDump;
     /** #495 ablation: the framed subject's live world AABB, recorded for every subject kind. */
     __openClinXrSubjectAabb?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
+    __openClinXrIsolatedRenderFrame?: () => void;
   }
 }
 
@@ -475,9 +476,8 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
   const frameSpanFraction = frameCamera(camera, frameBounds, spec.view);
 
-  // #280: record the framing the code chose (recording only — frameCamera math untouched).
-  // #354: records the FRAMED bounds (the eye box under eye-focus), not the whole body.
   const packFraming = recordPackFraming(camera, frameBounds, spec.view);
+  window.__openClinXrIsolatedRenderFrame = () => { renderer.render(scene, camera); };
 
   let framesAdvanced = 0;
   await new Promise<void>((resolve) => {

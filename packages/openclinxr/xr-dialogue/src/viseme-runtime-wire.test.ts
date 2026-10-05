@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { JAW_OPEN_TEETH_CLEAR_RADIANS } from "./viseme-timeline-drive.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   collectMorphTargetNames,
+  JAW_TEETH_GAIN,
+  LIP_VISEME_GAIN,
   mapDialoguePhonemeToArkit,
   mouthCuesToPhonemeCues,
   sampleLiveVisemeInfluencesFromRoot,
@@ -70,6 +73,38 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
     const hot = live.filter((s) => s.influence >= 0.5);
     expect(hot.length).toBeGreaterThan(0);
     expect(hot[0]?.targetName.startsWith("viseme_")).toBe(true);
+  });
+
+  it("plays body visemes, teeth visemes, and the jaw bone at half strength", () => {
+    const body = meshLike();
+    const teeth = {
+      name: "openclinxr_fitted_teeth_mpfb",
+      morphTargetDictionary: { viseme_AA: 0, viseme_E: 1 },
+      morphTargetInfluences: [0, 0],
+    };
+    const jaw = {
+      name: "jaw",
+      isBone: true,
+      rotation: { x: 0.1 },
+      userData: {} as Record<string, unknown>,
+    };
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(body);
+        callback(teeth);
+        callback(jaw);
+      },
+    };
+    const result = applyDialogueVisemeTimelineToRoot(root, {
+      phonemeSequence: ["AA"],
+      progress: 0,
+    });
+    const drivenJaw = Number(JAW_OPEN_TEETH_CLEAR_RADIANS.toFixed(6));
+    expect(body.morphTargetInfluences[body.morphTargetDictionary.viseme_AA]!).toBe(LIP_VISEME_GAIN);
+    expect(teeth.morphTargetInfluences[0]).toBe(JAW_TEETH_GAIN);
+    expect(result.jawOpenRadians).toBeCloseTo(drivenJaw * JAW_TEETH_GAIN, 5);
+    expect(jaw.rotation.x).toBeCloseTo(0.1 + drivenJaw * JAW_TEETH_GAIN, 5);
   });
 
   it("generated scalar path uses named AA, not influences[0]", () => {
@@ -185,7 +220,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
       });
       expect(eFrame.frameCount).toBe(6);
       expect(eFrame.activeTargetName).toBe("viseme_E");
-      expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["viseme_E"]!]).toBe(1);
+      expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["viseme_E"]!]).toBe(LIP_VISEME_GAIN);
       const ssFrame = applyDialogueVisemeTimelineToRoot(root, {
         phonemeSequence: ["sil"],
         progress: 0.5, // t = 0.5 * 0.45 s -> the B frame (SS); no SS target on this mesh

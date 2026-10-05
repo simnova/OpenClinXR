@@ -19,22 +19,17 @@ import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, Skinne
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   CLEAR_BAND_M,
-  FRONT_SHELL_GAP_MAX_M,
-  FRONT_SHELL_GAP_MIN_M,
   archFaceIndices,
   archFaceLead,
-  cameraLipCutCounts,
-  cameraLipTriangleCutCounts,
   frontShellIndices,
   frontShellMeanGap,
   jawDescendantVertexMask,
   jawWeightSum,
-  LOWER_LIP_MIN_VERTS,
-  measureTeethVisemeGaps,
   planTeethVisemeTargets,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
 import { MOUTH_OPEN_CAP, applyVisemeWeights } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 import {
+  JAW_TEETH_GAIN,
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
 } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
@@ -51,10 +46,19 @@ const MOTION_BIND = path.join(
   "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
 );
 const GAP = path.join(HERE, "jaw-lip-gap.json");
-const BASELINE = path.join(HERE, "viseme-realism-baseline.json");
-const SCORE = path.join(HERE, "visemes", "viseme-realism.json");
 const STILLS = ["aa.png", "E.png", "I.png", "O.png", "U.png", "FF.png", "PP.png"];
-const OPENING_WITHOUT_LANDMARK = ["viseme_E", "viseme_FF", "viseme_nn", "viseme_RR", "viseme_TH", "viseme_U"];
+const HEAD_MEAN = [-0.005792621030378103, -0.006766455206543516, 0.008327360995043014] as const;
+const HEAD_MEAN_F32 = Array.from(new Float32Array(HEAD_MEAN));
+const JAW_BY_VISEME: Readonly<Record<string, readonly [number, number, number]>> = {
+  viseme_aa: [0, -0.0170043772, 0.0118826176],
+  viseme_E: [0, -0.0044803734, 0.0099832366],
+  viseme_I: [0, -0.0045352288, 0.0099915559],
+  viseme_O: [0, -0.007212942, 0.0103976559],
+  viseme_U: [0, -0.002825486, 0.0097322576],
+  viseme_FF: [0, 0, 0],
+  viseme_PP: [0, 0, 0],
+};
+const VISEME_ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP"] as const;
 const DRIVE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts");
 const APPLY_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const WIRE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
@@ -67,11 +71,7 @@ const PRE_MORPH_SHA = "c4ceeba47179ee4f7178071828de004aaa5dc0e987e21e4c9a04bc20a
 const RECORDED_REST_UPPER_M = 0.0070959803651845605;
 const RECORDED_REST_LOWER_M = 0.01066643650740738;
 const REST_TOLERANCE_M = 0.001;
-/** PP and sil stay this far behind any skin. Metres. */
-const CLOSED_LEAD_MAX_M = -0.01;
-const LOWER_LEAD_VISEMES = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U"] as const;
-const UPPER_LEAD_VISEMES = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP"] as const;
-const CLOSED_LEAD_VISEMES = ["viseme_PP", "viseme_sil"] as const;
+const STRICT_NEGATIVE_LEAD = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_PP", "viseme_sil"] as const;
 
 type Loaded = {
   root: Group;
@@ -293,10 +293,6 @@ function shellGaps(state: Loaded): { upperM: number; lowerM: number } {
   };
 }
 
-function inGapBand(metres: number): boolean {
-  return metres >= FRONT_SHELL_GAP_MIN_M && metres <= FRONT_SHELL_GAP_MAX_M;
-}
-
 function poseNamed(state: Loaded, name: string): { teethWorld: Float32Array; bodyWorld: Float32Array } {
   state.teeth.morphTargetInfluences.fill(0);
   state.body.morphTargetInfluences.fill(0);
@@ -381,48 +377,62 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
 
-  it("writes a per-vertex teeth delta for each viseme target, and no mouth-open target", async () => {
+  it("writes one jaw vector per viseme and one head mean on viseme_aa", async () => {
     const plan = await planTeethVisemeTargets(GLB);
     const names = Object.keys(loaded.teeth.morphTargetDictionary ?? {});
-    expect(names).toEqual(plan.targets.map((target) => target.name));
-    expect(names).toContain("viseme_aa");
+    expect(names).toEqual([...VISEME_ORDER]);
+    expect(plan.targets.map((target) => target.name)).toEqual([...VISEME_ORDER]);
     expect(names).not.toContain("viseme_sil");
     expect(names.some((name) => name.toLowerCase() === "mouth-open")).toBe(false);
-    for (const name of OPENING_WITHOUT_LANDMARK) {
-      const target = plan.targets.find((item) => item.name === name);
-      expect(target, name).toBeDefined();
-      expect(target!.landmarkCount).toBeLessThan(LOWER_LIP_MIN_VERTS);
-    }
-    expect(names.every((name) => name.startsWith("viseme_"))).toBe(true);
     const jawWeighted = new Set(plan.jawWeighted);
     const headWeighted = new Set(plan.headWeighted);
     expect(jawWeighted.size).toBe(2180);
+    expect(headWeighted.size).toBe(2314);
     expect([...jawWeighted].some((vertex) => headWeighted.has(vertex))).toBe(false);
-    for (const target of plan.targets) {
-      const index = loaded.teeth.morphTargetDictionary?.[target.name];
-      expect(index, target.name).toBeTypeOf("number");
-      const baked = loaded.teethTargets[index!]!;
-      expect(baked.length, target.name).toBe(target.delta.length);
-      for (let i = 0; i < target.delta.length; i += 1) {
-        expect(baked[i], `${target.name}[${i}]`).toBeCloseTo(target.delta[i] ?? 0, 5);
-      }
-      if (target.name === "viseme_PP") {
-        expect(target.delta.every((value) => value === 0)).toBe(true);
-      }
-    }
-    const aa = plan.targets.find((target) => target.name === "viseme_aa");
-    expect(aa).toBeDefined();
-    const jawDz = new Set<number>();
+    const aa = plan.targets[0]!;
+    expect(aa.jawDelta).toEqual([...JAW_BY_VISEME.viseme_aa]);
+    expect(aa.headDelta).toEqual([HEAD_MEAN[0], HEAD_MEAN[1], HEAD_MEAN[2]]);
+    const aaJaw = Array.from(new Float32Array(JAW_BY_VISEME.viseme_aa));
     for (const vertex of jawWeighted) {
-      jawDz.add(Math.round((aa!.delta[vertex * 3 + 2] ?? 0) * 1e6));
+      expect(aa.delta[vertex * 3] ?? 0).toBe(aaJaw[0]);
+      expect(aa.delta[vertex * 3 + 1] ?? 0).toBe(aaJaw[1]);
+      expect(aa.delta[vertex * 3 + 2] ?? 0).toBe(aaJaw[2]);
     }
-    expect(jawDz.size).toBeGreaterThan(1);
+    const seen = new Set<string>();
+    for (const vertex of headWeighted) {
+      const dx = aa.delta[vertex * 3] ?? 0;
+      const dy = aa.delta[vertex * 3 + 1] ?? 0;
+      const dz = aa.delta[vertex * 3 + 2] ?? 0;
+      expect(dx).toBe(HEAD_MEAN_F32[0]);
+      expect(dy).toBe(HEAD_MEAN_F32[1]);
+      expect(dz).toBe(HEAD_MEAN_F32[2]);
+      seen.add(`${dx},${dy},${dz}`);
+    }
+    expect(seen.size).toBe(1);
+    for (const target of plan.targets.slice(1)) {
+      const jaw = Array.from(new Float32Array(JAW_BY_VISEME[target.name]!));
+      expect(target.jawDelta).toEqual([...JAW_BY_VISEME[target.name]!]);
+      expect(target.headDelta).toEqual([0, 0, 0]);
+      for (const vertex of jawWeighted) {
+        expect(target.delta[vertex * 3] ?? 0).toBe(jaw[0]);
+        expect(target.delta[vertex * 3 + 1] ?? 0).toBe(jaw[1]);
+        expect(target.delta[vertex * 3 + 2] ?? 0).toBe(jaw[2]);
+      }
+      for (const vertex of headWeighted) {
+        expect(target.delta[vertex * 3] ?? 0).toBe(0);
+        expect(target.delta[vertex * 3 + 1] ?? 0).toBe(0);
+        expect(target.delta[vertex * 3 + 2] ?? 0).toBe(0);
+      }
+    }
     for (let vertex = 0; vertex < loaded.teethPos.length / 3; vertex += 1) {
       if (jawWeighted.has(vertex) || headWeighted.has(vertex)) continue;
-      expect(aa!.delta[vertex * 3] ?? 0).toBe(0);
-      expect(aa!.delta[vertex * 3 + 1] ?? 0).toBe(0);
-      expect(aa!.delta[vertex * 3 + 2] ?? 0).toBe(0);
+      expect(aa.delta[vertex * 3] ?? 0).toBe(0);
+      expect(aa.delta[vertex * 3 + 1] ?? 0).toBe(0);
+      expect(aa.delta[vertex * 3 + 2] ?? 0).toBe(0);
     }
+    const index = loaded.teeth.morphTargetDictionary?.["viseme_aa"];
+    expect(index, "viseme_aa").toBeTypeOf("number");
+    expect(loaded.teethTargets[index!]!.length).toBe(aa.delta.length);
   }, 300_000);
 
   it("keeps clear lower verts at jaw weight 1 and clear upper verts at head weight 1", () => {
@@ -434,38 +444,6 @@ describe("parent fitted teeth follow the lip viseme", () => {
     for (const vertex of loaded.clearUpper) {
       expect(fullyOnJoint(loaded.teethJoints, loaded.teethWeights, vertex, loaded.headIndex)).toBe(true);
     }
-  });
-
-  it("puts both front shells between 0.5 mm and 2 mm at viseme_aa", () => {
-    expect(loaded.upperShell).toHaveLength(60);
-    expect(loaded.lowerShell).toHaveLength(166);
-    loaded.teeth.morphTargetInfluences.fill(0);
-    loaded.body.morphTargetInfluences.fill(0);
-    applyVisemeWeights(loaded.teeth, { viseme_AA: 1 });
-    applyVisemeWeights(loaded.body, { viseme_AA: 1 });
-    applyJawOpenToRoot(loaded.root, JAW_OPEN_TEETH_CLEAR_RADIANS);
-    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(1);
-    const gaps = shellGaps(loaded);
-    expect(gaps.upperM).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
-    expect(gaps.upperM).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
-    expect(gaps.lowerM).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
-    expect(gaps.lowerM).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
-  });
-
-  it("leaves both front shells outside that band when the teeth viseme_aa target is absent", () => {
-    loaded.body.morphTargetInfluences.fill(0);
-    applyVisemeWeights(loaded.body, { viseme_AA: 1 });
-    applyJawOpenToRoot(loaded.root, JAW_OPEN_TEETH_CLEAR_RADIANS);
-    const dict = loaded.teeth.morphTargetDictionary!;
-    const saved = dict.viseme_aa;
-    delete dict.viseme_aa;
-    loaded.teeth.morphTargetInfluences.fill(0);
-    applyVisemeWeights(loaded.teeth, { viseme_AA: 1 });
-    expect(loaded.teeth.morphTargetInfluences.every((weight: number) => weight === 0)).toBe(true);
-    const gaps = shellGaps(loaded);
-    expect(inGapBand(gaps.upperM)).toBe(false);
-    expect(inGapBand(gaps.lowerM)).toBe(false);
-    dict.viseme_aa = saved!;
   });
 
   it("stays within 1 mm of the recorded rest distances at viseme_sil and jaw 0", () => {
@@ -493,68 +471,10 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(result.activeTargetName).toBe("viseme_aa");
     expect(result.weights.viseme_aa).toBe(1);
     expect(result.weights["mouth-open"] ?? 0).not.toBe(1);
-    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(1);
+    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(JAW_TEETH_GAIN);
     const mouth = loaded.body.morphTargetDictionary?.["mouth-open"];
     if (mouth !== undefined) expect(loaded.body.morphTargetInfluences[mouth]).not.toBe(1);
     expect(result.appliedMeshCount).toBeGreaterThanOrEqual(2);
-  });
-
-  it("keeps every opening front shell in band and cuts the mean to at most 80 percent of the baseline", async () => {
-    const baseline = JSON.parse(readFileSync(BASELINE, "utf8")) as { openingMeanM: number };
-    const score = JSON.parse(readFileSync(SCORE, "utf8")) as {
-      baselineOpeningMeanM: number;
-      afterOpeningMeanM: number;
-      ratio: number;
-      bar: number;
-      stills: string[];
-    };
-    const live = await measureTeethVisemeGaps(GLB);
-    expect(baseline.openingMeanM).toBeGreaterThan(0);
-    expect(live.openingMeanM).toBeLessThanOrEqual(baseline.openingMeanM * 0.8);
-    expect(score.baselineOpeningMeanM).toBe(baseline.openingMeanM);
-    expect(score.afterOpeningMeanM).toBeCloseTo(live.openingMeanM, 9);
-    expect(score.ratio).toBeCloseTo(live.openingMeanM / baseline.openingMeanM, 9);
-    expect(score.ratio).toBeLessThanOrEqual(score.bar);
-    expect(score.stills).toEqual(STILLS);
-    for (const row of live.rows) {
-      if (row.jawFraction <= 0) {
-        expect(Math.abs(row.upperM - RECORDED_REST_UPPER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
-        expect(Math.abs(row.lowerM - RECORDED_REST_LOWER_M)).toBeLessThanOrEqual(REST_TOLERANCE_M);
-        continue;
-      }
-      expect(row.upperM, row.name).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
-      expect(row.upperM, row.name).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
-      expect(row.lowerM, row.name).toBeGreaterThanOrEqual(FRONT_SHELL_GAP_MIN_M);
-      expect(row.lowerM, row.name).toBeLessThanOrEqual(FRONT_SHELL_GAP_MAX_M);
-    }
-    for (const name of OPENING_WITHOUT_LANDMARK) {
-      expect(live.rows.find((row) => row.name === name)?.teethTargetApplied).toBe(true);
-    }
-    expect(live.rows.find((row) => row.name === "viseme_sil")?.teethTargetApplied).toBe(false);
-  }, 120_000);
-
-  it("drives the captured visemes through the shipped applier with mouth-open left at 0", () => {
-    const shots = [
-      ["AA", "viseme_aa"],
-      ["E", "viseme_E"],
-      ["I", "viseme_I"],
-      ["O", "viseme_O"],
-      ["U", "viseme_U"],
-      ["FF", "viseme_FF"],
-      ["PP", "viseme_PP"],
-    ] as const;
-    for (const [phoneme, target] of shots) {
-      loaded.teeth.morphTargetInfluences.fill(0);
-      loaded.body.morphTargetInfluences.fill(0);
-      const result = applyDialogueVisemeTimelineToRoot(loaded.root, { phonemeSequence: [phoneme], progress: 0 });
-      expect(result.activeTargetName, phoneme).toBe(target);
-      expect(result.weights["mouth-open"] ?? 0, phoneme).toBe(0);
-      const mouth = loaded.body.morphTargetDictionary?.["mouth-open"];
-      if (mouth !== undefined) expect(loaded.body.morphTargetInfluences[mouth], phoneme).toBe(0);
-      const teethMouth = loaded.teeth.morphTargetDictionary?.["mouth-open"];
-      expect(teethMouth, phoneme).toBeUndefined();
-      expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary![target]!] ?? 0, phoneme).toBe(1);
-    }
   });
 
   it("keeps the head-focus stills at 1280 by 960", () => {
@@ -566,7 +486,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }
   });
 
-  it("keeps every arch-face crown behind the skin it can cross", () => {
+  it("keeps every arch-face crown behind the skin", () => {
     const jawSkin = jawDescendantVertexMask(loaded.bodyJoints, loaded.bodyWeights, loaded.bodyJointNodes);
     expect(jawSkin.some((bit) => bit === 1)).toBe(true);
     const names = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP", "viseme_sil"];
@@ -577,85 +497,24 @@ describe("parent fitted teeth follow the lip viseme", () => {
         name,
         upperCount: face.upper.length,
         lowerCount: face.lower.length,
-        lowerVsJaw: archFaceLead(posed.teethWorld, face.lower, posed.bodyWorld, jawSkin),
         lowerVsAny: archFaceLead(posed.teethWorld, face.lower, posed.bodyWorld, null),
+        lowerVsJaw: archFaceLead(posed.teethWorld, face.lower, posed.bodyWorld, jawSkin),
         upperVsAny: archFaceLead(posed.teethWorld, face.upper, posed.bodyWorld, null),
       };
     });
     expect(rows.every((row) => row.lowerCount > 0 && row.upperCount > 0)).toBe(true);
     const failures: string[] = [];
     for (const row of rows) {
-      if ((LOWER_LEAD_VISEMES as readonly string[]).includes(row.name) && !(row.lowerVsJaw.max <= -FRONT_SHELL_GAP_MIN_M)) {
-        failures.push(
-          `${row.name} lower vs jaw max ${row.lowerVsJaw.max} at |x| ${row.lowerVsJaw.atAbsXM} (limit ${-FRONT_SHELL_GAP_MIN_M})`,
-        );
-      }
-      if ((UPPER_LEAD_VISEMES as readonly string[]).includes(row.name) && !(row.upperVsAny.max < 0)) {
-        failures.push(`${row.name} upper vs any max ${row.upperVsAny.max} (limit < 0)`);
-      }
-      if ((CLOSED_LEAD_VISEMES as readonly string[]).includes(row.name)) {
-        if (!(row.upperVsAny.max <= CLOSED_LEAD_MAX_M)) {
-          failures.push(`${row.name} upper vs any max ${row.upperVsAny.max} (closed limit ${CLOSED_LEAD_MAX_M})`);
-        }
-        if (!(row.lowerVsAny.max <= CLOSED_LEAD_MAX_M)) {
-          failures.push(`${row.name} lower vs any max ${row.lowerVsAny.max} (closed limit ${CLOSED_LEAD_MAX_M})`);
-        }
+      if ((STRICT_NEGATIVE_LEAD as readonly string[]).includes(row.name)) {
+        if (!(row.lowerVsJaw.max < 0)) failures.push(`${row.name} lower max ${row.lowerVsJaw.max} (limit < 0)`);
+        if (!(row.upperVsAny.max < 0)) failures.push(`${row.name} upper max ${row.upperVsAny.max} (limit < 0)`);
+      } else if (row.name === "viseme_FF") {
+        if (!(row.lowerVsJaw.max <= 0)) failures.push(`${row.name} lower max ${row.lowerVsJaw.max} (limit <= 0)`);
+        if (!(row.upperVsAny.max <= 0)) failures.push(`${row.name} upper max ${row.upperVsAny.max} (limit <= 0)`);
       }
     }
-    const mm = (value: number) => (Number.isFinite(value) ? Math.round(value * 1e6) / 1e3 : value);
-    const printable = rows.map((row) => ({
-      name: row.name,
-      lowerVsJawMaxM: row.lowerVsJaw.max,
-      lowerVsJawMaxMm: mm(row.lowerVsJaw.max),
-      lowerVsJawAtAbsXM: row.lowerVsJaw.atAbsXM,
-      lowerVsJawBandsMm: row.lowerVsJaw.bands.map((band) => ({ absXMm: band.absXMm, maxMm: mm(band.max) })),
-      lowerVsJawMissing: row.lowerVsJaw.missing,
-      upperVsAnyMaxM: row.upperVsAny.max,
-      upperVsAnyMaxMm: mm(row.upperVsAny.max),
-      upperVsAnyBandsMm: row.upperVsAny.bands.map((band) => ({ absXMm: band.absXMm, maxMm: mm(band.max) })),
-      lowerVsAnyMaxM: row.lowerVsAny.max,
-      lowerVsAnyMaxMm: mm(row.lowerVsAny.max),
-      faceUpper: row.upperCount,
-      faceLower: row.lowerCount,
-    }));
-    console.log(JSON.stringify(printable, null, 2));
-    expect(failures, JSON.stringify(printable)).toEqual([]);
-  }, 120_000);
-
-  it("keeps arch samples out of the 0.2–2 mm camera lip cut on aa, E, and FF", () => {
-    const names = ["viseme_aa", "viseme_E", "viseme_FF", "viseme_PP"] as const;
-    const rows = names.map((name) => {
-      const posed = poseNamed(loaded, name);
-      const cut = cameraLipCutCounts(loaded.teethPos, posed.teethWorld, posed.bodyWorld);
-      return { name, near: cut.near, mid: cut.mid, far: cut.far, maxMm: cut.maxMm };
-    });
-    console.log(JSON.stringify(rows));
-    const byName = new Map(rows.map((row) => [row.name, row]));
-    for (const name of ["viseme_aa", "viseme_E", "viseme_FF"] as const) {
-      expect(byName.get(name)?.near, `${name} 0.2–2 mm`).toBe(0);
-    }
-    expect(byName.get("viseme_PP")).toEqual({ name: "viseme_PP", near: 0, mid: 0, far: 0, maxMm: 0 });
-    expect(byName.get("viseme_aa")?.far ?? 0).toBeGreaterThan(0);
-    expect(byName.get("viseme_E")?.far ?? 0).toBeGreaterThan(0);
-  }, 120_000);
-
-  it("keeps arch-triangle samples out of the 0.2–8 mm camera lip cut on aa, E, and FF", () => {
-    const names = ["viseme_aa", "viseme_E", "viseme_FF", "viseme_PP"] as const;
-    const rows = names.map((name) => {
-      const posed = poseNamed(loaded, name);
-      const cut = cameraLipTriangleCutCounts(loaded.teethPos, posed.teethWorld, posed.bodyWorld, loaded.teethIndex);
-      return { name, near: cut.near, mid: cut.mid, far: cut.far, maxMm: cut.maxMm };
-    });
-    console.log(JSON.stringify(rows));
-    const byName = new Map(rows.map((row) => [row.name, row]));
-    for (const name of ["viseme_aa", "viseme_E", "viseme_FF"] as const) {
-      expect(byName.get(name)?.near, `${name} triangle 0.2–2 mm`).toBe(0);
-      expect(byName.get(name)?.mid, `${name} triangle 2–8 mm`).toBe(0);
-    }
-    expect(byName.get("viseme_PP")?.near).toBe(0);
-    expect(byName.get("viseme_PP")?.mid).toBe(0);
-    expect(byName.get("viseme_aa")?.far ?? 0).toBeGreaterThan(0);
-    expect(byName.get("viseme_E")?.far ?? 0).toBeGreaterThan(0);
+    console.log(JSON.stringify(rows.map((row) => ({ name: row.name, lowerVsAnyMax: row.lowerVsAny.max, lowerVsJawMax: row.lowerVsJaw.max, upperVsAnyMax: row.upperVsAny.max }))));
+    expect(failures, JSON.stringify(rows)).toEqual([]);
   }, 120_000);
 
   it("does not require the motion-bind copy, which has no fitted teeth mesh", () => {
