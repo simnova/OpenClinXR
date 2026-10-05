@@ -19,14 +19,14 @@ import {
   type CoordinatorAudioClockSource,
   type CoordinatorModalityAdapters,
 } from "./actor-turn-playback-coordinator.js";
-import { expressionWeightsForEmotion } from "./actor-turn-plan-consumption.js";
 import {
   digestActorTurnPlan,
+  expressionWeightsForEmotion,
   playIdentityBoundActorTurn,
   type ActorTurnExecutionArtifacts,
-  type GazeTargetKind,
   type IdentityBoundRef,
-} from "./actor-turn-player.js";
+} from "./index.js";
+type GazeTargetKind = "learner_camera" | "actor" | "environment";
 
 /**
  * Audio source currentTime is the one clock for viseme, gaze, posture, and affect.

@@ -258,5 +258,32 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
       expect(result.activeTargetName).toMatch(/^viseme_/);
       expect(mesh.morphTargetInfluences[0]).toBe(0); // never index 0
     });
+
+    it("uses the canonical prepared-cue spring for the live media clock jaw channel", () => {
+      const mesh = meshLike();
+      const jaw = { name: "jaw", isBone: true, rotation: { x: 0 }, userData: {} as Record<string, unknown> };
+      const root = {
+        userData: {} as Record<string, unknown>,
+        traverse(callback: (object: unknown) => void) { callback(mesh); callback(jaw); },
+      };
+      const bakedCues = [
+        { phoneme: "aa", atSecond: 0, durationSeconds: 0.2, intensity: 1 },
+        { phoneme: "PP", atSecond: 0.2, durationSeconds: 0.08, intensity: 1 },
+      ] as const;
+      const open = applyNamedSpeechVisemes({
+        root,
+        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 280, bakedCues },
+        mediaPositionSeconds: () => 0.1,
+      });
+      expect(open.jawOpenRadians).toBeGreaterThan(0);
+      expect(open.jawOpenRadians).toBeLessThan(JAW_OPEN_TEETH_CLEAR_RADIANS * JAW_TEETH_GAIN);
+      const closed = applyNamedSpeechVisemes({
+        root,
+        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 280, bakedCues },
+        mediaPositionSeconds: () => 0.25,
+      });
+      expect(closed.jawOpenRadians).toBe(0);
+      expect(root.userData.openClinXrNamedVisemeDrive).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring" });
+    });
   });
 });
