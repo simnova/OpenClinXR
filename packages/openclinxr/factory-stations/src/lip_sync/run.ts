@@ -57,6 +57,8 @@ export type LipSyncRunResult = Record<string, unknown> & {
   cues: LipSyncCue[];
   tool: string;
   binary: string;
+  /** Speech provenance when the utterance was synthesised; absent for provided wavs. */
+  speech?: SpeechProvenance | undefined;
 };
 
 function resolveRhubarbBinary(): string {
