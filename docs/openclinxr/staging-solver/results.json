@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "openclinxr.staging-solver-results.v1",
+  "parityTolerance": {
+    "visibilityActors": 0,
+    "containmentActors": 0,
+    "nearFraction": 0.006944444444444444,
+    "source": "one 16x9 ray cell; counts are exact integers"
+  },
+  "cases": {
+    "peds_fever_v1": {
+      "scenarioId": "peds_fever_v1",
+      "feasible": true,
+      "solveMs": 1383,
+      "predictedGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_noah_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_aisha_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 74.24846389029373,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": 0.7717440462383338,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 1,
+        "totalActors": 3,
+        "visibleActors": 1,
+        "crownChest": [
+          {
+            "actorId": "patient_noah_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_aisha_brooks_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              }
+            ]
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": true,
+            "chestVisible": false,
+            "visibleSampleCount": 1,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "chest",
+                "blockedBy": "geometry_0"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 141.71512760060932,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "actorId": "patient_noah_chen_v1",
+          "slotId": "patient_on_authored_support",
+          "world": [
+            -2.5401362769488953,
+            0.7373777551388929,
+            -0.6461037095374144
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "stretcher",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "headingRadians": -0.26
+          },
+          "cost": 0
+        },
+        {
+          "actorId": "nurse_aisha_brooks_v1",
+          "slotId": "nurse_bedside_head",
+          "world": [
+            -2.71199996471405,
+            0.824762999061786,
+            0.07
+          ],
+          "headingRadians": -2.7183383573026663,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -2.6688473085109488,
+              "y": 0,
+              "z": 0.04206583839515954
+            },
+            "headingRadians": -2.7183383573026663
+          },
+          "cost": 0.2
+        },
+        {
+          "actorId": "parent_mei_chen_v1",
+          "slotId": "companion_chair",
+          "world": [
+            -2.4422418296337125,
+            0.6708197956552024,
+            0.6418223395943642
+          ],
+          "headingRadians": -2.7105156605186314,
+          "placement": {
+            "supportSurface": "chair",
+            "plantOffsetMeters": {
+              "x": -2.607526683066857,
+              "y": 0,
+              "z": 0.8820537154976821
+            },
+            "headingRadians": -2.7105156605186314
+          },
+          "cost": 0.31622776601683794
+        }
+      ],
+      "camera": {
+        "eye": [
+          -2.389999895095825,
+          2,
+          -3.5749732780456545
+        ],
+        "look": [
+          -2.71199996471405,
+          0.824762999061786,
+          0.07000000000000002
+        ],
+        "fov": 90,
+        "aspect": 1.1333333333333333
+      },
+      "parity": {
+        "visibilityDelta": 2,
+        "nearDelta": 0,
+        "containmentDelta": 2
+      }
+    }
+  }
+}

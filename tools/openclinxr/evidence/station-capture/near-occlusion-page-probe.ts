@@ -1,4 +1,5 @@
 import type { Page } from "playwright";
+import { NEAR_OCCLUSION_MATRIX_BROWSER_FUNCTION_SOURCE } from "./gate-geometry.js";
 
 export const NEAR_OCCLUSION_RAYCAST_METHOD =
   "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m";
@@ -11,11 +12,7 @@ export type NearOcclusionReading = {
   method: typeof NEAR_OCCLUSION_RAYCAST_METHOD;
 };
 
-/**
- * Browser-safe source shared by the capture probe and candidate refinement.
- * The caller supplies the same live camera, scene and world-box helper used by
- * the refinement, so candidate and recorded measurements cannot drift.
- */
+/** Scene traversal only; all ray/AABB math is serialized from gate-geometry.ts. */
 export const NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE = String.raw`function (camera, scene, worldBoxOf) {
   const boxes = [];
   const effectivelyVisible = function (object) {
@@ -27,63 +24,13 @@ export const NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE = String.raw`function (camer
     return true;
   };
   scene.traverse(function (object) {
-    if (!(object.isMesh || object.isSkinnedMesh)) return;
-    if (!effectivelyVisible(object)) return;
+    if (!(object.isMesh || object.isSkinnedMesh) || !effectivelyVisible(object)) return;
     const box = worldBoxOf(object);
     if (box) boxes.push(box);
   });
-
   camera.updateMatrixWorld(true);
-  const matrix = camera.matrixWorld.elements;
-  const origin = [matrix[12], matrix[13], matrix[14]];
-  const tanHalfFov = Math.tan((camera.fov * Math.PI / 180) / 2);
-  const aspect = typeof camera.aspect === "number" && camera.aspect > 0 ? camera.aspect : 16 / 9;
-  let nearRayCount = 0;
-  const columns = 16;
-  const rows = 9;
-
-  const hitDistance = function (box, dx, dy, dz) {
-    let tmin = 0;
-    let tmax = Infinity;
-    for (let axis = 0; axis < 3; axis++) {
-      const value = axis === 0 ? origin[0] : axis === 1 ? origin[1] : origin[2];
-      const direction = axis === 0 ? dx : axis === 1 ? dy : dz;
-      if (Math.abs(direction) < 1e-12) {
-        if (value < box.min[axis] || value > box.max[axis]) return Infinity;
-        continue;
-      }
-      let first = (box.min[axis] - value) / direction;
-      let last = (box.max[axis] - value) / direction;
-      if (first > last) { const swap = first; first = last; last = swap; }
-      if (first > tmin) tmin = first;
-      if (last < tmax) tmax = last;
-      if (tmax < tmin) return Infinity;
-    }
-    if (tmax <= 1e-6) return Infinity;
-    return tmin > 1e-6 ? tmin : tmax;
-  };
-
-  for (let row = 0; row < rows; row++) {
-    const ndcY = 1 - 2 * ((row + 0.5) / rows);
-    for (let column = 0; column < columns; column++) {
-      const ndcX = 2 * ((column + 0.5) / columns) - 1;
-      let lx = ndcX * aspect * tanHalfFov;
-      let ly = ndcY * tanHalfFov;
-      let lz = -1;
-      const localLength = Math.hypot(lx, ly, lz);
-      lx /= localLength; ly /= localLength; lz /= localLength;
-      const dx = matrix[0] * lx + matrix[4] * ly + matrix[8] * lz;
-      const dy = matrix[1] * lx + matrix[5] * ly + matrix[9] * lz;
-      const dz = matrix[2] * lx + matrix[6] * ly + matrix[10] * lz;
-      let nearest = Infinity;
-      for (let i = 0; i < boxes.length; i++) {
-        const distance = hitDistance(boxes[i], dx, dy, dz);
-        if (distance < nearest) nearest = distance;
-      }
-      if (nearest < 1) nearRayCount += 1;
-    }
-  }
-  return { fraction: nearRayCount / (columns * rows), nearRayCount: nearRayCount, rayCount: 144 };
+  const measure = (${NEAR_OCCLUSION_MATRIX_BROWSER_FUNCTION_SOURCE});
+  return measure(camera.matrixWorld.elements, camera.fov, camera.aspect > 0 ? camera.aspect : 16 / 9, boxes);
 }`;
 
 /** Fraction of viewport rays that hit a supplied wall/door box before the encounter focus. */
@@ -100,11 +47,9 @@ export const FOREGROUND_BOX_OCCLUSION_BROWSER_FUNCTION_SOURCE = String.raw`funct
     let lx = ndcX * aspect * tanHalfFov, ly = ndcY * tanHalfFov, lz = -1;
     const localLength = Math.hypot(lx, ly, lz);
     lx /= localLength; ly /= localLength; lz /= localLength;
-    const direction = [
-      matrix[0] * lx + matrix[4] * ly + matrix[8] * lz,
+    const direction = [matrix[0] * lx + matrix[4] * ly + matrix[8] * lz,
       matrix[1] * lx + matrix[5] * ly + matrix[9] * lz,
-      matrix[2] * lx + matrix[6] * ly + matrix[10] * lz
-    ];
+      matrix[2] * lx + matrix[6] * ly + matrix[10] * lz];
     let nearest = Infinity;
     for (let i = 0; i < boxes.length; i++) {
       const box = boxes[i];
@@ -115,8 +60,7 @@ export const FOREGROUND_BOX_OCCLUSION_BROWSER_FUNCTION_SOURCE = String.raw`funct
           if (value < box.min[axis] || value > box.max[axis]) miss = true;
           continue;
         }
-        let first = (box.min[axis] - value) / delta;
-        let last = (box.max[axis] - value) / delta;
+        let first = (box.min[axis] - value) / delta, last = (box.max[axis] - value) / delta;
         if (first > last) { const swap = first; first = last; last = swap; }
         if (first > tmin) tmin = first;
         if (last < tmax) tmax = last;
@@ -152,11 +96,9 @@ export async function readNearOcclusionFromPage(page: Page): Promise<NearOcclusi
       const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
       for (let xi = 0; xi < 2; xi++) for (let yi = 0; yi < 2; yi++) for (let zi = 0; zi < 2; zi++) {
         const x = xs[xi], y = ys[yi], z = zs[zi];
-        const point = [
-          matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12],
+        const point = [matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12],
           matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13],
-          matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14]
-        ];
+          matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14]];
         for (let axis = 0; axis < 3; axis++) {
           if (point[axis] < min[axis]) min[axis] = point[axis];
           if (point[axis] > max[axis]) max[axis] = point[axis];
@@ -166,12 +108,8 @@ export async function readNearOcclusionFromPage(page: Page): Promise<NearOcclusi
     };
     const measure = (${NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE});
     return measure(camera, scene, worldBoxOf);
-  })()`) as { fraction: number; nearRayCount: number; rayCount: number };
-  return {
-    fraction: reading.fraction,
-    nearRayCount: reading.nearRayCount,
-    rayCount: 144,
-    thresholdMeters: 1,
-    method: NEAR_OCCLUSION_RAYCAST_METHOD,
-  };
+  })()`);
+  const result = reading as { fraction: number; nearRayCount: number; rayCount: number };
+  return { fraction: result.fraction, nearRayCount: result.nearRayCount, rayCount: 144,
+    thresholdMeters: 1, method: NEAR_OCCLUSION_RAYCAST_METHOD };
 }

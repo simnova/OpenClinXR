@@ -154,6 +154,29 @@ export function measureActorVisibility(
     visible: crownVisible && chestVisible, blockedSamples };
 }
 
+/**
+ * The solver only needs the two samples which can satisfy the gate.  Keep this
+ * alongside the detailed probe so its slab/segment semantics cannot drift.
+ */
+export function actorCrownChestVisibleEarly(
+  origin: Vec3,
+  actor: { id: string; box: AxisAlignedBox; recumbent?: boolean },
+  occluders: readonly GateOccluder[],
+): boolean {
+  for (const sample of actorSamplePoints(actor.box, actor.recumbent)) {
+    if (sample.name !== "crown" && sample.name !== "chest") continue;
+    for (const occluder of occluders) {
+      if (occluder.actorId === actor.id) continue;
+      const box = occluder.box;
+      if (origin[0] >= box.min[0] && origin[0] <= box.max[0]
+        && origin[1] >= box.min[1] && origin[1] <= box.max[1]
+        && origin[2] >= box.min[2] && origin[2] <= box.max[2]) continue;
+      if (segmentBoxHit(box, origin, sample.point) !== Infinity) return false;
+    }
+  }
+  return true;
+}
+
 function normalise(v: Vec3): Vec3 {
   const length = Math.hypot(v[0], v[1], v[2]);
   return length > 1e-12 ? [v[0] / length, v[1] / length, v[2] / length] : [0, 0, -1];
@@ -191,6 +214,31 @@ export function projectBox(camera: GateCamera, box: AxisAlignedBox): { minX: num
   return count >= 4 ? { minX, maxX, minY, maxY } : null;
 }
 
+/** Self-contained Three-compatible column-major projection used in-page and offline. */
+export function projectBoxFromMatrices(
+  view: readonly number[],
+  projection: readonly number[],
+  box: AxisAlignedBox,
+): { minX: number; maxX: number; minY: number; maxY: number } | null {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, count = 0;
+  for (const x of [box.min[0], box.max[0]]) for (const y of [box.min[1], box.max[1]]) for (const z of [box.min[2], box.max[2]]) {
+    const vx = (view[0] ?? 0) * x + (view[4] ?? 0) * y + (view[8] ?? 0) * z + (view[12] ?? 0);
+    const vy = (view[1] ?? 0) * x + (view[5] ?? 0) * y + (view[9] ?? 0) * z + (view[13] ?? 0);
+    const vz = (view[2] ?? 0) * x + (view[6] ?? 0) * y + (view[10] ?? 0) * z + (view[14] ?? 0);
+    const vw = (view[3] ?? 0) * x + (view[7] ?? 0) * y + (view[11] ?? 0) * z + (view[15] ?? 1);
+    const cx = (projection[0] ?? 0) * vx + (projection[4] ?? 0) * vy + (projection[8] ?? 0) * vz + (projection[12] ?? 0) * vw;
+    const cy = (projection[1] ?? 0) * vx + (projection[5] ?? 0) * vy + (projection[9] ?? 0) * vz + (projection[13] ?? 0) * vw;
+    const cz = (projection[2] ?? 0) * vx + (projection[6] ?? 0) * vy + (projection[10] ?? 0) * vz + (projection[14] ?? 0) * vw;
+    const cw = (projection[3] ?? 0) * vx + (projection[7] ?? 0) * vy + (projection[11] ?? 0) * vz + (projection[15] ?? 0) * vw;
+    if (Math.abs(cw) < 1e-8) continue;
+    const ndcX = cx / cw, ndcY = cy / cw, ndcZ = cz / cw;
+    if (ndcZ <= -1 || ndcZ >= 1) continue;
+    count += 1; minX = Math.min(minX, ndcX); maxX = Math.max(maxX, ndcX);
+    minY = Math.min(minY, ndcY); maxY = Math.max(maxY, ndcY);
+  }
+  return count >= 4 ? { minX, maxX, minY, maxY } : null;
+}
+
 export function meanFacingDegrees(eye: Vec3, actors: readonly GateActor[]): number {
   if (actors.length === 0) return 180;
   let sum = 0;
@@ -207,27 +255,88 @@ export function meanFacingDegrees(eye: Vec3, actors: readonly GateActor[]): numb
   return sum / actors.length;
 }
 
-export function measureNearOcclusion(camera: GateCamera, boxes: readonly AxisAlignedBox[]): { fraction: number; nearRayCount: number; rayCount: 144 } {
-  const basis = cameraBasis(camera), tan = Math.tan(camera.fov * Math.PI / 360), aspect = camera.aspect ?? 16 / 9;
+/** Self-contained core shared byte-for-byte with the browser probe. */
+export function measureNearOcclusionFromMatrix(
+  matrix: readonly number[],
+  fov: number,
+  aspect: number,
+  boxes: readonly AxisAlignedBox[],
+): { fraction: number; nearRayCount: number; rayCount: 144 } {
+  const origin: Vec3 = [matrix[12] ?? 0, matrix[13] ?? 0, matrix[14] ?? 0];
+  const tan = Math.tan(fov * Math.PI / 360);
+  const hitDistance = (box: AxisAlignedBox, direction: Vec3): number => {
+    let first = 0, last = Infinity;
+    for (let axis = 0; axis < 3; axis += 1) {
+      const value = origin[axis], delta = direction[axis];
+      if (Math.abs(delta) < 1e-12) {
+        if (value < box.min[axis] || value > box.max[axis]) return Infinity;
+        continue;
+      }
+      let near = (box.min[axis] - value) / delta, far = (box.max[axis] - value) / delta;
+      if (near > far) [near, far] = [far, near];
+      first = Math.max(first, near); last = Math.min(last, far);
+      if (last < first) return Infinity;
+    }
+    if (last <= 1e-6) return Infinity;
+    return first > 1e-6 ? first : last;
+  };
   let nearRayCount = 0;
   for (let row = 0; row < 9; row += 1) for (let column = 0; column < 16; column += 1) {
-    const lx = (2 * ((column + 0.5) / 16) - 1) * aspect * tan;
+    let lx = (2 * ((column + 0.5) / 16) - 1) * aspect * tan;
     const ly = (1 - 2 * ((row + 0.5) / 9)) * tan;
-    const direction = normalise([
-      basis.right[0] * lx + basis.up[0] * ly + basis.forward[0],
-      basis.right[1] * lx + basis.up[1] * ly + basis.forward[1],
-      basis.right[2] * lx + basis.up[2] * ly + basis.forward[2],
-    ]);
-    let nearest = Infinity;
-    for (const box of boxes) nearest = Math.min(nearest, rayBoxDistance(box, camera.eye, direction));
-    if (nearest < 1) nearRayCount += 1;
+    let lz = -1;
+    const length = Math.hypot(lx, ly, lz);
+    lx /= length; lz /= length;
+    const localY = ly / length;
+    const direction: Vec3 = [
+      (matrix[0] ?? 0) * lx + (matrix[4] ?? 0) * localY + (matrix[8] ?? 0) * lz,
+      (matrix[1] ?? 0) * lx + (matrix[5] ?? 0) * localY + (matrix[9] ?? 0) * lz,
+      (matrix[2] ?? 0) * lx + (matrix[6] ?? 0) * localY + (matrix[10] ?? 0) * lz,
+    ];
+    // The gate records a boolean per viewport cell.  Once any hit is under a
+    // metre, no later box can change that result.
+    for (const box of boxes) {
+      if (hitDistance(box, direction) < 1) { nearRayCount += 1; break; }
+    }
   }
   return { fraction: nearRayCount / 144, nearRayCount, rayCount: 144 };
 }
 
+export function cameraWorldMatrix(camera: GateCamera): number[] {
+  const basis = cameraBasis(camera);
+  return [
+    basis.right[0], basis.right[1], basis.right[2], 0,
+    basis.up[0], basis.up[1], basis.up[2], 0,
+    -basis.forward[0], -basis.forward[1], -basis.forward[2], 0,
+    camera.eye[0], camera.eye[1], camera.eye[2], 1,
+  ];
+}
+
+export function cameraViewProjectionMatrices(camera: GateCamera): { view: number[]; projection: number[] } {
+  const basis = cameraBasis(camera), eye = camera.eye;
+  const view = [
+    basis.right[0], basis.up[0], -basis.forward[0], 0,
+    basis.right[1], basis.up[1], -basis.forward[1], 0,
+    basis.right[2], basis.up[2], -basis.forward[2], 0,
+    -(basis.right[0] * eye[0] + basis.right[1] * eye[1] + basis.right[2] * eye[2]),
+    -(basis.up[0] * eye[0] + basis.up[1] * eye[1] + basis.up[2] * eye[2]),
+    basis.forward[0] * eye[0] + basis.forward[1] * eye[1] + basis.forward[2] * eye[2], 1,
+  ];
+  const f = 1 / Math.tan(camera.fov * Math.PI / 360), aspect = camera.aspect ?? 16 / 9;
+  const near = 0.1, far = 2_000;
+  const projection = [f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0,
+    (far + near) / (near - far), -1, 0, 0, 2 * far * near / (near - far), 0];
+  return { view, projection };
+}
+
+export function measureNearOcclusion(camera: GateCamera, boxes: readonly AxisAlignedBox[]): { fraction: number; nearRayCount: number; rayCount: 144 } {
+  return measureNearOcclusionFromMatrix(cameraWorldMatrix(camera), camera.fov, camera.aspect ?? 16 / 9, boxes);
+}
+
 export function evaluateGate(camera: GateCamera, actors: readonly GateActor[], occluders: readonly GateOccluder[]): GateReading {
   const crownChest = actors.map((actor) => measureActorVisibility(camera.eye, actor, occluders));
-  const extents = actors.map((actor) => projectBox(camera, actor.box));
+  const matrices = cameraViewProjectionMatrices(camera);
+  const extents = actors.map((actor) => projectBoxFromMatrices(matrices.view, matrices.projection, actor.box));
   const contained = extents.map((extent, index) => {
     if (!extent) return false;
     const actor = actors[index];
@@ -246,4 +355,10 @@ export function evaluateGate(camera: GateCamera, actors: readonly GateActor[], o
     gatePass: actors.length > 0 && containedActors === actors.length && facing <= 90 && near.fraction <= 0.1 };
 }
 
-export const ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE = measureActorVisibility.toString();
+function browserCallableSource(fn: (...args: never[]) => unknown): string {
+  return `function(){var __name=function(inner){return inner;};return (${fn.toString()}).apply(null,arguments);}`;
+}
+
+export const ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE = browserCallableSource(measureActorVisibility);
+export const NEAR_OCCLUSION_MATRIX_BROWSER_FUNCTION_SOURCE = browserCallableSource(measureNearOcclusionFromMatrix);
+export const PROJECT_BOX_BROWSER_FUNCTION_SOURCE = browserCallableSource(projectBoxFromMatrices);

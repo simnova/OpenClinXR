@@ -12,7 +12,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "../lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute";
 import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
@@ -38,7 +38,7 @@ import {
   type CameraSweepLookMode,
   type CameraSweepRow,
 } from "./camera-sweep-search.js";
-import type { Page } from "../lib/slotted-playwright.js";
+import type { Browser, Page } from "playwright";
 import { buildContactSheet } from "../isolated-subject-harness.js";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -185,10 +185,11 @@ async function main(): Promise<void> {
   mkdirSync(bestDir, { recursive: true });
 
   const server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
-  const browser = await chromium.launch({ headless: true });
   const caseRows: Record<string, unknown> = {};
   const newlyPassing: Array<{ caseId: string; variant: string }> = [];
   try {
+    await createLocalComputeServices().sceneCapture.withBrowser("camera-sweep", async (handle) => {
+      const browser = handle as Browser;
     for (let ci = 0; ci < cases.length; ci += 1) {
       const caseId = cases[ci]!;
       const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -256,8 +257,8 @@ async function main(): Promise<void> {
         await sheetPage.close().catch(() => undefined);
       }
     }
+    });
   } finally {
-    await browser.close().catch(() => undefined);
     await stopPortlessDevServer(server.proc);
   }
 

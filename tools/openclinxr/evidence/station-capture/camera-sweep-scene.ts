@@ -10,11 +10,20 @@ import type { Page } from "playwright";
 
 export type SweepActorSnapshot = {
   id: string;
+  role?: string;
   box: { min: [number, number, number]; max: [number, number, number] };
   heading: number;
   standing: boolean;
   recumbent: boolean;
   chest: [number, number, number];
+  /** Actor placement root in world space; used to map a visual AABB to authored placement. */
+  root?: [number, number, number];
+};
+
+export type SweepFixtureSnapshot = {
+  name: string;
+  box: { min: [number, number, number]; max: [number, number, number] };
+  kind: "patient_support" | "chair" | "door" | "fixture";
 };
 
 export type SweepSceneSnapshot = {
@@ -38,7 +47,13 @@ export type SweepSceneSnapshot = {
     cz: number;
   }>;
   eyeYs: number[];
+  /** Actual render camera aspect at snapshot time (the shell reserves a side panel). */
+  cameraAspect?: number;
   orbitBounds: { xMin: number; xMax: number; zMin: number; zMax: number };
+  fixtures: SweepFixtureSnapshot[];
+  patientSupports: SweepFixtureSnapshot[];
+  companionSeats: SweepFixtureSnapshot[];
+  door: SweepFixtureSnapshot | null;
 };
 
 /** Page snapshot body. Keep free of TypeScript syntax (serialized into the page). */
@@ -77,6 +92,15 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     while (p) {
       var ud = p.userData;
       if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId.length > 0) return ud.openClinXrActorId;
+      p = p.parent;
+    }
+    return null;
+  };
+  var actorRootOf = function (mesh) {
+    var p = mesh;
+    while (p) {
+      var ud = p.userData;
+      if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId.length > 0) return p;
       p = p.parent;
     }
     return null;
@@ -126,13 +150,17 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     if (!e) return 0;
     return Math.atan2(-e[8], -e[10]);
   };
-  var actorHeading = {}, actorPosture = {};
+  var actorHeading = {}, actorPosture = {}, actorRoots = {};
   scene.traverse(function (o) {
     if (!o.isSkinnedMesh) return;
     var id = actorIdOf(o);
     if (!id) return;
     if (actorHeading[id] === undefined) actorHeading[id] = headingOf(o);
     if (actorPosture[id] === undefined) actorPosture[id] = postureOf(o);
+    if (actorRoots[id] === undefined) {
+      var actorRoot = actorRootOf(o), rootElements = actorRoot && actorRoot.matrixWorld && actorRoot.matrixWorld.elements;
+      actorRoots[id] = rootElements ? [rootElements[12], rootElements[13], rootElements[14]] : [0, 0, 0];
+    }
   });
   var actors = [], standing = [], ids = Object.keys(actorMap);
   for (var ai = 0; ai < ids.length; ai++) {
@@ -146,7 +174,7 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
       ? [cx, box.min[1] + height * 0.65, cz]
       : [box.min[0] + (box.max[0] - box.min[0]) * 0.32, box.max[1] - height * 0.08, cz];
     var actor = { id: ids[ai], box: box, heading: actorHeading[ids[ai]] || 0,
-      standing: upright && height >= 1.15, recumbent: recumbent, chest: chest };
+      standing: upright && height >= 1.15, recumbent: recumbent, chest: chest, root: actorRoots[ids[ai]] || [0, 0, 0] };
     actors.push(actor);
     if (actor.standing) standing.push(actor);
   }
@@ -202,6 +230,42 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     if (!e) return;
     placards.push({ box: box, nx: e[8], nz: e[10], cx: (box.min[0]+box.max[0])/2, cz: (box.min[2]+box.max[2])/2 });
   });
+  var fixtures = [], patientSupports = [], companionSeats = [], door = null;
+  scene.traverse(function (o) {
+    if (!(o.isMesh || o.isSkinnedMesh) || !effectivelyVisible(o) || actorIdOf(o)) return;
+    var name = o.name || (o.parent && o.parent.name) || "unnamed-fixture";
+    if (/floor|wall|ceiling|exterior|review-panel|capture-cue/i.test(name)) return;
+    var box = worldBoxOf(o, false);
+    if (!box) return;
+    var kind = "fixture";
+    if (/stretcher|exam[_ -]?table|exam_surface|(^|[._ -])bed([._ -]|$)/i.test(name)) kind = "patient_support";
+    else if (/chair|seat|stool/i.test(name)) kind = "chair";
+    else if (/door_leaf|fixture-slot\.door/i.test(name)) kind = "door";
+    var row = { name: name, box: box, kind: kind };
+    fixtures.push(row);
+    if (kind === "patient_support") patientSupports.push(row);
+    if (kind === "chair") companionSeats.push(row);
+    if (kind === "door" && !door) door = row;
+  });
+  for (var seatedId in actorMap) {
+    if (!Object.prototype.hasOwnProperty.call(actorMap, seatedId)) continue;
+    var seatedPosture = actorPosture[seatedId] || "standing";
+    if (!/seated/.test(seatedPosture)) continue;
+    var seatedBox = actorMap[seatedId], sx = (seatedBox.min[0]+seatedBox.max[0])/2, sz = (seatedBox.min[2]+seatedBox.max[2])/2;
+    var bestSeat = null, bestSeatDistance = Infinity;
+    for (var fxi = 0; fxi < fixtures.length; fxi++) {
+      var fixture = fixtures[fxi], fb = fixture.box;
+      var fw = fb.max[0]-fb.min[0], fd = fb.max[2]-fb.min[2], fy = fb.max[1];
+      if (fw < 0.25 || fw > 1.2 || fd < 0.25 || fd > 1.2 || fy < 0.25 || fy > 1.3) continue;
+      if (/portal|threshold|trash|cabinet|glove|pole/i.test(fixture.name)) continue;
+      var fcx = (fb.min[0]+fb.max[0])/2, fcz = (fb.min[2]+fb.max[2])/2;
+      var seatDistance = Math.hypot(fcx-sx, fcz-sz);
+      if (seatDistance < 0.65 && seatDistance < bestSeatDistance) { bestSeat = fixture; bestSeatDistance = seatDistance; }
+    }
+    if (bestSeat && !companionSeats.some(function (seat) { return seat.name === bestSeat.name; })) {
+      companionSeats.push({ name: bestSeat.name, box: bestSeat.box, kind: "chair" });
+    }
+  }
   var ceilingY = interior.max[1] - 0.45;
   var eyeYs = [1.52, 1.68, 1.84, 2.0, 2.16].map(function (y) {
     var ey = y;
@@ -209,10 +273,14 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     if (ey < 1.4) ey = 1.4;
     return ey;
   });
+  var activeCamera = null;
+  scene.traverse(function (o) { if (!activeCamera && (o.isPerspectiveCamera || o.type === "PerspectiveCamera")) activeCamera = o; });
+  var cameraAspect = activeCamera && typeof activeCamera.aspect === "number" && activeCamera.aspect > 0 ? activeCamera.aspect : 16 / 9;
   return { actors: actors, actorIds: ids, primaryId: primary.id, interior: interior,
     unionCentre: unionCentre, sphereCentre: sc, patientChest: patientActor.chest,
     occluders: occluders, placards: placards, eyeYs: eyeYs,
-    orbitBounds: { xMin: interior.min[0] + 0.9, xMax: interior.max[0] - 0.9, zMin: interior.min[2] + 0.22, zMax: interior.max[2] - 0.22 } };
+    orbitBounds: { xMin: interior.min[0] + 0.9, xMax: interior.max[0] - 0.9, zMin: interior.min[2] + 0.22, zMax: interior.max[2] - 0.22 },
+    fixtures: fixtures, patientSupports: patientSupports, companionSeats: companionSeats, door: door, cameraAspect: cameraAspect };
 }`;
 
 export async function collectSweepScene(page: Page): Promise<SweepSceneSnapshot | { error: string }> {

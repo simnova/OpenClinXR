@@ -16,22 +16,24 @@ import { existsSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
+import type { ActorVisibilityReading } from "./station-capture/actor-visibility-page-probe.js";
+import { collectSweepScene } from "./station-capture/camera-sweep-scene.js";
+import { evaluateGate } from "./station-capture/gate-geometry.js";
+import {
+  type NearOcclusionReading,
+  readNearOcclusionFromPage,
+} from "./station-capture/near-occlusion-page-probe.js";
 import {
   attachStationCapturePageDiagnostics,
   formatStationCapturePageDiagnostics,
-  stationCapturePageDiagnosticsOf,
   type StationCapturePageDiagnostics,
   type StationCapturePageListenerHost,
+  stationCapturePageDiagnosticsOf,
 } from "./station-capture/page-diagnostics.js";
 import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
-import type { ActorVisibilityReading } from "./station-capture/actor-visibility-page-probe.js";
-import {
-  readNearOcclusionFromPage,
-  type NearOcclusionReading,
-} from "./station-capture/near-occlusion-page-probe.js";
 
 export {
   attachStationCapturePageDiagnostics,
@@ -191,6 +193,69 @@ export function shippedStationIds(): string[] {
 
 /** Exported for #83 posture measure (same probe, same scene-overview mode). */
 export const ROOM_CAPTURE_MODE = "scene-overview";
+
+export type AuthoredStagingCamera = { eye: [number, number, number]; look: [number, number, number]; fov: number };
+
+function readAuthoredStagingCamera(): AuthoredStagingCamera | undefined {
+  return undefined;
+}
+
+export async function applyAuthoredStagingCamera(page: Page, scenarioId: string): Promise<string | null> {
+  // Solver camera records are emitted as evidence.  Runtime actor placement remains
+  // fixture-owned; absent a published camera field, standard capture uses its
+  // existing refinement path rather than importing a private fixture module.
+  const authored = readAuthoredStagingCamera();
+  if (!authored) return null;
+  const note = await page.evaluate((input) => {
+    type Camera = {
+      position: { set: (x: number, y: number, z: number) => void };
+      parent?: { updateMatrixWorld?: (force: boolean) => void; worldToLocal?: (value: unknown) => void };
+      lookAt: (x: number, y: number, z: number) => void;
+      fov: number;
+      updateProjectionMatrix?: () => void;
+      updateMatrixWorld?: (force: boolean) => void;
+      userData?: Record<string, unknown>;
+    };
+    const scene = (globalThis as unknown as { __openClinXrDebugScene?: { traverse?: (cb: (o: Record<string, unknown>) => void) => void } }).__openClinXrDebugScene;
+    let camera: Camera | undefined;
+    scene?.traverse?.((object) => {
+      if (!camera && (object["isPerspectiveCamera"] === true || object["type"] === "PerspectiveCamera")) camera = object as unknown as Camera;
+    });
+    if (!camera) return "authoredCamera=no-camera";
+    camera.position.set(input.eye[0], input.eye[1], input.eye[2]);
+    camera.parent?.updateMatrixWorld?.(true);
+    camera.parent?.worldToLocal?.(camera.position);
+    camera.lookAt(input.look[0], input.look[1], input.look[2]);
+    camera.fov = input.fov;
+    camera.updateProjectionMatrix?.();
+    camera.updateMatrixWorld?.(true);
+    if (camera.userData) {
+      camera.userData["openClinXrCameraLookAt"] = input.look;
+      camera.userData["openClinXrRefineTag"] = "authored:staging-solver-v1";
+      camera.userData["openClinXrCameraFraming"] = "authored_staging_solver_v1";
+    }
+    return `authoredCamera=${input.eye.join(",")} look=${input.look.join(",")} fov=${String(input.fov)}`;
+  }, authored);
+  const snapshot = await collectSweepScene(page);
+  if (!("error" in snapshot)) {
+    const reading = evaluateGate(authored, snapshot.actors, snapshot.occluders);
+    await page.evaluate((gate) => {
+      const scene = (globalThis as unknown as { __openClinXrDebugScene?: { traverse?: (cb: (o: Record<string, unknown>) => void) => void } }).__openClinXrDebugScene;
+      scene?.traverse?.((object) => {
+        if (object["isPerspectiveCamera"] !== true && object["type"] !== "PerspectiveCamera") return;
+        const camera = object as { userData?: Record<string, unknown> };
+        if (!camera.userData) return;
+        camera.userData["openClinXrActorContainment"] = `${String(gate.containedActors)}/${String(gate.totalActors)}`;
+        camera.userData["openClinXrStandingActorContainment"] = camera.userData["openClinXrActorContainment"];
+        camera.userData["openClinXrActorVisibility"] = gate.crownChest;
+        camera.userData["openClinXrMeanFacingDeg"] = gate.meanFacingDeg;
+        camera.userData["openClinXrNearOcclusionFraction"] = gate.nearOcclusionFraction;
+        camera.userData["openClinXrFramingConstraintsMet"] = gate.gatePass;
+      });
+    }, reading);
+  }
+  return note;
+}
 
 /** Build the same capture URL the room CLI uses — shared with posture measure. */
 export function buildRoomCaptureUrl(baseUrl: string, scenarioId: string, captureMode: string): string {
@@ -1318,6 +1383,19 @@ export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_00
   }
 }
 
+/** The shell can render its local fallback before the static case bundle lands. */
+export async function waitForStaticScenarioBundle(page: Page, scenarioId: string, timeoutMs = 180_000): Promise<void> {
+  await page.waitForFunction(
+    (id) => {
+      const scope = globalThis as unknown as { __openClinXrRuntimeSceneManifestEvidence?: { bundleScenarioId?: string; selectedScenarioMatchesBundle?: boolean } };
+      const evidence = scope.__openClinXrRuntimeSceneManifestEvidence;
+      return evidence?.bundleScenarioId === id && evidence?.selectedScenarioMatchesBundle === true;
+    },
+    scenarioId,
+    { timeout: timeoutMs },
+  );
+}
+
 export type CaptureStationEnvironmentRoomsInput = {
   /** Absolute or repo-relative output directory. */
   outputDir?: string;
@@ -1326,6 +1404,7 @@ export type CaptureStationEnvironmentRoomsInput = {
   captureMode?: string;
   /** Injected base URL skips spawning a dev server (tests / resume). */
   baseUrl?: string;
+  onSnapshot?: (scenarioId: string, snapshot: Awaited<ReturnType<typeof collectSweepScene>>) => Promise<void> | void;
 };
 
 /**
@@ -1399,9 +1478,12 @@ export async function captureStationEnvironmentRooms(
           }
 
           // #85: shell-ready ≠ humanoids loaded; wait for GLB cast rows before screenshot.
+          await waitForStaticScenarioBundle(page, scenarioId, 180_000);
           await waitForHumanoidAssetsLoaded(page, 180_000);
+          if (input.onSnapshot) await input.onSnapshot(scenarioId, await collectSweepScene(page));
 
-          const frameNote = await reframeCameraForRoom(page, live.environmentId);
+          const frameNote = await applyAuthoredStagingCamera(page, scenarioId)
+            ?? await reframeCameraForRoom(page, live.environmentId);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 
           // Extra frames after reframe + loads so skinned materials bind before screenshot.
@@ -1489,6 +1571,7 @@ export async function captureStationEnvironmentRooms(
     }
   }
 }
+
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);

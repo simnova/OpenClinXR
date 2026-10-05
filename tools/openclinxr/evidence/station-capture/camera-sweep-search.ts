@@ -1,5 +1,6 @@
 import type { Page } from "playwright";
 import { collectSweepScene, type SweepSceneSnapshot } from "./camera-sweep-scene.js";
+import { PROJECT_BOX_BROWSER_FUNCTION_SOURCE } from "./gate-geometry.js";
 
 /**
  * Camera-only sweep search (measurement only).
@@ -125,32 +126,13 @@ export const CAMERA_SWEEP_SEARCH_SOURCE = String.raw`function (snap, req) {
     var e = camera.matrixWorld.elements;
     return [e[12], e[13], e[14]];
   };
-  var project = function (x, y, z) {
-    camera.updateMatrixWorld(true);
-    var e = camera.matrixWorldInverse.elements;
-    var vx = e[0]*x+e[4]*y+e[8]*z+e[12], vy = e[1]*x+e[5]*y+e[9]*z+e[13], vz = e[2]*x+e[6]*y+e[10]*z+e[14], vw = e[3]*x+e[7]*y+e[11]*z+e[15];
-    var p = camera.projectionMatrix.elements;
-    var cxp = p[0]*vx+p[4]*vy+p[8]*vz+p[12]*vw, cyp = p[1]*vx+p[5]*vy+p[9]*vz+p[13]*vw, czp = p[2]*vx+p[6]*vy+p[10]*vz+p[14]*vw, cwp = p[3]*vx+p[7]*vy+p[11]*vz+p[15]*vw;
-    if (cwp > -1e-8 && cwp < 1e-8) return null;
-    return { x: cxp / cwp, y: cyp / cwp, z: czp / cwp };
-  };
   var EDGE = 0.80, MIN_NDC_HEIGHT = 0.36;
   var primary = actors[0];
   for (var hi = 0; hi < actors.length; hi++) if (actors[hi].id === snap.primaryId) primary = actors[hi];
   var boxNdc = function (box) {
-    var xs = [box.min[0], box.max[0]], ys = [box.min[1], box.max[1]], zs = [box.min[2], box.max[2]];
-    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, ok = 0;
-    for (var i = 0; i < 2; i++) for (var j = 0; j < 2; j++) for (var k = 0; k < 2; k++) {
-      var ndc = project(xs[i], ys[j], zs[k]);
-      if (!ndc || ndc.z <= -1 || ndc.z >= 1) continue;
-      ok += 1;
-      if (ndc.x < minX) minX = ndc.x;
-      if (ndc.x > maxX) maxX = ndc.x;
-      if (ndc.y < minY) minY = ndc.y;
-      if (ndc.y > maxY) maxY = ndc.y;
-    }
-    if (ok < 4) return null;
-    return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+    var projectBox = (${PROJECT_BOX_BROWSER_FUNCTION_SOURCE});
+    camera.updateMatrixWorld(true);
+    return projectBox(camera.matrixWorldInverse.elements, camera.projectionMatrix.elements, box);
   };
   var segHit = function (candidate, origin, target) {
     var first = 0, last = 1;

@@ -104,6 +104,9 @@ importers:
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:packages/openclinxr/scenario-fixtures
       '@openclinxr/service-local-compute':
         specifier: workspace:*
         version: link:packages/openclinxr/service-local-compute
