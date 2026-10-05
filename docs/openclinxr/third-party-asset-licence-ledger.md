@@ -509,3 +509,30 @@ file — what clears these two is the DESCRIPTOR agreeing with the page, not the
 
 Silence anywhere still refuses. Two sources disagreeing still refuses unless one is demonstrably
 boilerplate, as here.
+
+## Build-time TTS for lip_sync speech source (2026-10-04, lipsync-speech slice)
+
+Task: the dark-factory lip_sync station fails on all 15 cases with no wav producer. The missing
+piece is a deterministic offline build-time speech source. Licence bar for this slice:
+Apache-2.0/MIT/CC0/CC-BY on BOTH code and voice weights; unspecified or non-commercial = refuse.
+All three candidates checked against primary sources (not assumed). Tooling lives under
+`~/.openclinxr-tools/kokoro/` (venv + HF weight cache); no weights committed.
+
+| candidate | code licence | voice/weight licence | verdict | primary source |
+|---|---|---|---|---|
+| **Kokoro-82M** (hexgrad, `kokoro` pip + `hexgrad/Kokoro-82M` weights) | **Apache-2.0 VERIFIED** (raw `LICENSE` fetch 2026-10-04: full Apache 2.0 text) | **Apache-2.0 VERIFIED** (model card: "With Apache-licensed weights, Kokoro can be deployed anywhere from production environments to personal projects"; v1.0 `kokoro-v1_0.pth` sha256 `496dba11…f18ad1e4`) | **CLEARED and consumed** | `https://github.com/hexgrad/kokoro`, `https://huggingface.co/hexgrad/Kokoro-82M` |
+| Piper (OHF-Voice/piper1-gpl, current) | GPL-3.0-or-later (was MIT as archived `rhasspy/piper`; the maintained fork relicensed when embedding espeak-ng) | per-voice MODEL_CARD, mixed (LibriVox roots permissive; some research-only / CC-BY-NC-SA) | **REFUSED on code licence** (copyleft fails the slice bar; per-voice variance would need per-voice clearance anyway) | `https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/VOICES.md`, `https://huggingface.co/rhasspy/piper-voices` |
+| Coqui XTTS v1/v2 | MPL-2.0 toolkit (permissive) but weights are what synthesise | **CPML 1.0.0 — non-commercial only** ("allows only non-commercial use of the model and its outputs"); no vendor left to sell a commercial licence after the 2024 shutdown | **REFUSED on weight licence** | `https://huggingface.co/coqui/XTTS-v2/raw/main/LICENSE.txt` |
+
+**espeak-ng note (build-time phonemizer, NOT shipped).** Kokoro's English pipeline shells/falls
+back to espeak-ng (GPL-3.0) for G2P. It is a build-time tool like Blender: installed via Homebrew
+outside the repo, never committed, and its licence does not attach to the WAVs the Apache-2.0
+weights generate. The factory step records it in provenance as `phonemizer: espeak-ng 1.52.0
+(GPL-3.0, build-time only, not shipped)`. This matches how the ledger treats other build tools.
+
+**Voice selection.** Kokoro v1.0 ships named voice tensors inside the Apache-2.0 checkpoint
+(`VOICES.md`: 8 languages, 54 voices). This slice uses two American English voices:
+`af_heart` (female; children and female/ambiguous speakers) and `am_adam` (male speakers).
+No separate voice download exists to licence — both are weight slices of the cleared checkpoint.
+**Replacement posture:** keep. If a child-specific open voice clears the bar later, re-map the two
+child patients; the cache key versions the voice so old WAVs stay reproducible.
