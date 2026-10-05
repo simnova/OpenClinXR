@@ -8,9 +8,16 @@ import {
   checkNoOrphanedPackageAgentIndexes,
   checkPackageAgentIndexesAreCurrent,
   entrypointPurpose,
+  exportSummaries,
+  firstSentence,
   indexedPackages,
   serializePackageAgentIndex,
 } from "../checks/package-agent-index.js";
+import {
+  checkAgentIndexQuality,
+  isBoilerplatePurpose,
+  measureAgentIndexQuality,
+} from "../checks/agent-index-quality.js";
 
 /**
  * OBSERVABLE: a delegated worker pays its localization cost in grep and read.
@@ -44,9 +51,9 @@ import {
 function withFixturePackage(
   files: Record<string, string>,
   run: (root: string, pkg: string) => void,
+  pkg = "fixture-package",
 ): void {
   const root = mkdtempSync(join(tmpdir(), "arch-index-"));
-  const pkg = "fixture-package";
   try {
     writeFileSync(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
     for (const [rel, body] of Object.entries(files)) {
@@ -161,5 +168,96 @@ describe("agent index detector (fixture-level — proves it can fail)", () => {
     expect(
       entrypointPurpose("/**\n * Extracted from apps/ui-xr/src/main.ts for the composition root. Rest.\n */\n"),
     ).toBe("Extracted from apps/ui-xr/src/main.ts for the composition root.");
+  });
+});
+
+describe("agent index nested walker and documentation ratchets", () => {
+  it("(8) nested packages at depth 2 are indexed by relative path", () => {
+    const packages = indexedPackages();
+    for (const nested of [
+      "arena/iwsdk-spike",
+      "arena/model-vetting",
+      "arena/multi-actor-state-spike",
+      "arena/physics-touch-contract",
+    ]) {
+      expect(packages, `nested package ${nested} is indexed`).toContain(nested);
+      expect(buildPackageAgentIndex(nested), `${nested} builds an index`).not.toBeNull();
+    }
+    // Still depth 1-led: no fixture-depth or dist-depth entries leak in.
+    expect(packages.every((pkg) => pkg.split("/").length <= 2)).toBe(true);
+  });
+
+  it("(9) a nested fixture package round-trips through build, currentness and orphans", () => {
+    withFixturePackage(
+      { "package.json": MANIFEST, "src/index.ts": "export const alpha = 1;\n" },
+      (root, pkg) => {
+        expect(indexedPackages(root)).toContain(pkg);
+        expect(buildPackageAgentIndex(pkg, root)?.exports).toEqual(["alpha"]);
+        // Missing index is reported under the nested relative path.
+        expect(checkPackageAgentIndexesAreCurrent(root)).toHaveLength(1);
+      },
+      "arena/nested-fixture",
+    );
+  });
+
+  it("(10) exportSummaries carry each export's own first sentence, never the file purpose", () => {
+    withFixturePackage(
+      {
+        "package.json": MANIFEST,
+        "src/index.ts":
+          "/**\n * Public interface of @openclinxr/fixture-package.\n */\n"
+          + "/** Stages a station scene. Units are meters. */\nexport const staged = 1;\n"
+          + "export const bare = 2;\n"
+          + "export { helper } from './helper.js';\n",
+        "src/helper.ts": "/** Helps exactly once. Rest is detail. */\nexport const helper = 1;\n",
+      },
+      (root, pkg) => {
+        const entry = join(root, "packages", "openclinxr", pkg, "src", "index.ts");
+        const summaries = exportSummaries(entry);
+        // The entrypoint's own leading block (the purpose) credits no export.
+        expect(summaries["staged"]).toBe("Stages a station scene.");
+        expect(summaries["helper"]).toBe("Helps exactly once.");
+        expect(summaries["bare"]).toBeUndefined();
+        const built = buildPackageAgentIndex(pkg, root);
+        expect(built?.exportSummaries).toEqual({
+          helper: "Helps exactly once.",
+          staged: "Stages a station scene.",
+        });
+      },
+    );
+  });
+
+  it("(11) isBoilerplatePurpose flags absent, name-restating and short purposes only", () => {
+    expect(isBoilerplatePurpose(undefined, "domain")).toBe(true);
+    expect(isBoilerplatePurpose("Public interface of @openclinxr/domain.", "domain")).toBe(true);
+    expect(isBoilerplatePurpose("Public entry: keep-only re-exports.", "ui-shared")).toBe(true);
+    expect(isBoilerplatePurpose("The domain package.", "domain")).toBe(true);
+    expect(isBoilerplatePurpose("Stages a station scene.", "staging")).toBe(false);
+    expect(
+      isBoilerplatePurpose(
+        "Extracted from apps/ui-xr/src/main.ts for the composition root.",
+        "ui-xr",
+      ),
+    ).toBe(false);
+    expect(firstSentence("A path apps/ui-xr/src/main.ts stays whole. Rest.")).toBe(
+      "A path apps/ui-xr/src/main.ts stays whole.",
+    );
+  });
+
+  it("(12) documentation ratchets hold at their committed ceilings", () => {
+    const violations = checkAgentIndexQuality();
+    expect(violations, violations.join("\n")).toEqual([]);
+  });
+
+  it("(13) COUNTERWEIGHT: a ceiling above the measured value fails, demanding it be lowered", () => {
+    const measured = measureAgentIndexQuality();
+    const high = {
+      purposeMissingOrBoilerplate: measured.purposeMissingOrBoilerplate + 1,
+      exportsWithoutSummary: measured.exportsWithoutSummary,
+    };
+    const violations = checkAgentIndexQuality(measured, high);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("Lower");
+    expect(violations[0]).toContain("purposeMissingOrBoilerplate");
   });
 });

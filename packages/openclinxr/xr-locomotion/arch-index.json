@@ -32,6 +32,7 @@
     "updatePortalTransitionEvidence",
     "updateReusableExteriorAnteroomVisibility"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/xr-pose",
     "@openclinxr/xr-runtime-state"

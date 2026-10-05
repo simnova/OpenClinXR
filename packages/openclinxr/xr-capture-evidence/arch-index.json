@@ -41,6 +41,10 @@
     "shouldSuppressGeneratedEquipmentModel",
     "shouldUseLearnerRuntimeAssetBundle"
   ],
+  "exportSummaries": {
+    "DeclaredEquipmentMountEvidence": "#140 — live declared-equipment mount evidence for inspectors / captures.",
+    "isPhysicsClinicalTouchCapture": "Physics-driven palpation bone transforms on real garment comparator — OPT-IN CAPTURE ONLY."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/scenario-fixtures",

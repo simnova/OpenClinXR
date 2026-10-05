@@ -54,6 +54,25 @@
     "unstagedCastActors",
     "validateAssetManifestStructure"
   ],
+  "exportSummaries": {
+    "ED_MONITOR_BOUNDS": "The shipped ED bay's monitor, MEASURED: `BoxGeometry(0.8, 0.55, 0.08)` positioned at `(1.7, 1.45, -0.65)` (xr-station-room/src/index.ts:346-350).",
+    "ED_STRETCHER_DECK_BOUNDS": "The shipped ED bay's stretcher deck, MEASURED not assumed.",
+    "ENVIRONMENT_SHELL_DESCRIPTORS": "Known environment ids from scenario fixtures.",
+    "MEASURED_STATION_GEOMETRY": "#705 — build-time measured triangle counts for shipped cast GLBs, produced by `tools/openclinxr/measure-station-geometry.ts` through the runtime-bundles production join.",
+    "ROOM_PROP_ACCENT_COLOR_FALLBACK": "Accent material fallback when colour is missing or unparseable.",
+    "ROOM_PROP_BODY_COLOR_FALLBACK": "Body / primary material fallback when colour is missing or unparseable.",
+    "bedsideClearanceViolations": "Violations for a clinician standing at `standingPosition` and walking to it from `approachFrom`.",
+    "bedsideTargetForClinician": "A bedside standing target beside `patientPosition`, facing it and CLEAR of her support.",
+    "forwardVectorForHeading": "The unit forward vector an actor with this yaw points along, in world XZ.",
+    "headingRadiansToward": "Yaw about +Y, in RADIANS, that points `from` at `toward`.",
+    "listShippedCastScenarioIds": "Scenario ids that ship in the bank and have at least one humanoid cast role.",
+    "monitorVisibilityFrom": "Can a clinician standing at `standingPosition` see the monitor? The eye is the standing position raised to eye height; the target is the monitor's centre.",
+    "parseRuntimeRoomPropColorHex": "Parse a room-prop colourHex / accentColorHex value into a three.js-ready 0xRRGGBB number.",
+    "resolveMorphTarget": "Resolve a canonical runtime morph name to the name present on a given body.",
+    "resolvePoseBone": "Resolve a canonical runtime pose landmark to the bone name present on the given rig.",
+    "screenNormal": "The screen's outward normal: the axis the box is THINNEST along, pointed away from the wall.",
+    "unstagedCastActors": "Cast actors the local encounter bundle does NOT stage."
+  },
   "workspaceDependencies": [
     "@openclinxr/scenario-fixtures",
     "@openclinxr/shared-schemas"

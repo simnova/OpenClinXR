@@ -32,6 +32,13 @@
     "validatePipelineCandidateIndex",
     "visemeAtTimelineProgress"
   ],
+  "exportSummaries": {
+    "batchScorePipelineIndex": "Batch-score every candidate in an index by joining a humanoid-vision-score report `scores` map (dual-frame or flat).",
+    "buildPromotionRecord": "Build a deterministic, claim-scoped promotion record for a candidate.",
+    "buildVisemeTimelineFromDialogue": "Fixture-only letter heuristic.",
+    "diffPipelineCandidates": "Side-by-side candidate DIFF: score deltas (right − left) + rigging deltas.",
+    "validatePipelineCandidateIndex": "Structural validation for a loaded pipeline candidate index JSON."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry"
   ],

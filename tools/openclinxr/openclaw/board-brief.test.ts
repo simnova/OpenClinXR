@@ -1,5 +1,8 @@
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { briefFromIssue } from "./board-brief.js";
+import { briefFromIssue, packageIndexBriefSection, packagesNamedInIssue } from "./board-brief.js";
 
 /**
  * Board → brief. The missing direction: board-cli only ever WROTE to the board (open/status/close),
@@ -223,5 +226,87 @@ describe("package index injection", () => {
     expect(result.dispatchable).toBe(true);
     if (!result.dispatchable) return;
     expect(result.prompt).not.toContain("The packages this slice names");
+  });
+});
+
+describe("nested package index injection (depth 2, hermetic fixture)", () => {
+  function withNestedTree(run: (root: string) => void): void {
+    const root = mkdtempSync(join(tmpdir(), "board-brief-nested-"));
+    try {
+      const summaries: Record<string, string> = {};
+      for (let i = 0; i < 25; i += 1) summaries[`symbol${i}`] = `Does thing ${i}.`;
+      const nested = {
+        package: "arena/model-vetting",
+        name: "@openclinxr/model-vetting",
+        entrypoint: "packages/openclinxr/arena/model-vetting/src/index.ts",
+        purpose: "Scores model candidates against the cagematch report.",
+        exports: Object.keys(summaries),
+        exportSummaries: summaries,
+      };
+      const depth1 = {
+        package: "xr-station-room",
+        name: "@openclinxr/xr-station-room",
+        entrypoint: "packages/openclinxr/xr-station-room/src/index.ts",
+        exports: ["assembleStationScene"],
+      };
+      const nestedDir = join(root, "packages", "openclinxr", "arena", "model-vetting");
+      const depth1Dir = join(root, "packages", "openclinxr", "xr-station-room");
+      mkdirSync(nestedDir, { recursive: true });
+      mkdirSync(depth1Dir, { recursive: true });
+      writeFileSync(join(nestedDir, "arch-index.json"), `${JSON.stringify(nested, null, 2)}\n`);
+      writeFileSync(join(depth1Dir, "arch-index.json"), `${JSON.stringify(depth1, null, 2)}\n`);
+      run(root);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  const bodyFor = (text: string) =>
+    `## factory_step: staging\n${text}\n\n## done_when\n- run:pnpm --filter @openclinxr/model-vetting test\n`;
+
+  it("resolves a nested package from a directory path", () => {
+    withNestedTree((root) => {
+      const found = packagesNamedInIssue(
+        { number: 1, title: "x", body: "Edit packages/openclinxr/arena/model-vetting/src/index.ts." },
+        [],
+        root,
+      );
+      expect(found).toEqual(["arena/model-vetting"]);
+    });
+  });
+
+  it("resolves a nested package from a --filter specifier", () => {
+    withNestedTree((root) => {
+      const result = briefFromIssue(
+        { number: 1, title: "x", body: bodyFor("Only the filter names it.") },
+        root,
+      );
+      expect(result.dispatchable).toBe(true);
+      if (!result.dispatchable) return;
+      expect(result.prompt).toContain("packages/openclinxr/arena/model-vetting/arch-index.json");
+      expect(result.prompt).toContain("Scores model candidates against the cagematch report.");
+    });
+  });
+
+  it("prints the purpose and a bounded summary list, not the whole file", () => {
+    withNestedTree((root) => {
+      const lines = packageIndexBriefSection(["arena/model-vetting"], root);
+      expect(lines).toContain("Scores model candidates against the cagematch report.");
+      expect(lines).toContain("- symbol0: Does thing 0.");
+      expect(lines).toContain("(+5 more in the file)");
+      // Lexicographic order puts the single-digit tail last, so symbol9 is past the bound of 20.
+      expect(lines).not.toContain("- symbol9: Does thing 9.");
+    });
+  });
+
+  it("COUNTERWEIGHT: a depth-1 path's second segment is a source dir, never a package", () => {
+    withNestedTree((root) => {
+      const found = packagesNamedInIssue(
+        { number: 1, title: "x", body: "Edit packages/openclinxr/xr-station-room/src/index.ts." },
+        [],
+        root,
+      );
+      expect(found).toEqual(["xr-station-room"]);
+    });
   });
 });

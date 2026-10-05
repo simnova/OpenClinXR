@@ -32,6 +32,10 @@
     "examRunLedgerNotEvidenceFor",
     "saveLearnerRuntimeAssetBundleFromGeneratedReport"
   ],
+  "exportSummaries": {
+    "EncounterMaterializationEvidenceRecord": "One record per {scenarioId, caseDefVersion, compileVersion} — the unique materialization-evidence key.",
+    "MongoEncounterMaterializationEvidenceRepository": "WCG-3 materialization-evidence persistence."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/exam-assembly",

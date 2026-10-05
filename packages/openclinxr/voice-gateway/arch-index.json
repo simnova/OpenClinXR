@@ -20,6 +20,7 @@
     "selectRealtimeVoiceProtocol",
     "supportedRealtimeVoiceControlTypes"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@cellix/provider-contracts",
     "@openclinxr/conversation-policy"

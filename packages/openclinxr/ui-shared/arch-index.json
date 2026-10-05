@@ -17,6 +17,7 @@
     "pluralizeWorkbenchCount",
     "uniqueWorkbenchValues"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/factory-stations",
     "@openclinxr/graphql"

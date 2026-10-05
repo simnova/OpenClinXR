@@ -26,6 +26,12 @@
     "transitionStation",
     "updateScenarioBankDraft"
   ],
+  "exportSummaries": {
+    "CompletedHumanReview": "Completed HUMAN review bound to one authored-content identity.",
+    "assemblyVisibleRevisions": "Only approved versions whose content still matches canonical identity are visible to exam assembly.",
+    "authoredContentIdentity": "Canonical hash of complete authored content minus documented non-authored/transient keys.",
+    "findUnsafeClaimLanguage": "Public entry: keep-only re-exports."
+  },
   "workspaceDependencies": [
     "@openclinxr/shared-schemas"
   ],

@@ -34,6 +34,7 @@
     "triggerPedsActorPlayerRuntimeTurnForTrace",
     "triggerPedsAdaptiveDialogueBranch"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/scenario-fixtures",

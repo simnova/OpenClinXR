@@ -16,6 +16,15 @@
     "stageStationActors",
     "wireStationPointerInteraction"
   ],
+  "exportSummaries": {
+    "StationClinicalTouchSource": "The trace sources a clinical touch can be attributed to.",
+    "actorNameplateLabel": "Pure label helper moved from main.ts; main.ts imports it back.",
+    "assembleStationScene": "Opens a staged assembly over `scene`.",
+    "buildStationRoomShell": "Build the station room shell and load environment assets.",
+    "observeMountedSupportInstances": "Every support instance mounted under `root`, in traversal order.",
+    "runtimeGeneratedSceneObjectName": "Pure scene-object-name helper moved from main.ts; main.ts imports it back.",
+    "wireStationPointerInteraction": "Wires the desktop pointer ray and the headless projection hook for the interaction stage."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/xr-asset-loading",

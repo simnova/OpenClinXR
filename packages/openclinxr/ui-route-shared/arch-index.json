@@ -12,6 +12,9 @@
     "createRouteManifest",
     "findRouteByPath"
   ],
+  "exportSummaries": {
+    "compileEncounterWorld": "Faculty world-compile request: POSTs the featured scenario to /internal/world-compile."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/exam-assembly",

@@ -124,6 +124,25 @@
     "viewLearnerCanonicalExamPhase",
     "xrExperienceModeEvidence"
   ],
+  "exportSummaries": {
+    "ADDITIONAL_CAST_FRAMING_XZ": "Live framing XZ for additional_cast (floor y=0), team-adjacent — not doorway z=1.15.",
+    "ConversationTurnStateEvidence": "Conversation HUD evidence: traced domain coverage only — not a score.",
+    "GeneratedDriveScalarValue": "Generated drive channels -> scalar intensities (#362).",
+    "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS": "How far the body may turn from its persistent heading, in radians.",
+    "INFINIGEN_ENVIRONMENT_ASSETS": "environmentId → shipped Infinigen room GLB.",
+    "assignRuntimeActorSlots": "Assign unique people to fixed slot kinds.",
+    "authoredPlantOffsetMeters": "The authored plant offset for `actorId`, taken from the PERSISTED case first.",
+    "bodyDirectionWithinAllowance": "Whether an observed heading is still within the allowance of its persistent base.",
+    "composedIdleBodyHeading": "The heading to write this frame: the persistent base plus a bounded sway.",
+    "deriveRuntimeTraceActionTagsFromBundle": "Bundle → Trace Action tags (same path createRuntimeStateFromBundle uses).",
+    "deriveScenarioTraceActionTags": "Learner Trace Action tags for a station.",
+    "ensureActorPlacementsForStagedSlots": "Ensure every filled staged slot has a declared actorPlacements entry.",
+    "ensureAndPublishActorPlacementSsot": "Ensure missing placement keys and publish evidence for live inspectors.",
+    "resolveLocalEnvironmentRuntimeAssetFileName": "#575 — the loader used to derive a room filename from an asset NEED-ID (`${environmentId without _vN}_environment.glb`) and no shipped file matched it, so every station booted with the environment reported `failed` and a blank viewport.",
+    "resolveLocalEquipmentRuntimeAssetFileName": "Equipment filenames arrive from factory reports already matching shipped files under xr-assets/medical-equipment/ (`ecg-cart-12-lead.glb`, `iv-pole-with-pump.glb`); the historical aliases stay because older bundles still carry them.",
+    "resolveRemoteActorTurnForTraceTag": "Resolve a remote actor turn for a learner Trace Action.",
+    "supportedActorPlacementPosition": "The authored plant offset reaches the posed humanoid HERE, and nowhere earlier."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/exam-assembly",

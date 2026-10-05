@@ -36,6 +36,7 @@
     "updateActorSpatialState",
     "writeRealtimeCacheSnapshot"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/shared-schemas"
   ],

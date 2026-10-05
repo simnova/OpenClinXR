@@ -39,6 +39,17 @@
     "startExamFormRun",
     "tickExamFormRunClock"
   ],
+  "exportSummaries": {
+    "ExamAssemblyPersistenceSink": "Minimal injected persistence surface for station-run-queue snapshots.",
+    "ExamStationRunQueueScenarioSource": "How the learner run acquired its station QUEUE (#57).",
+    "STEP2CS_STATION_COUNT": "Step 2 CS-style form length (docs: 12 stations, breaks after 3/6/9).",
+    "advanceExamFormRunStation": "Record per-station outcome and advance the form run pointer to the next station (or into a configured occupied break, or mark complete when no stations remain).",
+    "createDefaultClinicalSkillsBlueprint": "Clinical-skills pilot blueprint.",
+    "createStep2CsStyleSeedBlueprint": "Assemble the Step 2 CS-style seed form from the case bank.",
+    "parseExamStationRunQueueScenarioIds": "Parse scenario ids from a station-run-queue body (this package's producer return value or the API JSON that wraps it).",
+    "persistExamStationRunQueueSnapshot": "Persist a station-run-queue snapshot through an injected sink (ApiPersistenceSink-compatible).",
+    "selectExamStationScenarios": "Choose `stationCount` scenarios that preserve runnable capacity and maximize combined coverage."
+  },
   "workspaceDependencies": [
     "@openclinxr/scenario-fixtures",
     "@openclinxr/shared-schemas"

@@ -7,6 +7,7 @@
     "LocalComputeServicesOptions",
     "createLocalComputeServices"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/compute-services-spec",
     "@openclinxr/compute-slots"

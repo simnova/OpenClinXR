@@ -15,6 +15,7 @@
     "telemetryAttributeNames",
     "telemetryRouteAttributes"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [],
   "tests": [
     "src/branch-decision/branch-decision.test.ts",

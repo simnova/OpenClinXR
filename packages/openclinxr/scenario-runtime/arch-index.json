@@ -28,6 +28,17 @@
     "resolveScenarioById",
     "resumeAssembledExam"
   ],
+  "exportSummaries": {
+    "AssembledStationContext": "Validated assembled-exam identity carried into a station session.",
+    "DurableStorePersistenceHooks": "ApiPersistenceSink-shaped hooks for review packets + actor turns.",
+    "ProviderHealthSnapshot": "Runtime-visible provider readiness for whatever adapters are actually wired.",
+    "ScenarioCatalogPort": "Port for authored-scenario persistence lookups.",
+    "createDefaultScenarioRuntime": "Create a default ScenarioRuntime with in-memory providers.",
+    "createDurableStoreFromPersistenceHooks": "Forward persistence hooks into a ScenarioRuntimeDurableStore.",
+    "createScenarioRuntimeWithPersistenceHooks": "Convenience: createDefaultScenarioRuntime with ApiPersistenceSink-shaped hooks forwarded via createDurableStoreFromPersistenceHooks.",
+    "resolveScenarioById": "Resolve a scenario by id from authored persistence (preferred) falling back to the fixture bank.",
+    "resumeAssembledExam": "Select the current or next station from durable admitted progress and reconstruct its canonical lifecycle."
+  },
   "workspaceDependencies": [
     "@cellix/trace-ledger",
     "@openclinxr/asset-registry",

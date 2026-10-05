@@ -13,6 +13,12 @@
     "signAuthToken",
     "verifyAuthToken"
   ],
+  "exportSummaries": {
+    "DEFAULT_DEV_AUTH_IDENTITY": "Additive single-user default so memory-sink / existing tests keep working.",
+    "DEFAULT_DEV_AUTH_SECRET": "Local-only default HMAC secret — never use for production claims.",
+    "signAuthToken": "Sign a compact HMAC-SHA256 JWT (hand-rolled via node:crypto; no paid/AGPL deps).",
+    "verifyAuthToken": "Verify compact HMAC-SHA256 JWT and extract identity claims."
+  },
   "workspaceDependencies": [],
   "tests": [
     "src/auth.test.ts"

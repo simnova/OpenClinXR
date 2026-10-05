@@ -445,6 +445,8 @@ function runTokenBases(treeRoot: string, command: string): string[] {
 const MAX_INDEXED_PACKAGES_IN_BRIEF = 6;
 /** At most this many export names per package; the file holds the rest. */
 const MAX_EXPORTS_IN_BRIEF = 30;
+/** At most this many per-export summaries per package; the file holds the rest. */
+const MAX_SUMMARIES_IN_BRIEF = 20;
 
 type PackageAgentIndexFile = {
   package: string;
@@ -452,6 +454,7 @@ type PackageAgentIndexFile = {
   entrypoint: string;
   purpose?: string;
   exports?: string[];
+  exportSummaries?: Record<string, string>;
   workspaceDependencies?: string[];
   tests?: string[];
   commands?: Record<string, string>;
@@ -468,17 +471,26 @@ function readAgentIndex(treeRoot: string, pkg: string): PackageAgentIndexFile | 
   }
 }
 
-function allAgentIndexes(treeRoot: string): PackageAgentIndexFile[] {
-  const dir = join(treeRoot, "packages", "openclinxr");
-  let names: string[];
+/** Immediate child directory names, or [] when the directory cannot be read. */
+function childDirs(dir: string): string[] {
   try {
-    names = readdirSync(dir, { withFileTypes: true })
+    return readdirSync(dir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
   } catch {
     return [];
   }
-  return names
+}
+
+function allAgentIndexes(treeRoot: string): PackageAgentIndexFile[] {
+  const dir = join(treeRoot, "packages", "openclinxr");
+  const top = childDirs(dir);
+  // Depth 2: nested packages such as arena/model-vetting index by relative path.
+  const rels = [...top];
+  for (const parent of top) {
+    for (const child of childDirs(join(dir, parent))) rels.push(`${parent}/${child}`);
+  }
+  return rels
     .map((pkg) => readAgentIndex(treeRoot, pkg))
     .filter((index): index is PackageAgentIndexFile => index !== null);
 }
@@ -502,7 +514,15 @@ export function packagesNamedInIssue(
     if (pkg !== undefined && known.has(pkg) && !found.includes(pkg)) found.push(pkg);
   };
   for (const text of [...rules, issue.body]) {
-    for (const match of text.matchAll(/packages\/openclinxr\/([a-z0-9-]+)/gu)) add(match[1]);
+    // Up to two segments: a nested key (arena/model-vetting) wins when known, else the first
+    // segment (xr-station-room in .../xr-station-room/src/...) — the second segment of a
+    // depth-1 path is a source dir, never a package.
+    for (const match of text.matchAll(/packages\/openclinxr\/([a-z0-9-]+(?:\/[a-z0-9-]+)?)/gu)) {
+      const rel = match[1];
+      if (rel === undefined) continue;
+      if (known.has(rel)) add(rel);
+      else add(rel.split("/")[0]);
+    }
     for (const match of text.matchAll(/@openclinxr\/[a-z0-9-]+/gu)) add(byName.get(match[0]));
   }
   return found;
@@ -533,6 +553,15 @@ export function packageIndexBriefSection(packages: readonly string[], treeRoot: 
     if (index.purpose !== undefined) lines.push(index.purpose);
     lines.push(`entrypoint: ${index.entrypoint}`);
     lines.push(`exports (${exports.length}): ${listed}${more}`);
+    const summaries = index.exportSummaries ?? {};
+    const summaryNames = Object.keys(summaries).sort();
+    const shownSummaries = summaryNames.slice(0, MAX_SUMMARIES_IN_BRIEF);
+    if (shownSummaries.length > 0) {
+      lines.push(`summaries (${summaryNames.length} of ${exports.length} exports documented):`);
+      for (const name of shownSummaries) lines.push(`- ${name}: ${summaries[name]}`);
+      const omittedSummaries = summaryNames.length - shownSummaries.length;
+      if (omittedSummaries > 0) lines.push(`(+${omittedSummaries} more in the file)`);
+    }
     if ((index.workspaceDependencies ?? []).length > 0) {
       lines.push(`may import: ${(index.workspaceDependencies ?? []).join(", ")}`);
     }

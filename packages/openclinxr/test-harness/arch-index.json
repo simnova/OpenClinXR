@@ -3,6 +3,7 @@
   "name": "@openclinxr/test-harness",
   "entrypoint": "packages/openclinxr/test-harness/src/index.ts",
   "exports": [],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/model-gateway",
     "@openclinxr/review-workflow",
