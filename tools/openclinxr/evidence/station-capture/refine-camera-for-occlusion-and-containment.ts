@@ -2,8 +2,15 @@ import type { Page } from "playwright";
 import { CAMERA_SCORE_IS_BETTER_BROWSER_SOURCE } from "./camera-candidate-scoring.js";
 import { ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE } from "./actor-visibility-page-probe.js";
 import { NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE } from "./near-occlusion-page-probe.js";
+import { runCameraSweepInPage, type CameraSweepRequest } from "./camera-sweep-search.js";
 
-export async function refineCameraForOcclusionAndContainment(page: Page): Promise<string> {
+export async function refineCameraForOcclusionAndContainment(
+  page: Page,
+  options?: { cameraSweep?: CameraSweepRequest },
+): Promise<string> {
+  if (options?.cameraSweep) {
+    return (await runCameraSweepInPage(page, options.cameraSweep)).note;
+  }
   const note = (await page.evaluate(`(() => {
     const scene = globalThis.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return "refine=no-scene";
