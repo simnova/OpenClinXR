@@ -18,6 +18,10 @@ import {
   isBoilerplatePurpose,
   measureAgentIndexQuality,
 } from "../checks/agent-index-quality.js";
+// The arch:index writer lives in tools/ and keeps no enumeration of its own: it delegates to
+// indexedPackages(). This edge (gate test -> tools script, no src segment) is outside the
+// cross-package-src freeze by construction; the reverse edge would be frozen.
+import { writerIndexedPackages } from "../../../../../tools/openclinxr/architecture/write-package-agent-index.js";
 
 /**
  * OBSERVABLE: a delegated worker pays its localization cost in grep and read.
@@ -259,5 +263,42 @@ describe("agent index nested walker and documentation ratchets", () => {
     expect(violations).toHaveLength(1);
     expect(violations[0]).toContain("Lower");
     expect(violations[0]).toContain("purposeMissingOrBoilerplate");
+  });
+});
+
+describe("arch:index writer enumerates the gate's package set", () => {
+  // The writer (pnpm arch:index) once hardcoded arena/ beside the gate's depth-1 walk. A future
+  // packages/openclinxr/stations/<x> package would then fail the currentness gate with a remedy
+  // that never writes its file. The writer delegates to indexedPackages(); these deep-equals fail
+  // if either side hardcodes again.
+  it("(14) writer set deep-equals indexedPackages() on the live tree, nested keys included", () => {
+    expect(writerIndexedPackages()).toEqual(indexedPackages());
+    expect(writerIndexedPackages()).toContain("arena/model-vetting");
+  });
+
+  it("(15) writer set deep-equals on a fixture with a future stations/* nested package", () => {
+    const root = mkdtempSync(join(tmpdir(), "writer-enumeration-"));
+    try {
+      writeFileSync(join(root, "pnpm-workspace.yaml"), "packages:\n  - packages/**\n");
+      for (const pkg of ["domain", "arena/model-vetting", "stations/lighting"]) {
+        const dir = join(root, "packages", "openclinxr", pkg, "src");
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(
+          join(root, "packages", "openclinxr", pkg, "package.json"),
+          JSON.stringify({ name: `@openclinxr/${pkg.split("/").pop()}` }),
+        );
+        writeFileSync(join(dir, "index.ts"), "export const alpha = 1;\n");
+      }
+      // A depth-1 directory without an entrypoint is not a package on either side.
+      mkdirSync(join(root, "packages", "openclinxr", "not-a-package", "src"), { recursive: true });
+      expect(writerIndexedPackages(root)).toEqual(indexedPackages(root));
+      expect(writerIndexedPackages(root)).toEqual([
+        "arena/model-vetting",
+        "domain",
+        "stations/lighting",
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

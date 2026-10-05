@@ -241,8 +241,11 @@ function testFilesUnder(dir: string, base: string, out: string[]): void {
  * Depth 2 covers nested packages such as arena/model-vetting, and a future stations/*
  * rollout lands indexed without a walker change here. Depth stops at 2 so a package's own
  * fixtures (e.g. src/__fixtures__ with a stray package.json) never index as packages.
+ *
+ * Exported so the arch:index writer enumerates the same candidate set as the gate instead of
+ * reimplementing the walk beside it.
  */
-function candidatePackageDirs(root: string): string[] {
+export function candidatePackageDirs(root: string): string[] {
   const packagesRoot = join(root, "packages", "openclinxr");
   let entries: Dirent[];
   try {
