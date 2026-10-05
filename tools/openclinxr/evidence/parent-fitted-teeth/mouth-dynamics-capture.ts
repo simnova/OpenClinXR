@@ -1,12 +1,12 @@
 /** Capture waveform-timed mouth motion without modifying the parent GLB or its static viseme keys. */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, readdirSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import type { Page } from "../lib/slotted-playwright.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../lib/portless-server.js";
 
 type HeadlessBrowser = { newPage(options: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page> };
 type TrackCue = { startS: number; endS: number; viseme: string; intensity: number };
@@ -17,8 +17,15 @@ const REPO = path.resolve(HERE, "../../../..");
 const AUDIO = path.join(HERE, "visemes/i-feel-the-pain-is-better-now.aiff");
 const RHUBARB = path.join(process.env.HOME ?? "", ".openclinxr-tools/rhubarb/rhubarb");
 const LINE = "I feel the pain is better now.";
-const MODE = process.argv.includes("--step3") ? "step3" : "step2";
+const MODE = process.argv.includes("--solved-gap") ? "teeth-gap/solved-capture" : process.argv.includes("--step3") ? "step3" : "step2";
 const OUT_DIR = path.join(REPO, `docs/openclinxr/mouth-dynamics/${MODE}`);
+const MODE_TMP = MODE.replaceAll("/", "-");
+const SCALES_ARG = process.argv.indexOf("--scales");
+const SOLVED_DOC = process.argv.includes("--solved-gap")
+  ? JSON.parse(readFileSync(SCALES_ARG >= 0 ? process.argv[SCALES_ARG + 1] ?? "" : path.join(REPO, "tools/openclinxr/mouth-solver/solved-teeth-gap.json"), "utf8")) as { solverId?: unknown; solverVersion?: unknown; scales?: unknown }
+  : null;
+const SOLVED_SCALES = SOLVED_DOC === null ? null : SOLVED_DOC.scales as Record<string, number>;
+const SOLVED_LABEL = SOLVED_DOC === null ? "" : `${String(SOLVED_DOC.solverId ?? "")} v${String(SOLVED_DOC.solverVersion ?? "")} ${JSON.stringify(SOLVED_SCALES)}`;
 const VIEW_W = 1280;
 const VIEW_H = 960;
 const FPS = 30;
@@ -43,6 +50,9 @@ function browserDriveSource(): string {
   };
   const runtime = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts"), "OpenClinXrVisemeDrive");
   const mapper = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-cue-track.ts"), "OpenClinXrCueTrack");
+  // Solved mode configures the runtime's internal teeth-scale table once after
+  // start. The drive itself (weights, jaw) is untouched: no sampler or jaw calls.
+  const scalesCall = SOLVED_SCALES === null ? "" : `captureRuntime.diagnostics.setTeethVisemeScales(${JSON.stringify(SOLVED_SCALES)});`;
   const result = `${runtime}\n${mapper}
 let captureRuntime,captureContext;
 window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolatedSceneRoot,raw=window.__speechRhubarb,base64=window.__speechWavBase64;if(!root||!raw||!base64)throw new Error("prepared-runtime-input-missing");
@@ -51,7 +61,7 @@ window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolat
   captureContext={currentTime:0,state:"running",sampleRate:22050,createBufferSource(){return {buffer:null,playbackRate:{value:1},connect(){},start(){},stop(){},disconnect(){},onended:null};}};
   const slot={root,activeSpeech:undefined};captureRuntime=OpenClinXrVisemeDrive.createActorAudioRuntime({developmentFixture:true,fixtureSearch:"?openclinxrSpeakFixture=1"});
   captureRuntime.diagnostics.installRuntime({context:captureContext,destination:{},entry:{actorId:"capture",responseText:${JSON.stringify(LINE)},runnerConversationTurn:1,waveformSha256:"capture",cueSha256:"capture",decodedSampleRate:22050,decodedSampleCount:Math.ceil(duration*22050),buffer:{duration,sampleRate:22050,length:Math.ceil(duration*22050)},cues:cues.map(c=>({phoneme:c.viseme,atSecond:c.startS,durationSeconds:c.endS-c.startS,intensity:c.intensity}))},getSlot(){return slot;},triggerDialogue(){slot.activeSpeech={text:${JSON.stringify(LINE)},phonemeSequence:["sil"],startedAtMs:0,durationMs:duration*1000};}});
-  if(!captureRuntime.diagnostics.start({actorId:"capture",spokenText:${JSON.stringify(LINE)}}))throw new Error("prepared-runtime-start-refused");return cues;};
+  if(!captureRuntime.diagnostics.start({actorId:"capture",spokenText:${JSON.stringify(LINE)}}))throw new Error("prepared-runtime-start-refused");${scalesCall}return cues;};
 window.__openClinXrSyncPreparedSpeech=(timeS)=>{if(!captureRuntime||!captureContext)throw new Error("prepared-runtime-not-started");captureContext.currentTime=timeS;captureRuntime.syncPreparedActorAudio(timeS*1000);};`;
   return result;
 }
@@ -130,7 +140,7 @@ async function recordFrames(page: Page, cues: TrackCue[], durationS: number, fra
 }
 
 async function main():Promise<void>{
-  mkdirSync(OUT_DIR,{recursive:true}); const jobDir=mkdtempSync(path.join(tmpdir(),`mouth-${MODE}-${process.pid}-`)); const track=makeTrack(jobDir);
+  mkdirSync(OUT_DIR,{recursive:true}); const jobDir=mkdtempSync(path.join(tmpdir(),`mouth-${MODE_TMP}-${process.pid}-`)); const track=makeTrack(jobDir);
   const durationS=Number(execFileSync("ffprobe",["-v","error","-show_entries","format=duration","-of","default=noprint_wrappers=1:nokey=1",AUDIO],{encoding:"utf8"}).trim());
   let server:PortlessDevServer|undefined;
   await createLocalComputeServices().sceneCapture.withBrowser(`mouth-dynamics:${MODE}`,async launched=>{try{server=await spawnPortlessDevServer({filter:"@openclinxr/ui-xr",readyTimeoutMs:180000,cwd:REPO});
@@ -145,10 +155,9 @@ async function main():Promise<void>{
     if(!cues.length)throw new Error(`prepared-runtime-cues-missing:${prepared.starter}`);
     const frameDir=path.join(jobDir,"frames"); const result=await recordFrames(page,cues,durationS,frameDir); const clip=path.join(OUT_DIR,"clip.mp4");
     execFileSync("ffmpeg",["-v","error","-y","-framerate",String(FPS),"-start_number","0","-i",path.join(frameDir,"f-%04d.png"),"-i",AUDIO,"-c:v","libx264","-pix_fmt","yuv420p","-c:a","aac","-movflags","+faststart","-shortest",clip]);
-    const dynamics=MODE==="step3"
-      ? "jaw: critically damped spring at fixed 240 Hz (omega=6 rad/s); PP hard closure at cue onset; <100 ms vowel target = own*smoothstep(duration/0.1)+neighborMean*(1-dominance); vowel intensity clamp [0.5,1]. lips: canonical per-weight critically damped follower at 240 Hz (omega=14 rad/s, tau=71 ms); <100 ms cue coarticulation; PP exact full-weight closure at cue onset"
-      : "legacy 0.06 s smoothstep transition on lips and jaw";
-    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing:"Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback",dynamics,canonicalTrack:cues,rhubarb:track.rhubarb,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
+    const dynamicsStep3="jaw: critically damped spring at fixed 240 Hz (omega=6 rad/s); PP hard closure at cue onset; <100 ms vowel target = own*smoothstep(duration/0.1)+neighborMean*(1-dominance); vowel intensity clamp [0.5,1]. lips: canonical per-weight critically damped follower at 240 Hz (omega=14 rad/s, tau=71 ms); <100 ms cue coarticulation; PP exact full-weight closure at cue onset";
+    const dynamics=MODE==="step3" ? dynamicsStep3 : SOLVED_DOC === null ? "legacy 0.06 s smoothstep transition on lips and jaw" : `${dynamicsStep3}; solved teeth scales ${SOLVED_LABEL}`;
+    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing:"Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback",dynamics,canonicalTrack:cues,rhubarb:track.rhubarb,targetsSeen:result.targets,...(SOLVED_DOC === null ? {} : {solver:{solverId:String(SOLVED_DOC.solverId ?? ""),solverVersion:String(SOLVED_DOC.solverVersion ?? ""),teethScales:SOLVED_SCALES}}),toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
     await page.close();
   }finally{if(server)await stopPortlessDevServer(server.proc);rmSync(jobDir,{recursive:true,force:true});}});
 }

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "openclinxr.mouth-solver.solved-teeth-gap.v1",
+  "solverId": "mouth-solver-coordinate-descent-v1",
+  "solverVersion": "1",
+  "targetGapMm": 3.75,
+  "inputs": {
+    "glbPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "glbSha256": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
+    "trackPath": "docs/openclinxr/mouth-dynamics/step3/metrics.json",
+    "trackSha256": "b297a435e4e8a5a2c5dee61c7ab9ff4c73ff5bf865e6a279045f34331c47c36b",
+    "dialogueVersion": "0.1.0",
+    "evaluatedCommit": "ebed159ea41aa446d773ad0f8f65790a06338770"
+  },
+  "searchSchedule": {
+    "order": [
+      "viseme_aa",
+      "viseme_E",
+      "viseme_O",
+      "viseme_FF"
+    ],
+    "coarseStep": 0.1,
+    "fineRadius": 0.15,
+    "fineStep": 0.025
+  },
+  "evalCount": 105,
+  "scales": {
+    "viseme_E": 1.5,
+    "viseme_O": 1.5
+  },
+  "objectiveBefore": {
+    "feasible": true,
+    "rms": 4.97712131203994,
+    "max": 7.177262000000001,
+    "minGapMm": 3.742951,
+    "penetrationFrames": 0,
+    "verticalRangeMm": [
+      -15.372158,
+      -10.044012
+    ],
+    "smoothnessMm": 3.023161000000001,
+    "ppGapDeltaMm": 0
+  },
+  "objectiveAfter": {
+    "feasible": true,
+    "rms": 4.65200790461164,
+    "max": 7.177262000000001,
+    "minGapMm": 3.725545,
+    "penetrationFrames": 0,
+    "verticalRangeMm": [
+      -15.372158,
+      -9.822888
+    ],
+    "smoothnessMm": 4.239545000000001,
+    "ppGapDeltaMm": 0
+  }
+}

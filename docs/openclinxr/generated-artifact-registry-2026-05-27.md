@@ -3767,6 +3767,11 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/step3/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step3/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/evaluator-step3.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-capture/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-capture/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare-quarter.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `tools/openclinxr/mouth-solver/solved-teeth-gap.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/stills-aa-E-O-PP-FF.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
