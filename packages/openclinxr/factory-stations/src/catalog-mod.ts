@@ -253,7 +253,7 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // (shared-schemas/src/schemas.ts:235-241). A bare number is refused.
     plantOffsetMeters: { type: "vector3", required: false, description: "signed {x,y,z} offset in metres" },
     // closed union, matching the case. A POSTURE ("supine") is refused.
-    supportSurface: { type: "enum", values: ["stretcher", "chair", "none"], required: true },
+    supportSurface: { type: "enum", values: ["stretcher", "exam_table", "chair", "none"], required: true },
   }),
   dialogue_runtime: defineStation("dialogue_runtime", {
     actorId: { type: "string", required: true },

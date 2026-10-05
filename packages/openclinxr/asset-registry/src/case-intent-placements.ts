@@ -83,7 +83,9 @@ export function supportInstanceIdForPlacement(input: {
   environmentId: string;
   posture: "standing" | "seated" | "supine";
   slotKind: string;
+  supportSurface?: string | undefined;
 }): string | null {
+  if (input.supportSurface === "exam_table") return `${input.environmentId}:exam_surface`;
   if (input.posture === "supine") return `${input.environmentId}:stretcher`;
   if (input.posture === "seated") {
     return input.slotKind === "family_or_observer"
@@ -110,6 +112,7 @@ export function placementsWithPersistedCaseIntent(
         environmentId: input.environmentId,
         posture: placement.posture ?? "standing",
         slotKind: placement.slotKind,
+        supportSurface: input.authored[actorId]?.supportSurface,
       });
       const offset = input.authored[actorId]?.plantOffsetMeters;
       const headingRadians = input.authored[actorId]?.headingRadians;

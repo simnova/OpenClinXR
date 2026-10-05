@@ -9,6 +9,7 @@ const TARGETS = [
   "ward_delirium_med_rec_v1",
   "psych_suicidal_ideation_safety_v1",
   "stepdown_sepsis_nurse_escalation_v1",
+  "primary_care_dyslipidemia_joint_pain_v1",
 ] as const;
 
 type Point = { x: number; z: number };
@@ -17,7 +18,10 @@ type Actor = (typeof scenarioBank)[number]["actors"][number];
 const STRETCHER_CENTER: Point = { x: -0.9, z: -0.1 };
 const PATIENT_CHAIR_CENTER: Point = { x: -1.55, z: -0.85 };
 const FAMILY_CHAIR_CENTER: Point = { x: -0.55, z: -0.75 };
+const EXAM_TABLE_CENTER: Point = { x: 0.15, z: -0.9 };
 const FOOTPRINT_RADIUS_METERS = { standing: 0.235, seated: 0.3, supine: 0.48 } as const;
+// Conservative adult stance diameter; the 0.235 m collision radii below enforce a stricter 0.47 m.
+const MIN_STANDING_CENTER_SEPARATION_METERS = 0.45;
 
 function resolvedFootprint(actor: Actor): { center: Point; radius: number } {
   const placement = actor.placement;
@@ -29,6 +33,12 @@ function resolvedFootprint(actor: Actor): { center: Point; radius: number } {
   if (placement?.supportSurface === "stretcher" || placement?.supportSurface === "bed") {
     return {
       center: { x: STRETCHER_CENTER.x + (offset?.x ?? 0), z: STRETCHER_CENTER.z + (offset?.z ?? 0) },
+      radius: FOOTPRINT_RADIUS_METERS.supine,
+    };
+  }
+  if (placement?.supportSurface === "exam_table") {
+    return {
+      center: { x: EXAM_TABLE_CENTER.x + (offset?.x ?? 0), z: EXAM_TABLE_CENTER.z + (offset?.z ?? 0) },
       radius: FOOTPRINT_RADIUS_METERS.supine,
     };
   }
@@ -46,7 +56,7 @@ function resolvedFootprint(actor: Actor): { center: Point; radius: number } {
   };
 }
 
-describe("the seven failed stations carry complete collision-free staging intent", () => {
+describe("the visibility-repaired stations carry complete collision-free staging intent", () => {
   it.each(TARGETS)("%s authors every cast member on a declared support without footprint overlap", (scenarioId) => {
     const fixtureScenarioId = scenarioId === "ed_chest_pain_priority_v2"
       ? "ed_chest_pain_priority_v1"
@@ -68,6 +78,14 @@ describe("the seven failed stations carry complete collision-free staging intent
           distance,
           `${scenarioId}: ${a.actorId} and ${b.actorId} footprints overlap`,
         ).toBeGreaterThanOrEqual(a.radius + b.radius);
+        const leftActor = scenario?.actors.find((actor) => actor.actorId === a.actorId);
+        const rightActor = scenario?.actors.find((actor) => actor.actorId === b.actorId);
+        if (leftActor?.placement?.supportSurface === "none" && rightActor?.placement?.supportSurface === "none") {
+          expect(
+            distance,
+            `${scenarioId}: ${a.actorId} and ${b.actorId} standing centers are within 0.45 m`,
+          ).toBeGreaterThanOrEqual(MIN_STANDING_CENTER_SEPARATION_METERS);
+        }
       }
     }
   });

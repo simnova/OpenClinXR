@@ -13,8 +13,8 @@ import type { ScenarioActorCast } from "./actor-casting.js";
  * silently forked it. Roles come as a LIST because the same slot is cast differently across cases:
  * the ED cast fills the clinical slot with a `nurse`, the clinic cast with a `medical_assistant`.
  *
- * The ED literals remain as fallbacks, so a cast missing a role keeps today's behaviour rather
- * than losing an actor.
+ * Only the required patient slot retains an ED fallback for malformed legacy casts. Optional
+ * clinical/family slots do not: inventing ED staff or a spouse creates a visible non-case actor.
  */
 export function castActorIdForRoles(
   cast: readonly ScenarioActorCast[],
@@ -44,8 +44,8 @@ export type BundleCastActorIds = {
 export function resolveBundleCastActorIds(cast: readonly ScenarioActorCast[]): BundleCastActorIds {
   return {
     patientActorId: castActorIdForRoles(cast, ["patient"], "patient_robert_hayes_v1"),
-    clinicalActorId: castActorIdForRoles(cast, ["nurse", "medical_assistant"], "nurse_maria_alvarez_v1"),
-    familyActorId: castActorIdForRoles(cast, ["family", "family_member"], "spouse_anna_hayes_v1"),
+    clinicalActorId: castActorIdForRoles(cast, ["nurse", "medical_assistant"], ""),
+    familyActorId: castActorIdForRoles(cast, ["family", "family_member"], ""),
     additionalActorId: additionalCastActorId(cast),
   };
 }

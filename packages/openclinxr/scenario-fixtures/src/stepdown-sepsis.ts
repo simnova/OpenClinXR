@@ -38,7 +38,7 @@ export const stepdownSepsisScenario = draftScenario({
       ["vitals_trend_requested", "sepsis_priority_named", "nurse_role_clarified"],
       ["ignored_bp_drop", "ambiguous_orders", "team_priority_missing"],
       ["assertive nurse advocacy", "closed-loop deterioration language", "respect escalation concerns"],
-    )), placement: { supportSurface: "none", plantOffsetMeters: { x: 0.1, y: 0, z: 0.7 }, headingRadians: -2.639 } },
+    )), placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: 0.5 }, headingRadians: 3.142 } },
     { ...actor("respiratory_therapist_ng_v1", "respiratory_therapist", "Respiratory Therapist Ng", "asks for respiratory priorities when oxygen saturation falls", [
       "Can escalate oxygen support if learner prioritizes it",
     ], satirProfile(
@@ -51,7 +51,7 @@ export const stepdownSepsisScenario = draftScenario({
       ["oxygen_escalation_requested", "target_saturation_named", "team_priority_shared"],
       ["ignored_desaturation", "vague_resp_order", "sepsis_plan_without_airway"],
       ["respiratory escalation language", "team priority framing", "closed-loop oxygen support"],
-    )), placement: { supportSurface: "none", plantOffsetMeters: { x: 0.75, y: 0, z: 0.7 }, headingRadians: -2.266 } },
+    )), placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: -1.1 }, headingRadians: 0 } },
   ],
   requiredTraceTags: [
     "sepsis_recognition",

@@ -27,6 +27,7 @@ import {
   type StationCapturePageListenerHost,
 } from "./station-capture/page-diagnostics.js";
 import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
+import type { ActorVisibilityReading } from "./station-capture/actor-visibility-page-probe.js";
 import {
   readNearOcclusionFromPage,
   type NearOcclusionReading,
@@ -62,6 +63,7 @@ export type LiveShell = {
   cameraLook?: [number, number, number];
   refineTag?: string;
   actorContainment?: { contained: number; total: number };
+  actorVisibility?: ActorVisibilityReading[];
   standingActorContainment?: { contained: number; total: number };
   meanFacingDeg?: number;
   framingConstraintsMet?: boolean;
@@ -644,6 +646,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     let cameraLook: [number, number, number] | undefined;
     let refineTag: string | undefined;
     let actorContainment: { contained: number; total: number } | undefined;
+    let actorVisibility: ActorVisibilityReading[] | undefined;
     let standingActorContainment: { contained: number; total: number } | undefined;
     let meanFacingDeg: number | undefined;
     let framingConstraintsMet: boolean | undefined;
@@ -674,6 +677,8 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
             const match = /^(\d+)\/(\d+)$/u.exec(containment);
             if (match) actorContainment = { contained: Number(match[1]), total: Number(match[2]) };
           }
+          const rawVisibility = camera.userData?.openClinXrActorVisibility;
+          if (Array.isArray(rawVisibility)) actorVisibility = rawVisibility as ActorVisibilityReading[];
           const standingContainment = camera.userData?.openClinXrStandingActorContainment;
           if (typeof standingContainment === "string") {
             const match = /^(\d+)\/(\d+)$/u.exec(standingContainment);
@@ -703,6 +708,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       cameraLook,
       refineTag,
       actorContainment,
+      actorVisibility,
       standingActorContainment,
       meanFacingDeg,
       framingConstraintsMet,
@@ -1453,6 +1459,7 @@ export async function captureStationEnvironmentRooms(
               cameraLook: liveAfter.cameraLook,
               refineTag: liveAfter.refineTag,
               actorContainment: liveAfter.actorContainment,
+              actorVisibility: liveAfter.actorVisibility,
               standingActorContainment: liveAfter.standingActorContainment,
               meanFacingDeg: liveAfter.meanFacingDeg,
               framingConstraintsMet: liveAfter.framingConstraintsMet,

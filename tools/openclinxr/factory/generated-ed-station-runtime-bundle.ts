@@ -1274,6 +1274,9 @@ function runtimeActorPlacementsForScenario(
       posture,
       placementProvenance: "authored_intent",
       plantOffsetMeters: { ...placement.plantOffsetMeters },
+      ...(placement.supportSurface === "exam_table"
+        ? { supportInstanceId: `${scenarioBank.find((candidate) => candidate.scenarioId === preset.scenarioId)?.environment?.environmentId ?? ""}:exam_surface` }
+        : {}),
     };
   };
   const placements: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] = {
@@ -1333,7 +1336,7 @@ function runtimeActorPlacementsForScenario(
 }
 
 type AuthoredPlacement = {
-  supportSurface: "stretcher" | "bed" | "chair" | "none";
+  supportSurface: "stretcher" | "bed" | "exam_table" | "chair" | "none";
   plantOffsetMeters: { x: number; y: number; z: number };
   headingRadians?: number | undefined;
 };
@@ -1349,7 +1352,7 @@ function readAuthoredPlacementsForScenario(scenarioId: string): Record<string, A
     const supportSurface = actor.placement?.supportSurface;
     if (typeof offset !== "object" || offset === null) continue;
     if (typeof offset.x !== "number" || typeof offset.y !== "number" || typeof offset.z !== "number") continue;
-    if (supportSurface !== "stretcher" && supportSurface !== "bed" && supportSurface !== "chair" && supportSurface !== "none") continue;
+    if (supportSurface !== "stretcher" && supportSurface !== "bed" && supportSurface !== "exam_table" && supportSurface !== "chair" && supportSurface !== "none") continue;
     const headingRadians = actor.placement?.headingRadians;
     out[actor.actorId] = {
       supportSurface,
@@ -1362,7 +1365,7 @@ function readAuthoredPlacementsForScenario(scenarioId: string): Record<string, A
 
 function postureForAuthoredSupport(supportSurface: AuthoredPlacement["supportSurface"]): "standing" | "seated" | "supine" {
   if (supportSurface === "chair") return "seated";
-  if (supportSurface === "stretcher" || supportSurface === "bed") return "supine";
+  if (supportSurface === "stretcher" || supportSurface === "bed" || supportSurface === "exam_table") return "supine";
   return "standing";
 }
 

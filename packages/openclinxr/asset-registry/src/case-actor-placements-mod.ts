@@ -19,7 +19,7 @@ export type AuthoredPosture = "standing" | "seated" | "supine";
 /**
  * Map an authored support surface onto a posture.
  *
- * `chair` seats; `stretcher` and `bed` lay supine; `none`, an unknown surface and an absent one
+ * `chair` seats; `stretcher`, `bed`, and `exam_table` lay supine; `none`, an unknown surface and an absent one
  * all stand. Unknown is deliberately NOT an error here: the case schema takes free text, and a
  * surface nobody has taught the runtime about should degrade to the pass-through rather than
  * refuse a scenario. The refusal that matters — a nonzero NORMAL offset on a supported posture —
@@ -27,7 +27,7 @@ export type AuthoredPosture = "standing" | "seated" | "supine";
  */
 export function postureForSupportSurface(supportSurface: string | undefined): AuthoredPosture {
   if (supportSurface === "chair") return "seated";
-  if (supportSurface === "stretcher" || supportSurface === "bed") return "supine";
+  if (supportSurface === "stretcher" || supportSurface === "bed" || supportSurface === "exam_table") return "supine";
   return "standing";
 }
 

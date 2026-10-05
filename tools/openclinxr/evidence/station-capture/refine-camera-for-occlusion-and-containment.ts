@@ -1,5 +1,6 @@
 import type { Page } from "playwright";
 import { CAMERA_SCORE_IS_BETTER_BROWSER_SOURCE } from "./camera-candidate-scoring.js";
+import { ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE } from "./actor-visibility-page-probe.js";
 import { NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE } from "./near-occlusion-page-probe.js";
 
 export async function refineCameraForOcclusionAndContainment(page: Page): Promise<string> {
@@ -47,25 +48,21 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
     };
     const actorIdOf = function (mesh) {
       let p = mesh;
-      let depth = 0;
-      while (p && depth < 8) {
+      while (p) {
         const ud = p.userData;
         if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId.length > 0) {
           return ud.openClinXrActorId;
         }
         p = p.parent;
-        depth += 1;
       }
       return null;
     };
     const actorPostureOf = function (mesh) {
       let p = mesh;
-      let depth = 0;
-      while (p && depth < 8) {
+      while (p) {
         const posture = p.userData && p.userData.openClinXrActorPosture;
         if (typeof posture === "string" && posture.length > 0) return posture.toLowerCase();
         p = p.parent;
-        depth += 1;
       }
       return "standing";
     };
@@ -84,9 +81,18 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
     });
     if (!interior) return "refine=no-interior";
 
+    const effectivelyVisible = function (object) {
+      let current = object;
+      while (current && current !== scene) {
+        if (current.visible === false) return false;
+        current = current.parent;
+      }
+      return true;
+    };
+
     const actorMap = {};
     scene.traverse(function (o) {
-      if (!(o.isMesh || o.isSkinnedMesh) || o.visible === false) return;
+      if (!(o.isMesh || o.isSkinnedMesh) || !effectivelyVisible(o)) return;
       const id = actorIdOf(o);
       if (!id) return;
       const box = worldBoxOf(o, true);
@@ -95,13 +101,11 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
     });
     const headingOf = function (mesh) {
       let root = mesh;
-      let depth = 0;
-      while (root && depth < 8) {
+      while (root) {
         const ud = root.userData;
         if (ud && typeof ud.openClinXrBaseHeadingRadians === "number") return ud.openClinXrBaseHeadingRadians;
         if (ud && typeof ud.openClinXrConsumedHeadingRadians === "number") return ud.openClinXrConsumedHeadingRadians;
         root = root.parent;
-        depth += 1;
       }
       const e = mesh.matrixWorld && mesh.matrixWorld.elements;
       if (!e) return 0;
@@ -123,13 +127,26 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       const box = actorMap[ids[i]];
       const height = box.max[1] - box.min[1];
       const posture = actorPosture[ids[i]] || "standing";
+      const recumbent = /(supine|lying|recumbent)/.test(posture);
       const upright = !/(supine|seated|lying|recumbent)/.test(posture);
-      const actor = { id: ids[i], box: box, heading: actorHeading[ids[i]] || 0, standing: upright && height >= 1.15 };
+      const actor = { id: ids[i], box: box, heading: actorHeading[ids[i]] || 0, standing: upright && height >= 1.15, recumbent: recumbent };
       actors.push(actor);
       if (actor.standing) standing.push(actor);
     }
     if (actors.length === 0) return "refine=no-actors";
     if (standing.length === 0) return "refine=no-standing";
+
+    const visibilityOccluders = [];
+    scene.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh) || !effectivelyVisible(o)) return;
+      const box = worldBoxOf(o, true);
+      if (!box) return;
+      visibilityOccluders.push({
+        box: box,
+        actorId: actorIdOf(o),
+        name: o.name || (o.parent && o.parent.name) || "unnamed-visible-mesh"
+      });
+    });
 
     const wallBoxes = [];
     const doorBoxes = [];
@@ -236,13 +253,7 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       if (cw > -1e-8 && cw < 1e-8) return null;
       return { x: cx / cw, y: cy / cw, z: cz / cw };
     };
-    const crownOf = function (box) {
-      return [
-        (box.min[0] + box.max[0]) / 2,
-        box.min[1] + 0.82 * (box.max[1] - box.min[1]),
-        (box.min[2] + box.max[2]) / 2
-      ];
-    };
+    const measureActorVisibility = (${ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE});
     const EDGE = 0.80;
     const MIN_NDC_HEIGHT = 0.36;
     const boxNdc = function (box) {
@@ -270,17 +281,13 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       const ph = primary.box.max[1] - primary.box.min[1];
       if (h > ph) primary = standing[i];
     }
-    const actorFailure = function (actor) {
+    const actorFailure = function (actor, visibility) {
       const box = actor.box;
       const extent = boxNdc(box);
       if (!extent) return "not-projectable";
       if (actor.id === primary.id && extent.maxY - extent.minY < MIN_NDC_HEIGHT) return "primary-too-small";
       if (extent.minX < -EDGE || extent.maxX > EDGE || extent.minY < -EDGE || extent.maxY > EDGE) return "outside-edge";
-      const crown = crownOf(box);
-      const cam = cameraWorld();
-      const dx = crown[0] - cam[0], dy = crown[1] - cam[1], dz = crown[2] - cam[2];
-      if (rayHitsBoxes(cam[0], cam[1], cam[2], dx, dy, dz, partitionBoxesFrom(cam, wallBoxes))) return "wall-occluded";
-      if (rayHitsBoxes(cam[0], cam[1], cam[2], dx, dy, dz, doorBoxes)) return "door-occluded";
+      if (!visibility.visible) return "occluded-" + String(visibility.visibleSampleCount) + "/5";
       return null;
     };
     const placardBackVisible = function () {
@@ -329,10 +336,14 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       let standingWholeCount = 0;
       let minMargin = Infinity;
       const failures = [];
+      const visibility = [];
+      const cam = cameraWorld();
       for (let i = 0; i < actors.length; i++) {
         const actor = actors[i];
         const extent = boxNdc(actor.box);
-        const failure = actorFailure(actor);
+        const actorVisibility = measureActorVisibility(cam, actor, visibilityOccluders);
+        visibility.push(actorVisibility);
+        const failure = actorFailure(actor, actorVisibility);
         const whole = failure === null;
         if (whole) wholeCount += 1;
         else failures.push(actor.id + ":" + failure);
@@ -353,7 +364,8 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
         placardBack: placardBackVisible(),
         meanFacing: meanFacingDeg(),
         nearOcclusion: measureNearOcclusion(camera, scene, worldBoxOf).fraction,
-        failures: failures
+        failures: failures,
+        visibility: visibility
       };
     };
 
@@ -447,6 +459,7 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
         camera.userData.openClinXrMeanFacingDeg = kept.meanFacing;
         camera.userData.openClinXrFramingConstraintsMet = kept.n === actors.length && kept.meanFacing <= 90;
         camera.userData.openClinXrNearOcclusionFraction = kept.nearOcclusion;
+        camera.userData.openClinXrActorVisibility = kept.visibility;
         camera.userData.openClinXrRefineTag = "keep-unimproved";
         camera.userData.openClinXrCameraLookAt = [lookX, lookY, lookZ];
       }
@@ -462,6 +475,7 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       camera.userData.openClinXrMeanFacingDeg = best.meanFacing;
       camera.userData.openClinXrFramingConstraintsMet = constraintsMet;
       camera.userData.openClinXrNearOcclusionFraction = best.nearOcclusion;
+      camera.userData.openClinXrActorVisibility = best.visibility;
       camera.userData.openClinXrRefineTag = chosenTag;
       camera.userData.openClinXrCameraLookAt = [lookX, lookY, lookZ];
     }

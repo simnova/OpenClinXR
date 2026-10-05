@@ -95,7 +95,7 @@ export const habitusOptions = Object.freeze(["average", "obese", "frail"] as con
  * ActorPlacementSchema.supportSurface (W11s). "none" is an authored STANDING decision and is
  * distinct from the member being absent: unset emits no Placement node, "none" emits one.
  */
-export const supportSurfaceOptions = Object.freeze(["stretcher", "chair", "none"] as const);
+export const supportSurfaceOptions = Object.freeze(["stretcher", "exam_table", "chair", "none"] as const);
 
 /** Deterministic template for a new touch-response row (mirrors TouchResponseSchema). */
 export function createTouchResponseDraft(region: ComplianceRegion = "abdomen_rlq"): TouchResponse {

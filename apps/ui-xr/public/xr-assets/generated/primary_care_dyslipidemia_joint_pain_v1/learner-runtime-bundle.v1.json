@@ -173,8 +173,8 @@
       "title": "Dyslipidemia And Joint Pain Primary Care Visit",
       "subtitle": "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
       "chiefConcern": "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Primary Care Clinic Room station scene",
       "canvasAriaLabel": "3D Primary Care Clinic Room preview",
       "initialDialogueText": "Mario Guzman: My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
@@ -189,7 +189,50 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "actorPlacements": {
+      "patient_mario_guzman_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
+        },
+        "scale": {
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
+        },
+        "verticalOffsetMeters": -0.98,
+        "labelPrefix": "Patient",
+        "posture": "supine",
+        "placementProvenance": "authored_intent",
+        "plantOffsetMeters": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "supportInstanceId": "primary_care_clinic_room_v1:exam_surface"
+      },
+      "medical_assistant_jones_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": -0.4,
+          "y": 0,
+          "z": 0.2
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Team",
+        "posture": "standing",
+        "placementProvenance": "authored_intent",
+        "headingRadians": 2.678
+      }
+    }
   },
   "uiSurfaces": [],
   "notEvidenceFor": [

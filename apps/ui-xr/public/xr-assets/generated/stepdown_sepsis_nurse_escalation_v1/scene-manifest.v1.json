@@ -115,9 +115,9 @@
     "stepdown_nurse_rivera_v1": {
       "slotKind": "clinical_team",
       "position": {
-        "x": 0.1,
+        "x": -0.45,
         "y": 0,
-        "z": 0.7
+        "z": 0.5
       },
       "scale": {
         "x": 1,
@@ -128,14 +128,14 @@
       "labelPrefix": "Team",
       "posture": "standing",
       "placementProvenance": "authored_intent",
-      "headingRadians": -2.639
+      "headingRadians": 3.142
     },
     "respiratory_therapist_ng_v1": {
       "slotKind": "additional_cast",
       "position": {
-        "x": 0.75,
+        "x": -0.45,
         "y": 0,
-        "z": 0.7
+        "z": -1.1
       },
       "scale": {
         "x": 1,
@@ -146,7 +146,7 @@
       "labelPrefix": "Respiratory",
       "posture": "standing",
       "placementProvenance": "authored_intent",
-      "headingRadians": -2.266
+      "headingRadians": 0
     }
   },
   "equipmentPlacements": {
