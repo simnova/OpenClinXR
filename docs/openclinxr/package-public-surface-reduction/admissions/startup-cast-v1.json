@@ -1,0 +1,22 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "startup-cast-v1",
+  "reviewedBy": "startup-cast session 2026-10-05; apps/ui-xr/src/main.ts binds resolveStartupRuntimeCast at module load",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "17f9182983ffd18fed4a1e0df99db6929adc881436e163a6b82f71cce91c438d",
+  "packages": [
+    "packages/openclinxr/asset-registry"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./runtime-bundle-lookups",
+      "symbol": "resolveStartupRuntimeCast",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "ui-xr learner runtime boot",
+      "rationale": "main.ts resolves the four module-load humanoid slots through it, falling back to the patient model for an uncast staff or family slot.",
+      "reviewedBy": "startup-cast session 2026-10-05; apps/ui-xr/src/main.ts binds resolveStartupRuntimeCast at module load"
+    }
+  ]
+}

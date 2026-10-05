@@ -1,5 +1,6 @@
 import type {
   EncounterRuntimeActorAsset,
+  EncounterRuntimeAsset,
   EncounterRuntimeAssetBundle,
   EncounterRuntimeEquipmentAsset,
   EncounterRuntimeEquipmentPlacement,
@@ -73,4 +74,30 @@ export function findRuntimeActorAssetByRole(
   roles: readonly string[],
 ): EncounterRuntimeActorAsset | undefined {
   return bundle.actors.find((actor) => roles.includes(actor.role));
+}
+
+export type StartupRuntimeCast = {
+  patient: EncounterRuntimeAsset;
+  clinicalStaff: EncounterRuntimeAsset;
+  familyMember: EncounterRuntimeAsset;
+  additional: EncounterRuntimeAsset;
+};
+
+/**
+ * The four humanoid models ui-xr binds at module load, before any bundle swap.
+ *
+ * Only the patient is required. A known case keeps exactly its declared cast (73948bc45), so
+ * clinic_abdominal_pain_interpreter_v1 (patient, father, interpreter tablet) casts no nurse or
+ * medical_assistant; requiring one threw "Missing encounter runtime asset clinical_staff" at
+ * module load and the page never booted. An uncast slot reuses the patient model, the same
+ * fallback useEncounterRuntimeAssetBundle applies once slots are resolved.
+ */
+export function resolveStartupRuntimeCast(bundle: Pick<EncounterRuntimeAssetBundle, "actors">): StartupRuntimeCast {
+  const patient = findRuntimeActorAssetByRole(bundle, ["patient"])?.model;
+  if (!patient) {
+    throw new Error("Missing encounter runtime asset patient");
+  }
+  const clinicalStaff = findRuntimeActorAssetByRole(bundle, ["nurse", "medical_assistant"])?.model ?? patient;
+  const familyMember = findRuntimeActorAssetByRole(bundle, ["family_member", "family"])?.model ?? patient;
+  return { patient, clinicalStaff, familyMember, additional: clinicalStaff };
 }

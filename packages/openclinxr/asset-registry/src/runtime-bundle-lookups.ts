@@ -4,4 +4,5 @@ export {
   findRuntimeActorAsset,
   findRuntimeActorAssetByRole,
   findRuntimeEquipmentAsset,
+  resolveStartupRuntimeCast,
 } from "./runtime-bundle-lookups-mod.js";

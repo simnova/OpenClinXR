@@ -7,8 +7,8 @@ import {
 import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
   findRuntimeActorAsset,
-  findRuntimeActorAssetByRole,
   findRuntimeEquipmentAsset,
+  resolveStartupRuntimeCast,
 } from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
@@ -654,23 +654,11 @@ let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundl
   scenarioId: selectedScenarioId(),
   ...(selectedSceneClosureStationId === undefined ? {} : { stationId: selectedSceneClosureStationId }),
 });
-let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
-  "patient",
-);
-let nurseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["nurse", "medical_assistant"])?.model,
-  "clinical_staff",
-);
-let spouseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["family_member", "family"])?.model,
-  "family_member",
-);
-let additionalRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-  findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["nurse", "medical_assistant"])?.model
-    ?? findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.model,
-  "additional_cast_actor",
-);
+const startupRuntimeCast = resolveStartupRuntimeCast(encounterRuntimeAssetBundle);
+let patientRuntimeHumanoidAsset = startupRuntimeCast.patient;
+let nurseRuntimeHumanoidAsset = startupRuntimeCast.clinicalStaff;
+let spouseRuntimeHumanoidAsset = startupRuntimeCast.familyMember;
+let additionalRuntimeHumanoidAsset = startupRuntimeCast.additional;
 let cachedRuntimeSlotAssignment: RuntimeSlotAssignment | null = null;
 
 function useEncounterRuntimeAssetBundle(

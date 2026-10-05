@@ -152,7 +152,8 @@
     "./runtime-bundle-lookups": [
       "findRuntimeActorAsset",
       "findRuntimeActorAssetByRole",
-      "findRuntimeEquipmentAsset"
+      "findRuntimeEquipmentAsset",
+      "resolveStartupRuntimeCast"
     ],
     "./runtime-bundles": [
       "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",

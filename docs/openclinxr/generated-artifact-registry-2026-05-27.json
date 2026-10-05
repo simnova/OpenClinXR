@@ -26040,6 +26040,13 @@
       "rationale": "Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/startup-cast-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/teeth-viseme-consumers-v1.json",
       "authority": "keep-evidence",
       "tracked": true,

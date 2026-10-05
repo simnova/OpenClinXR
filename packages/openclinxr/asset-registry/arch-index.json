@@ -80,7 +80,8 @@
     "src/the-failing-stations-have-nonoverlapping-authored-placements.test.ts",
     "src/the-layout-varies-and-refuses.test.ts",
     "src/the-monitor-visibility-has-two-failures.test.ts",
-    "src/the-scene-contents-bind-or-refuse.test.ts"
+    "src/the-scene-contents-bind-or-refuse.test.ts",
+    "src/the-startup-cast-resolves-for-every-shipped-case.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/asset-registry test",
