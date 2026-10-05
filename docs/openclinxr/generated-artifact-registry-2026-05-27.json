@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1759,
+    "keep-evidence": 1761,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26027,6 +26027,20 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/step2/metrics.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/step3/clip.mp4",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/step3/metrics.json",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",

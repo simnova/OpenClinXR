@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { createActorAudioRuntime } from "./actor-audio-runtime.js";
+import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
 
 const { visemeCueTrack } = createActorAudioRuntime();
+const { jawDynamics } = visemeCueTrack;
+
+const jawTrack = [
+  { startS: 0, endS: 0.2, viseme: "aa", intensity: 1 },
+  { startS: 0.2, endS: 0.26, viseme: "PP", intensity: 1 },
+  { startS: 0.26, endS: 0.31, viseme: "E", intensity: 1 },
+  { startS: 0.31, endS: 0.6, viseme: "O", intensity: 0.5 },
+] as const;
 
 function timedRows(symbols: readonly string[]): Array<{ startS: number; endS: number; symbol: string }> {
   return symbols.map((symbol, index) => ({ startS: index * 0.1, endS: (index + 1) * 0.1, symbol }));
@@ -55,5 +63,35 @@ describe("canonical OVR viseme cue intake", () => {
     ], wav);
     expect(track[0]?.intensity).toBeCloseTo(0.2, 3);
     expect(track[1]?.intensity).toBeCloseTo(1, 6);
+  });
+});
+
+describe("critically damped jaw cue sampler", () => {
+  const bytes = (values: readonly number[]) => new Uint8Array(new Float64Array(values).buffer);
+
+  it("is byte-deterministic for the same input", () => {
+    const run = () => { const sampler = jawDynamics.createSampler(jawTrack); return Array.from({ length: 37 }, (_, index) => sampler.sample(index / 60).aperture); };
+    expect(bytes(run())).toEqual(bytes(run()));
+  });
+
+  it("is frame-rate independent on common sample times", () => {
+    const at30 = jawDynamics.createSampler(jawTrack); const at60 = jawDynamics.createSampler(jawTrack);
+    const thirty = Array.from({ length: 19 }, (_, index) => at30.sample(index / 30).aperture);
+    const sixty = Array.from({ length: 37 }, (_, index) => at60.sample(index / 60).aperture).filter((_, index) => index % 2 === 0);
+    for (let index = 0; index < thirty.length; index += 1) expect(thirty[index]).toBeCloseTo(sixty[index] ?? 0, 12);
+  });
+
+  it("reaches and holds hard closure inside a PP cue", () => {
+    const sampler = jawDynamics.createSampler(jawTrack);
+    expect(sampler.sample(0.24).aperture).toBe(0);
+    expect(sampler.sample(0.25).hardClosure).toBe(true);
+  });
+
+  it("coarticulates a short vowel and scales mild versus emphasized vowels", () => {
+    const shortTarget = jawDynamics.targetForCue(jawTrack, 2);
+    expect(shortTarget).toBeLessThan(0.45);
+    expect(shortTarget).toBeGreaterThan(0.25);
+    expect(jawDynamics.targetForCue(jawTrack, 3)).toBeCloseTo(0.425, 12);
+    expect(jawDynamics.targetForCue([{ startS: 0, endS: 0.2, viseme: "O", intensity: 1 }], 0)).toBeCloseTo(0.85, 12);
   });
 });

@@ -5,6 +5,8 @@ import { convertRhubarb, cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWa
 import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
 import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
+import { createJawDynamicsSampler, jawDynamicsConstants, jawTargetForCue } from "./viseme-jaw-dynamics.js";
+import { applyDialogueVisemeTimelineToRoot, applyJawOpenToRoot, JAW_TEETH_GAIN } from "./viseme-runtime-wire.js";
 export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
 const host: Host = {};
 const prepared = new Map<string, PreparedEntry>();
@@ -399,5 +401,7 @@ const caseAudio = createCaseAudioController(options.caseAudio, {
 });
 return Object.freeze({ caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
   syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech, diagnostics,
-  visemeCueTrack: Object.freeze({ mapRhubarbTrack, mapArpabetTrack, mapPollyTrack, mappings: visemeCueMappings }) });
+  visemeCueTrack: Object.freeze({ mapRhubarbTrack, mapArpabetTrack, mapPollyTrack, mappings: visemeCueMappings,
+    jawDynamics: Object.freeze({ createSampler: createJawDynamicsSampler, targetForCue: jawTargetForCue, constants: jawDynamicsConstants }),
+    mouthRuntime: Object.freeze({ createJawDynamicsSampler, applyDialogueVisemeTimelineToRoot, applyJawOpenToRoot, JAW_TEETH_GAIN }) }) });
 }
