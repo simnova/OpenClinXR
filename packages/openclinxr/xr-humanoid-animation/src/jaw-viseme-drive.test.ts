@@ -98,8 +98,11 @@ describe("jaw viseme drive", () => {
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
     const first = jawOf(slot).rotation.x;
-    expect(first).toBeGreaterThan(0.1);
-    expect(first).toBeLessThan(0.2);
+    // AA opens mildly: JAW_TEETH_GAIN = 0.5 (viseme-morph-apply.ts) halves the
+    // 0.15086 JAW_OPEN_TEETH_CLEAR_RADIANS table value to ~0.0754, matching the
+    // Oculus OVRLipSync 'aa' mild-production reference.
+    expect(first).toBeGreaterThan(0.05);
+    expect(first).toBeLessThan(0.1);
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
     expect(jawOf(slot).rotation.x).toBeCloseTo(first, 5);
   });
