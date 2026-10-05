@@ -1,0 +1,56 @@
+{
+  "start": "2026-10-01T17:20:28.415Z",
+  "end": "2026-10-01T17:21:08.745Z",
+  "wallSeconds": 40.32732579099999,
+  "slotsStart": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "slotsEnd": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "code": 0,
+  "stdout": "",
+  "stderr": "       40.31 real        61.54 user         4.94 sys\n          9214017536  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n             1031563  page reclaims\n                 220  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                 197  voluntary context switches\n              145096  involuntary context switches\n        529104620747  instructions retired\n        183138683059  cycles elapsed\n          9094618696  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

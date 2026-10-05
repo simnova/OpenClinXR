@@ -11,7 +11,7 @@ export const primaryCareDyslipidemiaScenario = draftScenario({
     "Address work and diet constraints in a longitudinal plan",
   ],
   actors: [
-    actor("patient_mario_guzman_v1", "patient", "Mario Guzman", "construction worker with knee and hand pain, worried about cholesterol medication", [
+    { ...actor("patient_mario_guzman_v1", "patient", "Mario Guzman", "construction worker with knee and hand pain, worried about cholesterol medication", [
       "Stopped statin because of muscle-pain fear",
       "Joint pain pattern is more consistent with osteoarthritis",
       "Diet is shaped by quick food near job sites",
@@ -25,8 +25,8 @@ export const primaryCareDyslipidemiaScenario = draftScenario({
       ["concerns_validated", "risk_explained_plainly", "workday_plan_created"],
       ["medication_fear_ignored", "diet_plan_unrealistic", "pain_goal_not_addressed"],
       ["shared decision-making", "work-context counseling", "plain cardiovascular-risk language"],
-    ), "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain."),
-    actor("medical_assistant_jones_v1", "medical_assistant", "Medical Assistant Jones", "optional vitals and lab handoff", [
+    ), "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain."), placement: { supportSurface: "exam_table", plantOffsetMeters: { x: 0, y: 0, z: 0 }, headingRadians: 2.4 } },
+    { ...actor("medical_assistant_jones_v1", "medical_assistant", "Medical Assistant Jones", "optional vitals and lab handoff", [
       "Can surface EHR lab panel at minute eight",
     ], satirProfile(
       "rationalizer",
@@ -38,7 +38,7 @@ export const primaryCareDyslipidemiaScenario = draftScenario({
       ["lab_panel_requested", "medication_list_requested", "objective_data_used"],
       ["ehr_data_ignored", "risk_counseling_without_labs", "handoff_unclear"],
       ["primary-care rooming workflow", "EHR data handoff", "brief team communication"],
-    )),
+    )), placement: { supportSurface: "none", plantOffsetMeters: { x: -0.4, y: 0, z: 0.2 }, headingRadians: 2.678 } },
   ],
   requiredTraceTags: [
     "joint_pain_characterization",

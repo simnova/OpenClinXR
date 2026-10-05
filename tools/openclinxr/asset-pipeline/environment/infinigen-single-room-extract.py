@@ -273,10 +273,20 @@ def main() -> int:
 
     cx = (mins[0] + maxs[0]) / 2.0
     cy = (mins[1] + maxs[1]) / 2.0
+    # Parent-safe centering: door leaves and casings are children of the
+    # Infinigen "entrance" cutter object (kept through the strip as their
+    # parent; it is never exported itself). Editing o.location would apply
+    # the room-frame shift in the parent's local frame, so a yawed entrance
+    # parent flips the shift and parks the leaf decimetres off the opening
+    # (measured: +0.45 m leaf/casing split on rooms whose entrance parent
+    # carries a 180-degree yaw). Adjusting matrix_world keeps every part in
+    # the room frame regardless of parenting.
     for o in objs:
-        o.location.x -= cx
-        o.location.y -= cy
-        o.location.z -= floor_top
+        m = o.matrix_world.copy()
+        m.translation.x -= cx
+        m.translation.y -= cy
+        m.translation.z -= floor_top
+        o.matrix_world = m
     bpy.context.view_layer.update()
 
     # Export with transforms applied, so the vertices land in the centered frame.

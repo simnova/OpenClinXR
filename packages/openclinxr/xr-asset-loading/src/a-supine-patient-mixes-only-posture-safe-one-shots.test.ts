@@ -29,15 +29,17 @@ const STANDING_IDLE = new AnimationClip("ClinicalIdleConversation", 1, []);
 function register(
   posture: "supine" | "seated" | "standing",
   clips: readonly AnimationClip[],
-  options: { actorId?: string; responseNames?: string[]; roleNames?: string[]; seatedPlayable?: boolean } = {},
+  options: { actorId?: string; responseNames?: string[]; roleNames?: string[]; seatedPlayable?: boolean; supportInstanceId?: string } = {},
 ): {
   slot: SlotWithMixer;
   planted: number;
   translationInspections: number;
+  alignHeadToPillow: boolean | undefined;
 } {
   const slots: SlotWithMixer[] = [];
   let planted = 0;
   let translationInspections = 0;
+  let alignHeadToPillow: boolean | undefined;
   const context = {
     touchResponseClipNames: () => options.responseNames ?? [RESPONSE_NAME],
     seatedClipPlayable: () => options.seatedPlayable ?? false,
@@ -52,7 +54,10 @@ function register(
     plantSeatedPelvis: () => ({ deltaY: 0, pelvisBefore: 0 }),
     seatedChairHeight: () => 0.45,
     findStretcherInScene: () => null,
-    applyAndPlantSupineDeck: () => { planted += 1; },
+    applyAndPlantSupineDeck: (_humanoid: Group, input: { alignHeadToPillow?: boolean }) => {
+      planted += 1;
+      alignHeadToPillow = input.alignHeadToPillow;
+    },
     stretcherDeckTopWorldY: () => 0.8,
     animationSlots: () => slots,
     pushAnimationSlot: (pushed: SlotWithMixer) => slots.push(pushed),
@@ -72,10 +77,14 @@ function register(
   } as unknown as RegisterArgs[0];
   const humanoid = new Group();
   humanoid.userData["openClinXrActorPosture"] = posture;
+  const actorSlot = new Group();
+  if (options.supportInstanceId) {
+    actorSlot.userData["openClinXrRequiredSupportInstanceId"] = options.supportInstanceId;
+  }
   registerGeneratedHumanoidAnimation(context, {
     assetId: "mpfb-gown-adult-patient",
     actorId: options.actorId ?? "supine_actor_under_test",
-    actorSlot: new Group(),
+    actorSlot,
     humanoid,
     mouthCue: new Group() as never,
     gazeCue: new Group() as never,
@@ -89,7 +98,7 @@ function register(
   });
   const slot = slots[0];
   if (!slot) throw new Error("registration pushed no animation slot");
-  return { slot, planted, translationInspections };
+  return { slot, planted, translationInspections, alignHeadToPillow };
 }
 
 describe("a supine patient mixes only posture-safe one-shots", () => {
@@ -138,5 +147,16 @@ describe("a supine patient mixes only posture-safe one-shots", () => {
     });
     expect(seated.slot.mixer).toBeDefined();
     expect(seated.slot.mixer?.existingAction(seatedRole)).toBeTruthy();
+  });
+
+  it("does not pull an exam-table patient toward the default ED stretcher pillow", () => {
+    const exam = register("supine", [SAFE_RESPONSE], {
+      supportInstanceId: "primary_care_clinic_room_v1:exam_surface",
+    });
+    const bed = register("supine", [SAFE_RESPONSE], {
+      supportInstanceId: "stepdown_room_v1:bed",
+    });
+    expect(exam.alignHeadToPillow).toBe(false);
+    expect(bed.alignHeadToPillow).toBe(true);
   });
 });

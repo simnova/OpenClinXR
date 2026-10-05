@@ -1,0 +1,41 @@
+{
+  "room": "behavioral_health_private_room_v1",
+  "pose": {
+    "eye": {
+      "x": -0.581395,
+      "y": 1.6,
+      "z": 1.356923
+    },
+    "look": {
+      "x": 0,
+      "y": 2.5,
+      "z": -0.753827
+    },
+    "fov": 35.852384
+  },
+  "probes": [
+    [
+      900,
+      560
+    ],
+    [
+      300,
+      522
+    ],
+    [
+      640,
+      548
+    ],
+    [
+      900,
+      590
+    ]
+  ],
+  "shots": {
+    "bb-base": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-behavioral/bb-base.png",
+    "bb-ao-off": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-behavioral/bb-ao-off.png",
+    "bb-lights-white": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-behavioral/bb-lights-white.png",
+    "bb-albedo-flat": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-behavioral/bb-albedo-flat.png",
+    "bb-restored": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/diag-behavioral/bb-restored.png"
+  }
+}

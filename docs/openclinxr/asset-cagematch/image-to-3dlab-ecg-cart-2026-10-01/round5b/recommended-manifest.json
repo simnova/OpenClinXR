@@ -1,0 +1,600 @@
+{
+  "schemaVersion": "openclinxr.trellis2-ecg-cart-round5b.v1",
+  "status": "evidence candidate; coordinator grade pending; MADR 0059 Decision unchanged",
+  "generation": {
+    "schemaVersion": "openclinxr.ecg-cart-round5b-generation.v1",
+    "sourceProvenance": "../round3/raw/trellis2/provenance.json",
+    "seed": 42,
+    "resolution": 1024,
+    "pipelineType": "1024_cascade",
+    "attention": "sdpa",
+    "sparseAttention": "sdpa",
+    "loadRemBg": false,
+    "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "samplerParams": {
+      "sparse_structure": {
+        "steps": 12,
+        "guidance_strength": 7.5,
+        "guidance_rescale": 0.7,
+        "rescale_t": 5.0
+      },
+      "shape_slat": {
+        "steps": 12,
+        "guidance_strength": 7.5,
+        "guidance_rescale": 0.5,
+        "rescale_t": 3.0
+      },
+      "tex_slat": {
+        "steps": 12,
+        "guidance_strength": 1.0,
+        "guidance_rescale": 0.0,
+        "rescale_t": 3.0
+      }
+    },
+    "generatorScriptSha256": "1cb932b1f863ecc41d66d6aab7c0854dae1c6c165ce801c19458d1d1e9e7bbaf",
+    "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+    "rawFaces": 8804219,
+    "checkpoint": "/Volumes/files/src/openclinxr-wt/cart-round5/.openclinxr/round5b-replay-20261001/decoded-mesh.pt",
+    "checkpointSha256": "72eec814cc84539bca019a3dc0143e7c8d18a42fd0e21bdf7bae3cb2fc79edca",
+    "originalDecodeSha256": "eabd1b6afbc2e44f9c15c00f4a7740f4f34f20e66a9456a1dbe1aa1e3246fae2",
+    "generationSeconds": 1217.3020792007446,
+    "export": "captured before pre-cap, decimation, UV unwrap or bake",
+    "effectiveSamplerParams": {
+      "sparse_structure": {
+        "steps": 12,
+        "guidance_strength": 7.5,
+        "guidance_rescale": 0.7,
+        "guidance_interval": [
+          0.6,
+          1.0
+        ],
+        "rescale_t": 5.0
+      },
+      "shape_slat": {
+        "steps": 12,
+        "guidance_strength": 7.5,
+        "guidance_rescale": 0.5,
+        "guidance_interval": [
+          0.6,
+          1.0
+        ],
+        "rescale_t": 3.0
+      },
+      "tex_slat": {
+        "steps": 12,
+        "guidance_strength": 1.0,
+        "guidance_rescale": 0.0,
+        "guidance_interval": [
+          0.6,
+          0.9
+        ],
+        "rescale_t": 3.0
+      }
+    }
+  },
+  "revisions": {
+    "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+    "spaceCommit": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+    "applePortPin": "6055b868734af6e12769d229d90580e775fae9f0",
+    "weightRevisions": {
+      "trellis2": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "dinov3": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+    }
+  },
+  "sourceRound3Provenance": "../round3/raw/trellis2/provenance.json",
+  "sourceRound3Manifest": "../round3/raw/trellis2/ecg-cart.json",
+  "postprocessRunner": "../round5/process-treatment.py",
+  "postprocessRunnerSha256": "4d0725e3aefaf83cf6eeaf13253b28d0781ff38ba87fcb4ac68869d4f603abf5",
+  "postprocessInterpreter": "/Users/patrick/.openclinxr-tools/trellis2-apple/venv/bin/python3",
+  "pipelineOrder": [
+    "CPU trimesh.repair.fill_holes on full-resolution mesh",
+    "position weld at five decimal places",
+    "0.01% face-share island filter with >=10% non-main guard",
+    "to_glb decimation target 40000 before UV unwrap",
+    "UV unwrap",
+    "512px PBR bake"
+  ],
+  "treatment": {
+    "mode": "best",
+    "pipeline": [
+      "cpu_fill_holes",
+      "weld_5dp",
+      "island_filter",
+      "to_glb_decimate_40000",
+      "uv_unwrap",
+      "pbr_bake_512"
+    ],
+    "fill": {
+      "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+      "fillReturnWatertight": false,
+      "changed": true,
+      "facesBefore": 8804219,
+      "facesAfter": 8804580,
+      "boundaryEdgesBefore": 48874,
+      "boundaryEdgesAfter": 48117
+    },
+    "weld": {
+      "verticesBefore": 4343258,
+      "verticesAfter": 4343051,
+      "degenerateFacesDropped": 5
+    },
+    "filter": {
+      "thresholdShare": 0.0001,
+      "thresholdFaces": 881,
+      "componentsBefore": 18,
+      "componentsAfter": 1,
+      "keptComponentFaces": [
+        8804120
+      ],
+      "multiPartGuardTriggered": false,
+      "dropped": [
+        {
+          "label": 136,
+          "faces": 225,
+          "share": 2.55548961761357e-05,
+          "center": [
+            -0.27537500858306885,
+            0.16679999232292175,
+            0.2901250123977661
+          ],
+          "diagonal": 0.05917062610387802
+        },
+        {
+          "label": 138,
+          "faces": 57,
+          "share": 6.4739070312877114e-06,
+          "center": [
+            -0.2753649950027466,
+            0.16681499779224396,
+            0.23543000221252441
+          ],
+          "diagonal": 0.012500962242484093
+        },
+        {
+          "label": 137,
+          "faces": 49,
+          "share": 5.565288500580664e-06,
+          "center": [
+            -0.2753700017929077,
+            0.16680499911308289,
+            0.25106000900268555
+          ],
+          "diagonal": 0.012522920034825802
+        },
+        {
+          "label": 141,
+          "faces": 29,
+          "share": 3.293742173813046e-06,
+          "center": [
+            -0.2749350070953369,
+            0.16680499911308289,
+            0.3297699987888336
+          ],
+          "diagonal": 0.013506627641618252
+        },
+        {
+          "label": 144,
+          "faces": 27,
+          "share": 3.0665875411362842e-06,
+          "center": [
+            -0.27487000823020935,
+            0.166934996843338,
+            0.3789849877357483
+          ],
+          "diagonal": 0.008845233358442783
+        },
+        {
+          "label": 143,
+          "faces": 19,
+          "share": 2.1579690104292373e-06,
+          "center": [
+            -0.2749449908733368,
+            0.166934996843338,
+            0.3623799979686737
+          ],
+          "diagonal": 0.008853471837937832
+        },
+        {
+          "label": 142,
+          "faces": 17,
+          "share": 1.9308143777524754e-06,
+          "center": [
+            -0.2752950191497803,
+            0.166920006275177,
+            0.3467499911785126
+          ],
+          "diagonal": 0.008769002743065357
+        },
+        {
+          "label": 400,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            -0.2382899969816208,
+            0.1826300024986267,
+            -0.376384973526001
+          ],
+          "diagonal": 0.0015879875281825662
+        },
+        {
+          "label": 1384,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            0.07129500061273575,
+            -0.039104998111724854,
+            -0.07390500605106354
+          ],
+          "diagonal": 0.0009048180654644966
+        },
+        {
+          "label": 1072,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.046834997832775116,
+            0.16455499827861786,
+            0.46336501836776733
+          ],
+          "diagonal": 0.001972709782421589
+        },
+        {
+          "label": 1150,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.054624997079372406,
+            0.1645199954509735,
+            0.2504599988460541
+          ],
+          "diagonal": 0.001955745043233037
+        },
+        {
+          "label": 603,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.087909996509552,
+            0.165010005235672,
+            0.075204998254776
+          ],
+          "diagonal": 0.0013944593956694007
+        },
+        {
+          "label": 607,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.08596000075340271,
+            0.165010005235672,
+            0.07717999815940857
+          ],
+          "diagonal": 0.0014024260453879833
+        },
+        {
+          "label": 1702,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1454249918460846,
+            0.16504499316215515,
+            0.04605500027537346
+          ],
+          "diagonal": 0.0012326855212450027
+        },
+        {
+          "label": 1709,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1513650119304657,
+            0.16504999995231628,
+            0.046025000512599945
+          ],
+          "diagonal": 0.0012741247192025185
+        },
+        {
+          "label": 1710,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.15323500335216522,
+            0.16504499316215515,
+            0.046049997210502625
+          ],
+          "diagonal": 0.001240077894181013
+        },
+        {
+          "label": 1749,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.17670999467372894,
+            0.16505999863147736,
+            0.0460050031542778
+          ],
+          "diagonal": 0.0012114874552935362
+        }
+      ]
+    },
+    "preExportFaces": 8804120
+  },
+  "result": {
+    "path": "budget/ecg-cart.glb",
+    "triangles": 37462,
+    "weldedTriangles": 37462,
+    "verticesBeforeWeld": 27196,
+    "verticesAfterWeld": 20796,
+    "weldedComponents": 47,
+    "largestComponentFaces": 30717,
+    "largestShare": 0.8199508835620095,
+    "boundaryEdges": 5152,
+    "componentFaceCounts": [
+      30717,
+      2243,
+      1473,
+      1421,
+      1147,
+      134,
+      89,
+      33,
+      21,
+      17,
+      12,
+      12,
+      11,
+      9,
+      8,
+      8,
+      7,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "bytes": 1785892,
+    "glbMiB": 1.7031593322753906,
+    "decodedTextureMiB": 2,
+    "silhouetteIou": 0.7811918416421216,
+    "sha256": "93843fea3abe0439ed383fd9342227fe3b3cdba436972e0544aeaad13bb8b750"
+  },
+  "rawGradeExport": {
+    "path": "raw/ecg-cart.glb",
+    "triangles": 298347,
+    "weldedTriangles": 298347,
+    "verticesBeforeWeld": 201067,
+    "verticesAfterWeld": 158326,
+    "weldedComponents": 50,
+    "largestComponentFaces": 297860,
+    "largestShare": 0.9983676725423751,
+    "boundaryEdges": 24000,
+    "componentFaceCounts": [
+      297860,
+      26,
+      22,
+      22,
+      20,
+      18,
+      16,
+      16,
+      15,
+      14,
+      14,
+      14,
+      14,
+      13,
+      13,
+      12,
+      12,
+      12,
+      12,
+      12,
+      11,
+      10,
+      10,
+      10,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      2
+    ],
+    "bytes": 16098376,
+    "decodedTextureMiB": 32,
+    "silhouetteIou": 0.7814328799128354,
+    "sha256": "ce3fac62cfe9bd792d5b421677d769fcb284d057cb7e008ef42ec2b2728d0364"
+  },
+  "execution": {
+    "generation": {
+      "wallSeconds": 1218.154,
+      "peakRssBytes": 20837892096,
+      "receipt": "executions/generation.json"
+    },
+    "best": {
+      "wallSeconds": 123.035,
+      "peakRssBytes": 32447135744,
+      "receipt": "executions/best.json"
+    },
+    "raw": {
+      "wallSeconds": 60.505,
+      "peakRssBytes": 32645890048,
+      "receipt": "executions/raw.json"
+    }
+  },
+  "remesh": false,
+  "cameraFreeze": "../../../../../tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",
+  "normalizeExtent": 0.9682512283325195,
+  "evidence": {
+    "mainContactSheet": "contact-sheet-raw-budget.png",
+    "mainColumns": [
+      "control",
+      "T4 adopted",
+      "R5-BEST",
+      "R5b round-3 seed + BEST"
+    ],
+    "rows": [
+      "raw",
+      "budget"
+    ],
+    "columnBaseCasterCrop": {
+      "box": [
+        300,
+        690,
+        1010,
+        1260
+      ],
+      "sheet": "column-base-caster-crops-budget.png",
+      "individuals": [
+        {
+          "column": "control",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/control-2x-nearest.png"
+        },
+        {
+          "column": "T4 adopted",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/t4-adopted-2x-nearest.png"
+        },
+        {
+          "column": "R5-BEST",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5-best-2x-nearest.png"
+        },
+        {
+          "column": "R5b round-3 seed + BEST",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-column-base-caster/r5b-round-3-seed-+-best-2x-nearest.png"
+        }
+      ]
+    },
+    "frontPanelCrop": {
+      "box": [
+        270,
+        130,
+        800,
+        770
+      ],
+      "sheet": "front-panel-crops-budget.png",
+      "individuals": [
+        {
+          "column": "control",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/renders/control/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/control-2x-nearest.png"
+        },
+        {
+          "column": "T4 adopted",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/renders/t4-uv64-512-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/t4-adopted-2x-nearest.png"
+        },
+        {
+          "column": "R5-BEST",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/renders/r5-best-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5-best-2x-nearest.png"
+        },
+        {
+          "column": "R5b round-3 seed + BEST",
+          "source": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png",
+          "path": "/Volumes/files/src/openclinxr-wt/cart-round5/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/crops-front-panel/r5b-round-3-seed-+-best-2x-nearest.png"
+        }
+      ]
+    },
+    "magnification": "individual crops are 2x NEAREST; sheets retain native crop pixels"
+  },
+  "featureVerification": {
+    "schemaVersion": "openclinxr.ecg-cart-round5b-feature-verification.v1",
+    "verificationBy": "worker; requested feature checks only, coordinator overall grade pending",
+    "method": "Native 1280px renders and 2x NEAREST crops inspected; three mesh cross sections compared with Round-3 raw geometry.",
+    "panel": {
+      "sevenButtonsVisible": true,
+      "buttonColorsLeftToRight": [
+        "teal",
+        "teal",
+        "purple",
+        "purple",
+        "orange",
+        "orange",
+        "orange"
+      ],
+      "twoMiddlePurpleButtonsPreserved": true,
+      "sixConnectorsVisible": true,
+      "connectorColorsLeftToRight": [
+        "red",
+        "blue",
+        "yellow",
+        "black",
+        "red",
+        "blue"
+      ],
+      "yellowConnectorPreserved": true,
+      "crop": "crops-front-panel/r5b-round-3-seed-+-best-2x-nearest.png"
+    },
+    "column": {
+      "round3FormPreserved": true,
+      "description": "Round-3/T4 broad-faced, approximately square column form restored, with rounded/bevelled corners; not an exact mathematical square.",
+      "maximumSampledWidthDifferenceRelativeToRound3": "less than 0.15% at y=-0.25,-0.20,-0.15",
+      "geometryEvidence": "column-sections.json",
+      "crop": "crops-column-base-caster/r5b-round-3-seed-+-best-2x-nearest.png"
+    },
+    "residuals": [
+      "Visible patchy cabinet-rim and base-edge defects",
+      "Small dark caster notches remain",
+      "Final mesh has 47 welded components and 5152 boundary edges, more than seed7 R5-BEST"
+    ],
+    "overallGrade": null,
+    "decisionChanged": false
+  },
+  "checkpointRetention": "local ignored .openclinxr/round5b-replay-20261001; retained for exact postprocess replay",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption",
+    "coordinator adoption decision"
+  ]
+}

@@ -91,6 +91,21 @@ export function familyChairFixtureWorldPosition(environmentId: string): Vector3 
   return resolveFixtureSlotPosition(familyChair, room, room);
 }
 
+function declaredSupportFixtureWorldPosition(environmentId: string, supportInstanceId: string | undefined): Vector3 | null {
+  const prefix = `${environmentId}:`;
+  if (!supportInstanceId?.startsWith(prefix)) return null;
+  const slotId = supportInstanceId.slice(prefix.length);
+  const resolved = resolveEnvironmentShellDescriptor(environmentId);
+  const slot = resolved.descriptor.fixtureSlots.find((candidate) => candidate.slotId === slotId);
+  if (!slot) return null;
+  const room = {
+    widthMeters: resolved.descriptor.roomWidthMeters,
+    depthMeters: resolved.descriptor.roomDepthMeters,
+    heightMeters: resolved.descriptor.roomHeightMeters,
+  };
+  return resolveFixtureSlotPosition(slot, room, room);
+}
+
 /** The authored plant offset for `actorId` in `scenarioId`, or undefined when none is authored. */
 /**
  * Capture-time suppression of the authored offset, for the CONTROL half of a control/treatment
@@ -208,13 +223,14 @@ export function supportedActorPlacementPosition(input: {
   // "`none` is not a frame" refusal correct and unreachable — the repo's characteristic defect —
   // because the only standing caller never asked. The anchor argument is unused for standing; the
   // resolved position stands whether the compose accepts or refuses.
+  const declaredSupportAnchor = declaredSupportFixtureWorldPosition(input.environmentId, input.supportInstanceId);
   const fixtureAnchor = input.posture === "standing"
     ? input.resolvedPosition
     : input.posture === "seated"
-      ? ((input.slotKind === "family_or_observer"
+      ? (declaredSupportAnchor ?? (input.slotKind === "family_or_observer"
           ? familyChairFixtureWorldPosition(input.environmentId)
           : null) ?? seatedActorWorldPosition({}))
-      : supineActorWorldPosition({});
+      : declaredSupportAnchor ?? supineActorWorldPosition({});
   const composed = composeSupportedActorWorldPosition({
     posture: input.posture,
     fixtureAnchor,

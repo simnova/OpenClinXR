@@ -11,9 +11,14 @@ import { readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "../lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import type { Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../lib/portless-server.js";
 import { regionLuminance } from "../lib/png-region-luminance.js";
+
+type HeadlessBrowser = {
+  newPage(options: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
+};
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -182,7 +187,8 @@ async function main(): Promise<void> {
   const shots = selectedShots();
   const script = applierSource();
   let server: PortlessDevServer | undefined;
-  const browser = await chromium.launch({ headless: true });
+  await createLocalComputeServices().sceneCapture.withBrowser("parent-fitted-teeth:recapture-visemes", async (launched) => {
+  const browser = launched as HeadlessBrowser;
   try {
     server = await spawnPortlessDevServer({
       filter: "@openclinxr/ui-xr",
@@ -248,9 +254,9 @@ async function main(): Promise<void> {
     process.stdout.write(`${JSON.stringify({ written })}\n`);
     await page.close();
   } finally {
-    await browser.close().catch(() => undefined);
     if (server) await stopPortlessDevServer(server.proc);
   }
+  });
 }
 
 main().catch((error: unknown) => {

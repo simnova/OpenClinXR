@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   canonicalJson,
@@ -15,11 +16,11 @@ import {
   storeStageCache,
 } from "./cache.js";
 import {
+  paintedCeilingOcclusionExcludes,
   parseWardChainArgs,
   RoomChainRecipeValidationError,
   validateRoomChainRecipe,
 } from "./run.js";
-import { ROOM_CHAIN_RECIPES } from "@openclinxr/factory-stations/room-chain";
 
 /**
  * Room-chain stage cache unit tests. Pure: no Blender, no Infinigen install,
@@ -305,11 +306,57 @@ describe("room-chain --no-cache flag", () => {
 });
 
 describe("room-chain recipe registry", () => {
+  it("registers every shipped Infinigen room with its recorded deterministic seed", () => {
+    expect(Object.keys(ROOM_CHAIN_RECIPES)).toHaveLength(14);
+    expect(Object.fromEntries(Object.entries(ROOM_CHAIN_RECIPES).map(([id, recipe]) => [id, recipe.defaultSeed]))).toMatchObject({
+      ed_exam_bay_v1: 22,
+      pediatric_urgent_care_bay_v1: 13,
+      primary_care_clinic_room_v1: 1,
+      ed_stroke_bay_v1: 2,
+      adult_ed_abdominal_bay_v1: 0,
+      telehealth_home_visit_v1: 14,
+      behavioral_health_private_room_v1: 16,
+      oncology_consult_room_v1: 17,
+      urgent_care_clinic_room_v1: 22,
+      surgical_ward_room_v1: 25,
+      ob_triage_room_v1: 27,
+      inpatient_ward_room_v1: 205,
+      stepdown_room_v1: 205,
+      pediatric_fever_urgent_care_bay_v1: 34,
+    });
+  });
+
+  it("keeps home and behavioral rooms out of the hospital finish profile", () => {
+    const home = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.telehealth_home_visit_v1);
+    expect(home.finish?.floor.kind).toBe("wood-plank");
+    expect(home.finish?.ceiling).toMatchObject({ kind: "painted", troffer: false });
+    expect(home.finish?.door.kind).toBe("residential");
+    expect(home.door.style).toBe("panel");
+    expect(home.door.liteRect).toBeUndefined();
+    const behavioral = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.behavioral_health_private_room_v1);
+    expect(behavioral.finish?.door).toMatchObject({ kind: "behavioral-solid", casing: false, lite: false, hinges: false });
+    expect(behavioral.finish?.ceiling.kind).toBe("painted");
+  });
+
   it("accepts the shipped ward recipe", () => {
     const ward = validateRoomChainRecipe(ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, "inpatient_ward_room_v1");
     expect(ward.finish?.preserveShell).toBe(true);
     expect(ward.finish?.floor).toEqual({ kind: "vinyl-tile", moduleM: 0.6 });
-    expect(ward.finish?.ceiling).toEqual({ troffer: true, tbarMm: 24 });
+    expect(ward.finish?.ceiling).toEqual({
+      kind: "acoustic-tbar",
+      troffer: true,
+      tbarMm: 24,
+      cornice: "wall-angle",
+      corniceProfile: "flush",
+      corniceMaterial: "tile",
+      corniceWidthMm: 24,
+      corniceColorSource: "wall",
+    });
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.finish?.ceiling).toEqual(ward.finish?.ceiling);
+    expect(ward.door.transom).toBeUndefined();
+    expect(ward.door.kickPlate).toBeUndefined();
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.door.transom).toBe("infill");
+    expect(ROOM_CHAIN_RECIPES.stepdown_room_v1.door.kickPlate).toBe(true);
   });
 
   it("fails closed with a named error on an unknown field", () => {
@@ -317,5 +364,94 @@ describe("room-chain recipe registry", () => {
       .toThrow(RoomChainRecipeValidationError);
     expect(() => validateRoomChainRecipe({ ...ROOM_CHAIN_RECIPES.inpatient_ward_room_v1, typo: true }))
       .toThrow(/unknown field.*typo/);
+  });
+
+  it("validates optional ceiling cornice modes and preserves legacy omission", () => {
+    const shipped = ROOM_CHAIN_RECIPES.inpatient_ward_room_v1;
+    const legacy = {
+      ...shipped,
+      finish: shipped.finish && {
+        ...shipped.finish,
+        ceiling: { kind: "acoustic-tbar" as const, troffer: true, tbarMm: 24 },
+      },
+    };
+    expect(validateRoomChainRecipe(legacy).finish?.ceiling.cornice).toBeUndefined();
+    const invalid = {
+      ...legacy,
+      finish: legacy.finish && {
+        ...legacy.finish,
+        ceiling: { ...legacy.finish.ceiling, cornice: "dark-band" },
+      },
+    };
+    expect(() => validateRoomChainRecipe(invalid)).toThrow(
+      /ceiling\.cornice must be none or wall-angle/,
+    );
+    const variants = {
+      ...shipped,
+      finish: shipped.finish && {
+        ...shipped.finish,
+        ceiling: {
+          ...shipped.finish.ceiling,
+          corniceWidthMm: 15,
+          corniceColorSource: "wall" as const,
+          corniceProfile: "angle" as const,
+        },
+      },
+    };
+    expect(validateRoomChainRecipe(variants).finish?.ceiling).toMatchObject({
+      cornice: "wall-angle",
+      corniceWidthMm: 15,
+      corniceColorSource: "wall",
+      corniceProfile: "angle",
+    });
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceWidthMm: 0 },
+      },
+    })).toThrow(/corniceWidthMm must be > 0/);
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceColorSource: "ceiling" },
+      },
+    })).toThrow(/corniceColorSource must be tbar or wall/);
+    expect(() => validateRoomChainRecipe({
+      ...variants,
+      finish: variants.finish && {
+        ...variants.finish,
+        ceiling: { ...variants.finish.ceiling, corniceProfile: "stepped" },
+      },
+    })).toThrow(/corniceProfile must be angle or flush/);
+    for (const corniceMaterial of ["tile", "tbar", "wall"] as const) {
+      expect(validateRoomChainRecipe({ ...variants, finish: {
+        ...variants.finish, ceiling: { ...variants.finish.ceiling, corniceMaterial },
+      } }).finish?.ceiling.corniceMaterial).toBe(corniceMaterial);
+    }
+    expect(() => validateRoomChainRecipe({ ...variants, finish: {
+      ...variants.finish, ceiling: { ...variants.finish.ceiling, corniceMaterial: "plastic" },
+    } })).toThrow(/corniceMaterial must be tile, tbar or wall/);
+  });
+});
+
+/**
+ * Brown-band pin: a painted-ceiling finish deletes the shell cornice and the
+ * shell ceiling plane after the occlusion bake, so the stage-1 bake must
+ * exclude both as occluders. Acoustic-tbar rooms keep no excludes (identical
+ * stage-1 keys, byte-identical GLBs).
+ */
+describe("painted-ceiling bakes exclude the finish-removed occluders", () => {
+  it("returns both excludes for exactly the two painted-ceiling recipes", () => {
+    const painted = Object.values(ROOM_CHAIN_RECIPES).filter((r) => r.finish?.ceiling?.kind === "painted");
+    expect(painted.map((r) => r.environmentId).sort()).toEqual([
+      "behavioral_health_private_room_v1",
+      "telehealth_home_visit_v1",
+    ]);
+    for (const recipe of Object.values(ROOM_CHAIN_RECIPES)) {
+      const expected = recipe.finish?.ceiling?.kind === "painted" ? { shellCornice: true, shellCeiling: true } : undefined;
+      expect(paintedCeilingOcclusionExcludes(recipe.finish)).toEqual(expected);
+    }
   });
 });

@@ -72,6 +72,7 @@ import {
   resolveHm08UpperGarment,
 } from "../asset-pipeline/makeclothes/garment-selection-by-role.js";
 import { captureStationEnvironmentRooms } from "../evidence/ui-xr-environment-room-capture.js";
+import { classifyRenderCapture } from "./render-capture-classification.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
 import {
   compileEncounterMaterialization,
@@ -336,7 +337,7 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   render:
     "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
   lip_sync:
-    "multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb 1.14.0 --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1)",
+    "multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb 1.14.0 --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1; else Kokoro build-time speech-synth with case-actor voice)",
   world_compile:
     "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
 };
@@ -1010,13 +1011,21 @@ async function runRenderStage(
     if (!entry) {
       throw new Error(`capture manifest for ${caseId} has no entry (entries=${manifest.entries.length})`);
     }
+    const capturePath = path.join(outputDir, entry.imagePath);
+    const classified = classifyRenderCapture({
+      captureExists: await existsPath(capturePath),
+      containment: entry.liveShell.actorContainment,
+      meanFacingDeg: entry.liveShell.meanFacingDeg,
+      nearOcclusionFraction: entry.liveShell.nearOcclusion?.fraction,
+    });
     return {
-      row: makeRow("render", "deterministic", [
+      row: makeRow("render", classified.classification, [
         relStage(stageDir, `capture/${entry.imagePath}`),
         relStage(stageDir, "capture/capture-manifest.json"),
       ], [
         `RAN live: loaded ${caseId} in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.`,
         `Live env=${entry.liveShell.environmentId ?? "?"}; capture-manifest source=live_scene.`,
+        classified.note,
       ]),
     };
   } catch (err) {
@@ -1102,19 +1111,38 @@ export function resolveRhubarbBinary(home: string = process.env.HOME ?? ""): str
 }
 
 /**
- * The first authored spoken line a case declares: the patient cold-open
- * (`openingUtterance`, ActorCardSchema), else the first touch-response
- * `dialogueLine`. The case definition drives what gets baked (Q1).
+ * The first authored spoken line a case declares, with the speaking actor
+ * attached for voice mapping: the patient cold-open (`openingUtterance`,
+ * ActorCardSchema), else the first touch-response `dialogueLine`.
+ * The case definition drives what gets baked (Q1).
  */
-function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefined {
+export type LipSyncCaseSpeech = {
+  utterance: string;
+  actorId: string;
+  role: string;
+  genderPresentation?: string | undefined;
+  displayName?: string | undefined;
+};
+
+export function firstAuthoredSpeech(scenario: Scenario | undefined): LipSyncCaseSpeech | undefined {
   if (!scenario) return undefined;
   for (const actor of scenario.actors) {
-    if (actor.openingUtterance) return actor.openingUtterance;
+    const speech = {
+      actorId: actor.actorId,
+      role: actor.role,
+      genderPresentation: actor.phenotype?.gender_presentation,
+      displayName: actor.displayName,
+    };
+    if (actor.openingUtterance) return { ...speech, utterance: actor.openingUtterance };
     for (const touch of actor.bodyMechanics?.touchResponses ?? []) {
-      if (touch.dialogueLine) return touch.dialogueLine;
+      if (touch.dialogueLine) return { ...speech, utterance: touch.dialogueLine };
     }
   }
   return undefined;
+}
+
+function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefined {
+  return firstAuthoredSpeech(scenario)?.utterance;
 }
 
 /**
@@ -1171,13 +1199,47 @@ export function resolveLipSyncWavPathAllowingDeterministicPcm(
  * Artifact names derive from a content hash of the utterance, so the same line
  * bakes the same files on every run (D9 determinism).
  */
-export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
-  const resolved = resolveLipSyncWavPathAllowingDeterministicPcm(options);
-  const wavPath =
-    resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(options.utterance, options.outDir) : resolved.wavPath;
+export type LipSyncStationSpeech = {
+  caseId?: string | undefined;
+  actorId?: string | undefined;
+  role?: string | undefined;
+  genderPresentation?: string | undefined;
+  displayName?: string | undefined;
+  voiceId?: string | undefined;
+};
+
+export async function runLipSyncStation(
+  options: RunLipSyncStationOptions & {
+    speech?: LipSyncStationSpeech;
+  },
+): Promise<LipSyncStationResult> {
+  let wavPath = "";
+  try {
+    const resolved = resolveLipSyncWavPathAllowingDeterministicPcm(options);
+    wavPath =
+      resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(options.utterance, options.outDir) : resolved.wavPath;
+  } catch {
+    // No provided wav and no fixture flag: the package runLipSync falls back
+    // to the build-time speech-synth step. Default speech context keeps the
+    // station seam self-sufficient ({utterance, outDir} still bakes); the
+    // synth error names the speech-synth step when synthesis itself fails.
+    wavPath = "";
+  }
   const raw = await runLipSync(
     { actorId: "lip_sync", visemeBank: "mpfb_phonemes" },
-    { utterance: options.utterance, outDir: options.outDir, wavPath },
+    {
+      utterance: options.utterance,
+      outDir: options.outDir,
+      wavPath,
+      speech: {
+        caseId: options.speech?.caseId ?? "lip_sync",
+        actorId: options.speech?.actorId ?? "lip_sync",
+        role: options.speech?.role ?? "patient",
+        genderPresentation: options.speech?.genderPresentation,
+        displayName: options.speech?.displayName,
+        voiceId: options.speech?.voiceId,
+      },
+    },
   );
   const cues = (raw["cues"] as LipSyncCue[] | undefined) ?? [];
   return {
@@ -1196,25 +1258,55 @@ export async function runLipSyncStation(options: RunLipSyncStationOptions): Prom
  * equipment station treats "declares none"); `error` when the offline pipeline
  * fails on a case that does speak.
  */
-async function runLipSyncStage(caseId: string, stageDir: string): Promise<StationRun> {
+export async function runLipSyncStage(caseId: string, stageDir: string): Promise<StationRun> {
   const scenario = findFixtureById(caseId);
-  const utterance = firstAuthoredUtterance(scenario);
-  if (!utterance) {
+  const speech = firstAuthoredSpeech(scenario);
+  if (!speech) {
     return {
       row: makeRow("lip_sync", "absent", [], [
         `Scenario ${caseId} authors no spoken line (no actor openingUtterance and no touch-response dialogueLine in the fixture); viseme timing is not applicable.`,
       ]),
     };
   }
+  const { utterance } = speech;
   await mkdir(stageDir, { recursive: true });
+  let wavPath = "";
+  let wavNote = "kokoro build-time speech";
   try {
     const resolved = resolveLipSyncWavPathAllowingDeterministicPcm({ utterance, outDir: stageDir });
-    const wavPath =
-      resolved.kind === "fixture-flag" ? await writeLipSyncFixtureWav(utterance, stageDir) : resolved.wavPath;
-    const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir, wavPath });
+    if (resolved.kind === "fixture-flag") {
+      wavPath = await writeLipSyncFixtureWav(utterance, stageDir);
+    } else {
+      wavPath = resolved.wavPath;
+    }
+    wavNote = resolved.kind;
+  } catch {
+    // No provided wav and no fixture flag: runLipSync below synthesises the
+    // case line via the build-time speech-synth step and names that step if
+    // synthesis fails.
+    wavPath = "";
+  }
+  try {
+    const result = await runLipSync(
+      { actorId: caseId, visemeBank: "mpfb_phonemes" },
+      {
+        utterance,
+        outDir: stageDir,
+        wavPath,
+        speech: {
+          caseId,
+          actorId: speech.actorId,
+          role: speech.role,
+          genderPresentation: speech.genderPresentation,
+          displayName: speech.displayName,
+        },
+      },
+    );
+    const note = (result["speech"] as { voice?: string } | undefined)?.voice;
+    if (note) wavNote = `kokoro ${note} build-time speech`;
     return {
       row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [
-        `RAN offline: ${result.cues.length} cues, ${new Set(result.cues.map((c) => c.value)).size} distinct shapes via ${result.tool} (${result.binary}) for "${utterance}".`,
+        `RAN offline: ${result.cues.length} cues, ${new Set(result.cues.map((c) => c.value)).size} distinct shapes via ${result.tool} (${result.binary}) on ${wavNote} for "${utterance}".`,
       ]),
     };
   } catch (err) {
@@ -1533,7 +1625,7 @@ function executionCommandsFor(): Record<string, string> {
     equipment: "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
-    lip_sync: "in-process multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+    lip_sync: "in-process multi-case-runner.ts runLipSyncStation (provided wavPath -> rhubarb --exportFormat json; fixture helper only behind OPENCLINXR_LIP_SYNC_FIXTURE=1; else Kokoro build-time speech-synth with case-actor voice; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
     world_compile: "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)",
   };
 }

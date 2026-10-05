@@ -1,0 +1,84 @@
+{
+  "raw": {
+    "sha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+    "bytes": 12425028,
+    "triangles": 297289,
+    "textures": [
+      {
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp",
+        "bytes": 665836
+      },
+      {
+        "size": [
+          2048,
+          2048
+        ],
+        "mime": "image/webp",
+        "bytes": 110932
+      }
+    ],
+    "decodedMiB": 32,
+    "mipmappedMiB": 42.666666666666664,
+    "materials": [
+      {
+        "base": true,
+        "normal": false,
+        "mr": true,
+        "metallic": 1,
+        "roughness": 1,
+        "color": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "alpha": "OPAQUE"
+      }
+    ]
+  },
+  "budget": {
+    "sha256": "12c79ef7f20a7176325c2e5bf5f87cee092b7e0efde2e54a8cd9993e77a26fd0",
+    "bytes": 2134416,
+    "triangles": 38697,
+    "textures": [
+      {
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp",
+        "bytes": 151074
+      },
+      {
+        "size": [
+          1024,
+          1024
+        ],
+        "mime": "image/webp",
+        "bytes": 40462
+      }
+    ],
+    "decodedMiB": 8,
+    "mipmappedMiB": 10.666666666666666,
+    "materials": [
+      {
+        "base": true,
+        "normal": false,
+        "mr": true,
+        "metallic": 1,
+        "roughness": 1,
+        "color": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "alpha": "OPAQUE"
+      }
+    ]
+  }
+}

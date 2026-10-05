@@ -876,12 +876,12 @@ function runtimeActorPlacement(actorId: string, fallback: LearnerRuntimeAssetBun
     scenarioId: selectedScenarioId(),
     environmentId: resolveActiveEnvironmentId(),
     resolvedPosition: position,
-    ...(placement?.supportInstanceId ? { supportInstanceId: placement.supportInstanceId } : {}), ...(placement?.plantOffsetMeters ? { authoredOffsetMeters: placement.plantOffsetMeters } : {}),
+    ...(placement?.supportInstanceId ? { supportInstanceId: placement.supportInstanceId } : {}), ...(placement?.plantOffsetMeters ? { authoredOffsetMeters: placement.plantOffsetMeters } : {}), ...(posture === "standing" && placement?.plantOffsetMeters ? { floorFrame: { frameId: `${resolveActiveEnvironmentId()}:floor`, originY: 0, originXz: { x: 0, z: 0 } } } : {}),
   });
   if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
   return {
     ...fallback, ...placement,
-    position: supported.position, placementProvenance: supported.provenance,
+    position: supported.position, placementProvenance: placement?.placementProvenance ?? supported.provenance,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale, supportAcceptance: supported.supportAcceptance,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,

@@ -1,0 +1,13 @@
+{
+  "round3Update": "Budget sheet TRELLIS.2 placeholder replaced in Round 3; first three columns pixel-identical. See ../../round3/renders/provenance.json. Raw sheet unchanged.",
+  "renderer": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+  "execution": "BlenderService",
+  "cameraFreeze": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json",
+  "resolution": [1280,1280],
+  "view": "three_quarter_right",
+  "treatmentExtent": 0.9682512283325195,
+  "normalization": "Uniform render-only normalization, same protocol as round one; GLB bytes unchanged.",
+  "reusedRenders": "Unchanged control and Hunyuan raw use the round-one fixed-camera stills.",
+  "territoryFlag": "Contact sheets include Hunyuan-derived pixels: US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "notEvidenceFor": ["Quest readiness","clinical accuracy","coordinator visual grade"]
+}

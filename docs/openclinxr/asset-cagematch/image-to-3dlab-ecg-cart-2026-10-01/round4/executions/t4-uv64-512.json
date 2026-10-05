@@ -1,0 +1,31 @@
+{
+  "kind": "gpu",
+  "command": "/usr/bin/time",
+  "args": [
+    "-l",
+    "pnpm",
+    "exec",
+    "tsx",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/optimize-treatment.mts",
+    "--input",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/raw/trellis2/ecg-cart.glb",
+    "--output",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t4-uv64-512/ecg-cart.glb",
+    "--report",
+    "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t4-uv64-512/report.json",
+    "--uv-weight",
+    "64",
+    "--texture-size",
+    "512",
+    "--target-triangles",
+    "40000"
+  ],
+  "start": "2026-10-01T18:01:17.776Z",
+  "end": "2026-10-01T18:01:19.794Z",
+  "wallSeconds": 2.018,
+  "code": 0,
+  "stdout": "{\"method\":\"meshoptimizer simplifyWithAttributes\",\"diagnosis\":\"Round-3 corruption is introduced by Permissive UV-seam relaxation, not raw geometry or raw texture generation\",\"input\":\"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round3/raw/trellis2/ecg-cart.glb\",\"output\":\"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round4/treatments/t4-uv64-512/ecg-cart.glb\",\"inputTriangles\":297289,\"targetTriangles\":40000,\"triangles\":39860,\"vertices\":51969,\"flags\":[\"Permissive\"],\"targetError\":1,\"reportedError\":0.0765436515212059,\"attributeWeights\":{\"normal\":[1,1,1],\"uv\":[64,64]},\"textureResize\":{\"width\":512,\"height\":512,\"filter\":\"Lanczos3\",\"format\":\"WebP\"},\"decodedTextureBytes\":2097152,\"decodedTextureMiB\":2,\"outputBytes\":2222084,\"outputSha256\":\"0a55256c4007fa4bb98e3b16145fc1cb0d74977b31b100de4737ed7daa7ec930\",\"wallSeconds\":1.3598601670000001,\"materialChanges\":false,\"claimScope\":\"one ECG-cart optimizer treatment under the round-4 common budget\",\"notEvidenceFor\":[\"Quest readiness\",\"clinical accuracy\",\"runtime adoption\"]}\n",
+  "stderr": "        2.00 real         2.27 user         0.17 sys\n           582483968  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               52352  page reclaims\n                 254  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                  37  messages sent\n                  36  messages received\n                   0  signals received\n                   1  voluntary context switches\n                6663  involuntary context switches\n          3614487158  instructions retired\n          1195816923  cycles elapsed\n           145662784  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

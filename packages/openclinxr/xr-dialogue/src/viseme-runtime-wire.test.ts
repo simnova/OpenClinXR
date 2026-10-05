@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JAW_OPEN_TEETH_CLEAR_RADIANS } from "./viseme-timeline-drive.js";
+import { JAW_OPEN_TEETH_CLEAR_RADIANS } from "./index.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,

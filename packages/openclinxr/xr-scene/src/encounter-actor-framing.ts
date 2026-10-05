@@ -148,6 +148,17 @@ export function applyCleanEncounterVisualReviewActorFraming(
     return;
   }
 
+  // A generated case placement with a patient-facing heading is a complete staging decision:
+  // preserve its XZ and let the heading consumer apply its authored yaw after this pass. The
+  // legacy floor-standing frames remain the fallback for bundles without that case data.
+  if (declaredPosture === "standing" && actor.userData.openClinXrPreserveResolvedPlacement === true) {
+    actor.scale.setScalar(0.86);
+    actor.userData.openClinXrEncounterStaging =
+      "standing_actor_keeps_case_authored_bedside_position_and_heading";
+    actor.userData.openClinXrFloorStandingFrame = Math.abs(actor.position.y) < 0.2;
+    return;
+  }
+
   // An UNRECOGNISED posture is refused explicitly rather than falling through to the
   // floor-standing frames below. Silence on an unknown value is how a supine patient was framed
   // as standing before this guard covered it: the posture is stamped AFTER framing runs

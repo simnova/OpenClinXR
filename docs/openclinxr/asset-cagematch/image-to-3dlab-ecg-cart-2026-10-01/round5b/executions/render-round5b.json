@@ -1,0 +1,54 @@
+[
+  {
+    "id": "r5b-budget",
+    "kind": "renders",
+    "glb": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/budget/ecg-cart.glb",
+    "outDir": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget",
+    "start": "2026-10-01T20:53:21.842Z",
+    "end": "2026-10-01T20:53:23.828Z",
+    "code": 0,
+    "stdout": "[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x158166a50>: Failed to establish a new connection: [Errno 61] Connection refused'))\n[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x158a834d0>: Failed to establish a new connection: [Errno 61] Connection refused'))\n16:53:22 | INFO: Data are loaded, start creating Blender stuff\n16:53:22 | INFO: Blender create Mesh node geometry_0\n16:53:22 | INFO: glTF import finished in 0.07s\n00:01.663  render           | Saved: 'docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget/three_quarter_right.png'\n{\"rendered\": \"three_quarter_right.png\", \"bytes\": 1370945, \"elev\": 14.0, \"azim\": 40.0}\n{\"ok\": true, \"views\": 1, \"outDir\": \"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-budget\"}\nBlender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)\n\nBlender quit\n",
+    "stderr": "/Volumes/files/src/openclinxr-wt/cart-round5/tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py:96: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world.use_nodes = True\n        1.97 real         1.33 user         0.31 sys\n           531447808  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               39795  page reclaims\n                 799  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   8  messages sent\n                   0  messages received\n                   0  signals received\n                  61  voluntary context switches\n                4701  involuntary context switches\n            14875143  instructions retired\n             7148107  cycles elapsed\n             1261856  peak memory footprint\n",
+    "timedOut": false,
+    "signal": null
+  },
+  {
+    "id": "r5b-budget",
+    "kind": "silhouettes",
+    "glb": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/budget/ecg-cart.glb",
+    "outDir": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-budget",
+    "start": "2026-10-01T20:53:23.828Z",
+    "end": "2026-10-01T20:53:25.764Z",
+    "code": 0,
+    "stdout": "[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1586b2a50>: Failed to establish a new connection: [Errno 61] Connection refused'))\n[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x158faf4d0>: Failed to establish a new connection: [Errno 61] Connection refused'))\n16:53:24 | INFO: Data are loaded, start creating Blender stuff\n16:53:24 | INFO: Blender create Mesh node geometry_0\n16:53:24 | INFO: glTF import finished in 0.06s\n00:01.611  render           | Saved: 'docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-budget/three_quarter_right.png'\n{\"rendered\": \"three_quarter_right.png\", \"bytes\": 1072093, \"elev\": 14.0, \"azim\": 40.0}\n{\"ok\": true, \"views\": 1, \"outDir\": \"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-budget\"}\nBlender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)\n\nBlender quit\n",
+    "stderr": "/Volumes/files/src/openclinxr-wt/cart-round5/tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py:96: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world.use_nodes = True\n        1.92 real         1.31 user         0.30 sys\n           566968320  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               42687  page reclaims\n                   3  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   8  messages sent\n                   0  messages received\n                   0  signals received\n                   2  voluntary context switches\n                4401  involuntary context switches\n            15226605  instructions retired\n             7263631  cycles elapsed\n             1278240  peak memory footprint\n",
+    "timedOut": false,
+    "signal": null
+  },
+  {
+    "id": "r5b-raw",
+    "kind": "renders",
+    "glb": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/raw/ecg-cart.glb",
+    "outDir": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-raw",
+    "start": "2026-10-01T20:53:25.764Z",
+    "end": "2026-10-01T20:53:28.599Z",
+    "code": 0,
+    "stdout": "[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x159a46a50>: Failed to establish a new connection: [Errno 61] Connection refused'))\n[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x15a3834d0>: Failed to establish a new connection: [Errno 61] Connection refused'))\n16:53:26 | INFO: Data are loaded, start creating Blender stuff\n16:53:26 | INFO: Blender create Mesh node geometry_0\n16:53:27 | INFO: glTF import finished in 0.40s\n00:02.521  render           | Saved: 'docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-raw/three_quarter_right.png'\n{\"rendered\": \"three_quarter_right.png\", \"bytes\": 1360608, \"elev\": 14.0, \"azim\": 40.0}\n{\"ok\": true, \"views\": 1, \"outDir\": \"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/renders/r5b-raw\"}\nBlender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)\n\nBlender quit\n",
+    "stderr": "/Volumes/files/src/openclinxr-wt/cart-round5/tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py:96: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world.use_nodes = True\n        2.83 real         2.42 user         0.35 sys\n           861061120  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               63880  page reclaims\n                   3  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   8  messages sent\n                   0  messages received\n                   0  signals received\n                   1  voluntary context switches\n                5254  involuntary context switches\n            15408860  instructions retired\n             8303618  cycles elapsed\n             1261856  peak memory footprint\n",
+    "timedOut": false,
+    "signal": null
+  },
+  {
+    "id": "r5b-raw",
+    "kind": "silhouettes",
+    "glb": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/raw/ecg-cart.glb",
+    "outDir": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw",
+    "start": "2026-10-01T20:53:28.600Z",
+    "end": "2026-10-01T20:53:31.427Z",
+    "code": 0,
+    "stdout": "[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1418c6a50>: Failed to establish a new connection: [Errno 61] Connection refused'))\n[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1422034d0>: Failed to establish a new connection: [Errno 61] Connection refused'))\n16:53:29 | INFO: Data are loaded, start creating Blender stuff\n16:53:29 | INFO: Blender create Mesh node geometry_0\n16:53:29 | INFO: glTF import finished in 0.40s\n00:02.504  render           | Saved: 'docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw/three_quarter_right.png'\n{\"rendered\": \"three_quarter_right.png\", \"bytes\": 1062921, \"elev\": 14.0, \"azim\": 40.0}\n{\"ok\": true, \"views\": 1, \"outDir\": \"docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5b/silhouettes/r5b-raw\"}\nBlender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)\n\nBlender quit\n",
+    "stderr": "/Volumes/files/src/openclinxr-wt/cart-round5/tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py:96: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world.use_nodes = True\n        2.81 real         2.41 user         0.36 sys\n           874184704  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               64729  page reclaims\n                   3  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   8  messages sent\n                   0  messages received\n                   0  signals received\n                   2  voluntary context switches\n                6078  involuntary context switches\n            15472485  instructions retired\n             8015254  cycles elapsed\n             1294624  peak memory footprint\n",
+    "timedOut": false,
+    "signal": null
+  }
+]

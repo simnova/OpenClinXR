@@ -1,0 +1,384 @@
+{
+  "budget": {
+    "path": "budget/ecg-cart.glb",
+    "triangles": 37462,
+    "weldedTriangles": 37462,
+    "verticesBeforeWeld": 27196,
+    "verticesAfterWeld": 20796,
+    "weldedComponents": 47,
+    "largestComponentFaces": 30717,
+    "largestShare": 0.8199508835620095,
+    "boundaryEdges": 5152,
+    "componentFaceCounts": [
+      30717,
+      2243,
+      1473,
+      1421,
+      1147,
+      134,
+      89,
+      33,
+      21,
+      17,
+      12,
+      12,
+      11,
+      9,
+      8,
+      8,
+      7,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "bytes": 1785892,
+    "glbMiB": 1.7031593322753906,
+    "decodedTextureMiB": 2,
+    "silhouetteIou": 0.7811918416421216,
+    "sha256": "93843fea3abe0439ed383fd9342227fe3b3cdba436972e0544aeaad13bb8b750"
+  },
+  "raw": {
+    "path": "raw/ecg-cart.glb",
+    "triangles": 298347,
+    "weldedTriangles": 298347,
+    "verticesBeforeWeld": 201067,
+    "verticesAfterWeld": 158326,
+    "weldedComponents": 50,
+    "largestComponentFaces": 297860,
+    "largestShare": 0.9983676725423751,
+    "boundaryEdges": 24000,
+    "componentFaceCounts": [
+      297860,
+      26,
+      22,
+      22,
+      20,
+      18,
+      16,
+      16,
+      15,
+      14,
+      14,
+      14,
+      14,
+      13,
+      13,
+      12,
+      12,
+      12,
+      12,
+      12,
+      11,
+      10,
+      10,
+      10,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      2
+    ],
+    "bytes": 16098376,
+    "decodedTextureMiB": 32,
+    "silhouetteIou": 0.7814328799128354,
+    "sha256": "ce3fac62cfe9bd792d5b421677d769fcb284d057cb7e008ef42ec2b2728d0364"
+  },
+  "execution": {
+    "generation": {
+      "wallSeconds": 1218.154,
+      "peakRssBytes": 20837892096,
+      "receipt": "executions/generation.json"
+    },
+    "best": {
+      "wallSeconds": 123.035,
+      "peakRssBytes": 32447135744,
+      "receipt": "executions/best.json"
+    },
+    "raw": {
+      "wallSeconds": 60.505,
+      "peakRssBytes": 32645890048,
+      "receipt": "executions/raw.json"
+    }
+  },
+  "treatment": {
+    "mode": "best",
+    "pipeline": [
+      "cpu_fill_holes",
+      "weld_5dp",
+      "island_filter",
+      "to_glb_decimate_40000",
+      "uv_unwrap",
+      "pbr_bake_512"
+    ],
+    "fill": {
+      "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+      "fillReturnWatertight": false,
+      "changed": true,
+      "facesBefore": 8804219,
+      "facesAfter": 8804580,
+      "boundaryEdgesBefore": 48874,
+      "boundaryEdgesAfter": 48117
+    },
+    "weld": {
+      "verticesBefore": 4343258,
+      "verticesAfter": 4343051,
+      "degenerateFacesDropped": 5
+    },
+    "filter": {
+      "thresholdShare": 0.0001,
+      "thresholdFaces": 881,
+      "componentsBefore": 18,
+      "componentsAfter": 1,
+      "keptComponentFaces": [
+        8804120
+      ],
+      "multiPartGuardTriggered": false,
+      "dropped": [
+        {
+          "label": 136,
+          "faces": 225,
+          "share": 2.55548961761357e-05,
+          "center": [
+            -0.27537500858306885,
+            0.16679999232292175,
+            0.2901250123977661
+          ],
+          "diagonal": 0.05917062610387802
+        },
+        {
+          "label": 138,
+          "faces": 57,
+          "share": 6.4739070312877114e-06,
+          "center": [
+            -0.2753649950027466,
+            0.16681499779224396,
+            0.23543000221252441
+          ],
+          "diagonal": 0.012500962242484093
+        },
+        {
+          "label": 137,
+          "faces": 49,
+          "share": 5.565288500580664e-06,
+          "center": [
+            -0.2753700017929077,
+            0.16680499911308289,
+            0.25106000900268555
+          ],
+          "diagonal": 0.012522920034825802
+        },
+        {
+          "label": 141,
+          "faces": 29,
+          "share": 3.293742173813046e-06,
+          "center": [
+            -0.2749350070953369,
+            0.16680499911308289,
+            0.3297699987888336
+          ],
+          "diagonal": 0.013506627641618252
+        },
+        {
+          "label": 144,
+          "faces": 27,
+          "share": 3.0665875411362842e-06,
+          "center": [
+            -0.27487000823020935,
+            0.166934996843338,
+            0.3789849877357483
+          ],
+          "diagonal": 0.008845233358442783
+        },
+        {
+          "label": 143,
+          "faces": 19,
+          "share": 2.1579690104292373e-06,
+          "center": [
+            -0.2749449908733368,
+            0.166934996843338,
+            0.3623799979686737
+          ],
+          "diagonal": 0.008853471837937832
+        },
+        {
+          "label": 142,
+          "faces": 17,
+          "share": 1.9308143777524754e-06,
+          "center": [
+            -0.2752950191497803,
+            0.166920006275177,
+            0.3467499911785126
+          ],
+          "diagonal": 0.008769002743065357
+        },
+        {
+          "label": 400,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            -0.2382899969816208,
+            0.1826300024986267,
+            -0.376384973526001
+          ],
+          "diagonal": 0.0015879875281825662
+        },
+        {
+          "label": 1384,
+          "faces": 6,
+          "share": 6.814638980302854e-07,
+          "center": [
+            0.07129500061273575,
+            -0.039104998111724854,
+            -0.07390500605106354
+          ],
+          "diagonal": 0.0009048180654644966
+        },
+        {
+          "label": 1072,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.046834997832775116,
+            0.16455499827861786,
+            0.46336501836776733
+          ],
+          "diagonal": 0.001972709782421589
+        },
+        {
+          "label": 1150,
+          "faces": 4,
+          "share": 4.543092653535236e-07,
+          "center": [
+            0.054624997079372406,
+            0.1645199954509735,
+            0.2504599988460541
+          ],
+          "diagonal": 0.001955745043233037
+        },
+        {
+          "label": 603,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.087909996509552,
+            0.165010005235672,
+            0.075204998254776
+          ],
+          "diagonal": 0.0013944593956694007
+        },
+        {
+          "label": 607,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            -0.08596000075340271,
+            0.165010005235672,
+            0.07717999815940857
+          ],
+          "diagonal": 0.0014024260453879833
+        },
+        {
+          "label": 1702,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1454249918460846,
+            0.16504499316215515,
+            0.04605500027537346
+          ],
+          "diagonal": 0.0012326855212450027
+        },
+        {
+          "label": 1709,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.1513650119304657,
+            0.16504999995231628,
+            0.046025000512599945
+          ],
+          "diagonal": 0.0012741247192025185
+        },
+        {
+          "label": 1710,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.15323500335216522,
+            0.16504499316215515,
+            0.046049997210502625
+          ],
+          "diagonal": 0.001240077894181013
+        },
+        {
+          "label": 1749,
+          "faces": 2,
+          "share": 2.271546326767618e-07,
+          "center": [
+            0.17670999467372894,
+            0.16505999863147736,
+            0.0460050031542778
+          ],
+          "diagonal": 0.0012114874552935362
+        }
+      ]
+    },
+    "preExportFaces": 8804120
+  },
+  "comparisonIou": {
+    "control": 0.7140599133401471,
+    "t4": 0.7812974371144473,
+    "r5best": 0.7407572525805297,
+    "r5b": 0.7811918416421216,
+    "r5b_raw": 0.7814328799128354
+  },
+  "visualVerification": "visual-verification.json"
+}

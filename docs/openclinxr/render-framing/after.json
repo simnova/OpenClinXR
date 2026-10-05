@@ -1,0 +1,407 @@
+{
+  "schemaVersion": "openclinxr.render-framing-measurements.v2",
+  "phase": "after",
+  "nearOcclusionRaycastMethod": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m",
+  "entries": [
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "eye": [
+        1.897243577336103,
+        2.16,
+        2.2974313505104536
+      ],
+      "look": [
+        -0.7190515130541241,
+        0.8120147966234448,
+        -0.31886373987977373
+      ],
+      "refineTag": "best-effort-unmet",
+      "actorsContained": {
+        "contained": 2,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 1,
+        "total": 2
+      },
+      "meanFacingDeg": 49.64124522894138,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": false,
+      "uncontainedActors": [
+        "partner_diego_vasquez_v1:outside-edge"
+      ]
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "eye": [
+        -0.08177481015136012,
+        2,
+        3.5439846622249114
+      ],
+      "look": [
+        0.26128518100210185,
+        0.7568746646949253,
+        0.0608381188722209
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 3.8828191263311465,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "eye": [
+        -1.4654469688930667,
+        1.68,
+        0.6397002189595217
+      ],
+      "look": [
+        -0.0796276701261367,
+        0.815964030104953,
+        0.06567507041188686
+      ],
+      "refineTag": "best-effort-unmet",
+      "actorsContained": {
+        "contained": 2,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 49.235490347136924,
+      "nearOcclusionFraction": 0.5833333333333334,
+      "framingConstraintsMet": false,
+      "uncontainedActors": [
+        "patient_robert_hayes_v1:outside-edge"
+      ]
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "eye": [
+        -1.455561557445729,
+        1.68,
+        0.6411221784277022
+      ],
+      "look": [
+        -0.06974225867879902,
+        0.8153902143982694,
+        0.0670970298800671
+      ],
+      "refineTag": "best-effort-unmet",
+      "actorsContained": {
+        "contained": 2,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 49.36449037815425,
+      "nearOcclusionFraction": 0.5833333333333334,
+      "framingConstraintsMet": false,
+      "uncontainedActors": [
+        "patient_robert_hayes_v1:outside-edge"
+      ]
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "eye": [
+        -1.6525303882661906,
+        2.16,
+        2.450924131903256
+      ],
+      "look": [
+        0.1872101358083833,
+        0.8128980930622166,
+        0.20919381715131874
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "meanFacingDeg": 32.45147884994309,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "eye": [
+        -0.4790854106690797,
+        2.16,
+        1.8433137819329573
+      ],
+      "look": [
+        -0.29285284404291473,
+        0.7628389923175289,
+        -0.04753719874421716
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 1,
+        "total": 1
+      },
+      "meanFacingDeg": 2.5802091597081773,
+      "nearOcclusionFraction": 0.0625,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "eye": [
+        -1.587384577041667,
+        2.16,
+        1.9247374708451108
+      ],
+      "look": [
+        0.2510930540433577,
+        0.7328617922803689,
+        0.08625983976008705
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 34.30228593093489,
+      "nearOcclusionFraction": 0.020833333333333332,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "eye": [
+        -0.7799143002894728,
+        2.16,
+        2.113252526384532
+      ],
+      "look": [
+        -0.08323107487876252,
+        0.755445415928883,
+        -0.18340427937276965
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 14.84567520039487,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "eye": [
+        1.0752527584077283,
+        1.52,
+        2.6586609394059755
+      ],
+      "look": [
+        -0.8692430571608802,
+        0.82607736809563,
+        -0.2514827036529342
+      ],
+      "refineTag": "best-effort-unmet",
+      "actorsContained": {
+        "contained": 2,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 1,
+        "total": 2
+      },
+      "meanFacingDeg": 33.531077770725425,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": false,
+      "uncontainedActors": [
+        "parent_mei_chen_v1:outside-edge"
+      ]
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "eye": [
+        -2.7802968437543414,
+        2.16,
+        2.9540681249756204
+      ],
+      "look": [
+        0.1188409591105053,
+        0.8259753811684201,
+        0.05493032211077492
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 36.41122134720053,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "eye": [
+        -2.3068573148286173,
+        2.16,
+        2.682144743607439
+      ],
+      "look": [
+        -0.14992014867222037,
+        0.8267036979800221,
+        0.053909202174132975
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 26.87835799761238,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "eye": [
+        -1.6403370128456238,
+        1.52,
+        0.05569991511236083
+      ],
+      "look": [
+        -0.14033701284562372,
+        0.8193108480399665,
+        0.05569991511236111
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 75.8497871138876,
+      "nearOcclusionFraction": 0.3541666666666667,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "eye": [
+        -1.4569793804553397,
+        1.52,
+        0.3660500075343601
+      ],
+      "look": [
+        0.11227706818982908,
+        0.8366575538410704,
+        0.05390549230855479
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 62.40246025499937,
+      "nearOcclusionFraction": 0.2847222222222222,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "eye": [
+        -0.034564468602837684,
+        2.16,
+        2.8243549083589965
+      ],
+      "look": [
+        0.5116884330423229,
+        0.7107665396260742,
+        0.07815612322995075
+      ],
+      "refineTag": "orbit",
+      "actorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "standingActorsContained": {
+        "contained": 2,
+        "total": 2
+      },
+      "meanFacingDeg": 2.853178068306122,
+      "nearOcclusionFraction": 0,
+      "framingConstraintsMet": true,
+      "uncontainedActors": []
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "eye": [
+        -1.1755318413322955,
+        1.9500947352107574,
+        1.3265155160124236
+      ],
+      "look": [
+        0.09726036480349043,
+        0.8165917774633413,
+        0.05372330987663815
+      ],
+      "refineTag": "best-effort-unmet",
+      "actorsContained": {
+        "contained": 3,
+        "total": 4
+      },
+      "standingActorsContained": {
+        "contained": 3,
+        "total": 3
+      },
+      "meanFacingDeg": 53.96954445356893,
+      "nearOcclusionFraction": 0.5902777777777778,
+      "framingConstraintsMet": false,
+      "uncontainedActors": [
+        "patient_margaret_ellis_v1:outside-edge"
+      ]
+    }
+  ]
+}

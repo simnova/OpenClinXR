@@ -111,6 +111,14 @@ CEILING_MODULE_M = 0.6
 CEILING_REPEAT_M = CEILING_MODULE_M
 # White T-bar strip width (24 mm) on the 0.6 m module.
 TBAR_WIDTH_M = 0.024
+# Slim perimeter wall angle: a 24 mm x 24 mm painted-metal L using the
+# exact T-bar material. It replaces Infinigen's decorative ceiling cornice
+# only when the recipe asks for it; absent recipe data keeps legacy meshes.
+WALL_ANGLE_LEG_M = 0.024
+WALL_ANGLE_THICKNESS_M = 0.003
+# The flush profile cuts the tile field back by its 24 mm leg, so its visible
+# underside can share the exact tile-face plane without coplanar overlap.
+WALL_ANGLE_FLUSH_OFFSET_M = 0.0
 # Narrow darker lips on both sides of the painted T-bar. They preserve the
 # real 24 mm member while giving the runtime line profile a shadowed edge and
 # a small reveal against the acoustic tile instead of a flat white stripe.
@@ -393,6 +401,20 @@ def _is_shell_floor_skirting(obj_name: str) -> bool:
     return "skirting_floor" in lowered or "skirtingboard_support" in lowered
 
 
+def _is_shell_ceiling_cornice(obj_name: str) -> bool:
+    """Match only Infinigen's decorative ceiling skirting/cornice."""
+    lowered = obj_name.lower()
+    return "skirting_ceiling" in lowered or "skirtingboard_ceiling" in lowered
+
+
+def _is_shell_ceiling(obj_name: str) -> bool:
+    """Match the retained Infinigen ceiling plane, never finish geometry."""
+    lowered = obj_name.lower()
+    return (not lowered.startswith("openclinxr_")
+            and (lowered.endswith(".ceiling") or "/ceiling" in lowered)
+            and not _is_shell_ceiling_cornice(obj_name))
+
+
 def _is_wall_shell(obj_name: str) -> bool:
     """Wall meshes that carry an inner face the cove base sits against."""
     lowered = obj_name.lower()
@@ -555,12 +577,20 @@ def classify_mesh(name: str) -> str:
 
 def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: dict | None = None,
                          crash_rail: bool = False, ceiling_z: float | None = None,
-                         emit_floor: bool = True, floor_tile_layout: bool = False,
+                         emit_floor: bool = True, floor_kind: str = "sheet-vinyl",
+                         floor_tile_layout: bool = False,
                          floor_tile_module_m: float = FLOOR_TILE_MODULE_M,
                          emit_cove: bool = False, cove_height_m: float = SKIRTING_COVE_HEIGHT_M,
                          cove_rgb: tuple = SKIRTING_COVE_RGB_LINEAR,
+                         ceiling_kind: str = "acoustic-tbar",
                          emit_troffer: bool = True, tbar_width_m: float = TBAR_WIDTH_M,
-                         floor_top: float | None = None) -> dict:
+                         floor_top: float | None = None,
+                         cornice_mode: str | None = None,
+                         cornice_profile: str = "angle",
+                         cornice_material: str | None = None,
+                         cornice_width_m: float = WALL_ANGLE_LEG_M,
+                         cornice_color_source: str = "tbar",
+                         wall_material: object | None = None) -> dict:
     """Build finish meshes: the vinyl floor field and the S6 acoustic-tile
     ceiling field plus one flush troffer always; the crash rail only when
     explicitly enabled (off by default; some other room type may want it).
@@ -601,7 +631,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
     w, d, h = maxx - minx, maxy - miny, maxz - minz
     created: list[str] = []
-    counts = {"floor": 0, "ceiling": 0, "troffer": 0, "rail": 0}
+    counts = {"floor": 0, "ceiling": 0, "troffer": 0, "rail": 0,
+              "wallAngle": 0}
 
     def mat_for(name: str, albedo: list, roughness: float):
         m = bpy.data.materials.get(name)
@@ -679,13 +710,22 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # presets; vinyl tile (0.6 m module, full PBR with seam grooves) for
     # the ward tile exception (floor_tile_layout).
     if emit_floor:
-        if floor_tile_layout:
+        if floor_kind == "vinyl-tile" or floor_tile_layout:
             if floor_top is None:
                 raise SystemExit("room_clinic_finish: tile field needs a measured shell floor plane")
             floor_m = _photo_uv_material("openclinxr_finish_floor_tile_photo", FLOOR_TILE_TEXTURE_FILE, 0.52,
                                          normal_filename=FLOOR_TILE_NORMAL_FILE,
                                          roughness_filename=FLOOR_TILE_ROUGHNESS_FILE)
             # Top rides 3 mm above the shell plane (never the bounds min).
+            floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
+                                w, d, 0.05, floor_m)
+            _assign_world_xy_uv(floor_obj, 1.0 / floor_tile_module_m)
+        elif floor_kind == "wood-plank":
+            if floor_top is None:
+                raise SystemExit("room_clinic_finish: wood floor needs a measured shell floor plane")
+            floor_m = _photo_uv_material("openclinxr_finish_floor_wood_plank", DOOR_LEAF_FILE, 0.58,
+                                         normal_filename=DOOR_NORMAL_FILE,
+                                         roughness_filename=DOOR_ROUGHNESS_FILE)
             floor_obj = new_box("openclinxr_floor_field", cx, cy, floor_top + FLOOR_FIELD_LIFT_M - 0.025,
                                 w, d, 0.05, floor_m)
             _assign_world_xy_uv(floor_obj, 1.0 / floor_tile_module_m)
@@ -705,9 +745,33 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     # z-fighting): edges snap to the grid origin below, so every long edge
     # lands on a 0.6 m line.
     ceiling_plane_z = ceiling_z if ceiling_z is not None else maxz
-    tbar_z = ceiling_plane_z - CEILING_TBAR_DROP_M
-    ceil_obj = new_box("openclinxr_ceiling_tiles", cx, cy, tbar_z + 0.01, w, d, 0.02, ceiling_photo_m)
-    _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
+    tbar_z = ceiling_plane_z - (CEILING_TBAR_DROP_M if ceiling_kind == "acoustic-tbar" else 0.0)
+    tile_inset = (cornice_width_m
+                  if cornice_mode == "wall-angle" and cornice_profile == "flush" else 0.0)
+    ceiling_material = (ceiling_photo_m if ceiling_kind == "acoustic-tbar" else
+                        _flat_material("openclinxr_finish_painted_ceiling",
+                                       tuple(pal.get("trimAlbedo", (0.9, 0.89, 0.86))), 0.9))
+    ceiling_name = "openclinxr_ceiling_tiles" if ceiling_kind == "acoustic-tbar" else "openclinxr_ceiling_painted"
+    if ceiling_kind == "acoustic-tbar":
+        ceil_obj = new_box(ceiling_name, cx, cy, tbar_z + 0.01,
+                           w - 2 * tile_inset, d - 2 * tile_inset, 0.02, ceiling_material)
+        _assign_world_xy_uv(ceil_obj, 1.0 / CEILING_REPEAT_M)
+    else:
+        # Painted slab spans wall-inner-face to wall-inner-face (brown-band
+        # fix): the pooled-bounds span ran ~11 cm past the wall faces, and
+        # the resulting visible soffit ring foreshortened to a brown edge
+        # line under the warm rig. 5 mm of burial keeps every slab edge
+        # hidden inside the wall with no coplanar faces.
+        planes = _wall_inner_planes()
+        bury = 0.001
+        sx0, sx1 = planes["x0"] - bury, planes["x1"] + bury
+        sy0, sy1 = planes["y0"] - bury, planes["y1"] + bury
+        # Underside rides 1 mm below the wall-top plane (same convention as
+        # the troffer lens): the wall top cap and the slab underside would
+        # otherwise be exactly coplanar over the burial strip, and the
+        # tie breaks toward the dark cap at glancing angles.
+        ceil_obj = new_box(ceiling_name, (sx0 + sx1) / 2, (sy0 + sy1) / 2, tbar_z + 0.01 - 0.001,
+                           sx1 - sx0, sy1 - sy0, 0.02, ceiling_material)
     counts["ceiling"] += 1
     grid_ox = math.floor(minx / CEILING_MODULE_M) * CEILING_MODULE_M
     grid_oy = math.floor(miny / CEILING_MODULE_M) * CEILING_MODULE_M
@@ -717,7 +781,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     frame = TROFFER_FRAME_WIDTH_M
     diffuser_x0, diffuser_x1 = troffer_x0 + frame, troffer_x1 - frame
     diffuser_y0, diffuser_y1 = troffer_y0 + frame, troffer_y1 - frame
-    if emit_troffer:
+    if ceiling_kind == "acoustic-tbar" and emit_troffer:
         troffer_obj = new_box(
             "openclinxr_troffer_diffuser",
             (diffuser_x0 + diffuser_x1) / 2,
@@ -754,10 +818,12 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     tbar_lines_y: list[float] = []
     tbar_count = 0
     strip_margin = tbar_width_m / 2 + 0.002
+    grid_maxx = maxx if ceiling_kind == "acoustic-tbar" else minx - 1.0
+    grid_maxy = maxy if ceiling_kind == "acoustic-tbar" else miny - 1.0
     kx = math.ceil((minx - grid_ox) / CEILING_MODULE_M)
     while True:
         line = grid_ox + kx * CEILING_MODULE_M
-        if line > maxx + 1e-6:
+        if line > grid_maxx + 1e-6:
             break
         if line >= minx - 1e-6:
             tbar_lines_x.append(line)
@@ -782,7 +848,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
     ky = math.ceil((miny - grid_oy) / CEILING_MODULE_M)
     while True:
         line = grid_oy + ky * CEILING_MODULE_M
-        if line > maxy + 1e-6:
+        if line > grid_maxy + 1e-6:
             break
         if line >= miny - 1e-6:
             tbar_lines_y.append(line)
@@ -805,7 +871,89 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                 tbar_count += 1
         ky += 1
     counts["tbar"] = tbar_count
+    wall_angle: dict = {"mode": cornice_mode, "profile": cornice_profile,
+                        "legM": cornice_width_m,
+                        "thicknessM": WALL_ANGLE_THICKNESS_M, "runs": 0,
+                        "material": None}
+    if cornice_mode == "wall-angle":
+        planes = _wall_inner_planes()
+        x0, x1, y0, y1 = planes["x0"], planes["x1"], planes["y0"], planes["y1"]
+        leg, thick = cornice_width_m, WALL_ANGLE_THICKNESS_M
+        material_choice = cornice_material or cornice_color_source
+        angle_material = {"wall": wall_material, "tbar": tbar_m, "tile": ceiling_photo_m}[material_choice]
+        if angle_material is None:
+            raise ValueError("wall cornice colour requires the room wall material")
+        if cornice_profile == "flush":
+            edge_band_material = _flat_material(
+                "openclinxr_finish_wall", tuple(pal.get("wallAlbedo", (0.72, 0.74, 0.76))),
+                0.85, emissive=True, emission_strength=0.35)
+            if material_choice == "wall":
+                angle_material = edge_band_material
+        if cornice_profile == "flush":
+            # Keep only a 3 mm wall-side edge below the tile face. The tile
+            # field is inset by the leg width, so the horizontal underside is
+            # exactly coplanar without overlapping faces or z-fighting.
+            vertical_height = thick
+            z_vertical = tbar_z - vertical_height / 2
+            z_horizontal = tbar_z - WALL_ANGLE_FLUSH_OFFSET_M + thick / 2
+        else:
+            vertical_height = leg
+            z_vertical = tbar_z - leg / 2
+            z_horizontal = tbar_z - thick / 2
+        # Each wall gets a vertical leg and an inward horizontal leg. Runs
+        # overlap by one leg at corners, closing the tile-to-wall junction.
+        wall_angle_runs = [
+            ("x0_vertical", x0 + thick / 2, (y0 + y1) / 2, z_vertical,
+             thick, y1 - y0, vertical_height),
+            ("x0_horizontal", x0 + leg / 2, (y0 + y1) / 2, z_horizontal,
+             leg, y1 - y0, thick),
+            ("x1_vertical", x1 - thick / 2, (y0 + y1) / 2, z_vertical,
+             thick, y1 - y0, vertical_height),
+            ("x1_horizontal", x1 - leg / 2, (y0 + y1) / 2, z_horizontal,
+             leg, y1 - y0, thick),
+            ("y0_vertical", (x0 + x1) / 2, y0 + thick / 2, z_vertical,
+             x1 - x0, thick, vertical_height),
+            ("y0_horizontal", (x0 + x1) / 2, y0 + leg / 2, z_horizontal,
+             x1 - x0, leg, thick),
+            ("y1_vertical", (x0 + x1) / 2, y1 - thick / 2, z_vertical,
+             x1 - x0, thick, vertical_height),
+            ("y1_horizontal", (x0 + x1) / 2, y1 - leg / 2, z_horizontal,
+             x1 - x0, leg, thick),
+        ]
+        for name, x, y, z, dx, dy, dz in wall_angle_runs:
+            trim = new_box("openclinxr_wall_angle_%s" % name, x, y, z, dx, dy, dz, angle_material)
+            if material_choice == "tile":
+                _assign_world_xy_uv(trim, 1.0 / CEILING_REPEAT_M)
+        if cornice_profile == "flush":
+            # A sub-millimetre, wall-coplanar paint band masks the shell's
+            # baked contact-shadow seam. It is not an angle leg: it protrudes
+            # only 0.5 mm from the wall and carries no horizontal ledge.
+            band_t = 0.0005
+            band_z = tbar_z - leg / 2
+            wall_edge_bands = [
+                ("x0", x0 + band_t / 2, (y0 + y1) / 2, band_z,
+                 band_t, y1 - y0, leg),
+                ("x1", x1 - band_t / 2, (y0 + y1) / 2, band_z,
+                 band_t, y1 - y0, leg),
+                ("y0", (x0 + x1) / 2, y0 + band_t / 2, band_z,
+                 x1 - x0, band_t, leg),
+                ("y1", (x0 + x1) / 2, y1 - band_t / 2, band_z,
+                 x1 - x0, band_t, leg),
+            ]
+            for name, x, y, z, dx, dy, dz in wall_edge_bands:
+                edge = new_box("openclinxr_wall_edge_band_%s" % name,
+                               x, y, z, dx, dy, dz, angle_material)
+                if material_choice == "tile":
+                    _assign_world_xy_uv(edge, 1.0 / CEILING_REPEAT_M)
+            wall_angle["edgeBandProtrusionM"] = band_t
+        counts["wallAngle"] = len(wall_angle_runs)
+        wall_angle.update({"runs": len(wall_angle_runs),
+                           "material": angle_material.name, "z": tbar_z,
+                           "undersideOffsetM": (WALL_ANGLE_FLUSH_OFFSET_M
+                                                 if cornice_profile == "flush" else thick),
+                           "verticalBelowTileM": (thick if cornice_profile == "flush" else leg)})
     ceiling_grid = {
+        "kind": ceiling_kind,
         "origin": [grid_ox, grid_oy],
         "module": CEILING_MODULE_M,
         "tbarWidth": tbar_width_m,
@@ -820,7 +968,7 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
                     "frameNodes": ["openclinxr_troffer_frame_long_0",
                                    "openclinxr_troffer_frame_long_1",
                                    "openclinxr_troffer_frame_short_0",
-                                   "openclinxr_troffer_frame_short_1"]} if emit_troffer else None),
+                                   "openclinxr_troffer_frame_short_1"]} if ceiling_kind == "acoustic-tbar" and emit_troffer else None),
     }
     # Crash rail along corridor wall, off by default
     if crash_rail:
@@ -926,7 +1074,8 @@ def _emit_finish_geometry(seed: int = 7, palette: dict | None = None, bounds: di
         cove_info = {"runs": counts.get("cove", 0), "height": cove_height_m,
                      "thickness": t, "doorSide": door_side, "doorGap": gap}
     return {"meshes": created, "counts": counts, "crashRail": crash_rail, "seed": seed,
-            "ceilingGrid": ceiling_grid, "cove": cove_info}
+            "ceilingGrid": ceiling_grid, "cove": cove_info,
+            "wallAngle": wall_angle}
 
 
 def _texture_kept_door_leaf(albedo_file: str = DOOR_TEXTURE_FILE,
@@ -1014,6 +1163,15 @@ DOOR_HINGE_HEIGHTS_M = (0.35, 1.02, 1.69)
 DOOR_HINGE_PLATE_W_M = 0.035
 DOOR_HINGE_PLATE_H_M = 0.11
 DOOR_HINGE_KNUCKLE_R_M = 0.006
+# Reference-door stainless kick plate: 250 mm high, inset 15 mm from the
+# leaf edges and floor. It remains recipe-gated so the ward stays byte-identical.
+DOOR_KICK_PLATE_HEIGHT_M = 0.25
+DOOR_KICK_PLATE_MARGIN_M = 0.015
+# The shell floor field rides 3 mm above its measured plane. Starting the
+# visible veneer and kick plate at the same height closes the photographed
+# white under-leaf slit without intersecting the finish floor.
+DOOR_LEAF_BOTTOM_CLEARANCE_M = FLOOR_FIELD_LIFT_M
+DOOR_KICK_PLATE_PROUD_M = 0.002
 
 
 def _door_steel_material():
@@ -1068,6 +1226,40 @@ def _door_glass_material():
         if key in bsdf.inputs:
             bsdf.inputs[key].default_value = 0.0
     nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
+def _door_kick_plate_material(steel):
+    """Satin steel with baked indirect reflection for the envmap-less room.
+
+    Retain the lever's metallic BRDF for direct highlights. The emission
+    texture represents reflected room fill, not a luminous light fixture.
+    Only the opted-in plate consumes it; shared steel stays unchanged.
+    """
+    import bpy  # type: ignore[import-not-found]
+    import math
+
+    mat = steel.copy()
+    mat.name = "openclinxr_door_kick_plate_steel"
+    image = bpy.data.images.new("kick_plate_baked_reflection", width=128, height=64)
+    pixels = []
+    for y in range(64):
+        for x in range(128):
+            u, v = x / 127, y / 63
+            highlight = math.exp(-((u - 0.42) / 0.32) ** 2)
+            brush = 0.006 * math.sin(y * 2.4)
+            value = 0.42 + 0.18 * highlight + 0.04 * v + brush
+            pixels.extend((value * 0.97, value * 0.99, value, 1.0))
+    image.pixels.foreach_set(pixels)
+    image.pack()
+    nt = mat.node_tree
+    bsdf = next(node for node in nt.nodes if node.type == "BSDF_PRINCIPLED")
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = image
+    uv = nt.nodes.new("ShaderNodeTexCoord")
+    nt.links.new(uv.outputs["UV"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
+    bsdf.inputs["Emission Strength"].default_value = 1.5
     return mat
 
 
@@ -1237,9 +1429,13 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
     hinge_side = door_opt.get("hingeSide") if isinstance(door_opt, dict) else None
     lite_frac = door_opt.get("lite") if isinstance(door_opt, dict) else None
     lite_margin = door_opt.get("margin") if isinstance(door_opt, dict) else None
+    kick_plate = door_opt.get("kickPlate", False) if isinstance(door_opt, dict) else False
+    if not isinstance(kick_plate, bool):
+        raise SystemExit("room_clinic_finish: door.kickPlate must be boolean")
 
     glass_m = _door_glass_material()
     steel_m = _door_steel_material()
+    kick_plate_m = _door_kick_plate_material(steel_m) if kick_plate else None
     facing_m = _photo_uv_material(
         "openclinxr_finish_door_facing", DOOR_LEAF_FILE, 0.48,
         normal_filename=DOOR_NORMAL_FILE,
@@ -1263,7 +1459,8 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
     furnished: dict = {"glass": [], "frame": [], "hinges": [], "casing": repainted,
                        "casingFaces": [], "reveals": [],
                        "opening": None, "openingSource": None, "handle": None,
-                       "lock": None, "hingeSideUsed": None, "facing": []}
+                       "lock": None, "hingeSideUsed": None, "facing": [],
+                       "transom": None, "kickPlate": None}
 
     def new_cylinder(name: str, center: list, thin_axis: int, radius: float,
                      z0: float, z1: float, mat: object, segments: int = 16) -> object:
@@ -1439,6 +1636,44 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
         leaf_u0, leaf_u1 = box["min"][ua], box["max"][ua]
         leaf_v0, leaf_v1 = box["min"][va], box["max"][va]
 
+        # Measure the shell opening head at the door-wall inner plane. The
+        # Infinigen step-down shell carries its two aperture-edge vertices
+        # all the way to the 2.6 m ceiling; the ward carries them only to
+        # the 2.1 m leaf head. A declared transom treatment is applied only
+        # when the clear height above the finished 55 mm casing head exceeds
+        # half that casing face (27.5 mm): smaller deltas are normal mesh
+        # tolerance, not a visible transom opening.
+        transom_mode = door_opt.get("transom") if isinstance(door_opt, dict) else None
+        if transom_mode not in (None, "infill", "tall-casing"):
+            raise SystemExit("room_clinic_finish: door.transom must be infill or tall-casing")
+        wall_planes = _wall_inner_planes()
+        plane_pair = ((wall_planes["x0"], wall_planes["x1"])
+                      if thin == 0 else (wall_planes["y0"], wall_planes["y1"]))
+        leaf_depth_center = (box["min"][thin] + box["max"][thin]) / 2
+        wall_plane = min(plane_pair, key=lambda value: abs(value - leaf_depth_center))
+        opening_head_candidates: list[float] = []
+        wall_material = None
+        for wall_obj in bpy.data.objects:
+            if wall_obj.type != "MESH" or not _is_wall_shell(wall_obj.name):
+                continue
+            if wall_material is None:
+                wall_material = next(
+                    (mat for mat in wall_obj.data.materials
+                     if mat is not None and "shell_bake_wall" in mat.name),
+                    next((mat for mat in wall_obj.data.materials if mat is not None), None))
+            for vertex in wall_obj.data.vertices:
+                wv = wall_obj.matrix_world @ vertex.co
+                if (abs(wv[thin] - wall_plane) <= 0.02
+                        and leaf_u0 - 0.03 <= wv[ua] <= leaf_u1 + 0.03
+                        and wv[va] >= leaf_v1 - 0.01):
+                    opening_head_candidates.append(float(wv[va]))
+        opening_head = (min(opening_head_candidates)
+                        if opening_head_candidates else leaf_v1 + DOOR_CASING_FACE_M)
+        casing_head = leaf_v1 + DOOR_CASING_FACE_M
+        transom_gap = opening_head - casing_head
+        close_transom = (transom_mode is not None
+                         and transom_gap > DOOR_CASING_FACE_M / 2)
+
         def trim_box(name: str, u0_: float, u1_: float, v0_: float, v1_: float,
                      material: object) -> object:
             cc = [0.0, 0.0, 0.0]
@@ -1451,6 +1686,9 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             ss[thin] = casing_depth
             return new_box(name, cc, ss, material)
 
+        casing_head_top = (opening_head
+                           if close_transom and transom_mode == "tall-casing"
+                           else casing_head)
         casing_parts = [
             ("jamb_left", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
              leaf_u0 - DOOR_REVEAL_WIDTH_M, leaf_v0, leaf_v1),
@@ -1458,7 +1696,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
              leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M, leaf_v0, leaf_v1),
             ("head", leaf_u0 - DOOR_REVEAL_WIDTH_M - DOOR_CASING_FACE_M,
              leaf_u1 + DOOR_REVEAL_WIDTH_M + DOOR_CASING_FACE_M,
-             leaf_v1, leaf_v1 + DOOR_CASING_FACE_M),
+             leaf_v1, casing_head_top),
         ]
         for tag, cu0, cu1, cv0, cv1 in casing_parts:
             part = trim_box("openclinxr_door_casing_%s" % tag,
@@ -1475,6 +1713,56 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             part = trim_box("openclinxr_door_reveal_%s" % tag,
                             ru0, ru1, rv0, rv1, reveal_m)
             furnished["reveals"].append(part.name)
+        if close_transom and transom_mode == "infill":
+            if wall_material is None:
+                raise SystemExit("room_clinic_finish: transom infill needs the shell wall material")
+            # The room face is exactly the measured wall plane; 12 mm of
+            # thickness is buried into the wall, never proud into the room.
+            transom_front = wall_plane
+            transom_back = wall_plane - room_sign * DOOR_CASING_DEPTH_M
+            tc = [0.0, 0.0, 0.0]
+            ts = [0.0, 0.0, 0.0]
+            tc[ua] = (leaf_u0 + leaf_u1) / 2
+            tc[va] = (casing_head + opening_head) / 2
+            tc[thin] = (transom_front + transom_back) / 2
+            ts[ua] = leaf_u1 - leaf_u0
+            ts[va] = opening_head - casing_head
+            ts[thin] = abs(transom_front - transom_back)
+            # The shell's baked atlas cannot be projected onto new geometry:
+            # UV (0,0) is a dark unrelated texel. Use the same recipe wall
+            # paint and matte roughness as the shell wall, without an image
+            # node, so the flush patch reads as continuous wall under the
+            # runtime light instead of as an arbitrary atlas swatch.
+            transom_material = _flat_material(
+                "openclinxr_finish_transom_wall",
+                # The baked wall atlas carries about 0.90 of the nominal
+                # recipe paint after its bake. Match that measured wall
+                # response rather than rendering the unbaked nominal value
+                # ~10 RGB levels too bright beside it.
+                tuple(float(channel) * 0.845
+                      for channel in palette.get("wallAlbedo", (0.72, 0.74, 0.72))),
+                float(palette.get("roughness", 0.85)))
+            transom = new_box("openclinxr_door_transom_infill", tc, ts, transom_material)
+            furnished["transom"] = {
+                "mode": transom_mode,
+                "node": transom.name,
+                "openingHeadM": round(opening_head, 4),
+                "casingHeadM": round(casing_head, 4),
+                "gapM": round(transom_gap, 4),
+                "thresholdM": round(DOOR_CASING_FACE_M / 2, 4),
+                "wallPlaneM": round(wall_plane, 4),
+                "wallMaterialSource": wall_material.name,
+            }
+        elif close_transom:
+            furnished["transom"] = {
+                "mode": transom_mode,
+                "node": "openclinxr_door_casing_head",
+                "openingHeadM": round(opening_head, 4),
+                "casingHeadM": round(casing_head, 4),
+                "gapM": round(transom_gap, 4),
+                "thresholdM": round(DOOR_CASING_FACE_M / 2, 4),
+                "wallPlaneM": round(wall_plane, 4),
+            }
         # Glass pane: opening plus overlap, glazed at the opening mouth --
         # the room-side leaf face sunk 1 mm in, so the steel frame
         # (proud 3 mm) overlaps the pane edges all around.
@@ -1650,7 +1938,7 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             back = face - room_sign * 0.002
             fx0 = box["min"][ua] + 0.015
             fx1 = box["max"][ua] - 0.015
-            fz0 = box["min"][va] + 0.010
+            fz0 = box["min"][va] + DOOR_LEAF_BOTTOM_CLEARANCE_M
             fz1 = box["max"][va] - 0.015
             hx0, hx1 = u0 - 0.005, u1 + 0.005
             hz0, hz1 = v0 - 0.005, v1 + 0.005
@@ -1697,6 +1985,35 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
                 _assign_face_uv(plate, ua, va, (fx0, fx1), (fz0, fz1))
                 facing_names.append(plate.name)
         furnished["facing"] = facing_names
+        if kick_plate:
+            kp_u0 = leaf_u0 + DOOR_KICK_PLATE_MARGIN_M
+            kp_u1 = leaf_u1 - DOOR_KICK_PLATE_MARGIN_M
+            kp_v0 = leaf_v0 + DOOR_LEAF_BOTTOM_CLEARANCE_M
+            kp_v1 = min(leaf_v1, kp_v0 + DOOR_KICK_PLATE_HEIGHT_M)
+            kp_front = facing_fwd + room_sign * DOOR_KICK_PLATE_PROUD_M
+            kp_back = facing_fwd
+            # The simplified source slab bulges through the planar veneer at
+            # the bottom right. Flatten its lower field behind the facing;
+            # increasing plate depth would leave it floating off the leaf.
+            inverse = leaf.matrix_world.inverted()
+            for vertex in leaf.data.vertices:
+                world = leaf.matrix_world @ vertex.co
+                if (world[va] <= kp_v1 + DOOR_KICK_PLATE_MARGIN_M
+                        and room_sign * (world[thin] - face) > 0):
+                    world[thin] = face
+                    vertex.co = inverse @ world
+            leaf.data.update()
+            kp_center = [0.0, 0.0, 0.0]
+            kp_size = [0.0, 0.0, 0.0]
+            kp_center[ua] = (kp_u0 + kp_u1) / 2
+            kp_center[va] = (kp_v0 + kp_v1) / 2
+            kp_center[thin] = (kp_front + kp_back) / 2
+            kp_size[ua] = kp_u1 - kp_u0
+            kp_size[va] = kp_v1 - kp_v0
+            kp_size[thin] = abs(kp_front - kp_back)
+            kp_obj = new_box("openclinxr_door_kick_plate", kp_center, kp_size, kick_plate_m)
+            _assign_face_uv(kp_obj, ua, va)
+            furnished["kickPlate"] = kp_obj.name
         # Lock cylinder above the lever, on the room-side face.
         if handle is not None:
             lock_u = (handle["u0"] + handle["u1"]) / 2
@@ -1714,7 +2031,9 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
         # Hinge side: opposite the detected handle (the extracted leaf can
         # mirror leaf-local axes, so the recipe side is not trusted for
         # placement). The recipe hingeSide mapping is only a fallback for
-        # handle-less input (fixture), guarded to the leaf width axis.
+        # handle-less input (fixture). Its sign remains meaningful after GLB
+        # import, while the authored x/y axis can rotate with the extracted
+        # leaf, so apply the sign to the measured width axis.
         hinge_positive: bool | None = None
         hinge_from = None
         if handle is not None:
@@ -1723,11 +2042,6 @@ def _furnish_ward_door(recipe: dict, palette: dict, room_center: list,
             hinge_positive = handle_uc < leaf_uc
             hinge_from = "handle-detect"
         elif hinge_side in ("+x", "-x", "+y", "-y"):
-            world_axis = {"x": 0, "y": 1, "z": 2}[hinge_side[1]]
-            if world_axis != ua:
-                raise SystemExit(
-                    "room_clinic_finish: hingeSide %s does not name the leaf "
-                    "width axis (ua=%d)" % (hinge_side, ua))
             hinge_positive = hinge_side.startswith("+")
             hinge_from = "recipe-fallback"
         if hinge_positive is not None:
@@ -1889,10 +2203,43 @@ def apply_finish() -> int:
             if ceiling_inner_z is None or mesh_min_z > ceiling_inner_z:
                 ceiling_inner_z = mesh_min_z
     shell = {"x": [min(xs), max(xs)], "y": [min(ys), max(ys)], "z": [min(zs), max(zs)]} if xs else None
+    cornice_mode = ceiling_feature.get("cornice") if ceiling_feature else None
+    if cornice_mode not in (None, "none", "wall-angle"):
+        raise ValueError("recipe.finish.ceiling.cornice must be none or wall-angle when present")
+    cornice_width_m = (float(ceiling_feature.get("corniceWidthMm", WALL_ANGLE_LEG_M * 1000)) / 1000
+                       if ceiling_feature else WALL_ANGLE_LEG_M)
+    cornice_profile = ceiling_feature.get("corniceProfile", "angle") if ceiling_feature else "angle"
+    cornice_material = ceiling_feature.get("corniceMaterial") if ceiling_feature else None
+    if cornice_material is not None and cornice_material not in ("tile", "tbar", "wall"):
+        raise ValueError("recipe.finish.ceiling.corniceMaterial must be tile, tbar or wall")
+    if cornice_profile not in ("angle", "flush"):
+        raise ValueError("recipe.finish.ceiling.corniceProfile must be angle or flush when present")
+    cornice_color_source = ceiling_feature.get("corniceColorSource", "tbar") if ceiling_feature else "tbar"
+    if cornice_color_source not in ("tbar", "wall"):
+        raise ValueError("recipe.finish.ceiling.corniceColorSource must be tbar or wall when present")
+    removed_cornice: list[str] = []
+    if cornice_mode is not None:
+        for obj in list(bpy.data.objects):
+            if obj.type == "MESH" and _is_shell_ceiling_cornice(obj.name):
+                removed_cornice.append(obj.name)
+                bpy.data.objects.remove(obj, do_unlink=True)
+    # A painted finish is the ceiling surface, not a veneer on top of the
+    # shell ceiling. The emitted slab's underside is intentionally anchored
+    # at ceiling_inner_z; retaining the shell plane at that same height made
+    # two exactly coplanar surfaces and produced the stair-stepped green/grey
+    # patches seen in the fleet capture. Acoustic T-bar stays 60 mm below the
+    # shell and therefore keeps the shell ceiling.
+    removed_shell_ceiling: list[str] = []
+    if ceiling_feature is not None and ceiling_feature.get("kind") == "painted":
+        for obj in list(bpy.data.objects):
+            if obj.type == "MESH" and _is_shell_ceiling(obj.name):
+                removed_shell_ceiling.append(obj.name)
+                bpy.data.objects.remove(obj, do_unlink=True)
     # Recipe cove feature (see README): the shell floor skirting (random
     # height/profile white plastic from skirting_board.py) is removed and
-    # the finish emits the thin cove base instead. Ceiling skirting stays.
-    # Other presets keep the legacy trim-paint path above (untouched).
+    # the finish emits the thin cove base instead. Ceiling skirting is
+    # independently controlled by ceiling.cornice above; absent mode keeps
+    # the legacy mesh. Other presets keep the legacy path untouched.
     removed_skirting: list[str] = []
     measured_floor_top: float | None = None
     if cove_feature is not None or floor_feature is not None:
@@ -1903,20 +2250,31 @@ def apply_finish() -> int:
         measured_floor_top = _shell_floor_top()
         if measured_floor_top is None:
             raise SystemExit("room_clinic_finish: no shell floor plane for tile/cove placement")
-    floor_tile_layout = floor_feature is not None and floor_feature.get("kind") == "vinyl-tile"
+    floor_kind = floor_feature.get("kind", "sheet-vinyl") if floor_feature else "sheet-vinyl"
+    floor_tile_layout = floor_kind == "vinyl-tile"
     floor_module_m = float(floor_feature.get("moduleM", FLOOR_TILE_MODULE_M)) if floor_feature else FLOOR_TILE_MODULE_M
     cove_height_m = float(cove_feature.get("heightM", SKIRTING_COVE_HEIGHT_M)) if cove_feature else SKIRTING_COVE_HEIGHT_M
     cove_rgb = tuple(neutral_tints.get("coveRgb", SKIRTING_COVE_RGB_LINEAR))
     tbar_width_m = (float(ceiling_feature.get("tbarMm", TBAR_WIDTH_M * 1000)) / 1000
                     if ceiling_feature else TBAR_WIDTH_M)
+    ceiling_kind = ceiling_feature.get("kind", "acoustic-tbar") if ceiling_feature else "acoustic-tbar"
     emit_troffer = ceiling_feature.get("troffer", True) is True if ceiling_feature else True
     emitted = _emit_finish_geometry(seed=int(recipe.get("seed", 7)), palette=palette, bounds=shell,
                                     crash_rail=crash_rail_enabled(recipe), ceiling_z=ceiling_inner_z,
-                                    emit_floor=True, floor_tile_layout=floor_tile_layout,
+                                    emit_floor=True, floor_kind=floor_kind,
+                                    floor_tile_layout=floor_tile_layout,
                                     floor_tile_module_m=floor_module_m,
-                                    emit_cove=cove_feature is not None, cove_height_m=cove_height_m,
-                                    cove_rgb=cove_rgb, emit_troffer=emit_troffer,
-                                    tbar_width_m=tbar_width_m, floor_top=measured_floor_top)
+                                    emit_cove=(cove_feature is not None and cove_feature.get("kind") != "none"),
+                                    cove_height_m=cove_height_m,
+                                    cove_rgb=cove_rgb, ceiling_kind=ceiling_kind,
+                                    emit_troffer=emit_troffer,
+                                    tbar_width_m=tbar_width_m, floor_top=measured_floor_top,
+                                    cornice_mode=cornice_mode,
+                                    cornice_profile=cornice_profile,
+                                    cornice_material=cornice_material,
+                                    cornice_width_m=cornice_width_m,
+                                    cornice_color_source=cornice_color_source,
+                                    wall_material=wall_material)
     # S5: Infinigen's own kept leaf gets the maple photo skin; the casing and
     # skirting keep the trim flat paint from the loop above (no trim photo
     # exists in the licensed set). Under ward_photo preservation there is no
@@ -1965,8 +2323,11 @@ def apply_finish() -> int:
         "emittedMeshes": emitted["counts"],
         "emittedCount": len(emitted["meshes"]),
         "emittedCeilingGrid": emitted["ceilingGrid"],
+        "emittedWallAngle": emitted["wallAngle"],
         "emittedCove": emitted["cove"],
         "removedShellSkirting": removed_skirting,
+        "removedShellCornice": removed_cornice,
+        "removedShellCeiling": removed_shell_ceiling,
         "measuredFloorTop": measured_floor_top,
         "blenderLights": len([obj for obj in bpy.data.objects if obj.type == "LIGHT"]),
         "crashRail": emitted["crashRail"],

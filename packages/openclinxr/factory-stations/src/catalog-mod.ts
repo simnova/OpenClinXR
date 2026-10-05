@@ -235,6 +235,7 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // (positive dims, closed doorWall enum) is enforced in planRoomGenerate.
     footprintMeters: { type: "object", required: false, description: "interior clear-floor target { width, depth, ceilingHeight } in meters" },
     door: { type: "object", required: false, description: "{ doorWall: '+x'|'-x'|'+y'|'-y', wallOffsetM, hingeSide (perpendicular axis to doorWall), widthM, heightM, style?: 'panel'|'glass_panel'|'louver'|'lite' }" },
+    occlusionExcludes: { type: "object", required: false, description: "{ shellCornice?: boolean, shellCeiling?: boolean }: finish-removed shell the occlusion bake must not count as occluders (painted ceilings delete both)" },
   }),
   equipment_generate: defineStation("equipment_generate", {
     subjectId: { type: "string", required: true },
@@ -243,6 +244,8 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     remesh: { type: "boolean", required: true },
     viewCount: { type: "number", required: true },
     decimationTarget: { type: "number", required: true, description: "schema-only field for card derivation" },
+    // Opt-in R5-BEST export treatment (MADR 0059 round 5b). Optional; absent = legacy path.
+    exportTreatment: { type: "enum", values: ["r5-best"], required: false, description: "R5-BEST post-generation treatment" },
   }),
   staging: defineStation("staging", {
     actorId: { type: "string", required: true },
@@ -250,7 +253,7 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // (shared-schemas/src/schemas.ts:235-241). A bare number is refused.
     plantOffsetMeters: { type: "vector3", required: false, description: "signed {x,y,z} offset in metres" },
     // closed union, matching the case. A POSTURE ("supine") is refused.
-    supportSurface: { type: "enum", values: ["stretcher", "chair", "none"], required: true },
+    supportSurface: { type: "enum", values: ["stretcher", "exam_table", "chair", "none"], required: true },
   }),
   dialogue_runtime: defineStation("dialogue_runtime", {
     actorId: { type: "string", required: true },

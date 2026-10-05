@@ -27,16 +27,15 @@ import {
   jawWeightSum,
   planTeethVisemeTargets,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
-import { MOUTH_OPEN_CAP, applyVisemeWeights } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
-import {
-  JAW_TEETH_GAIN,
-  applyDialogueVisemeTimelineToRoot,
-  applyJawOpenToRoot,
-} from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
 import {
   JAW_OPEN_TEETH_CLEAR_RADIANS,
+  JAW_TEETH_GAIN,
+  MOUTH_OPEN_CAP,
+  applyDialogueVisemeTimelineToRoot,
+  applyJawOpenToRoot,
+  applyVisemeWeights,
   jawOpenRadiansForPhoneme,
-} from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
+} from "@openclinxr/xr-dialogue";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");

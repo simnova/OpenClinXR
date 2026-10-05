@@ -1,0 +1,92 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "teeth-viseme-consumers-v1",
+  "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "fb2d288dcc97de55d87f7d25713f11e87362c146eb11724362e3c22ad31595f7",
+  "packages": [
+    "packages/openclinxr/xr-dialogue"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "JAW_OPEN_TEETH_CLEAR_RADIANS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "jaw-lip-couple.test.ts reads the full-open jaw angle the arch gate compares.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "JAW_TEETH_GAIN",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "jaw-lip-couple.test.ts reads the half gain the speech clip applies to jaw and teeth.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyDialogueVisemeTimelineToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "jaw-lip-couple.test.ts drives the parent teeth through the dialogue timeline.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts set the jaw hinge.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyVisemeWeights",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts write the teeth viseme weights.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "jawApertureFractionTable",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts reads the per-viseme aperture fractions.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "jawOpenRadiansForPhoneme",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts convert a phoneme to jaw radians.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "mapDialoguePhonemesToCues",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "speech-sync-capture.ts turns the spoken phonemes into timeline cues.",
+      "reviewedBy": "teeth-standard session 2026-10-05; couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts bind these symbols"
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+{
+  "schemaVersion": "openclinxr.ceiling-cornice-evidence.v1",
+  "method": "Rec.709 luminance from native 1280x720 learner-runtime PNG crop means",
+  "target": "replacement band is no darker than adjacent wall minus 30 luminance points",
+  "rooms": {
+    "ward": {
+      "01-toward-door": {
+        "before": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-01-toward-door.png",
+          "bandBox": [
+            360,
+            183,
+            560,
+            190
+          ],
+          "bandMeanRgb": [
+            161.57,
+            160.52,
+            159.0
+          ],
+          "bandMeanLuminance": 160.63,
+          "adjacentWallBox": [
+            360,
+            198,
+            560,
+            218
+          ],
+          "adjacentWallMeanRgb": [
+            194.07,
+            191.22,
+            187.9
+          ],
+          "adjacentWallMeanLuminance": 191.58,
+          "bandMinusWallLuminance": -30.95,
+          "threshold": -30,
+          "passes": false
+        },
+        "after": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-01-toward-door.png",
+          "bandBox": [
+            360,
+            183,
+            560,
+            190
+          ],
+          "bandMeanRgb": [
+            187.58,
+            185.97,
+            181.87
+          ],
+          "bandMeanLuminance": 186.02,
+          "adjacentWallBox": [
+            360,
+            198,
+            560,
+            218
+          ],
+          "adjacentWallMeanRgb": [
+            194.07,
+            191.22,
+            187.9
+          ],
+          "adjacentWallMeanLuminance": 191.58,
+          "bandMinusWallLuminance": -5.56,
+          "threshold": -30,
+          "passes": true
+        }
+      },
+      "02-toward-bed-wall": {
+        "before": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/ward/before/runtime-02-toward-bed-wall.png",
+          "bandBox": [
+            300,
+            143,
+            500,
+            152
+          ],
+          "bandMeanRgb": [
+            159.81,
+            158.46,
+            156.93
+          ],
+          "bandMeanLuminance": 158.64,
+          "adjacentWallBox": [
+            300,
+            165,
+            500,
+            185
+          ],
+          "adjacentWallMeanRgb": [
+            190.69,
+            187.7,
+            184.14
+          ],
+          "adjacentWallMeanLuminance": 188.08,
+          "bandMinusWallLuminance": -29.44,
+          "threshold": -30,
+          "passes": true
+        },
+        "after": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/ward/after/runtime-02-toward-bed-wall.png",
+          "bandBox": [
+            300,
+            143,
+            500,
+            152
+          ],
+          "bandMeanRgb": [
+            188.63,
+            186.48,
+            181.7
+          ],
+          "bandMeanLuminance": 186.59,
+          "adjacentWallBox": [
+            300,
+            165,
+            500,
+            185
+          ],
+          "adjacentWallMeanRgb": [
+            190.69,
+            187.7,
+            184.14
+          ],
+          "adjacentWallMeanLuminance": 188.08,
+          "bandMinusWallLuminance": -1.49,
+          "threshold": -30,
+          "passes": true
+        }
+      }
+    },
+    "stepdown": {
+      "01-toward-door": {
+        "before": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-01-toward-door.png",
+          "bandBox": [
+            200,
+            149,
+            450,
+            160
+          ],
+          "bandMeanRgb": [
+            139.11,
+            137.18,
+            133.59
+          ],
+          "bandMeanLuminance": 137.33,
+          "adjacentWallBox": [
+            200,
+            172,
+            450,
+            192
+          ],
+          "adjacentWallMeanRgb": [
+            196.29,
+            193.83,
+            190.81
+          ],
+          "adjacentWallMeanLuminance": 194.13,
+          "bandMinusWallLuminance": -56.8,
+          "threshold": -30,
+          "passes": false
+        },
+        "after": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-01-toward-door.png",
+          "bandBox": [
+            200,
+            149,
+            450,
+            160
+          ],
+          "bandMeanRgb": [
+            179.79,
+            178.16,
+            173.54
+          ],
+          "bandMeanLuminance": 178.17,
+          "adjacentWallBox": [
+            200,
+            172,
+            450,
+            192
+          ],
+          "adjacentWallMeanRgb": [
+            196.29,
+            193.83,
+            190.81
+          ],
+          "adjacentWallMeanLuminance": 194.13,
+          "bandMinusWallLuminance": -15.96,
+          "threshold": -30,
+          "passes": true
+        }
+      },
+      "02-toward-bed-wall": {
+        "before": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/before/runtime-02-toward-bed-wall.png",
+          "bandBox": [
+            350,
+            198,
+            650,
+            208
+          ],
+          "bandMeanRgb": [
+            153.46,
+            149.88,
+            144.59
+          ],
+          "bandMeanLuminance": 150.26,
+          "adjacentWallBox": [
+            350,
+            218,
+            650,
+            238
+          ],
+          "adjacentWallMeanRgb": [
+            195.33,
+            192.54,
+            189.18
+          ],
+          "adjacentWallMeanLuminance": 192.89,
+          "bandMinusWallLuminance": -42.63,
+          "threshold": -30,
+          "passes": false
+        },
+        "after": {
+          "image": "docs/openclinxr/room-realism/ceiling-cornice/stepdown/after/runtime-02-toward-bed-wall.png",
+          "bandBox": [
+            350,
+            198,
+            650,
+            208
+          ],
+          "bandMeanRgb": [
+            182.48,
+            179.65,
+            173.96
+          ],
+          "bandMeanLuminance": 179.84,
+          "adjacentWallBox": [
+            350,
+            218,
+            650,
+            238
+          ],
+          "adjacentWallMeanRgb": [
+            195.33,
+            192.54,
+            189.18
+          ],
+          "adjacentWallMeanLuminance": 192.89,
+          "bandMinusWallLuminance": -13.05,
+          "threshold": -30,
+          "passes": true
+        }
+      }
+    }
+  },
+  "wardV2Reference": {
+    "01-toward-door": {
+      "image": "docs/openclinxr/room-realism/imagine-multiview-v2/01-toward-door.jpg",
+      "bandBox": [
+        400,
+        154,
+        600,
+        162
+      ],
+      "bandMeanRgb": [
+        153.91,
+        149.92,
+        138.25
+      ],
+      "bandMeanLuminance": 149.93,
+      "adjacentWallBox": [
+        400,
+        175,
+        600,
+        195
+      ],
+      "adjacentWallMeanRgb": [
+        165.5,
+        162.58,
+        151.06
+      ],
+      "adjacentWallMeanLuminance": 162.37,
+      "bandMinusWallLuminance": -12.44,
+      "threshold": -30,
+      "passes": true
+    },
+    "02-toward-bed-wall": {
+      "image": "docs/openclinxr/room-realism/imagine-multiview-v2/02-toward-bed-wall.jpg",
+      "bandBox": [
+        300,
+        163,
+        500,
+        171
+      ],
+      "bandMeanRgb": [
+        164.5,
+        161.64,
+        150.31
+      ],
+      "bandMeanLuminance": 161.43,
+      "adjacentWallBox": [
+        300,
+        180,
+        500,
+        200
+      ],
+      "adjacentWallMeanRgb": [
+        169.18,
+        166.88,
+        155.14
+      ],
+      "adjacentWallMeanLuminance": 166.52,
+      "bandMinusWallLuminance": -5.09,
+      "threshold": -30,
+      "passes": true
+    }
+  },
+  "notEvidenceFor": [
+    "Quest headset readiness",
+    "clinical validity"
+  ]
+}

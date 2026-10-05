@@ -1,0 +1,56 @@
+{
+  "start": "2026-10-01T16:56:13.609Z",
+  "end": "2026-10-01T17:18:37.036Z",
+  "wallSeconds": 1343.430446417,
+  "slotsStart": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "slotsEnd": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "code": 1,
+  "stdout": "",
+  "stderr": "object address  : 0x128ecbc40\nobject refcount : 2\nobject type     : 0x1033bdc80\nobject type name: RuntimeError\nobject repr     : RuntimeError(\"[MtlMesh] Failed to create pipeline for 'propagate_cost_kernel': Unsupported float atomic operation for given target.Unsupported float atomic operation for given target.\")\nlost sys.stderr\n     1343.40 real       335.74 user        58.84 sys\n         41961652224  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n             6136966  page reclaims\n              707127  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                1265  messages sent\n              294969  messages received\n                   0  signals received\n                3619  voluntary context switches\n             1682292  involuntary context switches\n       3792348128895  instructions retired\n       1124352896800  cycles elapsed\n         33404171128  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

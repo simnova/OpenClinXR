@@ -1,0 +1,56 @@
+{
+  "start": "2026-10-01T16:55:34.385Z",
+  "end": "2026-10-01T16:55:42.787Z",
+  "wallSeconds": 8.397219625,
+  "slotsStart": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "slotsEnd": {
+    "root": "/Users/patrick/.openclinxr/locks",
+    "pools": [
+      {
+        "pool": "blender",
+        "size": 2,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "browser-capture",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      },
+      {
+        "pool": "gpu",
+        "size": 1,
+        "holders": [],
+        "waiters": []
+      }
+    ]
+  },
+  "code": 0,
+  "stdout": "[SPARSE] Conv backend: flex_gemm; Attention backend: sdpa\n  PASS: clean port present, MPS available, run/decode_latent/to_glb resolved, ATTN_BACKEND=sdpa\n",
+  "stderr": "        8.38 real         6.02 user         0.86 sys\n           447283200  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               69412  page reclaims\n                4800  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   4  messages sent\n                   0  messages received\n                   0  signals received\n                6307  voluntary context switches\n                5093  involuntary context switches\n         61979236048  instructions retired\n         21439354499  cycles elapsed\n           347178160  peak memory footprint\n",
+  "timedOut": false,
+  "signal": null
+}

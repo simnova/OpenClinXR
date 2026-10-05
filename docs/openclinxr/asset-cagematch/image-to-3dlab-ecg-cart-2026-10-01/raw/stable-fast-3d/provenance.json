@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "openclinxr.generated-asset-provenance.v1",
+  "backend": "stable-fast-3d",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "vendorCommit": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+  "outcome": "access_blocked",
+  "output": null,
+  "blocker": "Gated Hugging Face model weights required authentication.",
+  "licensePosture": "Workable under the current revenue parameter, subject to MADR 0046 registration and revenue tripwire obligations."
+}

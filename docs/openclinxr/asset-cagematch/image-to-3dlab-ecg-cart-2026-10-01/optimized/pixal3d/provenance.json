@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "openclinxr.generated-asset-provenance.v1",
+  "backend": "pixal3d",
+  "derivation": "iterate-optimize meshopt retarget from run1",
+  "sourceSha256": "a895a10214bcb37439275e8ee362099843f431bf3a2c5f628943a9230c55782c",
+  "output": {"path": "champion.glb", "sha256": "d88fb4216872546912876b9d31eb53b5fd38de0a777cde9a8fb1a65de8f89d14", "bytes": 5273180, "triangles": 73790},
+  "budget": {"preferredMaxTriangles": 80000, "stretchMaxTriangles": 40000, "preferredPassed": true, "stretchPassed": false},
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "production adoption"]
+}

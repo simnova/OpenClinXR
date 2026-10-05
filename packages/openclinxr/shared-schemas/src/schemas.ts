@@ -230,7 +230,7 @@ export const BodyMechanicsSchema = Type.Object({
 export const ActorPlacementSchema = Type.Object({
   /** What the actor is on. "none" is an authored decision (standing), not an absent value. */
   supportSurface: Type.Union([
-    Type.Literal("stretcher"),
+    Type.Literal("stretcher"), Type.Literal("bed"), Type.Literal("exam_table"),
     Type.Literal("chair"),
     Type.Literal("none"),
   ]),
@@ -242,6 +242,7 @@ export const ActorPlacementSchema = Type.Object({
       z: Type.Number(),
     }),
   ),
+  headingRadians: Type.Optional(Type.Number()),
 });
 
 /**
@@ -496,4 +497,3 @@ export const ScenarioSchema = Type.Object({
   equipmentDecisions: Type.Optional(SceneEquipmentDecisionsSchema),
   startingRequirements: Type.Optional(Type.Array(SceneStartingRequirementSchema)),
 });
-

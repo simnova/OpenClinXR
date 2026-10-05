@@ -355,6 +355,7 @@ export function applyAndPlantSupineOnDeck(
     deckCenter: { x: number; z: number };
     /** World X of the pillow rest point (default: deck center X − 0.95 stretcher local). */
     pillowWorldX?: number;
+    alignHeadToPillow?: boolean;
     torsoHalfThickness?: number;
     /**
      * Procedural stretcher with incline SSOT. When provided, body follows
@@ -414,10 +415,8 @@ export function applyAndPlantSupineOnDeck(
     ?? DEFAULT_STRETCHER_POSITION.z;
   const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
   const livePillow = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
-  const headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
-    x: input.pillowWorldX ?? livePillow?.x ?? stretcherX + pillowLocalX,
-    z: livePillow?.z ?? stretcherZ,
-  }).deltaX;
+  const pillowTarget = { x: input.pillowWorldX ?? livePillow?.x ?? stretcherX + pillowLocalX, z: livePillow?.z ?? stretcherZ };
+  const headAlignDeltaX = input.alignHeadToPillow === false ? 0 : alignSupineHeadToPillow(humanoidRoot, pillowTarget).deltaX;
   recordPlantStep(humanoidRoot, "head_align_xz", incline, input.stretcher, input.deckTopWorldY);
 
   if (inclined) {

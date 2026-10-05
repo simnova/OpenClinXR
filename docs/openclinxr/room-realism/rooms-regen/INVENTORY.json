@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "openclinxr.rooms-regen.inventory.v1",
+  "measuredAtCommit": "b0bc59909",
+  "measurement": {
+    "bounds": "trimesh 5.0.0 scene.bounds over the shipped GLB; footprint is X x Z and height is Y",
+    "doors": "authored door leaves are counted from semantic node names; entranceSide is the documented +Z learner/camera entrance convention when the legacy shell has no door leaf",
+    "multiCaseRunner": "true when a scenario has a tracked apps/ui-xr/public/xr-assets/generated/<scenarioId>/learner-runtime-bundle.v1.json consumed by enumerateCasePopulation"
+  },
+  "rooms": [
+    {
+      "environmentId": "adult_ed_abdominal_bay_v1",
+      "glb": "infinigen-adult-ed-abdominal-bay.glb",
+      "scenarioIds": ["adult_abdominal_pain_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 6.5, "depthZ": 6.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 0; kitchen_0/0, yaw 90; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "behavioral_health_private_room_v1",
+      "glb": "infinigen-behavioral-health-private.glb",
+      "scenarioIds": ["psych_suicidal_ideation_safety_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 5.0, "depthZ": 6.0, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 16; dining-room_0/0, yaw 90; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "ed_exam_bay_v1",
+      "glb": "infinigen-ed-exam-bay.glb",
+      "scenarioIds": ["ed_chest_pain_priority_v1", "ed_chest_pain_priority_v2"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 3.0, "depthZ": 6.0, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 22; bedroom_0/2, yaw 90; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "ed_stroke_bay_v1",
+      "glb": "infinigen-ed-stroke-bay.glb",
+      "scenarioIds": ["ed_stroke_alert_handoff_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 7.0, "depthZ": 7.0, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 2; bedroom_0/1, yaw 0; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "inpatient_ward_room_v1",
+      "glb": "infinigen-inpatient-ward.glb",
+      "scenarioIds": ["ward_delirium_med_rec_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 4.52, "depthZ": 4.44, "heightY": 2.62 },
+      "doors": { "authoredLeafCount": 1, "recipeWall": "+y", "offsetM": 0.25 },
+      "provenance": "Infinigen Indoors BSD-3-Clause seed 205; room factory chain; fixed footprint 4.3 x 3.9 x 2.4 m"
+    },
+    {
+      "environmentId": "ob_triage_room_v1",
+      "glb": "infinigen-ob-triage.glb",
+      "scenarioIds": ["ob_headache_preeclampsia_triage_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 6.0, "depthZ": 5.0, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 27; dining-room_0/0, yaw 180; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "oncology_consult_room_v1",
+      "glb": "infinigen-oncology-consult.glb",
+      "scenarioIds": ["oncology_bad_news_family_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 5.5, "depthZ": 5.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 17; dining-room_0/0, yaw 0; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "pediatric_fever_urgent_care_bay_v1",
+      "glb": "infinigen-pediatric-fever-urgent-care.glb",
+      "scenarioIds": ["peds_fever_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 6.5, "depthZ": 6.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 34; bedroom_0/1, yaw 0; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "pediatric_urgent_care_bay_v1",
+      "glb": "infinigen-pediatric-urgent-care-bay.glb",
+      "scenarioIds": ["peds_asthma_parent_anxiety_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 5.5, "depthZ": 5.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin recorded seed 13; kitchen_0/0, yaw 90; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "primary_care_clinic_room_v1",
+      "glb": "infinigen-primary-care-clinic.glb",
+      "scenarioIds": ["primary_care_dyslipidemia_joint_pain_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 6.5, "depthZ": 6.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 1; bedroom_0/2, yaw 0; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "stepdown_room_v1",
+      "glb": "infinigen-stepdown.glb",
+      "scenarioIds": ["stepdown_sepsis_nurse_escalation_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 6.42, "depthZ": 3.79, "heightY": 2.82 },
+      "doors": { "authoredLeafCount": 1, "recipeWall": "+y", "offsetM": 0.25 },
+      "provenance": "Infinigen Indoors BSD-3-Clause seed 205; room factory chain; fixed footprint 6.2 x 3.25 x 2.6 m"
+    },
+    {
+      "environmentId": "surgical_ward_room_v1",
+      "glb": "infinigen-surgical-ward.glb",
+      "scenarioIds": ["postop_fever_consult_pressure_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 7.5, "depthZ": 7.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 25; bedroom_0/0, yaw 90; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "telehealth_home_visit_v1",
+      "glb": "infinigen-telehealth-home-visit.glb",
+      "scenarioIds": ["telehealth_diabetes_health_literacy_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 9.5, "depthZ": 6.5, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 14; bedroom_0/2, yaw 180; extracted and locally albedo/AO baked"
+    },
+    {
+      "environmentId": "urgent_care_clinic_room_v1",
+      "glb": "infinigen-urgent-care-clinic.glb",
+      "scenarioIds": ["clinic_abdominal_pain_interpreter_v1"],
+      "multiCaseRunner": true,
+      "boundsMeters": { "widthX": 7.5, "depthZ": 8.0, "heightY": 2.65 },
+      "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": null },
+      "provenance": "Infinigen Indoors BSD-3-Clause clinical_bay.gin seed 22; bedroom_0/0, yaw 270; extracted and locally albedo/AO baked"
+    }
+  ],
+  "legacyCompatibilityShell": {
+    "environmentId": null,
+    "glb": "ed-exam-bay-shell.glb",
+    "scenarioIds": [],
+    "multiCaseRunner": false,
+    "boundsMeters": { "widthX": 9.07, "depthZ": 4.015, "heightY": 5.32 },
+    "doors": { "authoredLeafCount": 0, "entranceSide": "+z", "offsetM": 0.0, "features": ["doorway threshold", "reveal header", "two reveal jambs"] },
+    "provenance": "Repo-authored Blender fixture generated by tools/openclinxr/evidence/environment-artifacts.ts; legacy filename resolver target for ed.glb and ed_environment.glb; not in INFINIGEN_ENVIRONMENT_ASSETS"
+  }
+}

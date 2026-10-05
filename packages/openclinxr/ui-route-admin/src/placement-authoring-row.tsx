@@ -25,7 +25,7 @@ export function PlacementAuthoringRow({
                         <Form.Item
                           name={[fieldName, "placement", "supportSurface"]}
                           label="Support surface"
-                          tooltip="Where this actor is staged (stretcher|chair|none); 'none' is an explicit standing decision. Writes ActorCard.placement.supportSurface — the field the factory Placement compile node and PLACEMENT_OVERRIDE_PATHS consume."
+                          tooltip="Where this actor is staged (stretcher|exam_table|chair|none); 'none' is an explicit standing decision. Writes ActorCard.placement.supportSurface — the field the factory Placement compile node and PLACEMENT_OVERRIDE_PATHS consume."
                         >
                           <Select
                             allowClear

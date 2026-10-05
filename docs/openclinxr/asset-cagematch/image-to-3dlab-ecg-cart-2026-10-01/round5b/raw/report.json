@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-treatment.v1",
+  "sourceCheckpoint": ".openclinxr/round5b-replay-20261001/decoded-mesh.pt",
+  "sourceSeed": 42,
+  "sourceSteps": 12,
+  "treatment": {
+    "mode": "raw",
+    "pipeline": [
+      "to_glb_decimate_300000",
+      "uv_unwrap",
+      "pbr_bake_2048"
+    ],
+    "preExportFaces": 8804219
+  },
+  "remesh": false,
+  "triangles": 298347,
+  "decodedTextureMiB": 32.0,
+  "bytes": 16098376,
+  "sha256": "ce3fac62cfe9bd792d5b421677d769fcb284d057cb7e008ef42ec2b2728d0364",
+  "timingsSeconds": {
+    "export": 58.910534143447876,
+    "total": 59.305644035339355
+  },
+  "claimScope": "one ECG-cart Round-5 CPU topology treatment and pre-bake decimation",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-treatment.v1",
+  "sourceCheckpoint": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed7-default/decoded-mesh.pt",
+  "sourceSeed": 7,
+  "sourceSteps": 12,
+  "treatment": {
+    "mode": "fill",
+    "pipeline": [
+      "cpu_fill_holes",
+      "to_glb_decimate_40k",
+      "uv_unwrap",
+      "pbr_bake_512"
+    ],
+    "fill": {
+      "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+      "fillReturnWatertight": false,
+      "changed": true,
+      "facesBefore": 7433532,
+      "facesAfter": 7433714,
+      "boundaryEdgesBefore": 32048,
+      "boundaryEdgesAfter": 31686
+    },
+    "preExportFaces": 7433714
+  },
+  "remesh": false,
+  "triangles": 37496,
+  "decodedTextureMiB": 2,
+  "bytes": 1748900,
+  "sha256": "4c194c4595cbccd9c4b30bfa086b7a9fbf170de7b1934c51dda4f6c675e7ed64",
+  "timingsSeconds": {
+    "export": 36.574153900146484,
+    "total": 65.75927495956421
+  },
+  "claimScope": "one ECG-cart Round-5 CPU topology treatment and pre-bake decimation",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}

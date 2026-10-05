@@ -1,0 +1,20 @@
+{
+  "backend": "stable-fast-3d",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "backendCommit": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+  "weightRevisions": {"stableFast3d":"f0c9a8ffd62cb1bbc8a7a53c9f87a0be1b6be778","dinov2Large":"47b73eefe95e8d44ec3623f8890bd894b6ea2d6c","clip":"1a25a446712ba5ee05982a381eed697ef9b435cf"},
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "output": "ecg-cart.glb",
+  "sha256": "9bb2c4ff860cde1bb636d35e91c8e9ee9973bce9bb8f05f2a9f15d9068614693",
+  "bytes": 1192596,
+  "triangles": 29108,
+  "textures": [{"slot":"baseColorTexture","size":[1024,1024],"mime":"image/jpeg","bytes":114420},{"slot":"normalTexture","size":[1024,1024],"mime":"image/jpeg","bytes":135144}],
+  "decodedRgbaNoMipsMiB": 8,
+  "decodedRgbaWithMipsMiB": 10.666666666666666,
+  "execution": {"facade":"GpuJobService","device":"cpu","wallSeconds":42.796803958,"peakRssBytes":11114381312,"concurrentHeavyProcessesAtStart":0,"concurrentHeavyProcessesAtEnd":0},
+  "parameters": {"textureResolution":1024,"foregroundRatio":0.85,"remesh":"none","targetVertices":-1,"seed":null},
+  "firstAttempt": "MPS attempt manually terminated after 445.84 seconds while waiting on Metal linalg_svd; included first-download setup; peak RSS 9208217600 bytes. See mps-attempt.json.",
+  "license": "Stability AI Community License; operator accepted gated access; commercial registration and revenue obligations remain as recorded in MADR 0046.",
+  "reproducibility": "Not replayed; round-one Pixal3D remains the selected manifest reproducibility trial.",
+  "notEvidenceFor": ["Quest readiness","clinical accuracy","production adoption"]
+}

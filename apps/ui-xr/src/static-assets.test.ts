@@ -73,7 +73,7 @@ const generatedSceneAssetHashes = {
   // rendered triangle, node, and AABB is unchanged — see PROVENANCE.md and each asset's
   // finalizeStation provenance block for the measured before/after. wall-clock-analog.glb was
   // already clean (byte-identical, hash unchanged).
-  "medical-equipment/ecg-cart-12-lead.glb": "a6a34c19458a77c81899f31407027fa922b640b279d2a78464eb1aefe9799027",
+  "medical-equipment/ecg-cart-12-lead.glb": "01e11ed0cb790f532d010026c3d0ede770c54f17ddb25740c4c3a5dc3e6e9266",
   "medical-equipment/iv-pole-with-pump.glb": "778b1173cc6c8732e55c4949c24789a517fe993c6f3a46f1f80fb1ff5f829c2c",
   "medical-equipment/wall-clock-analog.glb": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
   "medical-equipment/bedside-monitor-generated.glb": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",
@@ -83,7 +83,20 @@ const generatedSceneAssetHashes = {
   "medical-equipment/exam-table-sketchfab-ccby.glb": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
   "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
-  "environment/infinigen-ed-exam-bay.glb": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
+  "environment/infinigen-ed-exam-bay.glb": "60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47",
+  "environment/infinigen-pediatric-urgent-care-bay.glb": "3d5e58ce0a4154f90d6a245be6b88b440e71fe926e8d009164c094be48020a71",
+  "environment/infinigen-primary-care-clinic.glb": "1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009",
+  "environment/infinigen-ed-stroke-bay.glb": "59a3a280b7e4ad05bfe0b587ea453efc36c3084af8a9530a983bfaf51bf4580a",
+  "environment/infinigen-adult-ed-abdominal-bay.glb": "755c293a04564b1503fd8960467795791c235455f9c0793d1c1a73f2e2defab1",
+  "environment/infinigen-telehealth-home-visit.glb": "858d00645180789a57f016355d20f3a126b38754972824728bc4ff1a974b171b",
+  "environment/infinigen-behavioral-health-private.glb": "d2c13bf0c983672fc2a5e5d2a868ce9ebabcbcfd98ae66cb1064eeaa3d272506",
+  "environment/infinigen-oncology-consult.glb": "9320e8b2010e1c3adf9fc447e393342b2538a60e226ac15f6b24b03f55760835",
+  "environment/infinigen-urgent-care-clinic.glb": "f0f1d6ea7c4a7a945392d5ef89d98844c8b1fc2f7babce758c1f85014bab870d",
+  "environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
+  "environment/infinigen-ob-triage.glb": "554698bd4bafe08ec0bfc9c888c2a2543185b4133229ecd04faf284fc3f5a74e",
+  "environment/infinigen-pediatric-fever-urgent-care.glb": "c65f0ff52fce7207f201a652fd298393af159aad53cd6fa5994ebe0a583376fb",
+  "environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
+  "environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
 } as const;
 
 describe("static browser assets", () => {

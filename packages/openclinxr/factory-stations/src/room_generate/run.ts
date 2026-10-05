@@ -4,8 +4,8 @@ import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
 import { spawnBlenderProcess } from "../spawn-blender.js";
-import { runInfinigenGenerate, type InfinigenGenerateReport } from "./generate.js";
-import { simplifyRoomAfterBake, type RoomSimplifyReport } from "./simplify.js";
+import { type InfinigenGenerateReport, runInfinigenGenerate } from "./generate.js";
+import { type RoomSimplifyReport, simplifyRoomAfterBake } from "./simplify.js";
 
 export const ROOM_ALBEDO_REL =
   "packages/openclinxr/factory-stations/src/room_generate/room-albedo-ao-bake.py";
@@ -35,6 +35,8 @@ export function planRoomGenerate(input: unknown): StationPlanResult {
   const plan: Record<string, unknown> = { ...planned.plan };
   if ("footprintMeters" in planned.value) plan["footprintMeters"] = planned.value["footprintMeters"];
   if ("door" in planned.value) plan["door"] = planned.value["door"];
+  const excludeFlags = occlusionExcludeFlags(planned.value);
+  if (excludeFlags.length > 0) plan["occlusionExcludeFlags"] = excludeFlags;
   return { value: planned.value, plan: { mode: "dry-run", stationId: "room_generate", ...plan } };
 }
 
@@ -151,7 +153,34 @@ export function validateRoomGenerateOptions(value: Record<string, unknown>): { m
       }
     }
   }
+  if ("occlusionExcludes" in value && value["occlusionExcludes"] !== undefined) {
+    const excludes = value["occlusionExcludes"] as Record<string, unknown>;
+    if (excludes === null || typeof excludes !== "object" || Array.isArray(excludes)) {
+      issues.push({ message: "occlusionExcludes must be an object when present", path: ["occlusionExcludes"] });
+    } else {
+      for (const flag of ["shellCornice", "shellCeiling"] as const) {
+        if (flag in excludes && excludes[flag] !== undefined && typeof excludes[flag] !== "boolean") {
+          issues.push({ message: `occlusionExcludes.${flag} must be a boolean when present`, path: ["occlusionExcludes", flag] });
+        }
+      }
+      for (const key of Object.keys(excludes)) {
+        if (key !== "shellCornice" && key !== "shellCeiling") {
+          issues.push({ message: `occlusionExcludes has unknown field ${JSON.stringify(key)}`, path: ["occlusionExcludes", key] });
+        }
+      }
+    }
+  }
   return issues;
+}
+
+/** occlusionExcludes input -> room-occlusion-bake.py CLI flags. Pure (plan-safe). */
+export function occlusionExcludeFlags(value: Record<string, unknown>): string[] {
+  const flags: string[] = [];
+  const excludes = value["occlusionExcludes"] as Record<string, unknown> | undefined;
+  if (excludes === null || typeof excludes !== "object" || Array.isArray(excludes)) return flags;
+  if (excludes["shellCornice"] === true) flags.push("--exclude-shell-cornice");
+  if (excludes["shellCeiling"] === true) flags.push("--exclude-shell-ceiling");
+  return flags;
 }
 
 export type RoomGenerateRunOptions = {
@@ -318,6 +347,10 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
       // script fails closed when no Metal device exists.
       "--device",
       "metal",
+      // Finish-removed shell excluded as occluders (brown-band fix): the
+      // chain sets occlusionExcludes from the finish recipe, so a painted
+      // ceiling bakes without its deleted cornice + ceiling plane.
+      ...occlusionExcludeFlags(planned.value),
     ];
     const occlusion = await spawnBlenderProcess(
       options.blender,

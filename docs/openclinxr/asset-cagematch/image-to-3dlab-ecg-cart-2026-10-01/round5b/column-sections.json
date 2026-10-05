@@ -1,0 +1,101 @@
+{
+  "method": "Y-up mesh plane intersections, convex hull in XZ; dimension comparison only, not exact-square certification",
+  "samples": {
+    "round3": [
+      {
+        "y": -0.25,
+        "xzExtent": [
+          0.23179655929080362,
+          0.209801131749475
+        ],
+        "xzAspectRatio": 1.1048394132000847,
+        "hullArea": 0.039074355578002706,
+        "hullToBoundingRectangleArea": 0.8034835921413511
+      },
+      {
+        "y": -0.2,
+        "xzExtent": [
+          0.2311009241108159,
+          0.2054068965019737
+        ],
+        "xzAspectRatio": 1.1250884368850553,
+        "hullArea": 0.037992530981499316,
+        "hullToBoundingRectangleArea": 0.8003529007534926
+      },
+      {
+        "y": -0.15,
+        "xzExtent": [
+          0.23383561831199123,
+          0.21967913156427463
+        ],
+        "xzAspectRatio": 1.0644416547302975,
+        "hullArea": 0.04073428378702875,
+        "hullToBoundingRectangleArea": 0.7929770479048494
+      }
+    ],
+    "r5best": [
+      {
+        "y": -0.25,
+        "xzExtent": [
+          0.22572782323339147,
+          0.2127630831761679
+        ],
+        "xzAspectRatio": 1.060935101445624,
+        "hullArea": 0.03323131941996145,
+        "hullToBoundingRectangleArea": 0.6919364613948352
+      },
+      {
+        "y": -0.2,
+        "xzExtent": [
+          0.22590733494297047,
+          0.21270963856818262
+        ],
+        "xzAspectRatio": 1.062045596352031,
+        "hullArea": 0.033241241968648486,
+        "hullToBoundingRectangleArea": 0.691766839442458
+      },
+      {
+        "y": -0.15,
+        "xzExtent": [
+          0.22530659923005242,
+          0.21277037328589837
+        ],
+        "xzAspectRatio": 1.0589190391056427,
+        "hullArea": 0.03323602526503815,
+        "hullToBoundingRectangleArea": 0.6933044895678061
+      }
+    ],
+    "r5b": [
+      {
+        "y": -0.25,
+        "xzExtent": [
+          0.23151453958851317,
+          0.20969808557282268
+        ],
+        "xzAspectRatio": 1.10403744963191,
+        "hullArea": 0.03902115725144275,
+        "hullToBoundingRectangleArea": 0.8037618867595244
+      },
+      {
+        "y": -0.2,
+        "xzExtent": [
+          0.230806255194616,
+          0.20525303725148503
+        ],
+        "xzAspectRatio": 1.1244961745039712,
+        "hullArea": 0.03791997165589195,
+        "hullToBoundingRectangleArea": 0.8004437851872696
+      },
+      {
+        "y": -0.15,
+        "xzExtent": [
+          0.23349233824643628,
+          0.21956380271547538
+        ],
+        "xzAspectRatio": 1.0634373032289406,
+        "hullArea": 0.04074870865873826,
+        "hullToBoundingRectangleArea": 0.7948413862755481
+      }
+    ]
+  }
+}

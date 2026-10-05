@@ -16,6 +16,8 @@ export type DecodedPng = {
   r: Uint8Array;
   g: Uint8Array;
   b: Uint8Array;
+  /** Per-pixel alpha in 0..255; opaque for PNG colour types without alpha. */
+  a: Uint8Array;
   /**
    * True when every decoded pixel has R === G === B (or the image is single-channel).
    *
@@ -66,6 +68,7 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
   const rCh = new Uint8Array(w * h);
   const gCh = new Uint8Array(w * h);
   const bCh = new Uint8Array(w * h);
+  const aCh = new Uint8Array(w * h);
   let greyscale = true;
   const prev = new Uint8Array(stride);
   const cur = new Uint8Array(stride);
@@ -96,14 +99,16 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
       const R = chans >= 3 ? cur[i]! : cur[i]!;
       const G = chans >= 3 ? cur[i + 1]! : cur[i]!;
       const B = chans >= 3 ? cur[i + 2]! : cur[i]!;
+      const A = chans === 2 ? cur[i + 1]! : chans === 4 ? cur[i + 3]! : 255;
       if (chans >= 3 && (R !== G || R !== B)) greyscale = false;
       const pix = y * w + x;
       rCh[pix] = R;
       gCh[pix] = G;
       bCh[pix] = B;
+      aCh[pix] = A;
       lum[pix] = 0.299 * R + 0.587 * G + 0.114 * B;
     }
     prev.set(cur);
   }
-  return { w, h, lum, r: rCh, g: gCh, b: bCh, greyscale };
+  return { w, h, lum, r: rCh, g: gCh, b: bCh, a: aCh, greyscale };
 }

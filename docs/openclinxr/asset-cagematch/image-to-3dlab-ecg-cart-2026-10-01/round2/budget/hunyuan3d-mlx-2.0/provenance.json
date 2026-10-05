@@ -1,0 +1,17 @@
+{
+  "backend": "hunyuan3d-mlx-2.0",
+  "source": "../../../optimized/hunyuan3d-mlx-2.0/iter1-share40k.glb",
+  "sourceSha256": "43470e8a37ce5f7df77a8caec047835bfbe308ec53f2788b09830b08b2205aa8",
+  "derivation": "Round-one iterate-optimize direct high-error 40k rung; gltf-transform resize --width 1024 --height 1024 (Lanczos3). PBR slots retained; no recolouring.",
+  "output": "ecg-cart.glb",
+  "sha256": "d55d96455906793cb32ed9ac2e44588ed27b8f64a927b221542f53d1196c3818",
+  "bytes": 3736928,
+  "triangles": 40000,
+  "decodedRgbaNoMipsMiB": 8,
+  "decodedRgbaWithMipsMiB": 10.666666666666666,
+  "textures": [{"size":[1024,1024],"mime":"image/png","bytes":1319816},{"size":[1024,1024],"mime":"image/png","bytes":1356413}],
+  "paintControlFinding": "No body-colour or text-prompt control in the pinned Xiong wrapper or run_paint_pbr.py. Exposed controls cover reference image, mesh, seed, resolution, steps, scheduler, and super-resolution; guidance is hard-coded to 3.0. Paint was not rerun.",
+  "territoryFlag": "US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "license": "Tencent Hunyuan3D-2 Community License; MADR 0046",
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "production adoption"]
+}

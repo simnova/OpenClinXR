@@ -1,7 +1,6 @@
 import type { RuntimeActorAudioEvidence } from "./runtime-actor-audio-evidence.js";
-import {
-  resolveScenarioActorCast,
-} from "./actor-casting.js";
+import { resolveScenarioActorCast } from "./actor-casting.js";
+import { resolveRuntimeBundleCast } from "./runtime-bundle-cast.js";
 import {
   resolveRuntimeAssetBlobUrl,
   resolveRuntimeAssetStoreConfig,
@@ -739,7 +738,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     containerName: defaultRuntimeAssetContainerName(input.assetStoreKind ?? "app_public_fixture"),
   });
   // #85/#96: role-distinct ED wardrobe (gown/scrubs/street); casting table is blob-path SSOT.
-  const castTable = resolveScenarioActorCast(input.scenarioId ?? "ed_chest_pain_priority_v1", input.scenario);
+  const castTable = resolveRuntimeBundleCast(input.scenarioId, input.scenario);
   const edModel = (
     assetId: string, scenarioAssetId: string, displayName: string, castRole: string, fallbackGlb: string,
   ): EncounterRuntimeAsset => {
@@ -1467,6 +1466,10 @@ export function createEdChestPainRuntimeSceneManifest(input: {
   // The room resolves through the SAME document lookup the placements use, so an injected case and the bank copy of that case agree; reading `input.scenario` alone made injection carry the room while the bank fallback did not, and SC-01's "injecting a resolved case changes nothing" counterweight caught it.
   const caseDocument = caseScenarioDocument(manifestScenarioId, input.scenario);
   const environmentId = input.environmentId ?? caseDocument?.environment?.environmentId ?? caseDocument?.environmentId ?? "ed_exam_bay_v1";
+  const stationTitle = caseDocument?.title ?? "ED Chest Pain";
+  const stationSubtitle = caseDocument?.environment?.description
+    ?? "Patient, spouse, and nurse in a time-boxed emergency department encounter.";
+  const stationEnvironmentName = caseDocument?.environment?.name ?? "Emergency department";
   return {
     schemaVersion: "openclinxr.runtime-scene-manifest.v1",
     manifestId: "ed_chest_pain_runtime_scene_manifest_v1",
@@ -1474,14 +1477,14 @@ export function createEdChestPainRuntimeSceneManifest(input: {
     scenarioId: input.scenarioId ?? "ed_chest_pain_priority_v1",
     stationId: input.stationId ?? "ed_chest_pain_station_v1", environmentId,
     stationContext: {
-      title: "ED Chest Pain",
-      subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
+      title: stationTitle,
+      subtitle: stationSubtitle,
       chiefConcern: "It feels heavy, like someone is sitting on my chest.",
       initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
       initialVitalsAuthorship: "legacy_hardcoded_unreviewed",
       interruption: "Not charted — observe interruptions during the encounter",
-      stageAriaLabel: "Emergency department station scene",
-      canvasAriaLabel: "3D emergency department bay preview",
+      stageAriaLabel: `${stationEnvironmentName} station scene`,
+      canvasAriaLabel: `3D ${stationEnvironmentName} preview`,
       initialDialogueText: "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
     },
     dialogueTurns: [

@@ -27,6 +27,11 @@ import {
   type StationCapturePageListenerHost,
 } from "./station-capture/page-diagnostics.js";
 import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
+import type { ActorVisibilityReading } from "./station-capture/actor-visibility-page-probe.js";
+import {
+  readNearOcclusionFromPage,
+  type NearOcclusionReading,
+} from "./station-capture/near-occlusion-page-probe.js";
 
 export {
   attachStationCapturePageDiagnostics,
@@ -54,6 +59,15 @@ export type LiveShell = {
   encounterFloorTheme?: unknown;
   captureMode?: string;
   cameraFraming?: string;
+  cameraEye?: [number, number, number];
+  cameraLook?: [number, number, number];
+  refineTag?: string;
+  actorContainment?: { contained: number; total: number };
+  actorVisibility?: ActorVisibilityReading[];
+  standingActorContainment?: { contained: number; total: number };
+  meanFacingDeg?: number;
+  framingConstraintsMet?: boolean;
+  nearOcclusion?: NearOcclusionReading;
   /**
    * #342 — the generated room, read from the LOADED SCENE.
    *
@@ -628,11 +642,52 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
 
     // Camera framing note from locomotion child if present.
     let cameraFraming = "";
+    let cameraEye: [number, number, number] | undefined;
+    let cameraLook: [number, number, number] | undefined;
+    let refineTag: string | undefined;
+    let actorContainment: { contained: number; total: number } | undefined;
+    let actorVisibility: ActorVisibilityReading[] | undefined;
+    let standingActorContainment: { contained: number; total: number } | undefined;
+    let meanFacingDeg: number | undefined;
+    let framingConstraintsMet: boolean | undefined;
     if (typeof scene.traverse === "function") {
       scene.traverse((object) => {
         const framing = object.userData?.openClinXrCameraFraming;
         if (typeof framing === "string" && framing.length > 0 && !cameraFraming) {
           cameraFraming = framing;
+        }
+        if ((object.userData && (object as Obj & { isPerspectiveCamera?: boolean; type?: string }).isPerspectiveCamera)
+          || (object as Obj & { type?: string }).type === "PerspectiveCamera") {
+          const camera = object as Obj & {
+            matrixWorld?: { elements?: number[] };
+            userData?: Record<string, unknown>;
+          };
+          const elements = camera.matrixWorld?.elements;
+          if (elements && elements.length >= 15) {
+            cameraEye = [elements[12]!, elements[13]!, elements[14]!];
+          }
+          const rawLook = camera.userData?.openClinXrCameraLookAt;
+          if (Array.isArray(rawLook) && rawLook.length === 3 && rawLook.every((value) => typeof value === "number")) {
+            cameraLook = rawLook as [number, number, number];
+          }
+          const rawTag = camera.userData?.openClinXrRefineTag;
+          if (typeof rawTag === "string") refineTag = rawTag;
+          const containment = camera.userData?.openClinXrActorContainment;
+          if (typeof containment === "string") {
+            const match = /^(\d+)\/(\d+)$/u.exec(containment);
+            if (match) actorContainment = { contained: Number(match[1]), total: Number(match[2]) };
+          }
+          const rawVisibility = camera.userData?.openClinXrActorVisibility;
+          if (Array.isArray(rawVisibility)) actorVisibility = rawVisibility as ActorVisibilityReading[];
+          const standingContainment = camera.userData?.openClinXrStandingActorContainment;
+          if (typeof standingContainment === "string") {
+            const match = /^(\d+)\/(\d+)$/u.exec(standingContainment);
+            if (match) standingActorContainment = { contained: Number(match[1]), total: Number(match[2]) };
+          }
+          const rawFacing = camera.userData?.openClinXrMeanFacingDeg;
+          if (typeof rawFacing === "number") meanFacingDeg = rawFacing;
+          const rawConstraints = camera.userData?.openClinXrFramingConstraintsMet;
+          if (typeof rawConstraints === "boolean") framingConstraintsMet = rawConstraints;
         }
       });
     }
@@ -649,6 +704,14 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       encounterFloorTheme: floor?.userData?.openClinXrEncounterSpecificRuntimeTheme
         ?? "floor_color_derived_from_environmentId_descriptor",
       cameraFraming,
+      cameraEye,
+      cameraLook,
+      refineTag,
+      actorContainment,
+      actorVisibility,
+      standingActorContainment,
+      meanFacingDeg,
+      framingConstraintsMet,
     };
   });
 }
@@ -1351,6 +1414,7 @@ export async function captureStationEnvironmentRooms(
           // Re-read after screenshot so facts match the drawn frame.
           const liveAfter = await readLiveShellFromPage(page);
           const roomFacts = await readInfinigenRoomLiveFacts(page);
+          const nearOcclusion = await readNearOcclusionFromPage(page);
 
           // #342 — fail closed on the two states that previously photographed as a blank
           // viewport while every legacy field reported success. Only applies where a
@@ -1391,6 +1455,15 @@ export async function captureStationEnvironmentRooms(
               encounterFloorTheme: liveAfter.encounterFloorTheme,
               captureMode,
               cameraFraming: `${liveAfter.cameraFraming || ""} ${frameNote}`.trim(),
+              cameraEye: liveAfter.cameraEye,
+              cameraLook: liveAfter.cameraLook,
+              refineTag: liveAfter.refineTag,
+              actorContainment: liveAfter.actorContainment,
+              actorVisibility: liveAfter.actorVisibility,
+              standingActorContainment: liveAfter.standingActorContainment,
+              meanFacingDeg: liveAfter.meanFacingDeg,
+              framingConstraintsMet: liveAfter.framingConstraintsMet,
+              nearOcclusion,
             },
           });
         } finally {

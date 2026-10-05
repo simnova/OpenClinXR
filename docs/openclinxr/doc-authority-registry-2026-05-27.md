@@ -13,9 +13,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 107
 - archive-candidate: 116
-- current-reference: 209
+- current-reference: 210
 - decision-record: 44
-- evidence: 142
+- evidence: 143
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -217,6 +217,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/mongodb-memory-server-test-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/openclaw-runbook-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - current-reference; Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference.
 - `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/session-state-websocket-message-design.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -436,3 +437,23 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md` - evidence; Ward candidate reader corrections, property conflicts, ceiling fix, and size audit.
 - `docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md` - evidence; Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit.
 - `docs/openclinxr/room-realism/door-finish/READER-AUDIT.md` - evidence; Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - evidence; ECG-cart image-to-3dlab measurements, grade inputs, blockers, and claim boundaries.
+- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; TRELLIS.2 Round-4 T4 adopted for the ECG cart; Round-5 candidate grade pending without changing the decision.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json` - evidence; Round 5 R5-BEST reproduction manifest subordinate to MADR 0059; not an adoption decision.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json` - evidence; Round 5 machine-readable treatment and topology measurements; coordinator visual grade remains authoritative.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/results.json` - evidence; Round 6 frozen-checkpoint stage isolation, A0-derived thresholds, A0/A1 measurements, and stop-rule record; Decision unchanged.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/best-manifest.json` - evidence; Round 6 evidence-best A0 manifest subordinate to MADR 0059; not a new adoption decision.
+- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
+- `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.
+- `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - evidence; Flush material comparison and selected tile promotion, with historical A/B preserved.
+- `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - evidence; Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage.
+- `docs/openclinxr/room-realism/rooms-regen/RECIPES.md` - evidence; Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-01.md` - evidence; First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-02.md` - evidence; Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-03.md` - evidence; Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-04.md` - evidence; Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes.
+- `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - evidence; Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects.
+- `docs/openclinxr/room-realism/rooms-defects/REPORT.md` - evidence; Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence.
+- `docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md` - evidence; Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism.
+- `docs/openclinxr/room-realism/brown-band/FIX.md` - evidence; Brown-band factory fix record: phantom-shadow mechanism, bake/finish changes, before/after proof numbers, promotion hashes, pinning tests.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md` - evidence; Coordinator native-pixel grade of the factory-wired R5-BEST ECG cart against the adopted round-5b cart: checklist, connector-row defects, adoption as runtime cart.

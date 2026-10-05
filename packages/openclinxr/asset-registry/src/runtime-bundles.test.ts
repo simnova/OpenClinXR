@@ -39,6 +39,17 @@ function testRuntimeAsset(
 }
 
 describe("encounter factory summary contracts", () => {
+  it("uses the abdominal-pain case title and subtitle in its station context", () => {
+    const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: "adult_abdominal_pain_v1",
+    });
+
+    expect(bundle.sceneManifest.stationContext).toMatchObject({
+      title: "Adult Abdominal Pain With Guarding And Family Pressure",
+      subtitle: "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
+    });
+  });
+
   it("builds aligned dynamic behavior coverage and dry-run summary objects", () => {
     const learnerRuntimeBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
     const actorRoles = learnerRuntimeBundle.actors

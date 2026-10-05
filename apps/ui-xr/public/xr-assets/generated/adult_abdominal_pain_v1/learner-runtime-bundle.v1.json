@@ -208,8 +208,8 @@
       "title": "Adult Abdominal Pain With Guarding And Family Pressure",
       "subtitle": "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
       "chiefConcern": "The pain is sharp on my lower right side, and it hurts when I move.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Adult ED Abdominal Exam Bay station scene",
       "canvasAriaLabel": "3D Adult ED Abdominal Exam Bay preview",
       "initialDialogueText": "Elena Vasquez: The pain is sharp on my lower right side, and it hurts when I move.",
@@ -224,7 +224,67 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "actorPlacements": {
+      "patient_elena_vasquez_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
+        },
+        "scale": {
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
+        },
+        "verticalOffsetMeters": -0.98,
+        "labelPrefix": "Patient",
+        "posture": "supine",
+        "placementProvenance": "authored_intent",
+        "plantOffsetMeters": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "nurse_priya_nair_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": 0.75,
+          "y": 0,
+          "z": 0.7
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Team",
+        "posture": "standing",
+        "placementProvenance": "authored_intent",
+        "headingRadians": -2.022
+      },
+      "partner_diego_vasquez_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": 0.1,
+          "y": 0,
+          "z": 0.7
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Family",
+        "posture": "standing",
+        "placementProvenance": "authored_intent",
+        "headingRadians": -2.246
+      }
+    }
   },
   "uiSurfaces": [],
   "notEvidenceFor": [

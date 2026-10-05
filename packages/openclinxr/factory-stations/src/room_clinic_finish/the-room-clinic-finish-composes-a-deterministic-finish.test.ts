@@ -151,9 +151,9 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     const finish = {
       preserveShell: true,
       floor: { kind: "vinyl-tile", moduleM: 0.6 },
-      cove: { heightM: 0.1 },
+      cove: { kind: "cove", heightM: 0.1 },
       door: { kind: "hospital", photoPbr: true, casing: true, lite: true, lever: true, hinges: true },
-      ceiling: { troffer: true, tbarMm: 24 },
+      ceiling: { kind: "acoustic-tbar", troffer: true, tbarMm: 24 },
       wallMatteRoughness: 0.85,
       neutralTints: { casingRgb: [0.79, 0.81, 0.83], coveRgb: [0.313, 0.323, 0.352] },
     };
@@ -197,7 +197,6 @@ describe("the room clinic finish station composes a deterministic finish", () =>
       "openclinxr_door_slab",
       "openclinxr_door_panel_",
       "openclinxr_door_lever",
-      "openclinxr_door_kick",
       "openclinxr_ceiling_field",
       "2.744",
     ]) {
@@ -206,6 +205,10 @@ describe("the room clinic finish station composes a deterministic finish", () =>
     // Crash rail gated behind options.crashRail, default off.
     expect(composeSrc).toContain("openclinxr_crash_rail");
     expect(composeSrc).toContain("crash_rail_enabled");
+    // The selected step-down reference has a kick plate. Its replacement is
+    // recipe-gated rather than part of the deleted hand-built door kit.
+    expect(composeSrc).toContain("openclinxr_door_kick_plate");
+    expect(composeSrc).toContain('door_opt.get("kickPlate", False)');
     const defaultRecipe = designRoomFinishRecipe(validInput() as { environmentId: string; preset: string; seed: number });
     expect(defaultRecipe.options).toEqual({ crashRail: false });
     const railed = designRoomFinishRecipe(

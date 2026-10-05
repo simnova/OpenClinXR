@@ -115,6 +115,41 @@ GLTF_GROUP_NAMES = ("glTF Material Output", "glTF Settings")
 # SHELL_FLAT_SKIP_MATERIALS: the same pinned materials skip both bakes).
 SHELL_FLAT_SKIP_MATERIALS = ("shell_bake_skirting",)
 
+# Finish-removed shell excluded as bake occluders under a painted-ceiling
+# finish (brown-band fix): the finish deletes the decorative shell cornice
+# and the shell ceiling plane, so a bake that counts them darkens the
+# wall-top AO islands against geometry that never ships (phantom contact
+# shadow, browned by the warm rig). Matchers mirror
+# room_clinic_finish/compose.py::_is_shell_ceiling_cornice/_is_shell_ceiling.
+def _is_finish_removed_cornice(obj_name: str) -> bool:
+    lowered = obj_name.lower()
+    return "skirting_ceiling" in lowered or "skirtingboard_ceiling" in lowered
+
+
+def _is_finish_removed_ceiling(obj_name: str) -> bool:
+    lowered = obj_name.lower()
+    return (
+        not lowered.startswith("openclinxr_")
+        and (lowered.endswith(".ceiling") or "/ceiling" in lowered)
+        and not _is_finish_removed_cornice(obj_name)
+    )
+
+
+def apply_occlusion_excludes(exclude_cornice: bool, exclude_ceiling: bool) -> list:
+    """hide_render the finish-removed shell so Cycles counts neither as an
+    occluder nor as a bake receiver (both nodes are deleted downstream, so
+    their own unwired maps never ship). Returns the excluded object names."""
+    excluded = []
+    for obj in bpy.context.scene.objects:
+        if obj.type != "MESH":
+            continue
+        if (exclude_cornice and _is_finish_removed_cornice(obj.name)) or (
+            exclude_ceiling and _is_finish_removed_ceiling(obj.name)
+        ):
+            obj.hide_render = True
+            excluded.append(obj.name)
+    return excluded
+
 
 def _argv_after_double_dash() -> List[str]:
     if "--" in sys.argv:
@@ -433,15 +468,23 @@ def bake_group_ao_image(img, mat_name: str, objs_: List[bpy.types.Object]) -> No
     nt.nodes.active = bake_tex
 
     saved = []
+    # Finish-removed occluders (hide_render) stay out of the bake entirely:
+    # baking a render-disabled object aborts the pass, and both nodes are
+    # deleted downstream so their maps never ship.
+    bake_objs = [obj for obj in objs_ if not obj.hide_render]
+    if not bake_objs:
+        print(f"[room-ao] SKIP {mat_name}: all meshes excluded as finish-removed occluders")
+        bpy.data.materials.remove(tmp, do_unlink=True)
+        return
     for obj in objs_:
         for i, slot_mat in enumerate(list(obj.data.materials)):
             saved.append((obj, i, slot_mat))
             obj.data.materials[i] = tmp
     try:
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in objs_:
+        for obj in bake_objs:
             obj.select_set(True)
-        bpy.context.view_layer.objects.active = objs_[0]
+        bpy.context.view_layer.objects.active = bake_objs[0]
         bpy.ops.object.bake(type="EMIT", use_clear=True)
     finally:
         for obj, i, slot_mat in saved:
@@ -674,6 +717,12 @@ def main() -> None:
     ap.add_argument("--device", choices=("cpu", "metal"), default="cpu",
                     help="Cycles device for the EMIT+AO bake (default cpu; metal is "
                     "fail-closed when no METAL device exists)")
+    ap.add_argument("--exclude-shell-cornice", action="store_true",
+                    help="hide the decorative shell cornice from bake rays: the "
+                    "painted-ceiling finish deletes it, so it must not occlude")
+    ap.add_argument("--exclude-shell-ceiling", action="store_true",
+                    help="hide the shell ceiling plane from bake rays: the "
+                    "painted-ceiling finish deletes it, so it must not occlude")
     args = ap.parse_args(_argv_after_double_dash())
 
     if not os.path.exists(args.input):
@@ -681,6 +730,9 @@ def main() -> None:
 
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=args.input)
+    excluded = apply_occlusion_excludes(args.exclude_shell_cornice, args.exclude_shell_ceiling)
+    if excluded:
+        print(f"[room-ao] excluded finish-removed occluders: {excluded}")
 
     # Scene/bake settings are applied inside bake_ao_per_material (same call the
     # locality fixture uses), so production and fixture share engine/device/

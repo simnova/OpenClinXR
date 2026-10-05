@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "inpatient_ward_room_v1",
+  "glb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/inpatient_ward_room_v1/v4-flush-tile/infinigen-inpatient-ward.chain.glb",
+  "mechanism": "playwright-route-override",
+  "poseSource": {
+    "kind": "explicit",
+    "path": "tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json"
+  },
+  "poseDerivation": null,
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.42,
+        "y": 1.6,
+        "z": 1.62
+      },
+      "look": {
+        "x": -0.08,
+        "y": 1.22,
+        "z": -1.8
+      },
+      "fov": 70,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-flush/docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-01-toward-door.png",
+      "pngBytes": 690175,
+      "pngSha256": "5ee1e5c21e575cc2a0cfd87068d72be4194e77f8753942344ad3ba26b85d2435",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.3,
+        "y": 1.6,
+        "z": -1.5
+      },
+      "look": {
+        "x": 0,
+        "y": 1.25,
+        "z": 1.8
+      },
+      "fov": 56,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-flush/docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-02-toward-bed-wall.png",
+      "pngBytes": 647169,
+      "pngSha256": "9c9067ca8d6ed3193be7c898c058de5f18c88921bcdbeee05c0a8dc91779e4e6",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.5,
+        "y": 0.4,
+        "z": 0.9
+      },
+      "look": {
+        "x": 0,
+        "y": 2.25,
+        "z": -0.5
+      },
+      "fov": 50,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-flush/docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-03-ceiling-corner.png",
+      "pngBytes": 1127640,
+      "pngSha256": "5cb88bc52e430dce477c5b3c78d37d2d773e7878e5a90907f22870be900a0c9c",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -1.9,
+        "y": 1,
+        "z": 1.5
+      },
+      "look": {
+        "x": -0.1,
+        "y": 2.7,
+        "z": -0.2
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/cornice-flush/docs/openclinxr/room-realism/cornice-flush/ward/v4-flush-tile/runtime-05-troffer-junction.png",
+      "pngBytes": 1093898,
+      "pngSha256": "f4756723efc11232b1433172ba067d39feebaa81033afe76160e3213589a738a",
+      "nearPlaneM": 0.1
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import {
   repoRoot,
   resolveExistingViewPaths,
 } from "./subjects.js";
+import { R5_BEST_DECIMATION_TARGET, r5BestBakeArgvExtra, r5BestInputImages, r5BestPlanFields } from "./r5_best.js";
 export type EquipmentGeneratePlan = StationPlan & {
   subjectId: string;
   packId: string;
@@ -27,6 +28,8 @@ export type EquipmentGeneratePlan = StationPlan & {
   glbExportName: string;
   /** Per-subject freeze JSON path under the freeze root. */
   freezeRecordPath: string;
+  exportTreatment: "r5-best" | null;
+  treatmentPipeline: readonly string[] | null;
   /** Runtime asset URL for the declared subject, or null when unfrozen or not publish-backed. */
   runtimeAssetUrl: string | null;
 };
@@ -43,11 +46,7 @@ export const EQUIPMENT_PUBLIC_ROOT_REL = "apps/ui-xr/public" as const;
 /** URL namespace prefix under which declared-equipment bake GLBs are served. */
 export const EQUIPMENT_RUNTIME_ASSET_URL_PREFIX = "/xr-assets/medical-equipment/" as const;
 
-/**
- * Catalog-safe grammar for declared equipment subject ids (all
- * KNOWN_EQUIPMENT_SUBJECTS in subjects.ts): lowercase alphanumerics
- * with internal hyphens — no dots, separators, or percent-encoding.
- */
+/** Catalog-safe grammar for declared subject ids (safe for paths/URLs). */
 export const EQUIPMENT_SUBJECT_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
 /** True when subjectId matches the catalog-safe grammar (safe for paths/URLs). */
@@ -125,11 +124,7 @@ export function runtimeAssetUrlForSubject(subjectId: string): string {
   return `${EQUIPMENT_RUNTIME_ASSET_URL_PREFIX}${subjectId}.glb`;
 }
 
-/**
- * Read the subject's freeze record. Missing/malformed records and non-catalog
- * subject ids return null (fail closed, no throw); whether the recorded URL is
- * backed by published bytes is checked by the plan/resolution surfaces.
- */
+/** Read the subject's freeze record. Missing/malformed/non-catalog -> null. */
 export function readEquipmentRuntimeFreeze(
   subjectId: string,
   opts: { root?: string } = {},
@@ -180,10 +175,9 @@ export type EquipmentGlbPublication =
     };
 
 /**
- * Atomically publish a hash-verified bake GLB under the runtime public root:
- * same-dir temp copy + atomic rename, source sha verified before and published
- * sha after. Any failure removes the temp file and returns { ok:false }. A
- * non-catalog subject id throws before any fs access.
+ * Atomically publish a hash-verified bake GLB under the runtime public root
+ * (same-dir temp copy + rename, sha checked before and after). Failures clean
+ * up and return { ok:false }; a non-catalog subject id throws before fs access.
  */
 export function publishEquipmentRuntimeGlb(
   input: { subjectId: string; sourceGlbAbsPath: string; glbSha256: string; publicRoot?: string },
@@ -245,10 +239,8 @@ export type EquipmentFreezePublication =
     };
 
 /**
- * Publish-then-freeze after a mesh_exported bake: the hash-verified GLB is
- * atomically published FIRST, and the freeze JSON is written only after the
- * publish succeeds. A failed publish returns { ok:false } and writes no freeze;
- * a non-catalog subject id throws before any path is built.
+ * Publish-then-freeze after a mesh_exported bake: publish the hash-verified
+ * GLB first, write the freeze JSON only after the publish succeeds.
  */
 export function publishAndFreezeEquipmentBake(
   input: {
@@ -351,7 +343,9 @@ export function planEquipmentGenerate(
   }
 
   const root = repoRoot();
-  const inputImagePaths = resolveExistingViewPaths(entry, root);
+  const r5Best = r5BestPlanFields(checked.value);
+  const packImagePaths = resolveExistingViewPaths(entry, root);
+  const inputImagePaths = r5Best.exportTreatment ? r5BestInputImages(entry.subjectId, packImagePaths, root) : packImagePaths;
   const viewCount = inputImagePaths.length;
   const requestedViewCount = Number(checked.value["viewCount"]);
   const remesh = Boolean(checked.value["remesh"]);
@@ -378,6 +372,8 @@ export function planEquipmentGenerate(
     conditioning: viewCount === 0 ? "no-images" : viewCount === 1 ? "single-view" : "multi-view",
     glbExportName: `${entry.subjectId}.glb`,
     freezeRecordPath: equipmentFreezeRecordPath(entry.subjectId),
+    exportTreatment: r5Best.exportTreatment,
+    treatmentPipeline: r5Best.treatmentPipeline,
     runtimeAssetUrl: freezeUrlIsBacked ? (freeze?.runtimeAssetUrl ?? null) : null,
   };
   return { value: checked.value, plan };
@@ -432,10 +428,12 @@ export function runEquipmentGenerate(input: unknown, options: EquipmentGenerateR
   if (plan.remesh) argv.push("--remesh");
   if (options.noRemesh) argv.push("--no-remesh");
   if (options.hfDemo) argv.push("--hf-demo");
-  if (options.textureSize != null) argv.push("--texture-size", String(options.textureSize));
-  argv.push("--decimation-target", String(plan.decimationTarget));
+  const r5BestRun = plan.exportTreatment === "r5-best";
+  if (options.textureSize != null && !r5BestRun) argv.push("--texture-size", String(options.textureSize));
+  if (!r5BestRun) argv.push("--decimation-target", String(plan.decimationTarget));
   if (options.extraArgv) argv.push(...options.extraArgv);
   for (const img of plan.inputImagePaths) argv.push("--input-image", img);
+  if (r5BestRun) argv.push(...r5BestBakeArgvExtra());
 
   withComputeSlotSync("gpu", { label: `equipment-generate:${plan.subjectId}`, cwd: root }, () =>
     execFileSync(venvPython, argv, {
@@ -457,7 +455,7 @@ export function runEquipmentGenerate(input: unknown, options: EquipmentGenerateR
         displayName: findEquipmentSubject(plan.subjectId)?.displayName ?? plan.subjectId,
         seed: plan.seed,
         remesh: plan.remesh,
-        decimationTarget: plan.decimationTarget,
+        decimationTarget: r5BestRun ? R5_BEST_DECIMATION_TARGET : plan.decimationTarget,
         bakeOutputDir: plan.outputDir,
         glbExportName: plan.glbExportName,
       });

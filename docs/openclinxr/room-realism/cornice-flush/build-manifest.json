@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "openclinxr.cornice-ab-build.v1",
+  "generatedAt": "2026-10-01T22:12:36.522Z",
+  "results": {
+    "inpatient_ward_room_v1/v4-flush-tile": {
+      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/inpatient_ward_room_v1/v4-flush-tile/infinigen-inpatient-ward.chain.glb",
+      "glbSha256": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
+      "cache": {
+        "room_generate": {
+          "hit": true,
+          "key": "02560f99aad5996dcc09585a80376c4b82f29eb147adb0843764c186210205fe"
+        },
+        "room_clinic_finish": {
+          "hit": false,
+          "key": "413812b3fe2250f9f7e3086a5f985ecceba9cb32b9ed1e06e402eaf9619927d6"
+        },
+        "lighting_design": {
+          "hit": false,
+          "key": "7d538d61b4427f955741b44879c25a2b69f9f17e8da8cbcef1b28ac9dc36ddaa"
+        }
+      },
+      "finish": {
+        "preserveShell": true,
+        "floor": {
+          "kind": "vinyl-tile",
+          "moduleM": 0.6
+        },
+        "cove": {
+          "heightM": 0.1
+        },
+        "door": {
+          "kind": "hospital",
+          "photoPbr": true,
+          "casing": true,
+          "lite": true,
+          "lever": true,
+          "hinges": true
+        },
+        "ceiling": {
+          "troffer": true,
+          "tbarMm": 24,
+          "cornice": "wall-angle",
+          "corniceProfile": "flush",
+          "corniceMaterial": "tile",
+          "corniceWidthMm": 24,
+          "corniceColorSource": "wall"
+        },
+        "wallMatteRoughness": 0.85,
+        "neutralTints": {
+          "casingRgb": [
+            0.79,
+            0.81,
+            0.83
+          ],
+          "coveRgb": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        }
+      }
+    },
+    "inpatient_ward_room_v1/v4-flush-tbar": {
+      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/inpatient_ward_room_v1/v4-flush-tbar/infinigen-inpatient-ward.chain.glb",
+      "glbSha256": "19c475e314269e53639bc440ee9e45765b742eb85aeb877ea3b5ec866149a31b",
+      "cache": {
+        "room_generate": {
+          "hit": true,
+          "key": "02560f99aad5996dcc09585a80376c4b82f29eb147adb0843764c186210205fe"
+        },
+        "room_clinic_finish": {
+          "hit": false,
+          "key": "75494838bbfe66e48d9b231e09ac595b9f08bd1b41edf7877bebfdb8227a3641"
+        },
+        "lighting_design": {
+          "hit": false,
+          "key": "606499420fc132a9496bb7f3fb9f45f8c551fc9292219bdbd5b28977d920eb45"
+        }
+      },
+      "finish": {
+        "preserveShell": true,
+        "floor": {
+          "kind": "vinyl-tile",
+          "moduleM": 0.6
+        },
+        "cove": {
+          "heightM": 0.1
+        },
+        "door": {
+          "kind": "hospital",
+          "photoPbr": true,
+          "casing": true,
+          "lite": true,
+          "lever": true,
+          "hinges": true
+        },
+        "ceiling": {
+          "troffer": true,
+          "tbarMm": 24,
+          "cornice": "wall-angle",
+          "corniceProfile": "flush",
+          "corniceMaterial": "tbar",
+          "corniceWidthMm": 24,
+          "corniceColorSource": "wall"
+        },
+        "wallMatteRoughness": 0.85,
+        "neutralTints": {
+          "casingRgb": [
+            0.79,
+            0.81,
+            0.83
+          ],
+          "coveRgb": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        }
+      }
+    },
+    "inpatient_ward_room_v1/v4-flush-wall": {
+      "commit": "7bc7577308b72b056a26ee96d74f3b3e0d3245d2",
+      "glbSha256": "a25fc5680a64d7c73c6732eda76e968dd82d3594404c6b64ac2258f0847bffac",
+      "reusedCommittedCapture": true
+    },
+    "stepdown_room_v1/v4-flush-tile": {
+      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/stepdown_room_v1/v4-flush-tile/infinigen-stepdown.chain.glb",
+      "glbSha256": "4c459f7f2f2953019e397e324416ff78f973a139e12ac86669681cb6622f70f2",
+      "cache": {
+        "room_generate": {
+          "hit": true,
+          "key": "64badfedee67f0cbb2102cc67331d214f5dcde9f3739df0417adbf74bad396e2"
+        },
+        "room_clinic_finish": {
+          "hit": false,
+          "key": "170caf4f3a01e45b9388fcef3ad2c87b7b07bf132e2b82c34747e9dccbede01d"
+        },
+        "lighting_design": {
+          "hit": false,
+          "key": "e715c86cc9b768550a4570ede6082e6269f7e693452e18a92f7e9f6a1706b468"
+        }
+      },
+      "finish": {
+        "preserveShell": true,
+        "floor": {
+          "kind": "vinyl-tile",
+          "moduleM": 0.6
+        },
+        "cove": {
+          "heightM": 0.1
+        },
+        "door": {
+          "kind": "hospital",
+          "photoPbr": true,
+          "casing": true,
+          "lite": true,
+          "lever": true,
+          "hinges": true
+        },
+        "ceiling": {
+          "troffer": true,
+          "tbarMm": 24,
+          "cornice": "wall-angle",
+          "corniceProfile": "flush",
+          "corniceMaterial": "tile",
+          "corniceWidthMm": 24,
+          "corniceColorSource": "wall"
+        },
+        "wallMatteRoughness": 0.85,
+        "neutralTints": {
+          "casingRgb": [
+            0.79,
+            0.81,
+            0.83
+          ],
+          "coveRgb": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        }
+      }
+    },
+    "stepdown_room_v1/v4-flush-tbar": {
+      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/stepdown_room_v1/v4-flush-tbar/infinigen-stepdown.chain.glb",
+      "glbSha256": "2b0f205e9a44c47532a0d02b584a468475db8aa2601a24fe167a17cb1706a0be",
+      "cache": {
+        "room_generate": {
+          "hit": true,
+          "key": "64badfedee67f0cbb2102cc67331d214f5dcde9f3739df0417adbf74bad396e2"
+        },
+        "room_clinic_finish": {
+          "hit": false,
+          "key": "dca5f5b3ab0a9df5bbd22babac85614ada6170dcedb73b279c389fc374043eb7"
+        },
+        "lighting_design": {
+          "hit": false,
+          "key": "c7f64fbea2418e5607087eccdc42ebc51b81a8102a211ce71233c9ee870312e5"
+        }
+      },
+      "finish": {
+        "preserveShell": true,
+        "floor": {
+          "kind": "vinyl-tile",
+          "moduleM": 0.6
+        },
+        "cove": {
+          "heightM": 0.1
+        },
+        "door": {
+          "kind": "hospital",
+          "photoPbr": true,
+          "casing": true,
+          "lite": true,
+          "lever": true,
+          "hinges": true
+        },
+        "ceiling": {
+          "troffer": true,
+          "tbarMm": 24,
+          "cornice": "wall-angle",
+          "corniceProfile": "flush",
+          "corniceMaterial": "tbar",
+          "corniceWidthMm": 24,
+          "corniceColorSource": "wall"
+        },
+        "wallMatteRoughness": 0.85,
+        "neutralTints": {
+          "casingRgb": [
+            0.79,
+            0.81,
+            0.83
+          ],
+          "coveRgb": [
+            0.313,
+            0.323,
+            0.352
+          ]
+        }
+      }
+    },
+    "stepdown_room_v1/v4-flush-wall": {
+      "commit": "7bc7577308b72b056a26ee96d74f3b3e0d3245d2",
+      "glbSha256": "40dfbb57c8bdcd5521d76571325c4fe955420e13d11567e5e5c3d11f99e79c8b",
+      "reusedCommittedCapture": true
+    }
+  }
+}

@@ -1,116 +1,497 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
   "environmentId": "stepdown_room_v1",
-  "glb": "/Volumes/files/src/openclinxr-wt/room-recipes/.openclinxr/evidence/room-recipes-job2/stepdown-before/infinigen-stepdown.glb",
+  "glb": "git:HEAD:apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
   "mechanism": "playwright-route-override",
+  "poseSource": {
+    "kind": "explicit",
+    "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/derived-poses.json"
+  },
+  "poseDerivation": {
+    "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
+    "environmentId": "stepdown_room_v1",
+    "sourceGlb": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
+    "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
+    "roomBounds": {
+      "min": [
+        -3.1,
+        0,
+        -1.625
+      ],
+      "max": [
+        3.1,
+        2.6,
+        1.625
+      ]
+    },
+    "featureBounds": {
+      "doorWithCasing": {
+        "min": [
+          -0.288739,
+          0,
+          -1.974946
+        ],
+        "max": [
+          0.791674,
+          2.155,
+          -1.524
+        ],
+        "nodes": [
+          "bedroom_0/0.door_casing",
+          "bedroom_0/0.door_leaf",
+          "openclinxr_door_casing_head",
+          "openclinxr_door_casing_jamb_left",
+          "openclinxr_door_casing_jamb_right"
+        ]
+      },
+      "troffer": {
+        "min": [
+          -0.6,
+          2.527,
+          -0.6
+        ],
+        "max": [
+          0.6,
+          2.539,
+          0
+        ],
+        "nodes": [
+          "openclinxr_troffer_diffuser",
+          "openclinxr_troffer_frame_long_0",
+          "openclinxr_troffer_frame_long_1",
+          "openclinxr_troffer_frame_short_0",
+          "openclinxr_troffer_frame_short_1"
+        ]
+      },
+      "tbar": {
+        "min": [
+          -3.21,
+          2.537,
+          -1.974946
+        ],
+        "max": [
+          3.21,
+          2.558,
+          1.81495
+        ],
+        "nodes": [
+          "openclinxr_tbar_edge_x_10_0_0",
+          "openclinxr_tbar_edge_x_10_0_1",
+          "openclinxr_tbar_edge_x_11_0_0",
+          "openclinxr_tbar_edge_x_11_0_1",
+          "openclinxr_tbar_edge_x_1_0_0",
+          "openclinxr_tbar_edge_x_1_0_1",
+          "openclinxr_tbar_edge_x_2_0_0",
+          "openclinxr_tbar_edge_x_2_0_1",
+          "openclinxr_tbar_edge_x_3_0_0",
+          "openclinxr_tbar_edge_x_3_0_1",
+          "openclinxr_tbar_edge_x_4_0_0",
+          "openclinxr_tbar_edge_x_4_0_1",
+          "openclinxr_tbar_edge_x_5_0_0",
+          "openclinxr_tbar_edge_x_5_0_1",
+          "openclinxr_tbar_edge_x_5_1_0",
+          "openclinxr_tbar_edge_x_5_1_1",
+          "openclinxr_tbar_edge_x_6_0_0",
+          "openclinxr_tbar_edge_x_6_0_1",
+          "openclinxr_tbar_edge_x_6_1_0",
+          "openclinxr_tbar_edge_x_6_1_1",
+          "openclinxr_tbar_edge_x_7_0_0",
+          "openclinxr_tbar_edge_x_7_0_1",
+          "openclinxr_tbar_edge_x_7_1_0",
+          "openclinxr_tbar_edge_x_7_1_1",
+          "openclinxr_tbar_edge_x_8_0_0",
+          "openclinxr_tbar_edge_x_8_0_1",
+          "openclinxr_tbar_edge_x_9_0_0",
+          "openclinxr_tbar_edge_x_9_0_1",
+          "openclinxr_tbar_edge_y_1_0_0",
+          "openclinxr_tbar_edge_y_1_0_1",
+          "openclinxr_tbar_edge_y_2_0_0",
+          "openclinxr_tbar_edge_y_2_0_1",
+          "openclinxr_tbar_edge_y_3_0_0",
+          "openclinxr_tbar_edge_y_3_0_1",
+          "openclinxr_tbar_edge_y_4_0_0",
+          "openclinxr_tbar_edge_y_4_0_1",
+          "openclinxr_tbar_edge_y_4_1_0",
+          "openclinxr_tbar_edge_y_4_1_1",
+          "openclinxr_tbar_edge_y_5_0_0",
+          "openclinxr_tbar_edge_y_5_0_1",
+          "openclinxr_tbar_edge_y_5_1_0",
+          "openclinxr_tbar_edge_y_5_1_1",
+          "openclinxr_tbar_edge_y_6_0_0",
+          "openclinxr_tbar_edge_y_6_0_1",
+          "openclinxr_tbar_edge_y_7_0_0",
+          "openclinxr_tbar_edge_y_7_0_1",
+          "openclinxr_tbar_x_10_0",
+          "openclinxr_tbar_x_11_0",
+          "openclinxr_tbar_x_1_0",
+          "openclinxr_tbar_x_2_0",
+          "openclinxr_tbar_x_3_0",
+          "openclinxr_tbar_x_4_0",
+          "openclinxr_tbar_x_5_0",
+          "openclinxr_tbar_x_5_1",
+          "openclinxr_tbar_x_6_0",
+          "openclinxr_tbar_x_6_1",
+          "openclinxr_tbar_x_7_0",
+          "openclinxr_tbar_x_7_1",
+          "openclinxr_tbar_x_8_0",
+          "openclinxr_tbar_x_9_0",
+          "openclinxr_tbar_y_1_0",
+          "openclinxr_tbar_y_2_0",
+          "openclinxr_tbar_y_3_0",
+          "openclinxr_tbar_y_4_0",
+          "openclinxr_tbar_y_4_1",
+          "openclinxr_tbar_y_5_0",
+          "openclinxr_tbar_y_5_1",
+          "openclinxr_tbar_y_6_0",
+          "openclinxr_tbar_y_7_0"
+        ]
+      },
+      "cove": {
+        "min": [
+          -3.1,
+          0.003,
+          -1.562915
+        ],
+        "max": [
+          3.1,
+          0.103,
+          1.723038
+        ],
+        "nodes": [
+          "openclinxr_cove_x0_0",
+          "openclinxr_cove_x1_0",
+          "openclinxr_cove_y0_0",
+          "openclinxr_cove_y1_0",
+          "openclinxr_cove_y1_1"
+        ]
+      }
+    },
+    "rules": {
+      "standingEyeHeightM": 1.6,
+      "lowEyeHeightM": 0.32,
+      "minimumWallClearanceM": 0.3,
+      "lensRefitFrameFractions": {
+        "01-door-width": 0.117,
+        "01-wall-span": 0.492,
+        "02-wall-span": 0.642,
+        "03-troffer-center": [
+          0.535,
+          0.401
+        ],
+        "04-door-height": 0.721,
+        "05-troffer-center": [
+          0.478,
+          0.615
+        ],
+        "06-cove-top-row": 0.25,
+        "06-floor-side-row": 0.472
+      }
+    },
+    "poses": [
+      {
+        "id": "runtime-01-toward-door",
+        "image": "01-toward-door.jpg",
+        "eye": [
+          -0.71458,
+          1.6,
+          1.325
+        ],
+        "look": [
+          -0.224347,
+          1.321667,
+          -1.475
+        ],
+        "verticalFovDeg": 80.077249,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye; 0.30 m wall inset; door+casing centre from GLB; ward lens-refit 70deg family (door width 0.117W)."
+      },
+      {
+        "id": "runtime-02-toward-bed-wall",
+        "image": "02-toward-bed-wall.jpg",
+        "eye": [
+          -0.432558,
+          1.6,
+          -1.25
+        ],
+        "look": [
+          0,
+          1.354167,
+          1.475
+        ],
+        "verticalFovDeg": 85.226931,
+        "subject": "opposite-wall",
+        "derivation": "Standing eye inside door wall; aims at its recipe-derived opposite wall; ward lens-refit 56deg wall-span family."
+      },
+      {
+        "id": "runtime-03-ceiling-corner",
+        "image": "03-ceiling-corner.jpg",
+        "eye": [
+          -0.72093,
+          1.6,
+          0.75
+        ],
+        "look": [
+          0,
+          2.45,
+          -0.716667
+        ],
+        "verticalFovDeg": 60.679094,
+        "subject": "ceiling-corner",
+        "derivation": "Standing eye; measured troffer anchors the ceiling/corner look; 52deg is the capture-measured standing-eye refit of the ward 50deg ceiling family."
+      },
+      {
+        "id": "runtime-04-door-inside",
+        "image": "04-door-inside.jpg",
+        "eye": [
+          -0.974114,
+          1.6,
+          1.325
+        ],
+        "look": [
+          0.251467,
+          1.354167,
+          -1.475
+        ],
+        "verticalFovDeg": 51.731135,
+        "subject": "door-with-casing",
+        "derivation": "Standing eye on the room interior diagonal; full measured door+casing target; ward lens-refit 44deg (door height 0.721H)."
+      },
+      {
+        "id": "runtime-05-troffer-junction",
+        "image": "05-troffer-junction.jpg",
+        "eye": [
+          -2.8,
+          1.6,
+          1.25
+        ],
+        "look": [
+          0,
+          2.9,
+          -0.3
+        ],
+        "verticalFovDeg": 44,
+        "subject": "troffer-and-tbar",
+        "derivation": "Standing eye at exact 0.30 m side clearance; measured troffer centre plus measured surrounding T-bars; ward lens-refit 44deg junction family."
+      },
+      {
+        "id": "runtime-06-floor-base",
+        "image": "06-floor-base.jpg",
+        "eye": [
+          -0.028837,
+          0.32,
+          1.325
+        ],
+        "look": [
+          0,
+          -0.05,
+          1.625
+        ],
+        "verticalFovDeg": 63.984432,
+        "subject": "floor-cove-junction",
+        "derivation": "Only low eye; measured cove nodes prove the floor/base subject; ward lens-refit 55deg cove-profile family."
+      }
+    ],
+    "clearanceM": {
+      "runtime-01-toward-door": {
+        "x": 2.38542,
+        "z": 0.3,
+        "minimum": 0.3
+      },
+      "runtime-02-toward-bed-wall": {
+        "x": 2.667442,
+        "z": 0.375,
+        "minimum": 0.375
+      },
+      "runtime-03-ceiling-corner": {
+        "x": 2.37907,
+        "z": 0.875,
+        "minimum": 0.875
+      },
+      "runtime-04-door-inside": {
+        "x": 2.125886,
+        "z": 0.3,
+        "minimum": 0.3
+      },
+      "runtime-05-troffer-junction": {
+        "x": 0.3,
+        "z": 0.375,
+        "minimum": 0.3
+      },
+      "runtime-06-floor-base": {
+        "x": 3.071163,
+        "z": 0.3,
+        "minimum": 0.3
+      }
+    }
+  },
   "captures": [
     {
       "id": "runtime-01-toward-door",
       "eye": {
-        "x": -0.45,
+        "x": -0.71458,
         "y": 1.6,
-        "z": -1.35
+        "z": 1.325
       },
       "look": {
-        "x": 0.3,
-        "y": 1.35,
-        "z": -2
+        "x": -0.224347,
+        "y": 1.321667,
+        "z": -1.475
       },
-      "fov": 52,
+      "fov": 80.077249,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png",
-      "pngBytes": 314781,
-      "pngSha256": "21904a1c5b70229321a9d3220819a1becc426b1d0aab4a79eae9d98c99035011"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-01-toward-door.png",
+      "pngBytes": 655204,
+      "pngSha256": "b70a0b66847ac9850a3edb552287943ecffddc676fc732ea845c38b416acb804",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.38542,
+        "z": 0.3,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     },
     {
       "id": "runtime-02-toward-bed-wall",
       "eye": {
-        "x": 0.25,
+        "x": -0.432558,
         "y": 1.6,
-        "z": -1.5
+        "z": -1.25
       },
       "look": {
-        "x": -0.15,
-        "y": 1.3,
-        "z": 1.95
+        "x": 0,
+        "y": 1.354167,
+        "z": 1.475
       },
-      "fov": 55,
+      "fov": 85.226931,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-02-toward-bed-wall.png",
-      "pngBytes": 257526,
-      "pngSha256": "bf9a700c76d2d657cce4c0df89e6e9d93d07f4166653853ac929b08261de0497"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-02-toward-bed-wall.png",
+      "pngBytes": 626949,
+      "pngSha256": "6a18088b63e3d64f352db982cbe37465d715486e7c0e53eeff980cf53d1a036b",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.667442,
+        "z": 0.375,
+        "minimum": 0.375
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     },
     {
       "id": "runtime-03-ceiling-corner",
       "eye": {
-        "x": -1.75,
-        "y": 0.6,
-        "z": 1.5
+        "x": -0.72093,
+        "y": 1.6,
+        "z": 0.75
       },
       "look": {
-        "x": 0.25,
-        "y": 2.3,
-        "z": -0.25
+        "x": 0,
+        "y": 2.45,
+        "z": -0.716667
       },
-      "fov": 62,
+      "fov": 60.679094,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-03-ceiling-corner.png",
-      "pngBytes": 627346,
-      "pngSha256": "c11fd820ef4d4372ba57539076b21028deab15ba0ca1f3d41e90683120f1279e"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-03-ceiling-corner.png",
+      "pngBytes": 921301,
+      "pngSha256": "34eb5239f51aaf59ade621e184ce3b2cee6a8b8023a2ed3a5d5884816a05e509",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.37907,
+        "z": 0.875,
+        "minimum": 0.875
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     },
     {
       "id": "runtime-04-door-inside",
       "eye": {
-        "x": 0.25,
-        "y": 1.5,
-        "z": -0.75
+        "x": -0.974114,
+        "y": 1.6,
+        "z": 1.325
       },
       "look": {
-        "x": 0.25,
-        "y": 1.4,
-        "z": -1.95
+        "x": 0.251467,
+        "y": 1.354167,
+        "z": -1.475
       },
-      "fov": 50,
+      "fov": 51.731135,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-04-door-inside.png",
-      "pngBytes": 81865,
-      "pngSha256": "5b60afeeee2157f316c7a91e45be9cd250e5585d29f429b5064f8b72fc0a9305"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-04-door-inside.png",
+      "pngBytes": 690040,
+      "pngSha256": "f5b61a2ddea90927a6e0efe891c0043facef199b64c5bdd8d3f7e640c8902e94",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 2.125886,
+        "z": 0.3,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     },
     {
       "id": "runtime-05-troffer-junction",
       "eye": {
-        "x": 0.6,
-        "y": 1.9,
-        "z": -0.5
+        "x": -2.8,
+        "y": 1.6,
+        "z": 1.25
       },
       "look": {
         "x": 0,
-        "y": 2.3,
-        "z": 0
+        "y": 2.9,
+        "z": -0.3
       },
-      "fov": 45,
+      "fov": 44,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-05-troffer-junction.png",
-      "pngBytes": 616203,
-      "pngSha256": "c1284abca68efa2adb09390eb7df4a33e476f43cd761b7373f9a90361bbb219c"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-05-troffer-junction.png",
+      "pngBytes": 947674,
+      "pngSha256": "3acc3c291105c8dfaf8880f861b3d57ed6d847ca2e6c8218da38b5cd7b13417a",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 0.3,
+        "z": 0.375,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     },
     {
       "id": "runtime-06-floor-base",
       "eye": {
-        "x": 0.3,
-        "y": 0.55,
-        "z": 0.6
+        "x": -0.028837,
+        "y": 0.32,
+        "z": 1.325
       },
       "look": {
-        "x": -0.15,
-        "y": 0.1,
-        "z": 1.95
+        "x": 0,
+        "y": -0.05,
+        "z": 1.625
       },
-      "fov": 60,
+      "fov": 63.984432,
       "poseDx": 0,
-      "png": "/Volumes/files/src/openclinxr-wt/room-recipes/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-06-floor-base.png",
-      "pngBytes": 124540,
-      "pngSha256": "58b086ac5a77c60ed296f6684c682459ef583e359bdb266879fdd84b232e3d16"
+      "png": "/Volumes/files/src/openclinxr-wt/stepdown-door-ideas/docs/openclinxr/room-realism/stepdown-room-v1-finish/before/runtime-06-floor-base.png",
+      "pngBytes": 728980,
+      "pngSha256": "5f3adf8ffe063593014726f7480a4d3cce0ac0f8c0fcb175c93a8c8c99e895b8",
+      "nearPlaneM": 0.1,
+      "wallClearanceM": {
+        "x": 3.071163,
+        "z": 0.3,
+        "minimum": 0.3
+      },
+      "nearPlaneWallCheck": {
+        "passed": true,
+        "rule": "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane"
+      }
     }
   ]
 }

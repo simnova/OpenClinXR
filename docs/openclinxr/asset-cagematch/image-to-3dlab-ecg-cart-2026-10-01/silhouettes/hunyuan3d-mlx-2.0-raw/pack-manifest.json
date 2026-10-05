@@ -1,0 +1,30 @@
+{
+  "glb": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/ecg-cart.glb",
+  "outDir": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-raw",
+  "preset": "standard4",
+  "resolution": 1280,
+  "transparent": true,
+  "center": [
+    -0.00834202766418457,
+    -1.1920928955078125e-07,
+    0.015874087810516357
+  ],
+  "extentM": 0.9682512283325195,
+  "radiusM": 1.7912647724151611,
+  "views": [
+    {
+      "view": "three_quarter_right.png",
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/silhouettes/hunyuan3d-mlx-2.0-raw/three_quarter_right.png",
+      "bytes": 1105680,
+      "elevDeg": 14.0,
+      "azimDeg": 40.0
+    }
+  ],
+  "claimScope": "clean_multiview_pack_for_trellis_conditioning",
+  "territoryFlag": "US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "notEvidenceFor": [
+    "clinical_accuracy",
+    "quest_readiness",
+    "trellis_quality"
+  ]
+}

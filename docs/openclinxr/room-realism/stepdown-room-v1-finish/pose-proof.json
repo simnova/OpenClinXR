@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "openclinxr.room-derived-pose-pixel-proof.v1",
+  "method": "Pixel occupancy is measured on fresh 1280x720 learner-runtime captures with deterministic subject colour masks; wall distance comes from recipe wall planes and the captured live camera near plane.",
+  "wardTolerancePercentagePoints": 5,
+  "ward": {
+    "runtime-01-toward-door": {
+      "handPlaced": {
+        "subject": "door-maple",
+        "pixels": 35537,
+        "framePixels": 921600,
+        "frameFraction": 0.03856011
+      },
+      "derived": {
+        "subject": "door-maple",
+        "pixels": 35597,
+        "framePixels": 921600,
+        "frameFraction": 0.03862522
+      },
+      "deltaPercentagePoints": 0.0065,
+      "passed": true
+    },
+    "runtime-02-toward-bed-wall": {
+      "handPlaced": {
+        "subject": "opposite-wall-neutral",
+        "pixels": 921599,
+        "framePixels": 921600,
+        "frameFraction": 0.99999891
+      },
+      "derived": {
+        "subject": "opposite-wall-neutral",
+        "pixels": 921599,
+        "framePixels": 921600,
+        "frameFraction": 0.99999891
+      },
+      "deltaPercentagePoints": 0.0,
+      "passed": true
+    },
+    "runtime-03-ceiling-corner": {
+      "handPlaced": {
+        "subject": "troffer-diffuser",
+        "pixels": 62150,
+        "framePixels": 921600,
+        "frameFraction": 0.06743707
+      },
+      "derived": {
+        "subject": "troffer-diffuser",
+        "pixels": 101887,
+        "framePixels": 921600,
+        "frameFraction": 0.11055447
+      },
+      "deltaPercentagePoints": 4.3117,
+      "passed": true
+    },
+    "runtime-04-door-inside": {
+      "handPlaced": {
+        "subject": "door-maple",
+        "pixels": 111668,
+        "framePixels": 921600,
+        "frameFraction": 0.12116753
+      },
+      "derived": {
+        "subject": "door-maple",
+        "pixels": 101509,
+        "framePixels": 921600,
+        "frameFraction": 0.11014431
+      },
+      "deltaPercentagePoints": -1.1023,
+      "passed": true
+    },
+    "runtime-05-troffer-junction": {
+      "handPlaced": {
+        "subject": "troffer-diffuser",
+        "pixels": 30067,
+        "framePixels": 921600,
+        "frameFraction": 0.03262478
+      },
+      "derived": {
+        "subject": "troffer-diffuser",
+        "pixels": 24070,
+        "framePixels": 921600,
+        "frameFraction": 0.02611762
+      },
+      "deltaPercentagePoints": -0.6507,
+      "passed": true
+    },
+    "runtime-06-floor-base": {
+      "handPlaced": {
+        "subject": "cove-base",
+        "pixels": 370354,
+        "framePixels": 921600,
+        "frameFraction": 0.40185981
+      },
+      "derived": {
+        "subject": "cove-base",
+        "pixels": 345607,
+        "framePixels": 921600,
+        "frameFraction": 0.3750076
+      },
+      "deltaPercentagePoints": -2.6852,
+      "passed": true
+    }
+  },
+  "stepdown": {
+    "clearance": {
+      "runtime-01-toward-door": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.3,
+        "passed": true
+      },
+      "runtime-02-toward-bed-wall": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.375,
+        "passed": true
+      },
+      "runtime-03-ceiling-corner": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.875,
+        "passed": true
+      },
+      "runtime-04-door-inside": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.3,
+        "passed": true
+      },
+      "runtime-05-troffer-junction": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.3,
+        "passed": true
+      },
+      "runtime-06-floor-base": {
+        "nearPlaneM": 0.1,
+        "minimumWallDistanceM": 0.3,
+        "passed": true
+      }
+    },
+    "presence": {
+      "runtime-01-toward-door": {
+        "subject": "door-maple",
+        "pixels": 28485,
+        "framePixels": 921600,
+        "frameFraction": 0.0309082,
+        "passed": true
+      },
+      "runtime-02-toward-bed-wall": {
+        "subject": "opposite-wall-neutral",
+        "pixels": 914807,
+        "framePixels": 921600,
+        "frameFraction": 0.99262912,
+        "passed": true
+      },
+      "runtime-03-ceiling-corner": {
+        "subject": "troffer-diffuser",
+        "pixels": 78868,
+        "framePixels": 921600,
+        "frameFraction": 0.08557726,
+        "passed": true
+      },
+      "runtime-04-door-inside": {
+        "subject": "door-maple",
+        "pixels": 75599,
+        "framePixels": 921600,
+        "frameFraction": 0.08203016,
+        "passed": true
+      },
+      "runtime-05-troffer-junction": {
+        "subject": "troffer-diffuser",
+        "pixels": 17287,
+        "framePixels": 921600,
+        "frameFraction": 0.0187576,
+        "passed": true
+      },
+      "runtime-06-floor-base": {
+        "subject": "cove-base",
+        "pixels": 343269,
+        "framePixels": 921600,
+        "frameFraction": 0.3724707,
+        "passed": true
+      }
+    },
+    "doorFullyInFrame": {
+      "runtime-01-toward-door": true,
+      "runtime-04-door-inside": true,
+      "method": "full maple leaf and white casing visible on all four sides in the learner-runtime PNGs"
+    },
+    "passed": true
+  },
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical validity",
+    "exam equivalence"
+  ]
+}

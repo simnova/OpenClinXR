@@ -1,0 +1,780 @@
+{
+  "schemaVersion": "openclinxr.image-to-3dlab-cagematch.v1",
+  "round5b": {
+    "date": "2026-10-01",
+    "status": "evidence complete; coordinator overall grade pending; MADR 0059 Decision unchanged",
+    "generationSettings": "Exact Round-3 seed42/12-step SDPA pipeline with pinned weights and RGBA preprocessing",
+    "pipeline": "CPU fill -> weld -> guarded island filter -> pre-bake decimation -> UV unwrap -> 512 px bake",
+    "budget": {
+      "path": "budget/ecg-cart.glb",
+      "triangles": 37462,
+      "weldedTriangles": 37462,
+      "verticesBeforeWeld": 27196,
+      "verticesAfterWeld": 20796,
+      "weldedComponents": 47,
+      "largestComponentFaces": 30717,
+      "largestShare": 0.8199508835620095,
+      "boundaryEdges": 5152,
+      "componentFaceCounts": [
+        30717,
+        2243,
+        1473,
+        1421,
+        1147,
+        134,
+        89,
+        33,
+        21,
+        17,
+        12,
+        12,
+        11,
+        9,
+        8,
+        8,
+        7,
+        7,
+        6,
+        6,
+        6,
+        6,
+        6,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "bytes": 1785892,
+      "glbMiB": 1.7031593322753906,
+      "decodedTextureMiB": 2,
+      "silhouetteIou": 0.7811918416421216,
+      "sha256": "93843fea3abe0439ed383fd9342227fe3b3cdba436972e0544aeaad13bb8b750"
+    },
+    "raw": {
+      "path": "raw/ecg-cart.glb",
+      "triangles": 298347,
+      "weldedTriangles": 298347,
+      "verticesBeforeWeld": 201067,
+      "verticesAfterWeld": 158326,
+      "weldedComponents": 50,
+      "largestComponentFaces": 297860,
+      "largestShare": 0.9983676725423751,
+      "boundaryEdges": 24000,
+      "componentFaceCounts": [
+        297860,
+        26,
+        22,
+        22,
+        20,
+        18,
+        16,
+        16,
+        15,
+        14,
+        14,
+        14,
+        14,
+        13,
+        13,
+        12,
+        12,
+        12,
+        12,
+        12,
+        11,
+        10,
+        10,
+        10,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        7,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        2
+      ],
+      "bytes": 16098376,
+      "decodedTextureMiB": 32,
+      "silhouetteIou": 0.7814328799128354,
+      "sha256": "ce3fac62cfe9bd792d5b421677d769fcb284d057cb7e008ef42ec2b2728d0364"
+    },
+    "execution": {
+      "generation": {
+        "wallSeconds": 1218.154,
+        "peakRssBytes": 20837892096,
+        "receipt": "executions/generation.json"
+      },
+      "best": {
+        "wallSeconds": 123.035,
+        "peakRssBytes": 32447135744,
+        "receipt": "executions/best.json"
+      },
+      "raw": {
+        "wallSeconds": 60.505,
+        "peakRssBytes": 32645890048,
+        "receipt": "executions/raw.json"
+      }
+    },
+    "treatment": {
+      "mode": "best",
+      "pipeline": [
+        "cpu_fill_holes",
+        "weld_5dp",
+        "island_filter",
+        "to_glb_decimate_40000",
+        "uv_unwrap",
+        "pbr_bake_512"
+      ],
+      "fill": {
+        "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+        "fillReturnWatertight": false,
+        "changed": true,
+        "facesBefore": 8804219,
+        "facesAfter": 8804580,
+        "boundaryEdgesBefore": 48874,
+        "boundaryEdgesAfter": 48117
+      },
+      "weld": {
+        "verticesBefore": 4343258,
+        "verticesAfter": 4343051,
+        "degenerateFacesDropped": 5
+      },
+      "filter": {
+        "thresholdShare": 0.0001,
+        "thresholdFaces": 881,
+        "componentsBefore": 18,
+        "componentsAfter": 1,
+        "keptComponentFaces": [
+          8804120
+        ],
+        "multiPartGuardTriggered": false,
+        "dropped": [
+          {
+            "label": 136,
+            "faces": 225,
+            "share": 0.0000255548961761357,
+            "center": [
+              -0.27537500858306885,
+              0.16679999232292175,
+              0.2901250123977661
+            ],
+            "diagonal": 0.05917062610387802
+          },
+          {
+            "label": 138,
+            "faces": 57,
+            "share": 0.0000064739070312877114,
+            "center": [
+              -0.2753649950027466,
+              0.16681499779224396,
+              0.23543000221252441
+            ],
+            "diagonal": 0.012500962242484093
+          },
+          {
+            "label": 137,
+            "faces": 49,
+            "share": 0.000005565288500580664,
+            "center": [
+              -0.2753700017929077,
+              0.16680499911308289,
+              0.25106000900268555
+            ],
+            "diagonal": 0.012522920034825802
+          },
+          {
+            "label": 141,
+            "faces": 29,
+            "share": 0.000003293742173813046,
+            "center": [
+              -0.2749350070953369,
+              0.16680499911308289,
+              0.3297699987888336
+            ],
+            "diagonal": 0.013506627641618252
+          },
+          {
+            "label": 144,
+            "faces": 27,
+            "share": 0.0000030665875411362842,
+            "center": [
+              -0.27487000823020935,
+              0.166934996843338,
+              0.3789849877357483
+            ],
+            "diagonal": 0.008845233358442783
+          },
+          {
+            "label": 143,
+            "faces": 19,
+            "share": 0.0000021579690104292373,
+            "center": [
+              -0.2749449908733368,
+              0.166934996843338,
+              0.3623799979686737
+            ],
+            "diagonal": 0.008853471837937832
+          },
+          {
+            "label": 142,
+            "faces": 17,
+            "share": 0.0000019308143777524754,
+            "center": [
+              -0.2752950191497803,
+              0.166920006275177,
+              0.3467499911785126
+            ],
+            "diagonal": 0.008769002743065357
+          },
+          {
+            "label": 400,
+            "faces": 6,
+            "share": 6.814638980302854e-7,
+            "center": [
+              -0.2382899969816208,
+              0.1826300024986267,
+              -0.376384973526001
+            ],
+            "diagonal": 0.0015879875281825662
+          },
+          {
+            "label": 1384,
+            "faces": 6,
+            "share": 6.814638980302854e-7,
+            "center": [
+              0.07129500061273575,
+              -0.039104998111724854,
+              -0.07390500605106354
+            ],
+            "diagonal": 0.0009048180654644966
+          },
+          {
+            "label": 1072,
+            "faces": 4,
+            "share": 4.543092653535236e-7,
+            "center": [
+              0.046834997832775116,
+              0.16455499827861786,
+              0.46336501836776733
+            ],
+            "diagonal": 0.001972709782421589
+          },
+          {
+            "label": 1150,
+            "faces": 4,
+            "share": 4.543092653535236e-7,
+            "center": [
+              0.054624997079372406,
+              0.1645199954509735,
+              0.2504599988460541
+            ],
+            "diagonal": 0.001955745043233037
+          },
+          {
+            "label": 603,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              -0.087909996509552,
+              0.165010005235672,
+              0.075204998254776
+            ],
+            "diagonal": 0.0013944593956694007
+          },
+          {
+            "label": 607,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              -0.08596000075340271,
+              0.165010005235672,
+              0.07717999815940857
+            ],
+            "diagonal": 0.0014024260453879833
+          },
+          {
+            "label": 1702,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              0.1454249918460846,
+              0.16504499316215515,
+              0.04605500027537346
+            ],
+            "diagonal": 0.0012326855212450027
+          },
+          {
+            "label": 1709,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              0.1513650119304657,
+              0.16504999995231628,
+              0.046025000512599945
+            ],
+            "diagonal": 0.0012741247192025185
+          },
+          {
+            "label": 1710,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              0.15323500335216522,
+              0.16504499316215515,
+              0.046049997210502625
+            ],
+            "diagonal": 0.001240077894181013
+          },
+          {
+            "label": 1749,
+            "faces": 2,
+            "share": 2.271546326767618e-7,
+            "center": [
+              0.17670999467372894,
+              0.16505999863147736,
+              0.0460050031542778
+            ],
+            "diagonal": 0.0012114874552935362
+          }
+        ]
+      },
+      "preExportFaces": 8804120
+    },
+    "comparisonIou": {
+      "control": 0.7140599133401471,
+      "t4": 0.7812974371144473,
+      "r5best": 0.7407572525805297,
+      "r5b": 0.7811918416421216,
+      "r5b_raw": 0.7814328799128354
+    },
+    "visualVerification": "round5b/visual-verification.json",
+    "manifest": "round5b/recommended-manifest.json",
+    "measurements": "round5b/measurements.json",
+    "contactSheet": "round5b/contact-sheet-raw-budget.png",
+    "columnBaseCasterCrops": "round5b/column-base-caster-crops-budget.png",
+    "frontPanelCrops": "round5b/front-panel-crops-budget.png",
+    "decisionChanged": false
+  },
+  "round5": {
+    "date": "2026-10-01",
+    "status": "coordinator grade received: pipeline surface quality wins; seed7 likeness fails; MADR 0059 Decision unchanged",
+    "backend": "trellis2",
+    "conditioning": "single view; byte-identical Round 1-4 matted oracle",
+    "commonBudget": {"trianglesMax":40000,"decodedTextureMiBMax":16},
+    "selectionRule": "R5-E winner by fewest welded components, then boundary edges",
+    "seedWinner": "seed7-default",
+    "treatments": [
+      {"id":"r5-a-decimate-before-bake","wallSeconds":771.868,"peakRssBytes":14236221440,"weldedComponents":9,"largestShare":0.9149816782221285,"boundaryEdges":1393,"budgetTriangles":37933,"decodedTextureMiB":2,"silhouetteIou":0.7407079744652156},
+      {"id":"r5-b-island-filter","wallSeconds":57.75,"peakRssBytes":25903185920,"fullResolutionComponents":"25 -> 4","droppedComponents":21,"weldedComponents":9,"largestShare":0.9153876323702445,"boundaryEdges":1477,"budgetTriangles":38245,"decodedTextureMiB":2,"silhouetteIou":0.7406940423480632},
+      {"id":"r5-c-cpu-fill","wallSeconds":66.9,"peakRssBytes":27662581760,"fullResolutionBoundaryEdges":"32048 -> 31686","weldedComponents":10,"largestShare":0.9165510987838703,"boundaryEdges":1357,"budgetTriangles":37496,"decodedTextureMiB":2,"silhouetteIou":0.7405824339178663},
+      {"id":"r5-d-cpu-remesh","outcome":"not_runnable_off_metal","wallSeconds":1.217,"peakRssBytes":277741568,"reason":"installed remesher is cumesh Metal-only; no CPU fallback; Round 3 Metal float-atomic failure remains","innerShellCheck":"not_applicable_no_mesh"},
+      {"id":"r5-e-seeds-sampler","winner":"seed7-default","variants":"round5/measurements.json#/arms/4/variants"},
+      {"id":"r5-best","pipeline":"CPU fill -> weld -> guarded island filter -> to_glb decimation -> UV unwrap -> 512px bake","wallSeconds":88.257,"peakRssBytes":27593392128,"weldedComponents":8,"largestShare":0.9167551332176795,"boundaryEdges":1419,"budgetTriangles":38621,"decodedTextureMiB":2,"silhouetteIou":0.7407572525805297,"sha256":"98e324af4163d6d73d79a4f253ac55d12eee0f3a68be99a7a89ce9b017269bc5"}
+    ],
+    "seedScreen": [
+      {"id":"seed42-default","wallSeconds":963.552,"peakRssBytes":14812823552,"weldedComponents":44,"boundaryEdges":4971,"budgetTriangles":39793},
+      {"id":"seed7-default","wallSeconds":771.868,"peakRssBytes":14236221440,"weldedComponents":9,"boundaryEdges":1393,"budgetTriangles":37933},
+      {"id":"seed123-default","wallSeconds":1281.936,"peakRssBytes":16936353792,"weldedComponents":75,"boundaryEdges":7402,"budgetTriangles":39608},
+      {"id":"seed42-fast6","wallSeconds":636.627,"peakRssBytes":16810901504,"weldedComponents":75,"boundaryEdges":4299,"budgetTriangles":37141}
+    ],
+    "manifest": "round5/recommended-manifest.json",
+    "measurements": "round5/measurements.json",
+    "contactSheet": "round5/contact-sheet-raw-budget.png",
+    "seedContactSheet": "round5/seed-screen-raw-budget.png",
+    "columnBaseCasterCrops": "round5/column-base-caster-crops-budget.png",
+    "frontPanelCrops": "round5/front-panel-crops-budget.png",
+    "visualVerdict": {"grader":"coordinator (MY GRADE, native crops)","pipeline":"clear surface-quality win: clean column/base/casters, crisp panel, no streaks or speckle","generation":"seed7 loses likeness: red instead of purple middle buttons; tapered hexagonal instead of square column; IoU 0.781 -> 0.741","followup":"Round 5b: exact Round-3 generation plus R5-BEST pipeline"},
+    "decisionChanged": false
+  },
+  "round4": {
+    "date": "2026-10-01",
+    "status": "decision evidence complete; coordinator grade pending; MADR Decision unchanged",
+    "backend": "trellis2",
+    "diagnosis": {
+      "stage": "Round-3 optimize/decimation: permissive UV-seam relaxation",
+      "basis": "Severe column/base streaks are absent from raw textured and both clay renders, and present only after Round-3 budgeting.",
+      "evidence": "round4/diagnosis-stage-sheet.png"
+    },
+    "treatmentCount": 4,
+    "generationRerun": false,
+    "generationRerunReason": "Diagnosis exonerated generation/remesh/texture sampling; treatments changed only the implicated optimizer UV weight, plus one texture-memory reduction.",
+    "commonBudget": {
+      "trianglesMax": 40000,
+      "decodedTextureMiBMax": 16
+    },
+    "sharedRaw": {
+      "triangles": 297289,
+      "sha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+      "silhouetteIou": 0.781307038678191
+    },
+    "treatments": [
+      {"id": "t1-uv4", "uvWeight": 4, "textureSize": 1024, "wallSeconds": 3.262, "peakRssBytes": 620150784, "budgetTriangles": 38477, "decodedTextureMiB": 8, "silhouetteIou": 0.7812023423347516, "sha256": "33e208de6c412b780f28b3581794ee1d115225b1c4a966227bc7813fae6f1291"},
+      {"id": "t2-uv16", "uvWeight": 16, "textureSize": 1024, "wallSeconds": 2.393, "peakRssBytes": 604520448, "budgetTriangles": 39627, "decodedTextureMiB": 8, "silhouetteIou": 0.7813361379583434, "sha256": "d2e7a6a07ffa59516eac01d85ad3691cbb9fc3af6e5efe1f26039e93789cec7f"},
+      {"id": "t3-uv64", "uvWeight": 64, "textureSize": 1024, "wallSeconds": 2.416, "peakRssBytes": 619970560, "budgetTriangles": 39860, "decodedTextureMiB": 8, "silhouetteIou": 0.7812974371144473, "sha256": "622dc76560ed91a7dbcef0ef8a46af62407ada9a036ab5e2bbc30da7252f1726"},
+      {"id": "t4-uv64-512", "uvWeight": 64, "textureSize": 512, "wallSeconds": 2.018, "peakRssBytes": 582483968, "budgetTriangles": 39860, "decodedTextureMiB": 2, "silhouetteIou": 0.7812974371144473, "sha256": "0a55256c4007fa4bb98e3b16145fc1cb0d74977b31b100de4737ed7daa7ec930", "memoryTreatment": true}
+    ],
+    "evidenceRecommendation": "t4-uv64-512",
+    "recommendationReason": "T3/T4 clear the severe column/base streaks while preserving the front-panel read; T4 matches T3 geometry and IoU at 2 MiB decoded textures instead of 8 MiB.",
+    "contactSheet": "round4/contact-sheet-raw-budget.png",
+    "cropSheet": "round4/column-base-crops-budget.png",
+    "cropBox1280Pixels": [300, 690, 1010, 1260],
+    "cropMagnification": "2x NEAREST",
+    "manifest": "round4/recommended-manifest.json",
+    "measurements": "round4/measurements.json",
+    "execution": "All optimizer treatments used foreground GpuJobService with the gpu slot; all Blender diagnosis/renders used BlenderService.",
+    "visualVerdict": null,
+    "decisionChanged": false
+  },
+  "round3": {
+    "date": "2026-10-01",
+    "status": "pending coordinator grade; MADR Decision unchanged",
+    "backend": "trellis2",
+    "variant": "image-to-3dlab clean trellis-space-mac; CPU pre-cap export recovery",
+    "dinov3Access": {
+      "status": "ACCESS OK",
+      "coordinatorVerifiedAt": "2026-10-01T16:54:00Z",
+      "evidence": "DINOv3 loaded and all sampling stages completed; no additional access probe needed",
+      "revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51"
+    },
+    "conditioningSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "commonBudget": {
+      "trianglesMax": 40000,
+      "decodedTextureMiBMax": 16
+    },
+    "wallSeconds": 1395.773592458,
+    "elapsedWallSeconds": 1495.136,
+    "measurement": "Sum of three foreground GpuJobService job wall times, including failed export and recovery; elapsedWallSeconds additionally includes diagnosis gaps. Excludes environment check, optimize and renders.",
+    "peakRssBytes": 41961652224,
+    "rssMeasurement": "Maximum /usr/bin/time -l maximum resident set size across attempts; not GPU memory.",
+    "concurrentHeavyProcessesAtStart": 0,
+    "concurrentHeavyProcessesAtEnd": 0,
+    "heavyCountDefinition": "Other GPU/Blender compute-slot holders at each job boundary; 0/0 for all three attempts.",
+    "rawTriangles": 297289,
+    "budgetTriangles": 38697,
+    "rawDecodedTextureMiB": 32,
+    "decodedTextureMiB": 8,
+    "decodedTextureWithMipsMiB": 10.666666666666666,
+    "silhouetteIou": {
+      "raw": 0.781307038678191,
+      "budget": 0.781238369308598
+    },
+    "rawSha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+    "budgetSha256": "12c79ef7f20a7176325c2e5bf5f87cee092b7e0efde2e54a8cd9993e77a26fd0",
+    "attempts": [
+      {
+        "wallSeconds": 1343.430446417,
+        "peakRssBytes": 41961652224,
+        "exitCode": 1,
+        "reason": "Metal propagate_cost_kernel unsupported float atomic operation",
+        "execution": "round3/raw/trellis2/initial-execution.json"
+      },
+      {
+        "wallSeconds": 12.01582025,
+        "peakRssBytes": 5742542848,
+        "exitCode": 1,
+        "reason": "remesh=false alone still invokes the unsupported Metal simplifier",
+        "execution": "round3/raw/trellis2/nonremesh-execution.json"
+      },
+      {
+        "wallSeconds": 40.327325791,
+        "peakRssBytes": 9214017536,
+        "exitCode": 0,
+        "reason": "same decoded checkpoint; remesh=false, CPU pre-cap=300000, Metal target=400000 so unsupported simplify is skipped",
+        "execution": "round3/raw/trellis2/cpu-precap-execution.json"
+      }
+    ],
+    "optimization": {
+      "station": "iterate-optimize followed by meshoptimizer simplifyWithAttributes",
+      "standardLadderBest40kRetarget": 88537,
+      "meshoptimizerVersion": "1.0.1",
+      "flags": [
+        "Permissive"
+      ],
+      "normalWeights": [
+        1,
+        1,
+        1
+      ],
+      "uvWeights": [
+        1,
+        1
+      ],
+      "errorLimit": 1,
+      "reportedError": 0.012900687754154205,
+      "textureResize": "gltf-transform resize --width 1024 --height 1024; two WebP maps; PBR bindings/factors unchanged",
+      "report": "round3/budget/trellis2/seam-budget.json"
+    },
+    "reproducibility": "One sampling run only; export recovered from checkpoint, not an independent replay. No byte-identity claim. Original Pixal3D replay remains the one-backend repeat trial.",
+    "contactSheet": "round3/renders/contact-sheet-budget.png",
+    "updatedRound2Sheet": "round2/renders/contact-sheet-budget.png",
+    "firstThreeColumnsPixelIdentical": true,
+    "rawStill": "round3/renders/trellis2-raw/three_quarter_right.png",
+    "budgetStill": "round3/renders/trellis2-budget/three_quarter_right.png",
+    "provenance": "round3/raw/trellis2/provenance.json",
+    "visualVerdict": null
+  },
+  "round2": {
+    "date": "2026-10-01",
+    "status": "pending coordinator re-grade; MADR Decision unchanged",
+    "commonBudget": {"trianglesMax":40000,"decodedTextureMiBMax":16,"accounting":"RGBA8 no mips; both outputs also fit with full mip chains"},
+    "conditioningSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "hunyuanColourControl": {
+      "available": false,
+      "paintRerun": false,
+      "finding": "Pinned scripts/hunyuan_mlx_xiong_generate.py and hunyuan_mlx/paint/scripts/run_paint_pbr.py expose no text-prompt or body-colour control. Image/mesh, seed, resolution, steps, scheduler and super-resolution are exposed; guidance is hard-coded to 3.0. No hand-recolouring performed."
+    },
+    "dinov3Access": {
+      "status": "pending Meta approval",
+      "endpoint": "https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m/resolve/main/config.json",
+      "method": "authenticated HEAD, exactly two probes",
+      "probes": [{"timestamp":"2026-10-01T16:09:06.328497+00:00","httpStatus":403},{"timestamp":"2026-10-01T16:20:43.449277+00:00","httpStatus":403}]
+    },
+    "backends": [
+      {
+        "id":"hunyuan3d-mlx-2.0",
+        "generation":"round-one mesh reused",
+        "wallSeconds":889.46,
+        "peakRssBytes":10075832320,
+        "concurrentHeavyProcessesAtStart":0,
+        "concurrentHeavyProcessesAtEnd":0,
+        "rawTriangles":300000,
+        "budgetTriangles":40000,
+        "decodedTextureMiB":8,
+        "decodedTextureWithMipsMiB":10.666666666666666,
+        "budgetSha256":"d55d96455906793cb32ed9ac2e44588ed27b8f64a927b221542f53d1196c3818",
+        "silhouetteIou":{"raw":0.7864320180089518,"budget":0.7864596113137396},
+        "optimization":"Existing iterate-optimize direct 40k rung; both PNG PBR maps resized from 4096 to 1024 with gltf-transform Lanczos3.",
+        "territoryFlag":"US-hosted deployment only; blocked from EU, UK, and South Korea",
+        "provenance":"round2/budget/hunyuan3d-mlx-2.0/provenance.json"
+      },
+      {
+        "id":"stable-fast-3d",
+        "outcome":"mesh produced on supported CPU path",
+        "wallSeconds":42.796803958,
+        "peakRssBytes":11114381312,
+        "concurrentHeavyProcessesAtStart":0,
+        "concurrentHeavyProcessesAtEnd":0,
+        "measurement":"Foreground GpuJobService, /usr/bin/time -l maximum RSS; wall includes model load but cached downloads.",
+        "mpsAttempt":{"wallSeconds":445.839328291,"peakRssBytes":9208217600,"concurrentHeavyProcessesAtStart":0,"concurrentHeavyProcessesAtEnd":0,"outcome":"manually terminated during prolonged Metal linalg_svd wait; no exported mesh","includesInitialDownloads":true},
+        "rawTriangles":29108,
+        "budgetTriangles":29108,
+        "decodedTextureMiB":8,
+        "decodedTextureWithMipsMiB":10.666666666666666,
+        "rawSha256":"9bb2c4ff860cde1bb636d35e91c8e9ee9973bce9bb8f05f2a9f15d9068614693",
+        "budgetSha256":"c2753251cfeb15b90f3712d1234a2654b4992798614fa8c84b7c2feee182f536",
+        "silhouetteIou":{"raw":0.7051303113820286,"budget":0.7051303113820286},
+        "optimization":"iterate-optimize selected raw geometry because it already fits. gltf-transform 1024 resize re-encoded existing 1024 JPEG maps. Base colour, normal map, metallic/roughness factors retained.",
+        "reproducibility":"not replayed; round-one Pixal3D trial remains the requested one-backend replay",
+        "provenance":"round2/raw/stable-fast-3d/provenance.json"
+      },
+      {"id":"trellis2","outcome":"pending Meta approval","wallSeconds":null,"rawTriangles":null,"budgetTriangles":null,"decodedTextureMiB":null,"silhouetteIou":null}
+    ],
+    "renderProtocol":"Same frozen 50 mm camera, EEVEE key/fill/rim and 1280-square native stills as round one; render-only extent normalization. Unchanged control/Hunyuan raw stills reused. Contact sheets retain full 1280 px tiles (5120x1360). No visual verdict assigned.",
+    "controlSilhouetteIou":0.7140599133401471,
+    "contactSheets":{"raw":"round2/renders/contact-sheet-raw.png","budget":"round2/renders/contact-sheet-budget.png"}
+  },
+  "measuredAt": "2026-10-01",
+  "measuredAgainstCommit": "4385291c7c819237632b9d094117ca5fd5a805b1",
+  "status": "round4_adopted_round5_graded_round5b_grade_pending",
+  "decision": "TRELLIS.2 Round-4 T4 remains adopted; Round 5 does not change the decision",
+  "claimScope": "local M1 Max ECG-cart generation, optimization, and fixed-camera evidence",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption",
+    "a visual winner before coordinator native-pixel grade"
+  ],
+  "install": {
+    "path": "~/.openclinxr-tools/image-to-3dlab",
+    "commit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+    "diskBytesApprox": 26080264192,
+    "sharedTrellisWeightCacheBytesApprox": 14819926016,
+    "u2netCacheBytesApprox": 408875008,
+    "reusedExistingTrellis2Checkout": false,
+    "reuseNote": "The existing trellis2-apple source checkout was dirty and at a different commit; only its shared Hugging Face weight cache was reused.",
+    "sourceRevisions": {
+      "pixal3dVendor": "d1b4926452f9e09702b891db5f05acc845e153ed",
+      "stableFast3dVendor": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+      "trellis2Space": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+      "trellis2ApplePin": "6055b868734af6e12769d229d90580e775fae9f0"
+    },
+    "weightRevisions": {
+      "pixal3d": "46d399ac986f45a0d7f5b1ca5058614d8729a131",
+      "birefnetGguf": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "hunyuanShape20": "9cd649ba6913f7a852e3286bad86bfa9a2d83dcf",
+      "hunyuanPaint": "b56e8b86b4d1e62b0bb3bbef7e2070d6ec22620e",
+      "trellis2_4b": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "stableFast3d": "f0c9a8ffd62cb1bbc8a7a53c9f87a0be1b6be778",
+      "dinov3": null
+    }
+  },
+  "input": {
+    "singleView": "inputs/ecg-cart-oracle-matted.png",
+    "singleViewSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "oracleSingleSha256": "3be74fd259fee38002bae8e096eef3837462cadbc4c0cd1155bc27cf7f6f7d8f",
+    "oracleMultiviewPackSha256": "377f90f7180fe9b559c3b515ebb13ae108fc14e4d5937ca229116a0d38aac7c0",
+    "multiviewExecution": "No backend exposed a working exact multi-image path through the pinned image-to-3dlab CLI on this host; the TRELLIS.2 CLI advertised multi-view but its Apple Space runner accepted one image. No collage was substituted."
+  },
+  "control": {
+    "rawTriangles": 973639,
+    "rawSha256": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+    "optimizedTriangles": 34443,
+    "optimizedSha256": "c2b8c81fc661581a2ffa9173588b79c4937d09f2d5463f6224261e3cdf4359b9",
+    "frozenExtent": 0.9682512283325195,
+    "render": "renders/control/three_quarter_right.png",
+    "silhouetteIou": 0.71406
+  },
+  "renderProtocol": {
+    "renderer": "Blender EEVEE via BlenderService",
+    "script": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",
+    "resolution": [1280, 1280],
+    "view": "three_quarter_right",
+    "cameraAndLights": "frozen from control",
+    "treatmentScale": "uniform render-only normalization to control extent; source GLBs unchanged"
+  },
+  "silhouetteMetric": {
+    "definition": "intersection-over-union of alpha >= 16 at 1280x1280 against the Lanczos-resized common BiRefNet-matted Imagine oracle",
+    "oracle": "inputs/ecg-cart-oracle-matted.png"
+  },
+  "backends": [
+    {
+      "id": "pixal3d",
+      "outcome": "gradeable",
+      "conditioning": "single_view",
+      "parameters": {"seed": 42, "steps": 8, "gss": 10.0, "fovRadians": 0.34906585, "resolution": 1024},
+      "run1": {
+        "wallSeconds": 467.64,
+        "peakRssBytes": 5098602496,
+        "concurrentHeavyProcessesAtStart": 1,
+        "concurrentHeavyProcessesAtEnd": 0,
+        "concurrentHeavyProcessNote": "one browser capture holder at start; zero GPU/Blender holders",
+        "rawTriangles": 987666,
+        "rawBytes": 37277492,
+        "rawSha256": "a895a10214bcb37439275e8ee362099843f431bf3a2c5f628943a9230c55782c"
+      },
+      "run2": {
+        "wallSeconds": 457.55,
+        "peakRssBytes": 5087232000,
+        "rawTriangles": 987666,
+        "rawBytes": 37277492,
+        "rawSha256": "faa9a4c9b26557f038b9744f7fbf6ea4d77aac3f40b45e0ad732cb2f007d11fa"
+      },
+      "reproducibility": {"replayedFromManifest": true, "byteIdentical": false},
+      "textures": {
+        "embedded": [{"format": "WebP", "width": 4096, "height": 4096, "compressedBytes": 1251766}, {"format": "WebP", "width": 4096, "height": 4096, "compressedBytes": 42312}],
+        "decodedRgbaNoMipsMiB": 128.0
+      },
+      "optimized": {
+        "triangles": 73790,
+        "bytes": 5273180,
+        "sha256": "d88fb4216872546912876b9d31eb53b5fd38de0a777cde9a8fb1a65de8f89d14",
+        "underPreferred80k": true,
+        "underStretch40k": false,
+        "note": "Initial 40k targets plateaued near 103k-106k; retargeting the 120k rung produced 73,790 tris."
+      },
+      "silhouetteIou": {"raw": 0.726054, "optimized": 0.725203},
+      "renders": {"raw": "renders/pixal3d-raw/three_quarter_right.png", "optimized": "renders/pixal3d-opt/three_quarter_right.png"}
+    },
+    {
+      "id": "hunyuan3d-mlx-2.0",
+      "variant": "Xiong full pipeline 2.0, quantize8, octree512; paint resolution 512, texture 4096",
+      "outcome": "gradeable",
+      "conditioning": "single_view",
+      "wallSeconds": 889.46,
+      "peakRssBytes": 10075832320,
+      "concurrentHeavyProcessesAtStart": 0,
+      "concurrentHeavyProcessesAtEnd": 0,
+      "rawTriangles": 300000,
+      "rawBytes": 23866240,
+      "rawSha256": "d3d7b939ee25d3c8e4b1aeb8e6ecfa94d37760af98aac8b2a7b0177bc0968c0c",
+      "wrapperRecovery": "Generation and painting completed; the wrapper's final os.replace crossed filesystems and raised EXDEV. The completed exact output was recovered by byte-preserving copy.",
+      "reproducibility": {"replayedFromManifest": false, "byteIdentical": null, "note": "The task requested one backend replay; Pixal3D was replayed."},
+      "textures": {
+        "embedded": [{"format": "PNG", "width": 4096, "height": 4096, "compressedBytes": 8005832}, {"format": "PNG", "width": 4096, "height": 4096, "compressedBytes": 8402960}],
+        "decodedRgbaNoMipsMiB": 128.0
+      },
+      "optimized": {
+        "triangles": 80000,
+        "bytes": 18878116,
+        "sha256": "237983a194c720b125a0d37a61da68b64bd61e64466a00d68c0876c8b23d0edb",
+        "underPreferred80k": true,
+        "stretch40kAvailable": true,
+        "stretch40kSha256": "43470e8a37ce5f7df77a8caec047835bfbe308ec53f2788b09830b08b2205aa8"
+      },
+      "silhouetteIou": {"raw": 0.786432, "optimized": 0.786464},
+      "territoryFlag": "US-hosted deployment only; output is blocked from EU, UK, and South Korea under MADR 0046.",
+      "renders": {"raw": "renders/hunyuan3d-mlx-2.0-raw/three_quarter_right.png", "optimized": "renders/hunyuan3d-mlx-2.0-opt/three_quarter_right.png"}
+    },
+    {
+      "id": "stable-fast-3d",
+      "outcome": "access_blocked",
+      "conditioning": "not_run",
+      "wallSeconds": null,
+      "peakRssBytes": null,
+      "rawTriangles": null,
+      "optimizedTriangles": null,
+      "decodedTextureMiB": null,
+      "reproducibility": null,
+      "blocker": "The pinned code and Metal extensions installed, but the gated Hugging Face model weights required authentication."
+    },
+    {
+      "id": "trellis2",
+      "outcome": "access_blocked",
+      "conditioning": "single_view_attempted",
+      "wallSeconds": 133.9,
+      "peakRssBytes": 20841693184,
+      "concurrentHeavyProcessesAtStart": 0,
+      "concurrentHeavyProcessesAtEnd": 0,
+      "rawTriangles": null,
+      "optimizedTriangles": null,
+      "decodedTextureMiB": null,
+      "reproducibility": null,
+      "blocker": "Inference stopped at gated facebook/dinov3-vitl16-pretrain-lvd1689m download (HTTP 403). The 4B TRELLIS weight cache was present.",
+      "multiview": "The pinned lab CLI advertises multi-view, but its Apple Space runner accepts one image; no collage fallback was used."
+    }
+  ],
+  "contactSheets": {
+    "raw": "renders/contact-sheet-raw.png",
+    "optimized": "renders/contact-sheet-optimized.png",
+    "blockedColumns": ["stable-fast-3d", "trellis2"]
+  }
+}

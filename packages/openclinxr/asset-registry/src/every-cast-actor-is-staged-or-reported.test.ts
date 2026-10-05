@@ -61,4 +61,14 @@ describe("every cast actor is staged or reported", () => {
     const unstaged = unstagedCastActors(resolveScenarioActorCast("ed_chest_pain_priority_v2"));
     expect(unstaged).toEqual([]);
   });
+
+  it("(4) a two-actor case omits the optional family slot instead of inventing an ED spouse", () => {
+    const scenarioId = "primary_care_dyslipidemia_joint_pain_v1";
+    const declaredIds = resolveScenarioActorCast(scenarioId).map((actor) => actor.actorId).sort();
+    const bundledIds = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId })
+      .actors.map((actor) => actor.actorId).sort();
+    expect(bundledIds).toEqual(declaredIds);
+    expect(bundledIds).not.toContain("");
+    expect(bundledIds).not.toContain("spouse_anna_hayes_v1");
+  });
 });

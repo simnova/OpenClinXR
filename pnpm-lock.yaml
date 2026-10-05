@@ -113,6 +113,9 @@ importers:
       '@openclinxr/xr-capture-evidence':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-capture-evidence
+      '@openclinxr/xr-dialogue':
+        specifier: workspace:*
+        version: link:packages/openclinxr/xr-dialogue
       '@openclinxr/xr-humanoid-animation':
         specifier: workspace:*
         version: link:packages/openclinxr/xr-humanoid-animation

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-round5-treatment.v1",
+  "sourceCheckpoint": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/arms/seed42-default/decoded-mesh.pt",
+  "sourceSeed": 42,
+  "sourceSteps": 12,
+  "treatment": {
+    "mode": "raw",
+    "pipeline": [
+      "to_glb_decimate_300000",
+      "uv_unwrap",
+      "pbr_bake_2048"
+    ],
+    "preExportFaces": 11990792
+  },
+  "remesh": false,
+  "triangles": 294378,
+  "decodedTextureMiB": 32.0,
+  "bytes": 16141700,
+  "sha256": "712f6f76ddd092a46f4d7df511b2380a95cb8dad8bc3cae79b620926db8be349",
+  "timingsSeconds": {
+    "export": 86.27738809585571,
+    "total": 86.99387717247009
+  },
+  "claimScope": "one ECG-cart Round-5 CPU topology treatment and pre-bake decimation",
+  "notEvidenceFor": [
+    "Quest readiness",
+    "clinical accuracy",
+    "runtime adoption"
+  ]
+}

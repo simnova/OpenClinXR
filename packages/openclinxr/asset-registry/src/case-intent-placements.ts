@@ -1,4 +1,5 @@
 import type { AuthoredCasePlacement } from "./case-actor-placements-mod.js";
+import { headingRadiansToward } from "./bedside-target.js";
 import type { EncounterRuntimeActorPlacement } from "./runtime-bundles.js";
 
 /**
@@ -82,7 +83,9 @@ export function supportInstanceIdForPlacement(input: {
   environmentId: string;
   posture: "standing" | "seated" | "supine";
   slotKind: string;
+  supportSurface?: string | undefined;
 }): string | null {
+  if (input.supportSurface === "exam_table") return `${input.environmentId}:exam_surface`;
   if (input.posture === "supine") return `${input.environmentId}:stretcher`;
   if (input.posture === "seated") {
     return input.slotKind === "family_or_observer"
@@ -103,22 +106,45 @@ export function placementsWithPersistedCaseIntent(
   records: Record<string, EncounterRuntimeActorPlacement>,
   input: { environmentId: string; authored: Record<string, AuthoredCasePlacement> },
 ): Record<string, EncounterRuntimeActorPlacement> {
-  return Object.fromEntries(
+  const placed = Object.fromEntries(
     Object.entries(records).map(([actorId, placement]) => {
       const supportInstanceId = supportInstanceIdForPlacement({
         environmentId: input.environmentId,
         posture: placement.posture ?? "standing",
         slotKind: placement.slotKind,
+        supportSurface: input.authored[actorId]?.supportSurface,
       });
       const offset = input.authored[actorId]?.plantOffsetMeters;
+      const headingRadians = input.authored[actorId]?.headingRadians;
       return [
         actorId,
         {
           ...placement,
+          ...(input.authored[actorId] ? { placementProvenance: "authored_intent" as const } : {}),
           ...(supportInstanceId ? { supportInstanceId } : {}),
           ...(offset ? { plantOffsetMeters: { x: offset.x, y: offset.y, z: offset.z } } : {}),
+          ...(typeof headingRadians === "number" ? { headingRadians } : {}),
         },
       ];
     }),
   );
+  const patientEntry = Object.entries(placed).find(([, placement]) => placement.slotKind === "primary_patient");
+  if (!patientEntry) return placed;
+  const [patientId, patientPlacement] = patientEntry;
+  const patientOffset = input.authored[patientId]?.plantOffsetMeters;
+  const patientPosition = {
+    x: patientPlacement.position.x + (patientOffset?.x ?? 0),
+    y: patientPlacement.position.y + (patientOffset?.y ?? 0),
+    z: patientPlacement.position.z + (patientOffset?.z ?? 0),
+  };
+  for (const [actorId, placement] of Object.entries(placed)) {
+    if (actorId === patientId || !input.authored[actorId]) continue;
+    const supportSurface = input.authored[actorId]?.supportSurface;
+    if (supportSurface !== "none") continue;
+    const position = input.authored[actorId]?.plantOffsetMeters ?? placement.position;
+    placement.headingRadians = input.authored[actorId]?.headingRadians
+      ?? placement.headingRadians
+      ?? headingRadiansToward(position, patientPosition);
+  }
+  return placed;
 }

@@ -38,12 +38,17 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import { Bone, BufferAttribute, BufferGeometry, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Skeleton, SkinnedMesh, Vector2, Vector3 } from "three";
-import { applyVisemeWeights, type MorphTargetLike } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
-import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
 import {
+  applyJawOpenToRoot,
+  applyVisemeWeights,
   jawApertureFractionTable,
   jawOpenRadiansForPhoneme,
-} from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
+} from "@openclinxr/xr-dialogue";
+
+type MorphTargetLike = {
+  morphTargetDictionary: Record<string, number>;
+  morphTargetInfluences: number[];
+};
 
 export const LOWER_LIP_ABS_X_MAX = 0.03;
 export const LOWER_LIP_Y_MIN = 1.448;

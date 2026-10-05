@@ -1,0 +1,438 @@
+{
+  "subjectId": "ecg-cart",
+  "displayName": "12-lead ECG cart",
+  "verdict": "mesh_exported",
+  "verdictReason": "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline completed (fresh subprocess). Mesh: 37828 tris, 1794068 bytes. Shape gen: 815.4s, Export: 66.3s.",
+  "stages": {
+    "pipeline_load": "runs",
+    "pipeline_load_time_s": 3.2,
+    "shape_generation": "runs",
+    "shape_generation_time_s": 815.4,
+    "view_count": 1,
+    "simplify_before_to_glb": {
+      "cap": 16777216,
+      "facesBefore": 11990792,
+      "facesAfter": 11990792
+    },
+    "glb_export": "runs",
+    "glb_export_time_s": 66.3,
+    "remesh": "not_requested"
+  },
+  "rawTriangleCount": 37828,
+  "exportPath": "/Volumes/files/src/openclinxr-wt/cart-factory-wiring/.openclinxr/evidence/trellis-bake/ecg-cart/ecg-cart.glb",
+  "exportBytes": 1794068,
+  "texturedPbr": "yes",
+  "inputImagePath": "/Volumes/files/src/openclinxr-wt/cart-factory-wiring/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+  "inputImagePaths": [
+    "/Volumes/files/src/openclinxr-wt/cart-factory-wiring/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png"
+  ],
+  "viewCount": 1,
+  "seed": 42,
+  "samplerOverrides": {},
+  "effectiveSamplerParams": {
+    "sparse_structure_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.7,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 5.0
+    },
+    "shape_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.5,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 3.0
+    },
+    "tex_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 1.0,
+      "guidance_rescale": 0.0,
+      "guidance_interval": [
+        0.6,
+        0.9
+      ],
+      "rescale_t": 3.0
+    }
+  },
+  "hfDemo": false,
+  "remeshRequested": false,
+  "remesh": "not_requested",
+  "pipelineType": "1024_cascade",
+  "decimationTarget": 40000,
+  "textureSize": 512,
+  "wallClockS": 965.6909351348877,
+  "processIsolation": "fresh_subprocess",
+  "claimScope": [
+    "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline on Apple Silicon",
+    "MIT model + MIT Metal packages + local DINOv3 (commercial-permitted)",
+    "single-subject isolated bake \u2014 fresh OS process per subject (#237)",
+    "per-subject raw triangle count recorded for MADR 0050 post-opt"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness",
+    "clinical accuracy or device equivalence",
+    "production adoption into learner runtime",
+    "mesh quality suitable for exam use",
+    "replacement of parametric equipment builders"
+  ],
+  "treatment": {
+    "mode": "best",
+    "pipeline": [
+      "cpu_fill_holes",
+      "weld_5dp",
+      "island_filter",
+      "to_glb_decimate_40000",
+      "uv_unwrap",
+      "pbr_bake_512"
+    ],
+    "fill": {
+      "backend": "trimesh.repair.fill_holes (TRELLIS CPU fallback / v1-style)",
+      "fillReturnWatertight": false,
+      "changed": true,
+      "facesBefore": 11990792,
+      "facesAfter": 11990908,
+      "boundaryEdgesBefore": 69564,
+      "boundaryEdgesAfter": 69334
+    },
+    "weld": {
+      "verticesBefore": 5966818,
+      "verticesAfter": 5966811,
+      "degenerateFacesDropped": 8
+    },
+    "filter": {
+      "thresholdShare": 0.0001,
+      "thresholdFaces": 1200,
+      "componentsBefore": 35,
+      "componentsAfter": 7,
+      "keptComponentFaces": [
+        11009438,
+        382594,
+        150372,
+        149020,
+        148464,
+        147574,
+        1216
+      ],
+      "multiPartGuardTriggered": false,
+      "dropped": [
+        {
+          "label": 670,
+          "faces": 858,
+          "share": 7.155426198200301e-05,
+          "center": [
+            -0.11369500309228897,
+            -0.1562899947166443,
+            -0.03301500156521797
+          ],
+          "diagonal": 0.09351073950529099
+        },
+        {
+          "label": 662,
+          "faces": 440,
+          "share": 3.669449332410411e-05,
+          "center": [
+            -0.14500999450683594,
+            -0.17916500568389893,
+            -0.03215499967336655
+          ],
+          "diagonal": 0.03786046802997589
+        },
+        {
+          "label": 1400,
+          "faces": 360,
+          "share": 3.002276726517609e-05,
+          "center": [
+            0.13234999775886536,
+            -0.17917001247406006,
+            -0.03216499835252762
+          ],
+          "diagonal": 0.03024027869105339
+        },
+        {
+          "label": 1603,
+          "faces": 134,
+          "share": 1.1175141148704435e-05,
+          "center": [
+            0.16701999306678772,
+            -0.18108999729156494,
+            -0.3310700058937073
+          ],
+          "diagonal": 0.01091685425490141
+        },
+        {
+          "label": 1535,
+          "faces": 80,
+          "share": 6.671726058928021e-06,
+          "center": [
+            0.15382499992847443,
+            -0.17874500155448914,
+            -0.03215499967336655
+          ],
+          "diagonal": 0.011824534274637699
+        },
+        {
+          "label": 167,
+          "faces": 58,
+          "share": 4.837001392722815e-06,
+          "center": [
+            -0.24320998787879944,
+            -0.19925999641418457,
+            0.47718000411987305
+          ],
+          "diagonal": 0.00745119946077466
+        },
+        {
+          "label": 607,
+          "faces": 34,
+          "share": 2.8354835750444087e-06,
+          "center": [
+            -0.17491498589515686,
+            0.18380999565124512,
+            0.1908699870109558
+          ],
+          "diagonal": 0.008023918606340885
+        },
+        {
+          "label": 1599,
+          "faces": 28,
+          "share": 2.335104120624807e-06,
+          "center": [
+            0.16163499653339386,
+            -0.1791749894618988,
+            -0.03215000033378601
+          ],
+          "diagonal": 0.004138277843594551
+        },
+        {
+          "label": 1615,
+          "faces": 28,
+          "share": 2.335104120624807e-06,
+          "center": [
+            0.1655450016260147,
+            -0.1791749894618988,
+            -0.032145000994205475
+          ],
+          "diagonal": 0.004138338379561901
+        },
+        {
+          "label": 0,
+          "faces": 22,
+          "share": 1.8347246662052057e-06,
+          "center": [
+            -0.28685998916625977,
+            -0.2222599983215332,
+            -0.49755001068115234
+          ],
+          "diagonal": 0.0049163177609443665
+        },
+        {
+          "label": 1321,
+          "faces": 18,
+          "share": 1.5011383632588046e-06,
+          "center": [
+            0.09921000152826309,
+            0.13477998971939087,
+            -0.3332599997520447
+          ],
+          "diagonal": 0.003745611757040024
+        },
+        {
+          "label": 826,
+          "faces": 16,
+          "share": 1.334345211785604e-06,
+          "center": [
+            -0.12352500110864639,
+            -0.1801449954509735,
+            -0.03215000033378601
+          ],
+          "diagonal": 0.0025805009063333273
+        },
+        {
+          "label": 1648,
+          "faces": 16,
+          "share": 1.334345211785604e-06,
+          "center": [
+            0.16944999992847443,
+            -0.18013499677181244,
+            -0.03214000165462494
+          ],
+          "diagonal": 0.002586143556982279
+        },
+        {
+          "label": 1871,
+          "faces": 14,
+          "share": 1.1675520603124035e-06,
+          "center": [
+            0.22362999618053436,
+            0.1938599944114685,
+            -0.29490500688552856
+          ],
+          "diagonal": 0.002338651567697525
+        },
+        {
+          "label": 1967,
+          "faces": 14,
+          "share": 1.1675520603124035e-06,
+          "center": [
+            0.23149000108242035,
+            0.20157499611377716,
+            -0.04247000068426132
+          ],
+          "diagonal": 0.0026237606070935726
+        },
+        {
+          "label": 650,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            -0.16599500179290771,
+            -0.18015000224113464,
+            -0.03214000165462494
+          ],
+          "diagonal": 0.001957372762262821
+        },
+        {
+          "label": 1377,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            0.11526499688625336,
+            -0.18020498752593994,
+            -0.032190002501010895
+          ],
+          "diagonal": 0.002036026446148753
+        },
+        {
+          "label": 1424,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            0.11965499818325043,
+            0.13772499561309814,
+            -0.3332799971103668
+          ],
+          "diagonal": 0.0017069895984604955
+        },
+        {
+          "label": 1960,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            0.2314850091934204,
+            0.22111999988555908,
+            -0.04299499839544296
+          ],
+          "diagonal": 0.002143023768439889
+        },
+        {
+          "label": 1966,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            0.23149999976158142,
+            0.20159000158309937,
+            -0.0459199994802475
+          ],
+          "diagonal": 0.0020682259928435087
+        },
+        {
+          "label": 2432,
+          "faces": 10,
+          "share": 8.339657573660026e-07,
+          "center": [
+            0.28236502408981323,
+            -0.19417500495910645,
+            0.15128999948501587
+          ],
+          "diagonal": 0.001037204870954156
+        },
+        {
+          "label": 453,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.19543999433517456,
+            -0.16815999150276184,
+            -0.03491999953985214
+          ],
+          "diagonal": 0.001097994390875101
+        },
+        {
+          "label": 465,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.19431500136852264,
+            -0.13964000344276428,
+            -0.336650013923645
+          ],
+          "diagonal": 0.0008302401984110475
+        },
+        {
+          "label": 504,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.19037500023841858,
+            -0.15633000433444977,
+            -0.03515499830245972
+          ],
+          "diagonal": 0.0008051081676967442
+        },
+        {
+          "label": 596,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.17755499482154846,
+            0.22262999415397644,
+            -0.2904449999332428
+          ],
+          "diagonal": 0.0005941350245848298
+        },
+        {
+          "label": 804,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.131850004196167,
+            -0.16606999933719635,
+            -0.03492499887943268
+          ],
+          "diagonal": 0.0012327567674219608
+        },
+        {
+          "label": 940,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            -0.07079499959945679,
+            0.1965399980545044,
+            -0.49819499254226685
+          ],
+          "diagonal": 0.0009725111303851008
+        },
+        {
+          "label": 2308,
+          "faces": 6,
+          "share": 5.003794544196015e-07,
+          "center": [
+            0.26842498779296875,
+            -0.17886999249458313,
+            0.452210009098053
+          ],
+          "diagonal": 0.0009060315787792206
+        }
+      ]
+    },
+    "preExportFaces": 11988678
+  },
+  "rawFaceCount": 11990792
+}

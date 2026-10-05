@@ -69,14 +69,21 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
+import {
+  ROOM_CHAIN_RECIPES,
+} from "@openclinxr/factory-stations/room-chain";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import type { Browser, Page } from "playwright";
+import {
+  deriveRoomEvidencePoses,
+  type RoomEvidencePoseArtifact,
+} from "../../asset-pipeline/environment/derive-room-evidence-poses.js";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   type PortlessDevServer,
   spawnPortlessDevServer,
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
-import type { Browser, Page } from "playwright";
 import {
   buildSceneClosureBundleJson,
   buildSceneClosureUrl,
@@ -115,54 +122,32 @@ const SET_AO_INTENSITY_SOURCE = `
 const STAGE2_GLB = process.env["STAGE2_CAPTURE_GLB"];
 const CAPTURE_ENVIRONMENT_ID = process.env["STAGE2_ENVIRONMENT_ID"] ?? "inpatient_ward_room_v1";
 const ENVIRONMENT_URLS: Record<string, string> = {
+  adult_ed_abdominal_bay_v1: "/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
+  behavioral_health_private_room_v1: "/xr-assets/environment/infinigen-behavioral-health-private.glb",
+  ed_exam_bay_v1: "/xr-assets/environment/infinigen-ed-exam-bay.glb",
+  ed_stroke_bay_v1: "/xr-assets/environment/infinigen-ed-stroke-bay.glb",
   inpatient_ward_room_v1: "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  ob_triage_room_v1: "/xr-assets/environment/infinigen-ob-triage.glb",
+  oncology_consult_room_v1: "/xr-assets/environment/infinigen-oncology-consult.glb",
+  pediatric_fever_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+  pediatric_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+  primary_care_clinic_room_v1: "/xr-assets/environment/infinigen-primary-care-clinic.glb",
   stepdown_room_v1: "/xr-assets/environment/infinigen-stepdown.glb",
+  surgical_ward_room_v1: "/xr-assets/environment/infinigen-surgical-ward.glb",
+  telehealth_home_visit_v1: "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+  urgent_care_clinic_room_v1: "/xr-assets/environment/infinigen-urgent-care-clinic.glb",
 };
 const SHIPPED_WARD_URL = ENVIRONMENT_URLS[CAPTURE_ENVIRONMENT_ID];
 if (SHIPPED_WARD_URL === undefined) throw new Error(`no capture URL for ${CAPTURE_ENVIRONMENT_ID}`);
 const FINISHED_WARD_GLB = STAGE2_GLB ? path.resolve(process.cwd(), STAGE2_GLB) : null;
+const HAND_PLACED_POSES: Partial<Record<string, string>> = {
+  // The ward remains the frozen known-good exception. Every other room-chain
+  // room derives its poses from its own GLB and recipe below.
+  inpatient_ward_room_v1: "tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json",
+};
 
 // Rigid x-shift for the two door-framing poses (see header). 0 = verbatim POSES.
 const POSE_DX = Number(process.env["STAGE2_POSE_DX"] ?? "0");
-
-const POSES = [
-  {
-    id: "runtime-01-toward-door",
-    eye: { x: -0.45, y: 1.6, z: -1.35 },
-    look: { x: 0.3, y: 1.35, z: -2.0 },
-    fov: 52,
-  },
-  {
-    id: "runtime-02-toward-bed-wall",
-    eye: { x: 0.25, y: 1.6, z: -1.5 },
-    look: { x: -0.15, y: 1.3, z: 1.95 },
-    fov: 55,
-  },
-  {
-    id: "runtime-03-ceiling-corner",
-    eye: { x: -1.75, y: 0.6, z: 1.5 },
-    look: { x: 0.25, y: 2.3, z: -0.25 },
-    fov: 62,
-  },
-  {
-    id: "runtime-04-door-inside",
-    eye: { x: 0.25, y: 1.5, z: -0.75 },
-    look: { x: 0.25, y: 1.4, z: -1.95 },
-    fov: 50,
-  },
-  {
-    id: "runtime-05-troffer-junction",
-    eye: { x: 0.6, y: 1.9, z: -0.5 },
-    look: { x: 0.0, y: 2.3, z: 0.0 },
-    fov: 45,
-  },
-  {
-    id: "runtime-06-floor-base",
-    eye: { x: 0.3, y: 0.55, z: 0.6 },
-    look: { x: -0.15, y: 0.1, z: 1.95 },
-    fov: 60,
-  },
-];
 
 const PLACE_CAMERA_SOURCE = `
 ((pose) => {
@@ -209,7 +194,7 @@ const PLACE_CAMERA_SOURCE = `
     if (typeof cam.lookAt === "function") cam.lookAt(lw.x, lw.y, lw.z);
     if (typeof cam.updateMatrixWorld === "function") cam.updateMatrixWorld(true);
     const e = cam.matrixWorld.elements;
-    return { ok: true, world: [e[12], e[13], e[14]] };
+    return { ok: true, world: [e[12], e[13], e[14]], near: cam.near };
   } catch (err) {
     return { ok: false, reason: "exception: " + (err?.message ?? String(err)) };
   }
@@ -253,23 +238,47 @@ const HIDE_NON_ROOM_SOURCE = `
 })()
 `;
 
-async function loadPoses(): Promise<Array<{
+type CapturePose = {
   id: string;
   eye: { x: number; y: number; z: number };
   look: { x: number; y: number; z: number };
   fov: number;
-}>> {
-  const posesFile = process.env["STAGE2_POSES_FILE"];
-  if (!posesFile) return POSES;
-  const raw = JSON.parse(await readFile(path.resolve(process.cwd(), posesFile), "utf8")) as Array<{
+};
+
+async function loadPoses(): Promise<{
+  poses: CapturePose[];
+  source: { kind: "explicit" | "hand-placed" | "derived"; path?: string };
+  derivation: RoomEvidencePoseArtifact | null;
+}> {
+  const explicit = process.env["STAGE2_POSES_FILE"];
+  const handPlaced = HAND_PLACED_POSES[CAPTURE_ENVIRONMENT_ID];
+  const posesFile = explicit ?? handPlaced;
+  if (!posesFile) {
+    const recipe = ROOM_CHAIN_RECIPES[CAPTURE_ENVIRONMENT_ID as keyof typeof ROOM_CHAIN_RECIPES];
+    if (!recipe) throw new Error(`no room-chain recipe for capture ${CAPTURE_ENVIRONMENT_ID}`);
+    const glbPath = FINISHED_WARD_GLB ?? path.resolve(process.cwd(), `apps/ui-xr/public${SHIPPED_WARD_URL}`);
+    const derivation = await deriveRoomEvidencePoses(glbPath, recipe);
+    return {
+      poses: derivation.poses.map((entry) => ({
+        id: entry.id,
+        eye: { x: entry.eye[0], y: entry.eye[1], z: entry.eye[2] },
+        look: { x: entry.look[0], y: entry.look[1], z: entry.look[2] },
+        fov: entry.verticalFovDeg,
+      })),
+      source: { kind: "derived" },
+      derivation,
+    };
+  }
+  const parsed = JSON.parse(await readFile(path.resolve(process.cwd(), posesFile), "utf8")) as Array<{
     id?: string;
     image?: string;
     eye: [number, number, number] | { x: number; y: number; z: number };
     look: [number, number, number] | { x: number; y: number; z: number };
     fov?: number;
     verticalFovDeg?: number;
-  }>;
-  return raw.map((entry) => {
+  }> | RoomEvidencePoseArtifact;
+  const raw = Array.isArray(parsed) ? parsed : parsed.poses;
+  const poses = raw.map((entry) => {
     const id =
       entry.id ?? `runtime-${(entry.image ?? "unknown").replace(/\.jpg$/, "")}`;
     const eye = Array.isArray(entry.eye)
@@ -278,10 +287,15 @@ async function loadPoses(): Promise<Array<{
     const look = Array.isArray(entry.look)
       ? { x: entry.look[0], y: entry.look[1], z: entry.look[2] }
       : entry.look;
-    const fov = entry.fov ?? entry.verticalFovDeg;
+    const fov = ("fov" in entry ? entry.fov : undefined) ?? entry.verticalFovDeg;
     if (fov === undefined) throw new Error(`pose ${id} has no fov/verticalFovDeg`);
     return { id, eye, look, fov };
   });
+  return {
+    poses,
+    source: { kind: explicit ? "explicit" : "hand-placed", path: posesFile },
+    derivation: Array.isArray(parsed) ? null : parsed,
+  };
 }
 
 const DUMP_MESHES_SOURCE = `
@@ -375,6 +389,11 @@ async function main(): Promise<void> {
     await createLocalComputeServices().sceneCapture.withBrowser("ward-finish-chain-capture", async (handle) => {
       const browser = handle as Browser;
         const page = await browser.newPage({ viewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT } });
+    page.on("console", (message) => process.stderr.write(`[page:${message.type()}] ${message.text()}\n`));
+    page.on("pageerror", (error) => process.stderr.write(`[page:error] ${error.stack ?? error.message}\n`));
+    page.on("response", (response) => {
+      if (response.status() >= 400) process.stderr.write(`[page:http] ${response.status()} ${response.url()}\n`);
+    });
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
@@ -385,21 +404,38 @@ async function main(): Promise<void> {
       process.stderr.write(`[environment] loading shipped runtime URL ${SHIPPED_WARD_URL} (no route override)\n`);
     }
 
-        await page.goto(buildSceneClosureUrl(runningServer.url), { waitUntil: "networkidle", timeout: 180_000 });
-    await page.waitForFunction(
-      () => {
-        const g = globalThis as unknown as { __openClinXrDebugScene?: { traverse: (fn: (o: never) => void) => void } };
-        const scene = g.__openClinXrDebugScene;
-        if (!scene?.traverse) return false;
-        let hull = false;
-        scene.traverse((o: { userData?: Record<string, unknown> }) => {
-          if (o.userData?.["openClinXrEnvironmentSource"] === "infinigen-generated-room") hull = true;
-        });
-        return hull;
-      },
-      undefined,
-      { timeout: 180_000 },
-    );
+    await page.goto(buildSceneClosureUrl(runningServer.url), { waitUntil: "networkidle", timeout: 180_000 });
+    try {
+      await page.waitForFunction(
+        () => {
+          const g = globalThis as unknown as { __openClinXrDebugScene?: { traverse: (fn: (o: never) => void) => void } };
+          const scene = g.__openClinXrDebugScene;
+          if (!scene?.traverse) return false;
+          let hull = false;
+          scene.traverse((o: { userData?: Record<string, unknown> }) => {
+            if (o.userData?.["openClinXrEnvironmentSource"] === "infinigen-generated-room") hull = true;
+          });
+          return hull;
+        },
+        undefined,
+        { timeout: 180_000 },
+      );
+    } catch (error) {
+      const diagnostic = await page.evaluate(() => {
+        const browserGlobal = globalThis as unknown as {
+          __openClinXrDebugScene?: unknown;
+          document: { body: { innerText: string }; title: string };
+          location: { href: string };
+        };
+        return {
+          href: browserGlobal.location.href,
+          title: browserGlobal.document.title,
+          body: browserGlobal.document.body.innerText.slice(0, 2000),
+          hasScene: Boolean(browserGlobal.__openClinXrDebugScene),
+        };
+      });
+      throw new Error(`room scene did not load: ${JSON.stringify(diagnostic)}; ${error instanceof Error ? error.message : String(error)}`);
+    }
     await page.waitForTimeout(3000);
     await page.evaluate(`${HIDE_UI_SOURCE}(${JSON.stringify({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT })})`);
     await page.waitForTimeout(300);
@@ -425,10 +461,11 @@ async function main(): Promise<void> {
       process.stdout.write(`[ao] aoMapIntensity=${AO_INTENSITY} materials=${applied.materials}\n`);
     }
 
-    const poses = await loadPoses();
+    const loadedPoses = await loadPoses();
+    const poses = loadedPoses.poses;
     process.stdout.write(
       `[poses] ${poses.length} pose(s)` +
-        (process.env["STAGE2_POSES_FILE"] ? ` from ${process.env["STAGE2_POSES_FILE"]}` : " (built-in)") +
+        (loadedPoses.source.path ? ` from ${loadedPoses.source.path}` : ` (${loadedPoses.source.kind})`) +
         "\n",
     );
 
@@ -496,8 +533,9 @@ async function main(): Promise<void> {
 
     const manifest: Array<Record<string, unknown>> = [];
     const only = process.env["STAGE2_MULTIVIEW_ONLY"];
+    const selected = only ? new Set(only.split(",").map((value) => value.trim()).filter(Boolean)) : null;
     for (const base of poses) {
-      if (only && base.id !== only) continue;
+      if (selected && !selected.has(base.id)) continue;
       const pose =
         base.id === "runtime-01-toward-door" || base.id === "runtime-04-door-inside"
           ? {
@@ -510,6 +548,7 @@ async function main(): Promise<void> {
         ok: boolean;
         reason?: string;
         world?: number[];
+        near?: number;
       };
       if (!placed.ok) throw new Error(`camera placement failed for ${pose.id}: ${placed.reason}`);
       await page.waitForTimeout(400);
@@ -518,7 +557,22 @@ async function main(): Promise<void> {
       const pngBytes = await readFile(png);
       const pngSha256 = createHash("sha256").update(pngBytes).digest("hex");
       process.stdout.write(`[capture] ${pose.id} (${pngBytes.length} bytes, sha256=${pngSha256.slice(0, 12)}…)\n`);
-      manifest.push({ ...pose, poseDx: POSE_DX, png, pngBytes: pngBytes.length, pngSha256 });
+      const derivedClearance = loadedPoses.derivation?.clearanceM[pose.id as keyof RoomEvidencePoseArtifact["clearanceM"]];
+      manifest.push({
+        ...pose,
+        poseDx: POSE_DX,
+        png,
+        pngBytes: pngBytes.length,
+        pngSha256,
+        nearPlaneM: placed.near ?? null,
+        ...(derivedClearance === undefined ? {} : {
+          wallClearanceM: derivedClearance,
+          nearPlaneWallCheck: {
+            passed: derivedClearance.minimum >= (placed.near ?? Number.POSITIVE_INFINITY),
+            rule: "minimum x/z wall clearance must be at least the live PerspectiveCamera near plane",
+          },
+        }),
+      });
     }
     await writeFile(
       path.join(outputDir, "stage2-multiview.json"),
@@ -527,6 +581,8 @@ async function main(): Promise<void> {
         environmentId: CAPTURE_ENVIRONMENT_ID,
         glb: FINISHED_WARD_GLB ?? SHIPPED_WARD_URL,
         mechanism: FINISHED_WARD_GLB ? "playwright-route-override" : "ui-xr-runtime-url",
+        poseSource: loadedPoses.source,
+        poseDerivation: loadedPoses.derivation,
         captures: manifest,
       }, null, 2)}\n`,
       "utf8",

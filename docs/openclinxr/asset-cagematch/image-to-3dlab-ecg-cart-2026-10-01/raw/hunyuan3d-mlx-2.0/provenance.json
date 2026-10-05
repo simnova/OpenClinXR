@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "openclinxr.generated-asset-provenance.v1",
+  "backend": "hunyuan3d-mlx",
+  "variant": "Xiong full pipeline 2.0; quantize8; octree512; paint resolution 512; texture 4096",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "weightRevisions": {"shape": "9cd649ba6913f7a852e3286bad86bfa9a2d83dcf", "paint": "b56e8b86b4d1e62b0bb3bbef7e2070d6ec22620e"},
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "parameters": {"seed": 42, "paintSeed": 0, "textureResolution": 4096},
+  "output": {"path": "ecg-cart.glb", "sha256": "d3d7b939ee25d3c8e4b1aeb8e6ecfa94d37760af98aac8b2a7b0177bc0968c0c", "bytes": 23866240, "triangles": 300000},
+  "execution": {"service": "GpuJobService", "wallSeconds": 889.46, "peakRssBytes": 10075832320, "recovery": "completed output copied after cross-volume os.replace EXDEV"},
+  "license": {"name": "Tencent Hunyuan3D-2 Community License", "madr": "docs/madr/0046-licence-gate-parameters-revenue-and-territory.md"},
+  "territoryFlag": "US-hosted deployment only; blocked from EU, UK, and South Korea",
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "production adoption"]
+}

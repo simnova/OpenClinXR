@@ -363,7 +363,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e293b,
     keyLightIntensity: 1.9,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    fixtureSlots: [OFFSET_CHAIR, DOOR_LEAF, WORK_SURFACE, LEARNER_START],
+    // Longitudinal joint exam: the patient is supine on the declared exam-table support.
+    fixtureSlots: [OFFSET_CHAIR, DOOR_LEAF, EXAM_WORK_SURFACE, LEARNER_START],
   }),
   pediatric_fever_urgent_care_bay_v1: shell({
     environmentId: "pediatric_fever_urgent_care_bay_v1",

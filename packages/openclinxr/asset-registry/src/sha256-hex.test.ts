@@ -68,6 +68,7 @@ function checkBytesAgainstBoundDigest(bytes: Buffer, boundSha256: string) {
       caseContentSha256: NIST[0][1],
       stationId: "station",
       environmentId: "env",
+      walkerRole: "learner",
     },
     bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
     instances: [
@@ -193,6 +194,7 @@ describe("sha256Hex matches FIPS 180-4 and node:crypto", () => {
           caseContentSha256: NIST[0][1],
           stationId: "station",
           environmentId: "env",
+          walkerRole: "learner",
         },
         bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
         instances: [
@@ -270,6 +272,7 @@ describe("sha256Hex matches FIPS 180-4 and node:crypto", () => {
           caseContentSha256: NIST[0][1],
           stationId: "station",
           environmentId: "env",
+          walkerRole: "learner",
         },
         bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
         instances: [
@@ -346,6 +349,7 @@ describe("sha256Hex matches FIPS 180-4 and node:crypto", () => {
           caseContentSha256: NIST[0][1],
           stationId: "station",
           environmentId: "env",
+          walkerRole: "learner",
         },
         bundle: { bundleId: "bundle", bundleSha256: nodeSha256Hex("null") },
         instances: [

@@ -1,0 +1,14 @@
+{
+  "renders": [
+    {
+      "mode": "colour",
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-colour.png",
+      "seconds": 1.6240639686584473
+    },
+    {
+      "mode": "clay",
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/stage-isolation/raw-fullres-clay.png",
+      "seconds": 1.1855871677398682
+    }
+  ]
+}

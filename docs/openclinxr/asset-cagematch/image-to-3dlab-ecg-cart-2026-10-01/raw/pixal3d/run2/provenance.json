@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "openclinxr.generated-asset-provenance.v1",
+  "backend": "pixal3d",
+  "replayOf": "../run1/ecg-cart.json",
+  "labCommit": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+  "weightRevision": "46d399ac986f45a0d7f5b1ca5058614d8729a131",
+  "inputSha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+  "parameters": {"seed": 42, "steps": 8, "gss": 10.0, "fovRadians": 0.34906585, "resolution": 1024},
+  "output": {"path": "ecg-cart.glb", "sha256": "faa9a4c9b26557f038b9744f7fbf6ea4d77aac3f40b45e0ad732cb2f007d11fa", "bytes": 37277492, "triangles": 987666},
+  "execution": {"service": "GpuJobService", "wallSeconds": 457.55, "peakRssBytes": 5087232000},
+  "byteIdenticalToRun1": false,
+  "license": {"code": "Apache-2.0 lab / MIT Pixal3D port", "encoder": "DINOv3; commercial posture recorded in MADR 0049"},
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "production adoption"]
+}

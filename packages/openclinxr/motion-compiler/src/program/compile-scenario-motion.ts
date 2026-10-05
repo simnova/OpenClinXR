@@ -194,9 +194,9 @@ export function effectorForComplianceRegion(region: string): MotionEffector {
 export function postureForSupportSurface(supportSurface: string | undefined): string {
   if (supportSurface === undefined || supportSurface === "none") return "standing";
   if (supportSurface === "chair") return "seated";
-  if (supportSurface === "stretcher") return "supine";
+  if (supportSurface === "stretcher" || supportSurface === "exam_table") return "supine";
   throw new Error(
-    `compileScenarioMotion: unknown supportSurface "${supportSurface}" — the planner only knows chair | stretcher | none`,
+    `compileScenarioMotion: unknown supportSurface "${supportSurface}" — the planner only knows chair | stretcher | exam_table | none`,
   );
 }
 

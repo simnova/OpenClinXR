@@ -11,7 +11,8 @@ export const wardDeliriumScenario = draftScenario({
     "Mitigate fall risk and communicate a concise team plan",
   ],
   actors: [
-    actor(
+    {
+      ...actor(
       "patient_margaret_ellis_v1",
       "patient",
       "Margaret Ellis",
@@ -34,8 +35,11 @@ export const wardDeliriumScenario = draftScenario({
         culturalLanguageNotes: ["older-adult respectful address", "hearing-aware pacing", "plain-language delirium framing"],
       },
       "I need to go home. Where is my daughter? I cannot hear you well.",
-    ),
-    actor(
+      ),
+      placement: { supportSurface: "bed", plantOffsetMeters: { x: 0.45, y: 0, z: -0.2 } },
+    },
+    {
+      ...actor(
       "daughter_lena_ellis_v1",
       "family",
       "Lena Ellis",
@@ -53,8 +57,11 @@ export const wardDeliriumScenario = draftScenario({
         escalationTriggers: ["family_sidelined", "delirium_minimized", "medication_list_ignored"],
         culturalLanguageNotes: ["family collateral partnership", "avoid blame", "ask permission before using phone list"],
       },
-    ),
-    actor(
+      ),
+      placement: { supportSurface: "none", plantOffsetMeters: { x: -1.4, y: 0, z: 0.5 }, headingRadians: 2.271 },
+    },
+    {
+      ...actor(
       "ward_nurse_patel_v1",
       "nurse",
       "Nurse Patel",
@@ -72,7 +79,9 @@ export const wardDeliriumScenario = draftScenario({
         escalationTriggers: ["ambiguous_safety_plan", "ignored_bed_exit", "delayed_team_escalation"],
         culturalLanguageNotes: ["closed-loop team communication", "ward safety language", "respect nursing observations"],
       },
-    ),
+      ),
+      placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: 0.5 }, headingRadians: 3.142 },
+    },
     {
       // #665 — the senior resident's described identity. This actor had NO
       // authored phenotype: the resolved-spec export carried zero entries for it,
@@ -101,6 +110,7 @@ export const wardDeliriumScenario = draftScenario({
           culturalLanguageNotes: ["SBAR-style handoff", "prioritized inpatient reasoning", "respectful teaching tone"],
         },
       ),
+      placement: { supportSurface: "none", plantOffsetMeters: { x: 0.5, y: 0, z: 0.5 }, headingRadians: -2.271 },
       phenotype: {
         age: 34,
         body_profile: "adult_clinical_physician",

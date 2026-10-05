@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "openclinxr.trellis2-ecg-cart-round4.v1",
+  "status": "candidate for coordinator grade; not adopted",
+  "conditioning": {
+    "path": "../inputs/ecg-cart-oracle-matted.png",
+    "sha256": "add8fdc1534bf467ba88835d46fca404b89ed34fb5651ab58884a9ea9396dd82",
+    "viewCount": 1
+  },
+  "generation": {
+    "sourceRaw": "../round3/raw/trellis2/ecg-cart.glb",
+    "sourceRawSha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794",
+    "seed": 42,
+    "seedNote": "Top-level checkpoint seed 42 is authoritative; the recovery wrapper's nested params.seed=0 is an unused demo default.",
+    "pipelineType": "1024_cascade",
+    "resolution": 1024,
+    "attentionBackend": "sdpa",
+    "sparseAttentionBackend": "sdpa",
+    "loadRembg": false,
+    "sparseStructure": {"steps": 12, "guidanceStrength": 7.5, "guidanceRescale": 0.7, "guidanceInterval": [0.6, 1.0], "rescaleT": 5.0},
+    "shapeSlat": {"steps": 12, "guidanceStrength": 7.5, "guidanceRescale": 0.5, "guidanceInterval": [0.6, 1.0], "rescaleT": 3.0},
+    "texSlat": {"steps": 12, "guidanceStrength": 1.0, "guidanceRescale": 0.0, "guidanceInterval": [0.6, 0.9], "rescaleT": 3.0},
+    "export": {"remesh": false, "remeshBand": 1, "remeshProject": 0, "cpuPreCapFaces": 300000, "metalDecimationTarget": 400000, "textureSize": 2048}
+  },
+  "revisions": {
+    "imageTo3dLab": "5ed8e9850d23515c424abc62fbca498e6da52f27",
+    "trellis2Space": "ebf60b20fc5a4607f90a1c11c0aab0ceeda5429d",
+    "trellis2ApplePin": "6055b868734af6e12769d229d90580e775fae9f0",
+    "trellis2Weights": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "dinov3Weights": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+    "meshoptimizer": "1.0.1",
+    "gltfTransform": "4.3.0"
+  },
+  "budgetTreatment": {
+    "script": "optimize-treatment.mts",
+    "method": "MeshoptSimplifier.simplifyWithAttributes",
+    "targetTriangles": 40000,
+    "targetError": 1,
+    "flags": ["Permissive"],
+    "normalWeights": [1, 1, 1],
+    "uvWeights": [64, 64],
+    "textureResize": {"width": 512, "height": 512, "filter": "Lanczos3", "format": "WebP"},
+    "result": {"path": "treatments/t4-uv64-512/ecg-cart.glb", "triangles": 39860, "decodedTextureMiB": 2, "sha256": "0a55256c4007fa4bb98e3b16145fc1cb0d74977b31b100de4737ed7daa7ec930"}
+  },
+  "licence": "TRELLIS.2 MIT plus DINOv3 commercial use permitted per MADR 0049; no territory limit.",
+  "claimScope": "reproduction of the measured Round-4 candidate from the retained Round-3 raw GLB",
+  "notEvidenceFor": ["Quest readiness", "clinical accuracy", "runtime adoption", "adoption before coordinator grade"]
+}

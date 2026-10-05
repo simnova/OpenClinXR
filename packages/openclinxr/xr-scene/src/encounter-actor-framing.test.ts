@@ -102,6 +102,25 @@ describe("the visual-review framing pass does not silently discard a declared pl
     ).toBe("ob_patient_standing_beside_offset_stretcher_clear_of_deck_and_work_surface");
   });
 
+  it("(4) keeps a complete case-authored standing placement instead of replacing it with a review slot", () => {
+    const actor = actorWithDeclaredPlacement();
+    actor.userData.openClinXrActorPosture = "standing";
+    actor.userData.openClinXrPreserveResolvedPlacement = true;
+    applyCleanEncounterVisualReviewActorFraming({
+      actor,
+      actorId: "nurse_x",
+      scenarioId: "adult_abdominal_pain_v1",
+      role: "nurse",
+      posture: "standing",
+      skipFraming: false,
+    });
+    expect(actor.position.toArray()).toEqual([1.234, 0, 5.678]);
+    expect(actor.userData.openClinXrFramingOverrodePlacement).toBeUndefined();
+    expect(actor.userData.openClinXrEncounterStaging).toBe(
+      "standing_actor_keeps_case_authored_bedside_position_and_heading",
+    );
+  });
+
   /**
    * ## FIXED (#175)
    *

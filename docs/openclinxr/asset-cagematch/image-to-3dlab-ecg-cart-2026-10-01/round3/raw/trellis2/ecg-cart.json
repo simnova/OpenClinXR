@@ -1,0 +1,62 @@
+{
+  "artifacts": {
+    "decode": {
+      "bytes": 314095917,
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round3-trellis/ecg-cart_decode.pt",
+      "sha256": "c5824565f88c360319fcf8af884511d4d74d73d48bb62fdc8a5c5d285dc15c5e"
+    },
+    "glb": {
+      "bytes": 12425028,
+      "path": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round3-trellis/ecg-cart.glb",
+      "sha256": "4b76898580f0904792dc5658ec6cf081790d3286151f3976beb317abc87e6794"
+    }
+  },
+  "attn_backend": "sdpa",
+  "device": "mps",
+  "generator": "trellis_space_generate.py",
+  "input": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/inputs/ecg-cart-oracle-matted.png",
+  "load_rembg": false,
+  "output": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round3-trellis/ecg-cart.glb",
+  "params": {
+    "decimation_target": 400000,
+    "pre_cap_faces": 300000,
+    "remesh": {
+      "remesh": false,
+      "remesh_band": 1,
+      "remesh_project": 0
+    },
+    "resolution": "1024",
+    "seed": 0,
+    "shape_slat": {
+      "guidance_rescale": 0.5,
+      "guidance_strength": 7.5,
+      "rescale_t": 3.0,
+      "steps": 12
+    },
+    "sparse_structure": {
+      "guidance_rescale": 0.7,
+      "guidance_strength": 7.5,
+      "rescale_t": 5.0,
+      "steps": 12
+    },
+    "tex_slat": {
+      "guidance_rescale": 0.0,
+      "guidance_strength": 1.0,
+      "rescale_t": 3.0,
+      "steps": 12
+    },
+    "texture_size": 2048
+  },
+  "pipeline_type": "1024_cascade",
+  "port": "trellis-space-mac (clean upstream HF Space, MPS)",
+  "resumed_from_decode": "/Volumes/files/src/openclinxr-wt/image-to-3dlab-cagematch/.openclinxr/round3-trellis/ecg-cart_decode.pt",
+  "schema_version": 1,
+  "seed": 42,
+  "sparse_attn_backend": "sdpa",
+  "sparse_attn_dtype": null,
+  "timings_seconds": {
+    "bake": 37.11932396888733,
+    "load_decode_bundle": 38.622411012649536,
+    "total": 38.62241315841675
+  }
+}

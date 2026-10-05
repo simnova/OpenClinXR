@@ -21,30 +21,33 @@
  * (name + baseColorTexture presence + image bytes) so the floor-white
  * diagnosis reads file state, not renders.
  */
+
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { MeshoptDecoder } from "meshoptimizer";
 import { runLightingDesign } from "../lighting_design/run.js";
 import { repoRoot } from "../repo-root.js";
+import { type RoomFinishFeatures, validateRoomFinishFeatures } from "../room_clinic_finish/finish-features.js";
 import { runRoomClinicFinish } from "../room_clinic_finish/run.js";
 import { runRoomGenerate } from "../room_generate/run.js";
-import { roomChainRecipeFor } from "./recipes.js";
-export { RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
 import {
+  type CollectStageKeyResult,
   collectStageKeyInputs,
   lookupStageCache,
+  type RoomChainCacheStage,
   readCachedResult,
   restoreStageCache,
   scrubLightingKeyInput,
   storeStageCache,
-  type CollectStageKeyResult,
-  type RoomChainCacheStage,
 } from "./cache.js";
+import { occlusionExcludesParam, roomChainRecipeFor } from "./recipes.js";
+
+export { paintedCeilingOcclusionExcludes, RoomChainRecipeValidationError, validateRoomChainRecipe } from "./recipes.js";
 
 export const WARD_CHAIN_OUT_DIR = ".openclinxr/evidence/ward-finish-chain";
 // Measured 2026-09-28: a real chain albedo bake took 757 s (log timestamps
@@ -207,6 +210,7 @@ export type RoomChainRunOptions = {
   outDir?: string;
   passTimeoutMs?: number;
   noCache?: boolean;
+  finishOverride?: RoomFinishFeatures;
 };
 
 export type RoomChainRunResult = {
@@ -230,6 +234,9 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
   const outDirArg = options.outDir ?? WARD_CHAIN_OUT_DIR;
   const passTimeoutMs = options.passTimeoutMs ?? WARD_CHAIN_PASS_TIMEOUT_MS;
   const noCache = options.noCache ?? false;
+  const effectiveFinish = options.finishOverride === undefined
+    ? recipe.finish
+    : validateRoomFinishFeatures(options.finishOverride, "room chain finish override");
   // One base keeps Node audits and Blender stages aligned under package-filtered invocations.
   const outDir = resolveChainOutDir(outDirArg);
   const blender = process.env["BLENDER"] ?? "blender";
@@ -327,7 +334,8 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     seed,
     layoutVariant: recipe.layoutVariant,
     footprintMeters: { ...recipe.footprintMeters },
-    door: { ...recipe.door, liteRect: [...recipe.door.liteRect] },
+    door: { ...recipe.door, ...(recipe.door.liteRect === undefined ? {} : { liteRect: [...recipe.door.liteRect] }) },
+    ...occlusionExcludesParam(effectiveFinish),
   };
   await waitForBlenderSlot();
   process.stdout.write(`[ward-chain] stage 1 room_generate seed=${seed} ...\n`);
@@ -374,13 +382,16 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     environmentId: recipe.environmentId,
     preset: recipe.finishPreset,
     seed,
-    ...(recipe.finish === undefined ? {} : { finish: recipe.finish }),
+    ...(effectiveFinish === undefined ? {} : { finish: effectiveFinish }),
     // Ward door furniture: hinge plates mount on this jamb; the lite
     // fractions place the glass/frame when the leaf carries no cut
     // opening (same rect the generate stage cuts, mirrored + margin
     // mapped). The environment recipe is the single source.
-    door: { hingeSide: recipe.door.hingeSide, lite: [...recipe.door.liteRect],
-            margin: recipe.door.panelMarginM },
+    door: { hingeSide: recipe.door.hingeSide,
+            ...(recipe.door.liteRect === undefined ? {} : { lite: [...recipe.door.liteRect] }),
+            margin: recipe.door.panelMarginM,
+            ...(recipe.door.transom === undefined ? {} : { transom: recipe.door.transom }),
+            ...(recipe.door.kickPlate === undefined ? {} : { kickPlate: recipe.door.kickPlate }) },
   };
   const finishKey = collectKey("room_clinic_finish", finishInput, workGlb, genKey);
   const finishResult = await runCachedStage(
@@ -440,7 +451,7 @@ export async function runRoomChain(options: RoomChainRunOptions): Promise<RoomCh
     footprintMeters: recipe.footprintMeters,
     door: recipe.door,
     preset: recipe.finishPreset,
-    finish: recipe.finish,
+    finish: effectiveFinish,
     mood: recipe.lightingMood,
     cache: cacheStatus,
     workGlb,

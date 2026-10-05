@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "openclinxr.room-transom-proof.v1",
+  "environmentId": "stepdown_room_v1",
+  "sourceGlbSha256": "9de38a91f79586cf76ec0fe22d9eb68975faa9a7fa618b03e31344bb46458f25",
+  "measurementMeters": {
+    "openingHead": 2.6,
+    "doorAndCasingHead": 2.155,
+    "gap": 0.445,
+    "closeThreshold": 0.0275
+  },
+  "geometry": {
+    "node": "openclinxr_door_transom_infill",
+    "mode": "infill",
+    "wallPlane": 1.5449,
+    "coplanarToleranceMeters": 0.005,
+    "wallMaterialSource": "shell_bake_wall",
+    "wardHasTransomNode": false
+  },
+  "runtimePixelBoxes": [
+    {
+      "pose": "runtime-01-toward-door",
+      "transomBox": [650, 185, 760, 225],
+      "adjacentWallBox": [520, 185, 630, 225],
+      "transomMeanRgb": [204.48, 203.09, 198.9],
+      "adjacentWallMeanRgb": [202.84, 199.99, 196.77],
+      "deltaRgb": [1.64, 3.1, 2.12],
+      "minimumChannel": 198
+    },
+    {
+      "pose": "runtime-04-door-inside",
+      "transomBox": [555, 75, 690, 140],
+      "adjacentWallBox": [370, 75, 500, 140],
+      "transomMeanRgb": [204.38, 202.98, 198.82],
+      "adjacentWallMeanRgb": [203.74, 200.89, 197.7],
+      "deltaRgb": [0.64, 2.09, 1.12],
+      "minimumChannel": 156
+    },
+    {
+      "pose": "runtime-05-troffer-junction",
+      "transomBox": [370, 500, 465, 550],
+      "adjacentWallBox": [250, 490, 340, 530],
+      "transomMeanRgb": [202.81, 201.43, 197.21],
+      "adjacentWallMeanRgb": [202.4, 199.44, 196.13],
+      "deltaRgb": [0.41, 1.99, 1.08],
+      "minimumChannel": 158
+    }
+  ],
+  "cropVerification": "Each box was inspected against its full-resolution 1280x720 learner-runtime capture and lies inside the former navy transom region or a clean adjacent wall patch; no box crosses the casing, crown trim, ceiling, or door leaf.",
+  "pixelGate": {
+    "matchedPose04Measurement": "door-reference-measurements.json",
+    "maximumAbsoluteMeanDeltaPerChannel": 3,
+    "maximumBoundaryColumnStep": 4,
+    "minimumAllowedChannel": 80,
+    "passed": true
+  },
+  "wardNoOp": {
+    "beforeSha256": "70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833",
+    "afterSha256": "70a17a751a41d275ce780a96defe7b818c8d94f622772b8d9a46969d8fbdc833",
+    "changed": []
+  },
+  "notEvidenceFor": ["clinical validity", "exam equivalence", "Quest readiness", "production readiness"]
+}

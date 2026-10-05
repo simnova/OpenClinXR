@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.stage2-multiview.v1",
+  "environmentId": "behavioral_health_private_room_v1",
+  "glb": "/xr-assets/environment/infinigen-behavioral-health-private.glb",
+  "mechanism": "ui-xr-runtime-url",
+  "poseSource": {
+    "kind": "explicit",
+    "path": "docs/openclinxr/room-realism/brown-band/frozen-poses-behavioral_health_private_room_v1.json"
+  },
+  "poseDerivation": null,
+  "captures": [
+    {
+      "id": "runtime-01-toward-door",
+      "eye": {
+        "x": -0.52907,
+        "y": 1.6,
+        "z": 2.442462
+      },
+      "look": {
+        "x": -0.133721,
+        "y": 1.347083,
+        "z": -2.79
+      },
+      "fov": 49.822514,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-01-toward-door.png",
+      "pngBytes": 543116,
+      "pngSha256": "38a177fefa07add1323f4f5a8193e2bc4915057dfe50c69b079aceed81b1a0d5",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-02-toward-bed-wall",
+      "eye": {
+        "x": -0.348837,
+        "y": 1.6,
+        "z": -2.261538
+      },
+      "look": {
+        "x": 0,
+        "y": 1.380208,
+        "z": 2.79
+      },
+      "fov": 44.594606,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-02-toward-bed-wall.png",
+      "pngBytes": 506025,
+      "pngSha256": "c8bc5c8d3fe8f4625fccc28b8a1b58c36318adc7940dff58c075d2e946a95787",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-03-ceiling-corner",
+      "eye": {
+        "x": -0.581395,
+        "y": 1.6,
+        "z": 1.356923
+      },
+      "look": {
+        "x": 0,
+        "y": 2.5,
+        "z": -0.753827
+      },
+      "fov": 35.852384,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-03-ceiling-corner.png",
+      "pngBytes": 213487,
+      "pngSha256": "2641611c5d0dd5efb0000d19f3b9d69d7932ff1e56c0599da9b7c5968019a225",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-04-door-inside",
+      "eye": {
+        "x": -0.738372,
+        "y": 1.6,
+        "z": 2.442462
+      },
+      "look": {
+        "x": 0.25,
+        "y": 1.380208,
+        "z": -2.79
+      },
+      "fov": 30.002928,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-04-door-inside.png",
+      "pngBytes": 714168,
+      "pngSha256": "682050b76d124355609740c420cd47b888401f35f4a07cb82e057058e3465b2d",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-05-troffer-junction",
+      "eye": {
+        "x": -2.2,
+        "y": 1.6,
+        "z": 2.261538
+      },
+      "look": {
+        "x": 0,
+        "y": 2.95,
+        "z": 0.000019
+      },
+      "fov": 44,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-05-troffer-junction.png",
+      "pngBytes": 199507,
+      "pngSha256": "08c29c5427796a0e0c40c1968922be96c07fd1e338dbbc89952242a8f6192fc2",
+      "nearPlaneM": 0.1
+    },
+    {
+      "id": "runtime-06-floor-base",
+      "eye": {
+        "x": -0.023256,
+        "y": 0.32,
+        "z": 0
+      },
+      "look": {
+        "x": 0,
+        "y": 0.05,
+        "z": 2.94
+      },
+      "fov": 38.096931,
+      "poseDx": 0,
+      "png": "/Volumes/files/src/openclinxr-wt/brown-band/docs/openclinxr/room-realism/brown-band/after-behavioral/runtime-06-floor-base.png",
+      "pngBytes": 426561,
+      "pngSha256": "9d306648b916449d32985e05a0d6163d989c5c404b858ceffc56c35faa8d9431",
+      "nearPlaneM": 0.1
+    }
+  ]
+}

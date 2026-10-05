@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 def argv_map() -> dict[str, str]:
@@ -65,6 +65,31 @@ def mesh_bounds() -> tuple[Vector, Vector]:
     return mins, maxs
 
 
+def normalize_mesh_extent(target_center: Vector, target_extent: float) -> None:
+    """Uniformly fit imported geometry to a frozen control extent and center.
+
+    Generator backends export arbitrary coordinate scales. This render-only transform
+    keeps the frozen control camera/lens meaningful without changing source GLB bytes.
+    """
+    mins, maxs = mesh_bounds()
+    source_center = (mins + maxs) * 0.5
+    source_extent = max((maxs - mins).x, (maxs - mins).y, (maxs - mins).z)
+    if source_extent <= 0.0:
+        raise RuntimeError("cannot normalize zero-extent mesh")
+    scale = target_extent / source_extent
+    transform = (
+        Matrix.Translation(target_center)
+        @ Matrix.Diagonal((scale, scale, scale, 1.0))
+        @ Matrix.Translation(-source_center)
+    )
+    for obj in [candidate for candidate in bpy.data.objects if candidate.type == "MESH"]:
+        obj.data.transform(obj.matrix_world)
+        obj.matrix_world = Matrix.Identity(4)
+        obj.data.transform(transform)
+        obj.data.update()
+    bpy.context.view_layer.update()
+
+
 def setup_world_light() -> None:
     world = bpy.data.worlds.new("Studio")
     bpy.context.scene.world = world
@@ -95,6 +120,28 @@ def setup_world_light() -> None:
     area("Rim", Vector((0.2, 2.5, 2.0)), 60, 1.5)
 
 
+def apply_material_mode(mode: str) -> None:
+    """Optionally replace imported materials for geometry-only diagnosis."""
+    if mode == "source":
+        return
+    if mode != "clay":
+        raise ValueError(f"unknown material mode: {mode}")
+    material = bpy.data.materials.new("DiagnosticClay")
+    material.diffuse_color = (0.42, 0.45, 0.48, 1.0)
+    material.use_nodes = True
+    principled = material.node_tree.nodes.get("Principled BSDF")
+    if principled is None:
+        raise RuntimeError("diagnostic clay material has no Principled BSDF")
+    principled.inputs["Base Color"].default_value = (0.42, 0.45, 0.48, 1.0)
+    principled.inputs["Metallic"].default_value = 0.0
+    principled.inputs["Roughness"].default_value = 0.72
+    for obj in bpy.data.objects:
+        if obj.type != "MESH":
+            continue
+        obj.data.materials.clear()
+        obj.data.materials.append(material)
+
+
 def setup_camera(center: Vector, radius: float, elev_deg: float, azim_deg: float) -> bpy.types.Object:
     cam_data = bpy.data.cameras.new("PackCam")
     cam_data.lens = 50
@@ -119,7 +166,7 @@ def setup_camera(center: Vector, radius: float, elev_deg: float, azim_deg: float
     return cam
 
 
-def render_view(out_path: Path, resolution: int) -> None:
+def render_view(out_path: Path, resolution: int, transparent: bool = False) -> None:
     scene = bpy.context.scene
     # Prefer EEVEE (Blender 5.1 enum is BLENDER_EEVEE; some builds expose EEVEE_NEXT).
     engines = {e.identifier for e in scene.render.bl_rna.properties["engine"].enum_items}
@@ -134,8 +181,8 @@ def render_view(out_path: Path, resolution: int) -> None:
     scene.render.resolution_y = resolution
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
-    scene.render.image_settings.color_mode = "RGB"
-    scene.render.film_transparent = False
+    scene.render.image_settings.color_mode = "RGBA" if transparent else "RGB"
+    scene.render.film_transparent = transparent
     scene.render.filepath = str(out_path)
     bpy.ops.render.render(write_still=True)
 
@@ -145,6 +192,7 @@ def main() -> None:
     glb = args.get("glb")
     out_dir = args.get("out-dir")
     resolution = int(args.get("resolution", "1024"))
+    transparent = args.get("transparent", "false").lower() in {"1", "true", "yes"}
     if not glb or not out_dir:
         raise SystemExit("need --glb and --out-dir")
     out = Path(out_dir)
@@ -152,6 +200,8 @@ def main() -> None:
 
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=glb)
+    material_mode = args.get("material-mode", "source")
+    apply_material_mode(material_mode)
     bpy.context.view_layer.update()
     mins, maxs = mesh_bounds()
     size = maxs - mins
@@ -165,6 +215,12 @@ def main() -> None:
         freeze = json.loads(Path(freeze_in).read_text(encoding="utf-8"))
         center = Vector((float(freeze["center"][0]), float(freeze["center"][1]), float(freeze["center"][2])))
         radius = float(freeze["radius"])
+        normalize_extent = args.get("normalize-extent")
+        if normalize_extent:
+            normalize_mesh_extent(center, float(normalize_extent))
+            mins, maxs = mesh_bounds()
+            size = maxs - mins
+            extent = max(size.x, size.y, size.z)
     if freeze_out:
         Path(freeze_out).write_text(
             json.dumps(
@@ -218,7 +274,7 @@ def main() -> None:
                 bpy.data.objects.remove(obj, do_unlink=True)
         setup_camera(center, radius, elev, azim)
         path = out / name
-        render_view(path, resolution)
+        render_view(path, resolution, transparent=transparent)
         written.append(
             {
                 "view": name,
@@ -235,6 +291,8 @@ def main() -> None:
         "outDir": str(out),
         "preset": preset,
         "resolution": resolution,
+        "transparent": transparent,
+        "materialMode": material_mode,
         "center": [center.x, center.y, center.z],
         "extentM": extent,
         "radiusM": radius,

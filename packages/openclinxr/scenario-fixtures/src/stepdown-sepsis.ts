@@ -11,7 +11,7 @@ export const stepdownSepsisScenario = draftScenario({
     "Initiate early management plan and document urgency",
   ],
   actors: [
-    actor("patient_helen_carter_v1", "patient", "Helen Carter", "feverish, confused, shivering, short of breath", [
+    { ...actor("patient_helen_carter_v1", "patient", "Helen Carter", "feverish, confused, shivering, short of breath", [
       "Sepsis from pneumonia is possible",
       "Penicillin allergy was a childhood rash",
       "Productive cough and hypotension trend are present",
@@ -25,8 +25,8 @@ export const stepdownSepsisScenario = draftScenario({
       ["breathing_acknowledged", "focused_questions", "allergy_clarified_plainly"],
       ["oxygen_delay", "infection_source_ignored", "hypotension_not_explained"],
       ["confusion-aware pacing", "plain sepsis language", "allergy history humility"],
-    ), "I feel worse than this morning, and I am shaking again."),
-    actor("stepdown_nurse_rivera_v1", "nurse", "Nurse Rivera", "worried, assertive, reports worsening vitals", [
+    ), "I feel worse than this morning, and I am shaking again."), placement: { supportSurface: "bed", plantOffsetMeters: { x: 0.45, y: 0, z: -0.2 } } },
+    { ...actor("stepdown_nurse_rivera_v1", "nurse", "Nurse Rivera", "worried, assertive, reports worsening vitals", [
       "Blood pressure dropped compared with one hour ago",
     ], satirProfile(
       "angry_family_member",
@@ -38,8 +38,8 @@ export const stepdownSepsisScenario = draftScenario({
       ["vitals_trend_requested", "sepsis_priority_named", "nurse_role_clarified"],
       ["ignored_bp_drop", "ambiguous_orders", "team_priority_missing"],
       ["assertive nurse advocacy", "closed-loop deterioration language", "respect escalation concerns"],
-    )),
-    actor("respiratory_therapist_ng_v1", "respiratory_therapist", "Respiratory Therapist Ng", "asks for respiratory priorities when oxygen saturation falls", [
+    )), placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: 0.5 }, headingRadians: 3.142 } },
+    { ...actor("respiratory_therapist_ng_v1", "respiratory_therapist", "Respiratory Therapist Ng", "asks for respiratory priorities when oxygen saturation falls", [
       "Can escalate oxygen support if learner prioritizes it",
     ], satirProfile(
       "rationalizer",
@@ -51,7 +51,7 @@ export const stepdownSepsisScenario = draftScenario({
       ["oxygen_escalation_requested", "target_saturation_named", "team_priority_shared"],
       ["ignored_desaturation", "vague_resp_order", "sepsis_plan_without_airway"],
       ["respiratory escalation language", "team priority framing", "closed-loop oxygen support"],
-    )),
+    )), placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: -1.1 }, headingRadians: 0 } },
   ],
   requiredTraceTags: [
     "sepsis_recognition",

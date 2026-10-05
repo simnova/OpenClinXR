@@ -61,7 +61,7 @@
       "position": {
         "x": 2.25,
         "y": 0.9,
-        "z": -1.0
+        "z": -1
       },
       "scale": {
         "x": 0.7,
@@ -113,13 +113,78 @@
     "title": "Psych Safety Assessment",
     "subtitle": "Quiet room with safe furniture, visible door, privacy constraints, and nurse access for safety observation.",
     "chiefConcern": "I do not feel safe being alone right now.",
-    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-    "interruption": "Not charted \u2014 observe interruptions during the encounter",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
+    "interruption": "Not charted — observe interruptions during the encounter",
     "stageAriaLabel": "Behavioral Health Private Interview Room station scene",
     "canvasAriaLabel": "3D Behavioral Health Private Interview Room preview",
     "initialDialogueText": "Jordan Reed: I do not feel safe being alone right now.",
     "initialVitalsAuthorship": "unauthored",
     "chiefConcernAuthorship": "authored_patient_voice",
     "interruptionAuthorship": "unauthored"
+  },
+  "actorPlacements": {
+    "patient_jordan_reed_v1": {
+      "slotKind": "primary_patient",
+      "position": {
+        "x": -0.72,
+        "y": 1.06,
+        "z": -0.12
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "verticalOffsetMeters": -0.98,
+      "labelPrefix": "Patient",
+      "posture": "seated",
+      "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "behavioral_health_nurse_owens_v1": {
+      "slotKind": "clinical_team",
+      "position": {
+        "x": 0.1,
+        "y": 0,
+        "z": 0.7
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "verticalOffsetMeters": -0.95,
+      "labelPrefix": "Team",
+      "posture": "standing",
+      "placementProvenance": "authored_intent",
+      "headingRadians": -2.325
+    },
+    "partner_sam_reed_v1": {
+      "slotKind": "family_or_observer",
+      "position": {
+        "x": -2,
+        "y": 0.95,
+        "z": 0.7
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "verticalOffsetMeters": -0.95,
+      "labelPrefix": "Family",
+      "posture": "seated",
+      "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "headingRadians": -1.6704649792860586
+    }
   }
 }
