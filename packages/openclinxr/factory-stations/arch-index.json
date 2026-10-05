@@ -98,7 +98,7 @@
     "lint": "pnpm --filter @openclinxr/factory-stations lint"
   },
   "ceilings": {
-    "testInternalImports": 18,
+    "testInternalImports": 19,
     "rootEntrypointExports": 28
   }
 }

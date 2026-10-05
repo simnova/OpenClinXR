@@ -57,7 +57,7 @@
     "lint": "pnpm --filter @openclinxr/xr-capture-evidence lint"
   },
   "ceilings": {
-    "testInternalImports": 7,
+    "testInternalImports": 8,
     "rootEntrypointExports": 36
   }
 }

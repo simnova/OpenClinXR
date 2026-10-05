@@ -53,6 +53,7 @@
     "lint": "pnpm --filter @openclinxr/xr-pose lint"
   },
   "ceilings": {
+    "testInternalImports": 1,
     "rootEntrypointExports": 32
   }
 }

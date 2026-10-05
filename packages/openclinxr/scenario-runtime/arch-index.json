@@ -70,6 +70,6 @@
     "lint": "pnpm --filter @openclinxr/scenario-runtime lint"
   },
   "ceilings": {
-    "testInternalImports": 17
+    "testInternalImports": 21
   }
 }

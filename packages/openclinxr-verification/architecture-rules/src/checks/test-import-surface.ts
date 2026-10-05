@@ -96,8 +96,12 @@ function walkTests(dir: string, out: string[]): string[] {
   return out;
 }
 
-/** Static module declarations, excluding comments and quoted source fixtures.
- * Literal dynamic imports were not included in this metric and remain unchanged.
+/** Static module declarations plus literal dynamic imports, excluding comments and quoted source fixtures.
+ * Literal dynamic imports (`import("./x.js")` and no-substitution `` import(`./x.js`) ``) count
+ * exactly like static ones (MADR 0060 decision 10). Non-literal specifiers (variables, template
+ * expressions with substitutions, bare specifiers) stay out of scope: they cannot be resolved
+ * without execution. The TypeScript AST sees only executable call expressions, so a dynamic
+ * import inside a comment or a quoted fixture string never counts.
  */
 function relativeModuleDeclarations(text: string): string[] {
   const source = ts.createSourceFile("module.ts", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
@@ -109,13 +113,30 @@ function relativeModuleDeclarations(text: string): string[] {
       specifiers.push(specifier.text);
     }
   }
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+      const arg = node.arguments[0];
+      if (arg !== undefined && ts.isStringLiteral(arg) && arg.text.startsWith(".")) {
+        specifiers.push(arg.text);
+      } else if (
+        arg !== undefined &&
+        ts.isNoSubstitutionTemplateLiteral(arg) &&
+        arg.text.startsWith(".")
+      ) {
+        specifiers.push(arg.text);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
   return specifiers;
 }
 
 /**
  * Every module reachable from a package's declared entrypoints, as absolute .ts paths. A test
  * importing one of these could have used the public path; a test importing anything else is
- * reaching for something no consumer can see.
+ * reaching for something no consumer can see. A module an entrypoint lazy-loads with a literal
+ * `import("./x.js")` is reachable by consumers, so the walk follows literal dynamic imports.
  */
 export function entrypointReachableModules(src: string, entrypoints: ReadonlySet<string>): Set<string> {
   const reachable = new Set<string>();

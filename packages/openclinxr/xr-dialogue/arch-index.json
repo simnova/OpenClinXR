@@ -82,7 +82,7 @@
     "lint": "pnpm --filter @openclinxr/xr-dialogue lint"
   },
   "ceilings": {
-    "testInternalImports": 5,
+    "testInternalImports": 7,
     "rootEntrypointExports": 47
   }
 }

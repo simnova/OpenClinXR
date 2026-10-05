@@ -71,7 +71,7 @@
     "lint": "pnpm --filter @openclinxr/xr-scene lint"
   },
   "ceilings": {
-    "testInternalImports": 5,
+    "testInternalImports": 10,
     "rootEntrypointExports": 38
   }
 }
