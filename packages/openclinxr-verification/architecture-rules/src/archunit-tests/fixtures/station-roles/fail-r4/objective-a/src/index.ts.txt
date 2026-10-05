@@ -1,0 +1,7 @@
+// Text fixture, never compiled.
+// PLANTED R4 VIOLATION: the shared objective importing a solver.
+import { runSolver } from "@station-roles-fixture/r4-solver";
+
+export function scoreGate(solverId: string): number {
+  return solverId.length + runSolver();
+}

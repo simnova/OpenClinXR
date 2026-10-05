@@ -1,0 +1,10 @@
+// Text fixture, never compiled.
+// PLANTED R2 VIOLATIONS: the same private module reached both ways — a bare
+// deep specifier absent from the objective's exports, and a relative escape
+// into the objective's src/.
+import { tweakGate } from "@station-roles-fixture/r2-objective/internal-scoring.js";
+import { tweakGate as tweakLocal } from "../../objective-b/src/internal-scoring.js";
+
+export function runExecutor(): number {
+  return tweakGate(1) + tweakLocal(2);
+}

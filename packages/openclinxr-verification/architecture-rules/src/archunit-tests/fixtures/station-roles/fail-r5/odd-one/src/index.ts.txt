@@ -1,0 +1,3 @@
+export function oddHelper(): number {
+  return 1;
+}

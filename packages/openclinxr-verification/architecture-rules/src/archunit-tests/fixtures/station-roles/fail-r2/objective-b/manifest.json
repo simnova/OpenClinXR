@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/r2-objective",
+  "openclinxr": { "station": "staging", "stationRole": "objective" },
+  "exports": { ".": "./dist/index.js" }
+}

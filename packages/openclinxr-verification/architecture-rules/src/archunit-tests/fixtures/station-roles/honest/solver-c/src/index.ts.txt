@@ -1,0 +1,8 @@
+// Text fixture, never compiled.
+import { scoreGate } from "@station-roles-fixture/staging-objective";
+
+export const defaultSolver = "default";
+
+export function runSolver(): number {
+  return scoreGate(defaultSolver);
+}

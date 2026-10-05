@@ -1,0 +1,8 @@
+{
+  "name": "@station-roles-fixture/r3-solver",
+  "openclinxr": { "station": "staging", "stationRole": "solver" },
+  "exports": { ".": "./dist/index.js" },
+  "dependencies": {
+    "@station-roles-fixture/r3-executor": "workspace:*"
+  }
+}

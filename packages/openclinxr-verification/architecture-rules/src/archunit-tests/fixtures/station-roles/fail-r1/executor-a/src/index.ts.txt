@@ -1,0 +1,7 @@
+// Text fixture, never compiled.
+// PLANTED R1 VIOLATION: an executor importing its verifier.
+import { verifyGate } from "@station-roles-fixture/r1-verifier";
+
+export function runExecutor(): number {
+  return verifyGate();
+}

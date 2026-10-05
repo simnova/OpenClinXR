@@ -1,0 +1,16 @@
+{
+  "mode": "dry-run",
+  "stationId": "staging",
+  "actorId": "actor_a",
+  "supportSurface": "stretcher",
+  "plantOffsetMeters": {
+    "x": 0.1,
+    "y": 0,
+    "z": 0
+  },
+  "bakerId": "actor_placement",
+  "adapter": "generatedActorPlacement",
+  "adapterModule": "packages/openclinxr/asset-registry/src/actor-placement.ts",
+  "status": "adapted",
+  "placement": null
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@station-roles-fixture/r1-executor",
+  "openclinxr": { "station": "staging", "stationRole": "executor" },
+  "exports": { ".": "./dist/index.js" },
+  "dependencies": {
+    "@station-roles-fixture/r1-verifier": "workspace:*"
+  }
+}

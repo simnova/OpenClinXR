@@ -1,0 +1,7 @@
+// Text fixture, never compiled.
+import { scoreGate } from "@station-roles-fixture/staging-objective";
+import { runExecutor } from "@station-roles-fixture/staging-executor";
+
+export function verifyGate(): number {
+  return scoreGate("verifier") + runExecutor();
+}

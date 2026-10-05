@@ -1,0 +1,8 @@
+{
+  "name": "@station-roles-fixture/nested-executor",
+  "openclinxr": { "station": "staging", "stationRole": "executor" },
+  "exports": { ".": "./dist/index.js" },
+  "dependencies": {
+    "@station-roles-fixture/nested-verifier": "workspace:*"
+  }
+}

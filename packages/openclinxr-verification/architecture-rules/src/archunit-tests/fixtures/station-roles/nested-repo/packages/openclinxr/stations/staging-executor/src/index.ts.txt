@@ -1,0 +1,8 @@
+// Text fixture, never compiled.
+// PLANTED R1 VIOLATION in the MADR 0060 nested layout: a stations/* executor
+// importing its verifier. The scanner must see this package at depth 2.
+import { verifyGate } from "@station-roles-fixture/nested-verifier";
+
+export function runExecutor(): number {
+  return verifyGate();
+}

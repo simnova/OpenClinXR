@@ -1,0 +1,7 @@
+// Text fixture, never compiled.
+// PLANTED R3 VIOLATION: a solver importing its executor.
+import { runExecutor } from "@station-roles-fixture/r3-executor";
+
+export function runSolver(): number {
+  return runExecutor();
+}

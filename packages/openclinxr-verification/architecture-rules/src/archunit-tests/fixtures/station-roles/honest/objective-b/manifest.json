@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/staging-objective",
+  "openclinxr": { "station": "staging", "stationRole": "objective" },
+  "exports": { ".": "./dist/index.js", "./scoring": "./dist/scoring.js" }
+}

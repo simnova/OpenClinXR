@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/r3-executor",
+  "openclinxr": { "station": "staging", "stationRole": "executor" },
+  "exports": { ".": "./dist/index.js" }
+}
