@@ -1,7 +1,6 @@
 import type { RuntimeActorAudioEvidence } from "./runtime-actor-audio-evidence.js";
-import {
-  resolveScenarioActorCast,
-} from "./actor-casting.js";
+import { resolveScenarioActorCast } from "./actor-casting.js";
+import { resolveRuntimeBundleCast } from "./runtime-bundle-cast.js";
 import {
   resolveRuntimeAssetBlobUrl,
   resolveRuntimeAssetStoreConfig,
@@ -739,7 +738,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     containerName: defaultRuntimeAssetContainerName(input.assetStoreKind ?? "app_public_fixture"),
   });
   // #85/#96: role-distinct ED wardrobe (gown/scrubs/street); casting table is blob-path SSOT.
-  const castTable = resolveScenarioActorCast(input.scenarioId ?? "ed_chest_pain_priority_v1", input.scenario);
+  const castTable = resolveRuntimeBundleCast(input.scenarioId, input.scenario);
   const edModel = (
     assetId: string, scenarioAssetId: string, displayName: string, castRole: string, fallbackGlb: string,
   ): EncounterRuntimeAsset => {

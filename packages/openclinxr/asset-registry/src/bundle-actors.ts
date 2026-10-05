@@ -35,22 +35,26 @@ export function buildLocalEncounterActors(input: {
       animationClips: [],
       gazeProfile,
     },
-    {
-      actorId: input.clinicalActorId,
-      embodiment: "humanoid",
-      role: "nurse",
-      model: input.nurseModel,
-      animationClips: [],
-      gazeProfile,
-    },
-    {
-      actorId: input.familyActorId,
-      embodiment: "humanoid",
-      role: "family_member",
-      model: input.spouseModel,
-      animationClips: [],
-      gazeProfile,
-    },
+    ...(input.clinicalActorId
+      ? [{
+          actorId: input.clinicalActorId,
+          embodiment: "humanoid" as const,
+          role: "nurse" as const,
+          model: input.nurseModel,
+          animationClips: [],
+          gazeProfile,
+        }]
+      : []),
+    ...(input.familyActorId
+      ? [{
+          actorId: input.familyActorId,
+          embodiment: "humanoid" as const,
+          role: "family_member" as const,
+          model: input.spouseModel,
+          animationClips: [],
+          gazeProfile,
+        }]
+      : []),
     ...(input.additionalActorId && input.additionalModel
       ? [{
           actorId: input.additionalActorId,
