@@ -26,21 +26,34 @@ async function main(): Promise<void> {
   writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`);
 
   const summary = output.summary;
-  const range = summary.forwardGapMaxMm - summary.forwardGapMinMm;
+  const range = summary.forwardGapHeadLocalMaxMm - summary.forwardGapHeadLocalMinMm;
   console.log(`frames: ${summary.frames}`);
   console.log(
-    `forward gap mm: min ${summary.forwardGapMinMm} max ${summary.forwardGapMaxMm} ` +
-      `mean ${summary.forwardGapMeanMm} std ${summary.forwardGapStdMm} range ${Math.round(range * 1e6) / 1e6}`,
+    `forward gap head-local mm: min ${summary.forwardGapHeadLocalMinMm} max ${summary.forwardGapHeadLocalMaxMm} ` +
+      `mean ${summary.forwardGapHeadLocalMeanMm} std ${summary.forwardGapHeadLocalStdMm} range ${Math.round(range * 1e6) / 1e6}`,
   );
   console.log(
-    `"now" frames (${summary.nowViseme} ${summary.nowFrames[0]}-${summary.nowFrames[summary.nowFrames.length - 1]}): ` +
+    `"now" frames (${summary.nowVisemes.join("+")} ${summary.nowFrames[0]}-${summary.nowFrames[summary.nowFrames.length - 1]}): ` +
       `mean forward gap ${summary.nowForwardGapMeanMm} mm`,
   );
+  for (const point of summary.nowGapSeries) {
+    console.log(
+      `  f=${point.frame} t=${point.timeS}s ${point.viseme ?? "none"} gap=${point.forwardGapHeadLocalMm} mm`,
+    );
+  }
   console.log(`penetration frames: ${summary.penetrationFrames}`);
   console.log(
-    `ground truth: median ${summary.groundTruthMedianPx} px, max ${summary.groundTruthMaxPx} px ` +
+    `ground truth dy: median ${summary.groundTruthDyMedianCropPx} px, max ${summary.groundTruthDyMaxCropPx} px ` +
+      `(gate median <= 2, max <= 5)`,
+  );
+  console.log(
+    `ground truth dx (recorded): median ${summary.groundTruthDxMedianCropPx} px, max ${summary.groundTruthDxMaxCropPx} px ` +
       `over ${summary.groundTruthFrames} frames (n >= 20)`,
   );
+  console.log("upper displacement by viseme (head-local max mm):");
+  for (const [viseme, maxMm] of Object.entries(summary.upperDisplacementByVisemeMaxHeadLocalMm).sort()) {
+    console.log(`  ${viseme}: ${maxMm}`);
+  }
   console.log(`wall clock: ${summary.wallClockMs} ms`);
   console.log(`wrote ${outPath}`);
 }

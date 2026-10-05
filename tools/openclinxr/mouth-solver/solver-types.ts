@@ -1,5 +1,16 @@
 /** Shared types for the headless mouth-geometry evaluator (MADR 0060 evaluator half). */
 
+/** Position spaces named on every position field. */
+export type PositionSpace =
+  /** glTF mesh-local bind coordinates (base POSITION accessor frame). */
+  | "bindMesh"
+  /** Head-bone local frame (inverse head world matrix). */
+  | "headLocal"
+  /** World frame of the headless scene root. */
+  | "world"
+  /** Capture-crop pixels inside the 1280x960 frame (origin top-left of crop). */
+  | "cropPx";
+
 export type CueTrackCue = {
   startS: number;
   endS: number;
@@ -23,46 +34,63 @@ export type FrameRecord = {
   viseme: string | null;
   /** Jaw bone aperture applied by the runtime drive, radians. */
   jawOpenRadians: number;
-  /** Lower-lip landmark minus lower-teeth front-shell along head-forward (+Z), mm. */
-  forwardGapMm: number;
-  /** Lower-lip landmark minus lower-teeth front-shell along head-up (+Y), mm. */
-  verticalGapMm: number;
-  /** Lower front-shell verts at or in front of the lip landmark's max +Z. */
+  /** Lower-lip surface minus lower-teeth front shell along head-forward, mm. */
+  forwardGapHeadLocalMm: number;
+  /** Lower-lip landmark minus lower-teeth front shell along head-up, mm. */
+  verticalGapHeadLocalMm: number;
+  /** Lower front-shell verts at or in front of the lip landmark's max head-local +Z. */
   penetratingVerts: number;
-  /** Upper front-shell centroid displacement from rest, head-local, mm. */
-  upperTeethDisplacementMm: number;
-  /** Projected full front-shell (upper + lower) centroid in capture-crop pixels. */
-  projCx: number;
-  projCy: number;
-  /** Pixel error against step3 toothSamples (null when n < 20). */
-  pixelError: number | null;
+  /** Upper front-shell centroid displacement from rest, mm. */
+  upperTeethDisplacementHeadLocalMm: number;
+  /** Projected full front-shell centroid, capture-crop pixels. */
+  projCxCropPx: number;
+  projCyCropPx: number;
+  /** Signed projection error vs the step3 tooth sample, capture-crop pixels. */
+  projDxCropPx: number | null;
+  projDyCropPx: number | null;
+};
+
+export type NowGapPoint = {
+  frame: number;
+  timeS: number;
+  viseme: string | null;
+  forwardGapHeadLocalMm: number;
 };
 
 export type EvaluatorSummary = {
   frames: number;
-  forwardGapMinMm: number;
-  forwardGapMaxMm: number;
-  forwardGapMeanMm: number;
-  forwardGapStdMm: number;
-  nowViseme: string;
+  forwardGapHeadLocalMinMm: number;
+  forwardGapHeadLocalMaxMm: number;
+  forwardGapHeadLocalMeanMm: number;
+  forwardGapHeadLocalStdMm: number;
+  /** Trailing "now" word of the line: last two vowel cues. */
+  nowVisemes: string[];
   nowFrames: number[];
+  nowGapSeries: NowGapPoint[];
   nowForwardGapMeanMm: number;
   penetrationFrames: number;
-  groundTruthMedianPx: number;
-  groundTruthMaxPx: number;
+  /** Gated: median <= 2px, max <= 5px (step3 tooth-centroid steps p90 1.43 / max 3.17px). */
+  groundTruthDyMedianCropPx: number;
+  groundTruthDyMaxCropPx: number;
+  /** Recorded, not gated: cx carries the capture's visibility composition. */
+  groundTruthDxMedianCropPx: number;
+  groundTruthDxMaxCropPx: number;
+  groundTruthCxKnownLimitation: string;
   groundTruthFrames: number;
+  /** Max head-local upper-teeth displacement per drive viseme, mm. */
+  upperDisplacementByVisemeMaxHeadLocalMm: Record<string, number>;
   wallClockMs: number;
 };
 
 export type EvaluatorOutput = {
-  schemaVersion: "openclinxr.mouth-solver.evaluator.v1";
+  schemaVersion: "openclinxr.mouth-solver.evaluator.v2";
   glbPath: string;
   glbSha256: string;
   trackPath: string;
   frameRate: number;
   camera: {
-    position: [number, number, number];
-    lookAt: [number, number, number];
+    positionWorldM: [number, number, number];
+    lookAtWorldM: [number, number, number];
     fovDegrees: number;
     widthPx: number;
     heightPx: number;
@@ -72,6 +100,8 @@ export type EvaluatorOutput = {
 };
 
 export type EvaluateParams = {
-  /** Yaw perturbation of the capture camera in degrees (0 for the gate run). */
-  cameraYawPerturbDegrees?: number;
+  /** Pitch perturbation of the capture camera in degrees (0 for the gate run). */
+  cameraPitchPerturbDegrees?: number;
+  /** Force every teeth viseme morph influence to 0 in measurement (discrimination). */
+  zeroTeethMorphs?: boolean;
 };

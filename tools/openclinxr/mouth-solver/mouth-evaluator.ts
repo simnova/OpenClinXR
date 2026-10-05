@@ -145,12 +145,13 @@ export function readEvaluatorTrack(trackPath: string): EvaluatorTrack {
   };
 }
 
-function lastVowelCue(track: CueTrackCue[]): CueTrackCue {
-  for (let index = track.length - 1; index >= 0; index -= 1) {
-    const cue = track[index];
-    if (cue && VOWEL_VISEMES.has(cue.viseme.toLowerCase())) return cue;
-  }
-  throw new Error("track has no vowel cue");
+/** Trailing "now" word of the line: the last two vowel cues. */
+function lastTwoVowelCues(track: CueTrackCue[]): [CueTrackCue, CueTrackCue] {
+  const vowels = track.filter((cue) => VOWEL_VISEMES.has(cue.viseme.toLowerCase()));
+  const second = vowels[vowels.length - 1];
+  const first = vowels[vowels.length - 2];
+  if (!first || !second) throw new Error("track has fewer than two vowel cues");
+  return [first, second];
 }
 
 /**
@@ -162,22 +163,28 @@ export async function evaluate(
   glbPath: string,
   track: EvaluatorTrack,
   params: EvaluateParams = {},
-): Promise<{ output: EvaluatorOutput; medianPx: number; maxPx: number }> {
+): Promise<{
+  output: EvaluatorOutput;
+  dyMedianPx: number;
+  dyMaxPx: number;
+  dxMedianPx: number;
+  dxMaxPx: number;
+}> {
   const wallStart = Date.now();
   const scene = await loadHeadlessScene(glbPath);
   const focus = headFocusCamera(scene);
   const camera = focus.camera;
-  if (params.cameraYawPerturbDegrees) {
+  if (params.cameraPitchPerturbDegrees) {
     const target = new Vector3();
     camera.getWorldDirection(target).add(camera.position);
     const offset = camera.position.clone().sub(target);
-    const radians = (params.cameraYawPerturbDegrees * Math.PI) / 180;
+    const radians = (params.cameraPitchPerturbDegrees * Math.PI) / 180;
     const cos = Math.cos(radians);
     const sin = Math.sin(radians);
     camera.position.set(
-      target.x + offset.x * cos - offset.z * sin,
-      camera.position.y,
-      target.z + offset.x * sin + offset.z * cos,
+      camera.position.x,
+      target.y + offset.y * cos - offset.z * sin,
+      target.z + offset.y * sin + offset.z * cos,
     );
     camera.lookAt(target);
     camera.updateMatrixWorld(true);
@@ -311,7 +318,12 @@ export async function evaluate(
   );
   const restUpperCentroid = centroidPacked(restUpperHead);
 
-  const nowCue = lastVowelCue(track.canonicalTrack);
+  const [nowFirst, nowSecond] = lastTwoVowelCues(track.canonicalTrack);
+  const teethInfluences = (): ArrayLike<number> => {
+    const live = scene.teeth.skinned.morphTargetInfluences ?? [];
+    if (!params.zeroTeethMorphs) return live;
+    return live.map(() => 0);
+  };
   const records: FrameRecord[] = [];
   const scratch = new Vector3();
   for (let frame = 0; frame < track.frameCount; frame += 1) {
@@ -327,7 +339,7 @@ export async function evaluate(
     scene.root.updateMatrixWorld(true);
     const teethWorld = skinPositions(
       scene.teeth,
-      morphedPositions(scene.teeth, scene.teeth.skinned.morphTargetInfluences ?? []),
+      morphedPositions(scene.teeth, teethInfluences()),
       boneMatrices(scene.teeth),
     );
     const bodyWorld = skinPositions(
@@ -367,65 +379,95 @@ export async function evaluate(
     const projCx = (scratch.x * 0.5 + 0.5) * FULL_W - CROP_X;
     const projCy = (-scratch.y * 0.5 + 0.5) * FULL_H - CROP_TOP;
     const sample = track.toothSamples[frame];
-    const pixelError =
-      sample && sample.n >= 20 ? Math.hypot(projCx - sample.cx, projCy - sample.cy) : null;
+    const compared = sample !== undefined && sample.n >= 20;
+    const projDx = compared ? projCx - (sample?.cx ?? 0) : null;
+    const projDy = compared ? projCy - (sample?.cy ?? 0) : null;
 
     records.push({
       frame,
       timeS: round6(timeS),
       viseme: typeof drive?.activeTargetName === "string" ? drive.activeTargetName : null,
       jawOpenRadians: round6(typeof drive?.jawOpenRadians === "number" ? drive.jawOpenRadians : 0),
-      forwardGapMm: round6(forwardGapMm),
-      verticalGapMm: round6((lipCentroid[1] - teethCentroid[1]) * 1000),
+      forwardGapHeadLocalMm: round6(forwardGapMm),
+      verticalGapHeadLocalMm: round6((lipCentroid[1] - teethCentroid[1]) * 1000),
       penetratingVerts: penetrating,
-      upperTeethDisplacementMm: round6(upperDisplacementMm),
-      projCx: round6(projCx),
-      projCy: round6(projCy),
-      pixelError: pixelError === null ? null : round6(pixelError),
+      upperTeethDisplacementHeadLocalMm: round6(upperDisplacementMm),
+      projCxCropPx: round6(projCx),
+      projCyCropPx: round6(projCy),
+      projDxCropPx: projDx === null ? null : round6(projDx),
+      projDyCropPx: projDy === null ? null : round6(projDy),
     });
   }
 
-  const gaps = records.map((record) => record.forwardGapMm);
+  const gaps = records.map((record) => record.forwardGapHeadLocalMm);
   const mean = gaps.reduce((sum, value) => sum + value, 0) / gaps.length;
   const std = Math.sqrt(gaps.reduce((sum, value) => sum + (value - mean) ** 2, 0) / gaps.length);
-  const errors = records
-    .map((record) => record.pixelError)
+  const medianOf = (values: number[]): number =>
+    values.length === 0 ? NaN : (values.sort((a, b) => a - b)[Math.floor((values.length - 1) / 2)] ?? NaN);
+  const dxAbs = records
+    .map((record) => record.projDxCropPx)
     .filter((value): value is number => value !== null)
-    .sort((a, b) => a - b);
-  const medianPx = errors.length === 0 ? NaN : (errors[Math.floor((errors.length - 1) / 2)] ?? NaN);
-  const maxPx = errors.length === 0 ? NaN : (errors[errors.length - 1] ?? NaN);
-  const nowFrames = records
-    .filter((record) => record.timeS >= nowCue.startS && record.timeS < nowCue.endS)
-    .map((record) => record.frame);
+    .map(Math.abs);
+  const dyAbs = records
+    .map((record) => record.projDyCropPx)
+    .filter((value): value is number => value !== null)
+    .map(Math.abs);
+  const dxMedianPx = medianOf(dxAbs);
+  const dxMaxPx = dxAbs.length === 0 ? NaN : Math.max(...dxAbs);
+  const dyMedianPx = medianOf(dyAbs);
+  const dyMaxPx = dyAbs.length === 0 ? NaN : Math.max(...dyAbs);
+  const nowGapSeries = records
+    .filter((record) => record.timeS >= nowFirst.startS && record.timeS < nowSecond.endS)
+    .map((record) => ({
+      frame: record.frame,
+      timeS: record.timeS,
+      viseme: record.viseme,
+      forwardGapHeadLocalMm: record.forwardGapHeadLocalMm,
+    }));
   const nowMean =
-    nowFrames.length === 0
+    nowGapSeries.length === 0
       ? NaN
-      : nowFrames.reduce((sum, frame) => sum + (records[frame]?.forwardGapMm ?? 0), 0) / nowFrames.length;
+      : nowGapSeries.reduce((sum, point) => sum + point.forwardGapHeadLocalMm, 0) / nowGapSeries.length;
+  const upperByViseme: Record<string, number> = {};
+  for (const record of records) {
+    const key = record.viseme ?? "none";
+    upperByViseme[key] = Math.max(upperByViseme[key] ?? 0, record.upperTeethDisplacementHeadLocalMm);
+  }
   const summary: EvaluatorSummary = {
     frames: records.length,
-    forwardGapMinMm: round6(Math.min(...gaps)),
-    forwardGapMaxMm: round6(Math.max(...gaps)),
-    forwardGapMeanMm: round6(mean),
-    forwardGapStdMm: round6(std),
-    nowViseme: nowCue.viseme,
-    nowFrames,
+    forwardGapHeadLocalMinMm: round6(Math.min(...gaps)),
+    forwardGapHeadLocalMaxMm: round6(Math.max(...gaps)),
+    forwardGapHeadLocalMeanMm: round6(mean),
+    forwardGapHeadLocalStdMm: round6(std),
+    nowVisemes: [nowFirst.viseme, nowSecond.viseme],
+    nowFrames: nowGapSeries.map((point) => point.frame),
+    nowGapSeries,
     nowForwardGapMeanMm: round6(nowMean),
     penetrationFrames: records.filter((record) => record.penetratingVerts > 0).length,
-    groundTruthMedianPx: round6(medianPx),
-    groundTruthMaxPx: round6(maxPx),
-    groundTruthFrames: errors.length,
+    groundTruthDyMedianCropPx: round6(dyMedianPx),
+    groundTruthDyMaxCropPx: round6(dyMaxPx),
+    groundTruthDxMedianCropPx: round6(dxMedianPx),
+    groundTruthDxMaxCropPx: round6(dxMaxPx),
+    groundTruthCxKnownLimitation:
+      "cx is recorded, not gated: the capture pale-pixel centroid swings +-8px in cx on a " +
+      "geometrically x-static arch as lip opening changes which crowns are visible and lit. " +
+      "cy tracks jaw-driven geometry to ~1px and carries the gate.",
+    groundTruthFrames: dyAbs.length,
+    upperDisplacementByVisemeMaxHeadLocalMm: Object.fromEntries(
+      Object.entries(upperByViseme).map(([key, value]) => [key, round6(value)]),
+    ),
     wallClockMs: Date.now() - wallStart,
   };
   const glbBytes = readFileSync(glbPath);
   const output: EvaluatorOutput = {
-    schemaVersion: "openclinxr.mouth-solver.evaluator.v1",
+    schemaVersion: "openclinxr.mouth-solver.evaluator.v2",
     glbPath,
     glbSha256: createHash("sha256").update(glbBytes).digest("hex"),
     trackPath: "",
     frameRate: track.frameRate,
     camera: {
-      position: [round6(camera.position.x), round6(camera.position.y), round6(camera.position.z)],
-      lookAt: [round6(boxTarget[0]), round6(boxTarget[1]), round6(boxTarget[2])],
+      positionWorldM: [round6(camera.position.x), round6(camera.position.y), round6(camera.position.z)],
+      lookAtWorldM: [round6(boxTarget[0]), round6(boxTarget[1]), round6(boxTarget[2])],
       fovDegrees: camera.fov,
       widthPx: FULL_W,
       heightPx: FULL_H,
@@ -433,7 +475,7 @@ export async function evaluate(
     records,
     summary,
   };
-  return { output, medianPx, maxPx };
+  return { output, dyMedianPx, dyMaxPx, dxMedianPx, dxMaxPx };
 }
 
 function teethWorldSlice(world: Float32Array, indices: readonly number[]): Float32Array {
