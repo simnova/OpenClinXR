@@ -1,0 +1,8 @@
+{
+  "name": "@station-roles-fixture/r4-objective",
+  "openclinxr": { "station": "staging", "stationRole": "objective" },
+  "exports": { ".": "./dist/index.js" },
+  "dependencies": {
+    "@station-roles-fixture/r4-solver": "workspace:*"
+  }
+}

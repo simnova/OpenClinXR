@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/r1-verifier",
+  "openclinxr": { "station": "staging", "stationRole": "verifier" },
+  "exports": { ".": "./dist/index.js" }
+}

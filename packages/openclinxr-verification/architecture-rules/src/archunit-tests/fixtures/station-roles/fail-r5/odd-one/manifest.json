@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/r5-odd",
+  "openclinxr": { "station": "staging", "stationRole": "wizard" },
+  "exports": { ".": "./dist/index.js" }
+}

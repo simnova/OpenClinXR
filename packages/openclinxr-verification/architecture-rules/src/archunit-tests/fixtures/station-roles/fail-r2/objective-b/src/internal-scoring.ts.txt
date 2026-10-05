@@ -1,0 +1,3 @@
+export function tweakGate(value: number): number {
+  return value + 1;
+}

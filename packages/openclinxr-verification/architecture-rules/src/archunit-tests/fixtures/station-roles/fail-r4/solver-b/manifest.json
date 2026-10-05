@@ -1,0 +1,5 @@
+{
+  "name": "@station-roles-fixture/r4-solver",
+  "openclinxr": { "station": "staging", "stationRole": "solver" },
+  "exports": { ".": "./dist/index.js" }
+}

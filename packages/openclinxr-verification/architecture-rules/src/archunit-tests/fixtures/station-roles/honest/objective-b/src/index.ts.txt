@@ -1,0 +1,1 @@
+export { scoreGate } from "./scoring.js";

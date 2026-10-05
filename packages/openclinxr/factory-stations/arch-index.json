@@ -96,6 +96,7 @@
     "src/room_generate/the-shell-bake-gives-skirting-its-own-matte-role.test.ts",
     "src/room_generate/the-shell-bake-gives-trim-a-real-bake.test.ts",
     "src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
+    "src/staging/run-staging.golden.test.ts",
     "src/the-body-param-stage-is-split-into-modules.test.ts",
     "src/the-compute-slots-gate-blender.test.ts",
     "src/the-factory-station-schemas-validate.test.ts",
