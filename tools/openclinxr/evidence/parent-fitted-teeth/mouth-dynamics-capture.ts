@@ -5,7 +5,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute";
-import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
 import type { Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../lib/portless-server.js";
 
@@ -32,83 +31,32 @@ function esbuildBin(): string {
 }
 
 function browserDriveSource(): string {
-  const output = path.join(tmpdir(), `mouth-dynamics-drive-${process.pid}.js`);
-  execFileSync(esbuildBin(), [
-    path.join(REPO, "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts"),
-    "--bundle", "--format=iife", "--global-name=OpenClinXrVisemeDrive", "--platform=browser",
+  const bundle = (source: string, globalName: string) => {
+    const output = path.join(tmpdir(), `mouth-dynamics-${globalName}-${process.pid}.js`);
+    execFileSync(esbuildBin(), [source, "--bundle", "--format=iife", `--global-name=${globalName}`, "--platform=browser",
     `--alias:@openclinxr/asset-registry=${path.join(REPO, "packages/openclinxr/asset-registry/src/morph-target-resolver.ts")}`,
     `--outfile=${output}`,
-  ], { stdio: "inherit" });
-  const bundled = readFileSync(output, "utf8");
-  rmSync(output, { force: true });
-  return `${bundled}
-const APERTURE = {sil:0,PP:0,FF:.15,TH:.25,DD:.25,kk:.25,CH:.25,SS:.2,nn:.2,RR:.3,aa:1,E:.45,I:.35,O:.85,U:.4};
-function smooth01(value) { const x = Math.max(0, Math.min(1, value)); return x*x*(3-2*x); }
-function poseAt(drive, root, cues, index) {
-  const total = cues[cues.length - 1].endS || 1;
-  const cue = cues[index];
-  const progress = ((cue.startS + cue.endS) / 2) / total;
-  drive.applyDialogueVisemeTimelineToRoot(root, {
-    phonemeSequence: ["sil"], progress,
-    bakedCues: cues.map(row => ({phoneme:row.viseme, atSecond:row.startS, durationSeconds:row.endS-row.startS})),
-  });
-  const meshes = [];
-  root.traverse(object => { if (object?.morphTargetInfluences?.length) meshes.push({object, weights:object.morphTargetInfluences.slice()}); });
-  return meshes;
-}
-function applyStep2(drive, root, cues, timeS) {
-  let index = cues.length - 1;
-  for (let i=0;i<cues.length;i+=1) { if (timeS < cues[i].endS) { index=i; break; } }
-  const cue = cues[index]; const left = timeS-cue.startS; const right = cue.endS-timeS; const windowS=.06;
-  let other=index; let currentWeight=1;
-  if (index>0 && left<windowS && left<=right) { other=index-1; currentWeight=smooth01(left/windowS); }
-  else if (index<cues.length-1 && right<windowS) { other=index+1; currentWeight=smooth01(right/windowS); }
-  const current=poseAt(drive,root,cues,index);
-  if (other!==index) {
-    const neighbor=new Map(poseAt(drive,root,cues,other).map(row=>[row.object,row.weights]));
-    for (const row of current) { const a=neighbor.get(row.object); const weights=row.object.morphTargetInfluences;
-      for (let i=0;i<weights.length;i+=1) weights[i]=(a?.[i]||0)+((row.weights[i]||0)-(a?.[i]||0))*currentWeight; }
-  }
-  const neighborFraction=APERTURE[cues[other].viseme] ?? .25;
-  const currentFraction=APERTURE[cue.viseme] ?? .25;
-  const fraction=neighborFraction+(currentFraction-neighborFraction)*currentWeight;
-  drive.applyJawOpenToRoot(root,fraction*drive.JAW_TEETH_GAIN*Math.asin(.020725011825561523/.137901));
-}
-let step3Track=null; let step3Sampler=null;
-function blendPoses(drive,root,cues,left,right,weight) {
-  const a=poseAt(drive,root,cues,left);
-  if(left===right)return;
-  const b=new Map(poseAt(drive,root,cues,right).map(row=>[row.object,row.weights]));
-  for(const row of a){const next=b.get(row.object),weights=row.object.morphTargetInfluences;
-    for(let i=0;i<weights.length;i+=1)weights[i]=(row.weights[i]||0)+((next?.[i]||0)-(row.weights[i]||0))*weight;}
-}
-function forcePpPose(root) { root.traverse(object=>{const dict=object?.morphTargetDictionary,weights=object?.morphTargetInfluences;if(!dict||!weights)return;
-  for(const [name,index] of Object.entries(dict)){const key=name.toLowerCase();if(key.startsWith("viseme_"))weights[index]=key==="viseme_pp"?1:0;
-    if(key.startsWith("mouth-"))weights[index]=key==="mouth-compression"?1:0;}}); }
-function applyStep3(drive,root,cues,timeS) {
-  let index=cues.length-1; for(let i=0;i<cues.length;i+=1){if(timeS<cues[i].endS){index=i;break;}}
-  const cue=cues[index];
-  {
-    const centers=cues.map(row=>row.viseme==="PP"?row.startS:(row.startS+row.endS)/2);let left=0,right=0;
-    if(timeS<=centers[0]) left=right=0;
-    else if(timeS>=centers[centers.length-1]) left=right=centers.length-1;
-    else for(let i=0;i<centers.length-1;i+=1){if(timeS>=centers[i]&&timeS<=centers[i+1]){left=i;right=i+1;break;}}
-    const span=centers[right]-centers[left];const weight=left===right?0:smooth01((timeS-centers[left])/span);
-    blendPoses(drive,root,cues,left,right,weight);
-    if(cue.viseme==="PP") forcePpPose(root);
-  }
-  if(step3Track!==cues){step3Track=cues;step3Sampler=drive.createJawDynamicsSampler(cues);}
-  const jaw=step3Sampler.sample(timeS);
-  drive.applyJawOpenToRoot(root,jaw.aperture*drive.JAW_TEETH_GAIN*Math.asin(.020725011825561523/.137901));
-  root.userData.openClinXrJawDynamics={...jaw};
-}
-(() => { const drive=OpenClinXrVisemeDrive.createActorAudioRuntime().visemeCueTrack.mouthRuntime; const native=requestAnimationFrame.bind(window); const mode=${JSON.stringify(MODE)};
-  window.requestAnimationFrame=callback=>native(time=>{ try { const root=window.__openClinXrIsolatedSceneRoot;
-    if (root && window.__speechTrack) (mode==="step3"?applyStep3:applyStep2)(drive,root,window.__speechTrack,window.__speechTimeS||0);
-  } catch(error) { window.__openClinXrVisemeApplierError=String(error?.stack||error); } return callback(time); }); })();`;
+    ], { stdio: "inherit" });
+    const result = readFileSync(output, "utf8");
+    rmSync(output, { force: true });
+    return result;
+  };
+  const runtime = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts"), "OpenClinXrVisemeDrive");
+  const mapper = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-cue-track.ts"), "OpenClinXrCueTrack");
+  const result = `${runtime}\n${mapper}
+let captureRuntime,captureContext;
+window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolatedSceneRoot,raw=window.__speechRhubarb,base64=window.__speechWavBase64;if(!root||!raw||!base64)throw new Error("prepared-runtime-input-missing");
+  const binary=atob(base64),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i+=1)bytes[i]=binary.charCodeAt(i);
+  const cues=OpenClinXrCueTrack.mapRhubarbTrack(raw,bytes.buffer);const last=cues[cues.length-1],duration=last.endS;
+  captureContext={currentTime:0,state:"running",sampleRate:22050,createBufferSource(){return {buffer:null,playbackRate:{value:1},connect(){},start(){},stop(){},disconnect(){},onended:null};}};
+  const slot={root,activeSpeech:undefined};captureRuntime=OpenClinXrVisemeDrive.createActorAudioRuntime({developmentFixture:true,fixtureSearch:"?openclinxrSpeakFixture=1"});
+  captureRuntime.diagnostics.installRuntime({context:captureContext,destination:{},entry:{actorId:"capture",responseText:${JSON.stringify(LINE)},runnerConversationTurn:1,waveformSha256:"capture",cueSha256:"capture",decodedSampleRate:22050,decodedSampleCount:Math.ceil(duration*22050),buffer:{duration,sampleRate:22050,length:Math.ceil(duration*22050)},cues:cues.map(c=>({phoneme:c.viseme,atSecond:c.startS,durationSeconds:c.endS-c.startS,intensity:c.intensity}))},getSlot(){return slot;},triggerDialogue(){slot.activeSpeech={text:${JSON.stringify(LINE)},phonemeSequence:["sil"],startedAtMs:0,durationMs:duration*1000};}});
+  if(!captureRuntime.diagnostics.start({actorId:"capture",spokenText:${JSON.stringify(LINE)}}))throw new Error("prepared-runtime-start-refused");return cues;};
+window.__openClinXrSyncPreparedSpeech=(timeS)=>{if(!captureRuntime||!captureContext)throw new Error("prepared-runtime-not-started");captureContext.currentTime=timeS;captureRuntime.syncPreparedActorAudio(timeS*1000);};`;
+  return result;
 }
 
-function makeTrack(jobDir: string): { cues: TrackCue[]; rhubarb: unknown; wavSha256: string } {
+function makeTrack(jobDir: string): { rhubarb: unknown; wavBase64: string; wavSha256: string } {
   const wav = path.join(jobDir, "speech.wav");
   const dialog = path.join(jobDir, "dialog.txt");
   const output = path.join(jobDir, "rhubarb.json");
@@ -121,10 +69,8 @@ function makeTrack(jobDir: string): { cues: TrackCue[]; rhubarb: unknown; wavSha
   };
   if (rhubarb.metadata?.soundFile) rhubarb.metadata.soundFile = "speech.wav";
   const bytes = readFileSync(wav);
-  const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-  const cues = createActorAudioRuntime().visemeCueTrack.mapRhubarbTrack(rhubarb, arrayBuffer);
   const wavSha256 = execFileSync("shasum", ["-a", "256", wav], { encoding: "utf8" }).split(/\s/u)[0] ?? "";
-  return { cues, rhubarb, wavSha256 };
+  return { rhubarb, wavBase64: bytes.toString("base64"), wavSha256 };
 }
 
 function percentile(sorted: readonly number[], p: number): number {
@@ -159,14 +105,13 @@ function motionReport(samples: readonly ToothSample[], cues: readonly TrackCue[]
 }
 
 type CaptureCanvas = { height:number; toDataURL(kind:string):string; getContext(kind:string):{RGBA:number;UNSIGNED_BYTE:number;readPixels(x:number,y:number,w:number,h:number,f:number,t:number,p:Uint8Array):void}|null };
-type PageGlobal = { __speechTrack:TrackCue[];__speechTimeS:number;requestAnimationFrame(cb:()=>void):number;document:{getElementById(id:string):CaptureCanvas|null};__openClinXrIsolatedRenderFrame?:()=>void;__openClinXrIsolatedSceneRoot?:{userData?:{openClinXrNamedVisemeDrive?:{activeTargetName?:string;appliedMeshCount?:number}}} };
+type PageGlobal = { __speechTimeS:number;requestAnimationFrame(cb:()=>void):number;document:{getElementById(id:string):CaptureCanvas|null};__openClinXrIsolatedRenderFrame?:()=>void;__openClinXrSyncPreparedSpeech?:(timeS:number)=>void;__openClinXrIsolatedSceneRoot?:{userData?:{openClinXrNamedVisemeDrive?:{activeTargetName?:string;appliedMeshCount?:number}}} };
 
 async function recordFrames(page: Page, cues: TrackCue[], durationS: number, frameDir: string) {
   const frames=Math.max(2,Math.round(durationS*FPS)); mkdirSync(frameDir,{recursive:true});
-  await page.evaluate((track:TrackCue[])=>{ (globalThis as unknown as PageGlobal).__speechTrack=track; },cues);
   const samples:ToothSample[]=[]; const targets=new Set<string>();
   for (let frame=0;frame<frames;frame+=1) {
-    await page.evaluate((timeS:number)=>{ (globalThis as unknown as PageGlobal).__speechTimeS=timeS; },frame/FPS);
+    await page.evaluate((timeS:number)=>{ const win=globalThis as unknown as PageGlobal;win.__speechTimeS=timeS;win.__openClinXrSyncPreparedSpeech?.(timeS); },frame/FPS);
     await page.evaluate(()=>new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("requestAnimationFrame stalled")),2000);(globalThis as unknown as PageGlobal).requestAnimationFrame(()=>{clearTimeout(timer);resolve();});}));
     const shot=await page.evaluate(()=>{ const win=globalThis as unknown as PageGlobal; win.__openClinXrIsolatedRenderFrame?.();
       const canvas=win.document.getElementById("isolated-subject-capture-canvas"); const gl=canvas?.getContext("webgl2")??canvas?.getContext("webgl"); if(!canvas||!gl)return {error:"canvas missing"};
@@ -189,17 +134,21 @@ async function main():Promise<void>{
   const durationS=Number(execFileSync("ffprobe",["-v","error","-show_entries","format=duration","-of","default=noprint_wrappers=1:nokey=1",AUDIO],{encoding:"utf8"}).trim());
   let server:PortlessDevServer|undefined;
   await createLocalComputeServices().sceneCapture.withBrowser(`mouth-dynamics:${MODE}`,async launched=>{try{server=await spawnPortlessDevServer({filter:"@openclinxr/ui-xr",readyTimeoutMs:180000,cwd:REPO});
-    const page=await (launched as HeadlessBrowser).newPage({viewport:{width:VIEW_W,height:VIEW_H},deviceScaleFactor:1}); page.setDefaultTimeout(180000); await page.addInitScript(browserDriveSource());
+    const page=await (launched as HeadlessBrowser).newPage({viewport:{width:VIEW_W,height:VIEW_H},deviceScaleFactor:1}); page.setDefaultTimeout(180000); const runtimeDrive=browserDriveSource();
     const spec={subjectId:"mpfb-peds-parent-aisha",subjectKind:"glb",bodyGlb:"/generated-humanoids/mpfb-peds-parent-aisha.glb",focus:"head",label:`mouth dynamics ${MODE}`};
     await page.goto(`${server.url}isolated-subject.html?subject=${encodeURIComponent(JSON.stringify(spec))}`,{waitUntil:"domcontentloaded",timeout:240000});
     await page.waitForFunction("window.__openClinXrIsolatedSubjectEvidence != null || window.__openClinXrVisemeApplierError != null",null,{timeout:180000});
     const error=await page.evaluate("window.__openClinXrVisemeApplierError || ''"); if(error)throw new Error(String(error));
-    const frameDir=path.join(jobDir,"frames"); const result=await recordFrames(page,track.cues,durationS,frameDir); const clip=path.join(OUT_DIR,"clip.mp4");
+    await page.addScriptTag({ content: runtimeDrive });
+    const prepared=await page.evaluate((input:{rhubarb:unknown;wavBase64:string})=>{ const win=globalThis as typeof globalThis & {__speechRhubarb?:unknown;__speechWavBase64?:string;__openClinXrStartPreparedSpeech?:()=>TrackCue[]};win.__speechRhubarb=input.rhubarb;win.__speechWavBase64=input.wavBase64;return {starter:typeof win.__openClinXrStartPreparedSpeech,cues:win.__openClinXrStartPreparedSpeech?.()??[]};},{rhubarb:track.rhubarb,wavBase64:track.wavBase64});
+    const cues=prepared.cues as TrackCue[];
+    if(!cues.length)throw new Error(`prepared-runtime-cues-missing:${prepared.starter}`);
+    const frameDir=path.join(jobDir,"frames"); const result=await recordFrames(page,cues,durationS,frameDir); const clip=path.join(OUT_DIR,"clip.mp4");
     execFileSync("ffmpeg",["-v","error","-y","-framerate",String(FPS),"-start_number","0","-i",path.join(frameDir,"f-%04d.png"),"-i",AUDIO,"-c:v","libx264","-pix_fmt","yuv420p","-c:a","aac","-movflags","+faststart","-shortest",clip]);
     const dynamics=MODE==="step3"
       ? "jaw: critically damped spring at fixed 240 Hz (omega=6 rad/s); PP closure completed by cue midpoint; <100 ms vowel target = own*smoothstep(duration/0.1)+neighborMean*(1-dominance); vowel intensity clamp [0.5,1]. lips: continuous smoothstep between cue centres with PP pre-closure; PP exact full-weight pose"
       : "legacy 0.06 s smoothstep transition on lips and jaw";
-    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing:"Rhubarb 1.14 waveform timestamps mapped A-H,X to canonical OVR cues",dynamics,canonicalTrack:track.cues,rhubarb:track.rhubarb,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
+    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing:"Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback",dynamics,canonicalTrack:cues,rhubarb:track.rhubarb,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
     await page.close();
   }finally{if(server)await stopPortlessDevServer(server.proc);rmSync(jobDir,{recursive:true,force:true});}});
 }

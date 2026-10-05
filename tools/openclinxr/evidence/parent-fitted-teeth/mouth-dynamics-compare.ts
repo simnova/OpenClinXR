@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 type Sample = { n: number; cx: number; cy: number };
 type Cue = { startS: number; endS: number; viseme: string };
-type Metrics = { toothSamples: Sample[]; canonicalTrack?: Cue[]; toothCentroidSteps?: { ppCheck?: unknown } };
+type Metrics = { toothSamples: Sample[]; canonicalTrack?: Cue[]; phonemes?: string[]; audioDurationMs?: number; toothCentroidSteps?: { ppCheck?: unknown } };
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -83,22 +83,33 @@ function labelledStill(input: string, frame: number, label: string, output: stri
   runFfmpeg(["-i", raw, "-i", ppm, "-filter_complex", "[0:v][1:v]overlay=0:0", "-frames:v", "1", output]);
 }
 
-function stillSheet(job: string, track: readonly Cue[]): void {
+function stillSheet(job: string, controlCueTrack: readonly Cue[], step3Track: readonly Cue[]) {
   const order = ["aa", "E", "O", "PP", "FF"];
   const control: string[] = []; const step3: string[] = [];
+  const frames: Array<{ viseme: string; controlFrame: number; step3Frame: number }> = [];
   for (const viseme of order) {
-    const cue = track.find((row) => row.viseme === viseme);
-    if (!cue) throw new Error(`missing comparison cue:${viseme}`);
-    const frame = Math.round(((cue.startS + cue.endS) / 2) * FPS);
+    const controlCue = controlCueTrack.find((row) => row.viseme === viseme);
+    const step3Cue = step3Track.find((row) => row.viseme === viseme);
+    if (!controlCue || !step3Cue) throw new Error(`missing comparison cue:${viseme}`);
+    const controlFrame = Math.round(((controlCue.startS + controlCue.endS) / 2) * FPS);
+    const step3Frame = Math.round(((step3Cue.startS + step3Cue.endS) / 2) * FPS);
     const c = path.join(job, `control-${viseme}.png`); const s = path.join(job, `step3-${viseme}.png`);
-    labelledStill(CONTROL, frame, `CONTROL ${viseme} FRAME ${frame}`, c, job);
-    labelledStill(STEP3, frame, `STEP 3 ${viseme} FRAME ${frame}`, s, job);
+    labelledStill(CONTROL, controlFrame, `CONTROL ${viseme} FRAME ${controlFrame}`, c, job);
+    labelledStill(STEP3, step3Frame, `STEP 3 ${viseme} FRAME ${step3Frame}`, s, job);
     control.push(c); step3.push(s);
+    frames.push({ viseme, controlFrame, step3Frame });
   }
   const args = [...control.flatMap((file) => ["-i", file]), ...step3.flatMap((file) => ["-i", file])];
   args.push("-filter_complex", "[0][1][2][3][4]hstack=inputs=5[top];[5][6][7][8][9]hstack=inputs=5[bottom];[top][bottom]vstack=inputs=2[out]",
     "-map", "[out]", "-frames:v", "1", path.join(ROOT, "stills-aa-E-O-PP-FF.png"));
   runFfmpeg(args);
+  return frames;
+}
+
+function controlTrack(control: Metrics): Cue[] {
+  const map: Readonly<Record<string, string>> = { AY: "aa", F: "FF", IY: "I", L: "nn", DH: "TH", AH: "aa", P: "PP", EY: "E", N: "nn", IH: "I", Z: "SS", B: "PP", EH: "E", T: "DD", ER: "RR", AW: "O", sil: "sil" };
+  const phonemes = control.phonemes ?? []; const durationS = (control.audioDurationMs ?? 0) / 1000;
+  return phonemes.map((phone, index) => ({ startS: index * durationS / phonemes.length, endS: (index + 1) * durationS / phonemes.length, viseme: map[phone] ?? "sil" }));
 }
 
 function percentile(sorted: readonly number[], fraction: number): number {
@@ -145,15 +156,18 @@ function main(): void {
     const control = JSON.parse(readFileSync(path.join(ROOT, "control/metrics.json"), "utf8")) as Metrics;
     const step2 = JSON.parse(readFileSync(path.join(ROOT, "step2/metrics.json"), "utf8")) as Metrics;
     const step3 = JSON.parse(readFileSync(path.join(ROOT, "step3/metrics.json"), "utf8")) as Metrics;
-    const track = step3.canonicalTrack ?? []; const ppCue = track.find((cue) => cue.viseme === "PP"); if (!ppCue) throw new Error("PP cue missing");
-    labelledComparison(job); stillSheet(job, track);
+    const controlCueTrack = controlTrack(control); const step3Track = step3.canonicalTrack ?? []; const step2Track = step2.canonicalTrack ?? [];
+    const controlPp = controlCueTrack.find((cue) => cue.viseme === "PP"); const step3Pp = step3Track.find((cue) => cue.viseme === "PP"); const step2Pp = step2Track.find((cue) => cue.viseme === "PP");
+    if (!controlPp || !step2Pp || !step3Pp) throw new Error("PP cue missing");
+    labelledComparison(job); const stillFrames = stillSheet(job, controlCueTrack, step3Track);
     const rows = [
-      { mode: "control", ...motion(control.toothSamples, track), ppCheck: ppVideoCheck(CONTROL, ppCue) },
-      { mode: "step2", ...motion(step2.toothSamples, track), ppCheck: ppVideoCheck(path.join(ROOT, "step2/clip.mp4"), ppCue) },
-      { mode: "step3", ...motion(step3.toothSamples, track), ppCheck: ppVideoCheck(STEP3, ppCue) },
+      { mode: "control", ...motion(control.toothSamples, controlCueTrack), ppCheck: ppVideoCheck(CONTROL, controlPp) },
+      { mode: "step2", ...motion(step2.toothSamples, step2Track), ppCheck: ppVideoCheck(path.join(ROOT, "step2/clip.mp4"), step2Pp) },
+      { mode: "step3", ...motion(step3.toothSamples, step3Track), ppCheck: ppVideoCheck(STEP3, step3Pp) },
     ];
     writeFileSync(path.join(ROOT, "comparison-metrics.json"), `${JSON.stringify({ schemaVersion: "openclinxr.mouth-dynamics-comparison.v1", frameRate: FPS,
-      reversalDefinition: "successive salient tooth-centroid dy steps >=3 px with opposite signs, <=3 frames apart; PP cue excluded", rows }, null, 2)}\n`);
+      reversalDefinition: "successive salient tooth-centroid dy steps >=3 px with opposite signs, <=3 frames apart; PP cue excluded", stillFrames,
+      stillTiming: "Each row uses its own cue source: control reconstructs its recorded stretched phoneme dwells; step3 uses runtime-prepared waveform Rhubarb cues.", rows }, null, 2)}\n`);
   } finally { rmSync(job, { recursive: true, force: true }); }
 }
 
