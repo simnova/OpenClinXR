@@ -69,4 +69,33 @@ describe("station capture camera candidate scoring", () => {
     expect(cameraScoreIsBetter(behindScore, centredScore)).toBe(false);
     expect(cameraScoreIsBetter(patientCroppingScore, centredScore)).toBe(false);
   });
+
+  it("never trades the 90 degree facing hard filter for another visible actor", () => {
+    const frontTwo: CameraCandidateScore = {
+      containedActors: 2,
+      totalActors: 3,
+      nearOcclusionFraction: 0.08,
+      minMargin: 0.1,
+      meanFacing: 89.9,
+      placardBack: false,
+    };
+    const rearThree = { ...frontTwo, containedActors: 3, meanFacing: 90.1, nearOcclusionFraction: 0 };
+    expect(cameraScoreIsBetter(rearThree, frontTwo)).toBe(false);
+    expect(cameraScoreIsBetter(rearThree, null)).toBe(false);
+    expect(cameraScoreIsBetter(frontTwo, rearThree)).toBe(true);
+  });
+
+  it("orders facing-safe candidates by cast, near occlusion, then margin", () => {
+    const base: CameraCandidateScore = {
+      containedActors: 2,
+      totalActors: 3,
+      nearOcclusionFraction: 0.08,
+      minMargin: 0.1,
+      meanFacing: 20,
+      placardBack: false,
+    };
+    expect(cameraScoreIsBetter({ ...base, containedActors: 3, meanFacing: 89 }, base)).toBe(true);
+    expect(cameraScoreIsBetter({ ...base, nearOcclusionFraction: 0.07, meanFacing: 89 }, base)).toBe(true);
+    expect(cameraScoreIsBetter({ ...base, minMargin: 0.2, meanFacing: 89 }, base)).toBe(true);
+  });
 });

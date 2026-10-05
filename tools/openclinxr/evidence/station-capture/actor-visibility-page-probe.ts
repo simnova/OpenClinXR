@@ -9,6 +9,7 @@ export type ActorVisibilityOccluder = {
 export type ActorVisibilityReading = {
   actorId: string;
   crownVisible: boolean;
+  chestVisible: boolean;
   visibleSampleCount: number;
   sampleCount: 5;
   visible: boolean;
@@ -16,7 +17,7 @@ export type ActorVisibilityReading = {
 };
 
 export const ACTOR_VISIBILITY_METHOD =
-  "camera rays to crown, chest, pelvis, left foot and right foot; visible mesh world-AABB intersections; own actor excluded; crown plus 3/4 other samples required";
+  "camera rays to crown, chest, pelvis, left foot and right foot; visible mesh world-AABB intersections; own actor excluded; crown and chest required; lower-body samples reported only";
 
 type Point = [number, number, number];
 
@@ -91,12 +92,14 @@ export function measureActorVisibility(
     else blockedSamples.push({ sample: sample.name, blockedBy });
   }
   const crownVisible = !blockedSamples.some((sample) => sample.sample === "crown");
+  const chestVisible = !blockedSamples.some((sample) => sample.sample === "chest");
   return {
     actorId: actor.id,
     crownVisible,
+    chestVisible,
     visibleSampleCount,
     sampleCount: 5,
-    visible: crownVisible && visibleSampleCount >= 4,
+    visible: crownVisible && chestVisible,
     blockedSamples,
   };
 }
@@ -162,8 +165,9 @@ export const ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE = String.raw`function (ori
     else blockedSamples.push({ sample: samples[s].name, blockedBy: blockedBy });
   }
   const crownVisible = !blockedSamples.some(function (sample) { return sample.sample === "crown"; });
+  const chestVisible = !blockedSamples.some(function (sample) { return sample.sample === "chest"; });
   return {
-    actorId: actor.id, crownVisible: crownVisible, visibleSampleCount: visibleSampleCount,
-    sampleCount: 5, visible: crownVisible && visibleSampleCount >= 4, blockedSamples: blockedSamples
+    actorId: actor.id, crownVisible: crownVisible, chestVisible: chestVisible, visibleSampleCount: visibleSampleCount,
+    sampleCount: 5, visible: crownVisible && chestVisible, blockedSamples: blockedSamples
   };
 }`;

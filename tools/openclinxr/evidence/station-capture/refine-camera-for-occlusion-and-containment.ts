@@ -419,8 +419,8 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
     const baselineEye = cameraWorld();
     const savedPx = camera.position.x, savedPy = camera.position.y, savedPz = camera.position.z;
     const savedQx = camera.quaternion.x, savedQy = camera.quaternion.y, savedQz = camera.quaternion.z, savedQw = camera.quaternion.w;
-    let best = baseline.placardBack ? null : baseline;
-    let bestEye = baseline.placardBack ? null : baselineEye;
+    let best = baseline.placardBack || baseline.meanFacing > 90 ? null : baseline;
+    let bestEye = baseline.placardBack || baseline.meanFacing > 90 ? null : baselineEye;
     const distances = [];
     for (let distance = 1.4; distance <= 4.21; distance += 0.1) distances.push(distance);
     const turns = 64;

@@ -117,10 +117,13 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
   }
   if (isSupine) {
     const deckStretcher = ctx.findStretcherInScene(input.actorSlot);
+    const requiredSupport = slotData["openClinXrRequiredSupportInstanceId"];
+    const alignHeadToPillow = typeof requiredSupport !== "string" || !requiredSupport.endsWith(":exam_surface");
     ctx.applyAndPlantSupineDeck(input.humanoid, {
       deckTopWorldY: ctx.stretcherDeckTopWorldY(),
       deckCenter: { x: input.actorSlot.position.x, z: input.actorSlot.position.z },
       ...(deckStretcher ? { stretcher: deckStretcher } : {}),
+      alignHeadToPillow,
     });
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
