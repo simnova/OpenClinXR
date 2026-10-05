@@ -43,6 +43,7 @@
     "runtimeEquipmentIdsForTag",
     "updateEnvironmentRealismAnimations"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/xr-runtime-state",

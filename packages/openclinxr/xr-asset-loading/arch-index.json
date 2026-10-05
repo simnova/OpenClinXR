@@ -34,6 +34,9 @@
     "suppressRuntimeDiagnosticOverlaysForSourceComparator",
     "tintGeneratedSceneMaterials"
   ],
+  "exportSummaries": {
+    "clinicalTouchResponseClipNamesForActor": "Case-driven one-shot response clip names (bodyMechanics.touchResponses.responseClip)."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/shared-schemas",

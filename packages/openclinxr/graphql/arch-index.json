@@ -12,6 +12,7 @@
     "executeAdminGraphql",
     "openClinXrAdminSchemaSdl"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [],
   "tests": [
     "src/admin-graphql.test.ts",

@@ -12,6 +12,9 @@
     "withComputeSlot",
     "withComputeSlotSync"
   ],
+  "exportSummaries": {
+    "withComputeSlotSync": "Synchronous adapter for command-line tools that already use spawnSync/execFileSync."
+  },
   "workspaceDependencies": [],
   "tests": [
     "src/slots.test.ts"

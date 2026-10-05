@@ -25,6 +25,14 @@
     "scenarioDialogueSeedBank",
     "variantScenarioBank"
   ],
+  "exportSummaries": {
+    "AuthoredUtteranceRecord": "One persisted Peds utterance record.",
+    "affectForAuthoredRecord": "Authored affect wins; keyword/demeanor inference never overrides it.",
+    "clinicKneePainScenario": "Sports-medicine clinic draft (notEvidenceFor clinical validity / scoring).",
+    "pediatricAsthmaScenario": "Public entry: keep-only re-exports.",
+    "scenarioBank": "Public entry: keep-only re-exports.",
+    "scenarioDialogueSeedBank": "Public entry: keep-only re-exports."
+  },
   "workspaceDependencies": [
     "@openclinxr/shared-schemas"
   ],

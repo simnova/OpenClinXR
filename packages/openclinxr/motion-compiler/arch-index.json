@@ -13,6 +13,14 @@
     "planMotionProgram",
     "readMotionGlbClipId"
   ],
+  "exportSummaries": {
+    "CompiledMotionClipV1": "The exact clip shape the keystone freezes — one representation, imported by consumers.",
+    "MotionGlbBakeClip": "Bake input.",
+    "bakeMotionProgramToGlb": "Motion GLB bake entry — deterministic GLB with exact clip identity.",
+    "compileMotionProgram": "Canonical compile entry + loaded-actor skeleton profile (MSC-C1 gateway path).",
+    "planMotionProgram": "Plan a validated semantic MotionProgram from authored scenario data.",
+    "readMotionGlbClipId": "Motion GLB bake entry — deterministic GLB with exact clip identity."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry"
   ],

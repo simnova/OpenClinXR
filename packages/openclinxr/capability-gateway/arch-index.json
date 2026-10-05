@@ -38,6 +38,9 @@
     "processNextEncounterAssetGenerationQueueMessage",
     "resolveDeterministicActorTurnPlan"
   ],
+  "exportSummaries": {
+    "createDeterministicAssetGenerationAdapter": "Deterministic no-spend fixture adapter (#610): materializes the manifest/source files it references so no succeeded job claims artifacts nobody wrote."
+  },
   "workspaceDependencies": [
     "@cellix/provider-contracts",
     "@openclinxr/motion-compiler",

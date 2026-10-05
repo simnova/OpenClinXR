@@ -16,6 +16,7 @@
     "capabilityTagColor",
     "findAdminWorkbenchRoute"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/domain",

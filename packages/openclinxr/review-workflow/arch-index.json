@@ -36,6 +36,15 @@
     "evaluateScenarioPublicationReadiness",
     "stripPrivateHiddenFactPayload"
   ],
+  "exportSummaries": {
+    "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES": "Canonical encounter→note→advance types from scenario-runtime 73046d48.",
+    "FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR": "Claim-control for faculty score / decision DRAFTS.",
+    "FacultyScoreDraft": "Gated faculty score draft — local review aid only; not score-use evidence.",
+    "ReviewDecisionDraft": "Faculty review decision draft with hard-gated scoring claim boundary.",
+    "ReviewerAttestationVerifier": "A trusted attestation port.",
+    "buildFacultyScoreDraft": "Build a gated FacultyScoreDraft.",
+    "buildReviewDecisionDraft": "Compose a ReviewDecisionDraft from packet + faculty draft inputs."
+  },
   "workspaceDependencies": [
     "@openclinxr/domain",
     "@openclinxr/shared-schemas"

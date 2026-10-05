@@ -18,6 +18,9 @@
     "nextExamScenarioId",
     "positiveIntegerQueryParam"
   ],
+  "exportSummaries": {
+    "ExamRunQueryDeps": "Exam-run query wiring — extracted from apps/ui-xr/src/main.ts (shrink-only SIZE_FREEZE)."
+  },
   "workspaceDependencies": [
     "@openclinxr/exam-assembly",
     "@openclinxr/xr-runtime-state"

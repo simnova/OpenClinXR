@@ -32,6 +32,7 @@
     "updateTraceReadiness",
     "updateXrStatus"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/xr-runtime-state"
   ],

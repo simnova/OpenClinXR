@@ -46,6 +46,13 @@
     "validateTraceEvent",
     "validateVoiceProviderAudit"
   ],
+  "exportSummaries": {
+    "ComplianceRegionSchema": "Body region a physician can touch/examine.",
+    "EQUIPMENT_BINDING_PRECEDENCE": "Which list wins when the two disagree.",
+    "InitialSceneSpec": "Reviewable initial scene specification for one encounter.",
+    "ProductionStationId": "Compat re-export.",
+    "classifyScenarioEquipmentBinding": "Total classification of a scenario's equipment strings against its assetNeeds."
+  },
   "workspaceDependencies": [
     "@cellix/provider-contracts",
     "@openclinxr/factory-stations"

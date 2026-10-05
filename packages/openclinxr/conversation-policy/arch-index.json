@@ -31,6 +31,20 @@
     "stripProviderMarkup",
     "updateHistoryTakingCoverage"
   ],
+  "exportSummaries": {
+    "CaseEmotionPolicy": "Per-case emotion policy that drives the transition engine.",
+    "ConversationPolicy": "Optional injectable conversation policy surface for ScenarioRuntime.",
+    "EmotionEngine": "Mutable, stateful wrapper around resolveEmotionTransition for use in a running encounter.",
+    "EmotionEventKind": "Kinds of conversation events that can trigger an emotion transition in the standardized-patient / parent actor.",
+    "LearnerSttBargeInRecord": "STT barge-in record as consumed by conversation-policy (structural, no voice-gateway import).",
+    "arbitrateTurnTaking": "Deterministic who-speaks-next arbitration.",
+    "buildHistoryTakingCoverageSpec": "Build a per-scenario history-taking coverage spec.",
+    "classifyEmotionEventDetailed": "Classify one learner event.",
+    "domainsForTraceTag": "Return domain ids whose matchesTraceTags include the given trace tag.",
+    "mapEmotionPerformance": "Map the full emotion/style/intensity/age key to one deterministic performance plan.",
+    "stripProviderMarkup": "Strip recognized xAI provider markup from generated/ authored text.",
+    "updateHistoryTakingCoverage": "Deterministically update coverage from observed trace tags and/or learner utterance keywords."
+  },
   "workspaceDependencies": [
     "@openclinxr/shared-schemas"
   ],

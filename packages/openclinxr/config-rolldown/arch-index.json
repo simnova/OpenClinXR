@@ -6,6 +6,7 @@
     "createOpenClinXrAzureFunctionsRolldownConfig",
     "prepareOpenClinXrAzureFunctionsDeploy"
   ],
+  "exportSummaries": {},
   "workspaceDependencies": [],
   "tests": [
     "src/openclinxr-rolldown-config.test.ts"

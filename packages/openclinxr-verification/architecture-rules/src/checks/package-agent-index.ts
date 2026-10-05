@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import type { Dirent } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CEILING_FILENAME, exportedSymbols } from "./export-surface-budgets.js";
 
@@ -43,6 +43,11 @@ export type PackageAgentIndex = {
   readonly purpose?: string;
   /** Every symbol reachable from the entrypoint, star-export chains followed. */
   readonly exports: readonly string[];
+  /**
+   * Per-export one-liners: export name -> first sentence of that export's own TSDoc. An export
+   * with no TSDoc has no key. Derived, never hand-written: the gate rebuilds it from the tree.
+   */
+  readonly exportSummaries: Readonly<Record<string, string>>;
   readonly workspaceDependencies: readonly string[];
   /** Test files inside the package, relative to the package directory. */
   readonly tests: readonly string[];
@@ -52,7 +57,7 @@ export type PackageAgentIndex = {
   readonly ceilings?: Readonly<Record<string, unknown>>;
 };
 
-function findWorkspaceRoot(): string {
+export function findWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 12; i += 1) {
     try {
@@ -69,6 +74,29 @@ function findWorkspaceRoot(): string {
 const REPORTED_SCRIPTS = ["test", "typecheck", "build", "lint", "architecture"] as const;
 
 const LEADING_TSDOC = /^\s*\/\*\*([\s\S]*?)\*\//u;
+const ANY_TSDOC = /\/\*\*([\s\S]*?)\*\//gu;
+/** A `from "./x.js"` target inside an export statement: the module half of a re-export. */
+const REEXPORT_SOURCE = /from\s+["'](\.[^"']*)["']/gu;
+
+/** Comment furniture stripped: `*` leaders, collapsed whitespace. */
+function tsdocProse(block: string): string {
+  return block
+    .split("\n")
+    .map((line) => line.replace(/^\s*\*\s?/u, "").trim())
+    .join(" ")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+/**
+ * First sentence of a TSDoc prose string. A sentence-ending period is followed by space or end
+ * of text. The periods inside "apps/ui-xr/src/main.ts" are followed by letters, so a path does
+ * not end the sentence.
+ */
+export function firstSentence(prose: string): string {
+  const end = /[.](?=\s|$)/u.exec(prose);
+  return (end === null ? prose : prose.slice(0, end.index + 1)).trim();
+}
 
 /**
  * First sentence of the entrypoint's leading TSDoc, with the comment furniture stripped. Returns
@@ -78,18 +106,116 @@ const LEADING_TSDOC = /^\s*\/\*\*([\s\S]*?)\*\//u;
 export function entrypointPurpose(source: string): string | undefined {
   const block = LEADING_TSDOC.exec(source);
   if (block === null) return undefined;
-  const prose = (block[1] ?? "")
-    .split("\n")
-    .map((line) => line.replace(/^\s*\*\s?/u, "").trim())
-    .join(" ")
-    .replace(/\s+/gu, " ")
-    .trim();
+  const prose = tsdocProse(block[1] ?? "");
   if (prose === "") return undefined;
-  // A sentence-ending period is followed by space or end of text. The periods inside
-  // "apps/ui-xr/src/main.ts" are followed by letters, so a path does not end the sentence.
-  const end = /[.](?=\s|$)/u.exec(prose);
-  const sentence = end === null ? prose : prose.slice(0, end.index + 1);
-  return sentence.trim() === "" ? undefined : sentence.trim();
+  const sentence = firstSentence(prose);
+  return sentence === "" ? undefined : sentence;
+}
+
+/**
+ * Names a statement publishes. Covers `export { a, b as c }` (and `export type {`) blocks,
+ * where the exported name follows `as`, and plain declarations (`export const foo`,
+ * `function foo`) so star-exported modules resolve through their defining file.
+ */
+function statementExportedNames(statement: string): string[] {
+  const block = /^export\s+(?:type\s+)?\{([^}]*)\}/u.exec(statement.trim());
+  if (block !== null) {
+    return (block[1] ?? "")
+      .split(",")
+      .map((part) => part.trim().split(" as ").pop()?.replace(/^type\s+/u, "").trim() ?? "")
+      .filter((name) => name !== "");
+  }
+  const declaration =
+    /^(?:export\s+)?(?:declare\s+)?(?:async\s+)?(?:function|const|let|var|class|interface|type|enum)\s+(\w+)/u.exec(
+      statement.trim(),
+    );
+  return declaration?.[1] === undefined || declaration[1] === "" ? [] : [declaration[1]];
+}
+
+/**
+ * Export name -> summary for one source file. A TSDoc block documents the names in the
+ * statement that follows it (up to the first `;`, else the declaration head). Only statements
+ * that declare or export names count, so an overview comment above an import maps nothing.
+ */
+function docAttachedSummaries(source: string, skipLeadingBlock: boolean): Map<string, string> {
+  const out = new Map<string, string>();
+  let seenLeading = false;
+  for (const match of source.matchAll(ANY_TSDOC)) {
+    const start = match.index ?? 0;
+    if (skipLeadingBlock && !seenLeading) {
+      seenLeading = true;
+      // The entrypoint's leading block is the package purpose, already captured as `purpose`.
+      // Crediting it to every export below would let keep-only barrels pass the per-export
+      // gate on prose that describes no export.
+      if (source.slice(0, start).trim() === "") continue;
+    }
+    const prose = tsdocProse(match[1] ?? "");
+    if (prose === "") continue;
+    const tail = source.slice(start + match[0].length).replace(/^\s+/u, "");
+    const end = tail.indexOf(";");
+    const head = end === -1 ? tail.slice(0, tail.indexOf("{")).trim() || tail.slice(0, 200) : tail.slice(0, end);
+    const summary = firstSentence(prose);
+    if (summary === "") continue;
+    for (const name of statementExportedNames(head)) {
+      if (!out.has(name)) out.set(name, summary);
+    }
+  }
+  return out;
+}
+
+/**
+ * Source files whose declarations can carry an export's summary: the entrypoint plus every
+ * module it re-exports from, transitively. Entry first, the rest sorted, so attribution is
+ * deterministic. Confined to the package directory.
+ */
+function summarySourceFiles(entry: string): string[] {
+  const real = realpathSync(entry);
+  const pkgDir = dirname(real);
+  const seen = new Set<string>([real]);
+  const tail = new Set<string>();
+  const queue = [real];
+  while (queue.length > 0) {
+    const file = queue.pop() ?? "";
+    let text = "";
+    try {
+      text = readFileSync(file, "utf8");
+    } catch {
+      continue;
+    }
+    for (const match of text.matchAll(REEXPORT_SOURCE)) {
+      const resolved = resolve(dirname(file), (match[1] ?? "").replace(/\.js$/u, ".ts"));
+      if (!resolved.startsWith(pkgDir) || !resolved.endsWith(".ts")) continue;
+      let canonical = "";
+      try {
+        canonical = realpathSync(resolved);
+      } catch {
+        continue;
+      }
+      if (seen.has(canonical)) continue;
+      seen.add(canonical);
+      tail.add(canonical);
+      queue.push(canonical);
+    }
+  }
+  return [real, ...[...tail].sort()];
+}
+
+/**
+ * Every export's own one-liner, derived from the tree. The entrypoint is read first so its
+ * per-export docs win over the defining module's; only names in `exports` are kept by the
+ * caller. An export with no TSDoc anywhere has no key — that absence is what the ratchet counts.
+ */
+export function exportSummaries(entry: string): Record<string, string> {
+  const out = new Map<string, string>();
+  const files = summarySourceFiles(entry);
+  const entryReal = files[0] ?? "";
+  for (const file of files) {
+    const skipLeading = file === entryReal;
+    for (const [name, summary] of docAttachedSummaries(readFileSync(file, "utf8"), skipLeading)) {
+      if (!out.has(name)) out.set(name, summary);
+    }
+  }
+  return Object.fromEntries([...out].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
 function testFilesUnder(dir: string, base: string, out: string[]): void {
@@ -110,8 +236,16 @@ function testFilesUnder(dir: string, base: string, out: string[]): void {
   }
 }
 
-/** Directory names under packages/openclinxr that publish a src/index.ts. */
-export function indexedPackages(root: string = findWorkspaceRoot()): string[] {
+/**
+ * Candidate package directories: every directory under packages/openclinxr at depth 1 or 2.
+ * Depth 2 covers nested packages such as arena/model-vetting, and a future stations/*
+ * rollout lands indexed without a walker change here. Depth stops at 2 so a package's own
+ * fixtures (e.g. src/__fixtures__ with a stray package.json) never index as packages.
+ *
+ * Exported so the arch:index writer enumerates the same candidate set as the gate instead of
+ * reimplementing the walk beside it.
+ */
+export function candidatePackageDirs(root: string): string[] {
   const packagesRoot = join(root, "packages", "openclinxr");
   let entries: Dirent[];
   try {
@@ -119,10 +253,32 @@ export function indexedPackages(root: string = findWorkspaceRoot()): string[] {
   } catch {
     return [];
   }
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((pkg) => existsSync(join(packagesRoot, pkg, "src", "index.ts")))
+  const out: string[] = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.name === "node_modules") continue;
+    out.push(entry.name);
+    let nested: Dirent[];
+    try {
+      nested = readdirSync(join(packagesRoot, entry.name), { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const child of nested) {
+      if (child.isDirectory()) out.push(`${entry.name}/${child.name}`);
+    }
+  }
+  return out;
+}
+
+/** Package directory keys under packages/openclinxr that publish a src/index.ts. */
+export function indexedPackages(root: string = findWorkspaceRoot()): string[] {
+  const packagesRoot = join(root, "packages", "openclinxr");
+  return candidatePackageDirs(root)
+    .filter(
+      (rel) =>
+        existsSync(join(packagesRoot, rel, "package.json"))
+        && existsSync(join(packagesRoot, rel, "src", "index.ts")),
+    )
     .sort();
 }
 
@@ -152,12 +308,20 @@ export function buildPackageAgentIndex(
   }
   const ceilingPath = join(dir, CEILING_FILENAME);
   const purpose = entrypointPurpose(readFileSync(entry, "utf8"));
+  const exported = [...exportedSymbols(entry)].sort();
+  const summaries = exportSummaries(entry);
+  const documented: Record<string, string> = {};
+  for (const exportName of exported) {
+    const summary = summaries[exportName];
+    if (summary !== undefined) documented[exportName] = summary;
+  }
   const index: PackageAgentIndex = {
     package: pkg,
     name,
     entrypoint: `packages/openclinxr/${pkg}/src/index.ts`,
     ...(purpose === undefined ? {} : { purpose }),
-    exports: [...exportedSymbols(entry)].sort(),
+    exports: exported,
+    exportSummaries: documented,
     workspaceDependencies: Object.entries(manifest.dependencies ?? {})
       .filter(([, range]) => range.startsWith("workspace:"))
       .map(([dependency]) => dependency)
@@ -226,18 +390,12 @@ export function checkPackageAgentIndexesAreCurrent(root: string = findWorkspaceR
 export function checkNoOrphanedPackageAgentIndexes(root: string = findWorkspaceRoot()): string[] {
   const packagesRoot = join(root, "packages", "openclinxr");
   const indexed = new Set(indexedPackages(root));
-  let entries: Dirent[];
-  try {
-    entries = readdirSync(packagesRoot, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  return entries
-    .filter((entry) => entry.isDirectory() && !indexed.has(entry.name))
-    .filter((entry) => existsSync(join(packagesRoot, entry.name, INDEX_FILENAME)))
+  return candidatePackageDirs(root)
+    .filter((rel) => !indexed.has(rel))
+    .filter((rel) => existsSync(join(packagesRoot, rel, INDEX_FILENAME)))
     .map(
-      (entry) =>
-        `packages/openclinxr/${entry.name}/${INDEX_FILENAME}: the package no longer publishes a `
+      (rel) =>
+        `packages/openclinxr/${rel}/${INDEX_FILENAME}: the package no longer publishes a `
         + `src/index.ts, so this index describes nothing. FIX: pnpm arch:index`,
     )
     .sort();

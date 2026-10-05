@@ -28,6 +28,10 @@
     "updateGeneratedHumanoidAnimations",
     "updateHumanoidEmotionExpression"
   ],
+  "exportSummaries": {
+    "isGeneratedRuntimeDrive": "Local type-guard twin: keep call sites honest about unshaped floor userData.",
+    "playManifestMotionClip": "Resolve a motion-manifest address (clipId) onto a mixer."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/xr-dialogue",

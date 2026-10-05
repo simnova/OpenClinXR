@@ -33,6 +33,19 @@
     "runStaging",
     "writeLipSyncFixtureWav"
   ],
+  "exportSummaries": {
+    "PRODUCTION_STATION_IDS": "Production factory station interfaces (Standard Schema V1 + JSON Schema).",
+    "ProductionStationId": "Public entry: keep-only re-exports.",
+    "StandardIssue": "Standard Schema V1 result types, structurally matching the spec (github.com/standard-schema/standard-schema, packages/spec/src/index.ts) without taking a runtime dependency on it.",
+    "applyStationPayloadToCompileSpec": "Persist a validated station payload onto a compile-node spec.",
+    "runBodyParam": "Unique spawn of body_param_stage.py.",
+    "runClothingConsume": "Unique spawn of fit_stage.py.",
+    "runEquipmentGenerate": "Spawns run_bake_isolated.py in a fresh subprocess.",
+    "runLipSync": "Unique rhubarb spawn for lip_sync.",
+    "runMotionRetarget": "Unique spawn of motion_bind_stage.py.",
+    "runRoomGenerate": "Unique spawn of room albedo/occlusion bake scripts.",
+    "writeLipSyncFixtureWav": "Offline fixture TTS for local macOS."
+  },
   "workspaceDependencies": [
     "@openclinxr/compute-services-spec",
     "@openclinxr/compute-slots",

@@ -11,6 +11,14 @@
     "bakedTransformsConsumerAllowed",
     "liveEngineInProductionForbidden"
   ],
+  "exportSummaries": {
+    "BakedBoneFrame": "One frame of baked bone transforms",
+    "BakedBoneTransformsArtifact": "Top-level baked bone-transforms artifact",
+    "BakedPhysicsSchemaVersion": "Schema version identifier for the baked artifact",
+    "BoneDelta": "A single bone's delta transform at a simulation tick",
+    "bakedTransformsConsumerAllowed": "Baked offline transforms may be consumed by production apps (ui-xr opt-in capture).",
+    "liveEngineInProductionForbidden": "Live Rapier WASM is forbidden in all production runtime paths."
+  },
   "workspaceDependencies": [],
   "tests": [
     "src/__tests__/gates.test.ts"

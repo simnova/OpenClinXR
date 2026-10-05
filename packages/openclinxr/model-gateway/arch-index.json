@@ -21,6 +21,12 @@
     "createMlxModelProviderAdapter",
     "createOllamaModelProviderAdapter"
   ],
+  "exportSummaries": {
+    "MockModelProviderAdapter": "Deterministic offline actor-dialogue adapter.",
+    "buildActorCommunicationProfilePromptContext": "Kept at the PSR-03 land: this package's own tests consume these through the entrypoint (approval psr-01c).",
+    "buildActorResponseProviderPromptInput": "Kept at the PSR-03 land: this package's own tests consume these through the entrypoint (approval psr-01c).",
+    "createActorDialogueModelGateway": "Compose the actor-dialogue gateway the runtime uses by default: Muse Spark contributor (OpenRouter) first when an OpenRouter key is configured — the cheapest rung, $0.10/$0.20 per 1M verified 2026-09-02 against the live OpenRouter /models — then DeepSeek Flash (thinking disabled), ox (OpenRouter, retired but kept), local llama-server, mock last."
+  },
   "workspaceDependencies": [
     "@cellix/provider-contracts"
   ],
