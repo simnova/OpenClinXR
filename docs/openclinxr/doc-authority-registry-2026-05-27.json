@@ -5330,6 +5330,13 @@
       "rationale": "Current ECG-cart image-to-3dlab equipment cagematch decision record; not-adopted decision retained while Round 4 evidence awaits coordinator grade."
     },
     {
+      "path": "docs/madr/0060-station-solver-port-and-friend-tuning-boundary.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Proposed decision: station solvers are private to the executor, scored by a shared objective package; staging pilot follows the 2026-09-30 phases."
+    },
+    {
       "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
