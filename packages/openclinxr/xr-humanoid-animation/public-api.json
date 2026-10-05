@@ -19,7 +19,6 @@
       "isGeneratedRuntimeDrive",
       "orientHumanoidEyeFocusCue",
       "orientHumanoidTowardGazeTarget",
-      "playManifestMotionClip",
       "resolveHumanoidGazeTargetWorld",
       "startHumanoidEmotionTransition",
       "updateGeneratedHumanoidAnimations",
@@ -35,6 +34,9 @@
     ],
     "./locomotion-clip-playback": [
       "playLocomotionClip"
+    ],
+    "./manifest-motion-clip-playback": [
+      "playManifestMotionClip"
     ],
     "./mounted-approach-geometry": [
       "observeMountedApproachGeometry"

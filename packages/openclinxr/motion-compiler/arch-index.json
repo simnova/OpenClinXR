@@ -4,22 +4,11 @@
   "entrypoint": "packages/openclinxr/motion-compiler/src/index.ts",
   "purpose": "Deterministic motion planner entry, documented in docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md.",
   "exports": [
-    "CompiledMotionClipV1",
-    "MotionGlbBakeClip",
     "ScenarioMotionCompileInput",
-    "bakeMotionProgramToGlb",
-    "compileMotionProgram",
-    "deriveSkeletonProfileFromRigAsset",
-    "planMotionProgram",
-    "readMotionGlbClipId"
+    "planMotionProgram"
   ],
   "exportSummaries": {
-    "CompiledMotionClipV1": "The exact clip shape the keystone freezes — one representation, imported by consumers.",
-    "MotionGlbBakeClip": "Bake input.",
-    "bakeMotionProgramToGlb": "Motion GLB bake entry — deterministic GLB with exact clip identity.",
-    "compileMotionProgram": "Canonical compile entry + loaded-actor skeleton profile (MSC-C1 gateway path).",
-    "planMotionProgram": "Plan a validated semantic MotionProgram from authored scenario data.",
-    "readMotionGlbClipId": "Motion GLB bake entry — deterministic GLB with exact clip identity."
+    "planMotionProgram": "Plan a validated semantic MotionProgram from authored scenario data."
   },
   "workspaceDependencies": [
     "@openclinxr/asset-registry"
@@ -54,6 +43,6 @@
     "typecheck": "pnpm --filter @openclinxr/motion-compiler typecheck"
   },
   "ceilings": {
-    "testInternalImports": 13
+    "testInternalImports": 15
   }
 }

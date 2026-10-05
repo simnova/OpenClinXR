@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 

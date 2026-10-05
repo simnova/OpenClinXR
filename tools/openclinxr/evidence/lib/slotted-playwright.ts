@@ -1,4 +1,4 @@
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { type Browser, chromium as playwrightChromium } from "playwright";
 
 export * from "playwright";

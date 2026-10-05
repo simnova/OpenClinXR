@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { beforeAll, describe, expect, it } from "vitest";

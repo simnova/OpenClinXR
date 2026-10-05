@@ -23,7 +23,7 @@ import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import { decimateGlb, measureGlb as measureGlbRoom } from "./room-decimate.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

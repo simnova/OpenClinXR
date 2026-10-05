@@ -1,14 +1,17 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve as resolvePath } from "node:path";
-import type { CompiledMotionClipV1, MotionGlbBakeClip } from "@openclinxr/motion-compiler";
+import type { CompiledMotionClipV1 } from "@openclinxr/motion-compiler/compiler";
+import type { MotionGlbBakeClip } from "@openclinxr/motion-compiler/glb-bake";
 import {
   bakeMotionProgramToGlb,
+  readMotionGlbClipId,
+} from "@openclinxr/motion-compiler/glb-bake";
+import {
   compileMotionProgram,
   deriveSkeletonProfileFromRigAsset,
-  planMotionProgram,
-  readMotionGlbClipId,
-} from "@openclinxr/motion-compiler";
+} from "@openclinxr/motion-compiler/compiler";
+import { planMotionProgram } from "@openclinxr/motion-compiler";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 
 import type {

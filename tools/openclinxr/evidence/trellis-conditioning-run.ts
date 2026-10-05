@@ -53,7 +53,7 @@ import path from "node:path";
  *
  * Header IMMUTABLE — append ## FIXED (#697).
  */
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 import { chromium } from "./lib/slotted-playwright.js";
 import { runGlbGradeCapture } from "./model-vetting-glb-grade-capture.js";

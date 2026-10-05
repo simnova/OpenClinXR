@@ -2,19 +2,9 @@
   "package": "compute-slots",
   "name": "@openclinxr/compute-slots",
   "entrypoint": "packages/openclinxr/compute-slots/src/index.ts",
-  "purpose": "Machine-wide lock-file slots for coordinating heavy local subprocesses across agent harnesses.",
-  "exports": [
-    "ComputeSlotLease",
-    "ComputeSlotMeta",
-    "ComputeSlotPoolStatus",
-    "ComputeSlotsStatus",
-    "readComputeSlotsStatus",
-    "withComputeSlot",
-    "withComputeSlotSync"
-  ],
-  "exportSummaries": {
-    "withComputeSlotSync": "Synchronous adapter for command-line tools that already use spawnSync/execFileSync."
-  },
+  "purpose": "Root entrypoint publishes no symbols.",
+  "exports": [],
+  "exportSummaries": {},
   "workspaceDependencies": [],
   "tests": [
     "src/slots.test.ts"

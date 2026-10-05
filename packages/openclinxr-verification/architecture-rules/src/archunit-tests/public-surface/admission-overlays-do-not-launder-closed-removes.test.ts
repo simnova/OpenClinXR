@@ -443,7 +443,7 @@ describe("admission overlays do not launder closed removes", () => {
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
     // Initial empty allowlist was the PSR implementation prerequisite. The later
     // independently reviewed activation is exact, not an arbitrary admission id.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1"\]/u);
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -458,7 +458,7 @@ describe("admission overlays do not launder closed removes", () => {
 
 describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1"]);
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -487,6 +487,27 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  it("binds the independently reviewed viseme-motion subpath admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "viseme-motion-subpaths-v1.json"), "utf8"));
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      ["./viseme-runtime", "applyDialogueVisemeTimelineToRoot"],
+      ["./viseme-runtime", "applyJawOpenToRoot"],
+      ["./viseme-runtime", "mapDialoguePhonemesToCues"],
+      ["./viseme-morph", "applyVisemeWeights"],
+      ["./viseme-timeline", "jawOpenRadiansForPhoneme"],
+      ["./compiler", "CompiledMotionClipV1"],
+      ["./compiler", "compileMotionProgram"],
+      ["./compiler", "deriveSkeletonProfileFromRigAsset"],
+      ["./glb-bake", "MotionGlbBakeClip"],
+      ["./glb-bake", "bakeMotionProgramToGlb"],
+      ["./glb-bake", "readMotionGlbClipId"],
+      ["./manifest-motion-clip-playback", "playManifestMotionClip"],
+    ]);
+    expect(admission.admissionHash).toBe("e9f056cbd5755242ed090309802ddd3ca649e832a5f89054757c773e6087d845");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -496,15 +517,20 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/room-chain-wiring-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "room-chain-wiring-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/teeth-viseme-consumers-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "teeth-viseme-consumers-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/startup-cast-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "startup-cast-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/viseme-motion-subpaths-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "viseme-motion-subpaths-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));
   }
 
   it("omitting a genuinely admitted row leaves its published symbol as a named extra", () => {
-    withActualEvidence((root, admission) => {
-      const rows = admission.rows.filter((row) => row.symbol !== "compileMotionProgram");
-      writeAdmission(root, "psr-01f", rows, { reviewedBy: admission.reviewedBy });
+    withActualEvidence((root) => {
+      const subpaths = JSON.parse(readFileSync(join(root, `${ADMISSIONS_DIR}/viseme-motion-subpaths-v1.json`), "utf8")) as {
+        reviewedBy: string;
+        rows: OverlayRow[];
+      };
+      const rows = subpaths.rows.filter((row) => !(row.entrypoint === "./compiler" && row.symbol === "compileMotionProgram"));
+      writeAdmission(root, "viseme-motion-subpaths-v1", rows, { reviewedBy: subpaths.reviewedBy });
       const result = requireApplied(root, "psr-01c", measureSurface(ROOT));
       expect(result.ok).toBe(false);
       expect(result.detail).toMatch(/extra:.*compileMotionProgram/u);

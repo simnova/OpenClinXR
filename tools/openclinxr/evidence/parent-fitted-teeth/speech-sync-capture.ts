@@ -11,8 +11,9 @@ import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
-import { mapDialoguePhonemesToCues, phonemesForText } from "@openclinxr/xr-dialogue";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
+import { mapDialoguePhonemesToCues } from "@openclinxr/xr-dialogue/viseme-runtime";
+import { phonemesForText } from "@openclinxr/xr-dialogue";
 import type { Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../lib/portless-server.js";
 

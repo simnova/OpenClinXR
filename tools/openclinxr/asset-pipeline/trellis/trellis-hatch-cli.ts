@@ -23,7 +23,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 
 const require = createRequire(import.meta.url);
 

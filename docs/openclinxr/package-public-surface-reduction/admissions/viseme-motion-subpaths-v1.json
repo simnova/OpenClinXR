@@ -1,0 +1,134 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "viseme-motion-subpaths-v1",
+  "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "e9f056cbd5755242ed090309802ddd3ca649e832a5f89054757c773e6087d845",
+  "packages": [
+    "packages/openclinxr/motion-compiler",
+    "packages/openclinxr/xr-dialogue",
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-runtime",
+      "symbol": "applyDialogueVisemeTimelineToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "jaw-lip-couple.test.ts drives the parent teeth through the dialogue timeline via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-runtime",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts set the jaw hinge via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-runtime",
+      "symbol": "mapDialoguePhonemesToCues",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "speech-sync-capture.ts turns the spoken phonemes into timeline cues via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-morph",
+      "symbol": "applyVisemeWeights",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts write the teeth viseme weights via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-timeline",
+      "symbol": "jawOpenRadiansForPhoneme",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "parent fitted-teeth tools",
+      "rationale": "couple-fitted-teeth-to-lip-viseme.ts and jaw-lip-couple.test.ts convert a phoneme to jaw radians via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./compiler",
+      "symbol": "CompiledMotionClipV1",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Gateway production return type and compiled sidecar writer use the canonical compiler clip representation via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./compiler",
+      "symbol": "compileMotionProgram",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Gateway real authored ED row passes the planned program through canonical orchestration via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./compiler",
+      "symbol": "deriveSkeletonProfileFromRigAsset",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Gateway production derives the promoted MPFB rig profile from the bound GLB via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./glb-bake",
+      "symbol": "MotionGlbBakeClip",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Gateway publication and the motion tool are typed against the deterministic bake input contract via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./glb-bake",
+      "symbol": "bakeMotionProgramToGlb",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Gateway production paths invoke deterministic bake on compiled tracks via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/motion-compiler",
+      "entrypoint": "./glb-bake",
+      "symbol": "readMotionGlbClipId",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "capability-gateway",
+      "rationale": "Both production publication paths read back the binary clip identity via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./manifest-motion-clip-playback",
+      "symbol": "playManifestMotionClip",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "UI-XR motion-manifest-motion-address.ts selects and starts only the addressed loaded clip via the supported subpath.",
+      "reviewedBy": "Codex gpt-5 independent read-only reviewer, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05 (verdict saved in the PR evidence)"
+    }
+  ]
+}

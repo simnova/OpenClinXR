@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JAW_OPEN_TEETH_CLEAR_RADIANS } from "./index.js";
+import { jawOpenRadiansForPhoneme } from "./viseme-timeline.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
@@ -100,7 +100,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
       phonemeSequence: ["AA"],
       progress: 0,
     });
-    const drivenJaw = Number(JAW_OPEN_TEETH_CLEAR_RADIANS.toFixed(6));
+    const drivenJaw = Number(jawOpenRadiansForPhoneme("AA").toFixed(6));
     expect(body.morphTargetInfluences[body.morphTargetDictionary.viseme_AA]!).toBe(LIP_VISEME_GAIN);
     expect(teeth.morphTargetInfluences[0]).toBe(JAW_TEETH_GAIN);
     expect(result.jawOpenRadians).toBeCloseTo(drivenJaw * JAW_TEETH_GAIN, 5);

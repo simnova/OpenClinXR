@@ -34,7 +34,7 @@ import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 const __dirname = path.resolve(fileURLToPath(import.meta.url), "..");

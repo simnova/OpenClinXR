@@ -37,7 +37,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { measureStanceGroundAdvance } from "@openclinxr/xr-humanoid-animation/case-owned-approach-runtime";
 // Same package (repo-root package.json, no package.json under either tools/ subtree) as this
 // file — not a cross-package reach, so it is outside the shrink-only frozen-boundary freeze that

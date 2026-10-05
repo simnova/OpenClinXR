@@ -1,4 +1,4 @@
-import { readComputeSlotsStatus } from "@openclinxr/compute-slots";
+import { readComputeSlotsStatus } from "@openclinxr/compute-slots/slots";
 
 const status = readComputeSlotsStatus();
 if (process.argv.includes("--json")) {

@@ -10,8 +10,8 @@ import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { bakeMotionProgramToGlb, readMotionGlbClipId } from "../../../../packages/openclinxr/motion-compiler/src/index.ts";
-import type { MotionGlbBakeClip } from "../../../../packages/openclinxr/motion-compiler/src/index.ts";
+import { bakeMotionProgramToGlb, readMotionGlbClipId } from "@openclinxr/motion-compiler/glb-bake";
+import type { MotionGlbBakeClip } from "@openclinxr/motion-compiler/glb-bake";
 
 export interface MotionAssetPipelineInput {
   clip: MotionGlbBakeClip;

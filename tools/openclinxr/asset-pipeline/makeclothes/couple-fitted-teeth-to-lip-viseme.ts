@@ -38,12 +38,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import { Bone, BufferAttribute, BufferGeometry, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Skeleton, SkinnedMesh, Vector2, Vector3 } from "three";
-import {
-  applyJawOpenToRoot,
-  applyVisemeWeights,
-  jawApertureFractionTable,
-  jawOpenRadiansForPhoneme,
-} from "@openclinxr/xr-dialogue";
+import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
+import { applyVisemeWeights } from "@openclinxr/xr-dialogue/viseme-morph";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
 
 type MorphTargetLike = {
   morphTargetDictionary: Record<string, number>;
@@ -649,12 +646,15 @@ export type MeasuredVisemeGap = {
   lowerM: number;
 };
 
-/** Jaw-aperture fraction for a body `viseme_*` name. Unknown tokens use the driver's 0.25 partial. */
+/** Jaw-aperture fraction for a body `viseme_*` name. Ratio of the canonical jaw mapping to full open. */
 export function jawFractionForVisemeName(name: string): number {
-  const phoneme = name.replace(/^viseme_/i, "").trim().toLowerCase();
-  if (!phoneme || phoneme === "sil" || phoneme === "silence" || phoneme === "rest") return 0;
-  const fraction = jawApertureFractionTable()[phoneme];
-  return typeof fraction === "number" ? fraction : 0.25;
+  const token = name.replace(/^viseme_/i, "").trim();
+  if (!token) return 0;
+  const lower = token.toLowerCase();
+  if (lower === "sil" || lower === "silence" || lower === "rest") return 0;
+  const full = jawOpenRadiansForPhoneme("AA");
+  if (!full) return 0;
+  return jawOpenRadiansForPhoneme(token) / full;
 }
 
 /** Mean of the per-viseme upper/lower front-shell means, over jaw fractions above zero. */

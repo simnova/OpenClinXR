@@ -22,15 +22,13 @@
     "isGeneratedRuntimeDrive",
     "orientHumanoidEyeFocusCue",
     "orientHumanoidTowardGazeTarget",
-    "playManifestMotionClip",
     "resolveHumanoidGazeTargetWorld",
     "startHumanoidEmotionTransition",
     "updateGeneratedHumanoidAnimations",
     "updateHumanoidEmotionExpression"
   ],
   "exportSummaries": {
-    "isGeneratedRuntimeDrive": "Local type-guard twin: keep call sites honest about unshaped floor userData.",
-    "playManifestMotionClip": "Resolve a motion-manifest address (clipId) onto a mixer."
+    "isGeneratedRuntimeDrive": "Local type-guard twin: keep call sites honest about unshaped floor userData."
   },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",

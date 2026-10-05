@@ -3,7 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { readComputeSlotsStatus, withComputeSlot } from "@openclinxr/compute-slots";
+import { readComputeSlotsStatus, withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { runRoomGenerate } from "./index.js";
 
 let root: string | null = null;

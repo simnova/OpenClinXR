@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 49 roots and 119 declared entrypoints", () => {
+  it("(1) the live tree discovers 49 roots and 128 declared entrypoints", () => {
     const report = measureSurface();
     expect(report.totals.roots).toBe(49);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
@@ -124,7 +124,13 @@ describe("compiler-resolved surface meter", () => {
     // The reviewed actor-audio-runtime subpath adds one declared entrypoint; root count is unchanged.
     // compute-services-spec and service-local-compute each add one reviewed root entrypoint.
     // The independently reviewed room-chain tools add one isolated subpath.
-    expect(report.totals.entrypoints).toBe(119);
+    // 2026-10-05 surface restoration: compute-slots, compute-services-spec and
+    // service-local-compute roots publish no symbols; their contracts move to the ./slots,
+    // ./contracts and ./local subpaths, adding three declared entrypoints (119 -> 122).
+    // 2026-10-05 viseme-motion verdict: xr-dialogue adds ./viseme-runtime, ./viseme-morph and
+    // ./viseme-timeline; motion-compiler adds ./compiler and ./glb-bake; xr-humanoid-animation
+    // adds ./manifest-motion-clip-playback — six declared entrypoints (122 -> 128).
+    expect(report.totals.entrypoints).toBe(128);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

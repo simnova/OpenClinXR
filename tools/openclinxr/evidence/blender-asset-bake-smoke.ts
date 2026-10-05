@@ -5,7 +5,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { globFiles } from "../../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);

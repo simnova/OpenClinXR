@@ -50,21 +50,41 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENTRYPOINT = join(HERE, "index.ts");
+const COMPILER_ENTRYPOINT = join(HERE, "compiler.ts");
+const GLB_BAKE_ENTRYPOINT = join(HERE, "glb-bake.ts");
 
-/** The three the independent review found have no consumer outside this package. */
-const CUT = ["MotionGlbBakeTrack", "MotionGlbReadback", "readMotionGlb"] as const;
-
-/** Approved keeps plus the three with real external consumers. All must survive. */
-const KEEP = [
-  "planMotionProgram",
-  "ScenarioMotionCompileInput",
+/** Symbols with no consumer on the root entrypoint: the three never-imported cuts plus the six moved to subpaths. */
+const CUT_FROM_ROOT = [
+  "MotionGlbBakeTrack",
+  "MotionGlbReadback",
+  "readMotionGlb",
+  "CompiledMotionClipV1",
+  "compileMotionProgram",
+  "deriveSkeletonProfileFromRigAsset",
+  "MotionGlbBakeClip",
   "bakeMotionProgramToGlb",
   "readMotionGlbClipId",
-  "MotionGlbBakeClip",
 ] as const;
+
+/** What the root still publishes: the two symbols whose consumers bind the root. */
+const ROOT_KEEP = ["planMotionProgram", "ScenarioMotionCompileInput"] as const;
+
+/** What ./compiler publishes: the three symbols the capability gateway binds there. */
+const COMPILER_KEEP = [
+  "CompiledMotionClipV1",
+  "compileMotionProgram",
+  "deriveSkeletonProfileFromRigAsset",
+] as const;
+
+/** What ./glb-bake publishes: the three symbols the gateway and the motion tool bind there. */
+const GLB_KEEP = ["MotionGlbBakeClip", "bakeMotionProgramToGlb", "readMotionGlbClipId"] as const;
 
 function entrypointSource(): string {
   return readFileSync(ENTRYPOINT, "utf8");
+}
+
+function readSource(file: string): string {
+  return readFileSync(file, "utf8");
 }
 
 /** A whole-word hit, so `readMotionGlb` does not match inside `readMotionGlbClipId`. */
@@ -74,47 +94,66 @@ function publishes(source: string, symbol: string): boolean {
 
 describe("the entrypoint publishes only what a consumer imports", () => {
   // (0) VACUITY GUARD. If index.ts were empty or unreadable, clause (1) would pass for the wrong
-  // reason. This pins that the five kept symbols are named there, so a pass of (1) is about the
-  // cut and never about a missing file.
+  // reason. This pins that the two kept root symbols are named there, so a pass of (1) is about
+  // the move and never about a missing file.
   // ## FIXED (bothy-tsk_e133db2e0e13d261): this guard originally pinned all EIGHT symbols named in
   // index.ts (CUT + KEEP) as the pre-fix inventory. The cut removed the three CUT symbols from the
   // entrypoint, so the guard now pins the five KEEP symbols — same anti-vacuity strength, updated
   // inventory. Clause (1) below asserts the CUT absence.
-  it("(0) the entrypoint exists and names the five kept symbols", () => {
+  // ## FIXED (2026-10-05 Codex independent verdict 01a10cce): the six consumer-bound symbols left
+  // the root for ./compiler and ./glb-bake; the guard now pins the two symbols whose consumers
+  // still bind the root.
+  it("(0) the entrypoint exists and names the two kept root symbols", () => {
     const src = entrypointSource();
-    expect(src.length, "index.ts is empty — clause (1) would pass vacuously").toBeGreaterThan(100);
-    for (const symbol of KEEP) {
+    expect(src.length, "index.ts is empty — clause (1) would pass vacuously").toBeGreaterThan(50);
+    for (const symbol of ROOT_KEEP) {
       expect(publishes(src, symbol), `${symbol} is not named in index.ts — this guard is stale`).toBe(true);
     }
   });
 
-  // (1) RED — the three symbols with no external consumer must leave the entrypoint.
+  // (1) — the three never-imported symbols plus the six moved to subpaths must leave the root.
   // MEASURED as plain `it(` on 2026-09-14: 1 failed | 3 passed, the failure reading
   // "index.ts still publishes MotionGlbBakeTrack, which has no consumer outside this package".
   // Marked it.fails so the suite is green while the defect stands. THE FIX MUST CONVERT IT BACK
   // TO `it(` — the card's live: rule fails while any it.fails clause remains, so a green run here
   // is not evidence of repair.
-  it("(1) does not publish the three symbols nothing outside this package imports", () => {
+  it("(1) does not publish the nine symbols nothing on the root imports", () => {
     const src = entrypointSource();
-    for (const symbol of CUT) {
-      expect(publishes(src, symbol), `index.ts still publishes ${symbol}, which has no consumer outside this package`).toBe(false);
+    for (const symbol of CUT_FROM_ROOT) {
+      expect(publishes(src, symbol), `index.ts still publishes ${symbol}, which has no root consumer`).toBe(false);
     }
   });
 
-  // (2) COUNTERWEIGHT — the cut must not take the consumed symbols with it.
-  it("(2) still publishes every symbol a real consumer imports", () => {
+  // (2) COUNTERWEIGHT — the move must not take the root-bound symbols with it.
+  it("(2) still publishes every symbol a real root consumer imports", () => {
     const src = entrypointSource();
-    for (const symbol of KEEP) {
-      expect(publishes(src, symbol), `index.ts dropped ${symbol}, which capability-gateway or the approved rows require`).toBe(true);
+    for (const symbol of ROOT_KEEP) {
+      expect(publishes(src, symbol), `index.ts dropped ${symbol}, which a root consumer requires`).toBe(true);
     }
   });
 
   // (3) COUNTERWEIGHT — and the value exports must still be callable, not merely present as text.
-  it("(3) the consumed value exports remain callable through the entrypoint", async () => {
-    const mod = (await import("./index.js")) as Record<string, unknown>;
-    expect(typeof mod["bakeMotionProgramToGlb"], "bakeMotionProgramToGlb must stay callable").toBe("function");
-    expect(typeof mod["readMotionGlbClipId"], "readMotionGlbClipId must stay callable").toBe("function");
-    expect(typeof mod["planMotionProgram"], "planMotionProgram must stay callable").toBe("function");
+  it("(3) the consumed value exports remain callable through their entrypoints", async () => {
+    const root = (await import("./index.js")) as Record<string, unknown>;
+    expect(typeof root["planMotionProgram"], "planMotionProgram must stay callable").toBe("function");
+    const compiler = (await import("./compiler.js")) as Record<string, unknown>;
+    expect(typeof compiler["compileMotionProgram"], "compileMotionProgram must stay callable").toBe("function");
+    expect(typeof compiler["deriveSkeletonProfileFromRigAsset"], "deriveSkeletonProfileFromRigAsset must stay callable").toBe("function");
+    const bake = (await import("./glb-bake.js")) as Record<string, unknown>;
+    expect(typeof bake["bakeMotionProgramToGlb"], "bakeMotionProgramToGlb must stay callable").toBe("function");
+    expect(typeof bake["readMotionGlbClipId"], "readMotionGlbClipId must stay callable").toBe("function");
+  });
+
+  // (4) SUBPATH SURFACE — each moved symbol is published exactly where its consumers bind it.
+  it("(4) the subpaths publish what the gateway and the motion tool import", () => {
+    const compilerSrc = readSource(COMPILER_ENTRYPOINT);
+    for (const symbol of COMPILER_KEEP) {
+      expect(publishes(compilerSrc, symbol), `compiler.ts does not publish ${symbol}, which the gateway imports`).toBe(true);
+    }
+    const glbSrc = readSource(GLB_BAKE_ENTRYPOINT);
+    for (const symbol of GLB_KEEP) {
+      expect(publishes(glbSrc, symbol), `glb-bake.ts does not publish ${symbol}, which the gateway/tool imports`).toBe(true);
+    }
   });
 });
 
@@ -129,4 +168,13 @@ describe("the entrypoint publishes only what a consumer imports", () => {
  * unchanged — bake test loads ./motion-glb-bake.js directly, so readMotionGlb stays reachable
  * there. Four unapproved symbols remain (three KEEPs + playManifestMotionClip) and criterion 6
  * (rootExportsAtMost 1227 > 1000) is not addressed; acceptance still returns refuse.
+ *
+ * ## FIXED (2026-10-05 Codex independent verdict 01a10cce) — moved the six consumer-bound symbols
+ * off the root: CompiledMotionClipV1, compileMotionProgram and deriveSkeletonProfileFromRigAsset
+ * to src/compiler.ts (./compiler); MotionGlbBakeClip, bakeMotionProgramToGlb and readMotionGlbClipId
+ * to src/glb-bake.ts (./glb-bake). Root keeps only planMotionProgram and ScenarioMotionCompileInput.
+ * Clause (0) re-pinned to the two root symbols; clause (1) asserts all nine absent from the root;
+ * clause (3) proves callability through root + subpaths; new clause (4) pins the subpath surfaces.
+ * Capability-gateway binds ./compiler + ./glb-bake (+ root for planMotionProgram); the motion tool
+ * binds ./glb-bake by package specifier instead of a relative source import.
  */

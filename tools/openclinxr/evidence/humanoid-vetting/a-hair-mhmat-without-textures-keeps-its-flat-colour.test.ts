@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 
 /**
  * A hair .mhmat WITHOUT texture lines keeps its flat colour (counterweight).

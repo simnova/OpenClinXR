@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, expect, it } from "vitest";
-import { readComputeSlotsStatus, withComputeSlot } from "./index.js";
+import { readComputeSlotsStatus, withComputeSlot } from "./slots.js";
 
 const priorRoot = process.env["OPENCLINXR_LOCK_ROOT"];
 const priorGpuSize = process.env["OPENCLINXR_SLOTS_GPU"];

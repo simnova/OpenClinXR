@@ -27,6 +27,10 @@
     "./locomotion-clip-playback": {
       "types": "./dist/locomotion-clip-playback.d.ts",
       "default": "./dist/locomotion-clip-playback.js"
+    },
+    "./manifest-motion-clip-playback": {
+      "types": "./dist/manifest-motion-clip-playback.d.ts",
+      "default": "./dist/manifest-motion-clip-playback.js"
     }
   },
   "scripts": {

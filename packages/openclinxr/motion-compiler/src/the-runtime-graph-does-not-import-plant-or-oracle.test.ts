@@ -38,7 +38,12 @@ function productionGraph(entry: string): Set<string> {
 
 describe("production wire data remains independent of test oracles", () => {
   it("the actual runtime graph compiles through shared production data without importing plants or the destructive oracle", () => {
-    const graph = productionGraph(resolve(src, "index.ts"));
+    // Production entrypoints after the 2026-10-05 subpath move: the planner root plus the
+    // compiler and bake subpaths. The union is the production graph the guard owns.
+    const graph = new Set<string>();
+    for (const entry of ["index.ts", "compiler.ts", "glb-bake.ts"]) {
+      for (const file of productionGraph(resolve(src, entry))) graph.add(file);
+    }
     for (const path of [
       "compile-motion-program.ts",
       "primitive-registry.ts",

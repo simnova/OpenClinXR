@@ -43,7 +43,7 @@ import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 // ---------------------------------------------------------------------------

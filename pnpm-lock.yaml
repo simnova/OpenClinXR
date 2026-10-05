@@ -104,6 +104,9 @@ importers:
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
+      '@openclinxr/motion-compiler':
+        specifier: workspace:*
+        version: link:packages/openclinxr/motion-compiler
       '@openclinxr/service-local-compute':
         specifier: workspace:*
         version: link:packages/openclinxr/service-local-compute

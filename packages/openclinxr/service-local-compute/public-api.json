@@ -1,6 +1,7 @@
 {
   "entrypoints": {
-    ".": [
+    ".": [],
+    "./local": [
       "LocalComputeServicesOptions",
       "createLocalComputeServices"
     ]

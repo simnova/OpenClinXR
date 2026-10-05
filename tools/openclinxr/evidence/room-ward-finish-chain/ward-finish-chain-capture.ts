@@ -72,7 +72,7 @@ import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-
 import {
   ROOM_CHAIN_RECIPES,
 } from "@openclinxr/factory-stations/room-chain";
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import type { Browser, Page } from "playwright";
 import {
   deriveRoomEvidencePoses,

@@ -1,6 +1,7 @@
 {
   "entrypoints": {
-    ".": [
+    ".": [],
+    "./slots": [
       "ComputeSlotLease",
       "ComputeSlotMeta",
       "ComputeSlotPoolStatus",

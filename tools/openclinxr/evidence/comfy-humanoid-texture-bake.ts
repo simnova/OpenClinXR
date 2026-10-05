@@ -16,7 +16,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileS
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { withComputeSlot, withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlot, withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 // tools/openclinxr/evidence → repo root is three levels up

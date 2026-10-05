@@ -1,6 +1,7 @@
 {
   "entrypoints": {
-    ".": [
+    ".": [],
+    "./contracts": [
       "BlenderDevice",
       "BlenderRunRequest",
       "BlenderService",

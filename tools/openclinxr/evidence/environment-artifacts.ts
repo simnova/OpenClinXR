@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { ROOM_ALBEDO_REL, ROOM_OCCLUSION_REL, runRoomGenerate } from "@openclinxr/factory-stations";
 import {
   type EncounterRuntimeAsset,

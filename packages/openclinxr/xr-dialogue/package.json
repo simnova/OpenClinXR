@@ -11,6 +11,18 @@
     "./actor-audio-runtime": {
       "types": "./dist/actor-audio-runtime.d.ts",
       "default": "./dist/actor-audio-runtime.js"
+    },
+    "./viseme-runtime": {
+      "types": "./dist/viseme-runtime.d.ts",
+      "default": "./dist/viseme-runtime.js"
+    },
+    "./viseme-morph": {
+      "types": "./dist/viseme-morph.d.ts",
+      "default": "./dist/viseme-morph.js"
+    },
+    "./viseme-timeline": {
+      "types": "./dist/viseme-timeline.d.ts",
+      "default": "./dist/viseme-timeline.js"
     }
   },
   "scripts": {

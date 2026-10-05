@@ -1,13 +1,17 @@
 {
   "entrypoints": {
     ".": [
-      "CompiledMotionClipV1",
-      "MotionGlbBakeClip",
       "ScenarioMotionCompileInput",
-      "bakeMotionProgramToGlb",
+      "planMotionProgram"
+    ],
+    "./compiler": [
+      "CompiledMotionClipV1",
       "compileMotionProgram",
-      "deriveSkeletonProfileFromRigAsset",
-      "planMotionProgram",
+      "deriveSkeletonProfileFromRigAsset"
+    ],
+    "./glb-bake": [
+      "MotionGlbBakeClip",
+      "bakeMotionProgramToGlb",
       "readMotionGlbClipId"
     ],
     "./planted-red-manifest": [

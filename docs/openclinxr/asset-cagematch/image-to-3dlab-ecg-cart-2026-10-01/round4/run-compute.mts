@@ -1,4 +1,4 @@
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { writeFile } from "node:fs/promises";
 import process from "node:process";
 

@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { readComputeSlotsStatus } from "@openclinxr/compute-slots";
+import { readComputeSlotsStatus } from "@openclinxr/compute-slots/slots";
 import type { Browser, chromium as playwrightChromium } from "playwright";
 import { afterEach, expect, it } from "vitest";
 import { createSlottedChromium } from "./slotted-playwright.js";

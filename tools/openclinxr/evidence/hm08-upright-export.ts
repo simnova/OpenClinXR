@@ -10,7 +10,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import {
   copyFileSync,
   existsSync,

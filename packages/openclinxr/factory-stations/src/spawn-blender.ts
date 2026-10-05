@@ -1,5 +1,5 @@
-import type { ComputeProcessResult } from "@openclinxr/compute-services-spec";
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import type { ComputeProcessResult } from "@openclinxr/compute-services-spec/contracts";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 
 export type BlenderProcessResult = ComputeProcessResult;
 

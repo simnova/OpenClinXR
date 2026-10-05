@@ -2,7 +2,7 @@ import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createLocalComputeServices } from "./index.js";
+import { createLocalComputeServices } from "./local.js";
 
 let temp: string | null = null;
 const priorLockRoot = process.env["OPENCLINXR_LOCK_ROOT"];

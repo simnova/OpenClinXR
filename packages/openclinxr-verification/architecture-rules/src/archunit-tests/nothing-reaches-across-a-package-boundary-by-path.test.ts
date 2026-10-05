@@ -121,7 +121,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/architecture/write-context-ceilings.ts -> ../../../packages/openclinxr-verification/architecture-rules/src/checks/test-import-surface.ts",
   "tools/openclinxr/architecture/write-package-agent-index.ts -> ../../../packages/openclinxr-verification/architecture-rules/src/checks/package-agent-index.ts",
   "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts -> ../../../../packages/openclinxr/asset-registry/src/actor-casting.js",
-  "tools/openclinxr/asset-pipeline/motion/index.ts -> ../../../../packages/openclinxr/motion-compiler/src/index.ts",
   "tools/openclinxr/asset-pipeline/trellis/factory-case-cli.ts -> ../../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/asset-pipeline/trellis/factory-case-cli.ts -> ../../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js",
   "tools/openclinxr/dark-factory/export-actor-phenotype.ts -> ../../../packages/openclinxr/scenario-fixtures/src/actor-phenotype-export.js",

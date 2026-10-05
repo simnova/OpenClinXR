@@ -11,7 +11,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createLocalComputeServices } from "@openclinxr/service-local-compute";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import type { Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../lib/portless-server.js";
 import { regionLuminance } from "../lib/png-region-luminance.js";

@@ -75,7 +75,6 @@ export {
   mouthCuesToPhonemeCues,
 } from "./viseme-baked-cues.js";
 export {
-  applyVisemeWeights,
   collectResolvedMorphTargets,
   MOUTH_OPEN_CAP,
   resolveMorphIndex,
@@ -84,18 +83,9 @@ export type {
   SpeechSlotLike,
 } from "./viseme-runtime-wire.js";
 export {
-  applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
-  applyJawOpenToRoot,
   applyNamedSpeechVisemes,
-  JAW_TEETH_GAIN,
-  mapDialoguePhonemesToCues,
 } from "./viseme-runtime-wire.js";
 export type {
   PhonemeCue,
-} from "./viseme-timeline-drive.js";
-export {
-  JAW_OPEN_TEETH_CLEAR_RADIANS,
-  jawApertureFractionTable,
-  jawOpenRadiansForPhoneme,
 } from "./viseme-timeline-drive.js";

@@ -16,7 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { NodeIO, type Mesh } from "@gltf-transform/core";
-import { withComputeSlotSync } from "@openclinxr/compute-slots";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import { resolveGarmentLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
 import { packSlugFromPath } from "../asset-pipeline/makeclothes/makehuman-catalogue.js";
 import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";

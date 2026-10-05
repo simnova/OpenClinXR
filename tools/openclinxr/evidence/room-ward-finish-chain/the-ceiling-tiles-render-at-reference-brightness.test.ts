@@ -53,7 +53,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots";
+import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { type Browser, chromium, type Page } from "../lib/slotted-playwright.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

@@ -27,15 +27,13 @@ import {
   jawWeightSum,
   planTeethVisemeTargets,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
+import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
 import {
-  JAW_OPEN_TEETH_CLEAR_RADIANS,
-  JAW_TEETH_GAIN,
-  MOUTH_OPEN_CAP,
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
-  applyVisemeWeights,
-  jawOpenRadiansForPhoneme,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/viseme-runtime";
+import { applyVisemeWeights } from "@openclinxr/xr-dialogue/viseme-morph";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -371,7 +369,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
       "export const JAW_OPEN_TEETH_CLEAR_RADIANS = Math.asin(0.020725011825561523 / 0.137901);",
     );
     expect(readFileSync(APPLY_SRC, "utf8")).toContain("export const MOUTH_OPEN_CAP = 0.3;");
-    expect(JAW_OPEN_TEETH_CLEAR_RADIANS).toBeCloseTo(Math.asin(0.020725011825561523 / 0.137901), 12);
+    expect(jawOpenRadiansForPhoneme("AA")).toBeCloseTo(Math.asin(0.020725011825561523 / 0.137901), 5);
     expect(MOUTH_OPEN_CAP).toBe(0.3);
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
@@ -470,7 +468,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(result.activeTargetName).toBe("viseme_aa");
     expect(result.weights.viseme_aa).toBe(1);
     expect(result.weights["mouth-open"] ?? 0).not.toBe(1);
-    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(JAW_TEETH_GAIN);
+    expect(loaded.teeth.morphTargetInfluences[loaded.teeth.morphTargetDictionary!.viseme_aa!] ?? 0).toBe(0.5);
     const mouth = loaded.body.morphTargetDictionary?.["mouth-open"];
     if (mouth !== undefined) expect(loaded.body.morphTargetInfluences[mouth]).not.toBe(1);
     expect(result.appliedMeshCount).toBeGreaterThanOrEqual(2);

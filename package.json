@@ -430,6 +430,7 @@
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/compute-slots": "workspace:*",
     "@openclinxr/factory-stations": "workspace:*",
+    "@openclinxr/motion-compiler": "workspace:*",
     "@openclinxr/service-local-compute": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",

@@ -2,11 +2,8 @@
   "package": "service-local-compute",
   "name": "@openclinxr/service-local-compute",
   "entrypoint": "packages/openclinxr/service-local-compute/src/index.ts",
-  "purpose": "Local infrastructure for compute-service contracts: slotted processes and browser capture.",
-  "exports": [
-    "LocalComputeServicesOptions",
-    "createLocalComputeServices"
-  ],
+  "purpose": "Root entrypoint publishes no symbols.",
+  "exports": [],
   "exportSummaries": {},
   "workspaceDependencies": [
     "@openclinxr/compute-services-spec",

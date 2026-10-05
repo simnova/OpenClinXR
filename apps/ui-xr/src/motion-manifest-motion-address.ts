@@ -1,1 +1,1 @@
-export { playManifestMotionClip } from "@openclinxr/xr-humanoid-animation";
+export { playManifestMotionClip } from "@openclinxr/xr-humanoid-animation/manifest-motion-clip-playback";
