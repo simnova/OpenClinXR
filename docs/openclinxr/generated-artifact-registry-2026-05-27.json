@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1761,
+    "keep-evidence": 1764,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26005,6 +26005,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/compare-side-by-side.mp4",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/comparison-metrics.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/control/clip.mp4",
       "authority": "keep-evidence",
       "tracked": false,
@@ -26041,6 +26055,13 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/step3/metrics.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/stills-aa-E-O-PP-FF.png",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",

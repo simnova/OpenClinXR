@@ -127,7 +127,7 @@
   ],
   "rhubarb": {
     "metadata": {
-      "soundFile": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T/mouth-step3-71542-1dBlEK/speech.wav",
+      "soundFile": "speech.wav",
       "duration": 4.13
     },
     "mouthCues": [

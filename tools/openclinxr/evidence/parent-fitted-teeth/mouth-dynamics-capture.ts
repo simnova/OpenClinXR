@@ -114,8 +114,12 @@ function makeTrack(jobDir: string): { cues: TrackCue[]; rhubarb: unknown; wavSha
   const output = path.join(jobDir, "rhubarb.json");
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", AUDIO, "-ar", "22050", "-ac", "1", "-c:a", "pcm_s16le", wav]);
   writeFileSync(dialog, `${LINE}\n`);
-  execFileSync(RHUBARB, ["--exportFormat", "json", "--dialogFile", dialog, "--extendedShapes", "GHX", "--output", output, wav], { stdio: "inherit" });
-  const rhubarb = JSON.parse(readFileSync(output, "utf8")) as { mouthCues?: Array<{ start: number; end: number; value: string }> };
+  execFileSync(RHUBARB, ["--exportFormat", "json", "-d", dialog, "--extendedShapes", "GHX", "--output", output, wav], { stdio: "inherit" });
+  const rhubarb = JSON.parse(readFileSync(output, "utf8")) as {
+    metadata?: { soundFile?: string; duration?: number };
+    mouthCues?: Array<{ start: number; end: number; value: string }>;
+  };
+  if (rhubarb.metadata?.soundFile) rhubarb.metadata.soundFile = "speech.wav";
   const bytes = readFileSync(wav);
   const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
   const cues = createActorAudioRuntime().visemeCueTrack.mapRhubarbTrack(rhubarb, arrayBuffer);

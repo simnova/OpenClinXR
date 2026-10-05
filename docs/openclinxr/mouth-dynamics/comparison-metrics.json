@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "openclinxr.mouth-dynamics-comparison.v1",
+  "frameRate": 30,
+  "reversalDefinition": "successive salient tooth-centroid dy steps >=3 px with opposite signs, <=3 frames apart; PP cue excluded",
+  "rows": [
+    {
+      "mode": "control",
+      "medianPx": 1.1165117225811039,
+      "p90Px": 5.215876108598333,
+      "maxPx": 11.77579423631012,
+      "countOver3Px": 21,
+      "directionReversalsWithin100Ms": 6,
+      "ppCheck": {
+        "frameCount": 2,
+        "maxLipGapPx": 18,
+        "maxTeethCandidatePixels": 159,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    },
+    {
+      "mode": "step2",
+      "medianPx": 0.3867894380612621,
+      "p90Px": 6.999362584940441,
+      "maxPx": 14.552690071320523,
+      "countOver3Px": 37,
+      "directionReversalsWithin100Ms": 5,
+      "ppCheck": {
+        "frameCount": 2,
+        "maxLipGapPx": 8,
+        "maxTeethCandidatePixels": 133,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    },
+    {
+      "mode": "step3",
+      "medianPx": 0.7213566516335729,
+      "p90Px": 4.518481788336629,
+      "maxPx": 7.199370129748168,
+      "countOver3Px": 19,
+      "directionReversalsWithin100Ms": 0,
+      "ppCheck": {
+        "frameCount": 2,
+        "maxLipGapPx": 2,
+        "maxTeethCandidatePixels": 0,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    }
+  ]
+}
