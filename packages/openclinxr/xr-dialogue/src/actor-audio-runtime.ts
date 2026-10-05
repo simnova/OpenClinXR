@@ -4,6 +4,7 @@ import { createPlayback, createAudioSpeechClock } from "./actor-audio-playback-c
 import { convertRhubarb, cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWavPure, hasPreparedEntry } from "./actor-audio-prepared-data.js";
 import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
 import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
+import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
 export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
 const host: Host = {};
 const prepared = new Map<string, PreparedEntry>();
@@ -397,5 +398,6 @@ const caseAudio = createCaseAudioController(options.caseAudio, {
   },
 });
 return Object.freeze({ caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, startPreparedActorTurnAudioOutcome,
-  syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech, diagnostics });
+  syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech, diagnostics,
+  visemeCueTrack: Object.freeze({ mapRhubarbTrack, mapArpabetTrack, mapPollyTrack, mappings: visemeCueMappings }) });
 }
