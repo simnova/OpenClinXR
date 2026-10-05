@@ -95,24 +95,23 @@ function parseArgs(argv: string[]): {
 
 /** Read the currently applied camera score (production refine or sweep best). */
 async function readAppliedCameraScore(page: Page): Promise<AppliedCameraScore | null> {
-  return page.evaluate(`(() => {
-    const scene = globalThis.__openClinXrDebugScene;
+  const script = String.raw`(() => {
+    var scene = globalThis.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return null;
     scene.updateMatrixWorld(true);
-    let camera = null;
+    var camera = null;
     scene.traverse(function (o) {
       if (!camera && (o.isPerspectiveCamera || o.type === "PerspectiveCamera")) camera = o;
     });
     if (!camera) return null;
-    const e = camera.matrixWorld.elements;
-    const ud = camera.userData || {};
-    const parseCount = (v: unknown) => {
-      if (typeof v !== "string") return null;
-      const m = /^(\d+)\/(\d+)$/.exec(v);
-      return m ? { contained: Number(m[1]), total: Number(m[2]) } : null;
-    };
-    const containment = parseCount(ud.openClinXrActorContainment);
-    const rawLook: unknown = ud.openClinXrCameraLookAt;
+    var e = camera.matrixWorld.elements;
+    var ud = camera.userData || {};
+    var containment = null;
+    if (typeof ud.openClinXrActorContainment === "string") {
+      var m = /^(\d+)\/(\d+)$/.exec(ud.openClinXrActorContainment);
+      if (m) containment = { contained: Number(m[1]), total: Number(m[2]) };
+    }
+    var rawLook = ud.openClinXrCameraLookAt;
     return {
       eye: [e[12], e[13], e[14]],
       look: Array.isArray(rawLook) && rawLook.length === 3 ? rawLook : null,
@@ -124,9 +123,10 @@ async function readAppliedCameraScore(page: Page): Promise<AppliedCameraScore | 
       near: typeof ud.openClinXrNearOcclusionFraction === "number" ? ud.openClinXrNearOcclusionFraction : null,
       placardBack: ud.openClinXrPlacardBack === true,
       framingConstraintsMet: typeof ud.openClinXrFramingConstraintsMet === "boolean" ? ud.openClinXrFramingConstraintsMet : null,
-      crownChest: Array.isArray(ud.openClinXrActorVisibility) ? ud.openClinXrActorVisibility : [],
+      crownChest: Array.isArray(ud.openClinXrActorVisibility) ? ud.openClinXrActorVisibility : []
     };
-  })()`) as Promise<AppliedCameraScore | null>;
+  })()`;
+  return page.evaluate(script) as Promise<AppliedCameraScore | null>;
 }
 
 function scoreOf(applied: AppliedCameraScore | null): {  n: number;

@@ -412,14 +412,14 @@ export const CAMERA_SWEEP_SEARCH_SOURCE = String.raw`function (snap, req) {
       look: [fin.combo.look.p[0], fin.combo.look.p[1], fin.combo.look.p[2]],
       eye: [best.eye[0], best.eye[1], best.eye[2]],
       n: best.n, total: actors.length, facing: best.facing, near: best.near, margin: best.margin,
-      gate: best.n === actors.length && best.facing <= 90 && best.near <= 0.1,
+      gatePass: best.n === actors.length && best.facing <= 90 && best.near <= 0.1,
       placardBack: best.placardBack, failures: best.fails });
   }
   var stage2Ms = Date.now() - t2;
   rows.sort(function (a, b) {
-    var ga = a.gate && !a.placardBack, gb = b.gate && !b.placardBack;
+    var ga = a.gatePass && !a.placardBack, gb = b.gatePass && !b.placardBack;
     if (ga !== gb) return ga ? -1 : 1;
-    if (a.gate !== b.gate) return a.gate ? -1 : 1;
+    if (a.gatePass !== b.gatePass) return a.gatePass ? -1 : 1;
     if (a.n !== b.n) return b.n - a.n;
     if (Math.abs(a.facing - b.facing) > 1e-9) return a.facing - b.facing;
     if (Math.abs(a.near - b.near) > 1e-9) return a.near - b.near;
@@ -434,7 +434,7 @@ export const CAMERA_SWEEP_SEARCH_SOURCE = String.raw`function (snap, req) {
     }
   }
   var passCount = 0, ri;
-  for (ri = 0; ri < rows.length; ri++) if (rows[ri].gate) passCount += 1;
+  for (ri = 0; ri < rows.length; ri++) if (rows[ri].gatePass) passCount += 1;
   return { rows: rows, bestVariant: bestRow ? bestRow.variant : null,
     eyeCounts: { orbit: orbitEyes.length, grid: gridEyes.length },
     timingMs: { stage1: stage1Ms, stage2: stage2Ms },
