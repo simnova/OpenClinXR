@@ -27,6 +27,7 @@ import {
   type MorphTargetLike,
 } from "./viseme-morph-apply.js";
 import { applyPreparedJawDynamics } from "./prepared-jaw-dynamics.js";
+import { applyPreparedLipDynamics } from "./viseme-lip-dynamics.js";
 export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
   attachBakedCuesToSpeech,
@@ -38,7 +39,6 @@ export {
 } from "./viseme-baked-cues.js";
 export { resolveMorphIndex } from "./viseme-morph-apply.js";
 export type { PhonemeCue } from "./viseme-timeline-drive.js";
-
 /** Dialogue / gen-drive tokens → ARKit-style phoneme labels resolveVisemeTarget understands. */
 const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
   sil: "sil",
@@ -457,7 +457,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
       phonemeSequence: [cue.phoneme], progress: 0, nowMs: driveNowMs,
       bakedCues: [{ phoneme: cue.phoneme, atSecond: 0, ...(typeof cue.durationSeconds === "number" ? { durationSeconds: cue.durationSeconds } : {}) }],
     });
-    return applyPreparedJawDynamics(result, slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
+    return applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
   }
   const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
   const result = applyDialogueVisemeTimelineToRoot(slot.root, {
@@ -471,7 +471,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
 
 /**
  * Live scene-graph sample: read morphTargetInfluences by dictionary name.
- * Used by capture page.evaluate — unfakeable against driver self-report.
+ * Used by capture page.evaluate — driver self-report is not accepted as evidence.
  */
 export function sampleLiveVisemeInfluencesFromRoot(root: MorphRootLike): LiveVisemeInfluenceSample[] {
   const samples: LiveVisemeInfluenceSample[] = [];

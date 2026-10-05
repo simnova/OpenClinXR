@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
-import { createJawDynamicsSampler, jawTargetForCue } from "./viseme-jaw-dynamics.js";
+import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
 
 function rows(symbols: readonly string[]) { return symbols.map((symbol, index) => ({ startS: index * 0.1, endS: (index + 1) * 0.1, symbol })); }
 const track = [{ startS: 0, endS: 0.2, viseme: "aa", intensity: 1 }, { startS: 0.2, endS: 0.26, viseme: "PP", intensity: 1 }, { startS: 0.26, endS: 0.31, viseme: "E", intensity: 1 }, { startS: 0.31, endS: 0.6, viseme: "O", intensity: 0.5 }] as const;
@@ -54,5 +54,30 @@ describe("critically damped jaw sampler", () => {
     const mild = jawTargetForCue([{ startS: 0, endS: 0.2, viseme: "aa", intensity: 0.5 }], 0);
     const emphasized = jawTargetForCue([{ startS: 0, endS: 0.2, viseme: "aa", intensity: 1 }], 0);
     expect(mild).toBeCloseTo(0.5); expect(emphasized).toBeCloseTo(1); expect(mild).toBeLessThan(emphasized);
+  });
+});
+
+const lipCues = [{ phoneme: "aa", atSecond: 0, durationSeconds: 0.2 }, { phoneme: "DD", atSecond: 0.2, durationSeconds: 0.2 }, { phoneme: "PP", atSecond: 0.4, durationSeconds: 0.08 }] as const;
+const lipFrames = lipCues.map((cue) => ({ ...cue, weights: { viseme_aa: cue.phoneme === "aa" ? 1 : 0, viseme_DD: cue.phoneme === "DD" ? 1 : 0, viseme_PP: cue.phoneme === "PP" ? 1 : 0 } }));
+describe("canonical lip follower", () => {
+  it("is deterministic", () => {
+    const run = () => Array.from({ length: 30 }, (_, index) => createLipDynamicsSampler(lipCues, lipFrames).sample(index / 60).weights.viseme_aa ?? 0);
+    expect(new Uint8Array(new Float64Array(run()).buffer)).toEqual(new Uint8Array(new Float64Array(run()).buffer));
+  });
+  it("is frame-rate independent within one fixed substep", () => {
+    const at30 = createLipDynamicsSampler(lipCues, lipFrames); const at60 = createLipDynamicsSampler(lipCues, lipFrames);
+    for (let frame = 0; frame <= 14; frame += 1) expect(Math.abs((at30.sample(frame / 30).weights.viseme_DD ?? 0) - (at60.sample(frame / 30).weights.viseme_DD ?? 0))).toBeLessThanOrEqual(lipDynamicsConstants.fixedStepS + 1e-9);
+  });
+  it("reaches PP closure inside the cue", () => {
+    const sample = createLipDynamicsSampler(lipCues, lipFrames).sample(0.45);
+    expect(sample.hardClosure).toBe(true); expect(sample.weights).toEqual({ viseme_DD: 0, viseme_PP: 1, viseme_aa: 0 });
+  });
+  it("has no non-bilabial single-frame weight change above 0.25 at 30 fps", () => {
+    const sampler = createLipDynamicsSampler(lipCues, lipFrames); let previous = sampler.sample(0).weights;
+    for (let frame = 1; frame <= 11; frame += 1) {
+      const timeS = frame / 30; const next = sampler.sample(timeS).weights;
+      if (!(timeS >= 0.4 && timeS < 0.48)) for (const key of Object.keys(next)) expect(Math.abs((next[key] ?? 0) - (previous[key] ?? 0))).toBeLessThanOrEqual(0.25);
+      previous = next;
+    }
   });
 });

@@ -61,15 +61,15 @@
     },
     {
       "mode": "step3",
-      "medianPx": 0.20423697719423278,
-      "p90Px": 1.469850013478609,
-      "maxPx": 15.802110644960734,
-      "countOver3Px": 10,
+      "medianPx": 0.5313245233591779,
+      "p90Px": 1.4331947345539442,
+      "maxPx": 3.1688199883147727,
+      "countOver3Px": 1,
       "directionReversalsWithin100Ms": 0,
       "ppCheck": {
         "frameCount": 2,
         "maxLipGapPx": 6,
-        "maxTeethCandidatePixels": 1,
+        "maxTeethCandidatePixels": 0,
         "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
       }
     }

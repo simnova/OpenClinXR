@@ -283,7 +283,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
         mediaPositionSeconds: () => 0.25,
       });
       expect(closed.jawOpenRadians).toBe(0);
-      expect(root.userData.openClinXrNamedVisemeDrive).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring" });
+      expect(root.userData.openClinXrNamedVisemeDrive).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring", lipDynamics: "canonical_ovr_fixed_step_critical_follower" });
     });
   });
 });

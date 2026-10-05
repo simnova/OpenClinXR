@@ -1,5 +1,6 @@
 /** Deterministic fixed-step jaw dynamics for canonical OVR cue tracks. */
 import type { VisemeCue } from "./viseme-cue-track.js";
+export { createLipDynamicsSampler, lipDynamicsConstants } from "./viseme-lip-dynamics.js";
 
 const APERTURE = Object.freeze({
   sil: 0, PP: 0, FF: 0.15, TH: 0.25, DD: 0.25, kk: 0.25, CH: 0.25, SS: 0.2,
@@ -77,13 +78,8 @@ function advanceFixedTick(
       state.closureCueIndex = index;
       state.closureEntryAperture = state.aperture;
     }
-    const phase = (timeS - cue.startS) / Math.max(Number.EPSILON, cue.endS - cue.startS);
-    const closureEnvelope = state.closureEntryAperture * (1 - smoothstep01(phase / 0.5));
-    state.aperture = Math.min(state.aperture, closureEnvelope);
-    if (phase >= 0.5) {
-      state.aperture = 0;
-      state.velocity = 0;
-    }
+    state.aperture = 0;
+    state.velocity = 0;
   } else {
     state.closureCueIndex = -1;
     state.closureEntryAperture = 0;
@@ -125,6 +121,6 @@ export const jawDynamicsConstants = Object.freeze({
   fixedStepS: DEFAULT_STEP_S,
   naturalFrequency: DEFAULT_NATURAL_FREQUENCY,
   coarticulationThresholdS: 0.1,
-  ppClosureCompletePhase: 0.5,
+  ppClosureCompletePhase: 0,
   vowelIntensityClamp: [0.5, 1] as const,
 });
