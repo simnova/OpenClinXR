@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
+import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
 import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
 import { contactEnvelope } from "./contact-envelope.js";
 import { driveVisemeTimeline } from "./viseme-timeline-drive.js";
@@ -77,21 +78,55 @@ describe("bilabial-stop acoustic correction", () => {
     expect(cue?.endS).toBeCloseTo(1.45, 2);
   });
 
-  it("leaves every other cue unchanged except the two moved boundaries", () => {
+  it("changes only the carved boundaries: +1 FF cue, b9e0e93a6 corrections intact", () => {
     const plain = mapRhubarbTrack(step3Doc);
     const mapped = mapRhubarbTrack(step3Doc, step3Wav());
-    expect(mapped.length).toBe(plain.length);
-    for (let index = 0; index < plain.length; index += 1) {
-      const before = plain[index]!;
-      const after = mapped[index]!;
-      const movedBoundary = before.startS === 1.39 || before.startS === 2.55 || before.startS === 1.33 || before.startS === 2.48;
-      if (movedBoundary) continue;
-      expect(after.startS, `cue ${index} start`).toBe(before.startS);
-      expect(after.endS, `cue ${index} end`).toBe(before.endS);
-      expect(after.viseme, `cue ${index} viseme`).toBe(before.viseme);
+    expect(mapped.length).toBe(plain.length + 1);
+    // b9e0e93a6 corrections intact: /b/ G cue relabelled PP ending at its
+    // burst, /p/ PP cue extended to its burst.
+    const pp248 = mapped.find((entry) => Math.abs(entry.startS - 2.48) < 1e-9);
+    expect(pp248?.viseme).toBe("PP");
+    expect(pp248?.endS).toBeCloseTo(2.52, 2);
+    const pp133 = mapped.find((entry) => Math.abs(entry.startS - 1.33) < 1e-9);
+    expect(pp133?.viseme).toBe("PP");
+    expect(pp133?.endS).toBeCloseTo(1.45, 2);
+    // The frication carve: exactly one new FF cue over the weak run before
+    // the voiced onset. Measured run windows 35-48 (0.35-0.48 s, RMS
+    // 0.0141-0.0210, ZCR 83-181) with onset window 49 (RMS 0.0458); the cue
+    // end (voiced onset) lands in [0.38, 0.50].
+    const ffs = mapped.filter((entry) => entry.viseme === "FF");
+    expect(ffs).toHaveLength(1);
+    const ff = ffs[0]!;
+    expect(ff.startS).toBeCloseTo(0.35, 2);
+    expect(ff.endS).toBeCloseTo(0.49, 2);
+    expect(ff.endS).toBeGreaterThanOrEqual(0.38);
+    expect(ff.endS).toBeLessThanOrEqual(0.5);
+    const before = new Map(plain.map((cue) => [cue.startS, cue] as const));
+    // Starts moved by the b9e0e93a6 closure correction (asserted above) or
+    // the frication carve (asserted below): excluded from the generic loop.
+    const moved = new Map([
+      [1.33, { viseme: "PP", endS: 1.45 }],
+      [1.45, { viseme: "E", endS: 1.79 }],
+      [2.48, { viseme: "PP", endS: 2.52 }],
+      [2.52, { viseme: "E", endS: 2.75 }],
+      [0.29, { viseme: "sil", endS: 0.35 }],
+      [0.49, { viseme: "DD", endS: 0.83 }],
+    ]);
+    for (const cue of mapped) {
+      if (cue.viseme === "FF") continue;
+      const pinned = [...moved.entries()].find(([start]) => Math.abs(cue.startS - start) < 1e-9);
+      if (pinned) {
+        expect(cue.viseme, `cue ${cue.startS} viseme`).toBe(pinned[1].viseme);
+        expect(cue.endS, `cue ${cue.startS} end`).toBeCloseTo(pinned[1].endS, 2);
+        continue;
+      }
+      const orig = before.get(cue.startS);
+      expect(orig, `cue start ${cue.startS}`).toBeDefined();
+      expect(cue.endS, `cue ${cue.startS} end`).toBe(orig!.endS);
+      expect(cue.viseme, `cue ${cue.startS} viseme`).toBe(orig!.viseme);
     }
     const labels = mapped.map((cue) => cue.viseme);
-    expect(labels.filter((viseme) => viseme === "FF")).toHaveLength(0);
+    expect(labels.filter((viseme) => viseme === "FF")).toHaveLength(1);
     expect(labels.filter((viseme) => viseme === "PP")).toHaveLength(2);
   });
 
@@ -133,9 +168,151 @@ describe("bilabial-stop acoustic correction", () => {
     expect(mapped.map((cue) => cue.viseme)).toEqual(["aa", "PP", "E"]);
   });
 
+  it("carves a synthetic weak frication run under X to FF and shrinks the neighbours", () => {
+    // 22050 Hz so the 10 ms windows hold 221 samples with a real crossing
+    // count (the 100 Hz helper gives 1 sample per window, ZCR always 0).
+    // Frication (alternating +/-0.04, RMS 0.04) sits in the (floor, voiced)
+    // band under X; the D cue vowel sets the scale (loudest 0.5 -> floor
+    // 0.025, voiced 0.06) and the zero-crossing vowel reference (ZCR 0).
+    const sr = 22050;
+    const samples: number[] = [];
+    const at = (t: number) => Math.floor(t * sr);
+    for (let i = 0; i < at(0.6); i += 1) {
+      const t = i / sr;
+      if (t >= 2210 / sr && t < 5304 / sr) samples.push(i % 2 === 0 ? 0.04 : -0.04);
+      else samples.push(0.5);
+    }
+    const wav = pcm16Wav(samples, sr);
+    const mapped = mapRhubarbTrack(
+      { mouthCues: [{ start: 0, end: 0.3, value: "X" }, { start: 0.3, end: 0.6, value: "D" }] },
+      wav,
+    );
+    expect(mapped.map((cue) => cue.viseme)).toEqual(["sil", "FF", "aa"]);
+    expect(mapped[0]?.endS).toBeCloseTo(0.1, 2);
+    expect(mapped[1]?.startS).toBeCloseTo(0.1, 2);
+    expect(mapped[1]?.endS).toBeCloseTo(0.24, 2);
+    expect(mapped[2]?.startS).toBeCloseTo(0.24, 2);
+    expect(mapped[2]?.endS).toBe(0.6);
+  });
+
+  it("leaves a loud /s/-like high-ZCR run under a non-sil cue alone", () => {
+    // Alternating +/-0.3 at 22050 Hz: RMS 0.3 with maximum crossing rate,
+    // but under C (->E, non-silence) and above the voiced level, so the
+    // carve does not touch it.
+    const sr = 22050;
+    const samples = Array.from({ length: Math.floor(0.3 * sr) }, (_, i) => (i % 2 === 0 ? 0.3 : -0.3));
+    const wav = pcm16Wav(samples, sr);
+    const mapped = mapRhubarbTrack({ mouthCues: [{ start: 0, end: 0.3, value: "C" }] }, wav);
+    expect(mapped).toHaveLength(1);
+    expect(mapped[0]?.viseme).toBe("E");
+    expect(mapped[0]?.startS).toBe(0);
+    expect(mapped[0]?.endS).toBe(0.3);
+  });
+
+  it("carves nothing when the weak run has no voiced onset after it", () => {
+    // Weak frication under X running into a silent next cue: the onset
+    // window reads silence, not voiced, so the run is left alone.
+    const sr = 22050;
+    const samples: number[] = [];
+    for (let i = 0; i < Math.floor(0.6 * sr); i += 1) {
+      const t = i / sr;
+      if (t >= 0.1 && t < 0.29) samples.push(i % 2 === 0 ? 0.04 : -0.04);
+      else if (t >= 0.3) samples.push(0);
+      else samples.push(0.5);
+    }
+    const wav = pcm16Wav(samples, sr);
+    const mapped = mapRhubarbTrack(
+      { mouthCues: [{ start: 0, end: 0.3, value: "X" }, { start: 0.3, end: 0.6, value: "D" }] },
+      wav,
+    );
+    expect(mapped.map((cue) => cue.viseme)).toEqual(["sil", "aa"]);
+    expect(mapped).toHaveLength(2);
+  });
+
   it("is deterministic", () => {
     const wav = step3Wav();
     expect(mapRhubarbTrack(step3Doc, wav)).toEqual(mapRhubarbTrack(step3Doc, wav));
+  });
+});
+describe("carved FF runtime drive", () => {
+  const names = ["viseme_sil", "viseme_aa", "viseme_DD", "viseme_nn", "viseme_E", "viseme_PP", "viseme_FF", "viseme_O"];
+  function step3DocFile() {
+    const file = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../../../../docs/openclinxr/mouth-dynamics/step3/metrics.json",
+    );
+    const raw = JSON.parse(readFileSync(file, "utf8")) as {
+      rhubarb: { mouthCues: { start: number; end: number; value: string }[] };
+    };
+    return { mouthCues: raw.rhubarb.mouthCues };
+  }
+  function driveMappedAt(mediaS: number) {
+    const bytes = step3WavFile();
+    const mapped = mapRhubarbTrack(step3DocFile(), bytes);
+    const cues = mapped.map((cue) => ({
+      phoneme: cue.viseme,
+      atSecond: cue.startS,
+      durationSeconds: cue.endS - cue.startS,
+      intensity: cue.intensity,
+    }));
+    const mesh = {
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    };
+    const jaw = { name: "jaw", isBone: true, rotation: { x: 0 }, userData: {} as Record<string, unknown> };
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(mesh);
+        callback(jaw);
+      },
+    };
+    applyNamedSpeechVisemes({
+      root,
+      activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 4130, bakedCues: cues },
+      mediaPositionSeconds: () => mediaS,
+    });
+    const tag = root.userData.openClinXrNamedVisemeDrive as
+      | { weights?: Record<string, number>; jawFraction?: number }
+      | undefined;
+    return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN };
+  }
+  function step3WavFile(): ArrayBuffer {
+    const file = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "./test-fixtures/step3-speech-22050.wav",
+    );
+    const bytes = readFileSync(file);
+    const copy = new Uint8Array(bytes.length);
+    copy.set(bytes);
+    return copy.buffer;
+  }
+  it("holds FF at full weight with the jaw shut on every frame inside the carved cue", () => {
+    const ff = mapRhubarbTrack(step3DocFile(), step3WavFile()).find((entry) => entry.viseme === "FF");
+    if (!ff) throw new Error("step3 mapped track has no carved FF cue");
+    const inside: number[] = [];
+    for (let n = 0; n < 124; n += 1) {
+      const mediaS = (n + 0.5) / 30;
+      if (mediaS >= ff.startS && mediaS < ff.endS) inside.push(n);
+    }
+    expect(inside.length).toBeGreaterThan(0);
+    for (const n of inside) {
+      const driven = driveMappedAt((n + 0.5) / 30);
+      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeGreaterThanOrEqual(0.9);
+      expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
+    }
+  });
+  it("ramps FF and jaw at most 0.25 per 30 fps frame across the carved clip", () => {
+    const series = Array.from({ length: 124 }, (_, n) => driveMappedAt((n + 0.5) / 30));
+    let maxFf = 0;
+    let maxJaw = 0;
+    for (let n = 1; n < series.length; n += 1) {
+      maxFf = Math.max(maxFf, Math.abs((series[n]?.weights.viseme_FF ?? 0) - (series[n - 1]?.weights.viseme_FF ?? 0)));
+      maxJaw = Math.max(maxJaw, Math.abs((series[n]?.jawFraction ?? 0) - (series[n - 1]?.jawFraction ?? 0)));
+    }
+    expect(maxFf).toBeLessThanOrEqual(0.25);
+    expect(maxJaw).toBeLessThanOrEqual(0.25);
   });
 });
 describe("critically damped jaw sampler", () => {

@@ -78,21 +78,57 @@ type SymbolCue = { startS: number; endS: number; symbol: string };
  * (silence starts at or before the cue end, burst after the cue start),
  * bounded by the next cue's end minus one 30 fps frame; the next cue's start
  * moves accordingly. Without wav the track is returned unchanged.
+ *
+ * A weak-frication carve (operator 2026-10-06: "fix the F sound") runs after
+ * the closure correction, on its corrected symbols, sharing the same 10 ms
+ * RMS windowing plus an identically windowed zero-crossing count:
+ * (3) A run of >= 30 ms with RMS above the silence floor but below a voiced
+ * level, AND a high zero-crossing rate (fricative noise), immediately
+ * followed by a voiced onset, carves an FF cue over the run (start = run
+ * start, end = voiced onset) where the run starts inside a sil/X cue (or the
+ * onset straddles the cue end by <= 20 ms); the neighbours shrink. Runs
+ * under non-silence cues are left alone. Without wav the track is returned
+ * unchanged.
+ *
+ * Threshold provenance (all deterministic functions of this doc + wav):
+ * - WINDOW 10 ms: shared with the closure correction above (BILABIAL_WINDOW_S).
+ * - FLOOR 5% of the track's loudest cue-window RMS: shared with the closure
+ *   correction (step3 wav 22050 Hz mono sha256 05c11f51...: loudest 0.2476 on
+ *   E 3.10-3.31 s -> floor 0.0124; /p/ run 1.38-1.45 s, /b/ run 2.41-2.52 s).
+ * - VOICED 12% of the loudest cue-window RMS (step3: 0.0297): clears the
+ *   step3 /f/ weak-run maximum 0.0210 (10 ms windows 35-48, 0.35-0.48 s) and
+ *   sits below the voiced onset 0.0458 (window 49, 0.49 s).
+ * - ZCR_HIGH 1.5x the 99th percentile of per-10-ms zero-crossing counts over
+ *   vowel-cue interiors (Rhubarb C/D/E/F -> OVR E/aa/O/U, trimmed 30 ms each
+ *   side so boundary transients cannot move the gate; step3 p99 = 47 ->
+ *   70.5): clears the vowel-tail transition maximum 52 (window 33, 0.33 s)
+ *   and keeps the weakest frication window 83 (window 48, 0.48 s). Percentile
+ *   (not max) so one burst transient cannot move the gate.
+ * - MIN_RUN 30 ms (>= 3 windows): operator brief.
+ * Measured separation on step3: /f/ run windows 35-48 (RMS 0.0141-0.0210,
+ * ZCR 83-181) carve FF [0.35, 0.49]; /z/ run 2.24-2.37 s (RMS up to 0.1212,
+ * ZCR up to 172) lies inside the DD cue 1.79-2.48 s (non-silence) and is
+ * left alone; /b/ closure 2.38-2.52 s sits below the floor and stays owned
+ * by the PP rule above.
  */
 const BILABIAL_WINDOW_S = 0.01;
+const FRICATIVE_MIN_RUN_S = 0.03;
+const FRICATIVE_VOICED_FRACTION = 0.12;
+const FRICATIVE_ZCR_P99_MULTIPLE = 1.5;
+const FRICATIVE_VOWEL_TRIM_S = 0.03;
+const FRICATIVE_MAX_STRADDLE_S = 0.02;
 const BILABIAL_MIN_SILENCE_S = 0.04;
 const BILABIAL_FLOOR_FRACTION = 0.05;
 const BILABIAL_FRAME_S = 1 / 30;
 
 type BilabialClosure = { silenceStartS: number; burstS: number };
 
-function bilabialClosures(
+function windowRms(
   samples: Float32Array,
   sampleRate: number,
   sampleCount: number,
   durationS: number,
-  floor: number,
-): BilabialClosure[] {
+): number[] {
   const perWindow = Math.max(1, Math.round(sampleRate * BILABIAL_WINDOW_S));
   const windowCount = Math.max(1, Math.ceil(durationS / BILABIAL_WINDOW_S));
   const rms: number[] = [];
@@ -110,6 +146,42 @@ function bilabialClosures(
     }
     rms.push(Math.sqrt(squareSum / (last - first)));
   }
+  return rms;
+}
+
+function windowZeroCrossings(
+  samples: Float32Array,
+  sampleRate: number,
+  sampleCount: number,
+  durationS: number,
+): number[] {
+  const perWindow = Math.max(1, Math.round(sampleRate * BILABIAL_WINDOW_S));
+  const windowCount = Math.max(1, Math.ceil(durationS / BILABIAL_WINDOW_S));
+  const crossings: number[] = [];
+  for (let window = 0; window < windowCount; window += 1) {
+    const first = window * perWindow;
+    const last = Math.min(sampleCount, first + perWindow);
+    let count = 0;
+    let previous: number | null = null;
+    for (let index = first; index < last; index += 1) {
+      const sample = samples[index] ?? 0;
+      if (previous !== null && (previous >= 0) !== (sample >= 0)) count += 1;
+      previous = sample;
+    }
+    crossings.push(count);
+  }
+  return crossings;
+}
+
+function bilabialClosures(
+  samples: Float32Array,
+  sampleRate: number,
+  sampleCount: number,
+  durationS: number,
+  floor: number,
+): BilabialClosure[] {
+  const rms = windowRms(samples, sampleRate, sampleCount, durationS);
+  const windowCount = rms.length;
   const minRun = Math.round(BILABIAL_MIN_SILENCE_S / BILABIAL_WINDOW_S);
   const closures: BilabialClosure[] = [];
   let window = 0;
@@ -156,7 +228,9 @@ function correctBilabialClosures(cues: readonly SymbolCue[], wav: ArrayBuffer): 
     lastCue.endS,
     BILABIAL_FLOOR_FRACTION * loudest,
   );
-  if (closures.length === 0) return cues.map((cue) => ({ ...cue }));
+  if (closures.length === 0) {
+    return carveFricativeOnsets(cues.map((cue) => ({ ...cue })), decoded, loudest);
+  }
   const out = cues.map((cue) => ({ ...cue }));
   for (const cue of out) {
     if (table[cue.symbol] !== "FF") continue;
@@ -179,7 +253,89 @@ function correctBilabialClosures(cues: readonly SymbolCue[], wav: ArrayBuffer): 
       if (next) next.startS = bounded;
     }
   }
-  return out;
+  return carveFricativeOnsets(out, decoded, loudest);
+}
+
+const FRICATIVE_VOWEL_VISemes: ReadonlySet<OvrViseme> = new Set(["aa", "E", "O", "U"]);
+
+type FricativeCarve = { index: number; startS: number; endS: number };
+
+function carveFricativeOnsets(
+  cues: SymbolCue[],
+  decoded: { sampleRate: number; sampleCount: number; float32: Float32Array },
+  loudest: number,
+): SymbolCue[] {
+  const table: Readonly<Record<string, OvrViseme>> = RHUBARB_TO_OVR;
+  const ffKey = Object.keys(table).find((key) => table[key] === "FF");
+  if (ffKey === undefined || !(loudest > 0)) return cues;
+  const floor = BILABIAL_FLOOR_FRACTION * loudest;
+  const voiced = FRICATIVE_VOICED_FRACTION * loudest;
+  if (!(voiced > floor)) return cues;
+  const lastCue = cues[cues.length - 1];
+  if (!lastCue) return cues;
+  const rms = windowRms(decoded.float32, decoded.sampleRate, decoded.sampleCount, lastCue.endS);
+  const zcr = windowZeroCrossings(decoded.float32, decoded.sampleRate, decoded.sampleCount, lastCue.endS);
+  const reference: number[] = [];
+  for (const cue of cues) {
+    const viseme = table[cue.symbol];
+    if (viseme === undefined || !FRICATIVE_VOWEL_VISemes.has(viseme)) continue;
+    for (let window = 0; window < rms.length; window += 1) {
+      const start = window * BILABIAL_WINDOW_S;
+      if (start + 1e-9 >= cue.startS + FRICATIVE_VOWEL_TRIM_S && start + BILABIAL_WINDOW_S <= cue.endS - FRICATIVE_VOWEL_TRIM_S + 1e-9) {
+        reference.push(zcr[window] ?? 0);
+      }
+    }
+  }
+  if (reference.length === 0) return cues;
+  const sorted = [...reference].sort((a, b) => a - b);
+  const loud = sorted[Math.floor(0.99 * (sorted.length - 1))] ?? 0;
+  const high = FRICATIVE_ZCR_P99_MULTIPLE * loud;
+  const minRun = Math.max(1, Math.round(FRICATIVE_MIN_RUN_S / BILABIAL_WINDOW_S));
+  const carves: FricativeCarve[] = [];
+  cues.forEach((cue, index) => {
+    if (!cue || table[cue.symbol] !== "sil") return;
+    const next = cues[index + 1];
+    if (!next) return;
+    let window = Math.max(0, Math.ceil(cue.startS / BILABIAL_WINDOW_S - 1e-9));
+    while (window < rms.length) {
+      const start = window * BILABIAL_WINDOW_S;
+      if (start >= cue.endS) break;
+      const inBand = (rms[window] ?? 0) >= floor && (rms[window] ?? 0) < voiced && (zcr[window] ?? 0) > high;
+      if (!inBand) {
+        window += 1;
+        continue;
+      }
+      let end = window;
+      while (
+        end + 1 < rms.length &&
+        (end + 1) * BILABIAL_WINDOW_S < cue.endS + FRICATIVE_MAX_STRADDLE_S &&
+        (rms[end + 1] ?? 0) >= floor &&
+        (rms[end + 1] ?? 0) < voiced &&
+        (zcr[end + 1] ?? 0) > high
+      ) end += 1;
+      const onset = end + 1;
+      const onsetS = onset * BILABIAL_WINDOW_S;
+      if (
+        end - window + 1 >= minRun &&
+        start > cue.startS &&
+        onset < rms.length &&
+        (rms[onset] ?? 0) >= voiced &&
+        onsetS <= cue.endS + FRICATIVE_MAX_STRADDLE_S &&
+        onsetS < next.endS
+      ) {
+        carves.push({ index, startS: start, endS: onsetS });
+      }
+      window = end + 1;
+    }
+  });
+  if (carves.length === 0) return cues;
+  for (let carve = carves.length - 1; carve >= 0; carve -= 1) {
+    const { index, startS, endS } = carves[carve]!;
+    cues[index]!.endS = startS;
+    cues[index + 1]!.startS = endS;
+    cues.splice(index + 1, 0, { startS, endS, symbol: ffKey });
+  }
+  return cues;
 }
 
 function checkedCue(cue: SymbolCue, index: number, previousEnd: number): SymbolCue {
