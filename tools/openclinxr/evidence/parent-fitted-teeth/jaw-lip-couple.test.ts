@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { Bone, BufferAttribute, BufferGeometry, Group, Matrix4, Skeleton, SkinnedMesh, Vector3 } from "three";
+import { Bone, BufferAttribute, BufferGeometry, Group, Matrix3, Matrix4, Skeleton, SkinnedMesh, Vector3 } from "three";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   CLEAR_BAND_M,
@@ -28,6 +28,7 @@ import {
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
 import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
 import { planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
+import { loadHeadlessScene } from "../../mouth-solver/headless-scene.ts";
 import {
   loadProducerPreimage,
   readProducerReceipt,
@@ -56,9 +57,11 @@ const VISEME_ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U
  * so the seated rest gap is the honest 8.246 mm, not this target. */
 const RIM_REST_TARGET_MM = 3.743;
 /** Producer down-gain under test (1 on main, 1.25 on variant-a). */
-const DOWN_GAIN = 1;
-/** Honest seated rest rim gap: producer-measured after seat + pullback. */
-const HONEST_REST_GAP_MM = 6.387;
+const DOWN_GAIN: number = 1.25;
+/** Producer rest drop under test, mm head-down (0 on main, -1.405 on rest-a/rest-b). */
+const REST_DROP_MM: number = -1.405;
+/** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
+const HONEST_REST_GAP_MM = 6.636;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
 const PRE_IMAGE_REST_GAP_MM = 10.666;
 /** Pullback census on the pre-image plan: crossing verts, worst drop. */
@@ -378,11 +381,12 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // inner-rim field and falls back to the rigid arch mean by distortion.
     const pre = readProducerReceipt(REPO, RECEIPT_REL);
     const preTmp = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
-    const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN);
+    const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, REST_DROP_MM);
     expect(plan.rimCount).toBe(76);
     expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
     expect(plan.downGain).toBe(DOWN_GAIN);
+    expect(plan.restDropMm).toBe(REST_DROP_MM);
     // Rim seat drives the rest gap to the directed target on the pre-image,
     // then per-vertex pullback clears the face: the seated rest gap is the
     // honest producer-measured value, not the target.
@@ -438,16 +442,20 @@ describe("parent fitted teeth follow the lip viseme", () => {
       }
     }
     // Lower arch (below-median-y, producer rule): rigid mean per target.
-    const teethYs: number[] = [];
-    for (let vertex = 0; vertex < loaded.teethPos.length / 3; vertex += 1) {
-      teethYs.push(loaded.teethPos[vertex * 3 + 1] ?? 0);
-    }
-    const midSorted = [...teethYs].sort((a, b) => a - b);
+    // The median is the pre-image teeth base median, exactly as the
+    // producer classifies: the rest drop shifts live Y, so the live
+    // median would misclassify boundary verts the producer seated as lower.
+    const preDocArch = await new NodeIO().read(preTmp);
+    const preTeethArch = preDocArch.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
+    const preBaseArch = preTeethArch?.listPrimitives()[0]?.getAttribute("POSITION")?.getArray();
+    if (!preBaseArch) throw new Error("pre-image has no teeth POSITION");
+    const preYs = Array.from(preBaseArch).filter((_, i) => i % 3 === 1) as number[];
+    const midSorted = [...preYs].sort((a, b) => a - b);
     const midY = midSorted[Math.floor(midSorted.length / 2)] ?? 0;
     const lowerArch: number[] = [];
     const upperArch: number[] = [];
-    for (let vertex = 0; vertex < teethYs.length; vertex += 1) {
-      ((teethYs[vertex] ?? 0) <= midY ? lowerArch.push(vertex) : upperArch.push(vertex));
+    for (let vertex = 0; vertex < preYs.length; vertex += 1) {
+      ((preYs[vertex] ?? 0) <= midY ? lowerArch.push(vertex) : upperArch.push(vertex));
     }
     expect(lowerArch.length).toBe(plan.lowerArchCount);
     for (const name of VISEME_ORDER) {
@@ -471,6 +479,76 @@ describe("parent fitted teeth follow the lip viseme", () => {
     const index = loaded.teeth.morphTargetDictionary?.["viseme_aa"];
     expect(index, "viseme_aa").toBeTypeOf("number");
     expect(loaded.teethTargets[index!]!.length).toBe(newDeltas["viseme_aa"]!.length);
+    // Rest-drop method check: the dropped plan's base equals the no-drop
+    // plan's base plus the head-down vector on the lower arch, every other
+    // vertex untouched, and joints/weights/deltas bitwise identical (skin
+    // and morph transfer unchanged by the drop).
+    {
+      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, 0);
+      expect(ref.plan.restDropMm).toBe(0);
+      expect(ref.newJoints).toEqual(Array.from(newJoints));
+      expect(Array.from(Float32Array.from(ref.newWeights))).toEqual(Array.from(Float32Array.from(newWeights)));
+      for (const name of VISEME_ORDER) {
+        expect(Array.from(ref.newDeltas[name]!)).toEqual(Array.from(newDeltas[name]!));
+      }
+      const refScene = await loadHeadlessScene(preTmp);
+      refScene.root.updateMatrixWorld(true);
+      const toBind = new Matrix3()
+        .setFromMatrix4(new Matrix4().extractRotation(refScene.headBone.matrixWorld))
+        .transpose();
+      const headDown = new Vector3(0, -REST_DROP_MM / 1000, 0).applyMatrix3(toBind);
+      const expected = new Float32Array(ref.newBase);
+      const dropSorted = [...Array.from({ length: expected.length / 3 }, (_, v) => expected[v * 3 + 1] ?? 0)].sort(
+        (a, b) => a - b,
+      );
+      const dropMidY = dropSorted[Math.floor(dropSorted.length / 2)] ?? 0;
+      for (let vertex = 0; vertex < expected.length / 3; vertex += 1) {
+        if ((expected[vertex * 3 + 1] ?? 0) > dropMidY) continue;
+        expected[vertex * 3] = (expected[vertex * 3] ?? 0) + headDown.x;
+        expected[vertex * 3 + 1] = (expected[vertex * 3 + 1] ?? 0) + headDown.y;
+        expected[vertex * 3 + 2] = (expected[vertex * 3 + 2] ?? 0) + headDown.z;
+      }
+      expect(Array.from(expected)).toEqual(Array.from(newBase));
+    }
+    // Down-gain method check (variant-A rule): the gained plan's
+    // lower-arch deltas equal the gain-1 plan's deltas with the head-local
+    // down component scaled by DOWN_GAIN, every non-lower-arch delta
+    // untouched. Both plans carry the same rest drop.
+    {
+      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, 1.0, REST_DROP_MM);
+      expect(ref.plan.downGain).toBe(1);
+      const refScene = await loadHeadlessScene(preTmp);
+      refScene.root.updateMatrixWorld(true);
+      const toHead = new Matrix3().setFromMatrix4(new Matrix4().extractRotation(refScene.headBone.matrixWorld));
+      const toBind = toHead.clone().transpose();
+      const point = new Vector3();
+      const lowerSet = new Set(lowerArch);
+      for (const name of VISEME_ORDER) {
+        const refDelta = ref.newDeltas[name];
+        const gainedDelta = newDeltas[name];
+        expect(refDelta).toBeDefined();
+        expect(gainedDelta).toBeDefined();
+        expect(gainedDelta!.length).toBe(refDelta!.length);
+        const expected = new Float32Array(refDelta!);
+        for (const vertex of lowerArch) {
+          point
+            .set(refDelta![vertex * 3] ?? 0, refDelta![vertex * 3 + 1] ?? 0, refDelta![vertex * 3 + 2] ?? 0)
+            .applyMatrix3(toHead);
+          point.y *= DOWN_GAIN;
+          point.applyMatrix3(toBind);
+          expected[vertex * 3] = point.x;
+          expected[vertex * 3 + 1] = point.y;
+          expected[vertex * 3 + 2] = point.z;
+        }
+        expect(Array.from(expected)).toEqual(Array.from(gainedDelta!));
+        for (let vertex = 0; vertex < expected.length / 3; vertex += 1) {
+          if (lowerSet.has(vertex)) continue;
+          expect(gainedDelta![vertex * 3]).toBe(refDelta![vertex * 3]);
+          expect(gainedDelta![vertex * 3 + 1]).toBe(refDelta![vertex * 3 + 1]);
+          expect(gainedDelta![vertex * 3 + 2]).toBe(refDelta![vertex * 3 + 2]);
+        }
+      }
+    }
   }, 300_000);
 
   it("blends lower-arch skin weights from the rim pool and keeps upper verts head-bound", () => {

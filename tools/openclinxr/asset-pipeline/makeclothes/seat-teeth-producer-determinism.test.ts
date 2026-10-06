@@ -27,7 +27,9 @@ const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 /** Operator-set rest target, same value as the producer invocation in the receipt. */
 const TARGET_GAP_MM = 3.743;
 /** Teeth down-gain of the producer invocation in the receipt (1 on main, 1.25 on variant-a). */
-const DOWN_GAIN = 1;
+const DOWN_GAIN = 1.25;
+/** Rest drop of the producer invocation in the receipt (0 on main, -1.405 on rest-a/rest-b). */
+const REST_DROP_MM = -1.405;
 
 function sha256(bytes: Buffer | Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -39,6 +41,7 @@ function runProducer(glbPath: string): void {
     glbPath, "--target-gap-mm", String(TARGET_GAP_MM),
   ];
   if (DOWN_GAIN !== 1) args.push("--down-gain", String(DOWN_GAIN));
+  if (REST_DROP_MM !== 0) args.push("--rest-drop-mm", String(REST_DROP_MM));
   execFileSync("pnpm", args, { cwd: REPO, stdio: "pipe", timeout: 300_000, maxBuffer: 16 * 1024 * 1024 });
 }
 
