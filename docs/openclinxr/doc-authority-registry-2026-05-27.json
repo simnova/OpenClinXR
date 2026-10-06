@@ -5337,6 +5337,13 @@
       "rationale": "Proposed decision: station solvers are private to the executor, scored by a shared objective package; staging pilot follows the 2026-09-30 phases."
     },
     {
+      "path": "docs/madr/0061-station-solvers-are-pinned-plug-ins.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Accepted amendment to MADR 0060: solvers are pinned plug-in packages resolved by a generated registry; R6; mouth is the first station pilot."
+    },
+    {
       "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
