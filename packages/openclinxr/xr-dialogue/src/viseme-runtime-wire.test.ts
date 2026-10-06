@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { jawOpenRadiansForPhoneme } from "./viseme-timeline.js";
+import { RUNTIME_CUE_LEAD_S } from "./viseme-timeline-drive.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
@@ -267,22 +268,28 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
         userData: {} as Record<string, unknown>,
         traverse(callback: (object: unknown) => void) { callback(mesh); callback(jaw); },
       };
+      // The prepared path reads cues at media time + RUNTIME_CUE_LEAD_S, so
+      // the fixture spans the lead: media t observes the cues at t + lead.
       const bakedCues = [
-        { phoneme: "aa", atSecond: 0, durationSeconds: 0.2, intensity: 1 },
-        { phoneme: "PP", atSecond: 0.2, durationSeconds: 0.08, intensity: 1 },
+        { phoneme: "aa", atSecond: 0, durationSeconds: 0.6, intensity: 1 },
+        { phoneme: "PP", atSecond: 0.6, durationSeconds: 0.08, intensity: 1 },
       ] as const;
       const open = applyNamedSpeechVisemes({
         root,
-        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 280, bakedCues },
-        mediaPositionSeconds: () => 0.1,
+        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 680, bakedCues },
+        mediaPositionSeconds: () => 0.1, // reads 0.1 + lead, mid-aa
       });
+      expect(0.1 + RUNTIME_CUE_LEAD_S).toBeGreaterThan(0.2);
+      expect(0.1 + RUNTIME_CUE_LEAD_S).toBeLessThan(0.6);
       expect(open.jawOpenRadians).toBeGreaterThan(0);
       expect(open.jawOpenRadians).toBeLessThan(JAW_OPEN_TEETH_CLEAR_RADIANS * JAW_TEETH_GAIN);
       const closed = applyNamedSpeechVisemes({
         root,
-        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 280, bakedCues },
-        mediaPositionSeconds: () => 0.25,
+        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 680, bakedCues },
+        mediaPositionSeconds: () => 0.3, // reads 0.3 + lead, inside PP: exact snap shut
       });
+      expect(0.3 + RUNTIME_CUE_LEAD_S).toBeGreaterThanOrEqual(0.6);
+      expect(0.3 + RUNTIME_CUE_LEAD_S).toBeLessThan(0.68);
       expect(closed.jawOpenRadians).toBe(0);
       expect(root.userData.openClinXrNamedVisemeDrive).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring", lipDynamics: "canonical_ovr_fixed_step_critical_follower" });
     });

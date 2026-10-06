@@ -83,6 +83,12 @@ const FF_CONTACT_LO_M = 0.00015;
 const FF_CONTACT_HI_M = 0.00035;
 /** FF solve fixed-point bound: residual-corrected iterations, deterministic order. */
 const FF_PASSES = 10;
+/** FF cover bound: span-gated pullback passes, same stop tolerance as the face pullback. */
+const FF_COVER_PASSES = 16;
+/** FF cover plane: the lower lip sits this far behind the upper incisor front
+ * face within the incisor x-span (operator 2026-10-06: incisors visible
+ * resting on the lip, lip behind the front face). Task-specified length. */
+const FF_COVER_BEHIND_M = 0.0005;
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -214,6 +220,13 @@ export type RimSeatPlan = {
   ffPasses: number;
   ffCorrectedVerts: number;
   ffMaxCorrectionMm: number;
+  ffCoverExcessBeforeMm: number;
+  ffCoverCorrectedVerts: number;
+  ffCoverMaxMm: number;
+  ffCoverPasses: number;
+  ffGapFinalMm: number;
+  ffCoverMinClearanceMm: number;
+  ffCoverNeighborJumpMm: number;
   /** Rest rim gap after seat + pullback (equals the target only when nothing crosses). */
   honestRestGapMm: number;
   rigid: boolean;
@@ -290,6 +303,22 @@ export type FfLipContact = {
   ffPasses: number;
   ffCorrectedVerts: number;
   ffMaxCorrectionMm: number;
+  /** Cover-behind tuck: max head-forward excess over the cover plane on the
+   * first pass (in-span patch verts ahead of front-face-minus-0.5mm). */
+  ffCoverExcessBeforeMm: number;
+  /** Cover-behind tuck: in-span verts corrected on the first pass. */
+  ffCoverCorrectedVerts: number;
+  /** Cover-behind tuck: max applied head-local correction. */
+  ffCoverMaxMm: number;
+  /** Cover-behind tuck: passes used (bound FF_COVER_PASSES). */
+  ffCoverPasses: number;
+  /** Edge-to-lip point-triangle gap after contact + cover (accept <= 0.5mm). */
+  ffGapFinalMm: number;
+  /** Min head-local clearance of the in-span patch behind the cover plane
+   * (>= 0: every in-span vert behind the face; penetration-free by construction). */
+  ffCoverMinClearanceMm: number;
+  /** Max correction jump between adjacent patch verts (smoothness check). */
+  ffCoverNeighborJumpMm: number;
   /** Edited body viseme_FF bind delta (full-length, only landmark verts differ). */
   editedBodyFf: Float32Array;
 };
@@ -466,6 +495,136 @@ export async function solveFfLipContact(input: {
   if (!(gap >= FF_CONTACT_LO_M && gap <= FF_CONTACT_HI_M)) {
     throw new Error(`FF contact missed: gap ${gap * 1000} mm after ${passes} passes (premise false)`);
   }
+
+  // Cover-behind tuck (operator 2026-10-06: upper incisors visible resting on
+  // the lower lip, lip behind the incisor front face). Per-vertex, not
+  // rigid: each lower-lip patch vert inside the incisor x-span whose
+  // head-forward position is ahead of (front face - 0.5 mm) retreats along
+  // head-forward toward that plane by iterated quadratic falloff (the face
+  // pullback's stated rule: each pass moves every ahead vert by the square
+  // of its own excess over the plane divided by the pass maximum excess,
+  // C1-smooth at the contour, parameter-free, never more than its own
+  // excess; residual max quarters or better per pass, 16-pass bound, 1 um
+  // stop; the 0.5 mm is the task length). The correction field is smooth
+  // because the excess field is smooth; the only gate is the span edge,
+  // whose jump is bounded by the boundary excess squared over the max and
+  // is measured below. Commissure verts outside the span are never touched,
+  // so the corner shape is preserved exactly. The contact (y) meeting is
+  // untouched: only the head-forward component moves, and the rim transfer
+  // below recomputes the lower-teeth FF delta from the covered rim, so
+  // teeth follow the lip by construction. Ascending vertex order.
+  let edgeX0 = Infinity;
+  let edgeX1 = -Infinity;
+  let frontFace = -Infinity;
+  for (const v of edge) {
+    edgeX0 = Math.min(edgeX0, rest.teethHead[v * 3] ?? 0);
+    edgeX1 = Math.max(edgeX1, rest.teethHead[v * 3] ?? 0);
+    frontFace = Math.max(frontFace, rest.teethHead[v * 3 + 2] ?? 0);
+  }
+  const coverPlane = frontFace - FF_COVER_BEHIND_M;
+  const headBack = new Vector3(0, 0, -1).applyMatrix3(toBind);
+  // Snapshot of the post-contact field: the smoothness metric below judges
+  // the cover increment alone, not the contact solve's own gradient.
+  const postContact = edited.slice();
+  // Lateral skirt: full correction inside the incisor span, cosine feather
+  // to zero at the commissure (landmark |x| extreme, measured from the
+  // patch itself, C1 at both ends since sin(0)=sin(pi)=0). The commissure
+  // stays exactly at its contacted position; the span edge keeps no cliff.
+  const edgeCX = (edgeX0 + edgeX1) / 2;
+  const halfSpan = (edgeX1 - edgeX0) / 2;
+  let commX = 0;
+  for (const v of landmark) {
+    commX = Math.max(commX, Math.abs((rest.bodyHead[v * 3] ?? 0) - edgeCX));
+  }
+  const skirtOf = (x: number): number => {
+    const ax = Math.abs(x - edgeCX);
+    if (ax <= halfSpan) return 1;
+    if (ax >= commX || commX <= halfSpan) return 0;
+    return 0.5 * (1 + Math.cos((Math.PI * (ax - halfSpan)) / (commX - halfSpan)));
+  };
+  let coverExcessBefore = 0;
+  let coverCorrectedVerts = 0;
+  let coverMax = 0;
+  let coverPasses = 0;
+  let firstCoverPass = true;
+  for (let pass = 0; pass < FF_COVER_PASSES; pass += 1) {
+    const posed = pose(edited);
+    let excessMax = 0;
+    let inSpanMax = 0;
+    for (let i = 0; i < landmark.length; i += 1) {
+      const v = landmark[i];
+      if (v === undefined) throw new Error("FF contact: landmark index out of range");
+      const x = posed.bodyHead[v * 3] ?? 0;
+      if (Math.abs(x - edgeCX) > commX) continue;
+      const excess = (posed.bodyHead[v * 3 + 2] ?? 0) - coverPlane;
+      if (excess <= SNAP_M) continue;
+      excessMax = Math.max(excessMax, skirtOf(x) * excess);
+      if (x >= edgeX0 && x <= edgeX1) inSpanMax = Math.max(inSpanMax, excess);
+    }
+    // The requirement binds the in-span patch; the skirt rides along.
+    if (inSpanMax <= SNAP_M) break;
+    if (excessMax <= SNAP_M) break;
+    coverPasses = pass + 1;
+    if (firstCoverPass) {
+      coverExcessBefore = inSpanMax;
+      firstCoverPass = false;
+    }
+    for (let i = 0; i < landmark.length; i += 1) {
+      const v = landmark[i];
+      if (v === undefined) throw new Error("FF contact: landmark index out of range");
+      const x = posed.bodyHead[v * 3] ?? 0;
+      const skirt = skirtOf(x);
+      if (skirt <= 0) continue;
+      const excess = (posed.bodyHead[v * 3 + 2] ?? 0) - coverPlane;
+      if (excess <= SNAP_M) continue;
+      // Quadratic in own excess over the pass max (no extra weighting:
+      // the excess field is already smooth, so the correction field is),
+      // scaled by the lateral skirt past the span.
+      const drop = ((excess * excess) / excessMax) * skirt;
+      edited[v * 3] = (edited[v * 3] ?? 0) + headBack.x * drop;
+      edited[v * 3 + 1] = (edited[v * 3 + 1] ?? 0) + headBack.y * drop;
+      edited[v * 3 + 2] = (edited[v * 3 + 2] ?? 0) + headBack.z * drop;
+      if (coverPasses === 1) {
+        coverCorrectedVerts += 1;
+        coverMax = Math.max(coverMax, drop);
+      }
+    }
+  }
+  const covered = pose(edited);
+  let coverMinClearance = Infinity;
+  for (let i = 0; i < landmark.length; i += 1) {
+    const v = landmark[i];
+    if (v === undefined) throw new Error("FF contact: landmark index out of range");
+    const x = covered.bodyHead[v * 3] ?? 0;
+    if (x < edgeX0 || x > edgeX1) continue;
+    coverMinClearance = Math.min(coverMinClearance, coverPlane - (covered.bodyHead[v * 3 + 2] ?? 0));
+  }
+  // Patch smoothness: max cover-increment jump over mesh-adjacent
+  // landmark pairs (shared lip triangle edge). The skirt keeps the field
+  // C1; |x|-sorting would fold mirror verts together and lie.
+  const coverDisp = (v: number): number => Math.hypot(
+    (edited[v * 3] ?? 0) - (postContact[v * 3] ?? 0),
+    (edited[v * 3 + 1] ?? 0) - (postContact[v * 3 + 1] ?? 0),
+    (edited[v * 3 + 2] ?? 0) - (postContact[v * 3 + 2] ?? 0),
+  );
+  let neighborJump = 0;
+  for (const tri of lipTris) {
+    const [a, b, c] = tri;
+    neighborJump = Math.max(
+      neighborJump,
+      Math.abs(coverDisp(a) - coverDisp(b)),
+      Math.abs(coverDisp(b) - coverDisp(c)),
+      Math.abs(coverDisp(c) - coverDisp(a)),
+    );
+  }
+  const finalGap = gapOf(covered.teethHead, covered.bodyHead);
+  const ffGapFinalMm = Math.round(finalGap.gap * 1e6) / 1e3;
+  if (coverMinClearance < -SNAP_M) {
+    throw new Error(`FF cover missed the plane: min clearance ${coverMinClearance * 1000} mm (premise false)`);
+  }
+  if (!(ffGapFinalMm >= 0 && ffGapFinalMm <= 0.5)) {
+    throw new Error(`FF cover broke contact: final gap ${ffGapFinalMm} mm (premise false)`);
+  }
   let maxCorrection = 0;
   for (let i = 0; i < edited.length / 3; i += 1) {
     const dx = (edited[i * 3] ?? 0) - (input.bodyDeltaFf[i * 3] ?? 0);
@@ -479,6 +638,13 @@ export async function solveFfLipContact(input: {
     ffPasses: passes,
     ffCorrectedVerts: landmark.length,
     ffMaxCorrectionMm: Math.round(maxCorrection * 1e6) / 1e3,
+    ffCoverExcessBeforeMm: Math.round(coverExcessBefore * 1e6) / 1e3,
+    ffCoverCorrectedVerts: coverCorrectedVerts,
+    ffCoverMaxMm: Math.round(coverMax * 1e6) / 1e3,
+    ffCoverPasses: coverPasses,
+    ffGapFinalMm,
+    ffCoverMinClearanceMm: Math.round(coverMinClearance * 1e6) / 1e3,
+    ffCoverNeighborJumpMm: Math.round(neighborJump * 1e6) / 1e3,
     editedBodyFf: edited,
   };
 }
@@ -807,6 +973,13 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     ffPasses: ffContact?.ffPasses ?? 0,
     ffCorrectedVerts: ffContact?.ffCorrectedVerts ?? 0,
     ffMaxCorrectionMm: ffContact?.ffMaxCorrectionMm ?? 0,
+    ffCoverExcessBeforeMm: ffContact?.ffCoverExcessBeforeMm ?? 0,
+    ffCoverCorrectedVerts: ffContact?.ffCoverCorrectedVerts ?? 0,
+    ffCoverMaxMm: ffContact?.ffCoverMaxMm ?? 0,
+    ffCoverPasses: ffContact?.ffCoverPasses ?? 0,
+    ffGapFinalMm: ffContact?.ffGapFinalMm ?? 0,
+    ffCoverMinClearanceMm: ffContact?.ffCoverMinClearanceMm ?? 0,
+    ffCoverNeighborJumpMm: ffContact?.ffCoverNeighborJumpMm ?? 0,
     honestRestGapMm: Math.round(honestDropCheck * 1e6) / 1e3,
     rigid,
     distortionMm,

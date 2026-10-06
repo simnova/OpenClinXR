@@ -67,7 +67,16 @@ const FF_GAP_BEFORE_MM = 12.53;
 const FF_GAP_AFTER_MM = 0.232;
 const FF_PASSES = 4;
 const FF_CORRECTED_VERTS = 322;
-const FF_MAX_CORRECTION_MM = 14.283;
+const FF_MAX_CORRECTION_MM = 17.587;
+/** FF cover-behind plan pins: in-span excess before, corrected verts, worst cover, passes,
+ * final edge gap (accept <= 0.5), min clearance behind the cover plane, mesh-neighbor jump. */
+const FF_COVER_EXCESS_BEFORE_MM = 8.384;
+const FF_COVER_CORRECTED_VERTS = 102;
+const FF_COVER_MAX_MM = 8.384;
+const FF_COVER_PASSES = 7;
+const FF_GAP_FINAL_MM = 0.034;
+const FF_COVER_MIN_CLEARANCE_MM = -0.001;
+const FF_COVER_NEIGHBOR_JUMP_MM = 4.22;
 /** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
 const HONEST_REST_GAP_MM = 5.575;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
@@ -403,6 +412,18 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(plan.ffPasses).toBe(FF_PASSES);
     expect(plan.ffCorrectedVerts).toBe(FF_CORRECTED_VERTS);
     expect(plan.ffMaxCorrectionMm).toBeCloseTo(FF_MAX_CORRECTION_MM, 2);
+    // Cover-behind tuck: in-span patch behind the incisor front face with
+    // the edge contact preserved (final gap in the accept band) and a
+    // smooth cover increment (mesh-neighbor jump reported, no cliff).
+    expect(plan.ffCoverExcessBeforeMm).toBeCloseTo(FF_COVER_EXCESS_BEFORE_MM, 2);
+    expect(plan.ffCoverCorrectedVerts).toBe(FF_COVER_CORRECTED_VERTS);
+    expect(plan.ffCoverMaxMm).toBeCloseTo(FF_COVER_MAX_MM, 2);
+    expect(plan.ffCoverPasses).toBe(FF_COVER_PASSES);
+    expect(plan.ffGapFinalMm).toBeCloseTo(FF_GAP_FINAL_MM, 2);
+    expect(plan.ffGapFinalMm).toBeGreaterThanOrEqual(0);
+    expect(plan.ffGapFinalMm).toBeLessThanOrEqual(0.5);
+    expect(plan.ffCoverMinClearanceMm).toBeGreaterThanOrEqual(FF_COVER_MIN_CLEARANCE_MM - 1e-9);
+    expect(plan.ffCoverNeighborJumpMm).toBeCloseTo(FF_COVER_NEIGHBOR_JUMP_MM, 1);
     // Rim seat drives the rest gap to the directed target on the pre-image,
     // then per-vertex pullback clears the face: the seated rest gap is the
     // honest producer-measured value, not the target.

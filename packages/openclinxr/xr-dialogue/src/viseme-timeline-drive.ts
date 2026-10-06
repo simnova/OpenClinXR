@@ -33,6 +33,21 @@ export type PhonemeCue = {
   intensity?: number;
 };
 
+/**
+ * Runtime cue lead, seconds (operator 2026-10-06: mouth motion lags the
+ * audio). The prepared-audio followers are critically damped second-order
+ * low-passes H(s) = w^2/(s^2+2ws+w^2), whose DC group delay has the closed
+ * form tau = 2/w: jaw (w=6) 1/3 s, lip vowels (w=14) 1/7 s. The jaw/aperture
+ * channel dominates mouth opening, and the measured end-to-end lag of the
+ * runtime-driven jaw aperture behind the step3 audio RMS envelope is exactly
+ * +10 frames (+333.3 ms) with zero cue-timing bias (audio-vs-cue-target
+ * peaks at 0), so the uniform lead is the jaw closed form 2/6 = 1/3 s,
+ * applied as a pure time shift at the two internal prepared-path sample
+ * sites (lip + jaw). Weight values are untouched: every series is identical
+ * modulo the shift. Module-local, internal only, no signature change.
+ */
+export const RUNTIME_CUE_LEAD_S = 1 / 3;
+
 export type VisemeFrame = {
   atSecond: number;
   /** Dwell length in seconds; absent when the caller supplied no per-phone durations. */

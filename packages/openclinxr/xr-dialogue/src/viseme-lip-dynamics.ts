@@ -1,5 +1,5 @@
 /** Deterministic fixed-step follower for prepared canonical viseme weights. */
-import { driveVisemeTimeline, type PhonemeCue } from "./viseme-timeline-drive.js";
+import { driveVisemeTimeline, RUNTIME_CUE_LEAD_S, type PhonemeCue } from "./viseme-timeline-drive.js";
 import { applyVisemeWeights, lipVisemeWeights, type MorphTargetLike } from "./viseme-morph-apply.js";
 
 const STEP_S = 1 / 240;
@@ -106,7 +106,7 @@ export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: re
 export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root, cues: readonly PhonemeCue[] | undefined, timeS: number): T {
   if (!cues?.length) return result;
   const frames = driveVisemeTimeline({ phonemes: cues, availableTargets: result.availableTargets }).frames;
-  const sample = createLipDynamicsSampler(cues, frames).sample(timeS);
+  const sample = createLipDynamicsSampler(cues, frames).sample(timeS + RUNTIME_CUE_LEAD_S);
   root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, sample.weights)); });
   const next = { ...result, weights: sample.weights };
   if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: sample };
