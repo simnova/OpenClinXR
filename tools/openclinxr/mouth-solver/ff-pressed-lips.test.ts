@@ -425,25 +425,28 @@ describe("FF pressed lips", () => {
     }
   });
 
-  it("predicts the speaking capture at the runtime drive: FF cue frames carry the contact aperture and seal", async () => {
+  it("predicts the speaking capture at the runtime drive: bilabial-closure frames seal with the jaw shut", async () => {
     // Runtime-drive predictor (defect.ff_gate_jaw): the static press gates
     // above pose FF weight 1 at the lookup jaw, but the speaking capture
-    // drives FF frames 75-76 (cue 2.48-2.55 s) at pure FF weight with the
-    // jaw channel's aperture, which used to lag at the DD-region 0.283 and
-    // left the lower crowns exposed. The FF jaw steer carries the aperture
-    // shut for the cue (PP-closure precedent: the pressed curtain shapes
-    // the labiodental, not the jaw). The evaluator drives the committed GLB
-    // through the runtime's own prepared-audio playback (no reimplementation),
-    // so its per-frame jaw angle IS the capture pose. The drive half of this
-    // gate fails without the steer; the seal half holds at every jaw by
+    // drives through the prepared-audio path, whose jaw channel used to lag
+    // at the DD-region 0.283 and leave the lower crowns exposed. The FF jaw
+    // steer carries the aperture shut for the cue (PP-closure precedent: the
+    // pressed curtain shapes the labiodental, not the jaw). The evaluator
+    // drives the committed GLB through the runtime's own prepared-audio
+    // playback (no reimplementation), so its per-frame jaw angle IS the
+    // capture pose.
+    // Bilabial closures are the track's PP cues: the acoustic correction in
+    // viseme-cue-track.ts relabels Rhubarb's mislabelled /b/ G cue at 2.48 s
+    // to PP (operator 2026-10-06), so the pre-fix FF cue frames are now PP
+    // frames. Filtering on the record viseme keeps this gate green on both
+    // sides of that relabelling. The seal half holds at every jaw by
     // construction (the pressed point is jaw-invariant) and pins the seal
     // at the driven angle.
     const track = readEvaluatorTrack(STEP3_TRACK);
     const { output } = await evaluate(GLB, track);
-    const ff = output.records.filter((record) => record.frame === 75 || record.frame === 76);
-    expect(ff.length).toBe(2);
-    for (const record of ff) {
-      expect(record.viseme).toBe("viseme_FF");
+    const closure = output.records.filter((record) => record.viseme === "viseme_PP");
+    expect(closure.length).toBeGreaterThan(0);
+    for (const record of closure) {
       expect(record.jawOpenRadians).toBe(0);
       expect(Math.abs(pressGapMmAt(1, record.jawOpenRadians))).toBeLessThanOrEqual(GAP_BAND_MM);
     }

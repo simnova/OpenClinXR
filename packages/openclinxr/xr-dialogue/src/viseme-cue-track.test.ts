@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
 import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
 import { contactEnvelope } from "./contact-envelope.js";
@@ -35,6 +38,104 @@ describe("canonical OVR cue intake", () => {
     const wav = pcm16Wav([...Array(10).fill(0.25), ...Array(10).fill(1)]);
     const cues = mapRhubarbTrack({ mouthCues: [{ start: 0, end: 0.1, value: "D" }, { start: 0.1, end: 0.2, value: "E" }] }, wav);
     expect(cues[0]?.intensity).toBeCloseTo(0.25, 4); expect(cues[1]?.intensity).toBe(1);
+  });
+});
+describe("bilabial-stop acoustic correction", () => {
+  const step3Doc = (() => {
+    const file = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "../../../../docs/openclinxr/mouth-dynamics/step3/metrics.json",
+    );
+    const raw = JSON.parse(readFileSync(file, "utf8")) as {
+      rhubarb: { mouthCues: { start: number; end: number; value: string }[] };
+    };
+    return { mouthCues: raw.rhubarb.mouthCues };
+  })();
+
+  function step3Wav(): ArrayBuffer {
+    const file = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "./test-fixtures/step3-speech-22050.wav",
+    );
+    const bytes = readFileSync(file);
+    const copy = new Uint8Array(bytes.length);
+    copy.set(bytes);
+    return copy.buffer;
+  }
+
+  it("relabels the mislabelled /b/ G cue at 2.48 to PP", () => {
+    const mapped = mapRhubarbTrack(step3Doc, step3Wav());
+    const cue = mapped.find((entry) => Math.abs(entry.startS - 2.48) < 1e-9);
+    expect(cue?.viseme).toBe("PP");
+    expect(cue?.endS).toBeCloseTo(2.52, 2);
+  });
+
+  it("extends the /p/ PP cue at 1.33 to its burst onset within 10 ms", () => {
+    const mapped = mapRhubarbTrack(step3Doc, step3Wav());
+    const cue = mapped.find((entry) => Math.abs(entry.startS - 1.33) < 1e-9);
+    expect(cue?.viseme).toBe("PP");
+    expect(cue?.endS).toBeCloseTo(1.45, 2);
+  });
+
+  it("leaves every other cue unchanged except the two moved boundaries", () => {
+    const plain = mapRhubarbTrack(step3Doc);
+    const mapped = mapRhubarbTrack(step3Doc, step3Wav());
+    expect(mapped.length).toBe(plain.length);
+    for (let index = 0; index < plain.length; index += 1) {
+      const before = plain[index]!;
+      const after = mapped[index]!;
+      const movedBoundary = before.startS === 1.39 || before.startS === 2.55 || before.startS === 1.33 || before.startS === 2.48;
+      if (movedBoundary) continue;
+      expect(after.startS, `cue ${index} start`).toBe(before.startS);
+      expect(after.endS, `cue ${index} end`).toBe(before.endS);
+      expect(after.viseme, `cue ${index} viseme`).toBe(before.viseme);
+    }
+    const labels = mapped.map((cue) => cue.viseme);
+    expect(labels.filter((viseme) => viseme === "FF")).toHaveLength(0);
+    expect(labels.filter((viseme) => viseme === "PP")).toHaveLength(2);
+  });
+
+  it("leaves the track unchanged without wav", () => {
+    const plain = mapRhubarbTrack(step3Doc);
+    const cue = plain.find((entry) => Math.abs(entry.startS - 2.48) < 1e-9);
+    expect(cue?.viseme).toBe("FF");
+    expect(cue?.endS).toBe(2.55);
+    const pp = plain.find((entry) => Math.abs(entry.startS - 1.33) < 1e-9);
+    expect(pp?.viseme).toBe("PP");
+    expect(pp?.endS).toBe(1.39);
+  });
+
+  it("keeps a synthetic G cue over broadband noise at FF", () => {
+    const noise = Array.from({ length: 30 }, (_, index) => (index % 2 === 0 ? 0.5 : -0.5));
+    const wav = pcm16Wav(noise);
+    const mapped = mapRhubarbTrack({ mouthCues: [{ start: 0, end: 0.3, value: "G" }] }, wav);
+    expect(mapped).toHaveLength(1);
+    expect(mapped[0]?.viseme).toBe("FF");
+  });
+
+  it("relabels a synthetic G cue spanning silence plus a burst to PP", () => {
+    const samples = [
+      ...Array(20).fill(0.5),
+      ...Array(8).fill(0),
+      ...Array(12).fill(0.5),
+    ];
+    const wav = pcm16Wav(samples);
+    const mapped = mapRhubarbTrack(
+      {
+        mouthCues: [
+          { start: 0, end: 0.2, value: "D" },
+          { start: 0.2, end: 0.32, value: "G" },
+          { start: 0.32, end: 0.4, value: "C" },
+        ],
+      },
+      wav,
+    );
+    expect(mapped.map((cue) => cue.viseme)).toEqual(["aa", "PP", "E"]);
+  });
+
+  it("is deterministic", () => {
+    const wav = step3Wav();
+    expect(mapRhubarbTrack(step3Doc, wav)).toEqual(mapRhubarbTrack(step3Doc, wav));
   });
 });
 describe("critically damped jaw sampler", () => {

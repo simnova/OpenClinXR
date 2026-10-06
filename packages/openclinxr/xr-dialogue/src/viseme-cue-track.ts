@@ -50,6 +50,138 @@ export const POLLY_TO_OVR = Object.freeze({
 
 type SymbolCue = { startS: number; endS: number; symbol: string };
 
+/**
+ * Bilabial-stop acoustic correction for Rhubarb intake (operator 2026-10-06:
+ * "B for Better doesn't have lips touch").
+ *
+ * Rhubarb mislabels the /b/ of "better" as G (->FF, 2.48-2.55 s) and ends the
+ * /p/ PP cue of "pain" at 1.39 s while the acoustic closure silence runs to
+ * ~1.44 s with the burst at ~1.45 s. An /f/ is frication noise, never a
+ * silent closure, so a G/FF cue overlapping a true closure is a stop.
+ *
+ * Pure function of (rhubarb doc, wav); deterministic. Rhubarb path only: the
+ * G bucket is Rhubarb-specific, and PP extension keys on the Rhubarb A cue.
+ *
+ * Closure = a run of 10 ms RMS windows below the silence floor lasting at
+ * least 40 ms, immediately followed by an onset window at or above the
+ * floor. Floor = 5% of the track's loudest cue-window RMS (unnormalized, same
+ * computation as the intensity path below). Measured provenance on the step3
+ * wav (22050 Hz mono, sha256 05c11f51...): loudest cue-window RMS 0.2476
+ * (E 3.10-3.31 s) -> floor 0.0124; /p/ run 1.38-1.45 s + onset 1.45 s;
+ * /b/ run 2.41-2.52 s + onset 2.52 s; vowel/frication windows read 0.02+.
+ *
+ * (1) A G/FF cue overlapped by a closure (silence starts before the cue ends
+ * and the burst lands after the cue starts) is relabelled to the Rhubarb PP
+ * key. Broadband noise has no 40 ms sub-floor run, so a true fricative cue
+ * over noise stays FF.
+ * (2) A PP cue's end moves to the burst onset of the closure straddling it
+ * (silence starts at or before the cue end, burst after the cue start),
+ * bounded by the next cue's end minus one 30 fps frame; the next cue's start
+ * moves accordingly. Without wav the track is returned unchanged.
+ */
+const BILABIAL_WINDOW_S = 0.01;
+const BILABIAL_MIN_SILENCE_S = 0.04;
+const BILABIAL_FLOOR_FRACTION = 0.05;
+const BILABIAL_FRAME_S = 1 / 30;
+
+type BilabialClosure = { silenceStartS: number; burstS: number };
+
+function bilabialClosures(
+  samples: Float32Array,
+  sampleRate: number,
+  sampleCount: number,
+  durationS: number,
+  floor: number,
+): BilabialClosure[] {
+  const perWindow = Math.max(1, Math.round(sampleRate * BILABIAL_WINDOW_S));
+  const windowCount = Math.max(1, Math.ceil(durationS / BILABIAL_WINDOW_S));
+  const rms: number[] = [];
+  for (let window = 0; window < windowCount; window += 1) {
+    const first = window * perWindow;
+    const last = Math.min(sampleCount, first + perWindow);
+    if (last <= first) {
+      rms.push(0);
+      continue;
+    }
+    let squareSum = 0;
+    for (let index = first; index < last; index += 1) {
+      const sample = samples[index] ?? 0;
+      squareSum += sample * sample;
+    }
+    rms.push(Math.sqrt(squareSum / (last - first)));
+  }
+  const minRun = Math.round(BILABIAL_MIN_SILENCE_S / BILABIAL_WINDOW_S);
+  const closures: BilabialClosure[] = [];
+  let window = 0;
+  while (window < windowCount) {
+    if ((rms[window] ?? Number.POSITIVE_INFINITY) >= floor) {
+      window += 1;
+      continue;
+    }
+    let end = window;
+    while (end < windowCount && (rms[end] ?? Number.POSITIVE_INFINITY) < floor) end += 1;
+    if (end - window >= minRun && end < windowCount) {
+      closures.push({ silenceStartS: window * BILABIAL_WINDOW_S, burstS: end * BILABIAL_WINDOW_S });
+    }
+    window = end + 1;
+  }
+  return closures;
+}
+
+function correctBilabialClosures(cues: readonly SymbolCue[], wav: ArrayBuffer): SymbolCue[] {
+  if (cues.length === 0) return [];
+  const table: Readonly<Record<string, OvrViseme>> = RHUBARB_TO_OVR;
+  const ppKey = Object.keys(table).find((key) => table[key] === "PP");
+  if (ppKey === undefined) return cues.map((cue) => ({ ...cue }));
+  const decoded = decodePcm16MonoWav(wav);
+  const unnormalized: number[] = cues.map((cue) => {
+    const first = Math.max(0, Math.floor(cue.startS * decoded.sampleRate));
+    const last = Math.min(decoded.sampleCount, Math.ceil(cue.endS * decoded.sampleRate));
+    if (last <= first) return 0;
+    let squareSum = 0;
+    for (let index = first; index < last; index += 1) {
+      const sample = decoded.float32[index] ?? 0;
+      squareSum += sample * sample;
+    }
+    return Math.sqrt(squareSum / (last - first));
+  });
+  const loudest = Math.max(0, ...unnormalized);
+  if (!(loudest > 0)) return cues.map((cue) => ({ ...cue }));
+  const lastCue = cues[cues.length - 1];
+  if (!lastCue) return cues.map((cue) => ({ ...cue }));
+  const closures = bilabialClosures(
+    decoded.float32,
+    decoded.sampleRate,
+    decoded.sampleCount,
+    lastCue.endS,
+    BILABIAL_FLOOR_FRACTION * loudest,
+  );
+  if (closures.length === 0) return cues.map((cue) => ({ ...cue }));
+  const out = cues.map((cue) => ({ ...cue }));
+  for (const cue of out) {
+    if (table[cue.symbol] !== "FF") continue;
+    const hit = closures.some(
+      (closure) => closure.silenceStartS < cue.endS && closure.burstS > cue.startS,
+    );
+    if (hit) cue.symbol = ppKey;
+  }
+  for (let index = 0; index < out.length; index += 1) {
+    const cue = out[index];
+    if (!cue || table[cue.symbol] !== "PP") continue;
+    const closure = closures.find(
+      (entry) => entry.silenceStartS <= cue.endS && entry.burstS > cue.startS,
+    );
+    if (!closure) continue;
+    const next = out[index + 1];
+    const bounded = next === undefined ? closure.burstS : Math.min(closure.burstS, next.endS - BILABIAL_FRAME_S);
+    if (bounded > cue.startS && bounded !== cue.endS) {
+      cue.endS = bounded;
+      if (next) next.startS = bounded;
+    }
+  }
+  return out;
+}
+
 function checkedCue(cue: SymbolCue, index: number, previousEnd: number): SymbolCue {
   if (!Number.isFinite(cue.startS) || !Number.isFinite(cue.endS) || cue.startS < 0 || cue.endS <= cue.startS) {
     throw new Error(`invalid-viseme-cue:${index}`);
@@ -98,9 +230,15 @@ function mapSymbols(
 }
 
 export function mapRhubarbTrack(doc: RhubarbCueDocument, wav?: ArrayBuffer): VisemeCue[] {
-  return mapSymbols("rhubarb", (doc.mouthCues ?? []).map((cue) => ({
+  const symbols = (doc.mouthCues ?? []).map((cue) => ({
     startS: cue.start, endS: cue.end, symbol: cue.value,
-  })), RHUBARB_TO_OVR, wav);
+  }));
+  return mapSymbols(
+    "rhubarb",
+    wav === undefined ? symbols : correctBilabialClosures(symbols, wav),
+    RHUBARB_TO_OVR,
+    wav,
+  );
 }
 
 export function mapArpabetTrack(cues: readonly ArpabetCue[], wav?: ArrayBuffer): VisemeCue[] {

@@ -79,6 +79,15 @@ const thCues: Step3Cue[] = [
   { phoneme: "sil", atSecond: 1.5625, durationSeconds: 0.5, intensity: 0.01 },
 ];
 
+/** Synthetic contact track: 62.5 ms FF between vowels (the step3 /b/ is a PP closure since the acoustic correction). Binary-exact boundaries (halves/sixteenths): the FF cue starts at 1.0625 s so its sub-frame phase (0.875) matches the step3 2.48 s cue (0.4): a frame-aligned 1.0 s start reads the 200 ms anticipatory envelope a full frame early. */
+const ffCues: Step3Cue[] = [
+  { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
+  { phoneme: "E", atSecond: 0.5, durationSeconds: 0.5625, intensity: 0.8 },
+  { phoneme: "FF", atSecond: 1.0625, durationSeconds: 0.0625, intensity: 0.1 },
+  { phoneme: "E", atSecond: 1.125, durationSeconds: 0.5, intensity: 0.8 },
+  { phoneme: "sil", atSecond: 1.625, durationSeconds: 0.5, intensity: 0.01 },
+];
+
 /** Contact-free vowel track for the bit-equal gate (binary-exact boundaries). */
 const vowelCues: Step3Cue[] = [
   { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
@@ -383,18 +392,21 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
     it("per-channel cue leads put FF contact onset within one frame of its cue", () => {
       // Contact = FF applied weight >= 0.95, the 0.5 mm edge-gap proxy (x=5.5
       // centres at 0.947 with a 0.51 mm gap; x=6.0 centres at ~0.97 inside the
-      // gate). Centre weight stays >= 0.9.
-      const ff = step3Cue("FF");
+      // gate). Centre weight stays >= 0.9. Synthetic FF: the step3 /b/ is a
+      // PP closure since the bilabial-stop acoustic correction.
+      const ff = ffCues.find((entry) => entry.phoneme === "FF");
+      if (!ff) throw new Error("synthetic track has no FF cue");
+      const drive = (mediaS: number): Step3Drive => driveTrackAt(ffCues, mediaS, 2130);
       const cueFrame = Math.floor(ff.atSecond * 30);
       let onset = -1;
       for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
-        if ((driveAt(frameMediaS(n)).weights.viseme_FF ?? 0) >= 0.95) { onset = n; break; }
+        if ((drive(frameMediaS(n)).weights.viseme_FF ?? 0) >= 0.95) { onset = n; break; }
       }
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
-      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(0.95);
+      expect(drive(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(0.95);
       const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-      expect(driveAt(centreS).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(0.9);
+      expect(drive(centreS).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(0.9);
     });
 
     it("per-channel cue leads open the jaw within one frame of the first vowel after PP", () => {
@@ -491,13 +503,20 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
     });
 
-    it("reaches FF >= 0.9 within one frame of cue onset", () => {
-      const ff = step3Cue("FF");
-      const { cueFrame, onset } = contactOnset((mediaS) => driveAt(mediaS), "viseme_FF", ff.atSecond);
+    it("reaches FF >= 0.9 within one frame of cue onset (synthetic)", () => {
+      // Synthetic FF: the step3 /b/ is a PP closure since the
+      // bilabial-stop acoustic correction.
+      const ff = ffCues.find((entry) => entry.phoneme === "FF");
+      if (!ff) throw new Error("synthetic track has no FF cue");
+      const { cueFrame, onset } = contactOnset(
+        (mediaS) => driveTrackAt(ffCues, mediaS, 2130),
+        "viseme_FF",
+        ff.atSecond,
+      );
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-      expect(driveAt(centreS).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+      expect(driveTrackAt(ffCues, centreS, 2130).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
     });
 
     it("reaches TH >= 0.9 within one frame of cue onset (synthetic)", () => {
@@ -515,19 +534,33 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
     });
 
     it("releases PP and FF within the per-frame bound", () => {
-      for (const phoneme of ["PP", "FF"] as const) {
-        const cue = step3Cue(phoneme);
-        const key = `viseme_${phoneme}`;
-        const endFrame = Math.floor((cue.atSecond + (cue.durationSeconds ?? 0)) * 30);
+      // PP rides the step3 track; FF rides the synthetic contact (the
+      // step3 /b/ is a PP closure since the bilabial-stop acoustic
+      // correction).
+      const pp = step3Cue("PP");
+      const ff = ffCues.find((entry) => entry.phoneme === "FF");
+      if (!ff) throw new Error("synthetic track has no FF cue");
+      for (
+        const entry of [
+          { phoneme: "PP" as const, cue: pp, drive: driveAt },
+          {
+            phoneme: "FF" as const,
+            cue: ff,
+            drive: (mediaS: number): Step3Drive => driveTrackAt(ffCues, mediaS, 2130),
+          },
+        ]
+      ) {
+        const key = `viseme_${entry.phoneme}`;
+        const endFrame = Math.floor((entry.cue.atSecond + (entry.cue.durationSeconds ?? 0)) * 30);
         let max = 0;
         let at = -1;
         for (let n = endFrame - 2; n <= endFrame + 10; n += 1) {
           const step = Math.abs(
-            (driveAt(frameMediaS(n)).weights[key] ?? 0) - (driveAt(frameMediaS(n - 1)).weights[key] ?? 0),
+            (entry.drive(frameMediaS(n)).weights[key] ?? 0) - (entry.drive(frameMediaS(n - 1)).weights[key] ?? 0),
           );
           if (step > max) { max = step; at = n; }
         }
-        expect(max, `${phoneme} release max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+        expect(max, `${entry.phoneme} release max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
       }
     });
 

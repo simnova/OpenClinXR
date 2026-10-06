@@ -30,6 +30,15 @@ const thCues: Cue[] = [
   { phoneme: "sil", atSecond: 1.5625, durationSeconds: 0.5, intensity: 0.01 },
 ];
 
+/** Synthetic contact track: 62.5 ms FF between vowels (the step3 /b/ is PP since the acoustic correction). Binary-exact boundaries (halves/sixteenths); the 1.0625 s start keeps the step3 sub-frame phase so the 200 ms anticipatory envelope reads one frame early, not two. */
+const ffCues: Cue[] = [
+  { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
+  { phoneme: "E", atSecond: 0.5, durationSeconds: 0.5625, intensity: 0.8 },
+  { phoneme: "FF", atSecond: 1.0625, durationSeconds: 0.0625, intensity: 0.1 },
+  { phoneme: "E", atSecond: 1.125, durationSeconds: 0.5, intensity: 0.8 },
+  { phoneme: "sil", atSecond: 1.625, durationSeconds: 0.5, intensity: 0.01 },
+];
+
 const vowelCues: Cue[] = [
   { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
   { phoneme: "aa", atSecond: 0.5, durationSeconds: 0.5, intensity: 0.77 },
@@ -164,9 +173,13 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
   });
 
   it("presses the FF centre: FF=1 with vowel neighbours at 0 (same contact check)", () => {
-    const ff = step3Cue("FF");
+    // Synthetic FF contact: the step3 /b/ is a PP closure since the
+    // bilabial-stop acoustic correction, so the FF morph gate rides a
+    // synthetic contact instead of a step3 cue name.
+    const ff = ffCues.find((entry) => entry.phoneme === "FF");
+    if (!ff) throw new Error("synthetic track has no FF cue");
     const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-    const driven = driveAt(centreS);
+    const driven = driveTrackAt(ffCues, centreS, 2130);
     expect(driven.weights.viseme_FF ?? NaN).toBe(1);
     expect(driven.weights.viseme_E ?? NaN).toBe(0);
     expect(driven.weights.viseme_DD ?? NaN).toBe(0);
