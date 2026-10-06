@@ -60,23 +60,28 @@ const RIM_REST_TARGET_MM = 3.743;
 const DOWN_GAIN: number = 1.25;
 /** Producer rest drop under test, mm head-down (0 on main, -1.405 on rest-a/rest-b, 4.215 on lower-arch-fix). */
 const REST_DROP_MM: number = 4.215;
-/** Producer FF lip-contact flag under test (upper incisors rest on the lower lip on viseme_FF). */
+/** Producer FF pressed-lips flag under test (lower outer curtain edge meets
+ * the upper-lip edge on viseme_FF; the ae7396f2f cover-behind tuck retired). */
 const FF_LIP_CONTACT: boolean = true;
-/** FF contact plan pins: edge-to-lip point-triangle before/after, passes, corrected verts, worst correction. */
-const FF_GAP_BEFORE_MM = 12.53;
-const FF_GAP_AFTER_MM = 0.232;
-const FF_PASSES = 4;
-const FF_CORRECTED_VERTS = 322;
-const FF_MAX_CORRECTION_MM = 17.587;
-/** FF cover-behind plan pins: in-span excess before, corrected verts, worst cover, passes,
- * final edge gap (accept <= 0.5), min clearance behind the cover plane, mesh-neighbor jump. */
-const FF_COVER_EXCESS_BEFORE_MM = 8.384;
-const FF_COVER_CORRECTED_VERTS = 102;
-const FF_COVER_MAX_MM = 8.384;
-const FF_COVER_PASSES = 7;
-const FF_GAP_FINAL_MM = 0.034;
-const FF_COVER_MIN_CLEARANCE_MM = -0.001;
-const FF_COVER_NEIGHBOR_JUMP_MM = 4.22;
+/** FF press plan pins: outer press gap before/after, passes, domain verts,
+ * worst correction, rung-3 rings, predicted jump, total adjacent jump. */
+const FF_GAP_BEFORE_MM = 1.542;
+const FF_GAP_AFTER_MM = 0.249;
+const FF_PASSES = 1;
+const FF_CORRECTED_VERTS = 1184;
+const FF_MAX_CORRECTION_MM = 1.342;
+const FF_PRESS_RINGS = 8;
+const FF_PRESS_PREDICTED_JUMP_MM = 0.303;
+const FF_CONTACT_NEIGHBOR_JUMP_MM = 3.346;
+/** FF cover-behind plan pins: retired with the tuck; all report 0 and the
+ * final press gap carries the seal (accept <= 0.5). */
+const FF_COVER_EXCESS_BEFORE_MM = 0;
+const FF_COVER_CORRECTED_VERTS = 0;
+const FF_COVER_MAX_MM = 0;
+const FF_COVER_PASSES = 0;
+const FF_GAP_FINAL_MM = 0.249;
+const FF_COVER_MIN_CLEARANCE_MM = 0;
+const FF_COVER_NEIGHBOR_JUMP_MM = 0;
 /** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
 const HONEST_REST_GAP_MM = 5.575;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
@@ -412,18 +417,21 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(plan.ffPasses).toBe(FF_PASSES);
     expect(plan.ffCorrectedVerts).toBe(FF_CORRECTED_VERTS);
     expect(plan.ffMaxCorrectionMm).toBeCloseTo(FF_MAX_CORRECTION_MM, 2);
-    // Cover-behind tuck: in-span patch behind the incisor front face with
-    // the edge contact preserved (final gap in the accept band) and a
-    // smooth cover increment (mesh-neighbor jump reported, no cliff).
-    expect(plan.ffCoverExcessBeforeMm).toBeCloseTo(FF_COVER_EXCESS_BEFORE_MM, 2);
+    // Pressed lips: the visible outer-curtain slit meets the upper edge
+    // (final gap in the accept band) with a smooth press increment (total
+    // adjacent vector jump under the SS max, no tuck, no cliff).
+    expect(plan.ffCoverExcessBeforeMm).toBe(FF_COVER_EXCESS_BEFORE_MM);
     expect(plan.ffCoverCorrectedVerts).toBe(FF_COVER_CORRECTED_VERTS);
-    expect(plan.ffCoverMaxMm).toBeCloseTo(FF_COVER_MAX_MM, 2);
+    expect(plan.ffCoverMaxMm).toBe(FF_COVER_MAX_MM);
     expect(plan.ffCoverPasses).toBe(FF_COVER_PASSES);
     expect(plan.ffGapFinalMm).toBeCloseTo(FF_GAP_FINAL_MM, 2);
     expect(plan.ffGapFinalMm).toBeGreaterThanOrEqual(0);
     expect(plan.ffGapFinalMm).toBeLessThanOrEqual(0.5);
-    expect(plan.ffCoverMinClearanceMm).toBeGreaterThanOrEqual(FF_COVER_MIN_CLEARANCE_MM - 1e-9);
-    expect(plan.ffCoverNeighborJumpMm).toBeCloseTo(FF_COVER_NEIGHBOR_JUMP_MM, 1);
+    expect(plan.ffCoverMinClearanceMm).toBe(FF_COVER_MIN_CLEARANCE_MM);
+    expect(plan.ffCoverNeighborJumpMm).toBe(FF_COVER_NEIGHBOR_JUMP_MM);
+    expect(plan.ffPressRings).toBe(FF_PRESS_RINGS);
+    expect(plan.ffPressPredictedJumpMm).toBeCloseTo(FF_PRESS_PREDICTED_JUMP_MM, 2);
+    expect(plan.ffContactNeighborJumpMm).toBeCloseTo(FF_CONTACT_NEIGHBOR_JUMP_MM, 1);
     // Rim seat drives the rest gap to the directed target on the pre-image,
     // then per-vertex pullback clears the face: the seated rest gap is the
     // honest producer-measured value, not the target.

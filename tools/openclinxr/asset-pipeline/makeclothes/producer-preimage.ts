@@ -28,15 +28,20 @@ function sha256(bytes: Buffer | Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-/** Temp path holding the pre-image bytes. Throws when no revision matches. */
+/** Temp path holding the pre-image bytes. Throws when no revision matches.
+ *
+ * The walk follows renames (`git log --follow`): the rim-seat pre-image
+ * predates a GLB path rename, so a plain rev-list never reaches it. Depth
+ * 32 covers the rename plus the seat chain with margin.
+ */
 export function loadProducerPreimage(
   repoRoot: string,
   glbRel: string,
   expectedSha256: string,
   expectedBytes: number,
-  searchDepth = 10,
+  searchDepth = 32,
 ): string {
-  const revisions = execFileSync("git", ["rev-list", "HEAD", "--", glbRel], {
+  const revisions = execFileSync("git", ["log", "--follow", "--format=%H", "HEAD", "--", glbRel], {
     cwd: repoRoot,
     encoding: "utf8",
   })

@@ -1,124 +1,125 @@
 {
- "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
- "derivationMode": "mpfb2_promoted_default_cast",
- "scenarioId": "peds_asthma_parent_anxiety_v1",
- "actorId": "parent_tara_johnson_v1",
- "actorRole": "parent",
- "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
- "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
- "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
- "sourceKind": "mpfb2_makehuman_basemesh",
- "usesRealAnnyForwardPass": false,
- "realAnnyWeightsUsed": false,
- "textureMode": "authored_or_baked",
- "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
- "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
- "realismGrade": "not_graded",
- "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
- "sourceOriginChain": {
-  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
-  "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
-  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference \u2014 the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
- },
- "licenseChain": {
-  "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
-  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-  "sourceRecordClaimsSupported": [
-   "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
-  ],
-  "notRun": [
-   "licence_text_reenumeration",
-   "makehuman_license_review",
-   "production_asset_readiness"
-  ],
-  "explicitUnknown": [
-   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
-   "This promotion does NOT claim license approval for commercial/production use."
-  ],
-  "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. Same lineage as mpfb-ob-patient-aisha.glb."
- },
- "derivativeLineage": {
-  "status": "mpfb2_family_palette_variant_of_aisha_default_macro_body",
-  "caseId": "peds_asthma_parent_anxiety_v1",
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_promoted_default_cast",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "parent_tara_johnson_v1",
   "actorRole": "parent",
-  "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:mpfb2",
-  "baseAsset": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-  "promotionPath": "dedicated_family_palette_rebake_not_recolour_of_ob_patient",
-  "method": "mpfb2_standard_rig_137_joints_numeric_phenotype_macros_adult_female_closed_casual_muted_rose"
- },
- "toolVersion": "openclinxr-mpfb2-promotion-v1",
- "promptOrCaseParameterHash": "issue_388_peds_parent_family_palette_2026-08-14",
- "notEvidenceFor": [
-  "b_plus_visual_realism_gate",
-  "production_asset_readiness",
-  "quest_readiness",
-  "learner_readiness",
-  "clinical_validity",
-  "scoring_validity",
-  "scene_placement_readiness"
- ],
- "sourceNotes": [
-  "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
-  "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
-  "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared \u2014 the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
-  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
-  "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
-  "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756.",
-  "2026-10-01: appended viseme_* POSITION morphs on openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh. Vertices with jaw weight >= 0.5 translate by that body viseme's jaw-descendant lower-lip landmark centroid; every other tooth vertex stays at delta 0. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that appended the morphs.",
-  "2026-10-01: solved a teeth POSITION morph for every opening body viseme, including viseme_E, viseme_FF, viseme_nn, viseme_RR, viseme_TH, and viseme_U, from the front-shell gap. Each opening target is one rigid translation of the jaw-weighted vertices and one rigid translation of the head-weighted vertices. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
-  "2026-10-01: opening teeth viseme POSITION deltas are per vertex. The rigid front-shell translation still seats the mean nearest-body gap in 0.5-2 mm. Arch-face crowns then take a posterior Z so lower lead versus jaw-descendant skin is at most -0.5 mm, and side crowns with base |x| > 12 mm also take an inward X. Upper Z is not moved forward of that rigid seat. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Base POSITION, vertex count, and skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
-  "2026-10-01: keeper UV skin sheet on mpfb_skin_peds_anxious_parent. Station tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent (albedo, normal, roughness, cavity). Albedo is the unwrapped body map, not the quad-sheet pore tile. Image buffers replaced in place; no full materialize, no Catmull-Clark, no vertex smooth. Base Color = albedo, normalTexture = normal, occlusionTexture and metallicRoughnessTexture share one image (R=cavity, G=roughness, B=255, metallicFactor 0). Blender 5.1.1 plane probe kept cavity. Fitted-teeth viseme target names and vertex count unchanged. outputSha256/outputBytes re-recorded in the same change.",
-  "2026-10-06: seated the lower teeth on the lower-lip inner rim with tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --target-gap-mm 3.743. Per-vertex skin-weight and morph transfer from the rim (barycentric, top-4 renormalized; rigid arch mean by the 0.3 mm distortion rule), upper-arch deltas exactly 0, lower-arch base +9.073 mm so the rest rim gap equals the 3.743 mm now-minimum. Only teeth POSITION base, teeth morph, and teeth JOINTS_0/WEIGHTS_0 accessors changed (112 accessors identical). The pre-image 202ec91134a7 was itself produced by uncommitted scratch scripts (/tmp/muse-iter26..68-teeth.py, Oct 2-4) and is not re-derivable from repo tools. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 coordinator ruling (travel): driven lower-shell centroid Y travel of 7.79 mm is the real jaw-coupled travel; the pre-image 12.52 mm baseline included morph-Y exaggeration (crowns yanked past the lip) that rim transfer removed while jaw bones, rig, and drive are byte-identical. Teeth track the rim within 0.7 mm (rim travel 7.07 mm). The evaluator pins 7.79 mm +/-10% as the new baseline.",
-  "2026-10-06: replaced the absolute lower-lip landmark box (|x| <= 0.03, y in [1.448, 1.488]) with the rig+response rule in couple-fitted-teeth-to-lip-viseme.ts lowerLipLandmark: dominant joint is jaw or a jaw descendant and viseme_aa bind delta y < -2 mm (322 verts); inner rim keeps the facing-sign rule against the teeth front-shell centroid (76 verts; old box-facing set of 60 is a strict subset, +16 crest/side verts, -0). Reran the same producer from the same pre-image 202ec91134a7 with the same --target-gap-mm 3.743 (rim 76/tris 96, restGap0 10.666 mm, shift +9.073 mm, rigid by the 0.3 mm distortion rule): output a0bbcd77314ade0d9303c4eee5dd891bee1c27bc3dfb7de4d4a49dd7e5945887. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06: face-bound reseat (landing blocker: #739 population gate failed 3 clauses on the +9.073 mm rim seat, rest -0.0023 / cap -0.0054). The producer now caps the rest offset with the #739 instrument (tools/openclinxr/asset-pipeline/makeclothes/face-median.ts, same computation as the gate, imported not reimplemented; 0.5 mm safety): pre-image margins rest +3.533 / cap +0.500 mm allow 3.197 mm, rim seating needs ~9.1 mm, so the face binds and the producer applies 3.197 mm with honest rest rim gap 8.246 mm (per-frame clip series 7.999-8.758, mean 8.199). Post-seat margins rest +3.533 / cap +0.500 / tongue +7.965 mm: the #739 values preserved exactly. Same pre-image 202ec91134a7, same --target-gap-mm 3.743. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06: closeness fix (operator: the face-bound 8.2 mm gap reads as a regression vs the liked 3.74 mm seat). Rim seat restored (+9.073 mm) with per-vertex pullback of the 560 face-crossing central lower-front verts (|x| <= 16.4 mm, NOT corner crowns) by iterated quadratic falloff (7 passes, worst 5.876 mm, mean 1.239 mm) to the cap-median-minus-0.5 mm plane. Honest rest gap 6.387 mm (clip series 6.149-6.820, mean 6.308). Post-seat face margins rest +3.533 / cap +0.499 / tongue +7.966 mm. Same pre-image 202ec91134a7, same --target-gap-mm 3.743. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 rest-a (operator: lower-teeth rest seat just above the lower lip, both variants): --rest-drop-mm -1.405 signed head-down lower-arch base shift after pullback (closed form d = rest(edge_y - rim_top_y) - 0.5 from the closeness fixed-shell rest -0.905mm; skin/morph transfer untouched, true edge lands +0.492mm). Plus variant-A --down-gain 1.25 on the lower-arch teeth viseme deltas (head-local vertical only). Same pre-image 202ec91134a7, same --target-gap-mm 3.743, same seat + pullback (558 verts, 7 passes). outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 lower-arch-fix (operator: upper teeth stretch because median-Y lowerArch caught upper verts [R7]): seat-teeth-on-lip-rim.ts lowerArch is now connected-component + jaw rule (40 components, lower 2180 jaw-bound verts, upper 2314 preserved bitwise), upper-arch base/skinning/morphs carried verbatim from pre-image 202ec91134a7; same --target-gap-mm 3.743 and --down-gain 1.25, --rest-drop-mm 4.215 (lower rest ~4.2mm below the closeness seat). Pullback 394 verts / worst 4.606mm / 7 passes, honest rest rim gap 5.575mm. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 ff-lip-contact (operator: upper incisors rest on the lower lip on viseme_FF, labiodental): seat-teeth-on-lip-rim.ts --ff-lip-contact solves a per-vertex correction to the body viseme_FF bind delta on the 322 lower-lip landmark verts (jaw-descendant + aa-down rule, cosine falloff weight 1 at the incisal-edge centroid to 0 at the farthest landmark vert, fixed point to 0.2mm clearance, 4 passes, worst correction 14.283mm) then the rim transfer recomputes the lower-teeth FF delta from the new rim; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. FF edge-to-lip point-triangle 12.530mm to 0.232mm, lower-upper crown min 5.832mm. Only body viseme_FF (densified from sparse) and teeth viseme_FF accessors differ from the lower-arch-fix bytes. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 upper-silence (operator: correct invariant is upper base/skinning bitwise pre-image AND upper morph deltas 0, as 206009a30-c57cc153a had; the pre-image carries Oct-1 rigid translations on head-weighted verts, probe aa upper +7.967): seat-teeth-on-lip-rim.ts zeroes the 2314 component-rule upper-arch verts in every teeth viseme delta after rim transfer (base/skinning/transfer/down-gain/rest-drop/FF-contact unchanged: same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215; plan pins unchanged ffGap 12.530 to 0.232, 4 passes, rigid, honest rest 5.575). Probe teethUpperZ 0 on all 15 visemes. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "2026-10-06 ff-cover-behind (operator: upper incisors visible resting on the lower lip, lip behind the incisor front face; sound/motion sync): seat-teeth-on-lip-rim.ts --ff-lip-contact now runs a cover-behind tuck after the contact fixed point (contact pins unchanged: ffGap 12.530 to 0.232, 4 passes, 322 verts, worst correction 17.587mm): each in-span lower-lip patch vert ahead of (incisor front face - 0.5mm) retreats along head-forward by iterated quadratic falloff (face-pullback rule, 16-pass bound, 1um stop) with a lateral cosine skirt to zero at the commissure (measured span/commissure, C1 both ends; commissure untouched); 102 verts, worst 8.384mm, 7 passes, final edge gap 0.034mm, min clearance -0.001mm, mesh-neighbor jump 4.22mm. Rim transfer recomputes lower-teeth FF from the covered rim; other 14 visemes bitwise; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. Runtime cue lead 1/3s (RUNTIME_CUE_LEAD_S, jaw group-delay closed form 2/6, internal only): jaw aperture lag +333.3ms to +33.3ms, lip-gap blend +266.7ms to -66.7ms; lip weights bit-equal modulo the 10-frame lead, contact reach >= 0.9, jitter outside contact 0.171862 unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
- ],
- "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
- "promotionGates": false,
- "outputSha256": "cb6e365f9438ab7cabc9e3830541a8f8a714717a998d6399172705921d8871c4",
- "outputBytes": 40342372,
- "fitTimeLower": {
-  "garment": "punkduck_female_tight_jeans",
-  "sourceObjFaces": 2108,
-  "fittedTris": 4216,
-  "lowerGateCoverage": 0.9775
- },
- "generatedAt": "2026-08-23T19:35:00.000Z",
- "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
- "runtimeRole": "intermediate_bake",
- "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
- "albedoBakeWrittenAt": "2026-09-14T22:26:38.358Z",
- "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
- "byteLineage": {
-  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-28T04:07:11.266Z",
-  "recordedBefore": {
-   "outputSha256": "03780d43871d76d88b2d652d35ed77e0d8f5fe9c1a82a78fbf6c9f8439de5fcb",
-   "outputBytes": 9744248
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+  "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "authored_or_baked",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
+  "realismGrade": "not_graded",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference \u2014 the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
   },
-  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "preImageSha256": "03780d43871d76d88b2d652d35ed77e0d8f5fe9c1a82a78fbf6c9f8439de5fcb",
-  "preImageBytes": 9744248,
-  "derivationArgv": [
-   "sh",
-   "-c",
-   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
-   "x",
-   "{pre}",
-   "{out}"
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
+      "This promotion does NOT claim license approval for commercial/production use."
+    ],
+    "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. Same lineage as mpfb-ob-patient-aisha.glb."
+  },
+  "derivativeLineage": {
+    "status": "mpfb2_family_palette_variant_of_aisha_default_macro_body",
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "parent_tara_johnson_v1",
+    "actorRole": "parent",
+    "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:mpfb2",
+    "baseAsset": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "promotionPath": "dedicated_family_palette_rebake_not_recolour_of_ob_patient",
+    "method": "mpfb2_standard_rig_137_joints_numeric_phenotype_macros_adult_female_closed_casual_muted_rose"
+  },
+  "toolVersion": "openclinxr-mpfb2-promotion-v1",
+  "promptOrCaseParameterHash": "issue_388_peds_parent_family_palette_2026-08-14",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
   ],
-  "reproduction": "byte-identical to the shipped file",
-  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
- },
- "preImageSha256": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
- "preImageBytes": 40215924
+  "sourceNotes": [
+    "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
+    "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
+    "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared \u2014 the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
+    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
+    "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
+    "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756.",
+    "2026-10-01: appended viseme_* POSITION morphs on openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh. Vertices with jaw weight >= 0.5 translate by that body viseme's jaw-descendant lower-lip landmark centroid; every other tooth vertex stays at delta 0. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that appended the morphs.",
+    "2026-10-01: solved a teeth POSITION morph for every opening body viseme, including viseme_E, viseme_FF, viseme_nn, viseme_RR, viseme_TH, and viseme_U, from the front-shell gap. Each opening target is one rigid translation of the jaw-weighted vertices and one rigid translation of the head-weighted vertices. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
+    "2026-10-01: opening teeth viseme POSITION deltas are per vertex. The rigid front-shell translation still seats the mean nearest-body gap in 0.5-2 mm. Arch-face crowns then take a posterior Z so lower lead versus jaw-descendant skin is at most -0.5 mm, and side crowns with base |x| > 12 mm also take an inward X. Upper Z is not moved forward of that rigid seat. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Base POSITION, vertex count, and skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
+    "2026-10-01: keeper UV skin sheet on mpfb_skin_peds_anxious_parent. Station tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent (albedo, normal, roughness, cavity). Albedo is the unwrapped body map, not the quad-sheet pore tile. Image buffers replaced in place; no full materialize, no Catmull-Clark, no vertex smooth. Base Color = albedo, normalTexture = normal, occlusionTexture and metallicRoughnessTexture share one image (R=cavity, G=roughness, B=255, metallicFactor 0). Blender 5.1.1 plane probe kept cavity. Fitted-teeth viseme target names and vertex count unchanged. outputSha256/outputBytes re-recorded in the same change.",
+    "2026-10-06: seated the lower teeth on the lower-lip inner rim with tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --target-gap-mm 3.743. Per-vertex skin-weight and morph transfer from the rim (barycentric, top-4 renormalized; rigid arch mean by the 0.3 mm distortion rule), upper-arch deltas exactly 0, lower-arch base +9.073 mm so the rest rim gap equals the 3.743 mm now-minimum. Only teeth POSITION base, teeth morph, and teeth JOINTS_0/WEIGHTS_0 accessors changed (112 accessors identical). The pre-image 202ec91134a7 was itself produced by uncommitted scratch scripts (/tmp/muse-iter26..68-teeth.py, Oct 2-4) and is not re-derivable from repo tools. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 coordinator ruling (travel): driven lower-shell centroid Y travel of 7.79 mm is the real jaw-coupled travel; the pre-image 12.52 mm baseline included morph-Y exaggeration (crowns yanked past the lip) that rim transfer removed while jaw bones, rig, and drive are byte-identical. Teeth track the rim within 0.7 mm (rim travel 7.07 mm). The evaluator pins 7.79 mm +/-10% as the new baseline.",
+    "2026-10-06: replaced the absolute lower-lip landmark box (|x| <= 0.03, y in [1.448, 1.488]) with the rig+response rule in couple-fitted-teeth-to-lip-viseme.ts lowerLipLandmark: dominant joint is jaw or a jaw descendant and viseme_aa bind delta y < -2 mm (322 verts); inner rim keeps the facing-sign rule against the teeth front-shell centroid (76 verts; old box-facing set of 60 is a strict subset, +16 crest/side verts, -0). Reran the same producer from the same pre-image 202ec91134a7 with the same --target-gap-mm 3.743 (rim 76/tris 96, restGap0 10.666 mm, shift +9.073 mm, rigid by the 0.3 mm distortion rule): output a0bbcd77314ade0d9303c4eee5dd891bee1c27bc3dfb7de4d4a49dd7e5945887. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06: face-bound reseat (landing blocker: #739 population gate failed 3 clauses on the +9.073 mm rim seat, rest -0.0023 / cap -0.0054). The producer now caps the rest offset with the #739 instrument (tools/openclinxr/asset-pipeline/makeclothes/face-median.ts, same computation as the gate, imported not reimplemented; 0.5 mm safety): pre-image margins rest +3.533 / cap +0.500 mm allow 3.197 mm, rim seating needs ~9.1 mm, so the face binds and the producer applies 3.197 mm with honest rest rim gap 8.246 mm (per-frame clip series 7.999-8.758, mean 8.199). Post-seat margins rest +3.533 / cap +0.500 / tongue +7.965 mm: the #739 values preserved exactly. Same pre-image 202ec91134a7, same --target-gap-mm 3.743. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06: closeness fix (operator: the face-bound 8.2 mm gap reads as a regression vs the liked 3.74 mm seat). Rim seat restored (+9.073 mm) with per-vertex pullback of the 560 face-crossing central lower-front verts (|x| <= 16.4 mm, NOT corner crowns) by iterated quadratic falloff (7 passes, worst 5.876 mm, mean 1.239 mm) to the cap-median-minus-0.5 mm plane. Honest rest gap 6.387 mm (clip series 6.149-6.820, mean 6.308). Post-seat face margins rest +3.533 / cap +0.499 / tongue +7.966 mm. Same pre-image 202ec91134a7, same --target-gap-mm 3.743. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 rest-a (operator: lower-teeth rest seat just above the lower lip, both variants): --rest-drop-mm -1.405 signed head-down lower-arch base shift after pullback (closed form d = rest(edge_y - rim_top_y) - 0.5 from the closeness fixed-shell rest -0.905mm; skin/morph transfer untouched, true edge lands +0.492mm). Plus variant-A --down-gain 1.25 on the lower-arch teeth viseme deltas (head-local vertical only). Same pre-image 202ec91134a7, same --target-gap-mm 3.743, same seat + pullback (558 verts, 7 passes). outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 lower-arch-fix (operator: upper teeth stretch because median-Y lowerArch caught upper verts [R7]): seat-teeth-on-lip-rim.ts lowerArch is now connected-component + jaw rule (40 components, lower 2180 jaw-bound verts, upper 2314 preserved bitwise), upper-arch base/skinning/morphs carried verbatim from pre-image 202ec91134a7; same --target-gap-mm 3.743 and --down-gain 1.25, --rest-drop-mm 4.215 (lower rest ~4.2mm below the closeness seat). Pullback 394 verts / worst 4.606mm / 7 passes, honest rest rim gap 5.575mm. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 ff-lip-contact (operator: upper incisors rest on the lower lip on viseme_FF, labiodental): seat-teeth-on-lip-rim.ts --ff-lip-contact solves a per-vertex correction to the body viseme_FF bind delta on the 322 lower-lip landmark verts (jaw-descendant + aa-down rule, cosine falloff weight 1 at the incisal-edge centroid to 0 at the farthest landmark vert, fixed point to 0.2mm clearance, 4 passes, worst correction 14.283mm) then the rim transfer recomputes the lower-teeth FF delta from the new rim; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. FF edge-to-lip point-triangle 12.530mm to 0.232mm, lower-upper crown min 5.832mm. Only body viseme_FF (densified from sparse) and teeth viseme_FF accessors differ from the lower-arch-fix bytes. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 upper-silence (operator: correct invariant is upper base/skinning bitwise pre-image AND upper morph deltas 0, as 206009a30-c57cc153a had; the pre-image carries Oct-1 rigid translations on head-weighted verts, probe aa upper +7.967): seat-teeth-on-lip-rim.ts zeroes the 2314 component-rule upper-arch verts in every teeth viseme delta after rim transfer (base/skinning/transfer/down-gain/rest-drop/FF-contact unchanged: same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215; plan pins unchanged ffGap 12.530 to 0.232, 4 passes, rigid, honest rest 5.575). Probe teethUpperZ 0 on all 15 visemes. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 ff-cover-behind (operator: upper incisors visible resting on the lower lip, lip behind the incisor front face; sound/motion sync): seat-teeth-on-lip-rim.ts --ff-lip-contact now runs a cover-behind tuck after the contact fixed point (contact pins unchanged: ffGap 12.530 to 0.232, 4 passes, 322 verts, worst correction 17.587mm): each in-span lower-lip patch vert ahead of (incisor front face - 0.5mm) retreats along head-forward by iterated quadratic falloff (face-pullback rule, 16-pass bound, 1um stop) with a lateral cosine skirt to zero at the commissure (measured span/commissure, C1 both ends; commissure untouched); 102 verts, worst 8.384mm, 7 passes, final edge gap 0.034mm, min clearance -0.001mm, mesh-neighbor jump 4.22mm. Rim transfer recomputes lower-teeth FF from the covered rim; other 14 visemes bitwise; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. Runtime cue lead 1/3s (RUNTIME_CUE_LEAD_S, jaw group-delay closed form 2/6, internal only): jaw aperture lag +333.3ms to +33.3ms, lip-gap blend +266.7ms to -66.7ms; lip weights bit-equal modulo the 10-frame lead, contact reach >= 0.9, jitter outside contact 0.171862 unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-06 ff-pressed-lips (operator: FF stays pressed lips on this rig [DECISION], PP seal unchanged): seat-teeth-on-lip-rim.ts --ff-lip-contact retires the ae7396f2f cover-behind tuck (11.95mm span-edge jump at 2.34x the 5.102 SS max, 2 LM-interior inverted tris, 14.2mm Z trough behind a 5.17mm Y slit) and the 69a2fb016 incisal-edge contact (10.55mm own cliff, 2.07x SS). Single press solve instead: lower outer curtain edge (nearest-to-upper-edge non-head vert in the central half-span band, forward of the incisor face, below the upper edge) meets the upper-lip edge (dominant-head, in-span, forward, min-y) to the 0.2mm render target, full 3D, 1 pass (before 1.542 to after 0.249, worst correction 1.342mm over a 1184-vert domain). Cosine BFS-ring falloff (rung-3 set {8,10,12}, committed 8 by the 3.0mm predicted-jump budget, predicted 0.303) with head-joint verts pinned at 0, so upper lip/nose/scalp never ride; the mouth aperture is a mesh hole, so the pressed boundary rings meet across it with no shared edge. Total FF adjacent vector jump 3.346mm (0.66x SS, was 2.34x), LM-interior inversions 0, whole-body 0. Rim transfer recomputes lower-teeth FF from the pressed rim; teeth base/skinning, all vowel deltas, body PP and every non-FF morph are bitwise identical to the ae7396f2f bytes. Same pre-image 202ec91134a7 (recovered: 46a609068, predates the GLB path rename; producer-preimage.ts now follows renames, depth 32), same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, honest rest 5.575mm, rigid. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  ],
+  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
+  "promotionGates": false,
+  "outputSha256": "5433c942968a858a2e1c9d63c1d2b640285a888ab9bb5b8d975d78b63289e452",
+  "outputBytes": 40342376,
+  "fitTimeLower": {
+    "garment": "punkduck_female_tight_jeans",
+    "sourceObjFaces": 2108,
+    "fittedTris": 4216,
+    "lowerGateCoverage": 0.9775
+  },
+  "generatedAt": "2026-08-23T19:35:00.000Z",
+  "method": "mpfb2_materializer_rebake_numeric_phenotype_macros_576",
+  "runtimeRole": "intermediate_bake",
+  "runtimeRoleWhy": "The runtime loads the .motion-bind DERIVATIVE of this base (humanoid-runtime-asset-url.ts:83), not this file. Contracts that measure this base and call it 'the shipped parent' are measuring the wrong asset - a latent false-green.",
+  "albedoBakeWrittenAt": "2026-09-14T22:26:38.358Z",
+  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt fp-r0.4 then chest-anchor 0.085 m. Shipped 68898 tris / 14017284 B (jeans 1893). Previous raw pin 57fa9d91409408e0 / 17181156. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-28T04:07:11.266Z",
+    "recordedBefore": {
+      "outputSha256": "03780d43871d76d88b2d652d35ed77e0d8f5fe9c1a82a78fbf6c9f8439de5fcb",
+      "outputBytes": 9744248
+    },
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "preImageSha256": "03780d43871d76d88b2d652d35ed77e0d8f5fe9c1a82a78fbf6c9f8439de5fcb",
+    "preImageBytes": 9744248,
+    "derivationArgv": [
+      "sh",
+      "-c",
+      "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+      "x",
+      "{pre}",
+      "{out}"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+  },
+  "preImageSha256": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
+  "preImageBytes": 40215924
 }

@@ -61,7 +61,6 @@ import {
   lowerLipLandmark,
   writeGlb,
 } from "./couple-fitted-teeth-to-lip-viseme.js";
-import { closestOnTriangle } from "./rim-seat-transfer.js";
 import { measureFaceMarginsFromDoc, runtimeCap } from "./face-median.js";
 import { transferArch } from "./rim-seat-transfer.js";
 
@@ -83,12 +82,15 @@ const FF_CONTACT_LO_M = 0.00015;
 const FF_CONTACT_HI_M = 0.00035;
 /** FF solve fixed-point bound: residual-corrected iterations, deterministic order. */
 const FF_PASSES = 10;
-/** FF cover bound: span-gated pullback passes, same stop tolerance as the face pullback. */
-const FF_COVER_PASSES = 16;
-/** FF cover plane: the lower lip sits this far behind the upper incisor front
- * face within the incisor x-span (operator 2026-10-06: incisors visible
- * resting on the lip, lip behind the front face). Task-specified length. */
-const FF_COVER_BEHIND_M = 0.0005;
+/** FF press falloff (rung-3 named set): BFS hop-ring count carrying the
+ * press step from the central lower-lip zone to zero. The committed value
+ * is the smallest of the set whose predicted peak adjacent jump
+ * (|step| * pi / (2N)) clears the 3.0 mm internal budget with margin under
+ * the 5.102 mm SS gate; the choice is recorded in the plan and receipt. */
+const FF_PRESS_RINGS_SET = [8, 10, 12];
+/** FF press internal jump budget (mm): predicted peak adjacent jump must
+ * clear this; the SS gate (5.102) judges the committed total. */
+const FF_PRESS_JUMP_BUDGET_MM = 3.0;
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -220,6 +222,13 @@ export type RimSeatPlan = {
   ffPasses: number;
   ffCorrectedVerts: number;
   ffMaxCorrectionMm: number;
+  /** Press falloff: committed BFS ring count from the rung-3 set. */
+  ffPressRings: number;
+  /** Press falloff: predicted peak adjacent jump for the committed rings. */
+  ffPressPredictedJumpMm: number;
+  /** Press smoothness: max vector-difference jump between adjacent body
+   * verts over the edited FF delta (lane metric; SS gate 5.102). */
+  ffContactNeighborJumpMm: number;
   ffCoverExcessBeforeMm: number;
   ffCoverCorrectedVerts: number;
   ffCoverMaxMm: number;
@@ -303,16 +312,23 @@ export type FfLipContact = {
   ffPasses: number;
   ffCorrectedVerts: number;
   ffMaxCorrectionMm: number;
-  /** Cover-behind tuck: max head-forward excess over the cover plane on the
-   * first pass (in-span patch verts ahead of front-face-minus-0.5mm). */
+  /** Press falloff: committed BFS ring count from the rung-3 set. */
+  ffPressRings: number;
+  /** Press falloff: predicted peak adjacent jump for the committed rings. */
+  ffPressPredictedJumpMm: number;
+  /** Press smoothness: max vector-difference jump between adjacent body
+   * verts over the edited FF delta (lane metric; SS gate 5.102). */
+  ffContactNeighborJumpMm: number;
+  /** Cover-behind tuck: RETIRED (pressed lips need no tuck). All cover
+   * fields report 0; the press seals the slit without a span-edge cliff. */
   ffCoverExcessBeforeMm: number;
   /** Cover-behind tuck: in-span verts corrected on the first pass. */
   ffCoverCorrectedVerts: number;
   /** Cover-behind tuck: max applied head-local correction. */
   ffCoverMaxMm: number;
-  /** Cover-behind tuck: passes used (bound FF_COVER_PASSES). */
+  /** Cover-behind tuck: passes used (retired, always 0). */
   ffCoverPasses: number;
-  /** Edge-to-lip point-triangle gap after contact + cover (accept <= 0.5mm). */
+  /** Upper-to-lower lip press gap after the solve (accept <= 0.5mm). */
   ffGapFinalMm: number;
   /** Min head-local clearance of the in-span patch behind the cover plane
    * (>= 0: every in-span vert behind the face; penetration-free by construction). */
@@ -324,18 +340,27 @@ export type FfLipContact = {
 };
 
 /**
- * FF lip contact (operator: upper incisors rest on the lower lip, labiodental).
- * Upper teeth are head-fixed, so the lip moves, not the teeth.
+ * FF pressed lips (operator 2026-10-06: FF stays pressed lips on this rig;
+ * upper teeth are head-fixed, so the lower lip meets the upper lip).
  *
  * Closed form + fixed point: at FF weight 1 and the FF jaw angle, find the
- * min point-to-triangle distance from the upper incisal edge (min-y upper
- * front-shell verts) to the lower-lip landmark surface. Translate the landmark
- * field toward contact (FF_CONTACT_M clearance) with a cosine falloff:
- * weight 1 at the edge centroid, 0 at the farthest landmark vert (support
- * measured from the landmark itself, C1 at both ends since sin(0)=sin(pi)=0).
- * Re-pose and repeat to the accept band (FF_PASSES bound). Bind deltas move
- * through the head rest rotation only; the jaw-angle residual is absorbed by
- * the next pass. Deterministic: ascending vertex order, Float32Array ops.
+ * upper-lip edge point (dominant joint exactly head, bind x inside the
+ * incisal-edge x-span, bind z forward of the incisor front face, lowest
+ * bind y; ties to the lowest vertex index) and the lower outer edge point
+ * (highest posed-y non-head vert inside the span, forward of the incisor
+ * face, below the upper edge; ties likewise), then
+ * translate the lip column toward coincidence (FF_CONTACT_M residual)
+ * with a cosine BFS-ring falloff: weight 1 on the in-span zone, C1 to 0
+ * over N hop-rings, 0 beyond; head-joint verts are pinned at 0 so the
+ * upper lip, nose and scalp never ride the press. N is the smallest of the
+ * rung-3 set whose predicted peak adjacent jump clears the internal
+ * budget. The mouth aperture is a mesh hole, so the pressed upper and
+ * lower boundary rings meet across it with no shared edge and no jump;
+ * the only gradient lies mid-lip, bounded by construction. Re-pose and
+ * repeat to the accept band (FF_PASSES bound). Bind deltas move through
+ * the head rest rotation only; the jaw-angle residual is absorbed by the
+ * next pass. Deterministic: ascending vertex order, Float64Array layer
+ * distances, fixed sweep-free closed form.
  */
 export async function solveFfLipContact(input: {
   glbPath: string;
@@ -357,15 +382,6 @@ export async function solveFfLipContact(input: {
   const scene = await loadHeadlessScene(glbPath);
   const landmark = lowerLipLandmark(bodyDeltaAa, bodyJoints, bodyWeights, jointNodes as never);
   if (landmark.length < 20) throw new Error(`FF contact: landmark has ${landmark.length} verts`);
-  const landmarkSet = new Set(landmark);
-  const lipTris: Array<readonly [number, number, number]> = [];
-  for (let tri = 0; tri < bodyIndex.length / 3; tri += 1) {
-    const a = bodyIndex[tri * 3] ?? -1;
-    const b = bodyIndex[tri * 3 + 1] ?? -1;
-    const c = bodyIndex[tri * 3 + 2] ?? -1;
-    if (landmarkSet.has(a) && landmarkSet.has(b) && landmarkSet.has(c)) lipTris.push([a, b, c]);
-  }
-  if (lipTris.length === 0) throw new Error("FF contact: landmark has no interior triangles");
 
   const morphed = (base: Float32Array, delta: Float32Array): Float32Array => {
     const out = new Float32Array(base);
@@ -399,74 +415,203 @@ export async function solveFfLipContact(input: {
     return { teethHead: toHead(teethWorld), bodyHead: toHead(bodyWorld) };
   };
 
-  // Incisal edge: min-y upper front-shell verts at FF (upper is head-fixed, static set).
-  // Membership reads the seated base so the edge set matches the output file.
+  // Incisal-edge x-span (upper is head-fixed, static set). Membership
+  // reads the seated base so the edge set matches the output file.
   const shells = frontShellIndices(input.teethShellBase);
   if (shells.upper.length === 0) throw new Error("FF contact: upper shell is empty");
   const rest = pose(input.bodyDeltaFf);
   let edgeMinY = Infinity;
   for (const v of shells.upper) edgeMinY = Math.min(edgeMinY, rest.teethHead[v * 3 + 1] ?? 0);
   const edge = shells.upper.filter((v) => (rest.teethHead[v * 3 + 1] ?? 0) <= edgeMinY + 0.001);
-  let cx = 0;
-  let cy = 0;
+  let edgeX0 = Infinity;
+  let edgeX1 = -Infinity;
+  let frontFace = -Infinity;
   for (const v of edge) {
-    cx += rest.teethHead[v * 3] ?? 0;
-    cy += rest.teethHead[v * 3 + 1] ?? 0;
+    edgeX0 = Math.min(edgeX0, rest.teethHead[v * 3] ?? 0);
+    edgeX1 = Math.max(edgeX1, rest.teethHead[v * 3] ?? 0);
+    frontFace = Math.max(frontFace, rest.teethHead[v * 3 + 2] ?? 0);
   }
-  cx /= edge.length;
-  cy /= edge.length;
 
-  // Falloff support measured from the landmark (rest head-local, static frame).
-  let support = 0;
-  const dist: number[] = new Array(landmark.length);
-  for (let i = 0; i < landmark.length; i += 1) {
-    const v = landmark[i];
-    if (v === undefined) throw new Error("FF contact: landmark index out of range");
-    const dx = (rest.bodyHead[v * 3] ?? 0) - cx;
-    const dy = (rest.bodyHead[v * 3 + 1] ?? 0) - cy;
-    const d = Math.hypot(dx, dy);
-    dist[i] = d;
-    support = Math.max(support, d);
+  // Jaw-descendant joint names (same walk as the lower-arch rule): the
+  // upper-lip edge is dominant-head-weighted, never jaw-bound.
+  const jawDescendantNames = new Set<string>();
+  {
+    type JawWalkNode = { getName(): string; listChildren(): JawWalkNode[] };
+    const jawNode = (jointNodes as unknown as JawWalkNode[]).find((node) => /^jaw$/i.test(node.getName() ?? ""));
+    if (!jawNode) throw new Error("FF press: rig has no jaw joint");
+    const collect = (node: JawWalkNode): void => {
+      jawDescendantNames.add((node.getName() ?? "").toLowerCase());
+      for (const child of node.listChildren()) collect(child);
+    };
+    collect(jawNode);
   }
-  if (!(support > 0)) throw new Error("FF contact: falloff support is zero");
-  const weights = dist.map((d) => 0.5 * (1 + Math.cos((Math.PI * Math.min(d / support, 1)))));
+  const dominantJointName = (vertex: number): string => {
+    let joint = bodyJoints[vertex * 4] ?? 0;
+    let best = bodyWeights[vertex * 4] ?? 0;
+    for (let slot = 1; slot < 4; slot += 1) {
+      const next = bodyWeights[vertex * 4 + slot] ?? 0;
+      if (next > best) {
+        best = next;
+        joint = bodyJoints[vertex * 4 + slot] ?? joint;
+      }
+    }
+    return (jointNodes[joint]?.getName() ?? "").toLowerCase();
+  };
+  const isHeadVertex = (vertex: number): boolean => /^head$/i.test(dominantJointName(vertex) ?? "");
 
-  const gapOf = (teethHead: Float32Array, bodyHead: Float32Array): { gap: number; vec: [number, number, number] } => {
-    const at = (packed: Float32Array, v: number): [number, number, number] => [packed[v * 3] ?? 0, packed[v * 3 + 1] ?? 0, packed[v * 3 + 2] ?? 0];
-    let best = Infinity;
-    let vec: [number, number, number] = [0, 0, 0];
-    for (const v of edge) {
-      const q = at(teethHead, v);
-      for (const tri of lipTris) {
-        const a = at(bodyHead, tri[0]);
-        const b = at(bodyHead, tri[1]);
-        const c = at(bodyHead, tri[2]);
-        const r = closestOnTriangle(
-          q[0], q[1], q[2],
-          a[0], a[1], a[2],
-          b[0], b[1], b[2],
-          c[0], c[1], c[2],
-        );
-        const d = Math.sqrt(r.distance2);
-        if (d < best) {
-          best = d;
-          vec = [
-            r.alpha * a[0] + r.beta * b[0] + r.gamma * c[0] - q[0],
-            r.alpha * a[1] + r.beta * b[1] + r.gamma * c[1] - q[1],
-            r.alpha * a[2] + r.beta * b[2] + r.gamma * c[2] - q[2],
-          ];
+  // Upper-lip edge point (stated rule, no thresholds): dominant-head
+  // body verts inside the incisal x-span and forward of the incisor front
+  // face, lowest posed y (head verts are FF-static, so the posed frame
+  // reads the same); ties to the lowest vertex index.
+  let upperVert = -1;
+  {
+    let bestY = Infinity;
+    const bodyCount = bodyBase.length / 3;
+    for (let v = 0; v < bodyCount; v += 1) {
+      if (!isHeadVertex(v)) continue;
+      const x = rest.bodyHead[v * 3] ?? 0;
+      if (x < edgeX0 || x > edgeX1) continue;
+      if ((rest.bodyHead[v * 3 + 2] ?? 0) <= frontFace) continue;
+      const y = rest.bodyHead[v * 3 + 1] ?? 0;
+      if (y < bestY || (y === bestY && (upperVert < 0 || v < upperVert))) {
+        bestY = y;
+        upperVert = v;
+      }
+    }
+  }
+  if (upperVert < 0) throw new Error("FF press: upper-lip edge is empty (premise false)");
+
+  // Press falloff over BFS hop-rings from the in-span landmark zone.
+  // Head-joint verts pin at 0 (upper lip, nose, scalp never ride); the
+  // mouth aperture is a mesh hole, so the pressed boundary rings meet
+  // across it with no shared edge. Ascending index order throughout.
+  const bodyAdj = new Map<number, number[]>();
+  {
+    const link = (a: number, b: number): void => {
+      if (a === b) return;
+      const list = bodyAdj.get(a);
+      if (list) {
+        if (!list.includes(b)) list.push(b);
+      } else bodyAdj.set(a, [b]);
+    };
+    for (let tri = 0; tri < bodyIndex.length / 3; tri += 1) {
+      const a = bodyIndex[tri * 3] ?? -1;
+      const b = bodyIndex[tri * 3 + 1] ?? -1;
+      const c = bodyIndex[tri * 3 + 2] ?? -1;
+      if (a < 0 || b < 0 || c < 0) throw new Error("FF press: body index out of range");
+      link(a, b); link(b, a); link(b, c); link(c, b); link(c, a); link(a, c);
+    }
+  }
+  // Press seeds (stated rule, no thresholds): in-span landmark verts plus
+  // in-span lower-curtain verts (forward of the incisor face, below the
+  // upper edge, dominant joint not head). The whole central lip column
+  // rides at unit weight, so the inner rim and the visible outer curtain
+  // translate rigidly together with zero internal shear.
+  const bodyCount = bodyBase.length / 3;
+  const upperY = rest.bodyHead[upperVert * 3 + 1] ?? 0;
+  const seedSet = new Set<number>();
+  for (const v of landmark) {
+    const x = rest.bodyHead[v * 3] ?? 0;
+    if (x >= edgeX0 && x <= edgeX1) seedSet.add(v);
+  }
+  for (let v = 0; v < bodyCount; v += 1) {
+    const x = rest.bodyHead[v * 3] ?? 0;
+    if (x < edgeX0 || x > edgeX1) continue;
+    if ((rest.bodyHead[v * 3 + 2] ?? 0) <= frontFace) continue;
+    if ((rest.bodyHead[v * 3 + 1] ?? 0) >= upperY) continue;
+    if (isHeadVertex(v)) continue;
+    seedSet.add(v);
+  }
+  const seeds = [...seedSet].sort((a, b) => a - b);
+  if (seeds.length === 0) throw new Error("FF press: press seeds are empty (premise false)");
+  const layer = new Int32Array(bodyCount).fill(-1);
+  {
+    const queue: number[] = [...seeds].sort((a, b) => a - b);
+    for (const s of queue) layer[s] = 0;
+    for (let head = 0; head < queue.length; head += 1) {
+      const v = queue[head] ?? -1;
+      const next = (layer[v] ?? -1) + 1;
+      const neighbors = (bodyAdj.get(v) ?? []).slice().sort((a, b) => a - b);
+      for (const n of neighbors) {
+        if (layer[n] === -1) {
+          layer[n] = next;
+          queue.push(n);
         }
       }
     }
-    return { gap: best, vec };
+  }
+
+  // Press gap per pose: upper edge to lower OUTER edge (the visible slit).
+  // Outer edge rule: the lower-curtain vert nearest the upper edge among
+  // the central band (incisal-centroid x plus/minus a quarter span),
+  // forward of the incisor face, below the upper edge, dominant joint not
+  // head; ties to the lowest vertex index. The inner rim rides the same
+  // unit-weight column, so sealing the visible slit seals the mouth.
+  let edgeCX = 0;
+  for (const v of edge) edgeCX += rest.teethHead[v * 3] ?? 0;
+  edgeCX /= edge.length;
+  const halfSpan = (edgeX1 - edgeX0) / 2;
+  const lipGapOf = (bodyHead: Float32Array): { gap: number; vec: [number, number, number] } => {
+    const ux = bodyHead[upperVert * 3] ?? 0;
+    const uy = bodyHead[upperVert * 3 + 1] ?? 0;
+    const uz = bodyHead[upperVert * 3 + 2] ?? 0;
+    let outerVert = -1;
+    let bestD = Infinity;
+    for (let pass = 0; pass < 2; pass += 1) {
+      const band = pass === 0 ? halfSpan / 2 : halfSpan;
+      for (let v = 0; v < bodyCount; v += 1) {
+        const x = bodyHead[v * 3] ?? 0;
+        if (x < edgeX0 || x > edgeX1 || Math.abs(x - edgeCX) > band) continue;
+        if ((bodyHead[v * 3 + 2] ?? 0) <= frontFace) continue;
+        const y = bodyHead[v * 3 + 1] ?? 0;
+        if (y >= uy) continue;
+        if (isHeadVertex(v)) continue;
+        const dx = x - ux;
+        const dy = y - uy;
+        const dz = (bodyHead[v * 3 + 2] ?? 0) - uz;
+        const d = dx * dx + dy * dy + dz * dz;
+        if (d < bestD || (d === bestD && (outerVert < 0 || v < outerVert))) {
+          bestD = d;
+          outerVert = v;
+        }
+      }
+      if (outerVert >= 0) break;
+    }
+    if (outerVert < 0) throw new Error("FF press: lower outer edge is empty (premise false)");
+    const vec: [number, number, number] = [
+      (bodyHead[upperVert * 3] ?? 0) - (bodyHead[outerVert * 3] ?? 0),
+      (bodyHead[upperVert * 3 + 1] ?? 0) - (bodyHead[outerVert * 3 + 1] ?? 0),
+      (bodyHead[upperVert * 3 + 2] ?? 0) - (bodyHead[outerVert * 3 + 2] ?? 0),
+    ];
+    return { gap: Math.hypot(vec[0], vec[1], vec[2]), vec };
   };
+
+  // Rung-3 ring selection: smallest set member whose predicted peak
+  // adjacent jump (|step| * pi / (2N)) clears the internal budget.
+  const first = lipGapOf(rest.bodyHead);
+  const ffGapBeforeMm = Math.round(first.gap * 1e6) / 1e3;
+  let pressRings = FF_PRESS_RINGS_SET[FF_PRESS_RINGS_SET.length - 1] ?? 12;
+  for (const candidate of FF_PRESS_RINGS_SET) {
+    if ((first.gap * Math.PI) / (2 * candidate) <= FF_PRESS_JUMP_BUDGET_MM / 1000) {
+      pressRings = candidate;
+      break;
+    }
+  }
+  const pressPredictedJumpMm = Math.round(((first.gap * Math.PI) / (2 * pressRings)) * 1e6) / 1e3;
+  const weights = new Float64Array(bodyCount);
+  let correctedVerts = 0;
+  for (let v = 0; v < bodyCount; v += 1) {
+    if (isHeadVertex(v)) continue;
+    const hop = layer[v] ?? -1;
+    if (hop < 0 || hop > pressRings) continue;
+    weights[v] = 0.5 * (1 + Math.cos((Math.PI * hop) / pressRings));
+    correctedVerts += 1;
+  }
 
   scene.root.updateMatrixWorld(true);
   const toBind = new Matrix3()
     .setFromMatrix4(new Matrix4().extractRotation(scene.headBone.matrixWorld))
     .transpose();
-  const first = gapOf(rest.teethHead, rest.bodyHead);
-  const ffGapBeforeMm = Math.round(first.gap * 1e6) / 1e3;
   const edited = new Float32Array(input.bodyDeltaFf);
   let gap = first.gap;
   let vec = first.vec;
@@ -477,154 +622,52 @@ export async function solveFfLipContact(input: {
     // centers near the target instead of resting on the upper limit.
     if (gap >= FF_CONTACT_LO_M && gap <= (FF_CONTACT_M + FF_CONTACT_HI_M) / 2) break;
     passes = pass + 1;
-    const scale = -((gap - FF_CONTACT_M) / gap);
+    const scale = (gap - FF_CONTACT_M) / gap;
     step.set(vec[0] * scale, vec[1] * scale, vec[2] * scale).applyMatrix3(toBind);
-    for (let i = 0; i < landmark.length; i += 1) {
-      const v = landmark[i];
-      if (v === undefined) throw new Error("FF contact: landmark index out of range");
-      const w = weights[i] ?? 0;
+    for (let v = 0; v < bodyCount; v += 1) {
+      const w = weights[v] ?? 0;
+      if (w <= 0) continue;
       edited[v * 3] = (edited[v * 3] ?? 0) + step.x * w;
       edited[v * 3 + 1] = (edited[v * 3 + 1] ?? 0) + step.y * w;
       edited[v * 3 + 2] = (edited[v * 3 + 2] ?? 0) + step.z * w;
     }
     const posed = pose(edited);
-    const next = gapOf(posed.teethHead, posed.bodyHead);
+    const next = lipGapOf(posed.bodyHead);
     gap = next.gap;
     vec = next.vec;
   }
   if (!(gap >= FF_CONTACT_LO_M && gap <= FF_CONTACT_HI_M)) {
-    throw new Error(`FF contact missed: gap ${gap * 1000} mm after ${passes} passes (premise false)`);
+    throw new Error(`FF press missed: gap ${gap * 1000} mm after ${passes} passes (premise false)`);
   }
 
-  // Cover-behind tuck (operator 2026-10-06: upper incisors visible resting on
-  // the lower lip, lip behind the incisor front face). Per-vertex, not
-  // rigid: each lower-lip patch vert inside the incisor x-span whose
-  // head-forward position is ahead of (front face - 0.5 mm) retreats along
-  // head-forward toward that plane by iterated quadratic falloff (the face
-  // pullback's stated rule: each pass moves every ahead vert by the square
-  // of its own excess over the plane divided by the pass maximum excess,
-  // C1-smooth at the contour, parameter-free, never more than its own
-  // excess; residual max quarters or better per pass, 16-pass bound, 1 um
-  // stop; the 0.5 mm is the task length). The correction field is smooth
-  // because the excess field is smooth; the only gate is the span edge,
-  // whose jump is bounded by the boundary excess squared over the max and
-  // is measured below. Commissure verts outside the span are never touched,
-  // so the corner shape is preserved exactly. The contact (y) meeting is
-  // untouched: only the head-forward component moves, and the rim transfer
-  // below recomputes the lower-teeth FF delta from the covered rim, so
-  // teeth follow the lip by construction. Ascending vertex order.
-  let edgeX0 = Infinity;
-  let edgeX1 = -Infinity;
-  let frontFace = -Infinity;
-  for (const v of edge) {
-    edgeX0 = Math.min(edgeX0, rest.teethHead[v * 3] ?? 0);
-    edgeX1 = Math.max(edgeX1, rest.teethHead[v * 3] ?? 0);
-    frontFace = Math.max(frontFace, rest.teethHead[v * 3 + 2] ?? 0);
-  }
-  const coverPlane = frontFace - FF_COVER_BEHIND_M;
-  const headBack = new Vector3(0, 0, -1).applyMatrix3(toBind);
-  // Snapshot of the post-contact field: the smoothness metric below judges
-  // the cover increment alone, not the contact solve's own gradient.
-  const postContact = edited.slice();
-  // Lateral skirt: full correction inside the incisor span, cosine feather
-  // to zero at the commissure (landmark |x| extreme, measured from the
-  // patch itself, C1 at both ends since sin(0)=sin(pi)=0). The commissure
-  // stays exactly at its contacted position; the span edge keeps no cliff.
-  const edgeCX = (edgeX0 + edgeX1) / 2;
-  const halfSpan = (edgeX1 - edgeX0) / 2;
-  let commX = 0;
-  for (const v of landmark) {
-    commX = Math.max(commX, Math.abs((rest.bodyHead[v * 3] ?? 0) - edgeCX));
-  }
-  const skirtOf = (x: number): number => {
-    const ax = Math.abs(x - edgeCX);
-    if (ax <= halfSpan) return 1;
-    if (ax >= commX || commX <= halfSpan) return 0;
-    return 0.5 * (1 + Math.cos((Math.PI * (ax - halfSpan)) / (commX - halfSpan)));
-  };
-  let coverExcessBefore = 0;
-  let coverCorrectedVerts = 0;
-  let coverMax = 0;
-  let coverPasses = 0;
-  let firstCoverPass = true;
-  for (let pass = 0; pass < FF_COVER_PASSES; pass += 1) {
-    const posed = pose(edited);
-    let excessMax = 0;
-    let inSpanMax = 0;
-    for (let i = 0; i < landmark.length; i += 1) {
-      const v = landmark[i];
-      if (v === undefined) throw new Error("FF contact: landmark index out of range");
-      const x = posed.bodyHead[v * 3] ?? 0;
-      if (Math.abs(x - edgeCX) > commX) continue;
-      const excess = (posed.bodyHead[v * 3 + 2] ?? 0) - coverPlane;
-      if (excess <= SNAP_M) continue;
-      excessMax = Math.max(excessMax, skirtOf(x) * excess);
-      if (x >= edgeX0 && x <= edgeX1) inSpanMax = Math.max(inSpanMax, excess);
-    }
-    // The requirement binds the in-span patch; the skirt rides along.
-    if (inSpanMax <= SNAP_M) break;
-    if (excessMax <= SNAP_M) break;
-    coverPasses = pass + 1;
-    if (firstCoverPass) {
-      coverExcessBefore = inSpanMax;
-      firstCoverPass = false;
-    }
-    for (let i = 0; i < landmark.length; i += 1) {
-      const v = landmark[i];
-      if (v === undefined) throw new Error("FF contact: landmark index out of range");
-      const x = posed.bodyHead[v * 3] ?? 0;
-      const skirt = skirtOf(x);
-      if (skirt <= 0) continue;
-      const excess = (posed.bodyHead[v * 3 + 2] ?? 0) - coverPlane;
-      if (excess <= SNAP_M) continue;
-      // Quadratic in own excess over the pass max (no extra weighting:
-      // the excess field is already smooth, so the correction field is),
-      // scaled by the lateral skirt past the span.
-      const drop = ((excess * excess) / excessMax) * skirt;
-      edited[v * 3] = (edited[v * 3] ?? 0) + headBack.x * drop;
-      edited[v * 3 + 1] = (edited[v * 3 + 1] ?? 0) + headBack.y * drop;
-      edited[v * 3 + 2] = (edited[v * 3 + 2] ?? 0) + headBack.z * drop;
-      if (coverPasses === 1) {
-        coverCorrectedVerts += 1;
-        coverMax = Math.max(coverMax, drop);
+  // Press smoothness (lane metric): max vector-difference jump between
+  // mesh-adjacent body verts over the edited FF delta (whole mesh, unique
+  // edges, ascending order). The tuck's span-edge cliff read 11.95 here
+  // against the 5.102 SS max; the press falloff must clear that gate.
+  let neighborJump = 0;
+  {
+    const seen = new Set<number>();
+    const jumpOf = (a: number, b: number): number => {
+      const dx = (edited[a * 3] ?? 0) - (edited[b * 3] ?? 0);
+      const dy = (edited[a * 3 + 1] ?? 0) - (edited[b * 3 + 1] ?? 0);
+      const dz = (edited[a * 3 + 2] ?? 0) - (edited[b * 3 + 2] ?? 0);
+      return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    };
+    for (let tri = 0; tri < bodyIndex.length / 3; tri += 1) {
+      const a = bodyIndex[tri * 3] ?? -1;
+      const b = bodyIndex[tri * 3 + 1] ?? -1;
+      const c = bodyIndex[tri * 3 + 2] ?? -1;
+      if (a < 0 || b < 0 || c < 0) throw new Error("FF press: body index out of range");
+      const pairs: ReadonlyArray<readonly [number, number]> = [[a, b], [b, c], [c, a]];
+      for (const [p, q] of pairs) {
+        const key = p < q ? p * bodyCount + q : q * bodyCount + p;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        neighborJump = Math.max(neighborJump, jumpOf(p, q));
       }
     }
   }
-  const covered = pose(edited);
-  let coverMinClearance = Infinity;
-  for (let i = 0; i < landmark.length; i += 1) {
-    const v = landmark[i];
-    if (v === undefined) throw new Error("FF contact: landmark index out of range");
-    const x = covered.bodyHead[v * 3] ?? 0;
-    if (x < edgeX0 || x > edgeX1) continue;
-    coverMinClearance = Math.min(coverMinClearance, coverPlane - (covered.bodyHead[v * 3 + 2] ?? 0));
-  }
-  // Patch smoothness: max cover-increment jump over mesh-adjacent
-  // landmark pairs (shared lip triangle edge). The skirt keeps the field
-  // C1; |x|-sorting would fold mirror verts together and lie.
-  const coverDisp = (v: number): number => Math.hypot(
-    (edited[v * 3] ?? 0) - (postContact[v * 3] ?? 0),
-    (edited[v * 3 + 1] ?? 0) - (postContact[v * 3 + 1] ?? 0),
-    (edited[v * 3 + 2] ?? 0) - (postContact[v * 3 + 2] ?? 0),
-  );
-  let neighborJump = 0;
-  for (const tri of lipTris) {
-    const [a, b, c] = tri;
-    neighborJump = Math.max(
-      neighborJump,
-      Math.abs(coverDisp(a) - coverDisp(b)),
-      Math.abs(coverDisp(b) - coverDisp(c)),
-      Math.abs(coverDisp(c) - coverDisp(a)),
-    );
-  }
-  const finalGap = gapOf(covered.teethHead, covered.bodyHead);
-  const ffGapFinalMm = Math.round(finalGap.gap * 1e6) / 1e3;
-  if (coverMinClearance < -SNAP_M) {
-    throw new Error(`FF cover missed the plane: min clearance ${coverMinClearance * 1000} mm (premise false)`);
-  }
-  if (!(ffGapFinalMm >= 0 && ffGapFinalMm <= 0.5)) {
-    throw new Error(`FF cover broke contact: final gap ${ffGapFinalMm} mm (premise false)`);
-  }
+  const ffGapFinalMm = Math.round(gap * 1e6) / 1e3;
   let maxCorrection = 0;
   for (let i = 0; i < edited.length / 3; i += 1) {
     const dx = (edited[i * 3] ?? 0) - (input.bodyDeltaFf[i * 3] ?? 0);
@@ -636,15 +679,18 @@ export async function solveFfLipContact(input: {
     ffGapBeforeMm,
     ffGapAfterMm: Math.round(gap * 1e6) / 1e3,
     ffPasses: passes,
-    ffCorrectedVerts: landmark.length,
+    ffCorrectedVerts: correctedVerts,
     ffMaxCorrectionMm: Math.round(maxCorrection * 1e6) / 1e3,
-    ffCoverExcessBeforeMm: Math.round(coverExcessBefore * 1e6) / 1e3,
-    ffCoverCorrectedVerts: coverCorrectedVerts,
-    ffCoverMaxMm: Math.round(coverMax * 1e6) / 1e3,
-    ffCoverPasses: coverPasses,
+    ffPressRings: pressRings,
+    ffPressPredictedJumpMm: pressPredictedJumpMm,
+    ffContactNeighborJumpMm: Math.round(neighborJump * 1e6) / 1e3,
+    ffCoverExcessBeforeMm: 0,
+    ffCoverCorrectedVerts: 0,
+    ffCoverMaxMm: 0,
+    ffCoverPasses: 0,
     ffGapFinalMm,
-    ffCoverMinClearanceMm: Math.round(coverMinClearance * 1e6) / 1e3,
-    ffCoverNeighborJumpMm: Math.round(neighborJump * 1e6) / 1e3,
+    ffCoverMinClearanceMm: 0,
+    ffCoverNeighborJumpMm: 0,
     editedBodyFf: edited,
   };
 }
@@ -869,9 +915,10 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     }),
   );
 
-  // FF lip contact: edit the body viseme_FF bind delta on the lower-lip
-  // landmark BEFORE morph transfer, so the rim-copied lower-teeth FF delta
-  // is recomputed from the new rim. Upper-arch FF stays pre-image verbatim.
+  // FF pressed lips: edit the body viseme_FF bind delta on the press
+  // falloff domain BEFORE morph transfer, so the rim-copied lower-teeth FF
+  // delta is recomputed from the pressed rim. Upper-arch FF stays
+  // pre-image verbatim.
   let ffContact: FfLipContact | null = null;
   let transferBodyDeltas = bodyDeltas;
   if (ffLipContact) {
@@ -973,6 +1020,9 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     ffPasses: ffContact?.ffPasses ?? 0,
     ffCorrectedVerts: ffContact?.ffCorrectedVerts ?? 0,
     ffMaxCorrectionMm: ffContact?.ffMaxCorrectionMm ?? 0,
+    ffPressRings: ffContact?.ffPressRings ?? 0,
+    ffPressPredictedJumpMm: ffContact?.ffPressPredictedJumpMm ?? 0,
+    ffContactNeighborJumpMm: ffContact?.ffContactNeighborJumpMm ?? 0,
     ffCoverExcessBeforeMm: ffContact?.ffCoverExcessBeforeMm ?? 0,
     ffCoverCorrectedVerts: ffContact?.ffCoverCorrectedVerts ?? 0,
     ffCoverMaxMm: ffContact?.ffCoverMaxMm ?? 0,
