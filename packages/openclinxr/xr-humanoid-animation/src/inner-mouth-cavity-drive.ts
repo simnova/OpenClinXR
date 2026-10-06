@@ -263,7 +263,7 @@ function extractInnerLipFaces(root: Group, head: Object3D): void {
     console.log("INNER_LIP_FACES n=0 source=none skinned=false");
     return;
   }
-  sources.sort((a, b) => b.geometry.getAttribute("position").count - a.geometry.getAttribute("position").count);
+  sources.sort((left, right) => right.geometry.getAttribute("position").count - left.geometry.getAttribute("position").count);
   const source = sources[0]!;
   root.updateMatrixWorld(true);
   if (source instanceof SkinnedMesh && source.skeleton) source.skeleton.update();
