@@ -1,7 +1,8 @@
 /** Internal canonical-cue sampler for prepared Rhubarb audio. */
-import { createJawDynamicsSampler, type JawDynamicsSample } from "./viseme-jaw-dynamics.js";
+import { createJawDynamicsSampler, jawDynamicsConstants, type JawDynamicsSample } from "./viseme-jaw-dynamics.js";
 import type { VisemeCue } from "./viseme-cue-track.js";
-import { RUNTIME_CUE_LEAD_S, type PhonemeCue } from "./viseme-timeline-drive.js";
+import type { PhonemeCue } from "./viseme-timeline-drive.js";
+import { compensatedSampleTimeS } from "./prepared-cue-lead.js";
 
 const OVR = new Set<VisemeCue["viseme"]>(["sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U"]);
 
@@ -15,7 +16,11 @@ export function samplePreparedJawDynamics(cues: readonly PhonemeCue[] | undefine
     track.push({ startS: cue.atSecond, endS: cue.atSecond + duration, viseme: cue.phoneme as VisemeCue["viseme"], intensity: typeof cue.intensity === "number" ? cue.intensity : 1 });
     previousEnd = cue.atSecond + duration;
   }
-  return createJawDynamicsSampler(track).sample(timeS + RUNTIME_CUE_LEAD_S);
+  // Per-channel lead: jaw tau = 2/w (w = jaw natural frequency); PP snaps
+  // with 0 lead. w stays 6: the aperture reads 0 through PP media frames, so
+  // the jaw opens only after the preceding closure ends.
+  const ordinaryLeadS = 2 / jawDynamicsConstants.naturalFrequency;
+  return createJawDynamicsSampler(track).sample(compensatedSampleTimeS(cues, timeS, "jaw", ordinaryLeadS));
 }
 
 type JawResult = { jawOpenRadians: number; jawFraction: number; jawBonesTouched: number };

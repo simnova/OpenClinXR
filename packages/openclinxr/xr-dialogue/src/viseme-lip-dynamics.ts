@@ -1,6 +1,7 @@
 /** Deterministic fixed-step follower for prepared canonical viseme weights. */
-import { driveVisemeTimeline, RUNTIME_CUE_LEAD_S, type PhonemeCue } from "./viseme-timeline-drive.js";
+import { driveVisemeTimeline, type PhonemeCue } from "./viseme-timeline-drive.js";
 import { applyVisemeWeights, lipVisemeWeights, type MorphTargetLike } from "./viseme-morph-apply.js";
+import { compensatedSampleTimeS, DEADLINE_X } from "./prepared-cue-lead.js";
 
 const STEP_S = 1 / 240;
 const NATURAL_FREQUENCY = 14;
@@ -16,15 +17,15 @@ const BILABIAL = "PP";
  */
 const CONTACT = new Set(["PP", "FF", "TH"]);
 /**
- * Deadline gain for the contact follower. A critically damped step reaches
- * 0.9 when 1 - e^-x(1+x) = 0.1, i.e. x = 3.8897; x = 6.0 hurries the steep
- * end of the lip-travel curve onto the contact (measured on the 70 ms FF:
- * x = 4.3 centres at 0.905 with a 1.09 mm edge gap, x = 5.5 centres at
- * 0.947 with a 0.51 mm gap, x = 6.0 centres at ~0.97 inside the gate).
- * Hurrying a D-second cue with omega = 2x/D reaches applied weight >= 0.9
- * at its centre (T = D/2).
+ * Deadline gain for the contact follower (value in prepared-cue-lead.ts, the
+ * single source; the per-channel FF/TH lead D/X derives from it). A
+ * critically damped step reaches 0.9 when 1 - e^-x(1+x) = 0.1, i.e.
+ * x = 3.8897; x = 6.0 hurries the steep end of the lip-travel curve onto the
+ * contact (measured on the 70 ms FF: x = 4.3 centres at 0.905 with a
+ * 1.09 mm edge gap, x = 5.5 centres at 0.947 with a 0.51 mm gap, x = 6.0
+ * centres at ~0.97 inside the gate). Hurrying a D-second cue with
+ * omega = 2x/D reaches applied weight >= 0.9 at its centre (T = D/2).
  */
-const DEADLINE_X = 6.0;
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
 type State = { tick: number; weights: Record<string, number>; velocity: Record<string, number> };
@@ -106,7 +107,11 @@ export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: re
 export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root, cues: readonly PhonemeCue[] | undefined, timeS: number): T {
   if (!cues?.length) return result;
   const frames = driveVisemeTimeline({ phonemes: cues, availableTargets: result.availableTargets }).frames;
-  const sample = createLipDynamicsSampler(cues, frames).sample(timeS + RUNTIME_CUE_LEAD_S);
+  // Per-channel lead: ordinary lip tau = 2/w (w = NATURAL_FREQUENCY); PP
+  // snaps with 0 lead and FF/TH hurry with D/X. Contact precedence keeps the
+  // sample out of contacts that start after the media time.
+  const ordinaryLeadS = 2 / NATURAL_FREQUENCY;
+  const sample = createLipDynamicsSampler(cues, frames).sample(compensatedSampleTimeS(cues, timeS, "lip", ordinaryLeadS, STEP_S));
   root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, sample.weights)); });
   const next = { ...result, weights: sample.weights };
   if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: sample };

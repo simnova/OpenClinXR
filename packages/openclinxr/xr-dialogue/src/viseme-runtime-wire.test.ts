@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { jawOpenRadiansForPhoneme } from "./viseme-timeline.js";
-import { RUNTIME_CUE_LEAD_S } from "./viseme-timeline-drive.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   collectMorphTargetNames,
-  JAW_OPEN_TEETH_CLEAR_RADIANS,
   JAW_TEETH_GAIN,
   LIP_VISEME_GAIN,
   mapDialoguePhonemeToArkit,
@@ -44,8 +45,87 @@ function rootWith(mesh: {
   };
 }
 
-describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
-  it("maps dialogue vowels to ARKit tokens that land on real viseme_* targets", () => {
+type Step3Cue = { phoneme: string; atSecond: number; durationSeconds: number; intensity: number };
+
+/** Canonical step3 cue track (docs/openclinxr/mouth-dynamics/step3/metrics.json). */
+const step3Cues: Step3Cue[] = (() => {
+  const file = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../../../docs/openclinxr/mouth-dynamics/step3/metrics.json",
+  );
+  const raw = JSON.parse(readFileSync(file, "utf8")) as {
+    canonicalTrack: { startS: number; endS: number; viseme: string; intensity: number }[];
+  };
+  return raw.canonicalTrack.map((cue) => ({
+    phoneme: cue.viseme,
+    atSecond: cue.startS,
+    durationSeconds: cue.endS - cue.startS,
+    intensity: cue.intensity,
+  }));
+})();
+
+function step3Cue(phoneme: string): Step3Cue {
+  const cue = step3Cues.find((entry) => entry.phoneme === phoneme);
+  if (!cue) throw new Error(`step3 track has no ${phoneme} cue`);
+  return cue;
+}
+
+/** 30 fps frame-centre media instant, matching the followers' mid-tick convention. */
+function frameMediaS(n: number): number {
+  return (n + 0.5) / 30;
+}
+
+/** Jaw vowel set (viseme-jaw-dynamics.ts VOWELS, OVR spellings). */
+const JAW_VOWELS = new Set(["aa", "E", "I", "O", "U"]);
+
+/** Fixture mesh carrying every step3 viseme target (never a viseme at index 0). */
+function step3MeshLike() {
+  const names = [
+    "basis_neutral",
+    "viseme_silence",
+    "viseme_sil",
+    "viseme_aa",
+    "viseme_DD",
+    "viseme_nn",
+    "viseme_E",
+    "viseme_PP",
+    "viseme_FF",
+    "viseme_O",
+    "viseme_SS",
+    "viseme_TH",
+  ];
+  return {
+    name: "Body",
+    morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+    morphTargetInfluences: names.map(() => 0),
+  };
+}
+
+type Step3Drive = { weights: Record<string, number>; jawFraction: number; tag: unknown };
+
+/** Full prepared-audio-clock runtime drive at one media instant. */
+function driveAt(mediaS: number): Step3Drive {
+  const mesh = step3MeshLike();
+  const jaw = { name: "jaw", isBone: true, rotation: { x: 0 }, userData: {} as Record<string, unknown> };
+  const root = {
+    userData: {} as Record<string, unknown>,
+    traverse(callback: (object: unknown) => void) {
+      callback(mesh);
+      callback(jaw);
+    },
+  };
+  applyNamedSpeechVisemes({
+    root,
+    activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 4130, bakedCues: step3Cues },
+    mediaPositionSeconds: () => mediaS,
+  });
+  const tag = root.userData.openClinXrNamedVisemeDrive as
+    | { weights?: Record<string, number>; jawFraction?: number }
+    | undefined;
+  return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN, tag };
+}
+
+describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  it("maps dialogue vowels to ARKit tokens that land on real viseme_* targets", () => {
     expect(mapDialoguePhonemeToArkit("a")).toBe("AA");
     expect(mapDialoguePhonemeToArkit("e")).toBe("E");
     expect(mapDialoguePhonemeToArkit("sil")).toBe("sil");
@@ -222,7 +302,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
       });
       expect(eFrame.frameCount).toBe(6);
       expect(eFrame.activeTargetName).toBe("viseme_E");
-      expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["viseme_E"]!]).toBe(LIP_VISEME_GAIN);
+      expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary.viseme_E!]).toBe(LIP_VISEME_GAIN);
       const ssFrame = applyDialogueVisemeTimelineToRoot(root, {
         phonemeSequence: ["sil"],
         progress: 0.5, // t = 0.5 * 0.45 s -> the B frame (SS); no SS target on this mesh
@@ -261,37 +341,59 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
       expect(mesh.morphTargetInfluences[0]).toBe(0); // never index 0
     });
 
-    it("uses the canonical prepared-cue spring for the live media clock jaw channel", () => {
-      const mesh = meshLike();
-      const jaw = { name: "jaw", isBone: true, rotation: { x: 0 }, userData: {} as Record<string, unknown> };
-      const root = {
-        userData: {} as Record<string, unknown>,
-        traverse(callback: (object: unknown) => void) { callback(mesh); callback(jaw); },
-      };
-      // The prepared path reads cues at media time + RUNTIME_CUE_LEAD_S, so
-      // the fixture spans the lead: media t observes the cues at t + lead.
-      const bakedCues = [
-        { phoneme: "aa", atSecond: 0, durationSeconds: 0.6, intensity: 1 },
-        { phoneme: "PP", atSecond: 0.6, durationSeconds: 0.08, intensity: 1 },
-      ] as const;
-      const open = applyNamedSpeechVisemes({
-        root,
-        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 680, bakedCues },
-        mediaPositionSeconds: () => 0.1, // reads 0.1 + lead, mid-aa
-      });
-      expect(0.1 + RUNTIME_CUE_LEAD_S).toBeGreaterThan(0.2);
-      expect(0.1 + RUNTIME_CUE_LEAD_S).toBeLessThan(0.6);
-      expect(open.jawOpenRadians).toBeGreaterThan(0);
-      expect(open.jawOpenRadians).toBeLessThan(JAW_OPEN_TEETH_CLEAR_RADIANS * JAW_TEETH_GAIN);
-      const closed = applyNamedSpeechVisemes({
-        root,
-        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 680, bakedCues },
-        mediaPositionSeconds: () => 0.3, // reads 0.3 + lead, inside PP: exact snap shut
-      });
-      expect(0.3 + RUNTIME_CUE_LEAD_S).toBeGreaterThanOrEqual(0.6);
-      expect(0.3 + RUNTIME_CUE_LEAD_S).toBeLessThan(0.68);
-      expect(closed.jawOpenRadians).toBe(0);
-      expect(root.userData.openClinXrNamedVisemeDrive).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring", lipDynamics: "canonical_ovr_fixed_step_critical_follower" });
+    it("per-channel cue leads put PP closure onset within one frame of its cue", () => {
+      // Step3 track (docs/openclinxr/mouth-dynamics/step3/metrics.json), driven
+      // through the prepared-audio clock path (applyNamedSpeechVisemes with a
+      // media clock), sampled at 30 fps frame centres (n+0.5)/30. Leads:
+      // jaw 2/6 s, ordinary lip 2/14 s, PP snap 0, FF/TH deadline D/6.
+      // Closure = PP applied weight >= 0.9 (snap writes exactly 1 = sealed).
+      const pp = step3Cue("PP");
+      const cueFrame = Math.floor(pp.atSecond * 30);
+      let onset = -1;
+      for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
+        if ((driveAt(frameMediaS(n)).weights.viseme_PP ?? 0) >= 0.9) { onset = n; break; }
+      }
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_PP ?? 0).toBeLessThan(0.9);
+      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(0.9);
+    });
+
+    it("per-channel cue leads put FF contact onset within one frame of its cue", () => {
+      // Contact = FF applied weight >= 0.95, the 0.5 mm edge-gap proxy (x=5.5
+      // centres at 0.947 with a 0.51 mm gap; x=6.0 centres at ~0.97 inside the
+      // gate). Centre weight stays >= 0.9.
+      const ff = step3Cue("FF");
+      const cueFrame = Math.floor(ff.atSecond * 30);
+      let onset = -1;
+      for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
+        if ((driveAt(frameMediaS(n)).weights.viseme_FF ?? 0) >= 0.95) { onset = n; break; }
+      }
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(0.95);
+      const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
+      expect(driveAt(centreS).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(0.9);
+    });
+
+    it("per-channel cue leads open the jaw within one frame of the first vowel after PP", () => {
+      // Onset = jawFraction >= 0.05 at/after the vowel cue start. The jaw
+      // reads 0 through both PP media frames, so it opens only after the
+      // preceding closure ends: w stays 6.
+      const pp = step3Cue("PP");
+      const ppEnd = pp.atSecond + (pp.durationSeconds ?? 0);
+      const vowel = step3Cues.find((cue) => cue.atSecond >= ppEnd - 1e-9 && JAW_VOWELS.has(cue.phoneme));
+      expect(vowel).toBeDefined();
+      const cueFrame = Math.floor((vowel?.atSecond ?? 0) * 30);
+      expect(driveAt(frameMediaS(cueFrame - 1)).jawFraction ?? NaN).toBe(0);
+      expect(driveAt(frameMediaS(cueFrame)).jawFraction ?? NaN).toBe(0);
+      let onset = -1;
+      for (let n = cueFrame; n <= cueFrame + 10; n += 1) {
+        if ((driveAt(frameMediaS(n)).jawFraction ?? 0) >= 0.05) { onset = n; break; }
+      }
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      expect(driveAt(1.4).tag).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring", lipDynamics: "canonical_ovr_fixed_step_critical_follower" });
     });
   });
 });
