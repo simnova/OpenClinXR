@@ -129,6 +129,12 @@ const JAW_APERTURE_FRACTION: Readonly<Record<string, number>> = {
   uw: 0.4,
   ou: 0.5,
   // Partials (fricatives / liquids / residual consonants).
+  // ff rides with fv (labiodental fricative, same 0.15 coarse class):
+  // jawOpenRadiansForPhoneme("FF") lowercases to "ff", and without this
+  // key the lookup falls back to the 0.25 unknown-consonant partial, which
+  // overstates the FF aperture (the FF jaw channel steers here, and the
+  // FF producer/headless poses read this lookup).
+  ff: 0.15,
   fv: 0.15,
   th: 0.25,
   ss: 0.2,

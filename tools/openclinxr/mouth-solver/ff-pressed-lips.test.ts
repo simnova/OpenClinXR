@@ -36,13 +36,14 @@ import {
   readProducerReceipt,
 } from "../asset-pipeline/makeclothes/producer-preimage.js";
 import { loadHeadlessScene } from "./headless-scene.js";
-import { probePremise } from "./mouth-evaluator.js";
+import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../..");
 const GLB = path.join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
 const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
+const STEP3_TRACK = path.join(REPO, "docs/openclinxr/mouth-dynamics/step3/metrics.json");
 
 /** Central slit seal band (mm, signed vertical). */
 const GAP_BAND_MM = 0.5;
@@ -193,12 +194,13 @@ function teethHeadLocal(weight: number): Float32Array {
   return head;
 }
 
-/** Head-local body positions at FF weight w and the FF jaw angle. */
-function posedHeadLocal(weight: number): Float32Array {
+/** Head-local body positions at FF weight w and an explicit jaw angle
+ * (defaults to the FF lookup: the static press pose). */
+function posedHeadLocal(weight: number, jawRadians: number = jawOpenRadiansForPhoneme("FF")): Float32Array {
   const ff = doc.deltas.get("viseme_FF") ?? new Float32Array(doc.base.length);
   const morphed = new Float32Array(doc.base);
   for (let i = 0; i < morphed.length; i += 1) morphed[i] = (morphed[i] ?? 0) + weight * (ff[i] ?? 0);
-  applyJawOpenToRoot(scene.root, jawOpenRadiansForPhoneme("FF"));
+  applyJawOpenToRoot(scene.root, jawRadians);
   scene.root.updateMatrixWorld(true);
   scene.body.skeleton.update();
   const mats = scene.body.skeleton.boneMatrices?.slice();
@@ -267,6 +269,14 @@ function outerVert(head: Float32Array, upper: number): number {
 /** Signed vertical press gap (upper minus lower) at FF weight w. */
 function pressGapMm(weight: number): number {
   const head = posedHeadLocal(weight);
+  const upper = upperVert(head);
+  const outer = outerVert(head, upper);
+  return ((head[upper * 3 + 1] ?? 0) - (head[outer * 3 + 1] ?? 0)) * 1000;
+}
+
+/** Signed vertical press gap at FF weight w posed at an explicit jaw angle. */
+function pressGapMmAt(weight: number, jawRadians: number): number {
+  const head = posedHeadLocal(weight, jawRadians);
   const upper = upperVert(head);
   const outer = outerVert(head, upper);
   return ((head[upper * 3 + 1] ?? 0) - (head[outer * 3 + 1] ?? 0)) * 1000;
@@ -414,4 +424,28 @@ describe("FF pressed lips", () => {
       expect(Array.from(live!)).toEqual(Array.from(before!));
     }
   });
+
+  it("predicts the speaking capture at the runtime drive: FF cue frames carry the contact aperture and seal", async () => {
+    // Runtime-drive predictor (defect.ff_gate_jaw): the static press gates
+    // above pose FF weight 1 at the lookup jaw, but the speaking capture
+    // drives FF frames 75-76 (cue 2.48-2.55 s) at pure FF weight with the
+    // jaw channel's aperture, which used to lag at the DD-region 0.283 and
+    // left the lower crowns exposed. The FF jaw steer carries the aperture
+    // shut for the cue (PP-closure precedent: the pressed curtain shapes
+    // the labiodental, not the jaw). The evaluator drives the committed GLB
+    // through the runtime's own prepared-audio playback (no reimplementation),
+    // so its per-frame jaw angle IS the capture pose. The drive half of this
+    // gate fails without the steer; the seal half holds at every jaw by
+    // construction (the pressed point is jaw-invariant) and pins the seal
+    // at the driven angle.
+    const track = readEvaluatorTrack(STEP3_TRACK);
+    const { output } = await evaluate(GLB, track);
+    const ff = output.records.filter((record) => record.frame === 75 || record.frame === 76);
+    expect(ff.length).toBe(2);
+    for (const record of ff) {
+      expect(record.viseme).toBe("viseme_FF");
+      expect(record.jawOpenRadians).toBe(0);
+      expect(Math.abs(pressGapMmAt(1, record.jawOpenRadians))).toBeLessThanOrEqual(GAP_BAND_MM);
+    }
+  }, 180_000);
 });
