@@ -170,6 +170,9 @@ export async function evaluate(
   output: EvaluatorOutput;
   dyMedianPx: number;
   dyMaxPx: number;
+  dyBiasPx: number;
+  dyDetrendedMedianPx: number;
+  dyDetrendedMaxPx: number;
   dxMedianPx: number;
   dxMaxPx: number;
 }> {
@@ -446,10 +449,14 @@ export async function evaluate(
     .map((record) => record.projDxCropPx)
     .filter((value): value is number => value !== null)
     .map(Math.abs);
-  const dyAbs = records
+  const dySigned = records
     .map((record) => record.projDyCropPx)
-    .filter((value): value is number => value !== null)
-    .map(Math.abs);
+    .filter((value): value is number => value !== null);
+  const dyAbs = dySigned.map(Math.abs);
+  const dyBiasPx = medianOf([...dySigned].sort((a, b) => a - b));
+  const dyDetrended = dySigned.map((value) => Math.abs(value - dyBiasPx)).sort((a, b) => a - b);
+  const dyDetrendedMedianPx = medianOf(dyDetrended);
+  const dyDetrendedMaxPx = dyDetrended.length === 0 ? NaN : Math.max(...dyDetrended);
   const dxMedianPx = medianOf(dxAbs);
   const dxMaxPx = dxAbs.length === 0 ? NaN : Math.max(...dxAbs);
   const dyMedianPx = medianOf(dyAbs);
@@ -489,6 +496,9 @@ export async function evaluate(
     penetrationFrames: records.filter((record) => record.penetratingVerts > 0).length,
     groundTruthDyMedianCropPx: round6(dyMedianPx),
     groundTruthDyMaxCropPx: round6(dyMaxPx),
+    groundTruthDyBiasCropPx: round6(dyBiasPx),
+    groundTruthDyDetrendedMedianCropPx: round6(dyDetrendedMedianPx),
+    groundTruthDyDetrendedMaxCropPx: round6(dyDetrendedMaxPx),
     groundTruthDxMedianCropPx: round6(dxMedianPx),
     groundTruthDxMaxCropPx: round6(dxMaxPx),
     groundTruthCxKnownLimitation:
@@ -526,7 +536,7 @@ export async function evaluate(
     records,
     summary,
   };
-  return { output, dyMedianPx, dyMaxPx, dxMedianPx, dxMaxPx };
+  return { output, dyMedianPx, dyMaxPx, dyBiasPx, dyDetrendedMedianPx, dyDetrendedMaxPx, dxMedianPx, dxMaxPx };
 }
 
 function teethWorldSlice(world: Float32Array, indices: readonly number[]): Float32Array {

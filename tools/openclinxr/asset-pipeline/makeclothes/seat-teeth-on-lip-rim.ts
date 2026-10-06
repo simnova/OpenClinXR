@@ -13,10 +13,19 @@
  *    when the per-vertex field distorts crowns past 0.3 mm).
  *
  * Upper-arch deltas are exactly 0 with unchanged weights (head). The
- * lower-arch BASE is translated once (bind +z, fixed point) so the rest rim
- * gap equals --target-gap-mm. viseme_PP writes zeros. viseme_sil stays off
- * the teeth. No target names are added, removed, or reordered. Skin weights
- * of every non-teeth mesh are untouched.
+ * lower-arch BASE is translated once (bind +z). The shift is the largest
+ * forward shift satisfying BOTH the teeth-behind-face bounds (rest and
+ * runtime-cap skin medians from the #739 instrument, imported from
+ * face-median.ts, never reimplemented; 0.5 mm safety, the #739 uniform
+ * cap-margin target) AND the rim gap band around --target-gap-mm. The face
+ * bound is exact, not fitted: shifting +z moves only the lower arch, so
+ * each margin falls 1:1 past the crossover where the lower max-z overtakes
+ * the upper, and the cap is min(medianRest, medianCap) minus lower max-z
+ * minus safety. When the rim seating needs more shift than the face allows,
+ * the face binds: the producer applies the face shift and reports the
+ * honest rest rim gap instead of the target. viseme_PP writes zeros.
+ * viseme_sil stays off the teeth. No target names are added, removed, or
+ * reordered. Skin weights of every non-teeth mesh are untouched.
  *
  * Inner rim rule (stated, procedural, no thresholds): lowerLipInnerRim —
  * rig+response landmark vertices whose bind normals face the front-shell
@@ -26,6 +35,8 @@
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { Matrix4, Vector3 } from "three";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.js";
@@ -35,10 +46,17 @@ import {
   lowerLipInnerRim,
   writeGlb,
 } from "./couple-fitted-teeth-to-lip-viseme.js";
+import { measureFaceMarginsFromDoc, runtimeCap } from "./face-median.js";
 import { transferArch } from "./rim-seat-transfer.js";
 
 const REST_TOL_M = 1e-4;
 const REST_SHOTS = 8;
+/** #739 uniform cap-margin target: the face shift leaves this clearance. */
+const FACE_SAFETY_M = 0.0005;
+/** Float-identity snap so a re-plan from seated bytes applies exactly zero. */
+const SNAP_M = 1e-6;
+
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 function floatArray(accessor: { getArray: () => ArrayLike<number> | null }): Float32Array {
   const array = accessor.getArray();
@@ -60,6 +78,14 @@ export type RimSeatPlan = {
   targetGapMm: number;
   restGap0Mm: number;
   restShiftMm: number;
+  /** True when the face bound capped the shift below the rim seating. */
+  faceBound: boolean;
+  faceMarginRest0Mm: number;
+  faceMarginCap0Mm: number;
+  faceSafetyMm: number;
+  faceShiftMaxMm: number;
+  /** Rest rim gap after the applied shift (equals the target when not face-bound). */
+  honestRestGapMm: number;
   rigid: boolean;
   distortionMm: Record<string, number>;
   jawMaxVerts: number;
@@ -221,23 +247,51 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     return rimGap(teethWorld, frontShellIndices(teethPositions).lower, bodyWorld, rim);
   };
 
+  // Face bound (#739 instrument, imported): the largest +z lower-arch shift
+  // with both skin medians still ahead of the teeth. Shifting moves only the
+  // lower arch, so each margin falls 1:1 past the crossover where the lower
+  // max-z overtakes the upper; the cap is min(medianRest, medianCap) minus
+  // the lower-arch max-z minus the #739 safety.
+  const face = measureFaceMarginsFromDoc(doc, runtimeCap(REPO_ROOT));
+  if (!face) throw new Error("face instrument found no teeth or body mesh");
+  let lowerMaxZ = -Infinity;
+  for (const vertex of lowerArch) lowerMaxZ = Math.max(lowerMaxZ, teethBase[vertex * 3 + 2] ?? 0);
+  const faceShiftMax =
+    Math.min(face.medianAtRest, face.medianAtCap) - lowerMaxZ - FACE_SAFETY_M;
+  const snap = (shift: number): number => (Math.abs(shift) <= SNAP_M ? 0 : shift);
+
   // Rest offset on the lower arch (bind +z; fixed point for assignment switching).
   const targetM = targetGapMm / 1000;
   const restGap0 = restRimGap(teethBase);
-  let newBase = teethBase;
-  let restCheck = restGap0;
-  let restShift = 0;
+  let rimBase = teethBase;
+  let rimCheck = restGap0;
+  let rimShift = 0;
   for (let shot = 0; shot < REST_SHOTS; shot += 1) {
-    if (Math.abs(restCheck - targetM) <= REST_TOL_M) break;
-    const step = restCheck - targetM;
-    const shifted = new Float32Array(newBase);
+    if (Math.abs(rimCheck - targetM) <= REST_TOL_M) break;
+    const step = rimCheck - targetM;
+    const shifted = new Float32Array(rimBase);
     for (const vertex of lowerArch) shifted[vertex * 3 + 2] = (shifted[vertex * 3 + 2] ?? 0) + step;
-    newBase = shifted;
-    restShift += step;
-    restCheck = restRimGap(newBase);
+    rimBase = shifted;
+    rimShift += step;
+    rimCheck = restRimGap(rimBase);
   }
-  if (Math.abs(restCheck - targetM) > REST_TOL_M) {
-    throw new Error(`rest offset missed: gap ${restCheck} vs target ${targetM}`);
+  if (Math.abs(rimCheck - targetM) > REST_TOL_M) {
+    throw new Error(`rest offset missed: gap ${rimCheck} vs target ${targetM}`);
+  }
+
+  // Largest shift satisfying both: the rim seating when it fits under the
+  // face cap, else the face shift with an honestly reported rim gap.
+  const faceBound = rimShift > faceShiftMax + SNAP_M;
+  let newBase = rimBase;
+  let restShift = rimShift;
+  let honestCheck = rimCheck;
+  if (faceBound) {
+    restShift = snap(faceShiftMax);
+    newBase = new Float32Array(teethBase);
+    for (const vertex of lowerArch) {
+      newBase[vertex * 3 + 2] = (newBase[vertex * 3 + 2] ?? 0) + restShift;
+    }
+    honestCheck = restRimGap(newBase);
   }
 
   const transfer = transferArch({
@@ -253,6 +307,12 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     targetGapMm,
     restGap0Mm: Math.round(restGap0 * 1e6) / 1e3,
     restShiftMm: Math.round(restShift * 1e6) / 1e3,
+    faceBound,
+    faceMarginRest0Mm: Math.round(face.marginAtRest * 1e6) / 1e3,
+    faceMarginCap0Mm: Math.round(face.marginAtCap * 1e6) / 1e3,
+    faceSafetyMm: FACE_SAFETY_M * 1000,
+    faceShiftMaxMm: Math.round(faceShiftMax * 1e6) / 1e3,
+    honestRestGapMm: Math.round(honestCheck * 1e6) / 1e3,
     rigid,
     distortionMm,
     jawMaxVerts,

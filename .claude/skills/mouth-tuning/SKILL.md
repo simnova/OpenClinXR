@@ -18,8 +18,11 @@ pnpm exec tsx tools/openclinxr/mouth-solver/evaluate.ts --glb <glb> --track docs
 
 About 0.5 s per run. It poses the GLB through the runtime's own public drive (no reimplementation) and reports
 per frame, in named spaces: lower-teeth to lower-lip inner-rim gap, upper-teeth head-local displacement,
-penetration, jaw travel. Its vertical projection is gated against browser tooth pixels (median <= 2 px,
-max <= 5 px); horizontal is a known limitation. A browser capture is for the final video only.
+penetration, jaw travel. Its vertical projection is gated against browser tooth pixels
+(|signed-median bias| <= 3 px, detrended median <= 2 px, max <= 5 px: the capture's
+visible crown set shifts through the lip aperture with teeth depth while the model
+projects the full shell, so constant offset is composition, spread is tracking);
+horizontal is a known limitation. A browser capture is for the final video only.
 
 ## 2. Probe the premise before writing a brief
 
@@ -45,7 +48,7 @@ that imports it. Premises that were false and cost a full worker run each:
 ## 3. Fixed facts about the parent mouth (as of the producer fix on branch mouth-solver)
 
 - Lower teeth share the lower-lip inner rim's skinning and per-viseme movement (producer
-  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts`), so the gap is constant by construction: 3.5-4.2 mm on all 124 step3 frames.
+  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts`), so the gap is constant by construction: 8.0-8.8 mm on all 124 fixed-capture frames. The 3.743 mm directed target is unreachable behind the face: the #739 teeth-behind-face bound caps the rest shift at 3.197 mm (0.5 mm safety), the seated rest gap is honestly 8.246 mm, and the face (not the rim) binds.
 - Upper teeth are head-fixed: zero viseme deltas.
 - Jaw timing: critically damped spring and lip follower at 240 Hz in xr-dialogue internals.
 - A GLB change goes through a committed producer only, with the receipt updated by that run in the same

@@ -47,8 +47,12 @@ const MOTION_BIND = path.join(
 const GAP = path.join(HERE, "jaw-lip-gap.json");
 const STILLS = ["aa.png", "E.png", "I.png", "O.png", "U.png", "FF.png", "PP.png"];
 const VISEME_ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_PP"] as const;
-/** Directed rest target: the rim now-minimum on the pre-image GLB (producer input, not a fit). */
+/** Directed rest target: the rim now-minimum on the pre-image GLB (producer input, not a fit).
+ * Unreachable behind the face: the #739 bound caps the rest shift at 3.197 mm,
+ * so the seated rest gap is the honest 8.246 mm, not this target. */
 const RIM_REST_TARGET_MM = 3.743;
+/** Honest seated rest rim gap: producer-measured after the face-bound shift. */
+const HONEST_REST_GAP_MM = 8.246;
 const DRIVE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts");
 const APPLY_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const WIRE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
@@ -365,10 +369,18 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(plan.rimCount).toBe(76);
     expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
-    // Rest seat reproduces the producer guarantee (fixed-point tol 0.1 mm),
-    // not the exact target: the independent evaluator gate (±0.5 mm) judges
-    // the actual clip.
-    expect(plan.restGap0Mm).toBeCloseTo(RIM_REST_TARGET_MM, 1);
+    // The #739 face bound caps the shift: rim seating needs ~9.1 mm but the
+    // face allows 3.197 mm, so the producer applies the face shift and the
+    // seated rest gap is the honest 8.246 mm, not the directed target.
+    // Re-planning from the seated bytes applies exactly zero further shift
+    // (face snap) while still reporting face-bound: round-trip identity below.
+    expect(plan.faceBound).toBe(true);
+    expect(plan.restShiftMm).toBeCloseTo(0, 2);
+    expect(plan.faceShiftMaxMm).toBeCloseTo(0, 2);
+    expect(plan.honestRestGapMm).toBeCloseTo(HONEST_REST_GAP_MM, 2);
+    // Re-plan from the seated bytes reproduces the seated rest gap: the
+    // face snap leaves exactly zero further shift (round-trip identity below).
+    expect(plan.restGap0Mm).toBeCloseTo(HONEST_REST_GAP_MM, 1);
     expect(plan.jawMaxVerts).toBeGreaterThan(0);
     const names = Object.keys(loaded.teeth.morphTargetDictionary ?? {});
     expect(names).toEqual([...VISEME_ORDER]);
@@ -443,11 +455,11 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }
   });
 
-  it("seats the rest rim gap at the directed target with sil writing nothing", () => {
-    // Supersedes "stays within 1 mm of the recorded rest distances": the old
-    // record (upper 7.1 mm, lower 10.7 mm surface means) measured the pre-seat
-    // asset. The producer now seats the rest rim gap at 3.743 mm, the rim
-    // now-minimum on the pre-image GLB.
+  it("seats the rest rim gap at the face-bound honest value with sil writing nothing", () => {
+    // Supersedes "seats the rest rim gap at the directed target": the 3.743 mm
+    // directed target is unreachable behind the face, so the producer applies
+    // the 3.197 mm face shift and the seated rest gap is honestly 8.246 mm.
+    // The independent evaluator gate (midpoint 8.378 +/- 0.5) judges the clip.
     expect(loaded.body.morphTargetDictionary).toHaveProperty("viseme_sil");
     expect(loaded.teeth.morphTargetDictionary).not.toHaveProperty("viseme_sil");
     loaded.teeth.morphTargetInfluences.fill(0);
@@ -485,12 +497,12 @@ describe("parent fitted teeth follow the lip viseme", () => {
       }
       return sum / (loaded.lowerShell.length || 1);
     };
-    expect(Math.abs(rimGapAtRest() - RIM_REST_TARGET_MM / 1000)).toBeLessThanOrEqual(1e-4);
+    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_MM / 1000)).toBeLessThanOrEqual(1e-4);
     applyVisemeWeights(loaded.teeth, { viseme_sil: 1 });
     applyVisemeWeights(loaded.body, { viseme_sil: 1 });
     applyJawOpenToRoot(loaded.root, 0);
     expect(loaded.teeth.morphTargetInfluences.every((weight: number) => weight === 0)).toBe(true);
-    expect(Math.abs(rimGapAtRest() - RIM_REST_TARGET_MM / 1000)).toBeLessThanOrEqual(1e-4);
+    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_MM / 1000)).toBeLessThanOrEqual(1e-4);
   });
 
   it("writes the teeth viseme_aa weight from the dialogue applier and does not force mouth-open to 1", () => {

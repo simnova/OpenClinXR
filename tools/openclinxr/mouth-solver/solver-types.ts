@@ -71,9 +71,16 @@ export type EvaluatorSummary = {
   nowGapSeries: NowGapPoint[];
   nowForwardGapMeanMm: number;
   penetrationFrames: number;
-  /** Gated: median <= 2px, max <= 5px (step3 tooth-centroid steps p90 1.43 / max 3.17px). */
+  /** Gated: detrended median <= 2px, |bias| <= 3px, max <= 5px. The bias is the
+   * signed dy median: the capture's visible crown set shifts through the lip
+   * aperture as teeth sit deeper (face-legal seat), while the model projects
+   * the full anatomical shell, so a constant cy offset is visibility
+   * composition, not mistracking. Detrended spread carries the tracking gate. */
   groundTruthDyMedianCropPx: number;
   groundTruthDyMaxCropPx: number;
+  groundTruthDyBiasCropPx: number;
+  groundTruthDyDetrendedMedianCropPx: number;
+  groundTruthDyDetrendedMaxCropPx: number;
   /** Recorded, not gated: cx carries the capture's visibility composition. */
   groundTruthDxMedianCropPx: number;
   groundTruthDxMaxCropPx: number;
