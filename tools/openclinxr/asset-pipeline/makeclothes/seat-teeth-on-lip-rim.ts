@@ -13,19 +13,23 @@
  *    when the per-vertex field distorts crowns past 0.3 mm).
  *
  * Upper-arch deltas are exactly 0 with unchanged weights (head). The
- * lower-arch BASE is translated once (bind +z). The shift is the largest
- * forward shift satisfying BOTH the teeth-behind-face bounds (rest and
- * runtime-cap skin medians from the #739 instrument, imported from
- * face-median.ts, never reimplemented; 0.5 mm safety, the #739 uniform
- * cap-margin target) AND the rim gap band around --target-gap-mm. The face
- * bound is exact, not fitted: shifting +z moves only the lower arch, so
- * each margin falls 1:1 past the crossover where the lower max-z overtakes
- * the upper, and the cap is min(medianRest, medianCap) minus lower max-z
- * minus safety. When the rim seating needs more shift than the face allows,
- * the face binds: the producer applies the face shift and reports the
- * honest rest rim gap instead of the target. viseme_PP writes zeros.
- * viseme_sil stays off the teeth. No target names are added, removed, or
- * reordered. Skin weights of every non-teeth mesh are untouched.
+ * lower-arch BASE is translated once (bind +z, fixed point) toward
+ * --target-gap-mm, then per-vertex face clearance pulls back the teeth
+ * vertices ahead of the #739 clearance plane (cap skin median minus the
+ * 0.5 mm test safety) along bind -z by iterated quadratic falloff: each
+ * pass moves every crossing vertex by the square of its own excess over
+ * the plane divided by the pass maximum excess. Each pass is C1-smooth at
+ * the contour, parameter-free, and never moves a vertex more than its own
+ * excess; the residual max quarters (or better) every pass, so the field
+ * converges to full clearance (16-pass bound, 1 um stop) while staying
+ * smooth as a sum of smooth fields. Body meshes,
+ * upper-arch base, and skin weights of every non-teeth mesh are untouched.
+ *
+ * --down-gain scales the vertical head-local component of each lower-arch
+ * teeth viseme delta after transfer (default 1, no-op). Head-local comes
+ * from the head bone rest world rotation, so the rule carries to other
+ * rigs. viseme_PP writes zeros. viseme_sil stays off the teeth. No target
+ * names are added, removed, or reordered.
  *
  * Inner rim rule (stated, procedural, no thresholds): lowerLipInnerRim —
  * rig+response landmark vertices whose bind normals face the front-shell
@@ -38,7 +42,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
-import { Matrix4, Vector3 } from "three";
+import { Matrix3, Matrix4, Vector3 } from "three";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.js";
 import {
   frontShellIndices,
@@ -51,9 +55,11 @@ import { transferArch } from "./rim-seat-transfer.js";
 
 const REST_TOL_M = 1e-4;
 const REST_SHOTS = 8;
-/** #739 uniform cap-margin target: the face shift leaves this clearance. */
+/** #739 uniform cap-margin target: the clearance plane sits this far behind the cap median. */
 const FACE_SAFETY_M = 0.0005;
-/** Float-identity snap so a re-plan from seated bytes applies exactly zero. */
+/** Quadratic pullback passes: residual max quarters each pass, so 16 always suffices. */
+const PULLBACK_PASSES = 16;
+/** Float32-safe epsilon: pullback stop tolerance and self-check bound, physically nothing. */
 const SNAP_M = 1e-6;
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -78,13 +84,17 @@ export type RimSeatPlan = {
   targetGapMm: number;
   restGap0Mm: number;
   restShiftMm: number;
-  /** True when the face bound capped the shift below the rim seating. */
-  faceBound: boolean;
   faceMarginRest0Mm: number;
   faceMarginCap0Mm: number;
   faceSafetyMm: number;
-  faceShiftMaxMm: number;
-  /** Rest rim gap after the applied shift (equals the target when not face-bound). */
+  /** Clearance plane: cap skin median minus safety (bind z, metres in mm field). */
+  clearancePlaneMm: number;
+  pullbackVertCount: number;
+  pullbackMaxMm: number;
+  pullbackMeanMm: number;
+  pullbackPasses: number;
+  downGain: number;
+  /** Rest rim gap after seat + pullback (equals the target only when nothing crosses). */
   honestRestGapMm: number;
   rigid: boolean;
   distortionMm: Record<string, number>;
@@ -92,7 +102,7 @@ export type RimSeatPlan = {
   teethCount: number;
 };
 
-function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean } {
+function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number } {
   const flag = (name: string): string | undefined => {
     const index = process.argv.indexOf(name);
     const value = index >= 0 ? process.argv[index + 1] : undefined;
@@ -101,11 +111,14 @@ function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid
   const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
   const target = flag("--target-gap-mm");
   if (!glbPath || target === undefined) {
-    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid]");
+    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>]");
   }
   const targetGapMm = Number(target);
   if (!Number.isFinite(targetGapMm) || targetGapMm <= 0) throw new Error(`bad --target-gap-mm ${target}`);
-  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid") };
+  const downGainRaw = flag("--down-gain");
+  const downGain = downGainRaw === undefined ? 1 : Number(downGainRaw);
+  if (!Number.isFinite(downGain) || downGain <= 0) throw new Error(`bad --down-gain ${downGainRaw}`);
+  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain };
 }
 
 type SeatResult = {
@@ -146,7 +159,7 @@ function skinAtRest(
   return out;
 }
 
-export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean): Promise<SeatResult> {
+export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean, downGain = 1): Promise<SeatResult> {
   const doc = await new NodeIO().read(glbPath);
   const teeth = doc.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
   if (!teeth) throw new Error(`no fitted teeth mesh in ${glbPath}`);
@@ -247,18 +260,13 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     return rimGap(teethWorld, frontShellIndices(teethPositions).lower, bodyWorld, rim);
   };
 
-  // Face bound (#739 instrument, imported): the largest +z lower-arch shift
-  // with both skin medians still ahead of the teeth. Shifting moves only the
-  // lower arch, so each margin falls 1:1 past the crossover where the lower
-  // max-z overtakes the upper; the cap is min(medianRest, medianCap) minus
-  // the lower-arch max-z minus the #739 safety.
+  // Clearance plane P (#739 instrument, imported): cap skin median minus the
+  // test's own 0.5 mm safety. Teeth z never moves the skin medians (the band
+  // is teeth y/x, the shift is z), so P measured on the input doc binds the
+  // output too.
   const face = measureFaceMarginsFromDoc(doc, runtimeCap(REPO_ROOT));
   if (!face) throw new Error("face instrument found no teeth or body mesh");
-  let lowerMaxZ = -Infinity;
-  for (const vertex of lowerArch) lowerMaxZ = Math.max(lowerMaxZ, teethBase[vertex * 3 + 2] ?? 0);
-  const faceShiftMax =
-    Math.min(face.medianAtRest, face.medianAtCap) - lowerMaxZ - FACE_SAFETY_M;
-  const snap = (shift: number): number => (Math.abs(shift) <= SNAP_M ? 0 : shift);
+  const planeZ = face.medianAtCap - FACE_SAFETY_M;
 
   // Rest offset on the lower arch (bind +z; fixed point for assignment switching).
   const targetM = targetGapMm / 1000;
@@ -279,20 +287,53 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     throw new Error(`rest offset missed: gap ${rimCheck} vs target ${targetM}`);
   }
 
-  // Largest shift satisfying both: the rim seating when it fits under the
-  // face cap, else the face shift with an honestly reported rim gap.
-  const faceBound = rimShift > faceShiftMax + SNAP_M;
+  // Per-vertex face clearance on the seated base: teeth ahead of P retreat
+  // along bind -z by iterated quadratic falloff. One pass moves each
+  // crossing vertex by the square of its own excess over P divided by the
+  // maximum excess: C1-smooth at the contour (value and slope vanish there),
+  // parameter-free, and no vertex ever moves more than its own excess
+  // (excess squared over the max never exceeds the excess). A single pass
+  // undershoots (it pins only the worst vertex), so passes repeat on the
+  // residual with a recomputed max: the residual max quarters (or better)
+  // every pass, totals stay below per-vertex excess, and the field stays
+  // smooth as a sum of smooth fields. Stops when the residual max is at or
+  // below SNAP_M (float32-safe, physically nothing) with a 16-pass bound.
+  // Float32Array keeps every assignment at accessor precision, so a re-plan
+  // from cleared bytes measures no excess and applies nothing.
   let newBase = rimBase;
-  let restShift = rimShift;
-  let honestCheck = rimCheck;
-  if (faceBound) {
-    restShift = snap(faceShiftMax);
-    newBase = new Float32Array(teethBase);
-    for (const vertex of lowerArch) {
-      newBase[vertex * 3 + 2] = (newBase[vertex * 3 + 2] ?? 0) + restShift;
+  let pullbackVertCount = 0;
+  let pullbackMax = 0;
+  let pullbackSum = 0;
+  let pullbackPasses = 0;
+  for (let pass = 0; pass < PULLBACK_PASSES; pass += 1) {
+    let excessMax = 0;
+    for (let vertex = 0; vertex < teethCount; vertex += 1) {
+      excessMax = Math.max(excessMax, (newBase[vertex * 3 + 2] ?? 0) - planeZ);
     }
-    honestCheck = restRimGap(newBase);
+    if (excessMax <= SNAP_M) break;
+    pullbackPasses = pass + 1;
+    const moved = new Float32Array(newBase);
+    for (let vertex = 0; vertex < teethCount; vertex += 1) {
+      const excess = (newBase[vertex * 3 + 2] ?? 0) - planeZ;
+      if (excess <= SNAP_M) continue;
+      const drop = (excess * excess) / excessMax;
+      moved[vertex * 3 + 2] = (moved[vertex * 3 + 2] ?? 0) - drop;
+      if (pass === 0) {
+        pullbackVertCount += 1;
+        pullbackMax = Math.max(pullbackMax, drop);
+        pullbackSum += drop;
+      }
+    }
+    newBase = moved;
   }
+  let seatedMaxZ = -Infinity;
+  for (let vertex = 0; vertex < teethCount; vertex += 1) {
+    seatedMaxZ = Math.max(seatedMaxZ, newBase[vertex * 3 + 2] ?? 0);
+  }
+  if (!(seatedMaxZ <= planeZ + SNAP_M)) {
+    throw new Error(`pullback missed the clearance plane: maxZ ${seatedMaxZ} vs plane ${planeZ}`);
+  }
+  const honestCheck = restRimGap(newBase);
 
   const transfer = transferArch({
     teethBase, bodyBase, bodyDeltas, bodyTargets, teethNames, bodyJoints, bodyWeights,
@@ -300,18 +341,49 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
   });
   const { newJoints, newWeights, newDeltas, distortionMm, rigid, jawMaxVerts } = transfer;
 
+  // Variant-A down gain: scale the vertical head-local component of each
+  // lower-arch teeth viseme delta. Head-local comes from the head bone rest
+  // world rotation (rotation only, no translation, no scale), so the rule
+  // carries to other rigs. Forward component, jaw rotation, lip and body
+  // morphs are untouched. Default 1 is a no-op.
+  if (downGain !== 1) {
+    scene.root.updateMatrixWorld(true);
+    const headRotation = new Matrix4().extractRotation(scene.headBone.matrixWorld);
+    const toHead = new Matrix3().setFromMatrix4(headRotation);
+    const toBind = toHead.clone().transpose();
+    const point = new Vector3();
+    for (const targetName of Object.keys(newDeltas)) {
+      const field = newDeltas[targetName];
+      if (!field) throw new Error(`no delta for ${targetName}`);
+      for (const vertex of lowerArch) {
+        point
+          .set(field[vertex * 3] ?? 0, field[vertex * 3 + 1] ?? 0, field[vertex * 3 + 2] ?? 0)
+          .applyMatrix3(toHead);
+        point.y *= downGain;
+        point.applyMatrix3(toBind);
+        field[vertex * 3] = point.x;
+        field[vertex * 3 + 1] = point.y;
+        field[vertex * 3 + 2] = point.z;
+      }
+    }
+  }
+
   const plan: RimSeatPlan = {
     rimCount: rim.length,
     rimTriangles: rimTris.length,
     lowerArchCount: lowerArch.length,
     targetGapMm,
     restGap0Mm: Math.round(restGap0 * 1e6) / 1e3,
-    restShiftMm: Math.round(restShift * 1e6) / 1e3,
-    faceBound,
+    restShiftMm: Math.round(rimShift * 1e6) / 1e3,
     faceMarginRest0Mm: Math.round(face.marginAtRest * 1e6) / 1e3,
     faceMarginCap0Mm: Math.round(face.marginAtCap * 1e6) / 1e3,
     faceSafetyMm: FACE_SAFETY_M * 1000,
-    faceShiftMaxMm: Math.round(faceShiftMax * 1e6) / 1e3,
+    clearancePlaneMm: Math.round(planeZ * 1e6) / 1e3,
+    pullbackVertCount,
+    pullbackMaxMm: Math.round(pullbackMax * 1e6) / 1e3,
+    pullbackMeanMm: Math.round((pullbackVertCount === 0 ? 0 : pullbackSum / pullbackVertCount) * 1e6) / 1e3,
+    pullbackPasses,
+    downGain,
     honestRestGapMm: Math.round(honestCheck * 1e6) / 1e3,
     rigid,
     distortionMm,
@@ -407,8 +479,8 @@ function writeAccessorBytes(
 
 async function main(): Promise<void> {
   const wallStart = Date.now();
-  const { glbPath, targetGapMm, dry, rigid } = readArgs();
-  const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(glbPath, targetGapMm, rigid);
+  const { glbPath, targetGapMm, dry, rigid, downGain } = readArgs();
+  const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(glbPath, targetGapMm, rigid, downGain);
   process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
   if (dry) {
     process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s (dry run, no write)\n`);

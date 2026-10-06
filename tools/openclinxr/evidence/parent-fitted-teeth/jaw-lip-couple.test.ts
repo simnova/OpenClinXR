@@ -29,6 +29,10 @@ import {
 import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
 import { planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
 import {
+  loadProducerPreimage,
+  readProducerReceipt,
+} from "../../asset-pipeline/makeclothes/producer-preimage.ts";
+import {
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
 } from "@openclinxr/xr-dialogue/viseme-runtime";
@@ -38,6 +42,8 @@ import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timelin
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
 const GLB = path.join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
+const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
+const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 const MOTION_BIND = path.join(
   REPO,
   "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
@@ -49,8 +55,15 @@ const VISEME_ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U
  * Unreachable behind the face: the #739 bound caps the rest shift at 3.197 mm,
  * so the seated rest gap is the honest 8.246 mm, not this target. */
 const RIM_REST_TARGET_MM = 3.743;
-/** Honest seated rest rim gap: producer-measured after the face-bound shift. */
-const HONEST_REST_GAP_MM = 8.246;
+/** Producer down-gain under test (1 on main, 1.25 on variant-a). */
+const DOWN_GAIN = 1;
+/** Honest seated rest rim gap: producer-measured after seat + pullback. */
+const HONEST_REST_GAP_MM = 6.387;
+/** Pre-image rest rim gap: input characteristic, pinned, not a target. */
+const PRE_IMAGE_REST_GAP_MM = 10.666;
+/** Pullback census on the pre-image plan: crossing verts, worst drop. */
+const PULLBACK_VERTS = 558;
+const PULLBACK_MAX_MM = 5.876;
 const DRIVE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts");
 const APPLY_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const WIRE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
@@ -363,22 +376,23 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // JAW_BY_VISEME rigid vectors plus HEAD_MEAN assumed the outer lip
     // landmark, which the crowns do not face. The producer now transfers the
     // inner-rim field and falls back to the rigid arch mean by distortion.
-    const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(GLB, RIM_REST_TARGET_MM, false);
+    const pre = readProducerReceipt(REPO, RECEIPT_REL);
+    const preTmp = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
+    const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN);
     expect(plan.rimCount).toBe(76);
     expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
-    // The #739 face bound caps the shift: rim seating needs ~9.1 mm but the
-    // face allows 3.197 mm, so the producer applies the face shift and the
-    // seated rest gap is the honest 8.246 mm, not the directed target.
-    // Re-planning from the seated bytes applies exactly zero further shift
-    // (face snap) while still reporting face-bound: round-trip identity below.
-    expect(plan.faceBound).toBe(true);
-    expect(plan.restShiftMm).toBeCloseTo(0, 2);
-    expect(plan.faceShiftMaxMm).toBeCloseTo(0, 2);
+    expect(plan.downGain).toBe(DOWN_GAIN);
+    // Rim seat drives the rest gap to the directed target on the pre-image,
+    // then per-vertex pullback clears the face: the seated rest gap is the
+    // honest producer-measured value, not the target.
+    expect(plan.restGap0Mm).toBeCloseTo(PRE_IMAGE_REST_GAP_MM, 1);
+    expect(plan.restShiftMm).toBeCloseTo(9.073, 2);
+    expect(plan.pullbackVertCount).toBe(PULLBACK_VERTS);
+    expect(plan.pullbackMaxMm).toBeCloseTo(PULLBACK_MAX_MM, 2);
+    expect(plan.pullbackPasses).toBeGreaterThan(0);
+    expect(plan.pullbackPasses).toBeLessThanOrEqual(16);
     expect(plan.honestRestGapMm).toBeCloseTo(HONEST_REST_GAP_MM, 2);
-    // Re-plan from the seated bytes reproduces the seated rest gap: the
-    // face snap leaves exactly zero further shift (round-trip identity below).
-    expect(plan.restGap0Mm).toBeCloseTo(HONEST_REST_GAP_MM, 1);
     expect(plan.jawMaxVerts).toBeGreaterThan(0);
     const names = Object.keys(loaded.teeth.morphTargetDictionary ?? {});
     expect(names).toEqual([...VISEME_ORDER]);
@@ -394,6 +408,34 @@ describe("parent fitted teeth follow the lip viseme", () => {
       const produced = newDeltas[name];
       expect(produced).toBeDefined();
       expect(Array.from(produced!)).toEqual(Array.from(loaded.teethTargets[dict[name]!]!));
+    }
+    // The producer writes teeth accessors only: body base, skinning, normals
+    // and every morph target are byte-identical between pre-image and seated.
+    // In particular the lip morph contribution is untouched (variant A rule).
+    {
+      const preDoc = await new NodeIO().read(preTmp);
+      const preBody = preDoc.getRoot().listMeshes().find((mesh) => /_body$/i.test(mesh.getName()));
+      const prePrim = preBody?.listPrimitives()[0];
+      if (!preBody || !prePrim) throw new Error("pre-image has no body primitive");
+      const preNames = ((preBody.getExtras() as { targetNames?: string[] } | null)?.targetNames) ?? [];
+      const bodyNames = Object.keys(loaded.body.morphTargetDictionary ?? {});
+      expect(preNames).toEqual(bodyNames);
+      const prePos = asFloat(prePrim.getAttribute("POSITION")!);
+      expect(Array.from(prePos)).toEqual(Array.from(loaded.bodyPos));
+      const preJoints = prePrim.getAttribute("JOINTS_0")!.getArray()!;
+      expect(Array.from(preJoints as ArrayLike<number>)).toEqual(Array.from(loaded.bodyJoints as ArrayLike<number>));
+      expect(Array.from(asFloat(prePrim.getAttribute("WEIGHTS_0")!))).toEqual(
+        Array.from(loaded.bodyWeights as ArrayLike<number>),
+      );
+      expect(Array.from(asFloat(prePrim.getAttribute("NORMAL")!))).toEqual(
+        Array.from(loaded.bodyNormals),
+      );
+      for (let index = 0; index < preNames.length; index += 1) {
+        const preDelta = prePrim.listTargets()[index]?.getAttribute("POSITION");
+        const expected = preDelta ? asFloat(preDelta) : new Float32Array(prePos.length);
+        const live = loaded.bodyTargets[index] ?? new Float32Array(prePos.length);
+        expect(Array.from(expected)).toEqual(Array.from(live));
+      }
     }
     // Lower arch (below-median-y, producer rule): rigid mean per target.
     const teethYs: number[] = [];
@@ -453,11 +495,11 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }
   });
 
-  it("seats the rest rim gap at the face-bound honest value with sil writing nothing", () => {
-    // Supersedes "seats the rest rim gap at the directed target": the 3.743 mm
-    // directed target is unreachable behind the face, so the producer applies
-    // the 3.197 mm face shift and the seated rest gap is honestly 8.246 mm.
-    // The independent evaluator gate (midpoint 8.378 +/- 0.5) judges the clip.
+  it("seats the rest rim gap at the pullback honest value with sil writing nothing", () => {
+    // Supersedes "seats the rest rim gap at the face-bound honest value": the
+    // rim seat drives to the 3.743 mm directed target, then per-vertex
+    // pullback clears the face, leaving the honest 6.387 mm rest gap.
+    // The independent evaluator gate (midpoint 6.485 +/- 0.5) judges the clip.
     expect(loaded.body.morphTargetDictionary).toHaveProperty("viseme_sil");
     expect(loaded.teeth.morphTargetDictionary).not.toHaveProperty("viseme_sil");
     loaded.teeth.morphTargetInfluences.fill(0);

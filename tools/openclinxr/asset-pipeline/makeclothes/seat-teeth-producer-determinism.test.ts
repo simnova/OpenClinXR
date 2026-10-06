@@ -15,6 +15,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import {
+  loadProducerPreimage,
+  readProducerReceipt,
+} from "./producer-preimage.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -22,60 +26,27 @@ const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.gl
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 /** Operator-set rest target, same value as the producer invocation in the receipt. */
 const TARGET_GAP_MM = 3.743;
-/** Cap on history walk: the pre-image is two commits back; 10 is headroom. */
-const PRE_IMAGE_SEARCH_DEPTH = 10;
+/** Teeth down-gain of the producer invocation in the receipt (1 on main, 1.25 on variant-a). */
+const DOWN_GAIN = 1;
 
 function sha256(bytes: Buffer | Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-function receipt(): {
-  outputSha256: string;
-  outputBytes: number;
-  preImageSha256: string;
-  preImageBytes: number;
-} {
-  return JSON.parse(readFileSync(path.join(REPO, RECEIPT_REL), "utf8")) as {
-    outputSha256: string;
-    outputBytes: number;
-    preImageSha256: string;
-    preImageBytes: number;
-  };
-}
-
-/** Newest-first revisions touching the GLB; the first whose bytes match the receipt pre-image wins. */
-function preImageBytes(expectedSha256: string): Buffer {
-  const revisions = execFileSync("git", ["rev-list", "HEAD", "--", GLB_REL], {
-    cwd: REPO,
-    encoding: "utf8",
-  })
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .slice(0, PRE_IMAGE_SEARCH_DEPTH);
-  for (const revision of revisions) {
-    const bytes = execFileSync("git", ["show", `${revision}:${GLB_REL}`], {
-      cwd: REPO,
-      maxBuffer: 128 * 1024 * 1024,
-    }) as Buffer;
-    if (sha256(bytes) === expectedSha256) return bytes;
-  }
-  throw new Error(`no revision in the last ${PRE_IMAGE_SEARCH_DEPTH} matches preImageSha256 ${expectedSha256}`);
-}
-
 function runProducer(glbPath: string): void {
-  execFileSync(
-    "pnpm",
-    ["exec", "tsx", "tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts", glbPath, "--target-gap-mm", String(TARGET_GAP_MM)],
-    { cwd: REPO, stdio: "pipe", timeout: 300_000, maxBuffer: 16 * 1024 * 1024 },
-  );
+  const args = [
+    "exec", "tsx", "tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts",
+    glbPath, "--target-gap-mm", String(TARGET_GAP_MM),
+  ];
+  if (DOWN_GAIN !== 1) args.push("--down-gain", String(DOWN_GAIN));
+  execFileSync("pnpm", args, { cwd: REPO, stdio: "pipe", timeout: 300_000, maxBuffer: 16 * 1024 * 1024 });
 }
 
 describe("rim-seat producer determinism", () => {
   it("two runs from the git pre-image are byte-identical and match the receipt", () => {
-    const pre = receipt();
-    const preBytes = preImageBytes(pre.preImageSha256);
-    expect(preBytes.length).toBe(pre.preImageBytes);
+    const pre = readProducerReceipt(REPO, RECEIPT_REL);
+    const prePath = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
+    const preBytes = readFileSync(prePath);
     const dir = mkdtempSync(path.join(tmpdir(), "rim-seat-determinism-"));
     const outA = path.join(dir, "a.glb");
     const outB = path.join(dir, "b.glb");

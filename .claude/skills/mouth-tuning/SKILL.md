@@ -48,7 +48,7 @@ that imports it. Premises that were false and cost a full worker run each:
 ## 3. Fixed facts about the parent mouth (as of the producer fix on branch mouth-solver)
 
 - Lower teeth share the lower-lip inner rim's skinning and per-viseme movement (producer
-  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts`), so the gap is constant by construction: 8.0-8.8 mm on all 124 fixed-capture frames. The 3.743 mm directed target is unreachable behind the face: the #739 teeth-behind-face bound caps the rest shift at 3.197 mm (0.5 mm safety), the seated rest gap is honestly 8.246 mm, and the face (not the rim) binds.
+  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts`), so the gap is near-constant by construction: 6.1-6.9 mm on all 124 fixed-capture frames. The rim seat drives to the 3.743 mm directed target, then per-vertex pullback clears the #739 face (560 central lower-front verts, iterated quadratic falloff, worst 5.876 mm) to the cap-median-minus-0.5 mm plane; honest rest gap 6.387 mm. Teeth stay behind the face median at rest and at the runtime cap weight.
 - Upper teeth are head-fixed: zero viseme deltas.
 - Jaw timing: critically damped spring and lip follower at 240 Hz in xr-dialogue internals.
 - A GLB change goes through a committed producer only, with the receipt updated by that run in the same
