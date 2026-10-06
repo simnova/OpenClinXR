@@ -10,7 +10,7 @@ import type { Page } from "../lib/slotted-playwright.js";
 
 type HeadlessBrowser = { newPage(options: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page> };
 type TrackCue = { startS: number; endS: number; viseme: string; intensity: number };
-type ToothSample = { n: number; cx: number; cy: number; target: string; lipGapPx: number; mouthTeethN: number };
+type ToothSample = { n: number; cx: number; cy: number; target: string; lipGapPx: number; mouthTeethN: number; upperTeethN?: number; lowerTeethN?: number };
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -18,7 +18,9 @@ const AUDIO = path.join(HERE, "visemes/i-feel-the-pain-is-better-now.aiff");
 const RHUBARB = path.join(process.env.HOME ?? "", ".openclinxr-tools/rhubarb/rhubarb");
 const LINE = "I feel the pain is better now.";
 const MODE = process.argv.includes("--fixed-gap") ? "teeth-gap/fixed-capture" : process.argv.includes("--step3") ? "step3" : "step2";
-const OUT_DIR = path.join(REPO, `docs/openclinxr/mouth-dynamics/${MODE}`);
+/** U1 mouth-front: opt-in frontal mouth-height view. Absent = legacy head framing, byte-identical. */
+const MOUTH_FRONT = process.argv.includes("--view") && process.argv[process.argv.indexOf("--view") + 1] === "mouth-front";
+const OUT_DIR = path.join(REPO, `docs/openclinxr/mouth-dynamics/${MODE}${MOUTH_FRONT ? "-mouth-front" : ""}`);
 const MODE_TMP = MODE.replaceAll("/", "-");
 const VIEW_W = 1280;
 const VIEW_H = 960;
@@ -31,7 +33,7 @@ function esbuildBin(): string {
   return path.join(root, dir, "node_modules/esbuild/bin/esbuild");
 }
 
-function browserDriveSource(): string {
+function browserDriveSource(): { drive: string; split: string } {
   const bundle = (source: string, globalName: string) => {
     const output = path.join(tmpdir(), `mouth-dynamics-${globalName}-${process.pid}.js`);
     execFileSync(esbuildBin(), [source, "--bundle", "--format=iife", `--global-name=${globalName}`, "--platform=browser",
@@ -44,6 +46,7 @@ function browserDriveSource(): string {
   };
   const runtime = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts"), "OpenClinXrVisemeDrive");
   const mapper = bundle(path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-cue-track.ts"), "OpenClinXrCueTrack");
+  const split = bundle(path.join(HERE, "tooth-pixel-split.ts"), "OpenClinXrToothSplit");
   const result = `${runtime}\n${mapper}
 let captureRuntime,captureContext;
 window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolatedSceneRoot,raw=window.__speechRhubarb,base64=window.__speechWavBase64;if(!root||!raw||!base64)throw new Error("prepared-runtime-input-missing");
@@ -54,7 +57,7 @@ window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolat
   captureRuntime.diagnostics.installRuntime({context:captureContext,destination:{},entry:{actorId:"capture",responseText:${JSON.stringify(LINE)},runnerConversationTurn:1,waveformSha256:"capture",cueSha256:"capture",decodedSampleRate:22050,decodedSampleCount:Math.ceil(duration*22050),buffer:{duration,sampleRate:22050,length:Math.ceil(duration*22050)},cues:cues.map(c=>({phoneme:c.viseme,atSecond:c.startS,durationSeconds:c.endS-c.startS,intensity:c.intensity}))},getSlot(){return slot;},triggerDialogue(){slot.activeSpeech={text:${JSON.stringify(LINE)},phonemeSequence:["sil"],startedAtMs:0,durationMs:duration*1000};}});
   if(!captureRuntime.diagnostics.start({actorId:"capture",spokenText:${JSON.stringify(LINE)}}))throw new Error("prepared-runtime-start-refused");return cues;};
 window.__openClinXrSyncPreparedSpeech=(timeS)=>{if(!captureRuntime||!captureContext)throw new Error("prepared-runtime-not-started");captureContext.currentTime=timeS;captureRuntime.syncPreparedActorAudio(timeS*1000);};`;
-  return result;
+  return { drive: result, split };
 }
 
 function makeTrack(jobDir: string): { rhubarb: unknown; wavBase64: string; wavSha256: string } {
@@ -111,20 +114,26 @@ type PageGlobal = { __speechTimeS:number;requestAnimationFrame(cb:()=>void):numb
 async function recordFrames(page: Page, cues: TrackCue[], durationS: number, frameDir: string) {
   const frames=Math.max(2,Math.round(durationS*FPS)); mkdirSync(frameDir,{recursive:true});
   const samples:ToothSample[]=[]; const targets=new Set<string>();
+  // Sampler geometry: legacy head-view numbers are the defaults; mouth-front
+  // recentres the 240x180 window (same size) and widens the counting box to
+  // the measured aperture extent (k=0: teeth x13-239 y29-83 of the window).
+  // Defaults are literal-identical to the pre-view code path.
+  const sampler = MOUTH_FRONT
+    ? { ox: 520, yTop: 570, split: true, x0: 10, x1: 230, y0: 25, y1: 95 }
+    : { ox: 500, yTop: 710, split: false, x0: 40, x1: 100, y0: 55, y1: 85 };
   for (let frame=0;frame<frames;frame+=1) {
     await page.evaluate((timeS:number)=>{ const win=globalThis as unknown as PageGlobal;win.__speechTimeS=timeS;win.__openClinXrSyncPreparedSpeech?.(timeS); },frame/FPS);
     await page.evaluate(()=>new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("requestAnimationFrame stalled")),2000);(globalThis as unknown as PageGlobal).requestAnimationFrame(()=>{clearTimeout(timer);resolve();});}));
-    const shot=await page.evaluate(()=>{ const win=globalThis as unknown as PageGlobal; win.__openClinXrIsolatedRenderFrame?.();
+    const shot=await page.evaluate((geom:{ox:number;yTop:number;split:boolean;x0:number;x1:number;y0:number;y1:number})=>{ const win=globalThis as unknown as PageGlobal; win.__openClinXrIsolatedRenderFrame?.();
       const canvas=win.document.getElementById("isolated-subject-capture-canvas"); const gl=canvas?.getContext("webgl2")??canvas?.getContext("webgl"); if(!canvas||!gl)return {error:"canvas missing"};
-      const width=240,height=180,buf=new Uint8Array(width*height*4); gl.readPixels(500,canvas.height-710,width,height,gl.RGBA,gl.UNSIGNED_BYTE,buf);
-      let n=0,sx=0,sy=0,lipGapPx=0,mouthTeethN=0;
-      for(let p=0,pixel=0;p<buf.length;p+=4,pixel+=1){const r=buf[p]??0,g=buf[p+1]??0,b=buf[p+2]??0,mean=(r+g+b)/3,x=pixel%width,y=height-1-Math.floor(pixel/width);
-        if(mean>148&&Math.abs(r-g)<16&&Math.abs(g-b)<16&&r>140&&r<220){n+=1;sx+=x;sy+=y;if(x>=40&&x<=100&&y>=55&&y<=85)mouthTeethN+=1;}}
-      for(let x=40;x<=100;x+=1){let run=0;for(let y=55;y<=85;y+=1){const row=height-1-y,p=(row*width+x)*4;const mean=((buf[p]??0)+(buf[p+1]??0)+(buf[p+2]??0))/3;if(mean<70){run+=1;lipGapPx=Math.max(lipGapPx,run);}else run=0;}}
+      const width=240,height=180,buf=new Uint8Array(width*height*4); gl.readPixels(geom.ox,canvas.height-geom.yTop,width,height,gl.RGBA,gl.UNSIGNED_BYTE,buf);
+      const splitLib=globalThis as unknown as { OpenClinXrToothSplit?: { analyzeToothPixels(buf: ArrayLike<number>, width: number, height: number, box: { x0: number; x1: number; y0: number; y1: number }, split: boolean): { n: number; cx: number; cy: number; mouthTeethN: number; lipGapPx: number; upperTeethN?: number; lowerTeethN?: number } } };
+      const counts=splitLib.OpenClinXrToothSplit?.analyzeToothPixels(buf,width,height,{x0:geom.x0,x1:geom.x1,y0:geom.y0,y1:geom.y1},geom.split);
+      if(!counts)return {error:"tooth-split-lib-missing"};
       const drive=win.__openClinXrIsolatedSceneRoot?.userData?.openClinXrNamedVisemeDrive; const target=!drive||(drive.appliedMeshCount??0)<1?"":(drive.activeTargetName??"sil");
-      return {target,n,cx:n?sx/n:0,cy:n?sy/n:0,lipGapPx,mouthTeethN,png:canvas.toDataURL("image/png")}; });
+      return {target,n:counts.n,cx:counts.cx,cy:counts.cy,lipGapPx:counts.lipGapPx,mouthTeethN:counts.mouthTeethN,upperTeethN:counts.upperTeethN,lowerTeethN:counts.lowerTeethN,png:canvas.toDataURL("image/png")}; },sampler);
     if("error" in shot&&shot.error)throw new Error(`frame ${frame}: ${shot.error}`); if(!shot.target)throw new Error(`frame ${frame} did not drive a viseme mesh`);
-    samples.push({n:shot.n??0,cx:shot.cx??0,cy:shot.cy??0,target:shot.target,lipGapPx:shot.lipGapPx??0,mouthTeethN:shot.mouthTeethN??0}); targets.add(shot.target);
+    samples.push({n:shot.n??0,cx:shot.cx??0,cy:shot.cy??0,target:shot.target,lipGapPx:shot.lipGapPx??0,mouthTeethN:shot.mouthTeethN??0,...(shot.upperTeethN!==undefined?{upperTeethN:shot.upperTeethN,lowerTeethN:shot.lowerTeethN??0}:{})}); targets.add(shot.target);
     writeFileSync(path.join(frameDir,`f-${String(frame).padStart(4,"0")}.png`),Buffer.from(shot.png.slice(shot.png.indexOf(",")+1),"base64"));
   }
   return {frames,samples,targets:[...targets],teeth:motionReport(samples,cues)};
@@ -136,11 +145,12 @@ async function main():Promise<void>{
   let server:PortlessDevServer|undefined;
   await createLocalComputeServices().sceneCapture.withBrowser(`mouth-dynamics:${MODE}`,async launched=>{try{server=await spawnPortlessDevServer({filter:"@openclinxr/ui-xr",readyTimeoutMs:180000,cwd:REPO});
     const page=await (launched as HeadlessBrowser).newPage({viewport:{width:VIEW_W,height:VIEW_H},deviceScaleFactor:1}); page.setDefaultTimeout(180000); const runtimeDrive=browserDriveSource();
-    const spec={subjectId:"mpfb-peds-parent-aisha",subjectKind:"glb",bodyGlb:"/generated-humanoids/mpfb-peds-parent-aisha.glb",focus:"head",label:`mouth dynamics ${MODE}`};
+    const spec={subjectId:"mpfb-peds-parent-aisha",subjectKind:"glb",bodyGlb:"/generated-humanoids/mpfb-peds-parent-aisha.glb",...(MOUTH_FRONT?{focus:"mouth",view:"front"}:{focus:"head"}),label:`mouth dynamics ${MODE}`};
     await page.goto(`${server.url}isolated-subject.html?subject=${encodeURIComponent(JSON.stringify(spec))}`,{waitUntil:"domcontentloaded",timeout:240000});
     await page.waitForFunction("window.__openClinXrIsolatedSubjectEvidence != null || window.__openClinXrVisemeApplierError != null",null,{timeout:180000});
     const error=await page.evaluate("window.__openClinXrVisemeApplierError || ''"); if(error)throw new Error(String(error));
-    await page.addScriptTag({ content: runtimeDrive });
+    await page.addScriptTag({ content: runtimeDrive.drive });
+    await page.addScriptTag({ content: runtimeDrive.split });
     const prepared=await page.evaluate((input:{rhubarb:unknown;wavBase64:string})=>{ const win=globalThis as typeof globalThis & {__speechRhubarb?:unknown;__speechWavBase64?:string;__openClinXrStartPreparedSpeech?:()=>TrackCue[]};win.__speechRhubarb=input.rhubarb;win.__speechWavBase64=input.wavBase64;return {starter:typeof win.__openClinXrStartPreparedSpeech,cues:win.__openClinXrStartPreparedSpeech?.()??[]};},{rhubarb:track.rhubarb,wavBase64:track.wavBase64});
     const cues=prepared.cues as TrackCue[];
     if(!cues.length)throw new Error(`prepared-runtime-cues-missing:${prepared.starter}`);

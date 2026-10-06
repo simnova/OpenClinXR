@@ -18,15 +18,17 @@ const BILABIAL = "PP";
  */
 const CONTACT = new Set(["PP", "FF", "TH"]);
 /**
- * FF PP-seal blend gain (operator 2026-10-06: lips touch on F; DECISION FF
- * stays pressed lips; R12: three producer FF shapings failed, PP already
- * seals at 0 teeth px). Under the FF contact envelope the drive blends in
- * viseme_PP at K * ffEnvelope and caps FF at 1 - PP so the pair stays in
- * [0,1]. K = 1 means an FF cue renders as PP, acceptable on this rig.
- * Sweep {0.5, 0.7, 0.85, 1.0} on the step3 capture; smallest K meeting the
- * F-frame pixel gates wins. Vowel-only tracks never engage (ffPeak = 0).
+ * FF PP-blend gain (U1: K = 0 — the frontal render shows the shipped FF
+ * morph already places the upper incisors on the lower lip; blending PP
+ * over it re-seals the aperture and hides the crowns. K = 0 keeps the pure
+ * FF drive so F frames show upper crowns with no lower teeth. Under the FF
+ * contact envelope the drive blends in viseme_PP at K * ffEnvelope and caps
+ * FF at 1 - PP so the pair stays in [0,1]. Vowel-only tracks never engage
+ * (ffPeak = 0). Step3 capture sweep {0, 0.25, 0.5, 0.75, 1} in both views;
+ * K = 0 shows the most upper crown (3421 px mouth-front) with lower 0 and
+ * the lip touching the incisors; higher K seals the crowns away.
  */
-export const FF_PP_BLEND_K = 1;
+export const FF_PP_BLEND_K = 0;
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
 type State = { tick: number; weights: Record<string, number>; velocity: Record<string, number> };
@@ -124,10 +126,9 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
       weights[key] = (weights[key] ?? 0) * hold;
     }
   }
-  // FF PP-seal blend: the suppression above leaves vowel residue ~0 under the
-  // contact but the FF morph alone leaves a lower-crown strip open at runtime
-  // (defect.ff_strip). The PP morph seals at 0 teeth px, so under the FF
-  // envelope peak the drive carries PP at K * ffPeak and caps FF at 1 - PP.
+  // FF PP blend: under the FF envelope peak the drive carries PP at
+  // K * ffPeak and caps FF at 1 - PP (U1: K = 0, so the pure FF morph
+  // drives and F frames show the upper crowns on the lower lip).
   // Applied after suppression (PP is a non-contact key under FF and would
   // otherwise be attenuated away). Both factors move <= 0.25 per 30 fps
   // frame (envelope bound, K <= 1), so the ramp gate holds; the min() cap is

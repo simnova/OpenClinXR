@@ -97,7 +97,7 @@ export type IsolatedSubjectSpec = {
    * the neck — works on every rail, incl. Anny which has no eye geometry).
    * Never literal coordinates (D1). An unresolvable focus REFUSES.
    */
-  focus?: "eyes" | "head";
+  focus?: "eyes" | "head" | "mouth";
   /** #495 ablation: when true, applySupinePose skips the 17 joint eulers (root basis only). */
   supineRootOnly?: boolean;
   label?: string;

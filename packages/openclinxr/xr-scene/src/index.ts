@@ -52,6 +52,12 @@ export {
   bootIsolatedSubjectLab,
 } from "./isolated-subject-lab.js";
 export {
+  resolveFocus,
+} from "./isolated-subject-focus.js";
+export type {
+  FocusRegion,
+} from "./isolated-subject-focus.js";
+export {
   applyExamFormBootPresentation,
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,

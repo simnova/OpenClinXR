@@ -390,27 +390,25 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(0.9);
     });
 
-    it("per-channel cue leads put FF seal onset within one frame of its cue", () => {
-      // Seal = PP-blend weight >= 0.9*K, the 0.5 mm edge-gap proxy carried by
-      // the proven PP seal (operator 2026-10-06: lips touch on F; the FF morph
-      // alone leaves a lower-crown strip open at runtime). The FF morph is
-      // capped at 1-PP so the pair stays bounded; centre weight stays
-      // PP=K, FF=1-K. Synthetic FF: the step3 /b/ is a PP closure since the
-      // bilabial-stop acoustic correction.
+    it("per-channel cue leads put FF drive onset within one frame of its cue", () => {
+      // U1 K = 0: no PP seal rides the FF cue — the drive onset IS the FF
+      // morph (capped at 1 - PP = 1), reaching contact weight within one
+      // frame of cue onset. Synthetic FF: the step3 /b/ is a PP closure
+      // since the bilabial-stop acoustic correction.
       const ff = ffCues.find((entry) => entry.phoneme === "FF");
       if (!ff) throw new Error("synthetic track has no FF cue");
       const drive = (mediaS: number): Step3Drive => driveTrackAt(ffCues, mediaS, 2130);
       const cueFrame = Math.floor(ff.atSecond * 30);
-      const sealed = 0.9 * FF_PP_BLEND_K;
+      const reached = 0.9 * (1 - FF_PP_BLEND_K);
       let onset = -1;
       for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
-        if ((drive(frameMediaS(n)).weights.viseme_PP ?? 0) >= sealed) { onset = n; break; }
+        if ((drive(frameMediaS(n)).weights.viseme_FF ?? 0) >= reached) { onset = n; break; }
       }
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
-      expect(drive(frameMediaS(cueFrame - 1)).weights.viseme_PP ?? 0).toBeLessThan(sealed);
+      expect(drive(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(reached);
       const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-      expect(drive(centreS).weights.viseme_PP ?? 0).toBeCloseTo(FF_PP_BLEND_K, 5);
+      expect(drive(centreS).weights.viseme_FF ?? 0).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
     });
 
     it("per-channel cue leads open the jaw within one frame of the first vowel after PP", () => {
@@ -507,21 +505,21 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
     });
 
-    it("blends PP under FF with the pair bounded (synthetic)", () => {
+    it("drives pure FF with the pair bounded at K = 0 (synthetic)", () => {
       // Synthetic FF: the step3 /b/ is a PP closure since the
-      // bilabial-stop acoustic correction. The seal carrier is PP at K with
-      // FF capped at 1-PP, so the pair never exceeds 1.
+      // bilabial-stop acoustic correction. U1 K = 0: no PP rides the FF
+      // cue; the FF morph carries at 1 - PP = 1, so the pair never exceeds 1.
       const ff = ffCues.find((entry) => entry.phoneme === "FF");
       if (!ff) throw new Error("synthetic track has no FF cue");
       const { cueFrame, onset } = contactOnset(
         (mediaS) => driveTrackAt(ffCues, mediaS, 2130),
-        "viseme_PP",
+        "viseme_FF",
         ff.atSecond,
       );
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       const centre = driveTrackAt(ffCues, ff.atSecond + (ff.durationSeconds ?? 0) / 2, 2130);
-      expect(centre.weights.viseme_PP ?? 0).toBeCloseTo(FF_PP_BLEND_K, 5);
+      expect(centre.weights.viseme_PP ?? 0).toBe(0);
       expect(centre.weights.viseme_FF ?? 0).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
       expect((centre.weights.viseme_PP ?? 0) + (centre.weights.viseme_FF ?? 0)).toBeLessThanOrEqual(1 + 1e-9);
     });

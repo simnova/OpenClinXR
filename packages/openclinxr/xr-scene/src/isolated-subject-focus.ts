@@ -21,7 +21,7 @@
  */
 
 import type { Object3D } from "three";
-import { Box3, Mesh, Vector3 } from "three";
+import { Box3, Mesh, SkinnedMesh, Vector3 } from "three";
 import { computeMeshBounds } from "./camera-fit-to-bounds.js";
 import { deriveHeadBoxFromPoints, isFittedHairMeshName } from "./head-box-from-geometry.js";
 
@@ -39,6 +39,13 @@ export type FocusRegion =
       neckPositionMeters: number;
       dominantAxis: "x" | "y" | "z";
       matchedVertexCount: number;
+      boundsMeters: { min: Vec3Meters; max: Vec3Meters };
+    }
+  | {
+      kind: "mouth_box";
+      derivation: string;
+      teethVertexCount: number;
+      orisVertexCount: number;
       boundsMeters: { min: Vec3Meters; max: Vec3Meters };
     }
   | { kind: "whole_subject_fallback"; reason: string }
@@ -177,13 +184,115 @@ function deriveHeadFocusBounds(root: Object3D): {
 }
 
 /**
+ * U1 mouth-front: derive the mouth focus box from the ASSET at runtime —
+ * the union of the fitted-teeth mesh AABB and the AABB of body verts whose
+ * dominant skinning joint is an orbicularis-oris bone (lip tissue by rig,
+ * never literal coordinates). Teeth alone would crop the vermilion under
+ * the 0.8 pack fill; oris alone could miss the incisal tips. Refuses when
+ * no fitted-teeth mesh resolves (same refusal posture as eyes, #358).
+ */
+const TEETH_MESH_RE = /fitted_teeth/i;
+const ORIS_JOINT_RE = /^oris/i;
+
+function meshNameLayers(object: Mesh): string[] {
+  return [
+    object.name,
+    typeof (object as Mesh & { userData?: { name?: unknown } }).userData?.name === "string"
+      ? String((object as Mesh & { userData?: { name?: unknown } }).userData?.name)
+      : "",
+    ...(Array.isArray(object.material)
+      ? object.material.map((m) => m.name)
+      : [object.material?.name ?? ""]),
+  ];
+}
+
+function deriveMouthFocusBounds(root: Object3D): {
+  kind: "mouth_box" | "whole_subject_fallback";
+  box: Box3;
+  teethVertexCount: number;
+  orisVertexCount: number;
+  reason?: string;
+} {
+  const box = new Box3();
+  const point = new Vector3();
+  let teethVertexCount = 0;
+  let orisVertexCount = 0;
+  root.updateMatrixWorld(true);
+  root.traverse((object) => {
+    if (!(object instanceof Mesh)) return;
+    const position = object.geometry.getAttribute("position");
+    if (!position) return;
+    const names = meshNameLayers(object);
+    const isTeeth = names.some((n) => TEETH_MESH_RE.test(n));
+    const isBody = names.some((n) => /_body$/i.test(n));
+    if (isTeeth) {
+      for (let i = 0; i < position.count; i += 1) {
+        point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
+        box.expandByPoint(point);
+      }
+      teethVertexCount += position.count;
+      return;
+    }
+    if (!isBody || !(object instanceof SkinnedMesh)) return;
+    const skeleton = object.skeleton;
+    const skinIndex = object.geometry.getAttribute("skinIndex");
+    const skinWeight = object.geometry.getAttribute("skinWeight");
+    if (!skeleton || !skinIndex || !skinWeight) return;
+    const bones = skeleton.bones;
+    for (let i = 0; i < position.count; i += 1) {
+      let joint = -1;
+      let best = 0;
+      const w0 = skinWeight.getX(i);
+      const w1 = skinWeight.getY(i);
+      const w2 = skinWeight.getZ(i);
+      const w3 = skinWeight.getW(i);
+      const j0 = skinIndex.getX(i);
+      const j1 = skinIndex.getY(i);
+      const j2 = skinIndex.getZ(i);
+      const j3 = skinIndex.getW(i);
+      if (w0 > best) {
+        best = w0;
+        joint = j0;
+      }
+      if (w1 > best) {
+        best = w1;
+        joint = j1;
+      }
+      if (w2 > best) {
+        best = w2;
+        joint = j2;
+      }
+      if (w3 > best) {
+        best = w3;
+        joint = j3;
+      }
+      const jointName = joint >= 0 ? (bones[joint]?.name ?? "") : "";
+      if (!ORIS_JOINT_RE.test(jointName)) continue;
+      point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
+      box.expandByPoint(point);
+      orisVertexCount += 1;
+    }
+  });
+  if (teethVertexCount === 0 || !Number.isFinite(box.min.x)) {
+    return {
+      kind: "whole_subject_fallback",
+      box: computeMeshBounds(root),
+      teethVertexCount,
+      orisVertexCount,
+      reason: "no fitted-teeth mesh matched (mesh name, raw node name, or material name) — refusing rather than falling back (#358)",
+    };
+  }
+  return { kind: "mouth_box", box, teethVertexCount, orisVertexCount };
+}
+
+/**
  * Resolve the camera frame for the requested focus. An unresolvable focus
  * THROWS (refusal, #358) — the station never degrades silently. The returned
  * `focusRegion` records which framing was actually used.
  */
 export function resolveFocus(
   root: Object3D,
-  focus: "eyes" | "head" | undefined,
+  focus: "eyes" | "head" | "mouth" | undefined,
   wholeBodyBounds: Box3,
 ): { focusRegion: FocusRegion; frameBounds: Box3 } {
   if (focus === "eyes") {
@@ -211,6 +320,25 @@ export function resolveFocus(
         neckPositionMeters: Math.round(derived.neckPositionMeters * 10000) / 10000,
         dominantAxis: derived.dominantAxis,
         matchedVertexCount: derived.matchedVertexCount,
+        boundsMeters: boxToRecord(derived.box),
+      },
+      frameBounds: derived.box,
+    };
+  }
+  if (focus === "mouth") {
+    const derived = deriveMouthFocusBounds(root);
+    if (derived.kind !== "mouth_box") {
+      throw new Error(
+        `focus=mouth unresolvable: ${derived.reason ?? "no mouth box derivable"} — refusing rather than falling back (#358)`,
+      );
+    }
+    return {
+      focusRegion: {
+        kind: "mouth_box",
+        derivation:
+          "union of the fitted-teeth mesh AABB and the AABB of body verts dominant-weighted to orbicularis-oris bones; never literal coordinates (D1)",
+        teethVertexCount: derived.teethVertexCount,
+        orisVertexCount: derived.orisVertexCount,
         boundsMeters: boxToRecord(derived.box),
       },
       frameBounds: derived.box,
