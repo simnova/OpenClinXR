@@ -503,6 +503,47 @@ export function lowerLipLandmark(
   return indices;
 }
 
+/**
+ * Lower-lip inner rim: landmark vertices whose bind-space mesh normal faces
+ * the front-shell centroid (dot product sign only, no thresholds). These are
+ * the mucosa-edge vertices the lower crowns face. Stated rule, fully
+ * procedural: existing landmark box + facing sign against the shell centroid.
+ */
+export function lowerLipInnerRim(
+  bodyBase: Float32Array,
+  bodyNormals: Float32Array,
+  bodyDeltaAa: Float32Array,
+  joints: ArrayLike<number>,
+  weights: Float32Array,
+  jointNodes: readonly GltfNode[],
+  teethBase: Float32Array,
+): number[] {
+  const landmark = lowerLipLandmark(bodyBase, bodyDeltaAa, joints, weights, jointNodes);
+  const shells = frontShellIndices(teethBase);
+  const shell = [...shells.upper, ...shells.lower];
+  let cx = 0;
+  let cy = 0;
+  let cz = 0;
+  for (const vertex of shell) {
+    cx += teethBase[vertex * 3] ?? 0;
+    cy += teethBase[vertex * 3 + 1] ?? 0;
+    cz += teethBase[vertex * 3 + 2] ?? 0;
+  }
+  const count = shell.length || 1;
+  const center: Vec3 = [cx / count, cy / count, cz / count];
+  const rim: number[] = [];
+  for (const vertex of landmark) {
+    const nx = bodyNormals[vertex * 3] ?? 0;
+    const ny = bodyNormals[vertex * 3 + 1] ?? 0;
+    const nz = bodyNormals[vertex * 3 + 2] ?? 0;
+    const dx = center[0] - (bodyBase[vertex * 3] ?? 0);
+    const dy = center[1] - (bodyBase[vertex * 3 + 1] ?? 0);
+    const dz = center[2] - (bodyBase[vertex * 3 + 2] ?? 0);
+    if (nx * dx + ny * dy + nz * dz > 0) rim.push(vertex);
+  }
+  return rim;
+}
+
 export type TeethVisemeTarget = {
   name: string;
   landmarkCount: number;
@@ -1701,7 +1742,7 @@ function bounds(values: Float32Array): { min: Vec3; max: Vec3 } {
   return { min, max };
 }
 
-type GlbJson = {
+export type GlbJson = {
   buffers: { byteLength: number }[];
   bufferViews: { buffer: number; byteOffset: number; byteLength: number; target?: number }[];
   accessors: Record<string, unknown>[];
@@ -1737,7 +1778,7 @@ function appendTargetBytes(
   return { bin: Buffer.concat([next, bytes]), accessor };
 }
 
-function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, values: Float32Array, count: number): void {
+export function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, values: Float32Array, count: number): void {
   const accessor = json.accessors[accessorIndex] as {
     bufferView: number;
     byteOffset?: number;
@@ -1763,7 +1804,7 @@ function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, val
   accessor.max = max;
 }
 
-function writeGlb(json: GlbJson, bin: Buffer, glbPath: string): void {
+export function writeGlb(json: GlbJson, bin: Buffer, glbPath: string): void {
   const jsonBytes = Buffer.from(JSON.stringify(json));
   const jsonPad = (4 - (jsonBytes.length % 4)) % 4;
   const jsonChunk = Buffer.concat([jsonBytes, Buffer.alloc(jsonPad, 0x20)]);

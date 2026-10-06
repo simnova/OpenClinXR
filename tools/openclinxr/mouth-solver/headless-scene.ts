@@ -8,10 +8,10 @@
  * isolated-subject-focus.ts:67-69).
  *
  * Fail-closed load gates mirror the factory state the step3 capture ran
- * against: one body mesh, one fitted-teeth mesh, the frozen head/jaw teeth
- * split (2314/2180, couple-fitted-teeth-to-lip-viseme.ts planTeethVisemeTargets),
- * and at least one jaw-dominant teeth vertex so the lab rebind
- * (humanoid-load-guard.ts:100-112) stays a no-op.
+ * against: one body mesh, one fitted-teeth mesh with 4494 vertices and the
+ * seven viseme targets in order, and at least one jaw-dominant teeth vertex
+ * so the lab rebind (humanoid-load-guard.ts:100-112) stays a no-op. Teeth
+ * skin weights are the producer's (rim transfer), so no frozen split applies.
  */
 import { type Node as GltfNode, NodeIO } from "@gltf-transform/core";
 import {
@@ -37,6 +37,7 @@ export type HeadlessMesh = {
   gltfMeshName: string;
   nodeName: string;
   base: Float32Array;
+  normals: Float32Array;
   targetDeltas: Float32Array[];
   targetNames: string[];
   joints: ArrayLike<number>;
@@ -144,6 +145,7 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
     skinned.bind(skeleton, new Matrix4());
     (nodeObjects.get(node) ?? root).add(skinned);
     skinnedNames.add(mesh.getName());
+    const normalAccessor = prim.getAttribute("NORMAL");
     const jointsAccessor = prim.getAttribute("JOINTS_0");
     const weightsAccessor = prim.getAttribute("WEIGHTS_0");
     if (!jointsAccessor || !weightsAccessor) throw new Error(`${mesh.getName()} has no skinning attributes`);
@@ -151,6 +153,7 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
       gltfMeshName: mesh.getName(),
       nodeName: node.getName(),
       base,
+      normals: normalAccessor ? floatArray(normalAccessor) : new Float32Array(0),
       targetDeltas: targets,
       targetNames,
       joints: indexArray(jointsAccessor),
@@ -187,23 +190,14 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
   const headIndex = teethSkinJoints.findIndex((name) => /^head$/i.test(name ?? ""));
   if (jawIndex < 0) throw new Error("teeth skin has no jaw joint");
   if (headIndex < 0) throw new Error("teeth skin has no head joint");
-  let jawWeighted = 0;
-  let headWeighted = 0;
-  let jawDominant = false;
   const teethCount = teeth.base.length / 3;
+  if (teethCount !== 4494) throw new Error(`teeth vertex count moved: ${teethCount}`);
+  let jawDominant = false;
   for (let vertex = 0; vertex < teethCount; vertex += 1) {
-    let jawSum = 0;
-    let headSum = 0;
-    for (let slot = 0; slot < 4; slot += 1) {
-      if (teeth.joints[vertex * 4 + slot] === jawIndex) jawSum += teeth.weights[vertex * 4 + slot] ?? 0;
-      if (teeth.joints[vertex * 4 + slot] === headIndex) headSum += teeth.weights[vertex * 4 + slot] ?? 0;
+    if (dominantJointIs(teeth.joints, teeth.weights, vertex, jawIndex)) {
+      jawDominant = true;
+      break;
     }
-    if (jawSum >= 0.5) jawWeighted += 1;
-    else if (headSum >= 0.5) headWeighted += 1;
-    if (dominantJointIs(teeth.joints, teeth.weights, vertex, jawIndex)) jawDominant = true;
-  }
-  if (jawWeighted !== 2180 || headWeighted !== 2314) {
-    throw new Error(`teeth split moved: head ${headWeighted} jaw ${jawWeighted} (frozen 2314/2180)`);
   }
   if (!jawDominant) {
     throw new Error("teeth have no jaw-dominant vertex: the lab rebind would fire, evaluator scene diverges");

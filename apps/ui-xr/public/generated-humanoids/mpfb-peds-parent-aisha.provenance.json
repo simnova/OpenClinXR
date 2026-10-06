@@ -70,12 +70,14 @@
   "2026-10-01: appended viseme_* POSITION morphs on openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh. Vertices with jaw weight >= 0.5 translate by that body viseme's jaw-descendant lower-lip landmark centroid; every other tooth vertex stays at delta 0. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that appended the morphs.",
   "2026-10-01: solved a teeth POSITION morph for every opening body viseme, including viseme_E, viseme_FF, viseme_nn, viseme_RR, viseme_TH, and viseme_U, from the front-shell gap. Each opening target is one rigid translation of the jaw-weighted vertices and one rigid translation of the head-weighted vertices. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
   "2026-10-01: opening teeth viseme POSITION deltas are per vertex. The rigid front-shell translation still seats the mean nearest-body gap in 0.5-2 mm. Arch-face crowns then take a posterior Z so lower lead versus jaw-descendant skin is at most -0.5 mm, and side crowns with base |x| > 12 mm also take an inward X. Upper Z is not moved forward of that rigid seat. viseme_PP stays zeros. viseme_sil stays off the teeth. No mouth-open target. Base POSITION, vertex count, and skin weights unchanged. outputSha256/outputBytes re-recorded in the same change that wrote the morphs.",
-  "2026-10-01: keeper UV skin sheet on mpfb_skin_peds_anxious_parent. Station tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent (albedo, normal, roughness, cavity). Albedo is the unwrapped body map, not the quad-sheet pore tile. Image buffers replaced in place; no full materialize, no Catmull-Clark, no vertex smooth. Base Color = albedo, normalTexture = normal, occlusionTexture and metallicRoughnessTexture share one image (R=cavity, G=roughness, B=255, metallicFactor 0). Blender 5.1.1 plane probe kept cavity. Fitted-teeth viseme target names and vertex count unchanged. outputSha256/outputBytes re-recorded in the same change."
+  "2026-10-01: keeper UV skin sheet on mpfb_skin_peds_anxious_parent. Station tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent (albedo, normal, roughness, cavity). Albedo is the unwrapped body map, not the quad-sheet pore tile. Image buffers replaced in place; no full materialize, no Catmull-Clark, no vertex smooth. Base Color = albedo, normalTexture = normal, occlusionTexture and metallicRoughnessTexture share one image (R=cavity, G=roughness, B=255, metallicFactor 0). Blender 5.1.1 plane probe kept cavity. Fitted-teeth viseme target names and vertex count unchanged. outputSha256/outputBytes re-recorded in the same change.",
+  "2026-10-06: seated the lower teeth on the lower-lip inner rim with tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --target-gap-mm 3.743. Per-vertex skin-weight and morph transfer from the rim (barycentric, top-4 renormalized; rigid arch mean by the 0.3 mm distortion rule), upper-arch deltas exactly 0, lower-arch base +9.073 mm so the rest rim gap equals the 3.743 mm now-minimum. Only teeth POSITION base, teeth morph, and teeth JOINTS_0/WEIGHTS_0 accessors changed (112 accessors identical). The pre-image 202ec91134a7 was itself produced by uncommitted scratch scripts (/tmp/muse-iter26..68-teeth.py, Oct 2-4) and is not re-derivable from repo tools. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "2026-10-06 coordinator ruling (travel): driven lower-shell centroid Y travel of 7.79 mm is the real jaw-coupled travel; the pre-image 12.52 mm baseline included morph-Y exaggeration (crowns yanked past the lip) that rim transfer removed while jaw bones, rig, and drive are byte-identical. Teeth track the rim within 0.7 mm (rim travel 7.07 mm). The evaluator pins 7.79 mm +/-10% as the new baseline."
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "2c3b3d8b7b24e6bfa3d19e83c6f79703ede51962c4d55b0c38021709a50b857f",
- "outputBytes": 39891344,
+ "outputSha256": "4e5113cf16ba7ca13d93ed3da0ff438992bedff5dd89866956533fc6790cf140",
+ "outputBytes": 40216256,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,
@@ -108,5 +110,7 @@
   ],
   "reproduction": "byte-identical to the shipped file",
   "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
- }
+ },
+ "preImageSha256": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
+ "preImageBytes": 40215924
 }

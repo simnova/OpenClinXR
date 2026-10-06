@@ -3,19 +3,40 @@
  *
  * Run: pnpm exec tsx tools/openclinxr/mouth-solver/evaluate.ts
  *   --glb <path> --track <metrics.json> --out <json>
+ * Probe: pnpm exec tsx tools/openclinxr/mouth-solver/evaluate.ts --probe [--glb <path>]
+ *   Static morph response per viseme at its runtime jaw angle (ms, no drive).
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { evaluate, readEvaluatorTrack } from "./mouth-evaluator.js";
+import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
 
-function flag(name: string): string {
+const DEFAULT_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
+
+function flag(name: string, fallback?: string): string {
   const index = process.argv.indexOf(name);
   const value = index >= 0 ? process.argv[index + 1] : undefined;
-  if (!value || value.startsWith("--")) throw new Error(`missing ${name} <value>`);
+  if (!value || value.startsWith("--")) {
+    if (fallback !== undefined) return fallback;
+    throw new Error(`missing ${name} <value>`);
+  }
   return value;
 }
 
 async function main(): Promise<void> {
+  if (process.argv.includes("--probe")) {
+    const probeGlb = flag("--glb", DEFAULT_GLB);
+    const { rows, visemes, wallMs } = await probePremise(probeGlb);
+    console.log("viseme jawDeg lipOuterZ rimZ teethLowerZ teethUpperZ rimJawShare teethJawShare (mm, 0..1)");
+    for (const row of rows) {
+      console.log(
+        `${row.viseme} ${row.jawDegrees} ${row.lipOuterZMm} ${row.rimZMm} ` +
+          `${row.teethLowerZMm} ${row.teethUpperZMm} ${row.rimJawShare} ${row.teethJawShare}`,
+      );
+    }
+    console.log(`visemes present: ${visemes.join(",")}`);
+    console.log(`wall clock: ${wallMs} ms`);
+    return;
+  }
   const glbPath = flag("--glb");
   const trackPath = flag("--track");
   const outPath = flag("--out");
@@ -42,6 +63,10 @@ async function main(): Promise<void> {
     );
   }
   console.log(`penetration frames: ${summary.penetrationFrames}`);
+  console.log(
+    `rim gap head-local mm (${summary.rimVertCount} rim verts): min ${summary.rimGapHeadLocalMinMm} ` +
+      `max ${summary.rimGapHeadLocalMaxMm} mean ${summary.rimGapHeadLocalMeanMm} now-min ${summary.rimGapNowMinMm}`,
+  );
   console.log(
     `ground truth dy: median ${summary.groundTruthDyMedianCropPx} px, max ${summary.groundTruthDyMaxCropPx} px ` +
       `(gate median <= 2, max <= 5)`,

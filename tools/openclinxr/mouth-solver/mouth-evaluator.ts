@@ -15,11 +15,13 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+import { JAW_TEETH_GAIN, applyJawOpenToRoot, jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue";
 import { Matrix4, Vector3 } from "three";
 import {
   frontShellIndices,
   frontShellMeanGap,
   LOWER_LIP_MIN_VERTS,
+  lowerLipInnerRim,
   lowerLipLandmark,
 } from "../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.js";
 import { type HeadlessMesh, headFocusCamera, loadHeadlessScene } from "./headless-scene.js";
@@ -29,6 +31,7 @@ import type {
   EvaluatorOutput,
   EvaluatorSummary,
   FrameRecord,
+  PremiseProbeRow,
   ToothSample,
 } from "./solver-types.js";
 
@@ -214,6 +217,20 @@ export async function evaluate(
   if (lipLandmark.length < LOWER_LIP_MIN_VERTS) {
     throw new Error(`lower-lip landmark has ${lipLandmark.length} verts, need ${LOWER_LIP_MIN_VERTS}`);
   }
+  if (scene.body.normals.length !== scene.body.base.length) {
+    throw new Error("body mesh has no NORMAL accessor for the inner-rim rule");
+  }
+  // Inner rim: landmark verts whose bind normals face the front shell.
+  const innerRim = lowerLipInnerRim(
+    scene.body.base,
+    scene.body.normals,
+    scene.body.targetDeltas[aaIndex] ?? new Float32Array(scene.body.base.length),
+    scene.body.joints,
+    scene.body.weights,
+    scene.body.jointNodes,
+    scene.teeth.base,
+  );
+  if (innerRim.length === 0) throw new Error("inner rim is empty: facing rule matched no landmark vertex");
 
   const runtime = createActorAudioRuntime({
     developmentFixture: true,
@@ -326,6 +343,7 @@ export async function evaluate(
   };
   const records: FrameRecord[] = [];
   const scratch = new Vector3();
+  const teethCentroidYs: number[] = [];
   for (let frame = 0; frame < track.frameCount; frame += 1) {
     const timeS = frame / track.frameRate;
     fakeContext.currentTime = timeS;
@@ -349,8 +367,28 @@ export async function evaluate(
     );
     const teethHead = headInverse(teethWorld, teethShells.lower);
     const lipHead = headInverse(bodyWorld, lipLandmark);
+    const rimHead = headInverse(bodyWorld, innerRim);
     const teethCentroid = centroidPacked(teethHead);
     const lipCentroid = centroidPacked(lipHead);
+    teethCentroidYs.push(teethCentroid[1]);
+    // Rim gap: mean head-local 3D distance from each lower-shell vertex to
+    // its nearest inner-rim vertex. Rim-only reference: no tongue or throat.
+    let rimGapSum = 0;
+    for (let i = 0; i < teethHead.length; i += 3) {
+      const tx = teethHead[i] ?? 0;
+      const ty = teethHead[i + 1] ?? 0;
+      const tz = teethHead[i + 2] ?? 0;
+      let best = Infinity;
+      for (let j = 0; j < rimHead.length; j += 3) {
+        const dx = (rimHead[j] ?? 0) - tx;
+        const dy = (rimHead[j + 1] ?? 0) - ty;
+        const dz = (rimHead[j + 2] ?? 0) - tz;
+        const dist = dx * dx + dy * dy + dz * dz;
+        if (dist < best) best = dist;
+      }
+      rimGapSum += Math.sqrt(best);
+    }
+    const rimGapMm = (rimGapSum / (teethHead.length / 3 || 1)) * 1000;
     // Forward gap reuses the factory surface metric the teeth were solved
     // against (frontShellMeanGap): mean lower-shell distance to the nearest
     // body vertex, signed by whether the lip sits in front (+Z).
@@ -396,6 +434,7 @@ export async function evaluate(
       projCyCropPx: round6(projCy),
       projDxCropPx: projDx === null ? null : round6(projDx),
       projDyCropPx: projDy === null ? null : round6(projDy),
+      rimGapHeadLocalMm: round6(rimGapMm),
     });
   }
 
@@ -433,6 +472,11 @@ export async function evaluate(
     const key = record.viseme ?? "none";
     upperByViseme[key] = Math.max(upperByViseme[key] ?? 0, record.upperTeethDisplacementHeadLocalMm);
   }
+  const rimGaps = records.map((record) => record.rimGapHeadLocalMm);
+  const rimMean = rimGaps.reduce((sum, value) => sum + value, 0) / rimGaps.length;
+  const rimNowGaps = records
+    .filter((record) => record.timeS >= nowFirst.startS && record.timeS < nowSecond.endS)
+    .map((record) => record.rimGapHeadLocalMm);
   const summary: EvaluatorSummary = {
     frames: records.length,
     forwardGapHeadLocalMinMm: round6(Math.min(...gaps)),
@@ -453,6 +497,14 @@ export async function evaluate(
       "geometrically x-static arch as lip opening changes which crowns are visible and lit. " +
       "cy tracks jaw-driven geometry to ~1px and carries the gate.",
     groundTruthFrames: dyAbs.length,
+    rimGapHeadLocalMinMm: round6(Math.min(...rimGaps)),
+    rimGapHeadLocalMaxMm: round6(Math.max(...rimGaps)),
+    rimGapHeadLocalMeanMm: round6(rimMean),
+    rimGapNowMinMm: round6(rimNowGaps.length === 0 ? NaN : Math.min(...rimNowGaps)),
+    rimVertCount: innerRim.length,
+    lowerTeethTravelHeadLocalMm: round6(
+      (Math.max(...teethCentroidYs) - Math.min(...teethCentroidYs)) * 1000,
+    ),
     upperDisplacementByVisemeMaxHeadLocalMm: Object.fromEntries(
       Object.entries(upperByViseme).map(([key, value]) => [key, round6(value)]),
     ),
@@ -486,4 +538,131 @@ function teethWorldSlice(world: Float32Array, indices: readonly number[]): Float
     out[i * 3 + 2] = world[vertex * 3 + 2] ?? 0;
   });
   return out;
+}
+
+/** OVR viseme tokens in canonical order; the probe reports the ones present. */
+const PROBE_OVR_TOKENS = [
+  "aa", "E", "I", "O", "U", "PP", "FF", "nn", "DD", "SS", "TH", "RR", "kk", "CH", "sil",
+] as const;
+
+function round3(value: number): number {
+  return Math.round(value * 1e3) / 1e3;
+}
+
+/**
+ * One-minute premise probe: static morph response per viseme at its runtime
+ * jaw angle. Poses the jaw with the runtime's own applier (no audio drive),
+ * then diffs posed-with-morph against posed-without at the same angle, in
+ * head-local z. No blends, no springs, no pixels: pure geometry in ms.
+ */
+export async function probePremise(glbPath: string): Promise<{
+  rows: PremiseProbeRow[];
+  visemes: string[];
+  wallMs: number;
+}> {
+  const wallStart = Date.now();
+  const scene = await loadHeadlessScene(glbPath);
+  const teethShells = frontShellIndices(scene.teeth.base);
+  const aaIndex = scene.body.targetNames.indexOf("viseme_aa");
+  if (aaIndex < 0) throw new Error("body has no viseme_aa target");
+  const lipLandmark = lowerLipLandmark(
+    scene.body.base,
+    scene.body.targetDeltas[aaIndex] ?? new Float32Array(scene.body.base.length),
+    scene.body.joints,
+    scene.body.weights,
+    scene.body.jointNodes,
+  );
+  if (scene.body.normals.length !== scene.body.base.length) {
+    throw new Error("body mesh has no NORMAL accessor for the inner-rim rule");
+  }
+  const innerRim = lowerLipInnerRim(
+    scene.body.base,
+    scene.body.normals,
+    scene.body.targetDeltas[aaIndex] ?? new Float32Array(scene.body.base.length),
+    scene.body.joints,
+    scene.body.weights,
+    scene.body.jointNodes,
+    scene.teeth.base,
+  );
+  const bodyDict = new Map(scene.body.targetNames.map((name, index) => [name, index]));
+  const teethDict = new Map(scene.teeth.targetNames.map((name, index) => [name, index]));
+  const teethJaw = scene.teeth.jointNodes.findIndex((joint) => /^jaw$/i.test(joint.getName() ?? ""));
+  const bodyJaw = scene.body.jointNodes.findIndex((joint) => /^jaw$/i.test(joint.getName() ?? ""));
+  const jawShare = (mesh: HeadlessMesh, jawIndex: number, indices: readonly number[]): number => {
+    if (jawIndex < 0 || indices.length === 0) return 0;
+    let sum = 0;
+    for (const vertex of indices) {
+      for (let slot = 0; slot < 4; slot += 1) {
+        if ((mesh.joints[vertex * 4 + slot] ?? -1) === jawIndex) sum += mesh.weights[vertex * 4 + slot] ?? 0;
+      }
+    }
+    return sum / indices.length;
+  };
+  const headZMean = (worldA: Float32Array, worldB: Float32Array, indices: readonly number[]): number => {
+    scene.root.updateMatrixWorld(true);
+    const inverse = new Matrix4().copy(scene.headBone.matrixWorld).invert();
+    // Directions only: drop translation so free vectors are not offset.
+    inverse.setPosition(0, 0, 0);
+    const point = new Vector3();
+    let sum = 0;
+    for (const vertex of indices) {
+      point
+        .set(
+          (worldB[vertex * 3] ?? 0) - (worldA[vertex * 3] ?? 0),
+          (worldB[vertex * 3 + 1] ?? 0) - (worldA[vertex * 3 + 1] ?? 0),
+          (worldB[vertex * 3 + 2] ?? 0) - (worldA[vertex * 3 + 2] ?? 0),
+        )
+        .applyMatrix4(inverse);
+      sum += point.z;
+    }
+    return (sum / (indices.length || 1)) * 1000;
+  };
+  const posePair = (
+    bodyName: string | null,
+    teethName: string | null,
+    jawRadians: number,
+  ): { bodyA: Float32Array; bodyB: Float32Array; teethA: Float32Array; teethB: Float32Array } => {
+    const zeroBody = scene.body.targetNames.map(() => 0);
+    const zeroTeeth = scene.teeth.targetNames.map(() => 0);
+    applyJawOpenToRoot(scene.root, jawRadians);
+    const bodyA = skinPositions(scene.body, morphedPositions(scene.body, zeroBody), boneMatrices(scene.body));
+    const teethA = skinPositions(scene.teeth, morphedPositions(scene.teeth, zeroTeeth), boneMatrices(scene.teeth));
+    if (bodyName !== null) {
+      const weights = scene.body.targetNames.map(() => 0);
+      weights[bodyDict.get(bodyName) ?? -1] = 1;
+      const withBody = skinPositions(scene.body, morphedPositions(scene.body, weights), boneMatrices(scene.body));
+      if (teethName !== null) {
+        const tweights = scene.teeth.targetNames.map(() => 0);
+        tweights[teethDict.get(teethName) ?? -1] = 1;
+        return {
+          bodyA,
+          bodyB: withBody,
+          teethA,
+          teethB: skinPositions(scene.teeth, morphedPositions(scene.teeth, tweights), boneMatrices(scene.teeth)),
+        };
+      }
+      return { bodyA, bodyB: withBody, teethA, teethB: teethA };
+    }
+    return { bodyA, bodyB: bodyA, teethA, teethB: teethA };
+  };
+  const rows: PremiseProbeRow[] = [];
+  for (const token of PROBE_OVR_TOKENS) {
+    const bodyName = `viseme_${token}`;
+    if (!bodyDict.has(bodyName)) continue;
+    const teethName = teethDict.has(bodyName) ? bodyName : null;
+    const jawRadians = jawOpenRadiansForPhoneme(token) * JAW_TEETH_GAIN;
+    const posed = posePair(bodyName, teethName, jawRadians);
+    rows.push({
+      viseme: bodyName,
+      jawDegrees: round3((jawRadians * 180) / Math.PI),
+      lipOuterZMm: round3(headZMean(posed.bodyA, posed.bodyB, lipLandmark)),
+      rimZMm: round3(headZMean(posed.bodyA, posed.bodyB, innerRim)),
+      teethLowerZMm: round3(headZMean(posed.teethA, posed.teethB, teethShells.lower)),
+      teethUpperZMm: round3(headZMean(posed.teethA, posed.teethB, teethShells.upper)),
+      rimJawShare: round3(jawShare(scene.body, bodyJaw, innerRim)),
+      teethJawShare: round3(jawShare(scene.teeth, teethJaw, teethShells.lower)),
+    });
+  }
+  applyJawOpenToRoot(scene.root, 0);
+  return { rows, visemes: rows.map((row) => row.viseme), wallMs: Date.now() - wallStart };
 }

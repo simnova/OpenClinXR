@@ -41,32 +41,6 @@ function targetWeights(cues: readonly PhonemeCue[], frames: readonly WeightFrame
 
 export type LipDynamicsSample = { weights: Record<string, number>; cueIndex: number; hardClosure: boolean };
 
-/**
- * Mouth-solver tuning table: per-target scale for teeth-mesh morph weights on
- * the prepared path, keyed by mesh target name (viseme_aa, viseme_E, ...).
- * Identity when empty, so untuned playback is unchanged. Per-target keying
- * keeps vowel residue at 1 while a vowel's own weight scales, which is what
- * lets a scale spare the upper arch when that viseme's deltas do. Set through
- * the runtime diagnostics (no export-surface change); the solver records the
- * chosen table with its provenance.
- */
-let preparedTeethVisemeScales: Record<string, number> = {};
-
-/** Scales are bounded 0..1.5; out-of-range values are refused. */
-export function setPreparedTeethVisemeScales(scales: Record<string, number>): void {
-  for (const [key, value] of Object.entries(scales)) {
-    if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1.5) {
-      throw new Error(`invalid-teeth-viseme-scale:${key}`);
-    }
-  }
-  preparedTeethVisemeScales = { ...preparedTeethVisemeScales, ...scales };
-}
-
-/** Restore the identity teeth scales. */
-export function resetPreparedTeethVisemeScales(): void {
-  preparedTeethVisemeScales = {};
-}
-
 export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: readonly WeightFrame[]) {
   const keys = keysFor(frames);
   let state: State = { tick: 0, weights: Object.fromEntries(keys.map((key) => [key, 0])), velocity: Object.fromEntries(keys.map((key) => [key, 0])) };
@@ -96,27 +70,7 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
   if (!cues?.length) return result;
   const frames = driveVisemeTimeline({ phonemes: cues, availableTargets: result.availableTargets }).frames;
   const sample = createLipDynamicsSampler(cues, frames).sample(timeS);
-  // Mouth-solver tuning: scale each teeth-mesh weight by its target's scale.
-  // Identity by default, so untuned playback is unchanged.
-  root.traverse((object) => {
-    const mesh = object as MorphTargetLike & { name?: string };
-    if (!mesh.morphTargetDictionary || !mesh.morphTargetInfluences?.length) return;
-    const weights = lipVisemeWeights(mesh, sample.weights);
-    // Same teeth predicate as the gain switch inside lipVisemeWeights.
-    const isTeeth = typeof mesh.name === "string" && mesh.name.toLowerCase().includes("teeth");
-    if (!isTeeth) {
-      applyVisemeWeights(mesh, weights);
-      return;
-    }
-    const scaled: Record<string, number> = {};
-    let touched = false;
-    for (const [name, weight] of Object.entries(weights)) {
-      const scale = preparedTeethVisemeScales[name] ?? 1;
-      scaled[name] = weight * scale;
-      if (scale !== 1) touched = true;
-    }
-    applyVisemeWeights(mesh, touched ? scaled : weights);
-  });
+  root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, sample.weights)); });
   const next = { ...result, weights: sample.weights };
   if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: sample };
   return next;

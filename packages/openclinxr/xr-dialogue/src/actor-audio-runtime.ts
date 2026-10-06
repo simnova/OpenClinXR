@@ -5,7 +5,6 @@ import { cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWavPure, hasPrepar
 import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
 import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
 import { mapRhubarbTrack } from "./viseme-cue-track.js";
-import { resetPreparedTeethVisemeScales, setPreparedTeethVisemeScales } from "./viseme-lip-dynamics.js";
 import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
 export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
 const host: Host = {};
@@ -352,8 +351,6 @@ const diagnostics = Object.freeze({
   pause(actorId: string) { requireDiagnostic(); return pausePreparedActorTurnAudio(actorId); },
   resume(actorId: string) { requireDiagnostic(); return resumePreparedActorTurnAudio(actorId); },
   sync(nowMs: number) { requireDiagnostic(); return syncPreparedActorAudio(nowMs); },
-  setTeethVisemeScales(scales: Record<string, number>) { requireDiagnostic(); return setPreparedTeethVisemeScales(scales); },
-  resetTeethVisemeScales() { requireDiagnostic(); return resetPreparedTeethVisemeScales(); },
   async markUserActivated(): Promise<void> { await activateContext(); },
   selectPreparationCues,
   sessionSnapshots() { requireDiagnostic(); return Array.from(sessions.values(), s => ({ actorId: s.actorId, generation: s.generation, nodeSerial: s.nodeSerial, startedWhen: s.startedWhen, playback: { ...s.player.snapshot() } })); },

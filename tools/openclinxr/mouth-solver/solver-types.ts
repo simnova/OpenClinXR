@@ -48,6 +48,8 @@ export type FrameRecord = {
   /** Signed projection error vs the step3 tooth sample, capture-crop pixels. */
   projDxCropPx: number | null;
   projDyCropPx: number | null;
+  /** Mean head-local 3D distance from lower shell to the inner lip rim, mm. */
+  rimGapHeadLocalMm: number;
 };
 
 export type NowGapPoint = {
@@ -77,6 +79,15 @@ export type EvaluatorSummary = {
   groundTruthDxMaxCropPx: number;
   groundTruthCxKnownLimitation: string;
   groundTruthFrames: number;
+  /** Inner-rim gap series stats, head-local mm. */
+  rimGapHeadLocalMinMm: number;
+  rimGapHeadLocalMaxMm: number;
+  rimGapHeadLocalMeanMm: number;
+  /** Minimum rim gap over the now frames (the solver rest target). */
+  rimGapNowMinMm: number;
+  rimVertCount: number;
+  /** Range of lower-shell centroid head-local Y over all frames: absolute jaw-coupled travel, mm. */
+  lowerTeethTravelHeadLocalMm: number;
   /** Max head-local upper-teeth displacement per drive viseme, mm. */
   upperDisplacementByVisemeMaxHeadLocalMm: Record<string, number>;
   wallClockMs: number;
@@ -104,4 +115,22 @@ export type EvaluateParams = {
   cameraPitchPerturbDegrees?: number;
   /** Force every teeth viseme morph influence to 0 in measurement (discrimination). */
   zeroTeethMorphs?: boolean;
+};
+
+/** One premise-probe row: static morph response at a viseme's runtime jaw angle. */
+export type PremiseProbeRow = {
+  viseme: string;
+  jawDegrees: number;
+  /** Mean head-local z of the body morph delta over the outer-lip landmark, mm. */
+  lipOuterZMm: number;
+  /** Mean head-local z of the body morph delta over the inner rim, mm. */
+  rimZMm: number;
+  /** Mean head-local z of the teeth morph delta over the lower shell, mm (0 without a teeth target). */
+  teethLowerZMm: number;
+  /** Mean head-local z of the teeth morph delta over the upper shell, mm. */
+  teethUpperZMm: number;
+  /** Mean jaw-joint weight over the rim set, 0..1. */
+  rimJawShare: number;
+  /** Mean jaw-joint weight over the lower shell, 0..1. */
+  teethJawShare: number;
 };
