@@ -94,6 +94,7 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
   const ordinaryLeadS = 2 / NATURAL_FREQUENCY;
   const sample = createLipDynamicsSampler(cues, frames).sample(compensatedSampleTimeS(cues, timeS, "lip", ordinaryLeadS, STEP_S));
   const weights = { ...sample.weights };
+  const contactPeakByKey = new Map<string, number>();
   cues.forEach((cue, index) => {
     if (!CONTACT.has(cue.phoneme)) return;
     const key = Object.keys(weights).find((name) => name.toLowerCase() === `viseme_${cue.phoneme.toLowerCase()}`);
@@ -101,7 +102,25 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
     const own = frames[index]?.weights[key] ?? 0;
     const shaped = own * contactEnvelope(timeS, cue.atSecond, cue.atSecond + (cue.durationSeconds ?? 0));
     if (shaped > (weights[key] ?? 0)) weights[key] = shaped;
+    const peak = contactEnvelope(timeS, cue.atSecond, cue.atSecond + (cue.durationSeconds ?? 0));
+    contactPeakByKey.set(key, Math.max(contactPeakByKey.get(key) ?? 0, peak));
   });
+  // Neighbour suppression under the contact plateau: the envelope carries
+  // the contact peak (max above) but leaves vowel follower residue blended
+  // onto it (PP=1 with E~0.6 holds the lips ~2mm apart at HEAD). Attenuate
+  // every key that is not an active contact target by (1-peak), where peak
+  // is the max contact envelope at this media time. Vowel-only tracks have
+  // peak 0, so the path is bit-identical there. The bound holds because both
+  // factors move <=0.25 per 30fps frame.
+  let contactPeak = 0;
+  for (const peak of contactPeakByKey.values()) contactPeak = Math.max(contactPeak, peak);
+  if (contactPeak > 0) {
+    const hold = 1 - contactPeak;
+    for (const key of Object.keys(weights)) {
+      if ((contactPeakByKey.get(key) ?? 0) > 0) continue;
+      weights[key] = (weights[key] ?? 0) * hold;
+    }
+  }
   const shapedSample = { ...sample, weights };
   root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, shapedSample.weights)); });
   const next = { ...result, weights };
