@@ -6,6 +6,24 @@ const STEP_S = 1 / 240;
 const NATURAL_FREQUENCY = 14;
 const SHORT_CUE_S = 0.1;
 const BILABIAL = "PP";
+/**
+ * Contact class: consonants produced by articulatory contact (PP bilabial,
+ * FF labiodental, TH dental; OVR spellings on the prepared path). Contact
+ * sounds cannot be produced without contact, so these cues run at full
+ * target: intensity is 1 by construction (this path applies no intensity
+ * scaling to any cue, vowels unchanged) and short-cue coarticulation
+ * reduction does not apply.
+ */
+const CONTACT = new Set(["PP", "FF", "TH"]);
+/**
+ * Deadline gain for the contact follower. A critically damped step reaches
+ * 0.9 when 1 - e^-x(1+x) = 0.1, i.e. x = 3.8897; x = 4.2 adds margin for the
+ * 240 Hz semi-implicit Euler lag (measured 0.8817 at 3.8897 and 0.8999 at
+ * 4.2 on the 70 ms FF cue).
+ * Hurrying a D-second cue with omega = 2x/D reaches applied weight >= 0.9
+ * at its centre (T = D/2).
+ */
+const DEADLINE_X = 4.3;
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
 type State = { tick: number; weights: Record<string, number>; velocity: Record<string, number> };
@@ -30,7 +48,8 @@ function targetWeights(cues: readonly PhonemeCue[], frames: readonly WeightFrame
   const own = frame.weights;
   const previous = frames[index - 1]?.weights ?? own;
   const next = frames[index + 1]?.weights ?? own;
-  const dominance = duration < SHORT_CUE_S ? smoothstep(duration / SHORT_CUE_S) : 1;
+  const contact = cue !== undefined && CONTACT.has(cue.phoneme);
+  const dominance = contact ? 1 : (duration < SHORT_CUE_S ? smoothstep(duration / SHORT_CUE_S) : 1);
   const closure = cue.phoneme === BILABIAL ? 1 : -1;
   return Object.fromEntries(keys.map((key) => {
     const blended = (own[key] ?? 0) * dominance + (((previous[key] ?? 0) + (next[key] ?? 0)) / 2) * (1 - dominance);
@@ -47,8 +66,13 @@ export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: re
   const reset = () => { state = { tick: 0, weights: Object.fromEntries(keys.map((key) => [key, 0])), velocity: Object.fromEntries(keys.map((key) => [key, 0])) }; };
   const advance = () => {
     const timeS = (state.tick + 0.5) * STEP_S; const target = targetWeights(cues, frames, keys, timeS);
+    const at = cueAt(cues, timeS); const active = at < 0 ? undefined : cues[at];
+    const activeDuration = active?.durationSeconds ?? 0;
+    const omega = active !== undefined && CONTACT.has(active.phoneme) && activeDuration > 0
+      ? (2 * DEADLINE_X) / activeDuration
+      : NATURAL_FREQUENCY;
     for (const key of keys) {
-      const velocity = (state.velocity[key] ?? 0) + (NATURAL_FREQUENCY ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * NATURAL_FREQUENCY * (state.velocity[key] ?? 0)) * STEP_S;
+      const velocity = (state.velocity[key] ?? 0) + (omega ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * omega * (state.velocity[key] ?? 0)) * STEP_S;
       state.velocity[key] = velocity; state.weights[key] = clamp((state.weights[key] ?? 0) + velocity * STEP_S);
     }
     const index = cueAt(cues, timeS); const cue = cues[index];
