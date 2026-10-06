@@ -28,9 +28,12 @@
  * Front shell: |x| <= 0.012, clear of the teeth median by 6 mm, and within
  * 4 mm of that row's max z, on the base POSITION accessor.
  *
- * Landmark, measured on the parent body primitive 0 before this morph existed:
- * |x| <= 0.03, y in [1.448, 1.488], morph delta y < -2 mm, and the dominant
- * joint is `jaw` or a descendant of `jaw`. It is not the translation.
+ * Lower-lip landmark (rig + viseme response, no body coordinates): dominant
+ * joint is `jaw` or a descendant of `jaw` and the viseme_aa bind delta y is
+ * below -2 mm. On the parent body that is 322 verts in a 48 mm band; the box
+ * it replaced (|x| <= 0.03, y in [1.448, 1.488]) selected 224 of them.
+ * Inner rim: landmark verts whose bind normals face the teeth front-shell
+ * centroid (dot sign only). 76 verts on the parent (old box-facing: 60).
  *
  * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts <glb> [--dry|--measure]
  */
@@ -47,9 +50,6 @@ type MorphTargetLike = {
   morphTargetInfluences: number[];
 };
 
-export const LOWER_LIP_ABS_X_MAX = 0.03;
-export const LOWER_LIP_Y_MIN = 1.448;
-export const LOWER_LIP_Y_MAX = 1.488;
 export const LOWER_LIP_DELTA_Y_BELOW = -0.002;
 export const LOWER_LIP_MIN_VERTS = 20;
 export const CLEAR_BAND_M = 0.006;
@@ -479,25 +479,62 @@ function solveWorldOffset(
 }
 
 export function lowerLipLandmark(
-  positions: Float32Array,
   deltas: Float32Array,
   joints: ArrayLike<number>,
   weights: ArrayLike<number>,
   jointNodes: readonly GltfNode[],
 ): number[] {
   const indices: number[] = [];
-  const count = positions.length / 3;
+  const count = deltas.length / 3;
   for (let vertex = 0; vertex < count; vertex += 1) {
-    const x = positions[vertex * 3] ?? 0;
-    const y = positions[vertex * 3 + 1] ?? 0;
-    if (Math.abs(x) > LOWER_LIP_ABS_X_MAX) continue;
-    if (y < LOWER_LIP_Y_MIN || y > LOWER_LIP_Y_MAX) continue;
     if ((deltas[vertex * 3 + 1] ?? 0) >= LOWER_LIP_DELTA_Y_BELOW) continue;
     const joint = jointNodes[dominantJoint(joints, weights, vertex)];
     if (!joint || !isJawDescendant(joint)) continue;
     indices.push(vertex);
   }
   return indices;
+}
+
+/**
+ * Lower-lip inner rim: landmark vertices whose bind-space mesh normal faces
+ * the front-shell centroid (dot product sign only, no thresholds). These are
+ * the mucosa-edge vertices the lower crowns face. Stated rule, fully
+ * procedural: jaw-descendant + aa-down response, then facing sign against
+ * the shell centroid. No body coordinates.
+ */
+export function lowerLipInnerRim(
+  bodyBase: Float32Array,
+  bodyNormals: Float32Array,
+  bodyDeltaAa: Float32Array,
+  joints: ArrayLike<number>,
+  weights: Float32Array,
+  jointNodes: readonly GltfNode[],
+  teethBase: Float32Array,
+): number[] {
+  const landmark = lowerLipLandmark(bodyDeltaAa, joints, weights, jointNodes);
+  const shells = frontShellIndices(teethBase);
+  const shell = [...shells.upper, ...shells.lower];
+  let cx = 0;
+  let cy = 0;
+  let cz = 0;
+  for (const vertex of shell) {
+    cx += teethBase[vertex * 3] ?? 0;
+    cy += teethBase[vertex * 3 + 1] ?? 0;
+    cz += teethBase[vertex * 3 + 2] ?? 0;
+  }
+  const count = shell.length || 1;
+  const center: Vec3 = [cx / count, cy / count, cz / count];
+  const rim: number[] = [];
+  for (const vertex of landmark) {
+    const nx = bodyNormals[vertex * 3] ?? 0;
+    const ny = bodyNormals[vertex * 3 + 1] ?? 0;
+    const nz = bodyNormals[vertex * 3 + 2] ?? 0;
+    const dx = center[0] - (bodyBase[vertex * 3] ?? 0);
+    const dy = center[1] - (bodyBase[vertex * 3 + 1] ?? 0);
+    const dz = center[2] - (bodyBase[vertex * 3 + 2] ?? 0);
+    if (nx * dx + ny * dy + nz * dz > 0) rim.push(vertex);
+  }
+  return rim;
 }
 
 export type TeethVisemeTarget = {
@@ -700,7 +737,6 @@ export async function measureTeethVisemeGaps(glbPath: string): Promise<{
     if (!name.toLowerCase().startsWith("viseme_")) continue;
     const deltas = pose.bodyTargets[index] ?? new Float32Array(pose.bodyPos.length);
     const landmarkCount = lowerLipLandmark(
-      pose.bodyPos,
       deltas,
       pose.bodyJoints,
       pose.bodyWeights,
@@ -1701,7 +1737,7 @@ function bounds(values: Float32Array): { min: Vec3; max: Vec3 } {
   return { min, max };
 }
 
-type GlbJson = {
+export type GlbJson = {
   buffers: { byteLength: number }[];
   bufferViews: { buffer: number; byteOffset: number; byteLength: number; target?: number }[];
   accessors: Record<string, unknown>[];
@@ -1737,7 +1773,7 @@ function appendTargetBytes(
   return { bin: Buffer.concat([next, bytes]), accessor };
 }
 
-function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, values: Float32Array, count: number): void {
+export function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, values: Float32Array, count: number): void {
   const accessor = json.accessors[accessorIndex] as {
     bufferView: number;
     byteOffset?: number;
@@ -1763,7 +1799,7 @@ function writeTargetBytes(json: GlbJson, bin: Buffer, accessorIndex: number, val
   accessor.max = max;
 }
 
-function writeGlb(json: GlbJson, bin: Buffer, glbPath: string): void {
+export function writeGlb(json: GlbJson, bin: Buffer, glbPath: string): void {
   const jsonBytes = Buffer.from(JSON.stringify(json));
   const jsonPad = (4 - (jsonBytes.length % 4)) % 4;
   const jsonChunk = Buffer.concat([jsonBytes, Buffer.alloc(jsonPad, 0x20)]);

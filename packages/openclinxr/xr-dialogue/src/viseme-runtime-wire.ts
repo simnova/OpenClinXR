@@ -26,6 +26,8 @@ import {
   lipVisemeWeights,
   type MorphTargetLike,
 } from "./viseme-morph-apply.js";
+import { applyPreparedJawDynamics } from "./prepared-jaw-dynamics.js";
+import { applyPreparedLipDynamics } from "./viseme-lip-dynamics.js";
 export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
   attachBakedCuesToSpeech,
@@ -36,8 +38,7 @@ export {
   type MouthCuesDocument,
 } from "./viseme-baked-cues.js";
 export { resolveMorphIndex } from "./viseme-morph-apply.js";
-export type { PhonemeCue } from "./viseme-timeline-drive.js";
-
+export { JAW_OPEN_TEETH_CLEAR_RADIANS, type PhonemeCue } from "./viseme-timeline-drive.js";
 /** Dialogue / gen-drive tokens → ARKit-style phoneme labels resolveVisemeTarget understands. */
 const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
   sil: "sil",
@@ -452,21 +453,25 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
       return media >= entry.atSecond && media < entry.atSecond + duration;
     });
     if (!cue) return silenceNamedVisemes(slot, driveNowMs);
-    return applyDialogueVisemeTimelineToRoot(slot.root, {
+    const result = applyDialogueVisemeTimelineToRoot(slot.root, {
       phonemeSequence: [cue.phoneme], progress: 0, nowMs: driveNowMs,
       bakedCues: [{ phoneme: cue.phoneme, atSecond: 0, ...(typeof cue.durationSeconds === "number" ? { durationSeconds: cue.durationSeconds } : {}) }],
     });
+    return applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
   }
   const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
-  return applyDialogueVisemeTimelineToRoot(slot.root, {
+  const result = applyDialogueVisemeTimelineToRoot(slot.root, {
     phonemeSequence: speech.phonemeSequence, progress, nowMs,
     ...(speech.bakedCues && speech.bakedCues.length > 0 ? { bakedCues: speech.bakedCues } : {}),
   });
+  const finalCue = speech.bakedCues?.[speech.bakedCues.length - 1];
+  const endS = finalCue === undefined ? 0 : finalCue.atSecond + (finalCue.durationSeconds ?? 0);
+  return applyPreparedJawDynamics(result, slot.root, speech.bakedCues, progress * endS, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
 }
 
 /**
  * Live scene-graph sample: read morphTargetInfluences by dictionary name.
- * Used by capture page.evaluate — unfakeable against driver self-report.
+ * Used by capture page.evaluate — driver self-report is not accepted as evidence.
  */
 export function sampleLiveVisemeInfluencesFromRoot(root: MorphRootLike): LiveVisemeInfluenceSample[] {
   const samples: LiveVisemeInfluenceSample[] = [];

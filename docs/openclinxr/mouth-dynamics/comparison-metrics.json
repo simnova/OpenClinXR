@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "openclinxr.mouth-dynamics-comparison.v1",
+  "frameRate": 30,
+  "reversalDefinition": "successive salient tooth-centroid dy steps >=3 px with opposite signs, <=3 frames apart; PP cue excluded",
+  "stillFrames": [
+    {
+      "viseme": "aa",
+      "controlFrame": 3,
+      "step3Frame": 3
+    },
+    {
+      "viseme": "E",
+      "controlFrame": 52,
+      "step3Frame": 38
+    },
+    {
+      "viseme": "O",
+      "controlFrame": 114,
+      "step3Frame": 90
+    },
+    {
+      "viseme": "PP",
+      "controlFrame": 45,
+      "step3Frame": 41
+    },
+    {
+      "viseme": "FF",
+      "controlFrame": 10,
+      "step3Frame": 75
+    }
+  ],
+  "stillTiming": "Each row uses its own cue source: control reconstructs its recorded stretched phoneme dwells; step3 uses runtime-prepared waveform Rhubarb cues.",
+  "rows": [
+    {
+      "mode": "control",
+      "medianPx": 1.1165117225811039,
+      "p90Px": 5.215876108598333,
+      "maxPx": 11.77579423631012,
+      "countOver3Px": 21,
+      "directionReversalsWithin100Ms": 4,
+      "ppCheck": {
+        "frameCount": 7,
+        "maxLipGapPx": 18,
+        "maxTeethCandidatePixels": 177,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    },
+    {
+      "mode": "step2",
+      "medianPx": 0.3867894380612621,
+      "p90Px": 6.999362584940441,
+      "maxPx": 14.552690071320523,
+      "countOver3Px": 37,
+      "directionReversalsWithin100Ms": 5,
+      "ppCheck": {
+        "frameCount": 2,
+        "maxLipGapPx": 8,
+        "maxTeethCandidatePixels": 133,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    },
+    {
+      "mode": "step3",
+      "medianPx": 0.5313245233591779,
+      "p90Px": 1.4331947345539442,
+      "maxPx": 3.1688199883147727,
+      "countOver3Px": 1,
+      "directionReversalsWithin100Ms": 0,
+      "ppCheck": {
+        "frameCount": 2,
+        "maxLipGapPx": 6,
+        "maxTeethCandidatePixels": 0,
+        "measurement": "decoded-video RGB in canonical PP window; mouth ROI x=540..600 y=585..615"
+      }
+    }
+  ]
+}

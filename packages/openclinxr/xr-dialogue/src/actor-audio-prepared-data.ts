@@ -2,7 +2,7 @@
 import { mouthCuesToPhonemeCues } from "./viseme-baked-cues.js";
 
 export type MouthCuesDocument = Parameters<typeof mouthCuesToPhonemeCues>[0];
-export type DiagnosticMouthCue = { phoneme: string; atSecond: number; durationSeconds: number };
+export type DiagnosticMouthCue = { phoneme: string; atSecond: number; durationSeconds: number; intensity?: number };
 
 function toDiagnosticCues(cues: ReturnType<typeof mouthCuesToPhonemeCues>): DiagnosticMouthCue[] {
   return cues.map((cue) => ({ phoneme: cue.phoneme, atSecond: cue.atSecond, durationSeconds: cue.durationSeconds ?? 0 }));

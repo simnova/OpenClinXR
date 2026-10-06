@@ -29,6 +29,8 @@ export type PhonemeCue = {
   atSecond: number;
   /** Per-phone dwell length in seconds. Omitted by callers that pre-time their own cues. */
   durationSeconds?: number;
+  /** Canonical prepared-audio cue RMS, when the source waveform is available. */
+  intensity?: number;
 };
 
 export type VisemeFrame = {
