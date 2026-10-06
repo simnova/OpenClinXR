@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
 import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
+import { contactEnvelope } from "./contact-envelope.js";
 import { driveVisemeTimeline } from "./viseme-timeline-drive.js";
 
 function rows(symbols: readonly string[]) { return symbols.map((symbol, index) => ({ startS: index * 0.1, endS: (index + 1) * 0.1, symbol })); }
@@ -45,8 +46,15 @@ describe("critically damped jaw sampler", () => {
     const at30 = run(30); const at60 = run(60);
     for (let index = 0; index < at30.length; index += 1) expect(Math.abs((at30[index] ?? 0) - (at60[index * 2] ?? 0))).toBeLessThanOrEqual(1 / 240 + 1e-9);
   });
-  it("closes PP by the cue midpoint", () => {
-    expect(createJawDynamicsSampler(track).sample(0.25).hardClosure).toBe(true);
+  it("holds PP target zero through the gate without a snap step", () => {
+    // The jaw snap is retired: the spring targets shut over [s-A, e] and the
+    // prepared-path envelope seals the output. The raw sampler never steps.
+    const sampler = createJawDynamicsSampler(track);
+    expect(sampler.sample(0.23).target).toBe(0);
+    const at30 = run(30);
+    for (let index = 1; index < at30.length; index += 1) {
+      expect(Math.abs((at30[index] ?? 0) - (at30[index - 1] ?? 0))).toBeLessThanOrEqual(0.25);
+    }
   });
   it("coarticulates sub-100 ms vowels", () => {
     expect(jawTargetForCue(track, 2)).toBeGreaterThan(0.25);
@@ -69,15 +77,21 @@ describe("canonical lip follower", () => {
     const at30 = createLipDynamicsSampler(lipCues, lipFrames); const at60 = createLipDynamicsSampler(lipCues, lipFrames);
     for (let frame = 0; frame <= 14; frame += 1) expect(Math.abs((at30.sample(frame / 30).weights.viseme_DD ?? 0) - (at60.sample(frame / 30).weights.viseme_DD ?? 0))).toBeLessThanOrEqual(lipDynamicsConstants.fixedStepS + 1e-9);
   });
-  it("reaches PP closure inside the cue", () => {
-    const sample = createLipDynamicsSampler(lipCues, lipFrames).sample(0.45);
-    expect(sample.hardClosure).toBe(true); expect(sample.weights).toEqual({ viseme_DD: 0, viseme_PP: 1, viseme_aa: 0 });
+  it("leaves PP closure to the envelope layer: the raw follower never snaps", () => {
+    // hardClosure still marks a bilabial cue past its midpoint; the applied
+    // peak comes from the anticipatory envelope in the prepared path, so the
+    // raw mid-cue weight stays inside one bounded frame step of its neighbours.
+    const at = (timeS: number) => createLipDynamicsSampler(lipCues, lipFrames).sample(timeS);
+    expect(at(0.45).hardClosure).toBe(true);
+    expect(at(0.45).weights.viseme_PP ?? NaN).toBeLessThanOrEqual(0.25);
+    const step = Math.abs((at(0.45).weights.viseme_PP ?? 0) - (at(0.45 - 1 / 30).weights.viseme_PP ?? 0));
+    expect(step).toBeLessThanOrEqual(0.25);
   });
-  it("has no non-bilabial single-frame weight change above 0.25 at 30 fps", () => {
+  it("has no single-frame weight change above 0.25 at 30 fps, contacts included", () => {
     const sampler = createLipDynamicsSampler(lipCues, lipFrames); let previous = sampler.sample(0).weights;
     for (let frame = 1; frame <= 11; frame += 1) {
       const timeS = frame / 30; const next = sampler.sample(timeS).weights;
-      if (!(timeS >= 0.4 && timeS < 0.48)) for (const key of Object.keys(next)) expect(Math.abs((next[key] ?? 0) - (previous[key] ?? 0))).toBeLessThanOrEqual(0.25);
+      for (const key of Object.keys(next)) expect(Math.abs((next[key] ?? 0) - (previous[key] ?? 0))).toBeLessThanOrEqual(0.25);
       previous = next;
     }
   });
@@ -93,25 +107,19 @@ function contactSampler(phoneme: string, durationS: number, intensity: number) {
   const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets: contactAvail });
   return createLipDynamicsSampler(cues, frames);
 }
-const CONTACT_KEY = { FF: "viseme_FF", TH: "viseme_TH", PP: "viseme_PP" } as const;
 
-describe("contact viseme deadline dynamics", () => {
-  it("forces contact intensity to 1: faint FF reaches the same centre weight as full FF", () => {
+describe("contact viseme envelope dynamics", () => {
+  it("drives faint and full FF identically through the follower; the envelope sets the peak", () => {
     const faint = contactSampler("FF", 0.07, 0.05).sample(0.335).weights.viseme_FF ?? NaN;
     const full = contactSampler("FF", 0.07, 1).sample(0.335).weights.viseme_FF ?? NaN;
     expect(faint).toBe(full);
-    expect(faint).toBeGreaterThanOrEqual(0.9);
   });
-  it("exempts contact cues from short-cue coarticulation: 70 ms FF ends at full target", () => {
-    const end = contactSampler("FF", 0.07, 0.1).sample(0.37).weights.viseme_FF ?? NaN;
-    expect(end).toBeGreaterThanOrEqual(0.98);
+  it("holds the envelope at full target through short contacts: 70 ms FF ends at 1", () => {
+    expect(contactEnvelope(0.37, 0.3, 0.37)).toBe(1);
   });
-  it("reaches applied weight 0.9 at the cue centre for contact durations 60-200 ms", () => {
+  it("reaches envelope 1 at the cue centre for contact durations 60-200 ms", () => {
     for (const durationS of [0.06, 0.07, 0.1, 0.2]) {
-      for (const phoneme of ["FF", "TH"] as const) {
-        const centre = contactSampler(phoneme, durationS, 0.1).sample(0.3 + durationS / 2).weights[CONTACT_KEY[phoneme]] ?? NaN;
-        expect(centre, `${phoneme} ${durationS}s`).toBeGreaterThanOrEqual(0.9);
-      }
+      expect(contactEnvelope(0.3 + durationS / 2, 0.3, 0.3 + durationS)).toBe(1);
     }
   });
   it("leaves vowels unchanged: short E keeps its coarticulated centre weight", () => {
@@ -123,9 +131,11 @@ describe("contact viseme deadline dynamics", () => {
     const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets: contactAvail });
     expect(createLipDynamicsSampler(cues, frames).sample(0.23).weights.viseme_E).toBeCloseTo(0.048505, 6);
   });
-  it("does not regress PP: faint short PP still snaps shut at its midpoint", () => {
+  it("brings faint short PP onto the envelope within one frame of cue onset", () => {
+    // The raw follower stays bounded; the applied peak (>= 0.9 within one
+    // frame of onset) is pinned on the prepared path in viseme-runtime-wire.
     const sample = contactSampler("PP", 0.06, 0.09).sample(0.33);
-    expect(sample.weights.viseme_PP).toBe(1);
+    expect(sample.weights.viseme_PP ?? NaN).toBeLessThanOrEqual(0.25);
     expect(sample.hardClosure).toBe(true);
   });
 });

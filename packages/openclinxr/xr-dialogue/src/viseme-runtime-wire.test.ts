@@ -70,6 +70,23 @@ function step3Cue(phoneme: string): Step3Cue {
   return cue;
 }
 
+/** Synthetic contact track: 62.5 ms TH between vowels (TH is absent from step3). */
+const thCues: Step3Cue[] = [
+  { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
+  { phoneme: "E", atSecond: 0.5, durationSeconds: 0.5, intensity: 0.8 },
+  { phoneme: "TH", atSecond: 1.0, durationSeconds: 0.0625, intensity: 0.1 },
+  { phoneme: "E", atSecond: 1.0625, durationSeconds: 0.5, intensity: 0.8 },
+  { phoneme: "sil", atSecond: 1.5625, durationSeconds: 0.5, intensity: 0.01 },
+];
+
+/** Contact-free vowel track for the bit-equal gate (binary-exact boundaries). */
+const vowelCues: Step3Cue[] = [
+  { phoneme: "sil", atSecond: 0, durationSeconds: 0.5, intensity: 0.4 },
+  { phoneme: "aa", atSecond: 0.5, durationSeconds: 0.5, intensity: 0.77 },
+  { phoneme: "E", atSecond: 1.0, durationSeconds: 0.5, intensity: 0.68 },
+  { phoneme: "O", atSecond: 1.5, durationSeconds: 0.5, intensity: 0.82 },
+];
+
 /** 30 fps frame-centre media instant, matching the followers' mid-tick convention. */
 function frameMediaS(n: number): number {
   return (n + 0.5) / 30;
@@ -104,7 +121,7 @@ function step3MeshLike() {
 type Step3Drive = { weights: Record<string, number>; jawFraction: number; tag: unknown };
 
 /** Full prepared-audio-clock runtime drive at one media instant. */
-function driveAt(mediaS: number): Step3Drive {
+function driveTrackAt(cues: Step3Cue[], mediaS: number, durationMs: number): Step3Drive {
   const mesh = step3MeshLike();
   const jaw = { name: "jaw", isBone: true, rotation: { x: 0 }, userData: {} as Record<string, unknown> };
   const root = {
@@ -116,13 +133,17 @@ function driveAt(mediaS: number): Step3Drive {
   };
   applyNamedSpeechVisemes({
     root,
-    activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 4130, bakedCues: step3Cues },
+    activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs, bakedCues: cues },
     mediaPositionSeconds: () => mediaS,
   });
   const tag = root.userData.openClinXrNamedVisemeDrive as
     | { weights?: Record<string, number>; jawFraction?: number }
     | undefined;
   return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN, tag };
+}
+
+function driveAt(mediaS: number): Step3Drive {
+  return driveTrackAt(step3Cues, mediaS, 4130);
 }
 
 describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  it("maps dialogue vowels to ARKit tokens that land on real viseme_* targets", () => {
@@ -394,6 +415,185 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       expect(driveAt(1.4).tag).toMatchObject({ jawDynamics: "canonical_ovr_fixed_step_critical_spring", lipDynamics: "canonical_ovr_fixed_step_critical_follower" });
+    });
+  });
+
+  describe("#contact-envelope — anticipatory symmetric contact envelope (no snap)", () => {
+    // Contact snaps (lip + jaw PP assignment) and the deadline hurry are
+    // retired: contact visemes rise, hold, and release through
+    // u(t) = S((t-(s-A))/A) * (1-S((t-e)/R)), A = R = 200 ms, evaluated in
+    // media time. Steepest smoothstep slope (1.5/unit) over 200 ms gives at
+    // most 1.5*(1/30)/0.2 = 0.25 applied change per 30 fps frame.
+    const CONTACT_BOUND = 0.25;
+    const CONTACT_REACHED = 0.9;
+
+    function maxStep(weights: { weights: Record<string, number> }[], key: string): { max: number; at: number } {
+      let max = 0;
+      let at = -1;
+      for (let n = 1; n < weights.length; n += 1) {
+        const step = Math.abs((weights[n]?.weights[key] ?? 0) - (weights[n - 1]?.weights[key] ?? 0));
+        if (step > max) { max = step; at = n; }
+      }
+      return { max, at };
+    }
+
+    function contactOnset(
+      drive: (mediaS: number) => { weights: Record<string, number> },
+      key: string,
+      cueStartS: number,
+    ): { cueFrame: number; onset: number } {
+      const cueFrame = Math.floor(cueStartS * 30);
+      let onset = -1;
+      for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
+        if ((drive(frameMediaS(n)).weights[key] ?? 0) >= CONTACT_REACHED) { onset = n; break; }
+      }
+      return { cueFrame, onset };
+    }
+
+    it("caps PP per-frame weight change at 0.25 on the step3 track", () => {
+      const series = Array.from({ length: 124 }, (_, n) => driveAt(frameMediaS(n)));
+      const { max, at } = maxStep(series, "viseme_PP");
+      expect(max, `PP max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+    });
+
+    it("caps FF per-frame weight change at 0.25 on the step3 track", () => {
+      const series = Array.from({ length: 124 }, (_, n) => driveAt(frameMediaS(n)));
+      const { max, at } = maxStep(series, "viseme_FF");
+      expect(max, `FF max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+    });
+
+    it("caps TH per-frame weight change at 0.25 on a synthetic cue", () => {
+      // Step3 carries no TH cue; synthetic 62.5 ms contact between vowels.
+      // Binary-exact boundaries (halves/sixteenths): cue-boundary floats must
+      // chain exactly or bakedCuesAdmissible drops the track (1.3+0.4 > 1.7).
+      const series = Array.from({ length: 62 }, (_, n) => driveTrackAt(thCues, frameMediaS(n), 2130));
+      const { max, at } = maxStep(series, "viseme_TH");
+      expect(max, `TH max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+    });
+
+    it("caps jaw per-frame aperture change at 0.25 on the step3 track", () => {
+      const series = Array.from({ length: 124 }, (_, n) => driveAt(frameMediaS(n)));
+      let max = 0;
+      let at = -1;
+      for (let n = 1; n < series.length; n += 1) {
+        const step = Math.abs((series[n]?.jawFraction ?? 0) - (series[n - 1]?.jawFraction ?? 0));
+        if (step > max) { max = step; at = n; }
+      }
+      expect(max, `jaw max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+    });
+
+    it("reaches PP >= 0.9 within one frame of cue onset", () => {
+      const pp = step3Cue("PP");
+      const { cueFrame, onset } = contactOnset((mediaS) => driveAt(mediaS), "viseme_PP", pp.atSecond);
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_PP ?? 0).toBeLessThan(CONTACT_REACHED);
+      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+    });
+
+    it("reaches FF >= 0.9 within one frame of cue onset", () => {
+      const ff = step3Cue("FF");
+      const { cueFrame, onset } = contactOnset((mediaS) => driveAt(mediaS), "viseme_FF", ff.atSecond);
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
+      expect(driveAt(centreS).weights.viseme_FF ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+    });
+
+    it("reaches TH >= 0.9 within one frame of cue onset (synthetic)", () => {
+      const th = thCues.find((entry) => entry.phoneme === "TH");
+      if (!th) throw new Error("synthetic track has no TH cue");
+      const { cueFrame, onset } = contactOnset(
+        (mediaS) => driveTrackAt(thCues, mediaS, 2130),
+        "viseme_TH",
+        th.atSecond,
+      );
+      expect(onset).toBeGreaterThanOrEqual(0);
+      expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
+      const centreS = th.atSecond + (th.durationSeconds ?? 0) / 2;
+      expect(driveTrackAt(thCues, centreS, 2130).weights.viseme_TH ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+    });
+
+    it("releases PP and FF within the per-frame bound", () => {
+      for (const phoneme of ["PP", "FF"] as const) {
+        const cue = step3Cue(phoneme);
+        const key = `viseme_${phoneme}`;
+        const endFrame = Math.floor((cue.atSecond + (cue.durationSeconds ?? 0)) * 30);
+        let max = 0;
+        let at = -1;
+        for (let n = endFrame - 2; n <= endFrame + 10; n += 1) {
+          const step = Math.abs(
+            (driveAt(frameMediaS(n)).weights[key] ?? 0) - (driveAt(frameMediaS(n - 1)).weights[key] ?? 0),
+          );
+          if (step > max) { max = step; at = n; }
+        }
+        expect(max, `${phoneme} release max|dw| at frame ${at}`).toBeLessThanOrEqual(CONTACT_BOUND);
+      }
+    });
+
+    it("holds the jaw shut through every PP media frame", () => {
+      const pp = step3Cue("PP");
+      const endS = pp.atSecond + (pp.durationSeconds ?? 0);
+      const shut: number[] = [];
+      for (let n = 0; n < 124; n += 1) {
+        const mediaS = frameMediaS(n);
+        if (mediaS >= pp.atSecond && mediaS < endS) shut.push(n);
+      }
+      expect(shut.length).toBeGreaterThan(0);
+      for (const n of shut) expect(driveAt(frameMediaS(n)).jawFraction).toBe(0);
+    });
+
+    it("keeps vowel weights bit-equal on a contact-free track", () => {
+      // HEAD (f0e5a5968) reference rows: no contact cue anywhere, so the
+      // envelope, snap-removal, hurry-removal, and prefetch changes never
+      // engage and every float must reproduce exactly.
+      const expected: Record<number, { weights: Record<string, number>; jawFraction: number }> = {
+        0: {
+          weights: { viseme_DD: 0, viseme_E: 0, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.6603444828686549 },
+          jawFraction: 0,
+        },
+        10: {
+          weights: { viseme_DD: 0, viseme_E: 0, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.9903439620537463 },
+          jawFraction: 0.2377557968686226,
+        },
+        16: {
+          weights: { viseme_DD: 0, viseme_E: 0, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.7548930541249602, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.2440783486928386 },
+          jawFraction: 0.5186163779985098,
+        },
+        20: {
+          weights: { viseme_DD: 0, viseme_E: 0, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.9394604058475537, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.0603099009589921 },
+          jawFraction: 0.6261972734177524,
+        },
+        30: {
+          weights: { viseme_DD: 0, viseme_E: 0.6603444828686549, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.33815992466517364, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.0014902058418147122 },
+          jawFraction: 0.45033032864452954,
+        },
+        32: {
+          weights: { viseme_DD: 0, viseme_E: 0.8252643436536765, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.17402840296353336, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.0007047109301922053 },
+          jawFraction: 0.4164219186644419,
+        },
+        40: {
+          weights: { viseme_DD: 0, viseme_E: 0.9903439620537463, viseme_FF: 0, viseme_O: 0, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.009620849949304342, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.00003506183208392017 },
+          jawFraction: 0.4605208035538193,
+        },
+        46: {
+          weights: { viseme_DD: 0, viseme_E: 0.2440783486928386, viseme_FF: 0, viseme_O: 0.7548930541249602, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.0010248964630081823, viseme_nn: 0, viseme_sil: 0, viseme_silence: 0.0000036874549232199447 },
+          jawFraction: 0.5823576564709882,
+        },
+        50: {
+          weights: { viseme_DD: 0, viseme_E: 0.0603099009589921, viseme_FF: 0, viseme_O: 0.9394604058475537, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.00022886878578936526, viseme_nn: 0, viseme_sil: 0, viseme_silence: 8.214529786530825e-7 },
+          jawFraction: 0.6321428394256398,
+        },
+        59: {
+          weights: { viseme_DD: 0, viseme_E: 0.00216611469321202, viseme_FF: 0, viseme_O: 0.46049465927602695, viseme_PP: 0, viseme_SS: 0, viseme_TH: 0, viseme_aa: 0.000007812396648985716, viseme_nn: 0, viseme_sil: 0, viseme_silence: 2.8003330821145872e-8 },
+          jawFraction: 0.6809562942464291,
+        },
+      };
+      for (const [frame, reference] of Object.entries(expected)) {
+        const actual = driveTrackAt(vowelCues, frameMediaS(Number(frame)), 2000);
+        expect(actual.weights, `frame ${frame} weights`).toEqual(reference.weights);
+        expect(actual.jawFraction, `frame ${frame} jaw`).toBe(reference.jawFraction);
+      }
     });
   });
 });

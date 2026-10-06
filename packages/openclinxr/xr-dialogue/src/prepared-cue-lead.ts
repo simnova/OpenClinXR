@@ -9,28 +9,34 @@
  *   2/jawDynamicsConstants.naturalFrequency by the jaw call site.
  * - ordinary lip follower (w = 14): tau_lip = 2/14 = 1/7 s. Passed in as
  *   2/lipDynamicsConstants.naturalFrequency by the lip call site.
- * - PP snap assigns the exact closure target with no dynamics: tau_pp = 0.
- * - FF/TH deadline follower runs hurried at omega_c = 2X/D with X =
- *   DEADLINE_X below: tau_c = 2/omega_c = D/X (step3 FF: 0.07/6 ~= 11.7 ms).
+ * - PP: lead 0. The contact shape comes from the anticipatory symmetric
+ *   envelope (contact-envelope.ts, evaluated in media time), not from follower
+ *   timing, so PP needs no lead of its own.
+ * - FF/TH: lead D/X (step3 FF: 0.07/6 ~= 11.7 ms), the retired deadline
+ *   follower's time constant, kept so the follower residual meets the contact
+ *   at the same phase it always has.
  *
- * Contact precedence: the compensated sample never lands inside (or past) a
- * contact cue that starts after the media time. Prefetching an ordinary lead
- * across a 60-70 ms contact would show post-contact decay before the contact
- * (measured: FF 0.94 one frame before its cue); the sample holds at one fixed
- * step before the contact start instead. No signature changes: callers pass
- * the cues and media time they already hold.
+ * Contact precedence: retired. The compensated sample used to hold at one fixed
+ * step before a contact cue starting inside the lead window, because
+ * prefetching an ordinary lead across a 60-70 ms contact showed post-contact
+ * decay before the contact (measured: FF 0.94 one frame before its cue). The
+ * anticipatory symmetric contact envelope (contact-envelope.ts) now bounds
+ * every contact step to 0.25 per 30 fps frame, so prefetching INTO a contact
+ * reads as smooth anticipation instead of a jump, and the hold is removed for
+ * contact cues. Vowel cues never triggered the hold, so the vowel path is
+ * untouched. No signature changes: callers pass the cues and media time they
+ * already hold.
  */
 
 export type LeadChannel = "lip" | "jaw";
 
 /**
- * Deadline gain for the contact follower. A critically damped step reaches
- * 0.9 when 1 - e^-x(1+x) = 0.1, i.e. x = 3.8897; x = 6.0 hurries the steep
- * end of the lip-travel curve onto the contact (measured on the 70 ms FF:
- * x = 4.3 centres at 0.905 with a 1.09 mm edge gap, x = 5.5 centres at
- * 0.947 with a 0.51 mm gap, x = 6.0 centres at ~0.97 inside the gate).
- * Hurrying a D-second cue with omega = 2x/D reaches applied weight >= 0.9
- * at its centre (T = D/2).
+ * Divisor for the FF/TH contact lead. Retired tuning note: a critically damped
+ * step reaches 0.9 at x = 3.8897 and x = 6.0 hurried the steep end of the
+ * lip-travel curve onto short contacts; the anticipatory symmetric envelope
+ * (contact-envelope.ts) now carries the contact shape instead. DEADLINE_X
+ * stays as the single source for the FF/TH per-channel lead D/X below, whose
+ * value is unchanged.
  */
 export const DEADLINE_X = 6.0;
 
@@ -54,7 +60,7 @@ function cueIndexAt(cues: readonly CueLike[], timeS: number): number {
 /**
  * Media time -> follower sample time for one channel. Pure function of its
  * inputs; the followers stay on their original cue arrays, so their tuning
- * (gains, deadline hurry, snap) is untouched.
+ * (gains, envelope attack/release) is untouched.
  */
 export function compensatedSampleTimeS(
   cues: readonly CueLike[],
@@ -63,16 +69,9 @@ export function compensatedSampleTimeS(
   ordinaryLeadS: number,
   fixedStepS = 1 / 240,
 ): number {
+  void fixedStepS;
   const active = cueIndexAt(cues, timeS);
   const own = active < 0 ? null : contactLeadS(channel, cues[active]?.phoneme ?? "", cues[active]?.durationSeconds ?? 0);
   const lead = own ?? ordinaryLeadS;
-  let sample = timeS + lead;
-  const contacts = channel === "lip" ? LIP_CONTACT : JAW_CONTACT;
-  for (const cue of cues) {
-    if (!contacts.has(cue.phoneme)) continue;
-    if (cue.atSecond > timeS && cue.atSecond <= timeS + lead) {
-      sample = Math.min(sample, cue.atSecond - fixedStepS);
-    }
-  }
-  return Math.max(0, sample);
+  return Math.max(0, timeS + lead);
 }

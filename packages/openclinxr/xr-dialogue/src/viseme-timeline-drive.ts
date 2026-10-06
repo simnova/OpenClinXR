@@ -36,7 +36,8 @@ export type PhonemeCue = {
 /**
  * Prepared-path cue timing is compensated per channel inside the samplers
  * (see prepared-cue-lead.ts): jaw tau = 2/6 s, ordinary lip tau = 2/14 s,
- * PP snap 0, FF/TH deadline D/6. No global lead lives here.
+ * PP lead 0, FF/TH lead D/6; the contact peak itself comes from the
+ * anticipatory symmetric envelope (contact-envelope.ts). No global lead lives here.
  */
 
 export type VisemeFrame = {

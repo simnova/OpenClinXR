@@ -3,6 +3,7 @@ import { createJawDynamicsSampler, jawDynamicsConstants, type JawDynamicsSample 
 import type { VisemeCue } from "./viseme-cue-track.js";
 import type { PhonemeCue } from "./viseme-timeline-drive.js";
 import { compensatedSampleTimeS } from "./prepared-cue-lead.js";
+import { CONTACT_ATTACK_S, contactSmoothstep } from "./contact-envelope.js";
 
 const OVR = new Set<VisemeCue["viseme"]>(["sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U"]);
 
@@ -16,11 +17,31 @@ export function samplePreparedJawDynamics(cues: readonly PhonemeCue[] | undefine
     track.push({ startS: cue.atSecond, endS: cue.atSecond + duration, viseme: cue.phoneme as VisemeCue["viseme"], intensity: typeof cue.intensity === "number" ? cue.intensity : 1 });
     previousEnd = cue.atSecond + duration;
   }
-  // Per-channel lead: jaw tau = 2/w (w = jaw natural frequency); PP snaps
-  // with 0 lead. w stays 6: the aperture reads 0 through PP media frames, so
-  // the jaw opens only after the preceding closure ends.
+  // Per-channel lead: jaw tau = 2/w (w = jaw natural frequency); PP keeps
+  // 0 lead. w stays 6. The old PP snap (aperture forced to 0 in one tick) is
+  // retired: the spring targets shut over [s-A, e] (see viseme-jaw-dynamics)
+  // and the envelope below seals the output exactly through the cue, so the
+  // jaw still reads 0 on every PP media frame and opens only after the
+  // preceding closure ends.
   const ordinaryLeadS = 2 / jawDynamicsConstants.naturalFrequency;
   return createJawDynamicsSampler(track).sample(compensatedSampleTimeS(cues, timeS, "jaw", ordinaryLeadS));
+}
+
+/**
+ * PP closure envelope at media time: the anticipatory rise of
+ * contact-envelope.ts without its release (the release follows the
+ * lead-compensated spring, which reopens within one frame). Holds exactly 1
+ * over the cue, so the jaw reads exactly 0 on every PP media frame.
+ */
+function ppClosureEnvelope(mediaS: number, cues: readonly PhonemeCue[]): number {
+  let closure = 0;
+  for (const cue of cues) {
+    if (cue.phoneme !== "PP") continue;
+    if (mediaS > cue.atSecond + (cue.durationSeconds ?? 0)) continue;
+    const rise = contactSmoothstep((mediaS - (cue.atSecond - CONTACT_ATTACK_S)) / CONTACT_ATTACK_S);
+    if (rise > closure) closure = rise;
+  }
+  return closure;
 }
 
 type JawResult = { jawOpenRadians: number; jawFraction: number; jawBonesTouched: number };
@@ -32,8 +53,9 @@ export function applyPreparedJawDynamics<T extends JawResult>(
 ): T {
   const sample = samplePreparedJawDynamics(cues, timeS);
   if (!sample) return result;
-  const jawOpenRadians = sample.aperture * clearRadians * teethGain;
-  const next = { ...result, jawOpenRadians, jawFraction: sample.aperture, jawBonesTouched: applyJaw(root, jawOpenRadians) };
+  const aperture = sample.aperture * (1 - ppClosureEnvelope(timeS, cues ?? []));
+  const jawOpenRadians = aperture * clearRadians * teethGain;
+  const next = { ...result, jawOpenRadians, jawFraction: aperture, jawBonesTouched: applyJaw(root, jawOpenRadians) };
   const prior = root.userData?.openClinXrNamedVisemeDrive;
   if (root.userData && prior && typeof prior === "object") root.userData.openClinXrNamedVisemeDrive = { ...prior, ...next, jawDynamics: "canonical_ovr_fixed_step_critical_spring", jawDynamicsSample: { ...sample } };
   return next;

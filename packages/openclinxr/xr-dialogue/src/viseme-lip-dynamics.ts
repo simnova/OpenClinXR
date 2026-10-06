@@ -1,7 +1,8 @@
 /** Deterministic fixed-step follower for prepared canonical viseme weights. */
 import { driveVisemeTimeline, type PhonemeCue } from "./viseme-timeline-drive.js";
 import { applyVisemeWeights, lipVisemeWeights, type MorphTargetLike } from "./viseme-morph-apply.js";
-import { compensatedSampleTimeS, DEADLINE_X } from "./prepared-cue-lead.js";
+import { compensatedSampleTimeS } from "./prepared-cue-lead.js";
+import { contactEnvelope } from "./contact-envelope.js";
 
 const STEP_S = 1 / 240;
 const NATURAL_FREQUENCY = 14;
@@ -17,14 +18,11 @@ const BILABIAL = "PP";
  */
 const CONTACT = new Set(["PP", "FF", "TH"]);
 /**
- * Deadline gain for the contact follower (value in prepared-cue-lead.ts, the
- * single source; the per-channel FF/TH lead D/X derives from it). A
- * critically damped step reaches 0.9 when 1 - e^-x(1+x) = 0.1, i.e.
- * x = 3.8897; x = 6.0 hurries the steep end of the lip-travel curve onto the
- * contact (measured on the 70 ms FF: x = 4.3 centres at 0.905 with a
- * 1.09 mm edge gap, x = 5.5 centres at 0.947 with a 0.51 mm gap, x = 6.0
- * centres at ~0.97 inside the gate). Hurrying a D-second cue with
- * omega = 2x/D reaches applied weight >= 0.9 at its centre (T = D/2).
+ * Contact shape used to hurry here (deadline follower) or snap (PP); both are
+ * retired. The follower below runs every cue at the ordinary rate and the
+ * contact peak comes from the anticipatory symmetric envelope applied in
+ * applyPreparedLipDynamics (media time, contact-envelope.ts), which reaches
+ * the same shape on the same cue with max 0.25 change per 30 fps frame.
  */
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
@@ -68,30 +66,11 @@ export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: re
   const reset = () => { state = { tick: 0, weights: Object.fromEntries(keys.map((key) => [key, 0])), velocity: Object.fromEntries(keys.map((key) => [key, 0])) }; };
   const advance = () => {
     const timeS = (state.tick + 0.5) * STEP_S;
-    const at = cueAt(cues, timeS); const active = at < 0 ? undefined : cues[at];
-    const activeDuration = active?.durationSeconds ?? 0;
-    const fast = active !== undefined && CONTACT.has(active.phoneme) && activeDuration > 0;
-    const omega = fast ? (2 * DEADLINE_X) / activeDuration : NATURAL_FREQUENCY;
-    // Two half-steps on the hurried contact advance: at omega*h above ~0.6
-    // the 240 Hz semi-implicit Euler overshoots into the clamp and rings
-    // (measured on 60 ms cues at x = 6.0); halving h restores accuracy.
-    // The vowel path keeps a single step with identical operations.
-    const sub = fast ? 2 : 1;
-    for (let step = 0; step < sub; step += 1) {
-      const subTimeS = (state.tick + (step + 0.5) / sub) * STEP_S;
-      const target = targetWeights(cues, frames, keys, subTimeS);
-      const h = STEP_S / sub;
-      for (const key of keys) {
-        const velocity = (state.velocity[key] ?? 0) + (omega ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * omega * (state.velocity[key] ?? 0)) * h;
-        state.velocity[key] = velocity; state.weights[key] = clamp((state.weights[key] ?? 0) + velocity * h);
-      }
-    }
-    const index = cueAt(cues, timeS); const cue = cues[index];
-    if (cue?.phoneme === BILABIAL) {
-      // Bilabial snap: the contact target is exact (dominance 1 with full
-      // closure), so the mid-tick target equals every substep target.
-      const snap = targetWeights(cues, frames, keys, timeS);
-      for (const key of keys) { state.weights[key] = snap[key] ?? 0; state.velocity[key] = 0; }
+    const target = targetWeights(cues, frames, keys, timeS);
+    const h = STEP_S;
+    for (const key of keys) {
+      const velocity = (state.velocity[key] ?? 0) + (NATURAL_FREQUENCY ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * NATURAL_FREQUENCY * (state.velocity[key] ?? 0)) * h;
+      state.velocity[key] = velocity; state.weights[key] = clamp((state.weights[key] ?? 0) + velocity * h);
     }
     state.tick += 1;
   };
@@ -108,13 +87,25 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
   if (!cues?.length) return result;
   const frames = driveVisemeTimeline({ phonemes: cues, availableTargets: result.availableTargets }).frames;
   // Per-channel lead: ordinary lip tau = 2/w (w = NATURAL_FREQUENCY); PP
-  // snaps with 0 lead and FF/TH hurry with D/X. Contact precedence keeps the
-  // sample out of contacts that start after the media time.
+  // keeps 0 lead and FF/TH keep D/X (prepared-cue-lead.ts, unchanged). The
+  // contact SHAPE no longer comes from a hurried follower or a snap: the
+  // anticipatory symmetric envelope below (media time) carries it, and the
+  // relaxed prefetch lets the follower meet the contact smoothly.
   const ordinaryLeadS = 2 / NATURAL_FREQUENCY;
   const sample = createLipDynamicsSampler(cues, frames).sample(compensatedSampleTimeS(cues, timeS, "lip", ordinaryLeadS, STEP_S));
-  root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, sample.weights)); });
-  const next = { ...result, weights: sample.weights };
-  if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: sample };
+  const weights = { ...sample.weights };
+  cues.forEach((cue, index) => {
+    if (!CONTACT.has(cue.phoneme)) return;
+    const key = Object.keys(weights).find((name) => name.toLowerCase() === `viseme_${cue.phoneme.toLowerCase()}`);
+    if (!key) return;
+    const own = frames[index]?.weights[key] ?? 0;
+    const shaped = own * contactEnvelope(timeS, cue.atSecond, cue.atSecond + (cue.durationSeconds ?? 0));
+    if (shaped > (weights[key] ?? 0)) weights[key] = shaped;
+  });
+  const shapedSample = { ...sample, weights };
+  root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, shapedSample.weights)); });
+  const next = { ...result, weights };
+  if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: shapedSample };
   return next;
 }
 

@@ -1,5 +1,6 @@
 /** Deterministic fixed-step jaw dynamics for canonical OVR cue tracks. */
 import type { VisemeCue } from "./viseme-cue-track.js";
+import { CONTACT_ATTACK_S } from "./contact-envelope.js";
 export { createLipDynamicsSampler, lipDynamicsConstants } from "./viseme-lip-dynamics.js";
 
 const APERTURE = Object.freeze({
@@ -23,8 +24,6 @@ type MutableState = {
   tick: number;
   aperture: number;
   velocity: number;
-  closureCueIndex: number;
-  closureEntryAperture: number;
 };
 
 function smoothstep01(value: number): number {
@@ -65,25 +64,21 @@ function advanceFixedTick(
   track: readonly VisemeCue[],
   stepS: number,
   naturalFrequency: number,
+  ppGates: readonly (readonly [number, number])[],
 ): void {
   const timeS = (state.tick + 0.5) * stepS;
   const index = cueIndexAt(track, timeS);
-  const cue = track[index];
-  const target = jawTargetForCue(track, index);
+  // PP gate: the spring targets shut over [s-A, e] (A = CONTACT_ATTACK_S) so
+  // the jaw is already closing when the output envelope (prepared path)
+  // seals it exactly through the cue. The old snap (aperture = 0 in one
+  // tick) is retired; the release follows the lead-compensated spring.
+  let target = jawTargetForCue(track, index);
+  for (const gate of ppGates) {
+    if (timeS >= gate[0] - CONTACT_ATTACK_S && timeS <= gate[1]) { target = 0; break; }
+  }
   const acceleration = naturalFrequency ** 2 * (target - state.aperture) - 2 * naturalFrequency * state.velocity;
   state.velocity += acceleration * stepS;
   state.aperture = Math.max(0, Math.min(1, state.aperture + state.velocity * stepS));
-  if (cue?.viseme === "PP") {
-    if (state.closureCueIndex !== index) {
-      state.closureCueIndex = index;
-      state.closureEntryAperture = state.aperture;
-    }
-    state.aperture = 0;
-    state.velocity = 0;
-  } else {
-    state.closureCueIndex = -1;
-    state.closureEntryAperture = 0;
-  }
   state.tick += 1;
 }
 
@@ -98,17 +93,21 @@ export function createJawDynamicsSampler(
     tick: 0,
     aperture: Math.max(0, Math.min(1, options.initialAperture ?? 0)),
     velocity: 0,
-    closureCueIndex: -1,
-    closureEntryAperture: 0,
   };
+  // PP cue windows for the anticipatory shut gate (media/cue time; the tick
+  // time samples the same track, so the gate rides along with the lead).
+  const ppGates: (readonly [number, number])[] = [];
+  for (const cue of track) {
+    if (cue?.viseme === "PP") ppGates.push([cue.startS, cue.endS] as const);
+  }
   const reset = () => {
-    state = { tick: 0, aperture: Math.max(0, Math.min(1, options.initialAperture ?? 0)), velocity: 0, closureCueIndex: -1, closureEntryAperture: 0 };
+    state = { tick: 0, aperture: Math.max(0, Math.min(1, options.initialAperture ?? 0)), velocity: 0 };
   };
   const sample = (timeS: number): JawDynamicsSample => {
     if (!Number.isFinite(timeS) || timeS < 0) throw new Error("invalid-jaw-sample-time");
     const targetTick = Math.floor(timeS / fixedStepS + 1e-9);
     if (targetTick < state.tick) reset();
-    while (state.tick < targetTick) advanceFixedTick(state, track, fixedStepS, naturalFrequency);
+    while (state.tick < targetTick) advanceFixedTick(state, track, fixedStepS, naturalFrequency, ppGates);
     const index = cueIndexAt(track, timeS);
     const cue = track[index];
     return { aperture: state.aperture, velocity: state.velocity, target: jawTargetForCue(track, index), cueIndex: index, hardClosure: cue?.viseme === "PP" && state.aperture === 0 };
