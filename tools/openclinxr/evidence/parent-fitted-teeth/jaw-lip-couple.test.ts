@@ -60,6 +60,14 @@ const RIM_REST_TARGET_MM = 3.743;
 const DOWN_GAIN: number = 1.25;
 /** Producer rest drop under test, mm head-down (0 on main, -1.405 on rest-a/rest-b, 4.215 on lower-arch-fix). */
 const REST_DROP_MM: number = 4.215;
+/** Producer FF lip-contact flag under test (upper incisors rest on the lower lip on viseme_FF). */
+const FF_LIP_CONTACT: boolean = true;
+/** FF contact plan pins: edge-to-lip point-triangle before/after, passes, corrected verts, worst correction. */
+const FF_GAP_BEFORE_MM = 12.53;
+const FF_GAP_AFTER_MM = 0.232;
+const FF_PASSES = 4;
+const FF_CORRECTED_VERTS = 322;
+const FF_MAX_CORRECTION_MM = 14.283;
 /** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
 const HONEST_REST_GAP_MM = 5.575;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
@@ -381,12 +389,20 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // inner-rim field and falls back to the rigid arch mean by distortion.
     const pre = readProducerReceipt(REPO, RECEIPT_REL);
     const preTmp = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
-    const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, REST_DROP_MM);
+    const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, REST_DROP_MM, FF_LIP_CONTACT);
     expect(plan.rimCount).toBe(76);
     expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
     expect(plan.downGain).toBe(DOWN_GAIN);
     expect(plan.restDropMm).toBe(REST_DROP_MM);
+    expect(plan.ffLipContact).toBe(true);
+    expect(plan.ffGapBeforeMm).toBeCloseTo(FF_GAP_BEFORE_MM, 2);
+    expect(plan.ffGapAfterMm).toBeCloseTo(FF_GAP_AFTER_MM, 2);
+    expect(plan.ffGapAfterMm).toBeGreaterThanOrEqual(0);
+    expect(plan.ffGapAfterMm).toBeLessThanOrEqual(0.5);
+    expect(plan.ffPasses).toBe(FF_PASSES);
+    expect(plan.ffCorrectedVerts).toBe(FF_CORRECTED_VERTS);
+    expect(plan.ffMaxCorrectionMm).toBeCloseTo(FF_MAX_CORRECTION_MM, 2);
     // Rim seat drives the rest gap to the directed target on the pre-image,
     // then per-vertex pullback clears the face: the seated rest gap is the
     // honest producer-measured value, not the target.
@@ -413,9 +429,11 @@ describe("parent fitted teeth follow the lip viseme", () => {
       expect(produced).toBeDefined();
       expect(Array.from(produced!)).toEqual(Array.from(loaded.teethTargets[dict[name]!]!));
     }
-    // The producer writes teeth accessors only: body base, skinning, normals
-    // and every morph target are byte-identical between pre-image and seated.
-    // In particular the lip morph contribution is untouched (variant A rule).
+    // The producer writes teeth accessors plus the contacted body viseme_FF:
+    // body base, skinning, normals and every other morph target are
+    // byte-identical between pre-image and seated. The live body FF equals
+    // the planned contacted field (landmark-only correction, all other
+    // verts verbatim).
     {
       const preDoc = await new NodeIO().read(preTmp);
       const preBody = preDoc.getRoot().listMeshes().find((mesh) => /_body$/i.test(mesh.getName()));
@@ -435,10 +453,19 @@ describe("parent fitted teeth follow the lip viseme", () => {
         Array.from(loaded.bodyNormals),
       );
       for (let index = 0; index < preNames.length; index += 1) {
+        if (preNames[index] === "viseme_FF") continue;
         const preDelta = prePrim.listTargets()[index]?.getAttribute("POSITION");
         const expected = preDelta ? asFloat(preDelta) : new Float32Array(prePos.length);
         const live = loaded.bodyTargets[index] ?? new Float32Array(prePos.length);
         expect(Array.from(expected)).toEqual(Array.from(live));
+      }
+      {
+        const ffPreIndex = preNames.indexOf("viseme_FF");
+        expect(ffPreIndex).toBeGreaterThanOrEqual(0);
+        expect(newBodyFf).toBeDefined();
+        const ffDict = loaded.body.morphTargetDictionary?.["viseme_FF"];
+        expect(ffDict).toBeTypeOf("number");
+        expect(Array.from(newBodyFf!)).toEqual(Array.from(loaded.bodyTargets[ffDict!]!));
       }
     }
     // Lower arch (component+jaw producer rule, R7): connected components of
@@ -509,11 +536,15 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // vertex untouched, and joints/weights/deltas bitwise identical (skin
     // and morph transfer unchanged by the drop).
     {
-      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, 0);
+      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, 0, FF_LIP_CONTACT);
       expect(ref.plan.restDropMm).toBe(0);
       expect(ref.newJoints).toEqual(Array.from(newJoints));
       expect(Array.from(Float32Array.from(ref.newWeights))).toEqual(Array.from(Float32Array.from(newWeights)));
       for (const name of VISEME_ORDER) {
+        // viseme_FF excluded: the contact solve reads its edge set from the
+        // seated base, whose shell median the rest drop shifts, so the FF
+        // field is drop-dependent by construction (pinned above instead).
+        if (name === "viseme_FF") continue;
         expect(Array.from(ref.newDeltas[name]!)).toEqual(Array.from(newDeltas[name]!));
       }
       const refScene = await loadHeadlessScene(preTmp);
@@ -535,7 +566,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // down component scaled by DOWN_GAIN, every non-lower-arch delta
     // untouched. Both plans carry the same rest drop.
     {
-      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, 1.0, REST_DROP_MM);
+      const ref = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, 1.0, REST_DROP_MM, FF_LIP_CONTACT);
       expect(ref.plan.downGain).toBe(1);
       const refScene = await loadHeadlessScene(preTmp);
       refScene.root.updateMatrixWorld(true);

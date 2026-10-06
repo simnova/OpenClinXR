@@ -43,7 +43,7 @@
  * rig+response landmark vertices whose bind normals face the front-shell
  * centroid (dot sign only).
  *
- * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>]
+ * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>] [--ff-lip-contact]
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -51,13 +51,17 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { Matrix3, Matrix4, Vector3 } from "three";
+import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.js";
 import {
   frontShellIndices,
   type GlbJson,
   lowerLipInnerRim,
+  lowerLipLandmark,
   writeGlb,
 } from "./couple-fitted-teeth-to-lip-viseme.js";
+import { closestOnTriangle } from "./rim-seat-transfer.js";
 import { measureFaceMarginsFromDoc, runtimeCap } from "./face-median.js";
 import { transferArch } from "./rim-seat-transfer.js";
 
@@ -69,6 +73,18 @@ const FACE_SAFETY_M = 0.0005;
 const PULLBACK_PASSES = 16;
 /** Float32-safe epsilon: pullback stop tolerance and self-check bound, physically nothing. */
 const SNAP_M = 1e-6;
+/**
+ * FF lip-contact target: the upper incisal edge rests on the lower lip with
+ * this clearance (render z-fight margin; the only hand-set length in the FF
+ * solve, sourced as a render margin). Accept band is [0.15, 0.35] mm.
+ */
+const FF_CONTACT_M = 0.0002;
+const FF_CONTACT_LO_M = 0.00015;
+const FF_CONTACT_HI_M = 0.00035;
+/** FF solve fixed-point bound: residual-corrected iterations, deterministic order. */
+const FF_PASSES = 10;
+/** Contact patch half-width: the teeth front-shell rule (FRONT_SHELL_ABS_X_M). */
+const FF_PATCH_HALF_X_M = 0.012;
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -194,6 +210,12 @@ export type RimSeatPlan = {
   pullbackPasses: number;
   downGain: number;
   restDropMm: number;
+  ffLipContact: boolean;
+  ffGapBeforeMm: number;
+  ffGapAfterMm: number;
+  ffPasses: number;
+  ffCorrectedVerts: number;
+  ffMaxCorrectionMm: number;
   /** Rest rim gap after seat + pullback (equals the target only when nothing crosses). */
   honestRestGapMm: number;
   rigid: boolean;
@@ -202,7 +224,7 @@ export type RimSeatPlan = {
   teethCount: number;
 };
 
-function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number; restDropMm: number } {
+function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number; restDropMm: number; ffLipContact: boolean } {
   const flag = (name: string): string | undefined => {
     const index = process.argv.indexOf(name);
     const value = index >= 0 ? process.argv[index + 1] : undefined;
@@ -211,7 +233,7 @@ function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid
   const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
   const target = flag("--target-gap-mm");
   if (!glbPath || target === undefined) {
-    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>]");
+    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>] [--ff-lip-contact]");
   }
   const targetGapMm = Number(target);
   if (!Number.isFinite(targetGapMm) || targetGapMm <= 0) throw new Error(`bad --target-gap-mm ${target}`);
@@ -221,7 +243,7 @@ function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid
   const restDropRaw = flag("--rest-drop-mm");
   const restDropMm = restDropRaw === undefined ? 0 : Number(restDropRaw);
   if (!Number.isFinite(restDropMm)) throw new Error(`bad --rest-drop-mm ${restDropRaw}`);
-  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain, restDropMm };
+  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain, restDropMm, ffLipContact: process.argv.includes("--ff-lip-contact") };
 }
 
 type SeatResult = {
@@ -231,6 +253,8 @@ type SeatResult = {
   newWeights: number[];
   newDeltas: Record<string, Float32Array>;
   jointsType: number;
+  /** Edited body viseme_FF bind delta; defined only with ffLipContact. */
+  newBodyFf?: Float32Array;
 };
 
 function skinAtRest(
@@ -262,7 +286,204 @@ function skinAtRest(
   return out;
 }
 
-export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean, downGain = 1, restDropMm = 0): Promise<SeatResult> {
+export type FfLipContact = {
+  ffGapBeforeMm: number;
+  ffGapAfterMm: number;
+  ffPasses: number;
+  ffCorrectedVerts: number;
+  ffMaxCorrectionMm: number;
+  /** Edited body viseme_FF bind delta (full-length, only landmark verts differ). */
+  editedBodyFf: Float32Array;
+};
+
+/**
+ * FF lip contact (operator: upper incisors rest on the lower lip, labiodental).
+ * Upper teeth are head-fixed, so the lip moves, not the teeth.
+ *
+ * Closed form + fixed point: at FF weight 1 and the FF jaw angle, find the
+ * min point-to-triangle distance from the upper incisal edge (min-y upper
+ * front-shell verts) to the lower-lip landmark surface. Translate the landmark
+ * field toward contact (FF_CONTACT_M clearance) with a cosine falloff:
+ * weight 1 at the edge centroid, 0 at the farthest landmark vert (support
+ * measured from the landmark itself, C1 at both ends since sin(0)=sin(pi)=0).
+ * Re-pose and repeat to the accept band (FF_PASSES bound). Bind deltas move
+ * through the head rest rotation only; the jaw-angle residual is absorbed by
+ * the next pass. Deterministic: ascending vertex order, Float32Array ops.
+ */
+export async function solveFfLipContact(input: {
+  glbPath: string;
+  bodyBase: Float32Array;
+  bodyDeltaFf: Float32Array;
+  bodyDeltaAa: Float32Array;
+  bodyJoints: ArrayLike<number>;
+  bodyWeights: ArrayLike<number>;
+  jointNodes: { getName(): string }[];
+  bodyIndex: ArrayLike<number>;
+  teethBase: Float32Array;
+  /** Seated teeth base for shell membership (upper verbatim; membership matches the output). */
+  teethShellBase: Float32Array;
+  teethDeltaFf: Float32Array;
+  teethJoints: ArrayLike<number>;
+  teethWeights: ArrayLike<number>;
+}): Promise<FfLipContact> {
+  const { glbPath, bodyBase, bodyDeltaAa, bodyJoints, bodyWeights, jointNodes, bodyIndex, teethBase, teethDeltaFf, teethJoints, teethWeights } = input;
+  const scene = await loadHeadlessScene(glbPath);
+  const landmark = lowerLipLandmark(bodyDeltaAa, bodyJoints, bodyWeights, jointNodes as never);
+  if (landmark.length < 20) throw new Error(`FF contact: landmark has ${landmark.length} verts`);
+  const landmarkSet = new Set(landmark);
+  const lipTris: Array<readonly [number, number, number]> = [];
+  for (let tri = 0; tri < bodyIndex.length / 3; tri += 1) {
+    const a = bodyIndex[tri * 3] ?? -1;
+    const b = bodyIndex[tri * 3 + 1] ?? -1;
+    const c = bodyIndex[tri * 3 + 2] ?? -1;
+    if (landmarkSet.has(a) && landmarkSet.has(b) && landmarkSet.has(c)) lipTris.push([a, b, c]);
+  }
+  if (lipTris.length === 0) throw new Error("FF contact: landmark has no interior triangles");
+
+  const morphed = (base: Float32Array, delta: Float32Array): Float32Array => {
+    const out = new Float32Array(base);
+    for (let i = 0; i < out.length; i += 1) out[i] = (out[i] ?? 0) + (delta[i] ?? 0);
+    return out;
+  };
+  const pose = (bodyFf: Float32Array): { teethHead: Float32Array; bodyHead: Float32Array } => {
+    // Candidate bind deltas posed by hand (FF weight 1): jaw rotation from
+    // the shipped applier, skinning from the headless scene bones.
+    applyJawOpenToRoot(scene.root, jawOpenRadiansForPhoneme("FF"));
+    scene.root.updateMatrixWorld(true);
+    scene.teeth.skeleton.update();
+    scene.body.skeleton.update();
+    const teethMats = scene.teeth.skeleton.boneMatrices?.slice();
+    const bodyMats = scene.body.skeleton.boneMatrices?.slice();
+    if (!teethMats || !bodyMats) throw new Error("FF contact: no bone matrices");
+    const teethWorld = skinAtRest(morphed(teethBase, teethDeltaFf), teethJoints, teethWeights, teethMats);
+    const bodyWorld = skinAtRest(morphed(bodyBase, bodyFf), bodyJoints, bodyWeights, bodyMats);
+    const inv = new Matrix4().copy(scene.headBone.matrixWorld).invert();
+    const toHead = (world: Float32Array): Float32Array => {
+      const out = new Float32Array(world.length);
+      const point = new Vector3();
+      for (let v = 0; v < world.length / 3; v += 1) {
+        point.set(world[v * 3] ?? 0, world[v * 3 + 1] ?? 0, world[v * 3 + 2] ?? 0).applyMatrix4(inv);
+        out[v * 3] = point.x;
+        out[v * 3 + 1] = point.y;
+        out[v * 3 + 2] = point.z;
+      }
+      return out;
+    };
+    return { teethHead: toHead(teethWorld), bodyHead: toHead(bodyWorld) };
+  };
+
+  // Incisal edge: min-y upper front-shell verts at FF (upper is head-fixed, static set).
+  // Membership reads the seated base so the edge set matches the output file.
+  const shells = frontShellIndices(input.teethShellBase);
+  if (shells.upper.length === 0) throw new Error("FF contact: upper shell is empty");
+  const rest = pose(input.bodyDeltaFf);
+  let edgeMinY = Infinity;
+  for (const v of shells.upper) edgeMinY = Math.min(edgeMinY, rest.teethHead[v * 3 + 1] ?? 0);
+  const edge = shells.upper.filter((v) => (rest.teethHead[v * 3 + 1] ?? 0) <= edgeMinY + 0.001);
+  let cx = 0;
+  let cy = 0;
+  for (const v of edge) {
+    cx += rest.teethHead[v * 3] ?? 0;
+    cy += rest.teethHead[v * 3 + 1] ?? 0;
+  }
+  cx /= edge.length;
+  cy /= edge.length;
+
+  // Falloff support measured from the landmark (rest head-local, static frame).
+  let support = 0;
+  const dist: number[] = new Array(landmark.length);
+  for (let i = 0; i < landmark.length; i += 1) {
+    const v = landmark[i]!;
+    const dx = (rest.bodyHead[v * 3] ?? 0) - cx;
+    const dy = (rest.bodyHead[v * 3 + 1] ?? 0) - cy;
+    const d = Math.hypot(dx, dy);
+    dist[i] = d;
+    support = Math.max(support, d);
+  }
+  if (!(support > 0)) throw new Error("FF contact: falloff support is zero");
+  const weights = dist.map((d) => 0.5 * (1 + Math.cos((Math.PI * Math.min(d / support, 1)))));
+
+  const gapOf = (teethHead: Float32Array, bodyHead: Float32Array): { gap: number; vec: [number, number, number] } => {
+    const at = (packed: Float32Array, v: number): [number, number, number] => [packed[v * 3] ?? 0, packed[v * 3 + 1] ?? 0, packed[v * 3 + 2] ?? 0];
+    let best = Infinity;
+    let vec: [number, number, number] = [0, 0, 0];
+    for (const v of edge) {
+      const q = at(teethHead, v);
+      for (const tri of lipTris) {
+        const a = at(bodyHead, tri[0]);
+        const b = at(bodyHead, tri[1]);
+        const c = at(bodyHead, tri[2]);
+        const r = closestOnTriangle(
+          q[0], q[1], q[2],
+          a[0], a[1], a[2],
+          b[0], b[1], b[2],
+          c[0], c[1], c[2],
+        );
+        const d = Math.sqrt(r.distance2);
+        if (d < best) {
+          best = d;
+          vec = [
+            r.alpha * a[0] + r.beta * b[0] + r.gamma * c[0] - q[0],
+            r.alpha * a[1] + r.beta * b[1] + r.gamma * c[1] - q[1],
+            r.alpha * a[2] + r.beta * b[2] + r.gamma * c[2] - q[2],
+          ];
+        }
+      }
+    }
+    return { gap: best, vec };
+  };
+
+  scene.root.updateMatrixWorld(true);
+  const toBind = new Matrix3()
+    .setFromMatrix4(new Matrix4().extractRotation(scene.headBone.matrixWorld))
+    .transpose();
+  const first = gapOf(rest.teethHead, rest.bodyHead);
+  const ffGapBeforeMm = Math.round(first.gap * 1e6) / 1e3;
+  const edited = new Float32Array(input.bodyDeltaFf);
+  let gap = first.gap;
+  let vec = first.vec;
+  let passes = 0;
+  const step = new Vector3();
+  for (let pass = 0; pass < FF_PASSES; pass += 1) {
+    // Stop in the lower half of the accept band so the committed value
+    // centers near the target instead of resting on the upper limit.
+    if (gap >= FF_CONTACT_LO_M && gap <= (FF_CONTACT_M + FF_CONTACT_HI_M) / 2) break;
+    passes = pass + 1;
+    const scale = -((gap - FF_CONTACT_M) / gap);
+    step.set(vec[0] * scale, vec[1] * scale, vec[2] * scale).applyMatrix3(toBind);
+    for (let i = 0; i < landmark.length; i += 1) {
+      const v = landmark[i]!;
+      const w = weights[i] ?? 0;
+      edited[v * 3] = (edited[v * 3] ?? 0) + step.x * w;
+      edited[v * 3 + 1] = (edited[v * 3 + 1] ?? 0) + step.y * w;
+      edited[v * 3 + 2] = (edited[v * 3 + 2] ?? 0) + step.z * w;
+    }
+    const posed = pose(edited);
+    const next = gapOf(posed.teethHead, posed.bodyHead);
+    gap = next.gap;
+    vec = next.vec;
+  }
+  if (!(gap >= FF_CONTACT_LO_M && gap <= FF_CONTACT_HI_M)) {
+    throw new Error(`FF contact missed: gap ${gap * 1000} mm after ${passes} passes (premise false)`);
+  }
+  let maxCorrection = 0;
+  for (let i = 0; i < edited.length / 3; i += 1) {
+    const dx = (edited[i * 3] ?? 0) - (input.bodyDeltaFf[i * 3] ?? 0);
+    const dy = (edited[i * 3 + 1] ?? 0) - (input.bodyDeltaFf[i * 3 + 1] ?? 0);
+    const dz = (edited[i * 3 + 2] ?? 0) - (input.bodyDeltaFf[i * 3 + 2] ?? 0);
+    maxCorrection = Math.max(maxCorrection, Math.sqrt(dx * dx + dy * dy + dz * dz));
+  }
+  return {
+    ffGapBeforeMm,
+    ffGapAfterMm: Math.round(gap * 1e6) / 1e3,
+    ffPasses: passes,
+    ffCorrectedVerts: landmark.length,
+    ffMaxCorrectionMm: Math.round(maxCorrection * 1e6) / 1e3,
+    editedBodyFf: edited,
+  };
+}
+
+export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean, downGain = 1, restDropMm = 0, ffLipContact = false): Promise<SeatResult> {
   const doc = await new NodeIO().read(glbPath);
   const teeth = doc.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
   if (!teeth) throw new Error(`no fitted teeth mesh in ${glbPath}`);
@@ -473,17 +694,49 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
   }
   const honestDropCheck = restDropMm === 0 ? honestCheck : restRimGap(droppedBase);
 
+  const teethInputDeltas: Record<string, Float32Array> = Object.fromEntries(
+    teethNames.map((name, targetIndex) => {
+      const accessor = teethPrim.listTargets()[targetIndex]?.getAttribute("POSITION");
+      const values = accessor ? floatArray(accessor) : new Float32Array(teethBase.length);
+      if (values.length !== teethBase.length) throw new Error(`teeth target ${name} length moved`);
+      return [name, values];
+    }),
+  );
+
+  // FF lip contact: edit the body viseme_FF bind delta on the lower-lip
+  // landmark BEFORE morph transfer, so the rim-copied lower-teeth FF delta
+  // is recomputed from the new rim. Upper-arch FF stays pre-image verbatim.
+  let ffContact: FfLipContact | null = null;
+  let transferBodyDeltas = bodyDeltas;
+  if (ffLipContact) {
+    const ffBodyIndex = bodyTargets.indexOf("viseme_FF");
+    if (ffBodyIndex < 0) throw new Error("FF contact: body has no viseme_FF target");
+    const teethFf = teethInputDeltas["viseme_FF"];
+    if (!teethFf) throw new Error("FF contact: teeth have no viseme_FF target");
+    const bodyIndexArr = bodyIndexAttr.getArray();
+    if (!bodyIndexArr) throw new Error("empty body index");
+    ffContact = await solveFfLipContact({
+      glbPath,
+      bodyBase,
+      bodyDeltaFf: bodyDeltas[ffBodyIndex] ?? new Float32Array(bodyBase.length),
+      bodyDeltaAa: bodyDeltas[aaIndex] ?? new Float32Array(bodyBase.length),
+      bodyJoints,
+      bodyWeights,
+      jointNodes,
+      bodyIndex: bodyIndexArr,
+      teethBase,
+      teethShellBase: droppedBase,
+      teethDeltaFf: teethFf,
+      teethJoints: jointArray,
+      teethWeights: weightArray,
+    });
+    transferBodyDeltas = bodyDeltas.map((delta, index) => (index === ffBodyIndex ? ffContact!.editedBodyFf : delta));
+  }
+
   const transfer = transferArch({
-    teethBase, bodyBase, bodyDeltas, bodyTargets, teethNames, bodyJoints, bodyWeights,
+    teethBase, bodyBase, bodyDeltas: transferBodyDeltas, bodyTargets, teethNames, bodyJoints, bodyWeights,
     lowerArch, rimTris, newBase, forceRigid, teethSkinJoints, teethCount, jointArray, weightArray,
-    teethInputDeltas: Object.fromEntries(
-      teethNames.map((name, targetIndex) => {
-        const accessor = teethPrim.listTargets()[targetIndex]?.getAttribute("POSITION");
-        const values = accessor ? floatArray(accessor) : new Float32Array(teethBase.length);
-        if (values.length !== teethBase.length) throw new Error(`teeth target ${name} length moved`);
-        return [name, values];
-      }),
-    ),
+    teethInputDeltas,
   });
   const { newJoints, newWeights, newDeltas, distortionMm, rigid, jawMaxVerts } = transfer;
 
@@ -531,13 +784,19 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     pullbackPasses,
     downGain,
     restDropMm,
+    ffLipContact,
+    ffGapBeforeMm: ffContact?.ffGapBeforeMm ?? 0,
+    ffGapAfterMm: ffContact?.ffGapAfterMm ?? 0,
+    ffPasses: ffContact?.ffPasses ?? 0,
+    ffCorrectedVerts: ffContact?.ffCorrectedVerts ?? 0,
+    ffMaxCorrectionMm: ffContact?.ffMaxCorrectionMm ?? 0,
     honestRestGapMm: Math.round(honestDropCheck * 1e6) / 1e3,
     rigid,
     distortionMm,
     jawMaxVerts,
     teethCount,
   };
-  return { plan, newBase: droppedBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType };
+  return { plan, newBase: droppedBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType, ...(ffContact ? { newBodyFf: ffContact.editedBodyFf } : {}) };
 }
 
 /** Rim gap: mean 3D distance from lower-shell verts to the nearest rim vert. */
@@ -626,8 +885,8 @@ function writeAccessorBytes(
 
 async function main(): Promise<void> {
   const wallStart = Date.now();
-  const { glbPath, targetGapMm, dry, rigid, downGain, restDropMm } = readArgs();
-  const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm);
+  const { glbPath, targetGapMm, dry, rigid, downGain, restDropMm, ffLipContact } = readArgs();
+  const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm, ffLipContact);
   process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
   if (dry) {
     process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s (dry run, no write)\n`);
@@ -640,7 +899,7 @@ async function main(): Promise<void> {
   const binHeader = 20 + jsonLength;
   const binLength = json.buffers[0]?.byteLength;
   if (typeof binLength !== "number") throw new Error("missing buffer length");
-  const bin = Buffer.from(file.subarray(binHeader + 8, binHeader + 8 + binLength));
+  let bin = Buffer.from(file.subarray(binHeader + 8, binHeader + 8 + binLength));
   const teeth = json.meshes.find((mesh) => mesh.name !== undefined && /fitted_teeth/i.test(mesh.name));
   const primitive = teeth?.primitives[0];
   if (!teeth || !primitive) throw new Error("teeth primitive missing from JSON");
@@ -671,6 +930,39 @@ async function main(): Promise<void> {
   }
   writeAccessorBytes(json, bin, jointsAccessor, newJoints, plan.teethCount, 4);
   writeAccessorBytes(json, bin, weightsAccessor, newWeights, plan.teethCount, 4);
+  if (newBodyFf) {
+    const body = json.meshes.find((mesh) => mesh.name !== undefined && /_body$/i.test(mesh.name));
+    const bodyPrim = body?.primitives[0];
+    if (!body || !bodyPrim) throw new Error("body primitive missing from JSON");
+    const bodyNames = body.extras?.targetNames ?? [];
+    const ffIndex = bodyNames.indexOf("viseme_FF");
+    if (ffIndex < 0) throw new Error("body has no viseme_FF target");
+    const ffAccessor = bodyPrim.targets?.[ffIndex]?.POSITION;
+    if (typeof ffAccessor !== "number") throw new Error("missing POSITION on body viseme_FF");
+    const bodyPosAccessor = (bodyPrim as { attributes?: { POSITION?: number } }).attributes?.POSITION;
+    if (typeof bodyPosAccessor !== "number") throw new Error("body primitive has no POSITION attribute");
+    const bodyCount = (json.accessors[bodyPosAccessor] as { count: number }).count;
+    const ffAccess = json.accessors[ffAccessor] as
+      | { count: number; type: string; sparse?: unknown; bufferView?: number }
+      | undefined;
+    if (!ffAccess || ffAccess.count !== bodyCount || ffAccess.type !== "VEC3") {
+      throw new Error(`body viseme_FF accessor ${ffAccessor} is not VEC3 x${bodyCount}`);
+    }
+    if (ffAccess.sparse) {
+      // Densify once: body morphs ship sparse; the edited FF field is full.
+      // Idempotent: a rerun finds a dense accessor and overwrites in place.
+      while (bin.length % 4 !== 0) bin = Buffer.concat([bin, Buffer.alloc(1)]);
+      const byteOffset = bin.length;
+      const dense = Buffer.alloc(newBodyFf.length * 4);
+      for (let i = 0; i < newBodyFf.length; i += 1) dense.writeFloatLE(newBodyFf[i] ?? 0, i * 4);
+      bin = Buffer.concat([bin, dense]);
+      const viewIndex = json.bufferViews.length;
+      json.bufferViews.push({ buffer: 0, byteOffset, byteLength: dense.length, target: 34962 });
+      ffAccess.bufferView = viewIndex;
+      delete ffAccess.sparse;
+    }
+    writeAccessorBytes(json, bin, ffAccessor, newBodyFf, bodyCount, 3);
+  }
   const outBuffer = json.buffers[0];
   if (!outBuffer) throw new Error("missing buffer length");
   outBuffer.byteLength = bin.length;
