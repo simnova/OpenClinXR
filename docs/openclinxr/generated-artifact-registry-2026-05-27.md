@@ -25,8 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1755
-- keep-evidence: 1764
+- keep-evidence: 1787
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3767,17 +3766,28 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/step2/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step3/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step3/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/stills-aa-E-O-PP-FF.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/evaluator-step3.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/mouth-dynamics/teeth-gap/producer-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/producer-compare-quarter.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/producer-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-capture/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-capture/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare-quarter.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `tools/openclinxr/mouth-solver/solved-teeth-gap.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/mouth-dynamics/stills-aa-E-O-PP-FF.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram-mouth-front/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram-mouth-front/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram.contact.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram.report.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/pangram/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words-mouth-front/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words-mouth-front/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words.contact.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words.report.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -4854,6 +4864,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/rejected/door-maple-rejected-attempt1.jpg` - keep-evidence; keep; Rejected Grok Imagine door-maple attempt 1 (mirrored cathedral arches); kept as evidence only, never processed or loaded (row-32 provenance).
 - `tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json` - keep-evidence; keep; Door closeup pose input (lever inspection framing); the standard hand-placed-poses.json is untouched.
 - `tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json` - keep-evidence; keep; Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched.
+- `tools/openclinxr/mouth-solver/solved-teeth-gap.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/provenance.json` - keep-template; keep; Hunyuan optimized-asset derivation and territory provenance.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/pixal3d/provenance.json` - keep-template; keep; Pixal3D optimized-asset derivation provenance.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/provenance.json` - keep-template; keep; Hunyuan raw provenance and territory flag.

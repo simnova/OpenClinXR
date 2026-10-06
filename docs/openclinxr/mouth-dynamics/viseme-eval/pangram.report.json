@@ -1,0 +1,2518 @@
+{
+  "schemaVersion": "openclinxr.viseme-eval.v1",
+  "clip": "pangram",
+  "line": "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos.",
+  "durationS": 8.794422,
+  "frameRate": 30,
+  "evaluatedViews": [
+    "default",
+    "mouthFront"
+  ],
+  "mismatchEvaluatedOn": "middle frame of each phone interval in both views",
+  "notes": [
+    "Failing per-phone checks are results, not gate failures: no runtime tuning in this slice.",
+    "Bilabial mids seal in the default view's narrow central box (upper/lower 0) while the wide mouth-front box catches tooth slivers at the commissures; see the contact sheet and clip.mp4.",
+    "Mouth-front lowerTeethN reads 0 on every frame: the split seam lands below all visible teeth in this view, so arch attribution there is upper-only."
+  ],
+  "coverage": {
+    "phones": [
+      "AA",
+      "AE",
+      "AH",
+      "AW",
+      "AY",
+      "B",
+      "CH",
+      "D",
+      "DH",
+      "EH",
+      "ER",
+      "EY",
+      "F",
+      "G",
+      "HH",
+      "IH",
+      "IY",
+      "JH",
+      "K",
+      "L",
+      "M",
+      "N",
+      "NG",
+      "OW",
+      "OY",
+      "P",
+      "R",
+      "S",
+      "SH",
+      "SIL",
+      "T",
+      "TH",
+      "UH",
+      "UW",
+      "V",
+      "W",
+      "Y",
+      "Z",
+      "ZH"
+    ],
+    "visemesCovered": [
+      "CH",
+      "DD",
+      "E",
+      "FF",
+      "I",
+      "O",
+      "PP",
+      "RR",
+      "SS",
+      "TH",
+      "U",
+      "aa",
+      "kk",
+      "nn",
+      "sil"
+    ]
+  },
+  "phoneCount": 77,
+  "phones": [
+    {
+      "phone": "DH",
+      "startS": 0,
+      "endS": 0.04,
+      "expectedViseme": "TH",
+      "mid": {
+        "default": {
+          "frame": 0,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.26455822491479314,
+          "upperTeethN": 109,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 109
+        },
+        "mouthFront": {
+          "frame": 0,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.26455822491479314,
+          "upperTeethN": 363,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 363
+        }
+      }
+    },
+    {
+      "phone": "AE",
+      "startS": 0.04,
+      "endS": 0.15,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 2,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.951,
+          "jawFraction": 0.2515277704965035,
+          "upperTeethN": 111,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 111
+        },
+        "mouthFront": {
+          "frame": 2,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.951,
+          "jawFraction": 0.2515277704965035,
+          "upperTeethN": 342,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 342
+        }
+      }
+    },
+    {
+      "phone": "T",
+      "startS": 0.15,
+      "endS": 0.22,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 5,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.305,
+          "jawFraction": 0.19866347085845854,
+          "upperTeethN": 103,
+          "lowerTeethN": 15,
+          "lipGapPx": 11,
+          "mouthTeethN": 118
+        },
+        "mouthFront": {
+          "frame": 5,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.305,
+          "jawFraction": 0.19866347085845854,
+          "upperTeethN": 200,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 200
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 0.22,
+      "endS": 0.31,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 8,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.406,
+          "jawFraction": 0.1482810993746743,
+          "upperTeethN": 92,
+          "lowerTeethN": 12,
+          "lipGapPx": 9,
+          "mouthTeethN": 104
+        },
+        "mouthFront": {
+          "frame": 8,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.406,
+          "jawFraction": 0.1482810993746743,
+          "upperTeethN": 208,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 208
+        }
+      }
+    },
+    {
+      "phone": "W",
+      "startS": 0.31,
+      "endS": 0.36,
+      "expectedViseme": "U",
+      "mid": {
+        "default": {
+          "frame": 10,
+          "target": "viseme_U",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.412,
+          "jawFraction": 0.1537846263248881,
+          "upperTeethN": 86,
+          "lowerTeethN": 13,
+          "lipGapPx": 9,
+          "mouthTeethN": 99
+        },
+        "mouthFront": {
+          "frame": 10,
+          "target": "viseme_U",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.412,
+          "jawFraction": 0.1537846263248881,
+          "upperTeethN": 255,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 255
+        }
+      }
+    },
+    {
+      "phone": "IH",
+      "startS": 0.36,
+      "endS": 0.43,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 12,
+          "target": "viseme_I",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.375,
+          "jawFraction": 0.11909277480766317,
+          "upperTeethN": 43,
+          "lowerTeethN": 20,
+          "lipGapPx": 7,
+          "mouthTeethN": 63
+        },
+        "mouthFront": {
+          "frame": 12,
+          "target": "viseme_I",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.375,
+          "jawFraction": 0.11909277480766317,
+          "upperTeethN": 225,
+          "lowerTeethN": 0,
+          "lipGapPx": 58,
+          "mouthTeethN": 225
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 0.43,
+      "endS": 0.52,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 14,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.825,
+          "jawFraction": 0.037272793987525386,
+          "upperTeethN": 4,
+          "lowerTeethN": 0,
+          "lipGapPx": 5,
+          "mouthTeethN": 4
+        },
+        "mouthFront": {
+          "frame": 14,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.825,
+          "jawFraction": 0.037272793987525386,
+          "upperTeethN": 79,
+          "lowerTeethN": 0,
+          "lipGapPx": 48,
+          "mouthTeethN": 79
+        }
+      }
+    },
+    {
+      "phone": "B",
+      "startS": 0.52,
+      "endS": 0.57,
+      "expectedViseme": "PP",
+      "mid": {
+        "default": {
+          "frame": 16,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 4,
+          "mouthTeethN": 0
+        },
+        "mouthFront": {
+          "frame": 16,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 18,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 18
+        }
+      }
+    },
+    {
+      "phone": "EY",
+      "startS": 0.57,
+      "endS": 0.75,
+      "expectedViseme": "E",
+      "mid": {
+        "default": {
+          "frame": 19,
+          "target": "viseme_E",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.763,
+          "jawFraction": 0.23158063681439814,
+          "upperTeethN": 18,
+          "lowerTeethN": 15,
+          "lipGapPx": 6,
+          "mouthTeethN": 33
+        },
+        "mouthFront": {
+          "frame": 19,
+          "target": "viseme_E",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.763,
+          "jawFraction": 0.23158063681439814,
+          "upperTeethN": 231,
+          "lowerTeethN": 0,
+          "lipGapPx": 49,
+          "mouthTeethN": 231
+        }
+      }
+    },
+    {
+      "phone": "ZH",
+      "startS": 0.75,
+      "endS": 0.87,
+      "expectedViseme": "CH",
+      "mid": {
+        "default": {
+          "frame": 24,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.718,
+          "jawFraction": 0.10817750983850072,
+          "upperTeethN": 25,
+          "lowerTeethN": 35,
+          "lipGapPx": 7,
+          "mouthTeethN": 60
+        },
+        "mouthFront": {
+          "frame": 24,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.718,
+          "jawFraction": 0.10817750983850072,
+          "upperTeethN": 1919,
+          "lowerTeethN": 0,
+          "lipGapPx": 48,
+          "mouthTeethN": 1919
+        }
+      }
+    },
+    {
+      "phone": "F",
+      "startS": 0.87,
+      "endS": 0.96,
+      "expectedViseme": "FF",
+      "mid": {
+        "default": {
+          "frame": 27,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 10,
+          "lowerTeethN": 12,
+          "lipGapPx": 4,
+          "mouthTeethN": 22
+        },
+        "mouthFront": {
+          "frame": 27,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 3421,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 3421
+        }
+      }
+    },
+    {
+      "phone": "AA",
+      "startS": 0.96,
+      "endS": 1.13,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 31,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.695,
+          "jawFraction": 0.11097027942765952,
+          "upperTeethN": 32,
+          "lowerTeethN": 47,
+          "lipGapPx": 9,
+          "mouthTeethN": 79
+        },
+        "mouthFront": {
+          "frame": 31,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.695,
+          "jawFraction": 0.11097027942765952,
+          "upperTeethN": 1607,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 1607
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 1.13,
+      "endS": 1.19,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 35,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.454,
+          "jawFraction": 0.24539756505359253,
+          "upperTeethN": 119,
+          "lowerTeethN": 13,
+          "lipGapPx": 11,
+          "mouthTeethN": 132
+        },
+        "mouthFront": {
+          "frame": 35,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.454,
+          "jawFraction": 0.24539756505359253,
+          "upperTeethN": 195,
+          "lowerTeethN": 0,
+          "lipGapPx": 68,
+          "mouthTeethN": 195
+        }
+      }
+    },
+    {
+      "phone": "S",
+      "startS": 1.19,
+      "endS": 1.28,
+      "expectedViseme": "SS",
+      "mid": {
+        "default": {
+          "frame": 37,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.417,
+          "jawFraction": 0.1920138094682328,
+          "upperTeethN": 118,
+          "lowerTeethN": 11,
+          "lipGapPx": 10,
+          "mouthTeethN": 129
+        },
+        "mouthFront": {
+          "frame": 37,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.417,
+          "jawFraction": 0.1920138094682328,
+          "upperTeethN": 187,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 187
+        }
+      }
+    },
+    {
+      "phone": "JH",
+      "startS": 1.28,
+      "endS": 1.39,
+      "expectedViseme": "CH",
+      "mid": {
+        "default": {
+          "frame": 40,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.394,
+          "jawFraction": 0.1268465845582135,
+          "upperTeethN": 98,
+          "lowerTeethN": 24,
+          "lipGapPx": 10,
+          "mouthTeethN": 122
+        },
+        "mouthFront": {
+          "frame": 40,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.394,
+          "jawFraction": 0.1268465845582135,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "AH",
+      "startS": 1.39,
+      "endS": 1.5,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 43,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.741,
+          "jawFraction": 0.03723133840653491,
+          "upperTeethN": 13,
+          "lowerTeethN": 10,
+          "lipGapPx": 5,
+          "mouthTeethN": 23
+        },
+        "mouthFront": {
+          "frame": 43,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.741,
+          "jawFraction": 0.03723133840653491,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 49,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "M",
+      "startS": 1.5,
+      "endS": 1.55,
+      "expectedViseme": "PP",
+      "mid": {
+        "default": {
+          "frame": 45,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 4,
+          "mouthTeethN": 0
+        },
+        "mouthFront": {
+          "frame": 45,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 18,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 18
+        }
+      }
+    },
+    {
+      "phone": "P",
+      "startS": 1.55,
+      "endS": 1.62,
+      "expectedViseme": "PP",
+      "mid": {
+        "default": {
+          "frame": 47,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 4,
+          "mouthTeethN": 0
+        },
+        "mouthFront": {
+          "frame": 47,
+          "target": "viseme_PP",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 18,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 18
+        }
+      }
+    },
+    {
+      "phone": "T",
+      "startS": 1.62,
+      "endS": 1.68,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 49,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.987,
+          "jawFraction": 0.2019135600703078,
+          "upperTeethN": 5,
+          "lowerTeethN": 6,
+          "lipGapPx": 6,
+          "mouthTeethN": 11
+        },
+        "mouthFront": {
+          "frame": 49,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.987,
+          "jawFraction": 0.2019135600703078,
+          "upperTeethN": 32,
+          "lowerTeethN": 0,
+          "lipGapPx": 44,
+          "mouthTeethN": 32
+        }
+      }
+    },
+    {
+      "phone": "IH",
+      "startS": 1.68,
+      "endS": 1.75,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 51,
+          "target": "viseme_I",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.648,
+          "jawFraction": 0.22812968805822934,
+          "upperTeethN": 51,
+          "lowerTeethN": 29,
+          "lipGapPx": 8,
+          "mouthTeethN": 80
+        },
+        "mouthFront": {
+          "frame": 51,
+          "target": "viseme_I",
+          "drivenTop": "viseme_PP",
+          "drivenWeight": 0.648,
+          "jawFraction": 0.22812968805822934,
+          "upperTeethN": 312,
+          "lowerTeethN": 0,
+          "lipGapPx": 62,
+          "mouthTeethN": 312
+        }
+      }
+    },
+    {
+      "phone": "N",
+      "startS": 1.75,
+      "endS": 1.79,
+      "expectedViseme": "nn",
+      "mid": {
+        "default": {
+          "frame": 53,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.962,
+          "jawFraction": 0.2545367225400989,
+          "upperTeethN": 87,
+          "lowerTeethN": 20,
+          "lipGapPx": 10,
+          "mouthTeethN": 107
+        },
+        "mouthFront": {
+          "frame": 53,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.962,
+          "jawFraction": 0.2545367225400989,
+          "upperTeethN": 385,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 385
+        }
+      }
+    },
+    {
+      "phone": "DH",
+      "startS": 1.79,
+      "endS": 1.84,
+      "expectedViseme": "TH",
+      "mid": {
+        "default": {
+          "frame": 54,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.266017385247396,
+          "upperTeethN": 81,
+          "lowerTeethN": 22,
+          "lipGapPx": 10,
+          "mouthTeethN": 103
+        },
+        "mouthFront": {
+          "frame": 54,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.266017385247396,
+          "upperTeethN": 388,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 388
+        }
+      }
+    },
+    {
+      "phone": "IY",
+      "startS": 1.84,
+      "endS": 1.97,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 57,
+          "target": "viseme_I",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.784,
+          "jawFraction": 0.29089635251739526,
+          "upperTeethN": 113,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 113
+        },
+        "mouthFront": {
+          "frame": 57,
+          "target": "viseme_I",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.784,
+          "jawFraction": 0.29089635251739526,
+          "upperTeethN": 420,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 420
+        }
+      }
+    },
+    {
+      "phone": "EH",
+      "startS": 1.97,
+      "endS": 2.11,
+      "expectedViseme": "E",
+      "mid": {
+        "default": {
+          "frame": 61,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.525,
+          "jawFraction": 0.38785009167424433,
+          "upperTeethN": 99,
+          "lowerTeethN": 16,
+          "lipGapPx": 10,
+          "mouthTeethN": 115
+        },
+        "mouthFront": {
+          "frame": 61,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.525,
+          "jawFraction": 0.38785009167424433,
+          "upperTeethN": 996,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 996
+        }
+      }
+    },
+    {
+      "phone": "R",
+      "startS": 2.11,
+      "endS": 2.21,
+      "expectedViseme": "RR",
+      "mid": {
+        "default": {
+          "frame": 64,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_RR",
+          "drivenWeight": 0.429,
+          "jawFraction": 0.3977139117441155,
+          "upperTeethN": 76,
+          "lowerTeethN": 21,
+          "lipGapPx": 11,
+          "mouthTeethN": 97
+        },
+        "mouthFront": {
+          "frame": 64,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_RR",
+          "drivenWeight": 0.429,
+          "jawFraction": 0.3977139117441155,
+          "upperTeethN": 673,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 673
+        }
+      }
+    },
+    {
+      "phone": "OW",
+      "startS": 2.21,
+      "endS": 2.36,
+      "expectedViseme": "O",
+      "mid": {
+        "default": {
+          "frame": 68,
+          "target": "viseme_O",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.55,
+          "jawFraction": 0.1662160707322734,
+          "upperTeethN": 33,
+          "lowerTeethN": 27,
+          "lipGapPx": 8,
+          "mouthTeethN": 60
+        },
+        "mouthFront": {
+          "frame": 68,
+          "target": "viseme_O",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.55,
+          "jawFraction": 0.1662160707322734,
+          "upperTeethN": 1233,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 1233
+        }
+      }
+    },
+    {
+      "phone": "V",
+      "startS": 2.36,
+      "endS": 2.43,
+      "expectedViseme": "FF",
+      "mid": {
+        "default": {
+          "frame": 72,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 10,
+          "lowerTeethN": 12,
+          "lipGapPx": 4,
+          "mouthTeethN": 22
+        },
+        "mouthFront": {
+          "frame": 72,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 3421,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 3421
+        }
+      }
+    },
+    {
+      "phone": "ER",
+      "startS": 2.43,
+      "endS": 2.55,
+      "expectedViseme": "RR",
+      "mid": {
+        "default": {
+          "frame": 74,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.911,
+          "jawFraction": 0.028810619164704617,
+          "upperTeethN": 9,
+          "lowerTeethN": 23,
+          "lipGapPx": 6,
+          "mouthTeethN": 32
+        },
+        "mouthFront": {
+          "frame": 74,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.911,
+          "jawFraction": 0.028810619164704617,
+          "upperTeethN": 2857,
+          "lowerTeethN": 0,
+          "lipGapPx": 36,
+          "mouthTeethN": 2857
+        }
+      }
+    },
+    {
+      "phone": "IY",
+      "startS": 2.55,
+      "endS": 2.68,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 78,
+          "target": "viseme_I",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.488,
+          "jawFraction": 0.2796009783127967,
+          "upperTeethN": 95,
+          "lowerTeethN": 8,
+          "lipGapPx": 9,
+          "mouthTeethN": 103
+        },
+        "mouthFront": {
+          "frame": 78,
+          "target": "viseme_I",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.488,
+          "jawFraction": 0.2796009783127967,
+          "upperTeethN": 411,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 411
+        }
+      }
+    },
+    {
+      "phone": "CH",
+      "startS": 2.68,
+      "endS": 2.81,
+      "expectedViseme": "CH",
+      "mid": {
+        "default": {
+          "frame": 82,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.672,
+          "jawFraction": 0.2834449304088145,
+          "upperTeethN": 113,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 113
+        },
+        "mouthFront": {
+          "frame": 82,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.672,
+          "jawFraction": 0.2834449304088145,
+          "upperTeethN": 278,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 278
+        }
+      }
+    },
+    {
+      "phone": "TH",
+      "startS": 2.81,
+      "endS": 2.9,
+      "expectedViseme": "TH",
+      "mid": {
+        "default": {
+          "frame": 85,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.27459563685620586,
+          "upperTeethN": 110,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 110
+        },
+        "mouthFront": {
+          "frame": 85,
+          "target": "viseme_TH",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 1,
+          "jawFraction": 0.27459563685620586,
+          "upperTeethN": 365,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 365
+        }
+      }
+    },
+    {
+      "phone": "IH",
+      "startS": 2.9,
+      "endS": 2.99,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 88,
+          "target": "viseme_I",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.926,
+          "jawFraction": 0.33973009864556153,
+          "upperTeethN": 129,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
+          "mouthTeethN": 129
+        },
+        "mouthFront": {
+          "frame": 88,
+          "target": "viseme_I",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.926,
+          "jawFraction": 0.33973009864556153,
+          "upperTeethN": 366,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 366
+        }
+      }
+    },
+    {
+      "phone": "N",
+      "startS": 2.99,
+      "endS": 3.07,
+      "expectedViseme": "nn",
+      "mid": {
+        "default": {
+          "frame": 91,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.259,
+          "jawFraction": 0.42995714923704753,
+          "upperTeethN": 120,
+          "lowerTeethN": 15,
+          "lipGapPx": 12,
+          "mouthTeethN": 135
+        },
+        "mouthFront": {
+          "frame": 91,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_TH",
+          "drivenWeight": 0.259,
+          "jawFraction": 0.42995714923704753,
+          "upperTeethN": 303,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 303
+        }
+      }
+    },
+    {
+      "phone": "D",
+      "startS": 3.07,
+      "endS": 3.14,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 93,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.455,
+          "jawFraction": 0.4759735380544056,
+          "upperTeethN": 161,
+          "lowerTeethN": 0,
+          "lipGapPx": 13,
+          "mouthTeethN": 161
+        },
+        "mouthFront": {
+          "frame": 93,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.455,
+          "jawFraction": 0.4759735380544056,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 68,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "AA",
+      "startS": 3.14,
+      "endS": 3.4,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 98,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.885,
+          "jawFraction": 0.3795374377129783,
+          "upperTeethN": 168,
+          "lowerTeethN": 0,
+          "lipGapPx": 15,
+          "mouthTeethN": 168
+        },
+        "mouthFront": {
+          "frame": 98,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.885,
+          "jawFraction": 0.3795374377129783,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 60,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "G",
+      "startS": 3.4,
+      "endS": 3.46,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 103,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.539,
+          "jawFraction": 0.21526843526040892,
+          "upperTeethN": 78,
+          "lowerTeethN": 14,
+          "lipGapPx": 10,
+          "mouthTeethN": 92
+        },
+        "mouthFront": {
+          "frame": 103,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.539,
+          "jawFraction": 0.21526843526040892,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 66,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "SIL",
+      "startS": 3.46,
+      "endS": 3.76,
+      "expectedViseme": "sil",
+      "mid": {
+        "default": {
+          "frame": 108,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.913,
+          "jawFraction": 0.17526674381223656,
+          "upperTeethN": 35,
+          "lowerTeethN": 8,
+          "lipGapPx": 8,
+          "mouthTeethN": 43
+        },
+        "mouthFront": {
+          "frame": 108,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.913,
+          "jawFraction": 0.17526674381223656,
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 41
+        }
+      }
+    },
+    {
+      "phone": "L",
+      "startS": 3.76,
+      "endS": 3.85,
+      "expectedViseme": "nn",
+      "mid": {
+        "default": {
+          "frame": 114,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.379,
+          "jawFraction": 0.26336845389973157,
+          "upperTeethN": 67,
+          "lowerTeethN": 11,
+          "lipGapPx": 9,
+          "mouthTeethN": 78
+        },
+        "mouthFront": {
+          "frame": 114,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.379,
+          "jawFraction": 0.26336845389973157,
+          "upperTeethN": 230,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 230
+        }
+      }
+    },
+    {
+      "phone": "UH",
+      "startS": 3.85,
+      "endS": 3.94,
+      "expectedViseme": "U",
+      "mid": {
+        "default": {
+          "frame": 116,
+          "target": "viseme_U",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.398,
+          "jawFraction": 0.327962560133368,
+          "upperTeethN": 83,
+          "lowerTeethN": 9,
+          "lipGapPx": 9,
+          "mouthTeethN": 92
+        },
+        "mouthFront": {
+          "frame": 116,
+          "target": "viseme_U",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.398,
+          "jawFraction": 0.327962560133368,
+          "upperTeethN": 245,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 245
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 3.94,
+      "endS": 4.03,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 119,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.357,
+          "jawFraction": 0.41840704503446124,
+          "upperTeethN": 120,
+          "lowerTeethN": 11,
+          "lipGapPx": 12,
+          "mouthTeethN": 131
+        },
+        "mouthFront": {
+          "frame": 119,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.357,
+          "jawFraction": 0.41840704503446124,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 68,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "AW",
+      "startS": 4.03,
+      "endS": 4.31,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 125,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.902,
+          "jawFraction": 0.39583234011605695,
+          "upperTeethN": 162,
+          "lowerTeethN": 0,
+          "lipGapPx": 15,
+          "mouthTeethN": 162
+        },
+        "mouthFront": {
+          "frame": 125,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.902,
+          "jawFraction": 0.39583234011605695,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 59,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "T",
+      "startS": 4.31,
+      "endS": 4.43,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 131,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.452,
+          "jawFraction": 0.239010459267258,
+          "upperTeethN": 100,
+          "lowerTeethN": 17,
+          "lipGapPx": 9,
+          "mouthTeethN": 117
+        },
+        "mouthFront": {
+          "frame": 131,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.452,
+          "jawFraction": 0.239010459267258,
+          "upperTeethN": 58,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 58
+        }
+      }
+    },
+    {
+      "phone": "SIL",
+      "startS": 4.43,
+      "endS": 4.65,
+      "expectedViseme": "sil",
+      "mid": {
+        "default": {
+          "frame": 136,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.801,
+          "jawFraction": 0.34167999848890007,
+          "upperTeethN": 55,
+          "lowerTeethN": 15,
+          "lipGapPx": 9,
+          "mouthTeethN": 70
+        },
+        "mouthFront": {
+          "frame": 136,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.801,
+          "jawFraction": 0.34167999848890007,
+          "upperTeethN": 30,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 30
+        }
+      }
+    },
+    {
+      "phone": "AY",
+      "startS": 4.65,
+      "endS": 4.8,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 141,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.63,
+          "jawFraction": 0.35138312721856724,
+          "upperTeethN": 146,
+          "lowerTeethN": 0,
+          "lipGapPx": 13,
+          "mouthTeethN": 146
+        },
+        "mouthFront": {
+          "frame": 141,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.63,
+          "jawFraction": 0.35138312721856724,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 63,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "SH",
+      "startS": 4.8,
+      "endS": 4.98,
+      "expectedViseme": "CH",
+      "mid": {
+        "default": {
+          "frame": 146,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.718,
+          "jawFraction": 0.45010251660351813,
+          "upperTeethN": 130,
+          "lowerTeethN": 20,
+          "lipGapPx": 11,
+          "mouthTeethN": 150
+        },
+        "mouthFront": {
+          "frame": 146,
+          "target": "viseme_CH",
+          "drivenTop": "viseme_CH",
+          "drivenWeight": 0.718,
+          "jawFraction": 0.45010251660351813,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "AW",
+      "startS": 4.98,
+      "endS": 5.24,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 153,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.896,
+          "jawFraction": 0.4121227090097388,
+          "upperTeethN": 161,
+          "lowerTeethN": 0,
+          "lipGapPx": 15,
+          "mouthTeethN": 161
+        },
+        "mouthFront": {
+          "frame": 153,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.896,
+          "jawFraction": 0.4121227090097388,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 60,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "T",
+      "startS": 5.24,
+      "endS": 5.35,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 158,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.472,
+          "jawFraction": 0.24385301119936245,
+          "upperTeethN": 97,
+          "lowerTeethN": 24,
+          "lipGapPx": 10,
+          "mouthTeethN": 121
+        },
+        "mouthFront": {
+          "frame": 158,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.472,
+          "jawFraction": 0.24385301119936245,
+          "upperTeethN": 16,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 16
+        }
+      }
+    },
+    {
+      "phone": "SIL",
+      "startS": 5.35,
+      "endS": 5.58,
+      "expectedViseme": "sil",
+      "mid": {
+        "default": {
+          "frame": 163,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.681,
+          "jawFraction": 0.15416101458937181,
+          "upperTeethN": 40,
+          "lowerTeethN": 14,
+          "lipGapPx": 9,
+          "mouthTeethN": 54
+        },
+        "mouthFront": {
+          "frame": 163,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.681,
+          "jawFraction": 0.15416101458937181,
+          "upperTeethN": 387,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 387
+        }
+      }
+    },
+    {
+      "phone": "F",
+      "startS": 5.58,
+      "endS": 5.68,
+      "expectedViseme": "FF",
+      "mid": {
+        "default": {
+          "frame": 168,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 10,
+          "lowerTeethN": 12,
+          "lipGapPx": 4,
+          "mouthTeethN": 22
+        },
+        "mouthFront": {
+          "frame": 168,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 3421,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 3421
+        }
+      }
+    },
+    {
+      "phone": "R",
+      "startS": 5.68,
+      "endS": 5.71,
+      "expectedViseme": "RR",
+      "mid": {
+        "default": {
+          "frame": 170,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 10,
+          "lowerTeethN": 12,
+          "lipGapPx": 4,
+          "mouthTeethN": 22
+        },
+        "mouthFront": {
+          "frame": 170,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 3421,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 3421
+        }
+      }
+    },
+    {
+      "phone": "ER",
+      "startS": 5.71,
+      "endS": 5.76,
+      "expectedViseme": "RR",
+      "mid": {
+        "default": {
+          "frame": 172,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.825,
+          "jawFraction": 0.0479057922996987,
+          "upperTeethN": 19,
+          "lowerTeethN": 29,
+          "lipGapPx": 6,
+          "mouthTeethN": 48
+        },
+        "mouthFront": {
+          "frame": 172,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.825,
+          "jawFraction": 0.0479057922996987,
+          "upperTeethN": 2300,
+          "lowerTeethN": 0,
+          "lipGapPx": 40,
+          "mouthTeethN": 2300
+        }
+      }
+    },
+    {
+      "phone": "HH",
+      "startS": 5.76,
+      "endS": 5.83,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 174,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.352,
+          "jawFraction": 0.17322360938859369,
+          "upperTeethN": 62,
+          "lowerTeethN": 27,
+          "lipGapPx": 10,
+          "mouthTeethN": 89
+        },
+        "mouthFront": {
+          "frame": 174,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.352,
+          "jawFraction": 0.17322360938859369,
+          "upperTeethN": 847,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 847
+        }
+      }
+    },
+    {
+      "phone": "IY",
+      "startS": 5.83,
+      "endS": 5.91,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 176,
+          "target": "viseme_I",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.355,
+          "jawFraction": 0.24822335659585565,
+          "upperTeethN": 84,
+          "lowerTeethN": 25,
+          "lipGapPx": 10,
+          "mouthTeethN": 109
+        },
+        "mouthFront": {
+          "frame": 176,
+          "target": "viseme_I",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.355,
+          "jawFraction": 0.24822335659585565,
+          "upperTeethN": 695,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 695
+        }
+      }
+    },
+    {
+      "phone": "Z",
+      "startS": 5.91,
+      "endS": 6.01,
+      "expectedViseme": "SS",
+      "mid": {
+        "default": {
+          "frame": 178,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.672,
+          "jawFraction": 0.12168325346243015,
+          "upperTeethN": 32,
+          "lowerTeethN": 35,
+          "lipGapPx": 8,
+          "mouthTeethN": 67
+        },
+        "mouthFront": {
+          "frame": 178,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.672,
+          "jawFraction": 0.12168325346243015,
+          "upperTeethN": 1767,
+          "lowerTeethN": 0,
+          "lipGapPx": 65,
+          "mouthTeethN": 1767
+        }
+      }
+    },
+    {
+      "phone": "F",
+      "startS": 6.01,
+      "endS": 6.1,
+      "expectedViseme": "FF",
+      "mid": {
+        "default": {
+          "frame": 181,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 10,
+          "lowerTeethN": 12,
+          "lipGapPx": 4,
+          "mouthTeethN": 22
+        },
+        "mouthFront": {
+          "frame": 181,
+          "target": "viseme_FF",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 1,
+          "jawFraction": 0,
+          "upperTeethN": 3421,
+          "lowerTeethN": 0,
+          "lipGapPx": 33,
+          "mouthTeethN": 3421
+        }
+      }
+    },
+    {
+      "phone": "OY",
+      "startS": 6.1,
+      "endS": 6.35,
+      "expectedViseme": "O",
+      "mid": {
+        "default": {
+          "frame": 186,
+          "target": "viseme_O",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.5,
+          "jawFraction": 0.22195548768542017,
+          "upperTeethN": 66,
+          "lowerTeethN": 0,
+          "lipGapPx": 10,
+          "mouthTeethN": 66
+        },
+        "mouthFront": {
+          "frame": 186,
+          "target": "viseme_O",
+          "drivenTop": "viseme_FF",
+          "drivenWeight": 0.5,
+          "jawFraction": 0.22195548768542017,
+          "upperTeethN": 835,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 835
+        }
+      }
+    },
+    {
+      "phone": "L",
+      "startS": 6.35,
+      "endS": 6.39,
+      "expectedViseme": "nn",
+      "mid": {
+        "default": {
+          "frame": 191,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_O",
+          "drivenWeight": 0.367,
+          "jawFraction": 0.4430189733361144,
+          "upperTeethN": 82,
+          "lowerTeethN": 29,
+          "lipGapPx": 11,
+          "mouthTeethN": 111
+        },
+        "mouthFront": {
+          "frame": 191,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_O",
+          "drivenWeight": 0.367,
+          "jawFraction": 0.4430189733361144,
+          "upperTeethN": 110,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 110
+        }
+      }
+    },
+    {
+      "phone": "D",
+      "startS": 6.39,
+      "endS": 6.46,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 193,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.266,
+          "jawFraction": 0.4452333272878983,
+          "upperTeethN": 92,
+          "lowerTeethN": 10,
+          "lipGapPx": 11,
+          "mouthTeethN": 102
+        },
+        "mouthFront": {
+          "frame": 193,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_DD",
+          "drivenWeight": 0.266,
+          "jawFraction": 0.4452333272878983,
+          "upperTeethN": 105,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 105
+        }
+      }
+    },
+    {
+      "phone": "Y",
+      "startS": 6.46,
+      "endS": 6.52,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 195,
+          "target": "viseme_I",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.458,
+          "jawFraction": 0.4275975782742416,
+          "upperTeethN": 87,
+          "lowerTeethN": 13,
+          "lipGapPx": 10,
+          "mouthTeethN": 100
+        },
+        "mouthFront": {
+          "frame": 195,
+          "target": "viseme_I",
+          "drivenTop": "viseme_U",
+          "drivenWeight": 0.458,
+          "jawFraction": 0.4275975782742416,
+          "upperTeethN": 8,
+          "lowerTeethN": 0,
+          "lipGapPx": 70,
+          "mouthTeethN": 8
+        }
+      }
+    },
+    {
+      "phone": "UW",
+      "startS": 6.52,
+      "endS": 6.61,
+      "expectedViseme": "U",
+      "mid": {
+        "default": {
+          "frame": 197,
+          "target": "viseme_U",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.359,
+          "jawFraction": 0.40718809465789135,
+          "upperTeethN": 102,
+          "lowerTeethN": 19,
+          "lipGapPx": 11,
+          "mouthTeethN": 121
+        },
+        "mouthFront": {
+          "frame": 197,
+          "target": "viseme_U",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.359,
+          "jawFraction": 0.40718809465789135,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "AH",
+      "startS": 6.61,
+      "endS": 6.69,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 199,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.352,
+          "jawFraction": 0.3878687586186468,
+          "upperTeethN": 120,
+          "lowerTeethN": 10,
+          "lipGapPx": 11,
+          "mouthTeethN": 130
+        },
+        "mouthFront": {
+          "frame": 199,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.352,
+          "jawFraction": 0.3878687586186468,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "G",
+      "startS": 6.69,
+      "endS": 6.78,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 202,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.41,
+          "jawFraction": 0.35642320511528564,
+          "upperTeethN": 110,
+          "lowerTeethN": 15,
+          "lipGapPx": 11,
+          "mouthTeethN": 125
+        },
+        "mouthFront": {
+          "frame": 202,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.41,
+          "jawFraction": 0.35642320511528564,
+          "upperTeethN": 583,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 583
+        }
+      }
+    },
+    {
+      "phone": "EH",
+      "startS": 6.78,
+      "endS": 7,
+      "expectedViseme": "E",
+      "mid": {
+        "default": {
+          "frame": 206,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.824,
+          "jawFraction": 0.2923138917538991,
+          "upperTeethN": 105,
+          "lowerTeethN": 21,
+          "lipGapPx": 9,
+          "mouthTeethN": 126
+        },
+        "mouthFront": {
+          "frame": 206,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.824,
+          "jawFraction": 0.2923138917538991,
+          "upperTeethN": 1093,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 1093
+        }
+      }
+    },
+    {
+      "phone": "N",
+      "startS": 7,
+      "endS": 7.14,
+      "expectedViseme": "nn",
+      "mid": {
+        "default": {
+          "frame": 212,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_nn",
+          "drivenWeight": 0.535,
+          "jawFraction": 0.1527561925040203,
+          "upperTeethN": 86,
+          "lowerTeethN": 9,
+          "lipGapPx": 9,
+          "mouthTeethN": 95
+        },
+        "mouthFront": {
+          "frame": 212,
+          "target": "viseme_nn",
+          "drivenTop": "viseme_nn",
+          "drivenWeight": 0.535,
+          "jawFraction": 0.1527561925040203,
+          "upperTeethN": 668,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 668
+        }
+      }
+    },
+    {
+      "phone": "SIL",
+      "startS": 7.14,
+      "endS": 7.42,
+      "expectedViseme": "sil",
+      "mid": {
+        "default": {
+          "frame": 218,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.887,
+          "jawFraction": 0.14577532941286445,
+          "upperTeethN": 28,
+          "lowerTeethN": 7,
+          "lipGapPx": 7,
+          "mouthTeethN": 35
+        },
+        "mouthFront": {
+          "frame": 218,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_sil",
+          "drivenWeight": 0.887,
+          "jawFraction": 0.14577532941286445,
+          "upperTeethN": 143,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 143
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 7.42,
+      "endS": 7.52,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 224,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.443,
+          "jawFraction": 0.23998133068563793,
+          "upperTeethN": 80,
+          "lowerTeethN": 10,
+          "lipGapPx": 9,
+          "mouthTeethN": 90
+        },
+        "mouthFront": {
+          "frame": 224,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.443,
+          "jawFraction": 0.23998133068563793,
+          "upperTeethN": 435,
+          "lowerTeethN": 0,
+          "lipGapPx": 70,
+          "mouthTeethN": 435
+        }
+      }
+    },
+    {
+      "phone": "R",
+      "startS": 7.52,
+      "endS": 7.57,
+      "expectedViseme": "RR",
+      "mid": {
+        "default": {
+          "frame": 226,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.496,
+          "jawFraction": 0.26978730534108186,
+          "upperTeethN": 96,
+          "lowerTeethN": 6,
+          "lipGapPx": 9,
+          "mouthTeethN": 102
+        },
+        "mouthFront": {
+          "frame": 226,
+          "target": "viseme_RR",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.496,
+          "jawFraction": 0.26978730534108186,
+          "upperTeethN": 377,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 377
+        }
+      }
+    },
+    {
+      "phone": "IY",
+      "startS": 7.57,
+      "endS": 7.68,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 228,
+          "target": "viseme_I",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.493,
+          "jawFraction": 0.28514823005717704,
+          "upperTeethN": 97,
+          "lowerTeethN": 11,
+          "lipGapPx": 9,
+          "mouthTeethN": 108
+        },
+        "mouthFront": {
+          "frame": 228,
+          "target": "viseme_I",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.493,
+          "jawFraction": 0.28514823005717704,
+          "upperTeethN": 589,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 589
+        }
+      }
+    },
+    {
+      "phone": "EY",
+      "startS": 7.68,
+      "endS": 7.85,
+      "expectedViseme": "E",
+      "mid": {
+        "default": {
+          "frame": 232,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.726,
+          "jawFraction": 0.29014610866511636,
+          "upperTeethN": 102,
+          "lowerTeethN": 16,
+          "lipGapPx": 9,
+          "mouthTeethN": 118
+        },
+        "mouthFront": {
+          "frame": 232,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.726,
+          "jawFraction": 0.29014610866511636,
+          "upperTeethN": 1058,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 1058
+        }
+      }
+    },
+    {
+      "phone": "T",
+      "startS": 7.85,
+      "endS": 7.89,
+      "expectedViseme": "DD",
+      "mid": {
+        "default": {
+          "frame": 236,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.355,
+          "jawFraction": 0.2841114641118037,
+          "upperTeethN": 111,
+          "lowerTeethN": 13,
+          "lipGapPx": 10,
+          "mouthTeethN": 124
+        },
+        "mouthFront": {
+          "frame": 236,
+          "target": "viseme_DD",
+          "drivenTop": "viseme_I",
+          "drivenWeight": 0.355,
+          "jawFraction": 0.2841114641118037,
+          "upperTeethN": 677,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 677
+        }
+      }
+    },
+    {
+      "phone": "IH",
+      "startS": 7.89,
+      "endS": 7.96,
+      "expectedViseme": "I",
+      "mid": {
+        "default": {
+          "frame": 238,
+          "target": "viseme_I",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.525,
+          "jawFraction": 0.2938372647629216,
+          "upperTeethN": 109,
+          "lowerTeethN": 12,
+          "lipGapPx": 10,
+          "mouthTeethN": 121
+        },
+        "mouthFront": {
+          "frame": 238,
+          "target": "viseme_I",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.525,
+          "jawFraction": 0.2938372647629216,
+          "upperTeethN": 588,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 588
+        }
+      }
+    },
+    {
+      "phone": "NG",
+      "startS": 7.96,
+      "endS": 8.05,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 240,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.745,
+          "jawFraction": 0.3074099028321276,
+          "upperTeethN": 105,
+          "lowerTeethN": 11,
+          "lipGapPx": 10,
+          "mouthTeethN": 116
+        },
+        "mouthFront": {
+          "frame": 240,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.745,
+          "jawFraction": 0.3074099028321276,
+          "upperTeethN": 544,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 544
+        }
+      }
+    },
+    {
+      "phone": "K",
+      "startS": 8.05,
+      "endS": 8.15,
+      "expectedViseme": "kk",
+      "mid": {
+        "default": {
+          "frame": 242,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.656,
+          "jawFraction": 0.32318398425420874,
+          "upperTeethN": 106,
+          "lowerTeethN": 15,
+          "lipGapPx": 10,
+          "mouthTeethN": 121
+        },
+        "mouthFront": {
+          "frame": 242,
+          "target": "viseme_kk",
+          "drivenTop": "viseme_kk",
+          "drivenWeight": 0.656,
+          "jawFraction": 0.32318398425420874,
+          "upperTeethN": 719,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 719
+        }
+      }
+    },
+    {
+      "phone": "EY",
+      "startS": 8.15,
+      "endS": 8.38,
+      "expectedViseme": "E",
+      "mid": {
+        "default": {
+          "frame": 247,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.832,
+          "jawFraction": 0.4211111488051586,
+          "upperTeethN": 115,
+          "lowerTeethN": 21,
+          "lipGapPx": 10,
+          "mouthTeethN": 136
+        },
+        "mouthFront": {
+          "frame": 247,
+          "target": "viseme_E",
+          "drivenTop": "viseme_E",
+          "drivenWeight": 0.832,
+          "jawFraction": 0.4211111488051586,
+          "upperTeethN": 1114,
+          "lowerTeethN": 0,
+          "lipGapPx": 71,
+          "mouthTeethN": 1114
+        }
+      }
+    },
+    {
+      "phone": "AA",
+      "startS": 8.38,
+      "endS": 8.57,
+      "expectedViseme": "aa",
+      "mid": {
+        "default": {
+          "frame": 254,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.721,
+          "jawFraction": 0.36110074212456394,
+          "upperTeethN": 162,
+          "lowerTeethN": 0,
+          "lipGapPx": 13,
+          "mouthTeethN": 162
+        },
+        "mouthFront": {
+          "frame": 254,
+          "target": "viseme_aa",
+          "drivenTop": "viseme_aa",
+          "drivenWeight": 0.721,
+          "jawFraction": 0.36110074212456394,
+          "upperTeethN": 0,
+          "lowerTeethN": 0,
+          "lipGapPx": 64,
+          "mouthTeethN": 0
+        }
+      }
+    },
+    {
+      "phone": "S",
+      "startS": 8.57,
+      "endS": 8.76,
+      "expectedViseme": "SS",
+      "mid": {
+        "default": {
+          "frame": 260,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.73,
+          "jawFraction": 0.1928071014332837,
+          "upperTeethN": 106,
+          "lowerTeethN": 5,
+          "lipGapPx": 10,
+          "mouthTeethN": 111
+        },
+        "mouthFront": {
+          "frame": 260,
+          "target": "viseme_SS",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.73,
+          "jawFraction": 0.1928071014332837,
+          "upperTeethN": 473,
+          "lowerTeethN": 0,
+          "lipGapPx": 69,
+          "mouthTeethN": 473
+        }
+      }
+    },
+    {
+      "phone": "SIL",
+      "startS": 8.76,
+      "endS": 8.794,
+      "expectedViseme": "sil",
+      "mid": {
+        "default": {
+          "frame": 263,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.369,
+          "jawFraction": 0.1291673257089091,
+          "upperTeethN": 59,
+          "lowerTeethN": 10,
+          "lipGapPx": 7,
+          "mouthTeethN": 69
+        },
+        "mouthFront": {
+          "frame": 263,
+          "target": "viseme_sil",
+          "drivenTop": "viseme_SS",
+          "drivenWeight": 0.369,
+          "jawFraction": 0.1291673257089091,
+          "upperTeethN": 249,
+          "lowerTeethN": 0,
+          "lipGapPx": 67,
+          "mouthTeethN": 249
+        }
+      }
+    }
+  ],
+  "checks": {
+    "bilabial": {
+      "pass": 0,
+      "fail": 3,
+      "fails": [
+        {
+          "phone": "B",
+          "startS": 0.52,
+          "view": "mouthFront",
+          "frame": 16,
+          "upperTeethN": 18,
+          "lowerTeethN": 0
+        },
+        {
+          "phone": "M",
+          "startS": 1.5,
+          "view": "mouthFront",
+          "frame": 45,
+          "upperTeethN": 18,
+          "lowerTeethN": 0
+        },
+        {
+          "phone": "P",
+          "startS": 1.55,
+          "view": "mouthFront",
+          "frame": 47,
+          "upperTeethN": 18,
+          "lowerTeethN": 0
+        }
+      ]
+    },
+    "labiodental": {
+      "pass": 4,
+      "fail": 0,
+      "fails": []
+    },
+    "interdental": [
+      {
+        "phone": "DH",
+        "startS": 0,
+        "frame": 0,
+        "drivenTop": "viseme_TH",
+        "upperTeethN": 363,
+        "lowerTeethN": 0,
+        "lipGapPx": 71
+      },
+      {
+        "phone": "DH",
+        "startS": 1.79,
+        "frame": 54,
+        "drivenTop": "viseme_TH",
+        "upperTeethN": 388,
+        "lowerTeethN": 0,
+        "lipGapPx": 71
+      },
+      {
+        "phone": "TH",
+        "startS": 2.81,
+        "frame": 85,
+        "drivenTop": "viseme_TH",
+        "upperTeethN": 365,
+        "lowerTeethN": 0,
+        "lipGapPx": 71
+      }
+    ],
+    "mismatchByViseme": {
+      "TH": {
+        "match": 6,
+        "total": 6
+      },
+      "aa": {
+        "match": 10,
+        "total": 20
+      },
+      "DD": {
+        "match": 6,
+        "total": 14
+      },
+      "kk": {
+        "match": 10,
+        "total": 18
+      },
+      "U": {
+        "match": 2,
+        "total": 6
+      },
+      "I": {
+        "match": 4,
+        "total": 18
+      },
+      "PP": {
+        "match": 6,
+        "total": 6
+      },
+      "E": {
+        "match": 8,
+        "total": 10
+      },
+      "CH": {
+        "match": 4,
+        "total": 8
+      },
+      "FF": {
+        "match": 8,
+        "total": 8
+      },
+      "SS": {
+        "match": 2,
+        "total": 6
+      },
+      "nn": {
+        "match": 2,
+        "total": 10
+      },
+      "RR": {
+        "match": 2,
+        "total": 10
+      },
+      "O": {
+        "match": 0,
+        "total": 4
+      },
+      "sil": {
+        "match": 8,
+        "total": 10
+      }
+    }
+  }
+}

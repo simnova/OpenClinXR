@@ -6,22 +6,29 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { mfaArpabetCues } from "./mfa-align.js";
+import { resolveClipConfig } from "./clip-config.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import type { Page } from "../lib/slotted-playwright.js";
 
 type HeadlessBrowser = { newPage(options: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page> };
 type TrackCue = { startS: number; endS: number; viseme: string; intensity: number };
-type ToothSample = { n: number; cx: number; cy: number; target: string; lipGapPx: number; mouthTeethN: number; upperTeethN?: number; lowerTeethN?: number };
+type ToothSample = { n: number; cx: number; cy: number; target: string; lipGapPx: number; mouthTeethN: number; upperTeethN?: number; lowerTeethN?: number; weights?: Record<string, number>; jawFraction?: number };
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
-const AUDIO = path.join(HERE, "visemes/i-feel-the-pain-is-better-now.aiff");
+/** Clip selection: --clip step3|pangram|viseme-words, default step3 (legacy audio/line). */
+const CLIP = resolveClipConfig(process.argv);
+const AUDIO = CLIP.audioFile;
 const RHUBARB = path.join(process.env.HOME ?? "", ".openclinxr-tools/rhubarb/rhubarb");
-const LINE = "I feel the pain is better now.";
+const LINE = CLIP.line;
+const TRANSCRIPT = CLIP.transcript;
 /** Cue source: MFA forced alignment by default when installed (tools/openclinxr/asset-pipeline/mfa/install-mfa.sh); Rhubarb when MFA is absent or `--aligner rhubarb` is passed. */
 const ALIGNER_ARG = process.argv.includes("--aligner") ? process.argv[process.argv.indexOf("--aligner") + 1] : undefined;
 const ALIGNER = ALIGNER_ARG === "rhubarb" ? "rhubarb" : ALIGNER_ARG === "mfa" || existsSync(path.join(process.env.HOME ?? "", ".openclinxr-tools/mfa/bin/mfa")) ? "mfa" : "rhubarb";
-const MODE = process.argv.includes("--fixed-gap") ? "teeth-gap/fixed-capture" : process.argv.includes("--step3") ? "step3" : "step2";
+const HAS_CLIP = process.argv.includes("--clip");
+const LEGACY_MODE = process.argv.includes("--fixed-gap") ? "teeth-gap/fixed-capture" : process.argv.includes("--step3") ? "step3" : "step2";
+/** Explicit --clip step3 resolves to the legacy step3 mode and paths. */
+const MODE = HAS_CLIP ? (CLIP.clip === "step3" ? "step3" : `viseme-eval/${CLIP.clip}`) : LEGACY_MODE;
 /** U1 mouth-front: opt-in frontal mouth-height view. Absent = legacy head framing, byte-identical. */
 const MOUTH_FRONT = process.argv.includes("--view") && process.argv[process.argv.indexOf("--view") + 1] === "mouth-front";
 const OUT_DIR = path.join(REPO, `docs/openclinxr/mouth-dynamics/${MODE}${MOUTH_FRONT ? "-mouth-front" : ""}`);
@@ -68,10 +75,10 @@ function makeTrack(jobDir: string): { aligner: string; doc: unknown; wavBase64: 
   const wav = path.join(jobDir, "speech.wav");
   const dialog = path.join(jobDir, "dialog.txt");
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", AUDIO, "-ar", "22050", "-ac", "1", "-c:a", "pcm_s16le", wav]);
-  writeFileSync(dialog, `${LINE}\n`);
+  writeFileSync(dialog, `${TRANSCRIPT}\n`);
   let doc: unknown;
   if (ALIGNER === "mfa") {
-    doc = mfaArpabetCues(wav, LINE, "step3");
+    doc = mfaArpabetCues(wav, TRANSCRIPT, CLIP.mfaBasename);
   } else {
     const output = path.join(jobDir, "rhubarb.json");
     execFileSync(RHUBARB, ["--exportFormat", "json", "-d", dialog, "--extendedShapes", "GHX", "--output", output, wav], { stdio: "inherit" });
@@ -119,7 +126,7 @@ function motionReport(samples: readonly ToothSample[], cues: readonly TrackCue[]
 }
 
 type CaptureCanvas = { height:number; toDataURL(kind:string):string; getContext(kind:string):{RGBA:number;UNSIGNED_BYTE:number;readPixels(x:number,y:number,w:number,h:number,f:number,t:number,p:Uint8Array):void}|null };
-type PageGlobal = { __speechTimeS:number;requestAnimationFrame(cb:()=>void):number;document:{getElementById(id:string):CaptureCanvas|null};__openClinXrIsolatedRenderFrame?:()=>void;__openClinXrSyncPreparedSpeech?:(timeS:number)=>void;__openClinXrIsolatedSceneRoot?:{userData?:{openClinXrNamedVisemeDrive?:{activeTargetName?:string;appliedMeshCount?:number}}} };
+type PageGlobal = { __speechTimeS:number;requestAnimationFrame(cb:()=>void):number;document:{getElementById(id:string):CaptureCanvas|null};__openClinXrIsolatedRenderFrame?:()=>void;__openClinXrSyncPreparedSpeech?:(timeS:number)=>void;__openClinXrIsolatedSceneRoot?:{userData?:{openClinXrNamedVisemeDrive?:{activeTargetName?:string;appliedMeshCount?:number;weights?:Record<string,number>;jawFraction?:number}}} };
 
 async function recordFrames(page: Page, cues: TrackCue[], durationS: number, frameDir: string) {
   const frames=Math.max(2,Math.round(durationS*FPS)); mkdirSync(frameDir,{recursive:true});
@@ -128,9 +135,13 @@ async function recordFrames(page: Page, cues: TrackCue[], durationS: number, fra
   // recentres the 240x180 window (same size) and widens the counting box to
   // the measured aperture extent (k=0: teeth x13-239 y29-83 of the window).
   // Defaults are literal-identical to the pre-view code path.
+  // Non-legacy clips record the upper/lower split in both views; legacy
+  // step3 keeps the exact legacy sampler (no split in the default view).
   const sampler = MOUTH_FRONT
     ? { ox: 520, yTop: 570, split: true, x0: 10, x1: 230, y0: 25, y1: 95 }
-    : { ox: 500, yTop: 710, split: false, x0: 40, x1: 100, y0: 55, y1: 85 };
+    : CLIP.legacy
+      ? { ox: 500, yTop: 710, split: false, x0: 40, x1: 100, y0: 55, y1: 85 }
+      : { ox: 500, yTop: 710, split: true, x0: 40, x1: 100, y0: 55, y1: 85 };
   for (let frame=0;frame<frames;frame+=1) {
     await page.evaluate((timeS:number)=>{ const win=globalThis as unknown as PageGlobal;win.__speechTimeS=timeS;win.__openClinXrSyncPreparedSpeech?.(timeS); },frame/FPS);
     await page.evaluate(()=>new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("requestAnimationFrame stalled")),2000);(globalThis as unknown as PageGlobal).requestAnimationFrame(()=>{clearTimeout(timer);resolve();});}));
@@ -141,9 +152,9 @@ async function recordFrames(page: Page, cues: TrackCue[], durationS: number, fra
       const counts=splitLib.OpenClinXrToothSplit?.analyzeToothPixels(buf,width,height,{x0:geom.x0,x1:geom.x1,y0:geom.y0,y1:geom.y1},geom.split);
       if(!counts)return {error:"tooth-split-lib-missing"};
       const drive=win.__openClinXrIsolatedSceneRoot?.userData?.openClinXrNamedVisemeDrive; const target=!drive||(drive.appliedMeshCount??0)<1?"":(drive.activeTargetName??"sil");
-      return {target,n:counts.n,cx:counts.cx,cy:counts.cy,lipGapPx:counts.lipGapPx,mouthTeethN:counts.mouthTeethN,upperTeethN:counts.upperTeethN,lowerTeethN:counts.lowerTeethN,png:canvas.toDataURL("image/png")}; },sampler);
+      return {target,n:counts.n,cx:counts.cx,cy:counts.cy,lipGapPx:counts.lipGapPx,mouthTeethN:counts.mouthTeethN,upperTeethN:counts.upperTeethN,lowerTeethN:counts.lowerTeethN,weights:{...(drive?.weights??{})},jawFraction:drive?.jawFraction??0,png:canvas.toDataURL("image/png")}; },sampler);
     if("error" in shot&&shot.error)throw new Error(`frame ${frame}: ${shot.error}`); if(!shot.target)throw new Error(`frame ${frame} did not drive a viseme mesh`);
-    samples.push({n:shot.n??0,cx:shot.cx??0,cy:shot.cy??0,target:shot.target,lipGapPx:shot.lipGapPx??0,mouthTeethN:shot.mouthTeethN??0,...(shot.upperTeethN!==undefined?{upperTeethN:shot.upperTeethN,lowerTeethN:shot.lowerTeethN??0}:{})}); targets.add(shot.target);
+    samples.push({n:shot.n??0,cx:shot.cx??0,cy:shot.cy??0,target:shot.target,lipGapPx:shot.lipGapPx??0,mouthTeethN:shot.mouthTeethN??0,...(shot.upperTeethN!==undefined?{upperTeethN:shot.upperTeethN,lowerTeethN:shot.lowerTeethN??0}:{}),...(CLIP.legacy?{}:{weights:shot.weights??{},jawFraction:shot.jawFraction??0})}); targets.add(shot.target);
     writeFileSync(path.join(frameDir,`f-${String(frame).padStart(4,"0")}.png`),Buffer.from(shot.png.slice(shot.png.indexOf(",")+1),"base64"));
   }
   return {frames,samples,targets:[...targets],teeth:motionReport(samples,cues)};
@@ -172,7 +183,7 @@ async function main():Promise<void>{
       ? "MFA 3.4.2 phone alignment of the known dialog (english_us_arpa) mapped by the xr-dialogue arpabet intake before prepared runtime playback"
       : "Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback";
     const cueDoc = track.aligner === "mfa" ? { mfa: track.doc } : { rhubarb: track.doc };
-    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,aligner:track.aligner,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing,dynamics,canonicalTrack:cues,...cueDoc,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
+    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,...(CLIP.legacy?{}:{clip:CLIP.clip}),line:LINE,aligner:track.aligner,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing,dynamics,canonicalTrack:cues,...cueDoc,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
     await page.close();
   }finally{if(server)await stopPortlessDevServer(server.proc);rmSync(jobDir,{recursive:true,force:true});}});
 }
