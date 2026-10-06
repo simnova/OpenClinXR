@@ -63,7 +63,7 @@ function meshLike(): MorphTarget {
 describe("viseme weights are applied by name, not by index (#62)", () => {
   it("writes each weight to the index its name maps to", async () => {
     const mod = await load();
-    const apply = mod["applyVisemeWeights"] as Apply | undefined;
+    const apply = mod.applyVisemeWeights as Apply | undefined;
     expect(apply).toBeTypeOf("function");
 
     const target = meshLike();
@@ -77,7 +77,7 @@ describe("viseme weights are applied by name, not by index (#62)", () => {
     // This is the one that kills main.ts:8496 — it writes influences[0] unconditionally, so every
     // phoneme lands on whatever sits at index 0 regardless of which viseme was requested.
     const mod = await load();
-    const apply = mod["applyVisemeWeights"] as Apply | undefined;
+    const apply = mod.applyVisemeWeights as Apply | undefined;
     expect(apply).toBeTypeOf("function");
 
     const target = meshLike();
@@ -91,7 +91,7 @@ describe("viseme weights are applied by name, not by index (#62)", () => {
     // The sweep graded 0.3 ACCEPTABLE, 0.6 DEGRADING, 1.0 UNACCEPTABLE; the cap applies on the
     // RESOLVED name, so both entry paths land at the cap, and other targets keep full range.
     const mod = await load();
-    const apply = mod["applyVisemeWeights"] as Apply | undefined;
+    const apply = mod.applyVisemeWeights as Apply | undefined;
     expect(apply).toBeTypeOf("function");
 
     const direct = {
@@ -117,5 +117,40 @@ describe("viseme weights are applied by name, not by index (#62)", () => {
     };
     apply!(other, { "mouth-eversion": 1 });
     expect(other.morphTargetInfluences[1]).toBe(1);
+  });
+});
+
+type LipWeights = (mesh: MorphTarget & { name?: string }, weights: Record<string, number>) => Record<string, number>;
+
+function lipMesh(name: string): MorphTarget & { name: string } {
+  return {
+    name,
+    morphTargetDictionary: { viseme_aa: 0, viseme_FF: 1, viseme_PP: 2, viseme_TH: 3 },
+    morphTargetInfluences: [0, 0, 0, 0],
+  };
+}
+
+describe("contact visemes run at full gain, vowels at half", () => {
+  it("writes PP/FF/TH at 1.0 on lip and teeth meshes", async () => {
+    const mod = await load();
+    const lip = mod.lipVisemeWeights as LipWeights | undefined;
+    expect(lip).toBeTypeOf("function");
+
+    for (const mesh of [lipMesh("body"), lipMesh("fitted_teeth")]) {
+      const scaled = lip!(mesh, { viseme_FF: 0.9, viseme_PP: 0.9, viseme_TH: 0.9, viseme_aa: 0.9 });
+      expect(scaled.viseme_FF).toBeCloseTo(0.9);
+      expect(scaled.viseme_PP).toBeCloseTo(0.9);
+      expect(scaled.viseme_TH).toBeCloseTo(0.9);
+      expect(scaled.viseme_aa).toBeCloseTo(0.45);
+    }
+  });
+
+  it("keeps vowels at half gain on both mesh kinds", async () => {
+    const mod = await load();
+    const lip = mod.lipVisemeWeights as LipWeights | undefined;
+    expect(lip).toBeTypeOf("function");
+
+    expect(lip!(lipMesh("body"), { viseme_aa: 1 }).viseme_aa).toBeCloseTo(0.5);
+    expect(lip!(lipMesh("fitted_teeth"), { viseme_aa: 1 }).viseme_aa).toBeCloseTo(0.5);
   });
 });

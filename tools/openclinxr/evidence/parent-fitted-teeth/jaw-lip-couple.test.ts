@@ -382,7 +382,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
 
-  it("seats lower teeth on the rim transfer with a rigid per-viseme mean and a pre-image-identical upper arch", async () => {
+  it("seats lower teeth on the rim transfer with a rigid per-viseme mean and a silent upper arch", async () => {
     // Supersedes "writes one jaw vector per viseme": the hand-tuned
     // JAW_BY_VISEME rigid vectors plus HEAD_MEAN assumed the outer lip
     // landmark, which the crowns do not face. The producer now transfers the
@@ -472,7 +472,10 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // the pre-image teeth index whose dominant input joint is the jaw or a
     // jaw descendant; the jaw-bound verts of those components. Median-Y
     // retired: it caught 338 upper-arch verts and stretched them with the
-    // lower arch. Upper-arch deltas equal the pre-image input verbatim.
+    // lower arch. Upper-arch morph deltas are zero (operator 2026-10-06):
+    // the pre-image carries Oct-1 rigid translations on head-weighted verts
+    // (probe aa upper +8.3 mm). Upper base and skinning stay pre-image
+    // verbatim; only the morph fields are silenced.
     const preDocArch = await new NodeIO().read(preTmp);
     const preTeethArch = preDocArch.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
     const preTeethPrim = preTeethArch?.listPrimitives()[0];
@@ -506,16 +509,13 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(lowerArch.length).toBe(plan.lowerArchCount);
     expect(lowerArch.length).toBe(2180);
     expect(upperArch.length).toBe(2314);
-    const preTargetNames = ((preTeethArch?.getExtras() as { targetNames?: string[] } | null)?.targetNames) ?? [];
     for (const name of VISEME_ORDER) {
       const delta = newDeltas[name]!;
-      const preTargetAttr = preTeethPrim.listTargets()[preTargetNames.indexOf(name)]?.getAttribute("POSITION");
-      if (!preTargetAttr) throw new Error(`pre-image teeth target ${name} missing`);
-      const preDelta = asFloat(preTargetAttr);
+      expect(delta).toBeDefined();
       for (const vertex of upperArch) {
-        expect(delta[vertex * 3] ?? 0).toBe(preDelta[vertex * 3] ?? 0);
-        expect(delta[vertex * 3 + 1] ?? 0).toBe(preDelta[vertex * 3 + 1] ?? 0);
-        expect(delta[vertex * 3 + 2] ?? 0).toBe(preDelta[vertex * 3 + 2] ?? 0);
+        expect(delta[vertex * 3] ?? 0).toBe(0);
+        expect(delta[vertex * 3 + 1] ?? 0).toBe(0);
+        expect(delta[vertex * 3 + 2] ?? 0).toBe(0);
       }
       const first = lowerArch[0]!;
       const fx = delta[first * 3] ?? 0;

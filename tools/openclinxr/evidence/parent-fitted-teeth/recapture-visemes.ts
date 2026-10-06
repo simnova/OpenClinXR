@@ -217,14 +217,17 @@ async function main(): Promise<void> {
       if (measure.teethMeshCount < 1 || measure.teethAa === null) {
         throw new Error(`${shot.phoneme} teeth viseme_aa missing`);
       }
+      // Contact visemes (PP/FF) run at full gain, vowels at half; the drive
+      // weight is 1.0 on the active target in both cases.
+      const expectedInfluence = shot.target === "viseme_FF" || shot.target === "viseme_PP" ? 1 : 0.5;
       if (shot.target === "viseme_aa") {
-        if (measure.teethInfluence !== 0.5 || measure.teethAa !== 0.5) {
+        if (measure.teethInfluence !== expectedInfluence || measure.teethAa !== 0.5) {
           throw new Error(`${shot.phoneme} teeth influence ${measure.teethInfluence} aa ${measure.teethAa}`);
         }
-      } else if (measure.teethInfluence !== 0.5 || measure.teethAa !== 0) {
+      } else if (measure.teethInfluence !== expectedInfluence || measure.teethAa !== 0) {
         throw new Error(`${shot.phoneme} teeth influence ${measure.teethInfluence} aa ${measure.teethAa}`);
       }
-      if (measure.lipInfluence !== 0.5) {
+      if (measure.lipInfluence !== expectedInfluence) {
         throw new Error(`${shot.phoneme} lip influence ${measure.lipInfluence}`);
       }
       if (measure.mouthOpen !== 0 || measure.drive.mouthOpen !== 0) {

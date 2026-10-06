@@ -12,9 +12,9 @@
  *    that same nearest point per viseme target (rigid mean over the arch
  *    when the per-vertex field distorts crowns past 0.3 mm).
  *
- * Upper-arch base, skinning, and morph deltas are preserved verbatim from
- * the producer input, so the upper teeth stay bitwise identical to the
- * pre-image and move independently of the lower arch. The
+ * Upper-arch base and skinning are preserved verbatim from the producer
+ * input, and upper-arch morph deltas are zeroed, so the upper teeth stay
+ * fixed and move independently of the lower arch. The
  * lower-arch BASE is translated once (bind +z, fixed point) toward
  * --target-gap-mm, then per-vertex face clearance pulls back the teeth
  * vertices ahead of the #739 clearance plane (cap skin median minus the
@@ -83,8 +83,6 @@ const FF_CONTACT_LO_M = 0.00015;
 const FF_CONTACT_HI_M = 0.00035;
 /** FF solve fixed-point bound: residual-corrected iterations, deterministic order. */
 const FF_PASSES = 10;
-/** Contact patch half-width: the teeth front-shell rule (FRONT_SHELL_ABS_X_M). */
-const FF_PATCH_HALF_X_M = 0.012;
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -393,7 +391,8 @@ export async function solveFfLipContact(input: {
   let support = 0;
   const dist: number[] = new Array(landmark.length);
   for (let i = 0; i < landmark.length; i += 1) {
-    const v = landmark[i]!;
+    const v = landmark[i];
+    if (v === undefined) throw new Error("FF contact: landmark index out of range");
     const dx = (rest.bodyHead[v * 3] ?? 0) - cx;
     const dy = (rest.bodyHead[v * 3 + 1] ?? 0) - cy;
     const d = Math.hypot(dx, dy);
@@ -452,7 +451,8 @@ export async function solveFfLipContact(input: {
     const scale = -((gap - FF_CONTACT_M) / gap);
     step.set(vec[0] * scale, vec[1] * scale, vec[2] * scale).applyMatrix3(toBind);
     for (let i = 0; i < landmark.length; i += 1) {
-      const v = landmark[i]!;
+      const v = landmark[i];
+      if (v === undefined) throw new Error("FF contact: landmark index out of range");
       const w = weights[i] ?? 0;
       edited[v * 3] = (edited[v * 3] ?? 0) + step.x * w;
       edited[v * 3 + 1] = (edited[v * 3 + 1] ?? 0) + step.y * w;
@@ -571,7 +571,7 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     for (const child of node.listChildren()) collectJaw(child);
   };
   collectJaw(jawNode as unknown as JawWalkNode);
-  const { lowerArch } = lowerArchByJoint({
+  const { lowerArch, upperArch } = lowerArchByJoint({
     indexArray: teethIndex,
     jointArray,
     weightArray,
@@ -730,7 +730,9 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
       teethJoints: jointArray,
       teethWeights: weightArray,
     });
-    transferBodyDeltas = bodyDeltas.map((delta, index) => (index === ffBodyIndex ? ffContact!.editedBodyFf : delta));
+    if (!ffContact) throw new Error("FF contact: missing contacted field");
+    const contactedFf = ffContact.editedBodyFf;
+    transferBodyDeltas = bodyDeltas.map((delta, index) => (index === ffBodyIndex ? contactedFf : delta));
   }
 
   const transfer = transferArch({
@@ -739,6 +741,21 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     teethInputDeltas,
   });
   const { newJoints, newWeights, newDeltas, distortionMm, rigid, jawMaxVerts } = transfer;
+
+  // Upper-arch morph silence (operator 2026-10-06): upper teeth carry no
+  // viseme deltas. The pre-image carries Oct-1 rigid translations on
+  // head-weighted verts (probe aa upper +8.3 mm); zeroing restores the
+  // 206009a30-c57cc153a posture. Base, skinning, and lower-arch transfer
+  // above are untouched, so the edge-to-rim construction is unchanged.
+  for (const targetName of Object.keys(newDeltas)) {
+    const field = newDeltas[targetName];
+    if (!field) throw new Error(`no delta for ${targetName}`);
+    for (const vertex of upperArch) {
+      field[vertex * 3] = 0;
+      field[vertex * 3 + 1] = 0;
+      field[vertex * 3 + 2] = 0;
+    }
+  }
 
   // Variant-A down gain: scale the vertical head-local component of each
   // lower-arch teeth viseme delta. Head-local comes from the head bone rest

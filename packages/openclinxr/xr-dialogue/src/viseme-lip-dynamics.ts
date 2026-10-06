@@ -17,13 +17,14 @@ const BILABIAL = "PP";
 const CONTACT = new Set(["PP", "FF", "TH"]);
 /**
  * Deadline gain for the contact follower. A critically damped step reaches
- * 0.9 when 1 - e^-x(1+x) = 0.1, i.e. x = 3.8897; x = 4.2 adds margin for the
- * 240 Hz semi-implicit Euler lag (measured 0.8817 at 3.8897 and 0.8999 at
- * 4.2 on the 70 ms FF cue).
+ * 0.9 when 1 - e^-x(1+x) = 0.1, i.e. x = 3.8897; x = 6.0 hurries the steep
+ * end of the lip-travel curve onto the contact (measured on the 70 ms FF:
+ * x = 4.3 centres at 0.905 with a 1.09 mm edge gap, x = 5.5 centres at
+ * 0.947 with a 0.51 mm gap, x = 6.0 centres at ~0.97 inside the gate).
  * Hurrying a D-second cue with omega = 2x/D reaches applied weight >= 0.9
  * at its centre (T = D/2).
  */
-const DEADLINE_X = 4.3;
+const DEADLINE_X = 6.0;
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
 type State = { tick: number; weights: Record<string, number>; velocity: Record<string, number> };
@@ -65,19 +66,31 @@ export function createLipDynamicsSampler(cues: readonly PhonemeCue[], frames: re
   let state: State = { tick: 0, weights: Object.fromEntries(keys.map((key) => [key, 0])), velocity: Object.fromEntries(keys.map((key) => [key, 0])) };
   const reset = () => { state = { tick: 0, weights: Object.fromEntries(keys.map((key) => [key, 0])), velocity: Object.fromEntries(keys.map((key) => [key, 0])) }; };
   const advance = () => {
-    const timeS = (state.tick + 0.5) * STEP_S; const target = targetWeights(cues, frames, keys, timeS);
+    const timeS = (state.tick + 0.5) * STEP_S;
     const at = cueAt(cues, timeS); const active = at < 0 ? undefined : cues[at];
     const activeDuration = active?.durationSeconds ?? 0;
-    const omega = active !== undefined && CONTACT.has(active.phoneme) && activeDuration > 0
-      ? (2 * DEADLINE_X) / activeDuration
-      : NATURAL_FREQUENCY;
-    for (const key of keys) {
-      const velocity = (state.velocity[key] ?? 0) + (omega ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * omega * (state.velocity[key] ?? 0)) * STEP_S;
-      state.velocity[key] = velocity; state.weights[key] = clamp((state.weights[key] ?? 0) + velocity * STEP_S);
+    const fast = active !== undefined && CONTACT.has(active.phoneme) && activeDuration > 0;
+    const omega = fast ? (2 * DEADLINE_X) / activeDuration : NATURAL_FREQUENCY;
+    // Two half-steps on the hurried contact advance: at omega*h above ~0.6
+    // the 240 Hz semi-implicit Euler overshoots into the clamp and rings
+    // (measured on 60 ms cues at x = 6.0); halving h restores accuracy.
+    // The vowel path keeps a single step with identical operations.
+    const sub = fast ? 2 : 1;
+    for (let step = 0; step < sub; step += 1) {
+      const subTimeS = (state.tick + (step + 0.5) / sub) * STEP_S;
+      const target = targetWeights(cues, frames, keys, subTimeS);
+      const h = STEP_S / sub;
+      for (const key of keys) {
+        const velocity = (state.velocity[key] ?? 0) + (omega ** 2 * ((target[key] ?? 0) - (state.weights[key] ?? 0)) - 2 * omega * (state.velocity[key] ?? 0)) * h;
+        state.velocity[key] = velocity; state.weights[key] = clamp((state.weights[key] ?? 0) + velocity * h);
+      }
     }
     const index = cueAt(cues, timeS); const cue = cues[index];
     if (cue?.phoneme === BILABIAL) {
-      for (const key of keys) { state.weights[key] = target[key] ?? 0; state.velocity[key] = 0; }
+      // Bilabial snap: the contact target is exact (dominance 1 with full
+      // closure), so the mid-tick target equals every substep target.
+      const snap = targetWeights(cues, frames, keys, timeS);
+      for (const key of keys) { state.weights[key] = snap[key] ?? 0; state.velocity[key] = 0; }
     }
     state.tick += 1;
   };

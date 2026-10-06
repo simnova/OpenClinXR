@@ -107,6 +107,23 @@ export function applyVisemeWeights(
 /** Half strength on a viseme_* key. Teeth meshes use JAW_TEETH_GAIN; other meshes use LIP_VISEME_GAIN. */
 export const LIP_VISEME_GAIN = 0.5;
 export const JAW_TEETH_GAIN = 0.5;
+/**
+ * Contact class: consonants produced by articulatory contact (PP bilabial,
+ * FF labiodental, TH dental). These run at full gain: contact sounds cannot
+ * be produced without contact. Every other viseme_* key keeps the mesh
+ * half-gain above. Module-local mirror of the sampler's set in
+ * viseme-lip-dynamics.ts (kept unexported; this module cannot import it
+ * without a dependency cycle).
+ */
+const CONTACT_VISEMES = new Set(["pp", "ff", "th"]);
+
+function isContactViseme(resolved: string | null, requested: string): boolean {
+  const tokens = [resolved ?? "", requested].map((name) => {
+    const lower = name.toLowerCase();
+    return lower.startsWith("viseme_") ? lower.slice("viseme_".length) : lower;
+  });
+  return tokens.some((token) => CONTACT_VISEMES.has(token));
+}
 
 export function lipVisemeWeights(
   mesh: MorphTargetLike & { name?: string },
@@ -118,7 +135,9 @@ export function lipVisemeWeights(
   const scaled: Record<string, number> = {};
   for (const [key, weight] of Object.entries(weights)) {
     const resolved = resolveMorphTarget(key, available);
-    const gain = resolved?.toLowerCase().startsWith("viseme_") ? visemeGain : 1;
+    const gain = isContactViseme(resolved, key)
+      ? 1
+      : (resolved?.toLowerCase().startsWith("viseme_") ? visemeGain : 1);
     scaled[key] = weight * gain;
   }
   return scaled;
