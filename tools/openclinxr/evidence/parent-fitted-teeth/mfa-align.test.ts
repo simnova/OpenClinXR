@@ -7,7 +7,7 @@
  * not by this file.
  */
 import { describe, expect, it } from "vitest";
-import { applyMfaClosureRule, parseMfaPhonesTier, type ArpabetCue } from "./mfa-align.ts";
+import { applyMfaClosureRule, applyMfaContactDeconfliction, parseMfaPhonesTier, type ArpabetCue } from "./mfa-align.ts";
 
 const TIER = `File type = "ooTextFile"
 Object class = "TextGrid"
@@ -88,5 +88,47 @@ describe("applyMfaClosureRule", () => {
     const input: ArpabetCue[] = [{ startS: 1.36, endS: 1.53, phone: "SIL" }, { startS: 1.53, endS: 1.56, phone: "P" }];
     applyMfaClosureRule(input);
     expect(input[0]?.phone).toBe("SIL");
+  });
+});
+
+describe("applyMfaContactDeconfliction", () => {
+  const deconflict = (phones: Array<[number, number, string]>): ArpabetCue[] =>
+    applyMfaContactDeconfliction(phones.map(([startS, endS, phone]) => ({ startS, endS, phone })));
+
+  it("demotes TH to DD when a PP closure starts within one halo (step3 DH case)", () => {
+    const cues = deconflict([
+      [1.02, 1.18, "DH"],
+      [1.18, 1.36, "AH0"],
+      [1.36, 1.53, "P"],
+    ]);
+    expect(cues[0]?.phone).toBe("D");
+    expect(cues[1]?.phone).toBe("AH0");
+  });
+
+  it("fires on the closure-rule output (SIL already relabelled to P)", () => {
+    const closed = applyMfaClosureRule([
+      { startS: 1.02, endS: 1.18, phone: "DH" },
+      { startS: 1.36, endS: 1.53, phone: "SIL" },
+      { startS: 1.53, endS: 1.56, phone: "P" },
+    ]);
+    const cues = applyMfaContactDeconfliction(closed);
+    expect(cues[0]?.phone).toBe("D");
+  });
+
+  it("leaves TH alone when the next closure is a full halo away", () => {
+    const cues = deconflict([
+      [1.02, 1.18, "DH"],
+      [1.56, 1.93, "EY1"],
+      [2.41, 2.56, "P"],
+    ]);
+    expect(cues[0]?.phone).toBe("DH");
+  });
+
+  it("leaves TH alone before vowels (no sealing contact)", () => {
+    const cues = deconflict([
+      [0.3, 0.4, "DH"],
+      [0.4, 0.7, "AH0"],
+    ]);
+    expect(cues[0]?.phone).toBe("DH");
   });
 });

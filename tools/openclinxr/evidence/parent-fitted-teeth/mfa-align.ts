@@ -14,6 +14,11 @@
  * trailing silence, stay SIL. This replaces the Rhubarb-path RMS/ZCR
  * heuristics (bilabial closure correction + weak-frication carve) with no
  * acoustic thresholds: F/V labels arrive from the transcript directly.
+ *
+ * A second label-driven rule, contact-halo deconfliction, demotes a TH/DH cue
+ * ending less than one release halo (200 ms, the runtime's own
+ * CONTACT_RELEASE_S) before a sealing contact to DD, so its halo cannot
+ * exempt TH residue from neighbour suppression under the closure.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
@@ -28,6 +33,21 @@ export const MFA_ACOUSTIC_MODEL = process.env.MFA_ACOUSTIC_MODEL ?? "english_us_
 export const MFA_DICTIONARY = process.env.MFA_DICTIONARY ?? "english_us_arpa";
 
 const BILABIAL_STOPS = new Set(["P", "B", "M"]);
+
+/** Phones that map to a sealing contact (PP/FF) via ARPABET_TO_OVR. */
+const SEALING_CONTACTS = new Set(["P", "B", "M", "F", "V"]);
+
+/**
+ * Contact-halo release tail, in seconds. Mirrors CONTACT_RELEASE_S
+ * (contact-envelope.ts:18, A = R = 200 ms): every PP/FF/TH cue carries a
+ * 200 ms release halo during which its key is exempt from neighbour
+ * suppression under a following contact (viseme-lip-dynamics.ts:117-126).
+ * A TH cue ending less than one halo before a sealing closure starts
+ * props TH residue onto the closure's first frames (measured: DH
+ * 1.02-1.18 + halo to 1.38 leaves TH = 0.207 on PP = 1.0 at f41).
+ * Not tuned: the value is the runtime's own constant, read here.
+ */
+const CONTACT_HALO_S = 0.2;
 
 function stressless(phone: string): string {
   return phone.trim().toUpperCase().replace(/[0-2]$/u, "");
@@ -48,6 +68,26 @@ export function parseMfaPhonesTier(textgrid: string): ArpabetCue[] {
   }
   if (cues.length === 0) throw new Error("mfa-textgrid-no-phone-intervals");
   return cues;
+}
+
+/**
+ * Contact-halo deconfliction: a TH/DH cue ending less than one release halo
+ * before a sealing contact (PP/FF) starts demotes to DD (non-contact, no
+ * halo). Deterministic relabel on phone labels and boundaries only; the
+ * Rhubarb path never calls this (mapArpabetTrack input only).
+ */
+export function applyMfaContactDeconfliction(cues: readonly ArpabetCue[]): ArpabetCue[] {
+  return cues.map((cue) => {
+    const key = stressless(cue.phone);
+    if (key !== "TH" && key !== "DH") return { ...cue };
+    const collision = cues.some((other) => {
+      if (other === cue) return false;
+      if (!SEALING_CONTACTS.has(stressless(other.phone))) return false;
+      const gap = other.startS - cue.endS;
+      return gap > 0 && gap < CONTACT_HALO_S;
+    });
+    return collision ? { ...cue, phone: "D" } : { ...cue };
+  });
 }
 
 /**
@@ -87,7 +127,7 @@ export function runMfaAlign(wavPath: string, transcript: string, basename = "cli
   return readFileSync(path.join(outDir, `${basename}.TextGrid`), "utf8");
 }
 
-/** Full cue source: align -> parse -> closure rule. Deterministic for fixed inputs. */
+/** Full cue source: align -> parse -> closure rule -> contact deconfliction. Deterministic for fixed inputs. */
 export function mfaArpabetCues(wavPath: string, transcript: string, basename = "clip"): ArpabetCue[] {
-  return applyMfaClosureRule(parseMfaPhonesTier(runMfaAlign(wavPath, transcript, basename)));
+  return applyMfaContactDeconfliction(applyMfaClosureRule(parseMfaPhonesTier(runMfaAlign(wavPath, transcript, basename))));
 }
