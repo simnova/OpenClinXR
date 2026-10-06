@@ -1,10 +1,11 @@
 /** Capture waveform-timed mouth motion without modifying the parent GLB or its static viseme keys. */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
+import { mfaArpabetCues } from "./mfa-align.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import type { Page } from "../lib/slotted-playwright.js";
 
@@ -17,6 +18,9 @@ const REPO = path.resolve(HERE, "../../../..");
 const AUDIO = path.join(HERE, "visemes/i-feel-the-pain-is-better-now.aiff");
 const RHUBARB = path.join(process.env.HOME ?? "", ".openclinxr-tools/rhubarb/rhubarb");
 const LINE = "I feel the pain is better now.";
+/** Cue source: MFA forced alignment by default when installed (tools/openclinxr/asset-pipeline/mfa/install-mfa.sh); Rhubarb when MFA is absent or `--aligner rhubarb` is passed. */
+const ALIGNER_ARG = process.argv.includes("--aligner") ? process.argv[process.argv.indexOf("--aligner") + 1] : undefined;
+const ALIGNER = ALIGNER_ARG === "rhubarb" ? "rhubarb" : ALIGNER_ARG === "mfa" || existsSync(path.join(process.env.HOME ?? "", ".openclinxr-tools/mfa/bin/mfa")) ? "mfa" : "rhubarb";
 const MODE = process.argv.includes("--fixed-gap") ? "teeth-gap/fixed-capture" : process.argv.includes("--step3") ? "step3" : "step2";
 /** U1 mouth-front: opt-in frontal mouth-height view. Absent = legacy head framing, byte-identical. */
 const MOUTH_FRONT = process.argv.includes("--view") && process.argv[process.argv.indexOf("--view") + 1] === "mouth-front";
@@ -51,7 +55,7 @@ function browserDriveSource(): { drive: string; split: string } {
 let captureRuntime,captureContext;
 window.__openClinXrStartPreparedSpeech=()=>{const root=window.__openClinXrIsolatedSceneRoot,raw=window.__speechRhubarb,base64=window.__speechWavBase64;if(!root||!raw||!base64)throw new Error("prepared-runtime-input-missing");
   const binary=atob(base64),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i+=1)bytes[i]=binary.charCodeAt(i);
-  const cues=OpenClinXrCueTrack.mapRhubarbTrack(raw,bytes.buffer);const last=cues[cues.length-1],duration=last.endS;
+  const cues=window.__speechAligner==="mfa"?OpenClinXrCueTrack.mapArpabetTrack(raw,bytes.buffer):OpenClinXrCueTrack.mapRhubarbTrack(raw,bytes.buffer);const last=cues[cues.length-1],duration=last.endS;
   captureContext={currentTime:0,state:"running",sampleRate:22050,createBufferSource(){return {buffer:null,playbackRate:{value:1},connect(){},start(){},stop(){},disconnect(){},onended:null};}};
   const slot={root,activeSpeech:undefined};captureRuntime=OpenClinXrVisemeDrive.createActorAudioRuntime({developmentFixture:true,fixtureSearch:"?openclinxrSpeakFixture=1"});
   captureRuntime.diagnostics.installRuntime({context:captureContext,destination:{},entry:{actorId:"capture",responseText:${JSON.stringify(LINE)},runnerConversationTurn:1,waveformSha256:"capture",cueSha256:"capture",decodedSampleRate:22050,decodedSampleCount:Math.ceil(duration*22050),buffer:{duration,sampleRate:22050,length:Math.ceil(duration*22050)},cues:cues.map(c=>({phoneme:c.viseme,atSecond:c.startS,durationSeconds:c.endS-c.startS,intensity:c.intensity}))},getSlot(){return slot;},triggerDialogue(){slot.activeSpeech={text:${JSON.stringify(LINE)},phonemeSequence:["sil"],startedAtMs:0,durationMs:duration*1000};}});
@@ -60,21 +64,27 @@ window.__openClinXrSyncPreparedSpeech=(timeS)=>{if(!captureRuntime||!captureCont
   return { drive: result, split };
 }
 
-function makeTrack(jobDir: string): { rhubarb: unknown; wavBase64: string; wavSha256: string } {
+function makeTrack(jobDir: string): { aligner: string; doc: unknown; wavBase64: string; wavSha256: string } {
   const wav = path.join(jobDir, "speech.wav");
   const dialog = path.join(jobDir, "dialog.txt");
-  const output = path.join(jobDir, "rhubarb.json");
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", AUDIO, "-ar", "22050", "-ac", "1", "-c:a", "pcm_s16le", wav]);
   writeFileSync(dialog, `${LINE}\n`);
-  execFileSync(RHUBARB, ["--exportFormat", "json", "-d", dialog, "--extendedShapes", "GHX", "--output", output, wav], { stdio: "inherit" });
-  const rhubarb = JSON.parse(readFileSync(output, "utf8")) as {
-    metadata?: { soundFile?: string; duration?: number };
-    mouthCues?: Array<{ start: number; end: number; value: string }>;
-  };
-  if (rhubarb.metadata?.soundFile) rhubarb.metadata.soundFile = "speech.wav";
+  let doc: unknown;
+  if (ALIGNER === "mfa") {
+    doc = mfaArpabetCues(wav, LINE, "step3");
+  } else {
+    const output = path.join(jobDir, "rhubarb.json");
+    execFileSync(RHUBARB, ["--exportFormat", "json", "-d", dialog, "--extendedShapes", "GHX", "--output", output, wav], { stdio: "inherit" });
+    const rhubarb = JSON.parse(readFileSync(output, "utf8")) as {
+      metadata?: { soundFile?: string; duration?: number };
+      mouthCues?: Array<{ start: number; end: number; value: string }>;
+    };
+    if (rhubarb.metadata?.soundFile) rhubarb.metadata.soundFile = "speech.wav";
+    doc = rhubarb;
+  }
   const bytes = readFileSync(wav);
   const wavSha256 = execFileSync("shasum", ["-a", "256", wav], { encoding: "utf8" }).split(/\s/u)[0] ?? "";
-  return { rhubarb, wavBase64: bytes.toString("base64"), wavSha256 };
+  return { aligner: ALIGNER, doc, wavBase64: bytes.toString("base64"), wavSha256 };
 }
 
 function percentile(sorted: readonly number[], p: number): number {
@@ -151,14 +161,18 @@ async function main():Promise<void>{
     const error=await page.evaluate("window.__openClinXrVisemeApplierError || ''"); if(error)throw new Error(String(error));
     await page.addScriptTag({ content: runtimeDrive.drive });
     await page.addScriptTag({ content: runtimeDrive.split });
-    const prepared=await page.evaluate((input:{rhubarb:unknown;wavBase64:string})=>{ const win=globalThis as typeof globalThis & {__speechRhubarb?:unknown;__speechWavBase64?:string;__openClinXrStartPreparedSpeech?:()=>TrackCue[]};win.__speechRhubarb=input.rhubarb;win.__speechWavBase64=input.wavBase64;return {starter:typeof win.__openClinXrStartPreparedSpeech,cues:win.__openClinXrStartPreparedSpeech?.()??[]};},{rhubarb:track.rhubarb,wavBase64:track.wavBase64});
+    const prepared=await page.evaluate((input:{aligner:string;doc:unknown;wavBase64:string})=>{ const win=globalThis as typeof globalThis & {__speechRhubarb?:unknown;__speechAligner?:string;__speechWavBase64?:string;__openClinXrStartPreparedSpeech?:()=>TrackCue[]};win.__speechRhubarb=input.doc;win.__speechAligner=input.aligner;win.__speechWavBase64=input.wavBase64;return {starter:typeof win.__openClinXrStartPreparedSpeech,cues:win.__openClinXrStartPreparedSpeech?.()??[]};},{aligner:track.aligner,doc:track.doc,wavBase64:track.wavBase64});
     const cues=prepared.cues as TrackCue[];
     if(!cues.length)throw new Error(`prepared-runtime-cues-missing:${prepared.starter}`);
     const frameDir=path.join(jobDir,"frames"); const result=await recordFrames(page,cues,durationS,frameDir); const clip=path.join(OUT_DIR,"clip.mp4");
     execFileSync("ffmpeg",["-v","error","-y","-framerate",String(FPS),"-start_number","0","-i",path.join(frameDir,"f-%04d.png"),"-i",AUDIO,"-c:v","libx264","-pix_fmt","yuv420p","-c:a","aac","-movflags","+faststart","-shortest",clip]);
     const dynamicsStep3="jaw: critically damped spring at fixed 240 Hz (omega=6 rad/s); PP hard closure at cue onset; <100 ms vowel target = own*smoothstep(duration/0.1)+neighborMean*(1-dominance); vowel intensity clamp [0.5,1]. lips: canonical per-weight critically damped follower at 240 Hz (omega=14 rad/s, tau=71 ms); <100 ms cue coarticulation; PP exact full-weight closure at cue onset";
     const dynamics=MODE==="step3" || MODE.startsWith("teeth-gap") ? dynamicsStep3 : "legacy 0.06 s smoothstep transition on lips and jaw";
-    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing:"Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback",dynamics,canonicalTrack:cues,rhubarb:track.rhubarb,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
+    const timing = track.aligner === "mfa"
+      ? "MFA 3.4.2 phone alignment of the known dialog (english_us_arpa) mapped by the xr-dialogue arpabet intake before prepared runtime playback"
+      : "Rhubarb 1.14 waveform timestamps mapped by the xr-dialogue internal intake mapper before prepared runtime playback";
+    const cueDoc = track.aligner === "mfa" ? { mfa: track.doc } : { rhubarb: track.doc };
+    writeFileSync(path.join(OUT_DIR,"metrics.json"),`${JSON.stringify({schemaVersion:"openclinxr.mouth-dynamics.v1",mode:MODE,line:LINE,aligner:track.aligner,audioPath:path.relative(REPO,AUDIO),audioDurationS:durationS,frameRate:FPS,frameCount:result.frames,wavSha256:track.wavSha256,timing,dynamics,canonicalTrack:cues,...cueDoc,targetsSeen:result.targets,toothCentroidSteps:result.teeth,toothSamples:result.samples},null,2)}\n`);
     await page.close();
   }finally{if(server)await stopPortlessDevServer(server.proc);rmSync(jobDir,{recursive:true,force:true});}});
 }
