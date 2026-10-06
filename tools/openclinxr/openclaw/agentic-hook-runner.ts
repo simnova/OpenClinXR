@@ -663,6 +663,18 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
     });
   }
 
+  // The worker brief's Test loop names the commit as the full gate, so the gate must exist:
+  // related tests for every staged .ts/.tsx file run here, which is exactly what
+  // `pnpm test:touched` resolves to at commit time (staged vs HEAD is its input set).
+  if (profile === "pre-commit" && changedFiles.some((f) => /\.tsx?$/u.test(f))) {
+    steps.push({
+      label: "Touched related tests (pre-commit full gate)",
+      command: pnpm("test:touched"),
+      reason:
+        "the commit is the full gate — workers iterate with pnpm test:touched and never hand-run full suites",
+    });
+  }
+
   if (profile === "pre-push" && productCodeChanged) {
     steps.push({
       label: "Affected package tests",

@@ -65,6 +65,21 @@ const FOUR_HEADERS = "IN-SCOPE:\n- did the thing\n\nOUT-OF-SCOPE:\n- saw a separ
 /** Drive the real gate with a stubbed `gh`, so this measures integrate.ts and not a copy of it. */
 function gateAccepts(body: string): boolean {
   const runner = (argv: string[]): string => {
+    // integrate.ts fetches comments + viewer login in ONE `gh api graphql`
+    // round trip (no longer `gh api user` + an issue call). The old `argv[1]
+    // === "api"` branch caught the graphql call too and returned bare text
+    // the parser rejects. Script the current transport; the authorship
+    // convention (the fixture comment is the worker's own) is unchanged.
+    if (argv[1] === "api" && argv[2] === "graphql") {
+      return JSON.stringify({
+        data: {
+          viewer: { login: "gidich" },
+          repository: {
+            issue: { comments: { nodes: [{ author: { login: "gidich" }, body }] } },
+          },
+        },
+      });
+    }
     if (argv[1] === "api") return "gidich";
     return JSON.stringify([{ author: { login: "gidich" }, body }]);
   };

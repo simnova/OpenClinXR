@@ -75,3 +75,4 @@ deterministic (two runs, byte-identical GLB) and that must be a test, not a one-
 Every mouth brief carries: the premise and the probe result, evaluator gates with numeric targets and their
 source, "stop and report if a premise measures false", and one final runtime-path video (no injected sampler).
 The orchestrator grades the video frames at native resolution before calling it done.
+Briefs say "iterate with pnpm test:touched; commit is the full gate".
