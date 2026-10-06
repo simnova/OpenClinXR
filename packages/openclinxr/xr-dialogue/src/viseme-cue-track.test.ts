@@ -6,6 +6,7 @@ import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } fr
 import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
 import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
 import { contactEnvelope } from "./contact-envelope.js";
+import { FF_PP_BLEND_K } from "./viseme-lip-dynamics.js";
 import { driveVisemeTimeline } from "./viseme-timeline-drive.js";
 
 function rows(symbols: readonly string[]) { return symbols.map((symbol, index) => ({ startS: index * 0.1, endS: (index + 1) * 0.1, symbol })); }
@@ -288,7 +289,7 @@ describe("carved FF runtime drive", () => {
     copy.set(bytes);
     return copy.buffer;
   }
-  it("holds FF at full weight with the jaw shut on every frame inside the carved cue", () => {
+  it("seals the carved FF cue with the PP blend and the jaw shut on every frame inside", () => {
     const ff = mapRhubarbTrack(step3DocFile(), step3WavFile()).find((entry) => entry.viseme === "FF");
     if (!ff) throw new Error("step3 mapped track has no carved FF cue");
     const inside: number[] = [];
@@ -299,7 +300,10 @@ describe("carved FF runtime drive", () => {
     expect(inside.length).toBeGreaterThan(0);
     for (const n of inside) {
       const driven = driveMappedAt((n + 0.5) / 30);
-      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeGreaterThanOrEqual(0.9);
+      // Operator 2026-10-06: the lips touch on F via the proven PP seal;
+      // the FF morph is capped at 1-PP so the pair stays bounded.
+      expect(driven.weights.viseme_PP ?? NaN, `frame ${n} PP`).toBeCloseTo(FF_PP_BLEND_K, 5);
+      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
       expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
     }
   });

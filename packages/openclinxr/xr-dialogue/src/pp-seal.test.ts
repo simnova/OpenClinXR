@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
+import { FF_PP_BLEND_K } from "./viseme-lip-dynamics.js";
 
 type Cue = { phoneme: string; atSecond: number; durationSeconds: number; intensity: number };
 
@@ -172,17 +173,43 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     expect(maxTh).toBeLessThanOrEqual(0.25);
   });
 
-  it("presses the FF centre: FF=1 with vowel neighbours at 0 (same contact check)", () => {
+  it("seals the FF centre with the PP blend: PP=K carries the contact, FF capped at 1-PP (pair bounded)", () => {
     // Synthetic FF contact: the step3 /b/ is a PP closure since the
-    // bilabial-stop acoustic correction, so the FF morph gate rides a
-    // synthetic contact instead of a step3 cue name.
+    // bilabial-stop acoustic correction, so the FF seal gate rides a
+    // synthetic contact instead of a step3 cue name. Operator 2026-10-06:
+    // the lips touch on F via the proven PP seal (0 teeth px); the FF morph
+    // alone leaves a lower-crown strip open at runtime (defect.ff_strip).
     const ff = ffCues.find((entry) => entry.phoneme === "FF");
     if (!ff) throw new Error("synthetic track has no FF cue");
     const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
     const driven = driveTrackAt(ffCues, centreS, 2130);
-    expect(driven.weights.viseme_FF ?? NaN).toBe(1);
+    expect(driven.weights.viseme_PP ?? NaN).toBeCloseTo(FF_PP_BLEND_K, 5);
+    expect(driven.weights.viseme_FF ?? NaN).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
     expect(driven.weights.viseme_E ?? NaN).toBe(0);
     expect(driven.weights.viseme_DD ?? NaN).toBe(0);
+  });
+
+  it("keeps the FF blend pair bounded and jaw shut across the FF cue", () => {
+    // The single runtime-drive gate for the FF blend: under the FF contact
+    // envelope PP rises to K while FF is capped at 1-PP (sum never exceeds
+    // 1), and the jaw steer holds the aperture shut through the cue.
+    const ff = ffCues.find((entry) => entry.phoneme === "FF");
+    if (!ff) throw new Error("synthetic track has no FF cue");
+    const endS = ff.atSecond + (ff.durationSeconds ?? 0);
+    const inside: number[] = [];
+    for (let n = 0; n < 62; n += 1) {
+      const mediaS = frameMediaS(n);
+      if (mediaS >= ff.atSecond && mediaS < endS) inside.push(n);
+    }
+    expect(inside.length).toBeGreaterThan(0);
+    for (const n of inside) {
+      const driven = driveTrackAt(ffCues, frameMediaS(n), 2130);
+      const pp = driven.weights.viseme_PP ?? NaN;
+      const ffc = driven.weights.viseme_FF ?? NaN;
+      expect(pp).toBeGreaterThan(0);
+      expect(pp + ffc).toBeLessThanOrEqual(1 + 1e-9);
+      expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
+    }
   });
 
   it("keeps vowels bit-equal on a contact-free track", () => {

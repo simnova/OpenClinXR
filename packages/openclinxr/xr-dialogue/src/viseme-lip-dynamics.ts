@@ -18,12 +18,15 @@ const BILABIAL = "PP";
  */
 const CONTACT = new Set(["PP", "FF", "TH"]);
 /**
- * Contact shape used to hurry here (deadline follower) or snap (PP); both are
- * retired. The follower below runs every cue at the ordinary rate and the
- * contact peak comes from the anticipatory symmetric envelope applied in
- * applyPreparedLipDynamics (media time, contact-envelope.ts), which reaches
- * the same shape on the same cue with max 0.25 change per 30 fps frame.
+ * FF PP-seal blend gain (operator 2026-10-06: lips touch on F; DECISION FF
+ * stays pressed lips; R12: three producer FF shapings failed, PP already
+ * seals at 0 teeth px). Under the FF contact envelope the drive blends in
+ * viseme_PP at K * ffEnvelope and caps FF at 1 - PP so the pair stays in
+ * [0,1]. K = 1 means an FF cue renders as PP, acceptable on this rig.
+ * Sweep {0.5, 0.7, 0.85, 1.0} on the step3 capture; smallest K meeting the
+ * F-frame pixel gates wins. Vowel-only tracks never engage (ffPeak = 0).
  */
+export const FF_PP_BLEND_K = 1;
 
 type WeightFrame = { atSecond: number; durationSeconds?: number; weights: Record<string, number> };
 type State = { tick: number; weights: Record<string, number>; velocity: Record<string, number> };
@@ -119,6 +122,30 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
     for (const key of Object.keys(weights)) {
       if ((contactPeakByKey.get(key) ?? 0) > 0) continue;
       weights[key] = (weights[key] ?? 0) * hold;
+    }
+  }
+  // FF PP-seal blend: the suppression above leaves vowel residue ~0 under the
+  // contact but the FF morph alone leaves a lower-crown strip open at runtime
+  // (defect.ff_strip). The PP morph seals at 0 teeth px, so under the FF
+  // envelope peak the drive carries PP at K * ffPeak and caps FF at 1 - PP.
+  // Applied after suppression (PP is a non-contact key under FF and would
+  // otherwise be attenuated away). Both factors move <= 0.25 per 30 fps
+  // frame (envelope bound, K <= 1), so the ramp gate holds; the min() cap is
+  // continuous (branches meet at the switch) with slope bounded by the max
+  // of the two branches.
+  let ffPeak = 0;
+  for (const cue of cues) {
+    if (cue.phoneme !== "FF") continue;
+    const peak = contactEnvelope(timeS, cue.atSecond, cue.atSecond + (cue.durationSeconds ?? 0));
+    if (peak > ffPeak) ffPeak = peak;
+  }
+  if (ffPeak > 0) {
+    const ffKey = Object.keys(weights).find((name) => name.toLowerCase() === "viseme_ff");
+    const ppKey = Object.keys(weights).find((name) => name.toLowerCase() === "viseme_pp");
+    if (ffKey !== undefined && ppKey !== undefined) {
+      const ppBlend = FF_PP_BLEND_K * ffPeak;
+      weights[ppKey] = Math.max(weights[ppKey] ?? 0, ppBlend);
+      weights[ffKey] = Math.min(weights[ffKey] ?? 0, 1 - (weights[ppKey] ?? 0));
     }
   }
   const shapedSample = { ...sample, weights };
