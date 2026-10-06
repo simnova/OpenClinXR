@@ -68,6 +68,36 @@ export type ArchTransfer = {
   jawMaxVerts: number;
 };
 
+/**
+ * Upper-arch morph preservation: the seated output carries the input teeth
+ * deltas verbatim on every non-lower-arch vertex, so the upper arch stays
+ * bitwise identical to the producer input. Only lower-arch entries are
+ * overwritten with the transferred rim field (or its rigid arch mean).
+ */
+function seatLowerField(
+  seed: Float32Array,
+  field: Float32Array,
+  lowerArch: number[],
+  rigidMean: readonly [number, number, number] | null,
+): Float32Array {
+  if (seed.length !== field.length) throw new Error("teeth delta length moved");
+  const out = new Float32Array(seed);
+  if (rigidMean) {
+    for (const vertex of lowerArch) {
+      out[vertex * 3] = rigidMean[0];
+      out[vertex * 3 + 1] = rigidMean[1];
+      out[vertex * 3 + 2] = rigidMean[2];
+    }
+    return out;
+  }
+  for (const vertex of lowerArch) {
+    out[vertex * 3] = field[vertex * 3] ?? 0;
+    out[vertex * 3 + 1] = field[vertex * 3 + 1] ?? 0;
+    out[vertex * 3 + 2] = field[vertex * 3 + 2] ?? 0;
+  }
+  return out;
+}
+
 export function transferArch(input: {
   teethBase: Float32Array;
   bodyBase: Float32Array;
@@ -84,10 +114,13 @@ export function transferArch(input: {
   teethCount: number;
   jointArray: ArrayLike<number>;
   weightArray: Float32Array;
+  /** Input teeth POSITION morph deltas keyed by teeth target name (upper arch is preserved verbatim). */
+  teethInputDeltas: Record<string, Float32Array>;
 }): ArchTransfer {
   const {
     teethBase, bodyBase, bodyDeltas, bodyTargets, teethNames, bodyJoints, bodyWeights,
     lowerArch, rimTris, newBase, forceRigid, teethSkinJoints, teethCount, jointArray, weightArray,
+    teethInputDeltas,
   } = input;
   const newShells = frontShellIndices(newBase);
   if (newShells.lower.some((vertex) => !lowerArch.includes(vertex))) {
@@ -197,10 +230,10 @@ export function transferArch(input: {
     if (worst > DISTORTION_LIMIT_M) rigid = true;
   }
   for (const [name, field] of perTarget) {
-    const out = new Float32Array(teethBase.length);
-    if (!rigid) {
-      out.set(field);
-    } else {
+    const seed = teethInputDeltas[name];
+    if (!seed) throw new Error(`no input delta for ${name}`);
+    let mean: [number, number, number] | null = null;
+    if (rigid) {
       let mx = 0;
       let my = 0;
       let mz = 0;
@@ -210,13 +243,9 @@ export function transferArch(input: {
         mz += field[vertex * 3 + 2] ?? 0;
       }
       const count = lowerArch.length || 1;
-      for (const vertex of lowerArch) {
-        out[vertex * 3] = mx / count;
-        out[vertex * 3 + 1] = my / count;
-        out[vertex * 3 + 2] = mz / count;
-      }
+      mean = [mx / count, my / count, mz / count];
     }
-    newDeltas[name] = out;
+    newDeltas[name] = seatLowerField(seed, field, lowerArch, mean);
   }
 
   const dominantOf = (vertex: number): number => {

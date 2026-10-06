@@ -28,8 +28,8 @@ const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 const TARGET_GAP_MM = 3.743;
 /** Teeth down-gain of the producer invocation in the receipt (1 on main, 1.25 on variant-a). */
 const DOWN_GAIN = 1.25;
-/** Rest drop of the producer invocation in the receipt (0 on main, -1.405 on rest-a/rest-b). */
-const REST_DROP_MM = -1.405;
+/** Rest drop of the producer invocation in the receipt (0 on main, -1.405 on rest-a/rest-b, 4.215 on lower-arch-fix). */
+const REST_DROP_MM = 4.215;
 
 function sha256(bytes: Buffer | Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");

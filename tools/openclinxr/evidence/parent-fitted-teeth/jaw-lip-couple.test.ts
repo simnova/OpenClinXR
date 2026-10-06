@@ -27,7 +27,7 @@ import {
   lowerLipInnerRim,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
 import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
-import { planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
+import { lowerArchByJoint, planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.ts";
 import {
   loadProducerPreimage,
@@ -58,15 +58,15 @@ const VISEME_ORDER = ["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U
 const RIM_REST_TARGET_MM = 3.743;
 /** Producer down-gain under test (1 on main, 1.25 on variant-a). */
 const DOWN_GAIN: number = 1.25;
-/** Producer rest drop under test, mm head-down (0 on main, -1.405 on rest-a/rest-b). */
-const REST_DROP_MM: number = -1.405;
+/** Producer rest drop under test, mm head-down (0 on main, -1.405 on rest-a/rest-b, 4.215 on lower-arch-fix). */
+const REST_DROP_MM: number = 4.215;
 /** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
-const HONEST_REST_GAP_MM = 6.636;
+const HONEST_REST_GAP_MM = 5.575;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
 const PRE_IMAGE_REST_GAP_MM = 10.666;
 /** Pullback census on the pre-image plan: crossing verts, worst drop. */
-const PULLBACK_VERTS = 558;
-const PULLBACK_MAX_MM = 5.876;
+const PULLBACK_VERTS = 394;
+const PULLBACK_MAX_MM = 4.606;
 const DRIVE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts");
 const APPLY_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const WIRE_SRC = path.join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
@@ -374,7 +374,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(readFileSync(WIRE_SRC, "utf8")).not.toMatch(/export const JAW_OPEN/);
   });
 
-  it("seats lower teeth on the rim transfer with a rigid per-viseme mean and zero upper deltas", async () => {
+  it("seats lower teeth on the rim transfer with a rigid per-viseme mean and a pre-image-identical upper arch", async () => {
     // Supersedes "writes one jaw vector per viseme": the hand-tuned
     // JAW_BY_VISEME rigid vectors plus HEAD_MEAN assumed the outer lip
     // landmark, which the crowns do not face. The producer now transfers the
@@ -441,29 +441,54 @@ describe("parent fitted teeth follow the lip viseme", () => {
         expect(Array.from(expected)).toEqual(Array.from(live));
       }
     }
-    // Lower arch (below-median-y, producer rule): rigid mean per target.
-    // The median is the pre-image teeth base median, exactly as the
-    // producer classifies: the rest drop shifts live Y, so the live
-    // median would misclassify boundary verts the producer seated as lower.
+    // Lower arch (component+jaw producer rule, R7): connected components of
+    // the pre-image teeth index whose dominant input joint is the jaw or a
+    // jaw descendant; the jaw-bound verts of those components. Median-Y
+    // retired: it caught 338 upper-arch verts and stretched them with the
+    // lower arch. Upper-arch deltas equal the pre-image input verbatim.
     const preDocArch = await new NodeIO().read(preTmp);
     const preTeethArch = preDocArch.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
-    const preBaseArch = preTeethArch?.listPrimitives()[0]?.getAttribute("POSITION")?.getArray();
-    if (!preBaseArch) throw new Error("pre-image has no teeth POSITION");
-    const preYs = Array.from(preBaseArch).filter((_, i) => i % 3 === 1) as number[];
-    const midSorted = [...preYs].sort((a, b) => a - b);
-    const midY = midSorted[Math.floor(midSorted.length / 2)] ?? 0;
-    const lowerArch: number[] = [];
-    const upperArch: number[] = [];
-    for (let vertex = 0; vertex < preYs.length; vertex += 1) {
-      ((preYs[vertex] ?? 0) <= midY ? lowerArch.push(vertex) : upperArch.push(vertex));
+    const preTeethPrim = preTeethArch?.listPrimitives()[0];
+    const preBaseArch = preTeethPrim?.getAttribute("POSITION")?.getArray();
+    const preIndexArch = preTeethPrim?.getIndices()?.getArray();
+    const preJointsArch = preTeethPrim?.getAttribute("JOINTS_0")?.getArray();
+    const preWeightsArch = preTeethPrim?.getAttribute("WEIGHTS_0")?.getArray();
+    if (!preBaseArch || !preIndexArch || !preJointsArch || !preWeightsArch || !preTeethPrim) {
+      throw new Error("pre-image has no teeth POSITION");
     }
+    const preNodeArch = preDocArch.getRoot().listNodes().find((node) => node.getMesh() === preTeethArch);
+    const preSkinNames = (preNodeArch?.getSkin()?.listJoints().map((joint) => joint.getName()) ?? []) as (
+      | string
+      | undefined
+    )[];
+    const preJawArch = preDocArch.getRoot().listNodes().find((node) => /^jaw$/i.test(node.getName() ?? ""));
+    if (!preJawArch) throw new Error("pre-image rig has no jaw joint");
+    const preJawDesc = new Set<string>();
+    const walkJaw = (node: { getName(): string; listChildren(): { getName(): string; listChildren(): never[] }[] }): void => {
+      preJawDesc.add((node.getName() ?? "").toLowerCase());
+      for (const child of node.listChildren()) walkJaw(child as never);
+    };
+    walkJaw(preJawArch as never);
+    const { lowerArch, upperArch } = lowerArchByJoint({
+      indexArray: preIndexArch,
+      jointArray: preJointsArch,
+      weightArray: preWeightsArch as Float32Array,
+      teethSkinJointNames: preSkinNames,
+      jawDescendantNames: preJawDesc,
+    });
     expect(lowerArch.length).toBe(plan.lowerArchCount);
+    expect(lowerArch.length).toBe(2180);
+    expect(upperArch.length).toBe(2314);
+    const preTargetNames = ((preTeethArch?.getExtras() as { targetNames?: string[] } | null)?.targetNames) ?? [];
     for (const name of VISEME_ORDER) {
       const delta = newDeltas[name]!;
+      const preTargetAttr = preTeethPrim.listTargets()[preTargetNames.indexOf(name)]?.getAttribute("POSITION");
+      if (!preTargetAttr) throw new Error(`pre-image teeth target ${name} missing`);
+      const preDelta = asFloat(preTargetAttr);
       for (const vertex of upperArch) {
-        expect(delta[vertex * 3] ?? 0).toBe(0);
-        expect(delta[vertex * 3 + 1] ?? 0).toBe(0);
-        expect(delta[vertex * 3 + 2] ?? 0).toBe(0);
+        expect(delta[vertex * 3] ?? 0).toBe(preDelta[vertex * 3] ?? 0);
+        expect(delta[vertex * 3 + 1] ?? 0).toBe(preDelta[vertex * 3 + 1] ?? 0);
+        expect(delta[vertex * 3 + 2] ?? 0).toBe(preDelta[vertex * 3 + 2] ?? 0);
       }
       const first = lowerArch[0]!;
       const fx = delta[first * 3] ?? 0;
@@ -498,12 +523,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
         .transpose();
       const headDown = new Vector3(0, -REST_DROP_MM / 1000, 0).applyMatrix3(toBind);
       const expected = new Float32Array(ref.newBase);
-      const dropSorted = [...Array.from({ length: expected.length / 3 }, (_, v) => expected[v * 3 + 1] ?? 0)].sort(
-        (a, b) => a - b,
-      );
-      const dropMidY = dropSorted[Math.floor(dropSorted.length / 2)] ?? 0;
-      for (let vertex = 0; vertex < expected.length / 3; vertex += 1) {
-        if ((expected[vertex * 3 + 1] ?? 0) > dropMidY) continue;
+      for (const vertex of lowerArch) {
         expected[vertex * 3] = (expected[vertex * 3] ?? 0) + headDown.x;
         expected[vertex * 3 + 1] = (expected[vertex * 3 + 1] ?? 0) + headDown.y;
         expected[vertex * 3 + 2] = (expected[vertex * 3 + 2] ?? 0) + headDown.z;
@@ -573,10 +593,10 @@ describe("parent fitted teeth follow the lip viseme", () => {
     }
   });
 
-  it("seats the rest rim gap at the pullback honest value with sil writing nothing", () => {
+  it("seats the rest rim gap at the pullback honest value with sil writing nothing", async () => {
     // Supersedes "seats the rest rim gap at the face-bound honest value": the
     // rim seat drives to the 3.743 mm directed target, then per-vertex
-    // pullback clears the face, leaving the honest 6.387 mm rest gap.
+    // pullback clears the face, leaving the honest 5.575 mm rest gap.
     // The independent evaluator gate (midpoint 6.485 +/- 0.5) judges the clip.
     expect(loaded.body.morphTargetDictionary).toHaveProperty("viseme_sil");
     expect(loaded.teeth.morphTargetDictionary).not.toHaveProperty("viseme_sil");
@@ -585,6 +605,19 @@ describe("parent fitted teeth follow the lip viseme", () => {
     applyJawOpenToRoot(loaded.root, 0);
     const aaIndex = loaded.body.morphTargetDictionary?.["viseme_aa"] ?? -1;
     expect(aaIndex).toBeGreaterThanOrEqual(0);
+    // Rim ruler stays on the pre-image (producer definition): the facing
+    // reference is the pre-image front-shell centroid, so the set is the
+    // producer's 76-vert rim. Recomputing the facing on the live teeth
+    // drops 8 crest verts after the 4.215 mm rest drop moved the centroid,
+    // which would compare the honest value against a different ruler.
+    const preGap = readProducerReceipt(REPO, RECEIPT_REL);
+    const preGapTmp = loadProducerPreimage(REPO, GLB_REL, preGap.preImageSha256, preGap.preImageBytes);
+    const preGapDoc = await new NodeIO().read(preGapTmp);
+    const preGapTeeth = preGapDoc.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
+    const preGapTeethPrim = preGapTeeth?.listPrimitives()[0];
+    const preGapBaseAttr = preGapTeethPrim?.getAttribute("POSITION");
+    if (!preGapBaseAttr) throw new Error("pre-image has no teeth POSITION");
+    const preGapBase = asFloat(preGapBaseAttr);
     const rimGapAtRest = (): number => {
       const rim = lowerLipInnerRim(
         loaded.bodyPos,
@@ -593,7 +626,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
         loaded.bodyJoints,
         loaded.bodyWeights as Float32Array,
         loaded.bodyJointNodes,
-        loaded.teethPos,
+        preGapBase,
       );
       expect(rim.length).toBe(76);
       const teethWorld = teethPosed(loaded);
