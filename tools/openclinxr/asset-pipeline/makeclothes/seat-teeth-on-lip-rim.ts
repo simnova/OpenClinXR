@@ -31,11 +31,17 @@
  * rigs. viseme_PP writes zeros. viseme_sil stays off the teeth. No target
  * names are added, removed, or reordered.
  *
+ * --rest-drop-mm translates the lower-arch base along head-down by that
+ * many millimetres after the face pullback (default 0, no-op; signed:
+ * negative rises toward head-up). Skin weights and morph transfer are
+ * untouched, so the edge-to-rim vertical gap shifts by the same amount on
+ * every frame. Closed form: d = rest(edge_y - rim_top_y) - target.
+ *
  * Inner rim rule (stated, procedural, no thresholds): lowerLipInnerRim —
  * rig+response landmark vertices whose bind normals face the front-shell
  * centroid (dot sign only).
  *
- * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid]
+ * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>]
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -94,6 +100,7 @@ export type RimSeatPlan = {
   pullbackMeanMm: number;
   pullbackPasses: number;
   downGain: number;
+  restDropMm: number;
   /** Rest rim gap after seat + pullback (equals the target only when nothing crosses). */
   honestRestGapMm: number;
   rigid: boolean;
@@ -102,7 +109,7 @@ export type RimSeatPlan = {
   teethCount: number;
 };
 
-function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number } {
+function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number; restDropMm: number } {
   const flag = (name: string): string | undefined => {
     const index = process.argv.indexOf(name);
     const value = index >= 0 ? process.argv[index + 1] : undefined;
@@ -111,14 +118,17 @@ function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid
   const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
   const target = flag("--target-gap-mm");
   if (!glbPath || target === undefined) {
-    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>]");
+    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>]");
   }
   const targetGapMm = Number(target);
   if (!Number.isFinite(targetGapMm) || targetGapMm <= 0) throw new Error(`bad --target-gap-mm ${target}`);
   const downGainRaw = flag("--down-gain");
   const downGain = downGainRaw === undefined ? 1 : Number(downGainRaw);
   if (!Number.isFinite(downGain) || downGain <= 0) throw new Error(`bad --down-gain ${downGainRaw}`);
-  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain };
+  const restDropRaw = flag("--rest-drop-mm");
+  const restDropMm = restDropRaw === undefined ? 0 : Number(restDropRaw);
+  if (!Number.isFinite(restDropMm)) throw new Error(`bad --rest-drop-mm ${restDropRaw}`);
+  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain, restDropMm };
 }
 
 type SeatResult = {
@@ -159,7 +169,7 @@ function skinAtRest(
   return out;
 }
 
-export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean, downGain = 1): Promise<SeatResult> {
+export async function planRimSeat(glbPath: string, targetGapMm: number, forceRigid: boolean, downGain = 1, restDropMm = 0): Promise<SeatResult> {
   const doc = await new NodeIO().read(glbPath);
   const teeth = doc.getRoot().listMeshes().find((mesh) => /fitted_teeth/i.test(mesh.getName()));
   if (!teeth) throw new Error(`no fitted teeth mesh in ${glbPath}`);
@@ -335,6 +345,25 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
   }
   const honestCheck = restRimGap(newBase);
 
+  // Rest drop: signed head-down translation of the lower-arch base after
+  // the face pullback. Skin weights and morph transfer above are untouched,
+  // so the edge-to-rim vertical gap shifts by the same amount on every
+  // frame. Default 0 is a no-op (newBase reference kept, bytes unchanged).
+  let droppedBase = newBase;
+  if (restDropMm !== 0) {
+    scene.root.updateMatrixWorld(true);
+    const headRotation = new Matrix4().extractRotation(scene.headBone.matrixWorld);
+    const toBind = new Matrix3().setFromMatrix4(headRotation).transpose();
+    const headDown = new Vector3(0, -restDropMm / 1000, 0).applyMatrix3(toBind);
+    droppedBase = new Float32Array(newBase);
+    for (const vertex of lowerArch) {
+      droppedBase[vertex * 3] = (droppedBase[vertex * 3] ?? 0) + headDown.x;
+      droppedBase[vertex * 3 + 1] = (droppedBase[vertex * 3 + 1] ?? 0) + headDown.y;
+      droppedBase[vertex * 3 + 2] = (droppedBase[vertex * 3 + 2] ?? 0) + headDown.z;
+    }
+  }
+  const honestDropCheck = restDropMm === 0 ? honestCheck : restRimGap(droppedBase);
+
   const transfer = transferArch({
     teethBase, bodyBase, bodyDeltas, bodyTargets, teethNames, bodyJoints, bodyWeights,
     lowerArch, rimTris, newBase, forceRigid, teethSkinJoints, teethCount, jointArray, weightArray,
@@ -384,13 +413,14 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     pullbackMeanMm: Math.round((pullbackVertCount === 0 ? 0 : pullbackSum / pullbackVertCount) * 1e6) / 1e3,
     pullbackPasses,
     downGain,
-    honestRestGapMm: Math.round(honestCheck * 1e6) / 1e3,
+    restDropMm,
+    honestRestGapMm: Math.round(honestDropCheck * 1e6) / 1e3,
     rigid,
     distortionMm,
     jawMaxVerts,
     teethCount,
   };
-  return { plan, newBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType };
+  return { plan, newBase: droppedBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType };
 }
 
 /** Rim gap: mean 3D distance from lower-shell verts to the nearest rim vert. */
@@ -479,8 +509,8 @@ function writeAccessorBytes(
 
 async function main(): Promise<void> {
   const wallStart = Date.now();
-  const { glbPath, targetGapMm, dry, rigid, downGain } = readArgs();
-  const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(glbPath, targetGapMm, rigid, downGain);
+  const { glbPath, targetGapMm, dry, rigid, downGain, restDropMm } = readArgs();
+  const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm);
   process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
   if (dry) {
     process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s (dry run, no write)\n`);
