@@ -208,7 +208,6 @@ export async function evaluate(
   // Fixed landmark set from the canonical open shape so per-frame lip
   // positions stay comparable (lowerLipLandmark definition is imported).
   const lipLandmark = lowerLipLandmark(
-    scene.body.base,
     scene.body.targetDeltas[aaIndex] ?? new Float32Array(scene.body.base.length),
     scene.body.joints,
     scene.body.weights,
@@ -566,7 +565,6 @@ export async function probePremise(glbPath: string): Promise<{
   const aaIndex = scene.body.targetNames.indexOf("viseme_aa");
   if (aaIndex < 0) throw new Error("body has no viseme_aa target");
   const lipLandmark = lowerLipLandmark(
-    scene.body.base,
     scene.body.targetDeltas[aaIndex] ?? new Float32Array(scene.body.base.length),
     scene.body.joints,
     scene.body.weights,

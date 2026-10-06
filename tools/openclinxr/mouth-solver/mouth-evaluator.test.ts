@@ -63,7 +63,7 @@ describe("mouth-solver evaluator", () => {
   it("holds the rim gap band on every frame with a static upper arch", async () => {
     const track = readEvaluatorTrack(TRACK_PATH);
     const { output } = await evaluate(GLB, track);
-    expect(output.summary.rimVertCount).toBe(60);
+    expect(output.summary.rimVertCount).toBe(76);
     for (const record of output.records) {
       expect(Math.abs(record.rimGapHeadLocalMm - RIM_TARGET_MM)).toBeLessThanOrEqual(RIM_BAND_MM);
       expect(record.upperTeethDisplacementHeadLocalMm).toBeLessThan(0.5);

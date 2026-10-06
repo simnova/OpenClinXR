@@ -19,8 +19,8 @@
  * of every non-teeth mesh are untouched.
  *
  * Inner rim rule (stated, procedural, no thresholds): lowerLipInnerRim —
- * landmark-box vertices whose bind normals face the front-shell centroid
- * (dot sign only).
+ * rig+response landmark vertices whose bind normals face the front-shell
+ * centroid (dot sign only).
  *
  * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid]
  */

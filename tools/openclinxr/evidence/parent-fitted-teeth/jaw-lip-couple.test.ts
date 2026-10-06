@@ -362,8 +362,8 @@ describe("parent fitted teeth follow the lip viseme", () => {
     // landmark, which the crowns do not face. The producer now transfers the
     // inner-rim field and falls back to the rigid arch mean by distortion.
     const { plan, newBase, newJoints, newWeights, newDeltas } = await planRimSeat(GLB, RIM_REST_TARGET_MM, false);
-    expect(plan.rimCount).toBe(60);
-    expect(plan.rimTriangles).toBe(80);
+    expect(plan.rimCount).toBe(76);
+    expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
     // Rest seat reproduces the producer guarantee (fixed-point tol 0.1 mm),
     // not the exact target: the independent evaluator gate (±0.5 mm) judges
@@ -465,7 +465,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
         loaded.bodyJointNodes,
         loaded.teethPos,
       );
-      expect(rim.length).toBe(60);
+      expect(rim.length).toBe(76);
       const teethWorld = teethPosed(loaded);
       const bodyWorld = bodyPosed(loaded);
       let sum = 0;
