@@ -20,23 +20,15 @@ function intersects(a: CachedSceneSnapshot extends never ? never : { min: [numbe
 }
 
 describe("cached snapshot layouts resolve", () => {
-  // First interior cell (0.25 m, x then z) that is 1.2 m from nurse_bedside_head and clears crown/chest.
-  it("peds_fever_v1 seated family keeps the first companion_chair cell", () => {
+  // Rendered parent stays on the resolved slot. The seated plant is not applied, so the snapshot box fails crown/chest.
+  it("peds_fever_v1 seated family rejects the companion_chair grid", () => {
     const snapshot = loadSnapshot("peds_fever_v1");
     const result = searchClinicalLayouts(snapshot);
-    expect(result.bindingConstraint).toBeUndefined();
-    const parent = result.layouts[0]?.find((row) => row.actorId === "parent_mei_chen_v1");
-    expect(parent?.slotId).toBe("companion_chair");
+    expect(result.bindingConstraint).toContain("companion_chair crown");
+    expect(result.layouts).toEqual([]);
+    const parent = snapshot.actors.find((row) => row.id === "parent_mei_chen_v1");
     expect(parent?.standing).toBe(false);
-    expect(parent?.placement.supportSurface).toBe("chair");
-    expect(parent?.world?.[0]).toBeCloseTo(-2.859999895095825, 6);
-    expect(parent?.world?.[1]).toBeCloseTo(0.6715784359757551, 6);
-    expect(parent?.world?.[2]).toBeCloseTo(-3.2949732780456547, 6);
-    expect(parent?.placement.plantOffsetMeters.x).toBeCloseTo(-3.760690879556652, 6);
-    expect(parent?.placement.plantOffsetMeters.y).toBe(0);
-    expect(parent?.placement.plantOffsetMeters.z).toBeCloseTo(-2.809195120127517, 6);
-    expect(parent?.placement.headingRadians).toBeCloseTo(-0.5907649108840785, 6);
-    expect(parent?.slotId).not.toBe("companion_bedside");
+    expect(parent?.currentPlacement.supportSurface).toBe("chair");
   });
 
   for (const scenarioId of ["adult_abdominal_pain_v1"]) {

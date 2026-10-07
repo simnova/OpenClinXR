@@ -132,27 +132,10 @@ function firstFeverCompanionChair(
         return intersects(capsule, fixture.box, 0.03);
       });
       if (collides) continue;
-      if (!feverCrownChestClear(snapshot, actor, body)) continue;
-      const targetHeading = Math.atan2(patientHead[0] - x, patientHead[2] - z);
-      for (const headingDelta of HEADING_DELTAS) {
-        const heading = targetHeading + headingDelta;
-        const rootBiasX = currentCentre[0] - (actor.root?.[0] ?? currentCentre[0]);
-        const rootBiasZ = currentCentre[2] - (actor.root?.[2] ?? currentCentre[2]);
-        const placement: SolverPlacement = {
-          supportSurface: actor.currentPlacement.supportSurface,
-          plantOffsetMeters: {
-            x: actor.standing ? x - rootBiasX : actor.currentPlacement.plantOffsetMeters.x + x - currentCentre[0],
-            y: actor.currentPlacement.plantOffsetMeters.y,
-            z: actor.standing ? z - rootBiasZ : actor.currentPlacement.plantOffsetMeters.z + z - currentCentre[2],
-          },
-          headingRadians: heading,
-        };
-        return {
-          actorId: actor.id, slotId: "companion_chair", world: [x, seatY, z],
-          headingRadians: heading, placement, box: capsule, standing: actor.standing,
-          cost: Math.abs(headingDelta) / Math.PI,
-        };
-      }
+      // Seated plantOffset is not composed. The page renders the snapshot box on the
+      // resolved slot, so a translated grid cell is not a legal companion_chair body.
+      if (!feverCrownChestClear(snapshot, actor, actor.box)) continue;
+      void patientHead;
     }
   }
   return null;
