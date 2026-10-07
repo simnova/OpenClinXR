@@ -541,12 +541,12 @@
             "y0": 315.5,
             "y1": 992.4
           },
-          "upperPx": 6243,
+          "upperPx": 6205,
           "lowerPx": 0,
-          "mouthPx": 6243,
-          "lipGapPx": 102,
-          "legacyMouthPx": 3668,
-          "legacyLipGapPx": 44
+          "mouthPx": 6205,
+          "lipGapPx": 95,
+          "legacyMouthPx": 3648,
+          "legacyLipGapPx": 39
         },
         {
           "viseme": "DD",

@@ -63,6 +63,13 @@ import {
 } from "./couple-fitted-teeth-to-lip-viseme.js";
 import { measureFaceMarginsFromDoc, runtimeCap } from "./face-median.js";
 import { transferArch } from "./rim-seat-transfer.js";
+import {
+  readTongueInputs,
+  solveTongueTh,
+  TONGUE_RE,
+  TONGUE_TARGET_NAME,
+  type TongueThReport,
+} from "./tongue-th-morph.js";
 
 const REST_TOL_M = 1e-4;
 const REST_SHOTS = 8;
@@ -238,6 +245,8 @@ export type RimSeatPlan = {
   ffCoverNeighborJumpMm: number;
   /** Rest rim gap after seat + pullback (equals the target only when nothing crosses). */
   honestRestGapMm: number;
+  /** Tongue interdental TH solve (always on; the tongue otherwise never shows). */
+  tongueTh: TongueThReport;
   rigid: boolean;
   distortionMm: Record<string, number>;
   jawMaxVerts: number;
@@ -275,6 +284,8 @@ type SeatResult = {
   jointsType: number;
   /** Edited body viseme_FF bind delta; defined only with ffLipContact. */
   newBodyFf?: Float32Array;
+  /** Solved tongue viseme_TH bind delta (the tongue's only morph target). */
+  newTongueTh: Float32Array;
 };
 
 function skinAtRest(
@@ -997,6 +1008,25 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     }
   }
 
+  // Tongue interdental TH: the tongue mesh ships target-less, so TH never
+  // shows the tongue. Solved here (always on) from the seated teeth base so
+  // the tip lands on the committed incisal edges; body and teeth fields
+  // above are untouched by the solve.
+  const tongueInputs = readTongueInputs(doc);
+  const thBodyIndex = bodyTargets.indexOf("viseme_TH");
+  if (thBodyIndex < 0) throw new Error("body has no viseme_TH target");
+  const { delta: newTongueTh, report: tongueTh } = await solveTongueTh({
+    glbPath,
+    ...tongueInputs,
+    teethBase: droppedBase,
+    bodyBase,
+    bodyDeltaAa: bodyDeltas[aaIndex] ?? new Float32Array(bodyBase.length),
+    bodyDeltaTh: bodyDeltas[thBodyIndex] ?? new Float32Array(bodyBase.length),
+    bodyJoints,
+    bodyWeights,
+    jointNodes,
+  });
+
   const plan: RimSeatPlan = {
     rimCount: rim.length,
     rimTriangles: rimTris.length,
@@ -1035,8 +1065,9 @@ export async function planRimSeat(glbPath: string, targetGapMm: number, forceRig
     distortionMm,
     jawMaxVerts,
     teethCount,
+    tongueTh,
   };
-  return { plan, newBase: droppedBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType, ...(ffContact ? { newBodyFf: ffContact.editedBodyFf } : {}) };
+  return { plan, newBase: droppedBase, newJoints, newWeights, newDeltas, jointsType: teethJointsType, newTongueTh, ...(ffContact ? { newBodyFf: ffContact.editedBodyFf } : {}) };
 }
 
 /** Rim gap: mean 3D distance from lower-shell verts to the nearest rim vert. */
@@ -1126,7 +1157,7 @@ function writeAccessorBytes(
 async function main(): Promise<void> {
   const wallStart = Date.now();
   const { glbPath, targetGapMm, dry, rigid, downGain, restDropMm, ffLipContact } = readArgs();
-  const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm, ffLipContact);
+  const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf, newTongueTh } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm, ffLipContact);
   process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
   if (dry) {
     process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s (dry run, no write)\n`);
@@ -1202,6 +1233,50 @@ async function main(): Promise<void> {
       delete ffAccess.sparse;
     }
     writeAccessorBytes(json, bin, ffAccessor, newBodyFf, bodyCount, 3);
+  }
+  // Tongue viseme_TH: the tongue ships target-less, so append the solved
+  // delta as its first (only) morph target. Teeth and body accessors above
+  // are overwritten in place; this append is the only buffer growth, so
+  // their bytes carry over verbatim.
+  {
+    const tongueJson = json.meshes.find((mesh) => mesh.name !== undefined && TONGUE_RE.test(mesh.name));
+    const tonguePrimJson = tongueJson?.primitives[0];
+    if (!tongueJson || !tonguePrimJson) throw new Error("tongue primitive missing from JSON");
+    if ((tonguePrimJson.targets ?? []).length !== 0) throw new Error("tongue already carries targets");
+    if ((tongueJson.extras?.targetNames ?? []).length !== 0) throw new Error("tongue already carries targetNames");
+    const tonguePosAccessor = (tonguePrimJson as { attributes?: { POSITION?: number } }).attributes?.POSITION;
+    if (typeof tonguePosAccessor !== "number") throw new Error("tongue primitive has no POSITION attribute");
+    const tongueCount = (json.accessors[tonguePosAccessor] as { count: number }).count;
+    if (newTongueTh.length !== tongueCount * 3) {
+      throw new Error(`tongue TH delta length moved: ${newTongueTh.length / 3} vs ${tongueCount}`);
+    }
+    while (bin.length % 4 !== 0) bin = Buffer.concat([bin, Buffer.alloc(1)]);
+    const byteOffset = bin.length;
+    const dense = Buffer.alloc(newTongueTh.length * 4);
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < newTongueTh.length; i += 1) {
+      const value = newTongueTh[i] ?? 0;
+      dense.writeFloatLE(value, i * 4);
+      const axis = i % 3;
+      min[axis] = Math.min(min[axis] ?? 0, value);
+      max[axis] = Math.max(max[axis] ?? 0, value);
+    }
+    bin = Buffer.concat([bin, dense]);
+    const viewIndex = json.bufferViews.length;
+    json.bufferViews.push({ buffer: 0, byteOffset, byteLength: dense.length, target: 34962 });
+    const accessorIndex = json.accessors.length;
+    json.accessors.push({
+      bufferView: viewIndex,
+      byteOffset: 0,
+      componentType: 5126,
+      count: tongueCount,
+      type: "VEC3",
+      min,
+      max,
+    });
+    tonguePrimJson.targets = [{ POSITION: accessorIndex }];
+    tongueJson.extras = { ...(tongueJson.extras ?? {}), targetNames: [TONGUE_TARGET_NAME] };
   }
   const outBuffer = json.buffers[0];
   if (!outBuffer) throw new Error("missing buffer length");
