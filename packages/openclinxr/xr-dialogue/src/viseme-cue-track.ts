@@ -25,6 +25,7 @@ export const RHUBARB_TO_OVR = Object.freeze({
   A: "PP", B: "DD", C: "E", D: "aa", E: "O", F: "U", G: "FF", H: "nn", X: "sil",
 } satisfies Record<string, OvrViseme>);
 
+/** Arpabet phone to OVR viseme mapping for MFA-aligned cue tracks. */
 export const ARPABET_TO_OVR = Object.freeze({
   SIL: "sil", SP: "sil", SPN: "sil",
   P: "PP", B: "PP", M: "PP",

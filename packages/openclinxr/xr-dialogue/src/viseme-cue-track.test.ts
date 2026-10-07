@@ -3,11 +3,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mapArpabetTrack, mapPollyTrack, mapRhubarbTrack, visemeCueMappings } from "./viseme-cue-track.js";
-import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
+import { applyNamedSpeechVisemes } from "./index.js";
 import { createJawDynamicsSampler, createLipDynamicsSampler, jawTargetForCue, lipDynamicsConstants } from "./viseme-jaw-dynamics.js";
-import { contactEnvelope } from "./contact-envelope.js";
-import { FF_PP_BLEND_K } from "./viseme-lip-dynamics.js";
-import { driveVisemeTimeline } from "./viseme-timeline-drive.js";
 
 function rows(symbols: readonly string[]) { return symbols.map((symbol, index) => ({ startS: index * 0.1, endS: (index + 1) * 0.1, symbol })); }
 const track = [{ startS: 0, endS: 0.2, viseme: "aa", intensity: 1 }, { startS: 0.2, endS: 0.26, viseme: "PP", intensity: 1 }, { startS: 0.26, endS: 0.31, viseme: "E", intensity: 1 }, { startS: 0.31, endS: 0.6, viseme: "O", intensity: 0.5 }] as const;
@@ -302,8 +299,10 @@ describe("carved FF runtime drive", () => {
       const driven = driveMappedAt((n + 0.5) / 30);
       // Operator 2026-10-06: the lips touch on F via the proven PP seal;
       // the FF morph is capped at 1-PP so the pair stays bounded.
-      expect(driven.weights.viseme_PP ?? NaN, `frame ${n} PP`).toBeCloseTo(FF_PP_BLEND_K, 5);
-      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
+      // K = 0 (FF_PP_BLEND_K in viseme-lip-dynamics.ts, package-private):
+      // PP rides at 0 and FF carries uncapped at 1 through the cue.
+      expect(driven.weights.viseme_PP ?? NaN, `frame ${n} PP`).toBeCloseTo(0, 5);
+      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeCloseTo(1, 5);
       expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
     }
   });
@@ -380,14 +379,22 @@ describe("canonical lip follower", () => {
 });
 
 const contactAvail = ["viseme_DD", "viseme_FF", "viseme_TH", "viseme_PP", "viseme_E", "viseme_aa"];
+/** Step-interpolation frame fixture (driveVisemeTimeline, package-private): resolved viseme 1, rest 0. */
+const STEP_TARGET: Record<string, string> = { DD: "viseme_DD", FF: "viseme_FF", TH: "viseme_TH", PP: "viseme_PP", E: "viseme_E" };
+function stepFrames(cues: { phoneme: string; atSecond: number; durationSeconds: number }[]) {
+  return cues.map((cue) => ({
+    atSecond: cue.atSecond,
+    durationSeconds: cue.durationSeconds,
+    weights: Object.fromEntries(contactAvail.map((name) => [name, name === STEP_TARGET[cue.phoneme] ? 1 : 0])),
+  }));
+}
 function contactSampler(phoneme: string, durationS: number, intensity: number) {
   const cues = [
     { phoneme: "DD", atSecond: 0, durationSeconds: 0.3, intensity: 1 },
     { phoneme, atSecond: 0.3, durationSeconds: durationS, intensity },
     { phoneme: "E", atSecond: 0.3 + durationS, durationSeconds: 0.3, intensity: 1 },
   ];
-  const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets: contactAvail });
-  return createLipDynamicsSampler(cues, frames);
+  return createLipDynamicsSampler(cues, stepFrames(cues));
 }
 
 describe("contact viseme envelope dynamics", () => {
@@ -396,22 +403,20 @@ describe("contact viseme envelope dynamics", () => {
     const full = contactSampler("FF", 0.07, 1).sample(0.335).weights.viseme_FF ?? NaN;
     expect(faint).toBe(full);
   });
-  it("holds the envelope at full target through short contacts: 70 ms FF ends at 1", () => {
-    expect(contactEnvelope(0.37, 0.3, 0.37)).toBe(1);
-  });
-  it("reaches envelope 1 at the cue centre for contact durations 60-200 ms", () => {
-    for (const durationS of [0.06, 0.07, 0.1, 0.2]) {
-      expect(contactEnvelope(0.3 + durationS / 2, 0.3, 0.3 + durationS)).toBe(1);
-    }
-  });
+  // Envelope hold (contactEnvelope = 1 through [s, e], package-private) is
+  // pinned at the public wire: pp-seal.test.ts pins PP = 1 at the PP cue
+  // centre and FF ~= 1 at the FF cue centre through applyNamedSpeechVisemes,
+  // and viseme-runtime-wire.test.ts pins PP/FF/TH >= 0.9 within one frame of
+  // cue onset with per-frame change capped at 0.25. No follower-level
+  // duplicate here: the follower lags the envelope by design, so a >= 0.9
+  // follower pin at cue centre would fail while the envelope holds.
   it("leaves vowels unchanged: short E keeps its coarticulated centre weight", () => {
     const cues = [
       { phoneme: "DD", atSecond: 0, durationSeconds: 0.2, intensity: 1 },
       { phoneme: "E", atSecond: 0.2, durationSeconds: 0.06, intensity: 1 },
       { phoneme: "DD", atSecond: 0.26, durationSeconds: 0.2, intensity: 1 },
     ];
-    const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets: contactAvail });
-    expect(createLipDynamicsSampler(cues, frames).sample(0.23).weights.viseme_E).toBeCloseTo(0.048505, 6);
+    expect(createLipDynamicsSampler(cues, stepFrames(cues)).sample(0.23).weights.viseme_E).toBeCloseTo(0.048505, 6);
   });
   it("brings faint short PP onto the envelope within one frame of cue onset", () => {
     // The raw follower stays bounded; the applied peak (>= 0.9 within one

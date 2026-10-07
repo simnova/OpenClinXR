@@ -2,8 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
-import { FF_PP_BLEND_K } from "./viseme-lip-dynamics.js";
+import { applyNamedSpeechVisemes } from "./index.js";
 
 type Cue = { phoneme: string; atSecond: number; durationSeconds: number; intensity: number };
 
@@ -178,7 +177,13 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     // places the upper incisors on the lower lip; any PP blend re-seals the
     // aperture and hides them. The step3 capture sweep {0, 0.25, 0.5, 0.75, 1}
     // in both views picks K = 0 (most upper crown, lower 0, lip touching).
-    expect(FF_PP_BLEND_K).toBe(0);
+    // K lives in viseme-lip-dynamics.ts (FF_PP_BLEND_K = 0, package-private);
+    // this pins its observable effect: pure FF carries at 1 with no PP seal.
+    const ff = ffCues.find((entry) => entry.phoneme === "FF");
+    if (!ff) throw new Error("synthetic track has no FF cue");
+    const driven = driveTrackAt(ffCues, ff.atSecond + (ff.durationSeconds ?? 0) / 2, 2130);
+    expect(driven.weights.viseme_PP ?? NaN).toBe(0);
+    expect(driven.weights.viseme_FF ?? NaN).toBeCloseTo(1, 5);
   });
 
   it("drives pure FF at K = 0: PP stays 0 through the cue, FF uncapped", () => {

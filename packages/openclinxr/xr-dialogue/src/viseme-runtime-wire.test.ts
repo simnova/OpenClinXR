@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { jawOpenRadiansForPhoneme } from "./viseme-timeline.js";
-import { FF_PP_BLEND_K } from "./viseme-lip-dynamics.js";
 import {
   applyDialogueVisemeTimelineToRoot,
   applyGeneratedScalarVisemeToRoot,
@@ -399,7 +398,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       if (!ff) throw new Error("synthetic track has no FF cue");
       const drive = (mediaS: number): Step3Drive => driveTrackAt(ffCues, mediaS, 2130);
       const cueFrame = Math.floor(ff.atSecond * 30);
-      const reached = 0.9 * (1 - FF_PP_BLEND_K);
+      const reached = 0.9;
       let onset = -1;
       for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
         if ((drive(frameMediaS(n)).weights.viseme_FF ?? 0) >= reached) { onset = n; break; }
@@ -408,7 +407,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       expect(drive(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(reached);
       const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-      expect(drive(centreS).weights.viseme_FF ?? 0).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
+      expect(drive(centreS).weights.viseme_FF ?? 0).toBeCloseTo(1, 5);
     });
 
     it("per-channel cue leads open the jaw within one frame of the first vowel after PP", () => {
@@ -520,7 +519,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       const centre = driveTrackAt(ffCues, ff.atSecond + (ff.durationSeconds ?? 0) / 2, 2130);
       expect(centre.weights.viseme_PP ?? 0).toBe(0);
-      expect(centre.weights.viseme_FF ?? 0).toBeCloseTo(1 - FF_PP_BLEND_K, 5);
+      expect(centre.weights.viseme_FF ?? 0).toBeCloseTo(1, 5);
       expect((centre.weights.viseme_PP ?? 0) + (centre.weights.viseme_FF ?? 0)).toBeLessThanOrEqual(1 + 1e-9);
     });
 

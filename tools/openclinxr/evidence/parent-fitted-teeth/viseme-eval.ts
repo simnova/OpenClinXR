@@ -15,7 +15,6 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ARPABET_TO_OVR } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-cue-track.ts";
 import { runMfaAlign } from "./mfa-align.js";
 import { resolveClipConfig, type ClipId } from "./clip-config.js";
 
@@ -40,10 +39,34 @@ function stressless(phone: string): string {
   return phone.trim().toUpperCase().replace(/[0-2]$/u, "");
 }
 
+/**
+ * Local mirror of ARPABET_TO_OVR (packages/openclinxr/xr-dialogue/src/viseme-cue-track.ts).
+ * The eval grades stills against MFA phones; importing the package table would
+ * publish an eval-only mapping on the reviewed production surface
+ * (admission psr-01e), so the mapping lives here with its source cited.
+ * Update both if the canonical table changes.
+ */
+const EVAL_ARPABET_TO_OVR: Readonly<Record<string, string>> = Object.freeze({
+  SIL: "sil", SP: "sil", SPN: "sil",
+  P: "PP", B: "PP", M: "PP",
+  F: "FF", V: "FF",
+  TH: "TH", DH: "TH",
+  T: "DD", D: "DD",
+  K: "kk", G: "kk", NG: "kk",
+  CH: "CH", JH: "CH", SH: "CH", ZH: "CH",
+  S: "SS", Z: "SS",
+  N: "nn", L: "nn",
+  R: "RR", ER: "RR",
+  AA: "aa", AE: "aa", AH: "aa", AW: "aa", AY: "aa", HH: "aa",
+  EH: "E", EY: "E",
+  IH: "I", IY: "I", Y: "I",
+  AO: "O", OW: "O", OY: "O",
+  UH: "U", UW: "U", W: "U",
+});
+
 function expectedViseme(phone: string): string {
   const key = stressless(phone);
-  const table = ARPABET_TO_OVR as Readonly<Record<string, string>>;
-  const viseme = table[key];
+  const viseme = EVAL_ARPABET_TO_OVR[key];
   if (viseme === undefined) throw new Error(`unknown-arpabet-phone:${phone}`);
   return viseme;
 }

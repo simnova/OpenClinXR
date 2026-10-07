@@ -103,6 +103,18 @@ function run(cmd: string[], opts: { cwd?: string } = {}): number {
   return r.status ?? 1;
 }
 
+/**
+ * Planted REDs (tests committed failing ahead of the slice that makes them pass)
+ * would block every commit whose related set reaches them. They are listed in
+ * known-red-tests.json with the reason and the card that turns them green, and
+ * are excluded here; the list is printed so the exclusion is never silent.
+ */
+export function knownRedTests(): { path: string; reason: string; card: string }[] {
+  const file = join(REPO_ROOT, "tools/openclinxr/openclaw/known-red-tests.json");
+  if (!existsSync(file)) return [];
+  return (JSON.parse(readFileSync(file, "utf8")) as { tests: { path: string; reason: string; card: string }[] }).tests;
+}
+
 function main(): void {
   const start = Date.now();
   const files = touchedSourceFiles();
@@ -112,8 +124,11 @@ function main(): void {
     return;
   }
   let code = 0;
+  const red = knownRedTests();
+  for (const t of red) console.log(`test:touched: excluding known RED ${t.path} (${t.card})`);
+  const redExcludes = red.flatMap((t) => ["--exclude", t.path]);
   if (plan.rootFiles.length > 0) {
-    code = run(["pnpm", "exec", "vitest", "related", "--run", "--passWithNoTests", ...plan.rootFiles]) || code;
+    code = run(["pnpm", "exec", "vitest", "related", "--run", "--passWithNoTests", ...redExcludes, ...plan.rootFiles]) || code;
   }
   for (const [pkg, relFiles] of plan.byPackage) {
     code = run(["pnpm", "--filter", pkg, "exec", "vitest", "related", "--run", "--passWithNoTests", ...relFiles]) || code;

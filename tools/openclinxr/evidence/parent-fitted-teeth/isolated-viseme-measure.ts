@@ -24,12 +24,15 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Box3, BufferAttribute, Matrix4, PerspectiveCamera, Vector3 } from "three";
-import { frameCamera, resolveFocus } from "@openclinxr/xr-scene";
-import { JAW_OPEN_TEETH_CLEAR_RADIANS, jawOpenRadiansForPhoneme, resolveVisemeTarget } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts";
-import { JAW_TEETH_GAIN } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
-import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts";
-import { applyVisemeWeights, lipVisemeWeights, type MorphTargetLike } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
+import { Box3, BufferAttribute, Matrix4, Mesh, PerspectiveCamera, Vector3 } from "three";
+import { deriveHeadBoxFromPoints, frameCamera, isFittedHairMeshName } from "@openclinxr/xr-scene";
+import {
+  applyJawOpenToRoot,
+  applyVisemeWeights,
+  JAW_OPEN_TEETH_CLEAR_RADIANS,
+  JAW_TEETH_GAIN,
+  jawOpenRadiansForPhoneme,
+} from "@openclinxr/xr-dialogue";
 import { analyzeToothPixels } from "./tooth-pixel-split.js";
 import { loadHeadlessScene, type HeadlessScene } from "../../mouth-solver/headless-scene.ts";
 
@@ -43,11 +46,92 @@ const FRONT_WIN = { ox: 520, yTop: 570, x0: 10, x1: 230, y0: 25, y1: 95 };
 const DEFAULT_BOX = { x0: 40, x1: 100, y0: 55, y1: 85 };
 
 /** Live morph-target view onto a headless SkinnedMesh (same arrays, no copy). */
+type MeasureMorphTarget = {
+  morphTargetDictionary: Record<string, number>;
+  morphTargetInfluences: number[];
+};
+
+/**
+ * Local viseme-name mapping (`viseme_${v}`): exact match, then a
+ * case-insensitive match against the real mesh list. The tool poses one
+ * baked cue per viseme, so the key is already the target spelling
+ * (`viseme_PP`, …, `viseme_sil`); no alias pass lives here.
+ */
+function resolveVisemeTargetLocal(phoneme: string, availableTargets: readonly string[]): string | null {
+  const available = new Set(availableTargets);
+  const raw = phoneme.trim();
+  if (!raw) return null;
+  if (available.has(raw)) return raw;
+  const lower = `viseme_${raw.replace(/^viseme_/i, "")}`.toLowerCase();
+  for (const target of availableTargets) {
+    if (target.toLowerCase() === lower) return target;
+  }
+  return null;
+}
+
+/**
+ * Local per-mesh gain: contact visemes (PP/FF/TH) at full weight, every
+ * other `viseme_*` at half. Both gains are 0.5 on this asset
+ * (JAW_TEETH_GAIN for teeth, the lip half-gain for body), so one branch
+ * covers both meshes without publishing the runtime helper.
+ */
+const CONTACT_VISEMES_LOCAL: ReadonlySet<string> = new Set(["pp", "ff", "th"]);
+function lipVisemeWeightsLocal(
+  mesh: MeasureMorphTarget & { name?: string },
+  weights: Record<string, number>,
+): Record<string, number> {
+  void mesh.name;
+  const scaled: Record<string, number> = {};
+  for (const [key, weight] of Object.entries(weights)) {
+    const token = key.replace(/^viseme_/i, "").toLowerCase();
+    scaled[key] = CONTACT_VISEMES_LOCAL.has(token) ? weight : weight * 0.5;
+  }
+  return scaled;
+}
+
+/**
+ * Local head framing from already-public xr-scene API: rest-pose world
+ * points (hair excluded from the silhouette profile, unioned for
+ * containment) through deriveHeadBoxFromPoints, wrapped in a Box3 for
+ * frameCamera. Mirrors headFocusCamera in tools/openclinxr/mouth-solver/headless-scene.ts.
+ */
+function deriveHeadFrameBoundsLocal(root: HeadlessScene["root"]): Box3 {
+  root.updateMatrixWorld(true);
+  const points: Array<{ x: number; y: number; z: number }> = [];
+  const silhouettePoints: Array<{ x: number; y: number; z: number }> = [];
+  const containPoints: Array<{ x: number; y: number; z: number }> = [];
+  const point = new Vector3();
+  root.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!(mesh instanceof Mesh)) return;
+    const position = mesh.geometry.getAttribute("position");
+    if (!position) return;
+    const userName = (mesh.userData as { name?: unknown }).name;
+    const geometryName = (mesh.geometry as unknown as { name?: unknown }).name;
+    const isHair =
+      isFittedHairMeshName(object.name) ||
+      (typeof userName === "string" && isFittedHairMeshName(userName)) ||
+      (typeof geometryName === "string" && isFittedHairMeshName(geometryName));
+    for (let i = 0; i < position.count; i += 1) {
+      point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
+      const p = { x: point.x, y: point.y, z: point.z };
+      points.push(p);
+      if (isHair) containPoints.push(p);
+      else silhouettePoints.push(p);
+    }
+  });
+  const derived = deriveHeadBoxFromPoints(points, { silhouettePoints, containPoints });
+  if (!derived) throw new Error("focus=head unresolvable on this asset: deriveHeadBoxFromPoints returned null");
+  return new Box3(
+    new Vector3(derived.box.min.x, derived.box.min.y, derived.box.min.z),
+    new Vector3(derived.box.max.x, derived.box.max.y, derived.box.max.z),
+  );
+}
 function asMorphTarget(mesh: {
   morphTargetDictionary?: Record<string, number>;
   morphTargetInfluences?: number[];
   name?: string;
-}): MorphTargetLike & { name?: string } {
+}): MeasureMorphTarget & { name?: string } {
   const dict = mesh.morphTargetDictionary;
   const influences = mesh.morphTargetInfluences;
   if (!dict || !influences) throw new Error(`mesh-morph-missing:${mesh.name ?? "(unnamed)"}`);
@@ -164,7 +248,6 @@ async function main(): Promise<void> {
     mesh.skinned.geometry.setAttribute("skinWeight", new BufferAttribute(Float32Array.from(mesh.weights), 4));
   }
   scene.root.updateMatrixWorld(true);
-  const whole = new Box3().setFromObject(scene.root);
   // Manual mouth_box: the fitted-teeth base AABB via mesh matrixWorld.
   // The lab rule unions oris-dominant body verts, but its body match
   // (node/userData/material names vs /_body$/) fails on this asset
@@ -182,7 +265,7 @@ async function main(): Promise<void> {
       mouthBox.expandByPoint(p);
     }
   }
-  const headBox = resolveFocus(scene.root, "head", whole).frameBounds;
+  const headBox = deriveHeadFrameBoundsLocal(scene.root);
   const oris = orisIndices(scene);
 
   const mkCam = (W: number, H: number) => new PerspectiveCamera(35, W / H, 0.01, 100);
@@ -214,10 +297,10 @@ async function main(): Promise<void> {
     const teethMorph = asMorphTarget(scene.teeth.skinned);
     bodyMorph.morphTargetInfluences.fill(0);
     teethMorph.morphTargetInfluences.fill(0);
-    const bodyTarget = resolveVisemeTarget(key, scene.body.targetNames);
+    const bodyTarget = resolveVisemeTargetLocal(key, scene.body.targetNames);
     if (!bodyTarget) throw new Error(`unresolvable:${viseme}`);
-    applyVisemeWeights(bodyMorph, lipVisemeWeights(bodyMorph, { [key]: 1 }));
-    applyVisemeWeights(teethMorph, lipVisemeWeights(teethMorph, { [key]: 1 }));
+    applyVisemeWeights(bodyMorph, lipVisemeWeightsLocal(bodyMorph, { [key]: 1 }));
+    applyVisemeWeights(teethMorph, lipVisemeWeightsLocal(teethMorph, { [key]: 1 }));
     const jawRad = jawOpenRadiansForPhoneme(viseme) * JAW_TEETH_GAIN;
     applyJawOpenToRoot(scene.root, jawRad);
     scene.root.updateMatrixWorld(true);

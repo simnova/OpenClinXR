@@ -23,9 +23,7 @@
  */
 import { Matrix3, Matrix4, Vector3 } from "three";
 import type { Document } from "@gltf-transform/core";
-import { applyJawOpenToRoot } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
-import { JAW_TEETH_GAIN } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
-import { jawOpenRadiansForPhoneme } from "../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js";
+import { applyJawOpenToRoot, JAW_TEETH_GAIN, jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.js";
 import {
   frontShellIndices,

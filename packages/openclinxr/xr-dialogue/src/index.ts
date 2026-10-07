@@ -77,6 +77,7 @@ export {
 export {
   collectResolvedMorphTargets,
   MOUTH_OPEN_CAP,
+  applyVisemeWeights,
   resolveMorphIndex,
 } from "./viseme-morph-apply.js";
 export type {
@@ -84,8 +85,14 @@ export type {
 } from "./viseme-runtime-wire.js";
 export {
   applyGeneratedScalarVisemeToRoot,
+  applyJawOpenToRoot,
   applyNamedSpeechVisemes,
+  JAW_TEETH_GAIN,
 } from "./viseme-runtime-wire.js";
 export type {
   PhonemeCue,
+} from "./viseme-timeline-drive.js";
+export {
+  JAW_OPEN_TEETH_CLEAR_RADIANS,
+  jawOpenRadiansForPhoneme,
 } from "./viseme-timeline-drive.js";

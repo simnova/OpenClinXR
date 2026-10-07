@@ -23,6 +23,7 @@
 
 import { resolveMorphTarget } from "@openclinxr/asset-registry";
 
+/** Morph target container: dictionary plus influences in three.js shape. */
 export type MorphTargetLike = {
   morphTargetDictionary: Record<string, number>;
   morphTargetInfluences: number[];
@@ -72,6 +73,7 @@ export function collectResolvedMorphTargets(
 export const MOUTH_OPEN_CAP = 0.3;
 const CAPPED_FACS_TARGET = "mouth-open";
 
+/** Write each named weight to the morph index its name maps to, skipping missing names. */
 export function applyVisemeWeights(
   target: MorphTargetLike,
   weights: Record<string, number>,
@@ -106,6 +108,7 @@ export function applyVisemeWeights(
 
 /** Half strength on a viseme_* key. Teeth meshes use JAW_TEETH_GAIN; other meshes use LIP_VISEME_GAIN. */
 export const LIP_VISEME_GAIN = 0.5;
+/** Teeth-mesh viseme gain: fitted teeth follow the body viseme at half strength. */
 export const JAW_TEETH_GAIN = 0.5;
 /**
  * Contact class: consonants produced by articulatory contact (PP bilabial,
@@ -125,6 +128,7 @@ function isContactViseme(resolved: string | null, requested: string): boolean {
   return tokens.some((token) => CONTACT_VISEMES.has(token));
 }
 
+/** Scale requested viseme weights to per-mesh gains: contact visemes at full gain, vowels at half. */
 export function lipVisemeWeights(
   mesh: MorphTargetLike & { name?: string },
   weights: Record<string, number>,
