@@ -70,7 +70,10 @@ function frameForSnapshot(snapshot: {
     head[0] + long[0] * -0.35 + side[0] * -0.62,
     head[1] + long[1] * -0.35 + side[1] * -0.62,
   ];
-  return { nurseAnchor, head, foot };
+  const supportNameValue: unknown = Reflect.get(largest, "name");
+  const supportName = typeof supportNameValue === "string" ? supportNameValue : "patient_support";
+  const patientHead: Tuple3 = [chest[0], chest[1], chest[2]];
+  return { supportName, long, side, head, foot, patientHead, nurseAnchor };
 }
 
 function builtFamilyChair() {
