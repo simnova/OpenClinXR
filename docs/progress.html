@@ -27,6 +27,56 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-10-07T1515">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 122 &middot; 2026-10-07 15:15 UTC</p>
+          <h2>Parent Aisha's lips now close on P and B, show the upper teeth on F, and follow word-level timing.</h2>
+        </div>
+        <p>
+          Lip timing now comes from Montreal Forced Aligner phone alignment of the known dialog line (commits <code>f4a342210</code>, <code>158245437</code>); Rhubarb remains the fallback. P and B seal through their acoustic closure (<code>9df705a4e</code>, <code>b9e0e93a6</code>). F shows the upper incisors resting on the lower lip (<code>88bbd7927</code>), and TH carries a tongue-tip shape between the incisors (<code>ec55570e9</code>). A standard evaluation set (a phonemic pangram and the Meta viseme word list) is captured in two camera views with per-phone checks (<code>8eb7c48e3</code>).
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata" width="1850" height="600"
+            poster="assets/mouth-landing-compare-poster-2026-10-07.png"
+            aria-label="The line I feel the pain is better now. Left: shipped main. Middle: this landing, usual camera. Right: this landing, mouth-height front view.">
+            <source src="assets/mouth-landing-compare-2026-10-07.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Left: the clip shipped on main before this landing. Middle and right: this landing, usual capture camera and the new opt-in mouth-height front view. Same audio, same prepared-audio clock, desktop Chromium capture at 30&nbsp;fps.
+            </p>
+          </div>
+        </div>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/mouth-f-p-b-front-2026-10-07.jpg" alt="Front view at mouth height. Top row: F in feel with the upper teeth on the lower lip, then P. Bottom row: P, B in better, then an open vowel." width="1280" height="640" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">F (frames 10, 12, 14), P (40, 42), B (73, 75) and a vowel (90), mouth-height front view.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/mouth-viseme-words-front-2026-10-07.jpg" alt="One front-view frame per viseme from the spoken word list put, fat, think, tip, call, chair, sir, lot, red, car, bed, toe, book." width="1280" height="576" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Viseme word list, middle of the first cue per viseme. O and U are not yet rounded; that work is filed as a separate card.</figcaption>
+          </figure>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Capture measurements, step3 line, desktop Chromium.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Measured result</th></tr></thead>
+            <tbody>
+              <tr><td>P and B closure</td><td>Teeth pixels 0 on the P closure (pain) and the B closure (better), in both views.</td></tr>
+              <tr><td>F</td><td>Upper incisors visible on the lower lip in the mouth-height front view.</td></tr>
+              <tr><td>Labial labels</td><td>Forced alignment labelled 9 of 9 lip and teeth sounds on a test line where Rhubarb mislabelled 2.</td></tr>
+              <tr><td>Aligner cost</td><td>About 8.6&nbsp;s per clip after a one-time 39&nbsp;s model load, against about 6&nbsp;s for Rhubarb; output byte-identical across runs.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="evidence-note">
+          Evidence: <code>docs/openclinxr/mouth-dynamics/step3/</code>, <code>docs/openclinxr/mouth-dynamics/viseme-eval/</code>. Known gaps: O, U, CH and R lips do not round on this face (four approaches measured and rejected); runtime lip-bone rounding is filed as its own card.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> headset playback, Quest performance or readiness, clinical validity, scoring validity, licensure, production readiness, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-09-30T1619">
         <div class="section-heading">
           <p class="eyebrow">Entry 121 &middot; 2026-09-30 16:19 UTC</p>
