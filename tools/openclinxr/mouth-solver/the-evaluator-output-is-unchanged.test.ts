@@ -7,7 +7,7 @@
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { evaluate, readEvaluatorTrack } from "./mouth-evaluator.js";
+import { evaluate, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
 
 const GLB = new URL(
   "../../../apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",

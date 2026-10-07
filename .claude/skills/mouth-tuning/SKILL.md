@@ -16,7 +16,9 @@ The order below exists to prevent that.
 pnpm exec tsx tools/openclinxr/mouth-solver/evaluate.ts --glb <glb> --track docs/openclinxr/mouth-dynamics/step3/metrics.json --out <json>
 ```
 
-About 0.5 s per run. It poses the GLB through the runtime's own public drive (no reimplementation) and reports
+About 0.5 s per run. The CLI is a wrapper over `@openclinxr/station-mouth-verifier`
+(no solver id, no tuning value); implementation changes go in
+`packages/openclinxr/stations/mouth-verifier`, never in `tools/`. It poses the GLB through the runtime's own public drive (no reimplementation) and reports
 per frame, in named spaces: lower-teeth to lower-lip inner-rim gap, upper-teeth head-local displacement,
 penetration, jaw travel. Its vertical projection is gated against browser tooth pixels
 (|signed-median bias| <= 3 px, detrended median <= 2 px, max <= 5 px: the capture's
@@ -30,7 +32,7 @@ horizontal is a known limitation. A browser capture is for the final video only.
 pnpm exec tsx tools/openclinxr/mouth-solver/evaluate.ts --probe [--glb <glb>]
 ```
 
-About 0.1 s. Static morph response per viseme at its runtime jaw angle, no drive: outer-lip landmark, inner-rim
+About 0.1 s. Same wrapper, over the verifier `probePremise`. Static morph response per viseme at its runtime jaw angle, no drive: outer-lip landmark, inner-rim
 mean, lower-teeth, and upper-teeth head-local z displacement, plus the jaw-weight share of rim vs lower teeth.
 Reports all 15 OVR visemes present in the GLB. Use it to refute tracking premises before any producer run.
 
@@ -45,10 +47,12 @@ that imports it. Premises that were false and cost a full worker run each:
 | a "surface gap" stays on the lip | at open poses it finds tongue/throat; measure against the inner rim only |
 | zeroing teeth morphs changes a gauge | a gauge that skips morph targets reads identical numbers; the evaluator has a discrimination test for this |
 
-## 3. Fixed facts about the parent mouth (as of the producer fix on branch mouth-solver)
+## 3. Fixed facts about the parent mouth (as of the station-mouth pilot)
 
-- Lower teeth share the lower-lip inner rim's skinning and per-viseme movement (producer
-  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts`), so the gap is near-constant by construction: 6.1-6.9 mm on all 124 fixed-capture frames. The rim seat drives to the 3.743 mm directed target, then per-vertex pullback clears the #739 face (560 central lower-front verts, iterated quadratic falloff, worst 5.876 mm) to the cap-median-minus-0.5 mm plane; honest rest gap 6.387 mm. Teeth stay behind the face median at rest and at the runtime cap weight.
+- Lower teeth share the lower-lip inner rim's skinning and per-viseme movement (seat
+  pipeline in `packages/openclinxr/stations/mouth-executor`, run from the CLI wrapper
+  `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts` through the
+  pinned registry `run`), so the gap is near-constant by construction: 6.1-6.9 mm on all 124 fixed-capture frames. The rim seat drives to the 3.743 mm directed target, then per-vertex pullback clears the #739 face (560 central lower-front verts, iterated quadratic falloff, worst 5.876 mm) to the cap-median-minus-0.5 mm plane; honest rest gap 6.387 mm. Teeth stay behind the face median at rest and at the runtime cap weight.
 - Upper teeth are head-fixed: zero viseme deltas.
 - Jaw timing: critically damped spring and lip follower at 240 Hz in xr-dialogue internals.
 - A GLB change goes through a committed producer only, with the receipt updated by that run in the same

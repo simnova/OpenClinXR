@@ -43,31 +43,29 @@
  * rig+response landmark vertices whose bind normals face the front-shell
  * centroid (dot sign only).
  *
- * Run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>] [--ff-lip-contact]
+ * Wrapper run: pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry]
+ * (argv parse + one registry.run call; retired knobs are refused at parse).
  */
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
+import { run } from "@openclinxr/station-mouth-registry";
 import { Matrix3, Matrix4, Vector3 } from "three";
 import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
 import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.js";
 import {
   frontShellIndices,
-  type GlbJson,
   lowerLipInnerRim,
   lowerLipLandmark,
-  writeGlb,
 } from "./couple-fitted-teeth-to-lip-viseme.js";
 import { measureFaceMarginsFromDoc, runtimeCap } from "./face-median.js";
 import { transferArch } from "./rim-seat-transfer.js";
 import {
   readTongueInputs,
   solveTongueTh,
-  TONGUE_RE,
-  TONGUE_TARGET_NAME,
   type TongueThReport,
 } from "./tongue-th-morph.js";
 
@@ -253,7 +251,21 @@ export type RimSeatPlan = {
   teethCount: number;
 };
 
-function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid: boolean; downGain: number; restDropMm: number; ffLipContact: boolean } {
+/**
+ * Wrapper CLI: parse argv, call the mouth-station registry once, write back.
+ *
+ * The seat runs through @openclinxr/station-mouth-registry run() (committed
+ * pin, pinned solver, executor apply with the pinned producer values). The
+ * retired tuning knobs below are refused unless they equal the pin, so a
+ * caller cannot silently diverge from the receipt bytes [MADR 0061 d4-d7].
+ *
+ * Compatibility: planRimSeat, lowerArchByJoint and the seat types stay
+ * exported from this module for the jaw-lip-couple evidence test (outside
+ * the M6 writeRoots) and the tongue TH test; the station entry does not
+ * export the plan, so a follow-up card with evidence writeRoots plus
+ * station plan exports retires them. New callers use the registry.
+ */
+function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean } {
   const flag = (name: string): string | undefined => {
     const index = process.argv.indexOf(name);
     const value = index >= 0 ? process.argv[index + 1] : undefined;
@@ -262,17 +274,22 @@ function readArgs(): { glbPath: string; targetGapMm: number; dry: boolean; rigid
   const glbPath = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
   const target = flag("--target-gap-mm");
   if (!glbPath || target === undefined) {
-    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry] [--rigid] [--down-gain <x>] [--rest-drop-mm <mm>] [--ff-lip-contact]");
+    throw new Error("usage: seat-teeth-on-lip-rim.ts <glb> --target-gap-mm <mm> [--dry]");
   }
   const targetGapMm = Number(target);
   if (!Number.isFinite(targetGapMm) || targetGapMm <= 0) throw new Error(`bad --target-gap-mm ${target}`);
+  if (process.argv.includes("--rigid")) {
+    throw new Error("retired: --rigid is refused, the station seat never runs rigid");
+  }
   const downGainRaw = flag("--down-gain");
-  const downGain = downGainRaw === undefined ? 1 : Number(downGainRaw);
-  if (!Number.isFinite(downGain) || downGain <= 0) throw new Error(`bad --down-gain ${downGainRaw}`);
+  if (downGainRaw !== undefined && Number(downGainRaw) !== 1.25) {
+    throw new Error(`retired: --down-gain ${downGainRaw} is refused, the station pins 1.25`);
+  }
   const restDropRaw = flag("--rest-drop-mm");
-  const restDropMm = restDropRaw === undefined ? 0 : Number(restDropRaw);
-  if (!Number.isFinite(restDropMm)) throw new Error(`bad --rest-drop-mm ${restDropRaw}`);
-  return { glbPath, targetGapMm, dry: process.argv.includes("--dry"), rigid: process.argv.includes("--rigid"), downGain, restDropMm, ffLipContact: process.argv.includes("--ff-lip-contact") };
+  if (restDropRaw !== undefined && Number(restDropRaw) !== 4.215) {
+    throw new Error(`retired: --rest-drop-mm ${restDropRaw} is refused, the station pins 4.215`);
+  }
+  return { glbPath, targetGapMm, dry: process.argv.includes("--dry") };
 }
 
 type SeatResult = {
@@ -1095,197 +1112,15 @@ function rimGap(
   return sum / (shellLower.length || 1);
 }
 
-/** In-place accessor overwrite honoring interleaved byteStride. Counts and types must match. */
-function writeAccessorBytes(
-  json: GlbJson,
-  bin: Buffer,
-  accessorIndex: number,
-  values: ArrayLike<number>,
-  count: number,
-  components: number,
-): void {
-  const accessor = json.accessors[accessorIndex] as {
-    bufferView: number;
-    byteOffset?: number;
-    count: number;
-    componentType: number;
-    type: string;
-    min?: number[];
-    max?: number[];
-  };
-  const view = json.bufferViews[accessor.bufferView] as
-    | { byteOffset?: number; byteLength?: number; byteStride?: number }
-    | undefined;
-  if (!accessor || !view) throw new Error(`accessor ${accessorIndex} missing`);
-  const size =
-    accessor.componentType === 5121 ? 1 : accessor.componentType === 5123 ? 2 : accessor.componentType === 5126 ? 4 : 0;
-  const expectType = components === 3 ? "VEC3" : "VEC4";
-  if (accessor.count !== count || accessor.type !== expectType || size === 0) {
-    throw new Error(`accessor ${accessorIndex} is not ${expectType} x${count}`);
-  }
-  const stride = view.byteStride ?? components * size;
-  const start = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
-  if (start + (count - 1) * stride + components * size > bin.length) {
-    throw new Error(`accessor ${accessorIndex} overruns the buffer`);
-  }
-  const min: number[] = [];
-  const max: number[] = [];
-  for (let axis = 0; axis < components; axis += 1) {
-    min.push(Infinity);
-    max.push(-Infinity);
-  }
-  for (let vertex = 0; vertex < count; vertex += 1) {
-    for (let axis = 0; axis < components; axis += 1) {
-      const value = values[vertex * components + axis] ?? 0;
-      const at = start + vertex * stride + axis * size;
-      if (size === 1) {
-        if (!Number.isInteger(value) || value < 0 || value > 255) throw new Error(`joint index out of range: ${value}`);
-        bin.writeUInt8(value, at);
-      } else if (size === 2) {
-        bin.writeUInt16LE(value, at);
-      } else {
-        bin.writeFloatLE(value, at);
-      }
-      min[axis] = Math.min(min[axis] ?? 0, value);
-      max[axis] = Math.max(max[axis] ?? 0, value);
-    }
-  }
-  accessor.min = min;
-  accessor.max = max;
-}
-
 async function main(): Promise<void> {
   const wallStart = Date.now();
-  const { glbPath, targetGapMm, dry, rigid, downGain, restDropMm, ffLipContact } = readArgs();
-  const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf, newTongueTh } = await planRimSeat(glbPath, targetGapMm, rigid, downGain, restDropMm, ffLipContact);
-  process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
-  if (dry) {
-    process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s (dry run, no write)\n`);
-    return;
-  }
-  const file = readFileSync(glbPath);
-  if (file.readUInt32LE(0) !== 0x46546c67) throw new Error("not a glb");
-  const jsonLength = file.readUInt32LE(12);
-  const json = JSON.parse(file.subarray(20, 20 + jsonLength).toString("utf8")) as GlbJson;
-  const binHeader = 20 + jsonLength;
-  const binLength = json.buffers[0]?.byteLength;
-  if (typeof binLength !== "number") throw new Error("missing buffer length");
-  let bin = Buffer.from(file.subarray(binHeader + 8, binHeader + 8 + binLength));
-  const teeth = json.meshes.find((mesh) => mesh.name !== undefined && /fitted_teeth/i.test(mesh.name));
-  const primitive = teeth?.primitives[0];
-  if (!teeth || !primitive) throw new Error("teeth primitive missing from JSON");
-  const existing = teeth.extras?.targetNames ?? [];
-  const plannedNames = Object.keys(newDeltas);
-  if (existing.length !== plannedNames.length || !plannedNames.every((name) => existing.includes(name))) {
-    throw new Error(`teeth target names moved: ${existing.join(",")}`);
-  }
-  const existingIndex = new Map(existing.map((name, index) => [name, index]));
-  const targets: { POSITION: number }[] = [];
-  for (const name of existing) {
-    const values = newDeltas[name];
-    if (!values) throw new Error(`no delta for ${name}`);
-    const prior = existingIndex.get(name);
-    const accessorIndex = prior === undefined ? undefined : primitive.targets?.[prior]?.POSITION;
-    if (typeof accessorIndex !== "number") throw new Error(`missing POSITION on ${name}`);
-    writeAccessorBytes(json, bin, accessorIndex, values, plan.teethCount, 3);
-    targets.push({ POSITION: accessorIndex });
-  }
-  primitive.targets = targets;
-  const baseAccessor = (primitive as { attributes?: { POSITION?: number } }).attributes?.POSITION;
-  if (typeof baseAccessor !== "number") throw new Error("teeth primitive has no POSITION attribute");
-  writeAccessorBytes(json, bin, baseAccessor, newBase, plan.teethCount, 3);
-  const jointsAccessor = (primitive as { attributes?: { JOINTS_0?: number } }).attributes?.JOINTS_0;
-  const weightsAccessor = (primitive as { attributes?: { WEIGHTS_0?: number } }).attributes?.WEIGHTS_0;
-  if (typeof jointsAccessor !== "number" || typeof weightsAccessor !== "number") {
-    throw new Error("teeth primitive has no skinning attributes");
-  }
-  writeAccessorBytes(json, bin, jointsAccessor, newJoints, plan.teethCount, 4);
-  writeAccessorBytes(json, bin, weightsAccessor, newWeights, plan.teethCount, 4);
-  if (newBodyFf) {
-    const body = json.meshes.find((mesh) => mesh.name !== undefined && /_body$/i.test(mesh.name));
-    const bodyPrim = body?.primitives[0];
-    if (!body || !bodyPrim) throw new Error("body primitive missing from JSON");
-    const bodyNames = body.extras?.targetNames ?? [];
-    const ffIndex = bodyNames.indexOf("viseme_FF");
-    if (ffIndex < 0) throw new Error("body has no viseme_FF target");
-    const ffAccessor = bodyPrim.targets?.[ffIndex]?.POSITION;
-    if (typeof ffAccessor !== "number") throw new Error("missing POSITION on body viseme_FF");
-    const bodyPosAccessor = (bodyPrim as { attributes?: { POSITION?: number } }).attributes?.POSITION;
-    if (typeof bodyPosAccessor !== "number") throw new Error("body primitive has no POSITION attribute");
-    const bodyCount = (json.accessors[bodyPosAccessor] as { count: number }).count;
-    const ffAccess = json.accessors[ffAccessor] as
-      | { count: number; type: string; sparse?: unknown; bufferView?: number }
-      | undefined;
-    if (!ffAccess || ffAccess.count !== bodyCount || ffAccess.type !== "VEC3") {
-      throw new Error(`body viseme_FF accessor ${ffAccessor} is not VEC3 x${bodyCount}`);
-    }
-    if (ffAccess.sparse) {
-      // Densify once: body morphs ship sparse; the edited FF field is full.
-      // Idempotent: a rerun finds a dense accessor and overwrites in place.
-      while (bin.length % 4 !== 0) bin = Buffer.concat([bin, Buffer.alloc(1)]);
-      const byteOffset = bin.length;
-      const dense = Buffer.alloc(newBodyFf.length * 4);
-      for (let i = 0; i < newBodyFf.length; i += 1) dense.writeFloatLE(newBodyFf[i] ?? 0, i * 4);
-      bin = Buffer.concat([bin, dense]);
-      const viewIndex = json.bufferViews.length;
-      json.bufferViews.push({ buffer: 0, byteOffset, byteLength: dense.length, target: 34962 });
-      ffAccess.bufferView = viewIndex;
-      delete ffAccess.sparse;
-    }
-    writeAccessorBytes(json, bin, ffAccessor, newBodyFf, bodyCount, 3);
-  }
-  // Tongue viseme_TH: the tongue ships target-less, so append the solved
-  // delta as its first (only) morph target. Teeth and body accessors above
-  // are overwritten in place; this append is the only buffer growth, so
-  // their bytes carry over verbatim.
-  {
-    const tongueJson = json.meshes.find((mesh) => mesh.name !== undefined && TONGUE_RE.test(mesh.name));
-    const tonguePrimJson = tongueJson?.primitives[0];
-    if (!tongueJson || !tonguePrimJson) throw new Error("tongue primitive missing from JSON");
-    if ((tonguePrimJson.targets ?? []).length !== 0) throw new Error("tongue already carries targets");
-    if ((tongueJson.extras?.targetNames ?? []).length !== 0) throw new Error("tongue already carries targetNames");
-    const tonguePosAccessor = (tonguePrimJson as { attributes?: { POSITION?: number } }).attributes?.POSITION;
-    if (typeof tonguePosAccessor !== "number") throw new Error("tongue primitive has no POSITION attribute");
-    const tongueCount = (json.accessors[tonguePosAccessor] as { count: number }).count;
-    if (newTongueTh.length !== tongueCount * 3) {
-      throw new Error(`tongue TH delta length moved: ${newTongueTh.length / 3} vs ${tongueCount}`);
-    }
-    while (bin.length % 4 !== 0) bin = Buffer.concat([bin, Buffer.alloc(1)]);
-    const byteOffset = bin.length;
-    const dense = Buffer.alloc(newTongueTh.length * 4);
-    const min = [Infinity, Infinity, Infinity];
-    const max = [-Infinity, -Infinity, -Infinity];
-    for (let i = 0; i < newTongueTh.length; i += 1) {
-      const value = newTongueTh[i] ?? 0;
-      dense.writeFloatLE(value, i * 4);
-      const axis = i % 3;
-      min[axis] = Math.min(min[axis] ?? 0, value);
-      max[axis] = Math.max(max[axis] ?? 0, value);
-    }
-    bin = Buffer.concat([bin, dense]);
-    const viewIndex = json.bufferViews.length;
-    json.bufferViews.push({ buffer: 0, byteOffset, byteLength: dense.length, target: 34962 });
-    const accessorIndex = json.accessors.length;
-    json.accessors.push({
-      bufferView: viewIndex,
-      byteOffset: 0,
-      componentType: 5126,
-      count: tongueCount,
-      type: "VEC3",
-      min,
-      max,
-    });
-    tonguePrimJson.targets = [{ POSITION: accessorIndex }];
-    tongueJson.extras = { ...(tongueJson.extras ?? {}), targetNames: [TONGUE_TARGET_NAME] };
-  }
-  const outBuffer = json.buffers[0];
-  if (!outBuffer) throw new Error("missing buffer length");
-  outBuffer.byteLength = bin.length;
-  writeGlb(json, bin, glbPath);
-  const bytes = readFileSync(glbPath);
-  process.stdout.write(
-    `wrote ${glbPath} sha256=${createHash("sha256").update(bytes).digest("hex")} bytes=${bytes.length}\n`,
-  );
+  const { glbPath, targetGapMm, dry } = readArgs();
+  const input = readFileSync(glbPath);
+  const { glbBytes, receiptNote } = await run(new Uint8Array(input), { targetGapMm });
+  if (!dry) writeFileSync(glbPath, glbBytes);
+  const sha = createHash("sha256").update(glbBytes).digest("hex");
+  process.stdout.write(`${receiptNote}\n`);
+  process.stdout.write(`${dry ? "dry run (no write)" : `wrote ${glbPath}`} sha256=${sha} bytes=${glbBytes.length}\n`);
   process.stdout.write(`wall clock ${((Date.now() - wallStart) / 1000).toFixed(1)}s\n`);
 }
 

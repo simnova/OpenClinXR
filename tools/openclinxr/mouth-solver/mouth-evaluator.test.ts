@@ -14,7 +14,7 @@
  * the 3.743 mm directed target is unreachable behind the face.
  */
 import { describe, expect, it } from "vitest";
-import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
+import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
 
 const GLB = new URL("../../../apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb", import.meta.url).pathname;
 const TRACK_PATH = new URL(

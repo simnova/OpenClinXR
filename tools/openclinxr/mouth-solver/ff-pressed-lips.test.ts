@@ -36,7 +36,7 @@ import {
   readProducerReceipt,
 } from "../asset-pipeline/makeclothes/producer-preimage.js";
 import { loadHeadlessScene } from "./headless-scene.js";
-import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
+import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../..");
