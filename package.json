@@ -433,7 +433,7 @@
     "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/motion-compiler": "workspace:*",
     "@openclinxr/service-local-compute": "workspace:*",
-    "@openclinxr/station-mouth-objective": "workspace:*",
+    "@openclinxr/station-mouth-verifier": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",

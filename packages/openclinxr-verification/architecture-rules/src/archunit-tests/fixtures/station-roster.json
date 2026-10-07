@@ -3,5 +3,10 @@
     "name": "@openclinxr/station-mouth-objective",
     "station": "mouth",
     "stationRole": "objective"
+  },
+  {
+    "name": "@openclinxr/station-mouth-verifier",
+    "station": "mouth",
+    "stationRole": "verifier"
   }
 ]

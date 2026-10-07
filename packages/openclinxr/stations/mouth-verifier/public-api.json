@@ -1,0 +1,26 @@
+{
+  "entrypoints": {
+    ".": [
+      "CueTrackCue",
+      "DY_GATE_RULE",
+      "EvaluateParams",
+      "EvaluatorOutput",
+      "EvaluatorSummary",
+      "EvaluatorTrack",
+      "FrameRecord",
+      "HeadFocusCamera",
+      "HeadlessMesh",
+      "HeadlessScene",
+      "NowGapPoint",
+      "PositionSpace",
+      "PremiseProbeRow",
+      "ToothSample",
+      "assertGroundTruthDyGate",
+      "evaluate",
+      "headFocusCamera",
+      "loadHeadlessScene",
+      "probePremise",
+      "readEvaluatorTrack"
+    ]
+  }
+}

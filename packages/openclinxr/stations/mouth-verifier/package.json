@@ -1,0 +1,41 @@
+{
+  "name": "@openclinxr/station-mouth-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.3.0",
+    "@openclinxr/station-mouth-objective": "workspace:*",
+    "@openclinxr/xr-dialogue": "workspace:*",
+    "@openclinxr/xr-scene": "workspace:*",
+    "three": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/three": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ],
+  "openclinxr": {
+    "station": "mouth",
+    "stationRole": "verifier"
+  }
+}

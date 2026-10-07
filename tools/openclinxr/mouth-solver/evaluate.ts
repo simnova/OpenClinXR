@@ -8,7 +8,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
+import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
 
 const DEFAULT_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 
