@@ -8,5 +8,10 @@
     "name": "@openclinxr/station-mouth-solver-closedform",
     "station": "mouth",
     "stationRole": "solver"
+  },
+  {
+    "name": "@openclinxr/station-mouth-verifier",
+    "station": "mouth",
+    "stationRole": "verifier"
   }
 ]

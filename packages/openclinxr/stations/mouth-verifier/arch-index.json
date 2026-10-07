@@ -1,0 +1,64 @@
+{
+  "package": "stations/mouth-verifier",
+  "name": "@openclinxr/station-mouth-verifier",
+  "entrypoint": "packages/openclinxr/stations/mouth-verifier/src/index.ts",
+  "purpose": "Shared mouth-station verifier: headless scene posing, runtime drive, capture projection, premise probe and the ground-truth dy gate.",
+  "exports": [
+    "CueTrackCue",
+    "DY_GATE_RULE",
+    "EvaluateParams",
+    "EvaluatorOutput",
+    "EvaluatorSummary",
+    "EvaluatorTrack",
+    "FrameRecord",
+    "HeadFocusCamera",
+    "HeadlessMesh",
+    "HeadlessScene",
+    "NowGapPoint",
+    "PositionSpace",
+    "PremiseProbeRow",
+    "ToothSample",
+    "assertGroundTruthDyGate",
+    "evaluate",
+    "headFocusCamera",
+    "loadHeadlessScene",
+    "probePremise",
+    "readEvaluatorTrack"
+  ],
+  "exportSummaries": {
+    "CueTrackCue": "One cue in the fixed-capture cue track the evaluator drives.",
+    "DY_GATE_RULE": "Gate rule tag recorded on failure.",
+    "EvaluateParams": "Evaluator drive options for sensitivity probes.",
+    "EvaluatorOutput": "Full evaluator output: provenance, camera, per-frame records and summary.",
+    "EvaluatorSummary": "Aggregate evaluator summary: gap stats, ground-truth gates and rim stats.",
+    "EvaluatorTrack": "Evaluator cue track: the fixed-capture line plus samples.",
+    "FrameRecord": "Per-frame evaluator record: measured geometry plus projection errors.",
+    "HeadFocusCamera": "Head-focus camera: perspective camera plus the head box it frames.",
+    "HeadlessMesh": "One skinned mesh rebuilt headlessly: base positions plus skinning tables.",
+    "HeadlessScene": "Headless scene: root group plus body/teeth meshes and head/jaw bones.",
+    "NowGapPoint": "One trailing-word gap point in the evaluator summary.",
+    "PositionSpace": "Position spaces named on every position field.",
+    "PremiseProbeRow": "One premise-probe row: static morph response at a viseme's runtime jaw angle.",
+    "ToothSample": "One ground-truth tooth centroid sample from the step3 capture.",
+    "assertGroundTruthDyGate": "Assert the bias-aware dy ground-truth gate.",
+    "evaluate": "Drive the loaded scene through the runtime's prepared-audio path and measure per-frame teeth/lip geometry.",
+    "headFocusCamera": "The isolated-subject head-focus camera for this asset.",
+    "loadHeadlessScene": "Load the parent GLB into a headless scene with body/teeth meshes and head/jaw bones.",
+    "probePremise": "One-minute premise probe: static morph response per viseme at its runtime jaw angle.",
+    "readEvaluatorTrack": "Read and validate an evaluator track file."
+  },
+  "workspaceDependencies": [
+    "@openclinxr/station-mouth-objective",
+    "@openclinxr/xr-dialogue",
+    "@openclinxr/xr-scene"
+  ],
+  "tests": [
+    "src/verifier.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-mouth-verifier test",
+    "typecheck": "pnpm --filter @openclinxr/station-mouth-verifier typecheck",
+    "build": "pnpm --filter @openclinxr/station-mouth-verifier build",
+    "lint": "pnpm --filter @openclinxr/station-mouth-verifier lint"
+  }
+}
