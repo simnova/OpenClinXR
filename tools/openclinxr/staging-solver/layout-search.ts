@@ -99,14 +99,26 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
   const head: [number, number] = [supportCentre[0] + long[0] * halfLong, supportCentre[2] + long[1] * halfLong];
   const foot: [number, number] = [supportCentre[0] - long[0] * halfLong, supportCentre[2] - long[1] * halfLong];
   const seated = actor.currentPlacement.supportSurface === "chair";
-  const templateSets = seated
-    ? [templatesForRole(actor.role, true), templatesForRole(actor.role, false)]
-    : [templatesForRole(actor.role, false)];
-  const chairs = [...snapshot.companionSeats].sort((a, b) => {
+  const seatedFamily = seated && actor.role === "family";
+  // nurse_bedside_head: side -1, along -0.35, across 0.62 from the patient support head.
+  const nurseAnchor: [number, number] = [
+    head[0] + long[0] * -0.35 + side[0] * -1 * 0.62,
+    head[1] + long[1] * -0.35 + side[1] * -1 * 0.62,
+  ];
+  const templateSets = seatedFamily
+    ? [templatesForRole(actor.role, true)]
+    : seated
+      ? [templatesForRole(actor.role, true), templatesForRole(actor.role, false)]
+      : [templatesForRole(actor.role, false)];
+  const chairs = [...snapshot.companionSeats].filter((seat) => {
+    const seatCentre = centre(seat.box);
+    return Math.hypot(seatCentre[0] - nurseAnchor[0], seatCentre[2] - nurseAnchor[1]) >= 1.2;
+  }).sort((a, b) => {
     const ac = centre(a.box), bc = centre(b.box);
     return Math.hypot(ac[0] - patientHead[0], ac[2] - patientHead[2])
       - Math.hypot(bc[0] - patientHead[0], bc[2] - patientHead[2]) || a.name.localeCompare(b.name);
   });
+  if (seatedFamily && chairs.length === 0) return [];
   let output: LayoutCandidate[] = [];
   const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
   for (const templates of templateSets) {
@@ -193,7 +205,12 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
   const movable = snapshot.actors.filter((actor) => actor.id !== patient.id).sort((a, b) => a.id.localeCompare(b.id));
   for (const actor of movable) {
     const candidates = assignmentCandidates(snapshot, actor);
-    if (candidates.length === 0) return { layouts: [], bindingConstraint: `${actor.id}: no candidate inside template/interior without fixture collision` };
+    if (candidates.length === 0) {
+      const seatedFamily = actor.role === "family" && actor.currentPlacement.supportSurface === "chair";
+      return { layouts: [], bindingConstraint: seatedFamily
+        ? `${actor.id}: companion_chair`
+        : `${actor.id}: no candidate inside template/interior without fixture collision` };
+    }
     const next: LayoutCandidate[][] = [];
     for (const layout of beam) for (const candidate of candidates) {
       if (compatible(candidate, layout)) next.push([...layout, candidate]);
