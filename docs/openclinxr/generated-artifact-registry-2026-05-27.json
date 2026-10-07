@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1757,
+    "keep-evidence": 1759,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -33510,6 +33510,20 @@
     },
     {
       "path": "docs/openclinxr/staging-solver/after/capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/peds_fever_v1-overhead.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",

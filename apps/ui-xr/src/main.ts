@@ -255,6 +255,7 @@ import {
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl, sleeveDeformCueForAssetPath
 } from "@openclinxr/xr-scene";
+import { installStationLayoutView } from "./layout-view-camera.js";
 import {
   addPediatricRespiratoryEquipmentCues as addPackagePediatricRespiratoryEquipmentCues,
   applyCleanEncounterVisualReviewActorFraming as applyPackageCleanEncounterVisualReviewActorFraming,
@@ -357,6 +358,7 @@ import {
 import {
   type AnimationClip,
   type AnimationMixer,
+  Box3,
   BoxGeometry,
   BufferGeometry,
   Color,
@@ -519,6 +521,7 @@ declare global {
     __openClinXrPedsAdaptiveDialogueEvidence?: PedsAdaptiveDialogueEvidence;
     __openClinXrConversationTurnStateEvidence?: ConversationTurnStateEvidence;
     __openClinXrDebugScene?: Scene;
+    __openClinXrDebugCamera?: PerspectiveCamera;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
     __openClinXrRuntimeBundleScenarioMatch?: { source: "window.__openClinXrRuntimeBundleScenarioMatch"; selectedScenarioId: string; bundleScenarioId: string; matches: boolean; reason?: string };
@@ -2899,6 +2902,8 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   reportRuntimeBundleScenarioMatch();
   const _selectedStationContext = stationContextForSelectedScenario();
   const camera = new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100);
+  window.__openClinXrDebugCamera = camera;
+  installStationLayoutView(scene, canvas);
   // #342b — only the product's own wide default framing is re-derived for a closed generated
   // room. The capture framings below are authored for a specific subject (a face, one actor)
   // and their harnesses do their own reframing; replacing them with a far-wall vantage would
@@ -3541,7 +3546,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule moved
     // with it to @openclinxr/xr-runtime-state, unchanged.
     applyStationIdleSway({ patient, nurse, nowMs: now });
-    renderer.render(scene, camera);
+    const holdCamera = window.__openClinXrDebugHoldCamera;
+    if (holdCamera) holdCamera.updateMatrixWorld(true);
+    renderer.render(scene, holdCamera ?? camera);
   }
 
   function buildRuntimeInteractionEvidenceSnapshot(input: {
