@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-10-07T18:34:38.411Z",
+  "generatedAt": "2026-10-07T19:40:45.730Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -140,7 +140,7 @@
           "contained": 2,
           "total": 3
         },
-        "meanFacingDeg": 83.31102255528394,
+        "meanFacingDeg": 83.2745422673737,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,

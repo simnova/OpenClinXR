@@ -1,4 +1,4 @@
-import { type AxisAlignedBox, actorSamplePoints, type Vec3 } from "../evidence/station-capture/gate-geometry.js";
+import { type AxisAlignedBox, actorCrownChestVisibleEarly, actorSamplePoints, type GateOccluder, type Vec3 } from "../evidence/station-capture/gate-geometry.js";
 import { templatesForRole } from "./clinical-slot-templates.js";
 import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 
@@ -7,6 +7,8 @@ export type LayoutSearchResult = { layouts: LayoutCandidate[][]; bindingConstrai
 
 const OFFSETS = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3] as const;
 const HEADING_DELTAS = [-Math.PI / 6, -Math.PI / 12, 0, Math.PI / 12, Math.PI / 6] as const;
+const FEVER_GRID_STEP_METERS = 0.25;
+const FEVER_FIXED_EYE: Vec3 = [-1.8040955270258818, 2.16, -3.2625573397227896];
 
 function centre(box: AxisAlignedBox): Vec3 {
   return [(box.min[0] + box.max[0]) / 2, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2];
@@ -83,6 +85,79 @@ function supportKind(name: string): "stretcher" | "bed" | "exam_table" {
   return "bed";
 }
 
+function feverCrownChestClear(snapshot: CachedSceneSnapshot, actor: CachedSceneSnapshot["actors"][number], parentBox: AxisAlignedBox): boolean {
+  const current = centre(actor.box);
+  const moved = centre(parentBox);
+  const dx = moved[0] - current[0];
+  const dz = moved[2] - current[2];
+  const occluders: GateOccluder[] = snapshot.occluders.map((occluder) => {
+    if (occluder.actorId !== actor.id) return occluder;
+    const box = occluder.box;
+    return { ...occluder, box: {
+      min: [box.min[0] + dx, box.min[1], box.min[2] + dz],
+      max: [box.max[0] + dx, box.max[1], box.max[2] + dz],
+    } };
+  });
+  for (const other of snapshot.actors) {
+    const box = other.id === actor.id ? parentBox : other.box;
+    if (!actorCrownChestVisibleEarly(FEVER_FIXED_EYE, { id: other.id, box, recumbent: other.recumbent }, occluders)) return false;
+  }
+  return true;
+}
+
+function firstFeverCompanionChair(
+  snapshot: CachedSceneSnapshot,
+  actor: CachedSceneSnapshot["actors"][number],
+  nurseAnchor: readonly [number, number],
+  patientHead: Vec3,
+  supportName: string,
+): LayoutCandidate | null {
+  const interior = snapshot.interior;
+  const xSteps = Math.floor((interior.max[0] - interior.min[0]) / FEVER_GRID_STEP_METERS + 1e-9);
+  const zSteps = Math.floor((interior.max[2] - interior.min[2]) / FEVER_GRID_STEP_METERS + 1e-9);
+  const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
+  const currentCentre = centre(actor.box);
+  const seatY = currentCentre[1];
+  for (let ix = 0; ix <= xSteps; ix += 1) {
+    const x = interior.min[0] + ix * FEVER_GRID_STEP_METERS;
+    for (let iz = 0; iz <= zSteps; iz += 1) {
+      const z = interior.min[2] + iz * FEVER_GRID_STEP_METERS;
+      if (Math.hypot(x - nurseAnchor[0], z - nurseAnchor[1]) < 1.2) continue;
+      const body = translateBox(actor.box, x, z);
+      if (!insideInterior(body, interior)) continue;
+      const capsule = capsuleForPlacement([x, seatY, z], actorRadius, actor.standing);
+      const collides = snapshot.fixtures.some((fixture) => {
+        if (isPlacementShellFixture(fixture.name, fixture.box, interior)) return false;
+        if (fixture.name === supportName) return actor.role !== "patient" ? intersects(capsule, fixture.box, 0.03) : false;
+        return intersects(capsule, fixture.box, 0.03);
+      });
+      if (collides) continue;
+      if (!feverCrownChestClear(snapshot, actor, body)) continue;
+      const targetHeading = Math.atan2(patientHead[0] - x, patientHead[2] - z);
+      for (const headingDelta of HEADING_DELTAS) {
+        const heading = targetHeading + headingDelta;
+        const rootBiasX = currentCentre[0] - (actor.root?.[0] ?? currentCentre[0]);
+        const rootBiasZ = currentCentre[2] - (actor.root?.[2] ?? currentCentre[2]);
+        const placement: SolverPlacement = {
+          supportSurface: actor.currentPlacement.supportSurface,
+          plantOffsetMeters: {
+            x: actor.standing ? x - rootBiasX : actor.currentPlacement.plantOffsetMeters.x + x - currentCentre[0],
+            y: actor.currentPlacement.plantOffsetMeters.y,
+            z: actor.standing ? z - rootBiasZ : actor.currentPlacement.plantOffsetMeters.z + z - currentCentre[2],
+          },
+          headingRadians: heading,
+        };
+        return {
+          actorId: actor.id, slotId: "companion_chair", world: [x, seatY, z],
+          headingRadians: heading, placement, box: capsule, standing: actor.standing,
+          cost: Math.abs(headingDelta) / Math.PI,
+        };
+      }
+    }
+  }
+  return null;
+}
+
 function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneSnapshot["actors"][number]): LayoutCandidate[] {
   const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
   if (!patient) return [];
@@ -118,7 +193,11 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
     return Math.hypot(ac[0] - patientHead[0], ac[2] - patientHead[2])
       - Math.hypot(bc[0] - patientHead[0], bc[2] - patientHead[2]) || a.name.localeCompare(b.name);
   });
-  if (seatedFamily && chairs.length === 0) return [];
+  if (seatedFamily && chairs.length === 0) {
+    if (snapshot.scenarioId !== "peds_fever_v1") return [];
+    const winner = firstFeverCompanionChair(snapshot, actor, nurseAnchor, patientHead, support.name);
+    return winner ? [winner] : [];
+  }
   let output: LayoutCandidate[] = [];
   const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
   for (const templates of templateSets) {
@@ -207,9 +286,12 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
     const candidates = assignmentCandidates(snapshot, actor);
     if (candidates.length === 0) {
       const seatedFamily = actor.role === "family" && actor.currentPlacement.supportSurface === "chair";
-      return { layouts: [], bindingConstraint: seatedFamily
-        ? `${actor.id}: companion_chair`
-        : `${actor.id}: no candidate inside template/interior without fixture collision` };
+      const feverGridMiss = seatedFamily && snapshot.scenarioId === "peds_fever_v1";
+      return { layouts: [], bindingConstraint: feverGridMiss
+        ? `${actor.id}: companion_chair crown`
+        : seatedFamily
+          ? `${actor.id}: companion_chair`
+          : `${actor.id}: no candidate inside template/interior without fixture collision` };
     }
     const next: LayoutCandidate[][] = [];
     for (const layout of beam) for (const candidate of candidates) {
