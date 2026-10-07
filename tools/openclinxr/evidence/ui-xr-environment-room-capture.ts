@@ -1493,6 +1493,248 @@ export async function captureStationEnvironmentRooms(
           const imagePath = path.join(outputDir, imageName);
           await page.screenshot({ path: imagePath, fullPage: false });
 
+          // For peds_fever_v1: add overhead orthographic and isometric orthographic captures
+          if (scenarioId === "peds_fever_v1") {
+            // Save perspective camera state
+            const perspectiveState = await page.evaluate(`(() => {
+              type Vec3 = { x: number; y: number; z: number; set: (x: number, y: number, z: number) => void };
+              type Quat = { x: number; y: number; z: number; w: number; set: (x: number, y: number, z: number, w: number) => void };
+              type Cam = { position: Vec3; quaternion: Quat; up: Vec3; fov: number; matrixWorld?: { elements: number[] }; isPerspectiveCamera?: boolean; type?: string; updateProjectionMatrix?: () => void; updateMatrixWorld?: (force?: boolean) => void };
+              type Obj = Partial<Cam> & { traverse?: (cb: (o: Obj) => void) => void };
+              const scene = (globalThis as unknown as { __openClinXrDebugScene?: Obj }).__openClinXrDebugScene;
+              if (!scene) return null;
+              let camera: Cam | null = null;
+              scene.traverse?.((o) => {
+                if (!camera && (o.isPerspectiveCamera || o.type === "PerspectiveCamera")) camera = o as unknown as Cam;
+              });
+              if (!camera) return null;
+              const e = camera.matrixWorld?.elements;
+              const pos = e ? [e[12], e[13], e[14]] : [0, 0, 0];
+              const quat = camera.quaternion ? [camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.quaternion.w] : [0, 0, 0, 1];
+              const up = camera.up ? [camera.up.x, camera.up.y, camera.up.z] : [0, 1, 0];
+              return { position: pos, quaternion: quat, fov: camera.fov, up: up };
+            })()`);
+
+            // Get room interior bounds and actor group centre for orthographic frustum
+            const roomAndActors = await page.evaluate(`(() => {
+              type BBox = { min: number[]; max: number[] } | null;
+              type Vec3 = { x: number; y: number; z: number; min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
+              type Geom = { boundingBox?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } }; computeBoundingBox?: () => void };
+              type Mesh = { geometry?: Geom; matrixWorld?: { elements: number[] }; name?: string; isMesh?: boolean; isSkinnedMesh?: boolean; userData?: Record<string, unknown>; traverse?: (cb: (o: Mesh) => void) => void; updateMatrixWorld?: (force?: boolean) => void };
+              type Scene = Mesh & { traverse?: (cb: (o: Mesh) => void) => void; updateMatrixWorld?: (force?: boolean) => void };
+              const scene = (globalThis as unknown as { __openClinXrDebugScene?: Scene }).__openClinXrDebugScene;
+              if (!scene) return { interior: null, actorCentre: null };
+              scene.updateMatrixWorld?.(true);
+
+              // Find room interior bounds
+              let roomRoot: Mesh | null = null;
+              scene.traverse?.((o) => {
+                if (!roomRoot && o.name === "openclinxr.station-environment.infinigen-room") roomRoot = o;
+              });
+              let interior: BBox = null;
+              if (roomRoot) {
+                const worldBoxOf = (obj: Mesh): BBox => {
+                  const geom = obj.geometry;
+                  if (!geom) return null;
+                  if (!geom.boundingBox && typeof geom.computeBoundingBox === "function") geom.computeBoundingBox();
+                  const bb = geom.boundingBox;
+                  const e = obj.matrixWorld?.elements;
+                  if (!bb || !e) return null;
+                  const xs = [bb.min.x, bb.max.x], ys = [bb.min.y, bb.max.y], zs = [bb.min.z, bb.max.z];
+                  const a = [Infinity, Infinity, Infinity], b = [-Infinity, -Infinity, -Infinity];
+                  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
+                    const x = xs[i], y = ys[j], z = zs[k];
+                    const p = [
+                      e[0] * x + e[4] * y + e[8] * z + e[12],
+                      e[1] * x + e[5] * y + e[9] * z + e[13],
+                      e[2] * x + e[6] * y + e[10] * z + e[14]
+                    ];
+                    for (let c = 0; c < 3; c++) { if (p[c] < a[c]) a[c] = p[c]; if (p[c] > b[c]) b[c] = p[c]; }
+                  }
+                  return isFinite(a[0]) ? { min: a, max: b } : null;
+                };
+                const grow = (acc: BBox, box: BBox): BBox => {
+                  if (!box) return acc;
+                  if (!acc) return { min: box.min.slice(), max: box.max.slice() };
+                  for (let c = 0; c < 3; c++) {
+                    if (box.min[c] < acc.min[c]) acc.min[c] = box.min[c];
+                    if (box.max[c] > acc.max[c]) acc.max[c] = box.max[c];
+                  }
+                  return acc;
+                };
+                roomRoot.traverse?.((o) => {
+                  if (!(o.isMesh || o.isSkinnedMesh)) return;
+                  if (/exterior/i.test(o.name || "")) return;
+                  const box = worldBoxOf(o);
+                  interior = grow(interior, box);
+                });
+              }
+
+              // Find actor group centre (humanoid roots with posture tags)
+              let actorCentre: [number, number, number] | null = null;
+              let actorCount = 0;
+              const tagged: Mesh[] = [];
+              scene.traverse?.((o) => {
+                const posture = o.userData?.openClinXrActorPosture;
+                if (posture === "standing" || posture === "seated" || posture === "supine") tagged.push(o);
+              });
+              const humanoidRoots = tagged.filter((root) => {
+                let hasTaggedDescendant = false;
+                if (typeof root.traverse === "function") {
+                  root.traverse?.((child) => {
+                    if (child === root) return;
+                    const p = child.userData?.openClinXrActorPosture;
+                    if (p === "standing" || p === "seated" || p === "supine") hasTaggedDescendant = true;
+                  });
+                }
+                return !hasTaggedDescendant;
+              });
+              if (humanoidRoots.length > 0) {
+                let sum = [0, 0, 0];
+                for (const root of humanoidRoots) {
+                  root.updateMatrixWorld?.(true);
+                  const e = root.matrixWorld?.elements;
+                  if (e) { sum[0] += e[12]; sum[1] += e[13]; sum[2] += e[14]; actorCount++; }
+                }
+                actorCentre = [sum[0] / actorCount, sum[1] / actorCount, sum[2] / actorCount];
+              }
+
+              return { interior, actorCentre };
+            })()`);
+
+            // Overhead orthographic camera
+            await page.evaluate(`(() => {
+              type Cam = { position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number }; up: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number }; lookAt: (x: number, y: number, z: number) => void; updateProjectionMatrix?: () => void; updateMatrixWorld?: (force?: boolean) => void; name?: string };
+              type Scene = { add?: (cam: Cam) => void; traverse?: (cb: (o: Cam) => void) => void };
+              const scene = (globalThis as unknown as { __openClinXrDebugScene?: Scene; THREE?: { OrthographicCamera: new (left: number, right: number, top: number, bottom: number, near: number, far: number) => Cam } }).__openClinXrDebugScene;
+              const THREE = (globalThis as unknown as { THREE?: { OrthographicCamera: new (left: number, right: number, top: number, bottom: number, near: number, far: number) => Cam } }).THREE;
+              if (!scene || !THREE) return;
+              
+              const input = arguments[0] as { interior: { min: number[]; max: number[] } | null; actorCentre: [number, number, number] | null };
+              const { interior, actorCentre } = input;
+              const centre = interior ? [
+                (interior.min[0] + interior.max[0]) / 2,
+                (interior.min[1] + interior.max[1]) / 2,
+                (interior.min[2] + interior.max[2]) / 2
+              ] : (actorCentre || [0, 0, 0]);
+              
+              const size = interior ? [
+                interior.max[0] - interior.min[0],
+                interior.max[2] - interior.min[2]
+              ] : [10, 10];
+              const maxDim = Math.max(size[0], size[1]) + 1.0; // room interior + 0.5m each side
+              
+              const cam = new THREE.OrthographicCamera(
+                -maxDim / 2, maxDim / 2,
+                maxDim / 2, -maxDim / 2,
+                0.1, 50
+              );
+              cam.position.set(centre[0], centre[1] + 10, centre[2]); // eye above room centre
+              cam.up.set(0, 0, -1); // up = (0, 0, -1) before lookAt
+              cam.lookAt(centre[0], centre[1], centre[2]);
+              cam.updateProjectionMatrix?.();
+              cam.updateMatrixWorld?.(true);
+              cam.name = "openclinxr.overhead-ortho-camera";
+              scene.add?.(cam);
+            })`, roomAndActors);
+
+            await page.waitForTimeout(500);
+            const overheadPath = path.join(process.cwd(), "docs/openclinxr/staging-solver/after/peds_fever_v1-overhead.png");
+            await page.screenshot({ path: overheadPath, fullPage: false });
+            process.stdout.write(`room-capture: overhead orthographic saved to ${overheadPath}\n`);
+
+            // Isometric orthographic camera
+            await page.evaluate(`(() => {
+              type Cam = { position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number }; up: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number }; lookAt: (x: number, y: number, z: number) => void; updateProjectionMatrix?: () => void; updateMatrixWorld?: (force?: boolean) => void; name?: string };
+              type Scene = { add?: (cam: Cam) => void; traverse?: (cb: (o: Cam) => void) => void };
+              const scene = (globalThis as unknown as { __openClinXrDebugScene?: Scene; THREE?: { OrthographicCamera: new (left: number, right: number, top: number, bottom: number, near: number, far: number) => Cam } }).__openClinXrDebugScene;
+              const THREE = (globalThis as unknown as { THREE?: { OrthographicCamera: new (left: number, right: number, top: number, bottom: number, near: number, far: number) => Cam } }).THREE;
+              if (!scene || !THREE) return;
+              
+              const input = arguments[0] as { interior: { min: number[]; max: number[] } | null; actorCentre: [number, number, number] | null };
+              const { interior, actorCentre } = input;
+              const centre = actorCentre || (interior ? [
+                (interior.min[0] + interior.max[0]) / 2,
+                (interior.min[1] + interior.max[1]) / 2,
+                (interior.min[2] + interior.max[2]) / 2
+              ] : [0, 0, 0]);
+              
+              const size = interior ? [
+                interior.max[0] - interior.min[0],
+                interior.max[1] - interior.min[1],
+                interior.max[2] - interior.min[2]
+              ] : [5, 5, 5];
+              const maxDim = Math.max(size[0], size[1], size[2]) + 2.0; // group + 1m each side
+              
+              const cam = new THREE.OrthographicCamera(
+                -maxDim / 2, maxDim / 2,
+                maxDim / 2, -maxDim / 2,
+                0.1, 50
+              );
+              // Isometric: azimuth 45°, elevation ~35.26°
+              const dist = maxDim;
+              const az = Math.PI / 4; // 45°
+              const el = Math.atan(1 / Math.sqrt(2)); // ~35.26°
+              cam.position.set(
+                centre[0] + dist * Math.cos(el) * Math.sin(az),
+                centre[1] + dist * Math.sin(el),
+                centre[2] + dist * Math.cos(el) * Math.cos(az)
+              );
+              cam.up.set(0, 1, 0);
+              cam.lookAt(centre[0], centre[1], centre[2]);
+              cam.updateProjectionMatrix?.();
+              cam.updateMatrixWorld?.(true);
+              cam.name = "openclinxr.isometric-ortho-camera";
+              scene.add?.(cam);
+            })`, roomAndActors);
+
+            await page.waitForTimeout(500);
+            const isometricPath = path.join(process.cwd(), "docs/openclinxr/staging-solver/after/peds_fever_v1-isometric.png");
+            await page.screenshot({ path: isometricPath, fullPage: false });
+            process.stdout.write(`room-capture: isometric orthographic saved to ${isometricPath}\n`);
+
+            // Restore perspective camera
+            if (perspectiveState) {
+              await page.evaluate(`(() => {
+                type Vec3 = { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
+                type Quat = { set: (x: number, y: number, z: number, w: number) => void; x: number; y: number; z: number; w: number };
+                type Cam = { position: Vec3; quaternion: Quat; up: Vec3; fov: number; updateProjectionMatrix?: () => void; updateMatrixWorld?: (force?: boolean) => void };
+                type Obj = Partial<Cam> & { isPerspectiveCamera?: boolean; type?: string; traverse?: (cb: (o: Obj) => void) => void };
+                const scene = (globalThis as unknown as { __openClinXrDebugScene?: Obj }).__openClinXrDebugScene;
+                if (!scene) return;
+                let camera: Cam | null = null;
+                scene.traverse?.((o) => {
+                  if (!camera && (o.isPerspectiveCamera || o.type === "PerspectiveCamera")) camera = o as unknown as Cam;
+                });
+                if (!camera) return;
+                const state = arguments[0] as { position: [number, number, number]; quaternion: [number, number, number, number]; fov: number; up: [number, number, number] };
+                camera.position.set(state.position[0], state.position[1], state.position[2]);
+                camera.quaternion.set(state.quaternion[0], state.quaternion[1], state.quaternion[2], state.quaternion[3]);
+                camera.up.set(state.up[0], state.up[1], state.up[2]);
+                camera.fov = state.fov;
+                camera.updateProjectionMatrix?.();
+                camera.updateMatrixWorld?.(true);
+              })`, perspectiveState);
+            }
+
+            // Remove the temporary orthographic cameras
+            await page.evaluate(`(() => {
+              type Cam = { name?: string };
+              type Scene = { remove?: (cam: Cam) => void; traverse?: (cb: (o: Cam) => void) => void };
+              const scene = (globalThis as unknown as { __openClinXrDebugScene?: Scene }).__openClinXrDebugScene;
+              if (!scene) return;
+              const toRemove: Cam[] = [];
+              scene.traverse?.((o) => {
+                if (o.name === "openclinxr.overhead-ortho-camera" || o.name === "openclinxr.isometric-ortho-camera") {
+                  toRemove.push(o);
+                }
+              });
+              for (const cam of toRemove) {
+                scene.remove?.(cam);
+              }
+            })`);
+          }
+
           // Re-read after screenshot so facts match the drawn frame.
           const liveAfter = await readLiveShellFromPage(page);
           const roomFacts = await readInfinigenRoomLiveFacts(page);
