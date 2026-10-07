@@ -2,6 +2,7 @@
   "schemaVersion": "openclinxr.mouth-dynamics.v1",
   "mode": "step3",
   "line": "I feel the pain is better now.",
+  "aligner": "rhubarb",
   "audioPath": "tools/openclinxr/evidence/parent-fitted-teeth/visemes/i-feel-the-pain-is-better-now.aiff",
   "audioDurationS": 4.131247,
   "frameRate": 30,
@@ -30,15 +31,21 @@
     },
     {
       "startS": 0.29,
-      "endS": 0.48,
+      "endS": 0.35000000000000003,
       "viseme": "sil",
-      "intensity": 0.12010775370250781
+      "intensity": 0.1876178476711379
     },
     {
-      "startS": 0.48,
+      "startS": 0.35000000000000003,
+      "endS": 0.49,
+      "viseme": "FF",
+      "intensity": 0.07028381922971674
+    },
+    {
+      "startS": 0.49,
       "endS": 0.83,
       "viseme": "DD",
-      "intensity": 0.9150630774681715
+      "intensity": 0.9282896460774532
     },
     {
       "startS": 0.83,
@@ -60,15 +67,15 @@
     },
     {
       "startS": 1.33,
-      "endS": 1.39,
+      "endS": 1.45,
       "viseme": "PP",
-      "intensity": 0.09268440267826605
+      "intensity": 0.06839735649084022
     },
     {
-      "startS": 1.39,
+      "startS": 1.45,
       "endS": 1.79,
       "viseme": "E",
-      "intensity": 0.664910216622954
+      "intensity": 0.7210957360150942
     },
     {
       "startS": 1.79,
@@ -78,15 +85,15 @@
     },
     {
       "startS": 2.48,
-      "endS": 2.55,
-      "viseme": "FF",
-      "intensity": 0.1046942280513643
+      "endS": 2.52,
+      "viseme": "PP",
+      "intensity": 0.005000715707152359
     },
     {
-      "startS": 2.55,
+      "startS": 2.52,
       "endS": 2.75,
       "viseme": "E",
-      "intensity": 0.7954350206204763
+      "intensity": 0.7440312106434593
     },
     {
       "startS": 2.75,
@@ -232,1019 +239,1019 @@
     "viseme_sil",
     "viseme_aa",
     "viseme_DD",
+    "viseme_FF",
     "viseme_nn",
     "viseme_E",
     "viseme_PP",
-    "viseme_FF",
     "viseme_O"
   ],
   "toothCentroidSteps": {
-    "stepCount": 117,
-    "median": 0.5313245233591779,
-    "p90": 1.4331947345539442,
-    "max": 3.1688199883147727,
-    "maxFrame": 44,
-    "countOver3Px": 1,
+    "stepCount": 114,
+    "median": 0.6887764288485145,
+    "p90": 1.8123750330617068,
+    "max": 5.461441043498039,
+    "maxFrame": 45,
+    "countOver3Px": 3,
     "directionReversalsWithin100Ms": 0,
     "reversalDefinition": "successive salient tooth-centroid dy steps >=3 px with opposite signs, <=3 frames apart; PP cue excluded",
     "ppCheck": {
-      "frameCount": 2,
+      "frameCount": 5,
       "maxLipGapPx": 6,
       "maxTeethCandidatePixels": 0
     }
   },
   "toothSamples": [
     {
-      "n": 0,
-      "cx": 0,
-      "cy": 0,
+      "n": 111,
+      "cx": 54.26126126126126,
+      "cy": 67.49549549549549,
+      "target": "viseme_sil",
+      "lipGapPx": 11,
+      "mouthTeethN": 111
+    },
+    {
+      "n": 128,
+      "cx": 55.46875,
+      "cy": 68.109375,
+      "target": "viseme_aa",
+      "lipGapPx": 12,
+      "mouthTeethN": 128
+    },
+    {
+      "n": 134,
+      "cx": 55.343283582089555,
+      "cy": 67.91791044776119,
+      "target": "viseme_aa",
+      "lipGapPx": 12,
+      "mouthTeethN": 134
+    },
+    {
+      "n": 128,
+      "cx": 55.875,
+      "cy": 67.2734375,
+      "target": "viseme_aa",
+      "lipGapPx": 11,
+      "mouthTeethN": 128
+    },
+    {
+      "n": 129,
+      "cx": 56.57364341085271,
+      "cy": 66.70542635658914,
+      "target": "viseme_aa",
+      "lipGapPx": 10,
+      "mouthTeethN": 129
+    },
+    {
+      "n": 126,
+      "cx": 56.666666666666664,
+      "cy": 65.92063492063492,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 126
+    },
+    {
+      "n": 107,
+      "cx": 56.39252336448598,
+      "cy": 64.26168224299066,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 107
+    },
+    {
+      "n": 79,
+      "cx": 55.51898734177215,
+      "cy": 61.79746835443038,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 79
+    },
+    {
+      "n": 61,
+      "cx": 55.91803278688525,
+      "cy": 59.60655737704918,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 61
+    },
+    {
+      "n": 51,
+      "cx": 57.3921568627451,
+      "cy": 57.588235294117645,
+      "target": "viseme_sil",
+      "lipGapPx": 11,
+      "mouthTeethN": 51
+    },
+    {
+      "n": 42,
+      "cx": 57.38095238095238,
+      "cy": 56.214285714285715,
       "target": "viseme_sil",
       "lipGapPx": 8,
-      "mouthTeethN": 0
+      "mouthTeethN": 42
     },
     {
-      "n": 0,
-      "cx": 0,
-      "cy": 0,
-      "target": "viseme_aa",
+      "n": 41,
+      "cx": 57.707317073170735,
+      "cy": 55.951219512195124,
+      "target": "viseme_FF",
       "lipGapPx": 8,
-      "mouthTeethN": 0
+      "mouthTeethN": 41
     },
     {
-      "n": 15,
-      "cx": 68.53333333333333,
-      "cy": 64.4,
-      "target": "viseme_aa",
-      "lipGapPx": 9,
-      "mouthTeethN": 15
+      "n": 41,
+      "cx": 57.707317073170735,
+      "cy": 55.951219512195124,
+      "target": "viseme_FF",
+      "lipGapPx": 8,
+      "mouthTeethN": 41
     },
     {
-      "n": 55,
-      "cx": 66.10909090909091,
-      "cy": 65.18181818181819,
-      "target": "viseme_aa",
-      "lipGapPx": 6,
-      "mouthTeethN": 55
+      "n": 41,
+      "cx": 57.707317073170735,
+      "cy": 55.951219512195124,
+      "target": "viseme_FF",
+      "lipGapPx": 8,
+      "mouthTeethN": 41
+    },
+    {
+      "n": 41,
+      "cx": 57.707317073170735,
+      "cy": 55.951219512195124,
+      "target": "viseme_FF",
+      "lipGapPx": 8,
+      "mouthTeethN": 41
+    },
+    {
+      "n": 41,
+      "cx": 56.75609756097561,
+      "cy": 55.853658536585364,
+      "target": "viseme_DD",
+      "lipGapPx": 8,
+      "mouthTeethN": 41
+    },
+    {
+      "n": 50,
+      "cx": 56.9,
+      "cy": 57.12,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 50
+    },
+    {
+      "n": 63,
+      "cx": 56.38095238095238,
+      "cy": 59.22222222222222,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 63
+    },
+    {
+      "n": 88,
+      "cx": 57.55681818181818,
+      "cy": 61.45454545454545,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 88
+    },
+    {
+      "n": 109,
+      "cx": 57.61467889908257,
+      "cy": 63.321100917431195,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 109
+    },
+    {
+      "n": 123,
+      "cx": 57.22764227642276,
+      "cy": 64.17886178861788,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 123
+    },
+    {
+      "n": 131,
+      "cx": 56.954198473282446,
+      "cy": 64.38931297709924,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 131
+    },
+    {
+      "n": 133,
+      "cx": 56.932330827067666,
+      "cy": 64.46616541353383,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 133
     },
     {
       "n": 132,
-      "cx": 65.9090909090909,
-      "cy": 66.20454545454545,
-      "target": "viseme_aa",
-      "lipGapPx": 7,
+      "cx": 57.14393939393939,
+      "cy": 64.46969696969697,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
       "mouthTeethN": 132
     },
     {
-      "n": 180,
-      "cx": 64.84444444444445,
-      "cy": 67.13888888888889,
+      "n": 126,
+      "cx": 55.833333333333336,
+      "cy": 64.43650793650794,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 126
+    },
+    {
+      "n": 123,
+      "cx": 55.65853658536585,
+      "cy": 64.39837398373983,
+      "target": "viseme_nn",
+      "lipGapPx": 10,
+      "mouthTeethN": 123
+    },
+    {
+      "n": 126,
+      "cx": 56.142857142857146,
+      "cy": 64.38095238095238,
+      "target": "viseme_nn",
+      "lipGapPx": 10,
+      "mouthTeethN": 126
+    },
+    {
+      "n": 124,
+      "cx": 55.86290322580645,
+      "cy": 64.36290322580645,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 124
+    },
+    {
+      "n": 120,
+      "cx": 55.166666666666664,
+      "cy": 64.30833333333334,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 120
+    },
+    {
+      "n": 116,
+      "cx": 55.25,
+      "cy": 64.18103448275862,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 116
+    },
+    {
+      "n": 111,
+      "cx": 54.666666666666664,
+      "cy": 64.01801801801801,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 111
+    },
+    {
+      "n": 109,
+      "cx": 54.77064220183486,
+      "cy": 63.88990825688074,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 109
+    },
+    {
+      "n": 120,
+      "cx": 55.075,
+      "cy": 63.59166666666667,
+      "target": "viseme_nn",
+      "lipGapPx": 9,
+      "mouthTeethN": 120
+    },
+    {
+      "n": 115,
+      "cx": 55.93913043478261,
+      "cy": 63.17391304347826,
+      "target": "viseme_nn",
+      "lipGapPx": 8,
+      "mouthTeethN": 115
+    },
+    {
+      "n": 111,
+      "cx": 55.65765765765766,
+      "cy": 62.927927927927925,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 111
+    },
+    {
+      "n": 103,
+      "cx": 55.41747572815534,
+      "cy": 62.33980582524272,
+      "target": "viseme_DD",
+      "lipGapPx": 8,
+      "mouthTeethN": 103
+    },
+    {
+      "n": 74,
+      "cx": 53.71621621621622,
+      "cy": 61.810810810810814,
+      "target": "viseme_E",
+      "lipGapPx": 7,
+      "mouthTeethN": 74
+    },
+    {
+      "n": 40,
+      "cx": 52.3,
+      "cy": 61.5,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 40
+    },
+    {
+      "n": 14,
+      "cx": 51.92857142857143,
+      "cy": 61.42857142857143,
+      "target": "viseme_E",
+      "lipGapPx": 5,
+      "mouthTeethN": 14
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_PP",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_PP",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_PP",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_PP",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 9,
+      "cx": 61.77777777777778,
+      "cy": 63,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 9
+    },
+    {
+      "n": 25,
+      "cx": 56.32,
+      "cy": 62.8,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 25
+    },
+    {
+      "n": 46,
+      "cx": 54.76086956521739,
+      "cy": 62.47826086956522,
+      "target": "viseme_E",
+      "lipGapPx": 7,
+      "mouthTeethN": 46
+    },
+    {
+      "n": 75,
+      "cx": 54.45333333333333,
+      "cy": 62.49333333333333,
+      "target": "viseme_E",
+      "lipGapPx": 8,
+      "mouthTeethN": 74
+    },
+    {
+      "n": 102,
+      "cx": 54.85294117647059,
+      "cy": 62.6078431372549,
+      "target": "viseme_E",
+      "lipGapPx": 9,
+      "mouthTeethN": 102
+    },
+    {
+      "n": 118,
+      "cx": 55.644067796610166,
+      "cy": 62.516949152542374,
+      "target": "viseme_E",
+      "lipGapPx": 9,
+      "mouthTeethN": 118
+    },
+    {
+      "n": 121,
+      "cx": 55.553719008264466,
+      "cy": 62.48760330578512,
+      "target": "viseme_E",
+      "lipGapPx": 9,
+      "mouthTeethN": 121
+    },
+    {
+      "n": 122,
+      "cx": 55.614754098360656,
+      "cy": 62.78688524590164,
+      "target": "viseme_E",
+      "lipGapPx": 10,
+      "mouthTeethN": 122
+    },
+    {
+      "n": 122,
+      "cx": 56.13934426229508,
+      "cy": 63.49180327868852,
+      "target": "viseme_E",
+      "lipGapPx": 10,
+      "mouthTeethN": 122
+    },
+    {
+      "n": 123,
+      "cx": 56.292682926829265,
+      "cy": 63.7479674796748,
+      "target": "viseme_E",
+      "lipGapPx": 9,
+      "mouthTeethN": 123
+    },
+    {
+      "n": 130,
+      "cx": 56.42307692307692,
+      "cy": 63.87692307692308,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 130
+    },
+    {
+      "n": 134,
+      "cx": 57.37313432835821,
+      "cy": 64.26119402985074,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 134
+    },
+    {
+      "n": 136,
+      "cx": 57.169117647058826,
+      "cy": 64.34558823529412,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 136
+    },
+    {
+      "n": 134,
+      "cx": 57.35820895522388,
+      "cy": 64.57462686567165,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 134
+    },
+    {
+      "n": 130,
+      "cx": 56.707692307692305,
+      "cy": 64.58461538461539,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 130
+    },
+    {
+      "n": 129,
+      "cx": 56.224806201550386,
+      "cy": 64.62015503875969,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 129
+    },
+    {
+      "n": 126,
+      "cx": 57.03968253968254,
+      "cy": 64.6984126984127,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 126
+    },
+    {
+      "n": 130,
+      "cx": 56.95384615384615,
+      "cy": 64.55384615384615,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 130
+    },
+    {
+      "n": 132,
+      "cx": 57.21212121212121,
+      "cy": 64.56818181818181,
+      "target": "viseme_DD",
+      "lipGapPx": 10,
+      "mouthTeethN": 132
+    },
+    {
+      "n": 130,
+      "cx": 57.146153846153844,
+      "cy": 64.44615384615385,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 130
+    },
+    {
+      "n": 125,
+      "cx": 57.912,
+      "cy": 64.376,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 125
+    },
+    {
+      "n": 119,
+      "cx": 57.865546218487395,
+      "cy": 64.29411764705883,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 119
+    },
+    {
+      "n": 119,
+      "cx": 57.54621848739496,
+      "cy": 64.22689075630252,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 119
+    },
+    {
+      "n": 120,
+      "cx": 58.03333333333333,
+      "cy": 64.25833333333334,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 120
+    },
+    {
+      "n": 119,
+      "cx": 57.54621848739496,
+      "cy": 64.22689075630252,
+      "target": "viseme_DD",
+      "lipGapPx": 9,
+      "mouthTeethN": 119
+    },
+    {
+      "n": 117,
+      "cx": 57.666666666666664,
+      "cy": 64.23076923076923,
+      "target": "viseme_DD",
+      "lipGapPx": 8,
+      "mouthTeethN": 117
+    },
+    {
+      "n": 100,
+      "cx": 57.42,
+      "cy": 63.77,
+      "target": "viseme_DD",
+      "lipGapPx": 8,
+      "mouthTeethN": 100
+    },
+    {
+      "n": 62,
+      "cx": 53.41935483870968,
+      "cy": 62.95161290322581,
       "target": "viseme_DD",
       "lipGapPx": 7,
+      "mouthTeethN": 62
+    },
+    {
+      "n": 26,
+      "cx": 52.46153846153846,
+      "cy": 62,
+      "target": "viseme_DD",
+      "lipGapPx": 6,
+      "mouthTeethN": 26
+    },
+    {
+      "n": 3,
+      "cx": 50.666666666666664,
+      "cy": 61.666666666666664,
+      "target": "viseme_DD",
+      "lipGapPx": 6,
+      "mouthTeethN": 3
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_DD",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 0,
+      "cx": 0,
+      "cy": 0,
+      "target": "viseme_PP",
+      "lipGapPx": 6,
+      "mouthTeethN": 0
+    },
+    {
+      "n": 10,
+      "cx": 60.5,
+      "cy": 63,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 10
+    },
+    {
+      "n": 25,
+      "cx": 56.32,
+      "cy": 62.84,
+      "target": "viseme_E",
+      "lipGapPx": 6,
+      "mouthTeethN": 25
+    },
+    {
+      "n": 44,
+      "cx": 54.40909090909091,
+      "cy": 62.54545454545455,
+      "target": "viseme_E",
+      "lipGapPx": 7,
+      "mouthTeethN": 44
+    },
+    {
+      "n": 74,
+      "cx": 53.4054054054054,
+      "cy": 62.5,
+      "target": "viseme_E",
+      "lipGapPx": 9,
+      "mouthTeethN": 74
+    },
+    {
+      "n": 111,
+      "cx": 55.31531531531532,
+      "cy": 63.207207207207205,
+      "target": "viseme_E",
+      "lipGapPx": 10,
+      "mouthTeethN": 111
+    },
+    {
+      "n": 129,
+      "cx": 55.775193798449614,
+      "cy": 64.03875968992249,
+      "target": "viseme_E",
+      "lipGapPx": 10,
+      "mouthTeethN": 129
+    },
+    {
+      "n": 134,
+      "cx": 56.32835820895522,
+      "cy": 64.43283582089552,
+      "target": "viseme_E",
+      "lipGapPx": 10,
+      "mouthTeethN": 134
+    },
+    {
+      "n": 142,
+      "cx": 56.50704225352113,
+      "cy": 64.99295774647888,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 142
+    },
+    {
+      "n": 126,
+      "cx": 55.26984126984127,
+      "cy": 65.31746031746032,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 126
+    },
+    {
+      "n": 119,
+      "cx": 54.12605042016807,
+      "cy": 65.70588235294117,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 119
+    },
+    {
+      "n": 110,
+      "cx": 53.11818181818182,
+      "cy": 65.9090909090909,
+      "target": "viseme_DD",
+      "lipGapPx": 11,
+      "mouthTeethN": 110
+    },
+    {
+      "n": 105,
+      "cx": 51.352380952380955,
+      "cy": 65.93333333333334,
+      "target": "viseme_O",
+      "lipGapPx": 12,
+      "mouthTeethN": 105
+    },
+    {
+      "n": 101,
+      "cx": 51.05940594059406,
+      "cy": 66.0990099009901,
+      "target": "viseme_O",
+      "lipGapPx": 11,
+      "mouthTeethN": 101
+    },
+    {
+      "n": 99,
+      "cx": 50.78787878787879,
+      "cy": 66.11111111111111,
+      "target": "viseme_O",
+      "lipGapPx": 12,
+      "mouthTeethN": 99
+    },
+    {
+      "n": 102,
+      "cx": 51.09803921568628,
+      "cy": 65.90196078431373,
+      "target": "viseme_O",
+      "lipGapPx": 11,
+      "mouthTeethN": 102
+    },
+    {
+      "n": 109,
+      "cx": 51.95412844036697,
+      "cy": 65.54128440366972,
+      "target": "viseme_O",
+      "lipGapPx": 11,
+      "mouthTeethN": 109
+    },
+    {
+      "n": 117,
+      "cx": 52.888888888888886,
+      "cy": 65.2905982905983,
+      "target": "viseme_O",
+      "lipGapPx": 12,
+      "mouthTeethN": 117
+    },
+    {
+      "n": 123,
+      "cx": 53.8130081300813,
+      "cy": 64.90243902439025,
+      "target": "viseme_E",
+      "lipGapPx": 12,
+      "mouthTeethN": 123
+    },
+    {
+      "n": 132,
+      "cx": 53.946969696969695,
+      "cy": 64.68939393939394,
+      "target": "viseme_E",
+      "lipGapPx": 11,
+      "mouthTeethN": 132
+    },
+    {
+      "n": 136,
+      "cx": 54.411764705882355,
+      "cy": 64.61764705882354,
+      "target": "viseme_E",
+      "lipGapPx": 12,
+      "mouthTeethN": 136
+    },
+    {
+      "n": 142,
+      "cx": 54.96478873239437,
+      "cy": 65.38028169014085,
+      "target": "viseme_E",
+      "lipGapPx": 12,
+      "mouthTeethN": 142
+    },
+    {
+      "n": 154,
+      "cx": 54.98701298701299,
+      "cy": 66.87662337662337,
+      "target": "viseme_E",
+      "lipGapPx": 14,
+      "mouthTeethN": 154
+    },
+    {
+      "n": 164,
+      "cx": 55.609756097560975,
+      "cy": 68.5,
+      "target": "viseme_E",
+      "lipGapPx": 14,
+      "mouthTeethN": 164
+    },
+    {
+      "n": 172,
+      "cx": 55.098837209302324,
+      "cy": 69.3953488372093,
+      "target": "viseme_E",
+      "lipGapPx": 15,
+      "mouthTeethN": 172
+    },
+    {
+      "n": 173,
+      "cx": 56.01156069364162,
+      "cy": 70.4393063583815,
+      "target": "viseme_aa",
+      "lipGapPx": 16,
+      "mouthTeethN": 173
+    },
+    {
+      "n": 180,
+      "cx": 56.08888888888889,
+      "cy": 71.23333333333333,
+      "target": "viseme_aa",
+      "lipGapPx": 16,
       "mouthTeethN": 180
     },
     {
       "n": 182,
-      "cx": 64.99450549450549,
-      "cy": 67.00549450549451,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
+      "cx": 56.005494505494504,
+      "cy": 71.82417582417582,
+      "target": "viseme_aa",
+      "lipGapPx": 16,
       "mouthTeethN": 182
     },
     {
-      "n": 168,
-      "cx": 66.375,
-      "cy": 66.53571428571429,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 168
-    },
-    {
-      "n": 146,
-      "cx": 67.53424657534246,
-      "cy": 65.89041095890411,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 146
-    },
-    {
-      "n": 117,
-      "cx": 68.17094017094017,
-      "cy": 65.45299145299145,
-      "target": "viseme_sil",
-      "lipGapPx": 7,
-      "mouthTeethN": 117
-    },
-    {
-      "n": 88,
-      "cx": 69.125,
-      "cy": 65.2159090909091,
-      "target": "viseme_sil",
-      "lipGapPx": 7,
-      "mouthTeethN": 88
-    },
-    {
-      "n": 66,
-      "cx": 69.53030303030303,
-      "cy": 64.86363636363636,
-      "target": "viseme_sil",
-      "lipGapPx": 7,
-      "mouthTeethN": 66
-    },
-    {
-      "n": 50,
-      "cx": 70.42,
-      "cy": 64.68,
-      "target": "viseme_sil",
-      "lipGapPx": 7,
-      "mouthTeethN": 50
-    },
-    {
-      "n": 37,
-      "cx": 69.02702702702703,
-      "cy": 64.48648648648648,
-      "target": "viseme_sil",
-      "lipGapPx": 7,
-      "mouthTeethN": 36
-    },
-    {
-      "n": 29,
-      "cx": 70.10344827586206,
-      "cy": 64.27586206896552,
-      "target": "viseme_sil",
-      "lipGapPx": 11,
-      "mouthTeethN": 29
-    },
-    {
-      "n": 25,
-      "cx": 70.76,
-      "cy": 64.24,
-      "target": "viseme_DD",
-      "lipGapPx": 10,
-      "mouthTeethN": 25
-    },
-    {
-      "n": 24,
-      "cx": 70.41666666666667,
-      "cy": 64.29166666666667,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 24
-    },
-    {
-      "n": 24,
-      "cx": 70.33333333333333,
-      "cy": 64.125,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 24
-    },
-    {
-      "n": 26,
-      "cx": 71.11538461538461,
-      "cy": 64,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 26
-    },
-    {
-      "n": 29,
-      "cx": 71.86206896551724,
-      "cy": 63.96551724137931,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 29
-    },
-    {
-      "n": 32,
-      "cx": 71.84375,
-      "cy": 63.78125,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 32
-    },
-    {
-      "n": 33,
-      "cx": 71.57575757575758,
-      "cy": 63.72727272727273,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 33
-    },
-    {
-      "n": 36,
-      "cx": 71.47222222222223,
-      "cy": 63.666666666666664,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 36
-    },
-    {
-      "n": 38,
-      "cx": 71.57894736842105,
-      "cy": 63.71052631578947,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 38
-    },
-    {
-      "n": 39,
-      "cx": 71.61538461538461,
-      "cy": 63.76923076923077,
-      "target": "viseme_DD",
-      "lipGapPx": 11,
-      "mouthTeethN": 39
-    },
-    {
-      "n": 40,
-      "cx": 71.925,
-      "cy": 63.8,
-      "target": "viseme_nn",
-      "lipGapPx": 11,
-      "mouthTeethN": 40
-    },
-    {
-      "n": 45,
-      "cx": 71.35555555555555,
-      "cy": 63.82222222222222,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 45
-    },
-    {
-      "n": 45,
-      "cx": 71.28888888888889,
-      "cy": 63.733333333333334,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 45
-    },
-    {
-      "n": 41,
-      "cx": 71.07317073170732,
-      "cy": 63.48780487804878,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 41
-    },
-    {
-      "n": 41,
-      "cx": 71.02439024390245,
-      "cy": 63.390243902439025,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 41
-    },
-    {
-      "n": 43,
-      "cx": 71.30232558139535,
-      "cy": 63.348837209302324,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 43
-    },
-    {
-      "n": 48,
-      "cx": 71.47916666666667,
-      "cy": 63.354166666666664,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 48,
-      "cx": 71.47916666666667,
-      "cy": 63.354166666666664,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 48,
-      "cx": 71.47916666666667,
-      "cy": 63.354166666666664,
-      "target": "viseme_nn",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 48,
-      "cx": 71.47916666666667,
-      "cy": 63.354166666666664,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 47,
-      "cx": 71.40425531914893,
-      "cy": 63.361702127659576,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 52,
-      "cx": 71.15384615384616,
-      "cy": 63.32692307692308,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 52
-    },
-    {
-      "n": 76,
-      "cx": 68.3157894736842,
-      "cy": 63.026315789473685,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 76
-    },
-    {
-      "n": 97,
-      "cx": 67.47422680412372,
-      "cy": 63.05154639175258,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 97
-    },
-    {
-      "n": 121,
-      "cx": 66.66115702479338,
-      "cy": 62.96694214876033,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 121
-    },
-    {
-      "n": 0,
-      "cx": 0,
-      "cy": 0,
-      "target": "viseme_PP",
-      "lipGapPx": 6,
-      "mouthTeethN": 0
-    },
-    {
-      "n": 0,
-      "cx": 0,
-      "cy": 0,
-      "target": "viseme_PP",
-      "lipGapPx": 6,
-      "mouthTeethN": 0
-    },
-    {
-      "n": 0,
-      "cx": 0,
-      "cy": 0,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 0
-    },
-    {
-      "n": 1,
-      "cx": 61,
-      "cy": 62,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 1
-    },
-    {
-      "n": 13,
-      "cx": 64.15384615384616,
-      "cy": 62.30769230769231,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 13
-    },
-    {
-      "n": 32,
-      "cx": 63.59375,
-      "cy": 62.0625,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 32
-    },
-    {
-      "n": 67,
-      "cx": 64.11940298507463,
-      "cy": 61.985074626865675,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 67
-    },
-    {
-      "n": 85,
-      "cx": 63.94117647058823,
-      "cy": 62.01176470588236,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 85
-    },
-    {
-      "n": 119,
-      "cx": 63.73109243697479,
-      "cy": 61.76470588235294,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 119
-    },
-    {
-      "n": 137,
-      "cx": 63.737226277372265,
-      "cy": 61.86131386861314,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 137
-    },
-    {
-      "n": 147,
-      "cx": 62.80952380952381,
-      "cy": 61.91156462585034,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 147
-    },
-    {
-      "n": 143,
-      "cx": 62.27972027972028,
-      "cy": 62.04895104895105,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 143
-    },
-    {
-      "n": 144,
-      "cx": 62.013888888888886,
-      "cy": 62.208333333333336,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 144
-    },
-    {
-      "n": 154,
-      "cx": 62.18181818181818,
-      "cy": 62.4025974025974,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 154
-    },
-    {
-      "n": 156,
-      "cx": 62.506410256410255,
-      "cy": 62.44230769230769,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 156
-    },
-    {
-      "n": 163,
-      "cx": 64.45398773006134,
-      "cy": 62.39877300613497,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 163
-    },
-    {
-      "n": 140,
-      "cx": 66.17142857142858,
-      "cy": 62.68571428571428,
-      "target": "viseme_DD",
-      "lipGapPx": 5,
-      "mouthTeethN": 140
-    },
-    {
-      "n": 122,
-      "cx": 67.3688524590164,
-      "cy": 63.049180327868854,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 122
-    },
-    {
-      "n": 100,
-      "cx": 67.86,
-      "cy": 63.25,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 100
-    },
-    {
-      "n": 77,
-      "cx": 69.37662337662337,
-      "cy": 63.5974025974026,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 77
-    },
-    {
-      "n": 73,
-      "cx": 69.94520547945206,
-      "cy": 63.71232876712329,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 73
-    },
-    {
-      "n": 63,
-      "cx": 70.33333333333333,
-      "cy": 63.714285714285715,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 63
-    },
-    {
-      "n": 57,
-      "cx": 70.96491228070175,
-      "cy": 63.80701754385965,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 57
-    },
-    {
-      "n": 52,
-      "cx": 71.17307692307692,
-      "cy": 63.84615384615385,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 52
-    },
-    {
-      "n": 48,
-      "cx": 71.45833333333333,
-      "cy": 63.916666666666664,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 48,
-      "cx": 71.54166666666667,
-      "cy": 63.854166666666664,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 48
-    },
-    {
-      "n": 47,
-      "cx": 71.27659574468085,
-      "cy": 63.851063829787236,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 46,
-      "cx": 71.1086956521739,
-      "cy": 63.82608695652174,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 46
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 46,
-      "cx": 71.21739130434783,
-      "cy": 63.869565217391305,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 46
-    },
-    {
-      "n": 47,
-      "cx": 71.12765957446808,
-      "cy": 63.829787234042556,
-      "target": "viseme_DD",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 47,
-      "cx": 71.19148936170212,
-      "cy": 63.829787234042556,
-      "target": "viseme_FF",
-      "lipGapPx": 7,
-      "mouthTeethN": 47
-    },
-    {
-      "n": 49,
-      "cx": 71.48979591836735,
-      "cy": 63.734693877551024,
-      "target": "viseme_FF",
-      "lipGapPx": 7,
-      "mouthTeethN": 49
-    },
-    {
-      "n": 52,
-      "cx": 71.84615384615384,
-      "cy": 63.51923076923077,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 52
-    },
-    {
-      "n": 84,
-      "cx": 69.3452380952381,
-      "cy": 63.17857142857143,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 84
-    },
-    {
-      "n": 103,
-      "cx": 68.66019417475728,
-      "cy": 63,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 103
-    },
-    {
-      "n": 125,
-      "cx": 67.36,
-      "cy": 62.8,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 125
-    },
-    {
-      "n": 157,
-      "cx": 66.51592356687898,
-      "cy": 62.4140127388535,
-      "target": "viseme_E",
-      "lipGapPx": 5,
-      "mouthTeethN": 157
-    },
-    {
-      "n": 167,
-      "cx": 65.64071856287426,
-      "cy": 62.532934131736525,
-      "target": "viseme_E",
-      "lipGapPx": 6,
-      "mouthTeethN": 167
-    },
-    {
-      "n": 164,
-      "cx": 64.8048780487805,
-      "cy": 62.640243902439025,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 164
-    },
-    {
-      "n": 168,
-      "cx": 66.01785714285714,
-      "cy": 62.68452380952381,
-      "target": "viseme_DD",
-      "lipGapPx": 5,
-      "mouthTeethN": 168
-    },
-    {
-      "n": 138,
-      "cx": 67.16666666666667,
-      "cy": 63.19565217391305,
-      "target": "viseme_DD",
-      "lipGapPx": 5,
-      "mouthTeethN": 138
-    },
-    {
-      "n": 120,
-      "cx": 68.35,
-      "cy": 63.375,
-      "target": "viseme_DD",
-      "lipGapPx": 6,
-      "mouthTeethN": 120
-    },
-    {
-      "n": 104,
-      "cx": 69.0673076923077,
-      "cy": 63.51923076923077,
-      "target": "viseme_O",
-      "lipGapPx": 6,
-      "mouthTeethN": 104
-    },
-    {
-      "n": 92,
-      "cx": 67.73913043478261,
-      "cy": 63.91304347826087,
-      "target": "viseme_O",
-      "lipGapPx": 6,
-      "mouthTeethN": 92
-    },
-    {
-      "n": 107,
-      "cx": 66.67289719626169,
-      "cy": 64.35514018691589,
-      "target": "viseme_O",
-      "lipGapPx": 7,
-      "mouthTeethN": 107
-    },
-    {
-      "n": 115,
-      "cx": 64.72173913043478,
-      "cy": 64.72173913043478,
-      "target": "viseme_O",
-      "lipGapPx": 7,
-      "mouthTeethN": 115
-    },
-    {
-      "n": 129,
-      "cx": 63.713178294573645,
-      "cy": 64.97674418604652,
-      "target": "viseme_O",
-      "lipGapPx": 7,
-      "mouthTeethN": 129
-    },
-    {
-      "n": 139,
-      "cx": 62.726618705035975,
-      "cy": 65.3021582733813,
-      "target": "viseme_O",
-      "lipGapPx": 7,
-      "mouthTeethN": 139
-    },
-    {
-      "n": 138,
-      "cx": 61.905797101449274,
-      "cy": 65.6231884057971,
-      "target": "viseme_E",
-      "lipGapPx": 7,
-      "mouthTeethN": 138
-    },
-    {
-      "n": 144,
-      "cx": 61.59722222222222,
-      "cy": 65.57638888888889,
-      "target": "viseme_E",
-      "lipGapPx": 7,
-      "mouthTeethN": 144
-    },
-    {
-      "n": 151,
-      "cx": 62.05960264900662,
-      "cy": 65.51655629139073,
-      "target": "viseme_E",
-      "lipGapPx": 8,
-      "mouthTeethN": 151
-    },
-    {
-      "n": 151,
-      "cx": 61.22516556291391,
-      "cy": 65.19205298013244,
-      "target": "viseme_E",
-      "lipGapPx": 8,
-      "mouthTeethN": 151
-    },
-    {
-      "n": 156,
-      "cx": 61.55128205128205,
-      "cy": 65,
-      "target": "viseme_E",
-      "lipGapPx": 9,
-      "mouthTeethN": 156
-    },
-    {
-      "n": 155,
-      "cx": 61.303225806451614,
-      "cy": 64.89677419354838,
-      "target": "viseme_E",
-      "lipGapPx": 9,
-      "mouthTeethN": 155
-    },
-    {
-      "n": 154,
-      "cx": 61.31818181818182,
-      "cy": 64.64935064935065,
-      "target": "viseme_E",
-      "lipGapPx": 9,
-      "mouthTeethN": 154
-    },
-    {
-      "n": 153,
-      "cx": 60.64052287581699,
-      "cy": 65.15032679738562,
+      "n": 185,
+      "cx": 56.064864864864866,
+      "cy": 72.03243243243243,
       "target": "viseme_aa",
-      "lipGapPx": 9,
-      "mouthTeethN": 153
+      "lipGapPx": 17,
+      "mouthTeethN": 185
     },
     {
-      "n": 166,
-      "cx": 59.855421686746986,
-      "cy": 66.48795180722891,
+      "n": 186,
+      "cx": 56.016129032258064,
+      "cy": 72.26344086021506,
       "target": "viseme_aa",
-      "lipGapPx": 11,
-      "mouthTeethN": 166
-    },
-    {
-      "n": 164,
-      "cx": 58.573170731707314,
-      "cy": 68.01219512195122,
-      "target": "viseme_aa",
-      "lipGapPx": 12,
-      "mouthTeethN": 164
-    },
-    {
-      "n": 174,
-      "cx": 57.666666666666664,
-      "cy": 69.15517241379311,
-      "target": "viseme_aa",
-      "lipGapPx": 14,
-      "mouthTeethN": 174
-    },
-    {
-      "n": 182,
-      "cx": 57.31868131868132,
-      "cy": 70.28571428571429,
-      "target": "viseme_aa",
-      "lipGapPx": 14,
-      "mouthTeethN": 182
+      "lipGapPx": 17,
+      "mouthTeethN": 186
     },
     {
       "n": 187,
-      "cx": 56.99465240641711,
-      "cy": 71.0427807486631,
+      "cx": 56.080213903743314,
+      "cy": 72.39572192513369,
       "target": "viseme_aa",
-      "lipGapPx": 15,
+      "lipGapPx": 16,
+      "mouthTeethN": 187
+    },
+    {
+      "n": 187,
+      "cx": 56.080213903743314,
+      "cy": 72.60427807486631,
+      "target": "viseme_aa",
+      "lipGapPx": 16,
       "mouthTeethN": 187
     },
     {
       "n": 189,
-      "cx": 57.317460317460316,
-      "cy": 71.94708994708995,
+      "cx": 56.116402116402114,
+      "cy": 72.65608465608466,
       "target": "viseme_aa",
       "lipGapPx": 16,
       "mouthTeethN": 189
     },
     {
-      "n": 193,
-      "cx": 57.05181347150259,
-      "cy": 72.35751295336787,
+      "n": 186,
+      "cx": 55.935483870967744,
+      "cy": 72.58602150537635,
       "target": "viseme_aa",
       "lipGapPx": 16,
-      "mouthTeethN": 193
+      "mouthTeethN": 186
     },
     {
-      "n": 193,
-      "cx": 56.94818652849741,
-      "cy": 72.70984455958549,
+      "n": 186,
+      "cx": 56.18279569892473,
+      "cy": 72.58602150537635,
       "target": "viseme_aa",
       "lipGapPx": 16,
-      "mouthTeethN": 193
+      "mouthTeethN": 186
     },
     {
-      "n": 194,
-      "cx": 56.78350515463917,
-      "cy": 72.9381443298969,
+      "n": 183,
+      "cx": 56.185792349726775,
+      "cy": 72.51912568306011,
       "target": "viseme_aa",
       "lipGapPx": 16,
-      "mouthTeethN": 194
+      "mouthTeethN": 183
     },
     {
-      "n": 192,
-      "cx": 56.5625,
-      "cy": 73.14583333333333,
+      "n": 171,
+      "cx": 55.55555555555556,
+      "cy": 71.9298245614035,
       "target": "viseme_aa",
-      "lipGapPx": 17,
-      "mouthTeethN": 192
-    },
-    {
-      "n": 196,
-      "cx": 56.964285714285715,
-      "cy": 73.37244897959184,
-      "target": "viseme_aa",
-      "lipGapPx": 17,
-      "mouthTeethN": 196
-    },
-    {
-      "n": 195,
-      "cx": 56.81025641025641,
-      "cy": 73.28717948717949,
-      "target": "viseme_aa",
-      "lipGapPx": 16,
-      "mouthTeethN": 195
-    },
-    {
-      "n": 196,
-      "cx": 56.816326530612244,
-      "cy": 73.47448979591837,
-      "target": "viseme_aa",
-      "lipGapPx": 16,
-      "mouthTeethN": 196
-    },
-    {
-      "n": 196,
-      "cx": 56.80102040816327,
-      "cy": 73.46938775510205,
-      "target": "viseme_O",
-      "lipGapPx": 16,
-      "mouthTeethN": 196
-    },
-    {
-      "n": 184,
-      "cx": 56.64673913043478,
-      "cy": 73.05434782608695,
-      "target": "viseme_O",
-      "lipGapPx": 17,
-      "mouthTeethN": 184
-    },
-    {
-      "n": 176,
-      "cx": 56.95454545454545,
-      "cy": 72.0284090909091,
-      "target": "viseme_O",
       "lipGapPx": 15,
-      "mouthTeethN": 176
+      "mouthTeethN": 171
     },
     {
-      "n": 164,
-      "cx": 57.298780487804876,
-      "cy": 71.11585365853658,
-      "target": "viseme_O",
+      "n": 157,
+      "cx": 54.19108280254777,
+      "cy": 70.86624203821655,
+      "target": "viseme_aa",
+      "lipGapPx": 16,
+      "mouthTeethN": 157
+    },
+    {
+      "n": 142,
+      "cx": 53.45774647887324,
+      "cy": 69.76760563380282,
+      "target": "viseme_aa",
       "lipGapPx": 14,
-      "mouthTeethN": 164
+      "mouthTeethN": 142
     },
     {
-      "n": 155,
-      "cx": 57.85806451612903,
-      "cy": 70.09032258064516,
+      "n": 130,
+      "cx": 52.40769230769231,
+      "cy": 68.73846153846154,
       "target": "viseme_O",
       "lipGapPx": 13,
-      "mouthTeethN": 155
+      "mouthTeethN": 130
     },
     {
-      "n": 149,
-      "cx": 58.81208053691275,
-      "cy": 69.4496644295302,
+      "n": 117,
+      "cx": 51.65811965811966,
+      "cy": 68.06837606837607,
+      "target": "viseme_O",
+      "lipGapPx": 13,
+      "mouthTeethN": 117
+    },
+    {
+      "n": 102,
+      "cx": 51.1078431372549,
+      "cy": 67.52941176470588,
       "target": "viseme_O",
       "lipGapPx": 12,
-      "mouthTeethN": 149
+      "mouthTeethN": 102
     },
     {
-      "n": 146,
-      "cx": 59.06164383561644,
-      "cy": 68.79452054794521,
+      "n": 97,
+      "cx": 50.22680412371134,
+      "cy": 66.71134020618557,
       "target": "viseme_O",
       "lipGapPx": 11,
-      "mouthTeethN": 146
+      "mouthTeethN": 96
     },
     {
-      "n": 139,
-      "cx": 59.33812949640288,
-      "cy": 68.41007194244604,
+      "n": 91,
+      "cx": 50.48351648351648,
+      "cy": 66.20879120879121,
+      "target": "viseme_O",
+      "lipGapPx": 12,
+      "mouthTeethN": 91
+    },
+    {
+      "n": 81,
+      "cx": 50.4320987654321,
+      "cy": 65.98765432098766,
+      "target": "viseme_O",
+      "lipGapPx": 11,
+      "mouthTeethN": 81
+    },
+    {
+      "n": 71,
+      "cx": 50.690140845070424,
+      "cy": 65.43661971830986,
       "target": "viseme_O",
       "lipGapPx": 10,
-      "mouthTeethN": 139
+      "mouthTeethN": 71
     },
     {
-      "n": 138,
-      "cx": 59.51449275362319,
-      "cy": 68.0072463768116,
+      "n": 62,
+      "cx": 51.17741935483871,
+      "cy": 64.75806451612904,
+      "target": "viseme_O",
+      "lipGapPx": 10,
+      "mouthTeethN": 62
+    },
+    {
+      "n": 56,
+      "cx": 51.19642857142857,
+      "cy": 64.41071428571429,
       "target": "viseme_O",
       "lipGapPx": 9,
-      "mouthTeethN": 138
+      "mouthTeethN": 56
     },
     {
-      "n": 141,
-      "cx": 60.60283687943262,
-      "cy": 67.45390070921985,
+      "n": 54,
+      "cx": 52.407407407407405,
+      "cy": 64.03703703703704,
       "target": "viseme_sil",
-      "lipGapPx": 9,
-      "mouthTeethN": 141
+      "lipGapPx": 8,
+      "mouthTeethN": 54
     }
   ]
 }

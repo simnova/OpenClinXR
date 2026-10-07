@@ -3,8 +3,8 @@
   "tests": [
     {
       "path": "tools/openclinxr/mouth-solver/mouth-evaluator.test.ts",
-      "reason": "4 pins fail against the current parent GLB after the lower-arch rebuild in 3a1e49634 (re-measured 2026-10-07, current code and ground truth): dy bias 5.55px (gate 3) and max 12.92px (gate 5) vs stale fixed-capture pixels; rim series 5.32-6.68mm vs the 6.485+-0.5 band; jaw travel 9.31mm vs <=8.6; pitch probe blocked on the dy gate. Needs a re-seat plus fixed-capture recount slice, not a pin tweak.",
-      "card": "unfiled: re-seat rim and recount fixed-capture ground truth for the rebuilt lower arch"
+      "reason": "3 pins fail against the current parent GLB (re-measured 2026-10-07 on a fresh fixed-capture recount with the current asset, rhubarb cues unchanged): dy bias 5.16px (gate 3) and max 9.41px (gate 5) persist on current pixels, so the offset is systematic visibility composition on the rebuilt lower arch (3a1e49634 reseat plus FF chain through d33b3d2b7), not stale ground truth — needs a solver-side projection fix, not a pin tweak; jaw travel 9.31mm vs <=8.6 (growth net of the ac2a84ac2 rest-drop/down-gain, measured 8.88 in-commit, plus the undocumented FF-chain remainder — no stated new baseline, re-pinning would be widening); pitch probe blocked on the dy gate (instrument response itself healthy: 2-degree dose shifts bias 3.44px). Rim band re-pinned 6.0+-0.7 in the same slice (series 5.318-6.680mm, 3a1e49634 reseat) and green.",
+      "card": "unfiled: solver-side projection fix for the dy visibility-composition offset plus a stated jaw-travel baseline"
     }
   ]
 }

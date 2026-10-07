@@ -149,26 +149,12 @@ describe("viseme-eval words tier", () => {
 });
 
 describe("viseme-eval reports", () => {
-  // KNOWN RED (2026-10-07, worker): the default view cannot be reconstructed
-  // into an attached bilabialCentral section. The headless camera
-  // reconstruction itself works (default residual 20.0 px, corners found),
-  // but the landmark-derived central ROI lands at window y 110-127 while the
-  // legacy default counting box sits at y 55-85, so centralInsideDefaultBox
-  // is false and attachBilabialCentral refuses by design. Pixel-verified on
-  // the committed default clip.mp4: the box sits on the chin below the mouth
-  // (mouth GL y ~110-160, box 55-85) — the box is stale, not the camera.
-  // Restoring this assertion needs the default counting box re-seated onto
-  // the mouth and the default metrics recounted, which is a capture-slice
-  // decision, not a reconstruction fix. Do NOT widen the threshold.
-  it.fails("validates the pangram report and contact sheet", () => {
+  it("validates the pangram report and contact sheet", () => {
     checkReport("pangram", "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos.");
     checkContact("pangram");
   });
 
-  // KNOWN RED (2026-10-07, worker): same stale default counting box as
-  // above — central ROI y 110-127 vs box y 55-85, bilabialCentral unattached
-  // by design. Needs a capture-slice box re-seat + default recount.
-  it.fails("validates the viseme-words report and contact sheet", () => {
+  it("validates the viseme-words report and contact sheet", () => {
     checkReport("viseme-words", "put. fat. think. tip. call. chair. sir. lot. red. car. bed. toe. book.");
     checkContact("viseme-words");
   });

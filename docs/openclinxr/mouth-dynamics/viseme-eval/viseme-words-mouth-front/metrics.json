@@ -2318,9 +2318,9 @@
       "jawFraction": 0.11960388717101902
     },
     {
-      "n": 1901,
-      "cx": 144.48711204629143,
-      "cy": 105.88427143608627,
+      "n": 1896,
+      "cx": 144.68196202531647,
+      "cy": 105.86708860759494,
       "target": "viseme_sil",
       "lipGapPx": 71,
       "mouthTeethN": 226,
@@ -2346,13 +2346,13 @@
       "jawFraction": 0.1385503114418295
     },
     {
-      "n": 2621,
-      "cx": 134.85997710797406,
-      "cy": 108.72644028996567,
+      "n": 2616,
+      "cx": 135.12194189602445,
+      "cy": 108.68998470948013,
       "target": "viseme_sil",
-      "lipGapPx": 71,
-      "mouthTeethN": 292,
-      "upperTeethN": 292,
+      "lipGapPx": 68,
+      "mouthTeethN": 294,
+      "upperTeethN": 294,
       "lowerTeethN": 0,
       "weights": {
         "viseme_CH": 0,
@@ -2374,11 +2374,11 @@
       "jawFraction": 0.15723894319775683
     },
     {
-      "n": 3198,
-      "cx": 130.53064415259539,
-      "cy": 110.88836772983115,
+      "n": 3195,
+      "cx": 130.58591549295775,
+      "cy": 110.88450704225352,
       "target": "viseme_sil",
-      "lipGapPx": 71,
+      "lipGapPx": 66,
       "mouthTeethN": 337,
       "upperTeethN": 337,
       "lowerTeethN": 0,
@@ -2402,11 +2402,11 @@
       "jawFraction": 0.17487240761558503
     },
     {
-      "n": 3428,
-      "cx": 129.94865810968494,
-      "cy": 111.89556592765462,
+      "n": 3416,
+      "cx": 130.09338407494144,
+      "cy": 111.88934426229508,
       "target": "viseme_TH",
-      "lipGapPx": 71,
+      "lipGapPx": 65,
       "mouthTeethN": 355,
       "upperTeethN": 355,
       "lowerTeethN": 0,
@@ -2430,11 +2430,11 @@
       "jawFraction": 0.1894171325290354
     },
     {
-      "n": 3502,
-      "cx": 129.5348372358652,
-      "cy": 112.41633352370074,
+      "n": 3461,
+      "cx": 130.65876914186651,
+      "cy": 112.37474718289512,
       "target": "viseme_TH",
-      "lipGapPx": 71,
+      "lipGapPx": 65,
       "mouthTeethN": 351,
       "upperTeethN": 351,
       "lowerTeethN": 0,
@@ -2458,11 +2458,11 @@
       "jawFraction": 0.20109866014511837
     },
     {
-      "n": 3522,
-      "cx": 130.07382169222032,
-      "cy": 112.7771152754117,
+      "n": 3509,
+      "cx": 130.22912510686805,
+      "cy": 112.77001994870334,
       "target": "viseme_TH",
-      "lipGapPx": 71,
+      "lipGapPx": 65,
       "mouthTeethN": 355,
       "upperTeethN": 355,
       "lowerTeethN": 0,
@@ -2486,11 +2486,11 @@
       "jawFraction": 0.2104888258560402
     },
     {
-      "n": 3567,
-      "cx": 129.53742640874685,
-      "cy": 113.10737314269694,
+      "n": 3563,
+      "cx": 129.60735335391524,
+      "cy": 113.10216110019647,
       "target": "viseme_TH",
-      "lipGapPx": 71,
+      "lipGapPx": 65,
       "mouthTeethN": 356,
       "upperTeethN": 356,
       "lowerTeethN": 0,
@@ -2514,11 +2514,11 @@
       "jawFraction": 0.2180438609688357
     },
     {
-      "n": 3513,
-      "cx": 130.21975519499003,
-      "cy": 113.30515229148875,
+      "n": 3503,
+      "cx": 130.35883528404224,
+      "cy": 113.29774479017985,
       "target": "viseme_I",
-      "lipGapPx": 71,
+      "lipGapPx": 66,
       "mouthTeethN": 350,
       "upperTeethN": 350,
       "lowerTeethN": 0,
@@ -2542,13 +2542,13 @@
       "jawFraction": 0.22366715849792945
     },
     {
-      "n": 3368,
-      "cx": 128.68705463182897,
-      "cy": 113.2606888361045,
+      "n": 3338,
+      "cx": 128.5095865787897,
+      "cy": 113.4089275014979,
       "target": "viseme_I",
-      "lipGapPx": 71,
-      "mouthTeethN": 345,
-      "upperTeethN": 345,
+      "lipGapPx": 67,
+      "mouthTeethN": 322,
+      "upperTeethN": 322,
       "lowerTeethN": 0,
       "weights": {
         "viseme_CH": 0,
@@ -2570,9 +2570,9 @@
       "jawFraction": 0.22164836815225797
     },
     {
-      "n": 3226,
-      "cx": 124.73310601363919,
-      "cy": 113.3831370117793,
+      "n": 3225,
+      "cx": 124.84620155038759,
+      "cy": 113.37333333333333,
       "target": "viseme_I",
       "lipGapPx": 71,
       "mouthTeethN": 335,

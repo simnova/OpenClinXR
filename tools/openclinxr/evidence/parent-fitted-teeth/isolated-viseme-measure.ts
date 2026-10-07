@@ -50,7 +50,11 @@ const OUT_DIR = path.join(REPO, "docs/openclinxr/mouth-dynamics/viseme-eval");
 
 const ORDER = ["sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U"];
 const FRONT_WIN = { ox: 520, yTop: 570, x0: 10, x1: 230, y0: 25, y1: 95 };
-const DEFAULT_BOX = { x0: 40, x1: 100, y0: 55, y1: 85 };
+// Default counting box in window GL coords (origin x=500, y=250 from
+// bottom): the same re-seat as the capture sampler (union of the per-viseme
+// landmark central ROIs plus 8 px margin), expressed bottom-up: capture box
+// y37-101 top-origin maps to y78-142 GL. x is identical in both conventions.
+const DEFAULT_BOX = { x0: 37, x1: 113, y0: 78, y1: 142 };
 
 /** Live morph-target view onto a headless SkinnedMesh (same arrays, no copy). */
 type MeasureMorphTarget = {

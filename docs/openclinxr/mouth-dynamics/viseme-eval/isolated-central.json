@@ -20,10 +20,10 @@
     "canvasH": 960
   },
   "defaultBox": {
-    "x0": 40,
-    "x1": 100,
-    "y0": 55,
-    "y1": 85
+    "x0": 37,
+    "x1": 113,
+    "y0": 78,
+    "y1": 142
   },
   "centralDefaultWindow": {
     "x0": 46.68309354865312,
@@ -31,6 +31,6 @@
     "y0": 110.38305155013984,
     "y1": 126.71757768251996
   },
-  "centralInsideDefaultBox": false,
+  "centralInsideDefaultBox": true,
   "defaultCameraResidualPx": 20
 }

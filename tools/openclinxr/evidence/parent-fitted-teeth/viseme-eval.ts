@@ -396,7 +396,11 @@ export function attachBilabialCentral(clip: ClipId): { pass: number; fail: numbe
   const ppFront = raw.views["front"]?.stills.find((s) => s.viseme === "PP");
   const defCorners = raw.corners["default"]?.corners;
   if (!silFront || !ppFront || !defCorners) throw new Error("bilabial-central-missing-corners");
-  const defaultBox = { x0: 40, x1: 100, y0: 55, y1: 85 };
+  // Default counting box in window GL coords (origin x=500, y=250 from
+  // bottom): the re-seated box shared with the capture sampler and
+  // isolated-viseme-measure.ts (capture y37-101 top-origin maps to y78-142
+  // GL; x identical in both conventions).
+  const defaultBox = { x0: 37, x1: 113, y0: 78, y1: 142 };
   const fails: { clip: string; phone: string; startS: number; view: string; frame: number; upperTeethN: number; lowerTeethN: number }[] = [];
   let pass = 0;
   let evaluated = 0;
