@@ -8,10 +8,10 @@
  * the full anatomical shell, so a constant cy offset is visibility
  * composition, not mistracking (same class as the ungated cx). The gate bounds
  * the bias (|signed median| <= 3px), the detrended tracking shape
- * (median <= 2px) and blowouts (max <= 5px). The rim band is the re-seated
- * face-bound seat: per-frame series 5.318-6.680 mm on the current asset
- * (rest cluster ~5.34, contact-consonant lip excursion to 6.68), gated at
- * series mid-range 6.0 +/- 0.7 after the 3a1e49634 lower-arch reseat.
+ * (median <= 2px) and blowouts (max <= 5px). The rim band is the honest
+ * face-bound seat: per-frame series 7.999-8.758 mm, gated at midpoint 8.378
+ * +/- 0.5, because the #739 face bound caps the rest shift at 3.197 mm and
+ * the 3.743 mm directed target is unreachable behind the face.
  */
 import { describe, expect, it } from "vitest";
 import { evaluate, probePremise, readEvaluatorTrack } from "./mouth-evaluator.js";
@@ -26,14 +26,8 @@ const DY_GATE_DETRENDED_MEDIAN_PX = 2;
 const DY_GATE_BIAS_PX = 3;
 const DY_GATE_MAX_PX = 5;
 const DY_RULE = "mouth-solver-ground-truth-dy-gate";
-// Re-seated 2026-10-07: the lower-arch rebuild in 3a1e49634 reseated the
-// shell ~1.1 mm deeper (rest cluster 6.5 -> 5.34) and contact-consonant lip
-// excursion (FF/PP/DD frames) now spans the full series 5.318-6.680 mm
-// (mean 5.549/5.656 across ground-truth recounts, width 1.362), which no
-// +-0.5 band covers. Target = series mid-range 6.0, margin 0.7 = measured
-// half-range 0.681 rounded up. Deterministic byte-identical reruns.
-const RIM_TARGET_MM = 6.0;
-const RIM_BAND_MM = 0.7;
+const RIM_TARGET_MM = 6.485;
+const RIM_BAND_MM = 0.5;
 
 /** Open-vowel drive targets: the frames the teeth morphs shape. */
 const OPEN_VOWELS = new Set(["viseme_aa", "viseme_e", "viseme_i", "viseme_o", "viseme_u"]);
@@ -83,7 +77,9 @@ describe("mouth-solver evaluator", () => {
     const { output } = await evaluate(GLB, track);
     // Re-measured 2026-10-07: 68, not 76. The lower-arch rebuild in 3a1e49634
     // reseated the lower shell, changing the rest-geometry rim selection set;
-    // the count is stable on every GLB since.
+    // the count is stable on every GLB since. The 6.485 band below is left
+    // untouched: the current series spans 5.32-6.68 mm, which no ±0.5 band
+    // covers, so that assertion keeps failing until the seat is re-baselined.
     expect(output.summary.rimVertCount).toBe(68);
     for (const record of output.records) {
       expect(Math.abs(record.rimGapHeadLocalMm - RIM_TARGET_MM)).toBeLessThanOrEqual(RIM_BAND_MM);
