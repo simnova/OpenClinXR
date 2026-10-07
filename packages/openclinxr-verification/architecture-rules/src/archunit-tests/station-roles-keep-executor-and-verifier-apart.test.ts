@@ -164,11 +164,23 @@ describe("station roles keep executor and verifier apart", () => {
     for (const violation of violations) expect(violation).toContain("[station-roles R1]");
   });
 
-  it("(8) the live workspace passes: zero declared roles today", () => {
+  it("(8) the live workspace matches the committed station roster", () => {
+    const rosterPath = join(import.meta.dirname, "fixtures", "station-roster.json");
+    const roster = JSON.parse(readFileSync(rosterPath, "utf8")) as Array<{
+      name: string;
+      station: string;
+      stationRole: string;
+    }>;
     const scanned = scanWorkspaceStationRoles();
     expect(scanned.length).toBeGreaterThan(20);
-    const declared = scanned.filter((pkg) => pkg.stationRole !== undefined);
-    expect(declared).toEqual([]);
+    const declared = scanned
+      .filter((pkg) => pkg.stationRole !== undefined)
+      .map((pkg) => ({ name: pkg.name, station: pkg.station, stationRole: pkg.stationRole }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const expected = [...roster].sort((a, b) => a.name.localeCompare(b.name));
+    // Each role-declaring card appends its own row; the first stationRole
+    // turns this red until its row lands in the committed roster.
+    expect(declared).toEqual(expected);
     const violations = checkStationRoleBoundaries(scanned);
     expect(violations, violations.join("\n")).toEqual([]);
   });
