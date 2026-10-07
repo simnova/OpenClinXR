@@ -151,7 +151,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/actor-placement-ssot.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/actor-slot-assignment.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/actor-slot-assignment.ts -> ../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js",
-  "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts -> ../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js",
   "tools/openclinxr/evidence/an-adult-actor-derives-a-body-profile-from-its-descriptor.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/descriptor-phenotype-lookup.js",
   "tools/openclinxr/evidence/an-adult-actor-derives-a-body-profile-from-its-descriptor.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/index.js",
   "tools/openclinxr/evidence/an-aliased-viseme-target-is-cleared-when-it-stops-being-active.test.ts -> ../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js",

@@ -1,10 +1,4 @@
 {
   "comment": "Tests that fail on main for a recorded reason. test:touched excludes them from the pre-commit related-test gate and prints each exclusion. Remove an entry in the same commit that makes the test pass.",
-  "tests": [
-    {
-      "path": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts",
-      "reason": "Resolves its applier at apps/ui-xr/src/blink-runtime-wire.js, which moved to packages/openclinxr/xr-dialogue in 6f5221c32; cases (1) and (3) fail on origin/main cbb93bb67 and on every commit touching xr-dialogue.",
-      "card": "unfiled: repoint the blink test at @openclinxr/xr-dialogue"
-    }
-  ]
+  "tests": []
 }
