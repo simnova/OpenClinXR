@@ -8,6 +8,7 @@ import {
   applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   collectMorphTargetNames,
+  JAW_OPEN_TEETH_CLEAR_RADIANS,
   JAW_TEETH_GAIN,
   LIP_VISEME_GAIN,
   mapDialoguePhonemeToArkit,
@@ -127,7 +128,7 @@ function step3MeshLike() {
   };
 }
 
-type Step3Drive = { weights: Record<string, number>; jawFraction: number; tag: unknown };
+type Step3Drive = { weights: Record<string, number>; jawFraction: number; jawOpenRadians: number; tag: unknown };
 
 /** Full prepared-audio-clock runtime drive at one media instant. */
 function driveTrackAt(cues: Step3Cue[], mediaS: number, durationMs: number): Step3Drive {
@@ -146,9 +147,14 @@ function driveTrackAt(cues: Step3Cue[], mediaS: number, durationMs: number): Ste
     mediaPositionSeconds: () => mediaS,
   });
   const tag = root.userData.openClinXrNamedVisemeDrive as
-    | { weights?: Record<string, number>; jawFraction?: number }
+    | { weights?: Record<string, number>; jawFraction?: number; jawOpenRadians?: number }
     | undefined;
-  return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN, tag };
+  return {
+    weights: { ...(tag?.weights ?? {}) },
+    jawFraction: tag?.jawFraction ?? NaN,
+    jawOpenRadians: tag?.jawOpenRadians ?? NaN,
+    tag,
+  };
 }
 
 function driveAt(mediaS: number): Step3Drive {
@@ -578,6 +584,25 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       }
       expect(shut.length).toBeGreaterThan(0);
       for (const n of shut) expect(driveAt(frameMediaS(n)).jawFraction).toBe(0);
+    });
+
+    it("bounds live jaw radians below the teeth-clear aperture on vowels and seals PP exactly", () => {
+      // Prepared step3 track through the prepared-audio clock path: the live
+      // prepared-jaw-dynamics output opens the jaw partway on an open vowel
+      // (never reaching the teeth-clear aperture) and reads exactly 0
+      // through the PP closure. The longest open-vowel cue keeps the sample
+      // clear of neighbouring contact.
+      const clear = JAW_OPEN_TEETH_CLEAR_RADIANS * JAW_TEETH_GAIN;
+      const vowel = step3Cues
+        .filter((cue) => JAW_VOWELS.has(cue.phoneme))
+        .sort((a, b) => (b.durationSeconds ?? 0) - (a.durationSeconds ?? 0))[0];
+      expect(vowel).toBeDefined();
+      const open = driveAt(vowel!.atSecond + (vowel!.durationSeconds ?? 0) / 2);
+      expect(open.jawOpenRadians).toBeGreaterThan(0);
+      expect(open.jawOpenRadians).toBeLessThan(clear);
+      const pp = step3Cue("PP");
+      const shut = driveAt(pp.atSecond + (pp.durationSeconds ?? 0) / 2);
+      expect(shut.jawOpenRadians).toBe(0);
     });
 
     it("keeps vowel weights bit-equal on a contact-free track", () => {
