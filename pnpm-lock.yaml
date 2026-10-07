@@ -110,6 +110,9 @@ importers:
       '@openclinxr/service-local-compute':
         specifier: workspace:*
         version: link:packages/openclinxr/service-local-compute
+      '@openclinxr/station-mouth-registry':
+        specifier: workspace:*
+        version: link:packages/openclinxr/stations/mouth-registry
       '@openclinxr/station-mouth-verifier':
         specifier: workspace:*
         version: link:packages/openclinxr/stations/mouth-verifier
@@ -1453,6 +1456,37 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../../cellix/config-vitest
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
+  packages/openclinxr/stations/mouth-registry:
+    dependencies:
+      '@openclinxr/station-mouth-executor':
+        specifier: workspace:*
+        version: link:../mouth-executor
+      '@openclinxr/station-mouth-objective':
+        specifier: workspace:*
+        version: link:../mouth-objective
+      '@openclinxr/station-mouth-solver-closedform':
+        specifier: workspace:*
+        version: link:../mouth-solver-closedform
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -7447,6 +7481,7 @@ packages:
   tsx@4.21.0:
     resolution: {integrity: sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==}
     engines: {node: '>=18.0.0'}
+    hasBin: true
 
   turbo@2.9.14:
     resolution: {integrity: sha512-BQqXRr4UoWI3UPFrtznCLykYHxwxWh53iCB57x092jPMjIlW1wnm3N895g5irpiXmnxUhREBB0n6+y8BHhs4nw==}

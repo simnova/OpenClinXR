@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "solverId": "mouth-closedform",
   "solverVersion": "0.1.0",
-  "inputHash": "01987670f01dacf12c5b8508726fa199df0c14914b8e5b6a8625e5ea3987389d",
-  "inputPreimage": "mouth-closedform|step3|30",
+  "inputHash": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
+  "inputPreimage": "receipt pre-image apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb (preImageSha256; corrected 2026-10-07 M5: M4 pinned the sha256 of the domain string, which the loader refuses against real producer bytes, so registry.run could never solve)",
   "notes": "Tuning the closed-form solve was derived for: the step3 fixed-capture line at the 30 fps evaluator clock. Knob values are the committed producer argv from the tongue-TH receipt note (same pre-image 202ec91134a7, --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, --ff-lip-contact) and the producer constants in tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts at this base. honestRestGapMm 5.575 is the receipt honest rest rim gap; ffPressRings 8 is the committed rung-3 value.",
   "tuning": {
     "targetGapMm": 3.743,

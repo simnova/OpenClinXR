@@ -1,0 +1,8 @@
+// Text fixture, never compiled.
+import { runExecutor } from "@station-roles-fixture/staging-executor";
+import { scoreGate } from "@station-roles-fixture/staging-objective";
+import { defaultSolver } from "@station-roles-fixture/staging-solver";
+
+export function runRegistry(): number {
+  return runExecutor() + scoreGate(defaultSolver);
+}

@@ -1,0 +1,42 @@
+{
+  "package": "stations/mouth-registry",
+  "name": "@openclinxr/station-mouth-registry",
+  "entrypoint": "packages/openclinxr/stations/mouth-registry/src/index.ts",
+  "purpose": "Mouth-station registry: generated solver map, committed pin and run.",
+  "exports": [
+    "Problem",
+    "RegistryPin",
+    "RunOptions",
+    "RunResult",
+    "Solution",
+    "loadPin",
+    "loadPinnedSolver",
+    "run",
+    "verifySolution"
+  ],
+  "exportSummaries": {
+    "Problem": "Solver input: the unseated asset and the cue track it must satisfy.",
+    "RegistryPin": "Committed pin: exactly the solver id and version the registry resolves.",
+    "RunOptions": "Input for run: the unseated asset bytes plus the one operator-set target.",
+    "RunResult": "Seated bytes, the receipt note and the pinned solution that produced them.",
+    "Solution": "Solver output: scored frames plus the provenance the receipt records.",
+    "loadPin": "Committed pin the registry resolves before solving.",
+    "loadPinnedSolver": "Resolve the committed pin against the generated solver map.",
+    "run": "Run the mouth station on unseated GLB bytes.",
+    "verifySolution": "Re-run the pinned solver and fail when the persisted solution differs."
+  },
+  "workspaceDependencies": [
+    "@openclinxr/station-mouth-executor",
+    "@openclinxr/station-mouth-objective",
+    "@openclinxr/station-mouth-solver-closedform"
+  ],
+  "tests": [
+    "src/the-pin-is-checked-before-solve.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-mouth-registry test",
+    "typecheck": "pnpm --filter @openclinxr/station-mouth-registry typecheck",
+    "build": "pnpm --filter @openclinxr/station-mouth-registry build",
+    "lint": "pnpm --filter @openclinxr/station-mouth-registry lint"
+  }
+}

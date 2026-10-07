@@ -53,7 +53,7 @@ function loadFixtureRoot(rootName: string): StationPackage[] {
       exports?: Record<string, unknown>;
       dependencies?: Record<string, string>;
     };
-    const { station, stationRole } = parseStationManifest(manifestText);
+    const { station, stationRole, stationRegistry } = parseStationManifest(manifestText);
     const files: string[] = [];
     if (existsSync(join(dir, "src"))) sourceFiles(join(dir, "src"), files);
     pkgs.push({
@@ -61,6 +61,7 @@ function loadFixtureRoot(rootName: string): StationPackage[] {
       dir: toPosixPath(relative(REPO_ROOT, dir)),
       ...(station === undefined ? {} : { station }),
       ...(stationRole === undefined ? {} : { stationRole }),
+      ...(stationRegistry === undefined ? {} : { stationRegistry }),
       dependencies: Object.keys(manifest.dependencies ?? {}).sort(),
       sources: files.sort().map((file) => ({
         file: toPosixPath(relative(REPO_ROOT, file)),
@@ -84,10 +85,19 @@ function mustFind(packages: StationPackage[], fragment: string): StationPackage 
 }
 
 describe("station roles keep executor and verifier apart", () => {
-  it("(1) the honest layout passes: executor and verifier share only the objective", () => {
+  it("(1) the honest layout passes: executor and verifier share only the objective; the registry alone reaches the solver", () => {
     const pkgs = loadFixtureRoot("honest");
-    const roles = pkgs.map((pkg) => pkg.stationRole).sort();
+    const roles = pkgs
+      .map((pkg) => pkg.stationRole)
+      .filter((role) => role !== undefined)
+      .sort();
     expect(roles).toEqual(["executor", "objective", "solver", "verifier"]);
+    const registries = pkgs.filter(
+      (pkg) => pkg.station !== undefined && pkg.stationRegistry === true,
+    );
+    expect(registries.map((pkg) => pkg.name)).toEqual([
+      "@station-roles-fixture/staging-registry",
+    ]);
     expect(checkStationRoleBoundaries(pkgs)).toEqual([]);
   });
 
@@ -141,7 +151,7 @@ describe("station roles keep executor and verifier apart", () => {
     expect(checkStationRoleBoundaries(r3)).toEqual([]);
 
     const r4 = clone(loadFixtureRoot("fail-r4"));
-    (mustFind(r4, "r4-objective") as { stationRole?: string }).stationRole = "verifier";
+    (mustFind(r4, "r4-solver") as { stationRole?: string }).stationRole = "objective";
     expect(checkStationRoleBoundaries(r4)).toEqual([]);
 
     const r5 = clone(loadFixtureRoot("fail-r5"));

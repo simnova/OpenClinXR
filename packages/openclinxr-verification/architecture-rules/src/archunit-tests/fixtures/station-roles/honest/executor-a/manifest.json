@@ -3,7 +3,6 @@
   "openclinxr": { "station": "staging", "stationRole": "executor" },
   "exports": { ".": "./dist/index.js" },
   "dependencies": {
-    "@station-roles-fixture/staging-objective": "workspace:*",
-    "@station-roles-fixture/staging-solver": "workspace:*"
+    "@station-roles-fixture/staging-objective": "workspace:*"
   }
 }

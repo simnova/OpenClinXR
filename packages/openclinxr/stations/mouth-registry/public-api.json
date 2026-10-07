@@ -1,0 +1,15 @@
+{
+  "entrypoints": {
+    ".": [
+      "Problem",
+      "RegistryPin",
+      "RunOptions",
+      "RunResult",
+      "Solution",
+      "loadPin",
+      "loadPinnedSolver",
+      "run",
+      "verifySolution"
+    ]
+  }
+}

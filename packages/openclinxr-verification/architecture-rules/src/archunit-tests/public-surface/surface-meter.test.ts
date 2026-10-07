@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 53 roots and 132 declared entrypoints", () => {
+  it("(1) the live tree discovers 54 roots and 133 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -122,7 +122,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-07 mouth-station solver (@openclinxr/station-mouth-solver-closedform) and verifier
     // (@openclinxr/station-mouth-verifier) packages add one root each (50 -> 52); the executor (@openclinxr/station-mouth-executor) adds one more (52 -> 53), pending the
     // psr-c6-mouth review at the station-mouth final land.
-    expect(report.totals.roots).toBe(53);
+    // 2026-10-07 mouth-station registry (@openclinxr/station-mouth-registry) adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
+    expect(report.totals.roots).toBe(54);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -138,7 +139,8 @@ describe("compiler-resolved surface meter", () => {
     // adds ./manifest-motion-clip-playback — six declared entrypoints (122 -> 128).
     // 2026-10-07 mouth-station objective root adds one declared entrypoint (128 -> 129).
     // 2026-10-07 mouth-station solver and verifier roots add one declared entrypoint each (129 -> 131); the executor root adds one more (131 -> 132).
-    expect(report.totals.entrypoints).toBe(132);
+    // 2026-10-07 mouth-station registry root adds one declared entrypoint (132 -> 133), pending the psr-c6-mouth review at the station-mouth final land.
+    expect(report.totals.entrypoints).toBe(133);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -165,7 +167,8 @@ describe("compiler-resolved surface meter", () => {
       expect(dirs, arena).toContain(arena);
     }
     const report = measureSurface();
-    expect(report.packages.length).toBe(53);
+    // 2026-10-07 mouth-station registry adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
+    expect(report.packages.length).toBe(54);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

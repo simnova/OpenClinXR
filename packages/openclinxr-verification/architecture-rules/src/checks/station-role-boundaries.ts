@@ -22,9 +22,19 @@ import { fileURLToPath } from "node:url";
  *    import escaping into another station package's src/, or a bare deep
  *    specifier absent from its package.json exports, fails. Its declared
  *    exports pass.
- * R3 a solver may not import or depend on an executor.
+ * R3 a solver may depend on or import only the objective: solver -> executor,
+ *    solver -> verifier and solver -> solver edges fail. (MADR 0061 extended R3.)
  * R4 an objective may not import or depend on an executor, verifier or solver.
- * R5 an unknown stationRole value fails. The vocabulary is closed.
+ * R5 an unknown stationRole value fails. The vocabulary is closed. A station
+ *    without a role passes only as the registry: `"openclinxr":
+ *    { "station": "<id>", "stationRegistry": true }` with no stationRole
+ *    (MADR 0061 role rules). The marker on a role package or without a
+ *    station fails.
+ * R6 an executor may not depend on or import a solver (MADR 0061 R6).
+ * Solver-importer allowlist: only the station registry may depend on or
+ * import a solver package; a verifier (or any non-registry package)
+ * reaching a solver fails. Executor, objective and solver edges to a solver
+ * are reported under R6, R4 and R3 respectively, so each edge names one rule.
  */
 
 export const STATION_ROLES = ["executor", "verifier", "objective", "solver"] as const;
@@ -45,6 +55,8 @@ export type StationPackage = {
   readonly station?: string;
   /** Raw declared value, so unknown values can be reported rather than dropped. */
   readonly stationRole?: string;
+  /** Registry marker: true only on a roleless station package (MADR 0061). */
+  readonly stationRegistry?: boolean;
   /** Bare dependency names from every package.json dependency field. */
   readonly dependencies: readonly string[];
   readonly sources: readonly StationSourceFile[];
@@ -54,6 +66,13 @@ export type StationPackage = {
 
 export function isStationRole(value: string): value is StationRole {
   return (STATION_ROLES as readonly string[]).includes(value);
+}
+
+/** A station registry: station plus the registry marker, no stationRole. */
+export function isStationRegistry(pkg: StationPackage): boolean {
+  return (
+    pkg.station !== undefined && pkg.stationRole === undefined && pkg.stationRegistry === true
+  );
 }
 
 function roleOf(pkg: StationPackage): StationRole | undefined {
@@ -66,6 +85,7 @@ function roleOf(pkg: StationPackage): StationRole | undefined {
 export function parseStationManifest(manifestText: string): {
   station?: string;
   stationRole?: string;
+  stationRegistry?: boolean;
 } {
   let manifest: unknown;
   try {
@@ -77,9 +97,10 @@ export function parseStationManifest(manifestText: string): {
   const openclinxr = (manifest as Record<string, unknown>)["openclinxr"];
   if (openclinxr === null || typeof openclinxr !== "object") return {};
   const record = openclinxr as Record<string, unknown>;
-  const out: { station?: string; stationRole?: string } = {};
+  const out: { station?: string; stationRole?: string; stationRegistry?: boolean } = {};
   if (typeof record["station"] === "string") out["station"] = record["station"];
   if (typeof record["stationRole"] === "string") out["stationRole"] = record["stationRole"];
+  if (typeof record["stationRegistry"] === "boolean") out["stationRegistry"] = record["stationRegistry"];
   return out;
 }
 
@@ -123,13 +144,21 @@ function findWorkspaceRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
-/** Every violation line names its rule (R1-R5) so a failure points at the fix. */
+/** Every violation line names its rule (R1-R6) so a failure points at the fix. */
 export function checkStationRoleBoundaries(packages: readonly StationPackage[]): string[] {
   const violations: string[] = [];
   const byName = new Map<string, StationPackage>();
   for (const pkg of packages) byName.set(pkg.name, pkg);
 
   for (const pkg of packages) {
+    if (pkg.stationRegistry === true && (pkg.station === undefined || pkg.stationRole !== undefined)) {
+      violations.push(
+        `[station-roles R5] ${pkg.name} carries the registry marker without a roleless station. ` +
+          `The registry declares station with stationRegistry true and no stationRole (MADR 0061). ` +
+          `FIX: declare station plus stationRegistry true and no stationRole, or drop the marker.`,
+      );
+      continue;
+    }
     if (pkg.stationRole !== undefined && !isStationRole(pkg.stationRole)) {
       violations.push(
         `[station-roles R5] ${pkg.name} declares unknown stationRole "${pkg.stationRole}". ` +
@@ -137,18 +166,19 @@ export function checkStationRoleBoundaries(packages: readonly StationPackage[]):
           `FIX: declare one of the four roles, or remove the station declaration.`,
       );
     } else if (pkg.station !== undefined && pkg.stationRole === undefined) {
-      violations.push(
-        `[station-roles R5] ${pkg.name} declares station "${pkg.station}" with no stationRole. ` +
-          `A roleless station cannot be held to R1-R4. ` +
-          `FIX: declare one of executor | verifier | objective | solver.`,
-      );
+      if (!isStationRegistry(pkg)) {
+        violations.push(
+          `[station-roles R5] ${pkg.name} declares station "${pkg.station}" with no stationRole. ` +
+            `A roleless station cannot be held to R1-R4. ` +
+            `FIX: declare one of executor | verifier | objective | solver, or the registry marker.`,
+        );
+      }
     }
   }
 
   const reportRoleEdge = (importer: StationPackage, target: StationPackage, detail: string): void => {
     const from = roleOf(importer);
     const to = roleOf(target);
-    if (from === undefined || to === undefined) return;
     if (from === "executor" && to === "verifier") {
       violations.push(
         `[station-roles R1] ${importer.name} (stationRole executor) must not ${detail} ` +
@@ -156,11 +186,18 @@ export function checkStationRoleBoundaries(packages: readonly StationPackage[]):
           `both import the shared objective instead (MADR 0060 decision 4).`,
       );
     }
-    if (from === "solver" && to === "executor") {
+    if (from === "executor" && to === "solver") {
+      violations.push(
+        `[station-roles R6] ${importer.name} (stationRole executor) must not ${detail} ` +
+          `${target.name} (stationRole solver). The executor never imports a solver; ` +
+          `only the registry resolves the pinned solver (MADR 0061 R6).`,
+      );
+    }
+    if (from === "solver" && (to === "executor" || to === "verifier" || to === "solver")) {
       violations.push(
         `[station-roles R3] ${importer.name} (stationRole solver) must not ${detail} ` +
-          `${target.name} (stationRole executor). Alternative solvers depend on the port contract ` +
-          `and the objective, never on executor files (MADR 0060 decision 5).`,
+          `${target.name} (stationRole ${to}). A solver's only station dependency is the objective; ` +
+          `it never reaches executor, verifier or solver packages (MADR 0061 extended R3).`,
       );
     }
     if (from === "objective" && (to === "executor" || to === "verifier" || to === "solver")) {
@@ -168,6 +205,19 @@ export function checkStationRoleBoundaries(packages: readonly StationPackage[]):
         `[station-roles R4] ${importer.name} (stationRole objective) must not ${detail} ` +
           `${target.name} (stationRole ${to}). The objective is the shared score function; ` +
           `it depends on nothing station-scoped (MADR 0060 decision 4).`,
+      );
+    }
+    if (
+      to === "solver"
+      && !isStationRegistry(importer)
+      && from !== "executor"
+      && from !== "objective"
+      && from !== "solver"
+    ) {
+      violations.push(
+        `[station-roles solver-allowlist] ${importer.name} must not ${detail} ` +
+          `${target.name} (stationRole solver). Only the station registry may import a solver package; ` +
+          `the verifier re-runs the pinned solver through the registry (MADR 0061 allowlist).`,
       );
     }
   };
@@ -296,7 +346,7 @@ export function scanWorkspaceStationRoles(
     } catch {
       continue;
     }
-    const { station, stationRole } = parseStationManifest(manifestText);
+    const { station, stationRole, stationRegistry } = parseStationManifest(manifestText);
     const dependencies: string[] = [];
     for (const field of MANIFEST_DEPENDENCY_FIELDS) {
       const table = manifest[field];
@@ -321,6 +371,7 @@ export function scanWorkspaceStationRoles(
       dir: toPosixPath(relative(repoRoot, dir)),
       ...(station === undefined ? {} : { station }),
       ...(stationRole === undefined ? {} : { stationRole }),
+      ...(stationRegistry === undefined ? {} : { stationRegistry }),
       dependencies: [...new Set(dependencies)].sort(),
       sources,
       exportSubpaths,

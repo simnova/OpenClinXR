@@ -2,8 +2,7 @@
 // station-role rule scans as text. They are never resolved, compiled or published,
 // and the manifest is manifest.json (not package.json) for the same reason.
 import { scoreGate } from "@station-roles-fixture/staging-objective";
-import { defaultSolver } from "@station-roles-fixture/staging-solver";
 
 export function runExecutor(): number {
-  return scoreGate(defaultSolver);
+  return scoreGate("executor");
 }

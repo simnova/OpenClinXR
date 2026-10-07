@@ -1,0 +1,10 @@
+{
+  "name": "@station-roles-fixture/staging-registry",
+  "openclinxr": { "station": "staging", "stationRegistry": true },
+  "exports": { ".": "./dist/index.js" },
+  "dependencies": {
+    "@station-roles-fixture/staging-executor": "workspace:*",
+    "@station-roles-fixture/staging-objective": "workspace:*",
+    "@station-roles-fixture/staging-solver": "workspace:*"
+  }
+}
