@@ -1,5 +1,6 @@
 import {
   type AxisAlignedBox,
+  actorSamplePoints,
   cameraViewProjectionMatrices,
   actorCrownChestVisibleEarly,
   evaluateGate,
@@ -7,6 +8,7 @@ import {
   type GateCamera,
   type GateOccluder,
   type GateReading,
+  segmentBoxHit,
   meanFacingDegrees,
   measureNearOcclusion,
   projectBoxFromMatrices,
