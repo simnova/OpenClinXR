@@ -1,0 +1,54 @@
+[
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnPlayback",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlaybackStartContext",
+        "kind": "type"
+      },
+      {
+        "name": "attachBakedCuesToSpeech",
+        "kind": "runtime"
+      },
+      {
+        "name": "initialDialogueTextForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "LiveActorTurnConsumption",
+        "kind": "type"
+      },
+      {
+        "name": "phonemesForText",
+        "kind": "runtime"
+      },
+      {
+        "name": "playFrozenActorTurnOnSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLiveActorTurnForTrace",
+        "kind": "runtime"
+      },
+      {
+        "name": "visemesForText",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./actor-audio-runtime",
+    "names": [
+      {
+        "name": "createActorAudioRuntime",
+        "kind": "type"
+      }
+    ]
+  }
+]

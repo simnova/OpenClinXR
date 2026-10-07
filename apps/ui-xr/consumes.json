@@ -1,0 +1,154 @@
+[
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ACTOR_TURN_PLAYBACK_SEAM",
+        "kind": "runtime"
+      },
+      {
+        "name": "ACTOR_TURN_PLAYER_SEAM",
+        "kind": "runtime"
+      },
+      {
+        "name": "ActorTurnExecutionArtifacts",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnLiveSlot",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlayback",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlaybackAdapters",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlaybackStartContext",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlayerAdapter",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlayerAdapterContext",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlayerAdapters",
+        "kind": "type"
+      },
+      {
+        "name": "applyNamedSpeechVisemes",
+        "kind": "runtime"
+      },
+      {
+        "name": "attachBakedCuesToSpeech",
+        "kind": "runtime"
+      },
+      {
+        "name": "consumeLiveActorTurn",
+        "kind": "runtime"
+      },
+      {
+        "name": "digestActorTurnPlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "emotionForDialogueText",
+        "kind": "runtime"
+      },
+      {
+        "name": "expressionWeightsForEmotion",
+        "kind": "runtime"
+      },
+      {
+        "name": "formatActiveActorRealismRequirementLines",
+        "kind": "runtime"
+      },
+      {
+        "name": "formatHumanoidSpeechAffectEvidence",
+        "kind": "runtime"
+      },
+      {
+        "name": "IdentityBoundRef",
+        "kind": "type"
+      },
+      {
+        "name": "initSpeakFixtureBridge",
+        "kind": "runtime"
+      },
+      {
+        "name": "isPedsAsthmaScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "LIVE_ACTOR_TURN_CONSUMPTION_SEAM",
+        "kind": "runtime"
+      },
+      {
+        "name": "LiveActorTurnConsumption",
+        "kind": "type"
+      },
+      {
+        "name": "liveActorTurnFromPayload",
+        "kind": "runtime"
+      },
+      {
+        "name": "liveCaptionFromPlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "loadBakedMouthCuesForUtterance",
+        "kind": "runtime"
+      },
+      {
+        "name": "mouthCuesToPhonemeCues",
+        "kind": "runtime"
+      },
+      {
+        "name": "playFrozenActorTurn",
+        "kind": "runtime"
+      },
+      {
+        "name": "playFrozenActorTurnOnSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "playIdentityBoundActorTurn",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerLiveActorTurn",
+        "kind": "runtime"
+      },
+      {
+        "name": "resetActorTurnPlaybackStarts",
+        "kind": "runtime"
+      },
+      {
+        "name": "resetLiveActorTurnRegistry",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLiveActorTurnForTrace",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./actor-audio-runtime",
+    "names": [
+      {
+        "name": "createActorAudioRuntime",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

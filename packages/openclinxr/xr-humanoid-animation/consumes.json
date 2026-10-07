@@ -1,0 +1,64 @@
+[
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyBlinkClosureToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyGazeToHumanoid",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyGeneratedScalarVisemeToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyNamedSpeechVisemes",
+        "kind": "runtime"
+      },
+      {
+        "name": "collectResolvedMorphTargets",
+        "kind": "runtime"
+      },
+      {
+        "name": "expressionWeightsForEmotion",
+        "kind": "runtime"
+      },
+      {
+        "name": "LiveActorTurnConsumption",
+        "kind": "type"
+      },
+      {
+        "name": "MOUTH_OPEN_CAP",
+        "kind": "runtime"
+      },
+      {
+        "name": "phonemesForText",
+        "kind": "runtime"
+      },
+      {
+        "name": "PhonemeCue",
+        "kind": "type"
+      },
+      {
+        "name": "SpeechSlotLike",
+        "kind": "type"
+      },
+      {
+        "name": "UiXrExpressionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "UiXrExpressionWeights",
+        "kind": "type"
+      },
+      {
+        "name": "visemesForText",
+        "kind": "runtime"
+      }
+    ]
+  }
+]
