@@ -20,7 +20,16 @@ function intersects(a: CachedSceneSnapshot extends never ? never : { min: [numbe
 }
 
 describe("cached snapshot layouts resolve", () => {
-  for (const scenarioId of ["peds_fever_v1", "adult_abdominal_pain_v1"]) {
+  // Fever's only companion seat is inside 1.2 m of the nurse bedside anchor.
+  it("peds_fever_v1 seated family with no chair 1.2 m from the nurse anchor names companion_chair", () => {
+    const snapshot = loadSnapshot("peds_fever_v1");
+    const result = searchClinicalLayouts(snapshot);
+    expect(result.layouts).toEqual([]);
+    expect(result.bindingConstraint).toContain("companion_chair");
+    expect(result.bindingConstraint).not.toContain("companion_bedside");
+  });
+
+  for (const scenarioId of ["adult_abdominal_pain_v1"]) {
     it(`${scenarioId} returns a legal layout`, () => {
       const snapshot = loadSnapshot(scenarioId);
       const result = searchClinicalLayouts(snapshot);
