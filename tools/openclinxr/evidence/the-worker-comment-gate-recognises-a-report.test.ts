@@ -116,9 +116,9 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 /** #483's worker report, trimmed. A clean slice: no failure word anywhere in it. */
 const WORKER_REPORT =
   "IN-SCOPE: Added a floor in tools/openclinxr/evidence/head-focus-derivation.test.ts (new describe "
-  + "at line 238)... OUT-OF-SCOPE: Corrected the stale premise in dispatch-binds-the-role-charter... "
-  + "CLAIM: head-focus-derivation now asserts at least one subject carries fitted hair... "
-  + "NOT TESTED: The other ~349 evidence tests for dormant conditionals.";
+  + "at line 238)...\n\nOUT-OF-SCOPE: Corrected the stale premise in dispatch-binds-the-role-charter... "
+  + "\n\nCLAIM: head-focus-derivation now asserts at least one subject carries fitted hair... "
+  + "\n\nNOT TESTED: The other ~349 evidence tests for dormant conditionals.";
 
 /** What the orchestrator writes on every card it closes. Must NOT satisfy a worker-report gate. */
 const ORCHESTRATOR_BOOKKEEPING = "## Landed `c2219a75` — verified 3/3 and graded. Closing.";
@@ -134,6 +134,20 @@ const LOGIN = "gidich";
 /** Drives the real `assertWorkerReported` with a scripted `gh`, so the gate itself is under test. */
 function gateVerdict(comments: string[]): "spoke" | "never-spoke" {
   const runner = (argv: readonly string[]): string => {
+    // integrate.ts fetches comments + viewer login in ONE `gh api graphql`
+    // round trip (no longer `gh issue view` then `gh api user`). The mock
+    // scripts the current transport; the authorship convention is unchanged
+    // (every fixture comment is the worker's own).
+    if (argv[1] === "api" && argv[2] === "graphql") {
+      return JSON.stringify({
+        data: {
+          viewer: { login: LOGIN },
+          repository: {
+            issue: { comments: { nodes: comments.map((body) => ({ author: { login: LOGIN }, body })) } },
+          },
+        },
+      });
+    }
     if (argv[1] === "api" && argv[2] === "user") return `${LOGIN}\n`;
     if (argv[1] === "issue" && argv[2] === "view") {
       return JSON.stringify(comments.map((body) => ({ author: { login: LOGIN }, body })));

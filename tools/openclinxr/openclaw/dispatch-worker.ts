@@ -39,6 +39,7 @@ import {
 } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { sessionTimeSplit } from "./unified-time-split.js";
 import { shouldRefuseDispatch, type BreakerRow } from "./retry-circuit-breaker.js";
 import { classifyDeath } from "./death-reason.js";
 import { deriveHandoffState } from "./worker-handoff-state.js";
@@ -351,6 +352,16 @@ export type DispatchLedgerEntry = {
    * flag is queryable after the run, not only visible in dispatch's console banner.
    */
   gitignoredProofTargetsWarned?: string[];
+  /**
+   * Model-vs-tool wall-clock split for this session, derived from
+   * `~/.grok/logs/unified.jsonl` (see unified-time-split.ts): model sums
+   * `inference_done.ctx.model_elapsed_ms`, tool sums each inference-to-next-
+   * exec wall gap. Absent when the log has no row for the session (best-effort,
+   * never blocks the ledger write). Added 2026-10-06 after two mouth slices
+   * measured ~50% of wall time in re-run full suites.
+   */
+  modelSeconds?: number;
+  toolSeconds?: number;
 };
 
 /**
@@ -1284,8 +1295,26 @@ export function recordSession(repoRoot: string, entry: DispatchLedgerEntry): str
   return path;
 }
 
-export function readSessions(repoRoot: string): DispatchLedgerEntry[] {
-  const path = resolveSharedCoordinationPath(LEDGER, repoRoot);
+/**
+ * Model-vs-tool split for a finished session, best-effort. Reads the grok
+ * unified log and returns `{ modelSeconds, toolSeconds }` when it holds a row
+ * for the session, else null — a missing log must never block the ledger write.
+ */
+export function sessionTimeSplitFields(
+  sessionId: string,
+  logPath = join(homedir(), ".grok/logs/unified.jsonl"),
+): Pick<DispatchLedgerEntry, "modelSeconds" | "toolSeconds"> | null {
+  try {
+    if (!existsSync(logPath)) return null;
+    const split = sessionTimeSplit(readFileSync(logPath, "utf8"), sessionId);
+    if (split.modelSeconds === 0 && split.toolSeconds === 0) return null;
+    return split;
+  } catch {
+    return null;
+  }
+}
+
+export function readSessions(repoRoot: string): DispatchLedgerEntry[] {  const path = resolveSharedCoordinationPath(LEDGER, repoRoot);
   if (!existsSync(path)) return [];
   return readFileSync(path, "utf8")
     .split("\n")
@@ -1842,6 +1871,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...ledgerIdentity(options, assembled, worktreePath),
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
+    ...(sessionTimeSplitFields(sessionId) ?? {}),
     ...(handoffAssessment ? {
       handoff: handoffAssessment.handoff,
       handoffDirtyFiles: handoffAssessment.dirtyFiles,

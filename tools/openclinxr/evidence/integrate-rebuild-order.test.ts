@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { packagesNeedingRebuild } from "../openclaw/integrate.ts";
+import { gitEnvWithoutInheritedRepoVars } from "../openclaw/worktree-base-freshness.ts";
 
 /**
  * #152 / #196 SURVIVED THEIR OWN FIX — the land path rebuilds the right PACKAGES in the WRONG ORDER.
@@ -77,9 +78,15 @@ function declaredWorkspaceDependencies(pkgDir: string): string[] {
 }
 
 function packageDirForName(name: string): string | undefined {
+  // Scrub inherited GIT_DIR/GIT_WORK_TREE: under a commit hook these point at
+  // the committing worktree while cwd is the hardcoded main checkout, so an
+  // unscrubbed `git ls-files` lists the WRONG index and the join below
+  // ENOENTs (measured 2026-10-06: worktree-tracked
+  // compute-services-spec/package.json resolved against main disk).
   const out = execFileSync("git", ["ls-files", "packages/*/*/package.json"], {
     cwd: REPO_ROOT,
     encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
   });
   for (const line of out.split("\n")) {
     const path = line.trim();
