@@ -1,0 +1,57 @@
+{
+  "id": "psr-c6-mouth-lane-2026-10-07",
+  "reviewedSourceCandidate": "1ee7a5111f3d7bfb113f9439e275b1d013f93f44",
+  "sourceCandidateKind": "git-commit",
+  "sourceCandidateNote": "mouth-gaps head (main 0adb432ca + gap fixes 125f0ec67, 55dcc051e, f8a63893c, 1ee7a5111).",
+  "reviewedBy": "Codex gpt-5.6-terra independent review session 01a1179e-dc4d-7e32-902f-757b5f57b531 (not an author; first draft REJECTED for omitting the xr-scene root removal and misnaming consumers, corrected draft APPROVED) on exact commit 1ee7a5111f3d7bfb113f9439e275b1d013f93f44: only root changes vs 4535a9280 are the five xr-dialogue names and the xr-scene removal of resolveFocus/FocusRegion; consumers tools isolated-viseme-measure.ts:36 and tongue-th-morph.ts:26; covered by admissions/teeth-viseme-consumers-v1.json; counts 1225/p90 50 vs 1220/47; thresholds equal REVIEW_TARGETS; 2026-10-07",
+  "requestedExports": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyVisemeWeights",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "JAW_TEETH_GAIN",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "JAW_OPEN_TEETH_CLEAR_RADIANS",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": ".",
+      "symbol": "jawOpenRadiansForPhoneme",
+      "kind": "runtime"
+    }
+  ],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1225,
+      "threshold": 1000,
+      "owner": "mouth lane implementation workers (muse-spark-1) and the Claude coordinator who landed 0adb432ca",
+      "reviewedBy": "Codex gpt-5.6-terra independent review session 01a1179e-dc4d-7e32-902f-757b5f57b531 (not an author; first draft REJECTED for omitting the xr-scene root removal and misnaming consumers, corrected draft APPROVED) on exact commit 1ee7a5111f3d7bfb113f9439e275b1d013f93f44: only root changes vs 4535a9280 are the five xr-dialogue names and the xr-scene removal of resolveFocus/FocusRegion; consumers tools isolated-viseme-measure.ts:36 and tongue-th-morph.ts:26; covered by admissions/teeth-viseme-consumers-v1.json; counts 1225/p90 50 vs 1220/47; thresholds equal REVIEW_TARGETS; 2026-10-07",
+      "reason": "Relative to 4535a9280, main 0adb432ca publishes five names on the xr-dialogue root '.' (applyVisemeWeights, applyJawOpenToRoot, JAW_TEETH_GAIN, JAW_OPEN_TEETH_CLEAR_RADIANS, jawOpenRadiansForPhoneme), kept by the teeth-viseme-consumers-v1 admission overlay, so that tools/openclinxr evidence and asset-pipeline tools (isolated-viseme-measure.ts, tongue-th-morph.ts) import them by package name instead of new cross-package relative paths, which the shrink-only path freeze refuses. The same commit removes resolveFocus and the FocusRegion type from the xr-scene root (names added on the branch in 88bbd7927 without review). Net root exports 1220 -> 1225."
+    },
+    {
+      "target": "p90AtMost",
+      "measured": 50,
+      "threshold": 25,
+      "owner": "mouth lane implementation workers (muse-spark-1) and the Claude coordinator who landed 0adb432ca",
+      "reviewedBy": "Codex gpt-5.6-terra independent review session 01a1179e-dc4d-7e32-902f-757b5f57b531 (not an author; first draft REJECTED for omitting the xr-scene root removal and misnaming consumers, corrected draft APPROVED) on exact commit 1ee7a5111f3d7bfb113f9439e275b1d013f93f44: only root changes vs 4535a9280 are the five xr-dialogue names and the xr-scene removal of resolveFocus/FocusRegion; consumers tools isolated-viseme-measure.ts:36 and tongue-th-morph.ts:26; covered by admissions/teeth-viseme-consumers-v1.json; counts 1225/p90 50 vs 1220/47; thresholds equal REVIEW_TARGETS; 2026-10-07",
+      "reason": "p90 of per-root export counts moves 47 -> 50 with the xr-dialogue root additions above; no other package root count rises."
+    }
+  ]
+}

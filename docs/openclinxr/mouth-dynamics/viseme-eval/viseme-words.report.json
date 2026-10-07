@@ -12,7 +12,8 @@
   "notes": [
     "Failing per-phone checks are results, not gate failures: no runtime tuning in this slice.",
     "Bilabial mids seal in the default view's narrow central box (upper/lower 0) while the wide mouth-front box catches tooth slivers at the commissures; see the contact sheet and clip.mp4.",
-    "Mouth-front lowerTeethN reads 0 on every frame: the split seam lands below all visible teeth in this view, so arch attribution there is upper-only."
+    "Mouth-front lowerTeethN reads 0 on every frame: the split seam lands below all visible teeth in this view, so arch attribution there is upper-only.",
+    "Bilabial-central: P/B/M default mids seal 0/0 inside the landmark-derived central ROI; isolated PP seals 0/0 centrally. The full-box mouth-front 18 px sits at the commissures outside the ROI."
   ],
   "coverage": {
     "phones": [
@@ -71,7 +72,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -189,10 +190,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 32,
@@ -311,7 +312,7 @@
           "jawFraction": 0.20109866014511837,
           "upperTeethN": 118,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 118
         },
         "mouthFront": {
@@ -322,7 +323,7 @@
           "jawFraction": 0.20109866014511837,
           "upperTeethN": 351,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 65,
           "mouthTeethN": 351
         }
       }
@@ -339,10 +340,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.55,
           "jawFraction": 0.21287383888625983,
-          "upperTeethN": 104,
-          "lowerTeethN": 7,
+          "upperTeethN": 113,
+          "lowerTeethN": 0,
           "lipGapPx": 9,
-          "mouthTeethN": 111
+          "mouthTeethN": 113
         },
         "mouthFront": {
           "frame": 70,
@@ -521,7 +522,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -579,8 +580,8 @@
           "drivenTop": "viseme_kk",
           "drivenWeight": 0.476,
           "jawFraction": 0.4903946477343352,
-          "upperTeethN": 119,
-          "lowerTeethN": 14,
+          "upperTeethN": 133,
+          "lowerTeethN": 0,
           "lipGapPx": 12,
           "mouthTeethN": 133
         },
@@ -701,7 +702,7 @@
           "jawFraction": 0.24516130454082538,
           "upperTeethN": 103,
           "lowerTeethN": 10,
-          "lipGapPx": 8,
+          "lipGapPx": 9,
           "mouthTeethN": 113
         },
         "mouthFront": {
@@ -731,7 +732,7 @@
           "jawFraction": 0.2529794054833561,
           "upperTeethN": 91,
           "lowerTeethN": 15,
-          "lipGapPx": 9,
+          "lipGapPx": 10,
           "mouthTeethN": 106
         },
         "mouthFront": {
@@ -761,7 +762,7 @@
           "jawFraction": 0.1623409962637288,
           "upperTeethN": 50,
           "lowerTeethN": 19,
-          "lipGapPx": 9,
+          "lipGapPx": 10,
           "mouthTeethN": 69
         },
         "mouthFront": {
@@ -851,7 +852,7 @@
           "jawFraction": 0.182715054007404,
           "upperTeethN": 60,
           "lowerTeethN": 8,
-          "lipGapPx": 9,
+          "lipGapPx": 10,
           "mouthTeethN": 68
         },
         "mouthFront": {
@@ -1061,7 +1062,7 @@
           "jawFraction": 0.19760779247427113,
           "upperTeethN": 96,
           "lowerTeethN": 18,
-          "lipGapPx": 8,
+          "lipGapPx": 9,
           "mouthTeethN": 114
         },
         "mouthFront": {
@@ -1179,8 +1180,8 @@
           "drivenTop": "viseme_aa",
           "drivenWeight": 0.433,
           "jawFraction": 0.2292531660458546,
-          "upperTeethN": 101,
-          "lowerTeethN": 17,
+          "upperTeethN": 118,
+          "lowerTeethN": 0,
           "lipGapPx": 12,
           "mouthTeethN": 118
         },
@@ -1241,7 +1242,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -1271,7 +1272,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -1389,8 +1390,8 @@
           "drivenTop": "viseme_DD",
           "drivenWeight": 0.508,
           "jawFraction": 0.3342141555892132,
-          "upperTeethN": 80,
-          "lowerTeethN": 13,
+          "upperTeethN": 93,
+          "lowerTeethN": 0,
           "lipGapPx": 10,
           "mouthTeethN": 93
         },
@@ -1451,7 +1452,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -1481,7 +1482,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -1656,7 +1657,7 @@
         "drivenTop": "viseme_TH",
         "upperTeethN": 351,
         "lowerTeethN": 0,
-        "lipGapPx": 71
+        "lipGapPx": 65
       }
     ],
     "mismatchByViseme": {
@@ -1720,6 +1721,38 @@
         "match": 2,
         "total": 2
       }
+    },
+    "bilabialCentral": {
+      "method": "Corners = extreme-x orbicularis-oris-dominant body verts at the sil still, projected through each view pack camera; central ROI excludes 15% of the corner span at each end. The central ROI is contained in the default counting box (verified headlessly), so the committed default 0/0 mids imply central 0/0. Isolated-PP front central count is exact GL pixels from the stills session.",
+      "cornersSilFront": {
+        "lx": 204.8,
+        "rx": 819.2
+      },
+      "cornersSilDefault": {
+        "lx": 35.50015324883202,
+        "rx": 110.0530885809726
+      },
+      "centralDefaultWindow": {
+        "x0": 46.68309354865312,
+        "x1": 98.8701482811515,
+        "y0": 110.38305155013984,
+        "y1": 126.71757768251996
+      },
+      "defaultBox": {
+        "x0": 37,
+        "x1": 113,
+        "y0": 78,
+        "y1": 142
+      },
+      "centralInsideDefaultBox": true,
+      "isolatedPpCentral": {
+        "upperPx": 0,
+        "lowerPx": 0
+      },
+      "evaluated": 6,
+      "pass": 6,
+      "fail": 0,
+      "fails": []
     }
   }
 }

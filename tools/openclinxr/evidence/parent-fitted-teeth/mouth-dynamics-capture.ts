@@ -135,13 +135,23 @@ async function recordFrames(page: Page, cues: TrackCue[], durationS: number, fra
   // recentres the 240x180 window (same size) and widens the counting box to
   // the measured aperture extent (k=0: teeth x13-239 y29-83 of the window).
   // Defaults are literal-identical to the pre-view code path.
+  // The default counting box is the union of the per-viseme landmark central
+  // ROIs (fitted-teeth AABB union oris-dominant body verts, corners inset
+  // 15% each end, the isolated-viseme-measure.ts derivation) over all 15
+  // isolated stills plus an 8 px margin: union x45.6-104.9 y45.7-92.7
+  // (y 0 at window top), widest at FF (x1 104.9, y0 45.7) and aa jaw drop
+  // (y1 92.7); the 8 px margin covers the non-articulatory cross-viseme edge
+  // variation (<=6.6 px vs sil). The retired 40/100/55/85 box was seated on
+  // the rest pose only and missed FF excursion by ~10 px. x/y in harness
+  // coords (y 0 at window top); ox/yTop pin the 240x180 window in the canvas.
   // Non-legacy clips record the upper/lower split in both views; legacy
-  // step3 keeps the exact legacy sampler (no split in the default view).
+  // step3 keeps the legacy schema (no split in the default view) on the same
+  // re-seated box.
   const sampler = MOUTH_FRONT
     ? { ox: 520, yTop: 570, split: true, x0: 10, x1: 230, y0: 25, y1: 95 }
     : CLIP.legacy
-      ? { ox: 500, yTop: 710, split: false, x0: 40, x1: 100, y0: 55, y1: 85 }
-      : { ox: 500, yTop: 710, split: true, x0: 40, x1: 100, y0: 55, y1: 85 };
+      ? { ox: 500, yTop: 710, split: false, x0: 37, x1: 113, y0: 37, y1: 101 }
+      : { ox: 500, yTop: 710, split: true, x0: 37, x1: 113, y0: 37, y1: 101 };
   for (let frame=0;frame<frames;frame+=1) {
     await page.evaluate((timeS:number)=>{ const win=globalThis as unknown as PageGlobal;win.__speechTimeS=timeS;win.__openClinXrSyncPreparedSpeech?.(timeS); },frame/FPS);
     await page.evaluate(()=>new Promise<void>((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("requestAnimationFrame stalled")),2000);(globalThis as unknown as PageGlobal).requestAnimationFrame(()=>{clearTimeout(timer);resolve();});}));

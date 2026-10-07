@@ -58,7 +58,9 @@ describe("tooth-pixel split", () => {
   it("omits the split fields when split is false", () => {
     const buf = blank();
     paint(buf, 100, 140, 30, 50, ...TOOTH);
-    const out = analyzeToothPixels(buf, W, H, { x0: 40, x1: 100, y0: 55, y1: 85 }, false);
+    // Off-target box (deliberately not the production default box): the
+    // paint sits outside it, so the in-box count is 0 either way.
+    const out = analyzeToothPixels(buf, W, H, { x0: 150, x1: 200, y0: 120, y1: 160 }, false);
     expect(out.mouthTeethN).toBe(0);
     expect(out.upperTeethN).toBeUndefined();
     expect(out.lowerTeethN).toBeUndefined();

@@ -12,7 +12,8 @@
   "notes": [
     "Failing per-phone checks are results, not gate failures: no runtime tuning in this slice.",
     "Bilabial mids seal in the default view's narrow central box (upper/lower 0) while the wide mouth-front box catches tooth slivers at the commissures; see the contact sheet and clip.mp4.",
-    "Mouth-front lowerTeethN reads 0 on every frame: the split seam lands below all visible teeth in this view, so arch attribution there is upper-only."
+    "Mouth-front lowerTeethN reads 0 on every frame: the split seam lands below all visible teeth in this view, so arch attribution there is upper-only.",
+    "Bilabial-central: P/B/M default mids seal 0/0 inside the landmark-derived central ROI; isolated PP seals 0/0 centrally. The full-box mouth-front 18 px sits at the commissures outside the ROI."
   ],
   "coverage": {
     "phones": [
@@ -90,7 +91,7 @@
           "jawFraction": 0.26455822491479314,
           "upperTeethN": 109,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 109
         },
         "mouthFront": {
@@ -101,7 +102,7 @@
           "jawFraction": 0.26455822491479314,
           "upperTeethN": 363,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 65,
           "mouthTeethN": 363
         }
       }
@@ -120,7 +121,7 @@
           "jawFraction": 0.2515277704965035,
           "upperTeethN": 111,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 111
         },
         "mouthFront": {
@@ -131,7 +132,7 @@
           "jawFraction": 0.2515277704965035,
           "upperTeethN": 342,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 66,
           "mouthTeethN": 342
         }
       }
@@ -239,9 +240,9 @@
           "drivenWeight": 0.375,
           "jawFraction": 0.11909277480766317,
           "upperTeethN": 43,
-          "lowerTeethN": 20,
+          "lowerTeethN": 21,
           "lipGapPx": 7,
-          "mouthTeethN": 63
+          "mouthTeethN": 64
         },
         "mouthFront": {
           "frame": 12,
@@ -270,7 +271,7 @@
           "jawFraction": 0.037272793987525386,
           "upperTeethN": 4,
           "lowerTeethN": 0,
-          "lipGapPx": 5,
+          "lipGapPx": 6,
           "mouthTeethN": 4
         },
         "mouthFront": {
@@ -300,7 +301,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -358,9 +359,9 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.718,
           "jawFraction": 0.10817750983850072,
-          "upperTeethN": 25,
-          "lowerTeethN": 35,
-          "lipGapPx": 7,
+          "upperTeethN": 60,
+          "lowerTeethN": 0,
+          "lipGapPx": 12,
           "mouthTeethN": 60
         },
         "mouthFront": {
@@ -388,10 +389,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 27,
@@ -418,9 +419,9 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.695,
           "jawFraction": 0.11097027942765952,
-          "upperTeethN": 32,
-          "lowerTeethN": 47,
-          "lipGapPx": 9,
+          "upperTeethN": 79,
+          "lowerTeethN": 0,
+          "lipGapPx": 13,
           "mouthTeethN": 79
         },
         "mouthFront": {
@@ -540,7 +541,7 @@
           "jawFraction": 0.03723133840653491,
           "upperTeethN": 13,
           "lowerTeethN": 10,
-          "lipGapPx": 5,
+          "lipGapPx": 6,
           "mouthTeethN": 23
         },
         "mouthFront": {
@@ -570,7 +571,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -600,7 +601,7 @@
           "jawFraction": 0,
           "upperTeethN": 0,
           "lowerTeethN": 0,
-          "lipGapPx": 4,
+          "lipGapPx": 6,
           "mouthTeethN": 0
         },
         "mouthFront": {
@@ -658,10 +659,10 @@
           "drivenTop": "viseme_PP",
           "drivenWeight": 0.648,
           "jawFraction": 0.22812968805822934,
-          "upperTeethN": 51,
-          "lowerTeethN": 29,
+          "upperTeethN": 82,
+          "lowerTeethN": 0,
           "lipGapPx": 8,
-          "mouthTeethN": 80
+          "mouthTeethN": 82
         },
         "mouthFront": {
           "frame": 51,
@@ -671,7 +672,7 @@
           "jawFraction": 0.22812968805822934,
           "upperTeethN": 312,
           "lowerTeethN": 0,
-          "lipGapPx": 62,
+          "lipGapPx": 61,
           "mouthTeethN": 312
         }
       }
@@ -688,9 +689,9 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.962,
           "jawFraction": 0.2545367225400989,
-          "upperTeethN": 87,
-          "lowerTeethN": 20,
-          "lipGapPx": 10,
+          "upperTeethN": 107,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
           "mouthTeethN": 107
         },
         "mouthFront": {
@@ -701,7 +702,7 @@
           "jawFraction": 0.2545367225400989,
           "upperTeethN": 385,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 64,
           "mouthTeethN": 385
         }
       }
@@ -718,9 +719,9 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 1,
           "jawFraction": 0.266017385247396,
-          "upperTeethN": 81,
-          "lowerTeethN": 22,
-          "lipGapPx": 10,
+          "upperTeethN": 103,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
           "mouthTeethN": 103
         },
         "mouthFront": {
@@ -731,7 +732,7 @@
           "jawFraction": 0.266017385247396,
           "upperTeethN": 388,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 64,
           "mouthTeethN": 388
         }
       }
@@ -748,10 +749,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.784,
           "jawFraction": 0.29089635251739526,
-          "upperTeethN": 113,
+          "upperTeethN": 112,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
-          "mouthTeethN": 113
+          "lipGapPx": 9,
+          "mouthTeethN": 112
         },
         "mouthFront": {
           "frame": 57,
@@ -759,10 +760,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.784,
           "jawFraction": 0.29089635251739526,
-          "upperTeethN": 420,
+          "upperTeethN": 419,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
-          "mouthTeethN": 420
+          "lipGapPx": 65,
+          "mouthTeethN": 419
         }
       }
     },
@@ -780,7 +781,7 @@
           "jawFraction": 0.38785009167424433,
           "upperTeethN": 99,
           "lowerTeethN": 16,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 115
         },
         "mouthFront": {
@@ -838,9 +839,9 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.55,
           "jawFraction": 0.1662160707322734,
-          "upperTeethN": 33,
-          "lowerTeethN": 27,
-          "lipGapPx": 8,
+          "upperTeethN": 60,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
           "mouthTeethN": 60
         },
         "mouthFront": {
@@ -868,10 +869,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 72,
@@ -898,10 +899,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.911,
           "jawFraction": 0.028810619164704617,
-          "upperTeethN": 9,
-          "lowerTeethN": 23,
-          "lipGapPx": 6,
-          "mouthTeethN": 32
+          "upperTeethN": 44,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
+          "mouthTeethN": 44
         },
         "mouthFront": {
           "frame": 74,
@@ -958,10 +959,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.672,
           "jawFraction": 0.2834449304088145,
-          "upperTeethN": 113,
+          "upperTeethN": 111,
           "lowerTeethN": 0,
           "lipGapPx": 10,
-          "mouthTeethN": 113
+          "mouthTeethN": 111
         },
         "mouthFront": {
           "frame": 82,
@@ -969,10 +970,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.672,
           "jawFraction": 0.2834449304088145,
-          "upperTeethN": 278,
+          "upperTeethN": 281,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
-          "mouthTeethN": 278
+          "lipGapPx": 66,
+          "mouthTeethN": 281
         }
       }
     },
@@ -990,7 +991,7 @@
           "jawFraction": 0.27459563685620586,
           "upperTeethN": 110,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 110
         },
         "mouthFront": {
@@ -1001,7 +1002,7 @@
           "jawFraction": 0.27459563685620586,
           "upperTeethN": 365,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
+          "lipGapPx": 65,
           "mouthTeethN": 365
         }
       }
@@ -1018,10 +1019,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.926,
           "jawFraction": 0.33973009864556153,
-          "upperTeethN": 129,
+          "upperTeethN": 128,
           "lowerTeethN": 0,
           "lipGapPx": 11,
-          "mouthTeethN": 129
+          "mouthTeethN": 128
         },
         "mouthFront": {
           "frame": 88,
@@ -1029,10 +1030,10 @@
           "drivenTop": "viseme_TH",
           "drivenWeight": 0.926,
           "jawFraction": 0.33973009864556153,
-          "upperTeethN": 366,
+          "upperTeethN": 351,
           "lowerTeethN": 0,
-          "lipGapPx": 71,
-          "mouthTeethN": 366
+          "lipGapPx": 65,
+          "mouthTeethN": 351
         }
       }
     },
@@ -1258,8 +1259,8 @@
           "drivenTop": "viseme_kk",
           "drivenWeight": 0.357,
           "jawFraction": 0.41840704503446124,
-          "upperTeethN": 120,
-          "lowerTeethN": 11,
+          "upperTeethN": 131,
+          "lowerTeethN": 0,
           "lipGapPx": 12,
           "mouthTeethN": 131
         },
@@ -1318,8 +1319,8 @@
           "drivenTop": "viseme_DD",
           "drivenWeight": 0.452,
           "jawFraction": 0.239010459267258,
-          "upperTeethN": 100,
-          "lowerTeethN": 17,
+          "upperTeethN": 117,
+          "lowerTeethN": 0,
           "lipGapPx": 9,
           "mouthTeethN": 117
         },
@@ -1408,8 +1409,8 @@
           "drivenTop": "viseme_CH",
           "drivenWeight": 0.718,
           "jawFraction": 0.45010251660351813,
-          "upperTeethN": 130,
-          "lowerTeethN": 20,
+          "upperTeethN": 150,
+          "lowerTeethN": 0,
           "lipGapPx": 11,
           "mouthTeethN": 150
         },
@@ -1498,8 +1499,8 @@
           "drivenTop": "viseme_sil",
           "drivenWeight": 0.681,
           "jawFraction": 0.15416101458937181,
-          "upperTeethN": 40,
-          "lowerTeethN": 14,
+          "upperTeethN": 54,
+          "lowerTeethN": 0,
           "lipGapPx": 9,
           "mouthTeethN": 54
         },
@@ -1528,10 +1529,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 168,
@@ -1558,10 +1559,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 170,
@@ -1588,10 +1589,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.825,
           "jawFraction": 0.0479057922996987,
-          "upperTeethN": 19,
-          "lowerTeethN": 29,
-          "lipGapPx": 6,
-          "mouthTeethN": 48
+          "upperTeethN": 53,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
+          "mouthTeethN": 53
         },
         "mouthFront": {
           "frame": 172,
@@ -1618,9 +1619,9 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.352,
           "jawFraction": 0.17322360938859369,
-          "upperTeethN": 62,
-          "lowerTeethN": 27,
-          "lipGapPx": 10,
+          "upperTeethN": 89,
+          "lowerTeethN": 0,
+          "lipGapPx": 11,
           "mouthTeethN": 89
         },
         "mouthFront": {
@@ -1678,9 +1679,9 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 0.672,
           "jawFraction": 0.12168325346243015,
-          "upperTeethN": 32,
-          "lowerTeethN": 35,
-          "lipGapPx": 8,
+          "upperTeethN": 67,
+          "lowerTeethN": 0,
+          "lipGapPx": 12,
           "mouthTeethN": 67
         },
         "mouthFront": {
@@ -1708,10 +1709,10 @@
           "drivenTop": "viseme_FF",
           "drivenWeight": 1,
           "jawFraction": 0,
-          "upperTeethN": 10,
-          "lowerTeethN": 12,
-          "lipGapPx": 4,
-          "mouthTeethN": 22
+          "upperTeethN": 41,
+          "lowerTeethN": 0,
+          "lipGapPx": 8,
+          "mouthTeethN": 41
         },
         "mouthFront": {
           "frame": 181,
@@ -1740,7 +1741,7 @@
           "jawFraction": 0.22195548768542017,
           "upperTeethN": 66,
           "lowerTeethN": 0,
-          "lipGapPx": 10,
+          "lipGapPx": 12,
           "mouthTeethN": 66
         },
         "mouthFront": {
@@ -1858,8 +1859,8 @@
           "drivenTop": "viseme_aa",
           "drivenWeight": 0.359,
           "jawFraction": 0.40718809465789135,
-          "upperTeethN": 102,
-          "lowerTeethN": 19,
+          "upperTeethN": 121,
+          "lowerTeethN": 0,
           "lipGapPx": 11,
           "mouthTeethN": 121
         },
@@ -1888,8 +1889,8 @@
           "drivenTop": "viseme_kk",
           "drivenWeight": 0.352,
           "jawFraction": 0.3878687586186468,
-          "upperTeethN": 120,
-          "lowerTeethN": 10,
+          "upperTeethN": 130,
+          "lowerTeethN": 0,
           "lipGapPx": 11,
           "mouthTeethN": 130
         },
@@ -1950,7 +1951,7 @@
           "jawFraction": 0.2923138917538991,
           "upperTeethN": 105,
           "lowerTeethN": 21,
-          "lipGapPx": 9,
+          "lipGapPx": 10,
           "mouthTeethN": 126
         },
         "mouthFront": {
@@ -2130,7 +2131,7 @@
           "jawFraction": 0.29014610866511636,
           "upperTeethN": 102,
           "lowerTeethN": 16,
-          "lipGapPx": 9,
+          "lipGapPx": 10,
           "mouthTeethN": 118
         },
         "mouthFront": {
@@ -2280,7 +2281,7 @@
           "jawFraction": 0.4211111488051586,
           "upperTeethN": 115,
           "lowerTeethN": 21,
-          "lipGapPx": 10,
+          "lipGapPx": 11,
           "mouthTeethN": 136
         },
         "mouthFront": {
@@ -2431,7 +2432,7 @@
         "drivenTop": "viseme_TH",
         "upperTeethN": 363,
         "lowerTeethN": 0,
-        "lipGapPx": 71
+        "lipGapPx": 65
       },
       {
         "phone": "DH",
@@ -2440,7 +2441,7 @@
         "drivenTop": "viseme_TH",
         "upperTeethN": 388,
         "lowerTeethN": 0,
-        "lipGapPx": 71
+        "lipGapPx": 64
       },
       {
         "phone": "TH",
@@ -2449,7 +2450,7 @@
         "drivenTop": "viseme_TH",
         "upperTeethN": 365,
         "lowerTeethN": 0,
-        "lipGapPx": 71
+        "lipGapPx": 65
       }
     ],
     "mismatchByViseme": {
@@ -2513,6 +2514,38 @@
         "match": 8,
         "total": 10
       }
+    },
+    "bilabialCentral": {
+      "method": "Corners = extreme-x orbicularis-oris-dominant body verts at the sil still, projected through each view pack camera; central ROI excludes 15% of the corner span at each end. The central ROI is contained in the default counting box (verified headlessly), so the committed default 0/0 mids imply central 0/0. Isolated-PP front central count is exact GL pixels from the stills session.",
+      "cornersSilFront": {
+        "lx": 204.8,
+        "rx": 819.2
+      },
+      "cornersSilDefault": {
+        "lx": 35.50015324883202,
+        "rx": 110.0530885809726
+      },
+      "centralDefaultWindow": {
+        "x0": 46.68309354865312,
+        "x1": 98.8701482811515,
+        "y0": 110.38305155013984,
+        "y1": 126.71757768251996
+      },
+      "defaultBox": {
+        "x0": 37,
+        "x1": 113,
+        "y0": 78,
+        "y1": 142
+      },
+      "centralInsideDefaultBox": true,
+      "isolatedPpCentral": {
+        "upperPx": 0,
+        "lowerPx": 0
+      },
+      "evaluated": 3,
+      "pass": 3,
+      "fail": 0,
+      "fails": []
     }
   }
 }

@@ -32,12 +32,7 @@ function loadIsolated(): IsolatedReport {
 }
 
 describe("isolated viseme stills", () => {
-  // KNOWN RED (2026-10-07, coordinator): the isolated-stills measure tool reconstructs the
-  // 3/4 and default-view cameras wrongly (3/4 residual 184.9 px, corners lx=-1631; default view has
-  // no pack camera evidence), so this assertion fails on every branch. Restore by fixing
-  // isolated-viseme-measure.ts camera reconstruction, then flip it.fails back to it( . Do NOT
-  // widen the threshold or drop the 3/4/default views. Front view measures correctly.
-  it.fails("reports all 15 visemes in both views with posed-alone weights", () => {
+  it("reports all 15 visemes in both views with posed-alone weights", () => {
     const report = loadIsolated();
     expect(report.schemaVersion).toBe("openclinxr.viseme-isolated.v1");
     expect(report.method.length).toBeGreaterThan(0);
@@ -60,12 +55,7 @@ describe("isolated viseme stills", () => {
     }
   });
 
-  // KNOWN RED (2026-10-07, coordinator): the isolated-stills measure tool reconstructs the
-  // 3/4 and default-view cameras wrongly (3/4 residual 184.9 px, corners lx=-1631; default view has
-  // no pack camera evidence), so this assertion fails on every branch. Restore by fixing
-  // isolated-viseme-measure.ts camera reconstruction, then flip it.fails back to it( . Do NOT
-  // widen the threshold or drop the 3/4/default views. Front view measures correctly.
-  it.fails("resolves landmark corners in every view", () => {
+  it("resolves landmark corners in every view", () => {
     const report = loadIsolated();
     for (const [id, c] of [["front", report.corners.front], ["34", report.corners.view34], ["default", report.corners.default]] as const) {
       expect(c, `corners ${id}`).not.toBeNull();

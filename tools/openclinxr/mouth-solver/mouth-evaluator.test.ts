@@ -75,7 +75,12 @@ describe("mouth-solver evaluator", () => {
   it("holds the rim gap band on every frame with a static upper arch", async () => {
     const track = readEvaluatorTrack(TRACK_PATH);
     const { output } = await evaluate(GLB, track);
-    expect(output.summary.rimVertCount).toBe(76);
+    // Re-measured 2026-10-07: 68, not 76. The lower-arch rebuild in 3a1e49634
+    // reseated the lower shell, changing the rest-geometry rim selection set;
+    // the count is stable on every GLB since. The 6.485 band below is left
+    // untouched: the current series spans 5.32-6.68 mm, which no ±0.5 band
+    // covers, so that assertion keeps failing until the seat is re-baselined.
+    expect(output.summary.rimVertCount).toBe(68);
     for (const record of output.records) {
       expect(Math.abs(record.rimGapHeadLocalMm - RIM_TARGET_MM)).toBeLessThanOrEqual(RIM_BAND_MM);
       expect(record.upperTeethDisplacementHeadLocalMm).toBeLessThan(0.5);

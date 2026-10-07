@@ -2,14 +2,9 @@
   "comment": "Tests that fail on main for a recorded reason. test:touched excludes them from the pre-commit related-test gate and prints each exclusion. Remove an entry in the same commit that makes the test pass.",
   "tests": [
     {
-      "path": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts",
-      "reason": "Resolves its applier at apps/ui-xr/src/blink-runtime-wire.js, which moved to packages/openclinxr/xr-dialogue in 6f5221c32; cases (1) and (3) fail on origin/main cbb93bb67 and on every commit touching xr-dialogue.",
-      "card": "unfiled: repoint the blink test at @openclinxr/xr-dialogue"
-    },
-    {
       "path": "tools/openclinxr/mouth-solver/mouth-evaluator.test.ts",
-      "reason": "Four gates (rim count 68 vs pin 76, rim band, jaw travel 9.307 vs 7.0-8.6, dy bias) fail on main 0adb432ca: the pins predate the FF press (d33b3d2b7) and TH tongue (ec55570e9) GLB changes. Re-pinning is assigned to the gaps card.",
-      "card": "tsk_7ff980db7eb0ff65"
+      "reason": "3 pins fail against the current parent GLB (re-measured 2026-10-07 on a fresh fixed-capture recount with the current asset, rhubarb cues unchanged): dy bias 5.16px (gate 3) and max 9.41px (gate 5) persist on current pixels, so the offset is systematic visibility composition on the rebuilt lower arch (3a1e49634 reseat plus FF chain through d33b3d2b7), not stale ground truth \u2014 needs a solver-side projection fix, not a pin tweak; jaw travel 9.31mm vs <=8.6 (growth net of the ac2a84ac2 rest-drop/down-gain, measured 8.88 in-commit, plus the undocumented FF-chain remainder \u2014 no stated new baseline, re-pinning would be widening); pitch probe blocked on the dy gate (instrument response itself healthy: 2-degree dose shifts bias 3.44px). Rim band re-pinned 6.0+-0.7 in the same slice (series 5.318-6.680mm, 3a1e49634 reseat) and green. Rim band stays red: a re-pin to the observed series mid-range plus its half-range (5f2acb92f) was fitted to clear the measurement and was reverted; it needs a band derived from an independent reference (face bound or target).",
+      "card": "unfiled: solver-side projection fix for the dy visibility-composition offset plus a stated jaw-travel baseline"
     }
   ]
 }

@@ -3,7 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
+import { applyBlinkClosureToRoot, applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "@openclinxr/xr-dialogue";
 
 /**
  * **MPFB actors never blink.** The blink SIGNAL exists and is already deterministic; the TARGET exists
@@ -92,7 +92,8 @@ import { applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "../../../pa
  *
  * ## FIXED (#379)
  *
- * The wire landed in apps/ui-xr/src/blink-runtime-wire.ts: `applyBlinkClosureToRoot(root,
+ * The wire landed in packages/openclinxr/xr-dialogue/src/blink-runtime-wire.ts (moved from
+ * apps/ui-xr/src in 6f5221c32, published through the @openclinxr/xr-dialogue entrypoint): `applyBlinkClosureToRoot(root,
  * blinkIntensity)` drives `openclinxr_eye_left_closure` / `openclinxr_eye_right_closure` on every
  * mesh under root that carries them, resolved through the shared `resolveMorphIndex` (#354). The
  * intensity→influence curve is linear (identity on [0,1]), so the applier is monotone and spans
@@ -167,27 +168,13 @@ async function actorRoot(actor: string): Promise<ActorRoot | null> {
   return null;
 }
 
-/** The applier this slice must add. Absent today, so every call site sees `null`. */
+/** The applier, through the package public entrypoint (@openclinxr/xr-dialogue). */
 type BlinkApplier = (root: unknown, blinkIntensity: number) => unknown;
 
-/**
- * The specifier is COMPUTED, not a literal: the module does not exist yet, and a literal would make
- * `pnpm typecheck` fail to resolve it before the slice starts. It resolves normally once written.
- */
-const BLINK_MODULE = ["..", "..", "..", "apps", "ui-xr", "src", "blink-runtime-wire.js"].join("/");
-
-async function loadBlinkApplier(): Promise<BlinkApplier | null> {
-  try {
-    const mod: Record<string, unknown> = await import(BLINK_MODULE);
-    const fn = mod.applyBlinkClosureToRoot;
-    return typeof fn === "function" ? (fn as BlinkApplier) : null;
-  } catch {
-    return null;
-  }
-}
+const applier: BlinkApplier | null =
+  typeof applyBlinkClosureToRoot === "function" ? (applyBlinkClosureToRoot as BlinkApplier) : null;
 
 const roots = (await Promise.all(ACTORS.map(actorRoot))).filter((r): r is ActorRoot => r !== null);
-const applier = await loadBlinkApplier();
 
 /** Drive one intensity and read back both lid influences. Returns null when no applier exists. */
 function closureAt(entry: ActorRoot, intensity: number): { left: number; right: number } | null {
