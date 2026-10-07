@@ -123,8 +123,29 @@ export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement
         Math.sin(elevation),
         -Math.cos(elevation) * Math.cos(azimuth),
       ).normalize();
-      hold.position.copy(centre).addScaledVector(direction, 4);
-      if (hold.position.y < interior.max.y + 1.2) hold.position.y = interior.max.y + 1.2;
+      const inset = interior.clone();
+      inset.min.addScalar(0.4);
+      inset.max.addScalar(-0.4);
+      if (inset.min.x > inset.max.x || inset.min.y > inset.max.y || inset.min.z > inset.max.z) inset.copy(interior);
+      const start = centre.clone();
+      start.x = Math.min(inset.max.x, Math.max(inset.min.x, start.x));
+      start.y = Math.min(inset.max.y, Math.max(inset.min.y, start.y));
+      start.z = Math.min(inset.max.z, Math.max(inset.min.z, start.z));
+      let exit = Number.POSITIVE_INFINITY;
+      const origin = [start.x, start.y, start.z];
+      const step = [direction.x, direction.y, direction.z];
+      const low = [inset.min.x, inset.min.y, inset.min.z];
+      const high = [inset.max.x, inset.max.y, inset.max.z];
+      for (let axis = 0; axis < 3; axis += 1) {
+        const component = step[axis] ?? 0;
+        if (Math.abs(component) < 1e-8) continue;
+        const t1 = ((low[axis] ?? 0) - (origin[axis] ?? 0)) / component;
+        const t2 = ((high[axis] ?? 0) - (origin[axis] ?? 0)) / component;
+        const hit = Math.max(t1, t2);
+        if (hit > 0 && hit < exit) exit = hit;
+      }
+      const distance = Number.isFinite(exit) ? Math.max(0.75, exit - 0.05) : 3;
+      hold.position.copy(start).addScaledVector(direction, distance);
       hold.up.set(0, 1, 0);
       hold.lookAt(centre);
       const covered = group.clone();
