@@ -363,9 +363,9 @@ export function buildIsolatedReport(): { views: string[]; stills: number } {
   const report = {
     schemaVersion: "openclinxr.viseme-isolated.v1",
     method: [
-      "Each viseme posed at weight 1.0 ALONE (all others 0) via the runtime applier with a single baked cue; jaw = jawOpenRadiansForPhoneme(viseme) times the runtime teeth gain; teeth as the runtime writes them; blink untouched (eyes outside the mouth framing).",
-      "Corners = extreme-x body verts whose dominant skinning joint is an orbicularis-oris bone (lip tissue by rig), posed with live morph influences + skeleton and projected through the page pack camera; central ROI = corners inset 15% each end. Camera residual = mouth-box centre projection vs canvas centre.",
-      "Three-quarter view is the rig three_quarter_left (45 deg yaw), mouth focus.",
+      "Each viseme posed at full drive weight 1.0 ALONE (all others 0) through the runtime applier calls (applyVisemeWeights with the runtime lipVisemeWeights gains — contact PP/FF/TH at full weight, every other viseme_* at the 0.5 mesh half-gain — plus applyJawOpenToRoot at jawOpenRadiansForPhoneme times JAW_TEETH_GAIN); teethTarget names the addressed teeth target (canonical spelling when the fitted-teeth mesh, which carries only aa/E/I/O/U/FF/PP, does not carry it) with the measured mesh weight (0 when absent); blink untouched (eyes outside the mouth framing).",
+      "Corners = extreme-x body verts whose dominant skinning joint is an orbicularis-oris bone (lip tissue by rig), posed headlessly with live morph influences + skeleton and projected through headless-reconstructed pack cameras (PerspectiveCamera fov 35 + frameCamera on the capture's resolveFocus boxes: teeth+oris mouth box for front/34, derived head box for default); central ROI = corners inset 15% each end. Camera residual = focus-box centre projection vs canvas centre.",
+      "Three-quarter view is the rig three_quarter_left (45 deg yaw), mouth focus. Still PNGs were rendered by the browser session (runtime-posed, weight-1 asserted in-page); the measurement above replays the identical pose headlessly.",
     ],
     corners: {
       front: sil("front").corners,

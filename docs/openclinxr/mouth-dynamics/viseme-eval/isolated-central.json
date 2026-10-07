@@ -1,0 +1,36 @@
+{
+  "cornersSilFront": {
+    "lx": 204.77080525020097,
+    "rx": 819.2324817623538
+  },
+  "cornersSil34": {
+    "lx": 288.18107616292696,
+    "rx": 610.0697000032553
+  },
+  "cornersSilDefault": {
+    "lx": 35.50015324883202,
+    "rx": 110.0530885809726
+  },
+  "defaultWindow": {
+    "ox": 500,
+    "yTop": 710,
+    "w": 240,
+    "h": 180,
+    "canvasW": 1280,
+    "canvasH": 960
+  },
+  "defaultBox": {
+    "x0": 40,
+    "x1": 100,
+    "y0": 55,
+    "y1": 85
+  },
+  "centralDefaultWindow": {
+    "x0": 46.68309354865312,
+    "x1": 98.8701482811515,
+    "y0": 110.38305155013984,
+    "y1": 126.71757768251996
+  },
+  "centralInsideDefaultBox": false,
+  "defaultCameraResidualPx": 20
+}

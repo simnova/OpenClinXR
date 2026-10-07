@@ -5,20 +5,27 @@
  * (one baked cue per viseme; the render session asserts weight 1.0 alone
  * in-page before saving each PNG). This tool measures them WITHOUT
  * re-rendering: it replays the identical pose headlessly (real
- * applyVisemeWeights/lipVisemeWeights/applyJawOpenToRoot calls), projects
- * orbicularis-oris landmark verts through replicated pack cameras, and runs
- * the capture's own tooth classifier on the still pixels.
+ * applyVisemeWeights with the runtime lipVisemeWeights gains /
+ * applyJawOpenToRoot calls), projects orbicularis-oris landmark verts
+ * through headless-reconstructed pack cameras, and runs the capture's own
+ * tooth classifier on the still pixels.
  *
- * Camera replication: PerspectiveCamera(35, aspect, 0.01, 100) +
- * frameCamera on the resolveFocus box (mouth for front/34, head for the
- * default view) on a 1024x1024 (pack views) or 1280x960 (legacy) canvas.
- * The camera is never parented (rig offset 0, same as the lab). Each view
+ * Camera reconstruction: PerspectiveCamera(35, aspect, 0.01, 100) +
+ * frameCamera on the capture's own resolveFocus boxes — the teeth+oris
+ * mouth box for front/34 (union of the fitted-teeth AABB and the AABB of
+ * body verts dominant-weighted to orbicularis-oris bones, the same rule
+ * deriveMouthFocusBounds uses) and the derived head box for the default
+ * view — on a 1024x1024 (pack views) or 1280x960 (legacy) canvas. The
+ * camera is never parented (rig offset 0, same as the lab). Each view
  * records a framing residual (mouth/head-box centre projection vs canvas
  * centre) so a drifted replication refuses by measurement, not by faith.
  *
- * Writes isolated.raw.json (per-still rows for the report builder),
- * isolated.report.json (slim per-viseme rows), and isolated-central.json
- * (corner sets + default-box containment for the bilabial-central check).
+ * Writes isolated.raw.json (per-still rows for the report builder) and
+ * isolated-central.json (corner sets + default-box containment for the
+ * bilabial-central check), then builds isolated.report.json and the
+ * labelled sheets through buildIsolatedReport. Containment is recorded,
+ * not gated: a false centralInsideDefaultBox names a stale counting box
+ * and leaves bilabialCentral unattached by design.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -248,13 +255,13 @@ async function main(): Promise<void> {
     mesh.skinned.geometry.setAttribute("skinWeight", new BufferAttribute(Float32Array.from(mesh.weights), 4));
   }
   scene.root.updateMatrixWorld(true);
-  // Manual mouth_box: the fitted-teeth base AABB via mesh matrixWorld.
-  // The lab rule unions oris-dominant body verts, but its body match
-  // (node/userData/material names vs /_body$/) fails on this asset
-  // (node '..._body_mesh', skin material), while the teeth match via the
-  // 'mat_openclinxr_fitted_teeth_...' material — so the live box is
-  // teeth-only (GLTFLoader names meshes after nodes; verified in
-  // three@0.184.0 GLTFLoader.js: mesh-as-node + material-name matching).
+  // Mouth focus, mirroring the capture (resolveFocus focus=mouth):
+  // the union of the fitted-teeth mesh AABB and the AABB of body verts
+  // whose dominant skinning joint is an orbicularis-oris bone (lip tissue
+  // by rig). Teeth alone would crop the vermilion under the 0.8 pack fill;
+  // oris alone could miss the incisal tips. Rest pose: no viseme has been
+  // applied yet, so morph influences are all zero and the skinned positions
+  // are the rest positions the capture framed.
   const mouthBox = new Box3();
   {
     const p = new Vector3();
@@ -265,8 +272,18 @@ async function main(): Promise<void> {
       mouthBox.expandByPoint(p);
     }
   }
-  const headBox = deriveHeadFrameBoundsLocal(scene.root);
   const oris = orisIndices(scene);
+  scene.body.skeleton.update();
+  scene.teeth.skeleton.update();
+  {
+    const rest = skinMeshPositions(scene);
+    for (const i of oris) {
+      mouthBox.expandByPoint(
+        new Vector3(rest[i * 3] ?? 0, rest[i * 3 + 1] ?? 0, rest[i * 3 + 2] ?? 0),
+      );
+    }
+  }
+  const headBox = deriveHeadFrameBoundsLocal(scene.root);
 
   const mkCam = (W: number, H: number) => new PerspectiveCamera(35, W / H, 0.01, 100);
   const frontCam = mkCam(1024, 1024);
@@ -320,6 +337,11 @@ async function main(): Promise<void> {
         teethTarget = name;
       }
     }
+    // The fitted-teeth mesh carries only aa/E/I/O/U/FF/PP. When it does not
+    // carry the posed viseme there is no teeth target to weigh, so the report
+    // names the addressed target (the canonical spelling the drive resolved)
+    // at weight 0 rather than an empty string.
+    if (!teethTarget) teethTarget = key;
     return { bodyTarget, influence, teethTarget, teethWeight, jawRad, jawFraction: jawRad / JAW_OPEN_TEETH_CLEAR_RADIANS };
   };
 
@@ -376,12 +398,13 @@ async function main(): Promise<void> {
       const lm = landmarks(view.cam, view.W, view.H);
       const { buf } = await rgbaGlOrder(path.join(OUT_DIR, `isolated-${view.id}`, `${viseme}.png`));
       const central = analyzeToothPixels(buf, view.W, view.H, toGlBox(lm.central, view.W, view.H), true);
-      const legacy = view.id === "front"
-        ? analyzeToothPixels(buf, view.W, view.H, {
-          x0: FRONT_WIN.ox + FRONT_WIN.x0, x1: FRONT_WIN.ox + FRONT_WIN.x1,
-          y0: (view.H - FRONT_WIN.yTop) + FRONT_WIN.y0, y1: (view.H - FRONT_WIN.yTop) + FRONT_WIN.y1,
-        }, false)
-        : null;
+      // Legacy front-window geometry, applied to both views' stills (the
+      // retired browser tool evaluated the same fixed window per still;
+      // nothing consumes these fields — they are carried, not gated).
+      const legacy = analyzeToothPixels(buf, view.W, view.H, {
+        x0: FRONT_WIN.ox + FRONT_WIN.x0, x1: FRONT_WIN.ox + FRONT_WIN.x1,
+        y0: (view.H - FRONT_WIN.yTop) + FRONT_WIN.y0, y1: (view.H - FRONT_WIN.yTop) + FRONT_WIN.y1,
+      }, false);
       if (viseme === "sil") silCorners[view.id] = { lx: lm.corners.lx, rx: lm.corners.rx };
       rows.push({
         viseme, target: viseme === "sil" ? "viseme_sil" : `viseme_${viseme}`, weight: 1,
@@ -419,30 +442,24 @@ async function main(): Promise<void> {
     defaultWindow: { ox: 500, yTop: 710, w: 240, h: 180, canvasW: 1280, canvasH: 960 },
     defaultBox: DEFAULT_BOX,
     centralDefaultWindow: { x0: defGx0, x1: defGx1, y0: defGy0, y1: defGy1 },
-    // The verdict direction: the central ROI is CONTAINED in the measured
-    // default box, so the committed 0/0 box counts imply central 0/0.
+    // Recorded, not gated: when the landmark-derived central ROI falls
+    // outside the legacy default counting box, the committed default 0/0 box
+    // counts cannot be read as central 0/0 and attachBilabialCentral refuses
+    // by design. A false value names a stale counting box, not a broken
+    // reconstruction — the residual above already audits the camera.
     centralInsideDefaultBox: defGx0 >= DEFAULT_BOX.x0 && defGx1 <= DEFAULT_BOX.x1 && defGy0 >= DEFAULT_BOX.y0 && defGy1 <= DEFAULT_BOX.y1,
     defaultCameraResidualPx: Math.round(residuals.default * 10) / 10,
   };
-  if (!central.centralInsideDefaultBox) throw new Error(`central-outside-default-box:${JSON.stringify(central.centralDefaultWindow)}`);
+  if (!central.centralInsideDefaultBox) {
+    process.stderr.write(
+      `WARN central-outside-default-box:${JSON.stringify(central.centralDefaultWindow)} vs box ${JSON.stringify(DEFAULT_BOX)} — default box counts are not central evidence; not attaching bilabialCentral\n`,
+    );
+  }
   writeFileSync(path.join(OUT_DIR, "isolated.raw.json"), `${JSON.stringify({ views, corners: { default: { corners: central.cornersSilDefault, W: 240, H: 180, residual: residuals.default } } }, null, 2)}\n`);
-  const slim = (id: string) => (views[id]?.stills ?? []).map((s) => {
-    const r = s as unknown as { viseme: string; jawRad: number; jawFraction: number; teethTarget: string; teethWeight: number; upperPx: number; lowerPx: number; aperturePx: number; widthPx: number; lipGapPx: number; centralBox: unknown };
-    return { viseme: r.viseme, jawRad: r.jawRad, jawFraction: r.jawFraction, teethTarget: r.teethTarget, teethWeight: r.teethWeight, upperPx: r.upperPx, lowerPx: r.lowerPx, apertureH: Math.round(r.aperturePx * 10) / 10, width: Math.round(r.widthPx * 10) / 10, lipGapPx: r.lipGapPx, centralBox: r.centralBox };
-  });
-  writeFileSync(path.join(OUT_DIR, "isolated.report.json"), `${JSON.stringify({
-    schemaVersion: "openclinxr.viseme-isolated.v1",
-    method: [
-      "Each viseme posed at weight 1.0 ALONE (all others 0) through the runtime applier calls (applyVisemeWeights/lipVisemeWeights/applyJawOpenToRoot) with a single baked cue; jaw = jawOpenRadiansForPhoneme(viseme) times the runtime teeth gain (DD/kk use the runtime unknown-consonant 0.25 fallback); teeth as the runtime writes them (no target = 0); blink untouched (eyes outside the mouth framing).",
-      "Corners = extreme-x body verts whose dominant skinning joint is an orbicularis-oris bone (lip tissue by rig), posed with live morph influences + skeleton and projected through replicated pack cameras (fov 35, unparented rig); central ROI = corners inset 15% each end. Camera residual = focus-box centre projection vs canvas centre.",
-      "Three-quarter view is the rig three_quarter_left (45 deg yaw), mouth focus. Still PNGs were rendered by the browser session (runtime-posed, weight-1 asserted in-page); this tool only measures.",
-    ],
-    corners: { front: silCorners["front"], view34: silCorners["34"], default: central.cornersSilDefault },
-    cameraResiduals: { front: views["front"]?.cameraResidualPx, view34: views["34"]?.cameraResidualPx, default: central.defaultCameraResidualPx },
-    views: { front: slim("front"), view34: slim("34") },
-  }, null, 2)}\n`);
   writeFileSync(path.join(OUT_DIR, "isolated-central.json"), `${JSON.stringify(central, null, 2)}\n`);
-  process.stdout.write("wrote isolated.raw.json + isolated.report.json + isolated-central.json\n");
+  const { buildIsolatedReport } = await import("./viseme-eval.ts");
+  const built = buildIsolatedReport();
+  process.stdout.write(`wrote isolated.raw.json + isolated-central.json; report views=${built.views.join(",")} stills=${built.stills}\n`);
 }
 
 const invoked = process.argv[1] !== undefined && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

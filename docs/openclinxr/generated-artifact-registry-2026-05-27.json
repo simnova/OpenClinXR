@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1818,
+    "keep-evidence": 1819,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -34210,6 +34210,13 @@
     },
     {
       "path": "tools/openclinxr/mouth-solver/solved-teeth-gap.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-central.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
