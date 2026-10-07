@@ -1,14 +1,15 @@
 import { type AxisAlignedBox, actorCrownChestVisibleEarly, actorSamplePoints, type GateOccluder, type Vec3 } from "../evidence/station-capture/gate-geometry.js";
-import { templatesForRole } from "./clinical-slot-templates.js";
+import { CLINICAL_SLOT_TEMPLATES, templatesForRole } from "./clinical-slot-templates.js";
 import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 
 type LayoutCandidate = SlotAssignment & { box: AxisAlignedBox; standing: boolean };
-export type LayoutSearchResult = { layouts: LayoutCandidate[][]; bindingConstraint?: string };
+export type LearnerStance = { slotId: "physician_bedside"; world: [number, number, number] };
+export type LayoutSearchResult = { layouts: LayoutCandidate[][]; bindingConstraint?: string; learnerStance?: LearnerStance };
 
 const OFFSETS = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3] as const;
 const HEADING_DELTAS = [-Math.PI / 6, -Math.PI / 12, 0, Math.PI / 12, Math.PI / 6] as const;
-const FEVER_GRID_STEP_METERS = 0.25;
-const FEVER_FIXED_EYE: Vec3 = [-1.8040955270258818, 2.16, -3.2625573397227896];
+const STANDING_HEIGHT_METERS = 1.7;
+const SEATED_HEIGHT_METERS = 1.3;
 
 function centre(box: AxisAlignedBox): Vec3 {
   return [(box.min[0] + box.max[0]) / 2, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2];
@@ -75,7 +76,7 @@ export function capsuleRadiusMeters(bodyDimensions: readonly number[] | undefine
 }
 
 export function capsuleForPlacement(world: readonly [number, number, number], radius: number, standing: boolean): AxisAlignedBox {
-  const height = standing ? 1.7 : 1.3;
+  const height = standing ? STANDING_HEIGHT_METERS : SEATED_HEIGHT_METERS;
   return { min: [world[0] - radius, world[1] - height / 2, world[2] - radius], max: [world[0] + radius, world[1] + height / 2, world[2] + radius] };
 }
 
@@ -85,68 +86,22 @@ function supportKind(name: string): "stretcher" | "bed" | "exam_table" {
   return "bed";
 }
 
-function feverCrownChestClear(snapshot: CachedSceneSnapshot, actor: CachedSceneSnapshot["actors"][number], parentBox: AxisAlignedBox): boolean {
-  const current = centre(actor.box);
-  const moved = centre(parentBox);
-  const dx = moved[0] - current[0];
-  const dz = moved[2] - current[2];
-  const occluders: GateOccluder[] = snapshot.occluders.map((occluder) => {
-    if (occluder.actorId !== actor.id) return occluder;
-    const box = occluder.box;
-    return { ...occluder, box: {
-      min: [box.min[0] + dx, box.min[1], box.min[2] + dz],
-      max: [box.max[0] + dx, box.max[1], box.max[2] + dz],
-    } };
-  });
-  for (const other of snapshot.actors) {
-    const box = other.id === actor.id ? parentBox : other.box;
-    if (!actorCrownChestVisibleEarly(FEVER_FIXED_EYE, { id: other.id, box, recumbent: other.recumbent }, occluders)) return false;
-  }
-  return true;
-}
+type SupportFrame = {
+  supportName: string;
+  long: [number, number];
+  side: [number, number];
+  head: [number, number];
+  foot: [number, number];
+  patientHead: Vec3;
+  nurseAnchor: [number, number];
+};
 
-function firstFeverCompanionChair(
-  snapshot: CachedSceneSnapshot,
-  actor: CachedSceneSnapshot["actors"][number],
-  nurseAnchor: readonly [number, number],
-  patientHead: Vec3,
-  supportName: string,
-): LayoutCandidate | null {
-  const interior = snapshot.interior;
-  const xSteps = Math.floor((interior.max[0] - interior.min[0]) / FEVER_GRID_STEP_METERS + 1e-9);
-  const zSteps = Math.floor((interior.max[2] - interior.min[2]) / FEVER_GRID_STEP_METERS + 1e-9);
-  const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
-  const currentCentre = centre(actor.box);
-  const seatY = currentCentre[1];
-  for (let ix = 0; ix <= xSteps; ix += 1) {
-    const x = interior.min[0] + ix * FEVER_GRID_STEP_METERS;
-    for (let iz = 0; iz <= zSteps; iz += 1) {
-      const z = interior.min[2] + iz * FEVER_GRID_STEP_METERS;
-      if (Math.hypot(x - nurseAnchor[0], z - nurseAnchor[1]) < 1.2) continue;
-      const body = translateBox(actor.box, x, z);
-      if (!insideInterior(body, interior)) continue;
-      const capsule = capsuleForPlacement([x, seatY, z], actorRadius, actor.standing);
-      const collides = snapshot.fixtures.some((fixture) => {
-        if (isPlacementShellFixture(fixture.name, fixture.box, interior)) return false;
-        if (fixture.name === supportName) return actor.role !== "patient" ? intersects(capsule, fixture.box, 0.03) : false;
-        return intersects(capsule, fixture.box, 0.03);
-      });
-      if (collides) continue;
-      // Seated plantOffset is not composed. The page renders the snapshot box on the
-      // resolved slot, so a translated grid cell is not a legal companion_chair body.
-      if (!feverCrownChestClear(snapshot, actor, actor.box)) continue;
-      void patientHead;
-    }
-  }
-  return null;
-}
-
-function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneSnapshot["actors"][number]): LayoutCandidate[] {
+function supportFrame(snapshot: CachedSceneSnapshot): SupportFrame | null {
   const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
-  if (!patient) return [];
+  if (!patient) return null;
   const supports = [...snapshot.patientSupports].sort((a, b) => horizontalArea(b.box) - horizontalArea(a.box) || a.name.localeCompare(b.name));
   const support = supports[0];
-  if (!support) return [];
+  if (!support) return null;
   const supportCentre = centre(support.box);
   const patientHead = actorSamplePoints(patient.box, patient.recumbent)[0]?.point ?? patient.chest;
   const width = support.box.max[0] - support.box.min[0], depth = support.box.max[2] - support.box.min[2];
@@ -156,13 +111,83 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
   const halfLong = (width >= depth ? width : depth) / 2;
   const head: [number, number] = [supportCentre[0] + long[0] * halfLong, supportCentre[2] + long[1] * halfLong];
   const foot: [number, number] = [supportCentre[0] - long[0] * halfLong, supportCentre[2] - long[1] * halfLong];
-  const seated = actor.currentPlacement.supportSurface === "chair";
-  const seatedFamily = seated && actor.role === "family";
-  // nurse_bedside_head: side -1, along -0.35, across 0.62 from the patient support head.
   const nurseAnchor: [number, number] = [
     head[0] + long[0] * -0.35 + side[0] * -1 * 0.62,
     head[1] + long[1] * -0.35 + side[1] * -1 * 0.62,
   ];
+  return { supportName: support.name, long, side, head, foot, patientHead, nurseAnchor };
+}
+
+function stanceInsideInterior(x: number, z: number, interior: AxisAlignedBox): boolean {
+  return x >= interior.min[0] + 0.08 && x <= interior.max[0] - 0.08
+    && z >= interior.min[2] + 0.08 && z <= interior.max[2] - 0.08;
+}
+
+function stanceInDoor(snapshot: CachedSceneSnapshot, x: number, z: number): boolean {
+  const doors = snapshot.fixtures.filter((fixture) => fixture.kind === "door");
+  if (snapshot.door && !doors.some((door) => door.name === snapshot.door?.name)) doors.push(snapshot.door);
+  return doors.some((door) => x >= door.box.min[0] && x <= door.box.max[0] && z >= door.box.min[2] && z <= door.box.max[2]);
+}
+
+function clearOfNpcCapsules(layout: readonly LayoutCandidate[], x: number, z: number, ignoreActorId?: string): boolean {
+  return layout.every((row) => ignoreActorId === row.actorId || Math.hypot(x - row.world[0], z - row.world[2]) >= 0.45);
+}
+
+function patientCrownChestClear(snapshot: CachedSceneSnapshot, layout: readonly LayoutCandidate[], eye: Vec3): boolean {
+  const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
+  if (!patient) return false;
+  const occluders: GateOccluder[] = [];
+  for (const row of layout) {
+    if (row.actorId === patient.id) continue;
+    const actor = snapshot.actors.find((candidate) => candidate.id === row.actorId);
+    if (!actor) continue;
+    occluders.push({ actorId: actor.id, name: actor.id, box: translateBox(actor.box, row.world[0], row.world[2]) });
+  }
+  for (const occluder of snapshot.occluders) {
+    if (/review-panel|review_panel/i.test(occluder.name)) occluders.push(occluder);
+  }
+  return actorCrownChestVisibleEarly(eye, { id: patient.id, box: patient.box, recumbent: patient.recumbent }, occluders);
+}
+
+function stanceAccepts(snapshot: CachedSceneSnapshot, layout: readonly LayoutCandidate[], x: number, z: number, ignoreActorId?: string): boolean {
+  if (!stanceInsideInterior(x, z, snapshot.interior)) return false;
+  if (!clearOfNpcCapsules(layout, x, z, ignoreActorId)) return false;
+  if (stanceInDoor(snapshot, x, z)) return false;
+  return patientCrownChestClear(snapshot, layout, [x, STANDING_HEIGHT_METERS, z]);
+}
+
+// Heading does not move the learner. The winner is the first OFFSETS pair in slot-search order.
+function learnerStanceForLayout(snapshot: CachedSceneSnapshot, layout: readonly LayoutCandidate[], frame: SupportFrame): LearnerStance | null {
+  const physician = layout.find((row) => snapshot.actors.some((actor) => actor.id === row.actorId && actor.role === "physician"));
+  if (physician) {
+    const [x, , z] = physician.world;
+    return stanceAccepts(snapshot, layout, x, z, physician.actorId)
+      ? { slotId: "physician_bedside", world: [x, STANDING_HEIGHT_METERS, z] }
+      : null;
+  }
+  const template = CLINICAL_SLOT_TEMPLATES.find((row) => row.slotId === "physician_bedside");
+  if (!template || template.anchor === "chair") return null;
+  const anchor = template.anchor === "head" ? frame.head
+    : template.anchor === "foot" ? frame.foot
+      : [
+          frame.head[0] + frame.long[0] * template.alongMeters + frame.side[0] * template.side * template.acrossMeters,
+          frame.head[1] + frame.long[1] * template.alongMeters + frame.side[1] * template.side * template.acrossMeters,
+        ] as [number, number];
+  for (const alongOffset of OFFSETS) for (const acrossOffset of OFFSETS) for (const headingDelta of HEADING_DELTAS) {
+    const x = anchor[0] + frame.long[0] * alongOffset + frame.side[0] * acrossOffset;
+    const z = anchor[1] + frame.long[1] * alongOffset + frame.side[1] * acrossOffset;
+    if (!Number.isFinite(headingDelta) || !stanceAccepts(snapshot, layout, x, z)) continue;
+    return { slotId: "physician_bedside", world: [x, STANDING_HEIGHT_METERS, z] };
+  }
+  return null;
+}
+
+function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneSnapshot["actors"][number]): LayoutCandidate[] {
+  const frame = supportFrame(snapshot);
+  if (!frame) return [];
+  const { supportName, long, side, head, foot, patientHead, nurseAnchor } = frame;
+  const seated = actor.currentPlacement.supportSurface === "chair";
+  const seatedFamily = seated && actor.role === "family";
   const templateSets = seatedFamily
     ? [templatesForRole(actor.role, true)]
     : seated
@@ -176,11 +201,7 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
     return Math.hypot(ac[0] - patientHead[0], ac[2] - patientHead[2])
       - Math.hypot(bc[0] - patientHead[0], bc[2] - patientHead[2]) || a.name.localeCompare(b.name);
   });
-  if (seatedFamily && chairs.length === 0) {
-    if (snapshot.scenarioId !== "peds_fever_v1") return [];
-    const winner = firstFeverCompanionChair(snapshot, actor, nurseAnchor, patientHead, support.name);
-    return winner ? [winner] : [];
-  }
+  if (seatedFamily && chairs.length === 0) return [];
   let output: LayoutCandidate[] = [];
   const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
   for (const templates of templateSets) {
@@ -202,7 +223,7 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
       const collides = snapshot.fixtures.some((fixture) => {
         if (chair && fixture.name === chair.name) return false;
         if (isPlacementShellFixture(fixture.name, fixture.box, snapshot.interior)) return false;
-        if (fixture.name === support.name) return actor.role !== "patient" ? intersects(capsule, fixture.box, 0.03) : false;
+        if (fixture.name === supportName) return actor.role !== "patient" ? intersects(capsule, fixture.box, 0.03) : false;
         return intersects(capsule, fixture.box, 0.03);
       });
       if (collides) continue;
@@ -269,12 +290,9 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
     const candidates = assignmentCandidates(snapshot, actor);
     if (candidates.length === 0) {
       const seatedFamily = actor.role === "family" && actor.currentPlacement.supportSurface === "chair";
-      const feverGridMiss = seatedFamily && snapshot.scenarioId === "peds_fever_v1";
-      return { layouts: [], bindingConstraint: feverGridMiss
-        ? `${actor.id}: companion_chair crown`
-        : seatedFamily
-          ? `${actor.id}: companion_chair`
-          : `${actor.id}: no candidate inside template/interior without fixture collision` };
+      return { layouts: [], bindingConstraint: seatedFamily
+        ? `${actor.id}: companion_chair`
+        : `${actor.id}: no candidate inside template/interior without fixture collision` };
     }
     const next: LayoutCandidate[][] = [];
     for (const layout of beam) for (const candidate of candidates) {
@@ -285,7 +303,18 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
     beam = next.slice(0, beamWidth);
     if (beam.length === 0) return { layouts: [], bindingConstraint: `${actor.id}: 0.45 m footprint/fixture constraint` };
   }
-  return { layouts: beam };
+  const frame = supportFrame(snapshot);
+  if (!frame) return { layouts: [], bindingConstraint: "learner: physician_bedside" };
+  const legal: LayoutCandidate[][] = [];
+  let learnerStance: LearnerStance | undefined;
+  for (const layout of beam) {
+    const stance = learnerStanceForLayout(snapshot, layout, frame);
+    if (!stance) continue;
+    learnerStance ??= stance;
+    legal.push(layout);
+  }
+  if (legal.length === 0 || !learnerStance) return { layouts: [], bindingConstraint: "learner: physician_bedside" };
+  return { layouts: legal, learnerStance };
 }
 
 export function supportSurfaceForPatient(snapshot: CachedSceneSnapshot): "stretcher" | "bed" | "exam_table" | null {
