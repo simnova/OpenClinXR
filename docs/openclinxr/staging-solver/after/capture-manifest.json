@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-10-07T18:15:17.825Z",
+  "generatedAt": "2026-10-07T18:34:38.411Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -127,11 +127,11 @@
               },
               {
                 "sample": "left_foot",
-                "blockedBy": "mpfb_peds_patient_child_body"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               },
               {
                 "sample": "right_foot",
-                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.right"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               }
             ]
           }
@@ -140,7 +140,7 @@
           "contained": 2,
           "total": 3
         },
-        "meanFacingDeg": 83.34037104970865,
+        "meanFacingDeg": 83.31102255528394,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
