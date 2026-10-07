@@ -1523,10 +1523,18 @@ export async function captureStationEnvironmentRooms(
               if ((await webglCanvas.count()) === 0) {
                 throw new Error("station canvas missing before layout screenshot");
               }
+              await page.evaluate(`(() => {
+                const strips = globalThis.document.querySelectorAll(".status-strip");
+                for (let i = 0; i < strips.length; i += 1) strips[i].style.display = "none";
+              })()`);
               const shotPath = path.join(outputDir, shot.fileName);
               await webglCanvas.screenshot({ path: shotPath });
               process.stdout.write(`room-capture: ${shot.mode} orthographic saved to ${shotPath}\n`);
             }
+            await page.evaluate(`(() => {
+              const strips = globalThis.document.querySelectorAll(".status-strip");
+              for (let i = 0; i < strips.length; i += 1) strips[i].style.display = "";
+            })()`);
             await page.evaluate(() => {
               const pageWindow = globalThis as unknown as {
                 __openClinXrSetLayoutView?: (view: "overhead" | "isometric" | "perspective") => void;
