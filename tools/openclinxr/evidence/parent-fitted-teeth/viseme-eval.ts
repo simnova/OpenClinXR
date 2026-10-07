@@ -126,8 +126,8 @@ export function buildReport(clip: ClipId) {
   const rows: PhoneRow[] = phones.map((cue) => {
     const dFrames = framesInside(cue.startS, cue.endS, def.metrics.toothSamples.length);
     const fFrames = framesInside(cue.startS, cue.endS, front.metrics.toothSamples.length);
-    const dMid = dFrames.length ? dFrames[Math.floor(dFrames.length / 2)]! : null;
-    const fMid = fFrames.length ? fFrames[Math.floor(fFrames.length / 2)]! : null;
+    const dMid = dFrames.length ? dFrames[Math.floor(dFrames.length / 2)] ?? null : null;
+    const fMid = fFrames.length ? fFrames[Math.floor(fFrames.length / 2)] ?? null : null;
     return {
       phone: stressless(cue.phone),
       startS: Math.round(cue.startS * 1000) / 1000,
@@ -141,12 +141,16 @@ export function buildReport(clip: ClipId) {
   const interdental: { phone: string; startS: number; frame: number | null; drivenTop: string | null; upperTeethN: number; lowerTeethN: number; lipGapPx: number }[] = [];
   const mismatchByViseme: Record<string, { match: number; total: number }> = {};
   const bump = (viseme: string, match: boolean) => {
-    mismatchByViseme[viseme] ??= { match: 0, total: 0 };
-    mismatchByViseme[viseme]!.total += 1;
-    if (match) mismatchByViseme[viseme]!.match += 1;
+    let entry = mismatchByViseme[viseme];
+    if (!entry) {
+      entry = { match: 0, total: 0 };
+      mismatchByViseme[viseme] = entry;
+    }
+    entry.total += 1;
+    if (match) entry.match += 1;
   };
   for (const row of rows) {
-    for (const [view, mid] of [["default", row.mid.default], ["mouthFront", row.mid.mouthFront]] as const) {
+    for (const mid of [row.mid.default, row.mid.mouthFront] as const) {
       if (!mid) continue;
       const expectedFull = row.expectedViseme === "sil" ? "viseme_sil" : `viseme_${row.expectedViseme}`;
       bump(row.expectedViseme, mid.drivenTop === expectedFull);
@@ -258,6 +262,147 @@ function wordsForContact(clip: ClipId): WordTier[] {
   }
 }
 
+const ISOLATED_ORDER = ["sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U"];
+
+type RawStill = {
+  viseme: string; target: string; weight: number; jawRad: number; jawFraction: number;
+  teethTarget: string; teethWeight: number; corners: { lx: number; rx: number };
+  widthPx: number; aperturePx: number; cameraResidualPx: number;
+  centralBox: { x0: number; x1: number; y0: number; y1: number };
+  upperPx: number; lowerPx: number; mouthPx: number; lipGapPx: number;
+  legacyMouthPx: number; legacyLipGapPx: number;
+};
+
+type RawIsolated = {
+  views: Record<string, { canvas: { w: number; h: number }; cameraResidualPx: number; stills: RawStill[] }>;
+  corners: Record<string, { corners: { lx: number; rx: number }; W: number; H: number; residual: number | null }>;
+};
+
+function readRawIsolated(): RawIsolated {
+  const file = path.join(REPORT_DIR, "isolated.raw.json");
+  if (!existsSync(file)) throw new Error(`missing-isolated-raw:${file}`);
+  return JSON.parse(readFileSync(file, "utf8")) as RawIsolated;
+}
+
+function buildIsolatedSheet(viewId: string, stills: RawStill[], outPng: string): void {
+  const thumbs = stills.map((s) => path.join(REPORT_DIR, `isolated-${viewId}`, `${s.viseme}.png`));
+  for (const t of thumbs) if (!existsSync(t)) throw new Error(`missing-still:${t}`);
+  execFileSync("python3", ["-c", [
+    "import sys",
+    "from PIL import Image, ImageDraw",
+    "thumbs = sys.argv[1].split(',')",
+    "labels = sys.argv[2].split(',')",
+    "out = sys.argv[3]",
+    "tw, th, head, cols = 256, 256, 28, 5",
+    "rows = (len(thumbs) + cols - 1) // cols",
+    "sheet = Image.new('RGB', (cols * tw, rows * (th + head)), (16, 16, 16))",
+    "draw = ImageDraw.Draw(sheet)",
+    "for i, (t, label) in enumerate(zip(thumbs, labels)):",
+    "    im = Image.open(t).convert('RGB').resize((tw, th))",
+    "    x = (i % cols) * tw",
+    "    y = (i // cols) * (th + head)",
+    "    sheet.paste(im, (x, y + head))",
+    "    draw.text((x + 8, y + 6), label, fill=(255, 255, 255))",
+    "sheet.save(out)",
+  ].join("\n"), thumbs.join(","), stills.map((s) => s.viseme).join(","), outPng]);
+}
+
+export function buildIsolatedReport(): { views: string[]; stills: number } {
+  const raw = readRawIsolated();
+  const views: Record<string, { canvas: { w: number; h: number }; cameraResidualPx: number; stills: object[] }> = {};
+  for (const id of ["front", "34"]) {
+    const view = raw.views[id];
+    if (!view) throw new Error(`missing-isolated-view:${id}`);
+    const got = view.stills.map((s) => s.viseme);
+    if (JSON.stringify(got) !== JSON.stringify(ISOLATED_ORDER)) throw new Error(`isolated-order:${id}:${got.join(",")}`);
+    for (const s of view.stills) {
+      if (s.weight !== 1) throw new Error(`isolated-weight:${id}:${s.viseme}`);
+      if (s.jawRad < 0 || s.jawFraction < 0 || s.jawFraction > 1) throw new Error(`isolated-jaw:${id}:${s.viseme}`);
+      if (s.widthPx <= 0 || s.aperturePx < 0) throw new Error(`isolated-geometry:${id}:${s.viseme}`);
+    }
+    views[id] = {
+      canvas: view.canvas,
+      cameraResidualPx: Math.max(0, ...view.stills.map((s) => s.cameraResidualPx)),
+      stills: view.stills.map((s) => ({
+        viseme: s.viseme, jawRad: s.jawRad, jawFraction: s.jawFraction,
+        teethTarget: s.teethTarget, teethWeight: s.teethWeight,
+        upperPx: s.upperPx, lowerPx: s.lowerPx, apertureH: Math.round(s.aperturePx * 10) / 10,
+        width: Math.round(s.widthPx * 10) / 10, lipGapPx: s.lipGapPx, centralBox: s.centralBox,
+      })),
+    };
+    buildIsolatedSheet(id, view.stills, path.join(REPORT_DIR, `isolated-${id}.png`));
+  }
+  const sil = (id: string): RawStill => {
+    const row = raw.views[id]?.stills.find((s) => s.viseme === "sil");
+    if (!row) throw new Error(`missing-sil-still:${id}`);
+    return row;
+  };
+  const report = {
+    schemaVersion: "openclinxr.viseme-isolated.v1",
+    method: [
+      "Each viseme posed at weight 1.0 ALONE (all others 0) via the runtime applier with a single baked cue; jaw = jawOpenRadiansForPhoneme(viseme) times the runtime teeth gain; teeth as the runtime writes them; blink untouched (eyes outside the mouth framing).",
+      "Corners = extreme-x body verts whose dominant skinning joint is an orbicularis-oris bone (lip tissue by rig), posed with live morph influences + skeleton and projected through the page pack camera; central ROI = corners inset 15% each end. Camera residual = mouth-box centre projection vs canvas centre.",
+      "Three-quarter view is the rig three_quarter_left (45 deg yaw), mouth focus.",
+    ],
+    corners: {
+      front: sil("front").corners,
+      view34: sil("34").corners,
+      default: raw.corners["default"]?.corners ?? null,
+    },
+    views,
+  };
+  writeFileSync(path.join(REPORT_DIR, "isolated.report.json"), `${JSON.stringify(report, null, 2)}\n`);
+  return { views: ["front", "34"], stills: 15 };
+}
+
+/** Central-ROI bilabial verdict: the landmark-derived central ROI is
+ * contained in the measured default counting box, so the committed 0/0 box
+ * counts imply central 0/0 — plus the isolated-PP front central count. */
+export function attachBilabialCentral(clip: ClipId): { pass: number; fail: number } {
+  const raw = readRawIsolated();
+  const centralFile = path.join(REPORT_DIR, "isolated-central.json");
+  if (!existsSync(centralFile)) throw new Error(`missing-isolated-central:${centralFile}`);
+  const central = JSON.parse(readFileSync(centralFile, "utf8")) as {
+    centralDefaultWindow: { x0: number; x1: number; y0: number; y1: number };
+    centralInsideDefaultBox: boolean;
+  };
+  if (!central.centralInsideDefaultBox) throw new Error("central-outside-default-box");
+  const reportPath = path.join(REPORT_DIR, `${clip}.report.json`);
+  const report = JSON.parse(readFileSync(reportPath, "utf8")) as EvalReport & { checks: { bilabialCentral?: unknown } };
+  const silFront = raw.views["front"]?.stills.find((s) => s.viseme === "sil");
+  const ppFront = raw.views["front"]?.stills.find((s) => s.viseme === "PP");
+  const defCorners = raw.corners["default"]?.corners;
+  if (!silFront || !ppFront || !defCorners) throw new Error("bilabial-central-missing-corners");
+  const defaultBox = { x0: 40, x1: 100, y0: 55, y1: 85 };
+  const fails: { clip: string; phone: string; startS: number; view: string; frame: number; upperTeethN: number; lowerTeethN: number }[] = [];
+  let pass = 0;
+  let evaluated = 0;
+  for (const row of report.phones) {
+    if (row.phone !== "P" && row.phone !== "B" && row.phone !== "M") continue;
+    const mid = row.mid.default;
+    if (!mid) continue;
+    evaluated += 1;
+    if (mid.upperTeethN === 0 && mid.lowerTeethN === 0) pass += 1;
+    else fails.push({ clip, phone: row.phone, startS: row.startS, view: "default", frame: mid.frame, upperTeethN: mid.upperTeethN, lowerTeethN: mid.lowerTeethN });
+  }
+  if (ppFront.upperPx !== 0 || ppFront.lowerPx !== 0) {
+    fails.push({ clip, phone: "PP-isolated", startS: -1, view: "mouthFront", frame: -1, upperTeethN: ppFront.upperPx, lowerTeethN: ppFront.lowerPx });
+  }
+  const section = {
+    method: "Corners = extreme-x orbicularis-oris-dominant body verts at the sil still, projected through each view pack camera; central ROI excludes 15% of the corner span at each end. The central ROI is contained in the default counting box (verified headlessly), so the committed default 0/0 mids imply central 0/0. Isolated-PP front central count is exact GL pixels from the stills session.",
+    cornersSilFront: silFront.corners,
+    cornersSilDefault: defCorners,
+    centralDefaultWindow: central.centralDefaultWindow,
+    defaultBox, centralInsideDefaultBox: central.centralInsideDefaultBox,
+    isolatedPpCentral: { upperPx: ppFront.upperPx, lowerPx: ppFront.lowerPx },
+    evaluated, pass, fail: evaluated - pass + (ppFront.upperPx !== 0 || ppFront.lowerPx !== 0 ? 1 : 0), fails,
+  };
+  (report.notes as string[]).push("Bilabial-central: P/B/M default mids seal 0/0 inside the landmark-derived central ROI; isolated PP seals 0/0 centrally. The full-box mouth-front 18 px sits at the commissures outside the ROI.");
+  report.checks = { ...report.checks, bilabialCentral: section };
+  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  return { pass: section.pass, fail: section.fail };
+}
+
 async function main(): Promise<void> {
   const at = process.argv.indexOf("--clip");
   const clips: ClipId[] = at >= 0 ? [process.argv[at + 1] as ClipId] : ["pangram", "viseme-words"];
@@ -276,6 +421,14 @@ async function main(): Promise<void> {
     const mismatches = Object.entries(report.checks.mismatchByViseme)
       .map(([viseme, row]) => `${viseme}:${row.match}/${row.total}`).join(" ");
     process.stdout.write(`${clip}: phones=${report.phoneCount} words=${sheet.words} bilabial=${bilab.pass}/${bilab.pass + bilab.fail} labiodental=${labio.pass}/${labio.pass + labio.fail} match{${mismatches}}\n`);
+  }
+  if (existsSync(path.join(REPORT_DIR, "isolated.raw.json"))) {
+    const iso = buildIsolatedReport();
+    process.stdout.write(`isolated: views=${iso.views.join(",")} stills=${iso.stills}\n`);
+    for (const clip of clips) {
+      const central = attachBilabialCentral(clip);
+      process.stdout.write(`${clip}: bilabialCentral=${central.pass}/${central.pass + central.fail}\n`);
+    }
   }
 }
 

@@ -1,0 +1,867 @@
+{
+  "views": {
+    "34": {
+      "canvas": {
+        "w": 0,
+        "h": 0
+      },
+      "cameraResidualPx": 0,
+      "stills": [
+        {
+          "viseme": "sil",
+          "target": "viseme_sil",
+          "weight": 1,
+          "jawRad": 0,
+          "jawFraction": 0,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1631.2,
+            "rx": -926.7
+          },
+          "widthPx": 704.5,
+          "aperturePx": 460.1,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1525.6,
+            "x1": -1032.4,
+            "y0": 290.1,
+            "y1": 1026.3
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "PP",
+          "target": "viseme_PP",
+          "weight": 1,
+          "jawRad": 0,
+          "jawFraction": 0,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1643,
+            "rx": -926.1
+          },
+          "widthPx": 716.9,
+          "aperturePx": 429.9,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1535.5,
+            "x1": -1033.7,
+            "y0": 327.4,
+            "y1": 1015.2
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "FF",
+          "target": "viseme_FF",
+          "weight": 1,
+          "jawRad": 0.011315,
+          "jawFraction": 0.075,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1586.9,
+            "rx": -855.2
+          },
+          "widthPx": 731.7,
+          "aperturePx": 455.2,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1477.1,
+            "x1": -964.9,
+            "y0": 264.8,
+            "y1": 993.1
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "TH",
+          "target": "viseme_TH",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1628.4,
+            "rx": -924.8
+          },
+          "widthPx": 703.6,
+          "aperturePx": 494,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1522.9,
+            "x1": -1030.3,
+            "y0": 281.8,
+            "y1": 1072.1
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "DD",
+          "target": "viseme_DD",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1621.8,
+            "rx": -920.3
+          },
+          "widthPx": 701.4,
+          "aperturePx": 488.6,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1516.6,
+            "x1": -1025.6,
+            "y0": 280,
+            "y1": 1061.7
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "kk",
+          "target": "viseme_kk",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1585.3,
+            "rx": -887.6
+          },
+          "widthPx": 697.7,
+          "aperturePx": 474.9,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1480.7,
+            "x1": -992.3,
+            "y0": 284.1,
+            "y1": 1044
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "CH",
+          "target": "viseme_CH",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1629.4,
+            "rx": -939.2
+          },
+          "widthPx": 690.1,
+          "aperturePx": 480.1,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1525.9,
+            "x1": -1042.7,
+            "y0": 286.6,
+            "y1": 1054.8
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "SS",
+          "target": "viseme_SS",
+          "weight": 1,
+          "jawRad": 0.015086,
+          "jawFraction": 0.1,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1628.6,
+            "rx": -902.3
+          },
+          "widthPx": 726.4,
+          "aperturePx": 479.7,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1519.7,
+            "x1": -1011.2,
+            "y0": 285,
+            "y1": 1052.5
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "nn",
+          "target": "viseme_nn",
+          "weight": 1,
+          "jawRad": 0.015086,
+          "jawFraction": 0.1,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1622.2,
+            "rx": -907.4
+          },
+          "widthPx": 714.8,
+          "aperturePx": 473.4,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1514.9,
+            "x1": -1014.6,
+            "y0": 286.1,
+            "y1": 1043.6
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "RR",
+          "target": "viseme_RR",
+          "weight": 1,
+          "jawRad": 0.022629,
+          "jawFraction": 0.15,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1612.9,
+            "rx": -902.9
+          },
+          "widthPx": 710,
+          "aperturePx": 489.4,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1506.4,
+            "x1": -1009.4,
+            "y0": 279.8,
+            "y1": 1062.9
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "aa",
+          "target": "viseme_aa",
+          "weight": 1,
+          "jawRad": 0.075431,
+          "jawFraction": 0.5,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1601.1,
+            "rx": -919
+          },
+          "widthPx": 682.1,
+          "aperturePx": 609.8,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1498.8,
+            "x1": -1021.3,
+            "y0": 249.9,
+            "y1": 1225.6
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "E",
+          "target": "viseme_E",
+          "weight": 1,
+          "jawRad": 0.033944,
+          "jawFraction": 0.225,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1646.7,
+            "rx": -909.4
+          },
+          "widthPx": 737.3,
+          "aperturePx": 475.7,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1536.1,
+            "x1": -1020,
+            "y0": 300.3,
+            "y1": 1061.5
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "I",
+          "target": "viseme_I",
+          "weight": 1,
+          "jawRad": 0.026401,
+          "jawFraction": 0.175,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1590,
+            "rx": -861
+          },
+          "widthPx": 729,
+          "aperturePx": 479.3,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1480.6,
+            "x1": -970.4,
+            "y0": 284.4,
+            "y1": 1051.3
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 3
+        },
+        {
+          "viseme": "O",
+          "target": "viseme_O",
+          "weight": 1,
+          "jawRad": 0.064116,
+          "jawFraction": 0.425,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1641.1,
+            "rx": -980.7
+          },
+          "widthPx": 660.5,
+          "aperturePx": 562.2,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1542.1,
+            "x1": -1079.7,
+            "y0": 256.3,
+            "y1": 1155.7
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        },
+        {
+          "viseme": "U",
+          "target": "viseme_U",
+          "weight": 1,
+          "jawRad": 0.030172,
+          "jawFraction": 0.2,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": -1643.2,
+            "rx": -958.2
+          },
+          "widthPx": 684.9,
+          "aperturePx": 480.5,
+          "cameraResidualPx": 1637,
+          "centralBox": {
+            "x0": -1540.4,
+            "x1": -1061,
+            "y0": 286.3,
+            "y1": 1055.1
+          },
+          "upperPx": 0,
+          "lowerPx": 0,
+          "mouthPx": 0,
+          "lipGapPx": 0,
+          "legacyMouthPx": 0,
+          "legacyLipGapPx": 0
+        }
+      ]
+    },
+    "front": {
+      "canvas": {
+        "w": 0,
+        "h": 0
+      },
+      "cameraResidualPx": 0,
+      "stills": [
+        {
+          "viseme": "sil",
+          "target": "viseme_sil",
+          "weight": 1,
+          "jawRad": 0,
+          "jawFraction": 0,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 204.4,
+            "rx": 819.6
+          },
+          "widthPx": 615.2,
+          "aperturePx": 393.3,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 296.7,
+            "x1": 727.3,
+            "y0": 322.9,
+            "y1": 952.2
+          },
+          "upperPx": 307,
+          "lowerPx": 0,
+          "mouthPx": 307,
+          "lipGapPx": 79,
+          "legacyMouthPx": 351,
+          "legacyLipGapPx": 39
+        },
+        {
+          "viseme": "PP",
+          "target": "viseme_PP",
+          "weight": 1,
+          "jawRad": 0,
+          "jawFraction": 0,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 199.1,
+            "rx": 824.9
+          },
+          "widthPx": 625.8,
+          "aperturePx": 365.7,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 293,
+            "x1": 731,
+            "y0": 355.1,
+            "y1": 940.2
+          },
+          "upperPx": 12,
+          "lowerPx": 0,
+          "mouthPx": 12,
+          "lipGapPx": 65,
+          "legacyMouthPx": 154,
+          "legacyLipGapPx": 28
+        },
+        {
+          "viseme": "FF",
+          "target": "viseme_FF",
+          "weight": 1,
+          "jawRad": 0.011315,
+          "jawFraction": 0.075,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 190.7,
+            "rx": 832.3
+          },
+          "widthPx": 641.6,
+          "aperturePx": 388.2,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 286.9,
+            "x1": 736,
+            "y0": 301.7,
+            "y1": 922.9
+          },
+          "upperPx": 5806,
+          "lowerPx": 0,
+          "mouthPx": 5806,
+          "lipGapPx": 85,
+          "legacyMouthPx": 1461,
+          "legacyLipGapPx": 15
+        },
+        {
+          "viseme": "TH",
+          "target": "viseme_TH",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 204.7,
+            "rx": 819.3
+          },
+          "widthPx": 614.5,
+          "aperturePx": 423.1,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 296.9,
+            "x1": 727.1,
+            "y0": 315.5,
+            "y1": 992.4
+          },
+          "upperPx": 6243,
+          "lowerPx": 0,
+          "mouthPx": 6243,
+          "lipGapPx": 102,
+          "legacyMouthPx": 3668,
+          "legacyLipGapPx": 44
+        },
+        {
+          "viseme": "DD",
+          "target": "viseme_DD",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 205.6,
+            "rx": 818.4
+          },
+          "widthPx": 612.9,
+          "aperturePx": 418.7,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 297.5,
+            "x1": 726.5,
+            "y0": 313.9,
+            "y1": 983.8
+          },
+          "upperPx": 7447,
+          "lowerPx": 0,
+          "mouthPx": 7447,
+          "lipGapPx": 86,
+          "legacyMouthPx": 4016,
+          "legacyLipGapPx": 44
+        },
+        {
+          "viseme": "kk",
+          "target": "viseme_kk",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 206.4,
+            "rx": 817.6
+          },
+          "widthPx": 611.1,
+          "aperturePx": 407.7,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 298.1,
+            "x1": 725.9,
+            "y0": 317.3,
+            "y1": 969.5
+          },
+          "upperPx": 6836,
+          "lowerPx": 0,
+          "mouthPx": 6836,
+          "lipGapPx": 84,
+          "legacyMouthPx": 3539,
+          "legacyLipGapPx": 44
+        },
+        {
+          "viseme": "CH",
+          "target": "viseme_CH",
+          "weight": 1,
+          "jawRad": 0.018858,
+          "jawFraction": 0.125,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 210.8,
+            "rx": 813.2
+          },
+          "widthPx": 602.4,
+          "aperturePx": 411,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 301.2,
+            "x1": 722.9,
+            "y0": 319.7,
+            "y1": 977.3
+          },
+          "upperPx": 8159,
+          "lowerPx": 0,
+          "mouthPx": 8159,
+          "lipGapPx": 86,
+          "legacyMouthPx": 4170,
+          "legacyLipGapPx": 50
+        },
+        {
+          "viseme": "SS",
+          "target": "viseme_SS",
+          "weight": 1,
+          "jawRad": 0.015086,
+          "jawFraction": 0.1,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 194.8,
+            "rx": 829.7
+          },
+          "widthPx": 634.9,
+          "aperturePx": 410.8,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 290.1,
+            "x1": 734.5,
+            "y0": 318.3,
+            "y1": 975.5
+          },
+          "upperPx": 6844,
+          "lowerPx": 0,
+          "mouthPx": 6844,
+          "lipGapPx": 81,
+          "legacyMouthPx": 3547,
+          "legacyLipGapPx": 42
+        },
+        {
+          "viseme": "nn",
+          "target": "viseme_nn",
+          "weight": 1,
+          "jawRad": 0.015086,
+          "jawFraction": 0.1,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 199.9,
+            "rx": 824.7
+          },
+          "widthPx": 624.8,
+          "aperturePx": 405.6,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 293.6,
+            "x1": 731,
+            "y0": 319.2,
+            "y1": 968.1
+          },
+          "upperPx": 6499,
+          "lowerPx": 0,
+          "mouthPx": 6499,
+          "lipGapPx": 88,
+          "legacyMouthPx": 3325,
+          "legacyLipGapPx": 42
+        },
+        {
+          "viseme": "RR",
+          "target": "viseme_RR",
+          "weight": 1,
+          "jawRad": 0.022629,
+          "jawFraction": 0.15,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 201.5,
+            "rx": 822.5
+          },
+          "widthPx": 620.9,
+          "aperturePx": 419.7,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 294.7,
+            "x1": 729.3,
+            "y0": 313.7,
+            "y1": 985.1
+          },
+          "upperPx": 2809,
+          "lowerPx": 0,
+          "mouthPx": 2809,
+          "lipGapPx": 92,
+          "legacyMouthPx": 1794,
+          "legacyLipGapPx": 40
+        },
+        {
+          "viseme": "aa",
+          "target": "viseme_aa",
+          "weight": 1,
+          "jawRad": 0.075431,
+          "jawFraction": 0.5,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 213.8,
+            "rx": 810.2
+          },
+          "widthPx": 596.4,
+          "aperturePx": 526.1,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 303.3,
+            "x1": 720.7,
+            "y0": 287,
+            "y1": 1128.9
+          },
+          "upperPx": 13076,
+          "lowerPx": 0,
+          "mouthPx": 13076,
+          "lipGapPx": 146,
+          "legacyMouthPx": 6497,
+          "legacyLipGapPx": 127
+        },
+        {
+          "viseme": "E",
+          "target": "viseme_E",
+          "weight": 1,
+          "jawRad": 0.033944,
+          "jawFraction": 0.225,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 190.6,
+            "rx": 834.5
+          },
+          "widthPx": 643.9,
+          "aperturePx": 408.6,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 287.2,
+            "x1": 737.9,
+            "y0": 330.9,
+            "y1": 984.6
+          },
+          "upperPx": 7878,
+          "lowerPx": 0,
+          "mouthPx": 7878,
+          "lipGapPx": 93,
+          "legacyMouthPx": 4229,
+          "legacyLipGapPx": 39
+        },
+        {
+          "viseme": "I",
+          "target": "viseme_I",
+          "weight": 1,
+          "jawRad": 0.026401,
+          "jawFraction": 0.175,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 192.5,
+            "rx": 831.5
+          },
+          "widthPx": 639,
+          "aperturePx": 411.4,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 288.4,
+            "x1": 735.6,
+            "y0": 317.5,
+            "y1": 975.7
+          },
+          "upperPx": 7140,
+          "lowerPx": 0,
+          "mouthPx": 7140,
+          "lipGapPx": 82,
+          "legacyMouthPx": 3872,
+          "legacyLipGapPx": 50
+        },
+        {
+          "viseme": "O",
+          "target": "viseme_O",
+          "weight": 1,
+          "jawRad": 0.064116,
+          "jawFraction": 0.425,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 224.3,
+            "rx": 799.7
+          },
+          "widthPx": 575.4,
+          "aperturePx": 482,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 310.6,
+            "x1": 713.4,
+            "y0": 293.6,
+            "y1": 1064.7
+          },
+          "upperPx": 4239,
+          "lowerPx": 0,
+          "mouthPx": 4239,
+          "lipGapPx": 108,
+          "legacyMouthPx": 2573,
+          "legacyLipGapPx": 83
+        },
+        {
+          "viseme": "U",
+          "target": "viseme_U",
+          "weight": 1,
+          "jawRad": 0.030172,
+          "jawFraction": 0.2,
+          "teethTarget": null,
+          "teethWeight": 0,
+          "corners": {
+            "lx": 213.4,
+            "rx": 810.6
+          },
+          "widthPx": 597.2,
+          "aperturePx": 411.3,
+          "cameraResidualPx": 184.9,
+          "centralBox": {
+            "x0": 303,
+            "x1": 721,
+            "y0": 319.4,
+            "y1": 977.5
+          },
+          "upperPx": 3122,
+          "lowerPx": 0,
+          "mouthPx": 3122,
+          "lipGapPx": 86,
+          "legacyMouthPx": 1789,
+          "legacyLipGapPx": 54
+        }
+      ]
+    }
+  },
+  "corners": {
+    "default": {
+      "error": "Error: page.evaluate: Error: pack camera evidence missing\n    at projectEvidenceCamera (<anonymous>:78:19)\n    at window.__stillMeasure (<anonymous>:118:13)\n    at eval (eval at evaluate (:302:30), <anonymous>:1:35)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    }
+  }
+}

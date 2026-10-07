@@ -69,6 +69,15 @@ type Report = {
   }[];
   checks: {
     bilabial: { pass: number; fail: number; fails: unknown[] };
+    bilabialCentral: {
+      cornersSilFront: { lx: number; rx: number };
+      cornersSilDefault: { lx: number; rx: number };
+      centralDefaultWindow: { x0: number; x1: number; y0: number; y1: number };
+      centralInsideDefaultBox: boolean;
+      isolatedPpCentral: { upperPx: number; lowerPx: number };
+      evaluated: number; pass: number; fail: number;
+      fails: unknown[];
+    };
     labiodental: { pass: number; fail: number; fails: unknown[] };
     interdental: unknown[];
     mismatchByViseme: Record<string, { match: number; total: number }>;
@@ -106,6 +115,12 @@ function checkReport(clip: string, line: string): void {
     }
   }
   expect(report.checks.bilabial.pass + report.checks.bilabial.fail).toBeGreaterThan(0);
+  const central = report.checks.bilabialCentral;
+  expect(central.evaluated).toBeGreaterThan(0);
+  expect(central.pass + central.fail).toBe(central.evaluated);
+  expect(central.centralInsideDefaultBox).toBe(true);
+  expect(central.cornersSilFront.rx).toBeGreaterThan(central.cornersSilFront.lx);
+  expect(central.cornersSilDefault.rx).toBeGreaterThan(central.cornersSilDefault.lx);
   expect(report.checks.labiodental.pass + report.checks.labiodental.fail).toBeGreaterThan(0);
   for (const [viseme, row] of Object.entries(report.checks.mismatchByViseme)) {
     expect(row.total).toBeGreaterThan(0);
