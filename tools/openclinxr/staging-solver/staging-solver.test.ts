@@ -37,6 +37,52 @@ describe("clinical staging layout search", () => {
     expect(Math.abs(family?.world[0] ?? 99)).toBeLessThan(2);
   });
 
+  it("ignores a room-spanning named shell box for placement", () => {
+    const snapshot = counterweightSnapshot();
+    snapshot.fixtures.push({ name: "bedroom_00wall", kind: "fixture",
+      box: { min: [-3, 0, -3], max: [5, 3, 3] } });
+    const result = searchClinicalLayouts(snapshot);
+    expect(result.layouts.length).toBeGreaterThan(0);
+    const family = result.layouts[0]?.find((row) => row.actorId === "family");
+    expect(family?.slotId).toBe("companion_bedside");
+    expect(Math.abs(family?.world[0] ?? 99)).toBeLessThan(2);
+  });
+
+  it("ignores a room-spanning slab with a non-shell name via footprint coverage", () => {
+    const snapshot = counterweightSnapshot();
+    snapshot.fixtures.push({ name: "mystery_slab_01", kind: "fixture",
+      box: { min: [-3, 0, -3], max: [5, 3, 3] } });
+    const result = searchClinicalLayouts(snapshot);
+    expect(result.layouts.length).toBeGreaterThan(0);
+    const family = result.layouts[0]?.find((row) => row.actorId === "family");
+    expect(family?.slotId).toBe("companion_bedside");
+    expect(Math.abs(family?.world[0] ?? 99)).toBeLessThan(2);
+  });
+
+  it("still places away from a real small fixture", () => {
+    const baseline = searchClinicalLayouts(counterweightSnapshot());
+    const first = baseline.layouts[0]?.find((row) => row.actorId === "family");
+    expect(first).toBeDefined();
+    const [bx, , bz] = first?.world ?? [0, 0, 0];
+    // Thin sliver through the best cell: vetoes its grid neighbourhood in x
+    // while leaving the ±0.3 m grid edges placeable, so the solver must move.
+    const snapshot = counterweightSnapshot();
+    snapshot.fixtures.push({ name: "supply_cabinet_edge", kind: "fixture",
+      box: { min: [bx - 0.01, 0, bz - 0.4], max: [bx + 0.01, 1.7, bz + 0.4] } });
+    const result = searchClinicalLayouts(snapshot);
+    expect(result.layouts.length).toBeGreaterThan(0);
+    const family = result.layouts[0]?.find((row) => row.actorId === "family");
+    expect(family).toBeDefined();
+    const moved = Math.hypot((family?.world[0] ?? bx) - bx, (family?.world[2] ?? bz) - bz);
+    expect(moved).toBeGreaterThan(0.05);
+    const box = family?.box;
+    const hits = box !== undefined
+      && box.min[0] < bx + 0.01 + 0.03 && box.max[0] > bx - 0.01 - 0.03
+      && box.min[1] < 1.7 && box.max[1] > 0
+      && box.min[2] < bz + 0.4 + 0.03 && box.max[2] > bz - 0.4 - 0.03;
+    expect(hits).toBe(false);
+  });
+
   it("produces byte-identical output for two runs on the same snapshot", () => {
     const snapshot = counterweightSnapshot();
     expect(JSON.stringify(searchClinicalLayouts(snapshot))).toBe(JSON.stringify(searchClinicalLayouts(snapshot)));

@@ -10,7 +10,7 @@
     "peds_fever_v1": {
       "scenarioId": "peds_fever_v1",
       "feasible": true,
-      "solveMs": 1383,
+      "solveMs": 1127.2,
       "predictedGate": {
         "containedActors": 3,
         "totalActors": 3,
@@ -29,14 +29,10 @@
             "actorId": "nurse_aisha_brooks_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 2,
+            "visibleSampleCount": 3,
             "sampleCount": 5,
             "visible": true,
             "blockedSamples": [
-              {
-                "sample": "pelvis",
-                "blockedBy": "mpfb_peds_patient_child_body"
-              },
               {
                 "sample": "left_foot",
                 "blockedBy": "mpfb_peds_patient_child_body"
@@ -70,16 +66,16 @@
             ]
           }
         ],
-        "meanFacingDeg": 74.24846389029373,
+        "meanFacingDeg": 75.03666411340373,
         "nearOcclusionFraction": 0,
         "nearRayCount": 0,
-        "minMargin": 0.7717440462383338,
+        "minMargin": 0.7594735311438767,
         "gatePass": true
       },
       "realGate": {
-        "containedActors": 1,
+        "containedActors": 2,
         "totalActors": 3,
-        "visibleActors": 1,
+        "visibleActors": 2,
         "crownChest": [
           {
             "actorId": "patient_noah_chen_v1",
@@ -92,23 +88,19 @@
           },
           {
             "actorId": "nurse_aisha_brooks_v1",
-            "crownVisible": false,
-            "chestVisible": false,
-            "visibleSampleCount": 2,
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
             "sampleCount": 5,
-            "visible": false,
+            "visible": true,
             "blockedSamples": [
               {
-                "sample": "crown",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
               },
               {
-                "sample": "chest",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "pelvis",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
               }
             ]
           },
@@ -139,7 +131,7 @@
             ]
           }
         ],
-        "meanFacingDeg": 141.71512760060932,
+        "meanFacingDeg": 72.43108934720446,
         "nearOcclusionFraction": 0,
         "nearRayCount": 0,
         "minMargin": -1,
@@ -150,9 +142,9 @@
           "actorId": "patient_noah_chen_v1",
           "slotId": "patient_on_authored_support",
           "world": [
-            -2.5401362769488953,
-            0.7373777551388929,
-            -0.6461037095374144
+            -2.5428979387492734,
+            0.7414601947995694,
+            -0.6467596107216795
           ],
           "headingRadians": -0.26,
           "placement": {
@@ -171,18 +163,18 @@
           "slotId": "nurse_bedside_head",
           "world": [
             -2.71199996471405,
-            0.824762999061786,
+            0.9615721403095068,
             0.07
           ],
-          "headingRadians": -2.7183383573026663,
+          "headingRadians": -2.7129289382074786,
           "placement": {
             "supportSurface": "none",
             "plantOffsetMeters": {
-              "x": -2.6688473085109488,
+              "x": -2.694113654069291,
               "y": 0,
-              "z": 0.04206583839515954
+              "z": 0.11870835381087069
             },
-            "headingRadians": -2.7183383573026663
+            "headingRadians": -2.7129289382074786
           },
           "cost": 0.2
         },
@@ -191,40 +183,40 @@
           "slotId": "companion_chair",
           "world": [
             -2.4422418296337125,
-            0.6708197956552024,
-            0.6418223395943642
+            0.6703210398369519,
+            0.5418223395943642
           ],
-          "headingRadians": -2.7105156605186314,
+          "headingRadians": -2.67590795859588,
           "placement": {
             "supportSurface": "chair",
             "plantOffsetMeters": {
-              "x": -2.607526683066857,
+              "x": -2.975013407951802,
               "y": 0,
-              "z": 0.8820537154976821
+              "z": 0.955193644398884
             },
-            "headingRadians": -2.7105156605186314
+            "headingRadians": -2.67590795859588
           },
-          "cost": 0.31622776601683794
+          "cost": 0.3
         }
       ],
       "camera": {
         "eye": [
           -2.389999895095825,
-          2,
+          1.68,
           -3.5749732780456545
         ],
         "look": [
           -2.71199996471405,
-          0.824762999061786,
+          0.9615721403095068,
           0.07000000000000002
         ],
         "fov": 90,
         "aspect": 1.1333333333333333
       },
       "parity": {
-        "visibilityDelta": 2,
+        "visibilityDelta": 1,
         "nearDelta": 0,
-        "containmentDelta": 2
+        "containmentDelta": 1
       }
     }
   }

@@ -16,6 +16,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { authoredStagingCameraForScenario } from "@openclinxr/scenario-fixtures";
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
@@ -196,15 +197,12 @@ export const ROOM_CAPTURE_MODE = "scene-overview";
 
 export type AuthoredStagingCamera = { eye: [number, number, number]; look: [number, number, number]; fov: number };
 
-function readAuthoredStagingCamera(): AuthoredStagingCamera | undefined {
-  return undefined;
+function readAuthoredStagingCamera(scenarioId: string): AuthoredStagingCamera | undefined {
+  return authoredStagingCameraForScenario(scenarioId);
 }
 
 export async function applyAuthoredStagingCamera(page: Page, scenarioId: string): Promise<string | null> {
-  // Solver camera records are emitted as evidence.  Runtime actor placement remains
-  // fixture-owned; absent a published camera field, standard capture uses its
-  // existing refinement path rather than importing a private fixture module.
-  const authored = readAuthoredStagingCamera();
+  const authored = readAuthoredStagingCamera(scenarioId);
   if (!authored) return null;
   const note = await page.evaluate((input) => {
     type Camera = {

@@ -35,6 +35,48 @@ function insideInterior(box: AxisAlignedBox, interior: AxisAlignedBox): boolean 
     && box.min[2] >= interior.min[2] + 0.08 && box.max[2] <= interior.max[2] - 0.08;
 }
 
+// Room-shell meshes (walls, floor slabs, ceilings, exterior shells, anteroom
+// shell parts) span the room, so their AABBs contain every in-interior actor
+// candidate and would veto all placements. Containment inside the interior box
+// already bounds actors, so placement collision skips them. Visibility and
+// near-occlusion math is untouched: walls genuinely occlude and the gate probe
+// path already skips boxes containing the camera.
+function isRoomShellName(name: string): boolean {
+  return /wall|floor|ceiling|exterior|shell/i.test(name);
+}
+
+function isSkippedFixtureName(name: string): boolean {
+  return /portal|review-panel|review_panel|capture-cue|capture_cue|patient-note-capture|patient_note_capture/i.test(name);
+}
+
+// Name-agnostic backstop for shell slabs that dodge the name classes (renamed
+// room shells, merged shell geometry). Threshold 0.5 separates with wide
+// margin: shell slabs cover ~all of the interior footprint (floor_field
+// 6.47x6.79 m over a 6.47x6.79 m interior ~= 1.0), while the largest
+// legitimate furniture (stretcher base 2.02x0.79 m ~= 1.6 m^2 over a ~44 m^2
+// interior ~= 0.04) sits more than 10x below.
+function coversInteriorFootprint(box: AxisAlignedBox, interior: AxisAlignedBox): boolean {
+  const interiorArea = (interior.max[0] - interior.min[0]) * (interior.max[2] - interior.min[2]);
+  if (!(interiorArea > 0)) return false;
+  const footprint = (box.max[0] - box.min[0]) * (box.max[2] - box.min[2]);
+  return footprint / interiorArea >= 0.5;
+}
+
+export function isPlacementShellFixture(name: string, box: AxisAlignedBox, interior: AxisAlignedBox): boolean {
+  return isRoomShellName(name) || isSkippedFixtureName(name) || coversInteriorFootprint(box, interior);
+}
+
+export function capsuleRadiusMeters(bodyDimensions: readonly number[] | undefined): number {
+  const width = bodyDimensions?.[0];
+  if (typeof width === "number" && Number.isFinite(width) && width >= 0.15 && width <= 0.35) return width / 2;
+  return 0.22;
+}
+
+export function capsuleForPlacement(world: readonly [number, number, number], radius: number, standing: boolean): AxisAlignedBox {
+  const height = standing ? 1.7 : 1.3;
+  return { min: [world[0] - radius, world[1] - height / 2, world[2] - radius], max: [world[0] + radius, world[1] + height / 2, world[2] + radius] };
+}
+
 function supportKind(name: string): "stretcher" | "bed" | "exam_table" {
   if (/exam[_ -]?table|exam_surface/i.test(name)) return "exam_table";
   if (/stretcher/i.test(name)) return "stretcher";
@@ -57,13 +99,18 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
   const head: [number, number] = [supportCentre[0] + long[0] * halfLong, supportCentre[2] + long[1] * halfLong];
   const foot: [number, number] = [supportCentre[0] - long[0] * halfLong, supportCentre[2] - long[1] * halfLong];
   const seated = actor.currentPlacement.supportSurface === "chair";
-  const templates = templatesForRole(actor.role, seated);
+  const templateSets = seated
+    ? [templatesForRole(actor.role, true), templatesForRole(actor.role, false)]
+    : [templatesForRole(actor.role, false)];
   const chairs = [...snapshot.companionSeats].sort((a, b) => {
     const ac = centre(a.box), bc = centre(b.box);
     return Math.hypot(ac[0] - patientHead[0], ac[2] - patientHead[2])
       - Math.hypot(bc[0] - patientHead[0], bc[2] - patientHead[2]) || a.name.localeCompare(b.name);
   });
-  const output: LayoutCandidate[] = [];
+  let output: LayoutCandidate[] = [];
+  const actorRadius = capsuleRadiusMeters(actor.bodyDimensions);
+  for (const templates of templateSets) {
+    const attempt: LayoutCandidate[] = [];
   for (const template of templates) {
     const chair = template.anchor === "chair" ? chairs[0] : undefined;
     if (template.anchor === "chair" && !chair) continue;
@@ -76,11 +123,13 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
       const x = base[0] + long[0] * alongOffset + side[0] * acrossOffset;
       const z = base[1] + long[1] * alongOffset + side[1] * acrossOffset;
       const box = translateBox(actor.box, x, z);
+      const capsule = capsuleForPlacement([x, centre(actor.box)[1], z], actorRadius, actor.standing);
       if (!insideInterior(box, snapshot.interior)) continue;
       const collides = snapshot.fixtures.some((fixture) => {
         if (chair && fixture.name === chair.name) return false;
-        if (fixture.name === support.name && actor.role === "patient") return false;
-        return intersects(box, fixture.box, 0.03);
+        if (isPlacementShellFixture(fixture.name, fixture.box, snapshot.interior)) return false;
+        if (fixture.name === support.name) return actor.role !== "patient" ? intersects(capsule, fixture.box, 0.03) : false;
+        return intersects(capsule, fixture.box, 0.03);
       });
       if (collides) continue;
       const targetHeading = Math.atan2(patientHead[0] - x, patientHead[2] - z);
@@ -100,10 +149,13 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
         },
         headingRadians: heading,
       };
-      output.push({ actorId: actor.id, slotId: template.slotId, world: [x, centre(actor.box)[1], z],
-        headingRadians: heading, placement, box, standing: actor.standing,
+      attempt.push({ actorId: actor.id, slotId: template.slotId, world: [x, centre(actor.box)[1], z],
+        headingRadians: heading, placement, box: capsule, standing: actor.standing,
         cost: Math.hypot(alongOffset, acrossOffset) + Math.abs(headingDelta) / Math.PI });
     }
+  }
+    if (attempt.length > 0 || templateSets.indexOf(templates) === templateSets.length - 1) output = attempt;
+    if (output.length > 0) break;
   }
   return output.sort((a, b) => a.cost - b.cost || a.slotId.localeCompare(b.slotId)
     || a.world[0] - b.world[0] || a.world[2] - b.world[2] || a.headingRadians - b.headingRadians);
@@ -111,6 +163,7 @@ function assignmentCandidates(snapshot: CachedSceneSnapshot, actor: CachedSceneS
 
 function compatible(candidate: LayoutCandidate, assigned: readonly LayoutCandidate[]): boolean {
   return assigned.every((other) => {
+    if (other.slotId === "patient_on_authored_support" || candidate.slotId === "patient_on_authored_support") return true;
     if (candidate.standing && other.standing
       && Math.hypot(candidate.world[0] - other.world[0], candidate.world[2] - other.world[2]) < 0.45) return false;
     return !intersects(candidate.box, other.box, 0.02);

@@ -15,12 +15,12 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
     "camera": {
       "eye": [
         -2.39,
-        2,
+        1.68,
         -3.574973
       ],
       "look": [
         -2.712,
-        0.824763,
+        0.961572,
         0.07
       ],
       "fov": 90
@@ -29,20 +29,20 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
       "nurse_aisha_brooks_v1": {
         "supportSurface": "none",
         "plantOffsetMeters": {
-          "x": -2.668847,
+          "x": -2.694114,
           "y": 0,
-          "z": 0.042066
+          "z": 0.118708
         },
-        "headingRadians": -2.718338
+        "headingRadians": -2.712929
       },
       "parent_mei_chen_v1": {
         "supportSurface": "chair",
         "plantOffsetMeters": {
-          "x": -2.607527,
+          "x": -2.975013,
           "y": 0,
-          "z": 0.882054
+          "z": 0.955194
         },
-        "headingRadians": -2.710516
+        "headingRadians": -2.675908
       },
       "patient_noah_chen_v1": {
         "supportSurface": "stretcher",
