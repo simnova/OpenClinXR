@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-10-07T01:33:56.212Z",
+  "generatedAt": "2026-10-07T14:22:20.160Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -41,9 +41,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -2.639999895095825,
+            -1.8040955270258818,
             2.16,
-            -3.3249732780456545
+            -3.2625573397227896
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -56,34 +56,34 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-2.639999895095825,2.16,-3.3249732780456545 look=-2.4422418296337125,0.6623422429936068,0.5418223395943642 fov=70",
+        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-1.8040955270258818,2.16,-3.2625573397227896 look=-2.6316241805849443,0.8280269730688734,-0.6466395579188611 fov=90",
         "cameraEye": [
-          -2.639999895095825,
+          -1.8040955270258818,
           2.16,
-          -3.3249732780456545
+          -3.2625573397227896
         ],
         "cameraLook": [
-          -2.4422418296337125,
-          0.6623422429936068,
-          0.5418223395943642
+          -2.6316241805849443,
+          0.8280269730688734,
+          -0.6466395579188611
         ],
         "refineTag": "authored:staging-solver-v1",
         "actorContainment": {
-          "contained": 1,
+          "contained": 2,
           "total": 3
         },
         "actorVisibility": [
           {
             "actorId": "patient_noah_chen_v1",
-            "crownVisible": false,
+            "crownVisible": true,
             "chestVisible": true,
             "visibleSampleCount": 4,
             "sampleCount": 5,
-            "visible": false,
+            "visible": true,
             "blockedSamples": [
               {
-                "sample": "crown",
-                "blockedBy": "openclinxr.station-environment.fixture-slot.wall_board.surface"
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               }
             ]
           },
@@ -91,14 +91,10 @@
             "actorId": "nurse_aisha_brooks_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 2,
+            "visibleSampleCount": 3,
             "sampleCount": 5,
             "visible": true,
             "blockedSamples": [
-              {
-                "sample": "pelvis",
-                "blockedBy": "mpfb_peds_patient_child_body"
-              },
               {
                 "sample": "left_foot",
                 "blockedBy": "mpfb_peds_patient_child_body"
@@ -111,36 +107,40 @@
           },
           {
             "actorId": "parent_mei_chen_v1",
-            "crownVisible": true,
+            "crownVisible": false,
             "chestVisible": false,
-            "visibleSampleCount": 1,
+            "visibleSampleCount": 0,
             "sampleCount": 5,
             "visible": false,
             "blockedSamples": [
               {
+                "sample": "crown",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
                 "sample": "chest",
-                "blockedBy": "geometry_0"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               },
               {
                 "sample": "pelvis",
-                "blockedBy": "mpfb_peds_patient_child_body"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               },
               {
                 "sample": "left_foot",
-                "blockedBy": "mpfb_peds_patient_child_body"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               },
               {
                 "sample": "right_foot",
-                "blockedBy": "mpfb_peds_patient_child_body"
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
               }
             ]
           }
         ],
         "standingActorContainment": {
-          "contained": 1,
+          "contained": 2,
           "total": 3
         },
-        "meanFacingDeg": 69.45818372472965,
+        "meanFacingDeg": 83.23017346782329,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,

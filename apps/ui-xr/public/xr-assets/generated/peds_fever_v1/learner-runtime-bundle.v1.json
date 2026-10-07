@@ -251,9 +251,9 @@
       "nurse_aisha_brooks_v1": {
         "slotKind": "clinical_team",
         "position": {
-          "x": -2.703386,
+          "x": -2.702273,
           "y": 0,
-          "z": 0.118675
+          "z": 0.118944
         },
         "scale": {
           "x": 1,
@@ -264,7 +264,7 @@
         "labelPrefix": "Team",
         "posture": "standing",
         "placementProvenance": "authored_intent",
-        "headingRadians": -2.721731
+        "headingRadians": -2.541284
       },
       "parent_mei_chen_v1": {
         "slotKind": "family_or_observer",
@@ -283,11 +283,11 @@
         "posture": "seated",
         "placementProvenance": "authored_intent",
         "plantOffsetMeters": {
-          "x": -3.345235,
+          "x": -3.345119,
           "y": 0,
-          "z": 1.026661
+          "z": 1.026838
         },
-        "headingRadians": -2.680988
+        "headingRadians": -2.572431
       }
     }
   },
