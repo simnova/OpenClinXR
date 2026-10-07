@@ -1,0 +1,25 @@
+{
+  "package": "stations/mouth-solver-closedform",
+  "name": "@openclinxr/station-mouth-solver-closedform",
+  "entrypoint": "packages/openclinxr/stations/mouth-solver-closedform/src/index.ts",
+  "purpose": "Mouth-station default solver: the closed-form seat behind the registry pin.",
+  "exports": [
+    "mouthClosedformSolver"
+  ],
+  "exportSummaries": {
+    "mouthClosedformSolver": "Pinned default solver module: id, version and pure closed-form solve."
+  },
+  "workspaceDependencies": [
+    "@openclinxr/station-mouth-objective"
+  ],
+  "tests": [
+    "src/a-mismatched-tuning-file-is-refused.test.ts",
+    "src/solve-is-deterministic.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-mouth-solver-closedform test",
+    "typecheck": "pnpm --filter @openclinxr/station-mouth-solver-closedform typecheck",
+    "build": "pnpm --filter @openclinxr/station-mouth-solver-closedform build",
+    "lint": "pnpm --filter @openclinxr/station-mouth-solver-closedform lint"
+  }
+}
