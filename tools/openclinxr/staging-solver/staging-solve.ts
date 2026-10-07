@@ -97,7 +97,10 @@ async function captureReal(cases: string[], rows: Map<string, StagingSolveResult
       const row = rows.get(scenarioId);
       if (!row?.feasible) continue;
       try {
-        const manifest = await captureStationEnvironmentRooms({ scenarioIds: [scenarioId], outputDir: AFTER_DIR });
+        const solvedCamera = row.slots.length > 0 ? row.camera : null;
+        const manifest = await captureStationEnvironmentRooms({ scenarioIds: [scenarioId], outputDir: AFTER_DIR,
+          ...(solvedCamera ? { stagingCameraByScenario: { [scenarioId]: solvedCamera } } : {}),
+        });
         const entry = manifest.entries[0];
         if (!entry) throw new Error("capture manifest has no entry");
         const real = gateFromManifest(entry);

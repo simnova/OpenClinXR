@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-10-07T01:28:18.306Z",
+  "generatedAt": "2026-10-07T01:33:56.212Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -41,9 +41,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -2.39,
-            2,
-            -3.574973
+            -2.639999895095825,
+            2.16,
+            -3.3249732780456545
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -56,40 +56,49 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-2.39,2,-3.574973 look=-2.712,0.824763,0.07 fov=90",
+        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-2.639999895095825,2.16,-3.3249732780456545 look=-2.4422418296337125,0.6623422429936068,0.5418223395943642 fov=70",
         "cameraEye": [
-          -2.39,
-          2,
-          -3.574973
+          -2.639999895095825,
+          2.16,
+          -3.3249732780456545
         ],
         "cameraLook": [
-          -2.712,
-          0.824763,
-          0.07
+          -2.4422418296337125,
+          0.6623422429936068,
+          0.5418223395943642
         ],
         "refineTag": "authored:staging-solver-v1",
         "actorContainment": {
-          "contained": 2,
+          "contained": 1,
           "total": 3
         },
         "actorVisibility": [
           {
             "actorId": "patient_noah_chen_v1",
-            "crownVisible": true,
+            "crownVisible": false,
             "chestVisible": true,
-            "visibleSampleCount": 5,
+            "visibleSampleCount": 4,
             "sampleCount": 5,
-            "visible": true,
-            "blockedSamples": []
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.wall_board.surface"
+              }
+            ]
           },
           {
             "actorId": "nurse_aisha_brooks_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 3,
+            "visibleSampleCount": 2,
             "sampleCount": 5,
             "visible": true,
             "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
               {
                 "sample": "left_foot",
                 "blockedBy": "mpfb_peds_patient_child_body"
@@ -128,10 +137,10 @@
           }
         ],
         "standingActorContainment": {
-          "contained": 2,
+          "contained": 1,
           "total": 3
         },
-        "meanFacingDeg": 72.43108934720446,
+        "meanFacingDeg": 69.45818372472965,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,

@@ -201,8 +201,8 @@ function readAuthoredStagingCamera(scenarioId: string): AuthoredStagingCamera | 
   return authoredStagingCameraForScenario(scenarioId);
 }
 
-export async function applyAuthoredStagingCamera(page: Page, scenarioId: string): Promise<string | null> {
-  const authored = readAuthoredStagingCamera(scenarioId);
+export async function applyAuthoredStagingCamera(page: Page, scenarioId: string, override?: AuthoredStagingCamera): Promise<string | null> {
+  const authored = override ?? readAuthoredStagingCamera(scenarioId);
   if (!authored) return null;
   const note = await page.evaluate((input) => {
     type Camera = {
@@ -1403,6 +1403,8 @@ export type CaptureStationEnvironmentRoomsInput = {
   /** Injected base URL skips spawning a dev server (tests / resume). */
   baseUrl?: string;
   onSnapshot?: (scenarioId: string, snapshot: Awaited<ReturnType<typeof collectSweepScene>>) => Promise<void> | void;
+  /** Solved-this-run cameras override the module-loaded authored record (avoids stale import). */
+  stagingCameraByScenario?: Readonly<Record<string, AuthoredStagingCamera>>;
 };
 
 /**
@@ -1480,7 +1482,7 @@ export async function captureStationEnvironmentRooms(
           await waitForHumanoidAssetsLoaded(page, 180_000);
           if (input.onSnapshot) await input.onSnapshot(scenarioId, await collectSweepScene(page));
 
-          const frameNote = await applyAuthoredStagingCamera(page, scenarioId)
+          const frameNote = await applyAuthoredStagingCamera(page, scenarioId, input.stagingCameraByScenario?.[scenarioId])
             ?? await reframeCameraForRoom(page, live.environmentId);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 

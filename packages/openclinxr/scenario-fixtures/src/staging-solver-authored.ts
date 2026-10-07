@@ -14,35 +14,35 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
   "peds_fever_v1": {
     "camera": {
       "eye": [
-        -2.39,
-        1.68,
-        -3.574973
+        -2.64,
+        2.16,
+        -3.324973
       ],
       "look": [
-        -2.712,
-        0.961572,
-        0.07
+        -2.442242,
+        0.662342,
+        0.541822
       ],
-      "fov": 90
+      "fov": 70
     },
     "placements": {
       "nurse_aisha_brooks_v1": {
         "supportSurface": "none",
         "plantOffsetMeters": {
-          "x": -2.694114,
+          "x": -2.703386,
           "y": 0,
-          "z": 0.118708
+          "z": 0.118675
         },
-        "headingRadians": -2.712929
+        "headingRadians": -2.721731
       },
       "parent_mei_chen_v1": {
         "supportSurface": "chair",
         "plantOffsetMeters": {
-          "x": -2.975013,
+          "x": -3.345235,
           "y": 0,
-          "z": 0.955194
+          "z": 1.026661
         },
-        "headingRadians": -2.675908
+        "headingRadians": -2.680988
       },
       "patient_noah_chen_v1": {
         "supportSurface": "stretcher",
