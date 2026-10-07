@@ -1411,6 +1411,40 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/openclinxr/stations/mouth-executor:
+    dependencies:
+      '@gltf-transform/core':
+        specifier: ^4.3.0
+        version: 4.3.0
+      '@openclinxr/station-mouth-objective':
+        specifier: workspace:*
+        version: link:../mouth-objective
+      '@openclinxr/xr-dialogue':
+        specifier: workspace:*
+        version: link:../../xr-dialogue
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      '@types/three':
+        specifier: 'catalog:'
+        version: 0.184.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/openclinxr/stations/mouth-objective:
     devDependencies:
       '@cellix/config-typescript':

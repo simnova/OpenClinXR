@@ -1,0 +1,13 @@
+{
+  "entrypoints": {
+    ".": [
+      "ApplyProvenance",
+      "ApplyResult",
+      "BuildProblemOptions",
+      "Problem",
+      "Solution",
+      "apply",
+      "buildProblem"
+    ]
+  }
+}

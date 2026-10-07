@@ -1,5 +1,10 @@
 [
   {
+    "name": "@openclinxr/station-mouth-executor",
+    "station": "mouth",
+    "stationRole": "executor"
+  },
+  {
     "name": "@openclinxr/station-mouth-objective",
     "station": "mouth",
     "stationRole": "objective"

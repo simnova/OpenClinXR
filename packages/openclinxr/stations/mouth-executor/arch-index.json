@@ -1,0 +1,38 @@
+{
+  "package": "stations/mouth-executor",
+  "name": "@openclinxr/station-mouth-executor",
+  "entrypoint": "packages/openclinxr/stations/mouth-executor/src/index.ts",
+  "purpose": "Mouth-station executor: builds the seat problem from GLB bytes and applies a pinned solution to GLB bytes with receipt provenance (MADR 0061 stationRole executor).",
+  "exports": [
+    "ApplyProvenance",
+    "ApplyResult",
+    "BuildProblemOptions",
+    "Problem",
+    "Solution",
+    "apply",
+    "buildProblem"
+  ],
+  "exportSummaries": {
+    "ApplyProvenance": "Provenance the caller supplies with a solution.",
+    "ApplyResult": "Seated bytes plus the receipt note recording what ran.",
+    "BuildProblemOptions": "Options for buildProblem: the one operator-set target (mouth-tuning rung 4).",
+    "Problem": "Solver input: the unseated asset and the cue track it must satisfy.",
+    "Solution": "Solver output: scored frames plus the provenance the receipt records.",
+    "apply": "Apply a pinned solution to unseated GLB bytes.",
+    "buildProblem": "Build the solver input for unseated GLB bytes."
+  },
+  "workspaceDependencies": [
+    "@openclinxr/station-mouth-objective",
+    "@openclinxr/xr-dialogue"
+  ],
+  "tests": [
+    "src/executor.test.ts",
+    "src/the-public-entry-exposes-no-tuning.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-mouth-executor test",
+    "typecheck": "pnpm --filter @openclinxr/station-mouth-executor typecheck",
+    "build": "pnpm --filter @openclinxr/station-mouth-executor build",
+    "lint": "pnpm --filter @openclinxr/station-mouth-executor lint"
+  }
+}
