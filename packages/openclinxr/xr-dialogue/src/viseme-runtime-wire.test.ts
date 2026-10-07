@@ -659,3 +659,113 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
     });
   });
 });
+
+describe("#lipbones — O/U weights drive oris corner rounding", () => {
+  function lipBones() {
+    const names = ["oris04.L", "oris04.R", "oris01", "oris05"];
+    return names.map((name) => ({
+      name,
+      isBone: true as const,
+      position: { x: 0, y: 1.5, z: 0.14 },
+      userData: {} as Record<string, unknown>,
+    }));
+  }
+
+  function oMesh() {
+    const names = ["viseme_sil", "viseme_E", "viseme_O", "viseme_U", "viseme_CH", "viseme_RR"];
+    return {
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    };
+  }
+
+  function driveWithBones(
+    bones: ReturnType<typeof lipBones>,
+    phoneme: string,
+    extraMeshes: unknown[] = [],
+  ) {
+    const mesh = oMesh();
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(mesh);
+        for (const b of bones) callback(b);
+        for (const m of extraMeshes) callback(m);
+      },
+    };
+    const result = applyDialogueVisemeTimelineToRoot(root, {
+      phonemeSequence: ["sil"],
+      progress: 0,
+      bakedCues: [{ phoneme, atSecond: 0, durationSeconds: 1 }],
+    });
+    return { bones, result };
+  }
+
+  it("moves the oris04 corners on O/U and restores them on E", () => {
+    for (const viseme of ["O", "U"]) {
+      const bones = lipBones();
+      driveWithBones(bones, viseme);
+      const byName = new Map(bones.map((b) => [b.name, b]));
+      // Committed probe table (T9): oris04 corners 6mm (L +X), lower-midline
+      // 3mm and upper-midline 2.5mm forward (philtrum-lump round).
+      expect(byName.get("oris04.L")!.position.x, `${viseme} corner`).toBeCloseTo(0.006, 9);
+      expect(byName.get("oris04.R")!.position.x, `${viseme} corner`).toBeCloseTo(-0.006, 9);
+      expect(byName.get("oris01")!.position.z, `${viseme} fwd`).toBeCloseTo(0.14 + 0.003, 9);
+      expect(byName.get("oris05")!.position.z, `${viseme} fwd`).toBeCloseTo(0.14 + 0.0025, 9);
+    }
+    for (const viseme of ["PP", "FF", "TH", "E", "aa", "CH", "RR", "sil"]) {
+      const bones = lipBones();
+      driveWithBones(bones, viseme);
+      for (const b of bones) {
+        expect(b.position.x, `${viseme} ${b.name}.x`).toBe(0);
+        expect(b.position.z, `${viseme} ${b.name}.z`).toBe(0.14);
+      }
+    }
+  });
+
+  it("matches sanitised live-graph names (three.js strips dots at load)", () => {
+    const bones = lipBones().map((b) => ({ ...b, name: b.name.replace(/\./g, "") }));
+    driveWithBones(bones, "O");
+    const byName = new Map(bones.map((b) => [b.name, b]));
+    expect(byName.get("oris04L")!.position.x).toBeCloseTo(0.006, 9);
+    expect(byName.get("oris04R")!.position.x).toBeCloseTo(-0.006, 9);
+  });
+
+  it("caps per-frame corner travel at 0.25 of full on a synthetic O track", () => {
+    const bones = lipBones();
+    const mesh = oMesh();
+    const cues = [
+      { phoneme: "sil", atSecond: 0, durationSeconds: 0.5 },
+      { phoneme: "E", atSecond: 0.5, durationSeconds: 0.5 },
+      { phoneme: "O", atSecond: 1.0, durationSeconds: 0.5 },
+      { phoneme: "E", atSecond: 1.5, durationSeconds: 0.5 },
+      { phoneme: "sil", atSecond: 2.0, durationSeconds: 0.5 },
+    ];
+    const at = (mediaS: number): number => {
+      const shared = {
+        userData: {} as Record<string, unknown>,
+        traverse(callback: (object: unknown) => void) {
+          callback(mesh);
+          for (const b of bones) callback(b);
+        },
+      };
+      applyNamedSpeechVisemes({
+        root: shared,
+        activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 2500, bakedCues: cues },
+        mediaPositionSeconds: () => mediaS,
+      });
+      return bones.find((b) => b.name === "oris04.L")!.position.x;
+    };
+    let max = 0;
+    let prev = at(frameMediaS(0));
+    for (let n = 1; n < 75; n += 1) {
+      const cur = at(frameMediaS(n));
+      max = Math.max(max, Math.abs(cur - prev));
+      prev = cur;
+    }
+    // Full corner travel is 6mm and the weight envelope moves <= 0.25/frame,
+    // so one 30fps bone step is at most 1.5mm.
+    expect(max).toBeLessThanOrEqual(0.0015 + 1e-12);
+  });
+});

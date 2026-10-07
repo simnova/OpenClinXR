@@ -392,10 +392,10 @@
             "y0": 468.8,
             "y1": 487.5
           },
-          "upperPx": 320,
-          "lowerPx": 30,
-          "mouthPx": 350,
-          "lipGapPx": 0,
+          "upperPx": 344,
+          "lowerPx": 1,
+          "mouthPx": 345,
+          "lipGapPx": 5,
           "legacyMouthPx": 0,
           "legacyLipGapPx": 0
         },
@@ -821,12 +821,12 @@
             "y0": 474.2,
             "y1": 493.1
           },
-          "upperPx": 460,
-          "lowerPx": 40,
-          "mouthPx": 500,
-          "lipGapPx": 11,
-          "legacyMouthPx": 1449,
-          "legacyLipGapPx": 58
+          "upperPx": 830,
+          "lowerPx": 43,
+          "mouthPx": 873,
+          "lipGapPx": 20,
+          "legacyMouthPx": 1104,
+          "legacyLipGapPx": 71
         },
         {
           "viseme": "U",
@@ -849,12 +849,12 @@
             "y0": 458.1,
             "y1": 488.8
           },
-          "upperPx": 0,
-          "lowerPx": 2,
-          "mouthPx": 2,
+          "upperPx": 2244,
+          "lowerPx": 37,
+          "mouthPx": 2281,
           "lipGapPx": 0,
-          "legacyMouthPx": 1683,
-          "legacyLipGapPx": 29
+          "legacyMouthPx": 1933,
+          "legacyLipGapPx": 43
         }
       ]
     }

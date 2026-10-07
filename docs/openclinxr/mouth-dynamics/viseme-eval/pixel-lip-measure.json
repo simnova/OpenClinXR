@@ -133,20 +133,20 @@
       "hwRatio": 0.102
     },
     "O": {
-      "outerWidthPx": 478,
-      "outerY": 481,
-      "apertureWidthPx": 478,
-      "apertureY": 481,
-      "apertureHeightPx": 66,
-      "hwRatio": 0.138
+      "outerWidthPx": 392,
+      "outerY": 615,
+      "apertureWidthPx": 376,
+      "apertureY": 478,
+      "apertureHeightPx": 69,
+      "hwRatio": 0.184
     },
     "U": {
-      "outerWidthPx": 528,
+      "outerWidthPx": 463,
       "outerY": 481,
-      "apertureWidthPx": 528,
+      "apertureWidthPx": 463,
       "apertureY": 481,
-      "apertureHeightPx": 73,
-      "hwRatio": 0.138
+      "apertureHeightPx": 74,
+      "hwRatio": 0.16
     }
   },
   "view34": {
@@ -229,16 +229,16 @@
       "forwardPx": -48
     },
     "O": {
-      "lipX": 196,
-      "lipY": 412,
+      "lipX": 197,
+      "lipY": 400,
       "anchorX": 159,
-      "forwardPx": -37
+      "forwardPx": -38
     },
     "U": {
-      "lipX": 194,
-      "lipY": 412,
+      "lipX": 191,
+      "lipY": 400,
       "anchorX": 158,
-      "forwardPx": -36
+      "forwardPx": -33
     }
   },
   "ratiosVsE": {
@@ -256,8 +256,8 @@
       "aa": 0.803,
       "E": 1,
       "I": 1.016,
-      "O": 0.84,
-      "U": 0.928
+      "O": 0.689,
+      "U": 0.814
     },
     "frontApW": {
       "sil": 0.967,
@@ -273,8 +273,8 @@
       "aa": 0.803,
       "E": 1,
       "I": 1.016,
-      "O": 0.84,
-      "U": 0.928
+      "O": 0.661,
+      "U": 0.814
     },
     "fwd34": {
       "sil": 5,
@@ -290,8 +290,8 @@
       "aa": 0,
       "E": 0,
       "I": -1,
-      "O": 10,
-      "U": 11
+      "O": 9,
+      "U": 14
     }
   },
   "validation": {
@@ -309,28 +309,28 @@
         "forwardPx": -47
       },
       "O": {
-        "outerWidthPx": 478,
-        "outerY": 481,
-        "apertureWidthPx": 478,
-        "apertureY": 481,
-        "apertureHeightPx": 66,
-        "hwRatio": 0.138,
-        "lipX": 196,
-        "lipY": 412,
+        "outerWidthPx": 392,
+        "outerY": 615,
+        "apertureWidthPx": 376,
+        "apertureY": 478,
+        "apertureHeightPx": 69,
+        "hwRatio": 0.184,
+        "lipX": 197,
+        "lipY": 400,
         "anchorX": 159,
-        "forwardPx": -37
+        "forwardPx": -38
       },
       "U": {
-        "outerWidthPx": 528,
+        "outerWidthPx": 463,
         "outerY": 481,
-        "apertureWidthPx": 528,
+        "apertureWidthPx": 463,
         "apertureY": 481,
-        "apertureHeightPx": 73,
-        "hwRatio": 0.138,
-        "lipX": 194,
-        "lipY": 412,
+        "apertureHeightPx": 74,
+        "hwRatio": 0.16,
+        "lipX": 191,
+        "lipY": 400,
         "anchorX": 158,
-        "forwardPx": -36
+        "forwardPx": -33
       }
     },
     "boneDelta": {
@@ -345,21 +345,21 @@
         }
       },
       "O": {
-        "pixelOuterLive": 478,
+        "pixelOuterLive": 392,
         "pixelOuterArch": 458,
-        "pixelOuterDeltaPx": -20,
-        "pixelOuterDeltaPct": -4.2,
-        "pixelFwdDeltaPx": 12,
+        "pixelOuterDeltaPx": 66,
+        "pixelOuterDeltaPct": 16.8,
+        "pixelFwdDeltaPx": 13,
         "landmarkOuterLive": 574.2,
         "landmarkOuterArch": 529.9,
         "landmarkDeltaPx": -44.3
       },
       "U": {
-        "pixelOuterLive": 528,
+        "pixelOuterLive": 463,
         "pixelOuterArch": 529,
-        "pixelOuterDeltaPx": 1,
-        "pixelOuterDeltaPct": 0.2,
-        "pixelFwdDeltaPx": 4,
+        "pixelOuterDeltaPx": 66,
+        "pixelOuterDeltaPct": 14.3,
+        "pixelFwdDeltaPx": 1,
         "landmarkOuterLive": 596.3,
         "landmarkOuterArch": 540.5,
         "landmarkDeltaPx": -55.8
@@ -424,9 +424,9 @@
     "isolated-34/E.png": "d49702e5d2a771ceaea1645cf7d33cb7",
     "isolated-front/I.png": "b629c27e81d03a10f9a91878fb12e51a",
     "isolated-34/I.png": "1706a04db330142686d89cf0ce132a07",
-    "isolated-front/O.png": "11ac747cf00f5f5c94f5b46154c5ea9b",
-    "isolated-34/O.png": "0041ec34d19d43e8ecfc047708ad3297",
-    "isolated-front/U.png": "4edfc7bc4270e139a2cfd0c81d60a91f",
-    "isolated-34/U.png": "8df30902a2817331ea80213d6a6c22c3"
+    "isolated-front/O.png": "5c3cf67c60de4cdf9b1bbc4d0dfdc9eb",
+    "isolated-34/O.png": "86d384abeeee939fcce946e5d73568f9",
+    "isolated-front/U.png": "e47cac4bd179ce7b2027e380591eb729",
+    "isolated-34/U.png": "5c2bed817b656a2857f998e3c404c31e"
   }
 }

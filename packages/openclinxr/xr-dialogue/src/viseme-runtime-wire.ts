@@ -28,6 +28,7 @@ import {
 } from "./viseme-morph-apply.js";
 import { applyPreparedJawDynamics } from "./prepared-jaw-dynamics.js";
 import { applyPreparedLipDynamics } from "./viseme-lip-dynamics.js";
+import { applyLipBoneRoundingToRoot } from "./lip-bone-rounding.js";
 export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
   attachBakedCuesToSpeech,
@@ -39,60 +40,8 @@ export {
 } from "./viseme-baked-cues.js";
 export { resolveMorphIndex } from "./viseme-morph-apply.js";
 export { JAW_OPEN_TEETH_CLEAR_RADIANS, type PhonemeCue } from "./viseme-timeline-drive.js";
-/** Dialogue / gen-drive tokens → ARKit-style phoneme labels resolveVisemeTarget understands. */
-const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
-  sil: "sil",
-  silence: "sil",
-  rest: "sil",
-  a: "AA",
-  e: "E",
-  i: "IH",
-  o: "OH",
-  u: "OU",
-  m: "sil",
-  b: "sil",
-  p: "sil",
-  f: "FV",
-  v: "FV",
-  t: "L",
-  d: "L",
-  n: "L",
-  l: "L",
-  s: "TH",
-  z: "TH",
-  k: "sil",
-  g: "sil",
-  q: "sil",
-  c: "sil",
-  r: "L",
-  w: "OU",
-  y: "IH",
-  // ARPAbet vowels widened onto the visemes02 names the rebaked parent carries (#469).
-  // AH was the defect: dialogue-pronunciations.ts "a": "AH" resolved to nothing. Oculus/ARPAbet
-  // standard vowel→viseme assignment; the contract asserts AH/IY/OW/UW reach distinct baked shapes.
-  AH: "aa",
-  AE: "aa",
-  AO: "O",
-  AW: "O",
-  AY: "aa",
-  EH: "E",
-  ER: "E",
-  EY: "E",
-  IY: "I",
-  OW: "O",
-  OY: "O",
-  UH: "U",
-  UW: "U",
-  // ARKit / mesh tokens passthrough
-  AA: "AA",
-  E: "E",
-  IH: "IH",
-  OH: "OH",
-  OU: "OU",
-  FV: "FV",
-  L: "L",
-  TH: "TH",
-};
+import { mapDialoguePhonemesToCues } from "./viseme-dwell.js";
+export { mapDialoguePhonemeToArkit, mapDialoguePhonemesToCues } from "./viseme-dwell.js";
 
 export type MorphRootLike = {
   traverse: (callback: (object: unknown) => void) => void;
@@ -190,70 +139,6 @@ export function collectMorphTargetNames(root: MorphRootLike): string[] {
   return [...names].sort();
 }
 
-export function mapDialoguePhonemeToArkit(phoneme: string): string {
-  const raw = phoneme.trim();
-  if (!raw) return "sil";
-  return DIALOGUE_PHONEME_TO_ARKIT[raw] ?? DIALOGUE_PHONEME_TO_ARKIT[raw.toLowerCase()] ?? raw;
-}
-
-/**
- * Per-phone dwell weights for a normalised timeline, in seconds. Proportions only: the caller's
- * `durationMs` scales the whole utterance uniformly, so these numbers choose how the total is
- * shared, never wall-clock. External reference (no known-good column in this tree — #382):
- * English conversational speech puts stressed vowels near 100-200 ms and stop closures near
- * 20-80 ms. Keyed on the raw tokens the pipeline can emit: CMUdict ARPAbet (uppercase) and the
- * #376 grapheme-fallback letters (lowercase).
- */
-const VOWEL_DWELL_SECONDS = 0.24;
-const STOP_DWELL_SECONDS = 0.08;
-const NASAL_DWELL_SECONDS = 0.12;
-const FRICATIVE_DWELL_SECONDS = 0.16;
-const GLIDE_DWELL_SECONDS = 0.16;
-const SIL_DWELL_SECONDS = 0.16;
-
-const VOWEL_TOKENS: ReadonlySet<string> = new Set([
-  "AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OY", "UH", "UW",
-  "a", "e", "i", "o", "u",
-]);
-const STOP_TOKENS: ReadonlySet<string> = new Set(["P", "B", "T", "D", "K", "G", "t", "k"]);
-const NASAL_TOKENS: ReadonlySet<string> = new Set(["M", "N", "NG", "m"]);
-const FRICATIVE_TOKENS: ReadonlySet<string> = new Set([
-  "F", "V", "S", "Z", "SH", "ZH", "TH", "DH", "CH", "JH", "HH", "f",
-]);
-const GLIDE_TOKENS: ReadonlySet<string> = new Set(["L", "R", "W", "Y", "w"]);
-const SILENCE_TOKENS: ReadonlySet<string> = new Set(["sil", "silence", "rest"]);
-
-/** Dwell length for a raw phoneme token; unknown tokens get a mid-length dwell, never zero. */
-function phonemeDwellSeconds(phoneme: string): number {
-  const raw = phoneme.trim();
-  if (SILENCE_TOKENS.has(raw.toLowerCase())) return SIL_DWELL_SECONDS;
-  if (VOWEL_TOKENS.has(raw)) return VOWEL_DWELL_SECONDS;
-  if (STOP_TOKENS.has(raw)) return STOP_DWELL_SECONDS;
-  if (NASAL_TOKENS.has(raw)) return NASAL_DWELL_SECONDS;
-  if (FRICATIVE_TOKENS.has(raw)) return FRICATIVE_DWELL_SECONDS;
-  if (GLIDE_TOKENS.has(raw)) return GLIDE_DWELL_SECONDS;
-  return FRICATIVE_DWELL_SECONDS;
-}
-
-/**
- * Map dialogue phonemes to duration-weighted cues: each cue carries the phoneme's dwell length
- * and a cumulative `atSecond`. `pickFrame` selects by time through the total, so dwell is
- * proportional to the phone's class (vowel > stop) instead of a uniform 1/N division (#382).
- */
-export function mapDialoguePhonemesToCues(phonemes: readonly string[]): PhonemeCue[] {
-  let at = 0;
-  return phonemes.map((phoneme) => {
-    const durationSeconds = phonemeDwellSeconds(phoneme);
-    const cue: PhonemeCue = {
-      phoneme: mapDialoguePhonemeToArkit(phoneme),
-      atSecond: Number(at.toFixed(4)),
-      durationSeconds,
-    };
-    at += durationSeconds;
-    return cue;
-  });
-}
-
 function pickFrame(frames: readonly VisemeFrame[], progress: number): { frame: VisemeFrame; index: number } {
   if (frames.length === 0) {
     return { frame: { atSecond: 0, weights: {}, jawOpenRadians: 0 }, index: 0 };
@@ -332,6 +217,9 @@ export function applyDialogueVisemeTimelineToRoot(
     appliedMeshCount += 1;
   });
   const jawBonesTouched = applyJawOpenToRoot(root, jawOpenRadians);
+  // Lip-bone rounding (#lipbones): O/U enveloped morph weights drive the
+  // oris corner + midline bones; every other weight leaves the bind pose.
+  applyLipBoneRoundingToRoot(root, weights);
 
   const active = activeVisemeFromWeights(weights);
   const result: NamedVisemeDriveResult = {
@@ -389,6 +277,8 @@ export function applyGeneratedScalarVisemeToRoot(root: MorphRootLike, weight: nu
       applyVisemeWeights(mesh, scaled);
     });
     const jawBonesTouched = applyJawOpenToRoot(root, scaledJaw);
+    // AA never rounds; rescaled weights carry no O/U drive, restoring rest.
+    applyLipBoneRoundingToRoot(root, scaled);
     return {
       ...result,
       weights: scaled,
@@ -457,7 +347,10 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
       phonemeSequence: [cue.phoneme], progress: 0, nowMs: driveNowMs,
       bakedCues: [{ phoneme: cue.phoneme, atSecond: 0, ...(typeof cue.durationSeconds === "number" ? { durationSeconds: cue.durationSeconds } : {}) }],
     });
-    return applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
+    const driven = applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
+    // Bones follow the dynamics-shaped weights (same envelope), not the pre-dynamics frame.
+    applyLipBoneRoundingToRoot(slot.root, driven.weights);
+    return driven;
   }
   const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
   const result = applyDialogueVisemeTimelineToRoot(slot.root, {
@@ -466,7 +359,9 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
   });
   const finalCue = speech.bakedCues?.[speech.bakedCues.length - 1];
   const endS = finalCue === undefined ? 0 : finalCue.atSecond + (finalCue.durationSeconds ?? 0);
-  return applyPreparedJawDynamics(result, slot.root, speech.bakedCues, progress * endS, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
+  const wallDriven = applyPreparedJawDynamics(result, slot.root, speech.bakedCues, progress * endS, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
+  applyLipBoneRoundingToRoot(slot.root, wallDriven.weights);
+  return wallDriven;
 }
 
 /**

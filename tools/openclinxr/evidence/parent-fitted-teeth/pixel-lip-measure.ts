@@ -68,6 +68,14 @@ const APERTURE_COLS = { x0: 462, x1: 562, step: 4 } as const;
 const PROFILE34 = {
   lipY0: 400, lipY1: 520, anchorY0: 120, anchorY1: 180, x0: 120, x1: 600, step: 4,
 } as const;
+/** Philtrum-lump proxy bands. Front band sits on the philtrum skin between
+ * the nose base and the upper-vermilion shadow (sil phil mean 124.4 vs
+ * cheek 118.7: plain lit skin, so a bone-driven forward bulge reads as a
+ * shadow-band luminance drop). 34 rows cover philtrum height: the O pose
+ * with upper-midline push reads ~7px forward of E there while lip height
+ * reads ~1px behind. */
+export const PHILTRUM_BAND = { x0: 462, x1: 562, y0: 360, y1: 400 } as const;
+const PHILTRUM34 = { y0: 380, y1: 400, step: 4 } as const;
 
 function mean(values: number[]): number {
   if (values.length === 0) throw new Error("empty-sample");
@@ -317,6 +325,46 @@ export function measurePixelLipForward(still34: RgbImage, t: PixelLipThresholds)
   }
   if (!Number.isFinite(lipX) || !Number.isFinite(anchorX)) throw new Error("pixel-lip-no-silhouette");
   return { lipX, lipY, anchorX, forwardPx: anchorX - lipX };
+}
+
+/**
+ * Philtrum-lump proxy, front view: mean luminance over the philtrum band.
+ * Compare same-viseme before/after a bone change (probe base row vs table
+ * row): a forward-bulging philtrum casts a shadow band, so the lump reads
+ * as a bone-driven luminance drop. Not compared vs E (pose shadow position
+ * differs by viseme: E phil 91.7 vs sil 124.4 on the same render).
+ */
+export function measurePhiltrumBand(still: RgbImage): number {
+  if (still.w !== 1024 || still.h !== 1024) throw new Error(`pixel-lip-canvas:front:${still.w}x${still.h}`);
+  let sum = 0;
+  let n = 0;
+  for (let y = PHILTRUM_BAND.y0; y <= PHILTRUM_BAND.y1; y += 2) {
+    for (let x = PHILTRUM_BAND.x0; x <= PHILTRUM_BAND.x1; x += 2) {
+      const [r, g, b] = pxAt(still, x, y);
+      sum += (r + g + b) / 3;
+      n += 1;
+    }
+  }
+  return Math.round((sum / n) * 10) / 10;
+}
+
+/**
+ * Philtrum-lump proxy, 3/4 view: mean silhouette x over philtrum-height
+ * rows. A midline bulge pushes these rows forward (smaller x) while the
+ * lip-height rows stay put; report alongside lipX so the push location is
+ * visible (upper push vs vermilion push).
+ */
+export function measurePhiltrumSilhouette(still34: RgbImage, t: PixelLipThresholds): number {
+  if (still34.w !== 1024 || still34.h !== 1024) throw new Error(`pixel-lip-canvas:34:${still34.w}x${still34.h}`);
+  let sum = 0;
+  let n = 0;
+  for (let y = PHILTRUM34.y0; y <= PHILTRUM34.y1; y += PHILTRUM34.step) {
+    const x = firstEdgeX(still34, y, t.bgT34);
+    if (x === null) throw new Error("pixel-lip-no-silhouette");
+    sum += x;
+    n += 1;
+  }
+  return Math.round((sum / n) * 10) / 10;
 }
 
 /**

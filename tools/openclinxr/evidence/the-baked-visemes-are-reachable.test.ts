@@ -81,7 +81,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
 const PRONUNCIATIONS = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/dialogue-pronunciations.ts");
-const WIRE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");
+const WIRE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-dwell.ts");
 
 /** Machine-read, never typed — the two errors in the header were both hand-typed populations. */
 async function shippedTargets(): Promise<Set<string>> {
