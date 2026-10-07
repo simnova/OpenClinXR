@@ -3791,6 +3791,9 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/SS.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/TH.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/U.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/isolated.report.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/aa.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/CH.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/DD.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
