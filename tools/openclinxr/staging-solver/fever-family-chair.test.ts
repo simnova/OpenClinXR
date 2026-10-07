@@ -1,268 +1,144 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { buildStationEnvironment } from "../../../packages/openclinxr/xr-station/src/station-environment";
-import { searchClinicalLayouts } from "./layout-search";
-import { sitContact } from "./contact-solvers";
-import type { CachedSceneSnapshot } from "./staging-types";
+import { buildStationEnvironment } from "../../../packages/openclinxr/xr-station/src/station-environment.js";
+import { searchClinicalLayouts } from "./layout-search.js";
+import { sitContact } from "./contact-solvers.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const root = resolve(here, "../../..");
-const pedsPath = resolve(root, ".openclinxr/staging-solver/peds_fever_v1/scene-snapshot.json");
+type Tuple3 = [number, number, number];
+type Tuple2 = [number, number];
 
-function loadSnapshot(path: string): CachedSceneSnapshot {
-  const raw = readFileSync(path, "utf8");
-  return JSON.parse(raw) as unknown as CachedSceneSnapshot;
-}
-
-type Vec3 = { x: number; y: number; z: number };
-type Box3 = { min: Vec3; max: Vec3 };
-type SeatLike = { name: string; box: Box3; slotId: string };
-
-function vec(record: unknown): Vec3 {
-  const r = record as Record<string, unknown>;
-  return {
-    x: Number(r["x"]),
-    y: Number(r["y"]),
-    z: Number(r["z"]),
-  };
-}
-
-function boxOf(record: unknown): Box3 {
-  const r = record as Record<string, unknown>;
-  return { min: vec(r["min"]), max: vec(r["max"]) };
-}
-
-function centerOf(box: Box3): Vec3 {
-  return {
-    x: (box.min.x + box.max.x) / 2,
-    y: (box.min.y + box.max.y) / 2,
-    z: (box.min.z + box.max.z) / 2,
-  };
-}
-
-function supportBoxes(snapshot: CachedSceneSnapshot): Box3[] {
-  const rootRecord = snapshot as unknown as Record<string, unknown>;
-  const out: Box3[] = [];
-  const pushValue = (value: unknown): void => {
-    if (value === null || value === undefined) return;
-    if (Array.isArray(value)) {
-      for (const entry of value) pushValue(entry);
-      return;
+function readSnapshot(scenarioId: string) {
+  const candidates = [
+    `.openclinxr/staging-solver/${scenarioId}/scene-snapshot.json`,
+    `tools/openclinxr/staging-solver/snapshots/${scenarioId}.json`,
+  ];
+  for (const path of candidates) {
+    try {
+      return JSON.parse(readFileSync(path, "utf8"));
+    } catch {
+      continue;
     }
-    if (typeof value === "object") {
-      const record = value as Record<string, unknown>;
-      if ("box" in record && "slotId" in record) {
-        out.push(boxOf(record["box"]));
-      }
-      for (const key of Object.keys(record)) pushValue(record[key]);
-    }
-  };
-  pushValue(rootRecord);
-  return out;
+  }
+  throw new Error(`missing snapshot ${scenarioId}`);
 }
 
-function frameForSnapshot(snapshot: CachedSceneSnapshot): {
-  frame: unknown;
-  anchor: Vec3;
-  seatCenter: Vec3;
-} {
-  const boxes = supportBoxes(snapshot);
-  let largest = boxes[0];
+function entryMinMax(entry: { min?: number[]; max?: number[]; box?: { min?: number[]; max?: number[] } }) {
+  const min = entry.min ?? entry.box?.min;
+  const max = entry.max ?? entry.box?.max;
+  if (min === undefined || max === undefined) throw new Error("support missing box");
+  return { min, max };
+}
+
+function patientChestTuple(snapshot: { actors: Array<{ id: string; chest?: number[] }> }): Tuple3 {
+  const patient = snapshot.actors.find((a) => Array.isArray(a.chest) && a.id !== "parent_mei_chen_v1")
+    ?? snapshot.actors.find((a) => Array.isArray(a.chest));
+  if (patient === undefined || patient.chest === undefined) throw new Error("missing patient chest");
+  const chest = patient.chest;
+  return [chest[0], chest[1], chest[2]];
+}
+
+function frameForSnapshot(snapshot: {
+  actors: Array<{ id: string; chest?: number[] }>;
+  patientSupports: Array<{ min?: number[]; max?: number[]; box?: { min?: number[]; max?: number[] } }>;
+}) {
+  const chest = patientChestTuple(snapshot);
+  let largest = snapshot.patientSupports[0];
   let largestArea = -1;
-  for (const box of boxes) {
-    const area = Math.abs(box.max.x - box.min.x) * Math.abs(box.max.z - box.min.z);
+  for (const entry of snapshot.patientSupports) {
+    const { min, max } = entryMinMax(entry);
+    const area = (max[0] - min[0]) * (max[2] - min[2]);
     if (area > largestArea) {
       largestArea = area;
-      largest = box;
+      largest = entry;
     }
   }
-  const head: Vec3 = { x: largest.min.x, y: largest.max.y, z: largest.min.z };
-  const foot: Vec3 = { x: largest.max.x, y: largest.max.y, z: largest.max.z };
-  const long = { x: foot.x - head.x, y: 0, z: foot.z - head.z };
-  const len = Math.hypot(long.x, long.z) || 1;
-  const longN = { x: long.x / len, y: 0, z: long.z / len };
-  const side = { x: -longN.z, y: 0, z: longN.x };
-  // Nurse anchor uses head + long * -0.35 + side * -0.62 from the largest patient support.
-  const anchor: Vec3 = {
-    x: head.x + longN.x * -0.35 + side.x * -0.62,
-    y: head.y,
-    z: head.z + longN.z * -0.35 + side.z * -0.62,
-  };
-  const seatCenter: Vec3 = { x: -0.55, y: 0.425, z: -0.75 };
-  const frame = {
-    nurseAnchor: anchor,
-    head,
-    foot,
-    long: longN,
-    side,
-  };
-  return { frame, anchor, seatCenter };
+  const { min, max } = entryMinMax(largest);
+  const cx = (min[0] + max[0]) / 2;
+  const cz = (min[2] + max[2]) / 2;
+  const dx = max[0] - min[0];
+  const dz = max[2] - min[2];
+  let long: Tuple2 = dx >= dz ? [1, 0] : [0, 1];
+  const toPatient: Tuple2 = [chest[0] - cx, chest[2] - cz];
+  if (long[0] * toPatient[0] + long[1] * toPatient[1] < 0) {
+    long = [-long[0], -long[1]];
+  }
+  const side: Tuple2 = [-long[1], long[0]];
+  const halfLong = (dx >= dz ? dx : dz) / 2;
+  const head: Tuple2 = [cx + long[0] * halfLong, cz + long[1] * halfLong];
+  const foot: Tuple2 = [cx - long[0] * halfLong, cz - long[1] * halfLong];
+  const nurseAnchor: Tuple2 = [
+    head[0] + long[0] * -0.35 + side[0] * -0.62,
+    head[1] + long[1] * -0.35 + side[1] * -0.62,
+  ];
+  return { nurseAnchor, head, foot };
 }
 
-function collectDescendants(group: unknown, out: Record<string, unknown>[]): void {
-  if (group === null || group === undefined) return;
-  if (Array.isArray(group)) {
-    for (const entry of group) collectDescendants(entry, out);
-    return;
-  }
-  if (typeof group === "object") {
-    const record = group as Record<string, unknown>;
-    out.push(record);
-    const children = record["children"];
-    if (Array.isArray(children)) {
-      for (const child of children) collectDescendants(child, out);
+function builtFamilyChair() {
+  const group = buildStationEnvironment({ environmentId: "pediatric_fever_urgent_care_bay_v1" });
+  const chairs: Array<{ x: number; z: number; seat: number }> = [];
+  group.traverse((obj) => {
+    const slot = obj.userData["fixtureSlotId"];
+    const seat = obj.userData["seatHeightMeters"];
+    if (slot === "family_chair" && typeof seat === "number") {
+      chairs.push({ x: obj.position.x, z: obj.position.z, seat });
     }
-  }
+  });
+  return chairs;
 }
 
 describe("fever family chair", () => {
-  it("built shell exposes family_chair with seatHeightMeters", () => {
-    const env = buildStationEnvironment({
-      descriptorId: "pediatric_fever_urgent_care_bay_v1",
-    } as unknown as Parameters<typeof buildStationEnvironment>[0]);
-    const group = (env as unknown as Record<string, unknown>)["group"] ?? env;
-    const nodes: Record<string, unknown>[] = [];
-    collectDescendants(group, nodes);
-    const chairs = nodes.filter((n) => {
-      const userData = n["userData"] as Record<string, unknown> | undefined;
-      return userData !== undefined && userData["fixtureSlotId"] === "family_chair";
-    });
+  it("mounts the shared chair on the fever shell", () => {
+    const chairs = builtFamilyChair();
     expect(chairs.length).toBeGreaterThan(0);
-    const chair = chairs[0];
-    const userData = chair["userData"] as Record<string, unknown>;
-    expect(typeof userData["seatHeightMeters"]).toBe("number");
-    const position = chair["position"] as Record<string, unknown>;
-    expect(Number(position["x"])).toBeCloseTo(-0.55, 2);
-    expect(Number(position["z"])).toBeCloseTo(-0.75, 2);
+    expect(chairs[0].x).toBeCloseTo(-0.55, 2);
+    expect(chairs[0].z).toBeCloseTo(-0.75, 2);
+    expect(typeof chairs[0].seat).toBe("number");
   });
 
-  it("cached fever stays red while copy plus seat resolves sitContact", () => {
-    const snapshot = loadSnapshot(pedsPath);
+  it("unmodified fever snapshot stays red", () => {
+    const snapshot = readSnapshot("peds_fever_v1");
     const result = searchClinicalLayouts(snapshot);
-    const resultRecord = result as unknown as Record<string, unknown>;
-    const layouts = resultRecord["layouts"] as unknown[];
-    expect(layouts).toHaveLength(0);
-    const binding = String(resultRecord["bindingConstraint"] ?? resultRecord["binding"] ?? "");
-    expect(binding).toContain("parent_mei_chen_v1");
-    expect(binding).toContain("companion_chair");
+    expect(result.layouts).toHaveLength(0);
+    expect(String(result.bindingConstraint)).toContain("parent_mei_chen_v1");
+    expect(String(result.bindingConstraint)).toContain("companion_chair");
+    const parent = snapshot.actors.find((a: { id: string }) => a.id === "parent_mei_chen_v1");
+    const frame = frameForSnapshot(snapshot);
+    expect(sitContact(snapshot, parent, frame)).toHaveLength(0);
+  });
 
-    const baseContacts = sitContact(
-      "parent_mei_chen_v1",
-      snapshot,
-      frameForSnapshot(snapshot).frame as never,
-    );
-    expect(baseContacts).toHaveLength(0);
-
-    const built = buildStationEnvironment({
-      descriptorId: "pediatric_fever_urgent_care_bay_v1",
-    } as unknown as Parameters<typeof buildStationEnvironment>[0]);
-    const group = (built as unknown as Record<string, unknown>)["group"] ?? built;
-    const nodes: Record<string, unknown>[] = [];
-    collectDescendants(group, nodes);
-    const chairNode = nodes.find((n) => {
-      const userData = n["userData"] as Record<string, unknown> | undefined;
-      return userData !== undefined && userData["fixtureSlotId"] === "family_chair";
-    }) as Record<string, unknown>;
-    const chairPos = chairNode["position"] as Record<string, unknown>;
-    const cx = Number(chairPos["x"]);
-    const cz = Number(chairPos["z"]);
-
-    const seat: SeatLike = {
+  it("one built seat resolves parent contact", () => {
+    const chairs = builtFamilyChair();
+    const cx = chairs[0].x;
+    const cz = chairs[0].z;
+    const snapshot = readSnapshot("peds_fever_v1");
+    const augmented = structuredClone(snapshot);
+    const min: Tuple3 = [cx - 0.24, 0.4, cz - 0.24];
+    const max: Tuple3 = [cx + 0.24, 0.45, cz + 0.24];
+    const seatEntry = {
       name: "openclinxr.station-environment.fixture-slot.family_chair.seat",
+      kind: "companion_chair",
       slotId: "companion_chair",
-      box: {
-        min: { x: cx - 0.24, y: 0.4, z: cz - 0.24 },
-        max: { x: cx + 0.24, y: 0.45, z: cz + 0.24 },
-      },
+      box: { min, max },
+      min,
+      max,
     };
-
-    const snapshotCopy = JSON.parse(JSON.stringify(snapshot)) as unknown as Record<
-      string,
-      unknown
-    >;
-    const seats: unknown[] = [];
-    const gatherSeats = (value: unknown): void => {
-      if (value === null || value === undefined) return;
-      if (Array.isArray(value)) {
-        for (const entry of value) gatherSeats(entry);
-        return;
-      }
-      if (typeof value === "object") {
-        const record = value as Record<string, unknown>;
-        if (Array.isArray(record["companionSeats"])) {
-          for (const entry of record["companionSeats"] as unknown[]) seats.push(entry);
-        }
-        if (Array.isArray(record["seats"])) {
-          for (const entry of record["seats"] as unknown[]) seats.push(entry);
-        }
-        for (const key of Object.keys(record)) gatherSeats(record[key]);
-      }
-    };
-    gatherSeats(snapshotCopy);
-    seats.push(seat);
-
-    const merged = snapshotCopy as unknown as CachedSceneSnapshot;
-    const mergedRecord = merged as unknown as Record<string, unknown>;
-    mergedRecord["companionSeats"] = seats;
-
-    const { frame, anchor, seatCenter } = frameForSnapshot(snapshot);
-    void seatCenter;
-    const contacts = sitContact("parent_mei_chen_v1", merged, frame as never);
-    const list = contacts as unknown as Record<string, unknown>[];
-    expect(list.length).toBeGreaterThan(0);
-    const first = list[0];
-    expect(String(first["slotId"])).toContain("companion_chair");
-    const plant = first["plant"] as Record<string, unknown>;
-    expect(Number(plant["y"])).toBeCloseTo(0, 5);
-
-    const seatBox = seat.box;
-    const center: Vec3 = {
-      x: (seatBox.min.x + seatBox.max.x) / 2,
-      y: (seatBox.min.y + seatBox.max.y) / 2,
-      z: (seatBox.min.z + seatBox.max.z) / 2,
-    };
-    void anchor;
-    const probe = frameForSnapshot(snapshot);
-    const gap = Math.hypot(center.x - probe.anchor.x, center.z - probe.anchor.z);
+    augmented.companionSeats.push(seatEntry);
+    const frame = frameForSnapshot(augmented);
+    const parent = augmented.actors.find((a: { id: string }) => a.id === "parent_mei_chen_v1");
+    const resolved = sitContact(augmented, parent, frame);
+    expect(resolved.length).toBeGreaterThan(0);
+    expect(resolved[0].slotId).toBe("companion_chair");
+    expect(resolved[0].placement.plantOffsetMeters.y).toBe(0);
+    const seatCentre: Tuple2 = [cx, cz];
+    const gap = Math.hypot(seatCentre[0] - frame.nurseAnchor[0], seatCentre[1] - frame.nurseAnchor[1]);
     expect(gap).toBeGreaterThanOrEqual(1.2);
-    expect(centerOf(seatBox).x).toBeCloseTo(cx, 5);
   });
 
-  it("adult layout keeps physician_bedside at eye height", () => {
-    const adultPath = resolve(
-      root,
-      ".openclinxr/staging-solver/adult_abdominal_pain_v1/scene-snapshot.json",
-    );
-    const snapshot = loadSnapshot(adultPath);
+  it("adult scenario keeps a bedside learner stance", () => {
+    const snapshot = readSnapshot("adult_abdominal_pain_v1");
     const result = searchClinicalLayouts(snapshot);
-    const resultRecord = result as unknown as Record<string, unknown>;
-    const layouts = resultRecord["layouts"] as unknown[];
-    expect(layouts.length).toBeGreaterThan(0);
-    const dumped = JSON.stringify(result);
-    expect(dumped).toContain("physician_bedside");
-    const eyeValues: number[] = [];
-    const scan = (value: unknown): void => {
-      if (value === null || value === undefined) return;
-      if (Array.isArray(value)) {
-        for (const entry of value) scan(entry);
-        return;
-      }
-      if (typeof value === "object") {
-        const record = value as Record<string, unknown>;
-        if (record["slotId"] === "physician_bedside" || record["id"] === "physician_bedside") {
-          const plant = record["plant"] as Record<string, unknown> | undefined;
-          if (plant !== undefined && plant["y"] !== undefined) eyeValues.push(Number(plant["y"]));
-          const position = record["position"] as Record<string, unknown> | undefined;
-          if (position !== undefined && position["y"] !== undefined)
-            eyeValues.push(Number(position["y"]));
-        }
-        for (const key of Object.keys(record)) scan(record[key]);
-      }
-    };
-    scan(result);
-    expect(eyeValues.length).toBeGreaterThan(0);
-    for (const y of eyeValues) expect(y).toBeCloseTo(1.7, 2);
+    expect(result.layouts.length).toBeGreaterThan(0);
+    expect(result.learnerStance.slotId).toBe("physician_bedside");
+    expect(result.learnerStance.world[1]).toBe(1.7);
   });
 });
