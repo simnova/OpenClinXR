@@ -5,6 +5,11 @@
       "path": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts",
       "reason": "Resolves its applier at apps/ui-xr/src/blink-runtime-wire.js, which moved to packages/openclinxr/xr-dialogue in 6f5221c32; cases (1) and (3) fail on origin/main cbb93bb67 and on every commit touching xr-dialogue.",
       "card": "unfiled: repoint the blink test at @openclinxr/xr-dialogue"
+    },
+    {
+      "path": "tools/openclinxr/mouth-solver/mouth-evaluator.test.ts",
+      "reason": "Four gates (rim count 68 vs pin 76, rim band, jaw travel 9.307 vs 7.0-8.6, dy bias) fail on main 0adb432ca: the pins predate the FF press (d33b3d2b7) and TH tongue (ec55570e9) GLB changes. Re-pinning is assigned to the gaps card.",
+      "card": "tsk_7ff980db7eb0ff65"
     }
   ]
 }

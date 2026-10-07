@@ -1,0 +1,50 @@
+{
+  "package": "stations/mouth-objective",
+  "name": "@openclinxr/station-mouth-objective",
+  "entrypoint": "packages/openclinxr/stations/mouth-objective/src/index.ts",
+  "purpose": "Shared mouth-station objective: pure lip-seat measures, gate thresholds and solver port types.",
+  "exports": [
+    "DY_GATE_BIAS_PX",
+    "DY_GATE_DETRENDED_MEDIAN_PX",
+    "DY_GATE_MAX_PX",
+    "PENETRATION_FRAMES_MAX",
+    "Problem",
+    "RIM_BAND_MM",
+    "RIM_TARGET_MM",
+    "Solution",
+    "SolutionFrame",
+    "SolverModule",
+    "UPPER_DISPLACEMENT_BOUND_MM",
+    "centroidPacked",
+    "countPenetratingVerts",
+    "meanRimGapMm",
+    "upperDisplacementMm"
+  ],
+  "exportSummaries": {
+    "DY_GATE_BIAS_PX": "Ground-truth dy gate: absolute signed bias bound, capture-crop px.",
+    "DY_GATE_DETRENDED_MEDIAN_PX": "Ground-truth dy gate: detrended tracking-shape median bound, capture-crop px.",
+    "DY_GATE_MAX_PX": "Ground-truth dy gate: blowout bound on max absolute error, capture-crop px.",
+    "PENETRATION_FRAMES_MAX": "Penetration gate: frames allowed with penetrating verts.",
+    "Problem": "Solver input: the unseated asset and the cue track it must satisfy.",
+    "RIM_BAND_MM": "Rim-gap gate half-width around the target, mm.",
+    "RIM_TARGET_MM": "Rim-gap rest target, head-local mm.",
+    "Solution": "Solver output: scored frames plus the provenance the receipt records.",
+    "SolutionFrame": "Per-frame scored geometry, head-local mm; deep-comparable for the verifier re-run.",
+    "SolverModule": "Pinned solver plug-in: one constant with an id, a version and a pure solve.",
+    "UPPER_DISPLACEMENT_BOUND_MM": "Upper-arch silence bound: max head-local displacement on any viseme, mm.",
+    "centroidPacked": "Mean of packed xyz triples.",
+    "countPenetratingVerts": "Lower front-shell verts at or in front of the lip landmark's max head-local +Z.",
+    "meanRimGapMm": "Mean head-local 3D distance from each lower-shell vertex to its nearest inner-rim vertex, mm.",
+    "upperDisplacementMm": "Upper front-shell centroid displacement from rest, head-local mm."
+  },
+  "workspaceDependencies": [],
+  "tests": [
+    "src/objective.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-mouth-objective test",
+    "typecheck": "pnpm --filter @openclinxr/station-mouth-objective typecheck",
+    "build": "pnpm --filter @openclinxr/station-mouth-objective build",
+    "lint": "pnpm --filter @openclinxr/station-mouth-objective lint"
+  }
+}

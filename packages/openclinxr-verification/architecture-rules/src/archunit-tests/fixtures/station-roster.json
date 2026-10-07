@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "name": "@openclinxr/station-mouth-objective",
+    "station": "mouth",
+    "stationRole": "objective"
+  }
+]

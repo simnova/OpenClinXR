@@ -1,0 +1,21 @@
+{
+  "entrypoints": {
+    ".": [
+      "DY_GATE_BIAS_PX",
+      "DY_GATE_DETRENDED_MEDIAN_PX",
+      "DY_GATE_MAX_PX",
+      "PENETRATION_FRAMES_MAX",
+      "Problem",
+      "RIM_BAND_MM",
+      "RIM_TARGET_MM",
+      "Solution",
+      "SolutionFrame",
+      "SolverModule",
+      "UPPER_DISPLACEMENT_BOUND_MM",
+      "centroidPacked",
+      "countPenetratingVerts",
+      "meanRimGapMm",
+      "upperDisplacementMm"
+    ]
+  }
+}

@@ -114,9 +114,12 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 49 roots and 128 declared entrypoints", () => {
+  it("(1) the live tree discovers 50 roots and 129 declared entrypoints", () => {
     const report = measureSurface();
-    expect(report.totals.roots).toBe(49);
+    // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
+    // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
+    // is reviewed with the other station packages in the psr-c6-mouth exception at the final land.
+    expect(report.totals.roots).toBe(50);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -130,7 +133,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-05 viseme-motion verdict: xr-dialogue adds ./viseme-runtime, ./viseme-morph and
     // ./viseme-timeline; motion-compiler adds ./compiler and ./glb-bake; xr-humanoid-animation
     // adds ./manifest-motion-clip-playback — six declared entrypoints (122 -> 128).
-    expect(report.totals.entrypoints).toBe(128);
+    // 2026-10-07 mouth-station objective root adds one declared entrypoint (128 -> 129).
+    expect(report.totals.entrypoints).toBe(129);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -157,7 +161,7 @@ describe("compiler-resolved surface meter", () => {
       expect(dirs, arena).toContain(arena);
     }
     const report = measureSurface();
-    expect(report.packages.length).toBe(49);
+    expect(report.packages.length).toBe(50);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

@@ -38,6 +38,12 @@ import {
   lowerLipLandmark,
 } from "../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.js";
 import { type HeadlessMesh, headFocusCamera, loadHeadlessScene } from "./headless-scene.js";
+import {
+  centroidPacked,
+  countPenetratingVerts,
+  meanRimGapMm,
+  upperDisplacementMm,
+} from "@openclinxr/station-mouth-objective";
 import type {
   CueTrackCue,
   EvaluateParams,
@@ -115,20 +121,6 @@ function boneMatrices(mesh: HeadlessMesh): Float32Array {
   const matrices = mesh.skeleton.boneMatrices;
   if (!matrices) throw new Error("skeleton has no bone matrices");
   return matrices.slice();
-}
-
-/** Mean of packed xyz triples. */
-function centroidPacked(packed: Float32Array): [number, number, number] {
-  const count = packed.length / 3 || 1;
-  let x = 0;
-  let y = 0;
-  let z = 0;
-  for (let i = 0; i < packed.length; i += 3) {
-    x += packed[i] ?? 0;
-    y += packed[i + 1] ?? 0;
-    z += packed[i + 2] ?? 0;
-  }
-  return [x / count, y / count, z / count];
 }
 
 export type EvaluatorTrack = {
@@ -388,40 +380,15 @@ export async function evaluate(
     teethCentroidYs.push(teethCentroid[1]);
     // Rim gap: mean head-local 3D distance from each lower-shell vertex to
     // its nearest inner-rim vertex. Rim-only reference: no tongue or throat.
-    let rimGapSum = 0;
-    for (let i = 0; i < teethHead.length; i += 3) {
-      const tx = teethHead[i] ?? 0;
-      const ty = teethHead[i + 1] ?? 0;
-      const tz = teethHead[i + 2] ?? 0;
-      let best = Infinity;
-      for (let j = 0; j < rimHead.length; j += 3) {
-        const dx = (rimHead[j] ?? 0) - tx;
-        const dy = (rimHead[j + 1] ?? 0) - ty;
-        const dz = (rimHead[j + 2] ?? 0) - tz;
-        const dist = dx * dx + dy * dy + dz * dz;
-        if (dist < best) best = dist;
-      }
-      rimGapSum += Math.sqrt(best);
-    }
-    const rimGapMm = (rimGapSum / (teethHead.length / 3 || 1)) * 1000;
+    const rimGapMm = meanRimGapMm(teethHead, rimHead);
     // Forward gap reuses the factory surface metric the teeth were solved
     // against (frontShellMeanGap): mean lower-shell distance to the nearest
     // body vertex, signed by whether the lip sits in front (+Z).
     const surfaceGap = frontShellMeanGap(teethWorld, teethShells.lower, bodyWorld);
     const forwardGapMm = (surfaceGap.dirM[2] > 0 ? 1 : -1) * surfaceGap.meanM * 1000;
-    let lipMaxZ = -Infinity;
-    for (let i = 2; i < lipHead.length; i += 3) lipMaxZ = Math.max(lipMaxZ, lipHead[i] ?? 0);
-    let penetrating = 0;
-    for (let i = 2; i < teethHead.length; i += 3) {
-      if ((teethHead[i] ?? 0) >= lipMaxZ) penetrating += 1;
-    }
+    const penetrating = countPenetratingVerts(teethHead, lipHead);
     const upperCentroid = centroidPacked(headInverse(teethWorld, teethShells.upper));
-    const upperDisplacementMm =
-      Math.hypot(
-        upperCentroid[0] - restUpperCentroid[0],
-        upperCentroid[1] - restUpperCentroid[1],
-        upperCentroid[2] - restUpperCentroid[2],
-      ) * 1000;
+    const upperDisplacement = upperDisplacementMm(upperCentroid, restUpperCentroid);
 
     // Ground-truth projection: the capture pale-pixel centroid aggregates
     // the visible crowns, so the evaluator projects the full front shell
@@ -444,7 +411,7 @@ export async function evaluate(
       forwardGapHeadLocalMm: round6(forwardGapMm),
       verticalGapHeadLocalMm: round6((lipCentroid[1] - teethCentroid[1]) * 1000),
       penetratingVerts: penetrating,
-      upperTeethDisplacementHeadLocalMm: round6(upperDisplacementMm),
+      upperTeethDisplacementHeadLocalMm: round6(upperDisplacement),
       projCxCropPx: round6(projCx),
       projCyCropPx: round6(projCy),
       projDxCropPx: projDx === null ? null : round6(projDx),
