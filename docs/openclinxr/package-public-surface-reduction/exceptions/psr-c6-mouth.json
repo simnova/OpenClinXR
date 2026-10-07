@@ -1,0 +1,346 @@
+{
+  "id": "psr-c6-mouth",
+  "reviewedSourceCandidate": "8ea9b1deca290d13b48fd2d5e6749cf670ee4b89",
+  "sourceCandidateKind": "git-commit",
+  "reviewedBy": "Codex gpt-5.6-terra independent review on exact commit 8ea9b1deca290d13b48fd2d5e6749cf670ee4b89 (not an author): session 01a117cc-d4fe-70e1-a8f3-d11ff660148a verified the five station roots and no other root change, 52 names (15/7/20/1/9), measurements 1277/median 20.5/p90 41 vs main 1225/23/50, MADR 0061 role boundaries (only the registry imports the solver; executor and verifier do not), no public tuning or solve callback, and REJECTED the draft for invalid kind values; session 01a117d1-30f2-7bb2-a7da-3c99d351e4af re-verified the corrected draft (25 runtime, 27 type) and APPROVED; 2026-10-07",
+  "requestedExports": [
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "ApplyProvenance",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "ApplyResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "BuildProblemOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "Problem",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "Solution",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "apply",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-executor",
+      "entrypoint": ".",
+      "symbol": "buildProblem",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "DY_GATE_BIAS_PX",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "DY_GATE_DETRENDED_MEDIAN_PX",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "DY_GATE_MAX_PX",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "PENETRATION_FRAMES_MAX",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "Problem",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "RIM_BAND_MM",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "RIM_TARGET_MM",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "Solution",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "SolutionFrame",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "SolverModule",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "UPPER_DISPLACEMENT_BOUND_MM",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "centroidPacked",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "countPenetratingVerts",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "meanRimGapMm",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-objective",
+      "entrypoint": ".",
+      "symbol": "upperDisplacementMm",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "Problem",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "RegistryPin",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "RunOptions",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "RunResult",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "Solution",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "loadPin",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "loadPinnedSolver",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "run",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-registry",
+      "entrypoint": ".",
+      "symbol": "verifySolution",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-solver-closedform",
+      "entrypoint": ".",
+      "symbol": "mouthClosedformSolver",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "CueTrackCue",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "DY_GATE_RULE",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "EvaluateParams",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "EvaluatorOutput",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "EvaluatorSummary",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "EvaluatorTrack",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "FrameRecord",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "HeadFocusCamera",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "HeadlessMesh",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "HeadlessScene",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "NowGapPoint",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "PositionSpace",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "PremiseProbeRow",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "ToothSample",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "assertGroundTruthDyGate",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "evaluate",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "headFocusCamera",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "loadHeadlessScene",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "probePremise",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": ".",
+      "symbol": "readEvaluatorTrack",
+      "kind": "runtime"
+    }
+  ],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1277,
+      "threshold": 1000,
+      "owner": "mouth-station pilot implementation workers (muse-spark-1, cards S0 and M1-M6) and the Claude coordinator who merged them",
+      "reviewedBy": "Codex gpt-5.6-terra independent review on exact commit 8ea9b1deca290d13b48fd2d5e6749cf670ee4b89 (not an author): session 01a117cc-d4fe-70e1-a8f3-d11ff660148a verified the five station roots and no other root change, 52 names (15/7/20/1/9), measurements 1277/median 20.5/p90 41 vs main 1225/23/50, MADR 0061 role boundaries (only the registry imports the solver; executor and verifier do not), no public tuning or solve callback, and REJECTED the draft for invalid kind values; session 01a117d1-30f2-7bb2-a7da-3c99d351e4af re-verified the corrected draft (25 runtime, 27 type) and APPROVED; 2026-10-07",
+      "reason": "MADR 0060/0061 mouth-station pilot adds five packages under packages/openclinxr/stations (objective, executor, verifier, solver-closedform, registry; roots 49 -> 54, entrypoints 128 -> 133). Their root '.' surfaces (listed in requestedExports, 52 names) carry the station roles: the objective's pure measures and gate thresholds plus Problem/Solution/SolverModule; the executor's buildProblem/apply; the verifier's evaluate surface moved from tools/openclinxr/mouth-solver; the solver's single module constant; the registry's pinned run. Root exports 1225 -> 1277."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 20.5,
+      "threshold": 15,
+      "owner": "mouth-station pilot implementation workers (muse-spark-1, cards S0 and M1-M6) and the Claude coordinator who merged them",
+      "reviewedBy": "Codex gpt-5.6-terra independent review on exact commit 8ea9b1deca290d13b48fd2d5e6749cf670ee4b89 (not an author): session 01a117cc-d4fe-70e1-a8f3-d11ff660148a verified the five station roots and no other root change, 52 names (15/7/20/1/9), measurements 1277/median 20.5/p90 41 vs main 1225/23/50, MADR 0061 role boundaries (only the registry imports the solver; executor and verifier do not), no public tuning or solve callback, and REJECTED the draft for invalid kind values; session 01a117d1-30f2-7bb2-a7da-3c99d351e4af re-verified the corrected draft (25 runtime, 27 type) and APPROVED; 2026-10-07",
+      "reason": "Median of per-root export counts moves 23 -> 20.5: the five station roots (15/7/20/1/9 names) are smaller than the median root."
+    },
+    {
+      "target": "p90AtMost",
+      "measured": 41,
+      "threshold": 25,
+      "owner": "mouth-station pilot implementation workers (muse-spark-1, cards S0 and M1-M6) and the Claude coordinator who merged them",
+      "reviewedBy": "Codex gpt-5.6-terra independent review on exact commit 8ea9b1deca290d13b48fd2d5e6749cf670ee4b89 (not an author): session 01a117cc-d4fe-70e1-a8f3-d11ff660148a verified the five station roots and no other root change, 52 names (15/7/20/1/9), measurements 1277/median 20.5/p90 41 vs main 1225/23/50, MADR 0061 role boundaries (only the registry imports the solver; executor and verifier do not), no public tuning or solve callback, and REJECTED the draft for invalid kind values; session 01a117d1-30f2-7bb2-a7da-3c99d351e4af re-verified the corrected draft (25 runtime, 27 type) and APPROVED; 2026-10-07",
+      "reason": "p90 of per-root export counts moves 50 -> 41 for the same reason; no existing root count rises."
+    }
+  ]
+}
