@@ -1,0 +1,432 @@
+{
+  "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+  "method": [
+    "Segment the visible mouth from the rendered still: dark aperture (mean < darkT) + tooth-white (tooth-pixel-split rule) + vermilion redness excess over per-row local skin (lerped cheek refs) vs surrounding skin; thresholds calibrated from the rest-pose sil stills of the same render.",
+    "Outer lip width = widest mouth-centre run over the mouth band (y 380-620); aperture w = widest dark/tooth/deep-red centre run; aperture h = tallest aperture column run near the centre; 3/4 forward = foremost lip silhouette x vs the rigid forehead anchor.",
+    "Validation (a): attempt-1 bone-driven pixel delta (archived after vs live before, E-framing verified) ~0 where landmark claimed narrowing and the coordinator graded the opening the same width. Validation (b): 0.85 mouth-band squeeze reports ~0.85."
+  ],
+  "thresholds": {
+    "darkT": 48,
+    "redT": 10,
+    "gumT": 26,
+    "bgT34": 54,
+    "restStats": {
+      "skinL": {
+        "r": 135.3576,
+        "g": 106.0408,
+        "b": 80.0512
+      },
+      "skinR": {
+        "r": 184.578,
+        "g": 138.676,
+        "b": 105.6528
+      },
+      "apertureMean": 27.45833333333331,
+      "apertureSd": 13.710161267939634,
+      "lipRedxsMedian": 19.289081325301197,
+      "bg34Median": 28.666666666666668
+    }
+  },
+  "front": {
+    "sil": {
+      "outerWidthPx": 550,
+      "outerY": 475,
+      "apertureWidthPx": 550,
+      "apertureY": 475,
+      "apertureHeightPx": 61,
+      "hwRatio": 0.111
+    },
+    "PP": {
+      "outerWidthPx": 441,
+      "outerY": 493,
+      "apertureWidthPx": 128,
+      "apertureY": 492,
+      "apertureHeightPx": 24,
+      "hwRatio": 0.188
+    },
+    "FF": {
+      "outerWidthPx": 487,
+      "outerY": 417,
+      "apertureWidthPx": 487,
+      "apertureY": 417,
+      "apertureHeightPx": 63,
+      "hwRatio": 0.129
+    },
+    "TH": {
+      "outerWidthPx": 516,
+      "outerY": 464,
+      "apertureWidthPx": 516,
+      "apertureY": 464,
+      "apertureHeightPx": 85,
+      "hwRatio": 0.165
+    },
+    "DD": {
+      "outerWidthPx": 544,
+      "outerY": 468,
+      "apertureWidthPx": 544,
+      "apertureY": 468,
+      "apertureHeightPx": 62,
+      "hwRatio": 0.114
+    },
+    "kk": {
+      "outerWidthPx": 546,
+      "outerY": 468,
+      "apertureWidthPx": 546,
+      "apertureY": 468,
+      "apertureHeightPx": 59,
+      "hwRatio": 0.108
+    },
+    "CH": {
+      "outerWidthPx": 528,
+      "outerY": 476,
+      "apertureWidthPx": 528,
+      "apertureY": 476,
+      "apertureHeightPx": 74,
+      "hwRatio": 0.14
+    },
+    "SS": {
+      "outerWidthPx": 567,
+      "outerY": 460,
+      "apertureWidthPx": 567,
+      "apertureY": 460,
+      "apertureHeightPx": 61,
+      "hwRatio": 0.108
+    },
+    "nn": {
+      "outerWidthPx": 554,
+      "outerY": 458,
+      "apertureWidthPx": 554,
+      "apertureY": 458,
+      "apertureHeightPx": 64,
+      "hwRatio": 0.116
+    },
+    "RR": {
+      "outerWidthPx": 561,
+      "outerY": 454,
+      "apertureWidthPx": 561,
+      "apertureY": 454,
+      "apertureHeightPx": 62,
+      "hwRatio": 0.111
+    },
+    "aa": {
+      "outerWidthPx": 457,
+      "outerY": 487,
+      "apertureWidthPx": 457,
+      "apertureY": 487,
+      "apertureHeightPx": 57,
+      "hwRatio": 0.125
+    },
+    "E": {
+      "outerWidthPx": 569,
+      "outerY": 451,
+      "apertureWidthPx": 569,
+      "apertureY": 451,
+      "apertureHeightPx": 56,
+      "hwRatio": 0.098
+    },
+    "I": {
+      "outerWidthPx": 578,
+      "outerY": 476,
+      "apertureWidthPx": 578,
+      "apertureY": 476,
+      "apertureHeightPx": 59,
+      "hwRatio": 0.102
+    },
+    "O": {
+      "outerWidthPx": 478,
+      "outerY": 481,
+      "apertureWidthPx": 478,
+      "apertureY": 481,
+      "apertureHeightPx": 66,
+      "hwRatio": 0.138
+    },
+    "U": {
+      "outerWidthPx": 528,
+      "outerY": 481,
+      "apertureWidthPx": 528,
+      "apertureY": 481,
+      "apertureHeightPx": 73,
+      "hwRatio": 0.138
+    }
+  },
+  "view34": {
+    "sil": {
+      "lipX": 201,
+      "lipY": 416,
+      "anchorX": 159,
+      "forwardPx": -42
+    },
+    "PP": {
+      "lipX": 193,
+      "lipY": 400,
+      "anchorX": 160,
+      "forwardPx": -33
+    },
+    "FF": {
+      "lipX": 214,
+      "lipY": 400,
+      "anchorX": 159,
+      "forwardPx": -55
+    },
+    "TH": {
+      "lipX": 205,
+      "lipY": 400,
+      "anchorX": 158,
+      "forwardPx": -47
+    },
+    "DD": {
+      "lipX": 202,
+      "lipY": 408,
+      "anchorX": 159,
+      "forwardPx": -43
+    },
+    "kk": {
+      "lipX": 210,
+      "lipY": 400,
+      "anchorX": 159,
+      "forwardPx": -51
+    },
+    "CH": {
+      "lipX": 201,
+      "lipY": 416,
+      "anchorX": 160,
+      "forwardPx": -41
+    },
+    "SS": {
+      "lipX": 202,
+      "lipY": 408,
+      "anchorX": 159,
+      "forwardPx": -43
+    },
+    "nn": {
+      "lipX": 203,
+      "lipY": 400,
+      "anchorX": 159,
+      "forwardPx": -44
+    },
+    "RR": {
+      "lipX": 207,
+      "lipY": 400,
+      "anchorX": 159,
+      "forwardPx": -48
+    },
+    "aa": {
+      "lipX": 206,
+      "lipY": 420,
+      "anchorX": 159,
+      "forwardPx": -47
+    },
+    "E": {
+      "lipX": 205,
+      "lipY": 400,
+      "anchorX": 158,
+      "forwardPx": -47
+    },
+    "I": {
+      "lipX": 207,
+      "lipY": 408,
+      "anchorX": 159,
+      "forwardPx": -48
+    },
+    "O": {
+      "lipX": 196,
+      "lipY": 412,
+      "anchorX": 159,
+      "forwardPx": -37
+    },
+    "U": {
+      "lipX": 194,
+      "lipY": 412,
+      "anchorX": 158,
+      "forwardPx": -36
+    }
+  },
+  "ratiosVsE": {
+    "frontOuter": {
+      "sil": 0.967,
+      "PP": 0.775,
+      "FF": 0.856,
+      "TH": 0.907,
+      "DD": 0.956,
+      "kk": 0.96,
+      "CH": 0.928,
+      "SS": 0.996,
+      "nn": 0.974,
+      "RR": 0.986,
+      "aa": 0.803,
+      "E": 1,
+      "I": 1.016,
+      "O": 0.84,
+      "U": 0.928
+    },
+    "frontApW": {
+      "sil": 0.967,
+      "PP": 0.225,
+      "FF": 0.856,
+      "TH": 0.907,
+      "DD": 0.956,
+      "kk": 0.96,
+      "CH": 0.928,
+      "SS": 0.996,
+      "nn": 0.974,
+      "RR": 0.986,
+      "aa": 0.803,
+      "E": 1,
+      "I": 1.016,
+      "O": 0.84,
+      "U": 0.928
+    },
+    "fwd34": {
+      "sil": 5,
+      "PP": 14,
+      "FF": -8,
+      "TH": 0,
+      "DD": 4,
+      "kk": -4,
+      "CH": 6,
+      "SS": 4,
+      "nn": 3,
+      "RR": -1,
+      "aa": 0,
+      "E": 0,
+      "I": -1,
+      "O": 10,
+      "U": 11
+    }
+  },
+  "validation": {
+    "shipped": {
+      "E": {
+        "outerWidthPx": 569,
+        "outerY": 451,
+        "apertureWidthPx": 569,
+        "apertureY": 451,
+        "apertureHeightPx": 56,
+        "hwRatio": 0.098,
+        "lipX": 205,
+        "lipY": 400,
+        "anchorX": 158,
+        "forwardPx": -47
+      },
+      "O": {
+        "outerWidthPx": 478,
+        "outerY": 481,
+        "apertureWidthPx": 478,
+        "apertureY": 481,
+        "apertureHeightPx": 66,
+        "hwRatio": 0.138,
+        "lipX": 196,
+        "lipY": 412,
+        "anchorX": 159,
+        "forwardPx": -37
+      },
+      "U": {
+        "outerWidthPx": 528,
+        "outerY": 481,
+        "apertureWidthPx": 528,
+        "apertureY": 481,
+        "apertureHeightPx": 73,
+        "hwRatio": 0.138,
+        "lipX": 194,
+        "lipY": 412,
+        "anchorX": 158,
+        "forwardPx": -36
+      }
+    },
+    "boneDelta": {
+      "framing": {
+        "archECorners": {
+          "lx": 190.6,
+          "rx": 834.5
+        },
+        "liveECorners": {
+          "lx": 190.7,
+          "rx": 834.5
+        }
+      },
+      "O": {
+        "pixelOuterLive": 478,
+        "pixelOuterArch": 458,
+        "pixelOuterDeltaPx": -20,
+        "pixelOuterDeltaPct": -4.2,
+        "pixelFwdDeltaPx": 12,
+        "landmarkOuterLive": 574.2,
+        "landmarkOuterArch": 529.9,
+        "landmarkDeltaPx": -44.3
+      },
+      "U": {
+        "pixelOuterLive": 528,
+        "pixelOuterArch": 529,
+        "pixelOuterDeltaPx": 1,
+        "pixelOuterDeltaPct": 0.2,
+        "pixelFwdDeltaPx": 4,
+        "landmarkOuterLive": 596.3,
+        "landmarkOuterArch": 540.5,
+        "landmarkDeltaPx": -55.8
+      },
+      "CH": {
+        "pixelOuterLive": 528,
+        "pixelOuterArch": 527,
+        "pixelOuterDeltaPx": -1,
+        "pixelOuterDeltaPct": -0.2,
+        "pixelFwdDeltaPx": 7,
+        "landmarkOuterLive": 601.6,
+        "landmarkOuterArch": 539.5,
+        "landmarkDeltaPx": -62.1
+      },
+      "RR": {
+        "pixelOuterLive": 561,
+        "pixelOuterArch": 561,
+        "pixelOuterDeltaPx": 0,
+        "pixelOuterDeltaPct": 0,
+        "pixelFwdDeltaPx": 3,
+        "landmarkOuterLive": 620.9,
+        "landmarkOuterArch": 569.7,
+        "landmarkDeltaPx": -51.2
+      }
+    },
+    "scaleProbe": {
+      "factor": 0.85,
+      "baseOuterPx": 569,
+      "squeezedOuterPx": 483,
+      "reportedRatio": 0.8489,
+      "pass": true
+    },
+    "humanAgreement": [
+      "Coordinator grade (COORDINATOR-GRADE-lipbones-OU.png): O/U openings the same width before|after bones, more lower teeth on O after. Pixel bone-delta ~0 agrees; landmark -44px O / -56px U additional narrowing disagrees with the camera.",
+      "Visual ranking on shipped stills (E widest, O narrowest, U between) reproduced by pixel outer ratios; sil hw ~0.1 (closed seam) as seen."
+    ]
+  },
+  "fingerprints": {
+    "isolated-front/sil.png": "7f8889d2653d813c2683dce7dc63d44c",
+    "isolated-34/sil.png": "94fca589447540785efb3e7f116ea763",
+    "isolated-front/PP.png": "fc769b4cd0d95480bb0b999ddf5a31aa",
+    "isolated-34/PP.png": "7e6997e5592ee53a3cdb9cb48e3c79d4",
+    "isolated-front/FF.png": "a5f112a1dd9c08f9521ce45fd9e57c68",
+    "isolated-34/FF.png": "457134161d89b44a2c3b0d262d82f024",
+    "isolated-front/TH.png": "490301805d70e4d8a379c68b5bfd6a8e",
+    "isolated-34/TH.png": "4a6058efbff5c88f5b207fbb35d8898b",
+    "isolated-front/DD.png": "d7b0cd84d0a8bfea9eb725bb19d4a233",
+    "isolated-34/DD.png": "1e8f9d14bf53a1ff5f69b713f05bf38b",
+    "isolated-front/kk.png": "837e70433a7493af9c0c728e754e3568",
+    "isolated-34/kk.png": "7872da0180aa8e426bdd14dc9ad287cb",
+    "isolated-front/CH.png": "f50e69c117af9fb1e524da90f193c8dd",
+    "isolated-34/CH.png": "80a8f1d4d4999064b1dff7e5ea1cc808",
+    "isolated-front/SS.png": "540ddb9ec0bac3e778d17bf8f59fdb74",
+    "isolated-34/SS.png": "af1678e1e690d7decdf8edacc6778ac2",
+    "isolated-front/nn.png": "18957e071aff0d327626e2ba9944a7b6",
+    "isolated-34/nn.png": "7585150b7f02ddaf60fbe688110ee57e",
+    "isolated-front/RR.png": "7f423ef4b0cffd9f20f159b674ac29a5",
+    "isolated-34/RR.png": "26caf6fbea507ca3e3e7f1bf9f4a425a",
+    "isolated-front/aa.png": "b5a3375a1a934538cb7db905268c43da",
+    "isolated-34/aa.png": "3797165a2eb329ab790aeef100e2c7d5",
+    "isolated-front/E.png": "5a367eb30706f61acf70f7019a32da7b",
+    "isolated-34/E.png": "d49702e5d2a771ceaea1645cf7d33cb7",
+    "isolated-front/I.png": "b629c27e81d03a10f9a91878fb12e51a",
+    "isolated-34/I.png": "1706a04db330142686d89cf0ce132a07",
+    "isolated-front/O.png": "11ac747cf00f5f5c94f5b46154c5ea9b",
+    "isolated-34/O.png": "0041ec34d19d43e8ecfc047708ad3297",
+    "isolated-front/U.png": "4edfc7bc4270e139a2cfd0c81d60a91f",
+    "isolated-34/U.png": "8df30902a2817331ea80213d6a6c22c3"
+  }
+}

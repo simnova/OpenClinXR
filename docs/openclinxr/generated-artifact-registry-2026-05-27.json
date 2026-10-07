@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1819,
+    "keep-evidence": 1825,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26131,6 +26131,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/aa.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26236,7 +26243,7 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34.png",
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-central.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -26244,13 +26251,6 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated.report.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -26369,6 +26369,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated.report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/pangram-mouth-front/clip.mp4",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26405,6 +26412,13 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/pangram/metrics.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/pixel-lip-measure.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -26684,11 +26698,11 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json",
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth-lane-2026-10-07.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+      "rationale": "Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements)."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json",
@@ -26698,11 +26712,11 @@
       "rationale": "Independently reviewed mouth-station pilot public-surface exception (five station packages, exact measurements)."
     },
     {
-      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth-lane-2026-10-07.json",
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
-      "rationale": "Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements)."
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-room-chain-wiring.json",
@@ -34224,13 +34238,6 @@
     },
     {
       "path": "tools/openclinxr/mouth-solver/solved-teeth-gap.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-central.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
