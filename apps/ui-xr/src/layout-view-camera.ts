@@ -44,20 +44,21 @@ function coverOrthographicFrustum(ortho: OrthographicCamera, bounds: Box3, aspec
 /** Publish the capture hook that swaps the station render camera for a layout shot. */
 export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement): void {
   window.__openClinXrDebugHoldCamera = null;
-  const hiddenCeilings: Mesh[] = [];
-  // GLB primitives inherit the ceiling name from a parent group; mesh.name alone leaves the slab.
-  const setCeilingVisible = (visible: boolean): void => {
+  const hiddenLayoutMeshes: Mesh[] = [];
+  // GLB primitives inherit the ceiling or exterior-hull name from a parent group.
+  // mesh.name alone leaves the slab. Both kinds restore from this one list.
+  const setLayoutShellVisible = (visible: boolean): void => {
     if (visible) {
-      for (const mesh of hiddenCeilings) mesh.visible = true;
-      hiddenCeilings.length = 0;
+      for (const mesh of hiddenLayoutMeshes) mesh.visible = true;
+      hiddenLayoutMeshes.length = 0;
       return;
     }
     scene.traverse((obj) => {
-      if (!/ceiling/i.test(obj.name)) return;
+      if (!/ceiling/i.test(obj.name) && !/exterior/i.test(obj.name)) return;
       obj.traverse((child) => {
         if (!(child instanceof Mesh) || !child.visible) return;
         child.visible = false;
-        hiddenCeilings.push(child);
+        hiddenLayoutMeshes.push(child);
       });
     });
   };
@@ -66,10 +67,10 @@ export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement
     if (previous) previous.removeFromParent();
     window.__openClinXrDebugHoldCamera = null;
     if (mode === "perspective") {
-      setCeilingVisible(true);
+      setLayoutShellVisible(true);
       return;
     }
-    setCeilingVisible(false);
+    setLayoutShellVisible(false);
     const roomRoot = scene.getObjectByName("openclinxr.station-environment.infinigen-room");
     if (!roomRoot) throw new Error("layout view: room interior is missing");
     const interior = new Box3();
@@ -146,12 +147,14 @@ export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement
       }
       const distance = Number.isFinite(exit) ? Math.max(0.75, exit - 0.05) : 3;
       hold.position.copy(start).addScaledVector(direction, distance);
+      // Stay inside the interior, just under the ceiling, on the open-floor diagonal.
+      // An eye past interior.max photographs the roof. Do not flip direction to +Z.
+      hold.position.y = interior.max.y - 0.25;
       hold.up.set(0, 1, 0);
-      hold.lookAt(centre);
-      const covered = group.clone();
-      covered.union(interior);
-      covered.min.addScalar(-1);
-      covered.max.addScalar(1);
+      hold.lookAt(centre.x, 0.9, centre.z);
+      const covered = interior.clone();
+      covered.min.addScalar(-0.15);
+      covered.max.addScalar(0.15);
       coverOrthographicFrustum(hold, covered, aspect);
       hold.name = "openclinxr.layout-isometric";
     }
