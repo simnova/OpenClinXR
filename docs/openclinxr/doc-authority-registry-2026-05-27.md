@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 107
-- archive-candidate: 116
-- current-reference: 208
+- archive-candidate: 117
+- current-reference: 209
 - decision-record: 44
-- evidence: 131
+- evidence: 132
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -356,7 +356,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -364,14 +363,12 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md` - evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -407,6 +404,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/grok-4.6-research-rounds-8-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-consultation-records-2026-09-09/openclinXR-complementary-scene-research.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-layout-implementation-plan-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/speaking-sync-s5-grade-2026-09-19.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -419,5 +417,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

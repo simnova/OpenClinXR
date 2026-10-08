@@ -1,12 +1,14 @@
-"""LLM skin-sheet rebake probe (procedural stand-in for Imagine pass).
+"""Procedural skin-sheet proxy; never a generated-image or Blender result.
 
 Builds: baseline 4-quadrant PBR sheet (albedo|normal / roughness|cavity),
 baseline 2-up T-pose front/back, enhanced ("LLM") quad sheet with added
 micro-detail, rebaked T-pose, and a realism judgment JSON.
-New probe files only; never touches materialize_mpfb_humanoid_candidate.py.
+Outputs are isolated below procedural-proxy, or an explicit --out-dir.
+Never writes the retained generated-image experiment's evidence directory.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import random
@@ -14,7 +16,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-OUT = Path(__file__).resolve().parents[4] / "docs" / "openclinxr" / "skin-llm-sheet-rebake-2026-09-28"
+EVIDENCE = Path(__file__).resolve().parents[4] / "docs" / "openclinxr" / "skin-llm-sheet-rebake-2026-09-28"
+OUT = EVIDENCE / "procedural-proxy"
 W = H = 512
 rng = random.Random(20260928)
 
@@ -101,23 +104,29 @@ def tpose(alb: Image.Image) -> Image.Image:
 
 
 def main() -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out-dir", type=Path, default=OUT)
+    args = parser.parse_args()
+    out = args.out_dir.resolve()
+    if out == EVIDENCE.resolve() or out in EVIDENCE.resolve().parents:
+        parser.error("procedural proxy must not overwrite the retained evidence directory")
+    out.mkdir(parents=True, exist_ok=True)
     base = quad(detail=400)
-    base.save(OUT / "input-quad-sheet-baseline.png")
-    tpose(albedo(400)).save(OUT / "input-tpose-front-back-baseline.png")
+    base.save(out / "input-quad-sheet-baseline.png")
+    tpose(albedo(400)).save(out / "input-tpose-front-back-baseline.png")
     llm = quad(detail=2400)
-    llm.save(OUT / "output-quad-sheet-llm.png")
-    tpose(albedo(2400)).save(OUT / "output-tpose-front-back-rebaked.png")
+    llm.save(out / "output-quad-sheet-llm.png")
+    tpose(albedo(2400)).save(out / "output-tpose-front-back-rebaked.png")
     judgment = {
-        "schema": "openclinxr.skin-rebake-judgment.v1",
+        "schema": "openclinxr.skin-procedural-proxy.v1",
         "baseline": {"micro_detail": "low", "pore_density": "sparse", "tone_variation": "flat"},
         "rebaked": {"micro_detail": "high", "pore_density": "dense", "tone_variation": "layered"},
-        "realism_delta": "+0.18 (procedural proxy; needs human/A-B grade)",
-        "verdict": "rebake adds visible micro-detail; realism increase plausible but unconfirmed without blind A-B",
-        "method": "procedural stand-in; Imagine pass not executed in this environment",
+        "realism_delta": "unavailable: no realism evaluation performed",
+        "verdict": "procedural illustration only; not generated-image, rendering or realism evidence",
+        "method": "seeded Pillow drawing; no image provider or Blender execution",
     }
-    (OUT / "realism-judgment.json").write_text(json.dumps(judgment, indent=2))
-    print("wrote", OUT)
+    (out / "realism-judgment.json").write_text(json.dumps(judgment, indent=2))
+    print("wrote procedural proxy", out)
 
 
 if __name__ == "__main__":

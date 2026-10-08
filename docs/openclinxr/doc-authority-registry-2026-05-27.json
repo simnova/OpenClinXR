@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 209,
-    "archive-candidate": 116,
-    "evidence": 131,
+    "archive-candidate": 117,
+    "evidence": 132,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -4663,6 +4663,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/README.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/speaking-sync-factory-tie-in-plan-2026-09-18.md",
