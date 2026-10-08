@@ -26705,6 +26705,13 @@
       "rationale": "Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements)."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-actor-dialogue-shrink.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements)."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json",
       "authority": "keep-evidence",
       "tracked": true,

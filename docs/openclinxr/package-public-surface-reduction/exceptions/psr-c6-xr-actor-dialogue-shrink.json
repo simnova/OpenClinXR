@@ -1,0 +1,25 @@
+{
+  "id": "psr-c6-xr-actor-dialogue-shrink",
+  "reviewedSourceCandidate": "99d54cb36856348cf0fae3b2101b1336ebd061a0",
+  "sourceCandidateKind": "git-tree",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree 99d54cb36856348cf0fae3b2101b1336ebd061a0: session 01a11a78-a262-7291-9a6b-2277f70ed8cc recomputed rootExports 1248, median 20, p90 41, xr-actor-dialogue root 5, thresholds 1000/15, and APPROVED; 2026-10-08",
+  "requestedExports": [],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1248,
+      "threshold": 1000,
+      "owner": "consumer-driven-contracts shrink worker (muse-spark-1) and the Claude coordinator",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree 99d54cb36856348cf0fae3b2101b1336ebd061a0: session 01a11a78-a262-7291-9a6b-2277f70ed8cc recomputed rootExports 1248, median 20, p90 41, xr-actor-dialogue root 5, thresholds 1000/15, and APPROVED; 2026-10-08",
+      "reason": "xr-actor-dialogue root '.' narrows from 29 to 5 names: 24 names no consumer binds are unpublished (commit 44fb5d551; psr-01e amendment 88a105390, independently reviewed). Total root exports 1272 -> 1248 and median 20.5 -> 20; p90 41 unchanged (covered by psr-c6-mouth). Both measurements decrease; the targets (1000, 15) are still missed."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 20,
+      "threshold": 15,
+      "owner": "consumer-driven-contracts shrink worker (muse-spark-1) and the Claude coordinator",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree 99d54cb36856348cf0fae3b2101b1336ebd061a0: session 01a11a78-a262-7291-9a6b-2277f70ed8cc recomputed rootExports 1248, median 20, p90 41, xr-actor-dialogue root 5, thresholds 1000/15, and APPROVED; 2026-10-08",
+      "reason": "xr-actor-dialogue root '.' narrows from 29 to 5 names: 24 names no consumer binds are unpublished (commit 44fb5d551; psr-01e amendment 88a105390, independently reviewed). Total root exports 1272 -> 1248 and median 20.5 -> 20; p90 41 unchanged (covered by psr-c6-mouth). Both measurements decrease; the targets (1000, 15) are still missed."
+    }
+  ]
+}
