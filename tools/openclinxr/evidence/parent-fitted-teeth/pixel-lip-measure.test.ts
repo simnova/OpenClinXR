@@ -19,6 +19,7 @@ import {
   measurePhiltrumBand,
   measurePhiltrumBulge,
   measurePhiltrumSilhouette,
+  measurePixelLipBandForward,
   measurePixelLipForward,
   measurePixelLipFront,
   PHILTRUM_BULGE_THRESHOLD_PX,
@@ -161,6 +162,26 @@ describe("pixel-lip-measure synthetic", () => {
     const { img: img2, paint } = canvas();
     paint(462, 562, 360, 400, DARK);
     expect(measurePhiltrumBand(img2)).toBeLessThan(60);
+  });
+
+  it("reads the vermilion band forward and ignores a philtrum lump", () => {
+    const t = syntheticThresholds();
+    const { img, paint } = canvas();
+    paint(0, 1023, 0, 1023, DARK);
+    paint(180, 600, 120, 180, SKIN);
+    // Philtrum lump protrudes to 150 on 380-400; vermilion sits at 170.
+    paint(150, 600, 378, 400, SKIN);
+    paint(170, 600, 404, 420, LIP);
+    paint(175, 600, 424, 520, LIP);
+    const out = measurePixelLipBandForward(img, t);
+    expect(out.anchorX).toBe(180);
+    expect(out.vermilionX).toBe(170);
+    expect(out.bandForwardPx).toBe(10);
+    // The whole-band min still reads the lump: the two rulers disagree by
+    // the lump depth, which is exactly the failure the band fixes.
+    const whole = measurePixelLipForward(img, t);
+    expect(whole.lipX).toBe(150);
+    expect(whole.forwardPx - out.bandForwardPx).toBe(20);
   });
 
   it("reads the mean philtrum-height silhouette edge on a painted 3/4", () => {

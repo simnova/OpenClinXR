@@ -8,7 +8,7 @@
  * the probe run's own sil stills. Output goes to the coordinator
  * scratchpad (NOT the repo): probe PNGs + lip-bone-probe.json.
  *
- * Run: pnpm exec tsx tools/openclinxr/evidence/parent-fitted-teeth/lip-bone-probe.ts
+ * Run: pnpm exec tsx tools/openclinxr/evidence/parent-fitted-teeth/lip-bone-probe.ts [outDir]
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -23,6 +23,7 @@ import {
   measurePhiltrumBand,
   measurePhiltrumBulge,
   measurePhiltrumSilhouette,
+  measurePixelLipBandForward,
   measurePixelLipForward,
   measurePixelLipFront,
   PHILTRUM_BULGE_THRESHOLD_PX,
@@ -32,10 +33,16 @@ type HeadlessBrowser = { newPage(options: { viewport: { width: number; height: n
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
-const OUT_DIR = "/private/tmp/claude-501/-Volumes-files-src-openclinxr/bde3aa49-e17c-405c-b469-621484cb7ff2/scratchpad/lb2-probe";
+const OUT_DIR = path.resolve(process.argv[2] ?? "/private/tmp/claude-501/-Volumes-files-src-openclinxr/bde3aa49-e17c-405c-b469-621484cb7ff2/scratchpad/lb2-probe");
+// Optional row filter (debug): only render rows whose id includes this substring.
+const ROW_FILTER = process.argv[3] ?? "";
 
-type BoneRow = { viseme: string; bone: string; channel: "x" | "z"; fullMm: number; source: string };
-type ProbeRow = { id: string; viseme: string; table: BoneRow[] | null };
+type BoneRow = { viseme: string; bone: string; channel: "x" | "z" | "rx"; fullMm: number; source: string };
+// fullMm on channel "rx" means degrees of bone-local X rotation at weight 1
+// (applied by the probe page AFTER the production position path, same
+// per-viseme envelope scale). morphs ride alongside a row (absolute set).
+type MorphRow = { target: string; weight: number };
+type ProbeRow = { id: string; viseme: string; table: BoneRow[] | null; morphs?: MorphRow[] };
 
 const oris04x = (v: string, mm: number): BoneRow[] => [
   { viseme: v, bone: "oris04.L", channel: "x", fullMm: mm, source: `headless-ring:${mm}mm` },
@@ -173,6 +180,34 @@ const rrF = (): BoneRow[] => [
   { viseme: "RR", bone: "oris05", channel: "z", fullMm: 3, source: "phil-vermilion:RR-F" },
 ];
 
+// Lip-protrusion sweep (parent O/U forward >= +4px on the vermilion band
+// with bulge <= +4px; CH/RR forward >= 0 stretch). T1 is the base every
+// candidate builds on (oris04 x6 corners + oris01 z3 lower + oris05 z1
+// upper). Untested drivers: remaining oris ring bones in z (oris02
+// midline, oris03/06/07 lateral pairs, oris06 midline), bone-local X
+// rotation on the midline pair (roll the vermilion outward instead of
+// pushing it), and MPFB lip morphs if present on this mesh (mouth-pursing
+// AU18, mouth-eversion; presence is logged per row from the live
+// morphTargetDictionary, missing targets read 0 touched).
+const t1base = (v: "O" | "U"): BoneRow[] => [
+  ...oris04x(v, 6),
+  { viseme: v, bone: "oris01", channel: "z", fullMm: 3, source: "lip-protr:T1base" },
+  { viseme: v, bone: "oris05", channel: "z", fullMm: 1, source: "lip-protr:T1base" },
+];
+const withZ = (v: "O" | "U", bones: string[], mm: number, tag: string): BoneRow[] => [
+  ...t1base(v),
+  ...bones.map((bone): BoneRow => ({ viseme: v, bone, channel: "z", fullMm: mm, source: `lip-protr:${tag}` })),
+];
+const withRx = (v: "O" | "U", deg: number, tag: string): BoneRow[] => [
+  ...t1base(v),
+  { viseme: v, bone: "oris01", channel: "rx", fullMm: deg, source: `lip-protr:${tag}` },
+  { viseme: v, bone: "oris05", channel: "rx", fullMm: deg, source: `lip-protr:${tag}` },
+];
+const purse = (v: "O" | "U"): MorphRow[] => [
+  { target: "mouth-pursing", weight: 0.5 },
+  { target: "mouth-eversion", weight: 0.5 },
+];
+
 const ROWS: ProbeRow[] = [
   { id: "base-sil", viseme: "sil", table: null },
   { id: "base-E", viseme: "E", table: null },
@@ -209,6 +244,24 @@ const ROWS: ProbeRow[] = [
   { id: "RR-D", viseme: "RR", table: rrD() },
   { id: "RR-E", viseme: "RR", table: rrE() },
   { id: "RR-F", viseme: "RR", table: rrF() },
+  { id: "P2-O", viseme: "O", table: withZ("O", ["oris02"], 2, "P2") },
+  { id: "P2-U", viseme: "U", table: withZ("U", ["oris02"], 2, "P2") },
+  { id: "P3-O", viseme: "O", table: withZ("O", ["oris03.L", "oris03.R"], 2, "P3") },
+  { id: "P3-U", viseme: "U", table: withZ("U", ["oris03.L", "oris03.R"], 2, "P3") },
+  { id: "P6-O", viseme: "O", table: withZ("O", ["oris06.L", "oris06.R"], 2, "P6") },
+  { id: "P6-U", viseme: "U", table: withZ("U", ["oris06.L", "oris06.R"], 2, "P6") },
+  { id: "P7-O", viseme: "O", table: withZ("O", ["oris07.L", "oris07.R"], 2, "P7") },
+  { id: "P7-U", viseme: "U", table: withZ("U", ["oris07.L", "oris07.R"], 2, "P7") },
+  { id: "P6m-O", viseme: "O", table: withZ("O", ["oris06"], 2, "P6m") },
+  { id: "P6m-U", viseme: "U", table: withZ("U", ["oris06"], 2, "P6m") },
+  { id: "Rn-O", viseme: "O", table: withRx("O", -15, "Rn") },
+  { id: "Rn-U", viseme: "U", table: withRx("U", -15, "Rn") },
+  { id: "Rp-O", viseme: "O", table: withRx("O", 15, "Rp") },
+  { id: "Rp-U", viseme: "U", table: withRx("U", 15, "Rp") },
+  { id: "M1-O", viseme: "O", table: t1base("O"), morphs: purse("O") },
+  { id: "M1-U", viseme: "U", table: t1base("U"), morphs: purse("U") },
+  { id: "P3-RR", viseme: "RR", table: [...rrB(), { viseme: "RR", bone: "oris03.L", channel: "z", fullMm: 2, source: "lip-protr:P3-RR" }, { viseme: "RR", bone: "oris03.R", channel: "z", fullMm: 2, source: "lip-protr:P3-RR" }] },
+  { id: "Rn-RR", viseme: "RR", table: [...rrB(), { viseme: "RR", bone: "oris01", channel: "rx", fullMm: -15, source: "lip-protr:Rn-RR" }, { viseme: "RR", bone: "oris05", channel: "rx", fullMm: -15, source: "lip-protr:Rn-RR" }] },
 ];
 
 function esbuildBin(): string {
@@ -297,16 +350,59 @@ function projectEvidenceCamera(world) {
   const v = new THREE.Vector3(world.x, world.y, world.z).project(camera);
   return { x: (v.x * 0.5 + 0.5) * W, y: (1 - (v.y * 0.5 + 0.5)) * H, W, H };
 }
-window.__probePose = (viseme, table) => {
+window.__probePose = (viseme, table, morphs) => {
   const root = window.__openClinXrIsolatedSceneRoot;
   const drive = globalThis.OpenClinXrVisemeDrive;
   drive.applyDialogueVisemeTimelineToRoot(root, { phonemeSequence: ["sil"], progress: 0.5,
     bakedCues: [{ phoneme: viseme, atSecond: 0, durationSeconds: 1, intensity: 1 }] });
   const tag = root.userData.openClinXrNamedVisemeDrive;
   let bonesTouched = 0;
+  let rxTouched = 0;
   if (table) {
-    bonesTouched = globalThis.OpenClinXrLipRounding.applyLipBoneRoundingToRoot(root, { ...(tag.weights || {}) }, table);
+    const pos = table.filter((r) => r.channel === "x" || r.channel === "z");
+    bonesTouched = globalThis.OpenClinXrLipRounding.applyLipBoneRoundingToRoot(root, { ...(tag.weights || {}) }, pos);
+    const rx = table.filter((r) => r.channel === "rx");
+    if (rx.length) {
+      const scales = globalThis.OpenClinXrLipRounding.lipRoundingScales(tag.weights || {});
+      const scale = scales[viseme] || 0;
+      const want = new Set(rx.map((r) => String(r.bone).split(".").join("")));
+      const degs = new Map(rx.map((r) => [String(r.bone).split(".").join(""), r.fullMm]));
+      // Rotate ONLY the body-mesh skeleton bones the lip instrument measures
+      // (posedWorld reads the _body mesh skeleton). Other scene skeletons
+      // (teeth, garments) share bone names and must not be touched.
+      const seenRx = new Set();
+      const body = findBodyMesh(root);
+      const skel = (body && body.skeleton && body.skeleton.bones) || [];
+      for (const b of skel) {
+        if (!b || typeof b.name !== "string") continue;
+        const key = b.name.split(".").join("");
+        if (!want.has(key)) continue;
+        if (seenRx.has(b)) continue;
+        seenRx.add(b);
+        b.userData = b.userData || {};
+        if (!b.userData.openClinXrLipRestRx) {
+          b.userData.openClinXrLipRestRx = { x: b.rotation.x, y: b.rotation.y, z: b.rotation.z };
+        }
+        b.rotation.x = b.userData.openClinXrLipRestRx.x + (degs.get(key) || 0) * Math.PI / 180 * scale;
+        rxTouched += 1;
+      }
+    }
   }
+  let morphsTouched = 0;
+  let morphNames = [];
+  root.traverse((o) => {
+    if (!o || !o.isSkinnedMesh) return;
+    if (!/_body$/i.test(String(o.name || ""))) return;
+    morphNames = Object.keys(o.morphTargetDictionary || {});
+    if (morphs && o.morphTargetInfluences) {
+      for (const m of morphs) {
+        const idx = (o.morphTargetDictionary || {})[m.target];
+        if (idx === undefined) continue;
+        o.morphTargetInfluences[idx] = m.weight;
+        morphsTouched += 1;
+      }
+    }
+  });
   let teethWeight = null, teethTarget = null;
   root.traverse((o) => {
     if (teethWeight !== null || !o || !o.isSkinnedMesh) return;
@@ -320,7 +416,7 @@ window.__probePose = (viseme, table) => {
     }
     teethWeight = best ? best.w : 0; teethTarget = best ? best.target : "";
   });
-  return { weights: { ...(tag.weights || {}) }, jawOpenRadians: tag.jawOpenRadians, bonesTouched, teethWeight, teethTarget };
+  return { weights: { ...(tag.weights || {}) }, jawOpenRadians: tag.jawOpenRadians, bonesTouched, rxTouched, morphsTouched, morphNames, teethWeight, teethTarget };
 };
 window.__probeMeasure = () => {
   const root = window.__openClinXrIsolatedSceneRoot;
@@ -409,15 +505,15 @@ async function main(): Promise<void> {
         await page.addScriptTag({ content: split });
         await page.addScriptTag({ content: three });
         await page.addScriptTag({ content: PAGE_JS });
-        for (const row of ROWS) {
-          const out = await page.evaluate((args: { viseme: string; table: BoneRow[] | null }) => {
+        for (const row of ROWS.filter((r) => !ROW_FILTER || r.id.includes(ROW_FILTER))) {
+          const out = await page.evaluate((args: { viseme: string; table: BoneRow[] | null; morphs: MorphRow[] | null }) => {
             const g = globalThis as unknown as {
-              __probePose: (v: string, t: BoneRow[] | null) => { weights: Record<string, number>; jawOpenRadians: number; bonesTouched: number; teethWeight: number; teethTarget: string };
+              __probePose: (v: string, t: BoneRow[] | null, m: MorphRow[] | null) => { weights: Record<string, number>; jawOpenRadians: number; bonesTouched: number; rxTouched: number; morphsTouched: number; morphNames: string[]; teethWeight: number; teethTarget: string };
               __probeMeasure: () => { landWidthPx: number; landAperturePx: number; central: { upperTeethN: number; lowerTeethN: number; mouthTeethN: number; lipGapPx: number }; png: string };
               __openClinXrIsolatedRenderFrame?: () => void;
               requestAnimationFrame(cb: () => void): number;
             };
-            const posed = g.__probePose(args.viseme, args.table);
+            const posed = g.__probePose(args.viseme, args.table, args.morphs);
             g.__openClinXrIsolatedRenderFrame?.();
             return new Promise((resolve, reject) => {
               const timer = setTimeout(() => reject(new Error("requestAnimationFrame stalled")), 2000);
@@ -428,8 +524,8 @@ async function main(): Promise<void> {
                 } catch (e) { reject(e); }
               });
             });
-          }, { viseme: row.viseme, table: row.table });
-          const typed = out as { posed: { weights: Record<string, number>; jawOpenRadians: number; bonesTouched: number; teethWeight: number; teethTarget: string }; measured: { landWidthPx: number; landAperturePx: number; central: { upperTeethN: number; lowerTeethN: number; mouthTeethN: number; lipGapPx: number }; png: string } };
+          }, { viseme: row.viseme, table: row.table, morphs: row.morphs ?? null });
+          const typed = out as { posed: { weights: Record<string, number>; jawOpenRadians: number; bonesTouched: number; rxTouched: number; morphsTouched: number; morphNames: string[]; teethWeight: number; teethTarget: string }; measured: { landWidthPx: number; landAperturePx: number; central: { upperTeethN: number; lowerTeethN: number; mouthTeethN: number; lipGapPx: number }; png: string } };
           const shot: string = typed.measured.png;
           const file = path.join(OUT_DIR, view.id, `${row.id}.png`);
           writeFileSync(file, Buffer.from(shot.slice(shot.indexOf(",") + 1), "base64"));
@@ -437,14 +533,18 @@ async function main(): Promise<void> {
           rows[key] = {
             viseme: row.viseme,
             table: row.table,
+            morphs: row.morphs ?? null,
             bonesTouched: typed.posed.bonesTouched,
+            rxTouched: typed.posed.rxTouched,
+            morphsTouched: typed.posed.morphsTouched,
+            morphNames: typed.posed.morphNames,
             jawRad: typed.posed.jawOpenRadians,
             landWidthPx: Math.round(typed.measured.landWidthPx * 10) / 10,
             upperPx: typed.measured.central.upperTeethN,
             lowerPx: typed.measured.central.lowerTeethN,
             lipGapPx: typed.measured.central.lipGapPx,
           };
-          process.stdout.write(`probe ${key}: bones=${typed.posed.bonesTouched} landW=${typed.measured.landWidthPx.toFixed(1)} upper=${typed.measured.central.upperTeethN} lower=${typed.measured.central.lowerTeethN}\n`);
+          process.stdout.write(`probe ${key}: bones=${typed.posed.bonesTouched} rx=${typed.posed.rxTouched} morph=${typed.posed.morphsTouched} landW=${typed.measured.landWidthPx.toFixed(1)} upper=${typed.measured.central.upperTeethN} lower=${typed.measured.central.lowerTeethN}\n`);
         }
         await page.close();
       }
@@ -453,6 +553,11 @@ async function main(): Promise<void> {
     }
   });
   // Pixel-measure every row with thresholds from the probe run's own sil.
+  // With ROW_FILTER (debug) the base rows are absent, so skip measuring.
+  if (ROW_FILTER) {
+    process.stdout.write("row-filter debug run: skipping pixel-measure\n");
+    return;
+  }
   const restFront = decodeTopDown(path.join(OUT_DIR, "front/base-sil.png"));
   const rest34 = decodeTopDown(path.join(OUT_DIR, "34/base-sil.png"));
   const t = calibratePixelLipThresholds(restFront, rest34);
@@ -463,6 +568,7 @@ async function main(): Promise<void> {
     const view34Img = decodeTopDown(path.join(OUT_DIR, `34/${row.id}.png`));
     const fm = measurePixelLipFront(frontImg, t);
     const cm = measurePixelLipForward(view34Img, t);
+    const bm = measurePixelLipBandForward(view34Img, t);
     const bg = measurePhiltrumBulge(view34Img, t);
     f["pixelOuterPx"] = fm.outerWidthPx;
     f["pixelApWPx"] = fm.apertureWidthPx;
@@ -473,27 +579,36 @@ async function main(): Promise<void> {
     c["pixelLipY"] = cm.lipY;
     c["pixelAnchorX"] = cm.anchorX;
     c["pixelFwdPx"] = cm.forwardPx;
+    c["pixelBandX"] = bm.vermilionX;
+    c["pixelBandY"] = bm.vermilionY;
+    c["pixelBandFwdPx"] = bm.bandForwardPx;
     c["pixelPhilX"] = measurePhiltrumSilhouette(view34Img, t);
     c["pixelNoseX"] = bg.noseX;
     c["pixelBulgePx"] = bg.bulgePx;
   }
   const eFront = rows["front/base-E"] as { pixelOuterPx: number };
   const eFwd = rows["34/base-E"] as { pixelFwdPx: number };
+  const eBand = rows["34/base-E"] as { pixelBandFwdPx: number };
   const baseOf = (viseme: string): string => `base-${viseme}`;
   const table = ROWS.map((row) => {
-    const f = rows[`front/${row.id}`] as { pixelOuterPx: number; pixelApWPx: number; pixelHw: number; pixelPhilBand: number; upperPx: number; lowerPx: number; landWidthPx: number; bonesTouched: number };
-    const c = rows[`34/${row.id}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelLipY: number; pixelBulgePx: number };
+    const f = rows[`front/${row.id}`] as { pixelOuterPx: number; pixelApWPx: number; pixelHw: number; pixelPhilBand: number; upperPx: number; lowerPx: number; landWidthPx: number; bonesTouched: number; rxTouched: number; morphsTouched: number; morphNames: string[] };
+    const c = rows[`34/${row.id}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelLipY: number; pixelBulgePx: number; pixelBandFwdPx: number; pixelBandX: number; pixelBandY: number };
     const bf = rows[`front/${baseOf(row.viseme)}`] as { pixelOuterPx: number; pixelPhilBand: number };
-    const bc = rows[`34/${baseOf(row.viseme)}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelBulgePx: number };
+    const bc = rows[`34/${baseOf(row.viseme)}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelBulgePx: number; pixelBandFwdPx: number };
     const bones = row.table ? [...new Set(row.table.map((r) => `${r.bone}:${r.channel}:${r.fullMm}`))].join("+") : "(none)";
+    const morphLabel = row.morphs ? ` morph(${row.morphs.map((m) => `${m.target}@${m.weight}`).join("+")})` : "";
     return {
       id: row.id,
-      bones,
+      bones: bones + morphLabel,
       widthPx: f.pixelOuterPx,
       widthPctVsE: Math.round(((f.pixelOuterPx - eFront.pixelOuterPx) / eFront.pixelOuterPx) * 1000) / 10,
       widthDeltaVsBasePx: Math.round((f.pixelOuterPx - bf.pixelOuterPx) * 10) / 10,
       hwRatio: f.pixelHw,
       forwardPxVsE: c.pixelFwdPx - eFwd.pixelFwdPx,
+      bandFwdPxVsE: Math.round((c.pixelBandFwdPx - eBand.pixelBandFwdPx) * 10) / 10,
+      bandDeltaVsBasePx: Math.round((c.pixelBandFwdPx - bc.pixelBandFwdPx) * 10) / 10,
+      bandX: c.pixelBandX,
+      bandY: c.pixelBandY,
       fwdDeltaVsBasePx: c.pixelFwdPx - bc.pixelFwdPx,
       lipXDeltaVsBasePx: c.pixelLipX - bc.pixelLipX,
       philBand: f.pixelPhilBand,
@@ -508,9 +623,12 @@ async function main(): Promise<void> {
       lowerPx: f.lowerPx,
       landWidthPx: f.landWidthPx,
       bonesTouched: f.bonesTouched,
+      rxTouched: f.rxTouched,
+      morphsTouched: f.morphsTouched,
     };
   });
-  writeFileSync(path.join(OUT_DIR, "lip-bone-probe.json"), `${JSON.stringify({ thresholds: { darkT: t.darkT, redT: t.redT, gumT: t.gumT, bgT34: t.bgT34 }, rows, table }, null, 2)}\n`);
+  const morphTargets = (rows["front/base-sil"] as { morphNames: string[] }).morphNames ?? [];
+  writeFileSync(path.join(OUT_DIR, "lip-bone-probe.json"), `${JSON.stringify({ thresholds: { darkT: t.darkT, redT: t.redT, gumT: t.gumT, bgT34: t.bgT34 }, morphTargets, rows, table }, null, 2)}\n`);
   process.stdout.write("wrote lip-bone-probe.json\n");
 }
 

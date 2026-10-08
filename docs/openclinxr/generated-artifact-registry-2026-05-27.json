@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1838,
+    "keep-evidence": 1839,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -34333,6 +34333,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Independently reviewed shrink-a root-surface exception (exact measurements)."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/lip-protrusion-sweep.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Lip protrusion sweep (tsk_55f4815fd5beaf96): no lip-ring bone or rotation setting meets O/U forward >= +4 px with philtrum bulge <= +4 px; recorded stop."
     }
   ]
 }

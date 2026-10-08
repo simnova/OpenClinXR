@@ -68,6 +68,14 @@ const APERTURE_COLS = { x0: 462, x1: 562, step: 4 } as const;
 const PROFILE34 = {
   lipY0: 400, lipY1: 520, anchorY0: 120, anchorY1: 180, x0: 120, x1: 600, step: 4,
 } as const;
+/** Vermilion-band rows for the protrusion measure (lip height, not the
+ * philtrum). Rows 404-420 sit below the philtrum-height band (380-400,
+ * where the oris05 midline push reads +7/+11px on the pre-retune O/U
+ * stills) and above the open-mouth see-through rows (>=424 on CH, where
+ * the first edge jumps 20-60px behind through the aperture). The foremost
+ * (min-x) edge over these 5 rows tracks the rolled vermilion on O/U
+ * (+8/+14 vs E pre-retune) while the old whole-band min read the lump. */
+export const VERMILION34 = { y0: 404, y1: 420, step: 4 } as const;
 /** Philtrum-lump proxy bands. Front band sits on the philtrum skin between
  * the nose base and the upper-vermilion shadow (sil phil mean 124.4 vs
  * cheek 118.7: plain lit skin, so a bone-driven forward bulge reads as a
@@ -334,6 +342,41 @@ export function measurePixelLipForward(still34: RgbImage, t: PixelLipThresholds)
   }
   if (!Number.isFinite(lipX) || !Number.isFinite(anchorX)) throw new Error("pixel-lip-no-silhouette");
   return { lipX, lipY, anchorX, forwardPx: anchorX - lipX };
+}
+
+export type PixelLipBandForward = {
+  vermilionX: number;
+  vermilionY: number;
+  anchorX: number;
+  bandForwardPx: number;
+};
+
+/**
+ * 3/4-still vermilion-band forward: foremost silhouette x over the lip-height
+ * rows (404-420) vs the rigid forehead anchor. Unlike measurePixelLipForward
+ * (min over 400-520, which reads the philtrum lump at 380-400 when oris05
+ * pushes it), this band excludes the philtrum rows and the open-mouth
+ * see-through rows, so bandForwardPx vs E tracks the rolled vermilion.
+ * Positive band shift vs E = lips protruded toward the camera.
+ */
+export function measurePixelLipBandForward(still34: RgbImage, t: PixelLipThresholds): PixelLipBandForward {
+  if (still34.w !== 1024 || still34.h !== 1024) throw new Error(`pixel-lip-canvas:34:${still34.w}x${still34.h}`);
+  let vermilionX = Infinity;
+  let vermilionY = 0;
+  for (let y = VERMILION34.y0; y <= VERMILION34.y1; y += VERMILION34.step) {
+    const x = firstEdgeX(still34, y, t.bgT34);
+    if (x !== null && x < vermilionX) {
+      vermilionX = x;
+      vermilionY = y;
+    }
+  }
+  let anchorX = Infinity;
+  for (let y = PROFILE34.anchorY0; y <= PROFILE34.anchorY1; y += PROFILE34.step) {
+    const x = firstEdgeX(still34, y, t.bgT34);
+    if (x !== null && x < anchorX) anchorX = x;
+  }
+  if (!Number.isFinite(vermilionX) || !Number.isFinite(anchorX)) throw new Error("pixel-lip-no-silhouette");
+  return { vermilionX, vermilionY, anchorX, bandForwardPx: anchorX - vermilionX };
 }
 
 /**
