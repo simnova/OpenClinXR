@@ -64,6 +64,7 @@ export type LiveShell = {
   cameraFraming?: string;
   cameraEye?: [number, number, number];
   cameraLook?: [number, number, number];
+  cameraFov?: number;
   refineTag?: string;
   actorContainment?: { contained: number; total: number };
   actorVisibility?: ActorVisibilityReading[];
@@ -201,8 +202,13 @@ function readAuthoredStagingCamera(scenarioId: string): AuthoredStagingCamera | 
   return authoredStagingCameraForScenario(scenarioId);
 }
 
-export async function applyAuthoredStagingCamera(page: Page, scenarioId: string, override?: AuthoredStagingCamera): Promise<string | null> {
-  const authored = override ?? readAuthoredStagingCamera(scenarioId);
+export async function applyAuthoredStagingCamera(
+  page: Page,
+  scenarioId: string,
+  override?: AuthoredStagingCamera,
+  ignoreModuleFallback = false,
+): Promise<string | null> {
+  const authored = override ?? (ignoreModuleFallback ? undefined : readAuthoredStagingCamera(scenarioId));
   if (!authored) return null;
   const note = await page.evaluate((input) => {
     type Camera = {
@@ -707,6 +713,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     let cameraFraming = "";
     let cameraEye: [number, number, number] | undefined;
     let cameraLook: [number, number, number] | undefined;
+    let cameraFov: number | undefined;
     let refineTag: string | undefined;
     let actorContainment: { contained: number; total: number } | undefined;
     let actorVisibility: ActorVisibilityReading[] | undefined;
@@ -723,6 +730,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           || (object as Obj & { type?: string }).type === "PerspectiveCamera") {
           const camera = object as Obj & {
             matrixWorld?: { elements?: number[] };
+            fov?: number;
             userData?: Record<string, unknown>;
           };
           const elements = camera.matrixWorld?.elements;
@@ -733,6 +741,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           if (Array.isArray(rawLook) && rawLook.length === 3 && rawLook.every((value) => typeof value === "number")) {
             cameraLook = rawLook as [number, number, number];
           }
+          if (typeof camera.fov === "number") cameraFov = camera.fov;
           const rawTag = camera.userData?.openClinXrRefineTag;
           if (typeof rawTag === "string") refineTag = rawTag;
           const containment = camera.userData?.openClinXrActorContainment;
@@ -769,6 +778,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       cameraFraming,
       cameraEye,
       cameraLook,
+      cameraFov,
       refineTag,
       actorContainment,
       actorVisibility,
@@ -1405,6 +1415,8 @@ export type CaptureStationEnvironmentRoomsInput = {
   onSnapshot?: (scenarioId: string, snapshot: Awaited<ReturnType<typeof collectSweepScene>>) => Promise<void> | void;
   /** Solved-this-run cameras override the module-loaded authored record (avoids stale import). */
   stagingCameraByScenario?: Readonly<Record<string, AuthoredStagingCamera>>;
+  /** Solver's multi-pass run supplies the complete effective authored map itself. */
+  ignoreModuleAuthoredCamera?: boolean;
 };
 
 /**
@@ -1482,7 +1494,12 @@ export async function captureStationEnvironmentRooms(
           await waitForHumanoidAssetsLoaded(page, 180_000);
           if (input.onSnapshot) await input.onSnapshot(scenarioId, await collectSweepScene(page));
 
-          const frameNote = await applyAuthoredStagingCamera(page, scenarioId, input.stagingCameraByScenario?.[scenarioId])
+          const frameNote = await applyAuthoredStagingCamera(
+            page,
+            scenarioId,
+            input.stagingCameraByScenario?.[scenarioId],
+            input.ignoreModuleAuthoredCamera,
+          )
             ?? await reframeCameraForRoom(page, live.environmentId);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 
@@ -1493,10 +1510,10 @@ export async function captureStationEnvironmentRooms(
           const imagePath = path.join(outputDir, imageName);
           await page.screenshot({ path: imagePath, fullPage: false });
 
-          if (scenarioId === "peds_fever_v1") {
+          {
             const layoutShots = [
-              { mode: "overhead" as const, fileName: "peds_fever_v1-overhead.png" },
-              { mode: "isometric" as const, fileName: "peds_fever_v1-isometric.png" },
+              { mode: "overhead" as const, fileName: `${scenarioId}-overhead.png` },
+              { mode: "isometric" as const, fileName: `${scenarioId}-isometric.png` },
             ];
             for (const shot of layoutShots) {
               await page.evaluate((mode) => {
@@ -1603,6 +1620,7 @@ export async function captureStationEnvironmentRooms(
               cameraFraming: `${liveAfter.cameraFraming || ""} ${frameNote}`.trim(),
               cameraEye: liveAfter.cameraEye,
               cameraLook: liveAfter.cameraLook,
+              cameraFov: liveAfter.cameraFov,
               refineTag: liveAfter.refineTag,
               actorContainment: liveAfter.actorContainment,
               actorVisibility: liveAfter.actorVisibility,

@@ -2,10 +2,11 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { Page } from "playwright";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import { INFINIGEN_ENVIRONMENT_ASSETS } from "@openclinxr/xr-runtime-state";
+import type { Page } from "playwright";
 import { collectSweepScene } from "../evidence/station-capture/camera-sweep-scene.js";
+import type { GateCamera, GateReading } from "../evidence/station-capture/gate-geometry.js";
 import type { CachedSceneSnapshot, SolverPlacement, SupportSurface } from "./staging-types.js";
 
 type BankScenario = (typeof scenarioBank)[number];
@@ -43,6 +44,17 @@ export async function readFreshSnapshot(repoRoot: string, scenarioId: string): P
     throw new Error(`stale snapshot refused for ${scenarioId}: cached=${snapshot.inputHash} current=${currentHash}; pass --refresh-snapshot`);
   }
   return snapshot;
+}
+
+export async function cacheObservedGate(
+  snapshot: CachedSceneSnapshot,
+  repoRoot: string,
+  observedCamera: GateCamera,
+  observedGate: GateReading,
+): Promise<CachedSceneSnapshot> {
+  const enriched = { ...snapshot, observedCamera, observedGate };
+  await writeFile(snapshotPath(repoRoot, snapshot.scenarioId), `${JSON.stringify(enriched, null, 2)}\n`, "utf8");
+  return enriched;
 }
 
 function currentPlacementOf(actor: { placement?: unknown }): SolverPlacement {

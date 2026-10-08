@@ -1266,6 +1266,11 @@ function runtimeActorPlacementsForScenario(
         posture,
         placementProvenance: "authored_intent",
         position: { ...placement.plantOffsetMeters },
+        // Keep the persisted floor-frame input as well as the resolved position.
+        // runtimeActorPlacement names a standing floor frame only when this field
+        // is present; dropping it makes the same authored vector get rediscovered
+        // from scenarioBank and then refused as frame-less.
+        plantOffsetMeters: { ...placement.plantOffsetMeters },
         ...(typeof placement.headingRadians === "number" ? { headingRadians: placement.headingRadians } : {}),
       };
     }

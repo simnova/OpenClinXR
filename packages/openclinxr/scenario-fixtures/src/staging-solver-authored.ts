@@ -12,6 +12,32 @@ export type AuthoredStagingSolution = { camera: AuthoredStagingCamera; placement
 
 // staging-solver v1 — generated deterministically by `pnpm staging:solve`.
 export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStagingSolution>> = {
+  "oncology_bad_news_family_v1": {
+    "camera": {
+      "eye": [
+        0.509141,
+        2.16,
+        0.371517
+      ],
+      "look": [
+        -0.878103,
+        0.97057,
+        0.100791
+      ],
+      "fov": 70
+    },
+    "placements": {
+      "sister_rachel_miller_v1": {
+        "supportSurface": "none",
+        "plantOffsetMeters": {
+          "x": -1.635613,
+          "y": 0,
+          "z": 0.362776
+        },
+        "headingRadians": 1.881154
+      }
+    }
+  },
   "peds_fever_v1": {
     "camera": {
       "eye": [
@@ -39,11 +65,11 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
       "parent_mei_chen_v1": {
         "supportSurface": "chair",
         "plantOffsetMeters": {
-          "x": 0,
+          "x": -3.345119,
           "y": 0,
-          "z": -0.3
+          "z": 1.026838
         },
-        "headingRadians": -1.4103066330528553
+        "headingRadians": -2.572431
       },
       "patient_noah_chen_v1": {
         "supportSurface": "stretcher",

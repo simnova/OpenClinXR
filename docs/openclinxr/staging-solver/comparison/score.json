@@ -40,5 +40,7 @@
       "path": "after-peds_fever_v1-isometric.png",
       "sha256": "6b418a078ff1a8ada02b8ccbfe06d366f8a4a39d640003251a96832e813e3dc3"
     }
-  }
+  },
+  "supersededBy": "all-rooms-score.json",
+  "qualification": "Historical single-room experiment; its before/after camera was solver-injected and is not the product-baseline comparison."
 }

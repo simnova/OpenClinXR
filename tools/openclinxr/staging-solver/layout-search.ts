@@ -1,11 +1,11 @@
 import { type AxisAlignedBox, actorCrownChestVisibleEarly, actorSamplePoints, type GateOccluder, type Vec3 } from "../evidence/station-capture/gate-geometry.js";
 import { CLINICAL_SLOT_TEMPLATES } from "./clinical-slot-templates.js";
-import { type LayoutCandidate, layContact, sitContact, standContact } from "./contact-solvers.js";
+import { authoredContact, type LayoutCandidate, layContact, sitContact, standContact } from "./contact-solvers.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 export type LearnerStance = { slotId: "physician_bedside"; world: [number, number, number] };
 export type LayoutSearchResult = { layouts: LayoutCandidate[][]; bindingConstraint?: string; learnerStance?: LearnerStance };
 
-const OFFSETS = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3] as const;
+const OFFSETS = [-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6] as const;
 const HEADING_DELTAS = [-Math.PI / 6, -Math.PI / 12, 0, Math.PI / 12, Math.PI / 6] as const;
 const STANDING_HEIGHT_METERS = 1.7;
 const SEATED_HEIGHT_METERS = 1.3;
@@ -89,11 +89,13 @@ function supportFrame(snapshot: CachedSceneSnapshot): SupportFrame | null {
   if (!patient) return null;
   const supports = [...snapshot.patientSupports].sort((a, b) => horizontalArea(b.box) - horizontalArea(a.box) || a.name.localeCompare(b.name));
   const support = supports[0];
-  if (!support) return null;
-  const supportCentre = centre(support.box);
+  const supportCentre = support ? centre(support.box) : centre(patient.box);
   const patientHead = actorSamplePoints(patient.box, patient.recumbent)[0]?.point ?? patient.chest;
-  const width = support.box.max[0] - support.box.min[0], depth = support.box.max[2] - support.box.min[2];
-  let long: [number, number] = width >= depth ? [1, 0] : [0, 1];
+  const width = support ? support.box.max[0] - support.box.min[0] : patient.box.max[0] - patient.box.min[0];
+  const depth = support ? support.box.max[2] - support.box.min[2] : patient.box.max[2] - patient.box.min[2];
+  let long: [number, number] = support
+    ? width >= depth ? [1, 0] : [0, 1]
+    : [Math.sin(patient.heading), Math.cos(patient.heading)];
   if ((patientHead[0] - supportCentre[0]) * long[0] + (patientHead[2] - supportCentre[2]) * long[1] < 0) long = [-long[0], -long[1]];
   const side: [number, number] = [-long[1], long[0]];
   const halfLong = (width >= depth ? width : depth) / 2;
@@ -103,7 +105,7 @@ function supportFrame(snapshot: CachedSceneSnapshot): SupportFrame | null {
     head[0] + long[0] * -0.35 + side[0] * -1 * 0.62,
     head[1] + long[1] * -0.35 + side[1] * -1 * 0.62,
   ];
-  return { supportName: support.name, long, side, head, foot, patientHead, nurseAnchor };
+  return { supportName: support?.name ?? "", long, side, head, foot, patientHead, nurseAnchor };
 }
 
 function stanceInsideInterior(x: number, z: number, interior: AxisAlignedBox): boolean {
@@ -149,9 +151,9 @@ function learnerStanceForLayout(snapshot: CachedSceneSnapshot, layout: readonly 
   const physician = layout.find((row) => snapshot.actors.some((actor) => actor.id === row.actorId && actor.role === "physician"));
   if (physician) {
     const [x, , z] = physician.world;
-    return stanceAccepts(snapshot, layout, x, z, physician.actorId)
-      ? { slotId: "physician_bedside", world: [x, STANDING_HEIGHT_METERS, z] }
-      : null;
+    if (stanceAccepts(snapshot, layout, x, z, physician.actorId)) {
+      return { slotId: "physician_bedside", world: [x, STANDING_HEIGHT_METERS, z] };
+    }
   }
   const template = CLINICAL_SLOT_TEMPLATES.find((row) => row.slotId === "physician_bedside");
   if (!template || template.anchor === "chair") return null;
@@ -164,7 +166,7 @@ function learnerStanceForLayout(snapshot: CachedSceneSnapshot, layout: readonly 
   for (const alongOffset of OFFSETS) for (const acrossOffset of OFFSETS) for (const headingDelta of HEADING_DELTAS) {
     const x = anchor[0] + frame.long[0] * alongOffset + frame.side[0] * acrossOffset;
     const z = anchor[1] + frame.long[1] * alongOffset + frame.side[1] * acrossOffset;
-    if (!Number.isFinite(headingDelta) || !stanceAccepts(snapshot, layout, x, z)) continue;
+    if (!Number.isFinite(headingDelta) || !stanceAccepts(snapshot, layout, x, z, physician?.actorId)) continue;
     return { slotId: "physician_bedside", world: [x, STANDING_HEIGHT_METERS, z] };
   }
   return null;
@@ -198,7 +200,6 @@ function keepSemanticDiversity(layouts: LayoutCandidate[][], limit: number): Lay
 export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth = 64): LayoutSearchResult {
   const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
   if (!patient) return { layouts: [], bindingConstraint: "no patient actor" };
-  if (snapshot.patientSupports.length === 0) return { layouts: [], bindingConstraint: "no patient support anchor detected" };
   const fixedPatient = layContact(snapshot);
   let beam: LayoutCandidate[][] = [[fixedPatient]];
   const movable = snapshot.actors.filter((actor) => actor.id !== patient.id).sort((a, b) => a.id.localeCompare(b.id));
@@ -212,16 +213,18 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
       // containable camera view. The fallback is persisted like any other
       // candidate; camera scoring must never rewrite a layout in secret.
       candidates = [
+        authoredContact(snapshot, actor),
         ...sitContact(snapshot, actor, frame0),
         ...standContact(snapshot, actor, frame0, "none").map((candidate) => ({
           ...candidate,
           cost: candidate.cost + 1,
         })),
-      ];
+      ].filter((candidate): candidate is LayoutCandidate => candidate !== null);
       if (candidates.length === 0) return { layouts: [], bindingConstraint: `${actor.id}: companion_chair` };
     } else {
       const frame0 = supportFrame(snapshot);
-      candidates = frame0 ? standContact(snapshot, actor, frame0) : [];
+      candidates = [authoredContact(snapshot, actor), ...(frame0 ? standContact(snapshot, actor, frame0) : [])]
+        .filter((candidate): candidate is LayoutCandidate => candidate !== null);
     }
     if (candidates.length === 0) {
       const seatedFamily = actor.role === "family" && actor.currentPlacement.supportSurface === "chair";

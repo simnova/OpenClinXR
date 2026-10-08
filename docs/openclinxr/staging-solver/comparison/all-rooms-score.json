@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "openclinxr.staging-layout-comparison.v2",
+  "scoreDefinition": "40 containment + 40 crown/chest visibility + 10 facing + 10 near-camera occlusion",
+  "aggregate": {
+    "scenarioCount": 15,
+    "beforePasses": 7,
+    "afterPasses": 9,
+    "beforeAverageScore": 87.93,
+    "afterAverageScore": 90.15,
+    "gateRegressions": 0
+  },
+  "cases": {
+    "adult_abdominal_pain_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "clinic_abdominal_pain_interpreter_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "ed_chest_pain_priority_v1": {
+      "before": {
+        "score": 73.33,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 73.33,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "ed_chest_pain_priority_v2": {
+      "before": {
+        "score": 73.33,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 73.33,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "ed_stroke_alert_handoff_v1": {
+      "before": {
+        "score": 86.67,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 13.33,
+      "gateRegression": false
+    },
+    "ob_headache_preeclampsia_triage_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "oncology_bad_news_family_v1": {
+      "before": {
+        "score": 80,
+        "gatePass": false,
+        "components": {
+          "containment": 20,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 20,
+      "gateRegression": false
+    },
+    "peds_asthma_parent_anxiety_v1": {
+      "before": {
+        "score": 86.67,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 86.67,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "peds_fever_v1": {
+      "before": {
+        "score": 72.21,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 8.88,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 72.21,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 26.67,
+          "facing": 8.88,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "postop_fever_consult_pressure_v1": {
+      "before": {
+        "score": 86.67,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 86.67,
+        "gatePass": false,
+        "components": {
+          "containment": 26.67,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "primary_care_dyslipidemia_joint_pain_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "psych_suicidal_ideation_safety_v1": {
+      "before": {
+        "score": 60,
+        "gatePass": false,
+        "components": {
+          "containment": 13.33,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 60,
+        "gatePass": false,
+        "components": {
+          "containment": 13.33,
+          "visibility": 26.67,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "stepdown_sepsis_nurse_escalation_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "telehealth_diabetes_health_literacy_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    },
+    "ward_delirium_med_rec_v1": {
+      "before": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "after": {
+        "score": 100,
+        "gatePass": true,
+        "components": {
+          "containment": 40,
+          "visibility": 40,
+          "facing": 10,
+          "nearOcclusion": 10
+        }
+      },
+      "delta": 0,
+      "gateRegression": false
+    }
+  },
+  "views": {
+    "perspectiveBeforeAfter": {
+      "path": "all-rooms-perspective-before-after.png",
+      "sha256": "72995a718f52c6a8a176c606b3cc78c74b466648a8bbfa988b074333c3e7fe2c"
+    },
+    "promotedOverheadAfter": {
+      "path": "promoted-rooms-overhead-after.png",
+      "sha256": "10b7cf0b1eac346f864e6b8ad297f9e429a69859a656b856137692f4ffa2aa78"
+    },
+    "promotedIsometricAfter": {
+      "path": "promoted-rooms-isometric-after.png",
+      "sha256": "0404c700c1af8a59b0962c2221a1cc11502c92d9c61fd99e799b385aef807afb"
+    }
+  }
+}

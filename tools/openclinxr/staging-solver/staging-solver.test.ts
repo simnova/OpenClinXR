@@ -29,6 +29,21 @@ function counterweightSnapshot(): CachedSceneSnapshot {
 }
 
 describe("clinical staging layout search", () => {
+  it("retains a valid supportless authored layout", () => {
+    const snapshot = counterweightSnapshot();
+    snapshot.patientSupports = [];
+    snapshot.actors[0]!.currentPlacement = {
+      supportSurface: "none",
+      plantOffsetMeters: { x: 0, y: 0, z: 0 },
+    };
+    snapshot.actors[1]!.box = { min: [1.75, 0, -0.25], max: [2.25, 1.7, 0.25] };
+    snapshot.actors[1]!.root = [2, 0, 0];
+    snapshot.actors[1]!.currentPlacement.plantOffsetMeters = { x: 2, y: 0, z: 0 };
+    const result = searchClinicalLayouts(snapshot);
+    expect(result.layouts.length).toBeGreaterThan(0);
+    expect(result.layouts.some((layout) => layout.some((row) => row.slotId === "authored_family"))).toBe(true);
+  });
+
   it("forbids the cheaper doorway lineup and stays bedside", () => {
     const result = searchClinicalLayouts(counterweightSnapshot());
     expect(result.layouts.length).toBeGreaterThan(0);

@@ -7,10 +7,1431 @@
     "source": "one 16x9 ray cell; counts are exact integers"
   },
   "cases": {
+    "adult_abdominal_pain_v1": {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "feasible": true,
+      "solveMs": 298.3,
+      "predictedGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_elena_vasquez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_priya_nair_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_diego_vasquez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.adult_abdominal_pain_v1.room-prop.patient-blanket.semantic-accent-band"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.adult_abdominal_pain_v1.room-prop.patient-blanket.semantic-accent-band"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 89.55678414625235,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_elena_vasquez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_priya_nair_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_diego_vasquez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.adult_abdominal_pain_v1.room-prop.patient-blanket.semantic-accent-band"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.adult_abdominal_pain_v1.room-prop.patient-blanket.semantic-accent-band"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 89.55678414625235,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_elena_vasquez_v1",
+          "world": [
+            -2.3090984196571123,
+            0.7597178703408451,
+            -0.5965319037849304
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "stretcher",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "nurse_priya_nair_v1",
+          "world": [
+            0.7087029838242344,
+            0.9558006247648528,
+            0.6697577949908933
+          ],
+          "headingRadians": -2.022,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0.75,
+              "y": 0,
+              "z": 0.7
+            },
+            "headingRadians": -2.022
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "partner_diego_vasquez_v1",
+          "world": [
+            0.05761877532290348,
+            0.8696952767694056,
+            0.6847135300518364
+          ],
+          "headingRadians": -2.246,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0.1,
+              "y": 0,
+              "z": 0.7
+            },
+            "headingRadians": -2.246
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          0.35857480962803434,
+          1.84,
+          -3.664028326689109
+        ],
+        "look": [
+          -1.095622233359308,
+          0.9505838741881181,
+          -0.15328610314621766
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "clinic_abdominal_pain_interpreter_v1": {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "feasible": true,
+      "solveMs": 36.5,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_lucia_morales_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "father_carlos_morales_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 85.29906848811865,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_lucia_morales_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "father_carlos_morales_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 85.29906848811865,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_lucia_morales_v1",
+          "world": [
+            -0.8751268610228219,
+            0.7528375284381138,
+            0.11484784469567488
+          ],
+          "headingRadians": 0.16,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "father_carlos_morales_v1",
+          "world": [
+            1.3975493225183446,
+            0.7167109324236234,
+            0.07453517124593641
+          ],
+          "headingRadians": -0.34,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -2.9469852009881645,
+          2.16,
+          0.09180670204788355
+        ],
+        "look": [
+          0.2530147990118369,
+          0.7546078098297304,
+          0.09180670204788409
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "ed_chest_pain_priority_v1": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "feasible": false,
+      "solveMs": 832.5,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_robert_hayes_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_maria_alvarez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          },
+          {
+            "actorId": "spouse_anna_hayes_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 0,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 47.04135140293868,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_robert_hayes_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_maria_alvarez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          },
+          {
+            "actorId": "spouse_anna_hayes_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 0,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 47.04135140293868,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_robert_hayes_v1",
+          "world": [
+            -1.0377438460451767,
+            0.9542930713141757,
+            0.026949815305564118
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "stretcher",
+            "plantOffsetMeters": {
+              "x": 0.45,
+              "y": 0,
+              "z": -0.2
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "nurse_maria_alvarez_v1",
+          "world": [
+            -0.8981657567573235,
+            0.8266526755771534,
+            -0.9493232289911603
+          ],
+          "headingRadians": 1.57,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.95,
+              "y": 0,
+              "z": -0.95
+            },
+            "headingRadians": 1.57
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "spouse_anna_hayes_v1",
+          "world": [
+            -1.552030056968931,
+            0.7584149150940445,
+            -0.962601708671817
+          ],
+          "headingRadians": 1.57,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -1.6,
+              "y": 0,
+              "z": -0.95
+            },
+            "headingRadians": 1.57
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          2.0820026877243207,
+          1.52,
+          0.27412313957092105
+        ],
+        "look": [
+          -1.0565102095660182,
+          0.8128655394635387,
+          -0.35016589088068995
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      },
+      "bindingConstraint": "solver candidate rejected by live gate; retained observed baseline"
+    },
+    "ed_chest_pain_priority_v2": {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "feasible": false,
+      "solveMs": 897.6,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_robert_hayes_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_maria_alvarez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          },
+          {
+            "actorId": "spouse_anna_hayes_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 0,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 46.94544591756659,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_robert_hayes_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_maria_alvarez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          },
+          {
+            "actorId": "spouse_anna_hayes_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 0,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_nurse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 46.94544591756659,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_robert_hayes_v1",
+          "world": [
+            -1.0408864430456801,
+            0.9463932035208098,
+            0.026390520338448242
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "stretcher",
+            "plantOffsetMeters": {
+              "x": 0.45,
+              "y": 0,
+              "z": -0.2
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "nurse_maria_alvarez_v1",
+          "world": [
+            -0.8979885378999537,
+            0.8169720563353632,
+            -0.9516216727925506
+          ],
+          "headingRadians": 1.57,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.95,
+              "y": 0,
+              "z": -0.95
+            },
+            "headingRadians": 1.57
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "spouse_anna_hayes_v1",
+          "world": [
+            -1.551687386697879,
+            0.7521613438031322,
+            -0.9647466520704346
+          ],
+          "headingRadians": 1.57,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -1.6,
+              "y": 0,
+              "z": -0.95
+            },
+            "headingRadians": 1.57
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          2.0797739368475474,
+          1.52,
+          0.2777025326065833
+        ],
+        "look": [
+          -1.0587389604427913,
+          0.8105722566640283,
+          -0.3465864978450277
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      },
+      "bindingConstraint": "solver candidate rejected by live gate; retained observed baseline"
+    },
+    "ed_stroke_alert_handoff_v1": {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "feasible": true,
+      "solveMs": 8397.7,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_samuel_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "stroke_nurse_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              }
+            ]
+          },
+          {
+            "actorId": "son_eric_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 88.78073853771787,
+        "nearOcclusionFraction": 0.041666666666666664,
+        "nearRayCount": 6,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "realGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_samuel_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "stroke_nurse_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "son_eric_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 89.1282266969421,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_samuel_brooks_v1",
+          "world": [
+            -0.8811200566113127,
+            0.8099979420268077,
+            0.174048593922963
+          ],
+          "headingRadians": 0.16,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "son_eric_brooks_v1",
+          "world": [
+            1.4133846525649805,
+            0.7223172528786811,
+            0.08708640693478137
+          ],
+          "headingRadians": -0.34,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "stroke_nurse_chen_v1",
+          "world": [
+            0.6198702916147816,
+            0.8224080158555827,
+            0.3487732884949808
+          ],
+          "headingRadians": -0.18,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -1.926850284272545,
+          2.16,
+          0.016024969874985806
+        ],
+        "look": [
+          0.1630376417390692,
+          0.8103131664832238,
+          0.22186096456706275
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "ob_headache_preeclampsia_triage_v1": {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "feasible": true,
+      "solveMs": 329.5,
+      "predictedGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_aisha_khan_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "ob_nurse_williams_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_omar_khan_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 83.90613010852631,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_aisha_khan_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "ob_nurse_williams_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_omar_khan_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 83.90613010852631,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_aisha_khan_v1",
+          "world": [
+            -0.7270862153568687,
+            0.7509132550032239,
+            0.12578393182219
+          ],
+          "headingRadians": 0.16,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "ob_nurse_williams_v1",
+          "world": [
+            -0.23755389661008175,
+            0.4720095647140935,
+            -0.016703762167655692
+          ],
+          "headingRadians": -0.24,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "partner_omar_khan_v1",
+          "world": [
+            0.2603181743755619,
+            0.39888580378896105,
+            -0.17467656004557175
+          ],
+          "headingRadians": -0.34,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          1.4700660898572937,
+          2.16,
+          0.3602073731337415
+        ],
+        "look": [
+          -0.29534741486852145,
+          0.7408660238315584,
+          0.009044793504710436
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "oncology_bad_news_family_v1": {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "feasible": true,
+      "solveMs": 996.1,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_david_miller_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "sister_rachel_miller_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 44.316491049497586,
+        "nearOcclusionFraction": 0.020833333333333332,
+        "nearRayCount": 3,
+        "minMargin": 0.3982838004527688,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_david_miller_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "sister_rachel_miller_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 44.62686244321492,
+        "nearOcclusionFraction": 0.020833333333333332,
+        "nearRayCount": 3,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_david_miller_v1",
+          "world": [
+            -0.8781031462451122,
+            0.744932334587675,
+            0.10079142314119927
+          ],
+          "headingRadians": 0.16,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "companion_bedside",
+          "actorId": "sister_rachel_miller_v1",
+          "world": [
+            -1.6004209912588025,
+            0.7164336743713816,
+            0.3324543128871419
+          ],
+          "headingRadians": 1.8811536492480525,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -1.6356129277741902,
+              "y": 0,
+              "z": 0.3627755728286049
+            }
+          },
+          "persistPlacement": true,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          0.5091406905044844,
+          2.16,
+          0.3715166729454696
+        ],
+        "look": [
+          -0.8781031462451122,
+          0.9705696508211659,
+          0.10079142314119927
+        ],
+        "fov": 70,
+        "aspect": 1.1333333333333333
+      }
+    },
+    "peds_asthma_parent_anxiety_v1": {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "feasible": false,
+      "solveMs": 2042.1,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_maya_johnson_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_kevin_lee_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "parent_tara_johnson_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 84.0032326295352,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_maya_johnson_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_kevin_lee_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "parent_tara_johnson_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.peds_asthma_parent_anxiety_v1.peds-exam-table"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 84.0032326295352,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_maya_johnson_v1",
+          "world": [
+            -0.9028746189055621,
+            0.45561917794030865,
+            0.004238548366967465
+          ],
+          "headingRadians": 0.16,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "nurse_kevin_lee_v1",
+          "world": [
+            0.6250075750253439,
+            0.8242752489132289,
+            0.3544980027732193
+          ],
+          "headingRadians": -0.18,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "parent_tara_johnson_v1",
+          "world": [
+            -0.5492870030833383,
+            0.6305018388393275,
+            -0.5935960343435596
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -1.8094617073679868,
+          2.16,
+          -0.12606843126576295
+        ],
+        "look": [
+          -0.10946170736798666,
+          0.8244584533245197,
+          -0.12606843126576261
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      },
+      "bindingConstraint": "solver candidate rejected by live gate; retained observed baseline"
+    },
     "peds_fever_v1": {
       "scenarioId": "peds_fever_v1",
-      "feasible": true,
-      "solveMs": 1453,
+      "feasible": false,
+      "solveMs": 953.7,
       "predictedGate": {
         "containedActors": 3,
         "totalActors": 3,
@@ -20,24 +1441,24 @@
             "actorId": "patient_noah_chen_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 3,
+            "visibleSampleCount": 5,
             "sampleCount": 5,
             "visible": true,
-            "blockedSamples": [
-              {
-                "sample": "left_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "right_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              }
-            ]
+            "blockedSamples": []
           },
           {
             "actorId": "nurse_aisha_brooks_v1",
             "crownVisible": true,
             "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
             "visibleSampleCount": 3,
             "sampleCount": 5,
             "visible": true,
@@ -51,34 +1472,12 @@
                 "blockedBy": "mpfb_peds_patient_child_body"
               }
             ]
-          },
-          {
-            "actorId": "parent_mei_chen_v1",
-            "crownVisible": true,
-            "chestVisible": true,
-            "visibleSampleCount": 2,
-            "sampleCount": 5,
-            "visible": true,
-            "blockedSamples": [
-              {
-                "sample": "pelvis",
-                "blockedBy": "mpfb_peds_patient_child_body"
-              },
-              {
-                "sample": "left_foot",
-                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.back.mesh"
-              },
-              {
-                "sample": "right_foot",
-                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.back.mesh"
-              }
-            ]
           }
         ],
-        "meanFacingDeg": 83.58121102453681,
-        "nearOcclusionFraction": 0,
-        "nearRayCount": 0,
-        "minMargin": 0.628745077150852,
+        "meanFacingDeg": 83.2829134919122,
+        "nearOcclusionFraction": 0.09027777777777778,
+        "nearRayCount": 13,
+        "minMargin": -1,
         "gatePass": true
       },
       "realGate": {
@@ -122,7 +1521,7 @@
             "actorId": "parent_mei_chen_v1",
             "crownVisible": false,
             "chestVisible": false,
-            "visibleSampleCount": 0,
+            "visibleSampleCount": 2,
             "sampleCount": 5,
             "visible": false,
             "blockedSamples": [
@@ -132,24 +1531,16 @@
               },
               {
                 "sample": "chest",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.back"
               },
               {
                 "sample": "pelvis",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "left_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "right_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.back"
               }
             ]
           }
         ],
-        "meanFacingDeg": 83.23017346782329,
+        "meanFacingDeg": 100.07290767384016,
         "nearOcclusionFraction": 0,
         "nearRayCount": 0,
         "minMargin": -1,
@@ -157,12 +1548,12 @@
       },
       "slots": [
         {
-          "actorId": "patient_noah_chen_v1",
           "slotId": "patient_on_authored_support",
+          "actorId": "patient_noah_chen_v1",
           "world": [
-            -2.6316241805849443,
-            0.7542914628329235,
-            -0.6466395579188611
+            -2.5394430315569707,
+            0.736352961848785,
+            -0.6459390621234955
           ],
           "headingRadians": -0.26,
           "placement": {
@@ -174,67 +1565,1253 @@
             },
             "headingRadians": -0.26
           },
+          "persistPlacement": false,
           "cost": 0
         },
         {
+          "slotId": "authored_nurse",
           "actorId": "nurse_aisha_brooks_v1",
-          "slotId": "nurse_bedside_head",
           "world": [
-            -2.71199996471405,
-            0.9493024487097366,
-            0.07
+            -2.7214170076298725,
+            0.9560780581192885,
+            0.07173625994734228
           ],
-          "headingRadians": -2.5412840492653723,
+          "headingRadians": -2.541284,
           "placement": {
             "supportSurface": "none",
             "plantOffsetMeters": {
-              "x": -2.702273104980595,
+              "x": -2.702273,
               "y": 0,
-              "z": 0.11894353426103334
+              "z": 0.118944
             },
-            "headingRadians": -2.5412840492653723
+            "headingRadians": -2.541284
           },
-          "cost": 0.2
+          "persistPlacement": false,
+          "cost": 0
         },
         {
+          "slotId": "authored_family",
           "actorId": "parent_mei_chen_v1",
-          "slotId": "companion_chair",
           "world": [
-            -2.4422418296337125,
-            0.6637392721439594,
-            0.5418223395943642
+            -0.5472170685695795,
+            0.6394796714125851,
+            -0.908193673549311
           ],
-          "headingRadians": -2.5724306428448056,
+          "headingRadians": -1.4103066330528553,
           "placement": {
             "supportSurface": "chair",
             "plantOffsetMeters": {
-              "x": -3.3451190454771753,
+              "x": 0,
               "y": 0,
-              "z": 1.0268377136854014
+              "z": -0.3
             },
-            "headingRadians": -2.5724306428448056
+            "headingRadians": -1.4103066330528553
           },
-          "cost": 0.3
+          "persistPlacement": false,
+          "cost": 0
         }
       ],
       "camera": {
         "eye": [
-          -1.8040955270258818,
+          -1.64,
           2.16,
-          -3.2625573397227896
+          0.42502699999999993
         ],
         "look": [
-          -2.6316241805849443,
-          0.8280269730688734,
-          -0.6466395579188611
+          -2.632232,
+          0.828978,
+          -0.646806
         ],
-        "fov": 90,
-        "aspect": 1.1333333333333333
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "postop_fever_consult_pressure_v1": {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "feasible": false,
+      "solveMs": 1654.5,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_priya_shah_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "floor_nurse_bennett_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              }
+            ]
+          },
+          {
+            "actorId": "surgery_resident_kim_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "makeclothes_library_scrub_pants"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 87.43372921269821,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
       },
-      "parity": {
-        "visibilityDelta": 1,
-        "nearDelta": 0,
-        "containmentDelta": 1
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_priya_shah_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "floor_nurse_bennett_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              }
+            ]
+          },
+          {
+            "actorId": "surgery_resident_kim_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "makeclothes_library_scrub_pants"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 87.43372921269821,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_priya_shah_v1",
+          "world": [
+            -1.1523928881433734,
+            0.7666774785122626,
+            0.05525191204644869
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "floor_nurse_bennett_v1",
+          "world": [
+            0.6220776639931651,
+            0.8180874894968971,
+            0.3486273233115921
+          ],
+          "headingRadians": -0.18,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_consultant",
+          "actorId": "surgery_resident_kim_v1",
+          "world": [
+            1.943655646970266,
+            0.7702459111858208,
+            0.20163932313346483
+          ],
+          "headingRadians": -0.12,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -2.8847124815513476,
+          1.52,
+          -0.24032941727585921
+        ],
+        "look": [
+          0.10084169846524449,
+          0.8238222696795634,
+          0.053722003712822264
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      },
+      "bindingConstraint": "solver candidate rejected by live gate; retained observed baseline"
+    },
+    "primary_care_dyslipidemia_joint_pain_v1": {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "feasible": true,
+      "solveMs": 19.6,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_mario_guzman_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "medical_assistant_jones_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.exam_surface.mattress"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.exam_surface.mattress"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 15.343364128080092,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_mario_guzman_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "medical_assistant_jones_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.exam_surface.mattress"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.exam_surface.mattress"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 15.343364128080092,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_mario_guzman_v1",
+          "world": [
+            0.7306826042013386,
+            0.9120890685898584,
+            0.1030326549966234
+          ],
+          "headingRadians": 2.4,
+          "placement": {
+            "supportSurface": "exam_table",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "headingRadians": 2.4
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_medical_assistant",
+          "actorId": "medical_assistant_jones_v1",
+          "world": [
+            -0.37298639190740845,
+            0.9485650648476227,
+            0.15413140854428728
+          ],
+          "headingRadians": 2.678,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.4,
+              "y": 0,
+              "z": 0.2
+            },
+            "headingRadians": 2.678
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          1.5948069786167414,
+          1.52,
+          -3.5281211603360325
+        ],
+        "look": [
+          0.49172520504978373,
+          0.9587215902149888,
+          0.1082521154463631
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "psych_suicidal_ideation_safety_v1": {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "feasible": false,
+      "solveMs": 6520.3,
+      "predictedGate": {
+        "containedActors": 1,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_jordan_reed_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              }
+            ]
+          },
+          {
+            "actorId": "behavioral_health_nurse_owens_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_sam_reed_v1",
+            "crownVisible": true,
+            "chestVisible": false,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "chest",
+                "blockedBy": "openclinxr.psych_suicidal_ideation_safety_v1.room-prop.monitor-lead-cable.semantic-accent-band"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.seat"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.seat"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 89.87726365099202,
+        "nearOcclusionFraction": 0.0763888888888889,
+        "nearRayCount": 11,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "realGate": {
+        "containedActors": 1,
+        "totalActors": 3,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_jordan_reed_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_ed_chest_pain_spouse_adult_body"
+              }
+            ]
+          },
+          {
+            "actorId": "behavioral_health_nurse_owens_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "partner_sam_reed_v1",
+            "crownVisible": true,
+            "chestVisible": false,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "chest",
+                "blockedBy": "openclinxr.psych_suicidal_ideation_safety_v1.room-prop.monitor-lead-cable.semantic-accent-band"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.seat"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.family_chair.seat"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 89.87726365099202,
+        "nearOcclusionFraction": 0.0763888888888889,
+        "nearRayCount": 11,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_jordan_reed_v1",
+          "world": [
+            -1.5567353860154536,
+            0.6416811465574341,
+            -0.6406385895601745
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "chair",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "behavioral_health_nurse_owens_v1",
+          "world": [
+            0.07235945148921284,
+            0.9541731402148751,
+            0.6571944769370506
+          ],
+          "headingRadians": -2.325,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0.1,
+              "y": 0,
+              "z": 0.7
+            },
+            "headingRadians": -2.325
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "partner_sam_reed_v1",
+          "world": [
+            -0.5582913675135143,
+            0.6274247747885353,
+            -0.6005172817417177
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "chair",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          0.8171306966822246,
+          2,
+          -0.08451806283346763
+        ],
+        "look": [
+          -0.9742018113277299,
+          0.9128907744116627,
+          -0.2609489154266771
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      },
+      "bindingConstraint": "solver candidate rejected by live gate; retained observed baseline"
+    },
+    "stepdown_sepsis_nurse_escalation_v1": {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "feasible": true,
+      "solveMs": 479.8,
+      "predictedGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_helen_carter_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 4,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_nurse_kevin_body"
+              }
+            ]
+          },
+          {
+            "actorId": "stepdown_nurse_rivera_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              }
+            ]
+          },
+          {
+            "actorId": "respiratory_therapist_ng_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 86.22930090770451,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_helen_carter_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 4,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_nurse_kevin_body"
+              }
+            ]
+          },
+          {
+            "actorId": "stepdown_nurse_rivera_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              }
+            ]
+          },
+          {
+            "actorId": "respiratory_therapist_ng_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          }
+        ],
+        "meanFacingDeg": 86.22930090770451,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_helen_carter_v1",
+          "world": [
+            -1.158265707858236,
+            0.772904606255308,
+            0.0536896154916206
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "bed",
+            "plantOffsetMeters": {
+              "x": 0.45,
+              "y": 0,
+              "z": -0.2
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_respiratory_therapist",
+          "actorId": "respiratory_therapist_ng_v1",
+          "world": [
+            -0.4492145428629015,
+            0.7676833850125675,
+            -1.0502588415357785
+          ],
+          "headingRadians": 0,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.45,
+              "y": 0,
+              "z": -1.1
+            },
+            "headingRadians": 0
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "stepdown_nurse_rivera_v1",
+          "world": [
+            -0.44453778789143694,
+            0.8366090848357539,
+            0.44779606352840395
+          ],
+          "headingRadians": 3.142,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.45,
+              "y": 0,
+              "z": 0.5
+            },
+            "headingRadians": 3.142
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          2.2298532166944067,
+          2.1500001430511473,
+          -0.24258489296747898
+        ],
+        "look": [
+          -1.070146783305595,
+          0.8186392275705702,
+          -0.2425848929674792
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "telehealth_diabetes_health_literacy_v1": {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "feasible": true,
+      "solveMs": 26.1,
+      "predictedGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_luis_martinez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "daughter_elena_martinez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 84.04411938815642,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 2,
+        "visibleActors": 2,
+        "crownChest": [
+          {
+            "actorId": "patient_luis_martinez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "daughter_elena_martinez_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_adult_male_street_casual_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 84.04411938815642,
+        "nearOcclusionFraction": 0,
+        "nearRayCount": 0,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_luis_martinez_v1",
+          "world": [
+            -0.3986072322234123,
+            0.6231290540079478,
+            -0.05702027276494115
+          ],
+          "headingRadians": 0.12,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "daughter_elena_martinez_v1",
+          "world": [
+            1.4203073912953457,
+            0.7147383595371825,
+            0.08544786307020988
+          ],
+          "headingRadians": -0.34,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -3.676257907242605,
+          1.84,
+          -0.020811997359969747
+        ],
+        "look": [
+          0.5237420927573957,
+          0.7169734716203121,
+          -0.02081199735996897
+        ],
+        "fov": 70,
+        "aspect": 1.6
+      }
+    },
+    "ward_delirium_med_rec_v1": {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "feasible": true,
+      "solveMs": 154.5,
+      "predictedGate": {
+        "containedActors": 4,
+        "totalActors": 4,
+        "visibleActors": 4,
+        "crownChest": [
+          {
+            "actorId": "patient_margaret_ellis_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "ward_nurse_patel_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.overbed_surface.column"
+              }
+            ]
+          },
+          {
+            "actorId": "daughter_lena_ellis_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              }
+            ]
+          },
+          {
+            "actorId": "senior_resident_ward_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.ward_delirium_med_rec_v1.room-prop.wall-clock.body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.ward_delirium_med_rec_v1.room-prop.wall-clock.body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 63.191104149053345,
+        "nearOcclusionFraction": 0.013888888888888888,
+        "nearRayCount": 2,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 4,
+        "totalActors": 4,
+        "visibleActors": 4,
+        "crownChest": [
+          {
+            "actorId": "patient_margaret_ellis_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "ward_nurse_patel_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.station-environment.fixture-slot.overbed_surface.column"
+              }
+            ]
+          },
+          {
+            "actorId": "daughter_lena_ellis_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 2,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr_real_garment_from_phenotype_hospital_gown"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_robert_reference_body_1"
+              }
+            ]
+          },
+          {
+            "actorId": "senior_resident_ward_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.ward_delirium_med_rec_v1.room-prop.wall-clock.body"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.ward_delirium_med_rec_v1.room-prop.wall-clock.body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 63.191104149053345,
+        "nearOcclusionFraction": 0.013888888888888888,
+        "nearRayCount": 2,
+        "minMargin": -1,
+        "gatePass": true
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_margaret_ellis_v1",
+          "world": [
+            -1.158687632505909,
+            0.7733519790909007,
+            0.05357737444635424
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "bed",
+            "plantOffsetMeters": {
+              "x": 0.45,
+              "y": 0,
+              "z": -0.2
+            }
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_family",
+          "actorId": "daughter_lena_ellis_v1",
+          "world": [
+            -1.3756437026926462,
+            0.867572653675716,
+            0.46398818415074045
+          ],
+          "headingRadians": 2.271,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -1.4,
+              "y": 0,
+              "z": 0.5
+            },
+            "headingRadians": 2.271
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_physician",
+          "actorId": "senior_resident_ward_v1",
+          "world": [
+            0.4767250533795897,
+            0.8902753915083024,
+            0.48338272744176325
+          ],
+          "headingRadians": -2.271,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": 0.5,
+              "y": 0,
+              "z": 0.5
+            },
+            "headingRadians": -2.271
+          },
+          "persistPlacement": false,
+          "cost": 0
+        },
+        {
+          "slotId": "authored_nurse",
+          "actorId": "ward_nurse_patel_v1",
+          "world": [
+            -0.43835684238596917,
+            0.9528018744804816,
+            0.4510646140171159
+          ],
+          "headingRadians": 3.142,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -0.45,
+              "y": 0,
+              "z": 0.5
+            },
+            "headingRadians": 3.142
+          },
+          "persistPlacement": false,
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          1.2833346490831274,
+          1.9500947352107574,
+          -2.242401873495882
+        ],
+        "look": [
+          -0.6198452034078099,
+          0.9365693840105994,
+          0.07662948659232982
+        ],
+        "fov": 70,
+        "aspect": 1.6
       }
     }
   }

@@ -20,25 +20,43 @@ function sha256(file: string): string {
 function main(): void {
   const beforeFile = path.join(COMPARISON, "before-results.json");
   const afterFile = path.join(COMPARISON, "after-results.json");
-  const scenarioId = "peds_fever_v1";
-  const beforeGate = readJson(beforeFile).cases[scenarioId]?.realGate;
-  const afterGate = readJson(afterFile).cases[scenarioId]?.realGate;
-  if (!beforeGate || !afterGate) throw new Error("before and after must both contain a real runtime gate");
-  const before = scoreLayoutGate(beforeGate), after = scoreLayoutGate(afterGate);
-  const views = Object.fromEntries(["before", "after"].flatMap((phase) => ["overhead", "isometric"].map((view) => {
-    const relative = `${phase}-${scenarioId}-${view}.png`;
-    return [`${phase}-${view}`, { path: relative, sha256: sha256(path.join(COMPARISON, relative)) }];
-  })));
+  const beforeCases = readJson(beforeFile).cases;
+  const afterCases = readJson(afterFile).cases;
+  const scenarioIds = [...new Set([...Object.keys(beforeCases), ...Object.keys(afterCases)])].sort();
+  const cases = Object.fromEntries(scenarioIds.map((scenarioId) => {
+    const beforeGate = beforeCases[scenarioId]?.realGate;
+    const afterGate = afterCases[scenarioId]?.realGate;
+    if (!beforeGate || !afterGate) throw new Error(`${scenarioId}: before and after must contain a real runtime gate`);
+    const before = scoreLayoutGate(beforeGate), after = scoreLayoutGate(afterGate);
+    return [scenarioId, {
+      before,
+      after,
+      delta: Number((after.score - before.score).toFixed(2)),
+      gateRegression: before.gatePass && !after.gatePass,
+    }];
+  }));
+  const caseRows = Object.values(cases);
+  const average = (key: "before" | "after") => Number((caseRows.reduce((sum, row) => sum + row[key].score, 0) / caseRows.length).toFixed(2));
+  const views = Object.fromEntries([
+    ["perspectiveBeforeAfter", "all-rooms-perspective-before-after.png"],
+    ["promotedOverheadAfter", "promoted-rooms-overhead-after.png"],
+    ["promotedIsometricAfter", "promoted-rooms-isometric-after.png"],
+  ].map(([name, relative]) => [name, { path: relative, sha256: sha256(path.join(COMPARISON, relative)) }]));
   const report = {
-    schemaVersion: "openclinxr.staging-layout-comparison.v1",
-    scenarioId,
+    schemaVersion: "openclinxr.staging-layout-comparison.v2",
     scoreDefinition: "40 containment + 40 crown/chest visibility + 10 facing + 10 near-camera occlusion",
-    before,
-    after,
-    delta: Number((after.score - before.score).toFixed(2)),
+    aggregate: {
+      scenarioCount: caseRows.length,
+      beforePasses: caseRows.filter((row) => row.before.gatePass).length,
+      afterPasses: caseRows.filter((row) => row.after.gatePass).length,
+      beforeAverageScore: average("before"),
+      afterAverageScore: average("after"),
+      gateRegressions: caseRows.filter((row) => row.gateRegression).length,
+    },
+    cases,
     views,
   };
-  writeFileSync(path.join(COMPARISON, "score.json"), `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(path.join(COMPARISON, "all-rooms-score.json"), `${JSON.stringify(report, null, 2)}\n`);
 }
 
 main();

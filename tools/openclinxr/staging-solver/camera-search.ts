@@ -21,6 +21,32 @@ function centre(box: AxisAlignedBox): Vec3 {
   return [(box.min[0] + box.max[0]) / 2, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2];
 }
 
+function rotatedActorBox(actor: CachedSceneSnapshot["actors"][number], row: LayoutRow): AxisAlignedBox {
+  const worldWidth = actor.box.max[0] - actor.box.min[0];
+  const worldDepth = actor.box.max[2] - actor.box.min[2];
+  const oldCosine = Math.abs(Math.cos(actor.heading));
+  const oldSine = Math.abs(Math.sin(actor.heading));
+  const determinant = oldCosine * oldCosine - oldSine * oldSine;
+  let localWidth = worldWidth;
+  let localDepth = worldDepth;
+  if (Math.abs(determinant) > 0.15) {
+    const solvedWidth = (oldCosine * worldWidth - oldSine * worldDepth) / determinant;
+    const solvedDepth = (-oldSine * worldWidth + oldCosine * worldDepth) / determinant;
+    if (solvedWidth > 0 && solvedDepth > 0) {
+      localWidth = solvedWidth;
+      localDepth = solvedDepth;
+    }
+  }
+  const newCosine = Math.abs(Math.cos(row.headingRadians));
+  const newSine = Math.abs(Math.sin(row.headingRadians));
+  const width = newCosine * localWidth + newSine * localDepth;
+  const depth = newSine * localWidth + newCosine * localDepth;
+  return {
+    min: [row.world[0] - width / 2, actor.box.min[1], row.world[2] - depth / 2],
+    max: [row.world[0] + width / 2, actor.box.max[1], row.world[2] + depth / 2],
+  };
+}
+
 function translatedScene(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): { actors: GateActor[]; occluders: GateOccluder[]; looks: Vec3[] } {
   const byId = new Map(layout.map((row) => [row.actorId, row]));
   const deltas = new Map<string, [number, number]>();
@@ -46,10 +72,14 @@ function translatedScene(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): { 
     // candidate centre; scoring the smaller capsule overstates both.
     const changesSupportPose = row !== undefined
       && row.placement.supportSurface !== actor.currentPlacement.supportSurface;
-    const box: AxisAlignedBox = changesSupportPose ? row.box : row ? {
-      min: [actor.box.min[0] + dx, actor.box.min[1], actor.box.min[2] + dz],
-      max: [actor.box.max[0] + dx, actor.box.max[1], actor.box.max[2] + dz],
-    } : actor.box;
+    const box: AxisAlignedBox = changesSupportPose ? row.box : row
+      ? Math.abs(row.headingRadians - actor.heading) > 1e-9
+        ? rotatedActorBox(actor, row)
+        : {
+            min: [actor.box.min[0] + dx, actor.box.min[1], actor.box.min[2] + dz],
+            max: [actor.box.max[0] + dx, actor.box.max[1], actor.box.max[2] + dz],
+          }
+      : actor.box;
     return { id: actor.id, box, heading: row?.headingRadians ?? actor.heading, recumbent: actor.recumbent,
       primary: actor.standing && actor.bodyDimensions[1] === Math.max(...snapshot.actors.filter((item) => item.standing).map((item) => item.bodyDimensions[1])) };
   });
@@ -122,6 +152,13 @@ function stageOne(camera: GateCamera, actors: GateActor[]): { n: number; contain
 function gateIsBetter(candidate: GateReading, incumbent: GateReading): boolean {
   if (candidate.gatePass !== incumbent.gatePass) return candidate.gatePass;
   if (candidate.visibleActors !== incumbent.visibleActors) return candidate.visibleActors > incumbent.visibleActors;
+  // Once both candidates clear every gate, prefer framing headroom. Runtime
+  // animation, yaw-dependent bounds and role framing can move a rendered edge
+  // by centimetres; optimizing facing first selected threshold-hugging cameras
+  // that passed the static predictor and clipped the live actor.
+  if (candidate.gatePass && incumbent.gatePass && Math.abs(candidate.minMargin - incumbent.minMargin) > 1e-9) {
+    return candidate.minMargin > incumbent.minMargin;
+  }
   if (Math.abs(candidate.meanFacingDeg - incumbent.meanFacingDeg) > 1e-9) return candidate.meanFacingDeg < incumbent.meanFacingDeg;
   if (Math.abs(candidate.nearOcclusionFraction - incumbent.nearOcclusionFraction) > 1e-9) {
     return candidate.nearOcclusionFraction < incumbent.nearOcclusionFraction;

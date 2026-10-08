@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CameraSearchResult } from "./camera-search.js";
 
-type AuthoredStagingSolution = { camera: { eye: [number, number, number]; look: [number, number, number]; fov: 70 | 80 | 90 }; placements: Record<string, unknown> };
+export type AuthoredStagingSolution = { camera: { eye: [number, number, number]; look: [number, number, number]; fov: 70 | 80 | 90 }; placements: Record<string, unknown> };
 
 function rounded(value: number): number {
   return Number(value.toFixed(6));
@@ -15,7 +15,9 @@ function stableSolution(result: CameraSearchResult): AuthoredStagingSolution {
       look: result.camera.look.map(rounded) as [number, number, number],
       fov: result.camera.fov as 70 | 80 | 90,
     },
-    placements: Object.fromEntries([...result.layout].sort((a, b) => a.actorId.localeCompare(b.actorId)).map((row) => [
+    placements: Object.fromEntries([...result.layout]
+      .filter((row) => row.persistPlacement !== false)
+      .sort((a, b) => a.actorId.localeCompare(b.actorId)).map((row) => [
       row.actorId,
       {
         supportSurface: row.placement.supportSurface,
@@ -33,16 +35,19 @@ function stableSolution(result: CameraSearchResult): AuthoredStagingSolution {
 export async function writeAuthoredSolutions(
   repoRoot: string,
   additions: ReadonlyMap<string, CameraSearchResult>,
+  preserved: Readonly<Record<string, AuthoredStagingSolution>> = {},
 ): Promise<void> {
-  const merged: Record<string, AuthoredStagingSolution> = {};
+  const merged: Record<string, AuthoredStagingSolution> = structuredClone(preserved);
   for (const [scenarioId, result] of additions) merged[scenarioId] = stableSolution(result);
   const ordered = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
   const source = `import type { Scenario } from "@openclinxr/shared-schemas";\n\n`
+    + `/** Desktop opening camera for one solved station: eye, look-at point, and field of view. */\n`
     + `export type AuthoredStagingCamera = {\n  eye: [number, number, number];\n  look: [number, number, number];\n  fov: 70 | 80 | 90;\n};\n\n`
     + `type Placement = NonNullable<Scenario["actors"][number]["placement"]>;\n`
     + `export type AuthoredStagingSolution = { camera: AuthoredStagingCamera; placements: Record<string, Placement> };\n\n`
     + `// staging-solver v1 — generated deterministically by \`pnpm staging:solve\`.\n`
     + `export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStagingSolution>> = ${JSON.stringify(ordered, null, 2)};\n\n`
+    + `/** Returns the solved desktop opening camera for a scenario, when one was recorded. */\n`
     + `export function authoredStagingCameraForScenario(scenarioId: string): AuthoredStagingCamera | undefined {\n`
     + `  return AUTHORED_STAGING_SOLUTIONS[scenarioId]?.camera;\n}\n\n`
     + `export function applyAuthoredStagingSolution(scenario: Scenario): Scenario {\n`
