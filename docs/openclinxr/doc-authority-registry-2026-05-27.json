@@ -2845,6 +2845,20 @@
       "rationale": "Arena viseme-audio-clock bake-off decision record (wav2arkit_cpu vs MFA, reject); evidence for the card decision, not an instruction surface."
     },
     {
+      "path": "apps/arena/viseme-audio-clock/headaudio/score-sheet.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "HeadAudio vs wawa-lipsync live audio-clock bake-off decision (reject both), MFA-agreement numbers; not an adoption decision."
+    },
+    {
+      "path": "apps/arena/viseme-audio-clock/headaudio/NOTICE.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Licence record for the bake-off candidates and English model; local to its module."
+    },
+    {
       "path": "apps/arena/ui-quest-voice-godot/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",

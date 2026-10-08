@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>viseme audio-clock bake-off harness</title></head>
+<body>
+<script src="/wawa-bundle.js"></script>
+<script type="module">
+import { HeadAudio as HeadAudioNode } from "/ha-modules/headaudio.mjs";
+
+const VISEME_NAMES = [
+  "viseme_aa","viseme_E","viseme_I","viseme_O","viseme_U",
+  "viseme_PP","viseme_SS","viseme_TH","viseme_DD","viseme_FF",
+  "viseme_kk","viseme_nn","viseme_RR","viseme_CH","viseme_sil",
+];
+const TICK_MS = 1000 / 30;
+
+async function captureHeadAudio(clipPath) {
+  const audioCtx = new AudioContext();
+  await audioCtx.resume();
+  await audioCtx.audioWorklet.addModule("/ha-modules/headworklet.mjs");
+  // Constructor defaults: vadMode 1, gates -40/-50 dB 10 ms, silMode 1
+  // (no manual calibration), speakerMeanHz 150. Matches tester.html defaults.
+  const node = new HeadAudioNode(audioCtx);
+  await node.loadModel("/ha-dist/model-en-mixed.bin");
+  const blends = Object.fromEntries(VISEME_NAMES.map((n) => [n, 0]));
+  node.onvalue = (key, value) => { blends[key] = value; };
+  const buf = await audioCtx.decodeAudioData(await (await fetch(clipPath)).arrayBuffer());
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(node);
+  src.connect(audioCtx.destination); // keep graph rendering (muted at browser level)
+  const samples = [];
+  const wallStart = performance.now();
+  const t0 = audioCtx.currentTime + 0.05;
+  let last = performance.now();
+  src.start(t0);
+  await new Promise((resolve) => {
+    const timer = setInterval(() => {
+      const now = performance.now();
+      const dt = now - last;
+      last = now;
+      node.update(dt);
+      samples.push({ t: audioCtx.currentTime - t0, ...{ ...blends }, active: node.visemeActive });
+    }, TICK_MS);
+    src.onended = () => {
+      setTimeout(() => {
+        clearInterval(timer);
+        node.update(performance.now() - last);
+        samples.push({ t: audioCtx.currentTime - t0, ...{ ...blends }, active: node.visemeActive });
+        resolve();
+      }, 600);
+    };
+  });
+  const wallMs = performance.now() - wallStart;
+  await audioCtx.close();
+  return { sampleRate: audioCtx.sampleRate, audioMs: (buf.duration) * 1000, wallMs, samples };
+}
+
+async function captureWawa(clipPath) {
+  const ls = new WawaLipsync.Lipsync();
+  const actx = ls.audioContext;
+  await actx.resume();
+  const buf = await actx.decodeAudioData(await (await fetch(clipPath)).arrayBuffer());
+  const src = actx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ls.analyser);
+  ls.analyser.connect(actx.destination); // keep graph rendering (muted at browser level)
+  const samples = [];
+  const wallStart = performance.now();
+  const t0 = actx.currentTime + 0.05;
+  src.start(t0);
+  await new Promise((resolve) => {
+    const timer = setInterval(() => {
+      ls.processAudio();
+      samples.push({ t: actx.currentTime - t0, viseme: ls.viseme, volume: ls.features ? ls.features.volume : 0 });
+    }, TICK_MS);
+    src.onended = () => {
+      setTimeout(() => {
+        clearInterval(timer);
+        resolve();
+      }, 600);
+    };
+  });
+  const wallMs = performance.now() - wallStart;
+  await actx.close();
+  return { audioMs: buf.duration * 1000, wallMs, samples };
+}
+
+window.runCapture = async (candidate, clipPath) => {
+  if (candidate === "headaudio") return { candidate, clipPath, ...(await captureHeadAudio(clipPath)) };
+  if (candidate === "wawa") return { candidate, clipPath, ...(await captureWawa(clipPath)) };
+  throw new Error(`unknown candidate ${candidate}`);
+};
+</script>
+</body>
+</html>
