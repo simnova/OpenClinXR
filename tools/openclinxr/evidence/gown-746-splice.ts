@@ -16,9 +16,12 @@ import { readFileSync, writeFileSync } from "node:fs";
 const SHIPPED = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
 const REBAKE = process.argv[2] ?? "";
 const OUT = process.argv[3] ?? SHIPPED;
-const GOWN_PREFIX = "openclinxr_real_garment_peds_upper_v1_mesh";
+const LEGACY_GOWN_PREFIX = "openclinxr_real_garment_peds_upper_v1_mesh";
+const REBAKED_GOWN_PREFIX = "openclinxr_real_garment_hospital_gown_mesh";
 const GOWN_MAT_NAME = "openclinxr_real_garment_hospital_gown_phenotype_L0";
 const GOWN_NODE = "openclinxr_real_garment_from_phenotype_hospital_gown";
+const STRAY_LABCOAT_NODE = "openclinxr_real_garment_labcoat_v1";
+const REDUNDANT_TSHIRT_NODE = "makeclothes_library_toigo_t_shirt";
 
 const io = new NodeIO();
 const a = await io.read(SHIPPED);
@@ -26,7 +29,7 @@ const b = await io.read(REBAKE);
 const ra = a.getRoot();
 const rb = b.getRoot();
 
-const gownB = rb.listMeshes().find((m) => m.getName().startsWith(GOWN_PREFIX));
+const gownB = rb.listMeshes().find((m) => m.getName().startsWith(REBAKED_GOWN_PREFIX));
 if (!gownB) throw new Error("gown mesh not found in rebake");
 const primB = gownB.listPrimitives()[0];
 if (!primB) throw new Error("gown prim not found in rebake");
@@ -77,16 +80,29 @@ matA.setEmissiveFactor(matB.getEmissiveFactor());
 matA.setAlphaCutoff(matB.getAlphaCutoff());
 
 // Remove the old gown mesh + node in the shipped doc.
-const oldGownMesh = ra.listMeshes().find((m) => m.getName().startsWith(GOWN_PREFIX));
-if (oldGownMesh) oldGownMesh.dispose();
 const gownNode = ra.listNodes().find((n) => n.getName() === GOWN_NODE);
 if (!gownNode) throw new Error("gown node not found in shipped doc");
+const oldGownMesh = gownNode.getMesh()
+  ?? ra.listMeshes().find((m) => m.getName().startsWith(LEGACY_GOWN_PREFIX));
+oldGownMesh?.dispose();
+// The old asset also carried a clinician lab-coat shell on the patient. It was hidden at runtime,
+// but leaving it in the shipped GLB made the asset itself misleading and wasted geometry.
+const strayLabcoatNode = ra.listNodes().find((n) => n.getName() === STRAY_LABCOAT_NODE);
+strayLabcoatNode?.dispose();
+const strayLabcoatMesh = ra.listMeshes().find((m) => m.getName() === STRAY_LABCOAT_NODE);
+strayLabcoatMesh?.dispose();
+// A hospital gown is the patient's upper layer; the retained casual T-shirt intersects its
+// shoulders in the supported supine pose. Remove only this redundant wardrobe component.
+const redundantShirt = ra.listNodes().find((node) => node.getName() === REDUNDANT_TSHIRT_NODE);
+const redundantShirtMesh = redundantShirt?.getMesh();
+redundantShirt?.dispose();
+redundantShirtMesh?.dispose();
 
 // New gown mesh: copy the rebake gown's accessor data into fresh accessors in the shipped
 // doc (clones stay bound to the source graph and cannot cross documents), then swap
 // JOINTS_0 for the remapped copy. Semantics come from listAttributeSemantics() — accessors
 // themselves are unnamed in glTF.
-const newMesh = a.createMesh().setName(gownB.getName());
+const newMesh = a.createMesh().setName(gownB.getName()).setExtras(gownB.getExtras());
 const newPrim = a.createPrimitive();
 const attrsB = primB.listAttributes();
 const namesB = primB.listSemantics();

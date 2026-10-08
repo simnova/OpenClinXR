@@ -207,11 +207,11 @@ export function holdSupinePlantFrame(
   base: { x: number; y: number; z: number; scaleX: number; scaleY: number; scaleZ: number },
   breathing: number,
 ): void {
-  root.position.y = base.y + breathing * 0.006;
+  root.position.y = root.userData.openClinXrSupineArticulatedSupport ? base.y : base.y + breathing * 0.006;
   root.position.x = base.x;
   root.position.z = base.z;
   root.scale.x = base.scaleX;
-  root.scale.y = base.scaleY + breathing * 0.006;
+  root.scale.y = root.userData.openClinXrSupineArticulatedSupport ? base.scaleY : base.scaleY + breathing * 0.006;
   root.scale.z = base.scaleZ;
 }
 
@@ -324,6 +324,9 @@ export function captureSupineRestHeadReference(root: Object3D): void {
 }
 
 export function reapplySupineRestHeadToStoredPillow(root: Object3D): void {
+  // Articulated contact owns the accepted head/hips relationship; whole-root XZ replant would
+  // move those support patches back off their finite mattress sections after every hold.
+  if (root.userData.openClinXrSupineArticulatedSupport) return;
   const cache = root.userData.openClinXrSupineRestHeadRoot as SupineRestHead | undefined;
   const pillow = root.userData.openClinXrSupinePillowWorld as { x?: unknown; z?: unknown } | undefined;
   const quaternion: unknown = root.userData.openClinXrSupineRootQuat;

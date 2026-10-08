@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { actorCrownChestVisibleEarly } from "../evidence/station-capture/gate-geometry.js";
+import { evaluateLayoutCamera, projectedActorCoverage, searchBestCamera, solveLayouts } from "./camera-search.js";
 import { searchClinicalLayouts } from "./layout-search.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 
@@ -30,6 +31,24 @@ function movedActorBox(actor: CachedSceneSnapshot["actors"][number], x: number, 
 }
 
 describe("cached snapshot layouts resolve", () => {
+  it("joint-pain framing materially enlarges the actors without sacrificing the gate", () => {
+    const snapshot = loadSnapshot("primary_care_dyslipidemia_joint_pain_v1");
+    const unchanged = searchClinicalLayouts(snapshot).layouts.find(
+      (layout) => layout.every((row) => row.persistPlacement === false),
+    );
+    expect(unchanged).toBeDefined();
+    expect(snapshot.observedCamera).toBeDefined();
+    if (!unchanged || !snapshot.observedCamera) return;
+    const candidate = searchBestCamera(snapshot, unchanged);
+    expect(candidate?.gate.gatePass).toBe(true);
+    expect(candidate?.gate.minMargin).toBeGreaterThanOrEqual(0.08);
+    if (!candidate) return;
+    const observed = { ...snapshot.observedCamera, aspect: snapshot.cameraAspect };
+    expect(projectedActorCoverage(snapshot, unchanged, candidate.camera)).toBeGreaterThanOrEqual(
+      projectedActorCoverage(snapshot, unchanged, observed) * 1.5,
+    );
+  });
+
   it("peds_fever_v1 seated family resolves companion_chair", () => {
     const snapshot = loadSnapshot("peds_fever_v1");
     const result = searchClinicalLayouts(snapshot);
@@ -46,6 +65,15 @@ describe("cached snapshot layouts resolve", () => {
     const parentRow = first.find((row) => row.actorId === "parent_mei_chen_v1");
     expect(parentRow?.slotId).toBe("companion_chair");
   });
+
+  it("scores the exact pediatric layout that it returns for persistence", () => {
+    const snapshot = loadSnapshot("peds_fever_v1");
+    const candidates = searchClinicalLayouts(snapshot);
+    const solution = solveLayouts(snapshot, candidates.layouts);
+    expect(solution).not.toBeNull();
+    if (!solution) return;
+    expect(evaluateLayoutCamera(snapshot, solution.layout, solution.camera)).toEqual(solution.gate);
+  }, 15_000);
 
   for (const scenarioId of ["adult_abdominal_pain_v1"]) {
     it(`${scenarioId} returns a legal layout`, () => {

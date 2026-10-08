@@ -54,8 +54,8 @@ export type TestPlan =
   | { kind: "none" }
   | { kind: "run"; rootFiles: string[]; byPackage: Map<string, { dir: string; files: string[] }> };
 
-function packageNameFor(dir: string): string | null {
-  const pkgJson = join(REPO_ROOT, dir, "package.json");
+function packageNameFor(dir: string, root: string = REPO_ROOT): string | null {
+  const pkgJson = join(root, dir, "package.json");
   if (!existsSync(pkgJson)) return null;
   try {
     const name = (JSON.parse(readFileSync(pkgJson, "utf8")) as { name?: unknown }).name;
@@ -70,20 +70,19 @@ function packageNameFor(dir: string): string | null {
  * per-package groups (packages/<p>/..., apps/<a>/... with a package.json).
  * Files under a directory with no package.json fall back to the root config.
  */
-export function planTests(files: string[]): TestPlan {
+export function planTests(files: string[], root: string = REPO_ROOT): TestPlan {
   const rootFiles: string[] = [];
   const byPackage = new Map<string, { dir: string; files: string[] }>();
   for (const f of files) {
-    const m = /^(packages\/.+?\/|apps\/.+?\/)/u.exec(f);
-    if (m) {
+    if (/^(packages|apps)\//u.test(f)) {
       // Longest owner dir that carries a package.json (nested packages exist).
       let owner: string | null = null;
-      const parts = m[1]!.split("/").filter(Boolean);
+      const parts = dirname(f).split("/").filter(Boolean);
       for (let i = parts.length; i >= 1; i--) {
         const dir = parts.slice(0, i).join("/");
-        if (packageNameFor(dir)) { owner = dir; break; }
+        if (packageNameFor(dir, root)) { owner = dir; break; }
       }
-      const pkg = owner ? packageNameFor(owner) : null;
+      const pkg = owner ? packageNameFor(owner, root) : null;
       if (owner && pkg) {
         const rel = relative(owner, f);
         let group = byPackage.get(pkg);

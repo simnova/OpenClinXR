@@ -1,6 +1,6 @@
-import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 import type { AxisAlignedBox } from "../evidence/station-capture/gate-geometry.js";
 import { templatesForRole } from "./clinical-slot-templates.js";
+import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 
 export type LayoutCandidate = SlotAssignment & { box: AxisAlignedBox; standing: boolean };
 
@@ -16,7 +16,8 @@ export type ContactFrame = {
 
 type ActorT = CachedSceneSnapshot["actors"][number];
 
-const OFFSETS = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3] as const;
+const SEATED_OFFSETS = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3] as const;
+const STANDING_OFFSETS = [-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6] as const;
 const HEADING_DELTAS = [-Math.PI / 6, -Math.PI / 12, 0, Math.PI / 12, Math.PI / 6] as const;
 
 function centreOf(box: AxisAlignedBox): [number, number, number] {
@@ -84,6 +85,45 @@ function capsuleAt(world: readonly [number, number, number], standing: boolean, 
   };
 }
 
+function rotatedCentreBias(actor: ActorT, headingRadians: number): readonly [number, number] {
+  const actorCentre = centreOf(actor.box);
+  const rootX = actor.root?.[0] ?? actorCentre[0];
+  const rootZ = actor.root?.[2] ?? actorCentre[2];
+  const dx = actorCentre[0] - rootX;
+  const dz = actorCentre[2] - rootZ;
+  const delta = headingRadians - actor.heading;
+  const cosine = Math.cos(delta);
+  const sine = Math.sin(delta);
+  return [cosine * dx + sine * dz, -sine * dx + cosine * dz];
+}
+
+/** Keeps a runtime-valid authored placement available to the optimiser. */
+export function authoredContact(snapshot: CachedSceneSnapshot, actor: ActorT): LayoutCandidate | null {
+  const world = centreOf(actor.box);
+  if (!withinInterior(actor.box, snapshot.interior, 0.02)) return null;
+  // The captured actor already exists among the room fixtures, whose AABBs
+  // include intended contacts and coarse furniture envelopes. Revalidating it
+  // against every fixture rejects working runtime layouts. A doorway remains a
+  // hard exclusion because it is an access constraint, not a contact surface.
+  const blocked = snapshot.fixtures.some((fixture) =>
+    fixture.kind === "door" && intersects(actor.box, fixture.box, 0.01));
+  if (blocked) return null;
+  return {
+    slotId: `authored_${actor.role}`,
+    actorId: actor.id,
+    world,
+    headingRadians: actor.heading,
+    placement: actor.currentPlacement,
+    persistPlacement: false,
+    // A valid authored row is a no-regression fallback, not the optimiser's
+    // first answer for a failing room. Generated contact candidates must keep
+    // their established precedence when the observed baseline is not green.
+    cost: 2,
+    box: actor.box,
+    standing: actor.standing,
+  };
+}
+
 export function layContact(snapshot: CachedSceneSnapshot): LayoutCandidate {
   const patient = snapshot.actors.find((a) => a.role === "patient") ?? snapshot.actors[0];
   if (!patient) throw new Error("no patient actor");
@@ -95,6 +135,7 @@ export function layContact(snapshot: CachedSceneSnapshot): LayoutCandidate {
     world: [c[0], c[1], c[2]],
     headingRadians: patient.heading,
     placement,
+    persistPlacement: false,
     cost: 0,
     box: patient.box,
     standing: patient.standing,
@@ -139,8 +180,8 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
   const seatCentre = centreOf(chosen.box);
   const chosenSlot = slotIdOfFixtureName(chosen.name);
   const out: LayoutCandidate[] = [];
-  for (const slackX of OFFSETS) {
-    for (const slackZ of OFFSETS) {
+  for (const slackX of SEATED_OFFSETS) {
+    for (const slackZ of SEATED_OFFSETS) {
       const worldX = seatCentre[0] + slackX;
       const worldZ = seatCentre[2] + slackZ;
       for (const headingDelta of HEADING_DELTAS) {
@@ -168,6 +209,7 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
           world,
           headingRadians,
           placement,
+          persistPlacement: true,
           cost: Math.hypot(slackX, slackZ) + Math.abs(headingDelta) / Math.PI,
           box,
           standing: false,
@@ -178,11 +220,14 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
   return out;
 }
 
-export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: ContactFrame): LayoutCandidate[] {
+export function standContact(
+  snapshot: CachedSceneSnapshot,
+  actor: ActorT,
+  frame: ContactFrame,
+  supportSurface: SolverPlacement["supportSurface"] = actor.currentPlacement.supportSurface,
+): LayoutCandidate[] {
   const templates = templatesForRole(actor.role, false);
   const actorCentre = centreOf(actor.box);
-  const rootBiasX = actorCentre[0] - (actor.root?.[0] ?? actorCentre[0]);
-  const rootBiasZ = actorCentre[2] - (actor.root?.[2] ?? actorCentre[2]);
   const radius = radiusFor(actor);
   const out: LayoutCandidate[] = [];
   for (const template of templates) {
@@ -194,8 +239,8 @@ export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame
             frame.head[0] + frame.long[0] * template.alongMeters + frame.side[0] * template.side * template.acrossMeters,
             frame.head[1] + frame.long[1] * template.alongMeters + frame.side[1] * template.side * template.acrossMeters,
           ];
-    for (const alongOffset of OFFSETS) {
-      for (const acrossOffset of OFFSETS) {
+    for (const alongOffset of STANDING_OFFSETS) {
+      for (const acrossOffset of STANDING_OFFSETS) {
         const x = base[0] + frame.long[0] * alongOffset + frame.side[0] * acrossOffset;
         const z = base[1] + frame.long[1] * alongOffset + frame.side[1] * acrossOffset;
         for (const headingDelta of HEADING_DELTAS) {
@@ -210,8 +255,9 @@ export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame
           }
           if (blocked) continue;
           const headingRadians = Math.atan2(frame.patientHead[0] - x, frame.patientHead[2] - z) + headingDelta;
+          const [rootBiasX, rootBiasZ] = rotatedCentreBias(actor, headingRadians);
           const placement: SolverPlacement = {
-            supportSurface: actor.currentPlacement.supportSurface,
+          supportSurface,
             plantOffsetMeters: { x: x - rootBiasX, y: actor.currentPlacement.plantOffsetMeters.y, z: z - rootBiasZ },
           };
           out.push({
@@ -220,6 +266,7 @@ export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame
             world,
             headingRadians,
             placement,
+            persistPlacement: true,
             cost: Math.hypot(alongOffset, acrossOffset) + Math.abs(headingDelta) / Math.PI,
             box,
             standing: actor.standing,

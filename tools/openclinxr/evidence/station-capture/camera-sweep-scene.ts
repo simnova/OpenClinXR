@@ -18,6 +18,11 @@ export type SweepActorSnapshot = {
   chest: [number, number, number];
   /** Actor placement root in world space; used to map a visual AABB to authored placement. */
   root?: [number, number, number];
+  slotKind?: string;
+  preserveResolvedPlacement?: boolean;
+  resolvedPlacement?: unknown;
+  framingOverrodePlacement?: unknown;
+  placementRefusalReason?: unknown;
 };
 
 export type SweepFixtureSnapshot = {
@@ -97,13 +102,13 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     return null;
   };
   var actorRootOf = function (mesh) {
-    var p = mesh;
+    var p = mesh, root = null;
     while (p) {
       var ud = p.userData;
-      if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId.length > 0) return p;
+      if (ud && typeof ud.openClinXrActorId === "string" && ud.openClinXrActorId.length > 0) root = p;
       p = p.parent;
     }
-    return null;
+    return root;
   };
   var postureOf = function (mesh) {
     var p = mesh;
@@ -150,7 +155,7 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     if (!e) return 0;
     return Math.atan2(-e[8], -e[10]);
   };
-  var actorHeading = {}, actorPosture = {}, actorRoots = {};
+  var actorHeading = {}, actorPosture = {}, actorRoots = {}, actorDiagnostics = {};
   scene.traverse(function (o) {
     if (!o.isSkinnedMesh) return;
     var id = actorIdOf(o);
@@ -160,6 +165,14 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     if (actorRoots[id] === undefined) {
       var actorRoot = actorRootOf(o), rootElements = actorRoot && actorRoot.matrixWorld && actorRoot.matrixWorld.elements;
       actorRoots[id] = rootElements ? [rootElements[12], rootElements[13], rootElements[14]] : [0, 0, 0];
+      var rootData = actorRoot && actorRoot.userData || {};
+      actorDiagnostics[id] = {
+        slotKind: typeof rootData.openClinXrSlotKind === "string" ? rootData.openClinXrSlotKind : undefined,
+        preserveResolvedPlacement: rootData.openClinXrPreserveResolvedPlacement === true,
+        resolvedPlacement: rootData.openClinXrResolvedPlacement || null,
+        framingOverrodePlacement: rootData.openClinXrFramingOverrodePlacement || null,
+        placementRefusalReason: rootData.openClinXrPlacementRefusalReason || null,
+      };
     }
   });
   var actors = [], standing = [], ids = Object.keys(actorMap);
@@ -173,8 +186,12 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
     var chest = upright
       ? [cx, box.min[1] + height * 0.65, cz]
       : [box.min[0] + (box.max[0] - box.min[0]) * 0.32, box.max[1] - height * 0.08, cz];
+    var diagnostics = actorDiagnostics[ids[ai]] || {};
     var actor = { id: ids[ai], box: box, heading: actorHeading[ids[ai]] || 0,
-      standing: upright && height >= 1.15, recumbent: recumbent, chest: chest, root: actorRoots[ids[ai]] || [0, 0, 0] };
+      standing: upright && height >= 1.15, recumbent: recumbent, chest: chest, root: actorRoots[ids[ai]] || [0, 0, 0],
+      slotKind: diagnostics.slotKind, preserveResolvedPlacement: diagnostics.preserveResolvedPlacement,
+      resolvedPlacement: diagnostics.resolvedPlacement, framingOverrodePlacement: diagnostics.framingOverrodePlacement,
+      placementRefusalReason: diagnostics.placementRefusalReason };
     actors.push(actor);
     if (actor.standing) standing.push(actor);
   }

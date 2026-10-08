@@ -60,6 +60,26 @@
       {
         "name": "OwnedChain",
         "kind": "type"
+      },
+      {
+        "name": "applyAndPlantSupineOnDeck",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "applySupinePoseHoldingIncline",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "holdSupinePlantFrame",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "reapplySupineHeadToStoredPillow",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
@@ -85,6 +105,10 @@
       },
       {
         "name": "STRETCHER_LENGTH_METERS",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildPatientStretcher",
         "kind": "runtime"
       }
     ]

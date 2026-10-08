@@ -377,13 +377,9 @@ export function addScenarioSpecificClinicalSetDressing(
   }
   // Render caseDerivedVirtualEnvironment room props for peds/ed (desktop-usable).
   if (sid === "peds_asthma_parent_anxiety_v1") {
-    // props from case: exam_table, oxygen_delivery_system, peak_flow_meter, parent_chair, wall_chart (matches packet.ts caseDerivedVirtualEnvironment + runtime-state scaffold)
-    const tableMat = new MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
-    const examTable = new Mesh(new BoxGeometry(1.6, 0.82, 0.7), tableMat);
-    examTable.name = `${ctx.sceneObjectPrefix()}.peds-exam-table`;
-    examTable.position.set(-0.8, 0.41, -0.65);
-    examTable.userData["openClinXrCaseDerivedVirtualEnvironmentProp"] = "exam_table_from_peds_asthma_clinic_exam_room";
-    scene.add(examTable);
+    // The station already owns the exam surface and family chair. Do not add case-derived copies:
+    // the old exam-table copy enclosed the seated parent's torso and the second chair had no actor.
+    // Keep only the small clinical cues that do not duplicate station-owned furniture.
     const o2Tank = new Mesh(new CylinderGeometry(0.12, 0.12, 0.9, 12), new MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.6 }));
     o2Tank.name = `${ctx.sceneObjectPrefix()}.peds-oxygen-delivery-system`;
     o2Tank.position.set(1.1, 0.45, -0.35);
@@ -394,14 +390,6 @@ export function addScenarioSpecificClinicalSetDressing(
     peak.position.set(0.6, 0.82, -0.9);
     peak.userData["openClinXrCaseDerivedVirtualEnvironmentProp"] = "peak_flow_meter_parent_communication_cue";
     scene.add(peak);
-    const chairSeat = new Mesh(new BoxGeometry(0.48, 0.08, 0.48), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
-    chairSeat.name = `${ctx.sceneObjectPrefix()}.peds-parent-chair-seat`;
-    chairSeat.position.set(1.6, 0.38, -1.1);
-    scene.add(chairSeat);
-    const chairBack = new Mesh(new BoxGeometry(0.48, 0.55, 0.06), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
-    chairBack.name = `${ctx.sceneObjectPrefix()}.peds-parent-chair-back`;
-    chairBack.position.set(1.6, 0.68, -1.32);
-    scene.add(chairBack);
     const chart = new Mesh(new BoxGeometry(0.6, 0.4, 0.02), new MeshStandardMaterial({ color: 0xfefce8, roughness: 0.9 }));
     chart.name = `${ctx.sceneObjectPrefix()}.peds-wall-chart`;
     chart.position.set(-2.9, 1.6, -1.55);

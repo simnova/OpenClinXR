@@ -328,7 +328,7 @@ async function measureLivePropIntersection(input: {
 async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = browserPageWindow as unknown as {
+      const win = globalThis as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
       };
       return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;
@@ -353,9 +353,9 @@ type LiveStation = {
  */
 export async function readLivePropIntersectionFromPage(page: Page): Promise<LiveStation> {
   return page.evaluate(`(() => {
-    const win = browserPageWindow;
+    const win = globalThis;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(browserPageWindow.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
 
     function worldBox(obj) {
@@ -911,7 +911,7 @@ async function measureLiveEquipmentActorOverlap(input: {
 async function waitForRecordedAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     () => {
-      const evidence = (browserPageWindow as unknown as {
+      const evidence = (globalThis as unknown as {
         __openClinXrSceneAssetEvidence?: {
           pendingCount?: number;
           loadedCount?: number;
@@ -937,9 +937,9 @@ export async function readEquipmentActorOverlapFromPage(
   page: Page,
 ): Promise<LiveEquipmentActorStation> {
   return page.evaluate(`(() => {
-    const win = browserPageWindow;
+    const win = globalThis;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(browserPageWindow.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
 
     function round3(v) {
@@ -990,7 +990,7 @@ export async function readEquipmentActorOverlapFromPage(
       });
     }
 
-    const canvas = browserPageDocument.querySelector("canvas");
+    const canvas = globalThis.document.querySelector("canvas");
     const cw = canvas && canvas.clientWidth ? canvas.clientWidth : win.innerWidth;
     const ch = canvas && canvas.clientHeight ? canvas.clientHeight : win.innerHeight;
 

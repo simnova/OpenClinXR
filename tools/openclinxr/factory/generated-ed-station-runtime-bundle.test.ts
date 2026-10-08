@@ -1,14 +1,41 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildGeneratedEdStationRuntimeBundleReport,
+  refreshPublicActorPlacements,
   runGeneratedEdStationRuntimeBundleCli,
   validateGeneratedEdStationRuntimeBundleReport,
 } from "./generated-ed-station-runtime-bundle.js";
 
 describe("generated ED station runtime bundle", () => {
+  it("retains the standing authored vector needed to name the runtime floor frame", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-public-placement-refresh-"));
+    const scenarioId = "primary_care_dyslipidemia_joint_pain_v1";
+    const stationDir = path.join(tempDir, scenarioId);
+    try {
+      await mkdir(stationDir, { recursive: true });
+      const bundle = { sceneManifest: { actorPlacements: {} } };
+      await writeFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), JSON.stringify(bundle), "utf8");
+      await writeFile(path.join(stationDir, "scene-manifest.v1.json"), JSON.stringify({ actorPlacements: {} }), "utf8");
+
+      await refreshPublicActorPlacements(scenarioId, tempDir);
+
+      const refreshed = JSON.parse(await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8")) as {
+        sceneManifest: { actorPlacements: Record<string, { posture?: string; position?: unknown; plantOffsetMeters?: unknown }> };
+      };
+      const placement = refreshed.sceneManifest.actorPlacements["medical_assistant_jones_v1"];
+      expect(placement).toMatchObject({
+        posture: "standing",
+        position: { x: -0.4, y: 0, z: 0.2 },
+        plantOffsetMeters: { x: -0.4, y: 0, z: 0.2 },
+      });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("reports not_configured until all generated artifact reports exist", async () => {
     const report = await buildGeneratedEdStationRuntimeBundleReport({
       humanReportPath: "missing-human.json",

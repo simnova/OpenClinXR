@@ -13,6 +13,10 @@ export type CachedSceneSnapshot = Omit<SweepSceneSnapshot, "actors"> & {
   scenarioId: string;
   inputHash: string;
   capturedAt: string;
+  /** Live renderer measurement captured with this snapshot. */
+  observedCamera?: GateCamera;
+  /** Live renderer gate for observedCamera; authoritative for baseline protection. */
+  observedGate?: GateReading;
   actors: Array<SweepSceneSnapshot["actors"][number] & {
     role: string;
     currentPlacement: SolverPlacement;
@@ -26,6 +30,8 @@ export type SlotAssignment = {
   world: [number, number, number];
   headingRadians: number;
   placement: SolverPlacement;
+  /** False keeps the captured runtime/default placement by omitting an authored override. */
+  persistPlacement?: boolean;
   cost: number;
 };
 

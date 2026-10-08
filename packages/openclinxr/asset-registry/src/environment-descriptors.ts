@@ -189,8 +189,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.55,
     zoneTemplates: ED_BAY_ZONES,
-    // Stroke bank patient is standing — offset stretcher so they are not planted through the deck.
-    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
+    // The scenario describes a bed and a time-critical patient exam. Keep the patient recumbent on
+    // the same measured ED support used by the chest-pain bay instead of standing in an empty room.
+    fixtureSlots: [ED_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   adult_ed_abdominal_bay_v1: shell({
     environmentId: "adult_ed_abdominal_bay_v1",
@@ -402,7 +403,15 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     zoneTemplates: GENERIC_CLINIC_ZONES,
     // Staging: exam surface + parent seating + door. Keep equipment stretcher as
     // sole support (no second bed); exam_surface is work_surface role.
-    fixtureSlots: [EXAM_WORK_SURFACE, FAMILY_CHAIR, DOOR_LEAF, WALL_BOARD, LEARNER_START],
+    fixtureSlots: [
+      EXAM_WORK_SURFACE,
+      // The shared chair at (-0.55,-0.75) put the seated parent's torso through this room's
+      // exam surface. Keep the same fixture identity but place it in the open family lane.
+      { ...FAMILY_CHAIR, position: { x: -1.65, y: 0, z: 0.15 } },
+      DOOR_LEAF,
+      WALL_BOARD,
+      LEARNER_START,
+    ],
   }),
 };
 

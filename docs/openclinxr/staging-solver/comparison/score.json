@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "openclinxr.staging-layout-comparison.v1",
+  "scenarioId": "peds_fever_v1",
+  "scoreDefinition": "40 containment + 40 crown/chest visibility + 10 facing + 10 near-camera occlusion",
+  "before": {
+    "score": 73.33,
+    "gatePass": false,
+    "components": {
+      "containment": 26.67,
+      "visibility": 26.67,
+      "facing": 10,
+      "nearOcclusion": 10
+    }
+  },
+  "after": {
+    "score": 86.67,
+    "gatePass": false,
+    "components": {
+      "containment": 26.67,
+      "visibility": 40,
+      "facing": 10,
+      "nearOcclusion": 10
+    }
+  },
+  "delta": 13.34,
+  "views": {
+    "before-overhead": {
+      "path": "before-peds_fever_v1-overhead.png",
+      "sha256": "901604e8747d263618f24c83d910245423e738ba2de39b7a3c44bf2e0070d1a3"
+    },
+    "before-isometric": {
+      "path": "before-peds_fever_v1-isometric.png",
+      "sha256": "7b195322103964fae4a14f2ce2abf952f36c444181b70b6c67c7aa6c910d29d6"
+    },
+    "after-overhead": {
+      "path": "after-peds_fever_v1-overhead.png",
+      "sha256": "85d56acf07fe35d4f9fa70f1aa4afc75c178da8abf1249a2c9a9a920c2309baf"
+    },
+    "after-isometric": {
+      "path": "after-peds_fever_v1-isometric.png",
+      "sha256": "6b418a078ff1a8ada02b8ccbfe06d366f8a4a39d640003251a96832e813e3dc3"
+    }
+  },
+  "supersededBy": "all-rooms-score.json",
+  "qualification": "Historical single-room experiment; its before/after camera was solver-injected and is not the product-baseline comparison."
+}

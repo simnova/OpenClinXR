@@ -52,7 +52,7 @@ const PHYSICIAN = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician
 /** Classes E1 recorded in the licence ledger. `evening_dress` is deliberately absent. */
 const GOWN_CLASSES = ["gown", "labcoat"] as const;
 
-type GarmentProvenance = { sourceMhclo?: string; garmentClass?: string; licence?: string };
+type GarmentProvenance = { sourceMhclo?: string; sourceRecipe?: string; garmentClass?: string; licence?: string };
 
 async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; prov: GarmentProvenance }>> {
   const { NodeIO } = await import("@gltf-transform/core");
@@ -68,13 +68,16 @@ async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; pro
 }
 
 describe("the patient gown is a gown-class asset", () => {
-  it("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
+  it("(1) RED: every garment mesh records the .mhclo or first-party recipe it was fitted from", async () => {
     // Today: asset.extras is NONE and no mesh carries extras. Without this, clause (2) has nothing
     // to read and the material name is the only signal — which is the defect.
     const rows = await garmentProvenance(GOWN);
     expect(rows.length, "the gown patient must carry garment meshes").toBeGreaterThan(0);
     for (const r of rows) {
-      expect(r.prov.sourceMhclo, `${r.mesh} records no source .mhclo`).toBeTruthy();
+      expect(
+        r.prov.sourceMhclo ?? r.prov.sourceRecipe,
+        `${r.mesh} records neither a source .mhclo nor a first-party source recipe`,
+      ).toBeTruthy();
       expect(r.prov.licence, `${r.mesh} records no licence`).toBeTruthy();
     }
   });
@@ -125,3 +128,83 @@ describe("the patient gown is a gown-class asset", () => {
  * Clause (2) 2026-09-20: fitted CC0 crudelabcoatopen as openclinxr_real_garment_labcoat_v1
  * (clothing_consume fit_stage, then mesh copy). peds_upper shell remains; not relabelled.
  */
+
+// 2026-10-08 rebake: gown provenance alone does not certify fitted anatomy or shoulder coverage.
+
+const asset = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
+
+function assertAnatomicalWeights(names: string[], joints: number[], weights: number[], torso: boolean, shoulder = false) {
+  expect(weights.reduce((sum, value) => sum + value, 0)).toBeCloseTo(1, 5);
+  const neutral = weights.reduce((sum, value, slot) => sum + (names[joints[slot]!] === "neutral_bone" ? value : 0), 0);
+  expect(neutral, "garment vertex has no anatomical owner").toBe(0);
+  if (torso && !shoulder) {
+    const arm = weights.reduce((sum, value, slot) => sum + (/arm|hand|finger/i.test(names[joints[slot]!]!) ? value : 0), 0);
+    expect(arm, "torso vertex follows an arm").toBe(0);
+  }
+  if (shoulder) {
+    const distalArm = weights.reduce((sum, value, slot) => sum + (/upperarm02|lowerarm|hand|finger/i.test(names[joints[slot]!]!) ? value : 0), 0);
+    expect(distalArm, "shoulder cap must not follow distant forearm or distal upper arm").toBe(0);
+  }
+}
+
+describe("the clinical gown follows the anatomy beneath each garment region", () => {
+  it("has no neutral fallback and no arm-driven torso cage", async () => {
+    const { NodeIO } = await import("@gltf-transform/core");
+    const doc = await new NodeIO().read(asset);
+    const root = doc.getRoot();
+    expect(root.listMeshes().some((entry) => /toigo_t_shirt/i.test(entry.getName())),
+      "the gown outfit must not stack a casual T-shirt under its shoulders").toBe(false);
+    const skin = root.listSkins()[0]!;
+    const names = skin.listJoints().map((joint) => joint.getName());
+    const mesh = root.listMeshes().find((entry) => entry.getName() === "openclinxr_real_garment_hospital_gown_mesh")!;
+    expect(mesh).toBeTruthy();
+    expect(mesh.getExtras()["torsoVertexCount"]).toBeGreaterThan(2000);
+    for (const primitive of mesh.listPrimitives()) {
+      const positions = primitive.getAttribute("POSITION")!;
+      const joints = primitive.getAttribute("JOINTS_0")!;
+      const weights = primitive.getAttribute("WEIGHTS_0")!;
+      const p: number[] = [], j: number[] = [], w: number[] = [];
+      let torsoVertices = 0;
+      let shoulderVertices = 0;
+      for (let index = 0; index < positions.getCount(); index++) {
+        positions.getElement(index, p); joints.getElement(index, j); weights.getElement(index, w);
+        const torso = index < Number(mesh.getExtras()["torsoVertexCount"]);
+        const shoulder = torso && p[1]! >= 1.36 && p[1]! <= 1.50 && Math.abs(p[0]!) >= 0.11;
+        assertAnatomicalWeights(names, j, w, torso, shoulder);
+        if (shoulder && w.some((value, slot) => value > 0.1 && /upperarm01|shoulder|clavicle/.test(names[j[slot]!]!))) shoulderVertices++;
+        // The recipe records which vertices are torso/skirt and which are sleeves. A torso
+        // must never be pulled into an arm merely because that arm is the closest bind vertex.
+        if (torso) {
+          torsoVertices++;
+        }
+      }
+      expect(torsoVertices).toBeGreaterThan(2000);
+      expect(shoulderVertices, "the deltoid cap must follow its actual shoulder anatomy").toBeGreaterThan(20);
+    }
+  });
+  it("rejects both original failure shapes while allowing anatomical torso and arm sleeves", () => {
+    const names = ["spine02", "upperarm02.L", "neutral_bone"];
+    expect(() => assertAnatomicalWeights(names, [2], [1], true)).toThrow("no anatomical owner");
+    expect(() => assertAnatomicalWeights(names, [1], [1], true)).toThrow("follows an arm");
+    expect(() => assertAnatomicalWeights(names, [0], [1], true)).not.toThrow();
+    expect(() => assertAnatomicalWeights(names, [1], [1], false)).not.toThrow();
+    expect(() => assertAnatomicalWeights(["upperarm01.R", "spine01"], [0, 1], [0.6, 0.4], true, true)).not.toThrow();
+    expect(() => assertAnatomicalWeights(names, [1], [1], true, true)).toThrow("distant forearm");
+  });
+  it("joins both short sleeves to the torso with shared topology", async () => {
+    const { NodeIO } = await import("@gltf-transform/core");
+    const doc = await new NodeIO().read(asset);
+    const mesh = doc.getRoot().listMeshes().find((entry) => entry.getName() === "openclinxr_real_garment_hospital_gown_mesh")!;
+    for (const primitive of mesh.listPrimitives()) {
+      const indices = primitive.getIndices()!.getArray()!;
+      const parents = Array.from({ length: primitive.getAttribute("POSITION")!.getCount() }, (_, index) => index);
+      const find = (index: number): number => parents[index] === index ? index : (parents[index] = find(parents[index]!));
+      for (let index = 0; index < indices.length; index += 3) {
+        parents[find(Number(indices[index + 1]))] = find(Number(indices[index]));
+        parents[find(Number(indices[index + 2]))] = find(Number(indices[index]));
+      }
+      const components = new Set(Array.from(indices, (index) => find(Number(index))));
+      expect(components.size, "disconnected sleeve tubes leave exposed shoulder seams").toBe(1);
+    }
+  });
+});

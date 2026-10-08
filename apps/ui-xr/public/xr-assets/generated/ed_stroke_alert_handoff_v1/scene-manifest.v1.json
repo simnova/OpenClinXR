@@ -8,8 +8,8 @@
     "title": "ED Stroke Alert Handoff",
     "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
     "chiefConcern": "My right arm feels weak, and I cannot get the words out clearly.",
-    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-    "interruption": "Not charted \u2014 observe interruptions during the encounter",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
+    "interruption": "Not charted — observe interruptions during the encounter",
     "stageAriaLabel": "ED stroke alert handoff station scene",
     "canvasAriaLabel": "3D stroke alert room preview",
     "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
@@ -103,7 +103,15 @@
         "z": 1.1
       },
       "verticalOffsetMeters": -0.98,
-      "labelPrefix": "Patient"
+      "labelPrefix": "Patient",
+      "posture": "supine",
+      "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "supportInstanceId": "ed_stroke_bay_v1:stretcher"
     },
     "stroke_nurse_chen_v1": {
       "slotKind": "clinical_team",
@@ -118,7 +126,8 @@
         "z": 1
       },
       "verticalOffsetMeters": -0.95,
-      "labelPrefix": "Team"
+      "labelPrefix": "Team",
+      "headingRadians": -1.840645482733366
     },
     "son_eric_brooks_v1": {
       "slotKind": "family_or_observer",
@@ -133,15 +142,16 @@
         "z": 1
       },
       "verticalOffsetMeters": -0.95,
-      "labelPrefix": "Family"
+      "labelPrefix": "Family",
+      "headingRadians": 2.1995926132103296
     }
   },
   "equipmentPlacements": {
     "wall_clock_equipment": {
       "position": {
-        "x": -2.4,
+        "x": -1.75,
         "y": 1.55,
-        "z": -1.15
+        "z": -1.42
       },
       "label": "Wall Clock",
       "interactionCueIds": [

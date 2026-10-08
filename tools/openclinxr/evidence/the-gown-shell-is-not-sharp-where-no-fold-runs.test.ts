@@ -85,7 +85,7 @@ describe("the gown shell is not sharp where no fold runs (#750)", () => {
   });
 
 
-  it.fails("(2) the gown's skirt is no sharper than a clean garment's, where no fold runs", async () => {
+  it("(2) the gown's skirt is no sharper than a clean garment's, where no fold runs", async () => {
     const rows = await decilesPromise;
     const gowns = rows.filter((r) => r.gown);
     const clean = rows.filter((r) => !r.gown);

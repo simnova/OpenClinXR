@@ -1,4 +1,4 @@
-import { Group } from "three";
+import { Group, Object3D } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { applyDeterministicPortalPreviewStart, applyGeneratedHumanoidRoleSpecificPosture, applyLocomotion, buildExamineeLocomotionEvidence, createExamineeLocomotionTrail, createKeyboardLocomotion, createXrHandGestureLocomotionState, createXrHandSelectState, formatHandSelectStatus, formatPortalTransitionEvidence, isLocomotionVectorActive, isXrHandPinching, maybeCompleteTraceActionFromHandSelect, type PortalTransitionContext, parsePortalPreviewStart, type RolePostureContext, recordHandSelectTraceLatency, sampleRoomScalePose, updateExamineeLocomotionTrail, updatePortalTransitionEvidence, updateReusableExteriorAnteroomVisibility } from "./index.js";
 import { clampLocomotionUnit, createXrHandGestureHandState, handednessForHand, handSelectEvidence, isTrackedHandVisible, locomotionDeadzone, resetHandGestureHandState, resetHandSelectState } from "./locomotion.js";
@@ -241,6 +241,16 @@ describe("role posture", () => {
       "patient",
     );
     expect(peds.scale.x).toBeCloseTo(0.78);
+    const upperArm = new Object3D();
+    upperArm.name = "upper_armL";
+    upperArm.rotation.set(0.21, -0.17, 0.13);
+    peds.add(upperArm);
+    applyGeneratedHumanoidRoleSpecificPosture(
+      roleCtx({ isPediatricAsthmaScenario: () => true }),
+      peds,
+      "patient",
+    );
+    expect(upperArm.rotation.toArray().slice(0, 3)).toEqual([0.21, -0.17, 0.13]);
     const unknown = new Group();
     applyGeneratedHumanoidRoleSpecificPosture(roleCtx(), unknown, "stranger");
     expect(unknown.userData["openClinXrScenarioDerivedPosture"]).toBeUndefined();

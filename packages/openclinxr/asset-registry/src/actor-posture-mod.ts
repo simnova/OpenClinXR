@@ -116,7 +116,8 @@ export function defaultPostureForEnvironmentSlot(input: {
   // #150: ED chest-pain bay only. Stretcher is a shell fixture; stepdown has no bed.
   // Scenario-id gate — not "any ed_* env" (stroke/abdominal bays keep standing patients).
   const edChestPain = scenario.includes("ed_chest_pain");
-  if (edChestPain && input.slotKind === "primary_patient") {
+  const edStrokeAlert = scenario.includes("ed_stroke_alert_handoff");
+  if ((edChestPain || edStrokeAlert) && input.slotKind === "primary_patient") {
     return "supine";
   }
   // #179: three inpatient stations stage recumbent on support they already ship.
