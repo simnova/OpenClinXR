@@ -76,6 +76,15 @@ const PROFILE34 = {
  * reads ~1px behind. */
 export const PHILTRUM_BAND = { x0: 462, x1: 562, y0: 360, y1: 400 } as const;
 const PHILTRUM34 = { y0: 380, y1: 400, step: 4 } as const;
+/** Nose-base rows for the bulge metric (rigid across O/U: O/U nose means
+ * 203.6 vs E 199.1, i.e. the nose does not push forward while the
+ * philtrum reads 196.5/192.3). */
+const NOSE34 = { y0: 320, y1: 360, step: 4 } as const;
+/** Bulge gate: noseX - philX positive = philtrum forward of the nose base.
+ * Shipped stills (2026-10-07): O +7.1, U +11.3; rest sil -2.0, E -4.6,
+ * aa -3.5; full-sweep non-target max kk +3.5. Gate at +4 clears rest
+ * (max -2.0) plus the 3px anchor-rigidity allowance and every non-target. */
+export const PHILTRUM_BULGE_THRESHOLD_PX = 4;
 
 function mean(values: number[]): number {
   if (values.length === 0) throw new Error("empty-sample");
@@ -365,6 +374,43 @@ export function measurePhiltrumSilhouette(still34: RgbImage, t: PixelLipThreshol
     n += 1;
   }
   return Math.round((sum / n) * 10) / 10;
+}
+
+export type PhiltrumBulge = {
+  noseX: number;
+  philX: number;
+  /** noseMeanX - philMeanX; positive = philtrum lump forward of the nose base. */
+  bulgePx: number;
+};
+
+/**
+ * Philtrum-bulge metric, 3/4 view: mean nose-base silhouette x minus mean
+ * philtrum-height silhouette x. A midline forward push on the philtrum skin
+ * (oris05) drives this positive while the nose base stays rigid; a
+ * vermilion-ring push keeps it at or below the rest level. Gate with
+ * PHILTRUM_BULGE_THRESHOLD_PX.
+ */
+export function measurePhiltrumBulge(still34: RgbImage, t: PixelLipThresholds): PhiltrumBulge {
+  if (still34.w !== 1024 || still34.h !== 1024) throw new Error(`pixel-lip-canvas:34:${still34.w}x${still34.h}`);
+  let noseSum = 0;
+  let noseN = 0;
+  for (let y = NOSE34.y0; y <= NOSE34.y1; y += NOSE34.step) {
+    const x = firstEdgeX(still34, y, t.bgT34);
+    if (x === null) throw new Error("pixel-lip-no-silhouette");
+    noseSum += x;
+    noseN += 1;
+  }
+  let philSum = 0;
+  let philN = 0;
+  for (let y = PHILTRUM34.y0; y <= PHILTRUM34.y1; y += PHILTRUM34.step) {
+    const x = firstEdgeX(still34, y, t.bgT34);
+    if (x === null) throw new Error("pixel-lip-no-silhouette");
+    philSum += x;
+    philN += 1;
+  }
+  const noseX = Math.round((noseSum / noseN) * 10) / 10;
+  const philX = Math.round((philSum / philN) * 10) / 10;
+  return { noseX, philX, bulgePx: Math.round((noseX - philX) * 10) / 10 };
 }
 
 /**

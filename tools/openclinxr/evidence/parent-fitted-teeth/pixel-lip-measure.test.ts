@@ -17,9 +17,11 @@ import { describe, expect, it } from "vitest";
 import {
   calibratePixelLipThresholds,
   measurePhiltrumBand,
+  measurePhiltrumBulge,
   measurePhiltrumSilhouette,
   measurePixelLipForward,
   measurePixelLipFront,
+  PHILTRUM_BULGE_THRESHOLD_PX,
   squeezeMouthBand,
   type RgbImage,
 } from "./pixel-lip-measure.ts";
@@ -76,6 +78,8 @@ type Report = {
   thresholds: { darkT: number; redT: number; gumT: number; bgT34: number };
   front: Record<string, FrontRow>;
   view34: Record<string, FwdRow>;
+  bulge34: Record<string, { noseX: number; philX: number; bulgePx: number }>;
+  bulgeThresholdPx: number;
   ratiosVsE: { frontOuter: Record<string, number>; frontApW: Record<string, number>; fwd34: Record<string, number> };
   validation: {
     shipped: { E: FrontRow & FwdRow; O: FrontRow & FwdRow; U: FrontRow & FwdRow };
@@ -169,6 +173,27 @@ describe("pixel-lip-measure synthetic", () => {
     // Philtrum rows (380-400 step 4) start at 200; lip rows reach 160.
     expect(measurePhiltrumSilhouette(img, t)).toBe(200);
   });
+
+  it("reports a painted philtrum lump as positive bulge, flat as ~zero", () => {
+    const t = syntheticThresholds();
+    const { img, paint } = canvas();
+    paint(0, 1023, 0, 1023, DARK);
+    paint(180, 600, 120, 180, SKIN);
+    // Nose base at 200, philtrum pushed 15px forward of it: bulge +15.
+    paint(200, 600, 318, 362, SKIN);
+    paint(185, 600, 378, 400, SKIN);
+    const lump = measurePhiltrumBulge(img, t);
+    expect(lump.noseX).toBe(200);
+    expect(lump.philX).toBe(185);
+    expect(lump.bulgePx).toBe(15);
+    // Flat profile: nose and philtrum share the edge, bulge ~0.
+    const { img: flat, paint: paintFlat } = canvas();
+    paintFlat(0, 1023, 0, 1023, DARK);
+    paintFlat(180, 600, 120, 180, SKIN);
+    paintFlat(200, 600, 318, 362, SKIN);
+    paintFlat(200, 600, 378, 400, SKIN);
+    expect(measurePhiltrumBulge(flat, t).bulgePx).toBe(0);
+  });
 });
 
 describe("pixel-lip-measure evidence", () => {
@@ -238,5 +263,18 @@ describe("pixel-lip-measure evidence", () => {
     const lo = Math.min(...anchors);
     const hi = Math.max(...anchors);
     expect(hi - lo).toBeLessThanOrEqual(3);
+  });
+
+  it("philtrum bulge: O/U exceed the rest-sourced gate, E/aa/sil do not", () => {
+    const report = loadReport();
+    expect(report.bulgeThresholdPx).toBe(PHILTRUM_BULGE_THRESHOLD_PX);
+    expect(PHILTRUM_BULGE_THRESHOLD_PX).toBe(4);
+    // (a) current O/U stills carry the coordinator-visible lump.
+    expect(report.bulge34["O"]!.bulgePx).toBeGreaterThan(4);
+    expect(report.bulge34["U"]!.bulgePx).toBeGreaterThan(4);
+    // (b) rest-like stills read ~none.
+    for (const v of ["sil", "E", "aa"]) {
+      expect(report.bulge34[v]!.bulgePx).toBeLessThanOrEqual(4);
+    }
   });
 });

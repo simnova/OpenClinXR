@@ -19,8 +19,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   calibratePixelLipThresholds,
+  measurePhiltrumBulge,
   measurePixelLipForward,
   measurePixelLipFront,
+  PHILTRUM_BULGE_THRESHOLD_PX,
   squeezeMouthBand,
   type RgbImage,
 } from "./pixel-lip-measure.ts";
@@ -68,6 +70,7 @@ async function main(): Promise<void> {
 
   const front: Record<string, unknown> = {};
   const view34: Record<string, unknown> = {};
+  const bulge34: Record<string, unknown> = {};
   const fingerprints: Record<string, string> = {};
   for (const v of ORDER) {
     const ff = still("front", v);
@@ -76,6 +79,7 @@ async function main(): Promise<void> {
     fingerprints[`isolated-34/${v}.png`] = md5(f34);
     front[v] = measurePixelLipFront(decodeTopDown(ff), t);
     view34[v] = measurePixelLipForward(decodeTopDown(f34), t);
+    bulge34[v] = measurePhiltrumBulge(decodeTopDown(f34), t);
   }
   const ratio = (got: number, ref: number): number => Math.round((got / ref) * 1000) / 1000;
   const eFront = front["E"] as { outerWidthPx: number };
@@ -155,11 +159,14 @@ async function main(): Promise<void> {
     method: [
       "Segment the visible mouth from the rendered still: dark aperture (mean < darkT) + tooth-white (tooth-pixel-split rule) + vermilion redness excess over per-row local skin (lerped cheek refs) vs surrounding skin; thresholds calibrated from the rest-pose sil stills of the same render.",
       "Outer lip width = widest mouth-centre run over the mouth band (y 380-620); aperture w = widest dark/tooth/deep-red centre run; aperture h = tallest aperture column run near the centre; 3/4 forward = foremost lip silhouette x vs the rigid forehead anchor.",
+      "Philtrum bulge = mean nose-base silhouette x (y 320-360) minus mean philtrum-height silhouette x (y 380-400); positive = philtrum lump forward of the rigid nose base. Gate +4px: rest sil -2.0 / E -4.6 / aa -3.5, full-sweep non-target max kk +3.5, anchor rigidity 3px.",
       "Validation (a): attempt-1 bone-driven pixel delta (archived after vs live before, E-framing verified) ~0 where landmark claimed narrowing and the coordinator graded the opening the same width. Validation (b): 0.85 mouth-band squeeze reports ~0.85.",
     ],
     thresholds: { darkT: t.darkT, redT: t.redT, gumT: t.gumT, bgT34: t.bgT34, restStats: t.restStats },
     front,
     view34,
+    bulge34,
+    bulgeThresholdPx: PHILTRUM_BULGE_THRESHOLD_PX,
     ratiosVsE,
     validation: {
       shipped: {
