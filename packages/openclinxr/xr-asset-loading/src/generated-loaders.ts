@@ -3,7 +3,6 @@
  * apps/ui-xr/src/main.ts (shrink-only SIZE_FREEZE). GLTFLoader callbacks stay in
  * the package; app state reads go through ctx. No mutable module state.
  */
-
 import { type ActorPosture, resolveActorPosture } from "@openclinxr/asset-registry/actor-posture";
 import { recordSceneAssetStatus, runtimeAssetAffordanceCueIds } from "@openclinxr/xr-capture-evidence";
 import { applyGeneratedHumanoidRoleSpecificPosture } from "@openclinxr/xr-locomotion";
@@ -32,6 +31,7 @@ export type LoadHumanoidOptions = {
   verticalOffsetMeters: number;
   posture?: ActorPosture | undefined;
 };
+
 
 export function readSelectedHumanoidSourceComparator(search: string): HumanoidSourceComparator {
   const selected = new URLSearchParams(search).get("humanoidSourceComparator")?.trim();

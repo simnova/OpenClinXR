@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-10-07T19:40:45.730Z",
+  "generatedAt": "2026-10-08T13:35:20.291Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -16,79 +16,75 @@
   ],
   "entries": [
     {
-      "scenarioId": "peds_fever_v1",
-      "imagePath": "peds_fever_v1-room.png",
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "imagePath": "primary_care_dyslipidemia_joint_pain_v1-room.png",
       "liveShell": {
         "infinigenRoom": {
           "present": true,
           "effectivelyVisible": true,
-          "meshCount": 129,
+          "meshCount": 133,
           "interiorSizeMeters": [
             6.71999979019165,
-            2.697044947207459,
-            7.039946556091309
+            2.6970000565052032,
+            6.800454139709473
           ],
           "interiorMin": [
             -3.359999895095825,
-            -0.04699999839067459,
-            -4.044973278045655
+            -0.046999961137771606,
+            -3.8502270698547365
           ],
           "interiorMax": [
             3.359999895095825,
-            2.6500449488167845,
-            2.994973278045654
+            2.6500000953674316,
+            2.950227069854736
           ],
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -1.8040955270258818,
+            0.9470256539790467,
             2.16,
-            -3.2625573397227896
+            -1.4280718821749105
           ],
           "proceduralShellMeshesStillVisible": []
         },
-        "environmentId": "pediatric_fever_urgent_care_bay_v1",
-        "floorColor": 6321018,
-        "roomDepthMeters": 2.95,
-        "roomWidthMeters": 5.4,
-        "roomHeightMeters": 2.5,
+        "environmentId": "primary_care_clinic_room_v1",
+        "floorColor": 6583435,
+        "roomDepthMeters": 2.8,
+        "roomWidthMeters": 5,
+        "roomHeightMeters": 2.45,
         "shellVisible": true,
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-1.8040955270258818,2.16,-3.2625573397227896 look=-2.6316241805849443,0.8280269730688734,-0.6466395579188611 fov=90",
+        "cameraFraming": "authored_staging_solver_v1 authoredCamera=0.9470256539790467,2.16,-1.4280718821749105 look=0.48257017037190686,0.9485650648476227,0.1030326549966234 fov=90",
         "cameraEye": [
-          -1.8040955270258818,
+          0.9470256539790467,
           2.16,
-          -3.2625573397227896
+          -1.4280718821749105
         ],
         "cameraLook": [
-          -2.6316241805849443,
-          0.8280269730688734,
-          -0.6466395579188611
+          0.48257017037190686,
+          0.9485650648476227,
+          0.1030326549966234
         ],
+        "cameraFov": 90,
         "refineTag": "authored:staging-solver-v1",
         "actorContainment": {
           "contained": 2,
-          "total": 3
+          "total": 2
         },
         "actorVisibility": [
           {
-            "actorId": "patient_noah_chen_v1",
+            "actorId": "patient_mario_guzman_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 4,
+            "visibleSampleCount": 5,
             "sampleCount": 5,
             "visible": true,
-            "blockedSamples": [
-              {
-                "sample": "right_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              }
-            ]
+            "blockedSamples": []
           },
           {
-            "actorId": "nurse_aisha_brooks_v1",
+            "actorId": "medical_assistant_jones_v1",
             "crownVisible": true,
             "chestVisible": true,
             "visibleSampleCount": 3,
@@ -97,51 +93,21 @@
             "blockedSamples": [
               {
                 "sample": "left_foot",
-                "blockedBy": "mpfb_peds_patient_child_body"
+                "blockedBy": "mpfb_adult_male_street_casual_body"
               },
               {
                 "sample": "right_foot",
-                "blockedBy": "mpfb_peds_patient_child_body"
-              }
-            ]
-          },
-          {
-            "actorId": "parent_mei_chen_v1",
-            "crownVisible": false,
-            "chestVisible": false,
-            "visibleSampleCount": 0,
-            "sampleCount": 5,
-            "visible": false,
-            "blockedSamples": [
-              {
-                "sample": "crown",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "chest",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "pelvis",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "left_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
-              },
-              {
-                "sample": "right_foot",
-                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+                "blockedBy": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual"
               }
             ]
           }
         ],
         "standingActorContainment": {
           "contained": 2,
-          "total": 3
+          "total": 2
         },
-        "meanFacingDeg": 83.2745422673737,
-        "framingConstraintsMet": false,
+        "meanFacingDeg": 23.947621053058977,
+        "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
           "nearRayCount": 0,

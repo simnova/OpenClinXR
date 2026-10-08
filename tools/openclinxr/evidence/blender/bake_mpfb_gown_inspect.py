@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-#480 L4 — bake the existing `gown` kind onto an MPFB mesh (D1: wire, do not author).
+#480 L4 — bake a first-party clinical gown onto the current MPFB patient.
 
 Loads the tracked isolated-subject precedent `mpfb-viseme-inspect.glb` (D3/D4, 137-joint
 MPFB rail, jaw + eyes + face targets) and invokes the PROVEN Anny-rail gown builder
@@ -18,9 +18,9 @@ Anny-rail footwear slippers are discarded (the MPFB body already wears fitted to
 
 REGENERATION PATH (SS6r): Blender-only, on the existing shipped base GLB. It does NOT run
 `orchestrate_character` (which, without the `anny` package, silently emits ~0.8 MB stubs).
-No new geometry is authored: the swept gown parameter set at automate_blender.py:3527
-(sleeve_along = arm_len * 0.42, bot_y = 0.32 * body_height, torso_rows/cols 11x16, locked
-gown colour _GARMENT_COLOR_GOWN) is consumed as-is.
+The existing garment station supplies material and declaration provenance. A regular clinical-gown
+cage replaces its damaged surface-derived shell, with body-section fitting and anatomically
+restricted weight transfer. It has a below-hip skirt and short sleeves; it is first-party geometry.
 
 Run:
   blender --background --python tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py -- \
@@ -43,7 +43,9 @@ _ANNY_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/anny"
 if str(_ANNY_DIR) not in sys.path:
     sys.path.insert(0, str(_ANNY_DIR))
 
-from automate_blender import apply_role_clothing_material_regions  # noqa: E402
+from automate_blender import (  # noqa: E402
+    apply_role_clothing_material_regions,
+)
 
 GEN = REPO_ROOT / "apps/ui-xr/public/generated-humanoids"
 
@@ -163,6 +165,220 @@ def _new_objects_after(before_names):
     return [o for o in bpy.context.scene.objects if o.name not in before_names]
 
 
+def _replace_with_clean_clinical_gown(garment, body_copy, armature):
+    """Replace the damaged subdivided body shell with a small, regular clinical-gown cage.
+
+    The prior surface-derived mesh repeatedly subdivided glTF seam-split triangles, producing the
+    visible shard field even when its decorative fold displacement was disabled. This topology is
+    authored from regular cross-section rings, then receives weights from the same fitted patient
+    body. It deliberately keeps the existing first-party material and avoids external garment bytes.
+    """
+    source_materials = list(garment.data.materials)
+    group_names = {group.index: group.name for group in body_copy.vertex_groups}
+
+    def anatomical_weights(vertex, sleeve=False, shoulder=False):
+        def permitted(name):
+            if shoulder:
+                return name.startswith(("spine", "neck", "shoulder", "clavicle", "upperarm01"))
+            return ("arm" in name or "clavicle" in name or "shoulder" in name) if sleeve else (
+                name.startswith(("spine", "pelvis", "upperleg", "neck")))
+        return [(group_names[entry.group], float(entry.weight)) for entry in vertex.groups
+                if entry.group in group_names and permitted(group_names[entry.group]) and entry.weight > 1e-6]
+
+    torso_sources = [vertex for vertex in body_copy.data.vertices
+                     if sum(weight for _, weight in anatomical_weights(vertex)) > 0.5]
+    arm_sources = [vertex for vertex in body_copy.data.vertices
+                   if sum(weight for _, weight in anatomical_weights(vertex, True)) > 0.5]
+    shoulder_sources = [vertex for vertex in body_copy.data.vertices
+                        if sum(weight for name, weight in anatomical_weights(vertex, shoulder=True)
+                               if name.startswith(("shoulder", "clavicle", "upperarm01"))) > 0.2]
+
+    def shoulder_cap(position):
+        # First-hit diagnostic locates the exposed deltoid at y=1.416–1.446, |x|=.147–.188.
+        # Only this collar/shoulder region may inherit proximal upper-arm weights; the mid-torso
+        # must still reject the distant T-pose arms that caused the original inflated cage.
+        return 1.36 <= position.y <= 1.50 and abs(position.x) >= 0.11
+
+    def section(y, fallback_x, fallback_z):
+        sources = torso_sources + shoulder_sources if y >= 1.36 else torso_sources
+        band = [vertex.co for vertex in sources if abs(float(vertex.co.y) - y) <= 0.035]
+        if not band:
+            raise RuntimeError(f"no anatomical body section at gown height {y}")
+        # Fit the torso rather than a T-pose arm-span. The skirt gets modest ease over both thighs.
+        ease = 0.025 if y < 1.05 else 0.018
+        rx = max(abs(float(p.x)) for p in band) + ease
+        rz = max(abs(float(p.z)) for p in band) + ease
+        # Independent x/z extrema do not define an enclosing ellipse: a thigh's diagonal surface
+        # can lie outside both-axis-fitted radii. Enclose every anatomical section sample.
+        scale = max(1.0, max(math.hypot(float(p.x) / rx, float(p.z) / rz) for p in band))
+        return rx * scale, rz * scale
+
+    ring_anchors = [
+        (0.56, 0.29, 0.18),
+        (0.70, 0.29, 0.18),
+        (0.88, 0.28, 0.18),
+        (1.05, 0.26, 0.17),
+        (1.22, 0.27, 0.18),
+        (1.38, 0.29, 0.18),
+        (1.49, 0.14, 0.11),
+    ]
+    # Twenty-five millimetre vertical sampling and 64 angular samples keep the silhouette smooth
+    # and make every below-hip band a real closed loop rather than a sparsely sampled polygon.
+    ring_spec = []
+    ring_y = ring_anchors[0][0]
+    while ring_y <= ring_anchors[-1][0] + 1e-6:
+        upper = next((row for row in ring_anchors if row[0] >= ring_y), ring_anchors[-1])
+        upper_index = ring_anchors.index(upper)
+        lower = ring_anchors[max(0, upper_index - 1)]
+        span = max(1e-6, upper[0] - lower[0])
+        t = min(1.0, max(0.0, (ring_y - lower[0]) / span))
+        ring_spec.append((
+            ring_y,
+            lower[1] + (upper[1] - lower[1]) * t,
+            lower[2] + (upper[2] - lower[2]) * t,
+        ))
+        ring_y += 0.025
+    segments = 82
+    verts = []
+    faces = []
+    rings = []
+    for y, fallback_x, fallback_z in ring_spec:
+        rx, rz = section(y, fallback_x, fallback_z)
+        ring = []
+        for i in range(segments):
+            angle = 2.0 * math.pi * i / segments
+            ring.append(len(verts))
+            verts.append((rx * math.cos(angle), y, rz * math.sin(angle)))
+        rings.append(ring)
+    for a, b in zip(rings, rings[1:]):
+        for i in range(segments):
+            j = (i + 1) % segments
+            faces.append((a[i], a[j], b[j], b[i]))
+    torso_vertex_count = len(verts)
+    bridge_sources = {}
+
+    # Short exam sleeves in the bind T pose. They overlap the shoulder ring so the rendered shell
+    # is continuous; weight transfer binds them to the nearest upper-arm surface.
+    for side in (-1.0, 1.0):
+        sleeve_rings = []
+        for step, x_abs in enumerate((0.22, 0.255, 0.29, 0.325, 0.36, 0.395)):
+            band = [vertex.co for vertex in arm_sources if abs(float(vertex.co.x) - side * x_abs) <= 0.02]
+            if not band:
+                raise RuntimeError(f"no anatomical arm section at sleeve x={side * x_abs}")
+            center_y = (min(p.y for p in band) + max(p.y for p in band)) / 2
+            radius_y = (max(p.y for p in band) - min(p.y for p in band)) / 2 + 0.018
+            radius_z = max(abs(p.z) for p in band) + 0.018
+            scale = max(1.0, max(math.hypot((p.y - center_y) / radius_y, p.z / radius_z) for p in band))
+            radius_y *= scale
+            radius_z *= scale
+            ring = []
+            for i in range(24):
+                angle = 2.0 * math.pi * i / 24
+                ring.append(len(verts))
+                verts.append((side * x_abs, center_y + radius_y * math.cos(angle), radius_z * math.sin(angle)))
+            sleeve_rings.append(ring)
+        for a, b in zip(sleeve_rings, sleeve_rings[1:]):
+            for i in range(24):
+                j = (i + 1) % 24
+                # Reverse the left sleeve so both components face outward.
+                face = (a[i], a[j], b[j], b[i])
+                faces.append(tuple(reversed(face)) if side < 0 else face)
+
+        # Stitch the proximal sleeve to the existing torso vertices. Separate overlapping tubes
+        # opened a 14–28 mm shoulder seam when the torso was fitted properly. Shared anchor and
+        # sleeve indices make this one continuous garment, with two blended transition rings.
+        inner = sleeve_rings[0]
+        candidates = [index for index in range(torso_vertex_count) if side * verts[index][0] > 0]
+        anchors = []
+        for sleeve_index in inner:
+            target = verts[sleeve_index]
+            anchor = min(candidates, key=lambda index: sum((verts[index][axis] - target[axis]) ** 2
+                                                          for axis in range(3)))
+            anchors.append(anchor)
+        bridge_rings = [anchors]
+        for blend in (1 / 3, 2 / 3):
+            ring = []
+            for anchor, sleeve_index in zip(anchors, inner):
+                index = len(verts)
+                ring.append(index)
+                verts.append(tuple(verts[anchor][axis] * (1 - blend) + verts[sleeve_index][axis] * blend
+                                   for axis in range(3)))
+                bridge_sources[index] = (anchor, sleeve_index, blend)
+            bridge_rings.append(ring)
+        bridge_rings.append(inner)
+        for a, b in zip(bridge_rings, bridge_rings[1:]):
+            for index in range(24):
+                following = (index + 1) % 24
+                face = (a[index], a[following], b[following], b[index])
+                face = tuple(dict.fromkeys(face))
+                if len(face) >= 3:
+                    faces.append(tuple(reversed(face)) if side < 0 else face)
+
+    mesh = bpy.data.meshes.new("openclinxr_real_garment_hospital_gown_mesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update(calc_edges=True)
+    mesh["sourceRecipe"] = "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py#regular-clinical-gown-cage"
+    mesh["garmentClass"] = "gown"
+    mesh["licence"] = "first-party OpenClinXR procedural geometry"
+    mesh["torsoVertexCount"] = torso_vertex_count
+    mesh["weightingMethod"] = "anatomical-region-restricted-nearest-body; normalized; no neutral fallback"
+    mesh["shoulderSeamMethod"] = "shared torso/sleeve topology with two anatomically blended transition rings"
+    mesh["shoulderCapRegion"] = {"yMin": 1.36, "yMax": 1.50, "absXMin": 0.11}
+    for material in source_materials:
+        mesh.materials.append(material)
+    old_mesh = garment.data
+    garment.data = mesh
+    garment.name = "openclinxr_real_garment_from_phenotype_hospital_gown"
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    # The regular cage has no source-vertex correspondence. A bounded spatial transfer silently
+    # left 292 vertices unweighted and assigned torso sides to arms. Search the full anatomically
+    # appropriate source set; fail rather than exporting a neutral-bone fallback.
+    from mathutils.kdtree import KDTree
+    while garment.vertex_groups:
+        garment.vertex_groups.remove(garment.vertex_groups[0])
+    trees = []
+    for sources in (torso_sources, arm_sources, shoulder_sources):
+        tree = KDTree(len(sources))
+        for index, vertex in enumerate(sources):
+            tree.insert(vertex.co, index)
+        tree.balance()
+        trees.append(tree)
+    skin_rows = {}
+    for index, vertex in enumerate(mesh.vertices):
+        if index in bridge_sources:
+            continue
+        sleeve = index >= torso_vertex_count
+        shoulder = not sleeve and shoulder_cap(vertex.co)
+        source_index = 2 if shoulder else int(sleeve)
+        sources = (torso_sources, arm_sources, shoulder_sources)[source_index]
+        _, nearest_index, _ = trees[source_index].find(vertex.co)
+        weights = sorted(anatomical_weights(sources[nearest_index], sleeve, shoulder), key=lambda row: -row[1])[:4]
+        total = sum(weight for _, weight in weights)
+        if total <= 0:
+            raise RuntimeError(f"gown vertex {index} has no anatomical weight")
+        skin_rows[index] = {name: weight / total for name, weight in weights}
+    for index, (anchor, sleeve_index, blend) in bridge_sources.items():
+        weights = {}
+        for name, weight in skin_rows[anchor].items():
+            weights[name] = weights.get(name, 0) + weight * (1 - blend)
+        for name, weight in skin_rows[sleeve_index].items():
+            weights[name] = weights.get(name, 0) + weight * blend
+        strongest = sorted(weights.items(), key=lambda row: -row[1])[:4]
+        total = sum(weight for _, weight in strongest)
+        skin_rows[index] = {name: weight / total for name, weight in strongest}
+    for index, weights in skin_rows.items():
+        for name, weight in weights.items():
+            group = garment.vertex_groups.get(name) or garment.vertex_groups.new(name=name)
+            group.add([index], weight, "REPLACE")
+    if old_mesh.users == 0:
+        bpy.data.meshes.remove(old_mesh)
+    print(
+        f"CLEAN_CLINICAL_GOWN verts={len(mesh.vertices)} faces={len(mesh.polygons)} "
+        f"rings={len(rings)} sleeves=2"
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="#480 bake MPFB gown inspect GLB")
     ap.add_argument("--input-glb", default=str(GEN / "mpfb-viseme-inspect.glb"))
@@ -226,6 +442,11 @@ def main() -> None:
         "lowerFaceCount", "armFaceCount", "skippedTorsoPaintBecauseRealGarment",
     ) if k in result}, default=str))
 
+    for obj in _new_objects_after(before):
+        if obj.type == "MESH" and "real_garment_from_phenotype_hospital_gown" in obj.name:
+            _replace_with_clean_clinical_gown(obj, body_copy, armature)
+            break
+
     created = _new_objects_after(before)
     print(f"CREATED_OBJECTS {[o.name for o in created]}")
 
@@ -275,6 +496,7 @@ def main() -> None:
         export_morph=True,
         export_texcoords=True,
         export_normals=True,
+        export_extras=True,
     )
     print(f"EXPORTED {out} {out.stat().st_size} bytes")
 

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "capturedFrom": "final candidate worktree after package rebuild and live supine counterweight",
+  "views": [
+    "room",
+    "overhead",
+    "isometric"
+  ],
+  "files": [
+    {
+      "file": "ed_chest_pain_priority_v1-isometric.png",
+      "bytes": 387097,
+      "sha256": "5424af815427e106cd24e758535297df7ed5f60bc5c48ab1dbc087655ef2f6cb"
+    },
+    {
+      "file": "ed_chest_pain_priority_v1-overhead.png",
+      "bytes": 188801,
+      "sha256": "f8d09f8839fb44b476fc2338a030875b1bd3cfd58e6659e166c1a3a45714c747"
+    },
+    {
+      "file": "ed_chest_pain_priority_v1-room.png",
+      "bytes": 633643,
+      "sha256": "cae4c2bdcb9d667d4b6165c699374faac1b8266aa960d920ed243af5b2f8a398"
+    },
+    {
+      "file": "ed_stroke_alert_handoff_v1-isometric.png",
+      "bytes": 445893,
+      "sha256": "30219e505135aa54cd0c93b39d8ae3957d6bc98ff3936c66dd7a142f2ab23004"
+    },
+    {
+      "file": "ed_stroke_alert_handoff_v1-overhead.png",
+      "bytes": 276616,
+      "sha256": "4c46a1f9a93e1edc92b16d17ffa522a820976c3f969e25a21fd09d09f5470fb6"
+    },
+    {
+      "file": "ed_stroke_alert_handoff_v1-room.png",
+      "bytes": 764637,
+      "sha256": "2e9febb9e8eb90aa3efbe7e79f5ce899721dafb2d7802252dfd0e2cee5f4a262"
+    },
+    {
+      "file": "peds_asthma_parent_anxiety_v1-isometric.png",
+      "bytes": 455946,
+      "sha256": "977bff1cc1b8087af9b842d81524a0c2bedcd986d95a859905ee3044d8ca4c53"
+    },
+    {
+      "file": "peds_asthma_parent_anxiety_v1-overhead.png",
+      "bytes": 235640,
+      "sha256": "3e27893ef1c2bf5bdef2a00839633352aa20980d0815eb11c8451c5aa2390d93"
+    },
+    {
+      "file": "peds_asthma_parent_anxiety_v1-room.png",
+      "bytes": 610696,
+      "sha256": "04fc9fb688f85ebe0e002a618d5f1bfefa2851d209bbe613d8591a6efe425f6a"
+    },
+    {
+      "file": "peds_fever_v1-isometric.png",
+      "bytes": 411158,
+      "sha256": "cd9a74a4c79285f0e08bdb2b329985beca395ce7f5a2b9dc5ad240816c0fd739"
+    },
+    {
+      "file": "peds_fever_v1-overhead.png",
+      "bytes": 274279,
+      "sha256": "824ce6021cd36b8733cab63d6dab80efff16e4ea440b4671eb9e967658c2429b"
+    },
+    {
+      "file": "peds_fever_v1-room.png",
+      "bytes": 658733,
+      "sha256": "b134895a2b032855debcd6f46aa0e1c67c6f91a56f9bc1fe183f422ae54cd522"
+    }
+  ],
+  "claimBoundary": "Browser-rendered visual evidence for pose, placement, collision, and visible shell cleanup; not proof of a rebuilt gown, fever-specific wardrobe, clinical validity, physical contact, or Quest performance."
+}

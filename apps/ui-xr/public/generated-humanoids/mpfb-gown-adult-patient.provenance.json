@@ -22,51 +22,51 @@
   "derivationCommits": [
    {
     "commit": "af1fed4e",
-    "did": "#490 L5 — bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
+    "did": "#490 L5 \u2014 bake cast-eligible gowned MPFB adult patient off the mpfb-viseme-inspect base; declare MPFB_GOWN_ADULT_PATIENT_GLB"
    },
    {
     "commit": "e9ef9e3f",
-    "did": "#542 — CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
+    "did": "#542 \u2014 CC0 brows/lashes/teeth/tongue across all eleven MPFB actors"
    },
    {
     "commit": "99c56fd5",
-    "did": "#598 — swap toigo_flats for the plain CC0 cloth shoes"
+    "did": "#598 \u2014 swap toigo_flats for the plain CC0 cloth shoes"
    },
    {
     "commit": "f3bf8d13",
-    "did": "#651 — body height driven by the case declaration"
+    "did": "#651 \u2014 body height driven by the case declaration"
    },
    {
     "commit": "e0d36c44",
-    "did": "#684 — restore the hospital gown without giving back the #651 height"
+    "did": "#684 \u2014 restore the hospital gown without giving back the #651 height"
    },
    {
     "commit": "e59dc492",
-    "did": "#686 — give the gown bodice its own drape"
+    "did": "#686 \u2014 give the gown bodice its own drape"
    },
    {
     "commit": "0f1d0b9c",
-    "did": "#695 — meshopt decimation wired into the humanoid pipeline"
+    "did": "#695 \u2014 meshopt decimation wired into the humanoid pipeline"
    },
    {
     "commit": "f82e1cc2",
-    "did": "#683 — fitted CC0 eyelashes01 replace the hm08 helper stubs"
+    "did": "#683 \u2014 fitted CC0 eyelashes01 replace the hm08 helper stubs"
    },
    {
     "commit": "de57fc4d",
-    "did": "#739 — per-asset teeth retreat"
+    "did": "#739 \u2014 per-asset teeth retreat"
    },
    {
     "commit": "a55067d1",
-    "did": "#740 — re-materialize the fleet with garment textures restored"
+    "did": "#740 \u2014 re-materialize the fleet with garment textures restored"
    },
    {
     "commit": "404c723a",
-    "did": "#737 — lash-only LOD; restore the gown UVs #714 dropped"
+    "did": "#737 \u2014 lash-only LOD; restore the gown UVs #714 dropped"
    },
    {
     "commit": "aa64d2ea",
-    "did": "#746 — gown shell clears the body at armpit and sleeve root"
+    "did": "#746 \u2014 gown shell clears the body at armpit and sleeve root"
    },
    {
     "commit": "91b12607",
@@ -81,7 +81,7 @@
    {
     "mesh": "mpfb_robert_reference_body",
     "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
-    "standing": "CONTRADICTED UPSTREAM — a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
+    "standing": "CONTRADICTED UPSTREAM \u2014 a stale 2016 README asserts AGPL against a 2020 LICENSE.md saying CC0, with no dated relicensing announcement. Unresolved, and it is the mesh under every body this project generates. SC-04 records it rather than clearing it."
    },
    {
     "mesh": "makeclothes_library_eyes_low_poly_*",
@@ -99,11 +99,6 @@
     "standing": "pack is MIXED; the six toigo_* bobs are the CC0 subset and this is one of them"
    },
    {
-    "mesh": "makeclothes_library_toigo_t_shirt_*",
-    "record": "docs/openclinxr/asset-licence-records/row-20-makehuman-shirts01-pack-file-shirts01cc0-zip.json",
-    "standing": "pack is MIXED; the toigo entries are CC0, the single AGPL3 entry is skalldyrssuppe_tube_top_funky_colors and is not present here"
-   },
-   {
     "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_*",
     "record": "docs/openclinxr/asset-licence-records/row-09-makehuman-eyebrows01-pack-page-archive-eyebrows01cc0-zip.json",
     "standing": "CC0 1.0 verified in every staged .mhclo header"
@@ -119,7 +114,7 @@
     "standing": "same hm08 basemesh grant, and the same standing contradiction"
    },
    {
-    "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh, openclinxr_real_garment_peds_upper_v1_mesh",
+    "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh, openclinxr_real_garment_hospital_gown_mesh",
     "record": "first-party",
     "standing": "generated procedurally by this repository's garment stations; no third-party grant is involved"
    }
@@ -138,10 +133,10 @@
   "castEligible": true,
   "realismGraded": false,
   "publicRenderCleared": false,
-  "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json — the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
+  "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
  },
- "outputSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
- "outputBytes": 19149628,
+ "outputSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
+ "outputBytes": 20462752,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:25.232Z",
@@ -197,6 +192,100 @@
    "inputRevision": "71954173549f55cea2b3cfa4c206b365c838678e:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
    "outputSha256": "8da37c5707958d7a4f8f8a89222d76ea6c0d3c2f18eb903d56c7f4d8727befcf",
    "outputBytes": 18581616
+  },
+  {
+   "kind": "replace_corrupt_gown_shell_with_first_party_clinical_gown_cage",
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py + tools/openclinxr/evidence/gown-746-splice.ts",
+   "at": "2026-10-08T17:06:00Z",
+   "inputSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
+   "inputBytes": 19149628,
+   "outputSha256": "0614cf0ece42b917683b26120bce07a7de813bbd6858195007dc78aa7bdb54b4",
+   "outputBytes": 19693180,
+   "preserved": "all non-gown mesh accessors, materials, skins, and animations; only the malformed gown and stray labcoat were replaced/removed",
+   "gownGeometry": {
+    "mesh": "openclinxr_real_garment_hospital_gown_mesh",
+    "vertices": 3404,
+    "faces": 3274,
+    "method": "regular torso/skirt rings plus short sleeves; weights transferred from the current fitted body"
+   },
+   "notEvidenceFor": [
+    "clinical realism",
+    "cloth simulation",
+    "public-render clearance"
+   ]
+  },
+  {
+   "kind": "anatomically_refit_and_reweight_first_party_clinical_gown",
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py + tools/openclinxr/evidence/gown-746-splice.ts",
+   "at": "2026-10-08T17:55:16.271392+00:00",
+   "inputSha256": "0614cf0ece42b917683b26120bce07a7de813bbd6858195007dc78aa7bdb54b4",
+   "inputBytes": 19693180,
+   "outputSha256": "81ce0bcfe452fd81a78bbe55fac73fbb0357644bacf339dccca9985ff7ccab77",
+   "outputBytes": 19882804,
+   "method": "body-section-fitted gown with torso/skirt anatomically restricted spine/pelvis/upperleg/neck weights; arm-only sleeve weights; normalized full nearest correspondence; no neutral fallback",
+   "preserved": "all non-gown active mesh accessors, materials, skin inverse-bind data and animations",
+   "notEvidenceFor": [
+    "cloth simulation",
+    "clinical realism",
+    "public-render clearance"
+   ]
+  },
+  {
+   "kind": "enclose_body_sections_and_remove_redundant_patient_tshirt",
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py + tools/openclinxr/evidence/gown-746-splice.ts",
+   "at": "2026-10-08T17:59:19.054466+00:00",
+   "inputSha256": "81ce0bcfe452fd81a78bbe55fac73fbb0357644bacf339dccca9985ff7ccab77",
+   "inputBytes": 19882804,
+   "outputSha256": "cc5d6d29497b4ba6eba5320576e7476453144f1021270505079dd6d8401baa5e",
+   "outputBytes": 20071928,
+   "method": "fit ellipses to every anatomically selected body section sample, body-fitted short sleeves, anatomically restricted normalized weights",
+   "removedComponents": [
+    "makeclothes_library_toigo_t_shirt"
+   ],
+   "reason": "casual T-shirt intersects the clinical gown and is redundant in this patient outfit",
+   "preserved": "remaining non-gown active meshes, facial geometry, skin rig and all animation accessor data",
+   "notEvidenceFor": [
+    "cloth simulation",
+    "clinical realism",
+    "public-render clearance"
+   ]
+  },
+  {
+   "kind": "connect_clinical_gown_shoulder_seams",
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py + tools/openclinxr/evidence/gown-746-splice.ts",
+   "at": "2026-10-08T18:07:11.809143+00:00",
+   "inputSha256": "cc5d6d29497b4ba6eba5320576e7476453144f1021270505079dd6d8401baa5e",
+   "inputBytes": 20071928,
+   "outputSha256": "f78c179d452d2e5468a97401b1714d141839c5ff362fb469737e17b93593c172",
+   "outputBytes": 20267260,
+   "method": "shared torso anchor and sleeve boundary indices joined by two transition rings with normalized anatomical endpoint-weight blends",
+   "gownVertices": 3500,
+   "preserved": "all remaining non-gown active meshes, facial geometry, skin rig and animation data",
+   "notEvidenceFor": [
+    "cloth simulation",
+    "clinical realism",
+    "public-render clearance"
+   ]
+  },
+  {
+   "kind": "fit_and_weight_anatomical_gown_shoulder_caps",
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py + tools/openclinxr/evidence/gown-746-splice.ts",
+   "at": "2026-10-08T18:23:57.260507+00:00",
+   "inputSha256": "f78c179d452d2e5468a97401b1714d141839c5ff362fb469737e17b93593c172",
+   "inputBytes": 20267260,
+   "outputSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
+   "outputBytes": 20462752,
+   "method": "body-fitted deltoid cap y1.36..1.50 absx>=0.11 follows proximal upperarm01/shoulder/clavicle/spine anatomy; distal arm remains excluded; strict midtorso arm exclusion and neutral-zero maintained",
+   "gownVertices": 3500,
+   "verification": "equivalent sidecamera first-hit grid: 19/240 exposed-skin rays before, 0/240 after; skin remains present and unmasked behind gown",
+   "claimScope": "one current adult patient gown fitted to its anatomy; bounded supine shoulder coverage diagnostic",
+   "preserved": "remaining nongown meshes, facial geometry, skin rig and animation targets/sampler data",
+   "notEvidenceFor": [
+    "cloth simulation",
+    "all-pose garment coverage",
+    "clinical realism",
+    "public-render clearance"
+   ]
   }
  ],
  "motionClips": [

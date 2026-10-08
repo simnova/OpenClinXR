@@ -87,7 +87,8 @@ import { describe, expect, it } from "vitest";
  * (elevated framing retained ED verticalOffset). resolveFloorBandPlantLocalY plants out-of-band only.
  */
 
-const load = async () => import("./actor-floor-composition-mod.js") as Promise<Record<string, unknown>>;
+const loadAssessment = async () => import("./actor-floor-verification.js") as Promise<Record<string, unknown>>;
+const load = async () => import("./index.js") as Promise<Record<string, unknown>>;
 
 type ActorSample = {
   actorId: string;
@@ -107,7 +108,7 @@ type DescribeMatch = (input: {
 
 describe("actors stand on the floor of the room they are in (#72)", () => {
   it("a standing actor's lowest mesh vertex sits within tolerance of the station floor top", async () => {
-    const mod = await load();
+    const mod = await loadAssessment();
     const assess = mod["assessActorFloorComposition"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
 
@@ -127,7 +128,7 @@ describe("actors stand on the floor of the room they are in (#72)", () => {
     // Kills a stub that echoes back whatever it was handed. Both directions, because a figure buried
     // to the hips and one hovering in the air are the same defect with opposite signs — and the
     // buried case is the one actually observed.
-    const mod = await load();
+    const mod = await loadAssessment();
     const assess = mod["assessActorFloorComposition"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
 

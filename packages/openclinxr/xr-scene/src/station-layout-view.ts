@@ -1,5 +1,5 @@
 import { collectActorWorldBoxes } from "./infinigen-station-environment.js";
-import { Box3, Mesh, OrthographicCamera, type PerspectiveCamera, type Scene, Vector3 } from "three";
+import { Box3, Mesh, type Object3D, OrthographicCamera, type PerspectiveCamera, type Scene, Vector3 } from "three";
 
 type LayoutViewMode = "overhead" | "isometric" | "perspective";
 
@@ -40,6 +40,33 @@ function coverOrthographicFrustum(ortho: OrthographicCamera, bounds: Box3, aspec
   ortho.near = 0.05;
   ortho.far = 40;
   ortho.updateProjectionMatrix();
+}
+
+function excludedFromLayoutBounds(mesh: Mesh): boolean {
+  let current: Object3D | null = mesh;
+  while (current) {
+    if (!current.visible) return true;
+    if (current.userData.openClinXrPortalInteriorReviewAffordance === true) return true;
+    current = current.parent;
+  }
+  return false;
+}
+
+function collectVisibleRoomBounds(scene: Scene, interior: Box3): Box3 {
+  const covered = interior.clone();
+  const candidate = new Box3();
+  scene.updateMatrixWorld(true);
+  scene.traverse((obj) => {
+    if (!(obj instanceof Mesh) || excludedFromLayoutBounds(obj)) return;
+    candidate.setFromObject(obj);
+    if (candidate.isEmpty() || !Number.isFinite(candidate.min.x)) return;
+    const overlapsRoomFootprint = candidate.max.x >= interior.min.x - 0.5
+      && candidate.min.x <= interior.max.x + 0.5
+      && candidate.max.z >= interior.min.z - 0.5
+      && candidate.min.z <= interior.max.z + 0.5;
+    if (overlapsRoomFootprint) covered.union(candidate);
+  });
+  return covered;
 }
 
 /** Publish the capture hook that swaps the station render camera for a layout shot. */
@@ -95,16 +122,27 @@ export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement
     const hold = new OrthographicCamera(-1, 1, 1, -1, 0.05, 40);
     if (mode === "overhead") {
       const centre = interior.getCenter(new Vector3());
-      hold.position.set(centre.x, interior.max.y - 0.4, centre.z);
+      const covered = collectVisibleRoomBounds(scene, interior);
+      hold.position.set(centre.x, covered.max.y + 1, centre.z);
       hold.up.set(0, 0, -1);
-      hold.lookAt(centre);
-      const covered = interior.clone();
+      hold.lookAt(centre.x, covered.min.y, centre.z);
       covered.min.x -= 0.5;
       covered.max.x += 0.5;
       covered.min.z -= 0.5;
       covered.max.z += 0.5;
       coverOrthographicFrustum(hold, covered, aspect);
+      hold.far = Math.max(40, hold.position.y - covered.min.y + 2);
+      hold.updateProjectionMatrix();
       hold.name = "openclinxr.layout-overhead";
+      hold.userData.openClinXrLayoutView = {
+        mode,
+        eyeAboveSceneMaxMeters: 1,
+        coveredBounds: {
+          min: covered.min.toArray(),
+          max: covered.max.toArray(),
+        },
+        hiddenShellMeshNames: hiddenLayoutMeshes.map((mesh) => mesh.name),
+      };
     } else {
       const actorBoxes = collectActorWorldBoxes(scene);
       if (actorBoxes.length === 0) throw new Error("layout view: actor group is empty");

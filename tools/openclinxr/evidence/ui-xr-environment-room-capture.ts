@@ -64,6 +64,7 @@ export type LiveShell = {
   cameraFraming?: string;
   cameraEye?: [number, number, number];
   cameraLook?: [number, number, number];
+  cameraFov?: number;
   refineTag?: string;
   actorContainment?: { contained: number; total: number };
   actorVisibility?: ActorVisibilityReading[];
@@ -201,8 +202,13 @@ function readAuthoredStagingCamera(scenarioId: string): AuthoredStagingCamera | 
   return authoredStagingCameraForScenario(scenarioId);
 }
 
-export async function applyAuthoredStagingCamera(page: Page, scenarioId: string, override?: AuthoredStagingCamera): Promise<string | null> {
-  const authored = override ?? readAuthoredStagingCamera(scenarioId);
+export async function applyAuthoredStagingCamera(
+  page: Page,
+  scenarioId: string,
+  override?: AuthoredStagingCamera,
+  ignoreModuleFallback = false,
+): Promise<string | null> {
+  const authored = override ?? (ignoreModuleFallback ? undefined : readAuthoredStagingCamera(scenarioId));
   if (!authored) return null;
   const note = await page.evaluate((input) => {
     type Camera = {
@@ -707,6 +713,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     let cameraFraming = "";
     let cameraEye: [number, number, number] | undefined;
     let cameraLook: [number, number, number] | undefined;
+    let cameraFov: number | undefined;
     let refineTag: string | undefined;
     let actorContainment: { contained: number; total: number } | undefined;
     let actorVisibility: ActorVisibilityReading[] | undefined;
@@ -723,6 +730,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           || (object as Obj & { type?: string }).type === "PerspectiveCamera") {
           const camera = object as Obj & {
             matrixWorld?: { elements?: number[] };
+            fov?: number;
             userData?: Record<string, unknown>;
           };
           const elements = camera.matrixWorld?.elements;
@@ -733,6 +741,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           if (Array.isArray(rawLook) && rawLook.length === 3 && rawLook.every((value) => typeof value === "number")) {
             cameraLook = rawLook as [number, number, number];
           }
+          if (typeof camera.fov === "number") cameraFov = camera.fov;
           const rawTag = camera.userData?.openClinXrRefineTag;
           if (typeof rawTag === "string") refineTag = rawTag;
           const containment = camera.userData?.openClinXrActorContainment;
@@ -769,6 +778,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       cameraFraming,
       cameraEye,
       cameraLook,
+      cameraFov,
       refineTag,
       actorContainment,
       actorVisibility,
@@ -1405,6 +1415,8 @@ export type CaptureStationEnvironmentRoomsInput = {
   onSnapshot?: (scenarioId: string, snapshot: Awaited<ReturnType<typeof collectSweepScene>>) => Promise<void> | void;
   /** Solved-this-run cameras override the module-loaded authored record (avoids stale import). */
   stagingCameraByScenario?: Readonly<Record<string, AuthoredStagingCamera>>;
+  /** Solver's multi-pass run supplies the complete effective authored map itself. */
+  ignoreModuleAuthoredCamera?: boolean;
 };
 
 /**
@@ -1480,9 +1492,31 @@ export async function captureStationEnvironmentRooms(
           // #85: shell-ready ≠ humanoids loaded; wait for GLB cast rows before screenshot.
           await waitForStaticScenarioBundle(page, scenarioId, 180_000);
           await waitForHumanoidAssetsLoaded(page, 180_000);
+          const hiddenReviewAffordances = await page.evaluate(() => {
+            const pageWindow = globalThis as unknown as {
+              __openClinXrDebugScene?: {
+                traverse: (cb: (obj: { name: string; visible: boolean; userData: Record<string, unknown> }) => void) => void;
+              };
+            };
+            const hidden: string[] = [];
+            pageWindow.__openClinXrDebugScene?.traverse((obj) => {
+              if (obj.userData?.openClinXrPortalInteriorReviewAffordance !== true || !obj.visible) return;
+              obj.visible = false;
+              hidden.push(obj.name);
+            });
+            return hidden;
+          });
+          if (hiddenReviewAffordances.length > 0) {
+            process.stdout.write(`room-capture: hid review-only affordances ${hiddenReviewAffordances.join(",")}\n`);
+          }
           if (input.onSnapshot) await input.onSnapshot(scenarioId, await collectSweepScene(page));
 
-          const frameNote = await applyAuthoredStagingCamera(page, scenarioId, input.stagingCameraByScenario?.[scenarioId])
+          const frameNote = await applyAuthoredStagingCamera(
+            page,
+            scenarioId,
+            input.stagingCameraByScenario?.[scenarioId],
+            input.ignoreModuleAuthoredCamera,
+          )
             ?? await reframeCameraForRoom(page, live.environmentId);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 
@@ -1493,10 +1527,10 @@ export async function captureStationEnvironmentRooms(
           const imagePath = path.join(outputDir, imageName);
           await page.screenshot({ path: imagePath, fullPage: false });
 
-          if (scenarioId === "peds_fever_v1") {
+          {
             const layoutShots = [
-              { mode: "overhead" as const, fileName: "peds_fever_v1-overhead.png" },
-              { mode: "isometric" as const, fileName: "peds_fever_v1-isometric.png" },
+              { mode: "overhead" as const, fileName: `${scenarioId}-overhead.png` },
+              { mode: "isometric" as const, fileName: `${scenarioId}-isometric.png` },
             ];
             for (const shot of layoutShots) {
               await page.evaluate((mode) => {
@@ -1519,7 +1553,13 @@ export async function captureStationEnvironmentRooms(
               if (holdType !== "OrthographicCamera") {
                 throw new Error(`hold camera type is ${String(holdType)} before ${shot.mode} screenshot`);
               }
-              const webglCanvas = page.locator("#station-canvas");
+              // Keep the capture resilient to the app shell temporarily replacing the station
+              // canvas during a layout-camera swap. There is only one DOM canvas in the station;
+              // the scene package's label/texture canvases never enter the document.
+              const stationCanvas = page.locator("#station-canvas");
+              const webglCanvas = (await stationCanvas.count()) > 0
+                ? stationCanvas
+                : page.locator("canvas").first();
               if ((await webglCanvas.count()) === 0) {
                 throw new Error("station canvas missing before layout screenshot");
               }
@@ -1528,7 +1568,7 @@ export async function captureStationEnvironmentRooms(
                 for (let i = 0; i < strips.length; i += 1) strips[i].style.display = "none";
               })()`);
               const shotPath = path.join(outputDir, shot.fileName);
-              await webglCanvas.screenshot({ path: shotPath });
+              await webglCanvas.screenshot({ path: shotPath, animations: "disabled", timeout: 60_000 });
               process.stdout.write(`room-capture: ${shot.mode} orthographic saved to ${shotPath}\n`);
             }
             await page.evaluate(`(() => {
@@ -1603,6 +1643,7 @@ export async function captureStationEnvironmentRooms(
               cameraFraming: `${liveAfter.cameraFraming || ""} ${frameNote}`.trim(),
               cameraEye: liveAfter.cameraEye,
               cameraLook: liveAfter.cameraLook,
+              cameraFov: liveAfter.cameraFov,
               refineTag: liveAfter.refineTag,
               actorContainment: liveAfter.actorContainment,
               actorVisibility: liveAfter.actorVisibility,

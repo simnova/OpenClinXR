@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { layContact, sitContact } from "./contact-solvers.js";
 import type { ContactFrame } from "./contact-solvers.js";
+import { layContact, sitContact, standContact } from "./contact-solvers.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 
 const actorSource = {
@@ -85,5 +85,23 @@ describe("contact solvers", () => {
     expect(solo.world[0]).toBeCloseTo(0.2, 5);
     expect(solo.world[1]).toBeCloseTo(0.9, 5);
     expect(solo.world[2]).toBeCloseTo(0.2, 5);
+  });
+
+  it("rotates the captured root-to-centre bias when authoring a new heading", () => {
+    const actor = {
+      ...actorSource,
+      standing: true,
+      root: [0, 0, 0] as [number, number, number],
+      currentPlacement: { supportSurface: "none" as const, plantOffsetMeters: { x: 0, y: 0, z: 0 } },
+    };
+    const snapshot = { ...snapshotSource, actors: [actor], companionSeats: [] };
+    const candidate = standContact(snapshot, actor, frame0)[0];
+    expect(candidate).toBeDefined();
+    if (!candidate) return;
+    const delta = candidate.headingRadians - actor.heading;
+    const rotatedBiasX = Math.cos(delta) * 0.2 + Math.sin(delta) * 0.2;
+    const rotatedBiasZ = -Math.sin(delta) * 0.2 + Math.cos(delta) * 0.2;
+    expect(candidate.placement.plantOffsetMeters.x + rotatedBiasX).toBeCloseTo(candidate.world[0], 8);
+    expect(candidate.placement.plantOffsetMeters.z + rotatedBiasZ).toBeCloseTo(candidate.world[2], 8);
   });
 });

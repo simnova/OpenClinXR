@@ -405,6 +405,9 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       marker.userData.fixtureSlotPurpose = slot.purpose;
       marker.userData.isMarkerCube = true;
       marker.userData.openClinXrFixtureRole = "learner_start";
+      // The node remains in the scene graph as the authoritative spawn anchor. It is metadata,
+      // not room equipment, so do not render the coloured debug cube to learners or captures.
+      marker.visible = false;
       shell.add(marker);
       continue;
     }

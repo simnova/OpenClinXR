@@ -332,7 +332,7 @@ function pickControl(stations: StationClearance[]): ActorClearance | null {
 async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = browserPageWindow as unknown as {
+      const win = globalThis as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
       };
       return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;
@@ -360,9 +360,9 @@ export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation
   const threshold = INSIDE_OVERLAP_FRACTION_THRESHOLD;
   return page.evaluate(`(() => {
     const insideThreshold = ${threshold};
-    const win = browserPageWindow;
+    const win = globalThis;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(browserPageWindow.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
 
     function worldBox(obj) {

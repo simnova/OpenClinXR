@@ -82,6 +82,7 @@
     "src/learner-exam-scenario-source.test.ts",
     "src/learner-phase-trace-source.test.ts",
     "src/learner-scenario-body-provenance.test.ts",
+    "src/station-layout-view.test.ts",
     "src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts"
   ],
   "commands": {
