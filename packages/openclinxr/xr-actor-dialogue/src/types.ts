@@ -1,4 +1,4 @@
-import type { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+import type { createActorAudioRuntime } from "@openclinxr/xr-dialogue/package-actor-turn";
 import type {
   EncounterRuntimeDialogueTurn,
   LearnerRuntimeAssetBundle,
@@ -6,7 +6,7 @@ import type {
 import type {
   ActorTurnPlayback,
   LiveActorTurnConsumption,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/package-actor-turn";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidDialogueGazeTarget,

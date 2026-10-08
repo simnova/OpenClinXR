@@ -1,0 +1,382 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "xr-dialogue-consumer-split-v1",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "941137ad3f663b8da81ed43f3c9856e5f0ce5e82bb3819fd42614ccf92d5b976",
+  "packages": [
+    "packages/openclinxr/xr-dialogue"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "applyBlinkClosureToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts:6 imports applyBlinkClosureToRoot from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "applyDialogueVisemeTimelineToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/jaw-lip-couple.test.ts:36 imports applyDialogueVisemeTimelineToRoot from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "applyGeneratedScalarVisemeToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts:6 imports applyGeneratedScalarVisemeToRoot from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts:36 imports applyJawOpenToRoot from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "applyVisemeWeights",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts:36 imports applyVisemeWeights from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "JAW_OPEN_TEETH_CLEAR_RADIANS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts:36 imports JAW_OPEN_TEETH_CLEAR_RADIANS from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "JAW_TEETH_GAIN",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts:36 imports JAW_TEETH_GAIN from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "jawOpenRadiansForPhoneme",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts:36 imports jawOpenRadiansForPhoneme from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "mapDialoguePhonemesToCues",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/speech-sync-capture.ts:15 imports mapDialoguePhonemesToCues from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "MOUTH_OPEN_CAP",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/jaw-lip-couple.test.ts:29 imports MOUTH_OPEN_CAP from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "phonemesForText",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/parent-fitted-teeth/speech-sync-capture.ts:16 imports phonemesForText from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./evidence-viseme",
+      "symbol": "resolveMorphIndex",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/evidence",
+      "rationale": "tools/openclinxr/evidence/actors-blink-with-their-eyelids.test.ts:6 imports resolveMorphIndex from @openclinxr/xr-dialogue/evidence-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "ActorTurnPlayback",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/frozen-turn.ts:1 imports ActorTurnPlayback from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "ActorTurnPlaybackStartContext",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/frozen-turn.ts:1 imports ActorTurnPlaybackStartContext from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "attachBakedCuesToSpeech",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/speech.ts:1 imports attachBakedCuesToSpeech from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "createActorAudioRuntime",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-verifier",
+      "rationale": "packages/openclinxr/stations/mouth-verifier/src/evaluator.ts:17 imports createActorAudioRuntime from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "initialDialogueTextForScenario",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/initial-dialogue.ts:1 imports initialDialogueTextForScenario from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveActorTurnConsumption",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/frozen-turn.ts:1 imports LiveActorTurnConsumption from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "phonemesForText",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/speech.ts:1 imports phonemesForText from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "playFrozenActorTurnOnSlot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/frozen-turn.ts:1 imports playFrozenActorTurnOnSlot from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "resolveLiveActorTurnForTrace",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/speech.ts:1 imports resolveLiveActorTurnForTrace from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "visemesForText",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "packages/openclinxr/xr-actor-dialogue/src/speech.ts:1 imports visemesForText from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "applyBlinkClosureToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:4 imports applyBlinkClosureToRoot from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "applyGazeToHumanoid",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts:1 imports applyGazeToHumanoid from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "applyGeneratedScalarVisemeToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts:1 imports applyGeneratedScalarVisemeToRoot from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "applyJawOpenToRoot",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-executor",
+      "rationale": "packages/openclinxr/stations/mouth-executor/src/ff-press.ts:9 imports applyJawOpenToRoot from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "applyNamedSpeechVisemes",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts:1 imports applyNamedSpeechVisemes from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "collectResolvedMorphTargets",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:4 imports collectResolvedMorphTargets from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "expressionWeightsForEmotion",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/animation-loop.ts:1 imports expressionWeightsForEmotion from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "JAW_TEETH_GAIN",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-executor",
+      "rationale": "packages/openclinxr/stations/mouth-executor/src/tongue-th.ts:32 imports JAW_TEETH_GAIN from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "jawOpenRadiansForPhoneme",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-executor",
+      "rationale": "packages/openclinxr/stations/mouth-executor/src/ff-press.ts:10 imports jawOpenRadiansForPhoneme from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "MOUTH_OPEN_CAP",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:4 imports MOUTH_OPEN_CAP from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "PhonemeCue",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/types.ts:45 uses the type import(\"@openclinxr/xr-dialogue/package-viseme\").PhonemeCue (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "SpeechSlotLike",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:10 imports SpeechSlotLike from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "UiXrExpressionEmotion",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/types.ts:3 imports UiXrExpressionEmotion from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-viseme",
+      "symbol": "UiXrExpressionWeights",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-humanoid-animation",
+      "rationale": "packages/openclinxr/xr-humanoid-animation/src/types.ts:3 imports UiXrExpressionWeights from @openclinxr/xr-dialogue/package-viseme (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./viseme-runtime",
+      "symbol": "JAW_TEETH_GAIN",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "tools/openclinxr/asset-pipeline",
+      "rationale": "tools/openclinxr/asset-pipeline/makeclothes/tongue-th-morph.ts:26 imports JAW_TEETH_GAIN from @openclinxr/xr-dialogue/viseme-runtime (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07"
+    }
+  ]
+}

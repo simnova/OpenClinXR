@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 54 roots and 133 declared entrypoints", () => {
+  it("(1) the live tree discovers 54 roots and 136 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -140,7 +140,12 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-07 mouth-station objective root adds one declared entrypoint (128 -> 129).
     // 2026-10-07 mouth-station solver and verifier roots add one declared entrypoint each (129 -> 131); the executor root adds one more (131 -> 132).
     // 2026-10-07 mouth-station registry root adds one declared entrypoint (132 -> 133), pending the psr-c6-mouth review at the station-mouth final land.
-    expect(report.totals.entrypoints).toBe(133);
+    // 2026-10-07 consumer-driven contracts: xr-dialogue splits "." by consumer class, keeping
+    // "." (47 psr-01e-kept runtime-app names) for apps/ui-xr and adding ./package-actor-turn, ./package-viseme,
+    // and ./evidence-viseme; tools keep the shared ./actor-audio-runtime seam (no ./tooling-actor-audio)
+    // — three declared entrypoints (133 -> 136).
+    // Re-derived independently by counting `exports` keys in package.json (133 before, 136 after).
+    expect(report.totals.entrypoints).toBe(136);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

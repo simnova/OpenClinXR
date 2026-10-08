@@ -1,4 +1,4 @@
-import { initialDialogueTextForScenario } from "@openclinxr/xr-dialogue";
+import { initialDialogueTextForScenario } from "@openclinxr/xr-dialogue/package-actor-turn";
 import type { ActorDialogueDeps } from "./types.js";
 
 export function initialDialogueTextForSelectedScenario(deps: Pick<

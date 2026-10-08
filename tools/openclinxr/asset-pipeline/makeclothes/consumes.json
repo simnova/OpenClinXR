@@ -1,24 +1,6 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": ".",
-    "names": [
-      {
-        "name": "applyJawOpenToRoot",
-        "kind": "runtime"
-      },
-      {
-        "name": "JAW_TEETH_GAIN",
-        "kind": "runtime"
-      },
-      {
-        "name": "jawOpenRadiansForPhoneme",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./viseme-morph",
     "names": [
       {
@@ -37,6 +19,10 @@
       },
       {
         "name": "applyJawOpenToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "JAW_TEETH_GAIN",
         "kind": "runtime"
       }
     ]

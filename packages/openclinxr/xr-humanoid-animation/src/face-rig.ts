@@ -6,8 +6,8 @@ import {
   collectResolvedMorphTargets,
   expressionWeightsForEmotion,
   MOUTH_OPEN_CAP,
-} from "@openclinxr/xr-dialogue";
-import type { SpeechSlotLike } from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/package-viseme";
+import type { SpeechSlotLike } from "@openclinxr/xr-dialogue/package-viseme";
 import { applyInnerMouthCavity } from "./inner-mouth-cavity-drive.js";
 import { applyLipSealForClosedViseme, namedJawFraction, speechFrameNowMs } from "./lip-seal-drive.js";
 import type {

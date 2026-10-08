@@ -12,8 +12,6 @@
       "ActorTurnPlayerAdapterContext",
       "ActorTurnPlayerAdapters",
       "IdentityBoundRef",
-      "JAW_OPEN_TEETH_CLEAR_RADIANS",
-      "JAW_TEETH_GAIN",
       "LIVE_ACTOR_TURN_CONSUMPTION_SEAM",
       "LiveActorTurnConsumption",
       "MOUTH_OPEN_CAP",
@@ -24,9 +22,7 @@
       "applyBlinkClosureToRoot",
       "applyGazeToHumanoid",
       "applyGeneratedScalarVisemeToRoot",
-      "applyJawOpenToRoot",
       "applyNamedSpeechVisemes",
-      "applyVisemeWeights",
       "attachBakedCuesToSpeech",
       "collectResolvedMorphTargets",
       "consumeLiveActorTurn",
@@ -38,7 +34,6 @@
       "initSpeakFixtureBridge",
       "initialDialogueTextForScenario",
       "isPedsAsthmaScenario",
-      "jawOpenRadiansForPhoneme",
       "liveActorTurnFromPayload",
       "liveCaptionFromPlan",
       "loadBakedMouthCuesForUtterance",
@@ -57,13 +52,55 @@
     "./actor-audio-runtime": [
       "createActorAudioRuntime"
     ],
+    "./evidence-viseme": [
+      "applyBlinkClosureToRoot",
+      "applyDialogueVisemeTimelineToRoot",
+      "applyGeneratedScalarVisemeToRoot",
+      "applyJawOpenToRoot",
+      "applyVisemeWeights",
+      "JAW_OPEN_TEETH_CLEAR_RADIANS",
+      "JAW_TEETH_GAIN",
+      "jawOpenRadiansForPhoneme",
+      "MOUTH_OPEN_CAP",
+      "mapDialoguePhonemesToCues",
+      "phonemesForText",
+      "resolveMorphIndex"
+    ],
+    "./package-actor-turn": [
+      "ActorTurnPlayback",
+      "ActorTurnPlaybackStartContext",
+      "attachBakedCuesToSpeech",
+      "createActorAudioRuntime",
+      "initialDialogueTextForScenario",
+      "LiveActorTurnConsumption",
+      "phonemesForText",
+      "playFrozenActorTurnOnSlot",
+      "resolveLiveActorTurnForTrace",
+      "visemesForText"
+    ],
+    "./package-viseme": [
+      "applyBlinkClosureToRoot",
+      "applyGazeToHumanoid",
+      "applyGeneratedScalarVisemeToRoot",
+      "applyJawOpenToRoot",
+      "applyNamedSpeechVisemes",
+      "collectResolvedMorphTargets",
+      "expressionWeightsForEmotion",
+      "JAW_TEETH_GAIN",
+      "jawOpenRadiansForPhoneme",
+      "MOUTH_OPEN_CAP",
+      "PhonemeCue",
+      "SpeechSlotLike",
+      "UiXrExpressionEmotion",
+      "UiXrExpressionWeights"
+    ],
     "./viseme-morph": [
       "applyVisemeWeights"
     ],
     "./viseme-runtime": [
       "applyDialogueVisemeTimelineToRoot",
       "applyJawOpenToRoot",
-      "mapDialoguePhonemesToCues"
+      "JAW_TEETH_GAIN"
     ],
     "./viseme-timeline": [
       "jawOpenRadiansForPhoneme"

@@ -1,7 +1,25 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": ".",
+    "entrypoint": "./package-actor-turn",
+    "names": [
+      {
+        "name": "LiveActorTurnConsumption",
+        "kind": "type"
+      },
+      {
+        "name": "phonemesForText",
+        "kind": "runtime"
+      },
+      {
+        "name": "visemesForText",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./package-viseme",
     "names": [
       {
         "name": "applyBlinkClosureToRoot",
@@ -28,15 +46,7 @@
         "kind": "runtime"
       },
       {
-        "name": "LiveActorTurnConsumption",
-        "kind": "type"
-      },
-      {
         "name": "MOUTH_OPEN_CAP",
-        "kind": "runtime"
-      },
-      {
-        "name": "phonemesForText",
         "kind": "runtime"
       },
       {
@@ -54,10 +64,6 @@
       {
         "name": "UiXrExpressionWeights",
         "kind": "type"
-      },
-      {
-        "name": "visemesForText",
-        "kind": "runtime"
       }
     ]
   }

@@ -6,8 +6,8 @@
  * repointed at the executor's own modules. The tools CLI re-exports it; behavior unchanged.
  */
 import { Matrix3, Matrix4, Vector3 } from "three";
-import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
-import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
+import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/package-viseme";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/package-viseme";
 import { loadHeadlessScene } from "./scene.js";
 import { frontShellIndices, lowerLipLandmark } from "./lip-rim.js";
 import { skinAtRest } from "./skin-at-rest.js";

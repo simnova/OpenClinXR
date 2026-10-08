@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import { resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue";
+import { resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue/package-actor-turn";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
 import { createActorDialogueStore } from "./index.js";
 import type { ActorDialogueStoreOptions } from "./store.js";

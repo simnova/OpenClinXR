@@ -1,7 +1,7 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": ".",
+    "entrypoint": "./package-actor-turn",
     "names": [
       {
         "name": "ActorTurnPlayback",
@@ -14,6 +14,10 @@
       {
         "name": "attachBakedCuesToSpeech",
         "kind": "runtime"
+      },
+      {
+        "name": "createActorAudioRuntime",
+        "kind": "type"
       },
       {
         "name": "initialDialogueTextForScenario",
@@ -38,16 +42,6 @@
       {
         "name": "visemesForText",
         "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./actor-audio-runtime",
-    "names": [
-      {
-        "name": "createActorAudioRuntime",
-        "kind": "type"
       }
     ]
   }

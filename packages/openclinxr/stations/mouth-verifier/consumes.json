@@ -1,7 +1,7 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./actor-audio-runtime",
+    "entrypoint": "./package-actor-turn",
     "names": [
       {
         "name": "createActorAudioRuntime",
@@ -11,18 +11,12 @@
   },
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-runtime",
+    "entrypoint": "./package-viseme",
     "names": [
       {
         "name": "applyJawOpenToRoot",
         "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-timeline",
-    "names": [
+      },
       {
         "name": "jawOpenRadiansForPhoneme",
         "kind": "runtime"

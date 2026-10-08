@@ -3,7 +3,7 @@ import {
   type ActorTurnPlayback,
   type ActorTurnPlaybackStartContext,
   type LiveActorTurnConsumption,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/package-actor-turn";
 import { startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition } from "@openclinxr/xr-humanoid-animation";
 import type {
   GeneratedHumanoidAnimationSlot,

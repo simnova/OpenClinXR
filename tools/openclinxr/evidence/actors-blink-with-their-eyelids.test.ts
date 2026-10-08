@@ -3,7 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { applyBlinkClosureToRoot, applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "@openclinxr/xr-dialogue";
+import { applyBlinkClosureToRoot, applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "@openclinxr/xr-dialogue/evidence-viseme";
 
 /**
  * **MPFB actors never blink.** The blink SIGNAL exists and is already deterministic; the TARGET exists

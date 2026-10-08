@@ -443,7 +443,7 @@ describe("admission overlays do not launder closed removes", () => {
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
     // Initial empty allowlist was the PSR implementation prerequisite. The later
     // independently reviewed activation is exact, not an arbitrary admission id.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1"\]/u);
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -458,7 +458,7 @@ describe("admission overlays do not launder closed removes", () => {
 
 describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1"]);
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -508,6 +508,53 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  it("binds the independently reviewed consumer-split subpath admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-dialogue-consumer-split-v1.json"), "utf8"));
+    expect(admission.reviewedBy).toBe("Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07");
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      ["./evidence-viseme", "applyBlinkClosureToRoot"],
+      ["./evidence-viseme", "applyDialogueVisemeTimelineToRoot"],
+      ["./evidence-viseme", "applyGeneratedScalarVisemeToRoot"],
+      ["./evidence-viseme", "applyJawOpenToRoot"],
+      ["./evidence-viseme", "applyVisemeWeights"],
+      ["./evidence-viseme", "JAW_OPEN_TEETH_CLEAR_RADIANS"],
+      ["./evidence-viseme", "JAW_TEETH_GAIN"],
+      ["./evidence-viseme", "jawOpenRadiansForPhoneme"],
+      ["./evidence-viseme", "mapDialoguePhonemesToCues"],
+      ["./evidence-viseme", "MOUTH_OPEN_CAP"],
+      ["./evidence-viseme", "phonemesForText"],
+      ["./evidence-viseme", "resolveMorphIndex"],
+      ["./package-actor-turn", "ActorTurnPlayback"],
+      ["./package-actor-turn", "ActorTurnPlaybackStartContext"],
+      ["./package-actor-turn", "attachBakedCuesToSpeech"],
+      ["./package-actor-turn", "createActorAudioRuntime"],
+      ["./package-actor-turn", "initialDialogueTextForScenario"],
+      ["./package-actor-turn", "LiveActorTurnConsumption"],
+      ["./package-actor-turn", "phonemesForText"],
+      ["./package-actor-turn", "playFrozenActorTurnOnSlot"],
+      ["./package-actor-turn", "resolveLiveActorTurnForTrace"],
+      ["./package-actor-turn", "visemesForText"],
+      ["./package-viseme", "applyBlinkClosureToRoot"],
+      ["./package-viseme", "applyGazeToHumanoid"],
+      ["./package-viseme", "applyGeneratedScalarVisemeToRoot"],
+      ["./package-viseme", "applyJawOpenToRoot"],
+      ["./package-viseme", "applyNamedSpeechVisemes"],
+      ["./package-viseme", "collectResolvedMorphTargets"],
+      ["./package-viseme", "expressionWeightsForEmotion"],
+      ["./package-viseme", "JAW_TEETH_GAIN"],
+      ["./package-viseme", "jawOpenRadiansForPhoneme"],
+      ["./package-viseme", "MOUTH_OPEN_CAP"],
+      ["./package-viseme", "PhonemeCue"],
+      ["./package-viseme", "SpeechSlotLike"],
+      ["./package-viseme", "UiXrExpressionEmotion"],
+      ["./package-viseme", "UiXrExpressionWeights"],
+      ["./viseme-runtime", "JAW_TEETH_GAIN"],
+    ]);
+    expect(admission.admissionHash).toBe("941137ad3f663b8da81ed43f3c9856e5f0ce5e82bb3819fd42614ccf92d5b976");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -518,6 +565,7 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/teeth-viseme-consumers-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "teeth-viseme-consumers-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/startup-cast-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "startup-cast-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/viseme-motion-subpaths-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "viseme-motion-subpaths-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/xr-dialogue-consumer-split-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-dialogue-consumer-split-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));

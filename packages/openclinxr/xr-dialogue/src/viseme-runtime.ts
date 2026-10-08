@@ -1,12 +1,12 @@
 /**
  * Public viseme runtime subpath: shipped dialogue timeline drive on the live scene graph.
  *
- * Narrow re-export — only the symbols real consumers bind. Internal constants
- * (JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN) stay inside the implementation
- * modules and are never republished here.
+ * Narrow re-export — only the symbols real tooling consumers bind (consumer-driven
+ * contracts, class "tools"). JAW_TEETH_GAIN joins the jaw drive here because the
+ * makeclothes tongue tool binds it beside applyJawOpenToRoot.
  */
 export {
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
-  mapDialoguePhonemesToCues,
+  JAW_TEETH_GAIN,
 } from "./viseme-runtime-wire.js";

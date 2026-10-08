@@ -3,9 +3,8 @@ import {
   applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   expressionWeightsForEmotion,
-  phonemesForText,
-  visemesForText,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/package-viseme";
+import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   applyPosturePose,
   applySupinePoseHoldingIncline,

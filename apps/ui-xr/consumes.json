@@ -44,11 +44,59 @@
         "kind": "type"
       },
       {
+        "name": "IdentityBoundRef",
+        "kind": "type"
+      },
+      {
+        "name": "LIVE_ACTOR_TURN_CONSUMPTION_SEAM",
+        "kind": "runtime"
+      },
+      {
+        "name": "LiveActorTurnConsumption",
+        "kind": "type"
+      },
+      {
+        "name": "MOUTH_OPEN_CAP",
+        "kind": "runtime"
+      },
+      {
+        "name": "PhonemeCue",
+        "kind": "type"
+      },
+      {
+        "name": "SpeechSlotLike",
+        "kind": "type"
+      },
+      {
+        "name": "UiXrExpressionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "UiXrExpressionWeights",
+        "kind": "type"
+      },
+      {
+        "name": "applyBlinkClosureToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyGazeToHumanoid",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyGeneratedScalarVisemeToRoot",
+        "kind": "runtime"
+      },
+      {
         "name": "applyNamedSpeechVisemes",
         "kind": "runtime"
       },
       {
         "name": "attachBakedCuesToSpeech",
+        "kind": "runtime"
+      },
+      {
+        "name": "collectResolvedMorphTargets",
         "kind": "runtime"
       },
       {
@@ -76,24 +124,16 @@
         "kind": "runtime"
       },
       {
-        "name": "IdentityBoundRef",
-        "kind": "type"
+        "name": "initSpeakFixtureBridge",
+        "kind": "runtime"
       },
       {
-        "name": "initSpeakFixtureBridge",
+        "name": "initialDialogueTextForScenario",
         "kind": "runtime"
       },
       {
         "name": "isPedsAsthmaScenario",
         "kind": "runtime"
-      },
-      {
-        "name": "LIVE_ACTOR_TURN_CONSUMPTION_SEAM",
-        "kind": "runtime"
-      },
-      {
-        "name": "LiveActorTurnConsumption",
-        "kind": "type"
       },
       {
         "name": "liveActorTurnFromPayload",
@@ -109,6 +149,10 @@
       },
       {
         "name": "mouthCuesToPhonemeCues",
+        "kind": "runtime"
+      },
+      {
+        "name": "phonemesForText",
         "kind": "runtime"
       },
       {
@@ -137,6 +181,14 @@
       },
       {
         "name": "resolveLiveActorTurnForTrace",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveMorphIndex",
+        "kind": "runtime"
+      },
+      {
+        "name": "visemesForText",
         "kind": "runtime"
       }
     ]

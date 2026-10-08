@@ -1,7 +1,9 @@
 import type { EncounterRuntimeDialogueTurn } from "@openclinxr/asset-registry/runtime-bundles";
-import type { LiveActorTurnConsumption, 
+import type { LiveActorTurnConsumption } from "@openclinxr/xr-dialogue/package-actor-turn";
+import type {
   UiXrExpressionEmotion,
-  UiXrExpressionWeights,} from "@openclinxr/xr-dialogue";
+  UiXrExpressionWeights,
+} from "@openclinxr/xr-dialogue/package-viseme";
 import type { GeneratedDriveScalarInput, HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
 import type { Group } from "three";
 
@@ -40,7 +42,7 @@ export type HumanoidSpeechPlayback = {
   actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"];
   phonemeSequence: string[];
   visemeSequence: string[];
-  bakedCues?: import("@openclinxr/xr-dialogue").PhonemeCue[];
+  bakedCues?: import("@openclinxr/xr-dialogue/package-viseme").PhonemeCue[];
   startedAtMs: number;
   durationMs: number;
 };

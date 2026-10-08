@@ -29,7 +29,7 @@
  */
 import { Matrix3, Matrix4, Vector3 } from "three";
 import type { Document } from "@gltf-transform/core";
-import { applyJawOpenToRoot, JAW_TEETH_GAIN, jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue";
+import { applyJawOpenToRoot, JAW_TEETH_GAIN, jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/package-viseme";
 import { loadHeadlessScene } from "./scene.js";
 import {
   frontShellIndices,

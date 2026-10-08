@@ -1,6 +1,6 @@
 import { Bone, Group } from "three";
 import { describe, expect, it } from "vitest";
-import { applyGazeToHumanoid } from "./index.js";
+import { applyGazeToHumanoid } from "./package-viseme.js";
 
 /**
  * "Gaze" rotates the actor's whole body. The eye bones exist on every rail, are skinned, and nothing

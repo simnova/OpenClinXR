@@ -5,6 +5,11 @@
       "path": "tools/openclinxr/mouth-solver/mouth-evaluator.test.ts",
       "reason": "3 pins fail against the current parent GLB (re-measured 2026-10-07 on a fresh fixed-capture recount with the current asset, rhubarb cues unchanged): dy bias 5.16px (gate 3) and max 9.41px (gate 5) persist on current pixels, so the offset is systematic visibility composition on the rebuilt lower arch (3a1e49634 reseat plus FF chain through d33b3d2b7), not stale ground truth \u2014 needs a solver-side projection fix, not a pin tweak; jaw travel 9.31mm vs <=8.6 (growth net of the ac2a84ac2 rest-drop/down-gain, measured 8.88 in-commit, plus the undocumented FF-chain remainder \u2014 no stated new baseline, re-pinning would be widening); pitch probe blocked on the dy gate (instrument response itself healthy: 2-degree dose shifts bias 3.44px). Rim band re-pinned 6.0+-0.7 in the same slice (series 5.318-6.680mm, 3a1e49634 reseat) and green. Rim band stays red: a re-pin to the observed series mid-range plus its half-range (5f2acb92f) was fitted to clear the measurement and was reverted; it needs a band derived from an independent reference (face bound or target).",
       "card": "unfiled: solver-side projection fix for the dy visibility-composition offset plus a stated jaw-travel baseline"
+    },
+    {
+      "path": "tools/openclinxr/factory/actor-audio-package-integration/public-admission.test.ts",
+      "reason": "Pins ADMISSION_GROUPS to exactly [psr-01f, actor-audio-runtime-v1]; four later reviewed admissions (room-chain-wiring-v1, teeth-viseme-consumers-v1, startup-cast-v1, viseme-motion-subpaths-v1) made it fail on main (measured at 3b450aa37: 6 groups vs 2). The authoritative pin lives in admission-overlays-do-not-launder-closed-removes.test.ts.",
+      "card": "unfiled: retire or re-point the actor-audio admission pin to the authoritative ADMISSION_GROUPS test"
     }
   ]
 }

@@ -39,7 +39,7 @@ import {
   JAW_OPEN_TEETH_CLEAR_RADIANS,
   JAW_TEETH_GAIN,
   jawOpenRadiansForPhoneme,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/evidence-viseme";
 import { analyzeToothPixels } from "./tooth-pixel-split.js";
 import { loadHeadlessScene, type HeadlessScene } from "../../mouth-solver/headless-scene.ts";
 

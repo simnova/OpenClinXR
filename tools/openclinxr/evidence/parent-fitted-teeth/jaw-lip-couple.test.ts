@@ -26,7 +26,7 @@ import {
   jawWeightSum,
   lowerLipInnerRim,
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
-import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue";
+import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue/evidence-viseme";
 import { lowerArchByJoint, planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.ts";
 import {
@@ -36,9 +36,9 @@ import {
 import {
   applyDialogueVisemeTimelineToRoot,
   applyJawOpenToRoot,
-} from "@openclinxr/xr-dialogue/viseme-runtime";
-import { applyVisemeWeights } from "@openclinxr/xr-dialogue/viseme-morph";
-import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
+} from "@openclinxr/xr-dialogue/evidence-viseme";
+import { applyVisemeWeights } from "@openclinxr/xr-dialogue/evidence-viseme";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/evidence-viseme";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");

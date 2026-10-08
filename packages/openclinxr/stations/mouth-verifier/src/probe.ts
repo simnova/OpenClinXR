@@ -7,8 +7,8 @@
  * springs, no pixels: pure geometry in ms.
  */
 import { readFileSync } from "node:fs";
-import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
-import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
+import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/package-viseme";
+import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/package-viseme";
 import { Matrix4, Vector3 } from "three";
 import { loadHeadlessScene } from "./headless-scene.js";
 import {

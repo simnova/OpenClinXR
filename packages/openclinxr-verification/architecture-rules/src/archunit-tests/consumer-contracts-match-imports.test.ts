@@ -507,23 +507,31 @@ describe("consumer contracts match imports", () => {
     );
   });
 
-  it("(5) live tree: clauses (a), (b), (c) pass and (d) passes with today's allowlist", () => {
+  it("(5) live tree: clauses (a), (b), (c) pass and every entrypoint serves one class", () => {
     const root = findRoot();
     expect(checkUnlistedImports(root).join("\n")).toBe("");
     expect(checkListedNotPublished(root).join("\n")).toBe("");
     expect(checkUnconsumedPublished(root).join("\n")).toBe("");
+    // Post-split (xr-dialogue class-pure entrypoints): every entrypoint serves
+    // one consumer class except "./actor-audio-runtime", the single shared
+    // single-name runtime seam (apps/ui-xr runtime + mouth-solver tooling),
+    // excused by the allowlist below. The "." row is documentary: psr-01e keeps
+    // 13 names on root (MOUTH_OPEN_CAP, PhonemeCue, SpeechSlotLike,
+    // UiXrExpressionEmotion, UiXrExpressionWeights, plus eight viseme/dialogue
+    // drives) while package and evidence consumers bind the same names via
+    // ./package-viseme, ./package-actor-turn, and ./evidence-viseme;
+    // "." imports stay runtime-app.
     const allowlist = readAllowlist(root);
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
-      "@openclinxr/xr-dialogue./viseme-morph",
-      "@openclinxr/xr-dialogue./viseme-runtime",
-      "@openclinxr/xr-dialogue./viseme-timeline",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
     expect(checkMixedClassEntrypoints(root, CONSUMERS, allowlist)).toEqual([]);
-    // Without the allowlist the mixed-class gate fires: the excuse is load-bearing.
-    expect(checkMixedClassEntrypoints(root, CONSUMERS, []).length).toBeGreaterThan(0);
+    // Without the allowlist the shared seam fires: the excuse is load-bearing.
+    expect(checkMixedClassEntrypoints(root, CONSUMERS, []).join("\n")).toContain(
+      "./actor-audio-runtime",
+    );
   });
 
   it("(6) live tree reports the global unconsumed count", () => {

@@ -23,6 +23,18 @@
     "./viseme-timeline": {
       "types": "./dist/viseme-timeline.d.ts",
       "default": "./dist/viseme-timeline.js"
+    },
+    "./package-actor-turn": {
+      "types": "./dist/package-actor-turn.d.ts",
+      "default": "./dist/package-actor-turn.js"
+    },
+    "./package-viseme": {
+      "types": "./dist/package-viseme.d.ts",
+      "default": "./dist/package-viseme.js"
+    },
+    "./evidence-viseme": {
+      "types": "./dist/evidence-viseme.d.ts",
+      "default": "./dist/evidence-viseme.js"
     }
   },
   "scripts": {

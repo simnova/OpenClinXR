@@ -8,7 +8,7 @@
  * Numeric fixtures prove runtime composition, not visible realism or clinical affect.
  */
 
-import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue";
+import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue/package-viseme";
 import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, PerspectiveCamera } from "three";
 import { describe, expect, it } from "vitest";
 import { createHumanoidEmotionExpressionState, type GeneratedHumanoidAnimationSlot, type HumanoidAnimationRuntimeContext, startHumanoidEmotionTransition, updateGeneratedHumanoidAnimations, updateHumanoidEmotionExpression } from "./index.js";

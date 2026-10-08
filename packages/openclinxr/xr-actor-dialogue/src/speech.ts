@@ -3,7 +3,7 @@ import {
   phonemesForText,
   resolveLiveActorTurnForTrace,
   visemesForText,
-} from "@openclinxr/xr-dialogue";
+} from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
   startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,

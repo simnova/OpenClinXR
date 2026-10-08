@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1825,
+    "keep-evidence": 1826,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26705,6 +26705,13 @@
       "rationale": "Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements)."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements)."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -34206,14 +34213,14 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34242,6 +34249,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/xr-dialogue-consumer-split-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Consumer-driven split of xr-dialogue exports by consumer class (./package-actor-turn, ./package-viseme, ./evidence-viseme new; JAW_TEETH_GAIN added to ./viseme-runtime); reviewedBy PENDING-INDEPENDENT-REVIEW."
     }
   ]
 }

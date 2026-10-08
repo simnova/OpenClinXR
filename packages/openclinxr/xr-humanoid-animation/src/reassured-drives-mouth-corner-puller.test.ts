@@ -12,7 +12,7 @@
  */
 import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial } from "three";
 import { describe, expect, it } from "vitest";
-import { expressionWeightsForEmotion } from "@openclinxr/xr-dialogue";
+import { expressionWeightsForEmotion } from "@openclinxr/xr-dialogue/package-viseme";
 import {
   applyHumanoidMorphTargetCue,
   createHumanoidEmotionExpressionState,

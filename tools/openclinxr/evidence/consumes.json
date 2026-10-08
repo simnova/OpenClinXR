@@ -1,10 +1,14 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": ".",
+    "entrypoint": "./evidence-viseme",
     "names": [
       {
         "name": "applyBlinkClosureToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyDialogueVisemeTimelineToRoot",
         "kind": "runtime"
       },
       {
@@ -32,6 +36,10 @@
         "kind": "runtime"
       },
       {
+        "name": "mapDialoguePhonemesToCues",
+        "kind": "runtime"
+      },
+      {
         "name": "MOUTH_OPEN_CAP",
         "kind": "runtime"
       },
@@ -41,44 +49,6 @@
       },
       {
         "name": "resolveMorphIndex",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-morph",
-    "names": [
-      {
-        "name": "applyVisemeWeights",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-runtime",
-    "names": [
-      {
-        "name": "applyDialogueVisemeTimelineToRoot",
-        "kind": "runtime"
-      },
-      {
-        "name": "applyJawOpenToRoot",
-        "kind": "runtime"
-      },
-      {
-        "name": "mapDialoguePhonemesToCues",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-timeline",
-    "names": [
-      {
-        "name": "jawOpenRadiansForPhoneme",
         "kind": "runtime"
       }
     ]

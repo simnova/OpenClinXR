@@ -1,0 +1,17 @@
+{
+  "id": "psr-c6-xr-dialogue-consumer-split",
+  "reviewedSourceCandidate": "e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce",
+  "sourceCandidateKind": "git-tree",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07",
+  "requestedExports": [],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1272,
+      "threshold": 1000,
+      "owner": "consumer-driven-contracts implementation workers (muse-spark-1) and the Claude coordinator",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree e4cd9f775406e0e861c00bea4e3bf76a49c6c4ce: session 01a118fc-04df-7331-ae3d-2b752b1b4297 rejected the first draft (7 rationales cited non-importing lines); session 01a11901-531b-7d63-b3a4-4c58076b21f1 approved the corrected overlay: all 37 rows publish their symbol and cite a matching import, psr-01e root keeps intact, rootExports 1277->1272, median 20.5 and p90 41 unchanged; 2026-10-07",
+      "reason": "xr-dialogue root '.' narrows from 52 to 47 names by moving runtime-app-free names to class-pure subpaths (admission overlay xr-dialogue-consumer-split-v1, 37 rows); the 13 psr-01e-kept names stay on the root. Total root exports 1277 -> 1272; median 20.5 and p90 41 unchanged (covered by psr-c6-mouth)."
+    }
+  ]
+}

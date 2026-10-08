@@ -1,7 +1,7 @@
 [
   {
     "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": ".",
+    "entrypoint": "./package-viseme",
     "names": [
       {
         "name": "applyJawOpenToRoot",
@@ -11,26 +11,6 @@
         "name": "JAW_TEETH_GAIN",
         "kind": "runtime"
       },
-      {
-        "name": "jawOpenRadiansForPhoneme",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-runtime",
-    "names": [
-      {
-        "name": "applyJawOpenToRoot",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-timeline",
-    "names": [
       {
         "name": "jawOpenRadiansForPhoneme",
         "kind": "runtime"

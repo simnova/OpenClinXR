@@ -14,7 +14,7 @@
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/package-actor-turn";
 import { Matrix4, Vector3 } from "three";
 import {
   frontShellIndices,

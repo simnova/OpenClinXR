@@ -2,31 +2,13 @@
   {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": ".",
-    "classes": ["runtime-app", "package", "tools", "evidence"],
-    "reason": "pre-split single root serves every consumer class; STEP3 migrates non-app importers to class-pure entrypoints and keeps '.' for apps/ui-xr runtime"
+    "classes": ["runtime-app", "package"],
+    "reason": "psr-01e keeps 13 names on '.': MOUTH_OPEN_CAP, PhonemeCue, SpeechSlotLike, UiXrExpressionEmotion, UiXrExpressionWeights, applyBlinkClosureToRoot, applyGazeToHumanoid, applyGeneratedScalarVisemeToRoot, collectResolvedMorphTargets, initialDialogueTextForScenario, phonemesForText, resolveMorphIndex, visemesForText; package and evidence consumers bind the same names via ./package-viseme, ./package-actor-turn, and ./evidence-viseme, so '.' dual-publishes them while its import surface stays apps/ui-xr runtime-app"
   },
   {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./actor-audio-runtime",
-    "classes": ["runtime-app", "package", "tools"],
-    "reason": "pre-split audio factory shared by ui-xr runtime, mouth-verifier package, xr-actor-dialogue types, and mouth-solver tooling; STEP3 leaves it for runtime-app and moves the rest to class-pure entrypoints"
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-runtime",
-    "classes": ["package", "tools", "evidence"],
-    "reason": "pre-split jaw timeline shared by mouth stations, makeclothes/mouth-solver tooling, and teeth evidence; STEP3 reserves it for tools and moves packages and evidence to class-pure entrypoints"
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-timeline",
-    "classes": ["package", "tools", "evidence"],
-    "reason": "pre-split phoneme-to-jaw map shared by mouth stations, tooling, and evidence; STEP3 reserves it for tools and moves the rest to class-pure entrypoints"
-  },
-  {
-    "provider": "@openclinxr/xr-dialogue",
-    "entrypoint": "./viseme-morph",
-    "classes": ["tools", "evidence"],
-    "reason": "pre-split morph weights shared by makeclothes tooling and teeth evidence; STEP3 reserves it for tools and moves evidence to its class-pure entrypoint"
+    "classes": ["runtime-app", "tools"],
+    "reason": "one shared single-name runtime seam: the actor audio factory serves the apps/ui-xr runtime and mouth-solver tooling; no package or evidence consumer binds it, so no class-pure split is warranted"
   }
 ]
