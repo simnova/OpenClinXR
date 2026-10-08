@@ -21,9 +21,11 @@ import type { Page } from "../lib/slotted-playwright.js";
 import {
   calibratePixelLipThresholds,
   measurePhiltrumBand,
+  measurePhiltrumBulge,
   measurePhiltrumSilhouette,
   measurePixelLipForward,
   measurePixelLipFront,
+  PHILTRUM_BULGE_THRESHOLD_PX,
 } from "./pixel-lip-measure.ts";
 
 type HeadlessBrowser = { newPage(options: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page> };
@@ -35,7 +37,7 @@ const OUT_DIR = "/private/tmp/claude-501/-Volumes-files-src-openclinxr/bde3aa49-
 type BoneRow = { viseme: string; bone: string; channel: "x" | "z"; fullMm: number; source: string };
 type ProbeRow = { id: string; viseme: string; table: BoneRow[] | null };
 
-const oris04x = (v: "O" | "U", mm: number): BoneRow[] => [
+const oris04x = (v: string, mm: number): BoneRow[] => [
   { viseme: v, bone: "oris04.L", channel: "x", fullMm: mm, source: `headless-ring:${mm}mm` },
   { viseme: v, bone: "oris04.R", channel: "x", fullMm: -mm, source: `headless-ring:${mm}mm` },
 ];
@@ -108,15 +110,63 @@ const orisT10 = (v: "O" | "U"): BoneRow[] => [
   { viseme: v, bone: "oris05", channel: "z", fullMm: 2, source: "philtrum-round:T10" },
 ];
 
+// Philtrum-vermilion round (lip-philtrum slice): CH/RR have no committed
+// rows yet (morph-only CH -7.2% / RR -1.4% vs E). Candidates pair corner
+// narrowing (oris04 x) with lower-lip forward (oris01 z, owns the lower
+// lip headlessly) and upper-vermilion lateral push (oris03 z, spans the
+// upper-lip band without the oris05 midline philtrum column).
+const chA = (): BoneRow[] => [...oris04x("CH", 4)];
+const chB = (): BoneRow[] => [
+  ...oris04x("CH", 5),
+  { viseme: "CH", bone: "oris01", channel: "z", fullMm: 2, source: "phil-vermilion:CH-B" },
+];
+const chC = (): BoneRow[] => [
+  ...oris04x("CH", 5),
+  { viseme: "CH", bone: "oris01", channel: "z", fullMm: 2, source: "phil-vermilion:CH-C" },
+  { viseme: "CH", bone: "oris03.L", channel: "z", fullMm: 1, source: "phil-vermilion:CH-C" },
+  { viseme: "CH", bone: "oris03.R", channel: "z", fullMm: 1, source: "phil-vermilion:CH-C" },
+];
+const rrA = (): BoneRow[] => [...oris04x("RR", 5)];
+const rrB = (): BoneRow[] => [
+  ...oris04x("RR", 6),
+  { viseme: "RR", bone: "oris01", channel: "z", fullMm: 2, source: "phil-vermilion:RR-B" },
+];
+const rrC = (): BoneRow[] => [
+  ...oris04x("RR", 6),
+  { viseme: "RR", bone: "oris01", channel: "z", fullMm: 2, source: "phil-vermilion:RR-C" },
+  { viseme: "RR", bone: "oris03.L", channel: "z", fullMm: 1, source: "phil-vermilion:RR-C" },
+  { viseme: "RR", bone: "oris03.R", channel: "z", fullMm: 1, source: "phil-vermilion:RR-C" },
+];
+
 const ROWS: ProbeRow[] = [
   { id: "base-sil", viseme: "sil", table: null },
   { id: "base-E", viseme: "E", table: null },
   { id: "base-O", viseme: "O", table: null },
   { id: "base-U", viseme: "U", table: null },
+  { id: "base-CH", viseme: "CH", table: null },
+  { id: "base-RR", viseme: "RR", table: null },
+  { id: "base0-O", viseme: "O", table: zeroAll("O") },
+  { id: "base0-U", viseme: "U", table: zeroAll("U") },
   { id: "T9-O", viseme: "O", table: orisT9("O") },
   { id: "T9-U", viseme: "U", table: orisT9("U") },
   { id: "T10-O", viseme: "O", table: orisT10("O") },
   { id: "T10-U", viseme: "U", table: orisT10("U") },
+  { id: "T1-O", viseme: "O", table: orisT1("O") },
+  { id: "T1-U", viseme: "U", table: orisT1("U") },
+  { id: "T2f-O", viseme: "O", table: orisT2f("O") },
+  { id: "T2f-U", viseme: "U", table: orisT2f("U") },
+  { id: "T4f-O", viseme: "O", table: orisT4f("O") },
+  { id: "T4f-U", viseme: "U", table: orisT4f("U") },
+  { id: "T5f-O", viseme: "O", table: orisT5f("O") },
+  { id: "T5f-U", viseme: "U", table: orisT5f("U") },
+  { id: "T6f-O", viseme: "O", table: orisT6f("O") },
+  { id: "T6f-U", viseme: "U", table: orisT6f("U") },
+  { id: "CH-A", viseme: "CH", table: chA() },
+  { id: "CH-B", viseme: "CH", table: chB() },
+  { id: "CH-C", viseme: "CH", table: chC() },
+  { id: "RR-A", viseme: "RR", table: rrA() },
+  { id: "RR-B", viseme: "RR", table: rrB() },
+  { id: "RR-C", viseme: "RR", table: rrC() },
 ];
 
 function esbuildBin(): string {
@@ -371,6 +421,7 @@ async function main(): Promise<void> {
     const view34Img = decodeTopDown(path.join(OUT_DIR, `34/${row.id}.png`));
     const fm = measurePixelLipFront(frontImg, t);
     const cm = measurePixelLipForward(view34Img, t);
+    const bg = measurePhiltrumBulge(view34Img, t);
     f["pixelOuterPx"] = fm.outerWidthPx;
     f["pixelApWPx"] = fm.apertureWidthPx;
     f["pixelApHPx"] = fm.apertureHeightPx;
@@ -381,15 +432,17 @@ async function main(): Promise<void> {
     c["pixelAnchorX"] = cm.anchorX;
     c["pixelFwdPx"] = cm.forwardPx;
     c["pixelPhilX"] = measurePhiltrumSilhouette(view34Img, t);
+    c["pixelNoseX"] = bg.noseX;
+    c["pixelBulgePx"] = bg.bulgePx;
   }
   const eFront = rows["front/base-E"] as { pixelOuterPx: number };
   const eFwd = rows["34/base-E"] as { pixelFwdPx: number };
   const baseOf = (viseme: string): string => `base-${viseme}`;
   const table = ROWS.map((row) => {
     const f = rows[`front/${row.id}`] as { pixelOuterPx: number; pixelApWPx: number; pixelHw: number; pixelPhilBand: number; upperPx: number; lowerPx: number; landWidthPx: number; bonesTouched: number };
-    const c = rows[`34/${row.id}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelLipY: number };
+    const c = rows[`34/${row.id}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelLipY: number; pixelBulgePx: number };
     const bf = rows[`front/${baseOf(row.viseme)}`] as { pixelOuterPx: number; pixelPhilBand: number };
-    const bc = rows[`34/${baseOf(row.viseme)}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number };
+    const bc = rows[`34/${baseOf(row.viseme)}`] as { pixelFwdPx: number; pixelPhilX: number; pixelLipX: number; pixelBulgePx: number };
     const bones = row.table ? [...new Set(row.table.map((r) => `${r.bone}:${r.channel}:${r.fullMm}`))].join("+") : "(none)";
     return {
       id: row.id,
@@ -405,6 +458,9 @@ async function main(): Promise<void> {
       philBandDeltaVsBase: Math.round((f.pixelPhilBand - bf.pixelPhilBand) * 10) / 10,
       philX: c.pixelPhilX,
       philXDeltaVsBasePx: Math.round((c.pixelPhilX - bc.pixelPhilX) * 10) / 10,
+      bulgePx: c.pixelBulgePx,
+      bulgeDeltaVsBasePx: Math.round((c.pixelBulgePx - bc.pixelBulgePx) * 10) / 10,
+      bulgeGatePx: PHILTRUM_BULGE_THRESHOLD_PX,
       lipY: c.pixelLipY,
       upperPx: f.upperPx,
       lowerPx: f.lowerPx,
