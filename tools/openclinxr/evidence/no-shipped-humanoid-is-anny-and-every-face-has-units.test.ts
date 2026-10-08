@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
-  ED_ADULT_CAST_RUNTIME_PATH,
   MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl,
@@ -256,9 +255,20 @@ describe("no shipped humanoid is anny, and every face has units", () => {
   });
 
   it("(5) NET: the ED fallback is the gowned MPFB patient, not the Anny cast GLB", () => {
-    expect(ED_ADULT_CAST_RUNTIME_PATH).toBe(MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH);
-    expect(ED_ADULT_CAST_RUNTIME_PATH).not.toContain("ed_chest_pain_adult_cast.glb");
-    expect(ED_ADULT_CAST_RUNTIME_PATH).toContain("mpfb");
+    // The barrel publishes the MPFB gown path, not the file-local ED alias
+    // (humanoid-runtime-asset-url.ts keeps ED_ADULT_CAST_RUNTIME_PATH private
+    // so the two same-named constants cannot collide). Assert on the fallback
+    // the resolver actually returns.
+    expect(resolveHumanoidVariantOrCastPath({
+      scenarioId: "ed_chest_pain_priority_v1",
+      actorId: "unlisted_extra_staff_v1",
+      role: "observer",
+      fallbackPath: "fallback-unused",
+    })).toBe(
+      MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
+    );
+    expect(MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH).not.toContain("ed_chest_pain_adult_cast.glb");
+    expect(MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH).toContain("mpfb");
   });
 
   it("(6) NET: every Anny blob name the emulator or a bundle can hand us remaps to MPFB", () => {

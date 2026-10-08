@@ -98,12 +98,16 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "buildPackageHumanoidSpeechEvidence",
+        "name": "buildHumanoidSpeechEvidence",
         "kind": "runtime"
       },
       {
         "name": "GeneratedHumanoidAnimationSlot",
         "kind": "type"
+      },
+      {
+        "name": "humanoidDialogueDurationMs",
+        "kind": "runtime"
       },
       {
         "name": "HumanoidDialogueEmotionContext",
@@ -122,11 +126,7 @@
         "kind": "type"
       },
       {
-        "name": "packageHumanoidDialogueDurationMs",
-        "kind": "runtime"
-      },
-      {
-        "name": "startPackageHumanoidEmotionTransition",
+        "name": "startHumanoidEmotionTransition",
         "kind": "runtime"
       }
     ]
@@ -136,12 +136,12 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "HumanoidSpeechEvidence",
-        "kind": "type"
+        "name": "actorIdForTraceTag",
+        "kind": "runtime"
       },
       {
-        "name": "packageActorIdForTraceTag",
-        "kind": "runtime"
+        "name": "HumanoidSpeechEvidence",
+        "kind": "type"
       }
     ]
   },
@@ -150,7 +150,7 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "applyPackagePedsActorPlayerSequenceListenerCues",
+        "name": "applyPedsActorPlayerSequenceListenerCues",
         "kind": "runtime"
       },
       {
@@ -158,7 +158,7 @@
         "kind": "type"
       },
       {
-        "name": "recordPackagePlaybackEvidence",
+        "name": "recordPedsActorPlayerRuntimePlaybackEvidence",
         "kind": "runtime"
       }
     ]

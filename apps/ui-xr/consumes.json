@@ -428,24 +428,24 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "ActorDialogueAdaptiveEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ActorDialoguePlaybackEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ActorDialogueSequence",
+        "kind": "type"
+      },
+      {
+        "name": "ActorDialogueTurn",
+        "kind": "type"
+      },
+      {
         "name": "createActorDialogueStore",
         "kind": "runtime"
-      },
-      {
-        "name": "PedsActorPlayerRuntimePlaybackEvidenceFromStore",
-        "kind": "type"
-      },
-      {
-        "name": "PedsActorPlayerRuntimeSequenceEvidenceFromStore",
-        "kind": "type"
-      },
-      {
-        "name": "PedsActorPlayerRuntimeTurnFromStore",
-        "kind": "type"
-      },
-      {
-        "name": "PedsAdaptiveDialogueEvidenceFromStore",
-        "kind": "type"
       }
     ]
   },
@@ -454,23 +454,23 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "addPackageActorSpecificIdentityVariantCue",
+        "name": "addActorSpecificIdentityVariantCue",
         "kind": "runtime"
       },
       {
-        "name": "addPackageHumanoidSourceComparatorFaceReviewCues",
+        "name": "addHumanoidSourceComparatorFaceReviewCues",
         "kind": "runtime"
       },
       {
-        "name": "addPackageReusableExteriorPreEncounterRoom",
+        "name": "addReusableExteriorPreEncounterRoom",
         "kind": "runtime"
       },
       {
-        "name": "addPackageScenarioSpecificClinicalSetDressing",
+        "name": "addRoleSpecificHumanoidVisuals",
         "kind": "runtime"
       },
       {
-        "name": "addRoleSpecificHumanoidVisualsPackage",
+        "name": "addScenarioSpecificClinicalSetDressing",
         "kind": "runtime"
       },
       {
@@ -478,63 +478,59 @@
         "kind": "type"
       },
       {
-        "name": "clinicalPackageTouchResponseClipNamesForActor",
-        "kind": "runtime"
-      },
-      {
-        "name": "comparatorPackageCaptureSubjectActorId",
-        "kind": "runtime"
-      },
-      {
-        "name": "gazePackageProbeAnimationClipNamesFromGltf",
-        "kind": "runtime"
-      },
-      {
-        "name": "hasPackageAuthoredClinicalIdlePoseClip",
-        "kind": "runtime"
-      },
-      {
-        "name": "loadPackageGeneratedEnvironmentIntoSceneSlot",
-        "kind": "runtime"
-      },
-      {
-        "name": "loadPackageGeneratedEquipmentIntoSceneSlot",
-        "kind": "runtime"
-      },
-      {
-        "name": "neutralizePackageGeneratedHumanoidMorphTargets",
-        "kind": "runtime"
-      },
-      {
-        "name": "PackageAssetLoadingContext",
+        "name": "AssetLoadingScenarioTheme",
         "kind": "type"
       },
       {
-        "name": "PackageAssetLoadingScenarioTheme",
+        "name": "clinicalTouchResponseClipNamesForActor",
+        "kind": "runtime"
+      },
+      {
+        "name": "comparatorCaptureSubjectActorId",
+        "kind": "runtime"
+      },
+      {
+        "name": "gazeProbeAnimationClipNamesFromGltf",
+        "kind": "runtime"
+      },
+      {
+        "name": "hasAuthoredClinicalIdlePoseClip",
+        "kind": "runtime"
+      },
+      {
+        "name": "HumanoidCueMode",
         "kind": "type"
       },
       {
-        "name": "PackageHumanoidCueMode",
-        "kind": "type"
-      },
-      {
-        "name": "pedsPackageAsthmaPatientBundleVisemeUtterance",
+        "name": "loadGeneratedEnvironmentIntoSceneSlot",
         "kind": "runtime"
       },
       {
-        "name": "rolePackageAnimationClipNamesForActor",
+        "name": "loadGeneratedEquipmentIntoSceneSlot",
         "kind": "runtime"
       },
       {
-        "name": "selectedPackageHumanoidSourceComparator",
+        "name": "neutralizeGeneratedHumanoidMorphTargets",
         "kind": "runtime"
       },
       {
-        "name": "suppressPackageRuntimeDiagnosticOverlaysForSourceComparator",
+        "name": "pedsAsthmaPatientBundleVisemeUtterance",
         "kind": "runtime"
       },
       {
-        "name": "tintPackageGeneratedSceneMaterials",
+        "name": "roleAnimationClipNamesForActor",
+        "kind": "runtime"
+      },
+      {
+        "name": "selectedHumanoidSourceComparator",
+        "kind": "runtime"
+      },
+      {
+        "name": "suppressRuntimeDiagnosticOverlaysForSourceComparator",
+        "kind": "runtime"
+      },
+      {
+        "name": "tintGeneratedSceneMaterials",
         "kind": "runtime"
       }
     ]
@@ -544,23 +540,23 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "buildPackageCaseDefinedHumanoidPerformanceContractEvidence",
+        "name": "buildCaseDefinedHumanoidPerformanceContractEvidence",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageRuntimeSceneManifestEvidence",
+        "name": "buildRuntimeSceneManifestEvidence",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageCaseDefinedHumanoidPerformanceContractEvidence",
+        "name": "formatCaseDefinedHumanoidPerformanceContractEvidence",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageSceneAssetEvidenceStatus",
+        "name": "formatSceneAssetEvidenceStatus",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageUnknownError",
+        "name": "formatUnknownError",
         "kind": "runtime"
       },
       {
@@ -572,83 +568,83 @@
         "kind": "runtime"
       },
       {
-        "name": "isPackageGeneratedPlaceholderSourceForDifferentScenario",
+        "name": "isGeneratedPlaceholderSourceForDifferentScenario",
         "kind": "runtime"
       },
       {
-        "name": "isPackageHumanoidMouthGazePoseReviewCaptureMode",
+        "name": "isHumanoidMouthGazePoseReviewCaptureMode",
         "kind": "runtime"
       },
       {
-        "name": "isPackagePhysicsClinicalTouchCapture",
+        "name": "isPhysicsClinicalTouchCapture",
         "kind": "runtime"
       },
       {
-        "name": "isPackageRealGarmentSleeveDeformCapture",
+        "name": "isRealGarmentSleeveDeformCapture",
         "kind": "runtime"
       },
       {
-        "name": "isPackageSceneOnlyVisualReviewCaptureMode",
+        "name": "isSceneOnlyVisualReviewCaptureMode",
         "kind": "runtime"
       },
       {
-        "name": "packageRoundPerformanceNow",
+        "name": "publishRuntimeActorSlotAssignmentEvidence",
         "kind": "runtime"
       },
       {
-        "name": "packageRuntimeAssetAffordanceCueIds",
+        "name": "recordLearnerRuntimeUseGateEvidence",
         "kind": "runtime"
       },
       {
-        "name": "publishPackageRuntimeActorSlotAssignmentEvidence",
+        "name": "recordSceneAssetStatus",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageLearnerRuntimeUseGateEvidence",
+        "name": "recordXrEntryEvidence",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageSceneAssetStatus",
+        "name": "refreshDeclaredEquipmentMountEvidenceFromScene",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageXrEntryEvidence",
+        "name": "resolveRuntimeSlotAssignment",
         "kind": "runtime"
       },
       {
-        "name": "refreshPackageDeclaredEquipmentMountEvidenceFromScene",
+        "name": "roundPerformanceNow",
         "kind": "runtime"
       },
       {
-        "name": "resolvePackageRuntimeSlotAssignment",
+        "name": "runtimeAssetAffordanceCueIds",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageRenderRoomPropInVisualReview",
+        "name": "shouldRenderRoomPropInVisualReview",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageShowActorRealismRequirementPanel",
+        "name": "shouldShowActorRealismRequirementPanel",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageShowInSceneEvidencePanels",
+        "name": "shouldShowInSceneEvidencePanels",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageShowInSceneIdentityLabels",
+        "name": "shouldShowInSceneIdentityLabels",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageShowPrimitiveAssetFallbacks",
+        "name": "shouldShowPrimitiveAssetFallbacks",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageShowRuntimeAffordanceMarkers",
+        "name": "shouldShowRuntimeAffordanceMarkers",
         "kind": "runtime"
       },
       {
-        "name": "shouldPackageSuppressGeneratedEquipmentModel",
+        "name": "shouldSuppressGeneratedEquipmentModel",
         "kind": "runtime"
       },
       {
@@ -866,19 +862,19 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "advancePackageFormRunClock",
+        "name": "advanceFormRunClock",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageExamFlowEvidence",
+        "name": "buildExamFlowEvidence",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageExamFormRunEvidence",
+        "name": "buildExamFormRunEvidence",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageExamRunSummaryEvidence",
+        "name": "buildExamRunSummaryEvidence",
         "kind": "runtime"
       },
       {
@@ -886,7 +882,7 @@
         "kind": "runtime"
       },
       {
-        "name": "createPackageFormRunState",
+        "name": "createFormRunState",
         "kind": "runtime"
       },
       {
@@ -894,31 +890,31 @@
         "kind": "type"
       },
       {
-        "name": "PackageExamRunStationOutcome",
+        "name": "ExamRunStationOutcome",
         "kind": "type"
       },
       {
-        "name": "PackageOpenClinXrExamFlowEvidence",
+        "name": "OpenClinXrExamFlowEvidence",
         "kind": "type"
       },
       {
-        "name": "PackageOpenClinXrExamFormRunEvidence",
+        "name": "OpenClinXrExamFormRunEvidence",
         "kind": "type"
       },
       {
-        "name": "PackageOpenClinXrExamRunSummaryEvidence",
+        "name": "OpenClinXrExamRunSummaryEvidence",
         "kind": "type"
       },
       {
-        "name": "persistPackageFormRunQueueSnapshot",
+        "name": "persistFormRunQueueSnapshot",
         "kind": "runtime"
       },
       {
-        "name": "readPackageExamRunSummaryOutcomes",
+        "name": "readExamRunSummaryOutcomes",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageStationOutcome",
+        "name": "recordStationOutcome",
         "kind": "runtime"
       },
       {
@@ -932,87 +928,87 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "applyPackageHumanoidMorphTargetCue",
+        "name": "applyHumanoidMorphTargetCue",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageHumanoidSpeechEvidence",
+        "name": "buildHumanoidSpeechEvidence",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidEmotionExpressionState",
+        "name": "createHumanoidEmotionExpressionState",
         "kind": "runtime"
       },
       {
-        "name": "isPackageGeneratedRuntimeDrive",
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidActingCueRecord",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidAnimationRuntimeContext",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidDialogueEmotionContext",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidDialogueGazeTarget",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidEmotionExpressionState",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidExpressionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidExpressionWeights",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidSpeechPlayback",
+        "kind": "type"
+      },
+      {
+        "name": "isGeneratedRuntimeDrive",
         "kind": "runtime"
       },
       {
-        "name": "orientPackageHumanoidEyeFocusCue",
+        "name": "MouthGazePoseComparatorEvidenceRecord",
+        "kind": "type"
+      },
+      {
+        "name": "orientHumanoidEyeFocusCue",
         "kind": "runtime"
       },
       {
-        "name": "orientPackageHumanoidTowardGazeTarget",
+        "name": "orientHumanoidTowardGazeTarget",
         "kind": "runtime"
       },
       {
-        "name": "PackageGeneratedHumanoidAnimationSlot",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidActingCueRecord",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidAnimationRuntimeContext",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidDialogueEmotionContext",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidDialogueGazeTarget",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidEmotionExpressionState",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidExpressionEmotion",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidExpressionWeights",
-        "kind": "type"
-      },
-      {
-        "name": "PackageHumanoidSpeechPlayback",
-        "kind": "type"
-      },
-      {
-        "name": "PackageMouthGazePoseComparatorEvidenceRecord",
-        "kind": "type"
-      },
-      {
-        "name": "PackageRuntimeHumanoidActingCueEvidenceRecord",
-        "kind": "type"
-      },
-      {
-        "name": "resolvePackageHumanoidGazeTargetWorld",
+        "name": "resolveHumanoidGazeTargetWorld",
         "kind": "runtime"
       },
       {
-        "name": "startPackageHumanoidEmotionTransition",
+        "name": "RuntimeHumanoidActingCueEvidenceRecord",
+        "kind": "type"
+      },
+      {
+        "name": "startHumanoidEmotionTransition",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageGeneratedHumanoidAnimations",
+        "name": "updateGeneratedHumanoidAnimations",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageHumanoidEmotionExpression",
+        "name": "updateHumanoidEmotionExpression",
         "kind": "runtime"
       }
     ]
@@ -1100,60 +1096,48 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "applyPackageDeterministicPortalPreviewStart",
+        "name": "applyDeterministicPortalPreviewStart",
         "kind": "runtime"
       },
       {
-        "name": "applyPackageGeneratedHumanoidRoleSpecificPosture",
+        "name": "applyGeneratedHumanoidRoleSpecificPosture",
         "kind": "runtime"
       },
       {
-        "name": "applyPackageLocomotion",
+        "name": "applyLocomotion",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageExamineeLocomotionEvidence",
+        "name": "buildExamineeLocomotionEvidence",
         "kind": "runtime"
       },
       {
-        "name": "createPackageExamineeLocomotionTrail",
+        "name": "createExamineeLocomotionTrail",
         "kind": "runtime"
       },
       {
-        "name": "createPackageKeyboardLocomotion",
+        "name": "createKeyboardLocomotion",
         "kind": "runtime"
       },
       {
-        "name": "createPackageXrHandGestureLocomotionState",
+        "name": "createXrHandGestureLocomotionState",
         "kind": "runtime"
       },
       {
-        "name": "createPackageXrHandSelectState",
+        "name": "createXrHandSelectState",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageHandSelectStatus",
+        "name": "formatHandSelectStatus",
         "kind": "runtime"
       },
       {
-        "name": "formatPackagePortalTransitionEvidence",
+        "name": "formatPortalTransitionEvidence",
         "kind": "runtime"
       },
       {
-        "name": "maybePackageCompleteTraceActionFromHandSelect",
+        "name": "maybeCompleteTraceActionFromHandSelect",
         "kind": "runtime"
-      },
-      {
-        "name": "PackagePortalTransitionEvidence",
-        "kind": "type"
-      },
-      {
-        "name": "PackageXrHandGroup",
-        "kind": "type"
-      },
-      {
-        "name": "PackageXrInputSourceWithGamepad",
-        "kind": "type"
       },
       {
         "name": "parsePortalPreviewStart",
@@ -1168,6 +1152,10 @@
         "kind": "type"
       },
       {
+        "name": "PortalTransitionEvidence",
+        "kind": "type"
+      },
+      {
         "name": "recordHandSelectTraceLatency",
         "kind": "runtime"
       },
@@ -1176,16 +1164,24 @@
         "kind": "type"
       },
       {
-        "name": "samplePackageRoomScalePose",
+        "name": "sampleRoomScalePose",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageExamineeLocomotionTrail",
+        "name": "updateExamineeLocomotionTrail",
         "kind": "runtime"
       },
       {
-        "name": "updatePackagePortalTransitionEvidence",
+        "name": "updatePortalTransitionEvidence",
         "kind": "runtime"
+      },
+      {
+        "name": "XrHandGroup",
+        "kind": "type"
+      },
+      {
+        "name": "XrInputSourceWithGamepad",
+        "kind": "type"
       },
       {
         "name": "XrSessionLike",
@@ -1578,6 +1574,22 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "booleanQueryParam",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildExamNavigationHref",
+        "kind": "runtime"
+      },
+      {
+        "name": "configuredExamRunId",
+        "kind": "runtime"
+      },
+      {
+        "name": "configuredExamSequence",
+        "kind": "runtime"
+      },
+      {
         "name": "ExamRunQueryDeps",
         "kind": "type"
       },
@@ -1586,31 +1598,15 @@
         "kind": "type"
       },
       {
-        "name": "packageBooleanQueryParam",
+        "name": "formElapsedSecondForCurrentStation",
         "kind": "runtime"
       },
       {
-        "name": "packageBuildExamNavigationHref",
+        "name": "nextExamScenarioId",
         "kind": "runtime"
       },
       {
-        "name": "packageConfiguredExamRunId",
-        "kind": "runtime"
-      },
-      {
-        "name": "packageConfiguredExamSequence",
-        "kind": "runtime"
-      },
-      {
-        "name": "packageFormElapsedSecondForCurrentStation",
-        "kind": "runtime"
-      },
-      {
-        "name": "packageNextExamScenarioId",
-        "kind": "runtime"
-      },
-      {
-        "name": "packagePositiveIntegerQueryParam",
+        "name": "positiveIntegerQueryParam",
         "kind": "runtime"
       }
     ]
@@ -1628,19 +1624,11 @@
         "kind": "runtime"
       },
       {
-        "name": "applyEncounterActorFraming",
-        "kind": "runtime"
-      },
-      {
         "name": "applyRealGarmentEvidenceSurfaces",
         "kind": "runtime"
       },
       {
         "name": "bootLearnerExamFormFromApi",
-        "kind": "runtime"
-      },
-      {
-        "name": "buildVirtualDeviceActorAffordance",
         "kind": "runtime"
       },
       {
@@ -1653,6 +1641,10 @@
       },
       {
         "name": "createLearnerExamFormRunState",
+        "kind": "runtime"
+      },
+      {
+        "name": "createVirtualDeviceActorAffordance",
         "kind": "runtime"
       },
       {
@@ -1706,71 +1698,71 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "addPackagePediatricRespiratoryEquipmentCues",
+        "name": "addPediatricRespiratoryEquipmentCues",
         "kind": "runtime"
       },
       {
-        "name": "applyPackageCleanEncounterVisualReviewActorFraming",
+        "name": "applyCleanEncounterVisualReviewActorFraming",
         "kind": "runtime"
       },
       {
-        "name": "applyPackageEnvironmentStateVisuals",
+        "name": "applyEnvironmentStateVisuals",
         "kind": "runtime"
       },
       {
-        "name": "applyPackageRuntimeEquipmentTraceVisuals",
+        "name": "applyRuntimeEquipmentTraceVisuals",
         "kind": "runtime"
       },
       {
-        "name": "clinicalPackagePanelLinesForBundle",
+        "name": "clinicalPanelLinesForBundle",
         "kind": "runtime"
       },
       {
-        "name": "createPackageActorNameplate",
+        "name": "createActorNameplate",
         "kind": "runtime"
       },
       {
-        "name": "createPackageAffordanceMarker",
+        "name": "createAffordanceMarker",
         "kind": "runtime"
       },
       {
-        "name": "createPackageClinicalPanel",
+        "name": "createClinicalPanel",
         "kind": "runtime"
       },
       {
-        "name": "createPackageDetailedEdRoomProps",
+        "name": "createDetailedEdRoomProps",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidExpressionCue",
+        "name": "createHumanoidExpressionCue",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidEyeFocusCue",
+        "name": "createHumanoidEyeFocusCue",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidEyeGazeCue",
+        "name": "createHumanoidEyeGazeCue",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidInteractionCollisionCues",
+        "name": "createHumanoidInteractionCollisionCues",
         "kind": "runtime"
       },
       {
-        "name": "createPackageHumanoidSpeechMouthCue",
+        "name": "createHumanoidSpeechMouthCue",
         "kind": "runtime"
       },
       {
-        "name": "createPackageReadableVrTextPanel",
+        "name": "createReadableVrTextPanel",
         "kind": "runtime"
       },
       {
-        "name": "createPackageRuntimeHumanoidDetailCues",
+        "name": "createRuntimeHumanoidDetailCues",
         "kind": "runtime"
       },
       {
-        "name": "createPackageVirtualDeviceActorAffordance",
+        "name": "createVirtualDeviceActorAffordance",
         "kind": "runtime"
       },
       {
@@ -1786,15 +1778,15 @@
         "kind": "type"
       },
       {
-        "name": "recordPackageDynamicSceneObjectNamingEvidence",
+        "name": "recordDynamicSceneObjectNamingEvidence",
         "kind": "runtime"
       },
       {
-        "name": "recordPackagePediatricRespiratoryEquipmentCue",
+        "name": "recordPediatricRespiratoryEquipmentCue",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageRoleDistinctHumanoidCue",
+        "name": "recordRoleDistinctHumanoidCue",
         "kind": "runtime"
       },
       {
@@ -1802,7 +1794,7 @@
         "kind": "type"
       },
       {
-        "name": "runtimePackageEquipmentIdsForTag",
+        "name": "runtimeEquipmentIdsForTag",
         "kind": "runtime"
       },
       {
@@ -1854,7 +1846,7 @@
         "kind": "type"
       },
       {
-        "name": "updatePackageEnvironmentRealismAnimations",
+        "name": "updateEnvironmentRealismAnimations",
         "kind": "runtime"
       }
     ]
@@ -1866,6 +1858,10 @@
       {
         "name": "applyStationInteriorLighting",
         "kind": "runtime"
+      },
+      {
+        "name": "AssembledStationApiClient",
+        "kind": "type"
       },
       {
         "name": "buildAssembledStationStartSessionInput",
@@ -1896,7 +1892,7 @@
         "kind": "runtime"
       },
       {
-        "name": "createStationApiClient",
+        "name": "createAssembledStationApiClient",
         "kind": "runtime"
       },
       {
@@ -1964,10 +1960,6 @@
         "kind": "runtime"
       },
       {
-        "name": "StationApiClient",
-        "kind": "type"
-      },
-      {
         "name": "stationContextForScenario",
         "kind": "runtime"
       },
@@ -1994,6 +1986,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "actorNameplateLabel",
+        "kind": "runtime"
+      },
+      {
         "name": "assembleStationScene",
         "kind": "runtime"
       },
@@ -2006,11 +2002,7 @@
         "kind": "runtime"
       },
       {
-        "name": "packageActorNameplateLabel",
-        "kind": "runtime"
-      },
-      {
-        "name": "packageRuntimeGeneratedSceneObjectName",
+        "name": "runtimeGeneratedSceneObjectName",
         "kind": "runtime"
       },
       {
@@ -2050,107 +2042,107 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "applyPackagePedsActorPlayerSequenceListenerCues",
+        "name": "applyPedsActorPlayerSequenceListenerCues",
         "kind": "type"
       },
       {
-        "name": "buildPackageTraceHumanoidSpeechEvidence",
+        "name": "buildHumanoidSpeechEvidence",
         "kind": "runtime"
       },
       {
-        "name": "buildPackageTraceRuntimeReproducibilityEvidence",
+        "name": "buildRuntimeReproducibilityEvidence",
         "kind": "runtime"
       },
       {
-        "name": "createPackageTraceFrameAccumulator",
+        "name": "createFrameAccumulator",
         "kind": "runtime"
       },
       {
-        "name": "createPackageTraceSelectLatencyRecorder",
+        "name": "createTraceSelectLatencyRecorder",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceActorPlayerRuntimeMetadataSummary",
+        "name": "formatActorPlayerRuntimeMetadataSummary",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceEnvironmentRoomSummary",
+        "name": "formatEnvironmentRoomSummary",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceLearnerRuntimeUseGate",
+        "name": "formatLearnerRuntimeUseGate",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceMaterializationAttachmentSummary",
+        "name": "formatMaterializationAttachmentSummary",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceRemainingRuntimeBlockerReasons",
+        "name": "formatRemainingRuntimeBlockerReasons",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceRuntimePostureLane",
+        "name": "formatRuntimePostureLane",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceRuntimeReadinessDecision",
+        "name": "formatRuntimeReadinessDecision",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceTechnicalGapStatus",
+        "name": "formatTechnicalGapStatus",
         "kind": "runtime"
       },
       {
-        "name": "formatPackageTraceTraceInteractionEvidenceSummary",
+        "name": "formatTraceInteractionEvidenceSummary",
         "kind": "runtime"
       },
       {
-        "name": "pedsPackageActorPlayerRuntimeTurns",
+        "name": "pedsActorPlayerRuntimeTurns",
         "kind": "runtime"
       },
       {
-        "name": "recordPackagePedsActorPlayerRuntimePlaybackEvidence",
+        "name": "recordFrame",
+        "kind": "runtime"
+      },
+      {
+        "name": "recordPedsActorPlayerRuntimePlaybackEvidence",
         "kind": "type"
       },
       {
-        "name": "recordPackageTraceFrame",
+        "name": "recordTraceSelectLatency",
         "kind": "runtime"
       },
       {
-        "name": "recordPackageTraceTraceSelectLatency",
+        "name": "ROOM_ENVIRONMENTAL_REALISM_CUE_IDS",
         "kind": "runtime"
       },
       {
-        "name": "roomPackageEnvironmentalRealismCueIds",
+        "name": "updateEnvironmentStateForTrace",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceEnvironmentStateForTrace",
+        "name": "updateManualEvidencePanel",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceManualEvidencePanel",
+        "name": "updateRuntimePosturePanel",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceReadiness",
+        "name": "updateTraceActionHandoffEvidence",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceRuntimePosturePanel",
+        "name": "updateTraceInteractionEvidenceSummary",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceTraceActionHandoffEvidence",
+        "name": "updateTraceReadiness",
         "kind": "runtime"
       },
       {
-        "name": "updatePackageTraceTraceInteractionEvidenceSummary",
-        "kind": "runtime"
-      },
-      {
-        "name": "updatePackageTraceXrStatus",
+        "name": "updateXrStatus",
         "kind": "runtime"
       }
     ]

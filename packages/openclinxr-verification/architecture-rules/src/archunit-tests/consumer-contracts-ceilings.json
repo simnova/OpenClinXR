@@ -1,0 +1,46 @@
+{
+  "unconsumed": {
+    "total": 365,
+    "byProvider": {
+      "@cellix/config-vitest": 1,
+      "@openclinxr/asset-registry": 84,
+      "@openclinxr/compute-slots": 4,
+      "@openclinxr/conversation-policy": 21,
+      "@openclinxr/exam-assembly": 33,
+      "@openclinxr/factory-stations": 18,
+      "@openclinxr/scenario-fixtures": 4,
+      "@openclinxr/service-local-compute": 1,
+      "@openclinxr/shared-schemas": 38,
+      "@openclinxr/station-mouth-objective": 6,
+      "@openclinxr/station-mouth-registry": 8,
+      "@openclinxr/station-mouth-verifier": 12,
+      "@openclinxr/xr-actor-dialogue": 24,
+      "@openclinxr/xr-asset-loading": 8,
+      "@openclinxr/xr-capture-evidence": 8,
+      "@openclinxr/xr-locomotion": 4,
+      "@openclinxr/xr-pose": 14,
+      "@openclinxr/xr-runtime-state": 35,
+      "@openclinxr/xr-runtime-wiring": 4,
+      "@openclinxr/xr-scene": 11,
+      "@openclinxr/xr-station": 26,
+      "@openclinxr/xr-station-room": 1
+    }
+  },
+  "mixed": {
+    "total": 21,
+    "byProvider": {
+      "@cellix/config-vitest": 1,
+      "@openclinxr/asset-registry": 7,
+      "@openclinxr/compute-slots": 1,
+      "@openclinxr/factory-stations": 1,
+      "@openclinxr/scenario-fixtures": 2,
+      "@openclinxr/xr-asset-loading": 1,
+      "@openclinxr/xr-humanoid-animation": 2,
+      "@openclinxr/xr-pose": 2,
+      "@openclinxr/xr-runtime-state": 1,
+      "@openclinxr/xr-scene": 1,
+      "@openclinxr/xr-station": 1,
+      "@openclinxr/xr-trace-readiness": 1
+    }
+  }
+}

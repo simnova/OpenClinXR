@@ -19,14 +19,23 @@ import {
  * tools, and evidence each bind a different slice of a provider. Without a
  * committed contract per consumer, a shrink campaign cannot tell which
  * entrypoint a symbol can move to: every move risks a consumer nobody named.
- * consumes.json (generated once by
+ * consumes.json (reconciled by
  * tools/openclinxr/architecture/write-consumer-contracts.ts from real static
- * imports, then owned by hand) names the slice each consumer binds.
+ * imports, then owned by hand — derived names are added, committed names never
+ * removed) names the slice each consumer binds.
  *
  * TYPE-ONLY IMPORTS COUNT, LISTED WITH KIND. A type-only name still pins the
  * provider interface. Clauses compare by name; kind ("runtime" | "type") is
  * documentation for the split. `import type`, `export type`, and inline
  * `type Foo` all record kind "type"; runtime use dominates when both appear.
+ *
+ * STRING AND COMMENT IMPORTS DO NOT COUNT. Comments are blanked before
+ * scanning (a `//` note inside an import's braces contributes no names) and a
+ * match whose `import` keyword sits inside a string literal is skipped, in the
+ * generator and in every clause below alike. Mirror logic lives in
+ * write-consumer-contracts.ts (tools cannot be imported here without a
+ * boundary-test edge, so the mask is duplicated, not shared; the live-tree
+ * clause-(a) test fails if they drift).
  *
  * SCANNERS REUSED, NOT REWRITTEN. Provider publication is
  * declaredEntrypoints + resolveEntrypointSource (checks/public-surface/resolve.ts)
@@ -36,11 +45,16 @@ import {
  * specifiers, and re-exports — that check scans only *.test.ts under packages,
  * while this gate scans every source file under each contracted consumer.
  *
- * SCOPE. Clauses (a), (b), (d) run over consumers that own a consumes.json
- * and providers named in it (today: @openclinxr/xr-dialogue only). Imports of
- * providers with no contract row are out of scope. Clause (c) requires every
- * name a contracted provider publishes to be listed in some consumes.json;
- * the global unconsumed count across all providers is reported, not gated.
+ * SCOPE. All workspace providers: every package.json name under packages/**
+ * and apps/** in the @openclinxr/ or @cellix/ scope (discovered per root, so
+ * fixture roots and future packages need no hardcoded list). Clauses (a) and
+ * (b) are hard for every provider. Clauses (c) and (d) are REPORT-ONLY
+ * ratchets: consumer-contracts-ceilings.json pins today's counts per provider
+ * and the gate fails on growth above the ceiling — or below it, demanding the
+ * ceiling be lowered to the measured value (same semantics as
+ * agent-index-quality.ceiling.json). To regenerate the ceiling, shrink a
+ * surface, run this file's live-tree test, and copy the measured counts it
+ * prints into the ceiling file.
  */
 
 export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence";
@@ -58,7 +72,12 @@ export const CONSUMERS: ConsumerDef[] = [
   { dir: "tools/openclinxr/mouth-solver", class: "tools" },
 ];
 
-export const CONTRACTED_PROVIDERS = new Set(["@openclinxr/xr-dialogue"]);
+export const CONSUMER_CONTRACTS_CEILING_FILENAME = "consumer-contracts-ceilings.json";
+
+export type ContractCeilings = {
+  unconsumed: { total: number; byProvider: Record<string, number> };
+  mixed: { total: number; byProvider: Record<string, number> };
+};
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".mjs", ".cjs"]);
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", ".git", ".turbo", "public"]);
@@ -89,6 +108,140 @@ function findRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
+/** Every workspace provider under root: package.json name → repo-relative dir. */
+export function discoverWorkspaceProviders(root: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const walk = (relativeDir: string): void => {
+    let entries: Dirent<string>[];
+    try {
+      entries = readdirSync(join(root, relativeDir), { withFileTypes: true }) as Dirent<string>[];
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === "node_modules" || entry.name === "dist") continue;
+      const child = relativeDir === "" ? entry.name : `${relativeDir}/${entry.name}`;
+      const manifest = join(root, child, "package.json");
+      try {
+        const parsed = JSON.parse(readFileSync(manifest, "utf8")) as { name?: unknown };
+        if (
+          typeof parsed.name === "string" &&
+          (parsed.name.startsWith("@openclinxr/") || parsed.name.startsWith("@cellix/"))
+        ) {
+          const prev = out.get(parsed.name);
+          if (prev === undefined || child.length < prev.length) out.set(parsed.name, child);
+        }
+      } catch {
+        // no (or unreadable) manifest: not a provider, keep walking
+      }
+      walk(child);
+    }
+  };
+  for (const base of ["packages", "apps"]) walk(base);
+  return out;
+}
+
+/**
+ * [start, end) ranges of comments and string literals. Comments first so an
+ * apostrophe in prose cannot open a phantom string. Mirror of the generator.
+ */
+export function ignorableRanges(text: string): { comments: [number, number][]; strings: [number, number][] } {
+  const comments: [number, number][] = [];
+  const strings: [number, number][] = [];
+  const n = text.length;
+  let i = 0;
+  let inStr: string | null = null;
+  while (i < n) {
+    const c = text[i];
+    if (inStr !== null) {
+      if (c === "\\") {
+        i += 2;
+        continue;
+      }
+      if (c === inStr) inStr = null;
+      i += 1;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === "`") {
+      inStr = c;
+      i += 1;
+      continue;
+    }
+    if (c === "/" && text[i + 1] === "/") {
+      const s = i;
+      while (i < n && text[i] !== "\n") i += 1;
+      comments.push([s, i]);
+      continue;
+    }
+    if (c === "/" && text[i + 1] === "*") {
+      const s = i;
+      i += 2;
+      while (i < n && !(text[i] === "*" && text[i + 1] === "/")) i += 1;
+      i = Math.min(n, i + 2);
+      comments.push([s, i]);
+      continue;
+    }
+    i += 1;
+  }
+  const inComment = (pos: number): boolean => {
+    for (const [s, e] of comments) {
+      if (pos < s) break;
+      if (pos < e) return true;
+    }
+    return false;
+  };
+  i = 0;
+  while (i < n) {
+    if (inComment(i)) {
+      i += 1;
+      continue;
+    }
+    const c = text[i];
+    if (c === '"' || c === "'" || c === "`") {
+      const s = i;
+      const q = c;
+      i += 1;
+      while (i < n) {
+        if (inComment(i)) break;
+        const d = text[i];
+        if (d === "\\") {
+          i += 2;
+          continue;
+        }
+        if (d === "\n" && q !== "`") break;
+        if (d === q) {
+          i += 1;
+          break;
+        }
+        i += 1;
+      }
+      if (i > s + 1 || (i <= n && text[i - 1] === q)) strings.push([s, i]);
+      continue;
+    }
+    i += 1;
+  }
+  return { comments, strings };
+}
+
+export function isIgnoredAt(ranges: [number, number][], pos: number): boolean {
+  for (const [s, e] of ranges) {
+    if (pos < s) break;
+    if (pos < e) return true;
+  }
+  return false;
+}
+
+/** Blank comment spans with spaces (newlines kept), so offsets are preserved. */
+export function blankComments(text: string, comments: [number, number][]): string {
+  const chars = text.split("");
+  for (const [s, e] of comments) {
+    for (let k = s; k < e; k += 1) {
+      if (chars[k] !== "\n") chars[k] = " ";
+    }
+  }
+  return chars.join("");
+}
+
 function sourceFilesUnder(dir: string, out: string[]): void {
   let entries: Dirent<string>[];
   try {
@@ -115,15 +268,21 @@ function splitNames(raw: string, wholeIsType: boolean): { name: string; kind: st
     if (trimmed === "") continue;
     const inlineType = trimmed.startsWith("type ");
     const bare = (inlineType ? trimmed.slice(5) : trimmed).trim();
-    const published = bare.includes(" as ") ? (bare.split(" as ")[1]?.trim() ?? "") : bare.split(" as ")[0]?.trim() ?? "";
+    // Provider-bound name is LEFT of `as` (same rule as the generator: an
+    // import alias is consumer-local; a re-export alias re-publishes the
+    // provider's left-hand name).
+    const published = bare.split(" as ")[0]?.trim() ?? "";
     if (published === "" || published === "*") continue;
     out.push({ name: published, kind: wholeIsType || inlineType ? "type" : "runtime" });
   }
   return out;
 }
 
-function specifierToProvider(specifier: string): { provider: string; entrypoint: string } | undefined {
-  for (const provider of CONTRACTED_PROVIDERS) {
+function specifierToProvider(
+  longestFirst: string[],
+  specifier: string,
+): { provider: string; entrypoint: string } | undefined {
+  for (const provider of longestFirst) {
     if (specifier === provider) return { provider, entrypoint: "." };
     if (specifier.startsWith(`${provider}/`)) {
       return { provider, entrypoint: `./${specifier.slice(provider.length + 1)}` };
@@ -134,11 +293,13 @@ function specifierToProvider(specifier: string): { provider: string; entrypoint:
 
 export type ImportedName = { name: string; kind: string; file: string };
 
-/** Every contracted-provider named import under one consumer dir. */
+/** Every workspace-provider named import under one consumer dir. */
 export function derivedImports(
   root: string,
   consumerDir: string,
 ): Map<string, ImportedName[]> {
+  const providers = discoverWorkspaceProviders(root);
+  const longestFirst = [...providers.keys()].sort((a, b) => b.length - a.length);
   const files: string[] = [];
   sourceFilesUnder(join(root, consumerDir), files);
   const out = new Map<string, ImportedName[]>();
@@ -155,8 +316,11 @@ export function derivedImports(
     } catch {
       continue;
     }
-    for (const match of text.matchAll(IMPORT_FROM)) {
-      const target = specifierToProvider(match[4] ?? "");
+    const { comments, strings } = ignorableRanges(text);
+    const code = blankComments(text, comments);
+    for (const match of code.matchAll(IMPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      const target = specifierToProvider(longestFirst, match[4] ?? "");
       if (target === undefined) continue;
       const wholeIsType = (match[1] ?? "").trim() !== "";
       const raw = match[2] ?? "";
@@ -165,8 +329,9 @@ export function derivedImports(
         push(target.provider, target.entrypoint, { ...entry, file });
       }
     }
-    for (const match of text.matchAll(EXPORT_FROM)) {
-      const target = specifierToProvider(match[3] ?? "");
+    for (const match of code.matchAll(EXPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      const target = specifierToProvider(longestFirst, match[3] ?? "");
       if (target === undefined) continue;
       const wholeIsType = (match[1] ?? "").trim() !== "";
       const raw = match[2] ?? "";
@@ -186,12 +351,7 @@ export function readContracts(root: string, consumerDir: string): ContractRow[] 
 }
 
 export function providerDirFor(root: string, provider: string): string | undefined {
-  // Live layout first; fixtures use the same packages/openclinxr/<name> shape.
-  const short = provider.split("/")[1] ?? "";
-  if (short === "") return undefined;
-  const direct = join(root, "packages", "openclinxr", short);
-  if (existsSync(join(direct, "package.json"))) return `packages/openclinxr/${short}`;
-  return undefined;
+  return discoverWorkspaceProviders(root).get(provider);
 }
 
 /** Published names for one provider entrypoint, via the reused resolve + export scanners. */
@@ -258,10 +418,16 @@ export function checkListedNotPublished(
   root: string,
   consumers: ConsumerDef[] = CONSUMERS,
 ): string[] {
+  const providers = discoverWorkspaceProviders(root);
   const violations: string[] = [];
   for (const consumer of consumers) {
     for (const row of readContracts(root, consumer.dir)) {
-      if (!CONTRACTED_PROVIDERS.has(row.provider)) continue;
+      if (!providers.has(row.provider)) {
+        violations.push(
+          `${consumer.dir} contracts unknown provider ${row.provider} (no workspace package with that name)`,
+        );
+        continue;
+      }
       const published = publishedNames(root, row.provider, row.entrypoint);
       if (published.size === 0) {
         violations.push(
@@ -281,48 +447,26 @@ export function checkListedNotPublished(
   return violations.sort();
 }
 
-/** (c) provider publishes a name no consumes.json lists. Scoped to contracted providers. */
+/** (c) provider publishes a name no consumes.json lists. Scoped to entrypoints with contracts. */
 export function checkUnconsumedPublished(
   root: string,
   consumers: ConsumerDef[] = CONSUMERS,
 ): string[] {
-  const listed = new Map<string, Set<string>>();
-  for (const consumer of consumers) {
-    for (const row of readContracts(root, consumer.dir)) {
-      if (!CONTRACTED_PROVIDERS.has(row.provider)) continue;
-      const key = `${row.provider}\t${row.entrypoint}`;
-      const set = listed.get(key) ?? new Set<string>();
-      for (const name of row.names) set.add(name.name);
-      listed.set(key, set);
-    }
-  }
   const violations: string[] = [];
-  for (const provider of CONTRACTED_PROVIDERS) {
-    const packageDir = providerDirFor(root, provider);
-    if (packageDir === undefined) continue;
-    for (const entry of declaredEntrypoints(root, packageDir, provider)) {
-      const key = `${provider}\t${entry.specifier}`;
-      if (!listed.has(key)) continue; // an entrypoint with no contracts is out of scope
-      const source = resolveEntrypointSource(root, entry);
-      if (source === undefined) continue;
-      const published = exportedSymbols(source);
-      const names = listed.get(key) ?? new Set<string>();
-      for (const symbol of [...published].sort()) {
-        if (!names.has(symbol)) {
-          violations.push(`${provider}${entry.specifier} publishes ${symbol} which no consumes.json lists`);
-        }
+  for (const [provider, rows] of measureUnconsumedByProvider(root, consumers)) {
+    for (const row of rows) {
+      for (const symbol of row.names) {
+        violations.push(`${provider}${row.specifier} publishes ${symbol} which no consumes.json lists`);
       }
     }
   }
   return violations.sort();
 }
 
-/** (d) one entrypoint serves consumers of different classes without an allowlist reason. */
-export function checkMixedClassEntrypoints(
+function servedByClasses(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
-  allowlist: AllowlistRow[] = readAllowlist(root),
-): string[] {
+  consumers: ConsumerDef[],
+): Map<string, Set<ConsumerClass>> {
   const servedBy = new Map<string, Set<ConsumerClass>>();
   for (const consumer of consumers) {
     for (const [key] of derivedImports(root, consumer.dir)) {
@@ -331,6 +475,16 @@ export function checkMixedClassEntrypoints(
       servedBy.set(key, set);
     }
   }
+  return servedBy;
+}
+
+/** (d) one entrypoint serves consumers of different classes without an allowlist reason. */
+export function checkMixedClassEntrypoints(
+  root: string,
+  consumers: ConsumerDef[] = CONSUMERS,
+  allowlist: AllowlistRow[] = readAllowlist(root),
+): string[] {
+  const servedBy = servedByClasses(root, consumers);
   const excused = new Map<string, AllowlistRow>();
   for (const row of allowlist) excused.set(`${row.provider}\t${row.entrypoint}`, row);
   const violations: string[] = [];
@@ -349,6 +503,156 @@ export function checkMixedClassEntrypoints(
       if (!covered.has(cls)) {
         violations.push(
           `${provider}${entrypoint} serves ${cls} outside its allowlist classes ${[...covered].sort().join(", ")}`,
+        );
+      }
+    }
+  }
+  return violations.sort();
+}
+
+export type UnconsumedMeasure = { specifier: string; names: string[] };
+export type MixedMeasure = { specifier: string; classes: ConsumerClass[] };
+
+/** Clause-(c) regrouped per provider: entrypoints with contracts and the published names none lists. */
+export function measureUnconsumedByProvider(
+  root: string,
+  consumers: ConsumerDef[] = CONSUMERS,
+): Map<string, UnconsumedMeasure[]> {
+  const providers = discoverWorkspaceProviders(root);
+  const listed = new Map<string, Set<string>>();
+  for (const consumer of consumers) {
+    for (const row of readContracts(root, consumer.dir)) {
+      if (!providers.has(row.provider)) continue;
+      const key = `${row.provider}\t${row.entrypoint}`;
+      const set = listed.get(key) ?? new Set<string>();
+      for (const name of row.names) set.add(name.name);
+      listed.set(key, set);
+    }
+  }
+  const out = new Map<string, UnconsumedMeasure[]>();
+  for (const [provider, packageDir] of [...providers.entries()].sort()) {
+    for (const entry of declaredEntrypoints(root, packageDir, provider)) {
+      const key = `${provider}\t${entry.specifier}`;
+      if (!listed.has(key)) continue; // an entrypoint with no contracts is out of scope
+      const source = resolveEntrypointSource(root, entry);
+      if (source === undefined) continue;
+      const names = [...exportedSymbols(source)].filter((s) => !(listed.get(key) ?? new Set()).has(s)).sort();
+      if (names.length > 0) {
+        const rows = out.get(provider) ?? [];
+        rows.push({ specifier: entry.specifier, names });
+        out.set(provider, rows);
+      }
+    }
+  }
+  return out;
+}
+
+/** Clause-(d) unexcused rows regrouped per provider. Shares servedByClasses with the check below. */
+export function measureMixedByProvider(
+  root: string,
+  consumers: ConsumerDef[] = CONSUMERS,
+  allowlist: AllowlistRow[] = readAllowlist(root),
+): Map<string, MixedMeasure[]> {
+  const servedBy = servedByClasses(root, consumers);
+  const excused = new Map<string, AllowlistRow>();
+  for (const row of allowlist) excused.set(`${row.provider}\t${row.entrypoint}`, row);
+  const out = new Map<string, MixedMeasure[]>();
+  for (const [key, classes] of [...servedBy.entries()].sort()) {
+    if (classes.size < 2) continue;
+    const [provider, entrypoint] = key.split("\t") as [string, string];
+    const row = excused.get(key);
+    if (row !== undefined && row.reason.trim() !== "" && [...classes].every((c) => (row.classes as string[]).includes(c))) {
+      continue; // excused seam: still counted down by the ceiling when newly excused
+    }
+    const rows = out.get(provider) ?? [];
+    rows.push({ specifier: entrypoint, classes: [...classes].sort() as ConsumerClass[] });
+    out.set(provider, rows);
+  }
+  return new Map([...out.entries()].sort());
+}
+
+export function readContractCeilings(): ContractCeilings | null {
+  const full = join(dirname(fileURLToPath(import.meta.url)), CONSUMER_CONTRACTS_CEILING_FILENAME);
+  try {
+    return JSON.parse(readFileSync(full, "utf8")) as ContractCeilings;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Shrink-only in both directions per section: above the ceiling fails (the
+ * tree regressed), below the ceiling fails (the tree improved and the ceiling
+ * must be lowered to the measured value). Same semantics as
+ * agent-index-quality.ceiling.json. Counts exclude allowlist-excused (d) rows:
+ * excusing a seam with a reason still lowers the measured count, so gaming the
+ * ceiling through the allowlist shows up as a lower-the-ceiling diff in review.
+ */
+export function checkContractCeilings(
+  unconsumed: Map<string, UnconsumedMeasure[]>,
+  mixed: Map<string, MixedMeasure[]>,
+  ceiling: ContractCeilings | null = readContractCeilings(),
+): string[] {
+  const violations: string[] = [];
+  if (ceiling === null) {
+    violations.push(
+      `${CONSUMER_CONTRACTS_CEILING_FILENAME}: missing. Clauses (c) and (d) have no `
+      + `committed ceiling, so any regression passes silently. FIX: restore the file.`,
+    );
+    return violations;
+  }
+  const sections = [
+    { key: "unconsumed" as const, measured: unconsumed, allowed: ceiling.unconsumed, what: "published-but-unconsumed names" },
+    { key: "mixed" as const, measured: mixed, allowed: ceiling.mixed, what: "mixed-class entrypoints" },
+  ] as const;
+  for (const section of sections) {
+    const measuredTotal = [...section.measured.values()].reduce(
+      (sum, rows) => sum + (section.key === "unconsumed"
+        ? (rows as UnconsumedMeasure[]).reduce((s, r) => s + r.names.length, 0)
+        : (rows as MixedMeasure[]).length),
+      0,
+    );
+    if (measuredTotal > section.allowed.total) {
+      violations.push(
+        `consumer-contracts ${section.key}: measured ${measuredTotal} ${section.what} > ceiling `
+        + `${section.allowed.total}. The contracted surface regressed. Split an entrypoint by `
+        + `consumer class or list the names a consumer binds; do NOT raise the ceiling.`,
+      );
+    } else if (measuredTotal < section.allowed.total) {
+      violations.push(
+        `consumer-contracts ${section.key}: ceiling total ${section.allowed.total} is above the `
+        + `measured ${measuredTotal} — the surface shrank but the ceiling was not lowered. Lower `
+        + `${CONSUMER_CONTRACTS_CEILING_FILENAME} ${section.key}.total to ${measuredTotal} (and each `
+        + `changed byProvider row to its measured count).`,
+      );
+    }
+    const measuredCounts = new Map<string, number>();
+    for (const [provider, rows] of section.measured) {
+      measuredCounts.set(provider, section.key === "unconsumed"
+        ? (rows as UnconsumedMeasure[]).reduce((s, r) => s + r.names.length, 0)
+        : (rows as MixedMeasure[]).length);
+    }
+    for (const [provider, count] of [...measuredCounts.entries()].sort()) {
+      const allowed = section.allowed.byProvider[provider] ?? 0;
+      if (count > allowed) {
+        violations.push(
+          `consumer-contracts ${section.key} ${provider}: measured ${count} > ceiling ${allowed}. `
+          + `Do NOT raise the ceiling; shrink the surface instead.`,
+        );
+      } else if (count < allowed) {
+        violations.push(
+          `consumer-contracts ${section.key} ${provider}: ceiling ${allowed} is above the measured `
+          + `${count}. Lower ${CONSUMER_CONTRACTS_CEILING_FILENAME} ${section.key}.byProvider[${provider}] `
+          + `to ${count}${count === 0 ? " (remove the row)" : ""}.`,
+        );
+      }
+    }
+    for (const provider of Object.keys(section.allowed.byProvider).sort()) {
+      if (!measuredCounts.has(provider)) {
+        violations.push(
+          `consumer-contracts ${section.key} ${provider}: ceiling ${section.allowed.byProvider[provider]} `
+          + `is above the measured 0. Remove ${CONSUMER_CONTRACTS_CEILING_FILENAME} `
+          + `${section.key}.byProvider[${provider}].`,
         );
       }
     }
@@ -507,35 +811,101 @@ describe("consumer contracts match imports", () => {
     );
   });
 
-  it("(5) live tree: clauses (a), (b), (c) pass and every entrypoint serves one class", () => {
+  // Live-tree tests carry the arch config's 30 s budget explicitly: they scan
+  // the whole tree (67 providers x 157 entrypoints) and exceed the default
+  // 5 s timeout on a loaded machine. test:touched runs this file under the
+  // default config; pnpm architecture runs it under vitest.arch.config.ts.
+  it("(5) live tree: clauses (a) and (b) pass hard; clauses (c) and (d) hold at their ceilings", { timeout: 30_000 }, () => {
     const root = findRoot();
     expect(checkUnlistedImports(root).join("\n")).toBe("");
     expect(checkListedNotPublished(root).join("\n")).toBe("");
-    expect(checkUnconsumedPublished(root).join("\n")).toBe("");
-    // Post-split (xr-dialogue class-pure entrypoints): every entrypoint serves
-    // one consumer class except "./actor-audio-runtime", the single shared
-    // single-name runtime seam (apps/ui-xr runtime + mouth-solver tooling),
-    // excused by the allowlist below. The "." row is documentary: psr-01e keeps
-    // 13 names on root (MOUTH_OPEN_CAP, PhonemeCue, SpeechSlotLike,
-    // UiXrExpressionEmotion, UiXrExpressionWeights, plus eight viseme/dialogue
-    // drives) while package and evidence consumers bind the same names via
-    // ./package-viseme, ./package-actor-turn, and ./evidence-viseme;
-    // "." imports stay runtime-app.
+    const unconsumed = measureUnconsumedByProvider(root);
+    const mixed = measureMixedByProvider(root);
+    const ceiling = readContractCeilings();
+    expect(ceiling === null ? "missing ceiling file" : "").toBe("");
+    expect(checkContractCeilings(unconsumed, mixed, ceiling).join("\n")).toBe("");
+    // The ceiling is load-bearing beyond xr-dialogue: most mixed-class
+    // entrypoints and most unconsumed names sit on other providers.
+    const mixedTotal = [...mixed.values()].reduce((s, r) => s + r.length, 0);
+    expect(mixedTotal).toBeGreaterThan(1);
+    expect(mixed.has("@openclinxr/xr-dialogue")).toBe(false);
+    // The shared-seam excuse is load-bearing: without the allowlist the
+    // actor-audio-runtime seam fires.
     const allowlist = readAllowlist(root);
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
-    expect(checkMixedClassEntrypoints(root, CONSUMERS, allowlist)).toEqual([]);
-    // Without the allowlist the shared seam fires: the excuse is load-bearing.
     expect(checkMixedClassEntrypoints(root, CONSUMERS, []).join("\n")).toContain(
       "./actor-audio-runtime",
     );
   });
 
-  it("(6) live tree reports the global unconsumed count", () => {
+  it("(6) live tree reports the global unconsumed count", { timeout: 30_000 }, () => {
+    // Report-only: most of the tree's surface is bound by consumers outside
+    // the eight contracted dirs. The count fell 1494 -> 994 when contracts
+    // grew from 1 provider (58 names) to 27 providers (~660 names); the floor
+    // below proves the reporter still sees the tree, not a number to chase.
     const count = globalUnconsumedCount(findRoot());
-    expect(count).toBeGreaterThan(1000);
+    expect(count).toBeGreaterThan(500);
+  });
+
+  it("(7) string-literal and comment imports derive no contract", () => {
+    withFixture(
+      {
+        "packages/openclinxr/fixture-provider/package.json": manifest("@openclinxr/fixture-provider"),
+        "packages/openclinxr/fixture-provider/src/index.ts": "export const real = 1;\n",
+        "apps/fixture-app/consumes.json": JSON.stringify([
+          { provider: "@openclinxr/fixture-provider", entrypoint: ".", names: [{ name: "real", kind: "runtime" }] },
+        ]),
+        "apps/fixture-app/src/quoted.ts":
+          'const line = "import { phantom } from \'@openclinxr/fixture-provider\';";\n'
+          + "export const line2 = `import { backtick } from \"@openclinxr/fixture-provider\";`;\n"
+          + "export const line3 = line + line2;\n"
+          + "// import { commented } from \"@openclinxr/fixture-provider\";\n"
+          + "/* import { blocked } from \"@openclinxr/fixture-provider\"; */\n"
+          + 'import { real } from "@openclinxr/fixture-provider";\n'
+          + 'import { real as realAlias } from "@openclinxr/fixture-provider";\n'
+          + 'export { real as reExported } from "@openclinxr/fixture-provider";\n'
+          + "console.log(line3, real, realAlias, reExported);\n",
+      },
+      (root) => {
+        const imports = derivedImports(root, "apps/fixture-app");
+        const names = [...imports.values()].flat().map((i) => i.name).sort();
+        // Aliases bind the provider's left-hand name: real x3, never the alias.
+        expect(names).toEqual(["real", "real", "real"]);
+        expect(checkUnlistedImports(root, [{ dir: "apps/fixture-app", class: "runtime-app" }])).toEqual([]);
+      },
+    );
+  });
+
+  it("(8) COUNTERWEIGHT: a ceiling above the measured value fails, demanding it be lowered", () => {
+    const unconsumed = new Map<string, UnconsumedMeasure[]>([
+      ["@openclinxr/fixture", [{ specifier: ".", names: ["solo"] }]],
+    ]);
+    const high: ContractCeilings = {
+      unconsumed: { total: 2, byProvider: { "@openclinxr/fixture": 2 } },
+      mixed: { total: 0, byProvider: {} },
+    };
+    const violations = checkContractCeilings(unconsumed, new Map(), high);
+    expect(violations.join("\n")).toContain("Lower");
+    expect(violations.join("\n")).toContain("@openclinxr/fixture");
+  });
+
+  it("(9) COUNTERWEIGHT: growth above the ceiling fails without raising it", () => {
+    const unconsumed = new Map<string, UnconsumedMeasure[]>([
+      ["@openclinxr/fixture", [{ specifier: ".", names: ["one", "two"] }]],
+    ]);
+    const low: ContractCeilings = {
+      unconsumed: { total: 1, byProvider: { "@openclinxr/fixture": 1 } },
+      mixed: { total: 0, byProvider: {} },
+    };
+    const violations = checkContractCeilings(unconsumed, new Map(), low);
+    expect(violations.join("\n")).toContain("do NOT raise the ceiling");
+  });
+
+  it("(10) COUNTERWEIGHT: a missing ceiling file fails closed", () => {
+    expect(checkContractCeilings(new Map(), new Map(), null).join("\n")).toContain("missing");
   });
 });

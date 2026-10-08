@@ -30,9 +30,10 @@ import { fileURLToPath } from "node:url";
  * documentation for the split.
  *
  * STRING AND COMMENT IMPORTS DO NOT COUNT. An `import … from "…"` match whose
- * `import` keyword sits inside a string literal or a comment (e.g. a capture
- * script quoting an import line, or a commented-out import) is skipped. The
- * archunit gate applies the identical mask, so generator and gate agree.
+ * `import` keyword sits inside a string literal is skipped, and comments are
+ * blanked before scanning (a `//` note inside an import's braces, or a
+ * commented-out import, contributes no names). The archunit gate applies the
+ * identical mask, so generator and gate agree.
  *
  * CONSUMER ROOTS. The directory that owns the import is the longest matching
  * prefix of the importing file:
@@ -118,7 +119,7 @@ export function discoverWorkspaceProviders(root: string): Map<string, string> {
  * first so an apostrophe in prose cannot open a phantom string; strings are
  * then found outside comments. A single-line quote never spans a newline.
  */
-export function ignorableRanges(text: string): [number, number][] {
+export function ignorableRanges(text: string): { comments: [number, number][]; strings: [number, number][] } {
   const comments: [number, number][] = [];
   const strings: [number, number][] = [];
   const n = text.length;
@@ -193,7 +194,7 @@ export function ignorableRanges(text: string): [number, number][] {
     }
     i += 1;
   }
-  return [...comments, ...strings].sort((a, b) => a[0] - b[0]);
+  return { comments, strings };
 }
 
 export function isIgnoredAt(ranges: [number, number][], pos: number): boolean {
@@ -202,6 +203,17 @@ export function isIgnoredAt(ranges: [number, number][], pos: number): boolean {
     if (pos < e) return true;
   }
   return false;
+}
+
+/** Blank comment spans with spaces (newlines kept), so offsets are preserved. */
+export function blankComments(text: string, comments: [number, number][]): string {
+  const chars = text.split("");
+  for (const [s, e] of comments) {
+    for (let k = s; k < e; k += 1) {
+      if (chars[k] !== "\n") chars[k] = " ";
+    }
+  }
+  return chars.join("");
 }
 
 function repoRoot(): string {
@@ -245,9 +257,11 @@ function splitNames(raw: string, wholeIsType: boolean): ContractName[] {
     if (trimmed === "") continue;
     const isInlineType = trimmed.startsWith("type ");
     const bare = (isInlineType ? trimmed.slice(5) : trimmed).trim();
-    const local = bare.split(" as ")[0]?.trim() ?? "";
-    const published = bare.includes(" as ") ? (bare.split(" as ")[1]?.trim() ?? "") : local;
-    const name = published !== "" ? published : local;
+    // The provider-bound name is LEFT of `as`: `import { A as B }` binds A
+    // (B is the consumer's local alias), and `export { A as B } from` likewise
+    // re-exports the provider's A. Recording the alias instead lists a name the
+    // provider never published and fails clause (b).
+    const name = bare.split(" as ")[0]?.trim() ?? "";
     if (name === "" || name === "*") continue;
     out.push({ name, kind: wholeIsType || isInlineType ? "type" : "runtime" });
   }
@@ -296,15 +310,16 @@ export function collectContracts(
     } catch {
       continue;
     }
-    const ranges = ignorableRanges(text);
-    for (const match of text.matchAll(IMPORT_FROM)) {
-      if (isIgnoredAt(ranges, match.index ?? 0)) continue;
+    const { comments, strings } = ignorableRanges(text);
+    const code = blankComments(text, comments);
+    for (const match of code.matchAll(IMPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
       const raw = match[2] ?? "";
       if (raw === "" && match[3] !== undefined && match[3] !== "") continue; // default import
       consider(specifierToContract(longestFirst, match[4] ?? ""), raw, (match[1] ?? "").trim() !== "");
     }
-    for (const match of text.matchAll(EXPORT_FROM)) {
-      if (isIgnoredAt(ranges, match.index ?? 0)) continue;
+    for (const match of code.matchAll(EXPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
       consider(specifierToContract(longestFirst, match[3] ?? ""), match[2] ?? "", (match[1] ?? "").trim() !== "");
     }
   }

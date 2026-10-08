@@ -226,10 +226,6 @@
         "kind": "runtime"
       },
       {
-        "name": "ED_ADULT_CAST_RUNTIME_PATH",
-        "kind": "runtime"
-      },
-      {
         "name": "frameCamera",
         "kind": "runtime"
       },
