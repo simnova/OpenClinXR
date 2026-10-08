@@ -105,12 +105,26 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
   if (actor.currentPlacement.supportSurface !== "chair") return [];
   const centreY = centreOf(actor.box)[1];
   const radius = radiusFor(actor);
-  const seats = snapshot.companionSeats
+  const nearFiltered = snapshot.companionSeats
     .filter((s) => {
       const c = centreOf(s.box);
       const dx = c[0] - frame.nurseAnchor[0];
       const dz = c[2] - frame.nurseAnchor[1];
       return Math.hypot(dx, dz) >= 1.2;
+    });
+  const slotHasPan = new Set<string>();
+  for (const s of nearFiltered) {
+    if (s.name.endsWith(".seat")) {
+      const slot = slotIdOfFixtureName(s.name);
+      if (slot !== undefined) slotHasPan.add(slot);
+    }
+  }
+  const seats = nearFiltered
+    .filter((s) => {
+      const slot = slotIdOfFixtureName(s.name);
+      if (slot === undefined) return true;
+      if (!slotHasPan.has(slot)) return true;
+      return s.name.endsWith(".seat");
     })
     .sort((a, b) => {
       const ca = centreOf(a.box);
@@ -123,6 +137,7 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
   const chosen = seats[0];
   if (!chosen) return [];
   const seatCentre = centreOf(chosen.box);
+  const chosenSlot = slotIdOfFixtureName(chosen.name);
   const out: LayoutCandidate[] = [];
   for (const slackX of OFFSETS) {
     for (const slackZ of OFFSETS) {
@@ -135,6 +150,8 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
         let blocked = false;
         for (const fixture of snapshot.fixtures) {
           if (fixture.name === chosen.name) continue;
+          const fixtureSlot = slotIdOfFixtureName(fixture.name);
+          if (fixtureSlot !== undefined && fixtureSlot === chosenSlot) continue;
           if (isShellFixture(fixture.name, fixture.box, snapshot.interior)) continue;
           if (fixture.name === frame.supportName && actor.role === "patient") continue;
           if (intersects(box, fixture.box, 0.03)) { blocked = true; break; }
