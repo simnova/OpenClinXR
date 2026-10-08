@@ -1,0 +1,118 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "advanceExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyLearnerExamFlowIntent",
+        "kind": "runtime"
+      },
+      {
+        "name": "createLearnerCanonicalPhaseTraceStore",
+        "kind": "runtime"
+      },
+      {
+        "name": "currentExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamAssemblyPersistenceSink",
+        "kind": "type"
+      },
+      {
+        "name": "examFormRunScenarioSequence",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      },
+      {
+        "name": "formatExamFormRunClock",
+        "kind": "runtime"
+      },
+      {
+        "name": "LearnerCanonicalExamPhaseView",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerCanonicalPhaseTraceStore",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerExamFlowPhase",
+        "kind": "type"
+      },
+      {
+        "name": "ManualEvidenceCopyDisposition",
+        "kind": "type"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "persistExamFormRunQueueSnapshot",
+        "kind": "runtime"
+      },
+      {
+        "name": "restoreLearnerCanonicalPhaseTraceFromJson",
+        "kind": "runtime"
+      },
+      {
+        "name": "tickExamFormRunClock",
+        "kind": "runtime"
+      },
+      {
+        "name": "viewLearnerCanonicalExamPhase",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-wiring",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildExamRunStationOutcome",
+        "kind": "runtime"
+      },
+      {
+        "name": "findFormStationOutcome",
+        "kind": "runtime"
+      },
+      {
+        "name": "mergeExamRunStationOutcome",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createLearnerExamFormRunState",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenariosFromFixtureSequence",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

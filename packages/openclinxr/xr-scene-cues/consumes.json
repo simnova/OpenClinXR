@@ -1,0 +1,70 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "ActorPosture",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeRoomProp",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "EnvironmentStateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ReadableVrTextPanelEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ReadableVrTextPanelEvidenceSet",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "EncounterActorFramingInput",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "BuildRoomPropInput",
+        "kind": "type"
+      }
+    ]
+  }
+]

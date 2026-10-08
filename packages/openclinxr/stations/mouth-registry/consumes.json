@@ -1,0 +1,54 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-executor",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "apply",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildProblem",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-objective",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Problem",
+        "kind": "type"
+      },
+      {
+        "name": "Solution",
+        "kind": "type"
+      },
+      {
+        "name": "SolverModule",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-solver-closedform",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "mouthClosedformSolver",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

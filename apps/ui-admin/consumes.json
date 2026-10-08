@@ -1,0 +1,356 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": "./claim-language",
+    "names": [
+      {
+        "name": "findUnsafeClaimLanguage",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./catalog",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "adminPublicationGates",
+        "kind": "runtime"
+      },
+      {
+        "name": "adminWorkbenchRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "capabilityTagColor",
+        "kind": "runtime"
+      },
+      {
+        "name": "ReviewReplayWorkbenchProvider",
+        "kind": "runtime"
+      },
+      {
+        "name": "ReviewReplayWorkbenchUI",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioBankWorkbenchProvider",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioBankWorkbenchUI",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioDetailWorkbenchProvider",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioDetailWorkbenchUI",
+        "kind": "runtime"
+      },
+      {
+        "name": "SeedBlueprintWorkbenchProvider",
+        "kind": "runtime"
+      },
+      {
+        "name": "SeedBlueprintWorkbenchUI",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./case-authoring-workbench",
+    "names": [
+      {
+        "name": "CaseAuthoringWorkbench",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./environment-generation-queue-panel",
+    "names": [
+      {
+        "name": "EnvironmentGenerationQueuePanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./faculty-compile-lock",
+    "names": [
+      {
+        "name": "facultyCompileLockAllowsCompile",
+        "kind": "runtime"
+      },
+      {
+        "name": "facultyCompileLockIdentityMoved",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyCompileLockRow",
+        "kind": "type"
+      },
+      {
+        "name": "mergeFacultyCompileLockRows",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./faculty-compile-lock-types",
+    "names": [
+      {
+        "name": "FacultyCompileLockClient",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./review-replay-readiness-summary-panel",
+    "names": [
+      {
+        "name": "ReviewReplayReadinessSummaryPanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./scenario-review-gate-panel",
+    "names": [
+      {
+        "name": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredScenarioContentIdentity",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveScenarioReviewGateDisplay",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENARIO_REVIEW_RECORDABLE_DIMENSIONS",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENARIO_REVIEW_STALE_DECISION_DISPLAY",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioReviewGatePanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioReviewGatesAllowLearnerUse",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": "./seed-worldview-queue",
+    "names": [
+      {
+        "name": "SeedWorldviewQueue",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AdminControlPlaneClient",
+        "kind": "type"
+      },
+      {
+        "name": "buildAdminGraphqlEndpoint",
+        "kind": "runtime"
+      },
+      {
+        "name": "compileEncounterWorld",
+        "kind": "runtime"
+      },
+      {
+        "name": "createAdminControlPlaneClient",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-shared",
+    "entrypoint": "./admin-api-client-types",
+    "names": [
+      {
+        "name": "AdminReviewPacketReplay",
+        "kind": "type"
+      },
+      {
+        "name": "AdminScenario",
+        "kind": "type"
+      },
+      {
+        "name": "AdminScenarioReviewDecision",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "adminWorkbenchCapabilityTags",
+        "kind": "runtime"
+      },
+      {
+        "name": "openClinXrAdminTheme",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./actor-turn-replay-panel",
+    "names": [
+      {
+        "name": "ACTOR_TURN_REPLAY_CLAIM_BOUNDARY",
+        "kind": "runtime"
+      },
+      {
+        "name": "ACTOR_TURN_REPLAY_NOT_EVIDENCE_FOR",
+        "kind": "runtime"
+      },
+      {
+        "name": "ActorTurnReplayPanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-factory-station-cards",
+    "names": [
+      {
+        "name": "FactoryStationCards",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./assembled-exam-replay-timeline",
+    "names": [
+      {
+        "name": "AdminAssembledExamReplayProjection",
+        "kind": "type"
+      },
+      {
+        "name": "AdminAssembledExamStationReplaySlice",
+        "kind": "type"
+      },
+      {
+        "name": "assembledExamDerivedBlockers",
+        "kind": "runtime"
+      },
+      {
+        "name": "assembledExamStationReplayPosture",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./emission-replay-bind-panel",
+    "names": [
+      {
+        "name": "AdminReplayFromEmissionV1",
+        "kind": "type"
+      },
+      {
+        "name": "CLI_LATEST_FIXTURE_URL",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmissionReplayBindPanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseAdminReplayFromEmissionV1",
+        "kind": "runtime"
+      },
+      {
+        "name": "SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./factory-run-progress-panel",
+    "names": [
+      {
+        "name": "FactoryRunProgressPanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./factory-run-table-client",
+    "names": [
+      {
+        "name": "fetchFactoryRunTable",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./faculty-disposition-panel",
+    "names": [
+      {
+        "name": "appendAssembledExamFacultyDisposition",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyDispositionPanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "getAssembledExamFacultyDisposition",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

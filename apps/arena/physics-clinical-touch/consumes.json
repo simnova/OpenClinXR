@@ -1,0 +1,22 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/physics-touch-contract",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "runMeasuredMetrics",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

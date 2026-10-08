@@ -1,0 +1,30 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createRealtimeVoiceGatewayPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "RealtimeVoiceGatewayPosture",
+        "kind": "type"
+      },
+      {
+        "name": "realtimeVoiceProtocol",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "DialogueEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "InteractionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      }
+    ]
+  }
+]

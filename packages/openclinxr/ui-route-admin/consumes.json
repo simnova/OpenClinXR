@@ -1,0 +1,494 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildEnvironmentGenerationWorkOrder",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEnvironmentGenerationWorkOrderQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "ENVIRONMENT_SHELL_DESCRIPTORS",
+        "kind": "runtime"
+      },
+      {
+        "name": "EnvironmentGenerationPacket",
+        "kind": "type"
+      },
+      {
+        "name": "EnvironmentGenerationQueue",
+        "kind": "type"
+      },
+      {
+        "name": "EnvironmentGenerationWorkOrderQueue",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioAssetReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterDynamicBehaviorCoverageSummary",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterFactoryDryRunSummary",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterFactoryInputPlanningSummary",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "authoredContentIdentity",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": "./claim-language",
+    "names": [
+      {
+        "name": "buildScenarioGovernanceCopy",
+        "kind": "runtime"
+      },
+      {
+        "name": "findUnsafeClaimLanguage",
+        "kind": "runtime"
+      },
+      {
+        "name": "safeUserFacingClaimLanguage",
+        "kind": "runtime"
+      },
+      {
+        "name": "scoreUseCopy",
+        "kind": "runtime"
+      },
+      {
+        "name": "validationStageCopy",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assembleExamForm",
+        "kind": "runtime"
+      },
+      {
+        "name": "BlueprintScenarioReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      },
+      {
+        "name": "ExamForm",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueue",
+        "kind": "type"
+      },
+      {
+        "name": "ExamTimingPlan",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AdminGraphqlRootValue",
+        "kind": "type"
+      },
+      {
+        "name": "buildAdminGraphqlSchema",
+        "kind": "runtime"
+      },
+      {
+        "name": "executeAdminGraphql",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./client",
+    "names": [
+      {
+        "name": "FacultyDispositionRefusalCode",
+        "kind": "type"
+      },
+      {
+        "name": "FacultyDispositionStatus",
+        "kind": "type"
+      },
+      {
+        "name": "FacultyDispositionValue",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacketReplayQuery",
+        "kind": "type"
+      },
+      {
+        "name": "SaveFacultyScoreDraftMutation",
+        "kind": "type"
+      },
+      {
+        "name": "SaveFacultyScoreDraftMutationVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioBankQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioDetailQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioReviewDecisionsQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioStatus",
+        "kind": "type"
+      },
+      {
+        "name": "StationRunQueueSnapshotsQuery",
+        "kind": "type"
+      },
+      {
+        "name": "SubmitScenarioReviewMutation",
+        "kind": "type"
+      },
+      {
+        "name": "SubmitScenarioReviewMutationVariables",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "assembledExamReviewNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamReviewTraceInput",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamStationEvidenceInput",
+        "kind": "type"
+      },
+      {
+        "name": "buildAssembledExamReviewPacket",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildFacultyReviewPath",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime"
+      },
+      {
+        "name": "clinicKneePainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "createLearnerScenarioView",
+        "kind": "runtime"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorCard",
+        "kind": "type"
+      },
+      {
+        "name": "ActorPhenotype",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "BodyMechanics",
+        "kind": "type"
+      },
+      {
+        "name": "ComplianceRegion",
+        "kind": "type"
+      },
+      {
+        "name": "InteractionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "TouchResponse",
+        "kind": "type"
+      },
+      {
+        "name": "validateScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "ValidationResult",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-route-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createRouteManifest",
+        "kind": "runtime"
+      },
+      {
+        "name": "findRouteByPath",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnReplayPanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "capabilityTagColor",
+        "kind": "runtime"
+      },
+      {
+        "name": "clampedScoreFromWorkbenchInput",
+        "kind": "runtime"
+      },
+      {
+        "name": "countActorCommunicationProfiles",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmissionReplayBindPanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyDispositionPanel",
+        "kind": "runtime"
+      },
+      {
+        "name": "formatActorCommunicationProfileCoverage",
+        "kind": "runtime"
+      },
+      {
+        "name": "formatDuration",
+        "kind": "runtime"
+      },
+      {
+        "name": "pluralizeWorkbenchCount",
+        "kind": "runtime"
+      },
+      {
+        "name": "uniqueWorkbenchValues",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-compile-graph-canvas",
+    "names": [
+      {
+        "name": "buildCompileGraphModel",
+        "kind": "runtime"
+      },
+      {
+        "name": "CompileEdge",
+        "kind": "type"
+      },
+      {
+        "name": "CompileGraphCanvas",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-factory-station-cards",
+    "names": [
+      {
+        "name": "FactoryStationCards",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-runtime-posture",
+    "names": [
+      {
+        "name": "AdminNoReadinessEvidenceClaim",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRealtimeVoicePosture",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProtocolPosture",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProviderReadiness",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-string-list-field",
+    "names": [
+      {
+        "name": "StringListField",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./assembled-exam-replay-timeline",
+    "names": [
+      {
+        "name": "AdminAssembledExamReplayProjection",
+        "kind": "type"
+      },
+      {
+        "name": "AdminAssembledExamStationReplaySlice",
+        "kind": "type"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_BY_TYPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "assembledExamDerivedBlockers",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamReplayTimeline",
+        "kind": "runtime"
+      },
+      {
+        "name": "assembledExamStationReplayPosture",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./factory-run-progress-panel",
+    "names": [
+      {
+        "name": "FactoryRunProgressPanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./factory-run-table-client",
+    "names": [
+      {
+        "name": "FactoryRunTable",
+        "kind": "type"
+      },
+      {
+        "name": "fetchFactoryRunTable",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

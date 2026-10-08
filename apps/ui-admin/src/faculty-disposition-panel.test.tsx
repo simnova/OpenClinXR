@@ -5,10 +5,23 @@ import {
   appendAssembledExamFacultyDisposition,
   FacultyDispositionPanel,
   getAssembledExamFacultyDisposition,
-  type AdminFacultyDispositionRefusal,
-  type AdminFacultyDispositionTrail,
-  type AppendFacultyDispositionCommand,
 } from "@openclinxr/ui-shared/faculty-disposition-panel";
+
+// The panel barrel publishes the three functions above but not the record
+// types (faculty-disposition-record/codec barrels are keep-only and empty),
+// so this test derives them from the published signatures instead of naming
+// unpublished members. Revert to direct type imports if the barrels ever
+// re-export them.
+type AdminFacultyDispositionTrail = NonNullable<
+  Awaited<ReturnType<typeof getAssembledExamFacultyDisposition>>
+>;
+type AppendFacultyDispositionCommand = Parameters<
+  typeof appendAssembledExamFacultyDisposition
+>[0];
+type AdminFacultyDispositionRefusal = Exclude<
+  Awaited<ReturnType<typeof appendAssembledExamFacultyDisposition>>,
+  AdminFacultyDispositionTrail | null
+>;
 
 const EXAM_RUN_ID = "exam_run_faculty_disposition_001";
 const DIGEST = "a".repeat(64);

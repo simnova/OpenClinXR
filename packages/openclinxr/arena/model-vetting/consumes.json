@@ -1,0 +1,22 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveMorphTarget",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

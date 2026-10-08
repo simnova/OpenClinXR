@@ -1,0 +1,44 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "currentExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "formatStationClock",
+        "kind": "runtime"
+      },
+      {
+        "name": "LearnerExamFlowPhase",
+        "kind": "type"
+      }
+    ]
+  }
+]

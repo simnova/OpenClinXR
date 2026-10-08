@@ -1,0 +1,78 @@
+[
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlotSync",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "planEquipmentGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "planRoomGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_ALBEDO_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_OCCLUSION_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "runEquipmentGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomGenerate",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./room-chain",
+    "names": [
+      {
+        "name": "ROOM_CHAIN_RECIPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomChain",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
+    "entrypoint": "./glb-bake",
+    "names": [
+      {
+        "name": "bakeMotionProgramToGlb",
+        "kind": "runtime"
+      },
+      {
+        "name": "MotionGlbBakeClip",
+        "kind": "type"
+      },
+      {
+        "name": "readMotionGlbClipId",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

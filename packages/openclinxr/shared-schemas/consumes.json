@@ -1,0 +1,80 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ModelProviderAuditSchema",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProviderAuditRecordSchema",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProviderHealthSchema",
+        "kind": "runtime"
+      },
+      {
+        "name": "TraceEventSchema",
+        "kind": "runtime"
+      },
+      {
+        "name": "VoiceProviderAuditSchema",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "FactoryStationSchema",
+        "kind": "type"
+      },
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime"
+      },
+      {
+        "name": "StandardIssue",
+        "kind": "type"
+      },
+      {
+        "name": "StandardResult",
+        "kind": "type"
+      },
+      {
+        "name": "StationJsonSchema",
+        "kind": "type"
+      },
+      {
+        "name": "StationPropertySchema",
+        "kind": "type"
+      }
+    ]
+  }
+]

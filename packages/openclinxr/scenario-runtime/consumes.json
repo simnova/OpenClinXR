@@ -1,0 +1,504 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/trace-ledger",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "InMemoryTraceLedger",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createEdChestPainPlaceholderManifests",
+        "kind": "runtime"
+      },
+      {
+        "name": "createScenarioPlaceholderManifests",
+        "kind": "runtime"
+      },
+      {
+        "name": "InMemoryAssetRegistry",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioAssetReadiness",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AUTHORED_LOCAL_FIXTURE_PROVIDER_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "AuthoredDialogueCatalog",
+        "kind": "type"
+      },
+      {
+        "name": "AuthoredDialogueSeed",
+        "kind": "type"
+      },
+      {
+        "name": "buildOpenClinXrCapabilityRoutingMatrix",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDeterministicDialogueAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "DeterministicDialogueRequestPayload",
+        "kind": "type"
+      },
+      {
+        "name": "HIDDEN_TRUTH_REFUSAL_SPOKEN_TEXT",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveDeterministicActorTurnPlan",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/conversation-policy",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnInProgress",
+        "kind": "type"
+      },
+      {
+        "name": "ArbitrateTurnTakingInput",
+        "kind": "type"
+      },
+      {
+        "name": "BargeInOutcome",
+        "kind": "type"
+      },
+      {
+        "name": "BargeInResolution",
+        "kind": "type"
+      },
+      {
+        "name": "CaseEmotionPolicy",
+        "kind": "type"
+      },
+      {
+        "name": "classifyEmotionEventDetailed",
+        "kind": "runtime"
+      },
+      {
+        "name": "ConversationPolicy",
+        "kind": "type"
+      },
+      {
+        "name": "createDefaultConversationPolicy",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmotionEngine",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmotionEventClassifierVerdict",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionEventKind",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionTransition",
+        "kind": "type"
+      },
+      {
+        "name": "HistoryTakingCoverageSpec",
+        "kind": "type"
+      },
+      {
+        "name": "HistoryTakingCoverageState",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerBargeInInput",
+        "kind": "type"
+      },
+      {
+        "name": "mapEmotionPerformance",
+        "kind": "runtime"
+      },
+      {
+        "name": "stripProviderMarkup",
+        "kind": "runtime"
+      },
+      {
+        "name": "TurnTakingDecision",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createStationRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "getScheduledEventsDue",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScheduledEvent",
+        "kind": "type"
+      },
+      {
+        "name": "StationRun",
+        "kind": "type"
+      },
+      {
+        "name": "transitionStation",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "advanceExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "createExamFormRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "currentExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamForm",
+        "kind": "type"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueueItem",
+        "kind": "type"
+      },
+      {
+        "name": "ExamTimingPlan",
+        "kind": "type"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "startExamFormRun",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorResponseRequest",
+        "kind": "type"
+      },
+      {
+        "name": "ActorResponseResult",
+        "kind": "type"
+      },
+      {
+        "name": "createActorDialogueModelGateway",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultModelGateway",
+        "kind": "runtime"
+      },
+      {
+        "name": "LocalModelProviderAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "MockModelProviderAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "ModelCapability",
+        "kind": "type"
+      },
+      {
+        "name": "ModelGateway",
+        "kind": "type"
+      },
+      {
+        "name": "ModelProviderAdapter",
+        "kind": "type"
+      },
+      {
+        "name": "ModelRequestPolicy",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_BY_TYPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamPhase",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamPhaseTransitionType",
+        "kind": "type"
+      },
+      {
+        "name": "buildReviewPacket",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateScenarioPublicationReadiness",
+        "kind": "runtime"
+      },
+      {
+        "name": "PublicationTargetUse",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewerAttestationVerifier",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewerEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioPublicationReadiness",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "affectForAuthoredRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "AuthoredUtteranceRecord",
+        "kind": "type"
+      },
+      {
+        "name": "DialogueFixtureSeed",
+        "kind": "type"
+      },
+      {
+        "name": "edChestPainDialogueSeeds",
+        "kind": "runtime"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "keywordAffectFallbackFromText",
+        "kind": "runtime"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "PEDS_ASTHMA_SCENARIO_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveAuthoredUtteranceRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorModelContext",
+        "kind": "type"
+      },
+      {
+        "name": "buildActorModelContext",
+        "kind": "runtime"
+      },
+      {
+        "name": "createMultiActorClinicalSession",
+        "kind": "runtime"
+      },
+      {
+        "name": "InteractionRoutingReason",
+        "kind": "type"
+      },
+      {
+        "name": "MultiActorClinicalSession",
+        "kind": "type"
+      },
+      {
+        "name": "recordClinicalAction",
+        "kind": "runtime"
+      },
+      {
+        "name": "RecordClinicalActionInput",
+        "kind": "type"
+      },
+      {
+        "name": "routeActorInteraction",
+        "kind": "runtime"
+      },
+      {
+        "name": "RouteActorInteractionInput",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "CaseEmotionPolicy",
+        "kind": "type"
+      },
+      {
+        "name": "DialogueEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "InitialSceneSpec",
+        "kind": "type"
+      },
+      {
+        "name": "InteractionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "ProviderHealth",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "TraceEvent",
+        "kind": "type"
+      },
+      {
+        "name": "validateCaseEmotionPolicy",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AudioEvent",
+        "kind": "type"
+      },
+      {
+        "name": "collectVoiceStream",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultVoiceGateway",
+        "kind": "runtime"
+      },
+      {
+        "name": "LocalVoiceProviderAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "MockVoiceProviderAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "VoiceGateway",
+        "kind": "type"
+      },
+      {
+        "name": "VoiceProviderAdapter",
+        "kind": "type"
+      },
+      {
+        "name": "VoiceRequestPolicy",
+        "kind": "type"
+      }
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/iwsdk-spike",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildIwsdkUiXrStationParityContract",
+        "kind": "runtime"
+      },
+      {
+        "name": "IwsdkSpikeMetrics",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

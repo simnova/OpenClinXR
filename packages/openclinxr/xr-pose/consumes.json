@@ -1,0 +1,92 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolvePoseBone",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "ActorPosture",
+        "kind": "type"
+      },
+      {
+        "name": "clipBindingForPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "DEFAULT_STRETCHER_POSITION",
+        "kind": "runtime"
+      },
+      {
+        "name": "SEATED_CLIP_NAME",
+        "kind": "runtime"
+      },
+      {
+        "name": "STANDING_CLIP_NAME",
+        "kind": "runtime"
+      },
+      {
+        "name": "SUPINE_CLIP_NAME",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyGeneratedHumanoidClinicalIdlePosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "OwnedChain",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "readStretcherBackSectionWorldDeg",
+        "kind": "runtime"
+      },
+      {
+        "name": "readStretcherInclineDegrees",
+        "kind": "runtime"
+      },
+      {
+        "name": "readStretcherPillowWorld",
+        "kind": "runtime"
+      },
+      {
+        "name": "STRETCHER_DECK_TOP_METERS",
+        "kind": "runtime"
+      },
+      {
+        "name": "STRETCHER_LENGTH_METERS",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

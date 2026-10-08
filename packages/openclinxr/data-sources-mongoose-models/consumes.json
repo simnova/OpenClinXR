@@ -1,0 +1,42 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AzureStorageQueueEncounterAssetMessage",
+        "kind": "type"
+      },
+      {
+        "name": "createEncounterAssetGenerationQueueMessage",
+        "kind": "runtime"
+      },
+      {
+        "name": "encodeAzureStorageQueueMessage",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterAssetGenerationQueueMessageEnvelope",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterAssetGenerationWorkerExecution",
+        "kind": "type"
+      },
+      {
+        "name": "processEncounterAssetGenerationQueueMessage",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

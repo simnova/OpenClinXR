@@ -1,0 +1,256 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "EnvironmentGenerationQueue",
+        "kind": "type"
+      },
+      {
+        "name": "EnvironmentGenerationWorkOrderQueue",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioAssetReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioSceneGenerationPipelineWorkOrderQueue",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterDynamicBehaviorCoverageSummary",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterFactoryDryRunSummary",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterFactoryInputPlanningSummary",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "BlueprintScenarioReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueue",
+        "kind": "type"
+      },
+      {
+        "name": "ExamTimingPlan",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./client",
+    "names": [
+      {
+        "name": "CreateStationRunQueueSnapshotDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "CreateStationRunQueueSnapshotMutation",
+        "kind": "type"
+      },
+      {
+        "name": "CreateStationRunQueueSnapshotMutationVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacketReplayDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "ReviewPacketReplayQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacketReplayQueryVariables",
+        "kind": "type"
+      },
+      {
+        "name": "SaveFacultyScoreDraftDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "SaveFacultyScoreDraftMutation",
+        "kind": "type"
+      },
+      {
+        "name": "SaveFacultyScoreDraftMutationVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioBankDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioBankQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioBankQueryVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioDetailDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioDetailQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioDetailQueryVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioReviewDecisionsDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioReviewDecisionsQuery",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioReviewDecisionsQueryVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioStatus",
+        "kind": "type"
+      },
+      {
+        "name": "StationRunQueueSnapshotsDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "StationRunQueueSnapshotsQuery",
+        "kind": "type"
+      },
+      {
+        "name": "StationRunQueueSnapshotsQueryVariables",
+        "kind": "type"
+      },
+      {
+        "name": "SubmitScenarioReviewDocument",
+        "kind": "runtime"
+      },
+      {
+        "name": "SubmitScenarioReviewMutation",
+        "kind": "type"
+      },
+      {
+        "name": "SubmitScenarioReviewMutationVariables",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildSessionRoutePath",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "routeById",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-runtime-posture",
+    "names": [
+      {
+        "name": "AdminNoReadinessEvidenceClaim",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRealtimeVoicePosture",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProtocolPosture",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProtocolSupport",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProviderPlaneReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProviderReadiness",
+        "kind": "type"
+      },
+      {
+        "name": "AdminRuntimeProviderReadinessSurface",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./assembled-exam-replay-timeline",
+    "names": [
+      {
+        "name": "AdminAssembledExamReplayProjection",
+        "kind": "type"
+      }
+    ]
+  }
+]

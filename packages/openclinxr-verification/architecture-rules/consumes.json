@@ -1,0 +1,46 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./arch",
+    "names": [
+      {
+        "name": "archConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildOpenClinXrCapabilityRoutingMatrix",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateCapabilityRoutingMatrix",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "findUnsafeClaimLanguage",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

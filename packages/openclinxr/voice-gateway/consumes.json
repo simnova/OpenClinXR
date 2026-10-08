@@ -1,0 +1,78 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ProviderAuditRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ProviderHealth",
+        "kind": "type"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildOpenClinXrCapabilityRoutingMatrix",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateRuntimeProviderReadinessSurface",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/conversation-policy",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnInProgress",
+        "kind": "type"
+      },
+      {
+        "name": "BargeInContext",
+        "kind": "type"
+      },
+      {
+        "name": "BargeInOutcome",
+        "kind": "type"
+      },
+      {
+        "name": "BargeInResolution",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerSttBargeInRecord",
+        "kind": "type"
+      },
+      {
+        "name": "resolveLearnerBargeInFromStt",
+        "kind": "runtime"
+      },
+      {
+        "name": "TurnCancellationDirective",
+        "kind": "type"
+      }
+    ]
+  }
+]

@@ -1,0 +1,118 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "approveScenarioBankVersion",
+        "kind": "runtime"
+      },
+      {
+        "name": "assemblyVisibleRevisions",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredContentIdentityEvidenceRef",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredContentIdentityFromEvidenceRefs",
+        "kind": "runtime"
+      },
+      {
+        "name": "CompletedHumanReview",
+        "kind": "type"
+      },
+      {
+        "name": "createScenarioBankDraft",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateRequiredTraceTags",
+        "kind": "runtime"
+      },
+      {
+        "name": "forkDraftFromImmutableVersion",
+        "kind": "runtime"
+      },
+      {
+        "name": "markScenarioBankReviewReady",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENARIO_BANK_AUTONOMOUS_APPROVAL_ERROR",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENARIO_BANK_PARTIAL_APPROVAL_ERROR",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENARIO_BANK_STALE_APPROVAL_ERROR",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioBankRevision",
+        "kind": "type"
+      },
+      {
+        "name": "updateScenarioBankDraft",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "PatientNote",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "validateReviewPacket",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

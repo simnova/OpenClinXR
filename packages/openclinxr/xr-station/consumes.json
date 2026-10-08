@@ -1,0 +1,100 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ENVIRONMENT_SHELL_DESCRIPTORS",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseRuntimeRoomPropColorHex",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveEnvironmentShellDescriptor",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_PROP_ACCENT_COLOR_FALLBACK",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_PROP_BODY_COLOR_FALLBACK",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./environment-zone-templates",
+    "names": [
+      {
+        "name": "fixturePlacementRule",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveFixtureSlotsForRoom",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./fixture-wall-mounting",
+    "names": [
+      {
+        "name": "NamedShellWall",
+        "kind": "type"
+      },
+      {
+        "name": "wallFacingYawRadians",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeSceneManifest",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-services-spec",
+    "entrypoint": "./contracts",
+    "names": [
+      {
+        "name": "BlenderDevice",
+        "kind": "type"
+      },
+      {
+        "name": "ComputeProcessResult",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "readComputeSlotsStatus",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlotSync",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./room-chain",
+    "names": [
+      {
+        "name": "ROOM_CHAIN_RECIPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomChain",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

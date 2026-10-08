@@ -1,0 +1,218 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveEnvironmentShellDescriptor",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "composeSupportedActorWorldPosition",
+        "kind": "runtime"
+      },
+      {
+        "name": "seatedActorWorldPosition",
+        "kind": "runtime"
+      },
+      {
+        "name": "supineActorWorldPosition",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "BedsideApproachPlan",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./environment-zone-templates",
+    "names": [
+      {
+        "name": "FAMILY_CHAIR",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveFixtureSlotPosition",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeActorPlacement",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeDialogueTurn",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeEvidenceGateId",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeLearnerUseGate",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeAssetStoreKind",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "advanceExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "AdvanceExamFormRunStationInput",
+        "kind": "type"
+      },
+      {
+        "name": "createDefaultClinicalSkillsBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "createExamFormRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "CreateExamFormRunInput",
+        "kind": "type"
+      },
+      {
+        "name": "createExamStationRunQueueSnapshot",
+        "kind": "runtime"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "currentExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamAssemblyPersistenceSink",
+        "kind": "type"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      },
+      {
+        "name": "examFormRunNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      },
+      {
+        "name": "ExamRunStationOutcome",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueueSnapshot",
+        "kind": "type"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "persistExamStationRunQueueSnapshot",
+        "kind": "runtime"
+      },
+      {
+        "name": "startExamFormRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "tickExamFormRunClock",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "TraceEvent",
+        "kind": "type"
+      }
+    ]
+  }
+]

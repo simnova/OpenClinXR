@@ -1,0 +1,664 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildEnvironmentGenerationQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEnvironmentGenerationWorkOrderQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildScenarioSceneGenerationPipelineWorkOrderQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createScenarioPlaceholderManifests",
+        "kind": "runtime"
+      },
+      {
+        "name": "InMemoryAssetRegistry",
+        "kind": "runtime"
+      },
+      {
+        "name": "MEASURED_STATION_GEOMETRY",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./case-runtime-equipment",
+    "names": [
+      {
+        "name": "unrealizableEquipmentDecisions",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./measured-station-geometry-freshness",
+    "names": [
+      {
+        "name": "freshMeasuredTriangleCounts",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-asset-review",
+    "names": [
+      {
+        "name": "EncounterBundleFactoryMember",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterBundleFactoryMemberKind",
+        "kind": "type"
+      },
+      {
+        "name": "encounterBundleFactoryMemberKinds",
+        "kind": "runtime"
+      },
+      {
+        "name": "immutableEncounterBundleNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "PromoteReviewedFactoryOutputsInput",
+        "kind": "type"
+      },
+      {
+        "name": "promoteReviewedFactoryOutputsToImmutableEncounterBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "buildEncounterDynamicBehaviorCoverageSummary",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterFactorySummaryContracts",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterRuntimeBundlePublicationMetadata",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildGuardedRuntimeSelectorDisabledDecision",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "evaluateEncounterRuntimeLearnerUseGate",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerGeneratedRuntimeAssetReference",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRuntimeAssetStoreConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetKind",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeAssetReviewStatus",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeAssetStoreKind",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/auth",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AuthIdentity",
+        "kind": "type"
+      },
+      {
+        "name": "canReadStationRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "DEFAULT_DEV_AUTH_IDENTITY",
+        "kind": "runtime"
+      },
+      {
+        "name": "DEFAULT_DEV_AUTH_SECRET",
+        "kind": "runtime"
+      },
+      {
+        "name": "hasFacultyAccess",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseBearerAuthorization",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveSessionLearnerId",
+        "kind": "runtime"
+      },
+      {
+        "name": "signAuthToken",
+        "kind": "runtime"
+      },
+      {
+        "name": "verifyAuthToken",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetGenerationCapabilityFacade",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssetGenerationCapabilityId",
+        "kind": "type"
+      },
+      {
+        "name": "AssetGenerationJobPolicyInput",
+        "kind": "type"
+      },
+      {
+        "name": "AUTHORED_LOCAL_FIXTURE_PROVIDER_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "AuthoredDialogueActor",
+        "kind": "type"
+      },
+      {
+        "name": "AuthoredDialogueCatalog",
+        "kind": "type"
+      },
+      {
+        "name": "AuthoredDialogueSeed",
+        "kind": "type"
+      },
+      {
+        "name": "buildOpenClinXrCapabilityRoutingMatrix",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDeterministicDialogueAdapter",
+        "kind": "runtime"
+      },
+      {
+        "name": "DeterministicDialogueRequestPayload",
+        "kind": "type"
+      },
+      {
+        "name": "DialogueEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "DialogueSafetyExpectation",
+        "kind": "type"
+      },
+      {
+        "name": "evaluateRuntimeProviderReadinessSurface",
+        "kind": "runtime"
+      },
+      {
+        "name": "FrozenActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "HIDDEN_TRUTH_REFUSAL_SPOKEN_TEXT",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveDeterministicActorTurnPlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeProfile",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assembleExamForm",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultClinicalSkillsBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "createExamStationRunQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createExamTimingPlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateBlueprintScenarioReadiness",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateScenarioVersionDrift",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamForm",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueue",
+        "kind": "type"
+      },
+      {
+        "name": "ExamTimingPlan",
+        "kind": "type"
+      },
+      {
+        "name": "selectExamStationScenarios",
+        "kind": "runtime"
+      },
+      {
+        "name": "STEP2CS_STATION_COUNT",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AdminGraphqlReviewDecision",
+        "kind": "runtime"
+      },
+      {
+        "name": "AdminGraphqlRootValue",
+        "kind": "type"
+      },
+      {
+        "name": "AdminGraphqlScenario",
+        "kind": "type"
+      },
+      {
+        "name": "AdminGraphqlScenarioStatus",
+        "kind": "runtime"
+      },
+      {
+        "name": "createGraphqlCodegenPlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "executeAdminGraphql",
+        "kind": "runtime"
+      },
+      {
+        "name": "openClinXrAdminSchemaSdl",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./documents",
+    "names": [
+      {
+        "name": "adminGraphqlDocumentByOperationName",
+        "kind": "runtime"
+      },
+      {
+        "name": "adminGraphqlDocuments",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type"
+      },
+      {
+        "name": "ApiScenarioReviewDecisionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "matchOpenClinXrRestRoute",
+        "kind": "runtime"
+      },
+      {
+        "name": "routeById",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_BY_TYPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamPhase",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamPhaseTransitionType",
+        "kind": "type"
+      },
+      {
+        "name": "assembledExamReviewNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamReviewTraceInput",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamStationEvidenceInput",
+        "kind": "type"
+      },
+      {
+        "name": "buildAssembledExamReviewPacket",
+        "kind": "runtime"
+      },
+      {
+        "name": "BuildAssembledExamReviewPacketInput",
+        "kind": "type"
+      },
+      {
+        "name": "buildFacultyScoreDraft",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildReviewDecisionDraft",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_SCORE_DRAFT_CLAIM_SCOPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyScoreDraft",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewDecisionDraft",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildScenarioBankExamSequenceProjection",
+        "kind": "runtime"
+      },
+      {
+        "name": "clinicKneePainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "createLearnerScenarioView",
+        "kind": "runtime"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateScenarioBankMaturity",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssembledExamAdmittedPhaseEvent",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamLedgerResumeProjection",
+        "kind": "type"
+      },
+      {
+        "name": "assembledExamOrchestratorClaimBoundary",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledExamResumeDecision",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledStationContext",
+        "kind": "type"
+      },
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime"
+      },
+      {
+        "name": "PublicationTargetUse",
+        "kind": "type"
+      },
+      {
+        "name": "resolveScenarioById",
+        "kind": "runtime"
+      },
+      {
+        "name": "resumeAssembledExam",
+        "kind": "runtime"
+      },
+      {
+        "name": "ReviewerEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "RouteRuntimeActorInteractionInput",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioCatalogPort",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioRuntime",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioRuntimeActorTurn",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioRuntimeDurableStore",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "validateScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/telemetry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createTelemetryRecorder",
+        "kind": "runtime"
+      },
+      {
+        "name": "openClinXrSpanNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "RealTelemetryRecorder",
+        "kind": "type"
+      },
+      {
+        "name": "summarizeTelemetrySpans",
+        "kind": "runtime"
+      },
+      {
+        "name": "TelemetryRecorder",
+        "kind": "type"
+      },
+      {
+        "name": "telemetryRouteAttributes",
+        "kind": "runtime"
+      },
+      {
+        "name": "TelemetryRunCounters",
+        "kind": "type"
+      },
+      {
+        "name": "TelemetrySnapshot",
+        "kind": "type"
+      },
+      {
+        "name": "TelemetrySpanRecord",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createRealtimeVoiceGatewayPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "RealtimeVoiceGatewayPostureInput",
+        "kind": "type"
+      },
+      {
+        "name": "realtimeVoiceProtocol",
+        "kind": "runtime"
+      },
+      {
+        "name": "RealtimeVoiceProtocolLaneId",
+        "kind": "type"
+      },
+      {
+        "name": "selectRealtimeVoiceProtocol",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

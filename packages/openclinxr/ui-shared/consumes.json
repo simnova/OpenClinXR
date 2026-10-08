@@ -1,0 +1,52 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./catalog",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./client",
+    "names": [
+      {
+        "name": "FacultyDispositionRefusalCode",
+        "kind": "type"
+      },
+      {
+        "name": "FacultyDispositionStatus",
+        "kind": "type"
+      },
+      {
+        "name": "FacultyDispositionValue",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacketReplayQuery",
+        "kind": "type"
+      }
+    ]
+  }
+]

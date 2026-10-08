@@ -1,0 +1,76 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyHumanoidJointRotationsByAlias",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildManualPerformanceInputEvidence",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamineeLocomotionEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "handGestureLocomotionOriginMeters",
+        "kind": "runtime"
+      },
+      {
+        "name": "handGestureRelativeOffsetMeters",
+        "kind": "runtime"
+      },
+      {
+        "name": "LocomotionAttemptDiagnosticsEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "LocomotionVectorEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceInputEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "mapHandGestureLocomotionVector",
+        "kind": "runtime"
+      },
+      {
+        "name": "RigPoseEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "XrHandGestureStateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "XrHandSelectStateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "XrInputSourceEvidence",
+        "kind": "type"
+      }
+    ]
+  }
+]

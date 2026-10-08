@@ -1,0 +1,92 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveMorphTarget",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolvePoseBone",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeDialogueTurn",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./authored-utterance-record",
+    "names": [
+      {
+        "name": "PEDS_ASTHMA_SCENARIO_ID",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "DialogueEmotion",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "collectJointNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "findBonesBySanitisedName",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

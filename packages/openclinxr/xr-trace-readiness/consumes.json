@@ -1,0 +1,94 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "EnvironmentStateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidSpeechEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeUseGateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceCaptureSummary",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceDraft",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceFrameStats",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceInputEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceReproducibilityEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "ManualPerformanceTraceLatencyEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeEvidencePosture",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeInteractionEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeMaterializationEvidenceAttachmentSummary",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeRemainingRuntimeBlockerReasons",
+        "kind": "type"
+      },
+      {
+        "name": "TraceReadinessSummary",
+        "kind": "type"
+      },
+      {
+        "name": "XrRuntimeReadinessDecision",
+        "kind": "type"
+      },
+      {
+        "name": "XrRuntimeState",
+        "kind": "type"
+      },
+      {
+        "name": "XrTraceActionHandoffAction",
+        "kind": "type"
+      },
+      {
+        "name": "XrTraceActionHandoffEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "XrTraceInteractionEvidenceSummary",
+        "kind": "type"
+      }
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "ScenarioGovernance",
+        "kind": "type"
+      },
+      {
+        "name": "StationRun",
+        "kind": "type"
+      }
+    ]
+  }
+]

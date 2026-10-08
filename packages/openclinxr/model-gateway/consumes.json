@@ -1,0 +1,44 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ProviderAuditRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ProviderHealth",
+        "kind": "type"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

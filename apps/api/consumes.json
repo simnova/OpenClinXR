@@ -1,0 +1,572 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./case-actor-placements",
+    "names": [
+      {
+        "name": "authoredCasePlacements",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./cast-asset-constants",
+    "names": [
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime"
+      },
+      {
+        "name": "PEDS_CHILD_GLB",
+        "kind": "runtime"
+      },
+      {
+        "name": "PEDS_PARENT_GLB",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./initial-scene-contents",
+    "names": [
+      {
+        "name": "bindInitialSceneContents",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "buildEncounterFactorySummaryContracts",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/auth",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "DEFAULT_DEV_AUTH_SECRET",
+        "kind": "runtime"
+      },
+      {
+        "name": "signAuthToken",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetGenerationCapabilityFacade",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/config-rolldown",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createOpenClinXrAzureFunctionsRolldownConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "prepareOpenClinXrAzureFunctionsDeploy",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ExamForm",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./documents",
+    "names": [
+      {
+        "name": "adminGraphqlDocumentByOperationName",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createActorDialogueModelGateway",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ApiApp",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAppContext",
+        "kind": "type"
+      },
+      {
+        "name": "ApiApplication",
+        "kind": "runtime"
+      },
+      {
+        "name": "ApiAppOptions",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAppVariables",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAssembledExamDispositionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAssembledExamRunRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAssetReleaseLadderReplayProjection",
+        "kind": "type"
+      },
+      {
+        "name": "ApiAuthOptions",
+        "kind": "type"
+      },
+      {
+        "name": "ApiClinicalEventReviewProjection",
+        "kind": "type"
+      },
+      {
+        "name": "ApiFacultyReviewDecisionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiFacultyScoreDraftRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiFetchBody",
+        "kind": "type"
+      },
+      {
+        "name": "ApiFetchHeaders",
+        "kind": "type"
+      },
+      {
+        "name": "ApiFetchInput",
+        "kind": "type"
+      },
+      {
+        "name": "ApiHumanReviewActionSummary",
+        "kind": "type"
+      },
+      {
+        "name": "ApiMaterializationInputReviewDecision",
+        "kind": "type"
+      },
+      {
+        "name": "ApiMaterializationInputReviewDecisionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeDurableStore",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeEvidenceCaptureScaffold",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeRealismEvidenceAttachmentSummary",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeRealismEvidenceInputReviewDecision",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeRealismEvidenceInputReviewDecisionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeVisualEvidenceAttachment",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeVisualEvidenceAttachmentActionPacket",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeVisualEvidenceAttachmentRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiRuntimeVisualEvidenceReplayProjection",
+        "kind": "type"
+      },
+      {
+        "name": "ApiScenarioReviewDecisionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiScenarioReviewerRole",
+        "kind": "type"
+      },
+      {
+        "name": "ApiScenarioReviewGateSummary",
+        "kind": "type"
+      },
+      {
+        "name": "ApiScenarioSceneGenerationRequestRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ApiStationRunQueueSnapshot",
+        "kind": "type"
+      },
+      {
+        "name": "ApiUiXrRuntimeEvidenceConsumerWorkflowSummary",
+        "kind": "type"
+      },
+      {
+        "name": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredScenarioContentIdentity",
+        "kind": "runtime"
+      },
+      {
+        "name": "compileLocksPathFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "CONTROL_SCENARIO_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "createBunRealtimeVoiceGatewayPostureInputFromEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "createBunServerConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "createInProcessDispatcher",
+        "kind": "runtime"
+      },
+      {
+        "name": "createOpenClinXrApiProtocolPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "createOpenClinXrApiProtocolPostureFromEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "createScenarioRuntimeDurableStoreFromApiPersistence",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACTORY_RUN_ROLLUP_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_COMPILE_LOCKS_DIR",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "HonoLikeApp",
+        "kind": "type"
+      },
+      {
+        "name": "inspectScenarioPromotionPath",
+        "kind": "runtime"
+      },
+      {
+        "name": "inspectStageZeroStaysBlocking",
+        "kind": "runtime"
+      },
+      {
+        "name": "isApiFetchRequestLike",
+        "kind": "runtime"
+      },
+      {
+        "name": "LearnerScenarioResolver",
+        "kind": "type"
+      },
+      {
+        "name": "measureBankBaseline",
+        "kind": "runtime"
+      },
+      {
+        "name": "MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR",
+        "kind": "runtime"
+      },
+      {
+        "name": "OpenClinXrApiProtocolPosture",
+        "kind": "type"
+      },
+      {
+        "name": "OpenClinXrApiProtocolSupport",
+        "kind": "type"
+      },
+      {
+        "name": "parseFactoryRunRollup",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseStationPayloads",
+        "kind": "runtime"
+      },
+      {
+        "name": "PRE_FIX_ARTIFACT_RELATIVE_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "PROMOTED_SCENARIO_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "PROMOTION_IN_PROCESS_ORIGIN",
+        "kind": "runtime"
+      },
+      {
+        "name": "PROMOTION_REVIEW_GATES",
+        "kind": "runtime"
+      },
+      {
+        "name": "readApiBunWebSocketRuntimeVerifiedFromEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "readFacultyCompileLocksRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerAdminGraphqlRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerAssembledExamDispositionRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerAssembledExamReviewRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerAssembledExamRunRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerAuthoringRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerCapabilityJobRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerDialogueSeedAuthoringRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerEncounterBundlePromotionRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerEncounterSessionRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerExamRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerFactoryRunTableRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerFacultyCompileLockRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerPlatformRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerReviewRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerRuntimeEvidenceRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerScenarioSceneGenerationRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerSessionRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerWorldCompileRoutes",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeTraceEvents",
+        "kind": "type"
+      },
+      {
+        "name": "STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR",
+        "kind": "runtime"
+      },
+      {
+        "name": "toAdminGraphqlScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "writePreFixArtifact",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime"
+      },
+      {
+        "name": "ScenarioRuntime",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/telemetry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createInMemoryTelemetryRecorder",
+        "kind": "runtime"
+      },
+      {
+        "name": "createTelemetryRecorder",
+        "kind": "runtime"
+      },
+      {
+        "name": "openClinXrSpanNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "telemetryAttributeNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "TelemetryRecorder",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "RealtimeVoiceGatewayPostureInput",
+        "kind": "type"
+      }
+    ]
+  }
+]

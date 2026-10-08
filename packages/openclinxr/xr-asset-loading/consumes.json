@@ -1,0 +1,146 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "ActorPosture",
+        "kind": "type"
+      },
+      {
+        "name": "resolveActorPosture",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      },
+      {
+        "name": "PedsHumanoidMaterializationHandoff",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capture-evidence",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "recordSceneAssetStatus",
+        "kind": "runtime"
+      },
+      {
+        "name": "runtimeAssetAffordanceCueIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidExpressionEmotion",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-locomotion",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyGeneratedHumanoidRoleSpecificPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "RolePostureContext",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "SceneAssetEvidence",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyRealGarmentEvidenceSurfaces",
+        "kind": "runtime"
+      },
+      {
+        "name": "assertHumanoidRootUpright",
+        "kind": "runtime"
+      },
+      {
+        "name": "sleeveDeformCueForAssetPath",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene-cues",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "SceneCueClinicalPanelContext",
+        "kind": "type"
+      },
+      {
+        "name": "SceneCueHumanoidCueContext",
+        "kind": "type"
+      },
+      {
+        "name": "SceneCuePediatricCueEvidenceContext",
+        "kind": "type"
+      },
+      {
+        "name": "SceneCuePediatricEquipmentContext",
+        "kind": "type"
+      },
+      {
+        "name": "SceneCueRoleCueEvidenceContext",
+        "kind": "type"
+      }
+    ]
+  }
+]

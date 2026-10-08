@@ -1,0 +1,12 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./base",
+    "names": [
+      {
+        "name": "baseConfig",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-vetting",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyMorphTargetEmotionCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyMorphTargetVisemeCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "batchScorePipelineIndex",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildPedsAsthmaPatientEmotionTransitionTimeline",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildPromotionRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildVisemeTimelineFromDialogue",
+        "kind": "runtime"
+      },
+      {
+        "name": "CagematchFeasibilityCriterion",
+        "kind": "type"
+      },
+      {
+        "name": "CagematchReportPage",
+        "kind": "type"
+      },
+      {
+        "name": "CagematchReportRegistry",
+        "kind": "type"
+      },
+      {
+        "name": "diffPipelineCandidates",
+        "kind": "runtime"
+      },
+      {
+        "name": "emotionWeightsAtTimelineProgress",
+        "kind": "runtime"
+      },
+      {
+        "name": "ModelVettingCandidate",
+        "kind": "type"
+      },
+      {
+        "name": "ModelVettingReport",
+        "kind": "type"
+      },
+      {
+        "name": "PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE",
+        "kind": "runtime"
+      },
+      {
+        "name": "PipelineCandidate",
+        "kind": "type"
+      },
+      {
+        "name": "PipelineCandidateDiff",
+        "kind": "type"
+      },
+      {
+        "name": "PipelineCandidateIndex",
+        "kind": "type"
+      },
+      {
+        "name": "PromotionRecord",
+        "kind": "type"
+      },
+      {
+        "name": "validateCagematchReportPage",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateCagematchReportRegistry",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateModelVettingReport",
+        "kind": "runtime"
+      },
+      {
+        "name": "validatePipelineCandidateIndex",
+        "kind": "runtime"
+      },
+      {
+        "name": "visemeAtTimelineProgress",
+        "kind": "runtime"
+      },
+      {
+        "name": "VisemeTimeline",
+        "kind": "type"
+      }
+    ]
+  }
+]

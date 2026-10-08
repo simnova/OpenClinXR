@@ -1,0 +1,290 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolvePoseBone",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "DEFAULT_PATIENT_CHAIR_POSITION",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./fixture-wall-mounting",
+    "names": [
+      {
+        "name": "NamedShellWall",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "resolveRuntimeAssetUrl",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ExamAssemblyPersistenceSink",
+        "kind": "type"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type"
+      },
+      {
+        "name": "ExamRunStationOutcome",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueueScenarioSource",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueueStationBodySource",
+        "kind": "type"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseExamStationRunQueueScenarioIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "TraceEvent",
+        "kind": "type"
+      },
+      {
+        "name": "validateScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateTraceEvent",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyAndPlantSupineOnDeck",
+        "kind": "runtime"
+      },
+      {
+        "name": "collectJointNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "findBonesBySanitisedName",
+        "kind": "runtime"
+      },
+      {
+        "name": "measureBackToDeckGap",
+        "kind": "runtime"
+      },
+      {
+        "name": "measureHeadPillowGapMeters",
+        "kind": "runtime"
+      },
+      {
+        "name": "measurePelvisOnSeat",
+        "kind": "runtime"
+      },
+      {
+        "name": "measureSeatClearanceMeters",
+        "kind": "runtime"
+      },
+      {
+        "name": "readBackSectionPlane",
+        "kind": "runtime"
+      },
+      {
+        "name": "readSupineTorsoWorldDeg",
+        "kind": "runtime"
+      },
+      {
+        "name": "settleSupineOntoBackSection",
+        "kind": "runtime"
+      },
+      {
+        "name": "settleSupineOntoBackSectionPreservingSeat",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ADDITIONAL_CAST_FRAMING_XZ",
+        "kind": "runtime"
+      },
+      {
+        "name": "admitLearnerCanonicalPhaseEvent",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyLearnerExamFlowIntent",
+        "kind": "runtime"
+      },
+      {
+        "name": "createLearnerCanonicalPhaseTraceStore",
+        "kind": "runtime"
+      },
+      {
+        "name": "createMultiStationExamRuntime",
+        "kind": "runtime"
+      },
+      {
+        "name": "INFINIGEN_ENVIRONMENT_ASSETS",
+        "kind": "runtime"
+      },
+      {
+        "name": "LEARNER_CANONICAL_PHASE_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "LearnerCanonicalExamPhaseView",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerCanonicalPhaseTraceStore",
+        "kind": "type"
+      },
+      {
+        "name": "persistExamFormRunQueueSnapshot",
+        "kind": "runtime"
+      },
+      {
+        "name": "tickExamFormRunClock",
+        "kind": "runtime"
+      },
+      {
+        "name": "viewLearnerCanonicalExamPhase",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "anchorFixtureNearFaceToPlane",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildDeclaredEquipmentGeometry",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildPatientChair",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildPatientStretcher",
+        "kind": "runtime"
+      },
+      {
+        "name": "BuildStationEnvironmentInput",
+        "kind": "type"
+      },
+      {
+        "name": "findProceduralStretcher",
+        "kind": "runtime"
+      },
+      {
+        "name": "readStretcherBackSectionWorldDeg",
+        "kind": "runtime"
+      },
+      {
+        "name": "readStretcherDeckSectionNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "readStretcherInclineDegrees",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveStationEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "STRETCHER_DECK_TOP_METERS",
+        "kind": "runtime"
+      },
+      {
+        "name": "STRETCHER_LENGTH_METERS",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildActorResponseRequestsForDialogueSeeds",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultModelGateway",
+        "kind": "runtime"
+      },
+      {
+        "name": "MockModelProviderAdapter",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildFacultyReviewPath",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyReviewPath",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProviderHealthSnapshot",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ProviderHealth",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacket",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/telemetry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "openClinXrSpanNames",
+        "kind": "runtime"
+      },
+      {
+        "name": "telemetryRouteAttributes",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

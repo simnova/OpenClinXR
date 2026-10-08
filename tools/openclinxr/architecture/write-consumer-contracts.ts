@@ -7,14 +7,26 @@ import { fileURLToPath } from "node:url";
  * `pnpm arch:consumer-contracts` (write-consumer-contracts.ts) — reconcile each
  * consumer's `consumes.json` with its real imports, then hand-owned deltas stay.
  *
- * CONSUMER-DRIVEN CONTRACTS. Each consumer of a workspace package (an app dir, a
- * package, or a tools/openclinxr area) owns a committed `consumes.json` at its
- * root: [{ provider, entrypoint, names[] }]. This script re-derives the rows from
- * the tree's actual static imports and MERGES them over the committed file:
- * derived names are added, committed names never removed (a name the regex
- * cannot see — e.g. a dynamic `import()` type, or a deliberate pin — stays until
- * a human trims it). Adding an import without listing it fails the archunit
- * gate; removing one without trimming the file fails the same gate.
+ * CONSUMER-DRIVEN CONTRACTS. Each consumer of a workspace package owns a
+ * committed `consumes.json` at its root: [{ provider, entrypoint, names[] }].
+ * This script re-derives the rows from the tree's actual static imports and
+ * MERGES them over the committed file: derived names are added, committed
+ * names never removed (a name the regex cannot see — e.g. a dynamic
+ * `import()` type, or a deliberate pin — stays until a human trims it).
+ * Adding an import without listing it fails the archunit gate; removing one
+ * without trimming the file fails the same gate. A consumer dir with workspace
+ * imports and no consumes.json fails the missing-contract gate.
+ *
+ * ALL CONSUMERS, DISCOVERED. A consumer is every workspace package or app dir
+ * (packages/** and apps/** package.json dirs, @-scoped or not — the unscoped
+ * apps/arena/physics-clinical-touch consumes but does not provide), plus
+ * tools/openclinxr itself (loose files) and each tools/openclinxr/<area>,
+ * plus any dir that already owns a consumes.json (contracts are sticky:
+ * tools/openclinxr/asset-pipeline/makeclothes nests inside the asset-pipeline
+ * area and stays its own consumer). File ownership is longest matching
+ * prefix, so nested consumers carve out of their parents. Classes: apps/* →
+ * runtime-app, packages/* → package, tools/openclinxr/evidence → evidence,
+ * other tools → tools.
  *
  * ALL WORKSPACE PROVIDERS. The provider set is discovered, not hardcoded: every
  * package.json name under packages/** and apps/** in the @openclinxr/ or
@@ -35,22 +47,10 @@ import { fileURLToPath } from "node:url";
  * commented-out import, contributes no names). The archunit gate applies the
  * identical mask, so generator and gate agree.
  *
- * CONSUMER ROOTS. The directory that owns the import is the longest matching
- * prefix of the importing file:
- * - apps/ui-xr → runtime-app
- * - packages/openclinxr/xr-actor-dialogue → package
- * - packages/openclinxr/xr-humanoid-animation → package
- * - packages/openclinxr/stations/mouth-executor → package
- * - packages/openclinxr/stations/mouth-verifier → package
- * - tools/openclinxr/asset-pipeline/makeclothes → tools
- * - tools/openclinxr/evidence → evidence
- * - tools/openclinxr/mouth-solver → tools
- *
- * CORRECTED SCOUT NOTE. An earlier scout classified phonemesForText as
- * evidence-only. The tree shows it in packages/openclinxr/xr-humanoid-animation
- * (animation-loop.ts), packages/openclinxr/xr-actor-dialogue (speech.ts), and
- * tools/openclinxr/evidence (speech-sync-capture.ts). Every row below is
- * re-derived from imports; the generator does not special-case any name.
+ * THE PROVIDER-BOUND NAME IS LEFT OF `as`. `import { A as B }` binds A (B is
+ * the consumer's local alias); `export { A as B } from` likewise re-exports
+ * the provider's A. Recording the alias instead lists a name the provider
+ * never published and fails clause (b).
  */
 
 export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence";
@@ -63,16 +63,7 @@ export type ConsumerContract = {
   names: ContractName[];
 };
 
-export const CONSUMERS: { dir: string; class: ConsumerClass }[] = [
-  { dir: "apps/ui-xr", class: "runtime-app" },
-  { dir: "packages/openclinxr/xr-actor-dialogue", class: "package" },
-  { dir: "packages/openclinxr/xr-humanoid-animation", class: "package" },
-  { dir: "packages/openclinxr/stations/mouth-executor", class: "package" },
-  { dir: "packages/openclinxr/stations/mouth-verifier", class: "package" },
-  { dir: "tools/openclinxr/asset-pipeline/makeclothes", class: "tools" },
-  { dir: "tools/openclinxr/evidence", class: "evidence" },
-  { dir: "tools/openclinxr/mouth-solver", class: "tools" },
-];
+export type ConsumerDef = { dir: string; class: ConsumerClass };
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".mjs", ".cjs"]);
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", ".git", ".turbo", "public"]);
@@ -112,6 +103,102 @@ export function discoverWorkspaceProviders(root: string): Map<string, string> {
   };
   for (const base of ["packages", "apps"]) walk(base);
   return out;
+}
+
+export function classForConsumerDir(dir: string): ConsumerClass {
+  if (dir.startsWith("apps/")) return "runtime-app";
+  if (dir.startsWith("packages/")) return "package";
+  if (dir === "tools/openclinxr/evidence") return "evidence";
+  return "tools";
+}
+
+/**
+ * Every computed consumer dir: provider dirs (one per workspace package, the
+ * shortest dir on name collision), unscoped package.json dirs that are not
+ * under a provider dir (apps/arena/physics-clinical-touch), tools/openclinxr
+ * itself, and each tools/openclinxr/<area>.
+ */
+export function discoverConsumers(root: string): ConsumerDef[] {
+  const providers = discoverWorkspaceProviders(root);
+  const out = new Map<string, ConsumerClass>();
+  for (const dir of providers.values()) out.set(dir, classForConsumerDir(dir));
+  const coveredBy = (dir: string): boolean => {
+    for (const owned of out.keys()) {
+      if (dir === owned || dir.startsWith(`${owned}/`)) return true;
+    }
+    return false;
+  };
+  const walk = (relativeDir: string): void => {
+    let entries: Dirent<string>[];
+    try {
+      entries = readdirSync(join(root, relativeDir), { withFileTypes: true }) as Dirent<string>[];
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === "node_modules" || entry.name === "dist") continue;
+      const child = relativeDir === "" ? entry.name : `${relativeDir}/${entry.name}`;
+      try {
+        JSON.parse(readFileSync(join(root, child, "package.json"), "utf8")) as { name?: unknown };
+        if (!coveredBy(child)) out.set(child, classForConsumerDir(child));
+      } catch {
+        // no manifest: not a package consumer
+      }
+      walk(child);
+    }
+  };
+  for (const base of ["packages", "apps"]) walk(base);
+  out.set("tools/openclinxr", "tools");
+  let areas: Dirent<string>[];
+  try {
+    areas = readdirSync(join(root, "tools/openclinxr"), { withFileTypes: true }) as Dirent<string>[];
+  } catch {
+    areas = [];
+  }
+  for (const entry of areas) {
+    if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) continue;
+    const dir = `tools/openclinxr/${entry.name}`;
+    if (!out.has(dir)) out.set(dir, classForConsumerDir(dir));
+  }
+  return [...out.entries()]
+    .map(([dir, cls]) => ({ dir, class: cls }))
+    .sort((a, b) => a.dir.localeCompare(b.dir));
+}
+
+/** Dirs that already own a consumes.json anywhere under the consumer roots. */
+export function existingContractOwners(root: string): string[] {
+  const out: string[] = [];
+  const walk = (relativeDir: string): void => {
+    let entries: Dirent<string>[];
+    try {
+      entries = readdirSync(join(root, relativeDir), { withFileTypes: true }) as Dirent<string>[];
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const child = relativeDir === "" ? entry.name : `${relativeDir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        if (SKIP_DIRS.has(entry.name)) continue;
+        walk(child);
+        continue;
+      }
+      if (entry.name === "consumes.json") out.push(relativeDir);
+    }
+  };
+  for (const base of ["packages", "apps", "tools/openclinxr"]) walk(base);
+  return out.sort();
+}
+
+/** Computed consumers plus sticky contract owners (e.g. nested makeclothes). */
+export function consumersWithContracts(root: string): ConsumerDef[] {
+  const out = new Map<string, ConsumerClass>();
+  for (const c of discoverConsumers(root)) out.set(c.dir, c.class);
+  for (const dir of existingContractOwners(root)) {
+    if (!out.has(dir)) out.set(dir, classForConsumerDir(dir));
+  }
+  return [...out.entries()]
+    .map(([dir, cls]) => ({ dir, class: cls }))
+    .sort((a, b) => a.dir.localeCompare(b.dir));
 }
 
 /**
@@ -229,7 +316,7 @@ function repoRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
-function sourceFilesUnder(dir: string, out: string[]): void {
+function sourceFilesUnder(dir: string, out: string[], skipPrefixes: string[]): void {
   let entries: Dirent<string>[];
   try {
     entries = readdirSync(dir, { withFileTypes: true }) as Dirent<string>[];
@@ -240,8 +327,9 @@ function sourceFilesUnder(dir: string, out: string[]): void {
     const name = entry.name;
     if (SKIP_DIRS.has(name)) continue;
     const full = join(dir, name);
+    if (skipPrefixes.some((p) => full === p || full.startsWith(`${p}/`))) continue;
     if (entry.isDirectory()) {
-      sourceFilesUnder(full, out);
+      sourceFilesUnder(full, out, skipPrefixes);
       continue;
     }
     const dot = name.lastIndexOf(".");
@@ -286,10 +374,15 @@ export function collectContracts(
   root: string,
   consumerDir: string,
   providers: Map<string, string>,
+  allConsumerDirs: string[],
 ): ConsumerContract[] {
   const longestFirst = [...providers.keys()].sort((a, b) => b.length - a.length);
+  // Nested consumers carve out: a parent never scans a nested owner's files.
+  const nested = allConsumerDirs
+    .filter((d) => d !== consumerDir && d.startsWith(`${consumerDir}/`))
+    .map((d) => join(root, d));
   const files: string[] = [];
-  sourceFilesUnder(join(root, consumerDir), files);
+  sourceFilesUnder(join(root, consumerDir), files, nested);
   const byKey = new Map<string, Map<string, "runtime" | "type">>();
   const consider = (target: { provider: string; entrypoint: string } | undefined, raw: string, wholeIsType: boolean): void => {
     if (target === undefined) return;
@@ -379,18 +472,26 @@ export function mergeContracts(committed: ConsumerContract[], derived: ConsumerC
 function main(): void {
   const root = repoRoot();
   const providers = discoverWorkspaceProviders(root);
+  const consumers = consumersWithContracts(root);
+  const allDirs = consumers.map((c) => c.dir);
   const only = process.argv[2];
-  console.log(`providers: ${providers.size}`);
-  for (const consumer of CONSUMERS) {
+  console.log(`providers: ${providers.size}, consumers: ${consumers.length}`);
+  for (const consumer of consumers) {
     if (only !== undefined && consumer.dir !== only) continue;
-    const derived = collectContracts(root, consumer.dir, providers);
-    const merged = mergeContracts(readCommitted(root, consumer.dir), derived);
+    const committed = readCommitted(root, consumer.dir);
+    const derived = collectContracts(root, consumer.dir, providers, allDirs);
+    if (derived.length === 0 && committed.length === 0) {
+      console.log(`${join(consumer.dir, "consumes.json")}: no workspace imports, no contract [${consumer.class}]`);
+      continue;
+    }
+    const merged = mergeContracts(committed, derived);
     const rel = join(consumer.dir, "consumes.json");
     const full = join(root, rel);
+    const isNew = !existsSync(full);
     mkdirSync(dirname(full), { recursive: true });
     writeFileSync(full, `${JSON.stringify(merged, null, 2)}\n`);
     const names = merged.reduce((sum, c) => sum + c.names.length, 0);
-    console.log(`${rel}: ${merged.length} entrypoints, ${names} names [${consumer.class}]`);
+    console.log(`${rel}: ${merged.length} entrypoints, ${names} names [${consumer.class}]${isNew ? " NEW" : ""}`);
   }
 }
 

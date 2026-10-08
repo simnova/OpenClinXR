@@ -1,0 +1,36 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-services-spec",
+    "entrypoint": "./contracts",
+    "names": [
+      {
+        "name": "ComputeProcessResult",
+        "kind": "type"
+      },
+      {
+        "name": "ComputeServices",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

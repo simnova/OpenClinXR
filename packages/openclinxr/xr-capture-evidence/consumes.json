@@ -1,0 +1,96 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeRoomProp",
+        "kind": "type"
+      },
+      {
+        "name": "evaluateEncounterRuntimeLearnerUseGate",
+        "kind": "runtime"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assignRuntimeActorSlots",
+        "kind": "runtime"
+      },
+      {
+        "name": "CaseDefinedHumanoidPerformanceContractEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "CaseDefinedHumanoidRuntimeHandoffEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeUseGateEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "readRuntimeActorEquipmentMaterializationGate",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeSceneManifestEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "RuntimeSlotAssignment",
+        "kind": "type"
+      },
+      {
+        "name": "SceneAssetEvidence",
+        "kind": "type"
+      }
+    ]
+  }
+]

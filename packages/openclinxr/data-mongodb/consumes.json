@@ -1,0 +1,346 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "worktreeExcludePatterns",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/server-mongodb-memory-mock",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createMongoMemoryTestContext",
+        "kind": "runtime"
+      },
+      {
+        "name": "MongoMemoryTestContext",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/api",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createApiApp",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-asset-review",
+    "names": [
+      {
+        "name": "EncounterBundleFactoryMember",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterBundleMemberContentIdentity",
+        "kind": "type"
+      },
+      {
+        "name": "immutableEncounterBundleClaimScope",
+        "kind": "runtime"
+      },
+      {
+        "name": "immutableEncounterBundleNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "promoteEncounterRuntimeAssetBundleForLocalUse",
+        "kind": "runtime"
+      },
+      {
+        "name": "PromoteReviewedFactoryOutputsInput",
+        "kind": "type"
+      },
+      {
+        "name": "promoteReviewedFactoryOutputsToImmutableEncounterBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "createEdChestPainLocalEncounterRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeAssetBundle",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      },
+      {
+        "name": "registerGeneratedRuntimeAssetReference",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRuntimeAssetStoreConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetKind",
+        "kind": "type"
+      },
+      {
+        "name": "toLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assembleExamForm",
+        "kind": "runtime"
+      },
+      {
+        "name": "assembleExamFormWithPinnedEncounterBundles",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultClinicalSkillsBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "createExamStationRunQueue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      },
+      {
+        "name": "ExamForm",
+        "kind": "type"
+      },
+      {
+        "name": "ExamStationRunQueue",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./documents",
+    "names": [
+      {
+        "name": "adminGraphqlDocumentByOperationName",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecutionIdentity",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnExecutionLedgerRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnModalityProvenance",
+        "kind": "type"
+      },
+      {
+        "name": "assembleActorTurnReplay",
+        "kind": "runtime"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_BY_TYPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssembledActorTurnReplay",
+        "kind": "type"
+      },
+      {
+        "name": "AssembledExamPhaseTransitionType",
+        "kind": "type"
+      },
+      {
+        "name": "compareActorTurnExecutionRecords",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_SCORE_DRAFT_CLAIM_SCOPE",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR",
+        "kind": "runtime"
+      },
+      {
+        "name": "FacultyScoreDraft",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewDecisionDraft",
+        "kind": "type"
+      },
+      {
+        "name": "stripPrivateHiddenFactPayload",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AsyncDurableMultiActorSessionStore",
+        "kind": "type"
+      },
+      {
+        "name": "createDurableExamFormEncounterBundlePins",
+        "kind": "runtime"
+      },
+      {
+        "name": "DurableClinicalEventRecord",
+        "kind": "type"
+      },
+      {
+        "name": "DurableClinicalEventReviewProjection",
+        "kind": "type"
+      },
+      {
+        "name": "DurableConversationTurnRecord",
+        "kind": "type"
+      },
+      {
+        "name": "DurableEmotionalStateTimelineRecord",
+        "kind": "type"
+      },
+      {
+        "name": "DurableExamFormEncounterBundlePins",
+        "kind": "type"
+      },
+      {
+        "name": "DurableExamStationEncounterBundlePin",
+        "kind": "type"
+      },
+      {
+        "name": "durableExamStationEncounterBundlePinClaimScope",
+        "kind": "runtime"
+      },
+      {
+        "name": "durableExamStationEncounterBundlePinNotEvidenceFor",
+        "kind": "runtime"
+      },
+      {
+        "name": "ExamFormEncounterBundlePinPersistencePort",
+        "kind": "type"
+      },
+      {
+        "name": "launchPinnedStationAssetsFromPort",
+        "kind": "runtime"
+      },
+      {
+        "name": "LaunchPinnedStationAssetsInput",
+        "kind": "type"
+      },
+      {
+        "name": "LaunchPinnedStationAssetsResult",
+        "kind": "type"
+      },
+      {
+        "name": "PersistExamFormEncounterBundlePinsInput",
+        "kind": "type"
+      },
+      {
+        "name": "projectDurableClinicalEventForReview",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "PatientNote",
+        "kind": "type"
+      },
+      {
+        "name": "ReviewPacket",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "TraceEvent",
+        "kind": "type"
+      },
+      {
+        "name": "validatePatientNote",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateReviewPacket",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateTraceEvent",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "TraceEvent",
+        "kind": "type"
+      },
+      {
+        "name": "validateTraceEvent",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

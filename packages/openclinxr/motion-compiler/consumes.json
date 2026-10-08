@@ -1,0 +1,40 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolvePoseBone",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
+    "entrypoint": "./planted-red-manifest",
+    "names": [
+      {
+        "name": "derivePlantedEntries",
+        "kind": "runtime"
+      },
+      {
+        "name": "discoverPlantedClauses",
+        "kind": "runtime"
+      },
+      {
+        "name": "PLANTED_REDS",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

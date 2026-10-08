@@ -1,0 +1,82 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ProviderHealth",
+        "kind": "type"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "planMotionProgram",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
+    "entrypoint": "./compiler",
+    "names": [
+      {
+        "name": "CompiledMotionClipV1",
+        "kind": "type"
+      },
+      {
+        "name": "compileMotionProgram",
+        "kind": "runtime"
+      },
+      {
+        "name": "deriveSkeletonProfileFromRigAsset",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
+    "entrypoint": "./glb-bake",
+    "names": [
+      {
+        "name": "bakeMotionProgramToGlb",
+        "kind": "runtime"
+      },
+      {
+        "name": "MotionGlbBakeClip",
+        "kind": "type"
+      },
+      {
+        "name": "readMotionGlbClipId",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

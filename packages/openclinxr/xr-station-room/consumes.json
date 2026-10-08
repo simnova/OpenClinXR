@@ -1,0 +1,154 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeActorPlacement",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-asset-loading",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "addReusableExteriorPreEncounterRoom",
+        "kind": "runtime"
+      },
+      {
+        "name": "addScenarioSpecificClinicalSetDressing",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssetLoadingContext",
+        "kind": "type"
+      },
+      {
+        "name": "AssetLoadingScenarioTheme",
+        "kind": "type"
+      },
+      {
+        "name": "comparatorCaptureSubjectActorId",
+        "kind": "runtime"
+      },
+      {
+        "name": "loadGeneratedEnvironmentIntoSceneSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "loadGeneratedHumanoidIntoActorSlot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capture-evidence",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "publishRuntimeActorSlotAssignmentEvidence",
+        "kind": "runtime"
+      },
+      {
+        "name": "shouldSuppressGeneratedEnvironmentShell",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "additionalCastPlacementFallback",
+        "kind": "runtime"
+      },
+      {
+        "name": "iwsdkStationSceneObjects",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeSlotAssignment",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createPrimitiveActorMesh",
+        "kind": "runtime"
+      },
+      {
+        "name": "loadInfinigenEnvironmentIntoStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "mountStationEnvironmentForRuntime",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene-cues",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createReadableVrTextPanel",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "enableCaptureRendererShadowMap",
+        "kind": "runtime"
+      },
+      {
+        "name": "markFloorReceiveShadow",
+        "kind": "runtime"
+      },
+      {
+        "name": "stationContextForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "StationContextView",
+        "kind": "type"
+      },
+      {
+        "name": "StationInteriorLightingApplyResult",
+        "kind": "type"
+      },
+      {
+        "name": "StationInteriorLightingVariantId",
+        "kind": "type"
+      }
+    ]
+  }
+]

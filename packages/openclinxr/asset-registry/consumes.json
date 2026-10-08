@@ -1,0 +1,230 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "composeSupportedActorWorldPosition",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "footSlideMeters",
+        "kind": "runtime"
+      },
+      {
+        "name": "stepBedsideApproach",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "planBedsideApproach",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./initial-scene-contents",
+    "names": [
+      {
+        "name": "bindInitialSceneContents",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./layout-solve",
+    "names": [
+      {
+        "name": "resolveBedsideLayoutFromSeed",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-asset-review",
+    "names": [
+      {
+        "name": "promoteEncounterRuntimeAssetBundleForLocalUse",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundle-lookups",
+    "names": [
+      {
+        "name": "findRuntimeActorAsset",
+        "kind": "runtime"
+      },
+      {
+        "name": "findRuntimeEquipmentAsset",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "buildEncounterDynamicBehaviorCoverageSummary",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterFactoryDryRunSummary",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterFactoryInputPlanningSummary",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterFactorySummaryContracts",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildEncounterRuntimeBundlePublicationMetadata",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildGuardedRuntimeSelectorDisabledDecision",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalEncounterRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeActorPlacement",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeSceneManifest",
+        "kind": "type"
+      },
+      {
+        "name": "evaluateEncounterRuntimeLearnerUseGate",
+        "kind": "runtime"
+      },
+      {
+        "name": "registerGeneratedRuntimeAssetReference",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRuntimeAssetBlobUrl",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRuntimeAssetStoreConfig",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRuntimeAssetUrl",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetKind",
+        "kind": "type"
+      },
+      {
+        "name": "toLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecution",
+        "kind": "type"
+      },
+      {
+        "name": "ActorTurnPlan",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      },
+      {
+        "name": "validateAssetManifest",
+        "kind": "runtime"
+      },
+      {
+        "name": "ValidationResult",
+        "kind": "type"
+      }
+    ]
+  }
+]

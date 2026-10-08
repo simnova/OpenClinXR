@@ -1,0 +1,130 @@
+[
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyStationPayloadToCompileSpec",
+        "kind": "runtime"
+      },
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "findEquipmentSubject",
+        "kind": "runtime"
+      },
+      {
+        "name": "runDialogueRuntime",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capture-evidence",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "shouldRenderRoomPropInVisualReview",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./case-owned-approach-runtime",
+    "names": [
+      {
+        "name": "measureStanceGroundAdvance",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene-cues",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDetailedEdRoomProps",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDeclaredEquipmentGeometry",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildGltfEquipmentPlaceholderSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildRoomPropGroup",
+        "kind": "runtime"
+      },
+      {
+        "name": "normalizeGltfEquipmentMount",
+        "kind": "runtime"
+      },
+      {
+        "name": "planStationEquipmentMounts",
+        "kind": "runtime"
+      },
+      {
+        "name": "REAL_EQUIPMENT_GLTF_BY_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "roomPropColourNumbers",
+        "kind": "runtime"
+      },
+      {
+        "name": "roomPropSuppressedByFixtureOwnership",
+        "kind": "runtime"
+      },
+      {
+        "name": "stampRoomPropAliasesOnEquipmentRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "stampSuppressedDeclaredEquipmentOntoFixtures",
+        "kind": "runtime"
+      }
+    ]
+  }
+]
