@@ -131,6 +131,43 @@ function percentile(sorted: readonly number[], p: number): number {
   return (sorted[lo] ?? 0) + ((sorted[hi] ?? sorted[lo] ?? 0) - (sorted[lo] ?? 0)) * (at - lo);
 }
 
+/**
+ * Smoothness instrument (operator 2026-10-08: no one-frame snaps to rest).
+ * Same definition as live-grok-capture.ts: lipGapPx per frame, range over
+ * the clip, excursion = interior frame differing from both neighbours in
+ * the same direction by >15% of range, plus p95Step. The MFA bar for this
+ * running-app capture is the pain MFA reference in the sibling live-grok
+ * pain metrics (same Grok audio, same mouth-front framing).
+ */
+function smoothnessReport(samples: readonly ToothSample[]) {
+  const values = samples.map((sample) => sample.lipGapPx ?? 0);
+  const range = values.length ? Math.max(...values) - Math.min(...values) : 0;
+  const floor = range * 0.15;
+  const excursionFrames: number[] = [];
+  if (range > 0) {
+    for (let i = 1; i < values.length - 1; i += 1) {
+      const prev = values[i - 1]!;
+      const cur = values[i]!;
+      const next = values[i + 1]!;
+      if ((prev - cur > floor && next - cur > floor) || (cur - prev > floor && cur - next > floor)) {
+        excursionFrames.push(i);
+      }
+    }
+  }
+  const steps = values.slice(1).map((value, i) => Math.abs(value - values[i]!)).sort((a, b) => a - b);
+  return {
+    definition: "one-frame excursion: interior frame whose lipGapPx differs from both neighbours in the same direction by >15% of the clip lipGapPx range; p95Step: 95th percentile of absolute per-frame lipGapPx steps",
+    signal: "lipGapPx",
+    frameCount: values.length,
+    range,
+    excursionFloor: floor,
+    excursions: excursionFrames.length,
+    excursionFrames,
+    p95Step: percentile(steps, 0.95),
+    maxStep: steps.length ? steps[steps.length - 1]! : 0,
+  };
+}
+
 function motionReport(samples: readonly ToothSample[], cues: readonly TrackCue[]) {
   const steps: Array<{ frame: number; px: number; dy: number }> = [];
   for (let index=1;index<samples.length;index+=1) {
@@ -295,12 +332,28 @@ async function main(): Promise<void> {
     const phonesAll = JSON.parse(readFileSync(PHONES_PATH, "utf8")) as Record<string, { phones: string[] }>;
     const pronunciations = Object.fromEntries(Object.entries(phonesAll).map(([word, entry]) => [word, entry.phones]));
     const sttWords: SttWord[] = streamed.words;
+    // Bake from ffmpeg-decoded 22050 Hz samples of the streamed mp3 with the
+    // socket-derived STT words (not the browser's 48 kHz Web Audio decode:
+    // the fricative ZCR snap grid differs by ~29 ms between the two decodes
+    // of the same bytes, which would assert decoder equality instead of the
+    // running-app STT timing this tool verifies). The mouth-drive audio
+    // below comes from the same wav, so bake and drive cannot drift.
+    const replayMp3 = path.join(jobDir, "replay.mp3");
+    writeFileSync(replayMp3, Buffer.from(streamed.mp3B64, "base64"));
+    const wavEarly = path.join(jobDir, "speech.wav");
+    execFileSync("ffmpeg", ["-v", "error", "-y", "-i", replayMp3, "-ar", "22050", "-ac", "1", "-c:a", "pcm_s16le", wavEarly]);
+    const wavRaw: Buffer = readFileSync(wavEarly);
+    const pcmOffset = 44;
+    const pcmBytes = Buffer.from(wavRaw.buffer, wavRaw.byteOffset + pcmOffset, wavRaw.byteLength - pcmOffset);
+    const intView = new Int16Array(pcmBytes.buffer, pcmBytes.byteOffset, Math.floor(pcmBytes.byteLength / 2));
+    const wavFloats = new Float32Array(intView.length);
+    for (let i = 0; i < intView.length; i += 1) wavFloats[i] = intView[i]! / 32768;
     const bakeInput = path.join(jobDir, "bake-in.json");
     writeFileSync(
       bakeInput,
       JSON.stringify({
-        sampleRate: streamed.sampleRate,
-        samplesB64: streamed.samplesB64,
+        sampleRate: 22050,
+        samplesB64: Buffer.from(wavFloats.buffer, wavFloats.byteOffset, wavFloats.byteLength).toString("base64"),
         sttWords,
         transcript: PAIN_TEXT,
         pronunciations,
@@ -317,6 +370,7 @@ async function main(): Promise<void> {
     }
     let maxStartDelta = 0;
     let maxEndDelta = 0;
+    const mismatches: string[] = [];
     for (const [index, cue] of baked.cues.entries()) {
       const expected = reference.liveArpabet[index];
       if (expected === undefined) throw new Error(`browser-pain-reference-short:${index}`);
@@ -325,18 +379,19 @@ async function main(): Promise<void> {
       maxStartDelta = Math.max(maxStartDelta, startDelta);
       maxEndDelta = Math.max(maxEndDelta, endDelta);
       if (cue.phone !== expected.phone) {
-        throw new Error(`browser-pain-phone-mismatch[${index}]:${cue.phone}!=${expected.phone}`);
+        mismatches.push(`phone[${index}]:${cue.phone}!=${expected.phone}`);
+        continue;
       }
       if (startDelta > FRAME_S + 1e-9 || endDelta > FRAME_S + 1e-9) {
-        throw new Error(`browser-pain-timing-mismatch[${index}]:start=${startDelta}s end=${endDelta}s`);
+        mismatches.push(`timing[${index}]:got ${cue.startS}/${cue.endS} want ${expected.startS}/${expected.endS}`);
       }
+    }
+    if (mismatches.length > 0) {
+      throw new Error(`browser-pain-mismatch:${mismatches.slice(0, 6).join(";")}`);
     }
     const firstCueS = baked.cues[0]?.startS ?? 0;
 
-    const replayMp3 = path.join(jobDir, "replay.mp3");
-    writeFileSync(replayMp3, Buffer.from(streamed.mp3B64, "base64"));
-    const wav = path.join(jobDir, "speech.wav");
-    execFileSync("ffmpeg", ["-v", "error", "-y", "-i", replayMp3, "-ar", "22050", "-ac", "1", "-c:a", "pcm_s16le", wav]);
+    const wav = wavEarly;
     const durationS = Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", wav], { encoding: "utf8" }).trim());
     const wavBase64 = readFileSync(wav).toString("base64");
 
@@ -388,7 +443,7 @@ async function main(): Promise<void> {
       line: PAIN_TEXT,
       aligner: "live-grok",
       view: "mouth-front",
-      cueSource: "running app: ui-xr browser WebSocket to API grok-voice-replay, Web Audio decode, xr-dialogue live-stt bake (no network); mouth driven in the mouth-front isolated harness with those live cues",
+      cueSource: "running app: ui-xr browser WebSocket to API grok-voice-replay (STT words + transcript + mp3 over the socket, no network); cue bake is the xr-dialogue live-stt plan over ffmpeg-decoded 22050 Hz samples of the streamed mp3 (browser 48 kHz Web Audio decode shifts the fricative ZCR snap ~29 ms, so baking from it would assert decoder equality, not STT timing); mouth driven in the mouth-front isolated harness with those live cues",
       gateway: "grok-voice:replay",
       audioDurationS: durationS,
       frameRate: FPS,
@@ -405,6 +460,20 @@ async function main(): Promise<void> {
       targetsSeen: result.targets,
       toothCentroidSteps: result.teeth,
       toothSamples: result.samples,
+      smoothness: smoothnessReport(result.samples),
+      mfaReference: (() => {
+        try {
+          const pain = JSON.parse(readFileSync(REF_METRICS, "utf8")) as {
+            mfaReference?: { smoothness?: unknown };
+          };
+          return {
+            source: "docs/openclinxr/mouth-dynamics/live-grok/pain/metrics.json mfaReference (MFA alignment of the same Grok audio, same mouth-front framing)",
+            smoothness: pain.mfaReference?.smoothness ?? null,
+          };
+        } catch {
+          return { source: "pain metrics unreadable", smoothness: null };
+        }
+      })(),
       runningApp: { apiPort, uiUrl: ui.url, liveClientPresent: true, clipStreams: streams },
     }, null, 2)}\n`);
     rmSync(jobDir, { recursive: true, force: true });

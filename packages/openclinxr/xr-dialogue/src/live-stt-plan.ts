@@ -237,6 +237,32 @@ export function snapWordStarts(
 function normWord(w: string): string {
   return w.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gu, "");
 }
+
+// ── Inter-cue gap fill (operator 2026-10-08; module-internal, no new export) ──
+// Gaps between cues play as a sil/rest frame (live-grok/pain pops at the
+// 40/16/52 ms gaps; MFA capture of the same audio: none). (1) A gap before
+// a bilabial (P/B/M, incl. the emitted closure P) becomes closure: a P cue
+// spanning the gap (anchor closures start at the audio quiet point, leaving
+// the leading slice uncovered — the popped frames). (2) Any other gap
+// strictly shorter than GAP_FILL_THRESHOLD_S splits at the midpoint
+// (neighbours hold, smoothstep blends); longer gaps stay sil (pauses).
+// Threshold: shortest interior SIL in the MFA refs of the 14 cached clips
+// (mfa-cues.json): 0.030 s (pangram, clin-02, clin-03). Edge sil kept.
+const GAP_FILL_THRESHOLD_S = 0.03;
+function fillInterCueGaps(plan: PlannedPhone[]): PlannedPhone[] {
+  const sorted = [...plan].sort((a, b) => a.startS - b.startS || a.wordIndex - b.wordIndex);
+  const out: PlannedPhone[] = [];
+  for (let i = 0; i < sorted.length; i += 1) {
+    const cur = { ...(sorted[i]!) };
+    const next = sorted[i + 1];
+    const gap = next === undefined ? 0 : next.startS - cur.endS;
+    if (next === undefined || !(gap > 1e-9)) { out.push(cur); continue; }
+    if (BILABIAL.has(stressless(next.phone))) out.push(cur, { word: next.word, wordIndex: next.wordIndex, phone: "P", startS: cur.endS, endS: next.startS });
+    else if (gap < GAP_FILL_THRESHOLD_S - 1e-9) { const mid = cur.endS + gap / 2; out.push({ ...cur, endS: mid }); sorted[i + 1] = { ...next, startS: mid }; }
+    else out.push(cur);
+  }
+  return out;
+}
 // ── V2 end ─────────────────────────────────────────────────────────────────
 // ── V3: phone-plan builder (verbatim from measure.ts at 57ca31545) ─────────
 
@@ -309,7 +335,8 @@ export function buildPhonePlan(
     plan.push({ word: ref, wordIndex: c.wordIndex, phone: "P", startS: c.startS, endS: c.endS });
   }
   plan.sort((a, b) => a.startS - b.startS || a.wordIndex - b.wordIndex);
-  return { plan, mismatches, oovWords };
+  const filled = fillInterCueGaps(plan);
+  return { plan: filled, mismatches, oovWords };
 }
 // ── V3 end ─────────────────────────────────────────────────────────────────
 

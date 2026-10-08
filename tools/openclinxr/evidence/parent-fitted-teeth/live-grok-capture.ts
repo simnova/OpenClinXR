@@ -186,6 +186,47 @@ function percentile(sorted: readonly number[], p: number): number {
   return (sorted[lo] ?? 0) + ((sorted[hi] ?? sorted[lo] ?? 0) - (sorted[lo] ?? 0)) * (at - lo);
 }
 
+/**
+ * Smoothness instrument (operator 2026-10-08: no one-frame snaps to rest).
+ * Signal is lipGapPx per captured frame (geometric mouth opening, present
+ * on every tooth sample). Opening range R = max - min over the clip.
+ * A one-frame excursion is an interior frame differing from BOTH neighbours
+ * in the same direction by more than 15% of R (a single sil/rest frame
+ * between speech frames, or a single speech frame inside a pause). p95Step
+ * is the 95th percentile of absolute per-frame |lipGapPx| steps. The same
+ * report runs over the live-driven samples and over the MFA-driven
+ * reference capture (same tool, same framing); the bar is 0 live
+ * excursions with p95Step no worse than 1.5x the MFA reference.
+ */
+function smoothnessReport(samples: readonly ToothSample[]) {
+  const values = samples.map((sample) => sample.lipGapPx ?? 0);
+  const range = values.length ? Math.max(...values) - Math.min(...values) : 0;
+  const floor = range * 0.15;
+  const excursionFrames: number[] = [];
+  if (range > 0) {
+    for (let i = 1; i < values.length - 1; i += 1) {
+      const prev = values[i - 1]!;
+      const cur = values[i]!;
+      const next = values[i + 1]!;
+      if ((prev - cur > floor && next - cur > floor) || (cur - prev > floor && cur - next > floor)) {
+        excursionFrames.push(i);
+      }
+    }
+  }
+  const steps = values.slice(1).map((value, i) => Math.abs(value - values[i]!)).sort((a, b) => a - b);
+  return {
+    definition: "one-frame excursion: interior frame whose lipGapPx differs from both neighbours in the same direction by >15% of the clip lipGapPx range; p95Step: 95th percentile of absolute per-frame lipGapPx steps",
+    signal: "lipGapPx",
+    frameCount: values.length,
+    range,
+    excursionFloor: floor,
+    excursions: excursionFrames.length,
+    excursionFrames,
+    p95Step: percentile(steps, 0.95),
+    maxStep: steps.length ? steps[steps.length - 1]! : 0,
+  };
+}
+
 function motionReport(samples: readonly ToothSample[], cues: readonly TrackCue[]) {
   const steps: Array<{ frame: number; px: number; dy: number }> = [];
   for (let index=1;index<samples.length;index+=1) {
@@ -386,6 +427,19 @@ async function captureClip(clip: GrokClip): Promise<void> {
         if (!cues.length) throw new Error(`prepared-runtime-cues-missing:${prepared.starter}`);
         const frameDir = path.join(jobDir, "frames");
         const result = await recordFrames(page, cues, durationS, frameDir);
+        // MFA reference: the same mouth, same framing, driven by the MFA
+        // alignment of the same wav. Its smoothness is the bar the live
+        // track must meet (0 live excursions; live p95Step <= 1.5x MFA).
+        const mfaPrepared = await page.evaluate((input: { aligner: string; doc: unknown; wavBase64: string }) => {
+          const win = globalThis as typeof globalThis & { __speechRhubarb?: unknown; __speechAligner?: string; __speechWavBase64?: string; __openClinXrStartPreparedSpeech?: () => TrackCue[] };
+          win.__speechRhubarb = input.doc; win.__speechAligner = input.aligner; win.__speechWavBase64 = input.wavBase64;
+          return { starter: typeof win.__openClinXrStartPreparedSpeech, cues: win.__openClinXrStartPreparedSpeech?.() ?? [] };
+        }, { aligner: "mfa", doc: mfa, wavBase64 });
+        const mfaCues = mfaPrepared.cues as TrackCue[];
+        if (!mfaCues.length) throw new Error(`mfa-reference-cues-missing:${mfaPrepared.starter}`);
+        const mfaResult = await recordFrames(page, mfaCues, durationS, path.join(jobDir, "frames-mfa"));
+        const smoothness = smoothnessReport(result.samples);
+        const mfaSmoothness = smoothnessReport(mfaResult.samples);
         const clipMp4 = path.join(OUT_DIR, "clip.mp4");
         execFileSync("ffmpeg", ["-v", "error", "-y", "-framerate", String(FPS), "-start_number", "0", "-i", path.join(frameDir, "f-%04d.png"), "-i", wav, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-movflags", "+faststart", "-shortest", clipMp4]);
         writeFileSync(path.join(OUT_DIR, "metrics.json"), `${JSON.stringify({
@@ -411,6 +465,14 @@ async function captureClip(clip: GrokClip): Promise<void> {
           targetsSeen: result.targets,
           toothCentroidSteps: result.teeth,
           toothSamples: result.samples,
+          smoothness,
+          mfaReference: {
+            cueSource: "MFA 3.4.2 alignment of the same cached Grok wav, same tool, same mouth-front framing",
+            frameCount: mfaResult.frames,
+            targetsSeen: mfaResult.targets,
+            smoothness: mfaSmoothness,
+            toothSamples: mfaResult.samples,
+          },
           visemeEval: scoreAgainstMfa(mfa, result.samples),
         }, null, 2)}\n`);
         await page.close();
