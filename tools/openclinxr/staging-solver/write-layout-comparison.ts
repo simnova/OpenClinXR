@@ -37,11 +37,15 @@ function main(): void {
   }));
   const caseRows = Object.values(cases);
   const average = (key: "before" | "after") => Number((caseRows.reduce((sum, row) => sum + row[key].score, 0) / caseRows.length).toFixed(2));
+  const auditDir = path.join(ROOT, "docs/openclinxr/room-layout-audit-2026-10-08");
   const views = Object.fromEntries([
     ["perspectiveBeforeAfter", "all-rooms-perspective-before-after.png"],
-    ["promotedOverheadAfter", "promoted-rooms-overhead-after.png"],
-    ["promotedIsometricAfter", "promoted-rooms-isometric-after.png"],
-  ].map(([name, relative]) => [name, { path: relative, sha256: sha256(path.join(COMPARISON, relative)) }]));
+    ["overheadAfter", "all-rooms-overhead.png"],
+    ["isometricAfter", "all-rooms-isometric.png"],
+  ].map(([name, relative]) => [name, {
+    path: path.relative(COMPARISON, path.join(auditDir, relative)),
+    sha256: sha256(path.join(auditDir, relative)),
+  }]));
   const report = {
     schemaVersion: "openclinxr.staging-layout-comparison.v2",
     scoreDefinition: "40 containment + 40 crown/chest visibility + 10 facing + 10 near-camera occlusion",

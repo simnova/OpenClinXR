@@ -1492,6 +1492,23 @@ export async function captureStationEnvironmentRooms(
           // #85: shell-ready ≠ humanoids loaded; wait for GLB cast rows before screenshot.
           await waitForStaticScenarioBundle(page, scenarioId, 180_000);
           await waitForHumanoidAssetsLoaded(page, 180_000);
+          const hiddenReviewAffordances = await page.evaluate(() => {
+            const pageWindow = globalThis as unknown as {
+              __openClinXrDebugScene?: {
+                traverse: (cb: (obj: { name: string; visible: boolean; userData: Record<string, unknown> }) => void) => void;
+              };
+            };
+            const hidden: string[] = [];
+            pageWindow.__openClinXrDebugScene?.traverse((obj) => {
+              if (obj.userData?.openClinXrPortalInteriorReviewAffordance !== true || !obj.visible) return;
+              obj.visible = false;
+              hidden.push(obj.name);
+            });
+            return hidden;
+          });
+          if (hiddenReviewAffordances.length > 0) {
+            process.stdout.write(`room-capture: hid review-only affordances ${hiddenReviewAffordances.join(",")}\n`);
+          }
           if (input.onSnapshot) await input.onSnapshot(scenarioId, await collectSweepScene(page));
 
           const frameNote = await applyAuthoredStagingCamera(
@@ -1545,7 +1562,7 @@ export async function captureStationEnvironmentRooms(
                 for (let i = 0; i < strips.length; i += 1) strips[i].style.display = "none";
               })()`);
               const shotPath = path.join(outputDir, shot.fileName);
-              await webglCanvas.screenshot({ path: shotPath });
+              await webglCanvas.screenshot({ path: shotPath, animations: "disabled", timeout: 60_000 });
               process.stdout.write(`room-capture: ${shot.mode} orthographic saved to ${shotPath}\n`);
             }
             await page.evaluate(`(() => {

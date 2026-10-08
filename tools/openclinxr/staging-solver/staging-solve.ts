@@ -9,7 +9,7 @@ import {
   shippedStationIds,
 } from "../evidence/ui-xr-environment-room-capture.js";
 import { writeAuthoredSolutions } from "./authored-output.js";
-import { type CameraSearchResult, solveLayouts } from "./camera-search.js";
+import { type CameraSearchResult, projectedActorCoverage, searchBestCamera, solveLayouts } from "./camera-search.js";
 import { searchClinicalLayouts } from "./layout-search.js";
 import { cacheObservedGate, cacheSnapshotRaw, readFreshSnapshot } from "./snapshot-cache.js";
 import type { CachedSceneSnapshot, StagingSolveResult } from "./staging-types.js";
@@ -92,7 +92,23 @@ function predictedResult(scenarioId: string, snapshot: CachedSceneSnapshot): { r
   const protectedBaseline = snapshot.observedGate?.gatePass === true && snapshot.observedCamera && unchanged
     ? { camera: snapshot.observedCamera, gate: snapshot.observedGate, layout: unchanged }
     : null;
-  const solution = protectedBaseline ?? (layoutSearch.layouts.length > 0 ? solveLayouts(snapshot, layoutSearch.layouts) : null);
+  const candidate = protectedBaseline && unchanged
+    ? searchBestCamera(snapshot, unchanged)
+    : layoutSearch.layouts.length > 0 ? solveLayouts(snapshot, layoutSearch.layouts) : null;
+  const baselineCoverage = protectedBaseline
+    ? projectedActorCoverage(snapshot, protectedBaseline.layout, protectedBaseline.camera)
+    : 0;
+  const candidateCoverage = candidate
+    ? projectedActorCoverage(snapshot, candidate.layout, candidate.camera)
+    : 0;
+  // A passing gate is necessary but not sufficient for a useful review camera. Replace an already
+  // passing baseline only when the candidate remains comfortably contained and makes the actors
+  // materially more legible; small score movements keep the authored view stable.
+  const promotesReadableCamera = Boolean(protectedBaseline && candidate?.gate.gatePass
+    && candidate.gate.minMargin >= 0.08
+    && candidate.gate.nearOcclusionFraction <= protectedBaseline.gate.nearOcclusionFraction
+    && candidateCoverage >= baselineCoverage * 1.5);
+  const solution = promotesReadableCamera ? candidate : protectedBaseline ?? candidate;
   return {
     solution,
     row: {
@@ -209,9 +225,13 @@ async function main(): Promise<void> {
     if (!snapshot) continue;
     const solved = predictedResult(scenarioId, snapshot);
     rows.set(scenarioId, solved.row);
-    // Already-passing live baselines are protected above and do not need a new
-    // authored record. Only previously failing rooms enter the treatment set.
-    if (solved.solution?.gate.gatePass && snapshot.observedGate?.gatePass !== true) {
+    // Persist either a newly passing treatment or a materially more readable camera selected by
+    // the protected-baseline comparison above. Small changes never enter the treatment set.
+    const observedCamera = snapshot.observedCamera;
+    const cameraChanged = Boolean(observedCamera && solved.solution
+      && JSON.stringify({ eye: solved.solution.camera.eye, look: solved.solution.camera.look, fov: solved.solution.camera.fov })
+        !== JSON.stringify({ eye: observedCamera.eye, look: observedCamera.look, fov: observedCamera.fov }));
+    if (solved.solution?.gate.gatePass && (snapshot.observedGate?.gatePass !== true || cameraChanged)) {
       solutions.set(scenarioId, solved.solution);
     }
     process.stdout.write(`staging-solver: ${scenarioId} gate=${String(solved.row.predictedGate?.gatePass ?? false)} solveMs=${String(solved.row.solveMs)}\n`);

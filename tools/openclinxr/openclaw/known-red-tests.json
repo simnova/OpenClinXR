@@ -265,6 +265,21 @@
       "path": "tools/openclinxr/evidence/isolated-foot-grounder/the-isolated-foot-grounder-samples-both-feet.test.ts",
       "reason": "The test timed out at 300000ms after waiting 298914ms for the browser-capture slot. No assertion ran. The test file matches origin/main.",
       "card": "unfiled: the foot-grounder capture waits out the browser slot"
+    },
+    {
+      "path": "tools/openclinxr/evidence/room-ward-finish-chain/the-ceiling-tiles-render-at-reference-brightness.test.ts",
+      "reason": "On 2026-10-08 the related pre-commit gate failed before its assertions because its generated box-stats.py imports numpy and the selected system python has no numpy. The test file and room assets match origin/main.",
+      "card": "unfiled: run the ceiling brightness probe with the workspace Python that includes NumPy"
+    },
+    {
+      "path": "tools/openclinxr/evidence/environment-artifacts.test.ts",
+      "reason": "On 2026-10-08 both Blender-backed emitter cases hit their explicit 300000ms timeout while the Cycles bake remained active at high CPU. The test file and bake implementation match origin/main; no room-layout assertion failed.",
+      "card": "unfiled: bound or cache the environment Cycles bake so both evidence cases complete inside their declared timeout"
+    },
+    {
+      "path": "tools/openclinxr/evidence/clinical-touch/the-shipped-ed-patient-has-a-playable-rlq-response.test.ts",
+      "reason": "On 2026-10-08 the byte-preservation clause expected the planted GLB's 150 nodes but the unchanged shipped output contains 151. The test, plant, and shipped GLB all match origin/main; this slice changes only runtime visibility of one loaded node and does not modify GLB bytes.",
+      "card": "unfiled: re-pin the clinical-touch plant to the current shipped GLB or restore the missing byte-preservation relationship"
     }
   ]
 }

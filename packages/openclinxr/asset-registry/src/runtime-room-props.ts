@@ -101,7 +101,11 @@ export function roomPropsForEnvironment(environmentId: string): EncounterRuntime
     case "inpatient_ward_room_v1":
       return wardRoomProps();
     case "ed_exam_bay_v1":
-    default:
       return edExamBayRoomProps();
+    default:
+      // Environment-specific fixtures and scenario equipment already describe every other
+      // shipped room. Falling through to the ED set populated homes and clinics with oxygen,
+      // sharps, bed locks, IV lines and task trays that their encounter never requested.
+      return [];
   }
 }

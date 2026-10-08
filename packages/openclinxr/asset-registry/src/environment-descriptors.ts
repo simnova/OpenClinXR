@@ -189,8 +189,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.55,
     zoneTemplates: ED_BAY_ZONES,
-    // Stroke bank patient is standing — offset stretcher so they are not planted through the deck.
-    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
+    // The stroke bank patient is standing and the encounter declares no patient-support equipment.
+    fixtureSlots: [DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   adult_ed_abdominal_bay_v1: shell({
     environmentId: "adult_ed_abdominal_bay_v1",

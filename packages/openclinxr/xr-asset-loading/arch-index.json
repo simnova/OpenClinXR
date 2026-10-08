@@ -50,7 +50,8 @@
   "tests": [
     "src/a-locomotion-clip-does-not-auto-play.test.ts",
     "src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
-    "src/asset-loading.test.ts"
+    "src/asset-loading.test.ts",
+    "src/broken-gown-shell.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-asset-loading test",

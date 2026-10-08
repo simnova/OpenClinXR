@@ -16,6 +16,7 @@ import { AnimationClip, BoxGeometry, type Group, Mesh, MeshStandardMaterial, Sph
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { type LoadSceneSlotOptions, stampEquipmentSlotIdentity } from "./equipment-slot-identity.js";
+import { suppressBrokenAdultGownShell } from "./broken-gown-shell.js";
 import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
 import { rebindHeadLockedTeeth } from "./rebind-head-locked-teeth.js";
 export { rebindHeadLockedTeeth };
@@ -97,6 +98,7 @@ export function loadGeneratedHumanoidIntoActorSlot(
     (gltf) => {
       const humanoid = gltf.scene;
       rebindHeadLockedTeeth(humanoid);
+      suppressBrokenAdultGownShell(humanoid, actorSpecificAssetPath);
       try { assertHumanoidRootUpright(humanoid); } catch (guardError) {
         // #67: refuse #58-class non-identity armature root before the figure is shown.
         console.error("[ui-xr] humanoid load refused by upright guard", actorSpecificAssetPath, guardError);

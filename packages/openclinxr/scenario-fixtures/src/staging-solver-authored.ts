@@ -4,7 +4,7 @@ import type { Scenario } from "@openclinxr/shared-schemas";
 export type AuthoredStagingCamera = {
   eye: [number, number, number];
   look: [number, number, number];
-  fov: 70 | 80 | 90;
+  fov: 55 | 60 | 70 | 80 | 90;
 };
 
 type Placement = NonNullable<Scenario["actors"][number]["placement"]>;
@@ -81,6 +81,22 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
         "headingRadians": -0.26
       }
     }
+  },
+  "primary_care_dyslipidemia_joint_pain_v1": {
+    "camera": {
+      "eye": [
+        0.947026,
+        2.16,
+        -1.428072
+      ],
+      "look": [
+        0.48257,
+        0.948565,
+        0.103033
+      ],
+      "fov": 90
+    },
+    "placements": {}
   }
 };
 

@@ -132,9 +132,9 @@ function eyes(snapshot: CachedSceneSnapshot, target: Vec3): Vec3[] {
   });
 }
 
-function stageOne(camera: GateCamera, actors: GateActor[]): { n: number; contained: boolean[]; facing: number; margin: number } {
+function stageOne(camera: GateCamera, actors: GateActor[]): { n: number; contained: boolean[]; facing: number; margin: number; actorCoverage: number } {
   const matrices = cameraViewProjectionMatrices(camera);
-  let n = 0, margin = Infinity;
+  let n = 0, margin = Infinity, actorCoverage = 0;
   const contained: boolean[] = [];
   for (let index = 0; index < actors.length; index += 1) {
     const actor = actors[index], extent = actor
@@ -144,9 +144,11 @@ function stageOne(camera: GateCamera, actors: GateActor[]): { n: number; contain
       && (!actor.primary || extent.maxY - extent.minY >= 0.36);
     contained.push(inside);
     if (inside) n += 1;
+    const projectedArea = Math.max(0, extent.maxX - extent.minX) * Math.max(0, extent.maxY - extent.minY);
+    actorCoverage += projectedArea * (actor.primary ? 1.5 : 1);
     margin = Math.min(margin, extent.minX + 1, 1 - extent.maxX, extent.minY + 1, 1 - extent.maxY);
   }
-  return { n, contained, facing: meanFacingDegrees(camera.eye, actors), margin: Number.isFinite(margin) ? margin : -1 };
+  return { n, contained, facing: meanFacingDegrees(camera.eye, actors), margin: Number.isFinite(margin) ? margin : -1, actorCoverage };
 }
 
 function gateIsBetter(candidate: GateReading, incumbent: GateReading): boolean {
@@ -176,15 +178,25 @@ export function evaluateLayoutCamera(
   return evaluateGate(camera, scene.actors, scene.occluders);
 }
 
+/** Role-weighted projected actor area used to distinguish readable framing from merely passing. */
+export function projectedActorCoverage(
+  snapshot: CachedSceneSnapshot,
+  layout: LayoutRow[],
+  camera: GateCamera,
+): number {
+  const scene = translatedScene(snapshot, layout);
+  return stageOne(camera, scene.actors).actorCoverage;
+}
+
 export function searchBestCamera(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): CameraSearchResult | null {
   const scene = translatedScene(snapshot, layout);
-  const candidates: Array<{ camera: GateCamera; n: number; visible: number; contained: boolean[]; facing: number; margin: number; boundary: number }> = [];
+  const candidates: Array<{ camera: GateCamera; n: number; visible: number; contained: boolean[]; facing: number; margin: number; actorCoverage: number; boundary: number }> = [];
   const eyeTerms = new Map<string, { visible: number; facing: number }>();
   for (const eye of eyes(snapshot, scene.looks[0] ?? snapshot.unionCentre)) {
     const key = eye.join(",");
     const visible = scene.actors.filter((actor) => actorCrownChestVisibleEarly(eye, actor, scene.occluders)).length;
     eyeTerms.set(key, { visible, facing: meanFacingDegrees(eye, scene.actors) });
-    for (const look of scene.looks) for (const fov of [70, 80, 90] as const) {
+    for (const look of scene.looks) for (const fov of [55, 60, 70, 80, 90] as const) {
     const camera: GateCamera = { eye, look, fov, aspect: snapshot.cameraAspect || 16 / 9 };
     const score = stageOne(camera, scene.actors);
     const boundary = Math.min(eye[0] - snapshot.interior.min[0], snapshot.interior.max[0] - eye[0],
@@ -209,20 +221,27 @@ export function searchBestCamera(snapshot: CachedSceneSnapshot, layout: LayoutRo
     if (seen.has(key)) return false;
     seen.add(key); return true;
   });
-  let best: (CameraSearchResult & { quick: GateReading }) | null = null;
+  let best: (CameraSearchResult & { quick: GateReading; actorCoverage: number }) | null = null;
   for (const candidate of finalists) {
     const near = measureNearOcclusion(candidate.camera, scene.occluders.map((item) => item.box));
     const quick: GateReading = { containedActors: candidate.n, totalActors: scene.actors.length, visibleActors: candidate.visible,
       crownChest: [], meanFacingDeg: candidate.facing, nearOcclusionFraction: near.fraction, nearRayCount: near.nearRayCount,
       minMargin: candidate.margin, gatePass: candidate.n === scene.actors.length && candidate.visible === scene.actors.length
         && candidate.facing <= 90 && near.fraction <= 0.1 };
-    if (!best || gateIsBetter(quick, best.quick)) {
-      best = { camera: candidate.camera, gate: quick, quick, layout };
+    const bothComfortablyContained = best?.quick.gatePass === true && quick.gatePass
+      && best.quick.minMargin >= 0.08 && quick.minMargin >= 0.08;
+    const coverageWins = bothComfortablyContained
+      && Math.abs(candidate.actorCoverage - (best?.actorCoverage ?? 0)) > 1e-9
+      && candidate.actorCoverage > (best?.actorCoverage ?? 0);
+    if (!best || coverageWins || (!bothComfortablyContained && gateIsBetter(quick, best.quick))) {
+      best = { camera: candidate.camera, gate: quick, quick, actorCoverage: candidate.actorCoverage, layout };
     } else if (quick.visibleActors === scene.actors.length && best.quick.visibleActors === scene.actors.length
       && quick.gatePass === best.quick.gatePass
       && candidate.camera.fov === 90 && best.camera.fov !== 90
       && !gateIsBetter(best.quick, quick)) {
-      best = { camera: candidate.camera, gate: quick, quick, layout };
+      // Keep the legacy wide-lens fallback only when it does not lose the gate comparator; the
+      // readable-camera promotion above still requires the final view to beat the old baseline.
+      best = { camera: candidate.camera, gate: quick, quick, actorCoverage: candidate.actorCoverage, layout };
     }
   }
   return best ? { camera: best.camera, gate: evaluateGate(best.camera, scene.actors, scene.occluders), layout } : null;

@@ -13,11 +13,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 107
 - archive-candidate: 116
-- current-reference: 210
-- decision-record: 44
-- evidence: 143
+- current-reference: 214
+- decision-record: 47
+- evidence: 167
 - generated-evidence: 11
-- historical-synthesis: 17
+- historical-synthesis: 18
 - protected-policy: 10
 - temporary: 54
 
@@ -217,8 +217,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/mongodb-memory-server-test-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/openclaw-runbook-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
-- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - current-reference; Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference.
 - `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md` - current-reference; Written room spec (envelope, finishes, door wall/position/hinge, no-windows decision, six camera views) used verbatim in every v2 imagine-multiview reference prompt; keep alongside the v2 reference set it drove (row-32 provenance).
+- `docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md` - current-reference; Grading rubric (enclosure, wall colour, troffer flush, T-bar grid, cove base, door trim, vinyl floor, ceiling tiles) for ward-finish runtime captures against the committed Imagine multiview reference set; recorded grades live in docs/openclinxr/room-realism/ward-multiview/grades.json.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - current-reference; Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/session-state-websocket-message-design.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/statecharts-and-sequences.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -238,9 +240,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/physics-touch-contract/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules.
-- `packages/openclinxr/factory-stations/src/room_clinic_finish/README.md` - current-reference; Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules.
 - `packages/openclinxr/factory-stations/src/room_chain/README.md` - current-reference; Station README for room_chain stage caching: cache-key input list, and a D9 finding that room_generate's Infinigen GENERATE step is not bit-deterministic run to run (RED4 divergence isolated to stage 1, 4 vertices on Cube.003). Subordinate to protected + drift rules.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/README.md` - current-reference; Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules.
+- `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules.
 - `packages/openclinxr/physics-touch-artifacts/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -359,7 +361,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-clip-deviation-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -367,14 +368,12 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-critique.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-final-confirmation.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/fresh-fix-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-verification.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-restored-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-motion-seated-pose-transfer-2026-09-12.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md` - evidence; Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -422,40 +421,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md` - evidence; Completed delegation handoff retained as historical evidence; not an active instruction.
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/room-realism/light-balance/REPORT.md` - evidence; Light-balance report: clinic_day rig retune toward neutral with RED/GREEN wall/tile box means against the v2 reference (wall bar pass, tile-B fail disclosed).
-- `docs/openclinxr/room-realism/stepdown-room-v1-finish/REPORT.md` - evidence; Step-down room data-driven finish promotion report with learner-runtime before/after six-pose sheets, GLB material and geometry gates, decoded texture budget, hashes, and no-reference disclosure.
-- `docs/openclinxr/room-realism/light-balance/HEMISPHERE.md` - evidence; Hemisphere retune report: raised_hemisphere_ground sky/ground toward neutral with hemisphere-RED/GREEN wall/tile box means against the v2 reference (tile-B fix, wall bar holds).
-- `docs/openclinxr/room-realism/light-balance/CHAIN-BASELINE.md` - evidence; Chain baseline report: fresh-chain-GLB wall FAIL with exposure-infeasibility proof, prescribed tile box INVALID (wall-dominated), clean-tile dark/warm measurements, blown DIFFUSE wall-bake root cause; both fix steps blocked.
-- `docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.md` - evidence; Room iteration wall-clock after GPU changes (seed-205 ward, --no-cache x2): per-stage/per-Blender-pass seconds, concurrent-Blender counts, pre-GPU baseline comparison, capture-renderer finding, lit-albedo-Metal decision.
-- `docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.md` - evidence; Cycles AO bake Metal-vs-CPU re-measurement report (seed-205 ward): wall time, run-to-run determinism, pixel diffs, mechanical adoption verdict (AO adopted for Metal), and the real-CLI chain proof.
-- `docs/openclinxr/room-realism/room-chain-metal-measure/report.md` - evidence; Metal-vs-CPU bake measurement report for the three room_generate bakes (shell, albedo, AO): timing, RSS, run-to-run determinism, pixel diffs, and the mechanical adoption verdict (Metal adopted for shell bake only).
-- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md` - evidence; Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job.
-- `docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md` - evidence; Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job.
-- `docs/agent-ops/worker-session-time-split-2026-09-29.md` - evidence; Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate.
-- `docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md` - evidence; Ward candidate reader corrections, property conflicts, ceiling fix, and size audit.
-- `docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md` - evidence; Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit.
-- `docs/openclinxr/room-realism/door-finish/READER-AUDIT.md` - evidence; Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - evidence; ECG-cart image-to-3dlab measurements, grade inputs, blockers, and claim boundaries.
-- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; TRELLIS.2 Round-4 T4 adopted for the ECG cart; Round-5 candidate grade pending without changing the decision.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/recommended-manifest.json` - evidence; Round 5 R5-BEST reproduction manifest subordinate to MADR 0059; not an adoption decision.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round5/measurements.json` - evidence; Round 5 machine-readable treatment and topology measurements; coordinator visual grade remains authoritative.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/results.json` - evidence; Round 6 frozen-checkpoint stage isolation, A0-derived thresholds, A0/A1 measurements, and stop-rule record; Decision unchanged.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/round6/best-manifest.json` - evidence; Round 6 evidence-best A0 manifest subordinate to MADR 0059; not a new adoption decision.
-- `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
-- `docs/madr/0060-station-solver-port-and-friend-tuning-boundary.md` - decision-record; proposed station solver boundary (private solver, shared objective package, per-phase exceptions, staging pilot after lighting).
-- `docs/madr/0061-station-solvers-are-pinned-plug-ins.md` - decision-record; accepted amendment to MADR 0060 (pinned solver plug-ins, generated registry, R6, mouth first pilot).
-- `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.
-- `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - evidence; Flush material comparison and selected tile promotion, with historical A/B preserved.
-- `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - evidence; Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage.
-- `docs/openclinxr/room-realism/rooms-regen/RECIPES.md` - evidence; Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet.
-- `docs/openclinxr/room-realism/rooms-regen/BATCH-01.md` - evidence; First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure.
-- `docs/openclinxr/room-realism/rooms-regen/BATCH-02.md` - evidence; Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures.
-- `docs/openclinxr/room-realism/rooms-regen/BATCH-03.md` - evidence; Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes.
-- `docs/openclinxr/room-realism/rooms-regen/BATCH-04.md` - evidence; Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes.
-- `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - evidence; Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects.
-- `docs/openclinxr/room-realism/rooms-defects/REPORT.md` - evidence; Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence.
-- `docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md` - evidence; Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism.
-- `docs/openclinxr/room-realism/brown-band/FIX.md` - evidence; Brown-band factory fix record: phantom-shadow mechanism, bake/finish changes, before/after proof numbers, promotion hashes, pinning tests.
-- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md` - evidence; Coordinator native-pixel grade of the factory-wired R5-BEST ECG cart against the adopted round-5b cart: checklist, connector-row defects, adoption as runtime cart.

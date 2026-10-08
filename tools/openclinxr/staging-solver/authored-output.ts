@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CameraSearchResult } from "./camera-search.js";
 
-export type AuthoredStagingSolution = { camera: { eye: [number, number, number]; look: [number, number, number]; fov: 70 | 80 | 90 }; placements: Record<string, unknown> };
+export type AuthoredStagingSolution = { camera: { eye: [number, number, number]; look: [number, number, number]; fov: 55 | 60 | 70 | 80 | 90 }; placements: Record<string, unknown> };
 
 function rounded(value: number): number {
   return Number(value.toFixed(6));
@@ -13,7 +13,7 @@ function stableSolution(result: CameraSearchResult): AuthoredStagingSolution {
     camera: {
       eye: result.camera.eye.map(rounded) as [number, number, number],
       look: result.camera.look.map(rounded) as [number, number, number],
-      fov: result.camera.fov as 70 | 80 | 90,
+      fov: result.camera.fov as 55 | 60 | 70 | 80 | 90,
     },
     placements: Object.fromEntries([...result.layout]
       .filter((row) => row.persistPlacement !== false)
@@ -42,7 +42,7 @@ export async function writeAuthoredSolutions(
   const ordered = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
   const source = `import type { Scenario } from "@openclinxr/shared-schemas";\n\n`
     + `/** Desktop opening camera for one solved station: eye, look-at point, and field of view. */\n`
-    + `export type AuthoredStagingCamera = {\n  eye: [number, number, number];\n  look: [number, number, number];\n  fov: 70 | 80 | 90;\n};\n\n`
+    + `export type AuthoredStagingCamera = {\n  eye: [number, number, number];\n  look: [number, number, number];\n  fov: 55 | 60 | 70 | 80 | 90;\n};\n\n`
     + `type Placement = NonNullable<Scenario["actors"][number]["placement"]>;\n`
     + `export type AuthoredStagingSolution = { camera: AuthoredStagingCamera; placements: Record<string, Placement> };\n\n`
     + `// staging-solver v1 — generated deterministically by \`pnpm staging:solve\`.\n`

@@ -4,9 +4,9 @@
   "aggregate": {
     "scenarioCount": 15,
     "beforePasses": 7,
-    "afterPasses": 9,
+    "afterPasses": 11,
     "beforeAverageScore": 87.93,
-    "afterAverageScore": 90.15,
+    "afterAverageScore": 95.5,
     "gateRegressions": 0
   },
   "cases": {
@@ -70,16 +70,16 @@
         }
       },
       "after": {
-        "score": 73.33,
-        "gatePass": false,
+        "score": 100,
+        "gatePass": true,
         "components": {
-          "containment": 26.67,
-          "visibility": 26.67,
+          "containment": 40,
+          "visibility": 40,
           "facing": 10,
           "nearOcclusion": 10
         }
       },
-      "delta": 0,
+      "delta": 26.67,
       "gateRegression": false
     },
     "ed_chest_pain_priority_v2": {
@@ -94,16 +94,16 @@
         }
       },
       "after": {
-        "score": 73.33,
-        "gatePass": false,
+        "score": 100,
+        "gatePass": true,
         "components": {
-          "containment": 26.67,
-          "visibility": 26.67,
+          "containment": 40,
+          "visibility": 40,
           "facing": 10,
           "nearOcclusion": 10
         }
       },
-      "delta": 0,
+      "delta": 26.67,
       "gateRegression": false
     },
     "ed_stroke_alert_handoff_v1": {
@@ -214,16 +214,16 @@
         }
       },
       "after": {
-        "score": 72.21,
+        "score": 72.53,
         "gatePass": false,
         "components": {
           "containment": 26.67,
           "visibility": 26.67,
-          "facing": 8.88,
+          "facing": 9.19,
           "nearOcclusion": 10
         }
       },
-      "delta": 0,
+      "delta": 0.32,
       "gateRegression": false
     },
     "postop_fever_consult_pressure_v1": {
@@ -286,16 +286,16 @@
         }
       },
       "after": {
-        "score": 60,
+        "score": 86.67,
         "gatePass": false,
         "components": {
-          "containment": 13.33,
-          "visibility": 26.67,
+          "containment": 26.67,
+          "visibility": 40,
           "facing": 10,
           "nearOcclusion": 10
         }
       },
-      "delta": 0,
+      "delta": 26.67,
       "gateRegression": false
     },
     "stepdown_sepsis_nurse_escalation_v1": {
@@ -373,16 +373,16 @@
   },
   "views": {
     "perspectiveBeforeAfter": {
-      "path": "all-rooms-perspective-before-after.png",
-      "sha256": "72995a718f52c6a8a176c606b3cc78c74b466648a8bbfa988b074333c3e7fe2c"
+      "path": "../../room-layout-audit-2026-10-08/all-rooms-perspective-before-after.png",
+      "sha256": "30a35c58df289450630f8999ab1e08b53b2c4b92d44e487b4ce4770925a77d4b"
     },
-    "promotedOverheadAfter": {
-      "path": "promoted-rooms-overhead-after.png",
-      "sha256": "10b7cf0b1eac346f864e6b8ad297f9e429a69859a656b856137692f4ffa2aa78"
+    "overheadAfter": {
+      "path": "../../room-layout-audit-2026-10-08/all-rooms-overhead.png",
+      "sha256": "cc9ea84533bb259323a49f617c5dcd3f96e5a0ff379e720a5a16794307bafd3b"
     },
-    "promotedIsometricAfter": {
-      "path": "promoted-rooms-isometric-after.png",
-      "sha256": "0404c700c1af8a59b0962c2221a1cc11502c92d9c61fd99e799b385aef807afb"
+    "isometricAfter": {
+      "path": "../../room-layout-audit-2026-10-08/all-rooms-isometric.png",
+      "sha256": "4a5b8102545e21fbcf119eae0e2e10b437985c04975ee936b46dcc2f0cb3bb67"
     }
   }
 }

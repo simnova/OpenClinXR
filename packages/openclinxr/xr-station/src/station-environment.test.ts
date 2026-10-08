@@ -87,6 +87,17 @@ function shellFacts(shell: BuiltShell): { floorColor: unknown; depth: unknown } 
 }
 
 describe("the declared environment drives the station shell (#44)", () => {
+  it("keeps learner_start as a non-rendered spawn anchor", async () => {
+    const mod = await load();
+    const build = mod["buildStationEnvironment"] as Build | undefined;
+    const shell = build!({ environmentId: ED_BAY }) as BuiltShell & {
+      getObjectByName?: (name: string) => { visible?: boolean; userData?: Record<string, unknown> } | undefined;
+    };
+    const marker = shell.getObjectByName?.("openclinxr.station-environment.fixture-slot.learner_start");
+    expect(marker?.userData?.["openClinXrFixtureRole"]).toBe("learner_start");
+    expect(marker?.visible).toBe(false);
+  });
+
   it("two environmentIds build shells that differ in floor colour and room depth", async () => {
     const mod = await load();
     const build = mod["buildStationEnvironment"] as Build | undefined;
