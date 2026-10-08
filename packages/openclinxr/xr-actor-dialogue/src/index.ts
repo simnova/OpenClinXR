@@ -7,46 +7,6 @@
  */
 
 export {
-  localDialogueActorIdForTraceTag,
-  localDialogueGazeTargetForTraceTag,
-  runtimeDialogueTurnForTraceTag,
-  scenarioDialogueEmotionContext,
-} from "./dialogue-context.js";
-export {
-  humanoidDialogueDurationMs,
-} from "./dialogue-duration.js";
-export {
-  playLiveFrozenActorTurn,
-} from "./frozen-turn.js";
-export {
-  initialDialogueTextForSelectedScenario,
-} from "./initial-dialogue.js";
-export {
-  applyPedsActorPlayerSequenceListenerCues,
-  dedupePedsActorPlayerRuntimeTurns,
-  normalizePedsActorPlayerEmotion,
-  pedsActorPlayerBundleDialogueTurns,
-  playPedsActorPlayerRuntimeSequence,
-  playPedsActorPlayerRuntimeTurn,
-  recordPedsActorPlayerRuntimePlaybackEvidence,
-  schedulePedsActorPlayerRuntimePlaybackIfReady,
-  triggerPedsActorPlayerRuntimeTurnForTrace,
-  triggerPedsAdaptiveDialogueBranch,
-} from "./playback.js";
-export type {
-  PedsAdaptiveDialogueBranchResolution,
-} from "./policy.js";
-export {
-  triggerHumanoidDialogue,
-  triggerHumanoidDialogueForTrace,
-} from "./speech.js";
-export type {
-  PedsActorPlayerRuntimePlaybackEvidence,
-  PedsActorPlayerRuntimeSequenceEvidence,
-  PedsActorPlayerRuntimeTurn,
-  PedsAdaptiveDialogueEvidence,
-} from "./store.js";
-export {
   createActorDialogueStore,
 } from "./store.js";
 export type {

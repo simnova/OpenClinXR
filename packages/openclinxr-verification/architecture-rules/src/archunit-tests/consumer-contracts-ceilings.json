@@ -1,6 +1,6 @@
 {
   "unconsumed": {
-    "total": 275,
+    "total": 251,
     "byProvider": {
       "@cellix/config-vitest": 2,
       "@cellix/provider-contracts": 6,
@@ -29,7 +29,6 @@
       "@openclinxr/ui-route-admin": 1,
       "@openclinxr/ui-route-shared": 2,
       "@openclinxr/voice-gateway": 1,
-      "@openclinxr/xr-actor-dialogue": 24,
       "@openclinxr/xr-asset-loading": 7,
       "@openclinxr/xr-capture-evidence": 7,
       "@openclinxr/xr-locomotion": 4,
