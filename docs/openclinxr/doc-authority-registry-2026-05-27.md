@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 116
 - current-reference: 210
 - decision-record: 44
-- evidence: 143
+- evidence: 145
 - generated-evidence: 11
 - historical-synthesis: 17
 - protected-policy: 10
@@ -158,6 +158,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/viseme-audio-clock/wav2arkit/NOTICE.md` - evidence; Arena viseme-audio-clock bake-off licence provenance for the wav2arkit_cpu candidate; evidence for the card decision, not an instruction surface.
+- `apps/arena/viseme-audio-clock/wav2arkit/score-sheet.md` - evidence; Arena viseme-audio-clock bake-off decision record (wav2arkit_cpu vs MFA, reject); evidence for the card decision, not an instruction surface.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.

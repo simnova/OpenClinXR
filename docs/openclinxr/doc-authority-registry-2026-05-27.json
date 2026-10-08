@@ -7,7 +7,7 @@
     "agent-methodology": 107,
     "current-reference": 214,
     "archive-candidate": 116,
-    "evidence": 152,
+    "evidence": 154,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -2829,6 +2829,20 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/viseme-audio-clock/wav2arkit/NOTICE.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Arena viseme-audio-clock bake-off licence provenance for the wav2arkit_cpu candidate; evidence for the card decision, not an instruction surface."
+    },
+    {
+      "path": "apps/arena/viseme-audio-clock/wav2arkit/score-sheet.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Arena viseme-audio-clock bake-off decision record (wav2arkit_cpu vs MFA, reject); evidence for the card decision, not an instruction surface."
     },
     {
       "path": "apps/arena/ui-quest-voice-godot/README.md",
