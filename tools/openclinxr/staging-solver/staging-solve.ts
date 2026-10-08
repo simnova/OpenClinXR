@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import type { GateReading } from "../evidence/station-capture/gate-geometry.js";
 import {
   captureStationEnvironmentRooms,
-  ROOM_CAPTURE_MODE,
   shippedStationIds,
 } from "../evidence/ui-xr-environment-room-capture.js";
 import { writeAuthoredSolutions } from "./authored-output.js";
@@ -131,6 +130,12 @@ async function main(): Promise<void> {
     process.stdout.write(`staging-solver: ${scenarioId} gate=${String(solved.row.predictedGate?.gatePass ?? false)} solveMs=${String(solved.row.solveMs)}\n`);
   }
   await writeAuthoredSolutions(REPO_ROOT, solutions);
+  // The UI consumes scenario-fixtures through its built package export. Rebuild
+  // after writing the authored solution so the runtime capture cannot grade a
+  // previous solver result while the report describes the new one.
+  execFileSync("pnpm", ["--filter", "@openclinxr/scenario-fixtures", "build"], {
+    cwd: REPO_ROOT, stdio: "inherit", env: { ...process.env, OPENCLINXR_WORKER: "1" },
+  });
   for (const scenarioId of solutions.keys()) {
     execFileSync("pnpm", ["asset:generated-station-bundle", "--", "--scenario-id", scenarioId, "--refresh-public-placements"], {
       cwd: REPO_ROOT, stdio: "inherit", env: { ...process.env, OPENCLINXR_WORKER: "1" },

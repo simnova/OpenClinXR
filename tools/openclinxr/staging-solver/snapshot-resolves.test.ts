@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { actorCrownChestVisibleEarly } from "../evidence/station-capture/gate-geometry.js";
+import { evaluateLayoutCamera, solveLayouts } from "./camera-search.js";
 import { searchClinicalLayouts } from "./layout-search.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 
@@ -46,6 +47,15 @@ describe("cached snapshot layouts resolve", () => {
     const parentRow = first.find((row) => row.actorId === "parent_mei_chen_v1");
     expect(parentRow?.slotId).toBe("companion_chair");
   });
+
+  it("scores the exact pediatric layout that it returns for persistence", () => {
+    const snapshot = loadSnapshot("peds_fever_v1");
+    const candidates = searchClinicalLayouts(snapshot);
+    const solution = solveLayouts(snapshot, candidates.layouts);
+    expect(solution).not.toBeNull();
+    if (!solution) return;
+    expect(evaluateLayoutCamera(snapshot, solution.layout, solution.camera)).toEqual(solution.gate);
+  }, 15_000);
 
   for (const scenarioId of ["adult_abdominal_pain_v1"]) {
     it(`${scenarioId} returns a legal layout`, () => {

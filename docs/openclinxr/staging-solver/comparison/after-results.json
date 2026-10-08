@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "openclinxr.staging-solver-results.v1",
+  "parityTolerance": {
+    "visibilityActors": 0,
+    "containmentActors": 0,
+    "nearFraction": 0.006944444444444444,
+    "source": "one 16x9 ray cell; counts are exact integers"
+  },
+  "cases": {
+    "peds_fever_v1": {
+      "scenarioId": "peds_fever_v1",
+      "feasible": true,
+      "solveMs": 2346.5,
+      "predictedGate": {
+        "containedActors": 3,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_noah_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_aisha_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 84.26376402357778,
+        "nearOcclusionFraction": 0.08333333333333333,
+        "nearRayCount": 12,
+        "minMargin": 0.221695029712197,
+        "gatePass": true
+      },
+      "realGate": {
+        "containedActors": 2,
+        "totalActors": 3,
+        "visibleActors": 3,
+        "crownChest": [
+          {
+            "actorId": "patient_noah_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "nurse_aisha_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 5,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": []
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          }
+        ],
+        "meanFacingDeg": 83.22658322965857,
+        "nearOcclusionFraction": 0.08333333333333333,
+        "nearRayCount": 12,
+        "minMargin": -1,
+        "gatePass": false
+      },
+      "slots": [
+        {
+          "slotId": "patient_on_authored_support",
+          "actorId": "patient_noah_chen_v1",
+          "world": [
+            -2.6322317631995293,
+            0.7552444295767942,
+            -0.6468057388722909
+          ],
+          "headingRadians": -0.26,
+          "placement": {
+            "supportSurface": "stretcher",
+            "plantOffsetMeters": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "headingRadians": -0.26
+          },
+          "cost": 0
+        },
+        {
+          "slotId": "nurse_bedside_head",
+          "actorId": "nurse_aisha_brooks_v1",
+          "world": [
+            -2.71199996471405,
+            0.9602917947792793,
+            0.07
+          ],
+          "headingRadians": -2.5403538556418366,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -2.6945901128789713,
+              "y": 0,
+              "z": 0.11845684397529978
+            }
+          },
+          "cost": 0.2
+        },
+        {
+          "slotId": "companion_bedside",
+          "actorId": "parent_mei_chen_v1",
+          "world": [
+            -2.91199996471405,
+            0.8714564261508587,
+            -1.5
+          ],
+          "headingRadians": -0.32943095104203285,
+          "placement": {
+            "supportSurface": "none",
+            "plantOffsetMeters": {
+              "x": -2.919984357333711,
+              "y": 0,
+              "z": -1.5500985581932814
+            }
+          },
+          "cost": 0
+        }
+      ],
+      "camera": {
+        "eye": [
+          -1.639999895095825,
+          2.16,
+          0.42502672195434554
+        ],
+        "look": [
+          -2.6322317631995293,
+          0.8289784380474452,
+          -0.6468057388722909
+        ],
+        "fov": 90,
+        "aspect": 1.1333333333333333
+      },
+      "parity": {
+        "visibilityDelta": 0,
+        "nearDelta": 0,
+        "containmentDelta": 1
+      }
+    }
+  }
+}

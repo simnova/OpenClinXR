@@ -1,6 +1,6 @@
 import { type AxisAlignedBox, actorCrownChestVisibleEarly, actorSamplePoints, type GateOccluder, type Vec3 } from "../evidence/station-capture/gate-geometry.js";
-import { layContact, sitContact, standContact, type LayoutCandidate } from "./contact-solvers.js";
 import { CLINICAL_SLOT_TEMPLATES } from "./clinical-slot-templates.js";
+import { type LayoutCandidate, layContact, sitContact, standContact } from "./contact-solvers.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 export type LearnerStance = { slotId: "physician_bedside"; world: [number, number, number] };
 export type LayoutSearchResult = { layouts: LayoutCandidate[][]; bindingConstraint?: string; learnerStance?: LearnerStance };
@@ -179,6 +179,22 @@ function compatible(candidate: LayoutCandidate, assigned: readonly LayoutCandida
   });
 }
 
+function keepSemanticDiversity(layouts: LayoutCandidate[][], limit: number): LayoutCandidate[][] {
+  const selected: LayoutCandidate[][] = [];
+  const signatures = new Set<string>();
+  for (const layout of layouts) {
+    const signature = layout.map((row) => `${row.actorId}:${row.slotId}`).sort().join("|");
+    if (signatures.has(signature)) continue;
+    signatures.add(signature);
+    selected.push(layout);
+  }
+  for (const layout of layouts) {
+    if (selected.length >= limit) break;
+    if (!selected.includes(layout)) selected.push(layout);
+  }
+  return selected.slice(0, limit);
+}
+
 export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth = 64): LayoutSearchResult {
   const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
   if (!patient) return { layouts: [], bindingConstraint: "no patient actor" };
@@ -191,7 +207,17 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
     if (actor.currentPlacement.supportSurface === "chair") {
       const frame0 = supportFrame(snapshot);
       if (!frame0) return { layouts: [], bindingConstraint: `${actor.id}: companion_chair` };
-      candidates = sitContact(snapshot, actor, frame0);
+      // Keep the authored chair contact, while admitting a real standing
+      // bedside fallback when the generated room puts that chair outside every
+      // containable camera view. The fallback is persisted like any other
+      // candidate; camera scoring must never rewrite a layout in secret.
+      candidates = [
+        ...sitContact(snapshot, actor, frame0),
+        ...standContact(snapshot, actor, frame0, "none").map((candidate) => ({
+          ...candidate,
+          cost: candidate.cost + 1,
+        })),
+      ];
       if (candidates.length === 0) return { layouts: [], bindingConstraint: `${actor.id}: companion_chair` };
     } else {
       const frame0 = supportFrame(snapshot);
@@ -209,7 +235,7 @@ export function searchClinicalLayouts(snapshot: CachedSceneSnapshot, beamWidth =
     }
     next.sort((a, b) => a.reduce((sum, row) => sum + row.cost, 0) - b.reduce((sum, row) => sum + row.cost, 0)
       || JSON.stringify(a).localeCompare(JSON.stringify(b)));
-    beam = next.slice(0, beamWidth);
+    beam = keepSemanticDiversity(next, beamWidth);
     if (beam.length === 0) return { layouts: [], bindingConstraint: `${actor.id}: 0.45 m footprint/fixture constraint` };
   }
   const frame = supportFrame(snapshot);

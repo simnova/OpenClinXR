@@ -1,6 +1,6 @@
-import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 import type { AxisAlignedBox } from "../evidence/station-capture/gate-geometry.js";
 import { templatesForRole } from "./clinical-slot-templates.js";
+import type { CachedSceneSnapshot, SlotAssignment, SolverPlacement } from "./staging-types.js";
 
 export type LayoutCandidate = SlotAssignment & { box: AxisAlignedBox; standing: boolean };
 
@@ -178,7 +178,12 @@ export function sitContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: 
   return out;
 }
 
-export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame: ContactFrame): LayoutCandidate[] {
+export function standContact(
+  snapshot: CachedSceneSnapshot,
+  actor: ActorT,
+  frame: ContactFrame,
+  supportSurface: SolverPlacement["supportSurface"] = actor.currentPlacement.supportSurface,
+): LayoutCandidate[] {
   const templates = templatesForRole(actor.role, false);
   const actorCentre = centreOf(actor.box);
   const rootBiasX = actorCentre[0] - (actor.root?.[0] ?? actorCentre[0]);
@@ -211,7 +216,7 @@ export function standContact(snapshot: CachedSceneSnapshot, actor: ActorT, frame
           if (blocked) continue;
           const headingRadians = Math.atan2(frame.patientHead[0] - x, frame.patientHead[2] - z) + headingDelta;
           const placement: SolverPlacement = {
-            supportSurface: actor.currentPlacement.supportSurface,
+          supportSurface,
             plantOffsetMeters: { x: x - rootBiasX, y: actor.currentPlacement.plantOffsetMeters.y, z: z - rootBiasZ },
           };
           out.push({

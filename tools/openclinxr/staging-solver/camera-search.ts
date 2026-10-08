@@ -1,21 +1,18 @@
 import {
   type AxisAlignedBox,
-  actorSamplePoints,
-  cameraViewProjectionMatrices,
   actorCrownChestVisibleEarly,
+  cameraViewProjectionMatrices,
   evaluateGate,
   type GateActor,
   type GateCamera,
   type GateOccluder,
   type GateReading,
-  segmentBoxHit,
   meanFacingDegrees,
   measureNearOcclusion,
   projectBoxFromMatrices,
   type Vec3,
 } from "../evidence/station-capture/gate-geometry.js";
 import type { CachedSceneSnapshot, SlotAssignment } from "./staging-types.js";
-import { capsuleForPlacement, capsuleRadiusMeters } from "./layout-search.js";
 
 type LayoutRow = SlotAssignment & { box: AxisAlignedBox; standing: boolean };
 export type CameraSearchResult = { camera: GateCamera; gate: GateReading; layout: LayoutRow[] };
@@ -30,9 +27,29 @@ function translatedScene(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): { 
   const actors = snapshot.actors.map((actor) => {
     const row = byId.get(actor.id);
     const current = centre(actor.box);
-    const dx = (row?.world[0] ?? current[0]) - current[0], dz = (row?.world[2] ?? current[2]) - current[2];
+    const keepsLocalSupport = row !== undefined
+      && row.placement.supportSurface !== "none"
+      && row.placement.supportSurface === actor.currentPlacement.supportSurface;
+    const dx = row
+      ? keepsLocalSupport
+        ? row.placement.plantOffsetMeters.x - actor.currentPlacement.plantOffsetMeters.x
+        : row.world[0] - current[0]
+      : 0;
+    const dz = row
+      ? keepsLocalSupport
+        ? row.placement.plantOffsetMeters.z - actor.currentPlacement.plantOffsetMeters.z
+        : row.world[2] - current[2]
+      : 0;
     deltas.set(actor.id, [dx, dz]);
-    const box = row?.box ?? actor.box;
+    // LayoutCandidate.box is a collision capsule. Camera containment and
+    // visibility must use the captured render bounds translated to the
+    // candidate centre; scoring the smaller capsule overstates both.
+    const changesSupportPose = row !== undefined
+      && row.placement.supportSurface !== actor.currentPlacement.supportSurface;
+    const box: AxisAlignedBox = changesSupportPose ? row.box : row ? {
+      min: [actor.box.min[0] + dx, actor.box.min[1], actor.box.min[2] + dz],
+      max: [actor.box.max[0] + dx, actor.box.max[1], actor.box.max[2] + dz],
+    } : actor.box;
     return { id: actor.id, box, heading: row?.headingRadians ?? actor.heading, recumbent: actor.recumbent,
       primary: actor.standing && actor.bodyDimensions[1] === Math.max(...snapshot.actors.filter((item) => item.standing).map((item) => item.bodyDimensions[1])) };
   });
@@ -85,67 +102,6 @@ function eyes(snapshot: CachedSceneSnapshot, target: Vec3): Vec3[] {
   });
 }
 
-function overlapsX(a: AxisAlignedBox, b: AxisAlignedBox): boolean {
-  return a.min[0] < b.max[0] && a.max[0] > b.min[0]
-    && a.min[1] < b.max[1] && a.max[1] > b.min[1]
-    && a.min[2] < b.max[2] && a.max[2] > b.min[2];
-}
-
-function findBoardBox(snapshot: CachedSceneSnapshot): AxisAlignedBox | null {
-  const fromFixtures = snapshot.fixtures.find((item) => /wall_board/i.test(item.name));
-  return fromFixtures?.box ?? null;
-}
-
-function shiftBoxX(box: AxisAlignedBox, dx: number): AxisAlignedBox {
-  return { min: [box.min[0] + dx, box.min[1], box.min[2]], max: [box.max[0] + dx, box.max[1], box.max[2]] };
-}
-
-/** Bed-frame point matching layout-search.ts assignmentCandidates head/long/side math. */
-function bedsidePoint(snapshot: CachedSceneSnapshot, side: -1 | 1, alongMeters: number, acrossMeters: number): [number, number] | null {
-  const patient = snapshot.actors.find((row) => row.role === "patient") ?? snapshot.actors[0];
-  const support = [...snapshot.patientSupports].sort((a, b) =>
-    (b.box.max[0] - b.box.min[0]) * (b.box.max[2] - b.box.min[2])
-    - ((a.box.max[0] - a.box.min[0]) * (a.box.max[2] - a.box.min[2])))[0];
-  if (!patient || !support) return null;
-  const supportCentre = centre(support.box);
-  const patientHead = actorSamplePoints(patient.box, patient.recumbent)[0]?.point ?? patient.chest;
-  const width = support.box.max[0] - support.box.min[0], depth = support.box.max[2] - support.box.min[2];
-  let long: [number, number] = width >= depth ? [1, 0] : [0, 1];
-  if ((patientHead[0] - supportCentre[0]) * long[0] + (patientHead[2] - supportCentre[2]) * long[1] < 0) long = [-long[0], -long[1]];
-  const sideVec: [number, number] = [-long[1], long[0]];
-  const halfLong = (width >= depth ? width : depth) / 2;
-  const head: [number, number] = [supportCentre[0] + long[0] * halfLong, supportCentre[2] + long[1] * halfLong];
-  return [head[0] + long[0] * alongMeters + sideVec[0] * side * acrossMeters,
-    head[1] + long[1] * alongMeters + sideVec[1] * side * acrossMeters];
-}
-
-function repairedLayout(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): LayoutRow[] {
-  return layout.map((row) => {
-    if (/patient/i.test(row.actorId)) {
-      const board = findBoardBox(snapshot);
-      if (board && overlapsX(row.box, board)) {
-        const need = board.max[0] + 0.03 - row.box.min[0];
-        const dx = Math.max(0.08, need);
-        const box = shiftBoxX(row.box, dx);
-        return { ...row, world: [row.world[0] + dx, row.world[1], row.world[2]] as [number, number, number], box };
-      }
-      return row;
-    }
-    if (row.slotId !== "companion_chair") return row;
-    const point = bedsidePoint(snapshot, -1, 0.15, 0.48);
-    if (!point) return row;
-    const patient = snapshot.actors.find((actor) => /patient/i.test(actor.id)) ?? snapshot.actors[0];
-    const patientHead = patient
-      ? (actorSamplePoints(patient.box, patient.recumbent)[0]?.point ?? patient.chest) : null;
-    const heading = patientHead ? Math.atan2(patientHead[0] - point[0], patientHead[2] - point[1]) : row.headingRadians;
-    const standingActor = snapshot.actors.find((actor) => actor.id === row.actorId);
-    const capsule = capsuleForPlacement([point[0], row.world[1], point[1]],
-      capsuleRadiusMeters(standingActor?.bodyDimensions), true);
-    return { ...row, slotId: "companion_bedside", world: [point[0], row.world[1], point[1]] as [number, number, number],
-      headingRadians: heading, box: capsule, standing: true };
-  });
-}
-
 function stageOne(camera: GateCamera, actors: GateActor[]): { n: number; contained: boolean[]; facing: number; margin: number } {
   const matrices = cameraViewProjectionMatrices(camera);
   let n = 0, margin = Infinity;
@@ -173,9 +129,18 @@ function gateIsBetter(candidate: GateReading, incumbent: GateReading): boolean {
   return candidate.minMargin > incumbent.minMargin;
 }
 
+/** Re-scores exactly the layout and camera that will be persisted. */
+export function evaluateLayoutCamera(
+  snapshot: CachedSceneSnapshot,
+  layout: LayoutRow[],
+  camera: GateCamera,
+): GateReading {
+  const scene = translatedScene(snapshot, layout);
+  return evaluateGate(camera, scene.actors, scene.occluders);
+}
+
 export function searchBestCamera(snapshot: CachedSceneSnapshot, layout: LayoutRow[]): CameraSearchResult | null {
-  const fixed = repairedLayout(snapshot, layout);
-  const scene = translatedScene(snapshot, fixed);
+  const scene = translatedScene(snapshot, layout);
   const candidates: Array<{ camera: GateCamera; n: number; visible: number; contained: boolean[]; facing: number; margin: number; boundary: number }> = [];
   const eyeTerms = new Map<string, { visible: number; facing: number }>();
   for (const eye of eyes(snapshot, scene.looks[0] ?? snapshot.unionCentre)) {
@@ -215,12 +180,12 @@ export function searchBestCamera(snapshot: CachedSceneSnapshot, layout: LayoutRo
       minMargin: candidate.margin, gatePass: candidate.n === scene.actors.length && candidate.visible === scene.actors.length
         && candidate.facing <= 90 && near.fraction <= 0.1 };
     if (!best || gateIsBetter(quick, best.quick)) {
-      best = { camera: candidate.camera, gate: quick, quick, layout: fixed };
+      best = { camera: candidate.camera, gate: quick, quick, layout };
     } else if (quick.visibleActors === scene.actors.length && best.quick.visibleActors === scene.actors.length
       && quick.gatePass === best.quick.gatePass
       && candidate.camera.fov === 90 && best.camera.fov !== 90
       && !gateIsBetter(best.quick, quick)) {
-      best = { camera: candidate.camera, gate: quick, quick, layout: fixed };
+      best = { camera: candidate.camera, gate: quick, quick, layout };
     }
   }
   return best ? { camera: best.camera, gate: evaluateGate(best.camera, scene.actors, scene.occluders), layout } : null;
@@ -228,7 +193,17 @@ export function searchBestCamera(snapshot: CachedSceneSnapshot, layout: LayoutRo
 
 export function solveLayouts(snapshot: CachedSceneSnapshot, layouts: LayoutRow[][]): CameraSearchResult | null {
   let best: (CameraSearchResult & { slotCost: number }) | null = null;
-  for (const layout of layouts.slice(0, 6)) {
+  // Keep at least one candidate for every semantic slot arrangement before
+  // filling the budget by cost. Otherwise a dense chair-offset grid can consume
+  // the whole camera budget and the standing bedside fallback is never scored.
+  const firstBySignature = new Map<string, LayoutRow[]>();
+  for (const layout of layouts) {
+    const signature = layout.map((row) => `${row.actorId}:${row.slotId}`).sort().join("|");
+    if (!firstBySignature.has(signature)) firstBySignature.set(signature, layout);
+  }
+  const shortlist = [...firstBySignature.values()];
+  for (const layout of layouts) if (!shortlist.includes(layout)) shortlist.push(layout);
+  for (const layout of shortlist.slice(0, 12)) {
     const result = searchBestCamera(snapshot, layout);
     if (!result) continue;
     const slotCost = layout.reduce((sum, row) => sum + row.cost, 0);
