@@ -5386,6 +5386,13 @@
       "rationale": "Accepted amendment to MADR 0060: solvers are pinned plug-in packages resolved by a generated registry; R6; mouth is the first station pilot."
     },
     {
+      "path": "docs/madr/0062-two-tier-lip-sync-baked-clips-live-clock.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Draft two-tier lip-sync seam: lipSyncTier selector, bundle content-hash key, fallback order, trace tier record; live tier is a cost decision pending tsk_978648d9f4f21c45."
+    },
+    {
       "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",

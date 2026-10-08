@@ -452,6 +452,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/madr/0059-image-to-3dlab-equipment-cagematch.md` - decision-record; Proposed cagematch decision with coordinator native-pixel grade pending.
 - `docs/madr/0060-station-solver-port-and-friend-tuning-boundary.md` - decision-record; proposed station solver boundary (private solver, shared objective package, per-phase exceptions, staging pilot after lighting).
 - `docs/madr/0061-station-solvers-are-pinned-plug-ins.md` - decision-record; accepted amendment to MADR 0060 (pinned solver plug-ins, generated registry, R6, mouth first pilot).
+- `docs/madr/0062-two-tier-lip-sync-baked-clips-live-clock.md` - decision-record; draft two-tier lip-sync seam (lipSyncTier selector, bundle content-hash key, fallback order, trace tier record; live tier cost decision pending tsk_978648d9f4f21c45).
 - `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - evidence; Four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof.
 - `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - evidence; Flush material comparison and selected tile promotion, with historical A/B preserved.
 - `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - evidence; Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage.
