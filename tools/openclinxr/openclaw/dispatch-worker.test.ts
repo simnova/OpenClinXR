@@ -8,6 +8,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { setFactoryField } from "./board-cli.js";
+import { announceBothyClaimPresence, startBothyClaimRenewal } from "./bothy-claim-renewal.js";
+import { dispatchFixtureLifecycle } from "./dispatch-worker-test-lifecycle.js";
 import {
   assembleDispatchContract,
   assertDispatchRole,
@@ -64,6 +66,19 @@ vi.mock("./board-cli.js", async (importOriginal) => {
 const spawnMock = vi.mocked(spawn);
 const setFactoryFieldMock = vi.mocked(setFactoryField);
 
+// Dispatch mechanics fixtures must not register temporary actors with a live Board.
+vi.mock("./bothy-claim-renewal.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./bothy-claim-renewal.js")>();
+  const { dispatchFixtureLifecycle: fixtureTasks } = await import("./dispatch-worker-test-lifecycle.js");
+  return {
+    ...actual,
+    announceBothyClaimPresence: vi.fn(() => fixtureTasks.run(async () => {})),
+    startBothyClaimRenewal: vi.fn(() => vi.fn()),
+  };
+});
+const announcePresenceMock = vi.mocked(announceBothyClaimPresence);
+const renewalMock = vi.mocked(startBothyClaimRenewal);
+
 /** The dispatched prompt now lives in the file named by --prompt-file; argv[1] is a path. */
 function readPromptFile(argv: string[]): string {
   const i = argv.indexOf("--prompt-file");
@@ -78,18 +93,26 @@ function fakeChildWithOutput(output: string, stderr = ""): ReturnType<typeof spa
   const child = new EventEmitter() as EventEmitter & { stdout: EventEmitter; stderr: EventEmitter };
   child.stdout = stdout;
   child.stderr = stderrBus;
-  setImmediate(() => {
-    stdout.emit("data", Buffer.from(output));
-    stderrBus.emit("data", Buffer.from(stderr));
-    child.emit("close", 0);
-  });
+  dispatchFixtureLifecycle.run(() => new Promise<void>((resolve, reject) => {
+    setImmediate(() => {
+      try {
+        stdout.emit("data", Buffer.from(output));
+        stderrBus.emit("data", Buffer.from(stderr));
+        child.emit("close", 0);
+        resolve();
+      } catch (error) { reject(error); }
+    });
+  }));
   return child as unknown as ReturnType<typeof spawn>;
 }
 
-afterEach(() => {
+afterEach(async () => {
+  await dispatchFixtureLifecycle.drain();
   resetCoordinationRootCache();
   delete process.env["OPENCLINXR_COORDINATION_ROOT"];
   setFactoryFieldMock.mockClear();
+  announcePresenceMock.mockClear();
+  renewalMock.mockClear();
 });
 
 /**
@@ -1250,9 +1273,12 @@ describe("issue #448 — role required, Factory=Dispatched on dispatch", () => {
   it("dispatch() marks the card Factory=Dispatched before the spawn", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-factory-"));
     seedRoleForDispatch(root);
-    spawnMock.mockReturnValue(
-      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-factory-write", num_turns: 1, stopReason: "end_turn" })),
-    );
+    const child = fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-factory-write", num_turns: 1, stopReason: "end_turn" }));
+    let stopCallsAtClose = -1;
+    child.on("close", () => {
+      stopCallsAtClose = vi.mocked(renewalMock.mock.results[0]!.value).mock.calls.length;
+    });
+    spawnMock.mockReturnValue(child);
     await dispatch(root, {
       prompt: "do the thing",
       role: TEST_ROLE,
@@ -1262,6 +1288,15 @@ describe("issue #448 — role required, Factory=Dispatched on dispatch", () => {
     });
     expect(setFactoryFieldMock).toHaveBeenCalledWith(root, "issue-448-factory", "Dispatched");
     expect(spawnMock).toHaveBeenCalled();
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    const presence = {
+      path: root, branch: "main", taskId: "issue-448-factory",
+      grokSessionId: argv[argv.indexOf("--session-id") + 1], agentId: undefined,
+    };
+    expect(announcePresenceMock).toHaveBeenCalledExactlyOnceWith(presence);
+    expect(renewalMock).toHaveBeenCalledExactlyOnceWith(presence);
+    expect(stopCallsAtClose).toBe(0);
+    expect(renewalMock.mock.results[0]!.value).toHaveBeenCalledTimes(1);
   });
 
   it("dispatch() refuses BEFORE spawn when the role is missing (no worktree, no brief, no child)", async () => {
