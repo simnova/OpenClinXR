@@ -9,6 +9,7 @@ import {
   declaredEntrypoints,
   measureSurface,
   resolveEntrypointSource,
+  type DeclaredEntrypoint,
 } from "../checks/public-surface/resolve.js";
 
 /**
@@ -47,30 +48,23 @@ import {
  *
  * SCOPE. All workspace providers: every package.json name under packages/**
  * and apps/** in the @openclinxr/ or @cellix/ scope (discovered per root, so
- * fixture roots and future packages need no hardcoded list). Clauses (a) and
- * (b) are hard for every provider. Clauses (c) and (d) are REPORT-ONLY
- * ratchets: consumer-contracts-ceilings.json pins today's counts per provider
- * and the gate fails on growth above the ceiling — or below it, demanding the
- * ceiling be lowered to the measured value (same semantics as
- * agent-index-quality.ceiling.json). To regenerate the ceiling, shrink a
- * surface, run this file's live-tree test, and copy the measured counts it
- * prints into the ceiling file.
+ * fixture roots and future packages need no hardcoded list). All consumers:
+ * every workspace package/app dir, tools/openclinxr itself, each
+ * tools/openclinxr/<area>, and sticky owners of existing contracts (nested
+ * makeclothes carves out of the asset-pipeline area by longest prefix).
+ * Clauses (a) unlisted-import and (e) missing-contract are hard, as is (b)
+ * listed-not-published, for every provider and consumer. Clauses (c) and (d)
+ * are REPORT-ONLY ratchets: consumer-contracts-ceilings.json pins today's
+ * counts per provider and the gate fails on growth above the ceiling — or
+ * below it, demanding the ceiling be lowered to the measured value (same
+ * semantics as agent-index-quality.ceiling.json). To regenerate the ceiling,
+ * shrink a surface, run this file's live-tree test, and copy the measured
+ * counts it prints into the ceiling file.
  */
 
 export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence";
 
 export type ConsumerDef = { dir: string; class: ConsumerClass };
-
-export const CONSUMERS: ConsumerDef[] = [
-  { dir: "apps/ui-xr", class: "runtime-app" },
-  { dir: "packages/openclinxr/xr-actor-dialogue", class: "package" },
-  { dir: "packages/openclinxr/xr-humanoid-animation", class: "package" },
-  { dir: "packages/openclinxr/stations/mouth-executor", class: "package" },
-  { dir: "packages/openclinxr/stations/mouth-verifier", class: "package" },
-  { dir: "tools/openclinxr/asset-pipeline/makeclothes", class: "tools" },
-  { dir: "tools/openclinxr/evidence", class: "evidence" },
-  { dir: "tools/openclinxr/mouth-solver", class: "tools" },
-];
 
 export const CONSUMER_CONTRACTS_CEILING_FILENAME = "consumer-contracts-ceilings.json";
 
@@ -110,6 +104,8 @@ function findRoot(): string {
 
 /** Every workspace provider under root: package.json name → repo-relative dir. */
 export function discoverWorkspaceProviders(root: string): Map<string, string> {
+  const cached = providerCache.get(root);
+  if (cached !== undefined) return cached;
   const out = new Map<string, string>();
   const walk = (relativeDir: string): void => {
     let entries: Dirent<string>[];
@@ -138,7 +134,115 @@ export function discoverWorkspaceProviders(root: string): Map<string, string> {
     }
   };
   for (const base of ["packages", "apps"]) walk(base);
+  providerCache.set(root, out);
   return out;
+}
+
+// Pure filesystem reads, memoized per root so the live-tree gate (72
+// consumers x 67 providers) fits the arch config's timeout budget.
+const providerCache = new Map<string, Map<string, string>>();
+const consumerCache = new Map<string, ConsumerDef[]>();
+const entrypointCache = new Map<string, DeclaredEntrypoint[]>();
+const publishedCache = new Map<string, Set<string>>();
+const symbolCache = new Map<string, Set<string>>();
+
+export function classForConsumerDir(dir: string): ConsumerClass {
+  if (dir.startsWith("apps/")) return "runtime-app";
+  if (dir.startsWith("packages/")) return "package";
+  if (dir === "tools/openclinxr/evidence") return "evidence";
+  return "tools";
+}
+
+/**
+ * Every computed consumer dir: provider dirs (one per workspace package),
+ * unscoped package.json dirs not under a provider dir, tools/openclinxr
+ * itself, and each tools/openclinxr/<area>.
+ */
+export function discoverConsumers(root: string): ConsumerDef[] {
+  const cached = consumerCache.get(root);
+  if (cached !== undefined) return cached;
+  const providers = discoverWorkspaceProviders(root);
+  const out = new Map<string, ConsumerClass>();
+  for (const dir of providers.values()) out.set(dir, classForConsumerDir(dir));
+  const coveredBy = (dir: string): boolean => {
+    for (const owned of out.keys()) {
+      if (dir === owned || dir.startsWith(`${owned}/`)) return true;
+    }
+    return false;
+  };
+  const walk = (relativeDir: string): void => {
+    let entries: Dirent<string>[];
+    try {
+      entries = readdirSync(join(root, relativeDir), { withFileTypes: true }) as Dirent<string>[];
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === "node_modules" || entry.name === "dist") continue;
+      const child = relativeDir === "" ? entry.name : `${relativeDir}/${entry.name}`;
+      try {
+        JSON.parse(readFileSync(join(root, child, "package.json"), "utf8")) as { name?: unknown };
+        if (!coveredBy(child)) out.set(child, classForConsumerDir(child));
+      } catch {
+        // no manifest: not a package consumer
+      }
+      walk(child);
+    }
+  };
+  for (const base of ["packages", "apps"]) walk(base);
+  out.set("tools/openclinxr", "tools");
+  let areas: Dirent<string>[];
+  try {
+    areas = readdirSync(join(root, "tools/openclinxr"), { withFileTypes: true }) as Dirent<string>[];
+  } catch {
+    areas = [];
+  }
+  for (const entry of areas) {
+    if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) continue;
+    const dir = `tools/openclinxr/${entry.name}`;
+    if (!out.has(dir)) out.set(dir, classForConsumerDir(dir));
+  }
+  const list = [...out.entries()]
+    .map(([dir, cls]) => ({ dir, class: cls }))
+    .sort((a, b) => a.dir.localeCompare(b.dir));
+  consumerCache.set(root, list);
+  return list;
+}
+
+/** Dirs that already own a consumes.json anywhere under the consumer roots. */
+export function existingContractOwners(root: string): string[] {
+  const out: string[] = [];
+  const walk = (relativeDir: string): void => {
+    let entries: Dirent<string>[];
+    try {
+      entries = readdirSync(join(root, relativeDir), { withFileTypes: true }) as Dirent<string>[];
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const child = relativeDir === "" ? entry.name : `${relativeDir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        if (SKIP_DIRS.has(entry.name)) continue;
+        walk(child);
+        continue;
+      }
+      if (entry.name === "consumes.json") out.push(relativeDir);
+    }
+  };
+  for (const base of ["packages", "apps", "tools/openclinxr"]) walk(base);
+  return out.sort();
+}
+
+/** Computed consumers plus sticky contract owners (e.g. nested makeclothes). */
+export function consumersWithContracts(root: string): ConsumerDef[] {
+  const out = new Map<string, ConsumerClass>();
+  for (const c of discoverConsumers(root)) out.set(c.dir, c.class);
+  for (const dir of existingContractOwners(root)) {
+    if (!out.has(dir)) out.set(dir, classForConsumerDir(dir));
+  }
+  return [...out.entries()]
+    .map(([dir, cls]) => ({ dir, class: cls }))
+    .sort((a, b) => a.dir.localeCompare(b.dir));
 }
 
 /**
@@ -242,7 +346,7 @@ export function blankComments(text: string, comments: [number, number][]): strin
   return chars.join("");
 }
 
-function sourceFilesUnder(dir: string, out: string[]): void {
+function sourceFilesUnder(dir: string, out: string[], skipPrefixes: string[] = []): void {
   let entries: Dirent<string>[];
   try {
     entries = readdirSync(dir, { withFileTypes: true }) as Dirent<string>[];
@@ -252,8 +356,9 @@ function sourceFilesUnder(dir: string, out: string[]): void {
   for (const entry of entries) {
     if (SKIP_DIRS.has(entry.name)) continue;
     const full = join(dir, entry.name);
+    if (skipPrefixes.some((p) => full === p || full.startsWith(`${p}/`))) continue;
     if (entry.isDirectory()) {
-      sourceFilesUnder(full, out);
+      sourceFilesUnder(full, out, skipPrefixes);
       continue;
     }
     const dot = entry.name.lastIndexOf(".");
@@ -293,15 +398,19 @@ function specifierToProvider(
 
 export type ImportedName = { name: string; kind: string; file: string };
 
-/** Every workspace-provider named import under one consumer dir. */
+/** Every workspace-provider named import under one consumer dir (nested consumers carve out). */
 export function derivedImports(
   root: string,
   consumerDir: string,
+  allConsumerDirs?: string[],
 ): Map<string, ImportedName[]> {
   const providers = discoverWorkspaceProviders(root);
   const longestFirst = [...providers.keys()].sort((a, b) => b.length - a.length);
+  const nested = (allConsumerDirs ?? consumersWithContracts(root).map((c) => c.dir))
+    .filter((d) => d !== consumerDir && d.startsWith(`${consumerDir}/`))
+    .map((d) => join(root, d));
   const files: string[] = [];
-  sourceFilesUnder(join(root, consumerDir), files);
+  sourceFilesUnder(join(root, consumerDir), files, nested);
   const out = new Map<string, ImportedName[]>();
   const push = (provider: string, entrypoint: string, entry: ImportedName): void => {
     const key = `${provider}\t${entrypoint}`;
@@ -356,14 +465,40 @@ export function providerDirFor(root: string, provider: string): string | undefin
 
 /** Published names for one provider entrypoint, via the reused resolve + export scanners. */
 export function publishedNames(root: string, provider: string, entrypoint: string): Set<string> {
+  const key = `${root}\t${provider}\t${entrypoint}`;
+  const cached = publishedCache.get(key);
+  if (cached !== undefined) return cached;
+  const computed = publishedNamesUncached(root, provider, entrypoint);
+  publishedCache.set(key, computed);
+  return computed;
+}
+
+function declaredEntrypointsCached(root: string, packageDir: string, name: string): DeclaredEntrypoint[] {
+  const key = `${root}\t${packageDir}`;
+  const cached = entrypointCache.get(key);
+  if (cached !== undefined) return cached;
+  const entries = declaredEntrypoints(root, packageDir, name);
+  entrypointCache.set(key, entries);
+  return entries;
+}
+
+function exportedSymbolsCached(source: string): Set<string> {
+  const cached = symbolCache.get(source);
+  if (cached !== undefined) return cached;
+  const symbols = exportedSymbols(source);
+  symbolCache.set(source, symbols);
+  return symbols;
+}
+
+function publishedNamesUncached(root: string, provider: string, entrypoint: string): Set<string> {
   const packageDir = providerDirFor(root, provider);
   if (packageDir === undefined) return new Set();
-  const entries = declaredEntrypoints(root, packageDir, provider);
+  const entries = declaredEntrypointsCached(root, packageDir, provider);
   const wanted = entries.find((e) => e.specifier === entrypoint);
   if (wanted === undefined) return new Set();
   const source = resolveEntrypointSource(root, wanted);
   if (source === undefined) return new Set();
-  return exportedSymbols(source);
+  return exportedSymbolsCached(source);
 }
 
 export function readAllowlist(root: string): AllowlistRow[] {
@@ -378,8 +513,9 @@ export function readAllowlist(root: string): AllowlistRow[] {
 /** (a) consumer imports a name its consumes.json does not list. */
 export function checkUnlistedImports(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
 ): string[] {
+  consumers ??= consumersWithContracts(root);
   const violations: string[] = [];
   for (const consumer of consumers) {
     const contracts = readContracts(root, consumer.dir);
@@ -413,11 +549,34 @@ export function checkUnlistedImports(
   return violations.sort();
 }
 
+/** (e) a consumer dir with workspace imports owns no consumes.json. */
+export function checkMissingContracts(
+  root: string,
+  consumers?: ConsumerDef[],
+): string[] {
+  consumers ??= consumersWithContracts(root);
+  const dirs = new Set(consumers.map((c) => c.dir));
+  const violations: string[] = [];
+  for (const consumer of consumers) {
+    const full = join(root, consumer.dir, "consumes.json");
+    if (existsSync(full)) continue;
+    const imports = derivedImports(root, consumer.dir, [...dirs]);
+    if (imports.size === 0) continue;
+    const [key] = [...imports.keys()].sort();
+    const [provider, entrypoint] = (key ?? "").split("\t") as [string, string];
+    violations.push(
+      `${consumer.dir} imports ${provider ?? ""}${entrypoint ?? ""} but owns no consumes.json: run pnpm arch:consumer-contracts and commit the file`,
+    );
+  }
+  return violations.sort();
+}
+
 /** (b) consumes.json lists a name the provider entrypoint does not publish. */
 export function checkListedNotPublished(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
 ): string[] {
+  consumers ??= consumersWithContracts(root);
   const providers = discoverWorkspaceProviders(root);
   const violations: string[] = [];
   for (const consumer of consumers) {
@@ -450,7 +609,7 @@ export function checkListedNotPublished(
 /** (c) provider publishes a name no consumes.json lists. Scoped to entrypoints with contracts. */
 export function checkUnconsumedPublished(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
 ): string[] {
   const violations: string[] = [];
   for (const [provider, rows] of measureUnconsumedByProvider(root, consumers)) {
@@ -465,8 +624,9 @@ export function checkUnconsumedPublished(
 
 function servedByClasses(
   root: string,
-  consumers: ConsumerDef[],
+  consumers?: ConsumerDef[],
 ): Map<string, Set<ConsumerClass>> {
+  consumers ??= consumersWithContracts(root);
   const servedBy = new Map<string, Set<ConsumerClass>>();
   for (const consumer of consumers) {
     for (const [key] of derivedImports(root, consumer.dir)) {
@@ -481,7 +641,7 @@ function servedByClasses(
 /** (d) one entrypoint serves consumers of different classes without an allowlist reason. */
 export function checkMixedClassEntrypoints(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
   allowlist: AllowlistRow[] = readAllowlist(root),
 ): string[] {
   const servedBy = servedByClasses(root, consumers);
@@ -516,8 +676,9 @@ export type MixedMeasure = { specifier: string; classes: ConsumerClass[] };
 /** Clause-(c) regrouped per provider: entrypoints with contracts and the published names none lists. */
 export function measureUnconsumedByProvider(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
 ): Map<string, UnconsumedMeasure[]> {
+  consumers ??= consumersWithContracts(root);
   const providers = discoverWorkspaceProviders(root);
   const listed = new Map<string, Set<string>>();
   for (const consumer of consumers) {
@@ -531,12 +692,12 @@ export function measureUnconsumedByProvider(
   }
   const out = new Map<string, UnconsumedMeasure[]>();
   for (const [provider, packageDir] of [...providers.entries()].sort()) {
-    for (const entry of declaredEntrypoints(root, packageDir, provider)) {
+    for (const entry of declaredEntrypointsCached(root, packageDir, provider)) {
       const key = `${provider}\t${entry.specifier}`;
       if (!listed.has(key)) continue; // an entrypoint with no contracts is out of scope
       const source = resolveEntrypointSource(root, entry);
       if (source === undefined) continue;
-      const names = [...exportedSymbols(source)].filter((s) => !(listed.get(key) ?? new Set()).has(s)).sort();
+      const names = [...exportedSymbolsCached(source)].filter((s) => !(listed.get(key) ?? new Set()).has(s)).sort();
       if (names.length > 0) {
         const rows = out.get(provider) ?? [];
         rows.push({ specifier: entry.specifier, names });
@@ -550,9 +711,10 @@ export function measureUnconsumedByProvider(
 /** Clause-(d) unexcused rows regrouped per provider. Shares servedByClasses with the check below. */
 export function measureMixedByProvider(
   root: string,
-  consumers: ConsumerDef[] = CONSUMERS,
+  consumers?: ConsumerDef[],
   allowlist: AllowlistRow[] = readAllowlist(root),
 ): Map<string, MixedMeasure[]> {
+  consumers ??= consumersWithContracts(root);
   const servedBy = servedByClasses(root, consumers);
   const excused = new Map<string, AllowlistRow>();
   for (const row of allowlist) excused.set(`${row.provider}\t${row.entrypoint}`, row);
@@ -661,10 +823,11 @@ export function checkContractCeilings(
 }
 
 /** Reported, not gated: published symbols tree-wide that no consumes.json lists. */
-export function globalUnconsumedCount(root: string): number {
+export function globalUnconsumedCount(root: string, consumers?: ConsumerDef[]): number {
+  consumers ??= consumersWithContracts(root);
   const report = measureSurface(root);
   const listed = new Set<string>();
-  for (const consumer of CONSUMERS) {
+  for (const consumer of consumers) {
     for (const row of readContracts(root, consumer.dir)) {
       for (const name of row.names) listed.add(`${row.provider}\t${row.entrypoint}\t${name.name}`);
     }
@@ -812,13 +975,16 @@ describe("consumer contracts match imports", () => {
   });
 
   // Live-tree tests carry the arch config's 30 s budget explicitly: they scan
-  // the whole tree (67 providers x 157 entrypoints) and exceed the default
+  // the whole tree (67 providers, 78 consumers) and exceed the default
   // 5 s timeout on a loaded machine. test:touched runs this file under the
   // default config; pnpm architecture runs it under vitest.arch.config.ts.
-  it("(5) live tree: clauses (a) and (b) pass hard; clauses (c) and (d) hold at their ceilings", { timeout: 30_000 }, () => {
+  it("(5) live tree: clauses (a), (b) and (e) pass hard; clauses (c) and (d) hold at their ceilings", { timeout: 30_000 }, () => {
     const root = findRoot();
-    expect(checkUnlistedImports(root).join("\n")).toBe("");
-    expect(checkListedNotPublished(root).join("\n")).toBe("");
+    const consumers = consumersWithContracts(root);
+    expect(consumers.length).toBeGreaterThan(70);
+    expect(checkUnlistedImports(root, consumers).join("\n")).toBe("");
+    expect(checkListedNotPublished(root, consumers).join("\n")).toBe("");
+    expect(checkMissingContracts(root, consumers).join("\n")).toBe("");
     const unconsumed = measureUnconsumedByProvider(root);
     const mixed = measureMixedByProvider(root);
     const ceiling = readContractCeilings();
@@ -837,18 +1003,19 @@ describe("consumer contracts match imports", () => {
       "@openclinxr/xr-dialogue./actor-audio-runtime",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
-    expect(checkMixedClassEntrypoints(root, CONSUMERS, []).join("\n")).toContain(
+    const allConsumers = consumersWithContracts(root);
+    expect(checkMixedClassEntrypoints(root, allConsumers, []).join("\n")).toContain(
       "./actor-audio-runtime",
     );
   });
 
   it("(6) live tree reports the global unconsumed count", { timeout: 30_000 }, () => {
-    // Report-only: most of the tree's surface is bound by consumers outside
-    // the eight contracted dirs. The count fell 1494 -> 994 when contracts
-    // grew from 1 provider (58 names) to 27 providers (~660 names); the floor
-    // below proves the reporter still sees the tree, not a number to chase.
+    // Report-only: the tree's surface beyond the contracted slices. The count
+    // fell 1494 -> 994 (27 providers under contract) -> 318 (all 78 consumer
+    // dirs under contract); the floor below proves the reporter still sees
+    // the tree, not a number to chase.
     const count = globalUnconsumedCount(findRoot());
-    expect(count).toBeGreaterThan(500);
+    expect(count).toBeGreaterThan(200);
   });
 
   it("(7) string-literal and comment imports derive no contract", () => {
@@ -907,5 +1074,24 @@ describe("consumer contracts match imports", () => {
 
   it("(10) COUNTERWEIGHT: a missing ceiling file fails closed", () => {
     expect(checkContractCeilings(new Map(), new Map(), null).join("\n")).toContain("missing");
+  });
+
+  it("(11) PLANT (e): a consumer dir with imports and no consumes.json fails", () => {
+    withFixture(
+      {
+        "packages/openclinxr/xr-dialogue/package.json": manifest("@openclinxr/xr-dialogue"),
+        "packages/openclinxr/xr-dialogue/src/index.ts": "export const real = 1;\n",
+        "apps/fixture-app/src/main.ts": 'import { real } from "@openclinxr/xr-dialogue";\nconsole.log(real);\n',
+      },
+      (root) => {
+        const consumers: ConsumerDef[] = [{ dir: "apps/fixture-app", class: "runtime-app" }];
+        expect(checkMissingContracts(root, consumers).join("\n")).toContain("owns no consumes.json");
+        writeFileSync(
+          join(root, "apps/fixture-app/consumes.json"),
+          JSON.stringify([{ provider: "@openclinxr/xr-dialogue", entrypoint: ".", names: [{ name: "real", kind: "runtime" }] }]),
+        );
+        expect(checkMissingContracts(root, consumers)).toEqual([]);
+      },
+    );
   });
 });
