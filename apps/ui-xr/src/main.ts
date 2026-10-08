@@ -131,6 +131,7 @@ import {
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
+import { requestUnscriptedLiveTurn } from "@openclinxr/xr-dialogue/package-actor-turn";
 import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
 const { caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech } = createActorAudioRuntime({ developmentFixture: import.meta.env.DEV === true });
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
@@ -545,6 +546,7 @@ declare global {
     __openClinXrReusableExteriorAnteroom?: Group | null;
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
       __openClinXrPortalTransitionEvidence?: PackagePortalTransitionEvidence;
+    __openClinXrRequestLiveVoiceTurn?: typeof requestUnscriptedLiveTurn;
    }
  }
 
@@ -1226,12 +1228,8 @@ function stationContextForSelectedScenario() {
 
 function learnerRuntimeAssetBundleId(): string {
   const urlBundleId = new URLSearchParams(window.location.search).get("runtimeAssetBundleId")?.trim();
-  if (urlBundleId) {
-    window.localStorage.setItem("openclinxr.runtimeAssetBundleId", urlBundleId);
-    window.__openClinXrSelectedRuntimeAssetBundleId = urlBundleId;
-    return urlBundleId;
-  }
-  const selectedBundleId = window.localStorage.getItem("openclinxr.runtimeAssetBundleId") ?? "ed_chest_pain_local_encounter";
+  const selectedBundleId = urlBundleId ?? window.localStorage.getItem("openclinxr.runtimeAssetBundleId") ?? "ed_chest_pain_local_encounter";
+  if (urlBundleId) window.localStorage.setItem("openclinxr.runtimeAssetBundleId", urlBundleId);
   window.__openClinXrSelectedRuntimeAssetBundleId = selectedBundleId;
   return selectedBundleId;
 }
@@ -4737,6 +4735,7 @@ recordBootPhase("clock_started");
 // openclinxrSpeakFixture=1 (see apps/ui-xr/src/speak-fixture-bridge.ts).
 initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id), triggerDialogue: (ctx) => triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, (ctx.gazeTarget ?? { kind: "learner_camera", actorId: null }) as HumanoidDialogueGazeTarget, ctx.faceEmotion as HumanoidExpressionEmotion | undefined, ctx.req as HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"] | undefined, ctx.emotionSource as HumanoidDialogueEmotionContext["source"] | undefined) });
 initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
+window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 function buildHumanoidSpeechEvidence(
   actorId: string | null,
   assetId: string | null,

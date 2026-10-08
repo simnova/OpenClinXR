@@ -10,5 +10,11 @@
     "entrypoint": "./actor-audio-runtime",
     "classes": ["runtime-app", "tools"],
     "reason": "one shared single-name runtime seam: the actor audio factory serves the apps/ui-xr runtime and mouth-solver tooling; no package or evidence consumer binds it, so no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./package-actor-turn",
+    "classes": ["package", "runtime-app"],
+    "reason": "live voice turn seam: the unscripted-turn client (requestUnscriptedLiveTurn plus input types) serves the apps/ui-xr runtime call site while the same entrypoint keeps serving package consumers (xr-actor-dialogue, xr-humanoid-animation, mouth-verifier) and the lip-sync-tier-select own-test; a new runtime-app-only subpath is refused by the pinned factory manifest, so no class-pure split is available"
   }
 ]

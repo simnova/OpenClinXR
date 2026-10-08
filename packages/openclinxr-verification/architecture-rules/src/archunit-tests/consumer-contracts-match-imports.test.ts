@@ -1176,6 +1176,7 @@ describe("consumer contracts match imports", () => {
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
+      "@openclinxr/xr-dialogue./package-actor-turn",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
     const allConsumers = consumersWithContracts(root);

@@ -118,6 +118,27 @@
   },
   {
     "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./package-actor-turn",
+    "names": [
+      {
+        "name": "bakeLiveSttCueTrack",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildPhonePlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "SttWord",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-viseme",
     "names": [
       {

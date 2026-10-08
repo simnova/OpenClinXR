@@ -1,0 +1,82 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "live-voice-v1",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "ce6bcbb4f5fd009036e21474a555260b2ccacd3cfa4d6cc39b3d0f37e6344361",
+  "packages": [
+    "packages/openclinxr/xr-dialogue"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "requestUnscriptedLiveTurn",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "apps/ui-xr/src/main.ts:134 imports requestUnscriptedLiveTurn from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceTurnRequest",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "apps/ui-xr/src/live-voice-turn-client.test.ts:7 imports type LiveVoiceTurnRequest from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceSocket",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "apps/ui-xr/src/live-voice-turn-client.test.ts:6 imports type LiveVoiceSocket from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceAudioContext",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "apps/ui-xr/src/live-voice-turn-client.test.ts:5 imports type LiveVoiceAudioContext from @openclinxr/xr-dialogue/package-actor-turn (consumer-driven contract row).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "bakeLiveSttCueTrack",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-dialogue",
+      "rationale": "packages/openclinxr/xr-dialogue/src/lip-sync-tier-select.test.ts:14 imports bakeLiveSttCueTrack through its own entrypoint source \"./package-actor-turn.js\" (the ./package-actor-turn subpath) (consumer-driven contract row; own-test binding counted as a consumer per the psr-01d 2026-09-11 amendment).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "buildPhonePlan",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-dialogue",
+      "rationale": "packages/openclinxr/xr-dialogue/src/lip-sync-tier-select.test.ts:15 imports buildPhonePlan through its own entrypoint source \"./package-actor-turn.js\" (the ./package-actor-turn subpath) (consumer-driven contract row; own-test binding counted as a consumer per the psr-01d 2026-09-11 amendment).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "SttWord",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/xr-dialogue",
+      "rationale": "packages/openclinxr/xr-dialogue/src/lip-sync-tier-select.test.ts:16 imports type SttWord through its own entrypoint source \"./package-actor-turn.js\" (the ./package-actor-turn subpath) (consumer-driven contract row; own-test binding counted as a consumer per the psr-01d 2026-09-11 amendment).",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08"
+    }
+  ]
+}

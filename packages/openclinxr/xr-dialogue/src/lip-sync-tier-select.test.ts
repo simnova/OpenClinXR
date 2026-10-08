@@ -14,7 +14,7 @@ import {
   bakeLiveSttCueTrack,
   buildPhonePlan,
   type SttWord,
-} from "./live-stt-plan.js";
+} from "./package-actor-turn.js";
 
 /**
  * Two-tier lip sync seam (MADR 0062, card tsk_edba82577ad9cc4a, live tier
@@ -316,7 +316,7 @@ function loadClipFixtures(): { clips: ClipFixture[]; skippedReason: string | nul
         );
       }
     } catch {
-      continue;
+      // Unparseable cache sidecar: no words to record, keep scanning.
     }
   }
   const clips: ClipFixture[] = [];

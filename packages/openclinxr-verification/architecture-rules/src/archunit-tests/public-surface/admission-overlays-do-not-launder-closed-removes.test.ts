@@ -450,7 +450,7 @@ describe("admission overlays do not launder closed removes", () => {
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
     // Initial empty allowlist was the PSR implementation prerequisite. The later
     // independently reviewed activation is exact, not an arbitrary admission id.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1"\]/u);
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -465,7 +465,7 @@ describe("admission overlays do not launder closed removes", () => {
 
 describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1"]);
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -573,6 +573,23 @@ describe("the independently reviewed seven-row production activation", () => {
     ]);
   });
 
+  it("binds the independently reviewed live-voice client admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "live-voice-v1.json"), "utf8"));
+    expect(admission.reviewedBy).toBe("Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08");
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      ["./package-actor-turn", "requestUnscriptedLiveTurn"],
+      ["./package-actor-turn", "LiveVoiceTurnRequest"],
+      ["./package-actor-turn", "LiveVoiceSocket"],
+      ["./package-actor-turn", "LiveVoiceAudioContext"],
+      ["./package-actor-turn", "bakeLiveSttCueTrack"],
+      ["./package-actor-turn", "buildPhonePlan"],
+      ["./package-actor-turn", "SttWord"],
+    ]);
+    expect(admission.admissionHash).toBe("ce6bcbb4f5fd009036e21474a555260b2ccacd3cfa4d6cc39b3d0f37e6344361");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -584,6 +601,7 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/startup-cast-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "startup-cast-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/viseme-motion-subpaths-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "viseme-motion-subpaths-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/xr-dialogue-consumer-split-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-dialogue-consumer-split-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/live-voice-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "live-voice-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/staging-layout-view-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "staging-layout-view-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");

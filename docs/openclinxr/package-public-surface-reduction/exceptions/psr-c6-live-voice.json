@@ -1,0 +1,60 @@
+{
+  "id": "psr-c6-live-voice",
+  "reviewedSourceCandidate": "cb89714f4c06a767d87052279318f43ebb9e9a06",
+  "sourceCandidateKind": "git-tree",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08",
+  "requestedExports": [
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "requestUnscriptedLiveTurn",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceTurnRequest",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceSocket",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "LiveVoiceAudioContext",
+      "kind": "type"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "bakeLiveSttCueTrack",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "buildPhonePlan",
+      "kind": "runtime"
+    },
+    {
+      "package": "packages/openclinxr/xr-dialogue",
+      "entrypoint": "./package-actor-turn",
+      "symbol": "SttWord",
+      "kind": "type"
+    }
+  ],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1214,
+      "threshold": 1000,
+      "owner": "live-voice worker",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): session 01a11d52-6392-7962-81ce-e3c9bb67c03e approved items B-F on index tree e957cba466d19330669b9d81f958aee7477aba13 (publish all 7 names; own-test bindings count as consumers; no node: builtin in the client graph; ui-xr 10 files / 5993 lines; allowlist classes accurate; exception 1214/1000; no gate loosened) and rejected uncited rationales; session 01a11d55-86e3-75c0-a555-8aae555bb18c rejected one wording; session 01a11d56-20b9-7913-8c91-5b23370f118a approved index tree cb89714f4c06a767d87052279318f43ebb9e9a06: all seven citations resolve; 2026-10-08",
+      "reason": "Live voice client publishes requestUnscriptedLiveTurn plus its input types on the existing xr-dialogue ./package-actor-turn subpath only (no new subpath, no root change), with bakeLiveSttCueTrack plus buildPhonePlan plus SttWord routed for the lip-sync-tier-select own-test through the same entrypoint (admission overlay live-voice-v1, 7 rows, seam allowlisted for package plus runtime-app); the root '.' count is unchanged at 1214. STAGED for coordinator independent review; coordinator owns pins."
+    }
+  ]
+}
