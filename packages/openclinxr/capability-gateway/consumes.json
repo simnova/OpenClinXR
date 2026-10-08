@@ -24,6 +24,92 @@
     ]
   },
   {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetGenerationCapabilityFacade",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEncounterAssetGenerationPlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEncounterAssetGenerationPublicationTargets",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildOpenClinXrCapabilityRoutingMatrix",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildVisualQaRemediationWorkOrderPlans",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDeterministicAssetGenerationAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createEncounterAssetGenerationQueueMessage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "decodeAzureStorageQueueMessage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "encodeAzureStorageQueueMessage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterAssetGenerationQueueClient",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterExecutableAssetGenerationRequest",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterHumanoidRealismRequirements",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateCapabilityRoutingMatrix",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateRuntimeProviderReadinessSurface",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "processEncounterAssetGenerationQueueMessage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "processNextEncounterAssetGenerationQueueMessage",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/motion-compiler",
     "entrypoint": ".",
     "names": [

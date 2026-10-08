@@ -10,6 +10,58 @@
     ]
   },
   {
+    "provider": "@openclinxr/domain",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createStationRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateRequiredTraceTags",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "findUnsafeClaimLanguage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "transitionStation",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/domain",
+    "entrypoint": "./claim-language",
+    "names": [
+      {
+        "name": "buildScenarioGovernanceCopy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "safeUserFacingClaimLanguage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "scoreUseCopy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validationStageCopy",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/shared-schemas",
     "entrypoint": ".",
     "names": [

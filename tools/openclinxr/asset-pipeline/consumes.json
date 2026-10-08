@@ -74,5 +74,16 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
   }
 ]

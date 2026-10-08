@@ -43,6 +43,98 @@
   },
   {
     "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyStationPayloadToCompileSpec",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planBodyParam",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planClothingConsume",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planEquipmentGenerate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planMotionRetarget",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planRoomGenerate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runLipSync",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runRoomGenerate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runStaging",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./catalog",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
     "entrypoint": "./room-chain",
     "names": [
       {

@@ -48,6 +48,17 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-actor-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createActorDialogueStore",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-actor-turn",
     "names": [

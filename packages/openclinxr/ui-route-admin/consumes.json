@@ -314,6 +314,27 @@
     ]
   },
   {
+    "provider": "@openclinxr/ui-route-admin",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "adminPublicationGates",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "adminWorkbenchRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "findAdminWorkbenchRoute",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/ui-route-shared",
     "entrypoint": ".",
     "names": [

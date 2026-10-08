@@ -32,5 +32,16 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

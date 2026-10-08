@@ -1,47 +1,37 @@
 [
   {
-    "provider": "@cellix/config-vitest",
-    "entrypoint": "./node",
-    "names": [
-      {
-        "name": "nodeConfig",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
     "provider": "@openclinxr/agent-loop",
     "entrypoint": ".",
     "names": [
       {
         "name": "AgentMemoryEntry",
         "kind": "type",
-        "via": "own-test"
+        "via": "path-reach"
       },
       {
         "name": "createAgentDispatchPackets",
         "kind": "runtime",
-        "via": "own-test"
+        "via": "path-reach"
       },
       {
         "name": "createAgentLoopPlan",
         "kind": "runtime",
-        "via": "own-test"
+        "via": "path-reach"
       },
       {
         "name": "normalizeLegacyScorecard",
         "kind": "runtime",
-        "via": "own-test"
+        "via": "path-reach"
       },
       {
         "name": "recommendBackgroundAgentModel",
         "kind": "runtime",
-        "via": "own-test"
+        "via": "path-reach"
       },
       {
         "name": "serializeAgentLoopPlan",
         "kind": "runtime",
-        "via": "own-test"
+        "via": "path-reach"
       }
     ]
   }

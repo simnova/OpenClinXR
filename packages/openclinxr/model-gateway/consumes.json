@@ -28,6 +28,82 @@
     ]
   },
   {
+    "provider": "@openclinxr/model-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorResponseRequest",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildActorCommunicationProfilePromptContext",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildActorResponseProviderPromptInput",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildActorResponseRequestsForDialogueSeeds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createActorDialogueModelGateway",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDefaultModelGateway",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createLlamaCppModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMlxModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createOllamaModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "LocalModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MockModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ModelGateway",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ModelProviderAdapter",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "OpenAiCompatibleModelProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": "./scenario-bank",
     "names": [

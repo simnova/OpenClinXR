@@ -11,6 +11,177 @@
   },
   {
     "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetManifest",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "bedsideClearanceViolations",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "bedsideTargetForClinician",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildAssetProductionReviewPacket",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEncounterAssetNeedsReadinessManifest",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEnvironmentGenerationPacket",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEnvironmentGenerationQueue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEnvironmentGenerationWorkOrder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildEnvironmentGenerationWorkOrderQueue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildScenarioSceneGenerationPipelineWorkOrder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildScenarioSceneGenerationPipelineWorkOrderQueue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createEdChestPainLocalAssetEvidenceFixtureManifests",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createEdChestPainPlaceholderManifests",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createScenarioPlaceholderManifests",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ED_MONITOR_BOUNDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ED_STRETCHER_DECK_BOUNDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateAssetManifest",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateAssetPipelineTool",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateAssetPipelineToolMatrix",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateAssetProductionReadinessLadder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateScenarioGenerationEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateScenarioOptimizationEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "forwardVectorForHeading",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "headingRadiansToward",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "HumanoidRealismMetadata",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "InMemoryAssetRegistry",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "listShippedCastScenarioIds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "monitorVisibilityFrom",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "recommendedAssetPipelineTools",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "screenNormal",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "selectAssetPipelineToolsForLane",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "unstagedCastActors",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateAssetManifestStructure",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./actor-posture",
     "names": [
       {
@@ -45,6 +216,33 @@
   },
   {
     "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./cast-asset-constants",
+    "names": [
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./encounter-bundle-admission",
+    "names": [
+      {
+        "name": "stationIdForSceneClosureScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "verifyCommittedScenePlanAgainstDisk",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./initial-scene-contents",
     "names": [
       {
@@ -70,6 +268,16 @@
       {
         "name": "promoteEncounterRuntimeAssetBundleForLocalUse",
         "kind": "runtime"
+      },
+      {
+        "name": "promoteEncounterRuntimeAssetBundleForLocalUse",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type",
+        "via": "own-test"
       }
     ]
   },
@@ -84,6 +292,11 @@
       {
         "name": "findRuntimeEquipmentAsset",
         "kind": "runtime"
+      },
+      {
+        "name": "resolveStartupRuntimeCast",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
@@ -126,6 +339,11 @@
       {
         "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
         "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime",
+        "via": "own-test"
       },
       {
         "name": "EncounterRuntimeActorPlacement",

@@ -174,16 +174,73 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "applyHumanoidMorphTargetCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createHumanoidEmotionExpressionState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "GeneratedHumanoidAnimationSlot",
         "kind": "type"
+      },
+      {
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type",
+        "via": "own-test"
       },
       {
         "name": "HumanoidAnimationRuntimeContext",
         "kind": "type"
       },
       {
+        "name": "HumanoidAnimationRuntimeContext",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "startHumanoidEmotionTransition",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "updateGeneratedHumanoidAnimations",
         "kind": "runtime"
+      },
+      {
+        "name": "updateGeneratedHumanoidAnimations",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateHumanoidEmotionExpression",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./case-owned-approach-runtime",
+    "names": [
+      {
+        "name": "applyCaseOwnedStanceLock",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./locomotion-clip-playback",
+    "names": [
+      {
+        "name": "playLocomotionClip",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },

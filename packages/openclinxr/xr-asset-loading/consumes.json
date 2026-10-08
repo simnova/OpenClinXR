@@ -48,6 +48,62 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-asset-loading",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "addActorSpecificIdentityVariantCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "addRoleSpecificHumanoidVisuals",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "addScenarioSpecificClinicalTeamCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "addScenarioSpecificFamilyCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "addScenarioSpecificPatientCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "configureSemanticRolePoseOverlay",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerGeneratedHumanoidAnimation",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runtimeHumanoidVariantAssetPath",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "shouldShowProceduralHumanoidDetailCues",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "tintGeneratedSceneMaterials",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-capture-evidence",
     "entrypoint": ".",
     "names": [

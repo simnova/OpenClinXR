@@ -10,6 +10,17 @@
     ]
   },
   {
+    "provider": "@openclinxr/api",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createApiApp",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/asset-registry",
     "entrypoint": "./case-actor-placements",
     "names": [

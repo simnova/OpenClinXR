@@ -76,6 +76,69 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorTurnExecutionArtifacts",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "applyNamedSpeechVisemes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "digestActorTurnPlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "expressionWeightsForEmotion",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "IdentityBoundRef",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "mouthCuesToPhonemeCues",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "playIdentityBoundActorTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./package-viseme",
+    "names": [
+      {
+        "name": "applyGazeToHumanoid",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./viseme-timeline",
+    "names": [
+      {
+        "name": "jawOpenRadiansForPhoneme",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-pose",
     "entrypoint": ".",
     "names": [

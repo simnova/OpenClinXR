@@ -38,5 +38,26 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/data-sources-mongoose-models",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createEncounterAssetGenerationJobModel",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterAssetGenerationJobMongooseRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioReviewDecisionRecord",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]

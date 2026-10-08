@@ -1,11 +1,181 @@
 [
   {
+    "provider": "@openclinxr/api",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createApiApp",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createOpenClinXrApiProtocolPosture",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "OpenClinXrApiProtocolPosture",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetManifest",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "bedsideTargetForClinician",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainLocalAssetEvidenceFixtureManifests",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainPlaceholderManifests",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createScenarioPlaceholderManifests",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ED_STRETCHER_DECK_BOUNDS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "evaluateScenarioAssetBudget",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "evaluateScenarioGenerationEvidence",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "evaluateScenarioOptimizationEvidence",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "headingRadiansToward",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioAssetBudget",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioGenerationEvidence",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioOptimizationEvidence",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "composeSupportedActorWorldPosition",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "resolveActorPosture",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "supineActorWorldPosition",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/asset-registry",
     "entrypoint": "./approach-executor",
     "names": [
       {
+        "name": "CLINICIAN_WALK_SPEED_MPS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
         "name": "FOOT_CONTACT_HEIGHT_METERS",
         "kind": "runtime"
+      },
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "footSlideMeters",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "stepBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "planBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./case-approach-intent",
+    "names": [
+      {
+        "name": "geometryRevisionDigest",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ObservedApproachGeometry",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "resolveBedsideApproachIntent",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ResolvedBedsideApproach",
+        "kind": "type",
+        "via": "path-reach"
       }
     ]
   },
@@ -16,6 +186,107 @@
       {
         "name": "CASE_FROZEN_SCENE_PLANS",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./cast-asset-constants",
+    "names": [
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./environment-zone-templates",
+    "names": [
+      {
+        "name": "FAMILY_CHAIR",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "resolveFixtureSlotPosition",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundle-lookups",
+    "names": [
+      {
+        "name": "findRuntimeActorAsset",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "createEdChestPainLocalEncounterRuntimeAssetBundle",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainRuntimeSceneManifest",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./scene-plan-freeze",
+    "names": [
+      {
+        "name": "freezeAcceptedScenePlan",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "FreezeScenePlanInput",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssetGenerationCapabilityFacade",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "AssetGenerationCapabilityId",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "buildVisualQaRemediationWorkOrderPlans",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -34,6 +305,47 @@
       {
         "name": "withComputeSlotSync",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assembleExamForm",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createDefaultClinicalSkillsBlueprint",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createExamStationRunQueue",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "selectExamStationScenarios",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "STEP2CS_STATION_COUNT",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -70,6 +382,170 @@
     ]
   },
   {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./documents",
+    "names": [
+      {
+        "name": "adminGraphqlDocumentByOperationName",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/mock-realtime-voice-server",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "runRealtimeVoiceProxyHarness",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "startPythonCompatibleVoiceBackendFixture",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "startRealtimeVoiceGatewayServer",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ActorResponseRequest",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "createDefaultModelGateway",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "MockModelProviderAdapter",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-vetting",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AnnyLikePreflightReport",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "buildModelVettingReportFromAnnyPreflight",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ModelVettingCandidate",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ModelVettingReport",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "validateModelVettingReport",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ApiScenarioReviewDecisionRecord",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioRuntime",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/service-local-compute",
     "entrypoint": "./local",
     "names": [
@@ -80,12 +556,118 @@
     ]
   },
   {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "InteractionRoutingReason",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": "./accepted-scene-plan",
+    "names": [
+      {
+        "name": "acceptedScenePlanProblems",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "TraceEvent",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/telemetry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createInMemoryTelemetryRecorder",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "openClinXrSpanNames",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "summarizeTelemetrySpans",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "telemetryRouteAttributes",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "collectVoiceStream",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createDefaultVoiceGateway",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "MockVoiceProviderAdapter",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "realtimeVoiceProtocol",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "VoiceGateway",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-asset-loading",
     "entrypoint": ".",
     "names": [
       {
         "name": "runtimeHumanoidVariantAssetPath",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "attachBakedCuesToSpeech",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -145,11 +727,84 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createHumanoidEmotionExpressionState",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "HumanoidAnimationRuntimeContext",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "startHumanoidEmotionTransition",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "updateGeneratedHumanoidAnimations",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./case-owned-approach-runtime",
+    "names": [
+      {
+        "name": "advanceCaseOwnedBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "applyCaseOwnedStanceLock",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "CaseOwnedApproachFrame",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "createCaseOwnedBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "measureStanceGroundAdvance",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./locomotion-clip-playback",
     "names": [
       {
         "name": "playLocomotionClip",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./mounted-approach-geometry",
+    "names": [
+      {
+        "name": "observeMountedApproachGeometry",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -160,6 +815,17 @@
       {
         "name": "mpfbForearmIdleEuler",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": "./actor-floor-composition",
+    "names": [
+      {
+        "name": "resolveEffectiveVerticalOffsetMeters",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -210,6 +876,17 @@
       {
         "name": "scenarioActorIdsForScenario",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": "./bedside-approach-execution",
+    "names": [
+      {
+        "name": "beginBedsideApproachExecution",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -284,6 +961,11 @@
         "kind": "runtime"
       },
       {
+        "name": "buildStationEnvironment",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
         "name": "classifyInitialVitalsRaw",
         "kind": "runtime"
       },
@@ -294,6 +976,11 @@
       {
         "name": "countEquipmentGeometry",
         "kind": "runtime"
+      },
+      {
+        "name": "createAssembledStationApiClient",
+        "kind": "runtime",
+        "via": "path-reach"
       },
       {
         "name": "InitialVitalsValueClass",

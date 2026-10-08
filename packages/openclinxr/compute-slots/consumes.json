@@ -8,5 +8,21 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "readComputeSlotsStatus",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

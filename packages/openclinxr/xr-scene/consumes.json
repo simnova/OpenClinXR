@@ -234,6 +234,27 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyCleanEncounterVisualReviewActorFraming",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "deriveInteriorPreviewCamera",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterActorFramingInput",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-station",
     "entrypoint": ".",
     "names": [

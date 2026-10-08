@@ -210,6 +210,27 @@
     ]
   },
   {
+    "provider": "@openclinxr/ui-route-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildAdminGraphqlEndpoint",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createAdminControlPlaneClient",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createRouteManifest",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/ui-shared",
     "entrypoint": "./admin-runtime-posture",
     "names": [

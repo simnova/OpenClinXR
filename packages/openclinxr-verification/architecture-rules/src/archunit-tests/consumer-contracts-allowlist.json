@@ -2,13 +2,25 @@
   {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": ".",
-    "classes": ["runtime-app", "package"],
-    "reason": "psr-01e keeps 13 names on '.': MOUTH_OPEN_CAP, PhonemeCue, SpeechSlotLike, UiXrExpressionEmotion, UiXrExpressionWeights, applyBlinkClosureToRoot, applyGazeToHumanoid, applyGeneratedScalarVisemeToRoot, collectResolvedMorphTargets, initialDialogueTextForScenario, phonemesForText, resolveMorphIndex, visemesForText; package and evidence consumers bind the same names via ./package-viseme, ./package-actor-turn, and ./evidence-viseme, so '.' dual-publishes them while its import surface stays apps/ui-xr runtime-app"
+    "classes": ["runtime-app", "package", "own-test", "path-reach"],
+    "reason": "psr-01e keeps 13 names on '.': MOUTH_OPEN_CAP, PhonemeCue, SpeechSlotLike, UiXrExpressionEmotion, UiXrExpressionWeights, applyBlinkClosureToRoot, applyGazeToHumanoid, applyGeneratedScalarVisemeToRoot, collectResolvedMorphTargets, initialDialogueTextForScenario, phonemesForText, resolveMorphIndex, visemesForText; package and evidence consumers bind the same names via ./package-viseme, ./package-actor-turn, and ./evidence-viseme, so '.' dual-publishes them while its import surface stays apps/ui-xr runtime-app; the provider's own tests bind '.' through ./index.js (own-test) and evidence tooling binds one name by relative path (path-reach), both recorded as consumers since un-publishing what they bind is refused"
   },
   {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./actor-audio-runtime",
-    "classes": ["runtime-app", "tools"],
-    "reason": "one shared single-name runtime seam: the actor audio factory serves the apps/ui-xr runtime and mouth-solver tooling; no package or evidence consumer binds it, so no class-pure split is warranted"
+    "classes": ["runtime-app", "tools", "path-reach"],
+    "reason": "one shared single-name runtime seam: the actor audio factory serves the apps/ui-xr runtime and mouth-solver tooling; factory tooling additionally binds it by relative path (path-reach); no package or evidence consumer binds it, so no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./package-viseme",
+    "classes": ["package", "own-test"],
+    "reason": "package consumers bind the viseme application slice via specifier and the provider's own tests bind it through the entrypoint by relative path (own-test); the test seam follows the entrypoint by definition, so no class-pure split is possible"
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./viseme-timeline",
+    "classes": ["tools", "own-test"],
+    "reason": "mouth-solver tooling binds the viseme timeline slice via specifier and the provider's own tests bind it through the entrypoint by relative path (own-test); the test seam follows the entrypoint by definition, so no class-pure split is possible"
   }
 ]

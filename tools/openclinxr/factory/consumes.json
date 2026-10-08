@@ -1,11 +1,120 @@
 [
   {
     "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildEncounterAssetNeedsReadinessManifest",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./approach-executor",
     "names": [
       {
         "name": "FOOT_CONTACT_HEIGHT_METERS",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-asset-review",
+    "names": [
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "buildEncounterFactorySummaryContracts",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "buildEncounterRuntimeBundlePublicationMetadata",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildEncounterAssetGenerationPlan",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "buildEncounterAssetGenerationPublicationTargets",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createEncounterAssetGenerationQueueMessage",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "decodeAzureStorageQueueMessage",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "encodeAzureStorageQueueMessage",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterAssetGenerationQueueClient",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterAssetGenerationQueueMessageEnvelope",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterAssetGenerationWorkerExecution",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterExecutableAssetGenerationRequest",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterHumanoidRealismRequirements",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "processNextEncounterAssetGenerationQueueMessage",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -16,6 +125,22 @@
       {
         "name": "withComputeSlot",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/data-sources-mongoose-models",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createEncounterAssetGenerationJobModel",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "EncounterAssetGenerationJobMongooseRepository",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -42,6 +167,79 @@
     ]
   },
   {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "buildDynamicEncounterFactoryProjectionArtifact",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "edChestPainScenarioV2",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "edChestPainScenarioV3",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "variantScenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./pediatric-asthma",
+    "names": [
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/service-local-compute",
     "entrypoint": "./local",
     "names": [
@@ -52,12 +250,44 @@
     ]
   },
   {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "DynamicEncounterFactoryProjectionArtifact",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "validateDynamicEncounterFactoryProjectionArtifact",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-capture-evidence",
     "entrypoint": ".",
     "names": [
       {
         "name": "shouldRenderRoomPropInVisualReview",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./actor-audio-runtime",
+    "names": [
+      {
+        "name": "createActorAudioRuntime",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },

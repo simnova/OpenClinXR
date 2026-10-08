@@ -368,6 +368,77 @@
     ]
   },
   {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssembledExamLedgerResumeProjection",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildInitialSceneSpec",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDurableStoreFromPersistenceHooks",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createScenarioRuntimeWithPersistenceHooks",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DurableStorePersistenceHooks",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "initialSceneSpecPermitsPromotion",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveScenarioById",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resumeAssembledExam",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioCatalogPort",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioRuntime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioRuntimeActorTurn",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioRuntimeDurableStore",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/session-state",
     "entrypoint": ".",
     "names": [

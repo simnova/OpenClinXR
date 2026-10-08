@@ -76,5 +76,76 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "validateAssetManifest",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateCaseEmotionPolicy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateCommunicationProfile",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateDynamicEncounterFactoryProjectionArtifact",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateEnvironmentManifest",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateModelProviderAudit",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validatePatientNote",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateProviderAuditRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateReviewPacket",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateTraceEvent",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateVoiceProviderAudit",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

@@ -26,5 +26,16 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-solver-closedform",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "mouthClosedformSolver",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

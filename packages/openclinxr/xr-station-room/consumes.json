@@ -150,5 +150,21 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-station-room",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "StationClinicalTouchSource",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "wireStationPointerInteraction",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

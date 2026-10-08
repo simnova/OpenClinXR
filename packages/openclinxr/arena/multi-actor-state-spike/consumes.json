@@ -10,6 +10,67 @@
     ]
   },
   {
+    "provider": "@openclinxr/multi-actor-state-spike",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildActorModelContext",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMultiActorClinicalSession",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createPersistenceSpikeStores",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateMultiActorPersistencePhase2Strategy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateMultiActorStateOptions",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "persistLatestInteractionTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "recordClinicalAction",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "rehydrateRealtimeCacheFromDurableState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "routeActorInteraction",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateActorSpatialState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "writeRealtimeCacheSnapshot",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": ".",
     "names": [

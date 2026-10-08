@@ -8,5 +8,176 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/iwsdk-spike",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildIwsdkAgentVerificationRunbook",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkAiModeProfiles",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkCodexMcpAdapterTemplate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkCommittedSpikeSequence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkCompatibilityContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkManagedBrowserEvidenceContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkMcpToolCoverage",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkMcpToolInventory",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkMcpToolInventoryRequirement",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkOperatorApprovalContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkOperatorSteeringBlockers",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkOptionalMcpServerPolicy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkPackageMetadataDriftPolicies",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkPreInstallPackagePolicy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkSidecarReadinessContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkSourceRecordIdContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkSpikeMetricThresholds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkSpikePlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkUiXrStationParityContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkVerificationToolSelectionContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildIwsdkViteAiDevConfigContract",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkAgentToolingEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkAgentToolingLocalPreflightEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkCompatibilityEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkManagedBrowserEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkPackageMetadataDriftEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkPreInstallPackageSelection",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkSpikeMetrics",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkSpikeReadiness",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateIwsdkWorkspacePosture",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "IwsdkAgentToolingEvidence",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "IwsdkSpikeGateEvidence",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "selectIwsdkVerificationToolsForClaim",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

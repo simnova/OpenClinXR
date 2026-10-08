@@ -18,5 +18,31 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/model-vetting",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AnnyLikePreflightReport",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildModelVettingReportFromAnnyPreflight",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ModelVettingCaptureArtifacts",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "validateModelVettingReport",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

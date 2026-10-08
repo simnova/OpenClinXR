@@ -8,5 +8,51 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/auth",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "canReadStationRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DEFAULT_DEV_AUTH_IDENTITY",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DEFAULT_DEV_AUTH_SECRET",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "hasFacultyAccess",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "parseBearerAuthorization",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveSessionLearnerId",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "signAuthToken",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "verifyAuthToken",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

@@ -8,5 +8,26 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@cellix/provider-contracts",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "validateProviderAuditRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateProviderHealth",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateTraceEvent",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

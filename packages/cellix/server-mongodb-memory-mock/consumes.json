@@ -8,5 +8,16 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@cellix/server-mongodb-memory-mock",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "mongoMemoryServerTestOptions",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

@@ -10,6 +10,145 @@
     ]
   },
   {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "affectForAuthoredRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildDynamicEncounterFactoryProjectionArtifact",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildScenarioBankExamSequenceProjection",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createLearnerScenarioView",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "edChestPainDialogueSeeds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "edChestPainScenarioV2",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "edChestPainScenarioV3",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateScenarioBankMaturity",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "keywordAffectFallbackFromText",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PEDS_ASTHMA_SCENARIO_ID",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveAuthoredUtteranceRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "variantScenarioBank",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./pediatric-asthma",
+    "names": [
+      {
+        "name": "pediatricAsthmaDialogueSeeds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "pediatricAsthmaScenario",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "findScenarioFixtureById",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "responseClipForBodyRegion",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/shared-schemas",
     "entrypoint": ".",
     "names": [

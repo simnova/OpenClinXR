@@ -10,6 +10,47 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-exam-flow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildExamFlowEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildExamFormRunEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildExamRunSummaryEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamFlowStore",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createFormRunState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "readExamRunSummaryOutcomes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "recordStationOutcome",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-runtime-state",
     "entrypoint": ".",
     "names": [

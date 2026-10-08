@@ -10,6 +10,117 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-locomotion",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyDeterministicPortalPreviewStart",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "applyGeneratedHumanoidRoleSpecificPosture",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "applyLocomotion",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildExamineeLocomotionEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamineeLocomotionTrail",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createKeyboardLocomotion",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createXrHandGestureLocomotionState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createXrHandSelectState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "formatHandSelectStatus",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "formatPortalTransitionEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "isLocomotionVectorActive",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "isXrHandPinching",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "maybeCompleteTraceActionFromHandSelect",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "parsePortalPreviewStart",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PortalTransitionContext",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "recordHandSelectTraceLatency",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "RolePostureContext",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "sampleRoomScalePose",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateExamineeLocomotionTrail",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updatePortalTransitionEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateReusableExteriorAnteroomVisibility",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-pose",
     "entrypoint": ".",
     "names": [

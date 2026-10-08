@@ -21,6 +21,17 @@
   },
   {
     "provider": "@openclinxr/motion-compiler",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "planMotionProgram",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/motion-compiler",
     "entrypoint": "./planted-red-manifest",
     "names": [
       {
@@ -34,6 +45,44 @@
       {
         "name": "PLANTED_REDS",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainDialogueSeeds",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   }

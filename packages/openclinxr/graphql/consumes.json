@@ -8,5 +8,52 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AdminGraphqlRootValue",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildAdminGraphqlSchema",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createGraphqlCodegenPlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "executeAdminGraphql",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "openClinXrAdminSchemaSdl",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/graphql",
+    "entrypoint": "./documents",
+    "names": [
+      {
+        "name": "adminGraphqlDocumentByOperationName",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "adminGraphqlDocuments",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

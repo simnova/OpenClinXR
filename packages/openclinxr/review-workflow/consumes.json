@@ -72,6 +72,57 @@
     ]
   },
   {
+    "provider": "@openclinxr/review-workflow",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AssembledExamPhaseTransitionType",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AssembledExamReviewTraceInput",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AssembledExamStationEvidenceInput",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildAssembledExamReviewPacket",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildFacultyReviewPath",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildReviewPacket",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateScenarioPublicationReadiness",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ReviewerAttestationVerifier",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ReviewerEvidence",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": ".",
     "names": [

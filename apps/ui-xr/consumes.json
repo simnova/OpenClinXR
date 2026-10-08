@@ -406,6 +406,27 @@
     ]
   },
   {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": "./accepted-scene-plan",
+    "names": [
+      {
+        "name": "acceptedScenePlanProblems",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "DurableAcceptedScenePlanRecord",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "requireAcceptedScenePlan",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/shared-schemas",
     "entrypoint": ".",
     "names": [

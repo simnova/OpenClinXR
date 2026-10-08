@@ -8,5 +8,46 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/telemetry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createInMemoryTelemetryRecorder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createTelemetryRecorder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "openClinXrSpanNames",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "summarizeTelemetrySpans",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "telemetryAttributeNames",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "telemetryRouteAttributes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "TelemetrySpanRecord",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]

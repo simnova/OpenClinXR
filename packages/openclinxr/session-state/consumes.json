@@ -20,6 +20,72 @@
     ]
   },
   {
+    "provider": "@openclinxr/session-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildActorModelContext",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMultiActorClinicalSession",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createPersistenceSpikeStores",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DurableClinicalEventRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateMultiActorPersistencePhase2Strategy",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "persistLatestInteractionTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "projectDurableClinicalEventForReview",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "recordClinicalAction",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "rehydrateRealtimeCacheFromDurableState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "routeActorInteraction",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateActorSpatialState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "writeRealtimeCacheSnapshot",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/shared-schemas",
     "entrypoint": ".",
     "names": [

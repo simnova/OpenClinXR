@@ -10,6 +10,37 @@
     ]
   },
   {
+    "provider": "@openclinxr/mock-realtime-voice-server",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createRealtimeVoiceGatewayPosture",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runRealtimeVoiceProxyHarness",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "startPythonCompatibleVoiceBackendFixture",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "startRealtimeVoiceGatewayServer",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "StoppableServer",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/voice-gateway",
     "entrypoint": ".",
     "names": [

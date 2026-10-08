@@ -48,5 +48,72 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "adminWorkbenchCapabilityTags",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "capabilityTagColor",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "clampedScoreFromWorkbenchInput",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "countActorCommunicationProfiles",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "formatDuration",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "openClinXrAdminTheme",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "pluralizeWorkbenchCount",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "uniqueWorkbenchValues",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/ui-shared",
+    "entrypoint": "./admin-runtime-posture",
+    "names": [
+      {
+        "name": "AdminRealtimeVoicePosture",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AdminRuntimeProtocolPosture",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AdminRuntimeProviderReadiness",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]

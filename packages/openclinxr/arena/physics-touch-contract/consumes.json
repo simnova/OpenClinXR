@@ -8,5 +8,126 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/physics-touch-contract",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "accumulateFrameTime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "appendTickInput",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildDeterministicInputLog",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildPalpationInputLog",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildPhysicsCagematchReport",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "computeSnapshotHash",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "consumeTick",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createFixedStepAccumulator",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createInputLog",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createStubPhysicsArtifactMeta",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "currentTick",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "defaultNotEvidenceFor",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FIXED_DT",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "getTickInput",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "hashState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "inputLogLength",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "listTickInputs",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PhysicsCagematchReport",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "replayFromSnapshot",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "replayInputLog",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runThreeWayCagematch",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "serializeState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "StubPhysicsAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

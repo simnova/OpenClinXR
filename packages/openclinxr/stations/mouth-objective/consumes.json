@@ -8,5 +8,81 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-objective",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "centroidPacked",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "countPenetratingVerts",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DY_GATE_BIAS_PX",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DY_GATE_DETRENDED_MEDIAN_PX",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DY_GATE_MAX_PX",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "meanRimGapMm",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PENETRATION_FRAMES_MAX",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Problem",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "RIM_BAND_MM",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "RIM_TARGET_MM",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Solution",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "SolverModule",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "UPPER_DISPLACEMENT_BOUND_MM",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "upperDisplacementMm",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

@@ -118,6 +118,142 @@
     ]
   },
   {
+    "provider": "@openclinxr/data-mongodb",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CanonicalPhaseEventAdmission",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamRunLedger",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMongoApiPersistenceSink",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMongoDurableMultiActorSessionStore",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createMongoExamPersistence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "durableActorTurnPersistenceScope",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "durableClinicalEventPersistenceScope",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterMaterializationEvidenceRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "examRunLedgerClaimBoundary",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "examRunLedgerNotEvidenceFor",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MemoryExamRunLedger",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoDurableClinicalEventRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoDurableConversationTurnRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoDurableEmotionalStateTimelineRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoEncounterMaterializationEvidenceRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoExamFormRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoFacultyScoreDraftRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoReviewPacketRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoRuntimeAssetBundleRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoScenarioRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoScenarioReviewDecisionRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoStationRunQueueRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MongoTraceRepository",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "OpenExamRunInput",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "saveLearnerRuntimeAssetBundleFromGeneratedReport",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ScenarioReviewDecisionRecord",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/exam-assembly",
     "entrypoint": ".",
     "names": [

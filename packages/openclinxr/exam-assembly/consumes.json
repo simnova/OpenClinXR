@@ -10,6 +10,107 @@
     ]
   },
   {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "advanceExamFormRunStation",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "assembleExamForm",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDefaultClinicalSkillsBlueprint",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamFormRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamStationRunQueue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamStationRunQueueSnapshot",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createExamTimingPlan",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "currentExamFormRunStation",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateBlueprintScenarioReadiness",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateScenarioVersionDrift",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ExamAssemblyPersistenceSink",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ExamBlueprint",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ExamFormRunState",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ExamStationRunQueueSnapshot",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "nextExamFormRunStation",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "persistExamStationRunQueueSnapshot",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "startExamFormRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "tickExamFormRunClock",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": ".",
     "names": [

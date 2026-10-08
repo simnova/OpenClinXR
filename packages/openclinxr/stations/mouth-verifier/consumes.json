@@ -44,6 +44,37 @@
     ]
   },
   {
+    "provider": "@openclinxr/station-mouth-verifier",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assertGroundTruthDyGate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DY_GATE_RULE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluate",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "probePremise",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "readEvaluatorTrack",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-actor-turn",
     "names": [

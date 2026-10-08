@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import type { Dirent } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -21,12 +21,26 @@ import { fileURLToPath } from "node:url";
  * (packages/** and apps/** package.json dirs, @-scoped or not — the unscoped
  * apps/arena/physics-clinical-touch consumes but does not provide), plus
  * tools/openclinxr itself (loose files) and each tools/openclinxr/<area>,
- * plus any dir that already owns a consumes.json (contracts are sticky:
- * tools/openclinxr/asset-pipeline/makeclothes nests inside the asset-pipeline
- * area and stays its own consumer). File ownership is longest matching
- * prefix, so nested consumers carve out of their parents. Classes: apps/* →
- * runtime-app, packages/* → package, tools/openclinxr/evidence → evidence,
- * other tools → tools.
+ * plus tools/agent-factory (loose harness scripts that reach package src by
+ * path), plus any dir that already owns a consumes.json (contracts are
+ * sticky: tools/openclinxr/asset-pipeline/makeclothes nests inside the
+ * asset-pipeline area and stays its own consumer). File ownership is longest
+ * matching prefix, so nested consumers carve out of their parents. Classes:
+ * apps/* → runtime-app, packages/* → package, tools/openclinxr/evidence →
+ * evidence, other tools → tools.
+ *
+ * OWN-TEST AND PATH-REACH BINDINGS COUNT, RECORDED WITH via. Two real binding
+ * kinds never use a package specifier, so the specifier scanner misses them:
+ * (1) a package's OWN tests importing through its entrypoint via a relative
+ * path (./index.js, ./public.js — psr-01d amendment 2026-09-11 counts these
+ * as consumers; un-publishing a name they bind raises testInternalImports
+ * and is refused), and (2) PATH-REACH imports, relative paths from
+ * apps/tools/tests/packages files into another package's src/. Each name
+ * carries via "own-test" | "path-reach" (absent means the package-specifier
+ * import). A path-reach import that resolves to an INTERNAL module rather
+ * than an entrypoint source file binds no published name: it is counted in
+ * the run summary (internal path-reach) and recorded nowhere. The archunit
+ * gate mirrors this file's resolution, so generator and gate agree.
  *
  * ALL WORKSPACE PROVIDERS. The provider set is discovered, not hardcoded: every
  * package.json name under packages/** and apps/** in the @openclinxr/ or
@@ -55,7 +69,9 @@ import { fileURLToPath } from "node:url";
 
 export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence";
 
-export type ContractName = { name: string; kind: "runtime" | "type" };
+export type ContractVia = "own-test" | "path-reach";
+
+export type ContractName = { name: string; kind: "runtime" | "type"; via?: ContractVia };
 
 export type ConsumerContract = {
   provider: string;
@@ -149,6 +165,7 @@ export function discoverConsumers(root: string): ConsumerDef[] {
   };
   for (const base of ["packages", "apps"]) walk(base);
   out.set("tools/openclinxr", "tools");
+  out.set("tools/agent-factory", "tools");
   let areas: Dirent<string>[];
   try {
     areas = readdirSync(join(root, "tools/openclinxr"), { withFileTypes: true }) as Dirent<string>[];
@@ -369,6 +386,175 @@ function specifierToContract(
   return undefined;
 }
 
+function collectConditionTargets(value: unknown, into: string[]): void {
+  if (typeof value === "string") {
+    into.push(value);
+    return;
+  }
+  if (value !== null && typeof value === "object") {
+    for (const nested of Object.values(value as Record<string, unknown>)) collectConditionTargets(nested, into);
+  }
+}
+
+type DeclaredEntrypoint = { specifier: string; condition: string };
+
+function declaredEntrypointsFor(root: string, packageDir: string): DeclaredEntrypoint[] {
+  let parsed: { exports?: unknown };
+  try {
+    parsed = JSON.parse(readFileSync(join(root, packageDir, "package.json"), "utf8")) as { exports?: unknown };
+  } catch {
+    return [];
+  }
+  const raw = parsed.exports;
+  if (typeof raw === "string") return [{ specifier: ".", condition: raw }];
+  if (raw === null || typeof raw !== "object") return [{ specifier: ".", condition: "" }];
+  const out: DeclaredEntrypoint[] = [];
+  for (const [specifier, conditions] of Object.entries(raw as Record<string, unknown>)) {
+    const targets: string[] = [];
+    collectConditionTargets(conditions, targets);
+    out.push({ specifier, condition: targets[0] ?? "" });
+  }
+  return out;
+}
+
+function candidateSources(root: string, packageDir: string, condition: string): string[] {
+  // Mirror of resolve.ts candidateSources (tools cannot import the check
+  // without a boundary-test edge, so the mapping is duplicated, not shared).
+  const out: string[] = [];
+  if (condition.startsWith("./src/")) {
+    const bare = condition.replace(/^\.\//u, "").replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/u, "");
+    for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+      const candidate = join(root, packageDir, `${bare}${extension}`);
+      if (!out.includes(candidate)) out.push(candidate);
+    }
+    return out;
+  }
+  const direct = condition.replace(/^\.\//u, "").replace(/\.d\.ts$/u, ".ts").replace(/\.js$/u, ".ts");
+  const base = direct === "" ? "src/index" : `src/${direct.replace(/^dist\//u, "")}`;
+  const bare = base.replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/u, "");
+  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+    const candidate = join(root, packageDir, `${bare}${extension}`);
+    if (!out.includes(candidate)) out.push(candidate);
+  }
+  return out;
+}
+
+/** Absolute entrypoint source file → entrypoint specifier, for one provider dir. */
+export function entrypointSourcesByFile(root: string, packageDir: string): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const entry of declaredEntrypointsFor(root, packageDir)) {
+    for (const candidate of candidateSources(root, packageDir, entry.condition)) {
+      try {
+        if (statSync(candidate).isFile()) {
+          if (!out.has(candidate)) out.set(candidate, entry.specifier);
+          break;
+        }
+      } catch {
+        // not present: try the next extension
+      }
+    }
+  }
+  return out;
+}
+
+const entrypointSourcesCache = new Map<string, Map<string, string>>();
+
+function entrypointSourcesCached(root: string, packageDir: string): Map<string, string> {
+  const key = `${root}\t${packageDir}`;
+  const cached = entrypointSourcesCache.get(key);
+  if (cached !== undefined) return cached;
+  const computed = entrypointSourcesByFile(root, packageDir);
+  entrypointSourcesCache.set(key, computed);
+  return computed;
+}
+
+function isTestFile(file: string): boolean {
+  return /\.(test|spec)\.[cm]?[jt]sx?$/.test(file);
+}
+
+function isFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/** A relative specifier resolved to an absolute source file, or undefined. */
+export function resolveRelativeTarget(importerFile: string, spec: string): string | undefined {
+  if (!spec.startsWith(".")) return undefined;
+  const abs = join(dirname(importerFile), spec);
+  if (isFile(abs)) return abs;
+  const bare = abs.replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/u, "");
+  for (const ext of [".ts", ".tsx", ".mts", ".cts"]) {
+    if (isFile(`${bare}${ext}`)) return `${bare}${ext}`;
+  }
+  for (const ext of [".ts", ".tsx", ".mts", ".cts"]) {
+    const indexed = join(bare, `index${ext}`);
+    if (isFile(indexed)) return indexed;
+  }
+  return undefined;
+}
+
+function readText(file: string): string | undefined {
+  try {
+    return readFileSync(file, "utf8");
+  } catch {
+    return undefined;
+  }
+}
+
+const PUBLISHED_DECLARED_EXPORT =
+  /^export (?:declare )?(?:async )?(?:function|const|class|type|interface|enum|let|var)\s+(\w+)/gmu;
+const PUBLISHED_NAMED_EXPORT_BLOCK = /^export (?:type )?\{([^}]*)\}/gmu;
+const PUBLISHED_STAR_EXPORT = /^export \* from "([^"]+)"/gmu;
+
+/**
+ * Names an entrypoint source publishes. Mirror of
+ * checks/export-surface-budgets.ts exportedSymbols (tools cannot import the
+ * check without a boundary-test edge, so the scanner is duplicated, not
+ * shared): a path-reach import names a binding only for a name in this set.
+ */
+export function publishedSymbols(entry: string, seen: Set<string> = new Set()): Set<string> {
+  const real = entry;
+  try {
+    const st = statSync(entry);
+    if (!st.isFile()) return new Set();
+  } catch {
+    return new Set();
+  }
+  if (seen.has(real)) return new Set();
+  seen.add(real);
+  const text = readText(real);
+  if (text === undefined) return new Set();
+  const out = new Set<string>();
+  for (const match of text.matchAll(PUBLISHED_DECLARED_EXPORT)) out.add(match[1] ?? "");
+  for (const match of text.matchAll(PUBLISHED_NAMED_EXPORT_BLOCK)) {
+    for (const part of (match[1] ?? "").split(",")) {
+      const name = part.trim().split(" as ").pop()?.replace(/^type\s+/u, "").trim();
+      if (name !== undefined && name !== "") out.add(name);
+    }
+  }
+  for (const match of text.matchAll(PUBLISHED_STAR_EXPORT)) {
+    const target = match[1] ?? "";
+    if (!target.startsWith(".")) continue;
+    const resolved = join(dirname(real), target.replace(/\.js$/u, ".ts"));
+    for (const symbol of publishedSymbols(resolved, seen)) out.add(symbol);
+  }
+  out.delete("");
+  return out;
+}
+
+const publishedCache = new Map<string, Set<string>>();
+
+function publishedSymbolsCached(entry: string): Set<string> {
+  const cached = publishedCache.get(entry);
+  if (cached !== undefined) return cached;
+  const computed = publishedSymbols(entry);
+  publishedCache.set(entry, computed);
+  return computed;
+}
+
 /** provider/entrypoint → name → kind for one consumer directory. */
 export function collectContracts(
   root: string,
@@ -430,6 +616,176 @@ export function collectContracts(
   return out;
 }
 
+/**
+ * A provider's OWN tests importing through its entrypoint via a relative
+ * path (./index.js, ./public.js). Only test files count, and only when the
+ * resolved target is one of the provider's own entrypoint sources — a test
+ * reaching an internal module is the testInternalImports world, not a
+ * published-name binding. Recorded with via "own-test" in the provider's own
+ * consumes.json (self-row: provider is the consumer's own package).
+ */
+export function collectOwnTestContracts(
+  root: string,
+  consumerDir: string,
+  providers: Map<string, string>,
+  allConsumerDirs: string[],
+): ConsumerContract[] {
+  let self: string | undefined;
+  for (const [name, dir] of providers) {
+    if (dir === consumerDir) {
+      self = name;
+      break;
+    }
+  }
+  if (self === undefined) return [];
+  const byFile = entrypointSourcesCached(root, consumerDir);
+  if (byFile.size === 0) return [];
+  const nested = allConsumerDirs
+    .filter((d) => d !== consumerDir && d.startsWith(`${consumerDir}/`))
+    .map((d) => join(root, d));
+  const files: string[] = [];
+  sourceFilesUnder(join(root, consumerDir), files, nested);
+  const byKey = new Map<string, Map<string, "runtime" | "type">>();
+  const consider = (specifier: string, raw: string, wholeIsType: boolean, file: string): void => {
+    if (raw === "") return;
+    const target = resolveRelativeTarget(file, specifier);
+    if (target === undefined) return;
+    const entrypoint = byFile.get(target);
+    if (entrypoint === undefined) return;
+    // Only a name the entrypoint publishes is a binding; anything else
+    // reaches past the surface into implementation.
+    const published = publishedSymbolsCached(target);
+    const key = `${self}\t${entrypoint}`;
+    const names = byKey.get(key) ?? new Map<string, "runtime" | "type">();
+    let bound = 0;
+    for (const entry of splitNames(raw, wholeIsType)) {
+      if (!published.has(entry.name)) continue;
+      bound += 1;
+      const prev = names.get(entry.name);
+      if (prev === undefined || entry.kind === "runtime") names.set(entry.name, entry.kind);
+    }
+    if (bound > 0) byKey.set(key, names);
+  };
+  for (const file of files) {
+    if (!isTestFile(file)) continue;
+    const text = readText(file);
+    if (text === undefined) continue;
+    const { comments, strings } = ignorableRanges(text);
+    const code = blankComments(text, comments);
+    for (const match of code.matchAll(IMPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      const raw = match[2] ?? "";
+      if (raw === "" && match[3] !== undefined && match[3] !== "") continue;
+      consider(match[4] ?? "", raw, (match[1] ?? "").trim() !== "", file);
+    }
+    for (const match of code.matchAll(EXPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      consider(match[3] ?? "", match[2] ?? "", (match[1] ?? "").trim() !== "", file);
+    }
+  }
+  return toViaContracts(byKey, "own-test");
+}
+
+export type PathReachResult = { contracts: ConsumerContract[]; internal: number };
+
+function toViaContracts(
+  byKey: Map<string, Map<string, "runtime" | "type">>,
+  via: ContractVia,
+): ConsumerContract[] {
+  const out: ConsumerContract[] = [];
+  for (const [key, names] of [...byKey.entries()].sort()) {
+    const [provider, entrypoint] = key.split("\t") as [string, string];
+    out.push({
+      provider,
+      entrypoint,
+      names: [...names.entries()]
+        .map(([name, kind]) => ({ name, kind, via }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    });
+  }
+  return out;
+}
+
+/**
+ * PATH-REACH bindings: relative imports from this consumer's files into
+ * ANOTHER provider's src/ that resolve to one of that provider's entrypoint
+ * sources. Recorded with via "path-reach" in the importer's consumes.json.
+ * A reach that lands on an internal module (inside the target's src/ but not
+ * an entrypoint source) binds no published name: it is counted as internal
+ * and recorded nowhere.
+ */
+export function collectPathReachContracts(
+  root: string,
+  consumerDir: string,
+  providers: Map<string, string>,
+  allConsumerDirs: string[],
+): PathReachResult {
+  const nested = allConsumerDirs
+    .filter((d) => d !== consumerDir && d.startsWith(`${consumerDir}/`))
+    .map((d) => join(root, d));
+  const files: string[] = [];
+  sourceFilesUnder(join(root, consumerDir), files, nested);
+  const byDir = [...providers.entries()]
+    .map(([name, dir]) => ({ name, abs: join(root, dir) }))
+    .sort((a, b) => b.abs.length - a.abs.length);
+  const byKey = new Map<string, Map<string, "runtime" | "type">>();
+  let internal = 0;
+  const consider = (specifier: string, raw: string, wholeIsType: boolean, file: string): void => {
+    if (raw === "") return;
+    if (!specifier.startsWith(".")) return;
+    const target = resolveRelativeTarget(file, specifier);
+    if (target === undefined) return;
+    const hit = byDir.find((p) => target === p.abs || target.startsWith(`${p.abs}/`));
+    if (hit === undefined) return;
+    const rel = relative(hit.abs, target);
+    if (!rel.split(sep).includes("src")) return;
+    const consumerAbs = join(root, consumerDir);
+    if (target === consumerAbs || target.startsWith(`${consumerAbs}/`)) {
+      // In-package reach: the testInternalImports world, not a cross-package binding.
+      return;
+    }
+    const entrypoint = entrypointSourcesCached(root, relative(root, hit.abs)).get(target);
+    if (entrypoint === undefined) {
+      internal += 1;
+      return;
+    }
+    // Only a name the entrypoint publishes is a binding; anything else
+    // reaches past the surface into implementation.
+    const published = publishedSymbolsCached(target);
+    const key = `${hit.name}\t${entrypoint}`;
+    const names = byKey.get(key) ?? new Map<string, "runtime" | "type">();
+    let bound = 0;
+    for (const entry of splitNames(raw, wholeIsType)) {
+      if (!published.has(entry.name)) continue;
+      bound += 1;
+      const prev = names.get(entry.name);
+      if (prev === undefined || entry.kind === "runtime") names.set(entry.name, entry.kind);
+    }
+    if (bound > 0) {
+      byKey.set(key, names);
+    } else {
+      internal += 1;
+    }
+  };
+  for (const file of files) {
+    const text = readText(file);
+    if (text === undefined) continue;
+    const { comments, strings } = ignorableRanges(text);
+    const code = blankComments(text, comments);
+    for (const match of code.matchAll(IMPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      const raw = match[2] ?? "";
+      if (raw === "" && match[3] !== undefined && match[3] !== "") continue;
+      consider(match[4] ?? "", raw, (match[1] ?? "").trim() !== "", file);
+    }
+    for (const match of code.matchAll(EXPORT_FROM)) {
+      if (isIgnoredAt(strings, match.index ?? 0)) continue;
+      consider(match[3] ?? "", match[2] ?? "", (match[1] ?? "").trim() !== "", file);
+    }
+  }
+  return { contracts: toViaContracts(byKey, "path-reach"), internal };
+}
+
 function readCommitted(root: string, consumerDir: string): ConsumerContract[] {
   const full = join(root, consumerDir, "consumes.json");
   try {
@@ -439,32 +795,69 @@ function readCommitted(root: string, consumerDir: string): ConsumerContract[] {
   }
 }
 
+const VIA_ORDER = ["specifier", "own-test", "path-reach"] as const;
+
+function viaOf(entry: ContractName): string {
+  return entry.via ?? "specifier";
+}
+
 /**
  * Merge derived rows over the committed file. Derived names are added;
- * committed names are never removed (hand pins, e.g. dynamic-import types,
- * stay until a human trims them). Runtime kind dominates on conflict.
+ * committed specifier names are never removed (hand pins, e.g.
+ * dynamic-import types, stay until a human trims them). Committed via rows
+ * the tree no longer derives are stale generator output and drop.
+ * Runtime kind dominates on conflict. A name
+ * bound through several mechanisms keeps one entry per via, so the gate can
+ * tell specifier, own-test, and path-reach bindings apart; a committed entry
+ * with no via counts as a specifier binding.
  */
 export function mergeContracts(committed: ConsumerContract[], derived: ConsumerContract[]): ConsumerContract[] {
-  const byKey = new Map<string, Map<string, "runtime" | "type">>();
-  for (const row of [...committed, ...derived]) {
-    const key = `${row.provider}\t${row.entrypoint}`;
-    const names = byKey.get(key) ?? new Map<string, "runtime" | "type">();
+  // via rows are writer-owned: a committed via row the tree no longer
+  // derives is a stale derivation, not a hand pin, so it drops. Hand pins
+  // carry no via (they count as specifier bindings) and are never removed.
+  const derivedVia = new Set<string>();
+  for (const row of derived) {
     for (const entry of row.names) {
-      const prev = names.get(entry.name);
-      if (prev === undefined || entry.kind === "runtime") names.set(entry.name, entry.kind);
+      if (entry.via !== undefined) derivedVia.add(`${row.provider}\t${row.entrypoint}\t${entry.name}\t${entry.via}`);
+    }
+  }
+  const live = committed.filter(
+    (row) =>
+      row.names.some((entry) => entry.via === undefined) ||
+      row.names.some((entry) => derivedVia.has(`${row.provider}\t${row.entrypoint}\t${entry.name}\t${entry.via}`)),
+  ).map((row) => ({
+    ...row,
+    names: row.names.filter(
+      (entry) => entry.via === undefined || derivedVia.has(`${row.provider}\t${row.entrypoint}\t${entry.name}\t${entry.via}`),
+    ),
+  }));
+  const byKey = new Map<string, Map<string, Map<string, "runtime" | "type">>>();
+  for (const row of [...live, ...derived]) {
+    const key = `${row.provider}\t${row.entrypoint}`;
+    const names = byKey.get(key) ?? new Map<string, Map<string, "runtime" | "type">>();
+    for (const entry of row.names) {
+      const via = viaOf(entry);
+      const kinds = names.get(entry.name) ?? new Map<string, "runtime" | "type">();
+      const prev = kinds.get(via);
+      if (prev === undefined || entry.kind === "runtime") kinds.set(via, entry.kind);
+      names.set(entry.name, kinds);
     }
     byKey.set(key, names);
   }
   const out: ConsumerContract[] = [];
   for (const [key, names] of [...byKey.entries()].sort()) {
     const [provider, entrypoint] = key.split("\t") as [string, string];
-    out.push({
-      provider,
-      entrypoint,
-      names: [...names.entries()]
-        .map(([name, kind]) => ({ name, kind }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    });
+    const flat: ContractName[] = [];
+    for (const [name, kinds] of [...names.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+      for (const via of [...kinds.keys()].sort(
+        (a, b) => VIA_ORDER.indexOf(a as (typeof VIA_ORDER)[number]) - VIA_ORDER.indexOf(b as (typeof VIA_ORDER)[number]),
+      )) {
+        const kind = kinds.get(via);
+        if (kind === undefined) continue;
+        flat.push(via === "specifier" ? { name, kind } : { name, kind, via: via as ContractVia });
+      }
+    }
+    out.push({ provider, entrypoint, names: flat });
   }
   return out;
 }
@@ -476,10 +869,15 @@ function main(): void {
   const allDirs = consumers.map((c) => c.dir);
   const only = process.argv[2];
   console.log(`providers: ${providers.size}, consumers: ${consumers.length}`);
+  let internalPathReach = 0;
   for (const consumer of consumers) {
     if (only !== undefined && consumer.dir !== only) continue;
     const committed = readCommitted(root, consumer.dir);
-    const derived = collectContracts(root, consumer.dir, providers, allDirs);
+    const specifier = collectContracts(root, consumer.dir, providers, allDirs);
+    const ownTest = collectOwnTestContracts(root, consumer.dir, providers, allDirs);
+    const pathReach = collectPathReachContracts(root, consumer.dir, providers, allDirs);
+    internalPathReach += pathReach.internal;
+    const derived = [...specifier, ...ownTest, ...pathReach.contracts];
     if (derived.length === 0 && committed.length === 0) {
       console.log(`${join(consumer.dir, "consumes.json")}: no workspace imports, no contract [${consumer.class}]`);
       continue;
@@ -491,8 +889,14 @@ function main(): void {
     mkdirSync(dirname(full), { recursive: true });
     writeFileSync(full, `${JSON.stringify(merged, null, 2)}\n`);
     const names = merged.reduce((sum, c) => sum + c.names.length, 0);
-    console.log(`${rel}: ${merged.length} entrypoints, ${names} names [${consumer.class}]${isNew ? " NEW" : ""}`);
+    const ownNames = ownTest.reduce((sum, c) => sum + c.names.length, 0);
+    const reachNames = pathReach.contracts.reduce((sum, c) => sum + c.names.length, 0);
+    console.log(
+      `${rel}: ${merged.length} entrypoints, ${names} names [${consumer.class}]`
+      + ` (own-test ${ownNames}, path-reach ${reachNames})${isNew ? " NEW" : ""}`,
+    );
   }
+  console.log(`internal-path-reach: ${internalPathReach}`);
 }
 
 main();

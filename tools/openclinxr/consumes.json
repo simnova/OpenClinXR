@@ -1,11 +1,116 @@
 [
   {
+    "provider": "@openclinxr/api",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "createOpenClinXrApiStartup",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "OpenClinXrApiStartupOptions",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "StartedOpenClinXrApi",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/compute-slots",
     "entrypoint": "./slots",
     "names": [
       {
         "name": "readComputeSlotsStatus",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/data-mongodb",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createMongoApiPersistenceSink",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "MongoClient",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-runtime",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDefaultScenarioRuntime",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createDurableStoreFromPersistenceHooks",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "createScenarioRuntimeWithPersistenceHooks",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "DurableStorePersistenceHooks",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioRuntime",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioRuntimeActorTurn",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ScenarioRuntimeDurableStore",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ReviewPacket",
+        "kind": "type",
+        "via": "path-reach"
       }
     ]
   }

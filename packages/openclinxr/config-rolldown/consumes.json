@@ -8,5 +8,21 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/config-rolldown",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createOpenClinXrAzureFunctionsRolldownConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "prepareOpenClinXrAzureFunctionsDeploy",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

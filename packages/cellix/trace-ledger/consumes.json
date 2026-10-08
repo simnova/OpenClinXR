@@ -22,5 +22,16 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@cellix/trace-ledger",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "InMemoryTraceLedger",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

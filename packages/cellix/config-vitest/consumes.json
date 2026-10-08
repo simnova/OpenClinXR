@@ -1,0 +1,83 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./arch",
+    "names": [
+      {
+        "name": "archConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./base",
+    "names": [
+      {
+        "name": "baseConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDefaultTypecheckConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "defaultTestIncludePatterns",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./dirname",
+    "names": [
+      {
+        "name": "getDirnameFromImportMetaUrl",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./storybook",
+    "names": [
+      {
+        "name": "createStorybookVitestConfig",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "getStorybookBrowserApiPort",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./worktree-excludes",
+    "names": [
+      {
+        "name": "worktreeExcludePatterns",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  }
+]

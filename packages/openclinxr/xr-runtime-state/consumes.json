@@ -214,5 +214,31 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "bodyDirectionWithinAllowance",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "composedIdleBodyHeading",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "supportedActorPlacementPosition",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

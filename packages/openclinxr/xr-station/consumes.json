@@ -96,5 +96,16 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "planStationEquipmentMounts",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

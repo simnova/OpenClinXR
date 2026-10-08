@@ -392,20 +392,125 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "ApiApp",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ApiApplication",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ApiAssembledExamDispositionRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ApiAssembledExamRunRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
         "name": "ApiPersistenceSink",
         "kind": "type"
+      },
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type",
+        "via": "own-test"
       },
       {
         "name": "ApiScenarioReviewDecisionRecord",
         "kind": "type"
       },
       {
+        "name": "ApiScenarioReviewDecisionRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "authoredScenarioContentIdentity",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "buildSessionRoutePath",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "matchOpenClinXrRestRoute",
         "kind": "runtime"
       },
       {
+        "name": "matchOpenClinXrRestRoute",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "openClinXrRestRouteIds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "openClinXrRestRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PROMOTION_REVIEW_GATES",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerAdminGraphqlRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerAssembledExamDispositionRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerAssembledExamReviewRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerAssembledExamRunRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerAuthoringRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "registerExamRoutes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "routeById",
         "kind": "runtime"
+      },
+      {
+        "name": "routeById",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "toAdminGraphqlScenario",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },

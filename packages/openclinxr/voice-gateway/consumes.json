@@ -74,5 +74,56 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "collectVoiceStream",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createDefaultVoiceGateway",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createRealtimeVoiceGatewayPosture",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "LocalVoiceProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MockVoiceProviderAdapter",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "realtimeVoiceProtocol",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "selectRealtimeVoiceProtocol",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "VoiceGateway",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "VoiceProviderAdapter",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]
