@@ -38,11 +38,11 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
       "parent_mei_chen_v1": {
         "supportSurface": "chair",
         "plantOffsetMeters": {
-          "x": -3.345119,
+          "x": 0,
           "y": 0,
-          "z": 1.026838
+          "z": -0.3
         },
-        "headingRadians": -2.572431
+        "headingRadians": -1.4103066330528553
       },
       "patient_noah_chen_v1": {
         "supportSurface": "stretcher",
