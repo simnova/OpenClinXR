@@ -1,5 +1,43 @@
 [
   {
+    "provider": "@openclinxr/station-mouth-verifier",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "evaluate",
+        "kind": "runtime"
+      },
+      {
+        "name": "headFocusCamera",
+        "kind": "runtime"
+      },
+      {
+        "name": "HeadFocusCamera",
+        "kind": "type"
+      },
+      {
+        "name": "HeadlessMesh",
+        "kind": "type"
+      },
+      {
+        "name": "HeadlessScene",
+        "kind": "type"
+      },
+      {
+        "name": "loadHeadlessScene",
+        "kind": "runtime"
+      },
+      {
+        "name": "probePremise",
+        "kind": "runtime"
+      },
+      {
+        "name": "readEvaluatorTrack",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./actor-audio-runtime",
     "names": [

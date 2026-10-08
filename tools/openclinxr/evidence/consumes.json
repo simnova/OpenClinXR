@@ -1,5 +1,95 @@
 [
   {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./case-frozen-scene-plans",
+    "names": [
+      {
+        "name": "CASE_FROZEN_SCENE_PLANS",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "readComputeSlotsStatus",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlotSync",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ROOM_ALBEDO_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_OCCLUSION_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomGenerate",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./room-chain",
+    "names": [
+      {
+        "name": "ROOM_CHAIN_RECIPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomChain",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-asset-loading",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "runtimeHumanoidVariantAssetPath",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./evidence-viseme",
     "names": [
@@ -50,6 +140,220 @@
       {
         "name": "resolveMorphIndex",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./locomotion-clip-playback",
+    "names": [
+      {
+        "name": "playLocomotionClip",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "mpfbForearmIdleEuler",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "authoredSafetyCriticalTraceTagsForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredTraceTagsForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildIwsdkStationMcpSmokePlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "deriveRuntimeTraceActionTagsFromBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "deriveScenarioTraceActionTags",
+        "kind": "runtime"
+      },
+      {
+        "name": "INFINIGEN_ENVIRONMENT_ASSETS",
+        "kind": "runtime"
+      },
+      {
+        "name": "iwsdkStationMcpSmokePlanHash",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalEnvironmentRuntimeAssetFileName",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalEquipmentRuntimeAssetFileName",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRemoteActorTurnForTraceTag",
+        "kind": "runtime"
+      },
+      {
+        "name": "scenarioActorIdsForScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assignMissingRoomPrimitiveMaterials",
+        "kind": "runtime"
+      },
+      {
+        "name": "deriveHeadBoxFromPoints",
+        "kind": "runtime"
+      },
+      {
+        "name": "ED_ADULT_CAST_RUNTIME_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "frameCamera",
+        "kind": "runtime"
+      },
+      {
+        "name": "HeadBoxGeometry",
+        "kind": "type"
+      },
+      {
+        "name": "isFittedHairMeshName",
+        "kind": "runtime"
+      },
+      {
+        "name": "isGltfMissingAuthoredMaterial",
+        "kind": "runtime"
+      },
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveHumanoidVariantOrCastPath",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLearnerExamScenarios",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalHumanoidRuntimeAssetUrl",
+        "kind": "runtime"
+      },
+      {
+        "name": "Vec3",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDeclaredEquipmentGeometry",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildGenericClinicalEquipmentFallback",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildRoomPropMaterialColours",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildStationEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "classifyInitialVitalsRaw",
+        "kind": "runtime"
+      },
+      {
+        "name": "classifyRoomProp",
+        "kind": "runtime"
+      },
+      {
+        "name": "countEquipmentGeometry",
+        "kind": "runtime"
+      },
+      {
+        "name": "InitialVitalsValueClass",
+        "kind": "type"
+      },
+      {
+        "name": "isPatientChairSlotId",
+        "kind": "runtime"
+      },
+      {
+        "name": "listDeclaredEquipmentBuilderArms",
+        "kind": "runtime"
+      },
+      {
+        "name": "measureParametricComposite",
+        "kind": "runtime"
+      },
+      {
+        "name": "ParametricCompositeMeasure",
+        "kind": "type"
+      },
+      {
+        "name": "parametricEquipmentKindCount",
+        "kind": "runtime"
+      },
+      {
+        "name": "PATIENT_CHAIR_SEAT_HEIGHT_METERS",
+        "kind": "runtime"
+      },
+      {
+        "name": "REAL_EQUIPMENT_GLTF_BY_ID",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveStationInteriorLightingVariantId",
+        "kind": "runtime"
+      },
+      {
+        "name": "RoomPropClass",
+        "kind": "type"
+      },
+      {
+        "name": "RoomPropColourInput",
+        "kind": "type"
+      },
+      {
+        "name": "STATION_INTERIOR_LIGHTING_VARIANT_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "stationContextForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "StationInteriorLightingVariantId",
+        "kind": "type"
       }
     ]
   }

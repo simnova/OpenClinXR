@@ -411,6 +411,7 @@
     "factory:room:promote": "tsx tools/openclinxr/asset-pipeline/environment/room-promote-cli.ts",
     "factory:room:evidence-poses": "tsx tools/openclinxr/asset-pipeline/environment/room-evidence-poses-cli.ts",
     "arch:ceilings": "tsx tools/openclinxr/architecture/write-context-ceilings.ts",
+    "arch:consumer-contracts": "tsx tools/openclinxr/architecture/write-consumer-contracts.ts",
     "arch:parallelism": "tsx tools/openclinxr/architecture/parallelism-report.ts",
     "arch:index": "tsx tools/openclinxr/architecture/write-package-agent-index.ts",
     "arch:unused-exports": "tsx tools/openclinxr/architecture/unused-exports-report.ts",

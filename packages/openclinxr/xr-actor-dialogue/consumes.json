@@ -1,5 +1,53 @@
 [
   {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "EncounterRuntimeDialogueTurn",
+        "kind": "type"
+      },
+      {
+        "name": "LearnerRuntimeAssetBundle",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./ed-chest-pain",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-actor-turn",
     "names": [
@@ -41,6 +89,76 @@
       },
       {
         "name": "visemesForText",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildPackageHumanoidSpeechEvidence",
+        "kind": "runtime"
+      },
+      {
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidDialogueEmotionContext",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidDialogueGazeTarget",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidExpressionEmotion",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidSpeechPlayback",
+        "kind": "type"
+      },
+      {
+        "name": "packageHumanoidDialogueDurationMs",
+        "kind": "runtime"
+      },
+      {
+        "name": "startPackageHumanoidEmotionTransition",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "HumanoidSpeechEvidence",
+        "kind": "type"
+      },
+      {
+        "name": "packageActorIdForTraceTag",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-trace-readiness",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyPackagePedsActorPlayerSequenceListenerCues",
+        "kind": "runtime"
+      },
+      {
+        "name": "PedsActorListenerCueContext",
+        "kind": "type"
+      },
+      {
+        "name": "recordPackagePlaybackEvidence",
         "kind": "runtime"
       }
     ]

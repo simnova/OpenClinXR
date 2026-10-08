@@ -1,5 +1,29 @@
 [
   {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-objective",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Problem",
+        "kind": "type"
+      },
+      {
+        "name": "Solution",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-viseme",
     "names": [

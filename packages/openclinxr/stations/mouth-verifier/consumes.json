@@ -1,5 +1,49 @@
 [
   {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-objective",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "centroidPacked",
+        "kind": "runtime"
+      },
+      {
+        "name": "countPenetratingVerts",
+        "kind": "runtime"
+      },
+      {
+        "name": "DY_GATE_BIAS_PX",
+        "kind": "runtime"
+      },
+      {
+        "name": "DY_GATE_DETRENDED_MEDIAN_PX",
+        "kind": "runtime"
+      },
+      {
+        "name": "DY_GATE_MAX_PX",
+        "kind": "runtime"
+      },
+      {
+        "name": "meanRimGapMm",
+        "kind": "runtime"
+      },
+      {
+        "name": "upperDisplacementMm",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-actor-turn",
     "names": [
@@ -19,6 +63,24 @@
       },
       {
         "name": "jawOpenRadiansForPhoneme",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "deriveHeadBoxFromPoints",
+        "kind": "runtime"
+      },
+      {
+        "name": "frameCamera",
+        "kind": "runtime"
+      },
+      {
+        "name": "isFittedHairMeshName",
         "kind": "runtime"
       }
     ]

@@ -1,5 +1,107 @@
 [
   {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "headingRadiansToward",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveMorphTarget",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "composeSupportedActorWorldPosition",
+        "kind": "runtime"
+      },
+      {
+        "name": "supineActorWorldPosition",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "CLINICIAN_WALK_SPEED_MPS",
+        "kind": "runtime"
+      },
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "planBedsideApproach",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./case-approach-intent",
+    "names": [
+      {
+        "name": "geometryRevisionDigest",
+        "kind": "runtime"
+      },
+      {
+        "name": "ObservedApproachGeometry",
+        "kind": "type"
+      },
+      {
+        "name": "ObservedFloorFrame",
+        "kind": "type"
+      },
+      {
+        "name": "resolveBedsideApproachIntent",
+        "kind": "runtime"
+      },
+      {
+        "name": "ResolvedBedsideApproach",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "EncounterRuntimeActorPlacement",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeDialogueTurn",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./package-actor-turn",
     "names": [
@@ -64,6 +166,130 @@
       {
         "name": "UiXrExpressionWeights",
         "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "GeneratedHumanoidAnimationSlot",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidAnimationRuntimeContext",
+        "kind": "type"
+      },
+      {
+        "name": "updateGeneratedHumanoidAnimations",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyGeneratedHumanoidClinicalIdlePosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyPosturePose",
+        "kind": "runtime"
+      },
+      {
+        "name": "applySupinePoseHoldingIncline",
+        "kind": "runtime"
+      },
+      {
+        "name": "boneIsOwned",
+        "kind": "runtime"
+      },
+      {
+        "name": "findBonesBySanitisedName",
+        "kind": "runtime"
+      },
+      {
+        "name": "holdSupinePlantFrame",
+        "kind": "runtime"
+      },
+      {
+        "name": "OwnedChain",
+        "kind": "type"
+      },
+      {
+        "name": "reapplySupineHeadToStoredPillow",
+        "kind": "runtime"
+      },
+      {
+        "name": "sanitiseBoneName",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": "./actor-floor-composition",
+    "names": [
+      {
+        "name": "resolveFloorBandPlantLocalY",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "generatedDriveScalar",
+        "kind": "runtime"
+      },
+      {
+        "name": "GeneratedDriveScalarInput",
+        "kind": "type"
+      },
+      {
+        "name": "HumanoidSpeechEvidence",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": "./bedside-approach-execution",
+    "names": [
+      {
+        "name": "BedsideApproachExecution",
+        "kind": "type"
+      },
+      {
+        "name": "beginBedsideApproachExecution",
+        "kind": "runtime"
+      },
+      {
+        "name": "stepBedsideApproachExecution",
+        "kind": "runtime"
+      },
+      {
+        "name": "travelYawForClipForward",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyRealGarmentEvidenceSurfaces",
+        "kind": "runtime"
+      },
+      {
+        "name": "sleeveDeformCueForAssetPath",
+        "kind": "runtime"
       }
     ]
   }

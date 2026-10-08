@@ -1,5 +1,59 @@
 [
   {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "planBodyParam",
+        "kind": "runtime"
+      },
+      {
+        "name": "planClothingConsume",
+        "kind": "runtime"
+      },
+      {
+        "name": "planMotionRetarget",
+        "kind": "runtime"
+      },
+      {
+        "name": "runBodyParam",
+        "kind": "runtime"
+      },
+      {
+        "name": "runClothingConsume",
+        "kind": "runtime"
+      },
+      {
+        "name": "runClothingGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "runMotionRetarget",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "run",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./viseme-morph",
     "names": [
