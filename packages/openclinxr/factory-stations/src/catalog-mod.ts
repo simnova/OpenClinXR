@@ -17,6 +17,7 @@ export const PRODUCTION_STATION_IDS = [
   "staging",
   "dialogue_runtime",
   "lighting_design",
+  "hair_editor",
 ] as const;
 
 export type ProductionStationId = (typeof PRODUCTION_STATION_IDS)[number];
@@ -273,6 +274,13 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // Closed mood enum (plan-time refusal on unknown values): ed_exam_bright, clinic_day, evening_calm.
     mood: { type: "string", required: true, description: "scenario mood (closed enum)" },
     seed: { type: "number", required: true },
+  }),
+  hair_editor: defineStation("hair_editor", {
+    actorId: { type: "string", required: true },
+    family: { type: "string", required: true },
+    hairAsset: { type: "string", required: true },
+    targetReadJson: { type: "string", required: true },
+    round: { type: "number", required: true },
   }),
 };
 

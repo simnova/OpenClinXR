@@ -56,6 +56,7 @@ const NAMED_EXPORT_BY_STATION: Record<ProductionStationId, string> = {
   staging: "stagingRunner",
   dialogue_runtime: "dialogueRuntimeRunner",
   lighting_design: "lightingDesignRunner",
+  hair_editor: "hairEditorRunner",
 };
 
 function registry(): Record<ProductionStationId, StationRunnerLike> {

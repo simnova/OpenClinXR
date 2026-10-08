@@ -6,6 +6,7 @@ import { clothingGenerateRunner } from "./clothing_generate/run.js";
 import { dialogueRuntimeRunner } from "./dialogue_runtime/run.js";
 import { equipmentGenerateRunner } from "./equipment_generate/run.js";
 import { lightingDesignRunner } from "./lighting_design/run.js";
+import { hairEditorRunner } from "./hair_editor/run.js";
 import { lipSyncRunner } from "./lip_sync/run.js";
 import { motionRetargetRunner } from "./motion_retarget/run.js";
 import { roomGenerateRunner } from "./room_generate/run.js";
@@ -22,4 +23,5 @@ export const stationRunners: Record<ProductionStationId, StationRunner> = {
   staging: stagingRunner,
   dialogue_runtime: dialogueRuntimeRunner,
   lighting_design: lightingDesignRunner,
+  hair_editor: hairEditorRunner,
 };

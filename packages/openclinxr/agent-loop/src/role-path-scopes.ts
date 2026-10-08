@@ -182,6 +182,7 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       // agent-loop holds the harness policy that tools/openclinxr/** consumes, and this role
       // already owns tools/openclinxr/**. Splitting a policy from its only consumers had no owner.
       "packages/openclinxr/agent-loop/**",
+      "packages/openclinxr/factory-stations/**",
     ],
     readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
     forbidden: [
