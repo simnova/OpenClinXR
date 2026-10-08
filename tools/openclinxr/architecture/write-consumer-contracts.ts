@@ -808,8 +808,10 @@ function viaOf(entry: ContractName): string {
  * the tree no longer derives are stale generator output and drop.
  * Runtime kind dominates on conflict. A name
  * bound through several mechanisms keeps one entry per via, so the gate can
- * tell specifier, own-test, and path-reach bindings apart; a committed entry
- * with no via counts as a specifier binding.
+ * tell specifier, own-test, and path-reach bindings apart for the
+ * unconsumed measure and the unlisted-import check; a committed entry
+ * with no via counts as a specifier binding. Clause (d) ignores own-test
+ * and serves path-reach under the importing consumer's own class.
  */
 export function mergeContracts(committed: ConsumerContract[], derived: ConsumerContract[]): ConsumerContract[] {
   // via rows are writer-owned: a committed via row the tree no longer

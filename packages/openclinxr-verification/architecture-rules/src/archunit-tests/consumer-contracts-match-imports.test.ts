@@ -52,10 +52,12 @@ import {
  * source both bind the published name exactly like a package-specifier
  * import, so the generator records them with via "own-test" | "path-reach"
  * (absent means specifier) and clause (c) treats any via as consumed.
- * Clause (d) serves them under the distinct classes "own-test" and
- * "path-reach", so a specifier seam and a test/path seam never lump
- * together. A path reach into an INTERNAL module binds no published name:
- * counted only, never recorded.
+ * Clause (d) ignores own-test (a package testing its own surface is never
+ * a reason to split an entrypoint) and serves a path-reach binding under
+ * the importing consumer's own class — a relative import from evidence is
+ * an evidence-class consumer, exactly as its specifier import would be.
+ * A path reach into an INTERNAL module binds no published name: counted
+ * only, never recorded.
  *
  * SCOPE. All workspace providers: every package.json name under packages/**
  * and apps/** in the @openclinxr/ or @cellix/ scope (discovered per root, so
@@ -74,7 +76,7 @@ import {
  * counts it prints into the ceiling file.
  */
 
-export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence" | "own-test" | "path-reach";
+export type ConsumerClass = "runtime-app" | "package" | "tools" | "evidence";
 
 export type ConsumerDef = { dir: string; class: ConsumerClass };
 
@@ -803,8 +805,10 @@ function servedByClasses(
   for (const consumer of consumers) {
     const bindings = derivedBindings(root, consumer.dir);
     for (const [key] of bindings.specifier) add(key, consumer.class);
-    for (const [key] of bindings.ownTest) add(key, "own-test");
-    for (const [key] of bindings.pathReach) add(key, "path-reach");
+    // own-test is ignored here: a package testing its own surface never
+    // splits an entrypoint. A path-reach binding serves under the importing
+    // consumer's own class, exactly as its specifier import would.
+    for (const [key] of bindings.pathReach) add(key, consumer.class);
   }
   return servedBy;
 }
@@ -1172,8 +1176,6 @@ describe("consumer contracts match imports", () => {
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
-      "@openclinxr/xr-dialogue./package-viseme",
-      "@openclinxr/xr-dialogue./viseme-timeline",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
     const allConsumers = consumersWithContracts(root);
@@ -1339,9 +1341,10 @@ describe("consumer contracts match imports", () => {
         expect(checkUnlistedImports(root, consumers)).toEqual([]);
         const unconsumed = measureUnconsumedByProvider(root, consumers);
         expect(unconsumed.get("@openclinxr/xr-dialogue")?.flatMap((r) => r.names)).toEqual(["orphan"]);
-        // Clause (d) tells the seams apart: specifier runtime-app vs path-reach.
+        // Clause (d) serves the path-reach binding under the importing
+        // consumer's own class: tools alongside the specifier runtime-app seam.
         const mixed = measureMixedByProvider(root, consumers, []);
-        expect(mixed.get("@openclinxr/xr-dialogue")?.map((r) => r.classes)).toEqual([["path-reach", "runtime-app"]]);
+        expect(mixed.get("@openclinxr/xr-dialogue")?.map((r) => r.classes)).toEqual([["runtime-app", "tools"]]);
       },
     );
   });
