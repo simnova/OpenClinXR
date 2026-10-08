@@ -1,0 +1,25 @@
+{
+  "id": "psr-c6-shrink-b",
+  "reviewedSourceCandidate": "793e55e1d943150ecbf1cc4c47a3afb2dcb2373b",
+  "sourceCandidateKind": "git-tree",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): sessions 01a11ad4/01a11ad8 (first draft), 01a11b62 (rejected a miscounted reason), 01a11b66 (approved tree 9974151f on d387f30fe), 01a11b72-ccdc-7a52-874e-26b20acef18f (approved the rebase onto 7667714a6, index tree 793e55e1d943150ecbf1cc4c47a3afb2dcb2373b: same patch-id, 23 removals, 7 psr rows, 3 pins match, rootExports 1251 -> 1249, p90 40); 2026-10-08",
+  "requestedExports": [],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1249,
+      "threshold": 1000,
+      "owner": "shrink-b worker",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): sessions 01a11ad4/01a11ad8 (first draft), 01a11b62 (rejected a miscounted reason), 01a11b66 (approved tree 9974151f on d387f30fe), 01a11b72-ccdc-7a52-874e-26b20acef18f (approved the rebase onto 7667714a6, index tree 793e55e1d943150ecbf1cc4c47a3afb2dcb2373b: same patch-id, 23 removals, 7 psr rows, 3 pins match, rootExports 1251 -> 1249, p90 40); 2026-10-08",
+      "reason": "shrink-b unpublishes 23 unconsumed names across 9 providers (@cellix/config-vitest 1, @cellix/provider-contracts 5, compute-services-spec 6, compute-slots 4, graphql 1, mock-realtime-voice-server 3, service-local-compute 1, shared-schemas 1, voice-gateway 1), none bound by a specifier, own-test, path-reach, inline import() type or dynamic import. The 24 station-mouth names stay published (reviewed station contract, psr-c6-mouth). Root exports 1251 -> 1249 on main 7667714a6 (after the staging-solver merge, psr-c6-staging-layout-view); median unchanged."
+    },
+    {
+      "target": "p90AtMost",
+      "measured": 40,
+      "threshold": 25,
+      "owner": "shrink-b worker",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author): sessions 01a11ad4/01a11ad8 (first draft), 01a11b62 (rejected a miscounted reason), 01a11b66 (approved tree 9974151f on d387f30fe), 01a11b72-ccdc-7a52-874e-26b20acef18f (approved the rebase onto 7667714a6, index tree 793e55e1d943150ecbf1cc4c47a3afb2dcb2373b: same patch-id, 23 removals, 7 psr rows, 3 pins match, rootExports 1251 -> 1249, p90 40); 2026-10-08",
+      "reason": "Same shrink-b narrowing: p90 41 -> 40."
+    }
+  ]
+}

@@ -13,7 +13,7 @@ import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 
 const PYTHON_EXIT_CODE_ARGS = ["--python-exit-code", "1"];
 
-export type LocalComputeServicesOptions = {
+type LocalComputeServicesOptions = {
   cwd?: string;
   env?: Record<string, string | undefined>;
   browserLaunch?: () => Promise<{ close(): Promise<void> }>;

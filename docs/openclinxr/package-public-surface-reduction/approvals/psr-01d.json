@@ -5571,8 +5571,9 @@
       "kind": "type",
       "disposition": "keep",
       "owner": "packages/openclinxr/ui-route-shared",
-      "rationale": "checker confirms ui-route-shared resolves this name through @openclinxr/rest (import-type in admin-api-client-types.ts:100)",
-      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:100(import-type via @openclinxr/rest)"
+      "rationale": "Keep: bound via inline import() type the meter misses: packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:93 declares AdminFacultyCompileLockRecord as import(\"@openclinxr/rest\").ApiFacultyCompileLockRecord. Old evidence line 100 shifted to 93; publication cannot be removed.",
+      "evidence": "packages/openclinxr/ui-route-shared/src/admin-api-client-types.ts:93",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree b1f149ad9f071efc6c39595efebcab99c636395d: session 01a11ad4-675a-7ac1-a55e-8ed57ee28447 verified all 47 removals unbound, all 7 amended psr rows (cited lines contain the symbol, no other row changed, hashes untouched), acceptance 1222/18.5/40 vs targets 1000/15/25, no gate loosened; its only objection was this PENDING placeholder, replaced here; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/rest",

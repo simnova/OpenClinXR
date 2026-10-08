@@ -199,3 +199,6 @@ are unchanged (recomputed with the repo's own `gates.ts` `groupHash` over the fr
 `e43ee9c2…` / `7e8b0ae8…`, both match). String-content tests in `static-assets.test.ts` assert on
 main.ts substrings and the package's own source text, not on entrypoint publication, so they are
 unaffected by un-publishing.
+
+## Amendment at shrink-b (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11ad4-675a-7ac1-a55e-8ed57ee28447)
+7 rows: `shared-schemas` `classifyScenarioEquipmentBinding` + `EQUIPMENT_BINDING_PRECEDENCE` stay `keep` with new dynamic-import evidence (`every-authored-equipment-string-is-classified.test.ts:60,61`; old `:38`/`:27` are comment sketches); `EquipmentBindingClassification` moves `keep` to `remove` (new evidence `equipment-binding.ts:17`); `ProductionStationId` stays `keep` with new inline-import evidence (`environment-generation-queue-panel.tsx:67`; old `:88` stale). `ui-route-shared` `.` `FacultyCompileLockClient` and `./admin-api-client-types` `AdminAssembledExamReplayProjection` move `keep` to `remove` (consumers bind same-spelled names from `ui-route-admin` and `ui-shared`). `voice-gateway` `.` `supportedRealtimeVoiceControlTypes` moves `keep` to `remove` (rest binds the local copy in `protocol-posture-readers.js`).

@@ -18,11 +18,14 @@ const ROOT = workspaceRoot();
 const FROZEN = {
   raw: "c37bea4199168cb11094db343e449e9da887e43d5c01e2c85fc24c16265446b6",
   "psr-01b": "74e4fb9a76a42899212b79988668ba396e07314b31d0620518430200af37e335",
-  "psr-01c": "dfa31d1b9f37d5b54d34c3d2ecdd22abd97e6ddec808e48c4d307c2ee9afe1b1",
-  "psr-01d": "bd4d89908a9e5f64d7a29d3b13b2ba2b285de0ece210d41482cb9eee5073019a",
+  // 2026-10-08 (operator-approved pin move): shrink-b amendment, Codex session 01a11ad4 (was dfa31d1b).
+  "psr-01c": "768a45dabe1249857729c10c2133f569c6d3ce85aeec5e69f0d852c992386039",
+  // 2026-10-08 (operator-approved pin move): shrink-b amendment, Codex session 01a11ad4 (was bd4d8990).
+  "psr-01d": "2bdc7f5e9b05d285a8b7f99e8fec2926fccf99659b32c60b839d364c28fd0acd",
   // 2026-10-08 (operator-approved pin move): psr-01e amendment moves 24 stale
   // xr-actor-dialogue keeps to remove; Codex session 01a11a71 approved it (was 59b530c7).
-  "psr-01e": "a5292a8290da273cc7eb2d4ecc9528676606390c9856a474a43841fb7aa371d6",
+  // 2026-10-08 (operator-approved pin move): shrink-b amendment, Codex session 01a11ad4 (was a5292a82).
+  "psr-01e": "e81491aece8b752f9fb7af2866ca1b5fc192c7b0a40cf5bb5791899266e1c9c5",
 } as const;
 const PSR_DIR = "docs/openclinxr/package-public-surface-reduction";
 const APPROVALS_DIR = `${PSR_DIR}/approvals`;

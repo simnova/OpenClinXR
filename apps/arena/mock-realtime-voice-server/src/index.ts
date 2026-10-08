@@ -5,7 +5,7 @@ import { createRealtimeVoiceGatewayPosture, realtimeVoiceProtocol } from "@openc
 import { Hono } from "hono";
 import WebSocket, { type RawData, WebSocketServer } from "ws";
 
-export { createRealtimeVoiceGatewayPosture, type RealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
+export { createRealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
 
 export type StoppableServer = {
   httpUrl: string;
@@ -13,13 +13,13 @@ export type StoppableServer = {
   stop: () => Promise<void>;
 };
 
-export type RealtimeVoiceProxyHarnessInput = {
+type RealtimeVoiceProxyHarnessInput = {
   gatewayUrl: string;
   audioChunks: Buffer[];
   targetLatencyMs: number;
 };
 
-export type RealtimeVoiceProxyHarnessResult = {
+type RealtimeVoiceProxyHarnessResult = {
   controlFramesSent: number;
   audioMetadataFramesSent: number;
   binaryAudioChunksSent: number;

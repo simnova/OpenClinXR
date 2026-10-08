@@ -26733,6 +26733,13 @@
       "rationale": "Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements)."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-b.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently reviewed shrink-b root-surface exception (exact measurements)."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json",
       "authority": "keep-evidence",
       "tracked": true,

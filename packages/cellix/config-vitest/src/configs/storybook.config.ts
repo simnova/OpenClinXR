@@ -2,7 +2,7 @@ import path from "node:path";
 import { mergeConfig, type Plugin, type ViteUserConfig } from "vitest/config";
 import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./base.config.ts";
 
-export type StorybookVitestConfigOptions = {
+type StorybookVitestConfigOptions = {
   storybookDirRelativeToPackage?: string;
   setupFiles?: string[];
   browsers?: { browser: "chromium" | "firefox" | "webkit" }[];

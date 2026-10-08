@@ -3,14 +3,8 @@
     ".": [],
     "./contracts": [
       "BlenderDevice",
-      "BlenderRunRequest",
-      "BlenderService",
       "ComputeProcessResult",
-      "ComputeServices",
-      "GpuJobRunRequest",
-      "GpuJobService",
-      "SceneCaptureService",
-      "ServiceBase"
+      "ComputeServices"
     ]
   }
 }

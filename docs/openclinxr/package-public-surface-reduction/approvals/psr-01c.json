@@ -1935,10 +1935,11 @@
       "entrypoint": "./documents",
       "symbol": "AdminGraphqlDocument",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/api",
-      "rationale": "Canonical consumer-oriented ./documents route for the admin document type; root copy removed.",
-      "evidence": "packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22 returns adminGraphqlDocuments (AdminGraphqlDocument[]) over HTTP; type flows through the documents route"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/graphql",
+      "rationale": "Stale keep: packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22 returns adminGraphqlDocuments (plural) with no AdminGraphqlDocument type reference; no specifier, path-reach, dynamic, or own-test entrypoint consumer binds the ./documents type. Definition stays internal in documents.ts.",
+      "evidence": "packages/openclinxr/graphql/src/documents.ts:1",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree b1f149ad9f071efc6c39595efebcab99c636395d: session 01a11ad4-675a-7ac1-a55e-8ed57ee28447 verified all 47 removals unbound, all 7 amended psr rows (cited lines contain the symbol, no other row changed, hashes untouched), acceptance 1222/18.5/40 vs targets 1000/15/25, no gate loosened; its only objection was this PENDING placeholder, replaced here; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/graphql",

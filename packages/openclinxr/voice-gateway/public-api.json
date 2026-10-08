@@ -14,8 +14,7 @@
       "createDefaultVoiceGateway",
       "createRealtimeVoiceGatewayPosture",
       "realtimeVoiceProtocol",
-      "selectRealtimeVoiceProtocol",
-      "supportedRealtimeVoiceControlTypes"
+      "selectRealtimeVoiceProtocol"
     ]
   }
 }

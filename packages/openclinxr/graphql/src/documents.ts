@@ -1,4 +1,4 @@
-export type AdminGraphqlDocument = {
+type AdminGraphqlDocument = {
   routeId: string;
   operationName: string;
   source: string;

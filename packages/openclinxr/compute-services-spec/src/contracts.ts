@@ -7,7 +7,7 @@
  * so the measured root surface stays at the reviewed count.
  */
 
-export interface ServiceBase {
+interface ServiceBase {
   startUp?(): Promise<unknown> | unknown;
   shutDown?(): Promise<void> | void;
 }
@@ -22,7 +22,7 @@ export type ComputeProcessResult = {
 
 export type BlenderDevice = "metal" | "cpu";
 
-export type BlenderRunRequest = {
+type BlenderRunRequest = {
   /** Blender-compatible executable to launch (including an embedded Infinigen Python). */
   script: string;
   args: string[];
@@ -36,11 +36,11 @@ export type BlenderRunRequest = {
   device?: BlenderDevice;
 };
 
-export interface BlenderService extends ServiceBase {
+interface BlenderService extends ServiceBase {
   run(request: BlenderRunRequest): Promise<ComputeProcessResult>;
 }
 
-export type GpuJobRunRequest = {
+type GpuJobRunRequest = {
   command: string;
   args: string[];
   cwd: string;
@@ -49,11 +49,11 @@ export type GpuJobRunRequest = {
   env: Record<string, string | undefined>;
 };
 
-export interface GpuJobService extends ServiceBase {
+interface GpuJobService extends ServiceBase {
   run(request: GpuJobRunRequest): Promise<ComputeProcessResult>;
 }
 
-export interface SceneCaptureService extends ServiceBase {
+interface SceneCaptureService extends ServiceBase {
   withBrowser<T>(label: string, fn: (browser: unknown) => Promise<T> | T): Promise<T>;
 }
 

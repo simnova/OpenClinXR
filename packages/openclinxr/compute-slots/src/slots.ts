@@ -22,8 +22,8 @@ const activeTickets = new Set<string>();
 const heldPools = new AsyncLocalStorage<Map<string, ReentrantHold>>();
 let signalHandlersInstalled = false;
 
-export type ComputeSlotMeta = { label: string; cwd?: string };
-export type ComputeSlotLease = { pool: string; slot: number; waitedMs: number };
+type ComputeSlotMeta = { label: string; cwd?: string };
+type ComputeSlotLease = { pool: string; slot: number; waitedMs: number };
 type HolderFile = ComputeSlotMeta & {
   pid: number;
   hostname: string;
@@ -35,13 +35,13 @@ type TicketFile = { pid: number; hostname: string; createdAt: string; label: str
 type ActiveClaim = { pool: string; label: string; cwd: string; token: string; acquiredAt: number; waitedMs: number };
 type ReentrantHold = { lease: ComputeSlotLease; count: number };
 
-export type ComputeSlotPoolStatus = {
+type ComputeSlotPoolStatus = {
   pool: string;
   size: number;
   holders: Array<HolderFile & { slot: number; ageMs: number; alive: boolean }>;
   waiters: Array<TicketFile & { ageMs: number; alive: boolean }>;
 };
-export type ComputeSlotsStatus = { root: string; pools: ComputeSlotPoolStatus[] };
+type ComputeSlotsStatus = { root: string; pools: ComputeSlotPoolStatus[] };
 
 function lockRoot(): string {
   return path.resolve(process.env["OPENCLINXR_LOCK_ROOT"] ?? path.join(homedir(), ".openclinxr", "locks"));

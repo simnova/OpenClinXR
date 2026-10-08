@@ -27,5 +27,4 @@ export type {
 } from "./types.js";
 export {
   realtimeVoiceProtocol,
-  supportedRealtimeVoiceControlTypes,
 } from "./types.js";

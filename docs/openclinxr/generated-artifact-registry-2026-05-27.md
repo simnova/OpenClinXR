@@ -3861,6 +3861,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth-lane-2026-10-07.json` - keep-evidence; keep; Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-staging-layout-view.json` - keep-evidence; keep; Independently reviewed station-layout root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-actor-dialogue-shrink.json` - keep-evidence; keep; Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-b.json` - keep-evidence; keep; Independently reviewed shrink-b root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json` - keep-evidence; keep; Independently reviewed mouth-station pilot public-surface exception (five station packages, exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json` - keep-evidence; keep; Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements).

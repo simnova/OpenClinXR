@@ -17,8 +17,7 @@
     "createDefaultVoiceGateway",
     "createRealtimeVoiceGatewayPosture",
     "realtimeVoiceProtocol",
-    "selectRealtimeVoiceProtocol",
-    "supportedRealtimeVoiceControlTypes"
+    "selectRealtimeVoiceProtocol"
   ],
   "exportSummaries": {},
   "workspaceDependencies": [

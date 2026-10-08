@@ -41,7 +41,6 @@
       "SubmitScenarioReviewMutationVariables"
     ],
     "./documents": [
-      "AdminGraphqlDocument",
       "adminGraphqlDocumentByOperationName",
       "adminGraphqlDocuments"
     ]

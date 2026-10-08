@@ -13,3 +13,6 @@ Scope: 332 rows covering exactly `data-mongodb`, `motion-compiler`, `conversatio
 | graphql | 38 | 43 | 2 | 9 |
 
 Migrations use only the existing `./documents` subpath. No new subpaths, namespaces, facades, or splits. Review only; implementation belongs to PSR-03.
+
+## Amendment at shrink-b (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11ad4-675a-7ac1-a55e-8ed57ee28447)
+1 `packages/openclinxr/graphql` row moves `keep` to `remove`: `./documents` `AdminGraphqlDocument`. Keep evidence cited `packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22`, which returns `adminGraphqlDocuments` (plural) with no type reference. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the type. Definition stays internal in `documents.ts:1`.

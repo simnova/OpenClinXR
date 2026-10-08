@@ -20,7 +20,7 @@ const addFormats = ("default" in ajvFormatsModule ? ajvFormatsModule.default : a
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 
-export type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 function toResult(valid: boolean, errors: ErrorObject[] | null | undefined): ValidationResult {
   if (valid) {
@@ -92,8 +92,8 @@ export const VoiceProviderAuditSchema = ProviderAuditRecordSchema;
 export type TraceEvent = Static<typeof TraceEventSchema>;
 export type ProviderHealth = Static<typeof ProviderHealthSchema>;
 export type ProviderAuditRecord = Static<typeof ProviderAuditRecordSchema>;
-export type ModelProviderAudit = Static<typeof ModelProviderAuditSchema>;
-export type VoiceProviderAudit = Static<typeof VoiceProviderAuditSchema>;
+type ModelProviderAudit = Static<typeof ModelProviderAuditSchema>;
+type VoiceProviderAudit = Static<typeof VoiceProviderAuditSchema>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 
@@ -190,10 +190,10 @@ export function validateProviderAuditRecord(value: unknown): ValidationResult {
   return { ok: true };
 }
 
-export function validateModelProviderAudit(value: unknown): ValidationResult {
+function validateModelProviderAudit(value: unknown): ValidationResult {
   return validateProviderAuditRecord(value);
 }
 
-export function validateVoiceProviderAudit(value: unknown): ValidationResult {
+function validateVoiceProviderAudit(value: unknown): ValidationResult {
   return validateProviderAuditRecord(value);
 }

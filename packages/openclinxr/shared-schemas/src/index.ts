@@ -6,9 +6,6 @@
  * from what the tree actually consumes, then proved by `pnpm packages:typecheck:agent`.
  */
 
-export type {
-  EquipmentBindingClassification,
-} from "./equipment-binding.js";
 export {
   classifyScenarioEquipmentBinding,
   EQUIPMENT_BINDING_PRECEDENCE,

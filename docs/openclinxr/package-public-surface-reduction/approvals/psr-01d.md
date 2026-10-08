@@ -42,3 +42,6 @@ Two more migrate destinations carried `remove`, the same defect as the 19 asset-
 `ui-route-admin` `./case-authoring-workbench` `CaseAuthoringWorkbench` and
 `./faculty-compile-lock-types` `FacultyCompileLockClient`. Both now `keep`. A scan of every
 root `migrate` row in psr-01d and psr-01e found no others.
+
+## Amendment at shrink-b (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11ad4-675a-7ac1-a55e-8ed57ee28447)
+1 row: `packages/openclinxr/rest` `.` `ApiFacultyCompileLockRecord` stays `keep` with corrected evidence `:100` -> `:93` (inline `import("@openclinxr/rest")` type the meter misses; publication cannot be removed).

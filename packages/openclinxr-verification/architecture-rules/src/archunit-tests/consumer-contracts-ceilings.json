@@ -1,25 +1,18 @@
 {
   "unconsumed": {
-    "total": 102,
+    "total": 79,
     "byProvider": {
-      "@cellix/config-vitest": 1,
-      "@cellix/provider-contracts": 5,
       "@openclinxr/asset-registry": 1,
-      "@openclinxr/compute-services-spec": 6,
-      "@openclinxr/compute-slots": 4,
-      "@openclinxr/graphql": 1,
       "@openclinxr/motion-compiler": 5,
       "@openclinxr/rest": 1,
       "@openclinxr/scenario-fixtures": 1,
       "@openclinxr/scenario-runtime": 2,
-      "@openclinxr/service-local-compute": 1,
-      "@openclinxr/shared-schemas": 4,
+      "@openclinxr/shared-schemas": 3,
       "@openclinxr/station-mouth-executor": 5,
       "@openclinxr/station-mouth-objective": 1,
       "@openclinxr/station-mouth-registry": 8,
       "@openclinxr/station-mouth-verifier": 10,
       "@openclinxr/ui-route-shared": 2,
-      "@openclinxr/voice-gateway": 1,
       "@openclinxr/xr-asset-loading": 1,
       "@openclinxr/xr-capture-evidence": 7,
       "@openclinxr/xr-locomotion": 1,
@@ -27,8 +20,7 @@
       "@openclinxr/xr-runtime-state": 6,
       "@openclinxr/xr-runtime-wiring": 1,
       "@openclinxr/xr-scene": 7,
-      "@openclinxr/xr-station": 12,
-      "@openclinxr/mock-realtime-voice-server": 3
+      "@openclinxr/xr-station": 12
     }
   },
   "mixed": {
