@@ -39,7 +39,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { discoverPlantedClauses } from "./src/planted-red-discovery.js";
-import { INSTRUMENT_FAILURES, PLANTED_REDS } from "./src/planted-red-manifest.js";
+import { INSTRUMENT_FAILURES } from "./src/planted-red-instrument.js";
+import { PLANTED_REDS } from "./src/planted-red-manifest.js";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SRC = join(ROOT, "src");

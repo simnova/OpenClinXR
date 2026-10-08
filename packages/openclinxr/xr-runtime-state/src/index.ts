@@ -10,7 +10,7 @@ export {
   bodyDirectionWithinAllowance,
   composedIdleBodyHeading,
   IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS,
-} from "./composed-body-direction.js";
+} from "./composed-body-direction-mod.js";
 export type {
   GeneratedDriveScalarInput,
   GeneratedDriveScalarValue,
@@ -21,11 +21,6 @@ export {
 export {
   INFINIGEN_ENVIRONMENT_ASSETS,
 } from "./infinigen-environment-assets.js";
-export type { ActorPlacementSsotEvidence } from "./runtime-actor-placements.js";
-// The placement SSOT repair and its evidence shape are consumed by apps/ui-xr and asserted by
-// xr-scene's framing-guard RED. Neither could reach them: they were defined in
-// runtime-actor-placements.ts and never re-exported, which the entrypoint-import ratchet
-// (architecture-rules/src/checks/entrypoint-imports-resolve.ts) recorded as its second entry.
 export {
   ADDITIONAL_CAST_FRAMING_XZ,
   additionalCastPlacementFallback,
@@ -51,7 +46,6 @@ export type {
   ExamAssemblyPersistenceSink,
   ExamFormRunState,
   ExamineeLocomotionEvidence,
-  ExamRunStationOutcome,
   HumanoidSpeechEvidence,
   LearnerCanonicalExamPhaseView,
   LearnerCanonicalPhaseTraceStore,
@@ -150,6 +144,5 @@ export {
   scenarioActorIdsForScenario,
 } from "./scenario-conversation-surface.js";
 export {
-  authoredPlantOffsetMeters,
   supportedActorPlacementPosition,
 } from "./supported-actor-placement.js";

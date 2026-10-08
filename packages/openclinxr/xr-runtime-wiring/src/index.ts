@@ -19,7 +19,6 @@ export {
   buildExamRunStationOutcome,
   findFormStationOutcome,
   formElapsedSecondForCurrentStation,
-  formatStationClock,
   mergeExamRunStationOutcome,
   nextExamScenarioId,
 } from "./exam-run-sequence.js";

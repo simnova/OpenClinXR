@@ -11,7 +11,7 @@ describe("known-red-tests.json", () => {
     const tests = knownRedTests();
     for (const t of tests) {
       expect(existsSync(path.join(REPO, t.path)), t.path).toBe(true);
-      expect(t.path.endsWith(".test.ts"), t.path).toBe(true);
+      expect(/\.test\.tsx?$/.test(t.path), t.path).toBe(true);
       expect(t.reason.length, t.path).toBeGreaterThan(20);
       expect(t.card.length, t.path).toBeGreaterThan(0);
     }

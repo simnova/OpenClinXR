@@ -32,7 +32,6 @@ export {
   applyGeneratedHumanoidRoleSpecificPosture,
 } from "./role-posture.js";
 export type {
-  ExamineeLocomotionEvidence,
   PortalTransitionContext,
   PortalTransitionEvidence,
   RolePostureContext,

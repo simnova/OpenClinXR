@@ -18,7 +18,6 @@
     "clinicalTouchResponseClipNamesForActor",
     "comparatorCaptureSubjectActorId",
     "configureSemanticRolePoseOverlay",
-    "frameComparatorCaptureOnNamedActor",
     "gazeProbeAnimationClipNamesFromGltf",
     "hasAuthoredClinicalIdlePoseClip",
     "loadGeneratedEnvironmentIntoSceneSlot",

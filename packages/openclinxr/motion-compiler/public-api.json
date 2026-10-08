@@ -1,7 +1,6 @@
 {
   "entrypoints": {
     ".": [
-      "ScenarioMotionCompileInput",
       "planMotionProgram"
     ],
     "./compiler": [
@@ -15,11 +14,7 @@
       "readMotionGlbClipId"
     ],
     "./planted-red-manifest": [
-      "DerivedPlantedEntry",
-      "DiscoveredPlantedClause",
-      "INSTRUMENT_FAILURES",
       "PLANTED_REDS",
-      "PlantedRed",
       "derivePlantedEntries",
       "discoverPlantedClauses"
     ]

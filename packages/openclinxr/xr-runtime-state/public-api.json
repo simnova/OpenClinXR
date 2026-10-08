@@ -2,7 +2,6 @@
   "entrypoints": {
     ".": [
       "ADDITIONAL_CAST_FRAMING_XZ",
-      "ActorPlacementSsotEvidence",
       "ActorPlayerRuntimeMetadataSummary",
       "CaseDefinedHumanoidPerformanceContractEvidence",
       "CaseDefinedHumanoidRuntimeHandoffEvidence",
@@ -10,7 +9,6 @@
       "EnvironmentStateEvidence",
       "ExamAssemblyPersistenceSink",
       "ExamFormRunState",
-      "ExamRunStationOutcome",
       "ExamineeLocomotionEvidence",
       "GeneratedDriveScalarInput",
       "GeneratedDriveScalarValue",
@@ -59,7 +57,6 @@
       "advanceExamFormRunStation",
       "applyLearnerExamFlowIntent",
       "assignRuntimeActorSlots",
-      "authoredPlantOffsetMeters",
       "authoredSafetyCriticalTraceTagsForScenario",
       "authoredTraceTagsForScenario",
       "bodyDirectionWithinAllowance",
@@ -128,10 +125,7 @@
       "travelYawForClipForward"
     ],
     "./composed-body-direction": [
-      "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
-      "applyStationIdleSway",
-      "bodyDirectionWithinAllowance",
-      "composedIdleBodyHeading"
+      "applyStationIdleSway"
     ]
   }
 }

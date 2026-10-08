@@ -6422,10 +6422,11 @@
       "entrypoint": "./ed-chest-pain",
       "symbol": "edChestPainScenarioV3",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts:8 (origin/main 43ffd845)"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/scenario-fixtures",
+      "rationale": "Stale keep: scenario-bank.test.ts:8 imports via ./index.js, binding the root entrypoint (which keeps publishing), not this subpath. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts:404",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/scenario-fixtures",
@@ -12331,10 +12332,11 @@
       "entrypoint": ".",
       "symbol": "frameComparatorCaptureOnNamedActor",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:48"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-asset-loading",
+      "rationale": "Stale keep: main.ts:48 is inside an import from ./capture-comparator.js (local), not the package. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-asset-loading/src/generated-loaders.ts:52",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-asset-loading",
@@ -12531,10 +12533,11 @@
       "entrypoint": ".",
       "symbol": "DeclaredEquipmentMountEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:434"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:434 sits inside a local type alias (main.ts:428), not a package import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts:40",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
@@ -12571,20 +12574,22 @@
       "entrypoint": ".",
       "symbol": "isActorCloseRealismCaptureMode",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1055"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:1055 is near a local function definition (main.ts:1069) that shadows the package name. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/capture-mode.ts:29",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
       "entrypoint": ".",
       "symbol": "isActorPoseReviewCaptureMode",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1071"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:1071 is near a local function definition (main.ts:1085) that shadows the package name. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/capture-mode.ts:43",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
@@ -12621,20 +12626,22 @@
       "entrypoint": ".",
       "symbol": "isGeneratedSceneOverviewCaptureMode",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1064"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:1064 is near a local function definition (main.ts:1078) that shadows the package name. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/capture-mode.ts:37",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
       "entrypoint": ".",
       "symbol": "isHumanoidFaceDetailCaptureMode",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1059"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:1059 is near a local function definition (main.ts:1073) that shadows the package name. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/capture-mode.ts:33",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
@@ -12681,10 +12688,11 @@
       "entrypoint": ".",
       "symbol": "OpenClinXrXrEntryEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:477"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:477 sits inside a local type alias (main.ts:469), not a package import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts:30",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
@@ -12791,10 +12799,11 @@
       "entrypoint": ".",
       "symbol": "selectedCaptureMode",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1048"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-capture-evidence",
+      "rationale": "Stale keep: main.ts:1048 is near a local function definition (main.ts:1062) that shadows the package name. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-capture-evidence/src/capture-mode.ts:25",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-capture-evidence",
@@ -14361,10 +14370,11 @@
       "entrypoint": ".",
       "symbol": "ExamineeLocomotionEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:197"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-locomotion",
+      "rationale": "Stale keep: main.ts:197 imports the same-spelled type from @openclinxr/xr-runtime-state, not from this package. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-locomotion/src/types.ts:150",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-locomotion",
@@ -14752,10 +14762,11 @@
       "entrypoint": ".",
       "symbol": "applyBoneEuler",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/the-elbow-bends-the-way-the-rig-was-built-to-bend.test.ts:30"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Stale keep: the elbow test:30 is a comment about replacement semantics, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-pose/src/clinical-idle-posture.ts:70",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-pose",
@@ -14782,10 +14793,11 @@
       "entrypoint": ".",
       "symbol": "applyMpfb2SeatedFold",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/the-seated-parent-is-seated-and-her-clip-plays.test.ts:65"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Stale keep: the seated-parent test:65 is a comment; its dynamic import binds only seatedRoleClipIsPlayable. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-pose/src/seated-pose-mpfb2.ts:51",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-pose",
@@ -14992,20 +15004,22 @@
       "entrypoint": ".",
       "symbol": "MPFB_CLINICAL_IDLE_ARM_HANG",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/the-elbow-bends-the-way-the-rig-was-built-to-bend.test.ts:12"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Stale keep: the elbow test:12 is a comment; the test's only package import is mpfbForearmIdleEuler. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-pose/src/clinical-idle-posture-maps.ts:122",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-pose",
       "entrypoint": ".",
       "symbol": "MPFB_IDLE_FORELARM_BEND_FRACTION",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/the-elbow-bends-the-way-the-rig-was-built-to-bend.test.ts:9"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Stale keep: the elbow test:9 is a comment; the test's only package import is mpfbForearmIdleEuler. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-pose/src/clinical-idle-posture-maps.ts:106",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-pose",
@@ -15112,10 +15126,11 @@
       "entrypoint": ".",
       "symbol": "resolveRotationMap",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/the-elbow-bends-the-way-the-rig-was-built-to-bend.test.ts:29"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-pose",
+      "rationale": "Stale keep: the elbow test:29 is a comment about name remapping, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-pose/src/pose-bone-runtime.ts:62",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-pose",
@@ -15292,30 +15307,33 @@
       "entrypoint": "./composed-body-direction",
       "symbol": "bodyDirectionWithinAllowance",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: the sway test:2 imports via ./index.js, binding the root entrypoint (which keeps publishing), not this subpath. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/composed-body-direction-mod.ts:55",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
       "entrypoint": "./composed-body-direction",
       "symbol": "composedIdleBodyHeading",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: the sway test:2 imports via ./index.js, binding the root entrypoint (which keeps publishing), not this subpath. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/composed-body-direction-mod.ts:42",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
       "entrypoint": "./composed-body-direction",
       "symbol": "IDLE_BODY_DIRECTION_ALLOWANCE_RADIANS",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts",
-      "rationale": "Amended before dispatch (orchestrator, 2026-09-11): consumed by this package's own test through the entrypoint. Plan lines 83 and 92 count tests as consumers; PSR-03 showed that un-publishing such a name forces the test onto an internal module and raises testInternalImports above its shrink-only ceiling (package-tests-use-the-public-entrypoint).",
-      "evidence": "packages/openclinxr/xr-runtime-state/src/the-sway-composes-onto-the-heading.test.ts:2 (origin/main 43ffd845)"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: the sway test:2 imports via ./index.js, binding the root entrypoint (which keeps publishing), not this subpath. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/composed-body-direction-mod.ts:25",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15342,10 +15360,11 @@
       "entrypoint": ".",
       "symbol": "ActorPlacementSsotEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "packages/openclinxr/xr-scene",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "packages/openclinxr/xr-scene/src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts:4"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: the framing-guard test:4 is a comment stating the name is NOT exported; its dynamic import binds only ensureActorPlacementsForStagedSlots. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/runtime-actor-placements.ts:151",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15442,10 +15461,11 @@
       "entrypoint": ".",
       "symbol": "authoredPlantOffsetMeters",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/the-mounted-support-controls-the-posed-patient.test.ts:52"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: the mounted-support test:52 is a comment; the test imports ensureActorPlacementsForStagedSlots and supportedActorPlacementPosition only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts:151",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -15842,10 +15862,11 @@
       "entrypoint": ".",
       "symbol": "ExamRunStationOutcome",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:110"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-state",
+      "rationale": "Stale keep: main.ts:110 imports xr-exam-flow's same-spelled type, not this re-export (which itself re-exports exam-assembly). No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-runtime-state/src/runtime-state.ts:3615",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -16722,10 +16743,11 @@
       "entrypoint": ".",
       "symbol": "formatStationClock",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:201"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-runtime-wiring",
+      "rationale": "Stale keep: main.ts:201 sits inside an import from @openclinxr/xr-runtime-state, binding that package's function, not this re-export. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:195",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-runtime-wiring",
@@ -17192,10 +17214,11 @@
       "entrypoint": ".",
       "symbol": "applyExamFormBootPresentation",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/static-assets.test.ts:270"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: static-assets.test.ts:270 is a source-text Contains assertion on bootSource, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/learner-exam-form-boot.ts:48",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -17233,9 +17256,10 @@
       "symbol": "bootIsolatedSubjectLab",
       "kind": "runtime",
       "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/isolated-subject-lab.ts:1"
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Kept, not consumed: no specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds it on shrink-a @ d387f30fe. Kept because it is the sole entry keeping the isolated-subject lab cluster (isolated-subject-lab, articulating-hob-measure, isolated-pack-framing, isolated-subject-focus) and the @openclinxr/xr-pose dependency reachable; unpublishing orphans all four files and pnpm hygiene:knip (pre-commit hook) refuses them. Deleting the cluster is out of scope for this shrink.",
+      "evidence": "packages/openclinxr/xr-scene/src/isolated-subject-lab.ts:571",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -17422,10 +17446,11 @@
       "entrypoint": ".",
       "symbol": "LIGHTING_RIG_SCHEMA_VERSION",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/lighting-rig-runtime.ts:24"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: lighting-rig-runtime.ts:24 is inside an import of parseLightingRig and LightingRig only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/lighting-rig-contract.ts:8",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -17442,10 +17467,11 @@
       "entrypoint": ".",
       "symbol": "LightingRigLight",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/lighting-rig-runtime.ts:27"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: lighting-rig-runtime.ts:27 is inside an import of parseLightingRig and LightingRig only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/lighting-rig-contract.ts:16",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -17612,10 +17638,11 @@
       "entrypoint": ".",
       "symbol": "resolveLocalHumanoidRuntimeAssetFileName",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/static-assets.test.ts:733"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: static-assets.test.ts:733 is a comment plus Contains assertions on mainSource strings, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts:409",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -17632,20 +17659,22 @@
       "entrypoint": ".",
       "symbol": "resolvePoolCastPathWithSiblings",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/no-actor-can-be-cast-onto-the-anny-rail.test.ts:83"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: no-actor-can-be-cast-onto-the-anny-rail.test.ts:83 is a comment about dropped actors, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts:330",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
       "entrypoint": ".",
       "symbol": "RigLightType",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/lighting-rig-runtime.ts:28"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-scene",
+      "rationale": "Stale keep: lighting-rig-runtime.ts:28 is inside an import of parseLightingRig and LightingRig only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-scene/src/lighting-rig-contract.ts:14",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-scene",
@@ -18062,10 +18091,11 @@
       "entrypoint": ".",
       "symbol": "buildDoorLeafFixture",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/wall-anchored-fixture-fit.test.ts:24"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: wall-anchored-fixture-fit.test.ts:24 is a comment; the test never imports the builder. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-architecture-fixtures.ts:115",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18172,10 +18202,11 @@
       "entrypoint": ".",
       "symbol": "buildWallBoardFixture",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/wall-anchored-fixture-fit.test.ts:22"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: wall-anchored-fixture-fit.test.ts:22 is a comment; the test never imports the builder. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-architecture-fixtures.ts:147",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18252,10 +18283,11 @@
       "entrypoint": ".",
       "symbol": "EnvironmentRow",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/station-fixture-vocabulary.ts:22"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: station-fixture-vocabulary.ts:22 declares a same-spelled local tools type, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-fixture-vocabulary-inspect.ts:23",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18272,10 +18304,11 @@
       "entrypoint": ".",
       "symbol": "EXAM_TABLE_LENGTH_M",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/fixture-surface-distinct.ts:213"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: fixture-surface-distinct.ts:213 is a message string, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-equipment-clinical-devices.ts:44",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18402,10 +18435,11 @@
       "entrypoint": ".",
       "symbol": "PARAMETRIC_KINDS",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/equipment-pack-batch-cli.ts:6"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: equipment-pack-batch-cli.ts:6 is a comment about an apps/ui-xr file, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/room-prop-classification.ts:242",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18532,30 +18566,33 @@
       "entrypoint": ".",
       "symbol": "resolveChartFieldsForScenario",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/station-chart-honesty.ts:145"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: station-chart-honesty.ts:145 is a comment, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-chart.ts:59",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
       "entrypoint": ".",
       "symbol": "resolveInitialVitalsForScenario",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/station-vitals-honesty.ts:20"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: station-vitals-honesty.ts:20 is a comment, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-vitals.ts:79",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
       "entrypoint": ".",
       "symbol": "resolveRoomPropBuilderEquipmentId",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/room-prop-uses-real-builder.ts:115"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: room-prop-uses-real-builder.ts:115 defines a same-named local function; that file's dynamic imports bind only classifyRoomProp. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/room-prop-classification.ts:342",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18672,10 +18709,11 @@
       "entrypoint": ".",
       "symbol": "StationApiClient",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:317"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: main.ts:317 imports AssembledStationApiClient aliased as StationApiClient, binding that name, not this type. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/api-client.ts:179",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",
@@ -18702,10 +18740,11 @@
       "entrypoint": ".",
       "symbol": "StationFixtureVocabularyReport",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "tools/openclinxr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "tools/openclinxr/evidence/station-fixture-vocabulary.ts:31"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-station",
+      "rationale": "Stale keep: station-fixture-vocabulary.ts:31 declares a same-spelled local tools type, not an import. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-station/src/station-fixture-vocabulary-inspect.ts:32",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-station",

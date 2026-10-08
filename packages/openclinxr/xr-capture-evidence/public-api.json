@@ -1,20 +1,14 @@
 {
   "entrypoints": {
     ".": [
-      "DeclaredEquipmentMountEvidence",
-      "OpenClinXrXrEntryEvidence",
       "buildCaseDefinedHumanoidPerformanceContractEvidence",
       "buildRuntimeSceneManifestEvidence",
       "formatCaseDefinedHumanoidPerformanceContractEvidence",
       "formatSceneAssetEvidenceStatus",
       "formatUnknownError",
-      "isActorCloseRealismCaptureMode",
-      "isActorPoseReviewCaptureMode",
       "isDeterministicCaptureClock",
       "isEdBayVisibleCaptureMode",
       "isGeneratedPlaceholderSourceForDifferentScenario",
-      "isGeneratedSceneOverviewCaptureMode",
-      "isHumanoidFaceDetailCaptureMode",
       "isHumanoidMouthGazePoseReviewCaptureMode",
       "isPhysicsClinicalTouchCapture",
       "isRealGarmentSleeveDeformCapture",
@@ -27,7 +21,6 @@
       "resolveRuntimeSlotAssignment",
       "roundPerformanceNow",
       "runtimeAssetAffordanceCueIds",
-      "selectedCaptureMode",
       "shouldRenderRoomPropInVisualReview",
       "shouldShowActorRealismRequirementPanel",
       "shouldShowInSceneEvidencePanels",

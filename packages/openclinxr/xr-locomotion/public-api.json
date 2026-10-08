@@ -1,7 +1,6 @@
 {
   "entrypoints": {
     ".": [
-      "ExamineeLocomotionEvidence",
       "PORTAL_THRESHOLD_Z",
       "PortalTransitionContext",
       "PortalTransitionEvidence",

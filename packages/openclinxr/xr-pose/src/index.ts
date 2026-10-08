@@ -14,11 +14,8 @@ export type { OwnedChain } from "./chain-ownership.js";
 // header says a star republishes a module wholesale.
 export { boneIsOwned } from "./chain-ownership.js";
 export {
-  applyBoneEuler,
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
-  MPFB_CLINICAL_IDLE_ARM_HANG,
-  MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
 } from "./clinical-idle-posture.js";
 export {
@@ -36,16 +33,12 @@ export {
 export {
   collectJointNames,
   findBonesBySanitisedName,
-  resolveRotationMap,
   sanitiseBoneName,
 } from "./pose-bone-runtime.js";
 export {
   applyPosturePose,
   plantSeatedPelvisOnSeat,
 } from "./seated-pose.js";
-export {
-  applyMpfb2SeatedFold,
-} from "./seated-pose-mpfb2.js";
 export {
   animatedTranslationBoneNames,
   seatedRoleClipIsPlayable,

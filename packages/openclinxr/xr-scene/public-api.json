@@ -3,15 +3,11 @@
     ".": [
       "EncounterActorFramingInput",
       "HeadBoxGeometry",
-      "LIGHTING_RIG_SCHEMA_VERSION",
       "LightingRig",
-      "LightingRigLight",
       "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
-      "RigLightType",
       "Vec3",
       "addGeneratedHumanoidRoleContinuityWardrobeCue",
       "applyCleanEncounterVisualReviewActorFraming",
-      "applyExamFormBootPresentation",
       "applyRealGarmentEvidenceSurfaces",
       "assertHumanoidRootUpright",
       "assignMissingRoomPrimitiveMaterials",
@@ -35,9 +31,7 @@
       "resolveCompiledRoomFromRuntimeEnvironment",
       "resolveHumanoidVariantOrCastPath",
       "resolveLearnerExamScenarios",
-      "resolveLocalHumanoidRuntimeAssetFileName",
       "resolveLocalHumanoidRuntimeAssetUrl",
-      "resolvePoolCastPathWithSiblings",
       "scenariosFromFixtureSequence",
       "sleeveDeformCueForAssetPath"
     ]

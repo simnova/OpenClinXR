@@ -4,20 +4,14 @@
   "entrypoint": "packages/openclinxr/xr-capture-evidence/src/index.ts",
   "purpose": "Public interface of @openclinxr/xr-capture-evidence.",
   "exports": [
-    "DeclaredEquipmentMountEvidence",
-    "OpenClinXrXrEntryEvidence",
     "buildCaseDefinedHumanoidPerformanceContractEvidence",
     "buildRuntimeSceneManifestEvidence",
     "formatCaseDefinedHumanoidPerformanceContractEvidence",
     "formatSceneAssetEvidenceStatus",
     "formatUnknownError",
-    "isActorCloseRealismCaptureMode",
-    "isActorPoseReviewCaptureMode",
     "isDeterministicCaptureClock",
     "isEdBayVisibleCaptureMode",
     "isGeneratedPlaceholderSourceForDifferentScenario",
-    "isGeneratedSceneOverviewCaptureMode",
-    "isHumanoidFaceDetailCaptureMode",
     "isHumanoidMouthGazePoseReviewCaptureMode",
     "isPhysicsClinicalTouchCapture",
     "isRealGarmentSleeveDeformCapture",
@@ -30,7 +24,6 @@
     "resolveRuntimeSlotAssignment",
     "roundPerformanceNow",
     "runtimeAssetAffordanceCueIds",
-    "selectedCaptureMode",
     "shouldRenderRoomPropInVisualReview",
     "shouldShowActorRealismRequirementPanel",
     "shouldShowInSceneEvidencePanels",
@@ -42,7 +35,6 @@
     "shouldUseLearnerRuntimeAssetBundle"
   ],
   "exportSummaries": {
-    "DeclaredEquipmentMountEvidence": "#140 — live declared-equipment mount evidence for inspectors / captures.",
     "isPhysicsClinicalTouchCapture": "Physics-driven palpation bone transforms on real garment comparator — OPT-IN CAPTURE ONLY."
   },
   "workspaceDependencies": [

@@ -3,5 +3,4 @@
 export {
   edChestPainScenario,
   edChestPainScenarioV2,
-  edChestPainScenarioV3,
 } from "./ed-chest-pain-mod.js";

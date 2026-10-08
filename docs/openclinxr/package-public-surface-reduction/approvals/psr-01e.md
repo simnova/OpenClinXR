@@ -202,3 +202,25 @@ unaffected by un-publishing.
 
 ## Amendment at shrink-b (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11ad4-675a-7ac1-a55e-8ed57ee28447)
 7 rows: `shared-schemas` `classifyScenarioEquipmentBinding` + `EQUIPMENT_BINDING_PRECEDENCE` stay `keep` with new dynamic-import evidence (`every-authored-equipment-string-is-classified.test.ts:60,61`; old `:38`/`:27` are comment sketches); `EquipmentBindingClassification` moves `keep` to `remove` (new evidence `equipment-binding.ts:17`); `ProductionStationId` stays `keep` with new inline-import evidence (`environment-generation-queue-panel.tsx:67`; old `:88` stale). `ui-route-shared` `.` `FacultyCompileLockClient` and `./admin-api-client-types` `AdminAssembledExamReplayProjection` move `keep` to `remove` (consumers bind same-spelled names from `ui-route-admin` and `ui-shared`). `voice-gateway` `.` `supportedRealtimeVoiceControlTypes` moves `keep` to `remove` (rest binds the local copy in `protocol-posture-readers.js`).
+
+## Amendment at shrink-a consumer-contracts (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8)
+
+39 rows move from `keep` to `remove` (a 40th candidate, `bootIsolatedSubjectLab`, stays `keep`
+with a PENDING review note: see below): 10 `packages/openclinxr/xr-station` (all `.` except the
+dynamically bound `setStretcherInclineDegrees` and `inspectStationFixtureVocabulary`, which stay
+published), 7 `packages/openclinxr/xr-capture-evidence`, 6 `packages/openclinxr/xr-scene`,
+3 `packages/openclinxr/xr-runtime-state` on `.` plus 3 on `./composed-body-direction` (the root
+keeps publishing the composed-direction trio), 5 `packages/openclinxr/xr-pose`,
+1 `packages/openclinxr/xr-asset-loading`, 1 `packages/openclinxr/xr-locomotion`,
+1 `packages/openclinxr/xr-runtime-wiring`, and `edChestPainScenarioV3` on
+`packages/openclinxr/scenario-fixtures` `./ed-chest-pain` (the root keeps publishing it).
+The cited keeps pointed at same-spelled locals (main.ts wrappers, tools-evidence types, local
+functions), comments, source-text Contains assertions, or imports binding another provider's
+same-spelled name. Consumer contracts on shrink-a @ d387f30fe bind none of the 39 via specifier,
+own-test entrypoint, path-reach, dynamic, or export-star use; the three dynamically bound names
+above plus the two scenario-runtime outcomes stay published with reasons. `bootIsolatedSubjectLab`
+is additionally kept unconsumed: it is the sole entry keeping the isolated-subject lab file
+cluster and the xr-scene `@openclinxr/xr-pose` dependency reachable, and unpublishing orphans
+all four files, which `pnpm hygiene:knip` (pre-commit hook) refuses. Each amended row names
+the provider package as owner with `reviewedBy: reviewed by Codex gpt-5.6-terra, session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8`; the coordinator
+arranges the independent review.

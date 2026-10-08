@@ -32,8 +32,7 @@
     ],
     "./ed-chest-pain": [
       "edChestPainScenario",
-      "edChestPainScenarioV2",
-      "edChestPainScenarioV3"
+      "edChestPainScenarioV2"
     ],
     "./pediatric-asthma": [
       "pediatricAsthmaDialogueSeeds",

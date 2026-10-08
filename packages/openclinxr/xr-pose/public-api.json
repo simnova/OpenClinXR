@@ -1,15 +1,11 @@
 {
   "entrypoints": {
     ".": [
-      "MPFB_CLINICAL_IDLE_ARM_HANG",
-      "MPFB_IDLE_FORELARM_BEND_FRACTION",
       "OwnedChain",
       "animatedTranslationBoneNames",
       "applyAndPlantSupineOnDeck",
-      "applyBoneEuler",
       "applyGeneratedHumanoidClinicalIdlePosture",
       "applyHumanoidJointRotationsByAlias",
-      "applyMpfb2SeatedFold",
       "applyPosturePose",
       "applySupinePose",
       "applySupinePoseHoldingIncline",
@@ -28,7 +24,6 @@
       "readSupineTorsoWorldDeg",
       "reapplySupineHeadToStoredPillow",
       "resolveEffectiveVerticalOffsetMeters",
-      "resolveRotationMap",
       "sanitiseBoneName",
       "seatedRoleClipIsPlayable",
       "settleSupineOntoBackSection",

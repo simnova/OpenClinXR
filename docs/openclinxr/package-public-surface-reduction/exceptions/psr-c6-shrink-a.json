@@ -1,0 +1,25 @@
+{
+  "id": "psr-c6-shrink-a",
+  "reviewedSourceCandidate": "ebd94058eb7b638d370be00ceb453211a453fc55",
+  "sourceCandidateKind": "git-tree",
+  "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08",
+  "requestedExports": [],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1214,
+      "threshold": 1000,
+      "owner": "shrink-a consumer-contracts worker",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08",
+      "reason": "Eleven-provider consumer-contracts shrink rebased onto main 4773a5bda (root exports 1249 -> 1214): 35 root names no consumer binds are unpublished (10 xr-station, 7 xr-capture-evidence, 6 xr-scene, 3 xr-runtime-state, 1 motion-compiler, 5 xr-pose, 1 xr-asset-loading, 1 xr-locomotion, 1 xr-runtime-wiring; 5 names stay published with reasons: 4 dynamically bound plus bootIsolatedSubjectLab, sole entry of the isolated-subject lab cluster; psr-01c/psr-01e amended in the same change). The measurement decreases; the target (1000) is still missed."
+    },
+    {
+      "target": "noRootAbove",
+      "measured": 116,
+      "threshold": 50,
+      "owner": "shrink-a consumer-contracts worker",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08",
+      "reason": "Same shrink: xr-runtime-state root narrows from 119 to 116 names (ActorPlacementSsotEvidence, ExamRunStationOutcome, authoredPlantOffsetMeters unpublished). The widest root shrinks; the target (50) is still missed."
+    }
+  ]
+}

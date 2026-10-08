@@ -1,11 +1,9 @@
 {
   "unconsumed": {
-    "total": 79,
+    "total": 36,
     "byProvider": {
       "@openclinxr/asset-registry": 1,
-      "@openclinxr/motion-compiler": 5,
       "@openclinxr/rest": 1,
-      "@openclinxr/scenario-fixtures": 1,
       "@openclinxr/scenario-runtime": 2,
       "@openclinxr/shared-schemas": 3,
       "@openclinxr/station-mouth-executor": 5,
@@ -13,14 +11,8 @@
       "@openclinxr/station-mouth-registry": 8,
       "@openclinxr/station-mouth-verifier": 10,
       "@openclinxr/ui-route-shared": 2,
-      "@openclinxr/xr-asset-loading": 1,
-      "@openclinxr/xr-capture-evidence": 7,
-      "@openclinxr/xr-locomotion": 1,
-      "@openclinxr/xr-pose": 5,
-      "@openclinxr/xr-runtime-state": 6,
-      "@openclinxr/xr-runtime-wiring": 1,
-      "@openclinxr/xr-scene": 7,
-      "@openclinxr/xr-station": 12
+      "@openclinxr/xr-scene": 1,
+      "@openclinxr/xr-station": 2
     }
   },
   "mixed": {
