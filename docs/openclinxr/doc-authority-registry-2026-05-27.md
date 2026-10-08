@@ -162,6 +162,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/viseme-audio-clock/wav2arkit/score-sheet.md` - evidence; Arena viseme-audio-clock bake-off decision record (wav2arkit_cpu vs MFA, reject); evidence for the card decision, not an instruction surface.
 - `apps/arena/viseme-audio-clock/headaudio/score-sheet.md` - evidence; HeadAudio vs wawa-lipsync live audio-clock bake-off decision (reject both), MFA-agreement numbers; not an adoption decision.
 - `apps/arena/viseme-audio-clock/headaudio/NOTICE.md` - evidence; Licence record for the bake-off candidates and English model; local to its module.
+- `apps/arena/viseme-audio-clock/grok-voice/NOTICE.md` - evidence; Arena scope record for the Grok Voice cached audio-clock bake-off; evidence for the card decision, not an instruction surface.
+- `apps/arena/viseme-audio-clock/grok-voice/score-sheet.md` - evidence; Grok Voice (OpenRouter TTS/STT, cached) audio-clock bake-off decision record (reject), MFA-agreement numbers; not an adoption decision.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.

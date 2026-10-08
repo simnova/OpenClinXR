@@ -1,0 +1,1116 @@
+{
+  "pangram": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.1,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.1,
+        "endS": 0.18,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.18,
+        "endS": 0.3,
+        "phone": "AE1"
+      },
+      {
+        "startS": 0.3,
+        "endS": 0.41,
+        "phone": "T"
+      },
+      {
+        "startS": 0.41,
+        "endS": 0.53,
+        "phone": "K"
+      },
+      {
+        "startS": 0.53,
+        "endS": 0.57,
+        "phone": "W"
+      },
+      {
+        "startS": 0.57,
+        "endS": 0.65,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.65,
+        "endS": 0.76,
+        "phone": "K"
+      },
+      {
+        "startS": 0.76,
+        "endS": 0.86,
+        "phone": "P"
+      },
+      {
+        "startS": 0.86,
+        "endS": 0.91,
+        "phone": "B"
+      },
+      {
+        "startS": 0.91,
+        "endS": 1.08,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.08,
+        "endS": 1.2,
+        "phone": "ZH"
+      },
+      {
+        "startS": 1.2,
+        "endS": 1.34,
+        "phone": "F"
+      },
+      {
+        "startS": 1.34,
+        "endS": 1.5,
+        "phone": "AA1"
+      },
+      {
+        "startS": 1.5,
+        "endS": 1.59,
+        "phone": "K"
+      },
+      {
+        "startS": 1.59,
+        "endS": 1.74,
+        "phone": "S"
+      },
+      {
+        "startS": 1.74,
+        "endS": 1.79,
+        "phone": "SIL"
+      },
+      {
+        "startS": 1.79,
+        "endS": 1.89,
+        "phone": "JH"
+      },
+      {
+        "startS": 1.89,
+        "endS": 1.98,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.98,
+        "endS": 2.03,
+        "phone": "M"
+      },
+      {
+        "startS": 2.03,
+        "endS": 2.07,
+        "phone": "P"
+      },
+      {
+        "startS": 2.07,
+        "endS": 2.12,
+        "phone": "T"
+      },
+      {
+        "startS": 2.12,
+        "endS": 2.17,
+        "phone": "IH0"
+      },
+      {
+        "startS": 2.17,
+        "endS": 2.21,
+        "phone": "N"
+      },
+      {
+        "startS": 2.21,
+        "endS": 2.25,
+        "phone": "DH"
+      },
+      {
+        "startS": 2.25,
+        "endS": 2.4,
+        "phone": "AH0"
+      },
+      {
+        "startS": 2.4,
+        "endS": 2.5,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.5,
+        "endS": 2.65,
+        "phone": "R"
+      },
+      {
+        "startS": 2.65,
+        "endS": 2.68,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.68,
+        "endS": 2.78,
+        "phone": "OW1"
+      },
+      {
+        "startS": 2.78,
+        "endS": 2.85,
+        "phone": "V"
+      },
+      {
+        "startS": 2.85,
+        "endS": 2.94,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2.94,
+        "endS": 2.98,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.98,
+        "endS": 3.12,
+        "phone": "IY1"
+      },
+      {
+        "startS": 3.12,
+        "endS": 3.27,
+        "phone": "CH"
+      },
+      {
+        "startS": 3.27,
+        "endS": 3.38,
+        "phone": "TH"
+      },
+      {
+        "startS": 3.38,
+        "endS": 3.49,
+        "phone": "IH1"
+      },
+      {
+        "startS": 3.49,
+        "endS": 3.59,
+        "phone": "N"
+      },
+      {
+        "startS": 3.59,
+        "endS": 3.66,
+        "phone": "D"
+      },
+      {
+        "startS": 3.66,
+        "endS": 3.86,
+        "phone": "AA1"
+      },
+      {
+        "startS": 3.86,
+        "endS": 4.01,
+        "phone": "G"
+      },
+      {
+        "startS": 4.01,
+        "endS": 4.41,
+        "phone": "SIL"
+      },
+      {
+        "startS": 4.41,
+        "endS": 4.5,
+        "phone": "L"
+      },
+      {
+        "startS": 4.5,
+        "endS": 4.55,
+        "phone": "UH1"
+      },
+      {
+        "startS": 4.55,
+        "endS": 4.64,
+        "phone": "K"
+      },
+      {
+        "startS": 4.64,
+        "endS": 4.83,
+        "phone": "AW1"
+      },
+      {
+        "startS": 4.83,
+        "endS": 4.9,
+        "phone": "T"
+      },
+      {
+        "startS": 4.9,
+        "endS": 4.96,
+        "phone": "SIL"
+      },
+      {
+        "startS": 4.96,
+        "endS": 5.06,
+        "phone": "AY1"
+      },
+      {
+        "startS": 5.06,
+        "endS": 5.21,
+        "phone": "SH"
+      },
+      {
+        "startS": 5.21,
+        "endS": 5.4,
+        "phone": "AW1"
+      },
+      {
+        "startS": 5.4,
+        "endS": 5.5,
+        "phone": "T"
+      },
+      {
+        "startS": 5.5,
+        "endS": 5.74,
+        "phone": "SIL"
+      },
+      {
+        "startS": 5.74,
+        "endS": 5.85,
+        "phone": "F"
+      },
+      {
+        "startS": 5.85,
+        "endS": 5.88,
+        "phone": "R"
+      },
+      {
+        "startS": 5.88,
+        "endS": 5.92,
+        "phone": "ER0"
+      },
+      {
+        "startS": 5.92,
+        "endS": 6,
+        "phone": "HH"
+      },
+      {
+        "startS": 6,
+        "endS": 6.06,
+        "phone": "IY1"
+      },
+      {
+        "startS": 6.06,
+        "endS": 6.15,
+        "phone": "Z"
+      },
+      {
+        "startS": 6.15,
+        "endS": 6.29,
+        "phone": "F"
+      },
+      {
+        "startS": 6.29,
+        "endS": 6.5,
+        "phone": "OY1"
+      },
+      {
+        "startS": 6.5,
+        "endS": 6.54,
+        "phone": "L"
+      },
+      {
+        "startS": 6.54,
+        "endS": 6.6,
+        "phone": "D"
+      },
+      {
+        "startS": 6.6,
+        "endS": 6.69,
+        "phone": "Y"
+      },
+      {
+        "startS": 6.69,
+        "endS": 6.73,
+        "phone": "UW1"
+      },
+      {
+        "startS": 6.73,
+        "endS": 6.78,
+        "phone": "AH0"
+      },
+      {
+        "startS": 6.78,
+        "endS": 6.87,
+        "phone": "G"
+      },
+      {
+        "startS": 6.87,
+        "endS": 7.02,
+        "phone": "EH1"
+      },
+      {
+        "startS": 7.02,
+        "endS": 7.19,
+        "phone": "N"
+      },
+      {
+        "startS": 7.19,
+        "endS": 7.31,
+        "phone": "SIL"
+      },
+      {
+        "startS": 7.31,
+        "endS": 7.44,
+        "phone": "K"
+      },
+      {
+        "startS": 7.44,
+        "endS": 7.48,
+        "phone": "R"
+      },
+      {
+        "startS": 7.48,
+        "endS": 7.55,
+        "phone": "IY0"
+      },
+      {
+        "startS": 7.55,
+        "endS": 7.64,
+        "phone": "EY1"
+      },
+      {
+        "startS": 7.64,
+        "endS": 7.68,
+        "phone": "T"
+      },
+      {
+        "startS": 7.68,
+        "endS": 7.73,
+        "phone": "IH0"
+      },
+      {
+        "startS": 7.73,
+        "endS": 7.8,
+        "phone": "NG"
+      },
+      {
+        "startS": 7.8,
+        "endS": 7.93,
+        "phone": "K"
+      },
+      {
+        "startS": 7.93,
+        "endS": 8.04,
+        "phone": "EY1"
+      },
+      {
+        "startS": 8.04,
+        "endS": 8.13,
+        "phone": "AA0"
+      },
+      {
+        "startS": 8.13,
+        "endS": 8.45,
+        "phone": "S"
+      },
+      {
+        "startS": 8.45,
+        "endS": 8.616,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.1,
+        "endS": 0.41,
+        "word": "that"
+      },
+      {
+        "startS": 0.41,
+        "endS": 0.76,
+        "word": "quick"
+      },
+      {
+        "startS": 0.86,
+        "endS": 1.2,
+        "word": "beige"
+      },
+      {
+        "startS": 1.2,
+        "endS": 1.74,
+        "word": "fox"
+      },
+      {
+        "startS": 1.79,
+        "endS": 2.12,
+        "word": "jumped"
+      },
+      {
+        "startS": 2.12,
+        "endS": 2.21,
+        "word": "in"
+      },
+      {
+        "startS": 2.21,
+        "endS": 2.4,
+        "word": "the"
+      },
+      {
+        "startS": 2.4,
+        "endS": 2.65,
+        "word": "air"
+      },
+      {
+        "startS": 2.68,
+        "endS": 2.94,
+        "word": "over"
+      },
+      {
+        "startS": 2.98,
+        "endS": 3.27,
+        "word": "each"
+      },
+      {
+        "startS": 3.27,
+        "endS": 3.59,
+        "word": "thin"
+      },
+      {
+        "startS": 3.59,
+        "endS": 4.01,
+        "word": "dog"
+      },
+      {
+        "startS": 4.41,
+        "endS": 4.64,
+        "word": "look"
+      },
+      {
+        "startS": 4.64,
+        "endS": 4.9,
+        "word": "out"
+      },
+      {
+        "startS": 4.96,
+        "endS": 5.06,
+        "word": "i"
+      },
+      {
+        "startS": 5.06,
+        "endS": 5.5,
+        "word": "shout"
+      },
+      {
+        "startS": 5.74,
+        "endS": 5.92,
+        "word": "for"
+      },
+      {
+        "startS": 5.92,
+        "endS": 6.15,
+        "word": "he's"
+      },
+      {
+        "startS": 6.15,
+        "endS": 6.6,
+        "word": "foiled"
+      },
+      {
+        "startS": 6.6,
+        "endS": 6.73,
+        "word": "you"
+      },
+      {
+        "startS": 6.73,
+        "endS": 7.19,
+        "word": "again"
+      },
+      {
+        "startS": 7.31,
+        "endS": 7.8,
+        "word": "creating"
+      },
+      {
+        "startS": 7.8,
+        "endS": 8.45,
+        "word": "chaos"
+      }
+    ]
+  },
+  "viseme-words": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.09,
+        "phone": "P"
+      },
+      {
+        "startS": 0.09,
+        "endS": 0.18,
+        "phone": "P"
+      },
+      {
+        "startS": 0.18,
+        "endS": 0.31,
+        "phone": "UH1"
+      },
+      {
+        "startS": 0.31,
+        "endS": 0.4,
+        "phone": "T"
+      },
+      {
+        "startS": 0.4,
+        "endS": 0.59,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.59,
+        "endS": 0.77,
+        "phone": "F"
+      },
+      {
+        "startS": 0.77,
+        "endS": 0.99,
+        "phone": "AE1"
+      },
+      {
+        "startS": 0.99,
+        "endS": 1.07,
+        "phone": "T"
+      },
+      {
+        "startS": 1.07,
+        "endS": 1.23,
+        "phone": "SIL"
+      },
+      {
+        "startS": 1.23,
+        "endS": 1.41,
+        "phone": "TH"
+      },
+      {
+        "startS": 1.41,
+        "endS": 1.52,
+        "phone": "IH1"
+      },
+      {
+        "startS": 1.52,
+        "endS": 1.61,
+        "phone": "NG"
+      },
+      {
+        "startS": 1.61,
+        "endS": 1.77,
+        "phone": "K"
+      },
+      {
+        "startS": 1.77,
+        "endS": 2,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2,
+        "endS": 2.11,
+        "phone": "T"
+      },
+      {
+        "startS": 2.11,
+        "endS": 2.22,
+        "phone": "IH1"
+      },
+      {
+        "startS": 2.22,
+        "endS": 2.36,
+        "phone": "P"
+      },
+      {
+        "startS": 2.36,
+        "endS": 2.57,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.57,
+        "endS": 2.69,
+        "phone": "K"
+      },
+      {
+        "startS": 2.69,
+        "endS": 2.92,
+        "phone": "AA1"
+      },
+      {
+        "startS": 2.92,
+        "endS": 3.06,
+        "phone": "L"
+      },
+      {
+        "startS": 3.06,
+        "endS": 3.18,
+        "phone": "SIL"
+      },
+      {
+        "startS": 3.18,
+        "endS": 3.31,
+        "phone": "CH"
+      },
+      {
+        "startS": 3.31,
+        "endS": 3.43,
+        "phone": "EH1"
+      },
+      {
+        "startS": 3.43,
+        "endS": 3.62,
+        "phone": "R"
+      },
+      {
+        "startS": 3.62,
+        "endS": 3.75,
+        "phone": "SIL"
+      },
+      {
+        "startS": 3.75,
+        "endS": 3.96,
+        "phone": "S"
+      },
+      {
+        "startS": 3.96,
+        "endS": 4.24,
+        "phone": "ER1"
+      },
+      {
+        "startS": 4.24,
+        "endS": 4.43,
+        "phone": "SIL"
+      },
+      {
+        "startS": 4.43,
+        "endS": 4.54,
+        "phone": "L"
+      },
+      {
+        "startS": 4.54,
+        "endS": 4.67,
+        "phone": "AA1"
+      },
+      {
+        "startS": 4.67,
+        "endS": 4.76,
+        "phone": "T"
+      },
+      {
+        "startS": 4.76,
+        "endS": 5.11,
+        "phone": "SIL"
+      },
+      {
+        "startS": 5.11,
+        "endS": 5.26,
+        "phone": "R"
+      },
+      {
+        "startS": 5.26,
+        "endS": 5.43,
+        "phone": "EH1"
+      },
+      {
+        "startS": 5.43,
+        "endS": 5.54,
+        "phone": "D"
+      },
+      {
+        "startS": 5.54,
+        "endS": 5.67,
+        "phone": "SIL"
+      },
+      {
+        "startS": 5.67,
+        "endS": 5.82,
+        "phone": "K"
+      },
+      {
+        "startS": 5.82,
+        "endS": 5.85,
+        "phone": "AA1"
+      },
+      {
+        "startS": 5.85,
+        "endS": 6.12,
+        "phone": "R"
+      },
+      {
+        "startS": 6.12,
+        "endS": 6.27,
+        "phone": "P"
+      },
+      {
+        "startS": 6.27,
+        "endS": 6.32,
+        "phone": "B"
+      },
+      {
+        "startS": 6.32,
+        "endS": 6.49,
+        "phone": "EH1"
+      },
+      {
+        "startS": 6.49,
+        "endS": 6.62,
+        "phone": "D"
+      },
+      {
+        "startS": 6.62,
+        "endS": 6.79,
+        "phone": "SIL"
+      },
+      {
+        "startS": 6.79,
+        "endS": 6.94,
+        "phone": "T"
+      },
+      {
+        "startS": 6.94,
+        "endS": 7.19,
+        "phone": "OW1"
+      },
+      {
+        "startS": 7.19,
+        "endS": 7.33,
+        "phone": "P"
+      },
+      {
+        "startS": 7.33,
+        "endS": 7.38,
+        "phone": "B"
+      },
+      {
+        "startS": 7.38,
+        "endS": 7.47,
+        "phone": "UH1"
+      },
+      {
+        "startS": 7.47,
+        "endS": 7.67,
+        "phone": "K"
+      },
+      {
+        "startS": 7.67,
+        "endS": 7.728,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.09,
+        "endS": 0.4,
+        "word": "put"
+      },
+      {
+        "startS": 0.59,
+        "endS": 1.07,
+        "word": "fat"
+      },
+      {
+        "startS": 1.23,
+        "endS": 1.77,
+        "word": "think"
+      },
+      {
+        "startS": 2,
+        "endS": 2.36,
+        "word": "tip"
+      },
+      {
+        "startS": 2.57,
+        "endS": 3.06,
+        "word": "call"
+      },
+      {
+        "startS": 3.18,
+        "endS": 3.62,
+        "word": "chair"
+      },
+      {
+        "startS": 3.75,
+        "endS": 4.24,
+        "word": "sir"
+      },
+      {
+        "startS": 4.43,
+        "endS": 4.76,
+        "word": "lot"
+      },
+      {
+        "startS": 5.11,
+        "endS": 5.54,
+        "word": "red"
+      },
+      {
+        "startS": 5.67,
+        "endS": 6.12,
+        "word": "car"
+      },
+      {
+        "startS": 6.27,
+        "endS": 6.62,
+        "word": "bed"
+      },
+      {
+        "startS": 6.79,
+        "endS": 7.19,
+        "word": "toe"
+      },
+      {
+        "startS": 7.33,
+        "endS": 7.67,
+        "word": "book"
+      }
+    ]
+  },
+  "pain": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.14,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.14,
+        "endS": 0.25,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.41,
+        "phone": "F"
+      },
+      {
+        "startS": 0.41,
+        "endS": 0.49,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.49,
+        "endS": 0.55,
+        "phone": "L"
+      },
+      {
+        "startS": 0.55,
+        "endS": 0.61,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.61,
+        "endS": 0.67,
+        "phone": "AH0"
+      },
+      {
+        "startS": 0.67,
+        "endS": 0.88,
+        "phone": "P"
+      },
+      {
+        "startS": 0.88,
+        "endS": 1.03,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.03,
+        "endS": 1.1,
+        "phone": "N"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.21,
+        "phone": "IH1"
+      },
+      {
+        "startS": 1.21,
+        "endS": 1.31,
+        "phone": "Z"
+      },
+      {
+        "startS": 1.31,
+        "endS": 1.41,
+        "phone": "B"
+      },
+      {
+        "startS": 1.41,
+        "endS": 1.49,
+        "phone": "EH1"
+      },
+      {
+        "startS": 1.49,
+        "endS": 1.53,
+        "phone": "T"
+      },
+      {
+        "startS": 1.53,
+        "endS": 1.63,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.63,
+        "endS": 1.71,
+        "phone": "N"
+      },
+      {
+        "startS": 1.71,
+        "endS": 1.96,
+        "phone": "AW1"
+      },
+      {
+        "startS": 1.96,
+        "endS": 2.28,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.14,
+        "endS": 0.25,
+        "word": "i"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.55,
+        "word": "feel"
+      },
+      {
+        "startS": 0.55,
+        "endS": 0.67,
+        "word": "the"
+      },
+      {
+        "startS": 0.67,
+        "endS": 1.1,
+        "word": "pain"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.31,
+        "word": "is"
+      },
+      {
+        "startS": 1.31,
+        "endS": 1.63,
+        "word": "better"
+      },
+      {
+        "startS": 1.63,
+        "endS": 1.96,
+        "word": "now"
+      }
+    ]
+  },
+  "oov": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.14,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.14,
+        "endS": 0.2,
+        "phone": "G"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.29,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.29,
+        "endS": 0.36,
+        "phone": "V"
+      },
+      {
+        "startS": 0.36,
+        "endS": 0.39,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.39,
+        "endS": 0.53,
+        "phone": "AH0"
+      },
+      {
+        "startS": 0.53,
+        "endS": 0.56,
+        "phone": "AE2"
+      },
+      {
+        "startS": 0.56,
+        "endS": 0.65,
+        "phone": "L"
+      },
+      {
+        "startS": 0.65,
+        "endS": 0.76,
+        "phone": "B"
+      },
+      {
+        "startS": 0.76,
+        "endS": 0.85,
+        "phone": "Y"
+      },
+      {
+        "startS": 0.85,
+        "endS": 0.89,
+        "phone": "UW1"
+      },
+      {
+        "startS": 0.89,
+        "endS": 0.93,
+        "phone": "T"
+      },
+      {
+        "startS": 0.93,
+        "endS": 1.05,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.05,
+        "endS": 1.15,
+        "phone": "AO0"
+      },
+      {
+        "startS": 1.15,
+        "endS": 1.18,
+        "phone": "L"
+      },
+      {
+        "startS": 1.18,
+        "endS": 1.28,
+        "phone": "N"
+      },
+      {
+        "startS": 1.28,
+        "endS": 1.62,
+        "phone": "AW1"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.896,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.14,
+        "endS": 0.36,
+        "word": "give"
+      },
+      {
+        "startS": 0.36,
+        "endS": 0.53,
+        "word": "the"
+      },
+      {
+        "startS": 0.53,
+        "endS": 1.18,
+        "word": "albuterol"
+      },
+      {
+        "startS": 1.18,
+        "endS": 1.62,
+        "word": "now"
+      }
+    ]
+  }
+}

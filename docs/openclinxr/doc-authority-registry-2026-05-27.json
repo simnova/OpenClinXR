@@ -2859,6 +2859,20 @@
       "rationale": "Licence record for the bake-off candidates and English model; local to its module."
     },
     {
+      "path": "apps/arena/viseme-audio-clock/grok-voice/NOTICE.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Arena scope record for the Grok Voice cached audio-clock bake-off; evidence for the card decision, not an instruction surface."
+    },
+    {
+      "path": "apps/arena/viseme-audio-clock/grok-voice/score-sheet.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Grok Voice (OpenRouter TTS/STT, cached) audio-clock bake-off decision record (reject), MFA-agreement numbers; not an adoption decision."
+    },
+    {
       "path": "apps/arena/ui-quest-voice-godot/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",

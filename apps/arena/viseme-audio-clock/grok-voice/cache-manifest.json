@@ -1,0 +1,124 @@
+[
+  {
+    "key": "f30671a2b21e5f0e3fc16b73566e093f2e200651b92ecbbbe8e9145317764222",
+    "kind": "tts-probe",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "hi.",
+    "extra": {
+      "with_timestamps": true
+    },
+    "audioSha256": "0b704549ff56ca449d5d5e3724dd1ae9508170250b545b98e1d4fa9185285236",
+    "bytes": 12288,
+    "generationId": "gen-tts-1791474102-vQ4twg3HaJpxgGXIfy62",
+    "date": "2026-10-08T15:41:43.230Z"
+  },
+  {
+    "key": "efada122b1c5291ce1379b8b3eef8e0e3b41f13789d424154e439f2c2474749a",
+    "kind": "tts",
+    "clip": "pangram",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos.",
+    "audioSha256": "378a2974343beb50c370b9e36e3c1f55cfaf29f417dbff120d3ebe6392224ec1",
+    "bytes": 137856,
+    "generationId": "gen-tts-1791474103-zXZWVp4yrPQjsUlfDLNO",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T15:41:45.747Z"
+  },
+  {
+    "key": "92ef20d39c8f5dbc773562dd5a5eeae1543e130d2683df5ed375650f214dd60a",
+    "kind": "tts",
+    "clip": "viseme-words",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "put. fat. think. tip. call. chair. sir. lot. red. car. bed. toe. book.",
+    "audioSha256": "e2d91fdedcb6d48bf8af9a699d9d0bc88420a6bd6fdd675f90e8bdb831a573ec",
+    "bytes": 123648,
+    "generationId": "gen-tts-1791474105-RmnXCCzHc4ZPU21oM2oT",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T15:41:47.821Z"
+  },
+  {
+    "key": "4c7ea6c05c3a11bc710fd3c6e7fb9b1930e0afa381c29217c092b24febfcab3e",
+    "kind": "tts",
+    "clip": "pain",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "I feel the pain is better now.",
+    "audioSha256": "2220474e80fe179bb81b9b79cc0fe4294906c31f734fd25b3fc7a7f55fdf017e",
+    "bytes": 36480,
+    "generationId": "gen-tts-1791474107-XqK9CQp42DbCv58CWFZG",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T15:41:48.813Z"
+  },
+  {
+    "key": "8b64f6d00a949d81785c52440b2d3ff37c32cf3ee376ec6d436e9f3265605521",
+    "kind": "tts",
+    "clip": "oov",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "Give the albuterol now.",
+    "audioSha256": "173b1c6da43e3e91b237db3ecb2055e6833eb421052b69cb0d2c827b2c337c12",
+    "bytes": 30336,
+    "generationId": "gen-tts-1791474108-xLFBT3yM4S7fP2cgGmh4",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T15:41:49.513Z"
+  },
+  {
+    "key": "stt:378a2974343beb50c370b9e36e3c1f55cfaf29f417dbff120d3ebe6392224ec1",
+    "kind": "stt",
+    "clip": "pangram",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "378a2974343beb50c370b9e36e3c1f55cfaf29f417dbff120d3ebe6392224ec1",
+    "words": 23,
+    "text": "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos.",
+    "usage": {
+      "seconds": 8.616,
+      "cost": 0.0002393333333335248
+    },
+    "date": "2026-10-08T15:41:50.133Z"
+  },
+  {
+    "key": "stt:e2d91fdedcb6d48bf8af9a699d9d0bc88420a6bd6fdd675f90e8bdb831a573ec",
+    "kind": "stt",
+    "clip": "viseme-words",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "e2d91fdedcb6d48bf8af9a699d9d0bc88420a6bd6fdd675f90e8bdb831a573ec",
+    "words": 13,
+    "text": "Put, fat, think, tip, call, chair, sir, lot, red, car, bed, toe, book.",
+    "usage": {
+      "seconds": 7.728,
+      "cost": 0.0002146666666668384
+    },
+    "date": "2026-10-08T15:41:50.584Z"
+  },
+  {
+    "key": "stt:2220474e80fe179bb81b9b79cc0fe4294906c31f734fd25b3fc7a7f55fdf017e",
+    "kind": "stt",
+    "clip": "pain",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "2220474e80fe179bb81b9b79cc0fe4294906c31f734fd25b3fc7a7f55fdf017e",
+    "words": 7,
+    "text": "I feel the pain is better now.",
+    "usage": {
+      "seconds": 2.28,
+      "cost": 0.000063333333333384
+    },
+    "date": "2026-10-08T15:41:50.976Z"
+  },
+  {
+    "key": "stt:173b1c6da43e3e91b237db3ecb2055e6833eb421052b69cb0d2c827b2c337c12",
+    "kind": "stt",
+    "clip": "oov",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "173b1c6da43e3e91b237db3ecb2055e6833eb421052b69cb0d2c827b2c337c12",
+    "words": 4,
+    "text": "Give the albuterol now.",
+    "usage": {
+      "seconds": 1.896,
+      "cost": 0.0000526666666667088
+    },
+    "date": "2026-10-08T15:41:53.035Z"
+  }
+]

@@ -1,0 +1,370 @@
+{
+  "that": {
+    "phones": [
+      "DH",
+      "AH0",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "quick": {
+    "phones": [
+      "K",
+      "W",
+      "IH1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "beige": {
+    "phones": [
+      "B",
+      "EY1",
+      "ZH"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "fox": {
+    "phones": [
+      "F",
+      "AA1",
+      "K",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "jumped": {
+    "phones": [
+      "JH",
+      "AH1",
+      "M",
+      "P",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "in": {
+    "phones": [
+      "IH0",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "the": {
+    "phones": [
+      "DH",
+      "AH0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "air": {
+    "phones": [
+      "EH1",
+      "R"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "over": {
+    "phones": [
+      "OW1",
+      "V",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "each": {
+    "phones": [
+      "IY1",
+      "CH"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "thin": {
+    "phones": [
+      "TH",
+      "IH1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "dog": {
+    "phones": [
+      "D",
+      "AO1",
+      "G"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "look": {
+    "phones": [
+      "L",
+      "UH1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "out": {
+    "phones": [
+      "AW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "i": {
+    "phones": [
+      "AY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "shout": {
+    "phones": [
+      "SH",
+      "AW1",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "for": {
+    "phones": [
+      "F",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "he's": {
+    "phones": [
+      "HH",
+      "IY1",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "foiled": {
+    "phones": [
+      "F",
+      "OY1",
+      "L",
+      "D"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "you": {
+    "phones": [
+      "Y",
+      "UW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "again": {
+    "phones": [
+      "AH0",
+      "G",
+      "EH1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "creating": {
+    "phones": [
+      "K",
+      "R",
+      "IY0",
+      "EY1",
+      "T",
+      "IH0",
+      "NG"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "chaos": {
+    "phones": [
+      "K",
+      "EY1",
+      "AA0",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "put": {
+    "phones": [
+      "P",
+      "UH1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "fat": {
+    "phones": [
+      "F",
+      "AE1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "think": {
+    "phones": [
+      "TH",
+      "IH1",
+      "NG",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "tip": {
+    "phones": [
+      "T",
+      "IH1",
+      "P"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "call": {
+    "phones": [
+      "K",
+      "AO1",
+      "L"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "chair": {
+    "phones": [
+      "CH",
+      "EH1",
+      "R"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "sir": {
+    "phones": [
+      "S",
+      "ER1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "lot": {
+    "phones": [
+      "L",
+      "AO1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "red": {
+    "phones": [
+      "R",
+      "EH1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "car": {
+    "phones": [
+      "K",
+      "AA1",
+      "R"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "bed": {
+    "phones": [
+      "B",
+      "EH1",
+      "D"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "toe": {
+    "phones": [
+      "T",
+      "OW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "book": {
+    "phones": [
+      "B",
+      "UH1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "feel": {
+    "phones": [
+      "F",
+      "IY1",
+      "L"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "pain": {
+    "phones": [
+      "P",
+      "EY1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "is": {
+    "phones": [
+      "IH1",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "better": {
+    "phones": [
+      "B",
+      "EH1",
+      "T",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "now": {
+    "phones": [
+      "N",
+      "AW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "give": {
+    "phones": [
+      "G",
+      "IH1",
+      "V"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "albuterol": {
+    "phones": [
+      "AE2",
+      "L",
+      "B",
+      "Y",
+      "UW1",
+      "T",
+      "ER0",
+      "AO0",
+      "L"
+    ],
+    "source": "cmudict-fallback"
+  },
+  "phone": {
+    "phones": [
+      "F",
+      "OW1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "though": {
+    "phones": [
+      "DH",
+      "OW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "cough": {
+    "phones": [
+      "K",
+      "AA1",
+      "F"
+    ],
+    "source": "mfa-english_us_arpa"
+  }
+}
