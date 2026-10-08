@@ -21,6 +21,12 @@ import {
   isRecord,
 } from "./protocol-posture-validation.js";
 import { realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
+import {
+  isActorTurnRequestControlType,
+  resolveBunRealtimeVoiceReplayOptions,
+  serveGrokVoiceReplayTurn,
+  type ResolvedBunRealtimeVoiceReplayOptions,
+} from "./bun-realtime-voice-replay.js";
 
 function sendBunWebSocketJson(socket: BunRealtimeVoiceWebSocket, payload: Record<string, unknown>): void {
   socket.send(JSON.stringify(payload));
@@ -152,6 +158,7 @@ function forwardRealtimeVoiceFrameToBackend(
 function acknowledgeRealtimeVoiceControlFrame(
   socket: BunRealtimeVoiceWebSocket,
   payload: string,
+  replay?: ResolvedBunRealtimeVoiceReplayOptions,
 ): void {
   let control: Record<string, unknown>;
   try {
@@ -167,6 +174,15 @@ function acknowledgeRealtimeVoiceControlFrame(
   }
 
   const controlType = typeof control["type"] === "string" ? control["type"] : "control";
+  if (replay && isActorTurnRequestControlType(controlType)) {
+    sendBunWebSocketJson(socket, {
+      type: "control.ack",
+      controlType,
+      received: sanitizeBunRealtimeVoiceControlFrame(control),
+    });
+    serveGrokVoiceReplayTurn(socket, control, replay);
+    return;
+  }
   if (!isSupportedRealtimeVoiceControlType(controlType)) {
     sendBunWebSocketJson(socket, {
       type: "error",
@@ -200,8 +216,14 @@ export function createBunRealtimeVoiceWebSocketHandler(
   options: {
     pythonBackendWebSocketUrl?: string;
     backendWebSocketFactory?: BunRealtimeVoiceBackendWebSocketFactory;
+    grokVoiceReplay?: import("./bun-realtime-voice-replay.js").BunRealtimeVoiceReplayOptions;
   } = {},
 ): BunRealtimeVoiceWebSocketHandler {
+  // Replay is holder-scoped (closure), never per-socket: python proxy wins, else replay, else echo.
+  const replay =
+    options.pythonBackendWebSocketUrl === undefined
+      ? resolveBunRealtimeVoiceReplayOptions(options.grokVoiceReplay, process.env)
+      : undefined;
   return {
     open(socket) {
       socket.data = {
@@ -214,9 +236,12 @@ export function createBunRealtimeVoiceWebSocketHandler(
         type: "gateway.ready",
         protocol: options.pythonBackendWebSocketUrl
           ? "bun-native-python-backend-proxy"
-          : "bun-native-json-control-and-binary-audio-echo",
+          : replay !== undefined
+            ? "bun-native-grok-voice-replay"
+            : "bun-native-json-control-and-binary-audio-echo",
         backendUrlConfigured: Boolean(options.pythonBackendWebSocketUrl),
         readyForLiveDialog: false,
+        ...(replay !== undefined ? { voiceReplay: "grok-voice-replay" } : {}),
       });
       if (options.pythonBackendWebSocketUrl) {
         connectPythonVoiceBackend(socket, options.pythonBackendWebSocketUrl, options.backendWebSocketFactory);
@@ -229,7 +254,15 @@ export function createBunRealtimeVoiceWebSocketHandler(
       }
 
       if (typeof message === "string") {
-        acknowledgeRealtimeVoiceControlFrame(socket, message);
+        acknowledgeRealtimeVoiceControlFrame(socket, message, replay);
+        return;
+      }
+
+      if (replay !== undefined) {
+        sendBunWebSocketJson(socket, {
+          type: "error",
+          reason: "binary_learner_audio_not_supported_in_replay",
+        });
         return;
       }
 
@@ -278,11 +311,14 @@ function createDefaultOpenClinXrApiStartup(): StartedOpenClinXrApi {
 
 export function createBunServerConfig(
   startup: StartedOpenClinXrApi = createDefaultOpenClinXrApiStartup(),
-  options: BunServerConfigOptions = {},
+  options: BunServerConfigOptions & {
+    grokVoiceReplay?: import("./bun-realtime-voice-replay.js").BunRealtimeVoiceReplayOptions;
+  } = {},
 ): BunServerConfig {
   const websocketOptions = {
     ...(options.pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl: options.pythonBackendWebSocketUrl } : {}),
     ...(options.backendWebSocketFactory ? { backendWebSocketFactory: options.backendWebSocketFactory } : {}),
+    ...(options.grokVoiceReplay ? { grokVoiceReplay: options.grokVoiceReplay } : {}),
   };
 
   return {

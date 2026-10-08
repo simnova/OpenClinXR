@@ -511,6 +511,11 @@
         "name": "toAdminGraphqlScenario",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "createBunServerConfig",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
@@ -762,6 +767,18 @@
       },
       {
         "name": "selectRealtimeVoiceProtocol",
+        "kind": "runtime"
+      },
+      {
+        "name": "AudioEvent",
+        "kind": "type"
+      },
+      {
+        "name": "collectVoiceStream",
+        "kind": "runtime"
+      },
+      {
+        "name": "createDefaultVoiceGateway",
         "kind": "runtime"
       }
     ]

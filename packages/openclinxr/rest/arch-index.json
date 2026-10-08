@@ -163,7 +163,8 @@
     "src/routes/the-feedback-release-is-explicit-immutable-and-learner-safe.test.ts",
     "src/routes/the-station-quality-review-exposes-signals-and-no-learner-content.test.ts",
     "src/runtime-durable-store.test.ts",
-    "src/the-admin-graphql-root-executes-faculty-dispositions-against-the-durable-store.test.ts"
+    "src/the-admin-graphql-root-executes-faculty-dispositions-against-the-durable-store.test.ts",
+    "src/the-realtime-voice-replays-cached-grok-turn.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/rest test",
