@@ -1,5 +1,6 @@
 /** Private MPFB supine hand contact: shared relaxed fingers and geometry-bounded arm staging. */
 import { type Object3D, Quaternion, Vector3 } from "three";
+import { measureGarmentLane, type GarmentLane } from "./supine-garment-lane.js";
 import { findSupineBone } from "./hob-extremity-flex.js";
 import { makeSupineSupportPlanes, type SupineSupportPlane } from "./supine-support-contact.js";
 
@@ -114,6 +115,7 @@ type SupineArmCandidateResult = {
   angles?: { shoulder: number; elbow: number; wrist: number };
   lengths?: { before: number[]; after: number[] };
   accepted?: boolean;
+  garmentLane?: { before: GarmentLane; after: GarmentLane; status: "clear" | "unavailable" | "overlap-retained-contact" | "improved" | "infeasible-retained-contact"; attempted?: GarmentLane; refusal?: string };
   poleSamples?: Array<{ bias: number; forearmMin: number | null }>;
   /** On refusal, hand/forearm describe the attempted candidate, not restored pixels. */
   metricsPose?: "accepted" | "attempted-before-rollback";
@@ -134,6 +136,7 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
   const support = makeSupineSupportPlanes(bed, 0);
   const planes = [support.pelvis, support.thorax];
   const result: SupineArmCandidateResult[] = [];
+  const lanes = new Map<string, { forward: Vector3; lateral: Vector3; baseline: SupineArmCandidateResult; quats: Map<Object3D, Quaternion> }>();
   for (const side of ["L", "R"]) {
     const shoulder = findSupineBone(root, `upper_arm${side}`);
     const elbow = findSupineBone(root, `forearm${side}`);
@@ -268,9 +271,13 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
     const sample = (bias: number): number | null => {
       const forearmMin = solveSkin(bias); poleSamples.push({ bias, forearmMin }); return forearmMin;
     };
-    let low = 0; let high = 0.35;
-    const lowGap = sample(low); const highGap = sample(high);
+    let high = 0.35;
     let poleUnresolved: string | null = null;
+    const choosePole = (): void => {
+    poleSamples.length = 0;
+    let low = 0; high = 0.35;
+    poleUnresolved = null;
+    const lowGap = sample(low); const highGap = sample(high);
     if (lowGap === null || highGap === null) poleUnresolved = "missing forearm pole bracket coverage";
     else if (highGap < lowGap || highGap < 0) poleUnresolved = "no monotonic nonpenetrating forearm pole bracket";
     else if (lowGap >= 0) high = 0;
@@ -287,6 +294,9 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
       })) poleUnresolved = "nonmonotonic forearm pole samples";
     }
     solveSkin(high);
+    };
+    choosePole();
+    const evaluate = (): SupineArmCandidateResult => {
     const hand = surfaceMetrics(limbPoints(root, side, "hand"), planes);
     const forearm = surfaceMetrics(limbPoints(root, side, "forearm"), planes);
     const residual = wrist.getWorldPosition(new Vector3()).distanceTo(target);
@@ -300,9 +310,72 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
       : forearm.minGap !== null && forearm.minGap < 0 ? "forearm skin penetrates support"
       : hand.contactGap === null || hand.contactGap > 0.025 ? "hand skin floats above support"
       : forearm.contactGap === null || forearm.contactGap > 0.025 ? "forearm skin floats above support" : null);
-    if (unresolved) rollbackSide(side);
-    result.push({ side, unresolved, target: target.toArray(), residualMetres: residual, hand, forearm, angles, lengths, poleSamples, accepted: unresolved === null, metricsPose: unresolved ? "attempted-before-rollback" : "accepted",
-      ...(unresolved ? { restoredHand: surfaceMetrics(limbPoints(root, side, "hand"), planes), restoredForearm: surfaceMetrics(limbPoints(root, side, "forearm"), planes) } : {}) });
+    return { side, unresolved, target: target.toArray(), residualMetres: residual, hand, forearm, angles, lengths, accepted: unresolved === null, metricsPose: unresolved ? "attempted-before-rollback" : "accepted",
+      poleSamples: [...poleSamples] };
+    };
+    let accepted = evaluate();
+    if (accepted.unresolved) {
+      rollbackSide(side);
+      accepted.restoredHand = surfaceMetrics(limbPoints(root, side, "hand"), planes);
+      accepted.restoredForearm = surfaceMetrics(limbPoints(root, side, "forearm"), planes);
+    } else {
+      const before = measureGarmentLane(root, limbPoints(root, side, "hand"), torsoDirection, lateral);
+      accepted.garmentLane = { before, after: before, status: before.triangles === 0 ? "unavailable" : "clear" };
+      lanes.set(side, { forward: torsoDirection.clone(), lateral: lateral.clone(), baseline: { ...accepted }, quats: new Map(callerBones.filter((bone) => bone.name.replaceAll(".", "").endsWith(side)).map((bone) => [bone, bone.quaternion.clone()])) });
+      if (before.shift > 0) {
+        // Optional clearance transaction: never replace supported B with an unsafe legacy fallback.
+        const contactPose = new Map(callerBones.map((bone) => [bone, bone.quaternion.clone()]));
+        initialTarget.addScaledVector(lateral, before.shift);
+        const requested = initialTarget.distanceTo(s);
+        if (requested > (l1 + l2) * 0.995 || requested < Math.abs(l1 - l2) + 1e-4) {
+          accepted.garmentLane = { before, after: before, status: "infeasible-retained-contact", refusal: "optional garment target outside non-singular reach annulus" };
+        } else {
+        choosePole();
+        const attempted = evaluate();
+        const after = measureGarmentLane(root, limbPoints(root, side, "hand"), torsoDirection, lateral);
+        if (attempted.unresolved === null && after.separation !== null && after.shift <= 1e-5) {
+          accepted = attempted; accepted.garmentLane = { before, after, status: "improved" };
+        } else {
+          for (const [bone, quat] of contactPose) bone.quaternion.copy(quat);
+          root.updateMatrixWorld(true);
+          accepted.garmentLane = { before, after: measureGarmentLane(root, limbPoints(root, side, "hand"), torsoDirection, lateral), attempted: after, status: "infeasible-retained-contact", refusal: attempted.unresolved ?? "projected garment clearance remains unresolved" };
+        }
+        }
+      }
+    }
+    result.push(accepted);
+  }
+  // The second arm can deform shared cloth: audit the settled pair, not stale first-side cloth.
+  let stale = false;
+  for (const row of result) {
+    const lane = lanes.get(row.side);
+    if (!lane || !row.garmentLane) continue;
+    const final = measureGarmentLane(root, limbPoints(root, row.side, "hand"), lane.forward, lane.lateral);
+    row.garmentLane.after = final;
+    if (row.garmentLane.status === "improved" && (final.separation === null || final.shift > 1e-5)) stale = true;
+  }
+  if (stale) {
+    for (const row of result) {
+      const lane = lanes.get(row.side);
+      if (lane && row.garmentLane?.status === "improved") for (const [bone, quat] of lane.quats) bone.quaternion.copy(quat);
+    }
+    root.updateMatrixWorld(true);
+    for (let index = 0; index < result.length; index += 1) {
+      const row = result[index]; const lane = row && lanes.get(row.side);
+      if (!row || !lane || row.garmentLane?.status !== "improved") continue;
+      result[index] = { ...lane.baseline, garmentLane: { ...row.garmentLane, attempted: row.garmentLane.after,
+        after: measureGarmentLane(root, limbPoints(root, row.side, "hand"), lane.forward, lane.lateral),
+        status: "infeasible-retained-contact", refusal: "bilateral settled cloth clearance changed" } };
+    }
+  }
+  for (const row of result) if (row.accepted) {
+    row.hand = surfaceMetrics(limbPoints(root, row.side, "hand"), planes);
+    row.forearm = surfaceMetrics(limbPoints(root, row.side, "forearm"), planes);
+    const lane = lanes.get(row.side);
+    if (lane && row.garmentLane) {
+      row.garmentLane.after = measureGarmentLane(root, limbPoints(root, row.side, "hand"), lane.forward, lane.lateral);
+      if (row.garmentLane.status === "clear" && row.garmentLane.after.shift > 1e-5) row.garmentLane.status = "overlap-retained-contact";
+    }
   }
   if (result.every((row) => row.unresolved !== null)) root.userData.openClinXrSupineArmFlexBones = callerCache;
   else storeCandidate(root);

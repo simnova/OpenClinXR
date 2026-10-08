@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { buildPatientStretcher } from "@openclinxr/xr-station";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow } from "./index.js";
-import { AnimationMixer, AnimationClip, QuaternionKeyframeTrack, Quaternion, Bone, Group, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
+import { Mesh, BoxGeometry, AnimationMixer, AnimationClip, QuaternionKeyframeTrack, Quaternion, Bone, Group, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { makeSupineSupportPlanes, measureSupineSupportRegions, settleSupineSupportRegions, type SupineSupportPlane } from "./supine-support-contact.js";
 
@@ -152,6 +152,49 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     applySupinePoseHoldingIncline(root);
     expect(finger.quaternion.clone().normalize().angleTo(original)).toBeLessThan(1e-7);
   }, 30_000);
+  it("moves actual child wrists outboard while retaining body support", async () => {
+    const root = await shippedBody("mpfb-peds-patient-child.glb");
+    const parent = new Group(); parent.scale.setScalar(0.82); parent.add(root); parent.updateMatrixWorld(true);
+    const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 0 });
+    const garments: Array<{ mesh: Mesh; visible: boolean }> = [];
+    root.traverse((object) => { const mesh = object as Mesh; if (mesh.isMesh && /garment|shirt|pants|gown|trouser/iu.test(mesh.name)) { garments.push({ mesh, visible: mesh.visible }); mesh.visible = false; } });
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    const baselineWrists = ["wristL", "wristR"].map((name) => root.getObjectByName(name)!.getWorldPosition(new Vector3()));
+    for (const garment of garments) garment.mesh.visible = garment.visible;
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    for (let side = 0; side < 2; side += 1) {
+      const wrist = root.getObjectByName(side === 0 ? "wristL" : "wristR")!.getWorldPosition(new Vector3());
+      expect(Math.abs(wrist.z), "actual child wrist moves outboard from no-garment supported B").toBeGreaterThan(Math.abs(baselineWrists[side]!.z) + 1e-6);
+    }
+    expectContact(root, bed);
+  }, 30_000);
+
+  it("retains accepted supported B when optional garment clearance is unreachable", async () => {
+    const root = await shippedBody("mpfb-peds-patient-child.glb");
+    const parent = new Group(); parent.scale.setScalar(0.82); parent.add(root); parent.updateMatrixWorld(true);
+    const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 0 });
+    const garments: Array<{ mesh: Mesh; visible: boolean }> = [];
+    root.traverse((object) => { const mesh = object as Mesh; if (mesh.isMesh && /garment|shirt|pants|gown|trouser/iu.test(mesh.name)) { garments.push({ mesh, visible: mesh.visible }); mesh.visible = false; } });
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    const saved = root.userData.openClinXrSupineArmFlexBones as Array<{ name: string; quaternion: { x: number; y: number; z: number; w: number } }>;
+    const accepted = new Map(saved.map((row) => [row.name, new Quaternion(row.quaternion.x, row.quaternion.y, row.quaternion.z, row.quaternion.w)]));
+    const impossibleCloth = new Mesh(new BoxGeometry(10, 10, 10), new MeshBasicMaterial());
+    impossibleCloth.name = "diagnostic_trousers";
+    root.add(impossibleCloth);
+    for (const garment of garments) garment.mesh.visible = garment.visible;
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    for (const candidate of root.userData.openClinXrSupineHandCandidate) {
+      expect(candidate.accepted).toBe(true);
+      expect(candidate.garmentLane.status).toBe("infeasible-retained-contact");
+      expect(candidate.garmentLane.refusal).toBeTruthy();
+      expect(candidate.hand.minGap).toBeGreaterThanOrEqual(0);
+      expect(candidate.forearm.minGap).toBeGreaterThanOrEqual(0);
+    }
+    applySupinePoseHoldingIncline(root);
+    for (const [name, quat] of accepted) expect(root.getObjectByName(name)!.quaternion.clone().normalize().angleTo(quat.clone().normalize()), `${name} optional refusal keeps accepted B`).toBeLessThan(1e-6);
+    expectContact(root, bed);
+  }, 30_000);
+
   it.each([
     ["mpfb-gown-adult-patient.glb", 30, 0],
     ["mpfb-peds-patient-child.glb", 0, 0],
@@ -165,11 +208,17 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const nativePips = pips.map((bone) => bone.quaternion.clone().normalize());
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
     for (let i = 0; i < pips.length; i += 1) expect(pips[i]!.quaternion.clone().normalize().angleTo(nativePips[i]!), `${pips[i]!.name} public plant selected soft curl`).toBeCloseTo(0.4, 5);
-    const candidates = root.userData.openClinXrSupineHandCandidate as Array<{ side: string; accepted: boolean; unresolved: string | null; hand: { samples: number; outside: number; minGap: number; contactGap: number }; forearm: { samples: number; outside: number; minGap: number; contactGap: number } }>;
+    const candidates = root.userData.openClinXrSupineHandCandidate as Array<{ side: string; accepted: boolean; unresolved: string | null; hand: { samples: number; outside: number; minGap: number; contactGap: number }; forearm: { samples: number; outside: number; minGap: number; contactGap: number }; garmentLane: { status: string; before: { separation: number }; after: { separation: number; shift: number } } }>;
     expect(candidates.map((row) => row.side).sort()).toEqual(["L", "R"]);
     for (const row of candidates) {
       expect(row.accepted, `${row.side} production candidate`).toBe(true);
       expect(row.unresolved).toBeNull();
+      if (asset === "mpfb-peds-patient-child.glb") {
+        expect(row.garmentLane.status, "child normal plant clears projected pants lane").toBe("improved");
+        expect(row.garmentLane.before.separation).toBeLessThan(0);
+        expect(row.garmentLane.after.separation).toBeGreaterThan(0);
+        expect(row.garmentLane.after.shift).toBe(0);
+      }
       for (const patch of [row.hand, row.forearm]) {
         expect(patch.samples).toBeGreaterThanOrEqual(4);
         expect(patch.outside).toBe(0);
