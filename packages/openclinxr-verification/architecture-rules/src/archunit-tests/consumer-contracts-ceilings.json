@@ -1,11 +1,11 @@
 {
   "unconsumed": {
-    "total": 321,
+    "total": 275,
     "byProvider": {
       "@cellix/config-vitest": 2,
       "@cellix/provider-contracts": 6,
       "@cellix/server-mongodb-memory-mock": 1,
-      "@openclinxr/api": 52,
+      "@openclinxr/api": 6,
       "@openclinxr/asset-registry": 30,
       "@openclinxr/capability-gateway": 9,
       "@openclinxr/compute-services-spec": 6,

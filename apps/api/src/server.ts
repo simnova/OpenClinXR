@@ -3,7 +3,7 @@ import {
   createNodeServerConfig,
   createOpenClinXrApiStartup,
   type StartedOpenClinXrApi,
-} from "./index.js";
+} from "./api-bootstrap.js";
 
 const port = Number(process.env["PORT"] ?? 3000);
 

@@ -2,7 +2,7 @@ import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
 } from "@openclinxr/rest";
-import { createOpenClinXrApiStartup, type StartedOpenClinXrApi } from "./index.js";
+import { createOpenClinXrApiStartup, type StartedOpenClinXrApi } from "./api-bootstrap.js";
 
 type BunRuntime = {
   serve: (options: {

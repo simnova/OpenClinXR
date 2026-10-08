@@ -19,14 +19,14 @@ import {
   openClinXrSpanNames,
   telemetryAttributeNames,
 } from "@openclinxr/telemetry";
+import type {
+  ApiPersistenceSink,
+  ApiScenarioReviewDecisionRecord,
+  ApiStationRunQueueSnapshot,
+} from "@openclinxr/rest";
+import { createOpenClinXrApiProtocolPosture } from "@openclinxr/rest";
 import { describe, expect, it } from "vitest";
-import {
-  type ApiPersistenceSink,
-  type ApiScenarioReviewDecisionRecord,
-  type ApiStationRunQueueSnapshot,
-  createApiApp,
-  createOpenClinXrApiProtocolPosture,
-} from "./index.js";
+import { createApiApp } from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
