@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "./index.js";
-import { defaultPostureForEnvironmentSlot } from "./actor-posture-mod.js";
+import { resolveActorPosture } from "./actor-posture.js";
 import { createEdChestPainRuntimeSceneManifest } from "./runtime-bundles-entry.js";
 
 function roomPropsForEnvironment(environmentId: string) {
@@ -27,7 +27,7 @@ describe("environment-owned room props", () => {
     const slots = ENVIRONMENT_SHELL_DESCRIPTORS["ed_stroke_bay_v1"]?.fixtureSlots ?? [];
     expect(slots.some((slot) => slot.slotId === "stretcher")).toBe(true);
     expect(slots.map((slot) => slot.slotId)).toEqual(expect.arrayContaining(["door_leaf", "wall_board", "learner_start"]));
-    expect(defaultPostureForEnvironmentSlot({
+    expect(resolveActorPosture({
       environmentId: "ed_stroke_bay_v1",
       scenarioId: "ed_stroke_alert_handoff_v1",
       slotKind: "primary_patient",

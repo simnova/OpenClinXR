@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { checkFreezeListHonesty } from "./file-size-budgets.js";
 
 /**
@@ -34,6 +34,26 @@ import { checkFreezeListHonesty } from "./file-size-budgets.js";
  * `git ls-files` failing (non-git fixture) remains the only HEAD/working-tree
  * fallback.
  */
+
+// These tests create their OWN repositories. Hook Git context belongs to the real commit,
+// and must remain untouched in production checks; isolate only this fixture lifecycle.
+const fixtureGitKeys = ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX", "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY"] as const;
+let inheritedGitContext: Partial<Record<typeof fixtureGitKeys[number], string>> = {};
+beforeEach(() => {
+  inheritedGitContext = {};
+  for (const key of fixtureGitKeys) {
+    const value = process.env[key];
+    if (value !== undefined) inheritedGitContext[key] = value;
+    delete process.env[key];
+  }
+});
+afterEach(() => {
+  for (const key of fixtureGitKeys) {
+    const value = inheritedGitContext[key];
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+});
 
 const ZONE_BUDGETS = [{ prefix: "packages/openclinxr/", maxLines: 10 }] as const;
 const REL = "packages/openclinxr/frozen-actor.ts";

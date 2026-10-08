@@ -78,6 +78,7 @@ function spreadWristBesideTorso(input: {
   pelvis: Vec3;
   head: Vec3;
   deckTopWorldY: number;
+  floorAboveDeck?: number;
 }): void {
   let wrist = readBoneWorld(input.hand);
   if (!wrist) return;
@@ -94,7 +95,7 @@ function spreadWristBesideTorso(input: {
           const probe = readBoneWorld(input.hand);
           bone.rotation[axis] -= sign * WRIST_LATERAL_STEP_RAD;
           refreshSupineSkeleton(input.humanoidRoot);
-          if (!probe || probe.y < input.deckTopWorldY + WRIST_FLOOR_ABOVE_DECK) continue;
+          if (!probe || probe.y < input.deckTopWorldY + (input.floorAboveDeck ?? WRIST_FLOOR_ABOVE_DECK)) continue;
           const probeOutward = signedDeckLateral(probe, input.pelvis, input.head) * direction;
           if (probeOutward > 0.4 || probeOutward <= outward + 1e-5) continue;
           if (!best || probeOutward > best.outward) best = { bone, axis, sign, outward: probeOutward };
@@ -133,7 +134,10 @@ export function reapplyStoredSupineArmFlex(humanoidRoot: Object3D): void {
 export function flexSupineArmsOntoDeck(
   humanoidRoot: Object3D,
   deckTopWorldY: number,
+  options?: { targetAboveDeck: number; floorAboveDeck: number },
 ): SupineArmFlexResult {
+  const wristTarget = options?.targetAboveDeck ?? WRIST_TARGET_ABOVE_DECK;
+  const wristFloor = options?.floorAboveDeck ?? WRIST_FLOOR_ABOVE_DECK;
   humanoidRoot.updateMatrixWorld?.(true);
   const headBone = findSupineBone(humanoidRoot, "head", "Head");
   const head = readBoneWorld(headBone);
@@ -154,40 +158,43 @@ export function flexSupineArmsOntoDeck(
     let wrist = readBoneWorld(hand);
     if (!wrist) continue;
     const above0 = wrist.y - deckTopWorldY;
-    if (above0 <= WRIST_TARGET_ABOVE_DECK) {
+    if (above0 <= wristTarget) {
       result.wristsAboveDeck[side] = above0;
       continue;
     }
 
+    const forearm = options ? findSupineBone(humanoidRoot, `forearm${side}`) : null;
     let sideRad = 0;
     const sideDeltas: Record<string, { x: number; y: number; z: number }> = {};
     let axisApplied: "x" | "y" | "z" = "x";
     let signApplied = -1;
     for (let pass = 0; pass < 60; pass += 1) {
       const above = wrist.y - deckTopWorldY;
-      if (above <= WRIST_TARGET_ABOVE_DECK && above >= WRIST_FLOOR_ABOVE_DECK) break;
+      if (above <= wristTarget && above >= wristFloor) break;
 
-      let best: { axis: "x" | "y" | "z"; sign: number; dY: number } | null = null;
+      let best: { bone: Object3D; axis: "x" | "y" | "z"; sign: number; dY: number } | null = null;
+      for (const bone of [upper, forearm].filter((value): value is Object3D => value !== null)) {
       for (const axis of ["x", "y", "z"] as const) {
         for (const sign of [-1, 1] as const) {
-          upper.rotation[axis] += sign * STEP_RAD;
+          bone.rotation[axis] += sign * STEP_RAD;
           refreshSupineSkeleton(humanoidRoot);
           const probed = readBoneWorld(hand);
-          upper.rotation[axis] -= sign * STEP_RAD;
+          bone.rotation[axis] -= sign * STEP_RAD;
           refreshSupineSkeleton(humanoidRoot);
           if (!probed) continue;
           const dY = probed.y - wrist.y;
-          if (!best || dY < best.dY - 1e-6) best = { axis, sign, dY };
+          if (!best || dY < best.dY - 1e-6) best = { bone, axis, sign, dY };
         }
+      }
       }
       if (!best || best.dY > -1e-4) break;
 
-      upper.rotation[best.axis] += best.sign * STEP_RAD;
+      best.bone.rotation[best.axis] += best.sign * STEP_RAD;
       refreshSupineSkeleton(humanoidRoot);
       const after = readBoneWorld(hand);
-      if (after && after.y - deckTopWorldY < WRIST_FLOOR_ABOVE_DECK - 0.01) {
+      if (after && after.y - deckTopWorldY < wristFloor - 0.01) {
         // Overshoot: undo the step so the wrist stays above the deck (protects #150 penetration).
-        upper.rotation[best.axis] -= best.sign * STEP_RAD;
+        best.bone.rotation[best.axis] -= best.sign * STEP_RAD;
         refreshSupineSkeleton(humanoidRoot);
         wrist = readBoneWorld(hand) ?? wrist;
         break;
@@ -196,7 +203,7 @@ export function flexSupineArmsOntoDeck(
       sideRad += best.sign * STEP_RAD;
       axisApplied = best.axis;
       signApplied = best.sign;
-      const key = `upper_arm${side}`;
+      const key = best.bone === upper ? `upper_arm${side}` : `forearm${side}`;
       const prior = sideDeltas[key] ?? { x: 0, y: 0, z: 0 };
       sideDeltas[key] = {
         x: prior.x + (best.axis === "x" ? best.sign * STEP_RAD : 0),
@@ -222,7 +229,7 @@ export function flexSupineArmsOntoDeck(
       const forearm = findSupineBone(humanoidRoot, `forearm${side}`, `forearm.${side}`);
       const hand = findSupineBone(humanoidRoot, `hand${side}`, `hand.${side}`);
       if (!upper || !hand) continue;
-      spreadWristBesideTorso({ humanoidRoot, upper, forearm, hand, pelvis, head, deckTopWorldY });
+      spreadWristBesideTorso({ humanoidRoot, upper, forearm, hand, pelvis, head, deckTopWorldY, floorAboveDeck: wristFloor });
       const spreadWrist = readBoneWorld(hand);
       if (spreadWrist) result.wristsAboveDeck[side] = spreadWrist.y - deckTopWorldY;
     }

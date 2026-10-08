@@ -21,6 +21,7 @@ const REBAKED_GOWN_PREFIX = "openclinxr_real_garment_hospital_gown_mesh";
 const GOWN_MAT_NAME = "openclinxr_real_garment_hospital_gown_phenotype_L0";
 const GOWN_NODE = "openclinxr_real_garment_from_phenotype_hospital_gown";
 const STRAY_LABCOAT_NODE = "openclinxr_real_garment_labcoat_v1";
+const REDUNDANT_TSHIRT_NODE = "makeclothes_library_toigo_t_shirt";
 
 const io = new NodeIO();
 const a = await io.read(SHIPPED);
@@ -90,6 +91,12 @@ const strayLabcoatNode = ra.listNodes().find((n) => n.getName() === STRAY_LABCOA
 strayLabcoatNode?.dispose();
 const strayLabcoatMesh = ra.listMeshes().find((m) => m.getName() === STRAY_LABCOAT_NODE);
 strayLabcoatMesh?.dispose();
+// A hospital gown is the patient's upper layer; the retained casual T-shirt intersects its
+// shoulders in the supported supine pose. Remove only this redundant wardrobe component.
+const redundantShirt = ra.listNodes().find((node) => node.getName() === REDUNDANT_TSHIRT_NODE);
+const redundantShirtMesh = redundantShirt?.getMesh();
+redundantShirt?.dispose();
+redundantShirtMesh?.dispose();
 
 // New gown mesh: copy the rebake gown's accessor data into fresh accessors in the shipped
 // doc (clones stay bound to the source graph and cannot cross documents), then swap

@@ -192,6 +192,11 @@
       {
         "name": "composeSupportedActorWorldPosition",
         "kind": "runtime"
+      },
+      {
+        "name": "resolveActorPosture",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
