@@ -52,7 +52,7 @@ const PHYSICIAN = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician
 /** Classes E1 recorded in the licence ledger. `evening_dress` is deliberately absent. */
 const GOWN_CLASSES = ["gown", "labcoat"] as const;
 
-type GarmentProvenance = { sourceMhclo?: string; garmentClass?: string; licence?: string };
+type GarmentProvenance = { sourceMhclo?: string; sourceRecipe?: string; garmentClass?: string; licence?: string };
 
 async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; prov: GarmentProvenance }>> {
   const { NodeIO } = await import("@gltf-transform/core");
@@ -68,13 +68,16 @@ async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; pro
 }
 
 describe("the patient gown is a gown-class asset", () => {
-  it("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
+  it("(1) RED: every garment mesh records the .mhclo or first-party recipe it was fitted from", async () => {
     // Today: asset.extras is NONE and no mesh carries extras. Without this, clause (2) has nothing
     // to read and the material name is the only signal — which is the defect.
     const rows = await garmentProvenance(GOWN);
     expect(rows.length, "the gown patient must carry garment meshes").toBeGreaterThan(0);
     for (const r of rows) {
-      expect(r.prov.sourceMhclo, `${r.mesh} records no source .mhclo`).toBeTruthy();
+      expect(
+        r.prov.sourceMhclo ?? r.prov.sourceRecipe,
+        `${r.mesh} records neither a source .mhclo nor a first-party source recipe`,
+      ).toBeTruthy();
       expect(r.prov.licence, `${r.mesh} records no licence`).toBeTruthy();
     }
   });

@@ -41,6 +41,7 @@ import {
 } from "./hob-extremity-flex.js";
 import { flexSupineHeadOntoPillow } from "./hob-head-flex.js";
 import { type ApplySupinePoseResult, applySupinePose } from "./supine-pose.js";
+import { makeSupineSupportPlanes, settleSupineSupportRegions } from "./supine-support-contact.js";
 
 export type PlantStepMetrics = {
   step: string;
@@ -491,14 +492,12 @@ export function applyAndPlantSupineOnDeck(
 
     // #620: the inclined path closed SINKING (bounded seat lift) but never closed FLOAT — the
     // ED patient sat 0.221 m above the deck while penetration read 0 and every #150 clause
-    // passed. Lower the root with the same skinned instrument the contract grades. Target the
-    // deck top (rest clearance 0): the contract inspector reads ~29 mm ABOVE the register-time
-    // settle (measured #620), so a 0 target lands the contract reading ~mid-band, not at 0.05.
+    // passed. Lower the root with the same skinned instrument the contract grades. A zero target
+    // lands the contract reading near mid-band after the measured ~29 mm inspector offset (#620).
     settleSupineFloatOntoDeck(humanoidRoot, input.deckTopWorldY, 0.0);
     recordPlantStep(humanoidRoot, "skinned_float_settle", incline, input.stretcher, input.deckTopWorldY);
 
-    // #181: the inclined body is a rigid plank (MPFB rail skips the joint eulers) — the head ends
-    // ~0.3 m above the pillow with the seat already planted. Close the residual with distributed
+    // #181: the rigid inclined body leaves the head ~0.3 m above the pillow; close the residual with distributed
     // upper-spine/neck flex; the root stays put so the seat plant above survives.
     if (input.stretcher) {
       const flexPillow = readStretcherPillowWorld(input.stretcher);
@@ -513,12 +512,13 @@ export function applyAndPlantSupineOnDeck(
     plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "all_torso" });
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
     lowerSupineBodyOntoDeck(humanoidRoot, input.deckTopWorldY, 0.02);
+    settleSupineSupportRegions(humanoidRoot, makeSupineSupportPlanes(input.stretcher, input.deckTopWorldY), 0.025);
+    raiseSupineFeetOntoSeat(humanoidRoot, input.deckTopWorldY);
     recordPlantStep(humanoidRoot, "final_flat", incline, input.stretcher, input.deckTopWorldY);
   }
-  // #621: rails that SKIPPED the 17 joint eulers (MPFB2, #496) keep their bind arms — measured
-  // 0.748 m above the deck, 2.1× the #153 bound. Close it with the closed-loop arm sweep; the
-  // eulers rail already poses the arms, so skip there (bonesTouched > 0). Runs after every plant
-  // step so the wrist residual is closed against the settled deck, and the root stays put.
+  // #621: rails that SKIPPED the 17 joint eulers (MPFB2, #496) leave bind arms 0.748 m above the deck.
+  // eulers rail already poses the arms, so skip there (bonesTouched > 0). Run after every plant
+  // so the wrist residual closes against the settled deck without moving the root.
   if (poseResult.bonesTouched.length === 0) {
     const armFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY);
     humanoidRoot.userData.openClinXrSupineArmFlex = armFlex;

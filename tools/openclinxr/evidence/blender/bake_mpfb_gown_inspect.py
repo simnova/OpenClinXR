@@ -43,7 +43,10 @@ _ANNY_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/anny"
 if str(_ANNY_DIR) not in sys.path:
     sys.path.insert(0, str(_ANNY_DIR))
 
-from automate_blender import apply_role_clothing_material_regions  # noqa: E402
+from automate_blender import (  # noqa: E402
+    _transfer_body_weights_to_garment,
+    apply_role_clothing_material_regions,
+)
 
 GEN = REPO_ROOT / "apps/ui-xr/public/generated-humanoids"
 
@@ -163,6 +166,112 @@ def _new_objects_after(before_names):
     return [o for o in bpy.context.scene.objects if o.name not in before_names]
 
 
+def _replace_with_clean_clinical_gown(garment, body_copy, armature):
+    """Replace the damaged subdivided body shell with a small, regular clinical-gown cage.
+
+    The prior surface-derived mesh repeatedly subdivided glTF seam-split triangles, producing the
+    visible shard field even when its decorative fold displacement was disabled. This topology is
+    authored from regular cross-section rings, then receives weights from the same fitted patient
+    body. It deliberately keeps the existing first-party material and avoids external garment bytes.
+    """
+    source_materials = list(garment.data.materials)
+    body_vertices = [v.co.copy() for v in body_copy.data.vertices]
+
+    def section(y, fallback_x, fallback_z):
+        band = [p for p in body_vertices if abs(float(p.y) - y) <= 0.055 and abs(float(p.x)) <= 0.43]
+        if not band:
+            return fallback_x, fallback_z
+        measured_x = max(abs(float(p.x)) for p in band) + 0.035
+        measured_z = max(abs(float(p.z)) for p in band) + 0.035
+        return (
+            max(fallback_x, min(fallback_x + 0.015, measured_x)),
+            max(fallback_z, min(fallback_z + 0.015, measured_z)),
+        )
+
+    ring_anchors = [
+        (0.56, 0.29, 0.18),
+        (0.70, 0.29, 0.18),
+        (0.88, 0.28, 0.18),
+        (1.05, 0.26, 0.17),
+        (1.22, 0.27, 0.18),
+        (1.38, 0.29, 0.18),
+        (1.49, 0.14, 0.11),
+    ]
+    # Twenty-five millimetre vertical sampling and 64 angular samples keep the silhouette smooth
+    # and make every below-hip band a real closed loop rather than a sparsely sampled polygon.
+    ring_spec = []
+    ring_y = ring_anchors[0][0]
+    while ring_y <= ring_anchors[-1][0] + 1e-6:
+        upper = next((row for row in ring_anchors if row[0] >= ring_y), ring_anchors[-1])
+        upper_index = ring_anchors.index(upper)
+        lower = ring_anchors[max(0, upper_index - 1)]
+        span = max(1e-6, upper[0] - lower[0])
+        t = min(1.0, max(0.0, (ring_y - lower[0]) / span))
+        ring_spec.append((
+            ring_y,
+            lower[1] + (upper[1] - lower[1]) * t,
+            lower[2] + (upper[2] - lower[2]) * t,
+        ))
+        ring_y += 0.025
+    segments = 82
+    verts = []
+    faces = []
+    rings = []
+    for y, fallback_x, fallback_z in ring_spec:
+        rx, rz = section(y, fallback_x, fallback_z)
+        ring = []
+        for i in range(segments):
+            angle = 2.0 * math.pi * i / segments
+            ring.append(len(verts))
+            verts.append((rx * math.cos(angle), y, rz * math.sin(angle)))
+        rings.append(ring)
+    for a, b in zip(rings, rings[1:]):
+        for i in range(segments):
+            j = (i + 1) % segments
+            faces.append((a[i], a[j], b[j], b[i]))
+
+    # Short exam sleeves in the bind T pose. They overlap the shoulder ring so the rendered shell
+    # is continuous; weight transfer binds them to the nearest upper-arm surface.
+    for side in (-1.0, 1.0):
+        sleeve_rings = []
+        for step, x_abs in enumerate((0.22, 0.255, 0.29, 0.325, 0.36, 0.395)):
+            radius_y = 0.082 - step * 0.003
+            radius_z = 0.082 - step * 0.003
+            ring = []
+            for i in range(24):
+                angle = 2.0 * math.pi * i / 24
+                ring.append(len(verts))
+                verts.append((side * x_abs, 1.34 + radius_y * math.cos(angle), radius_z * math.sin(angle)))
+            sleeve_rings.append(ring)
+        for a, b in zip(sleeve_rings, sleeve_rings[1:]):
+            for i in range(24):
+                j = (i + 1) % 24
+                # Reverse the left sleeve so both components face outward.
+                face = (a[i], a[j], b[j], b[i])
+                faces.append(tuple(reversed(face)) if side < 0 else face)
+
+    mesh = bpy.data.meshes.new("openclinxr_real_garment_hospital_gown_mesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update(calc_edges=True)
+    mesh["sourceRecipe"] = "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py#regular-clinical-gown-cage"
+    mesh["garmentClass"] = "gown"
+    mesh["licence"] = "first-party OpenClinXR procedural geometry"
+    for material in source_materials:
+        mesh.materials.append(material)
+    old_mesh = garment.data
+    garment.data = mesh
+    garment.name = "openclinxr_real_garment_from_phenotype_hospital_gown"
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    _transfer_body_weights_to_garment(garment, body_copy, armature)
+    if old_mesh.users == 0:
+        bpy.data.meshes.remove(old_mesh)
+    print(
+        f"CLEAN_CLINICAL_GOWN verts={len(mesh.vertices)} faces={len(mesh.polygons)} "
+        f"rings={len(rings)} sleeves=2"
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="#480 bake MPFB gown inspect GLB")
     ap.add_argument("--input-glb", default=str(GEN / "mpfb-viseme-inspect.glb"))
@@ -226,6 +335,11 @@ def main() -> None:
         "lowerFaceCount", "armFaceCount", "skippedTorsoPaintBecauseRealGarment",
     ) if k in result}, default=str))
 
+    for obj in _new_objects_after(before):
+        if obj.type == "MESH" and "real_garment_from_phenotype_hospital_gown" in obj.name:
+            _replace_with_clean_clinical_gown(obj, body_copy, armature)
+            break
+
     created = _new_objects_after(before)
     print(f"CREATED_OBJECTS {[o.name for o in created]}")
 
@@ -275,6 +389,7 @@ def main() -> None:
         export_morph=True,
         export_texcoords=True,
         export_normals=True,
+        export_extras=True,
     )
     print(f"EXPORTED {out} {out.stat().st_size} bytes")
 

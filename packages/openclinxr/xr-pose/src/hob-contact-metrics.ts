@@ -8,6 +8,7 @@
 
 import { Box3, type Object3D, Vector3 } from "three";
 import { STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
+import { makeSupineSupportPlanes, measureSupineSupportRegions } from "./supine-support-contact.js";
 
 /**
  * Signed gap: body back surface vs back-section top plane.
@@ -15,49 +16,12 @@ import { STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
  * Instrument matches #159 land (4e5d520) — bind verts × matrixWorld with skeleton update.
  */
 export function measureBackToDeckGap(humanoid: Object3D, stretcher: Object3D): number {
-  stretcher.updateMatrixWorld(true);
-  humanoid.updateMatrixWorld(true);
-
-  const { origin, normal } = readBackSectionPlane(stretcher);
-
-  let minSigned: number | null = null;
-  humanoid.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      geometry?: {
-        attributes?: {
-          position?: {
-            count: number;
-            getX: (i: number) => number;
-            getY: (i: number) => number;
-            getZ: (i: number) => number;
-          };
-        };
-      };
-      matrixWorld?: { elements: number[] };
-      skeleton?: { update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.geometry?.attributes?.position) return;
-    skinned.skeleton?.update?.();
-    const pos = skinned.geometry.attributes.position;
-    const e = skinned.matrixWorld?.elements;
-    if (!e) return;
-    const stride = Math.max(1, Math.floor(pos.count / 2500));
-    for (let i = 0; i < pos.count; i += stride) {
-      const vx = pos.getX(i);
-      const vy = pos.getY(i);
-      const vz = pos.getZ(i);
-      const w = 1 / (e[3] * vx + e[7] * vy + e[11] * vz + e[15] || 1);
-      const wx = (e[0] * vx + e[4] * vy + e[8] * vz + e[12]) * w;
-      const wy = (e[1] * vx + e[5] * vy + e[9] * vz + e[13]) * w;
-      const wz = (e[2] * vx + e[6] * vy + e[10] * vz + e[14]) * w;
-      if (wx > 0.15) continue;
-      if (Math.abs(wz) > 0.35) continue;
-      const signed = normal.dot(new Vector3(wx - origin.x, wy - origin.y, wz - origin.z));
-      if (minSigned === null || signed < minSigned) minSigned = signed;
-    }
-  });
-  return minSigned ?? 0;
+  const planes = makeSupineSupportPlanes(stretcher, STRETCHER_DECK_TOP_METERS);
+  const regions = measureSupineSupportRegions(humanoid, planes);
+  const torso = [regions.lumbar, regions.thorax]
+    .filter((row) => row.samples >= 8 && row.contactGapMeters !== null)
+    .map((row) => row.contactGapMeters!);
+  return torso.length > 0 ? Math.max(...torso) : 0;
 }
 
 export function measurePelvisOnSeat(humanoid: Object3D, seatTopY: number): boolean {
