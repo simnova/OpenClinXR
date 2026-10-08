@@ -1,0 +1,23 @@
+{
+  "schema": "openclinxr.skin-rebake-judgment.v1",
+  "metric": "mse_luma (mean squared error of 8-bit luma, 0-65025) and mad_rgb (mean absolute per-channel difference, 0-255), computed per view between the baseline and rebaked Cycles renders",
+  "scores": {
+    "front_mse_luma": 16.9906,
+    "back_mse_luma": 11.9071,
+    "front_mad_rgb": 0.5778,
+    "back_mad_rgb": 0.472
+  },
+  "realism_delta": "no measured delta",
+  "visibility": {
+    "baseline_front_fg_fraction": 0.0972,
+    "baseline_back_fg_fraction": 0.1012,
+    "rebaked_front_fg_fraction": 0.0975,
+    "rebaked_back_fg_fraction": 0.1014
+  },
+  "method": "Cycles CPU 64spp front+back of mpfb-peds-parent-aisha.glb (hair hidden); rebake assigns keeper top-left quadrant albedo to mpfb_skin_parent_tara_johnson_v1 base color. Pixel difference confirms the albedo swap reached the renders; realism ordering needs visual-realism-adversary blind A-B grade.",
+  "command": "python3 tools/openclinxr/evidence/blender/skin_llm_sheet_rebake_probe_composite.py",
+  "renders": {
+    "baseline": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-tpose-front-back-baseline.png",
+    "rebaked": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-tpose-front-back-rebaked.png"
+  }
+}
