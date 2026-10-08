@@ -277,29 +277,9 @@
       "card": "unfiled: re-establish plant/materializer byte-exactness for the RLQ node count"
     },
     {
-      "path": "apps/ui-admin/src/app.test.tsx",
-      "reason": "Fails 13/13 when run from the repo root (test:touched, root vitest config) and passes 13/13 from apps/ui-admin. Measured on main 4773a5bda (2026-10-08): `npx vitest run apps/api/src/app.test.ts apps/ui-admin/src/app.test.tsx` at the root gives 14 failed / 89 passed with or without the shrink-a change. Root-runner environment mismatch, not a product failure.",
-      "card": "unfiled: make test:touched run app tests under their own package config"
-    },
-    {
-      "path": "apps/api/src/app.test.ts",
-      "reason": "1 of 90 fails from the repo root ('accepts scaffold capture candidates...': selectedScenarioId ed_chest_pain_priority_v1 vs peds_asthma_parent_anxiety_v1) and 90/90 pass from apps/api. Measured on main 4773a5bda (2026-10-08) with or without the shrink-a change. Root-runner environment mismatch.",
-      "card": "unfiled: make test:touched run app tests under their own package config"
-    },
-    {
       "path": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
       "reason": "1 of 29 fails on main 4773a5bda (2026-10-08) and earlier on 3bbfe0711 without the shrink-a change: 'replays scenario review decisions after API app recreation' gets GraphQL errors instead of data, the same review-gate authoredContentIdentity refusal recorded for the review-route evidence probes.",
       "card": "unfiled: supply authoredContentIdentity evidence in the review-route probes, or record why the gate refuses them"
-    },
-    {
-      "path": "apps/ui-admin/src/the-faculty-compile-this-encounter-runs-the-world-compile.test.tsx",
-      "reason": "Fails under the repo-root runner (test:touched) with 'ReferenceError: window is not defined' because the root config has no jsdom environment; passes 3/3 from apps/ui-admin. Measured 2026-10-08 on the shrink-a tree; environment mismatch, not a product failure.",
-      "card": "unfiled: make test:touched run app tests under their own package config"
-    },
-    {
-      "path": "packages/openclinxr-verification/architecture-rules/src/archunit-tests/workspace-architecture.test.ts",
-      "reason": "Fails to load under the repo-root runner (test:touched) with 'ArchUnitTS Vitest Integration Error: expect is not defined globally' because the root config does not enable vitest globals; the same file passes inside pnpm -s architecture (290/290 on the shrink-a tree, 2026-10-08). Environment mismatch.",
-      "card": "unfiled: make test:touched run app tests under their own package config"
     }
   ]
 }

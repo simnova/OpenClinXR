@@ -15,7 +15,11 @@
  * (`vitest.config.ts`); files under a workspace package run under that
  * package's own config via `pnpm --filter <name> exec vitest related`,
  * because per-package aliases/setup live in the package config and the
- * root config cannot provide them.
+ * root config cannot provide them. Files under `src/archunit-tests/` in a
+ * package that carries `vitest.arch.config.ts` run under that config instead:
+ * the default package config excludes `src/archunit-tests/**`, so without the
+ * override the filter would match no files and `--passWithNoTests` would
+ * silently skip the gate.
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -48,7 +52,7 @@ export function touchedSourceFiles(): string[] {
 
 export type TestPlan =
   | { kind: "none" }
-  | { kind: "run"; rootFiles: string[]; byPackage: Map<string, string[]> };
+  | { kind: "run"; rootFiles: string[]; byPackage: Map<string, { dir: string; files: string[] }> };
 
 function packageNameFor(dir: string): string | null {
   const pkgJson = join(REPO_ROOT, dir, "package.json");
@@ -68,7 +72,7 @@ function packageNameFor(dir: string): string | null {
  */
 export function planTests(files: string[]): TestPlan {
   const rootFiles: string[] = [];
-  const byPackage = new Map<string, string[]>();
+  const byPackage = new Map<string, { dir: string; files: string[] }>();
   for (const f of files) {
     const m = /^(packages\/.+?\/|apps\/.+?\/)/u.exec(f);
     if (m) {
@@ -82,9 +86,9 @@ export function planTests(files: string[]): TestPlan {
       const pkg = owner ? packageNameFor(owner) : null;
       if (owner && pkg) {
         const rel = relative(owner, f);
-        const group = byPackage.get(pkg) ?? [];
-        group.push(rel);
-        byPackage.set(pkg, group);
+        let group = byPackage.get(pkg);
+        if (!group) { group = { dir: owner, files: [] }; byPackage.set(pkg, group); }
+        group.files.push(rel);
         continue;
       }
     }
@@ -130,8 +134,26 @@ function main(): void {
   if (plan.rootFiles.length > 0) {
     code = run(["pnpm", "exec", "vitest", "related", "--run", "--passWithNoTests", ...redExcludes, ...plan.rootFiles]) || code;
   }
-  for (const [pkg, relFiles] of plan.byPackage) {
-    code = run(["pnpm", "--filter", pkg, "exec", "vitest", "related", "--run", "--passWithNoTests", ...relFiles]) || code;
+  for (const [pkg, group] of plan.byPackage) {
+    // Known-RED paths are repo-relative; only those under this owner apply here.
+    const redArgs = red
+      .filter((t) => t.path === group.dir || t.path.startsWith(`${group.dir}/`))
+      .flatMap((t) => ["--exclude", relative(group.dir, t.path)]);
+    const unitFiles = group.files.filter((f) => !f.startsWith("src/archunit-tests/"));
+    const archFiles = group.files.filter((f) => f.startsWith("src/archunit-tests/"));
+    if (unitFiles.length > 0) {
+      code = run(["pnpm", "--filter", pkg, "exec", "vitest", "related", "--run", "--passWithNoTests", ...redArgs, ...unitFiles]) || code;
+    }
+    if (archFiles.length > 0) {
+      // The default package config excludes src/archunit-tests/** (nodeConfig);
+      // those suites run under vitest.arch.config.ts (archConfig: globals, node
+      // env, include src/archunit-tests/**). Without this the filter matches no
+      // files and --passWithNoTests would silently skip the gate.
+      const archConfigArgs = existsSync(join(REPO_ROOT, group.dir, "vitest.arch.config.ts"))
+        ? ["--config", "vitest.arch.config.ts"]
+        : [];
+      code = run(["pnpm", "--filter", pkg, "exec", "vitest", ...archConfigArgs, "related", "--run", "--passWithNoTests", ...redArgs, ...archFiles]) || code;
+    }
   }
   console.log(`test:touched: ${files.length} touched file(s) in ${((Date.now() - start) / 1000).toFixed(1)}s`);
   process.exit(code);
