@@ -17,6 +17,11 @@
  * claimScope: simulated_actor_behavior.
  * notEvidenceFor: Quest readiness, live speech provider, clinical affect.
  */
+import {
+  fillInterCueGaps,
+  gapAudioForFill,
+  resampleToAnalysisRate,
+} from "./live-stt-audio-condition.js";
 
 // ── V1 provenance ──────────────────────────────────────────────────────────
 // Everything between the V-markers below is ported from
@@ -45,7 +50,7 @@ export function stressless(phone: string): string {
   return phone.trim().toUpperCase().replace(/[0-2]$/u, "");
 }
 
-const BILABIAL = new Set(["P", "B", "M"]);
+export const BILABIAL = new Set(["P", "B", "M"]);
 const LABIODENTAL = new Set(["F", "V"]);
 
 export type ClosureSpan = {
@@ -66,6 +71,12 @@ export type PlanOpts = {
   /** Within-word split: "even" subdivides uniformly; "duration" weights by
    * fixed per-phone relative durations (PHONE_WEIGHT, published norms). */
   split?: SplitMode;
+  /** Raw audio for the inter-cue gap fill. When supplied, a gap with no
+   * sub-threshold frame is continuous speech (frication tail + next onset),
+   * not a pause, and splits at the midpoint however long it is. The fill
+   * resamples to the fixed analysis rate before framing, so the decision is
+   * decode-rate independent. */
+  audio?: { samples: Float32Array; sampleRate: number } | null;
 };
 
 export type SplitMode = "even" | "duration";
@@ -238,32 +249,11 @@ function normWord(w: string): string {
   return w.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gu, "");
 }
 
-// ── Inter-cue gap fill (operator 2026-10-08; module-internal, no new export) ──
-// Gaps between cues play as a sil/rest frame (live-grok/pain pops at the
-// 40/16/52 ms gaps; MFA capture of the same audio: none). (1) A gap before
-// a bilabial (P/B/M, incl. the emitted closure P) becomes closure: a P cue
-// spanning the gap (anchor closures start at the audio quiet point, leaving
-// the leading slice uncovered — the popped frames). (2) Any other gap
-// strictly shorter than GAP_FILL_THRESHOLD_S splits at the midpoint
-// (neighbours hold, smoothstep blends); longer gaps stay sil (pauses).
-// Threshold: shortest interior SIL in the MFA refs of the 14 cached clips
-// (mfa-cues.json): 0.030 s (pangram, clin-02, clin-03). Edge sil kept.
-const GAP_FILL_THRESHOLD_S = 0.03;
-function fillInterCueGaps(plan: PlannedPhone[]): PlannedPhone[] {
-  const sorted = [...plan].sort((a, b) => a.startS - b.startS || a.wordIndex - b.wordIndex);
-  const out: PlannedPhone[] = [];
-  for (let i = 0; i < sorted.length; i += 1) {
-    const cur = { ...(sorted[i]!) };
-    const next = sorted[i + 1];
-    const gap = next === undefined ? 0 : next.startS - cur.endS;
-    if (next === undefined || !(gap > 1e-9)) { out.push(cur); continue; }
-    if (BILABIAL.has(stressless(next.phone))) out.push(cur, { word: next.word, wordIndex: next.wordIndex, phone: "P", startS: cur.endS, endS: next.startS });
-    else if (gap < GAP_FILL_THRESHOLD_S - 1e-9) { const mid = cur.endS + gap / 2; out.push({ ...cur, endS: mid }); sorted[i + 1] = { ...next, startS: mid }; }
-    else out.push(cur);
-  }
-  return out;
-}
+// ── Inter-cue gap fill lives in live-stt-audio-condition.ts (split out at
+// the 500-line zone budget; same rules: bilabial closure, <0.030 s midpoint
+// split, loud gaps split however long). ────────────────────────────────
 // ── V2 end ─────────────────────────────────────────────────────────────────
+
 // ── V3: phone-plan builder (verbatim from measure.ts at 57ca31545) ─────────
 
 /**
@@ -335,7 +325,7 @@ export function buildPhonePlan(
     plan.push({ word: ref, wordIndex: c.wordIndex, phone: "P", startS: c.startS, endS: c.endS });
   }
   plan.sort((a, b) => a.startS - b.startS || a.wordIndex - b.wordIndex);
-  const filled = fillInterCueGaps(plan);
+  const filled = fillInterCueGaps(plan, gapAudioForFill(opts?.audio ?? null));
   return { plan: filled, mismatches, oovWords };
 }
 // ── V3 end ─────────────────────────────────────────────────────────────────
@@ -353,7 +343,7 @@ export function buildPhonePlan(
 // (>= -29 dB); it is chosen from the audio alone, not fitted to MFA.
 
 export const ANCHOR_THRESHOLD_DB = -40;
-const ANCHOR_FRAME_S = 0.01;
+export const ANCHOR_FRAME_S = 0.01;
 
 export type LiveAnchors = {
   thresholdDb: number;
@@ -369,7 +359,7 @@ function round3(value: number): number {
 }
 
 /** Per-10-ms peak dBFS plus zero-crossing rate over mono float samples. */
-function frameStats(samples: Float32Array, sampleRate: number): { db: number[]; zcr: number[] } {
+export function frameStats(samples: Float32Array, sampleRate: number): { db: number[]; zcr: number[] } {
   const per = Math.max(1, Math.round(sampleRate * ANCHOR_FRAME_S));
   const db: number[] = [];
   const zcr: number[] = [];
@@ -412,8 +402,9 @@ export function deriveLiveAnchors(
   referenceWords: string[],
   pronunciations: Readonly<Record<string, string[]>>,
 ): LiveAnchors {
-  const frameS = Math.max(1, Math.round(sampleRate * ANCHOR_FRAME_S)) / sampleRate;
-  const { db: dbs, zcr } = frameStats(samples, sampleRate);
+  const analysis = resampleToAnalysisRate(samples, sampleRate);
+  const frameS = Math.max(1, Math.round(analysis.sampleRate * ANCHOR_FRAME_S)) / analysis.sampleRate;
+  const { db: dbs, zcr } = frameStats(analysis.samples, analysis.sampleRate);
   let onsetIdx = dbs.findIndex((v) => v >= ANCHOR_THRESHOLD_DB);
   if (onsetIdx < 0) onsetIdx = 0;
   const energyOnsetS = round3(onsetIdx * frameS);
@@ -487,6 +478,7 @@ export function bakeLiveSttCueTrack(input: LiveSttBakeInput): LiveSttBakeResult 
     firstWordStartS: anchors.firstWordStartS,
     wordStarts: anchors.snappedStarts,
     split: "duration",
+    audio: { samples: input.samples, sampleRate: input.sampleRate },
   });
   return {
     cues: plan.map((p) => ({ startS: p.startS, endS: p.endS, phone: p.phone })),
