@@ -1711,6 +1711,10 @@
       {
         "name": "sleeveDeformCueForAssetPath",
         "kind": "runtime"
+      },
+      {
+        "name": "installStationLayoutView",
+        "kind": "runtime"
       }
     ]
   },

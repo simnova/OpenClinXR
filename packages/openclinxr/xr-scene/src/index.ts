@@ -82,3 +82,6 @@ export {
 export {
   createVirtualDeviceActorAffordance,
 } from "./virtual-device-actor.js";
+export {
+  installStationLayoutView,
+} from "./station-layout-view.js";

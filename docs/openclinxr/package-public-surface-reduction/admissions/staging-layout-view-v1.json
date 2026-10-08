@@ -1,0 +1,43 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "staging-layout-view-v1",
+  "reviewedBy": "staging-solver land session 01a10abb; the room capture binds authoredStagingCameraForScenario and ui-xr binds installStationLayoutView",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "8ee70d8d9427826f57e075f97b56c934ae5d955ebd95ac6bd16cf4c440f0f3e8",
+  "packages": [
+    "packages/openclinxr/scenario-fixtures",
+    "packages/openclinxr/xr-scene"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "AuthoredStagingCamera",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "station layout capture",
+      "rationale": "the room capture reads the solved desktop opening camera through this type.",
+      "reviewedBy": "staging-solver land session 01a10abb; the room capture binds authoredStagingCameraForScenario and ui-xr binds installStationLayoutView"
+    },
+    {
+      "package": "packages/openclinxr/scenario-fixtures",
+      "entrypoint": ".",
+      "symbol": "authoredStagingCameraForScenario",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "station layout capture",
+      "rationale": "the room capture imports it from @openclinxr/scenario-fixtures.",
+      "reviewedBy": "staging-solver land session 01a10abb; the room capture binds authoredStagingCameraForScenario and ui-xr binds installStationLayoutView"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "installStationLayoutView",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "station layout capture",
+      "rationale": "apps/ui-xr/src/main.ts binds it to publish the overhead and isometric layout cameras.",
+      "reviewedBy": "staging-solver land session 01a10abb; the room capture binds authoredStagingCameraForScenario and ui-xr binds installStationLayoutView"
+    }
+  ]
+}

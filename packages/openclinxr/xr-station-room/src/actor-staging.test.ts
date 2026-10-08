@@ -180,6 +180,20 @@ describe("stageStationActors", () => {
     }
   });
 
+  it("gives clinical framing the authored standing placement before it can choose a fallback", () => {
+    const seen: Record<string, unknown> = {};
+    stageStationActors(buildCtx({
+      applyActorFraming: (actor, actorId) => {
+        if (actorId === SLOT_ACTORS.clinical_team) {
+          seen.posture = actor.userData["openClinXrActorPosture"];
+          seen.intent = actor.userData["openClinXrPreserveResolvedPlacement"];
+          seen.slot = actor.userData["openClinXrSlotKind"];
+        }
+      },
+    }), new Scene());
+    expect(seen).toEqual({ posture: "standing", intent: false, slot: "clinical_team" });
+  });
+
   it("publishes every staged actor slot before an asynchronous humanoid load can finish", () => {
     const scene = new Scene();
     const ctx = buildCtx({

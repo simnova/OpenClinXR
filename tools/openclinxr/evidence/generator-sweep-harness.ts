@@ -674,6 +674,7 @@ async function loadGltfEquipmentGroup(equipmentId: string, gltfFileName: string)
   }
   const buf = readFileSync(abs);
   const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  Reflect.set(globalThis, "self", (globalThis as Record<string, unknown>).self ?? globalThis);
   const loader = new GLTFLoader();
   const gltf = await new Promise<{ scene: Object3D }>((resolve, reject) => {
     loader.parse(

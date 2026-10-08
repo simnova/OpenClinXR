@@ -15,6 +15,12 @@ export {
   PEDS_ASTHMA_SCENARIO_ID,
   resolveAuthoredUtteranceRecord,
 } from "./authored-utterance-record-mod.js";
+export type {
+  AuthoredStagingCamera,
+} from "./staging-solver-authored.js";
+export {
+  authoredStagingCameraForScenario,
+} from "./staging-solver-authored.js";
 export {
   clinicKneePainScenario,
 } from "./clinic-knee-pain.js";

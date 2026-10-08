@@ -1,0 +1,23 @@
+{
+  "id": "psr-c6-staging-layout-view",
+  "reviewedBy": "staging-solver land session 01a10abb measured the live tree after admitting AuthoredStagingCamera, authoredStagingCameraForScenario, and installStationLayoutView",
+  "requestedExports": [],
+  "exceptions": [
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1251,
+      "threshold": 1000,
+      "owner": "station layout capture",
+      "reviewedBy": "staging-solver land session 01a10abb measured the live tree after admitting AuthoredStagingCamera, authoredStagingCameraForScenario, and installStationLayoutView",
+      "reason": "this merge adds those three root names on top of origin/main 74b57e39e, whose xr-actor-dialogue shrink measured 1248 and median 20. Live root exports are 1251 against target 1000. Live median is 20.5 against target 15. p90 41 and maxRoot 119 stay covered by the existing mouth and residual exceptions. Thresholds stay the review targets."
+    },
+    {
+      "target": "medianAtMost",
+      "measured": 20.5,
+      "threshold": 15,
+      "owner": "station layout capture",
+      "reviewedBy": "staging-solver land session 01a10abb measured the live tree after admitting AuthoredStagingCamera, authoredStagingCameraForScenario, and installStationLayoutView",
+      "reason": "this merge adds those three root names on top of origin/main 74b57e39e, whose xr-actor-dialogue shrink measured 1248 and median 20. Live root exports are 1251 against target 1000. Live median is 20.5 against target 15. p90 41 and maxRoot 119 stay covered by the existing mouth and residual exceptions. Thresholds stay the review targets."
+    }
+  ]
+}

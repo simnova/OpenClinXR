@@ -25,6 +25,7 @@
       "deriveHeadBoxFromPoints",
       "deriveInteriorPreviewCamera",
       "frameCamera",
+      "installStationLayoutView",
       "isFittedHairMeshName",
       "isGltfMissingAuthoredMaterial",
       "learnerExamResumeNextStation",

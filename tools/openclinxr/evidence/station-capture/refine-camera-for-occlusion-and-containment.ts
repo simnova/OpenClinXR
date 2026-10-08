@@ -1,9 +1,17 @@
 import type { Page } from "playwright";
-import { CAMERA_SCORE_IS_BETTER_BROWSER_SOURCE } from "./camera-candidate-scoring.js";
 import { ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE } from "./actor-visibility-page-probe.js";
+import { CAMERA_SCORE_IS_BETTER_BROWSER_SOURCE } from "./camera-candidate-scoring.js";
+import { type CameraSweepRequest, runCameraSweepInPage } from "./camera-sweep-search.js";
+import { PROJECT_BOX_BROWSER_FUNCTION_SOURCE } from "./gate-geometry.js";
 import { NEAR_OCCLUSION_BROWSER_FUNCTION_SOURCE } from "./near-occlusion-page-probe.js";
 
-export async function refineCameraForOcclusionAndContainment(page: Page): Promise<string> {
+export async function refineCameraForOcclusionAndContainment(
+  page: Page,
+  options?: { cameraSweep?: CameraSweepRequest },
+): Promise<string> {
+  if (options?.cameraSweep) {
+    return (await runCameraSweepInPage(page, options.cameraSweep)).note;
+  }
   const note = (await page.evaluate(`(() => {
     const scene = globalThis.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return "refine=no-scene";
@@ -237,43 +245,14 @@ export async function refineCameraForOcclusionAndContainment(page: Page): Promis
       }
       return out;
     };
-    const project = function (x, y, z) {
-      camera.updateMatrixWorld(true);
-      if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
-      const e = camera.matrixWorldInverse.elements;
-      const vx = e[0] * x + e[4] * y + e[8] * z + e[12];
-      const vy = e[1] * x + e[5] * y + e[9] * z + e[13];
-      const vz = e[2] * x + e[6] * y + e[10] * z + e[14];
-      const vw = e[3] * x + e[7] * y + e[11] * z + e[15];
-      const p = camera.projectionMatrix.elements;
-      const cx = p[0] * vx + p[4] * vy + p[8] * vz + p[12] * vw;
-      const cy = p[1] * vx + p[5] * vy + p[9] * vz + p[13] * vw;
-      const cz = p[2] * vx + p[6] * vy + p[10] * vz + p[14] * vw;
-      const cw = p[3] * vx + p[7] * vy + p[11] * vz + p[15] * vw;
-      if (cw > -1e-8 && cw < 1e-8) return null;
-      return { x: cx / cw, y: cy / cw, z: cz / cw };
-    };
+    const projectBox = (${PROJECT_BOX_BROWSER_FUNCTION_SOURCE});
     const measureActorVisibility = (${ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE});
     const EDGE = 0.80;
     const MIN_NDC_HEIGHT = 0.36;
     const boxNdc = function (box) {
-      const xs = [box.min[0], box.max[0]];
-      const ys = [box.min[1], box.max[1]];
-      const zs = [box.min[2], box.max[2]];
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      let ok = 0;
-      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
-        const ndc = project(xs[i], ys[j], zs[k]);
-        if (!ndc) continue;
-        if (ndc.z <= -1 || ndc.z >= 1) continue;
-        ok += 1;
-        if (ndc.x < minX) minX = ndc.x;
-        if (ndc.x > maxX) maxX = ndc.x;
-        if (ndc.y < minY) minY = ndc.y;
-        if (ndc.y > maxY) maxY = ndc.y;
-      }
-      if (ok < 4) return null;
-      return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+      camera.updateMatrixWorld(true);
+      if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
+      return projectBox(camera.matrixWorldInverse.elements, camera.projectionMatrix.elements, box);
     };
     let primary = standing[0];
     for (let i = 1; i < standing.length; i++) {

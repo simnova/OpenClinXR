@@ -40,6 +40,7 @@ import {primaryCareDyslipidemiaDialogueSeeds,
 import {psychiatricSafetyDialogueSeeds,
   psychiatricSafetyScenario, 
 } from "./psychiatric-safety.js";
+import { applyAuthoredStagingSolution } from "./staging-solver-authored.js";
 import {stepdownSepsisDialogueSeeds,
   stepdownSepsisScenario, 
 } from "./stepdown-sepsis.js";
@@ -56,7 +57,7 @@ import {wardDeliriumDialogueSeeds,
 export { responseClipForBodyRegion } from "./touch-response-clip.js";
 export type { LearnerScenarioView };
 
-export const scenarioBank = [
+const baseScenarioBank = [
   edChestPainScenario,
   pediatricAsthmaScenario,
   wardDeliriumScenario,
@@ -73,6 +74,8 @@ export const scenarioBank = [
   pedsFeverScenario,
   clinicKneePainScenario,
 ] as const satisfies readonly Scenario[];
+
+export const scenarioBank: readonly Scenario[] = baseScenarioBank.map(applyAuthoredStagingSolution);
 
 export function findScenarioFixtureById(
   scenarioId: string,
@@ -108,4 +111,3 @@ export const scenarioDialogueSeedBank = [
   { scenarioId: pedsFeverScenario.scenarioId, seeds: pedsFeverDialogueSeeds },
   { scenarioId: clinicKneePainScenario.scenarioId, seeds: clinicKneePainDialogueSeeds },
 ] as const satisfies readonly ScenarioDialogueSeedBankEntry[];
-

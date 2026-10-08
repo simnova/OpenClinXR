@@ -4,10 +4,12 @@
   "entrypoint": "packages/openclinxr/scenario-fixtures/src/index.ts",
   "purpose": "Public interface of @openclinxr/scenario-fixtures.",
   "exports": [
+    "AuthoredStagingCamera",
     "AuthoredUtteranceRecord",
     "DialogueFixtureSeed",
     "PEDS_ASTHMA_SCENARIO_ID",
     "affectForAuthoredRecord",
+    "authoredStagingCameraForScenario",
     "buildDynamicEncounterFactoryPlanningProjection",
     "buildDynamicEncounterFactoryProjectionArtifact",
     "buildScenarioBankExamSequenceProjection",
@@ -26,8 +28,10 @@
     "variantScenarioBank"
   ],
   "exportSummaries": {
+    "AuthoredStagingCamera": "Desktop opening camera for one solved station: eye, look-at point, and field of view.",
     "AuthoredUtteranceRecord": "One persisted Peds utterance record.",
     "affectForAuthoredRecord": "Authored affect wins; keyword/demeanor inference never overrides it.",
+    "authoredStagingCameraForScenario": "Returns the solved desktop opening camera for a scenario, when one was recorded.",
     "clinicKneePainScenario": "Sports-medicine clinic draft (notEvidenceFor clinical validity / scoring).",
     "pediatricAsthmaScenario": "Public entry: keep-only re-exports.",
     "scenarioBank": "Public entry: keep-only re-exports.",

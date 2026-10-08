@@ -486,6 +486,14 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "AuthoredStagingCamera",
+        "kind": "type"
+      },
+      {
+        "name": "authoredStagingCameraForScenario",
+        "kind": "runtime"
+      },
+      {
         "name": "buildDynamicEncounterFactoryPlanningProjection",
         "kind": "runtime",
         "via": "path-reach"

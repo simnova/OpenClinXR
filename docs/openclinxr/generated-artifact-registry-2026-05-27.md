@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1825
+- keep-evidence: 1836
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3828,6 +3828,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.
+- `docs/openclinxr/package-public-surface-reduction/admissions/staging-layout-view-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/startup-cast-v1.json` - keep-evidence; keep; Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast.
 - `docs/openclinxr/package-public-surface-reduction/admissions/teeth-viseme-consumers-v1.json` - keep-evidence; keep; This session re-admits the viseme symbols bound by couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts.
 - `docs/openclinxr/package-public-surface-reduction/admissions/viseme-motion-subpaths-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3858,10 +3859,11 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-slots.json` - keep-evidence; keep; Independently reviewed compute-slots public-surface measurements; preserves quantitative targets and historical exceptions.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-motion-admission-2026-09-16.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth-lane-2026-10-07.json` - keep-evidence; keep; Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-staging-layout-view.json` - keep-evidence; keep; Independently reviewed station-layout root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-actor-dialogue-shrink.json` - keep-evidence; keep; Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json` - keep-evidence; keep; Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json` - keep-evidence; keep; Independently reviewed mouth-station pilot public-surface exception (five station packages, exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json` - keep-evidence; keep; Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-room-chain-wiring.json` - keep-evidence; keep; Independently signed room-chain subpath public-surface candidate and updated exact measurements.
 - `docs/openclinxr/package-public-surface-reduction/raw-inventory.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
@@ -4895,6 +4897,12 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/staging-fix/after/stepdown_sepsis_nurse_escalation_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-fix/after/telehealth_diabetes_health_literacy_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-fix/after/ward_delirium_med_rec_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after-sheet.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/capture-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/peds_fever_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/results.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/third-party-asset-licence-ledger.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-materialization-gate-browser-smoke-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

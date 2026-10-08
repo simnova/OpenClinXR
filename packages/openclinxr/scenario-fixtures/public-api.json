@@ -1,10 +1,12 @@
 {
   "entrypoints": {
     ".": [
+      "AuthoredStagingCamera",
       "AuthoredUtteranceRecord",
       "DialogueFixtureSeed",
       "PEDS_ASTHMA_SCENARIO_ID",
       "affectForAuthoredRecord",
+      "authoredStagingCameraForScenario",
       "buildDynamicEncounterFactoryPlanningProjection",
       "buildDynamicEncounterFactoryProjectionArtifact",
       "buildScenarioBankExamSequenceProjection",

@@ -253,7 +253,7 @@ import {
   collectActorWorldBoxes,
   deriveInteriorPreviewCamera,
   resolveHumanoidVariantOrCastPath,
-  resolveLocalHumanoidRuntimeAssetUrl, sleeveDeformCueForAssetPath
+  resolveLocalHumanoidRuntimeAssetUrl, installStationLayoutView, sleeveDeformCueForAssetPath
 } from "@openclinxr/xr-scene";
 import {
   addPediatricRespiratoryEquipmentCues as addPackagePediatricRespiratoryEquipmentCues,
@@ -2886,7 +2886,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const selectedScenarioRuntimeMismatch = isSelectedScenarioRuntimeBundleMismatch();
   reportRuntimeBundleScenarioMatch();
   const _selectedStationContext = stationContextForSelectedScenario();
-  const camera = new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100);
+  const camera = installStationLayoutView(scene, canvas, new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100));
   // #342b — only the product's own wide default framing is re-derived for a closed generated
   // room. The capture framings below are authored for a specific subject (a face, one actor)
   // and their harnesses do their own reframing; replacing them with a far-wall vantage would
@@ -3529,7 +3529,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule moved
     // with it to @openclinxr/xr-runtime-state, unchanged.
     applyStationIdleSway({ patient, nurse, nowMs: now });
-    renderer.render(scene, camera);
+    renderer.render(scene, window.__openClinXrDebugHoldCamera ?? camera);
   }
 
   function buildRuntimeInteractionEvidenceSnapshot(input: {

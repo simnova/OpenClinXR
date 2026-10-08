@@ -258,15 +258,18 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     nurse.visible = false;
   }
   nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
+  // Framing must see both values.  Without these stamps it sees an empty posture
+  // and no authored-intent marker, then replaces the authored bedside root with
+  // the visual-review fallback (0.64, 0, 0.3) before heading consumption runs.
+  nurse.userData.openClinXrSlotKind = "clinical_team";
+  nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
+  nurse.userData.openClinXrActorId = clinicalActorId;
   stampAuthoredFramingIntent(nurse, nursePlacement);
   if (clinicalActorId) ctx.applyActorFraming(nurse, clinicalActorId);
   if (clinicalActorId) {
     nurse.add(ctx.createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, clinicalActorId), 0x2f65a7));
   }
   scene.add(nurse);
-  nurse.userData.openClinXrSlotKind = "clinical_team";
-  nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
-  nurse.userData.openClinXrActorId = clinicalActorId;
   stampSupportAcceptance(nurse, nursePlacement);
   consumeAuthoredHeading(nurse, nursePlacement, clinicalActorId);
   if (clinicalActorId) {

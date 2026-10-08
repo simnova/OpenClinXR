@@ -379,7 +379,13 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1a2a32,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
+    fixtureSlots: [
+      OFFSET_STRETCHER,
+      FAMILY_CHAIR,
+      DOOR_LEAF,
+      WALL_BOARD,
+      LEARNER_START,
+    ],
   }),
   pediatric_urgent_care_bay_v1: shell({
     environmentId: "pediatric_urgent_care_bay_v1",

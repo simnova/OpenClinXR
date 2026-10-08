@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
+  "kind": "ui_xr_environment_room_capture",
+  "generatedAt": "2026-10-07T19:40:45.730Z",
+  "captureMode": "scene-overview",
+  "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
+  "claimScope": [
+    "parametric_station_shell_rendered_in_ui_xr",
+    "live_shell_facts_read_from_running_page"
+  ],
+  "notEvidenceFor": [
+    "clinical_room_realism",
+    "quest_readiness",
+    "kit_bashed_or_generated_room_assets",
+    "exam_equivalence"
+  ],
+  "entries": [
+    {
+      "scenarioId": "peds_fever_v1",
+      "imagePath": "peds_fever_v1-room.png",
+      "liveShell": {
+        "infinigenRoom": {
+          "present": true,
+          "effectivelyVisible": true,
+          "meshCount": 129,
+          "interiorSizeMeters": [
+            6.71999979019165,
+            2.697044947207459,
+            7.039946556091309
+          ],
+          "interiorMin": [
+            -3.359999895095825,
+            -0.04699999839067459,
+            -4.044973278045655
+          ],
+          "interiorMax": [
+            3.359999895095825,
+            2.6500449488167845,
+            2.994973278045654
+          ],
+          "floorTopY": 0,
+          "cameraInsideRoom": true,
+          "cameraWorldPosition": [
+            -1.8040955270258818,
+            2.16,
+            -3.2625573397227896
+          ],
+          "proceduralShellMeshesStillVisible": []
+        },
+        "environmentId": "pediatric_fever_urgent_care_bay_v1",
+        "floorColor": 6321018,
+        "roomDepthMeters": 2.95,
+        "roomWidthMeters": 5.4,
+        "roomHeightMeters": 2.5,
+        "shellVisible": true,
+        "floorVisible": false,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "authored_staging_solver_v1 authoredCamera=-1.8040955270258818,2.16,-3.2625573397227896 look=-2.6316241805849443,0.8280269730688734,-0.6466395579188611 fov=90",
+        "cameraEye": [
+          -1.8040955270258818,
+          2.16,
+          -3.2625573397227896
+        ],
+        "cameraLook": [
+          -2.6316241805849443,
+          0.8280269730688734,
+          -0.6466395579188611
+        ],
+        "refineTag": "authored:staging-solver-v1",
+        "actorContainment": {
+          "contained": 2,
+          "total": 3
+        },
+        "actorVisibility": [
+          {
+            "actorId": "patient_noah_chen_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 4,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              }
+            ]
+          },
+          {
+            "actorId": "nurse_aisha_brooks_v1",
+            "crownVisible": true,
+            "chestVisible": true,
+            "visibleSampleCount": 3,
+            "sampleCount": 5,
+            "visible": true,
+            "blockedSamples": [
+              {
+                "sample": "left_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "mpfb_peds_patient_child_body"
+              }
+            ]
+          },
+          {
+            "actorId": "parent_mei_chen_v1",
+            "crownVisible": false,
+            "chestVisible": false,
+            "visibleSampleCount": 0,
+            "sampleCount": 5,
+            "visible": false,
+            "blockedSamples": [
+              {
+                "sample": "crown",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "chest",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "pelvis",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "left_foot",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              },
+              {
+                "sample": "right_foot",
+                "blockedBy": "openclinxr.peds_fever_v1.scenario-expectation-visual-review-panel"
+              }
+            ]
+          }
+        ],
+        "standingActorContainment": {
+          "contained": 2,
+          "total": 3
+        },
+        "meanFacingDeg": 83.2745422673737,
+        "framingConstraintsMet": false,
+        "nearOcclusion": {
+          "fraction": 0,
+          "nearRayCount": 0,
+          "rayCount": 144,
+          "thresholdMeters": 1,
+          "method": "16x9 viewport-cell-centre pinhole rays; nearest positive intersection with each effectively visible mesh world AABB; near when first hit < 1.0 m"
+        }
+      },
+      "source": "live_scene"
+    }
+  ]
+}

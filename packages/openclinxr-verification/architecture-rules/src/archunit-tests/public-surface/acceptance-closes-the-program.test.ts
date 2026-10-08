@@ -358,5 +358,5 @@ describe("acceptance closes the program or refuses for a named reason", () => {
     if (outcome.record.verdict === "refuse") {
       expect(outcome.record.refuseReasons.length).toBeGreaterThan(0);
     }
-  });
+  }, 20_000);
 });

@@ -107,6 +107,9 @@ importers:
       '@openclinxr/motion-compiler':
         specifier: workspace:*
         version: link:packages/openclinxr/motion-compiler
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:packages/openclinxr/scenario-fixtures
       '@openclinxr/service-local-compute':
         specifier: workspace:*
         version: link:packages/openclinxr/service-local-compute
