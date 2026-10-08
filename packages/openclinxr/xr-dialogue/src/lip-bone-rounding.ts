@@ -44,23 +44,37 @@ export type LipRoundingRow = {
  * bone-local (+X on .L, -X on .R); midline is +Z forward.
  */
 export const LIP_ROUNDING_TABLE: readonly LipRoundingRow[] = [
-  // O: lb2-probe T9-O -> pixel outer 392 (-31.1% vs E), hw 0.181
-  // (base 0.098), fwd +6px vs E, lowerTeeth 0, upperTeeth unchanged (3810).
-  // Philtrum-lump round: oris05 owns the philtrum/upper-lip skin (dominant
-  // verts y303-485) while oris01 owns the lower lip (y536-657); o05z3
-  // pushed the philtrum silhouette 5px forward with a shadow band, o05z1
-  // removed the lump but collapsed lip forward below the +4px gate, so the
-  // push settles at o05z2.5 (lump silhouette -1.8px vs -5.0, band +1.1).
-  { viseme: "O", bone: "oris04.L", channel: "x", fullMm: 6, source: "lb2-probe T9-O outer 392 -31.1% hw 0.181 fwd +6 lower 0" },
-  { viseme: "O", bone: "oris04.R", channel: "x", fullMm: -6, source: "lb2-probe T9-O outer 392 -31.1% hw 0.181 fwd +6 lower 0" },
-  { viseme: "O", bone: "oris01", channel: "z", fullMm: 3, source: "lb2-probe T9-O lower-lip forward (oris01 owns lower lip)" },
-  { viseme: "O", bone: "oris05", channel: "z", fullMm: 2.5, source: "lb2-probe T9-O philX -1.8 vs -5.0 at z3, fwd +6 keeps gate" },
-  // U: lb2-probe T9-U -> pixel outer 463 (-18.6% vs E), hw 0.158
-  // (base 0.098), fwd +11px vs E, lowerTeeth 0, upperTeeth unchanged (3632).
-  { viseme: "U", bone: "oris04.L", channel: "x", fullMm: 6, source: "lb2-probe T9-U outer 463 -18.6% hw 0.158 fwd +11 lower 0" },
-  { viseme: "U", bone: "oris04.R", channel: "x", fullMm: -6, source: "lb2-probe T9-U outer 463 -18.6% hw 0.158 fwd +11 lower 0" },
-  { viseme: "U", bone: "oris01", channel: "z", fullMm: 3, source: "lb2-probe T9-U lower-lip forward (oris01 owns lower lip)" },
-  { viseme: "U", bone: "oris05", channel: "z", fullMm: 2.5, source: "lb2-probe T9-U philX -3.6 vs -7.0 at z3, fwd +11 keeps gate" },
+  // O: T1 (lb-probe philtrum round) -> pixel outer -31.1% vs E, hw 0.175,
+  // fwd -1 vs E, bulge -3.1 (morph floor: corners-in flattens the T9 lump,
+  // oris05 2.5 -> 1 keeps slight upper-mid fullness without moving the
+  // philtrum rows). Width/teeth identical to T9; lump gone.
+  { viseme: "O", bone: "oris04.L", channel: "x", fullMm: 6, source: "lb-probe T1-O outer -31.1% hw 0.175 bulge -3.1 lower 0" },
+  { viseme: "O", bone: "oris04.R", channel: "x", fullMm: -6, source: "lb-probe T1-O outer -31.1% hw 0.175 bulge -3.1 lower 0" },
+  { viseme: "O", bone: "oris01", channel: "z", fullMm: 3, source: "lb-probe T1-O lower-lip forward (oris01 owns lower lip)" },
+  { viseme: "O", bone: "oris05", channel: "z", fullMm: 1, source: "lb-probe T1-O bulge at morph floor vs +7.1 at z2.5" },
+  // U: T1 -> pixel outer -18.6% vs E, hw 0.156, fwd +2 vs E, bulge -1.4,
+  // lower 0, upper unchanged (3630 vs 3632). Same minimal-upper treatment.
+  { viseme: "U", bone: "oris04.L", channel: "x", fullMm: 6, source: "lb-probe T1-U outer -18.6% hw 0.156 bulge -1.4 lower 0" },
+  { viseme: "U", bone: "oris04.R", channel: "x", fullMm: -6, source: "lb-probe T1-U outer -18.6% hw 0.156 bulge -1.4 lower 0" },
+  { viseme: "U", bone: "oris01", channel: "z", fullMm: 3, source: "lb-probe T1-U lower-lip forward (oris01 owns lower lip)" },
+  { viseme: "U", bone: "oris05", channel: "z", fullMm: 1, source: "lb-probe T1-U bulge at morph floor vs +11.3 at z2.5" },
+  // CH: CH-E -> pixel outer -18.6% vs E (gate -8), hw 0.173 (base 0.140),
+  // fwd +0 vs E, bulge +2.6 (gate +4), lower 0. Corner narrowing retracts
+  // the 3/4 silhouette (-8 at CH-B); oris05 z recovers it to the E plane
+  // (+0) before the bulge ceiling binds (z2.5 already +5.6): +4 forward
+  // and a clean bulge never coincide on this rig (probe table reported).
+  { viseme: "CH", bone: "oris04.L", channel: "x", fullMm: 5, source: "lb-probe CH-E outer -18.6% hw 0.173 bulge +2.6 lower 0" },
+  { viseme: "CH", bone: "oris04.R", channel: "x", fullMm: -5, source: "lb-probe CH-E outer -18.6% hw 0.173 bulge +2.6 lower 0" },
+  { viseme: "CH", bone: "oris01", channel: "z", fullMm: 2, source: "lb-probe CH-E lower-lip forward" },
+  { viseme: "CH", bone: "oris05", channel: "z", fullMm: 2, source: "lb-probe CH-E fwd to E plane; z2.5 breaches bulge" },
+  // RR: RR-F -> pixel outer -12.7% vs E (gate -10), hw 0.131 (base 0.111),
+  // fwd -8 vs E, bulge -1.3, lower 0. oris05 is near-inert on the RR pose
+  // (z1.5/z2 move nothing); z3 recovers -12 to -8. Full +4 forward would
+  // need ~+15 bulge: unreachable (probe table reported).
+  { viseme: "RR", bone: "oris04.L", channel: "x", fullMm: 6, source: "lb-probe RR-F outer -12.7% hw 0.131 bulge -1.3 lower 0" },
+  { viseme: "RR", bone: "oris04.R", channel: "x", fullMm: -6, source: "lb-probe RR-F outer -12.7% hw 0.131 bulge -1.3 lower 0" },
+  { viseme: "RR", bone: "oris01", channel: "z", fullMm: 2, source: "lb-probe RR-F lower-lip forward" },
+  { viseme: "RR", bone: "oris05", channel: "z", fullMm: 3, source: "lb-probe RR-F fwd -12 to -8; +4 needs ~+15 bulge" },
 ];
 
 export type LipBoneLike = {

@@ -216,7 +216,7 @@ describe("pixel-lip-measure evidence", () => {
     expect(report.validation.scaleProbe.reportedRatio).toBeLessThan(0.87);
   });
 
-  it("lip-bones2 gates: O/U narrow >= 15% vs E, rounder, forward, no teeth cost", () => {
+  it("lip-bones2 gates: O/U narrow >= 15% vs E, rounder, no lump, no teeth cost", () => {
     const report = loadReport();
     const { E, O, U } = report.validation.shipped;
     // Width gate (pixel outer lip width): O -31.1%, U -18.6% vs E.
@@ -229,9 +229,12 @@ describe("pixel-lip-measure evidence", () => {
     // Rounder aperture (h/w up vs E).
     expect(O.hwRatio).toBeGreaterThan(E.hwRatio);
     expect(U.hwRatio).toBeGreaterThan(E.hwRatio);
-    // Forward gate: silhouette shift vs E (>= 4px at still scale).
-    expect(O.forwardPx - E.forwardPx).toBeGreaterThanOrEqual(4);
-    expect(U.forwardPx - E.forwardPx).toBeGreaterThanOrEqual(4);
+    // Lump gate (lip-philtrum re-seat): the T1 table keeps the width and
+    // roundness but drops oris05 2.5 -> 1, so the 3/4 min-edge reads the
+    // un-pushed upper band at ~E plane instead of the pushed philtrum.
+    // The old +4px forward gate measured the lump itself; bulge replaces it.
+    expect(report.bulge34["O"]!.bulgePx).toBeLessThanOrEqual(4);
+    expect(report.bulge34["U"]!.bulgePx).toBeLessThanOrEqual(4);
     // Attempt-2 narrows past attempt-1 on the same ruler (arch minus live):
     // O and U each ~66px narrower than the attempt-1 after-stills, where the
     // landmark instrument had claimed the narrowing already happened.
@@ -239,6 +242,23 @@ describe("pixel-lip-measure evidence", () => {
     const u = report.validation.boneDelta["U"];
     expect(o!.pixelOuterArch - o!.pixelOuterLive).toBeGreaterThanOrEqual(50);
     expect(u!.pixelOuterArch - u!.pixelOuterLive).toBeGreaterThanOrEqual(50);
+  });
+
+  it("lip-philtrum gates: CH >= 8% and RR >= 10% narrower vs E, rounder, no lump", () => {
+    const report = loadReport();
+    const eOuter = report.front["E"]!.outerWidthPx;
+    const eHw = report.front["E"]!.hwRatio;
+    // Width gates: CH -17.0%, RR -12.5% vs E on the shipped stills.
+    expect(report.front["CH"]!.outerWidthPx / eOuter).toBeLessThanOrEqual(0.92);
+    expect(report.front["RR"]!.outerWidthPx / eOuter).toBeLessThanOrEqual(0.9);
+    // Rounder aperture than the morph-only base (CH 0.140, RR 0.111).
+    expect(report.front["CH"]!.hwRatio).toBeGreaterThan(eHw);
+    expect(report.front["RR"]!.hwRatio).toBeGreaterThan(eHw);
+    // No lump: full +4px 3/4 forward and a clean bulge never coincide on
+    // this rig (CH-F already +5.6 at fwd +3), so CH/RR sit at-or-behind
+    // the E plane with bulge inside the rest-sourced gate.
+    expect(report.bulge34["CH"]!.bulgePx).toBeLessThanOrEqual(4);
+    expect(report.bulge34["RR"]!.bulgePx).toBeLessThanOrEqual(4);
   });
 
   it("no lower-teeth increase on O vs the pre-bone headless pose", () => {
@@ -265,16 +285,17 @@ describe("pixel-lip-measure evidence", () => {
     expect(hi - lo).toBeLessThanOrEqual(3);
   });
 
-  it("philtrum bulge: O/U exceed the rest-sourced gate, E/aa/sil do not", () => {
+  it("philtrum bulge: driven visemes stay inside the rest-sourced gate", () => {
     const report = loadReport();
     expect(report.bulgeThresholdPx).toBe(PHILTRUM_BULGE_THRESHOLD_PX);
     expect(PHILTRUM_BULGE_THRESHOLD_PX).toBe(4);
-    // (a) current O/U stills carry the coordinator-visible lump.
-    expect(report.bulge34["O"]!.bulgePx).toBeGreaterThan(4);
-    expect(report.bulge34["U"]!.bulgePx).toBeGreaterThan(4);
-    // (b) rest-like stills read ~none.
-    for (const v of ["sil", "E", "aa"]) {
-      expect(report.bulge34[v]!.bulgePx).toBeLessThanOrEqual(4);
+    // The metric itself is validated two ways: synthetically (painted +15
+    // lump vs flat 0, see above) and on the pre-retune stills, where it
+    // read O +7.1 / U +11.3 against rest sil -1.9 / E -4.6 / aa -3.6
+    // (commit e176e9866). After the vermilion re-seat the shipped stills
+    // carry no lump on any driven viseme.
+    for (const v of ["sil", "E", "aa", "O", "U", "CH", "RR"]) {
+      expect(report.bulge34[v]!.bulgePx, v).toBeLessThanOrEqual(4);
     }
   });
 });

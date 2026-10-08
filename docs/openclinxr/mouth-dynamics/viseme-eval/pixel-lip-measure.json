@@ -78,12 +78,12 @@
       "hwRatio": 0.108
     },
     "CH": {
-      "outerWidthPx": 528,
-      "outerY": 476,
-      "apertureWidthPx": 528,
-      "apertureY": 476,
-      "apertureHeightPx": 74,
-      "hwRatio": 0.14
+      "outerWidthPx": 472,
+      "outerY": 475,
+      "apertureWidthPx": 472,
+      "apertureY": 475,
+      "apertureHeightPx": 79,
+      "hwRatio": 0.167
     },
     "SS": {
       "outerWidthPx": 567,
@@ -102,12 +102,12 @@
       "hwRatio": 0.116
     },
     "RR": {
-      "outerWidthPx": 561,
-      "outerY": 454,
-      "apertureWidthPx": 561,
-      "apertureY": 454,
-      "apertureHeightPx": 62,
-      "hwRatio": 0.111
+      "outerWidthPx": 498,
+      "outerY": 452,
+      "apertureWidthPx": 498,
+      "apertureY": 452,
+      "apertureHeightPx": 64,
+      "hwRatio": 0.129
     },
     "aa": {
       "outerWidthPx": 457,
@@ -136,18 +136,18 @@
     "O": {
       "outerWidthPx": 392,
       "outerY": 615,
-      "apertureWidthPx": 376,
-      "apertureY": 478,
-      "apertureHeightPx": 69,
-      "hwRatio": 0.184
+      "apertureWidthPx": 389,
+      "apertureY": 480,
+      "apertureHeightPx": 68,
+      "hwRatio": 0.175
     },
     "U": {
       "outerWidthPx": 463,
       "outerY": 481,
       "apertureWidthPx": 463,
       "apertureY": 481,
-      "apertureHeightPx": 74,
-      "hwRatio": 0.16
+      "apertureHeightPx": 72,
+      "hwRatio": 0.156
     }
   },
   "view34": {
@@ -188,10 +188,10 @@
       "forwardPx": -51
     },
     "CH": {
-      "lipX": 201,
-      "lipY": 416,
+      "lipX": 207,
+      "lipY": 400,
       "anchorX": 160,
-      "forwardPx": -41
+      "forwardPx": -47
     },
     "SS": {
       "lipX": 202,
@@ -206,10 +206,10 @@
       "forwardPx": -44
     },
     "RR": {
-      "lipX": 207,
+      "lipX": 214,
       "lipY": 400,
       "anchorX": 159,
-      "forwardPx": -48
+      "forwardPx": -55
     },
     "aa": {
       "lipX": 206,
@@ -230,16 +230,16 @@
       "forwardPx": -48
     },
     "O": {
-      "lipX": 197,
+      "lipX": 207,
       "lipY": 400,
       "anchorX": 159,
-      "forwardPx": -38
+      "forwardPx": -48
     },
     "U": {
-      "lipX": 191,
-      "lipY": 400,
+      "lipX": 203,
+      "lipY": 404,
       "anchorX": 158,
-      "forwardPx": -33
+      "forwardPx": -45
     }
   },
   "bulge34": {
@@ -275,8 +275,8 @@
     },
     "CH": {
       "noseX": 209.3,
-      "philX": 207.2,
-      "bulgePx": 2.1
+      "philX": 206.3,
+      "bulgePx": 3
     },
     "SS": {
       "noseX": 204.5,
@@ -290,8 +290,8 @@
     },
     "RR": {
       "noseX": 210,
-      "philX": 209.5,
-      "bulgePx": 0.5
+      "philX": 211.2,
+      "bulgePx": -1.2
     },
     "aa": {
       "noseX": 209.6,
@@ -310,13 +310,13 @@
     },
     "O": {
       "noseX": 203.6,
-      "philX": 196.5,
-      "bulgePx": 7.1
+      "philX": 206.7,
+      "bulgePx": -3.1
     },
     "U": {
       "noseX": 203.6,
-      "philX": 192.3,
-      "bulgePx": 11.3
+      "philX": 205,
+      "bulgePx": -1.4
     }
   },
   "bulgeThresholdPx": 4,
@@ -328,10 +328,10 @@
       "TH": 0.907,
       "DD": 0.956,
       "kk": 0.96,
-      "CH": 0.928,
+      "CH": 0.83,
       "SS": 0.996,
       "nn": 0.974,
-      "RR": 0.986,
+      "RR": 0.875,
       "aa": 0.803,
       "E": 1,
       "I": 1.016,
@@ -345,14 +345,14 @@
       "TH": 0.907,
       "DD": 0.956,
       "kk": 0.96,
-      "CH": 0.928,
+      "CH": 0.83,
       "SS": 0.996,
       "nn": 0.974,
-      "RR": 0.986,
+      "RR": 0.875,
       "aa": 0.803,
       "E": 1,
       "I": 1.016,
-      "O": 0.661,
+      "O": 0.684,
       "U": 0.814
     },
     "fwd34": {
@@ -362,15 +362,15 @@
       "TH": 0,
       "DD": 4,
       "kk": -4,
-      "CH": 6,
+      "CH": 0,
       "SS": 4,
       "nn": 3,
-      "RR": -1,
+      "RR": -8,
       "aa": 0,
       "E": 0,
       "I": -1,
-      "O": 9,
-      "U": 14
+      "O": -1,
+      "U": 2
     }
   },
   "validation": {
@@ -390,26 +390,26 @@
       "O": {
         "outerWidthPx": 392,
         "outerY": 615,
-        "apertureWidthPx": 376,
-        "apertureY": 478,
-        "apertureHeightPx": 69,
-        "hwRatio": 0.184,
-        "lipX": 197,
+        "apertureWidthPx": 389,
+        "apertureY": 480,
+        "apertureHeightPx": 68,
+        "hwRatio": 0.175,
+        "lipX": 207,
         "lipY": 400,
         "anchorX": 159,
-        "forwardPx": -38
+        "forwardPx": -48
       },
       "U": {
         "outerWidthPx": 463,
         "outerY": 481,
         "apertureWidthPx": 463,
         "apertureY": 481,
-        "apertureHeightPx": 74,
-        "hwRatio": 0.16,
-        "lipX": 191,
-        "lipY": 400,
+        "apertureHeightPx": 72,
+        "hwRatio": 0.156,
+        "lipX": 203,
+        "lipY": 404,
         "anchorX": 158,
-        "forwardPx": -33
+        "forwardPx": -45
       }
     },
     "boneDelta": {
@@ -419,7 +419,7 @@
           "rx": 834.5
         },
         "liveECorners": {
-          "lx": 190.7,
+          "lx": 190.6,
           "rx": 834.5
         }
       },
@@ -428,40 +428,40 @@
         "pixelOuterArch": 458,
         "pixelOuterDeltaPx": 66,
         "pixelOuterDeltaPct": 16.8,
-        "pixelFwdDeltaPx": 13,
-        "landmarkOuterLive": 574.2,
+        "pixelFwdDeltaPx": 23,
+        "landmarkOuterLive": 529.1,
         "landmarkOuterArch": 529.9,
-        "landmarkDeltaPx": -44.3
+        "landmarkDeltaPx": 0.8
       },
       "U": {
         "pixelOuterLive": 463,
         "pixelOuterArch": 529,
         "pixelOuterDeltaPx": 66,
         "pixelOuterDeltaPct": 14.3,
-        "pixelFwdDeltaPx": 1,
-        "landmarkOuterLive": 596.3,
+        "pixelFwdDeltaPx": 13,
+        "landmarkOuterLive": 551.1,
         "landmarkOuterArch": 540.5,
-        "landmarkDeltaPx": -55.8
+        "landmarkDeltaPx": -10.6
       },
       "CH": {
-        "pixelOuterLive": 528,
+        "pixelOuterLive": 472,
         "pixelOuterArch": 527,
-        "pixelOuterDeltaPx": -1,
-        "pixelOuterDeltaPct": -0.2,
-        "pixelFwdDeltaPx": 7,
-        "landmarkOuterLive": 601.6,
+        "pixelOuterDeltaPx": 55,
+        "pixelOuterDeltaPct": 11.7,
+        "pixelFwdDeltaPx": 13,
+        "landmarkOuterLive": 564.4,
         "landmarkOuterArch": 539.5,
-        "landmarkDeltaPx": -62.1
+        "landmarkDeltaPx": -24.9
       },
       "RR": {
-        "pixelOuterLive": 561,
+        "pixelOuterLive": 498,
         "pixelOuterArch": 561,
-        "pixelOuterDeltaPx": 0,
-        "pixelOuterDeltaPct": 0,
-        "pixelFwdDeltaPx": 3,
-        "landmarkOuterLive": 620.9,
+        "pixelOuterDeltaPx": 63,
+        "pixelOuterDeltaPct": 12.7,
+        "pixelFwdDeltaPx": 10,
+        "landmarkOuterLive": 575.8,
         "landmarkOuterArch": 569.7,
-        "landmarkDeltaPx": -51.2
+        "landmarkDeltaPx": -6.1
       }
     },
     "scaleProbe": {
@@ -489,23 +489,23 @@
     "isolated-34/DD.png": "1e8f9d14bf53a1ff5f69b713f05bf38b",
     "isolated-front/kk.png": "837e70433a7493af9c0c728e754e3568",
     "isolated-34/kk.png": "7872da0180aa8e426bdd14dc9ad287cb",
-    "isolated-front/CH.png": "f50e69c117af9fb1e524da90f193c8dd",
-    "isolated-34/CH.png": "80a8f1d4d4999064b1dff7e5ea1cc808",
+    "isolated-front/CH.png": "a77970167058ff8af8847bfeec5f3f49",
+    "isolated-34/CH.png": "e551433af6e22b00195d431e22c5b4e0",
     "isolated-front/SS.png": "540ddb9ec0bac3e778d17bf8f59fdb74",
     "isolated-34/SS.png": "af1678e1e690d7decdf8edacc6778ac2",
     "isolated-front/nn.png": "18957e071aff0d327626e2ba9944a7b6",
     "isolated-34/nn.png": "7585150b7f02ddaf60fbe688110ee57e",
-    "isolated-front/RR.png": "7f423ef4b0cffd9f20f159b674ac29a5",
-    "isolated-34/RR.png": "26caf6fbea507ca3e3e7f1bf9f4a425a",
+    "isolated-front/RR.png": "94c0015b4a9a3b391608dbd80a35b7fd",
+    "isolated-34/RR.png": "9dffc44ccdbdfac0c9fcc28f6329fe12",
     "isolated-front/aa.png": "b5a3375a1a934538cb7db905268c43da",
     "isolated-34/aa.png": "3797165a2eb329ab790aeef100e2c7d5",
     "isolated-front/E.png": "5a367eb30706f61acf70f7019a32da7b",
     "isolated-34/E.png": "d49702e5d2a771ceaea1645cf7d33cb7",
     "isolated-front/I.png": "b629c27e81d03a10f9a91878fb12e51a",
     "isolated-34/I.png": "1706a04db330142686d89cf0ce132a07",
-    "isolated-front/O.png": "5c3cf67c60de4cdf9b1bbc4d0dfdc9eb",
-    "isolated-34/O.png": "86d384abeeee939fcce946e5d73568f9",
-    "isolated-front/U.png": "e47cac4bd179ce7b2027e380591eb729",
-    "isolated-34/U.png": "5c2bed817b656a2857f998e3c404c31e"
+    "isolated-front/O.png": "1de039ceea4f5c161f47fd91986e60a9",
+    "isolated-34/O.png": "405cb4f58f2bd5c64a671bf7ddf037ad",
+    "isolated-front/U.png": "3fe19c216bbe019ee8441aa1a6ac2bff",
+    "isolated-34/U.png": "4fd52209c4efb40b32759c67c4f3858c"
   }
 }

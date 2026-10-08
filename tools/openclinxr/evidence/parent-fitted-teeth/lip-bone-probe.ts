@@ -137,6 +137,41 @@ const rrC = (): BoneRow[] => [
   { viseme: "RR", bone: "oris03.L", channel: "z", fullMm: 1, source: "phil-vermilion:RR-C" },
   { viseme: "RR", bone: "oris03.R", channel: "z", fullMm: 1, source: "phil-vermilion:RR-C" },
 ];
+// Forward-recovery follow-ups: CH/RR corner narrowing retracts the 3/4
+// silhouette (CH-B fwd -8, RR-B fwd -12). Midline upper push (oris05 z)
+// is the only candidate that moves the upper band forward; bulge headroom
+// is ~9px (CH -5.2 / RR -6.7 vs gate +4).
+const chD = (): BoneRow[] => [
+  ...chB(),
+  { viseme: "CH", bone: "oris05", channel: "z", fullMm: 1.5, source: "phil-vermilion:CH-D" },
+];
+const chE = (): BoneRow[] => [
+  ...chB(),
+  { viseme: "CH", bone: "oris05", channel: "z", fullMm: 2, source: "phil-vermilion:CH-E" },
+];
+const rrD = (): BoneRow[] => [
+  ...rrB(),
+  { viseme: "RR", bone: "oris05", channel: "z", fullMm: 1.5, source: "phil-vermilion:RR-D" },
+];
+const rrE = (): BoneRow[] => [
+  ...rrB(),
+  { viseme: "RR", bone: "oris05", channel: "z", fullMm: 2, source: "phil-vermilion:RR-E" },
+];
+// Ceiling check: CH-E (z2) reached fwd 0 / bulge +2.6. z2.5/z3 test whether
+// fwd +4 is reachable before bulge breaches +4; RR-F tests whether a larger
+// midline push moves RR at all (z1.5/z2 were inert).
+const chF = (): BoneRow[] => [
+  ...chB(),
+  { viseme: "CH", bone: "oris05", channel: "z", fullMm: 2.5, source: "phil-vermilion:CH-F" },
+];
+const chG = (): BoneRow[] => [
+  ...chB(),
+  { viseme: "CH", bone: "oris05", channel: "z", fullMm: 3, source: "phil-vermilion:CH-G" },
+];
+const rrF = (): BoneRow[] => [
+  ...rrB(),
+  { viseme: "RR", bone: "oris05", channel: "z", fullMm: 3, source: "phil-vermilion:RR-F" },
+];
 
 const ROWS: ProbeRow[] = [
   { id: "base-sil", viseme: "sil", table: null },
@@ -167,6 +202,13 @@ const ROWS: ProbeRow[] = [
   { id: "RR-A", viseme: "RR", table: rrA() },
   { id: "RR-B", viseme: "RR", table: rrB() },
   { id: "RR-C", viseme: "RR", table: rrC() },
+  { id: "CH-D", viseme: "CH", table: chD() },
+  { id: "CH-E", viseme: "CH", table: chE() },
+  { id: "CH-F", viseme: "CH", table: chF() },
+  { id: "CH-G", viseme: "CH", table: chG() },
+  { id: "RR-D", viseme: "RR", table: rrD() },
+  { id: "RR-E", viseme: "RR", table: rrE() },
+  { id: "RR-F", viseme: "RR", table: rrF() },
 ];
 
 function esbuildBin(): string {
