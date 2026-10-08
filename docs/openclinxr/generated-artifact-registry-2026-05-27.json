@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1844,
+    "keep-evidence": 1937,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -140,6 +140,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-appendage-motion/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-appendage-motion/peds_patient_child.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -168,7 +175,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-appendage-motion/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-explicit-bind/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -203,14 +210,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-explicit-bind/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-eye-geometry-v1/peds_patient_child_eye_geometry.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-eye-geometry-v1/peds_patient_child_eye_geometry.glb",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-garment-trim-v4/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -245,7 +252,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-garment-trim-v4/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-garment-trim-v5/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -280,7 +287,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-garment-trim-v5/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-morph-basis/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -315,7 +322,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-morph-basis/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -350,7 +357,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -385,7 +392,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v2/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -420,7 +427,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v2/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -455,7 +462,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-visible-clothing-v3-neutral/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -490,7 +497,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-visible-clothing-v3-neutral/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-visible-clothing-v3/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -525,7 +532,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-visible-clothing-v3/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-warmer-skin-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -560,7 +567,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-warmer-skin-v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-y-basis-armature/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -595,7 +602,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-y-basis-armature/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -630,7 +637,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -665,7 +672,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/ed_chest_pain_patient_adult_bod_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -679,7 +686,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/ed_chest_pain_patient_adult_bod_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_anxious_parent_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -693,7 +700,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_anxious_parent_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_nurse_kevin_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -707,7 +714,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_nurse_kevin_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -721,140 +728,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/garment_evidence_proof.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.anny_manifest.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.bundle.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.anny_manifest.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.bundle.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -889,14 +770,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_eye_cagematch/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -931,42 +805,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_eye_cagematch/peds_patient_child_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.anny_manifest.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.bundle.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v2/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1001,7 +840,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v2/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v3/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1036,112 +875,42 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v3/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.bundle.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.bundle.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.provenance.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.bundle.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.bundle.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1176,21 +945,238 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult.glb",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_final.glb",
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/garment_evidence_proof.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1204,7 +1190,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter2.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_final.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1218,7 +1204,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter2.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1226,6 +1212,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1246,14 +1239,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_final.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1267,7 +1253,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter2.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_final.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1281,7 +1267,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter2.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1289,6 +1275,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1309,14 +1302,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_final.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1330,7 +1316,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter2.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_final.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1344,7 +1330,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter2.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1352,6 +1338,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1372,14 +1365,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent.glb",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_final.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1393,7 +1379,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter2.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_final.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1407,7 +1393,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3.glb",
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter2.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1415,6 +1401,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1429,6 +1422,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_winner.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1575,6 +1575,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_mpfb2_eye_rig_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.anny_base.anny_rest_skeleton.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1610,20 +1624,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_mpfb2_eye_rig_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/stub-model-vetting-report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1639,6 +1639,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/smoke/role-marker-smoke.manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/body-rigging/2026-06-07-body-motion-probe/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1667,13 +1674,6 @@
     },
     {
       "path": ".openclinxr/asset-production/body-rigging/2026-06-07-body-motion-probe/peds_patient_child.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/asset-production/body-rigging/2026-06-07-body-motion-probe/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1981,6 +1981,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -2009,7 +2016,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult_rigging_report.json",
+      "path": ".openclinxr/asset-production/peds-parent-nurse-reorchestrate/peds_anxious_parent_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -2044,7 +2051,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/peds-parent-nurse-reorchestrate/peds_anxious_parent_rigging_report.json",
+      "path": ".openclinxr/asset-production/peds-parent-nurse-reorchestrate/peds_nurse_kevin_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -2079,13 +2086,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/peds-parent-nurse-reorchestrate/peds_nurse_kevin_rigging_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/asset-production/realism-backups/ed_chest_pain_patient_real_garment-pre-guard-withdraw-2026-08-03.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -2107,14 +2107,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_anxious_parent/prune_dedup.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_anxious_parent/prune_dedup_resample_sparse.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_anxious_parent/prune_dedup_resample_sparse.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_anxious_parent/prune_dedup.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -2135,14 +2135,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_nurse_kevin/prune_dedup.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_nurse_kevin/prune_dedup_resample_sparse.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_nurse_kevin/prune_dedup_resample_sparse.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_nurse_kevin/prune_dedup.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -2163,14 +2163,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup_resample_sparse.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup_resample_sparse.glb",
+      "path": ".openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -3262,6 +3262,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/anny_appendage_pose_strip_tight.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/anny_appendage_pose_strip.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -3269,7 +3276,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/anny_appendage_pose_strip_tight.png",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/appendage_pose_comparison_tight.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -3283,7 +3290,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/appendage_pose_comparison_tight.png",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/anny_pose_sheet_tpose_sitting_armsraised.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -4067,14 +4074,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/anny_pose_sheet_tpose_sitting_armsraised.png",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/appendage-motion-pose-evidence.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/appendage-motion-pose-evidence.json",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/mpfb_pose_sheet_tpose_sitting_armsraised.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -4858,13 +4865,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/associated-visuals/mpfb_pose_sheet_tpose_sitting_armsraised.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/blender-frames-tight/anny_001.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -5034,6 +5034,13 @@
     },
     {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/anny_pose_sheet_tpose_sitting_armsraised.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -5817,14 +5824,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/anny_pose_sheet_tpose_sitting_armsraised.png",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/appendage-motion-pose-evidence.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/appendage-motion-pose-evidence.json",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/mpfb_pose_sheet_tpose_sitting_armsraised.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -6608,7 +6615,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/diagnostic-visuals/mpfb_pose_sheet_tpose_sitting_armsraised.png",
+      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/mpfb_appendage_pose_strip_tight.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -6616,13 +6623,6 @@
     },
     {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/mpfb_appendage_pose_strip.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/mpfb_appendage_pose_strip_tight.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8057,7 +8057,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed-gown-real-garment-front_2026-06-07.png",
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed_chest_pain_patient_real_garment_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8078,7 +8078,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed_chest_pain_patient_real_garment_rigging_report.json",
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed-gown-real-garment-front_2026-06-07.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8701,6 +8701,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_mpfb2_eye_rig_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8729,14 +8743,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_mpfb2_eye_rig_report.json",
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_mpfb2_eye_rig_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_rigging_report.json",
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8765,20 +8779,6 @@
     },
     {
       "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_mpfb2_eye_rig_report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9065,13 +9065,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/README.txt",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_body_motion_deform_2026-06-08-ed-seed-v1.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -9087,6 +9080,13 @@
     },
     {
       "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_sleeve_deform_three_quarter_2026-06-08-ed-seed-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/README.txt",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -11767,6 +11767,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": true,
@@ -11789,13 +11796,6 @@
     },
     {
       "path": ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": true,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": true,
       "action": "ignore",
@@ -13825,6 +13825,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -13839,7 +13846,7 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent_rigging_report.json",
+      "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -13854,13 +13861,6 @@
     },
     {
       "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.provenance.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -14077,14 +14077,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod.png",
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod_comfy_textured.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod_comfy_textured.png",
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -14308,13 +14308,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics-motion-deep.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics_front_t0.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -14330,6 +14323,13 @@
     },
     {
       "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics_three_quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics-motion-deep.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -15862,13 +15862,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/REVIEW.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-front.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -16009,6 +16002,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/REVIEW.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/summary.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -16051,27 +16051,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/front.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/side.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/three_quarter.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup_resample_sparse/front.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -16087,6 +16066,27 @@
     },
     {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup_resample_sparse/three_quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/prune_dedup/three_quarter.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -16135,27 +16135,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/front.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/side.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/three_quarter.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup_resample_sparse/front.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -16171,6 +16150,27 @@
     },
     {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup_resample_sparse/three_quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/parent_tara_johnson_v1/prune_dedup/three_quarter.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -16219,27 +16219,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/front.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/side.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/three_quarter.png",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup_resample_sparse/front.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -16255,6 +16234,27 @@
     },
     {
       "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup_resample_sparse/three_quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/patient_maya_johnson_v1/prune_dedup/three_quarter.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -16401,13 +16401,6 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/evidence/tsk-6fc9-lock-repair/report.v1.json",
-      "authority": "ignore-local-cache",
-      "tracked": true,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
       "path": ".openclinxr/evidence/tsk_0245f18ecbd20c05/report.v1.json",
       "authority": "ignore-local-cache",
       "tracked": true,
@@ -16437,6 +16430,13 @@
     },
     {
       "path": ".openclinxr/evidence/tsk_bca4085904e3b071/report.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/tsk-6fc9-lock-repair/report.v1.json",
       "authority": "ignore-local-cache",
       "tracked": true,
       "action": "ignore",
@@ -25732,14 +25732,14 @@
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
-      "path": "docs/openclinxr/lipsync-speech/README.md",
+      "path": "docs/openclinxr/lipsync-speech/per-case.json",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/lipsync-speech/per-case.json",
+      "path": "docs/openclinxr/lipsync-speech/README.md",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",
@@ -26159,6 +26159,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/aa.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/CH.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26194,6 +26201,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/kk.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/nn.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/O.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26209,6 +26230,13 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/RR.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/sil.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -26236,34 +26264,6 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/aa.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/kk.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/nn.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/sil.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-central.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26272,6 +26272,13 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/aa.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -26313,6 +26320,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/kk.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/nn.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/O.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26334,6 +26355,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/sil.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/SS.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26349,34 +26377,6 @@
     },
     {
       "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/U.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/aa.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/kk.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/nn.png",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/sil.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -27140,6 +27140,440 @@
     },
     {
       "path": "docs/openclinxr/render-framing/before.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-perspective-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/adult_abdominal_pain_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/clinic_abdominal_pain_interpreter_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_chest_pain_priority_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_chest_pain_priority_v2-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_stroke_alert_handoff_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/ob_headache_preeclampsia_triage_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/oncology_bad_news_family_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/peds_asthma_parent_anxiety_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/postop_fever_consult_pressure_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/primary_care_dyslipidemia_joint_pain_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/psych_suicidal_ideation_safety_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/stepdown_sepsis_nurse_escalation_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/telehealth_diabetes_health_literacy_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/ward_delirium_med_rec_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/adult_abdominal_pain_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/clinic_abdominal_pain_interpreter_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_chest_pain_priority_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_chest_pain_priority_v2-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_stroke_alert_handoff_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/ob_headache_preeclampsia_triage_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/oncology_bad_news_family_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/peds_asthma_parent_anxiety_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/peds_fever_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/postop_fever_consult_pressure_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/primary_care_dyslipidemia_joint_pain_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/psych_suicidal_ideation_safety_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/stepdown_sepsis_nurse_escalation_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/telehealth_diabetes_health_literacy_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/overhead/ward_delirium_med_rec_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/adult_abdominal_pain_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/clinic_abdominal_pain_interpreter_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_chest_pain_priority_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_chest_pain_priority_v2-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_stroke_alert_handoff_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/ob_headache_preeclampsia_triage_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/oncology_bad_news_family_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/peds_asthma_parent_anxiety_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/peds_fever_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/postop_fever_consult_pressure_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/primary_care_dyslipidemia_joint_pain_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/psych_suicidal_ideation_safety_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/stepdown_sepsis_nurse_escalation_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/telehealth_diabetes_health_literacy_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/perspective/ward_delirium_med_rec_v1-room.png",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -29575,18 +30009,18 @@
       "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
     },
     {
-      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Written room spec used verbatim in every v2 reference prompt (row-32 provenance); keep alongside the reference set it drove."
-    },
-    {
       "path": "docs/openclinxr/room-realism/imagine-multiview-v2/manifest.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
       "rationale": "Operator-generated Grok Imagine ward reference set v2 (row-32 provenance); replaces the row-31 v1 set after the operator reported v1 realism flaws."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Written room spec used verbatim in every v2 reference prompt (row-32 provenance); keep alongside the reference set it drove."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-multiview-v2/screening.md",
@@ -32907,20 +33341,6 @@
       "rationale": "Rooms-defects factory-fix before/after sheet (HEAD vs re-promoted GLB under frozen derived poses); desktop-learner-runtime evidence, not headset readiness."
     },
     {
-      "path": "docs/openclinxr/room-realism/rooms-regen/INVENTORY.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Machine-readable pre-regeneration room inventory supporting the paired inventory report."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/rooms-regen/RESULTS.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Room fleet regeneration machine result or learner-runtime visual evidence."
-    },
-    {
       "path": "docs/openclinxr/room-realism/rooms-regen/crops/behavioral-ceiling.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -32957,6 +33377,20 @@
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/crops/surgical-door-gap.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Room fleet regeneration machine result or learner-runtime visual evidence."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/INVENTORY.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Machine-readable pre-regeneration room inventory supporting the paired inventory report."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/rooms-regen/RESULTS.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -33957,6 +34391,83 @@
       "rationale": "Reusable template/checklist/policy fixture."
     },
     {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/albedo-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/cavity-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/imagine-4up-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-quad-sheet-baseline.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-tpose-front-back-baseline.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/normal-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm-rejected-face.jpg",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-tpose-front-back-rebaked.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/realism-judgment.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/roughness-llm.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json",
       "authority": "keep-evidence",
       "tracked": false,
@@ -34104,6 +34615,48 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/staging-solver/after/peds_fever_v1-isometric.png",
       "authority": "keep-evidence",
       "tracked": true,
@@ -34119,6 +34672,104 @@
     },
     {
       "path": "docs/openclinxr/staging-solver/after/peds_fever_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/after-peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/after-peds_fever_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/after-results.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/all-rooms-perspective-before-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/all-rooms-score.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/before-peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/before-peds_fever_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/before-results.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/promoted-rooms-isometric-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/promoted-rooms-overhead-after.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/staging-solver/comparison/score.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -34339,14 +34990,14 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",

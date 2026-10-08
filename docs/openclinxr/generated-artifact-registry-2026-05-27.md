@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1841
+- keep-evidence: 1937
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3762,6 +3762,9 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/comparison-metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/control/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/control/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/live-grok/browser-pain/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/live-grok/clin-01/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/live-grok/pain/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step2/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step2/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/step3/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3776,7 +3779,6 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-capture/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare-quarter.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/teeth-gap/solved-compare.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/mouth-dynamics/viseme-eval/lip-protrusion-sweep.json` - keep-evidence; keep; Lip protrusion sweep: no setting meets forward >= +4 px with bulge <= +4 px; recorded stop.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/aa.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-34/CH.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3812,6 +3814,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated-front/U.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated.raw.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/isolated.report.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/mouth-dynamics/viseme-eval/lip-protrusion-sweep.json` - keep-evidence; keep; Lip protrusion sweep (tsk_55f4815fd5beaf96): no lip-ring bone or rotation setting meets O/U forward >= +4 px with philtrum bulge <= +4 px; recorded stop.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/pangram-mouth-front/clip.mp4` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/pangram-mouth-front/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/mouth-dynamics/viseme-eval/pangram.contact.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3827,6 +3830,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.
 - `docs/openclinxr/package-public-surface-reduction/admissions/staging-layout-view-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -3858,15 +3862,16 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-services.json` - keep-evidence; keep; Pending independent review of compute-services public-surface measurements; preserves the exact candidate measurements for coordinator review.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-slots.json` - keep-evidence; keep; Independently reviewed compute-slots public-surface measurements; preserves quantitative targets and historical exceptions.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-live-voice.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-motion-admission-2026-09-16.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth-lane-2026-10-07.json` - keep-evidence; keep; Independently reviewed mouth-lane root-surface exception (xr-dialogue root names, exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-staging-layout-view.json` - keep-evidence; keep; Independently reviewed station-layout root-surface exception (exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-actor-dialogue-shrink.json` - keep-evidence; keep; Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-b.json` - keep-evidence; keep; Independently reviewed shrink-b root-surface exception (exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-a.json` - keep-evidence; keep; Independently reviewed shrink-a root-surface exception (exact measurements).
-- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json` - keep-evidence; keep; Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-mouth.json` - keep-evidence; keep; Independently reviewed mouth-station pilot public-surface exception (five station packages, exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-a.json` - keep-evidence; keep; Independently reviewed shrink-a root-surface exception (exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-b.json` - keep-evidence; keep; Independently reviewed shrink-b root-surface exception (exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-staging-layout-view.json` - keep-evidence; keep; Independently reviewed station-layout root-surface exception (exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-actor-dialogue-shrink.json` - keep-evidence; keep; Independently reviewed xr-actor-dialogue shrink root-surface exception (exact measurements).
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-dialogue-consumer-split.json` - keep-evidence; keep; Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements).
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-room-chain-wiring.json` - keep-evidence; keep; Independently signed room-chain subpath public-surface candidate and updated exact measurements.
 - `docs/openclinxr/package-public-surface-reduction/raw-inventory.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
@@ -3910,6 +3915,68 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/render-framing/after/telehealth_diabetes_health_literacy_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/render-framing/after/ward_delirium_med_rec_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/render-framing/before.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/all-rooms-perspective-before-after.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/capture-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/capture-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/adult_abdominal_pain_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/clinic_abdominal_pain_interpreter_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_chest_pain_priority_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_chest_pain_priority_v2-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/ed_stroke_alert_handoff_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/ob_headache_preeclampsia_triage_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/oncology_bad_news_family_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/peds_asthma_parent_anxiety_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/postop_fever_consult_pressure_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/primary_care_dyslipidemia_joint_pain_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/psych_suicidal_ideation_safety_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/stepdown_sepsis_nurse_escalation_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/telehealth_diabetes_health_literacy_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/isometric/ward_delirium_med_rec_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/adult_abdominal_pain_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/clinic_abdominal_pain_interpreter_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_chest_pain_priority_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_chest_pain_priority_v2-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/ed_stroke_alert_handoff_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/ob_headache_preeclampsia_triage_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/oncology_bad_news_family_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/peds_asthma_parent_anxiety_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/postop_fever_consult_pressure_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/primary_care_dyslipidemia_joint_pain_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/psych_suicidal_ideation_safety_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/stepdown_sepsis_nurse_escalation_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/telehealth_diabetes_health_literacy_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/overhead/ward_delirium_med_rec_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/adult_abdominal_pain_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/clinic_abdominal_pain_interpreter_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_chest_pain_priority_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_chest_pain_priority_v2-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/ed_stroke_alert_handoff_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/ob_headache_preeclampsia_triage_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/oncology_bad_news_family_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/peds_asthma_parent_anxiety_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/peds_fever_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/postop_fever_consult_pressure_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/primary_care_dyslipidemia_joint_pain_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/psych_suicidal_ideation_safety_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/stepdown_sepsis_nurse_escalation_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/telehealth_diabetes_health_literacy_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/room-layout-audit-2026-10-08/perspective/ward_delirium_med_rec_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/room-realism/ao-cycles-bake/01-toward-door-side-by-side.png` - keep-evidence; keep; AO Cycles-bake side-by-side vs v2 reference, pose 01.
 - `docs/openclinxr/room-realism/ao-cycles-bake/02-toward-bed-wall-side-by-side.png` - keep-evidence; keep; AO Cycles-bake side-by-side vs v2 reference, pose 02: dot chains/diamonds/dark-wall artifacts gone.
 - `docs/openclinxr/room-realism/ao-cycles-bake/06-floor-base-side-by-side.png` - keep-evidence; keep; AO Cycles-bake side-by-side vs v2 reference, pose 06.
@@ -4881,6 +4948,17 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/security-audit-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/albedo-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/cavity-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/imagine-4up-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-quad-sheet-baseline.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/input-tpose-front-back-baseline.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/normal-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm-rejected-face.jpg` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-quad-sheet-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/output-tpose-front-back-rebaked.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/realism-judgment.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/skin-llm-sheet-rebake-2026-09-28/roughness-llm.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-fix/after-sheet.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-fix/after.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -4902,9 +4980,29 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/staging-fix/after/ward_delirium_med_rec_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/after-sheet.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/after/capture-manifest.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/ed_stroke_alert_handoff_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/oncology_bad_news_family_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/after/peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/after/peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/after/peds_fever_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/after/primary_care_dyslipidemia_joint_pain_v1-room.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/after-peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/after-peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/after-results.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/all-rooms-perspective-before-after.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/all-rooms-score.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/before-peds_fever_v1-isometric.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/before-peds_fever_v1-overhead.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/before-results.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/promoted-rooms-isometric-after.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/promoted-rooms-overhead-after.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/staging-solver/comparison/score.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/staging-solver/results.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/third-party-asset-licence-ledger.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
