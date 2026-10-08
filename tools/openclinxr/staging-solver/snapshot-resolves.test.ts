@@ -30,15 +30,21 @@ function movedActorBox(actor: CachedSceneSnapshot["actors"][number], x: number, 
 }
 
 describe("cached snapshot layouts resolve", () => {
-  it("peds_fever_v1 seated family rejects companion_chair when no legal seat exists", () => {
+  it("peds_fever_v1 seated family resolves companion_chair", () => {
     const snapshot = loadSnapshot("peds_fever_v1");
     const result = searchClinicalLayouts(snapshot);
-    expect(result.bindingConstraint).toBe("parent_mei_chen_v1: companion_chair");
-    expect(result.layouts).toEqual([]);
-    expect(result.learnerStance).toBeUndefined();
+    expect(result.bindingConstraint).toBeUndefined();
+    expect(result.layouts.length).toBeGreaterThan(0);
+    expect(result.learnerStance?.slotId).toBe("physician_bedside");
+    expect(result.learnerStance?.world[1]).toBe(1.7);
     const parent = snapshot.actors.find((row) => row.id === "parent_mei_chen_v1");
     expect(parent?.standing).toBe(false);
     expect(parent?.currentPlacement.supportSurface).toBe("chair");
+    const first = result.layouts[0];
+    expect(first).toBeDefined();
+    if (!first) return;
+    const parentRow = first.find((row) => row.actorId === "parent_mei_chen_v1");
+    expect(parentRow?.slotId).toBe("companion_chair");
   });
 
   for (const scenarioId of ["adult_abdominal_pain_v1"]) {

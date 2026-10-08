@@ -98,15 +98,43 @@ describe("fever family chair", () => {
     expect(typeof chairs[0].seat).toBe("number");
   });
 
-  it("unmodified fever snapshot stays red", () => {
+  it("unmodified fever snapshot resolves family chair", () => {
     const snapshot = readSnapshot("peds_fever_v1");
     const result = searchClinicalLayouts(snapshot);
-    expect(result.layouts).toHaveLength(0);
-    expect(String(result.bindingConstraint)).toContain("parent_mei_chen_v1");
-    expect(String(result.bindingConstraint)).toContain("companion_chair");
+    expect(result.layouts.length).toBeGreaterThan(0);
+    expect(result.bindingConstraint).toBeUndefined();
+    expect(result.learnerStance?.slotId).toBe("physician_bedside");
+    expect(result.learnerStance?.world[1]).toBe(1.7);
     const parent = snapshot.actors.find((a: { id: string }) => a.id === "parent_mei_chen_v1");
     const frame = frameForSnapshot(snapshot);
-    expect(sitContact(snapshot, parent, frame)).toHaveLength(0);
+    const plants = sitContact(snapshot, parent, frame);
+    expect(plants.length).toBeGreaterThan(0);
+    for (const plant of plants) {
+      expect(plant.slotId).toBe("companion_chair");
+      expect(plant.placement.plantOffsetMeters.y).toBe(0);
+    }
+    const seat = snapshot.companionSeats.find((s: { name: string }) => s.name.endsWith("family_chair.seat"));
+    expect(seat).toBeDefined();
+    if (!seat) return;
+    const seatBoxValue = seat.box as { min: number[]; max: number[] };
+    const centreX = (seatBoxValue.min[0] + seatBoxValue.max[0]) / 2;
+    const centreZ = (seatBoxValue.min[2] + seatBoxValue.max[2]) / 2;
+    const deck = snapshot.fixtures.find(
+      (f: { name: string }) => f.name === "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh",
+    );
+    expect(deck).toBeDefined();
+    if (!deck) return;
+    const deckBox = deck.box as { min: number[]; max: number[] };
+    for (const plant of plants) {
+      expect(Math.abs(plant.world[0] - centreX)).toBeLessThanOrEqual(0.31);
+      expect(Math.abs(plant.world[2] - centreZ)).toBeLessThanOrEqual(0.31);
+      const plantBox = plant.box as { min: number[]; max: number[] };
+      const overlaps =
+        plantBox.min[0] < deckBox.max[0] + 0.03 && plantBox.max[0] > deckBox.min[0] - 0.03
+        && plantBox.min[1] < deckBox.max[1] && plantBox.max[1] > deckBox.min[1]
+        && plantBox.min[2] < deckBox.max[2] + 0.03 && plantBox.max[2] > deckBox.min[2] - 0.03;
+      expect(overlaps).toBe(false);
+    }
   });
 
   it("one built seat resolves parent contact", () => {
