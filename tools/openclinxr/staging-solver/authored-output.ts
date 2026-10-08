@@ -1,8 +1,23 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CameraSearchResult } from "./camera-search.js";
 
 export type AuthoredStagingSolution = { camera: { eye: [number, number, number]; look: [number, number, number]; fov: 55 | 60 | 70 | 80 | 90 }; placements: Record<string, unknown> };
+
+const SOLUTION_PREFIX = "export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStagingSolution>> = ";
+const SOLUTION_SUFFIX = ";\n\n/** Returns the solved desktop opening camera";
+
+/** Read the tool-owned generated JSON literal without reaching through another package's source boundary. */
+export async function readAuthoredSolutions(repoRoot: string): Promise<Readonly<Record<string, AuthoredStagingSolution>>> {
+  const source = await readFile(
+    path.join(repoRoot, "packages/openclinxr/scenario-fixtures/src/staging-solver-authored.ts"),
+    "utf8",
+  );
+  const start = source.indexOf(SOLUTION_PREFIX);
+  const end = source.indexOf(SOLUTION_SUFFIX, start + SOLUTION_PREFIX.length);
+  if (start < 0 || end < 0) throw new Error("generated authored staging solution literal is missing");
+  return JSON.parse(source.slice(start + SOLUTION_PREFIX.length, end)) as Record<string, AuthoredStagingSolution>;
+}
 
 function rounded(value: number): number {
   return Number(value.toFixed(6));

@@ -1,0 +1,5 @@
+{"type": "clip", "clip": "pangram", "closureHits": 1, "closureTotal": 3, "labiodentalHits": 0, "labiodentalTotal": 4, "onsetMedianFrames": 5.0, "onsetP95Frames": 9.0}
+{"type": "clip", "clip": "viseme-words", "closureHits": 3, "closureTotal": 6, "labiodentalHits": 0, "labiodentalTotal": 1, "onsetMedianFrames": 3.0, "onsetP95Frames": 9.0}
+{"type": "clip", "clip": "i-feel-the-pain-is-better-now", "closureHits": 0, "closureTotal": 4, "labiodentalHits": 0, "labiodentalTotal": 1, "onsetMedianFrames": 5.0, "onsetP95Frames": 9.0}
+{"type": "rtf", "p50": 30.180009871011446, "p95": 30.876677511991065}
+{"type": "oov", "active": true, "activityMean": 0.4016917645931244, "silenceActivityP95": 0.06465475261211395}

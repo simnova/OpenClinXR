@@ -35,9 +35,8 @@
 import { derivePlantedEntries, RESIDUAL_FINGERPRINTS } from "./planted-red-discovery.js";
 
 export { derivePlantedEntries, discoverPlantedClauses } from "./planted-red-discovery.js";
-export type { DerivedPlantedEntry, DiscoveredPlantedClause } from "./planted-red-discovery.js";
 
-export type PlantedRed = {
+type PlantedRed = {
   file: string;
   /** The clause title, EXACTLY. It is both the identity used for coverage and the vitest selector. */
   select: string;
@@ -190,12 +189,7 @@ void RETAINED_LITERAL;
 // carried was already removed by a flipped clause.
 
 /**
- * Failure shapes that mean the INSTRUMENT is broken, whatever else matched. A clause dying on any of
- * these is not red for its own reason even if its message happens to contain the expected substring.
+ * Failure shapes that mean the INSTRUMENT is broken live in ./planted-red-instrument.js
+ * (internal, consumed by probe-planted-reds.mts via relative path). No contracted consumer
+ * binds the published name, so this entrypoint no longer republishes it.
  */
-export const INSTRUMENT_FAILURES: readonly { pattern: RegExp; why: string }[] = [
-  { pattern: /ReferenceError/, why: "a symbol the clause references does not exist" },
-  { pattern: /Cannot find module '\/(?!Volumes)/, why: "a mangled relative specifier - the M1 defect of 2026-08-29" },
-  { pattern: /Test timed out/, why: "the clause hung rather than asserting" },
-  { pattern: /SyntaxError/, why: "the file does not parse" },
-];

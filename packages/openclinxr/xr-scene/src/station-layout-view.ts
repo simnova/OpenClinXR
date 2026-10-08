@@ -1,5 +1,5 @@
 import { collectActorWorldBoxes } from "./infinigen-station-environment.js";
-import { Box3, Mesh, OrthographicCamera, type PerspectiveCamera, type Scene, Vector3 } from "three";
+import { Box3, Mesh, type Object3D, OrthographicCamera, type PerspectiveCamera, type Scene, Vector3 } from "three";
 
 type LayoutViewMode = "overhead" | "isometric" | "perspective";
 

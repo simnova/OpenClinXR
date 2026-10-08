@@ -19,8 +19,6 @@
 import { compileScenarioMotion, type ScenarioMotionCompileInput } from "./program/compile-scenario-motion.js";
 import { validateMotionProgram, type MotionProgram } from "./motion-program.js";
 
-export type { ScenarioMotionCompileInput } from "./program/compile-scenario-motion.js";
-
 /**
  * Plan a validated semantic MotionProgram from authored scenario data.
  *

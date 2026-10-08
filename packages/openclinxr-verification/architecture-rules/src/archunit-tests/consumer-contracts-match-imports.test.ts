@@ -1188,10 +1188,13 @@ describe("consumer contracts match imports", () => {
     // Report-only: the tree's surface beyond the contracted slices. The count
     // fell 1494 -> 994 (27 providers under contract) -> 318 (all 78 consumer
     // dirs under contract) -> 101 (own-test and path-reach bindings counted
-    // as consumed); the floor below proves the reporter still sees the tree,
-    // not a number to chase.
+    // as consumed) -> 44 (2026-10-08 shrink-a/shrink-b removals); the floor
+    // below proves the reporter still sees the tree, not a number to chase.
+    // It was "> 50" until removals legitimately crossed it; any fixed floor
+    // above zero becomes a target that blocks the next removal, so it only
+    // demands a non-empty report. The per-provider ceilings carry the counts.
     const count = globalUnconsumedCount(findRoot());
-    expect(count).toBeGreaterThan(50);
+    expect(count).toBeGreaterThan(0);
   });
 
   it("(7) string-literal and comment imports derive no contract", () => {

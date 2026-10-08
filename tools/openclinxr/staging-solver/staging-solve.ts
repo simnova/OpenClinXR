@@ -2,13 +2,12 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { AUTHORED_STAGING_SOLUTIONS } from "../../../packages/openclinxr/scenario-fixtures/src/staging-solver-authored.js";
 import type { GateReading } from "../evidence/station-capture/gate-geometry.js";
 import {
   captureStationEnvironmentRooms,
   shippedStationIds,
 } from "../evidence/ui-xr-environment-room-capture.js";
-import { writeAuthoredSolutions } from "./authored-output.js";
+import { readAuthoredSolutions, writeAuthoredSolutions, type AuthoredStagingSolution } from "./authored-output.js";
 import { type CameraSearchResult, projectedActorCoverage, searchBestCamera, solveLayouts } from "./camera-search.js";
 import { searchClinicalLayouts } from "./layout-search.js";
 import { cacheObservedGate, cacheSnapshotRaw, readFreshSnapshot } from "./snapshot-cache.js";
@@ -128,6 +127,7 @@ async function captureReal(
   cases: string[],
   rows: Map<string, StagingSolveResult>,
   stagedSolutions: ReadonlyMap<string, CameraSearchResult> = new Map(),
+  preservedSolutions: Readonly<Record<string, AuthoredStagingSolution>> = {},
 ): Promise<void> {
   mkdirSync(AFTER_DIR, { recursive: true });
   const allEntries: Awaited<ReturnType<typeof captureStationEnvironmentRooms>>["entries"] = [];
@@ -140,7 +140,7 @@ async function captureReal(
         // generated bundles. Protected baselines must load their real product
         // camera, otherwise the live no-regression check becomes circular.
         const solvedCamera = stagedSolutions.get(scenarioId)?.camera
-          ?? AUTHORED_STAGING_SOLUTIONS[scenarioId]?.camera
+          ?? preservedSolutions[scenarioId]?.camera
           ?? null;
         const manifest = await captureStationEnvironmentRooms({ scenarioIds: [scenarioId], outputDir: AFTER_DIR,
           ...(solvedCamera ? { stagingCameraByScenario: { [scenarioId]: solvedCamera } } : {}),
@@ -171,8 +171,12 @@ async function captureReal(
   }
 }
 
-async function applySolutions(refreshCases: Iterable<string>, solutions: ReadonlyMap<string, CameraSearchResult>): Promise<void> {
-  await writeAuthoredSolutions(REPO_ROOT, solutions, AUTHORED_STAGING_SOLUTIONS);
+async function applySolutions(
+  refreshCases: Iterable<string>,
+  solutions: ReadonlyMap<string, CameraSearchResult>,
+  preservedSolutions: Readonly<Record<string, AuthoredStagingSolution>>,
+): Promise<void> {
+  await writeAuthoredSolutions(REPO_ROOT, solutions, preservedSolutions);
   // The UI consumes scenario-fixtures through its built package export. Rebuild
   // after writing the authored solution so the runtime capture cannot grade a
   // previous solver result while the report describes the new one.
@@ -217,6 +221,7 @@ function restoreObservedBaseline(row: StagingSolveResult, snapshot: CachedSceneS
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  const authoredSolutions = await readAuthoredSolutions(REPO_ROOT);
   const snapshots = await snapshotsFor(args.cases, args.refreshSnapshot);
   const rows = new Map<string, StagingSolveResult>();
   const solutions = new Map<string, CameraSearchResult>();
@@ -238,7 +243,7 @@ async function main(): Promise<void> {
   }
   if (args.retainedOnly) {
     for (const [scenarioId] of [...solutions]) {
-      if (AUTHORED_STAGING_SOLUTIONS[scenarioId]) continue;
+      if (authoredSolutions[scenarioId]) continue;
       solutions.delete(scenarioId);
       const snapshot = snapshots.get(scenarioId);
       const row = rows.get(scenarioId);
@@ -247,10 +252,10 @@ async function main(): Promise<void> {
   }
   const publicBackups = args.apply ? backupPublicBundles(solutions.keys()) : new Map();
   if (args.apply) {
-    await applySolutions(solutions.keys(), solutions);
+    await applySolutions(solutions.keys(), solutions, authoredSolutions);
   }
   if (args.capture) {
-    await captureReal(args.cases, rows, solutions);
+    await captureReal(args.cases, rows, solutions, authoredSolutions);
     if (args.apply) {
       const accepted = new Map([...solutions].filter(([scenarioId]) => rows.get(scenarioId)?.realGate?.gatePass === true));
       if (accepted.size !== solutions.size) {
@@ -263,8 +268,8 @@ async function main(): Promise<void> {
         }
         process.stdout.write(`staging-solver: live promotion accepted ${String(accepted.size)}/${String(solutions.size)} candidates; restoring rejected baselines\n`);
         restorePublicBundles(publicBackups, rejected);
-        await applySolutions(accepted.keys(), accepted);
-        await captureReal(args.cases, rows, accepted);
+        await applySolutions(accepted.keys(), accepted, authoredSolutions);
+        await captureReal(args.cases, rows, accepted, authoredSolutions);
       }
     }
   }

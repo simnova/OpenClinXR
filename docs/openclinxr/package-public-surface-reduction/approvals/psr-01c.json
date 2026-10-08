@@ -2508,10 +2508,11 @@
       "entrypoint": "./planted-red-manifest",
       "symbol": "DerivedPlantedEntry",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
-      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+      "rationale": "Stale keep: planted-red-manifest.derived.test.ts:10 imports derivePlantedEntries, discoverPlantedClauses, PLANTED_REDS only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/motion-compiler/src/planted-red-discovery.ts:30",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/motion-compiler",
@@ -2528,10 +2529,11 @@
       "entrypoint": "./planted-red-manifest",
       "symbol": "DiscoveredPlantedClause",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
-      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+      "rationale": "Stale keep: planted-red-manifest.derived.test.ts:10 imports derivePlantedEntries, discoverPlantedClauses, PLANTED_REDS only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/motion-compiler/src/planted-red-discovery.ts:27",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/motion-compiler",
@@ -2548,10 +2550,11 @@
       "entrypoint": "./planted-red-manifest",
       "symbol": "INSTRUMENT_FAILURES",
       "kind": "runtime",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
-      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+      "rationale": "Stale keep: planted-red-manifest.derived.test.ts:10 imports derivePlantedEntries, discoverPlantedClauses, PLANTED_REDS only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/motion-compiler/src/planted-red-instrument.ts:9",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/motion-compiler",
@@ -2568,10 +2571,11 @@
       "entrypoint": "./planted-red-manifest",
       "symbol": "PlantedRed",
       "kind": "type",
-      "disposition": "keep",
+      "disposition": "remove",
       "owner": "packages/openclinxr/motion-compiler",
-      "rationale": "Named import by the intra-package derivation test pins the derived planted-RED manifest contract.",
-      "evidence": "packages/openclinxr/motion-compiler/src/test/planted-red-manifest.derived.test.ts:10"
+      "rationale": "Stale keep: planted-red-manifest.derived.test.ts:10 imports derivePlantedEntries, discoverPlantedClauses, PLANTED_REDS only. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/motion-compiler/src/planted-red-manifest.ts:39",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/motion-compiler",
@@ -3258,10 +3262,11 @@
       "entrypoint": ".",
       "symbol": "ScenarioMotionCompileInput",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
-      "rationale": "Deliberate compatibility contract (orchestrator amendment at PSR-03 land, 2026-09-11): planMotionProgram is the deterministic motion planner entry the motion DSL consumer-path document names, and the planned motion-bake cards consume it. Un-publishing both names left deterministic-scenario-motion-planner.ts unreferenced, which the Knip gate refuses, and the plan forbids deleting source to satisfy Knip.",
-      "evidence": "grep for from \"@openclinxr/motion-compiler\" outside the package returns only the intra-package planted-red-manifest test"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/motion-compiler",
+      "rationale": "Stale keep: the cited grep note observes no external importer, which is the absence of a consumer, not a binding. No specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds the published name on shrink-a @ d387f30fe. Implementation stays in package.",
+      "evidence": "packages/openclinxr/motion-compiler/src/program/compile-scenario-motion.ts:139",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree ebd94058eb7b638d370be00ceb453211a453fc55 on main 4773a5bda: session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8 verified 43 removals unbound, 44 amended psr rows (5 psr-01c, 39 psr-01e) with evidence lines containing their symbols and hashes untouched, exception 1214/1000 and maxRoot 116/50, ceilings tightened to 36 and 926, registry +1 row with counts matching, and judged the clause-(6) floor change a justified non-empty reporter guard; APPROVED 2026-10-08"
     },
     {
       "package": "packages/openclinxr/motion-compiler",

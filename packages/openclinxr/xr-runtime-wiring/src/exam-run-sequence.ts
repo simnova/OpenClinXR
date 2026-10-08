@@ -11,7 +11,7 @@ import {
   type ExamFormRunState,
   nextExamFormRunStation,
 } from "@openclinxr/exam-assembly";
-import { formatStationClock, type LearnerExamFlowPhase } from "@openclinxr/xr-runtime-state";
+import type { LearnerExamFlowPhase } from "@openclinxr/xr-runtime-state";
 import { buildExamNavigationUrl, type ExamRunTiming } from "./exam-run-params.js";
 
 export type ExamStationContext = {
@@ -135,5 +135,3 @@ export function mergeExamRunStationOutcome<
     next,
   ];
 }
-
-export { formatStationClock };

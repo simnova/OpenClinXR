@@ -11,14 +11,9 @@ export {
   isEdBayVisibleCaptureMode,
 } from "./capture-clock-validation.js";
 export {
-  isActorCloseRealismCaptureMode,
-  isActorPoseReviewCaptureMode,
-  isGeneratedSceneOverviewCaptureMode,
-  isHumanoidFaceDetailCaptureMode,
   isHumanoidMouthGazePoseReviewCaptureMode,
   isPhysicsClinicalTouchCapture,
   isSceneOnlyVisualReviewCaptureMode,
-  selectedCaptureMode,
   shouldShowInSceneEvidencePanels,
   shouldShowInSceneIdentityLabels,
   shouldShowPrimitiveAssetFallbacks,
@@ -36,10 +31,6 @@ export {
 export {
   isRealGarmentSleeveDeformCapture,
 } from "./real-garment-capture.js";
-export type {
-  DeclaredEquipmentMountEvidence,
-  OpenClinXrXrEntryEvidence,
-} from "./scene-asset-evidence.js";
 export {
   formatSceneAssetEvidenceStatus,
   formatUnknownError,

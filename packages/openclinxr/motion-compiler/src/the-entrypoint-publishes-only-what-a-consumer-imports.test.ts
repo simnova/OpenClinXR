@@ -64,10 +64,11 @@ const CUT_FROM_ROOT = [
   "MotionGlbBakeClip",
   "bakeMotionProgramToGlb",
   "readMotionGlbClipId",
+  "ScenarioMotionCompileInput",
 ] as const;
 
-/** What the root still publishes: the two symbols whose consumers bind the root. */
-const ROOT_KEEP = ["planMotionProgram", "ScenarioMotionCompileInput"] as const;
+/** What the root still publishes: the one symbol whose consumers bind the root. */
+const ROOT_KEEP = ["planMotionProgram"] as const;
 
 /** What ./compiler publishes: the three symbols the capability gateway binds there. */
 const COMPILER_KEEP = [
@@ -103,7 +104,7 @@ describe("the entrypoint publishes only what a consumer imports", () => {
   // ## FIXED (2026-10-05 Codex independent verdict 01a10cce): the six consumer-bound symbols left
   // the root for ./compiler and ./glb-bake; the guard now pins the two symbols whose consumers
   // still bind the root.
-  it("(0) the entrypoint exists and names the two kept root symbols", () => {
+  it("(0) the entrypoint exists and names the one kept root symbol", () => {
     const src = entrypointSource();
     expect(src.length, "index.ts is empty — clause (1) would pass vacuously").toBeGreaterThan(50);
     for (const symbol of ROOT_KEEP) {
@@ -117,7 +118,7 @@ describe("the entrypoint publishes only what a consumer imports", () => {
   // Marked it.fails so the suite is green while the defect stands. THE FIX MUST CONVERT IT BACK
   // TO `it(` — the card's live: rule fails while any it.fails clause remains, so a green run here
   // is not evidence of repair.
-  it("(1) does not publish the nine symbols nothing on the root imports", () => {
+  it("(1) does not publish the ten symbols nothing on the root imports", () => {
     const src = entrypointSource();
     for (const symbol of CUT_FROM_ROOT) {
       expect(publishes(src, symbol), `index.ts still publishes ${symbol}, which has no root consumer`).toBe(false);
@@ -135,13 +136,13 @@ describe("the entrypoint publishes only what a consumer imports", () => {
   // (3) COUNTERWEIGHT — and the value exports must still be callable, not merely present as text.
   it("(3) the consumed value exports remain callable through their entrypoints", async () => {
     const root = (await import("./index.js")) as Record<string, unknown>;
-    expect(typeof root["planMotionProgram"], "planMotionProgram must stay callable").toBe("function");
+    expect(typeof root.planMotionProgram, "planMotionProgram must stay callable").toBe("function");
     const compiler = (await import("./compiler.js")) as Record<string, unknown>;
-    expect(typeof compiler["compileMotionProgram"], "compileMotionProgram must stay callable").toBe("function");
-    expect(typeof compiler["deriveSkeletonProfileFromRigAsset"], "deriveSkeletonProfileFromRigAsset must stay callable").toBe("function");
+    expect(typeof compiler.compileMotionProgram, "compileMotionProgram must stay callable").toBe("function");
+    expect(typeof compiler.deriveSkeletonProfileFromRigAsset, "deriveSkeletonProfileFromRigAsset must stay callable").toBe("function");
     const bake = (await import("./glb-bake.js")) as Record<string, unknown>;
-    expect(typeof bake["bakeMotionProgramToGlb"], "bakeMotionProgramToGlb must stay callable").toBe("function");
-    expect(typeof bake["readMotionGlbClipId"], "readMotionGlbClipId must stay callable").toBe("function");
+    expect(typeof bake.bakeMotionProgramToGlb, "bakeMotionProgramToGlb must stay callable").toBe("function");
+    expect(typeof bake.readMotionGlbClipId, "readMotionGlbClipId must stay callable").toBe("function");
   });
 
   // (4) SUBPATH SURFACE — each moved symbol is published exactly where its consumers bind it.
@@ -177,4 +178,10 @@ describe("the entrypoint publishes only what a consumer imports", () => {
  * clause (3) proves callability through root + subpaths; new clause (4) pins the subpath surfaces.
  * Capability-gateway binds ./compiler + ./glb-bake (+ root for planMotionProgram); the motion tool
  * binds ./glb-bake by package specifier instead of a relative source import.
+ *
+ * ## FIXED (2026-10-08 shrink-a consumer-contracts) — unpublished ScenarioMotionCompileInput from
+ * the root: no specifier, own-test entrypoint, path-reach, dynamic, or export-star consumer binds
+ * it (consumes.json lists only planMotionProgram on "."). The type stays defined in
+ * program/compile-scenario-motion.ts and used in-package via relative imports. ROOT_KEEP is now
+ * planMotionProgram alone; CUT_FROM_ROOT gains ScenarioMotionCompileInput (ten absent).
  */

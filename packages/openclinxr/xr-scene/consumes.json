@@ -238,6 +238,11 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "EncounterActorFramingInput",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
         "name": "applyCleanEncounterVisualReviewActorFraming",
         "kind": "runtime",
         "via": "own-test"
@@ -248,8 +253,8 @@
         "via": "own-test"
       },
       {
-        "name": "EncounterActorFramingInput",
-        "kind": "type",
+        "name": "installStationLayoutView",
+        "kind": "runtime",
         "via": "own-test"
       }
     ]

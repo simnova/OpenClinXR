@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene } from "three";
 
-import { installStationLayoutView } from "./station-layout-view.js";
+import { installStationLayoutView } from "./index.js";
 
 describe("station layout views", () => {
   it("places the overhead orthographic camera above tall retained fixtures", () => {

@@ -5,9 +5,9 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 107,
-    "current-reference": 214,
-    "archive-candidate": 116,
-    "evidence": 167,
+    "current-reference": 213,
+    "archive-candidate": 152,
+    "evidence": 134,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -2765,42 +2765,42 @@
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/LICENSE-CLASHES-CRiAukKl.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-B8Wv7Cdq.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/README-BqcQEmXT.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-9EYZHnfr.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-D84YeN9A.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/physics-clinical-touch/README.md",
@@ -2824,39 +2824,53 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "apps/arena/viseme-audio-clock/wav2arkit/NOTICE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/viseme-audio-clock/wav2arkit/score-sheet.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",
@@ -2933,112 +2947,112 @@
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/agent-ops/2026-09/2026-08-02-temporal-review-grok-tokens.md",
       "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
+      "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Archived copy of the dated agent-ops revision record (in-flight archive op, 2026-09-29); use successor living SSOT, not this file, as law."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-08/bothyboard-0.5.0-contract-2026-08-27.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-08/bothyboard-agent-next-2026-08-27.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-08/bothyboard-overtake-gh-projects-agent-brief-2026-08-27.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/agent-factory/README.md",
@@ -3273,10 +3287,10 @@
     },
     {
       "path": "docs/agent-ops/worker-session-time-split-2026-09-29.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
       "path": "docs/madr/0011-step2cs-inspired-sequential-exam.md",
@@ -3583,22 +3597,22 @@
       "path": "docs/madr/0059-image-to-3dlab-equipment-cagematch.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current ECG-cart image-to-3dlab equipment cagematch decision record; not-adopted decision retained while Round 4 evidence awaits coordinator grade."
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/0060-station-solver-port-and-friend-tuning-boundary.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Proposed decision: station solvers are private to the executor, scored by a shared objective package; staging pilot follows the 2026-09-30 phases."
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/0061-station-solvers-are-pinned-plug-ins.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Accepted amendment to MADR 0060: solvers are pinned plug-in packages resolved by a generated registry; R6; mouth is the first station pilot."
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/README.md",
@@ -3637,17 +3651,17 @@
     },
     {
       "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, provenance boundaries, and Round 4 TRELLIS.2 optimizer diagnosis/treatments; coordinator re-grade pending."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Coordinator native-pixel grade of the factory-wired R5-BEST ECG cart against the adopted round-5b cart: checklist, connector-row defects, adoption as runtime cart."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/asset-generation-pipeline.md",
@@ -3932,9 +3946,9 @@
     {
       "path": "docs/openclinxr/humanoid-motion-delegation-2026-09-14/handoff.md",
       "authority": "evidence",
-      "agentInstructionWeight": "none",
+      "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "rationale": "Retained implementation handoff evidence; historical context only and not active instructions."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
@@ -3988,9 +4002,9 @@
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/handoff.md",
       "authority": "evidence",
-      "agentInstructionWeight": "none",
+      "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "rationale": "Retained implementation handoff evidence; historical context only and not active instructions."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/preparation-grok-review.md",
@@ -4085,10 +4099,10 @@
     },
     {
       "path": "docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md",
@@ -4106,10 +4120,10 @@
     },
     {
       "path": "docs/openclinxr/lipsync-speech/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "lipsync-speech slice record: Kokoro voice map, cache key, determinism, per-case evidence index."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/local-ai-voice-model-strategy.md",
@@ -4242,7 +4256,7 @@
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Independent read-only review (Codex gpt-5, session 01a10cce-e34f-7a02-9c56-c4d7aa8b76d1, 2026-10-05) of the public-surface moves; verdict implemented by the viseme-motion subpath slice."
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/evidence/psr-00.md",
@@ -4484,227 +4498,227 @@
     },
     {
       "path": "docs/openclinxr/room-realism/ao-overlap-fix/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "AO overlap fix report: measured (a)/(b) split, RED/GREEN overlap fractions, captures, and disclosed follow-ups. Landed as part of the UV-separation groundwork carried into the Cycles AO bake."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Stage-isolation diagnosis of the painted-ceiling wall-junction brown band: band RGB, in-page raycast hits, toggle table, GLB node audit, phantom-shadow mechanism."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/brown-band/FIX.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Brown-band factory fix record: phantom-shadow mechanism, bake/finish changes, before/after proof numbers, promotion hashes, pinning tests."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/ceiling-cornice/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Ceiling-cornice diagnosis, recipe-driven wall-angle replacement, learner-runtime luminance grades, surface-regression result, and decoded-budget summary."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/cornice-ab/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Operator-facing four-variant ward and step-down ceiling-cornice A/B sheets, native-pixel measurements, crop boxes, and default no-op proof."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/cornice-flush/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Flush cornice tile/T-bar/wall comparison, immutable prior A/B, same-pose gap/flicker and ceiling contrast measurements, selected tile promotion."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/door-finish/READER-AUDIT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Ward floor tint calibration, learner-runtime measurement, no-regression, budget, and producer audit."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Written room spec (envelope, finishes, door wall/position/hinge, no-windows decision, six camera views) used verbatim in every v2 imagine-multiview reference prompt; keep alongside the v2 reference set it drove (row-32 provenance)."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-multiview-v2/screening.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Screening record (pass/fail plus reason per candidate) for the v2 imagine-multiview reference set, graded against ROOM-SPEC.md."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Grading rubric (enclosure, wall colour, troffer flush, T-bar grid, cove base, door trim, vinyl floor, ceiling tiles) for ward-finish runtime captures against the committed Imagine multiview reference set; recorded grades live in docs/openclinxr/room-realism/ward-multiview/grades.json."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Lens-refit frame-fraction measurement (poses 01/02 FOV+eye fit to the v2 references, pixel evidence) for the lens-refit job."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/CHAIN-BASELINE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Chain baseline report: fresh-chain-GLB wall FAIL (226.8) with exposure-infeasibility proof, prescribed tile box INVALID (wall-dominated), clean-tile dark/warm measurements, blown DIFFUSE wall-bake root cause; both fix steps blocked."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/HEMISPHERE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Hemisphere retune report: raised_hemisphere_ground sky/ground toward neutral, hemisphere-RED/GREEN wall/tile box means against the v2 reference, tile-B fix with wall bar held."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/light-balance/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Light-balance report: clinic_day rig retune toward neutral, RED/GREEN wall/tile box means against the v2 reference, wall bar pass, tile-B fail disclosed as hemisphere/albedo-limited."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Cycles AO bake Metal-vs-CPU re-measurement (seed-205 ward): per-run wall time, run-to-run determinism, CPU-vs-Metal pixel diffs, mechanical adoption verdict (AO adopted for Metal), and the real-CLI chain proof."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Room iteration wall-clock after GPU changes (seed-205 ward, --no-cache x2): per-stage/per-Blender-pass seconds, concurrent-Blender counts, pre-GPU baseline comparison, capture-renderer finding, lit-albedo-Metal decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/room-chain-metal-measure/report.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Metal-vs-CPU bake measurement report for the three room_generate bakes (shell, albedo, AO): timing, RSS, run-to-run determinism, pixel diffs, and the mechanical adoption verdict (Metal adopted for shell bake only)."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Independent reproduction of the room footprint tile-grid measurement (width/depth/height ranges, pixel evidence) for the room-dimensions-fix job."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-defects/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Factory fixes for the six graded fleet defects with per-defect mechanisms, proof numbers, re-promoted hashes, and before/after sheet evidence."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-01.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "First cold promotion batch with per-pass timings, cache/device posture, shipped hashes, and the isolated stroke-room finish failure."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-02.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Second cold promotion batch with timings, hashes, and corrections for imported hinge-axis and painted-ceiling pose derivation failures."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-03.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Third cold promotion batch covering home, oncology, urgent-care, and surgical room chains with timings and shipped hashes."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/BATCH-04.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Final cold promotion batch covering pediatric fever, inpatient ward, and step-down rooms with timings and shipped hashes."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/INVENTORY.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Pre-regeneration inventory of all shipped encounter-room GLBs, environment and scenario mappings, measured bounds, door semantics, provenance, and multi-case-runner coverage."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/RECIPES.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Per-room deterministic seed, fixed-footprint and clinically appropriate finish rationale for the full shipped room-chain fleet."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/rooms-regen/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Fleet regeneration result, timing and device audit, structural budgets, learner-runtime sheets, and ranked realism defects."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Ward candidate reader corrections, measured property conflicts, ceiling fix, and encoded/decoded budget audit."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/skirting-fix/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Skirting vinyl-cove fix runtime evidence (RED/GREEN seed-205 shell-only captures, diagnosis, calibration); use only when it verifies touched bake behavior."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/stepdown-room-v1-finish/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Step-down room data-driven finish and derived-pose promotion report with controlled learner-runtime before/after sheets, ward parity deltas, clearance/pixel-presence gates, decoded texture budget, hashes, and no-reference disclosure."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md",
@@ -5173,21 +5187,21 @@
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
-      "rationale": "Station README for room_chain stage caching: cache-key input list, and a D9 finding that room_generate's Infinigen GENERATE step is not bit-deterministic run to run (RED4 divergence isolated to stage 1, 4 vertices on Cube.003). Subordinate to protected + drift rules."
+      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
-      "rationale": "Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules."
+      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
-      "rationale": "Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules."
+      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "packages/openclinxr/physics-touch-artifacts/README.md",
@@ -5262,9 +5276,9 @@
     {
       "path": "tools/openclinxr/evidence/delegation/psr-admission-overlay-2026-09-15/handoff.md",
       "authority": "evidence",
-      "agentInstructionWeight": "none",
+      "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+      "rationale": "Retained implementation handoff evidence; historical context only and not active instructions."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/family-partner-library-lower-2026-09-12.md",

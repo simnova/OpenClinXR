@@ -4,7 +4,6 @@
   "entrypoint": "packages/openclinxr/xr-locomotion/src/index.ts",
   "purpose": "Public interface of @openclinxr/xr-locomotion.",
   "exports": [
-    "ExamineeLocomotionEvidence",
     "PORTAL_THRESHOLD_Z",
     "PortalTransitionContext",
     "PortalTransitionEvidence",

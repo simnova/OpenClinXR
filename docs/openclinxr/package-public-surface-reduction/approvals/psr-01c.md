@@ -16,3 +16,14 @@ Migrations use only the existing `./documents` subpath. No new subpaths, namespa
 
 ## Amendment at shrink-b (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11ad4-675a-7ac1-a55e-8ed57ee28447)
 1 `packages/openclinxr/graphql` row moves `keep` to `remove`: `./documents` `AdminGraphqlDocument`. Keep evidence cited `packages/openclinxr/rest/src/routes/admin-graphql-routes.ts:22`, which returns `adminGraphqlDocuments` (plural) with no type reference. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the type. Definition stays internal in `documents.ts:1`.
+
+## Amendment at shrink-a consumer-contracts (worker, 2026-10-08; reviewedBy reviewed by Codex gpt-5.6-terra, session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8)
+
+5 `packages/openclinxr/motion-compiler` rows move from `keep` to `remove`: `ScenarioMotionCompileInput`
+on `.`, plus `DerivedPlantedEntry`, `DiscoveredPlantedClause`, `INSTRUMENT_FAILURES`, `PlantedRed`
+on `./planted-red-manifest`. The cited keeps pointed at
+`src/test/planted-red-manifest.derived.test.ts:10`, whose import binds only `derivePlantedEntries`,
+`discoverPlantedClauses`, `PLANTED_REDS`, or at a grep note recording the absence of an importer.
+Consumer contracts on shrink-a @ d387f30fe bind none of the five via specifier, own-test entrypoint,
+path-reach, dynamic, or export-star use. Each amended row names the provider package as owner with
+`reviewedBy: reviewed by Codex gpt-5.6-terra, session 01a11b94-7ca3-7d11-a644-1a2a3a020ea8`; the coordinator arranges the independent review.

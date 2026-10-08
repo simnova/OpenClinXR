@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { roomPropsForEnvironment } from "./runtime-room-props.js";
-import { ENVIRONMENT_SHELL_DESCRIPTORS } from "./environment-descriptors.js";
+import { ENVIRONMENT_SHELL_DESCRIPTORS } from "./index.js";
+import { createEdChestPainRuntimeSceneManifest } from "./runtime-bundles-entry.js";
+
+function roomPropsForEnvironment(environmentId: string) {
+  return createEdChestPainRuntimeSceneManifest({ environmentId }).roomProps;
+}
 
 describe("environment-owned room props", () => {
   it("keeps the detailed prop sets on the two environments that own them", () => {
@@ -19,7 +23,7 @@ describe("environment-owned room props", () => {
   });
 
   it("does not place an unused stretcher in the standing stroke handoff", () => {
-    const slots = ENVIRONMENT_SHELL_DESCRIPTORS["ed_stroke_bay_v1"]?.fixtureSlots ?? [];
+    const slots = ENVIRONMENT_SHELL_DESCRIPTORS.ed_stroke_bay_v1?.fixtureSlots ?? [];
     expect(slots.some((slot) => /stretcher|bed/iu.test(slot.slotId))).toBe(false);
     expect(slots.map((slot) => slot.slotId)).toEqual(expect.arrayContaining(["door_leaf", "wall_board", "learner_start"]));
   });

@@ -14,7 +14,6 @@ export {
 export {
   addHumanoidSourceComparatorFaceReviewCues,
   comparatorCaptureSubjectActorId,
-  frameComparatorCaptureOnNamedActor,
   loadGeneratedEnvironmentIntoSceneSlot,
   loadGeneratedEquipmentIntoSceneSlot,
   loadGeneratedHumanoidIntoActorSlot,

@@ -7,6 +7,7 @@ describe("ED chest pain deterministic simulation", () => {
     // The default runtime factory composes live rungs from ambient env; this test pins
     // the offline deterministic simulation, so clear the keys before the runtime is built.
     delete process.env["OPENROUTER_API_KEY"];
+    delete process.env["DEEPSEEK_API_KEY"];
     delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
   });
 

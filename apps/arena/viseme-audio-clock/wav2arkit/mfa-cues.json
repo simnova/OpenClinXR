@@ -1,0 +1,762 @@
+{
+  "pangram": {
+    "source": "docs/openclinxr/mouth-dynamics/viseme-eval/pangram/metrics.json (.mfa)",
+    "cues": [
+      {
+        "startS": 0,
+        "endS": 0.04,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.04,
+        "endS": 0.15,
+        "phone": "AE1"
+      },
+      {
+        "startS": 0.15,
+        "endS": 0.22,
+        "phone": "T"
+      },
+      {
+        "startS": 0.22,
+        "endS": 0.31,
+        "phone": "K"
+      },
+      {
+        "startS": 0.31,
+        "endS": 0.36,
+        "phone": "W"
+      },
+      {
+        "startS": 0.36,
+        "endS": 0.43,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.43,
+        "endS": 0.52,
+        "phone": "K"
+      },
+      {
+        "startS": 0.52,
+        "endS": 0.57,
+        "phone": "B"
+      },
+      {
+        "startS": 0.57,
+        "endS": 0.75,
+        "phone": "EY1"
+      },
+      {
+        "startS": 0.75,
+        "endS": 0.87,
+        "phone": "ZH"
+      },
+      {
+        "startS": 0.87,
+        "endS": 0.96,
+        "phone": "F"
+      },
+      {
+        "startS": 0.96,
+        "endS": 1.13,
+        "phone": "AA1"
+      },
+      {
+        "startS": 1.13,
+        "endS": 1.19,
+        "phone": "K"
+      },
+      {
+        "startS": 1.19,
+        "endS": 1.28,
+        "phone": "S"
+      },
+      {
+        "startS": 1.28,
+        "endS": 1.39,
+        "phone": "JH"
+      },
+      {
+        "startS": 1.39,
+        "endS": 1.5,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.5,
+        "endS": 1.55,
+        "phone": "M"
+      },
+      {
+        "startS": 1.55,
+        "endS": 1.62,
+        "phone": "P"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.68,
+        "phone": "T"
+      },
+      {
+        "startS": 1.68,
+        "endS": 1.75,
+        "phone": "IH0"
+      },
+      {
+        "startS": 1.75,
+        "endS": 1.79,
+        "phone": "N"
+      },
+      {
+        "startS": 1.79,
+        "endS": 1.84,
+        "phone": "DH"
+      },
+      {
+        "startS": 1.84,
+        "endS": 1.97,
+        "phone": "IY0"
+      },
+      {
+        "startS": 1.97,
+        "endS": 2.11,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.11,
+        "endS": 2.21,
+        "phone": "R"
+      },
+      {
+        "startS": 2.21,
+        "endS": 2.36,
+        "phone": "OW1"
+      },
+      {
+        "startS": 2.36,
+        "endS": 2.43,
+        "phone": "V"
+      },
+      {
+        "startS": 2.43,
+        "endS": 2.55,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2.55,
+        "endS": 2.68,
+        "phone": "IY1"
+      },
+      {
+        "startS": 2.68,
+        "endS": 2.81,
+        "phone": "CH"
+      },
+      {
+        "startS": 2.81,
+        "endS": 2.9,
+        "phone": "TH"
+      },
+      {
+        "startS": 2.9,
+        "endS": 2.99,
+        "phone": "IH1"
+      },
+      {
+        "startS": 2.99,
+        "endS": 3.07,
+        "phone": "N"
+      },
+      {
+        "startS": 3.07,
+        "endS": 3.14,
+        "phone": "D"
+      },
+      {
+        "startS": 3.14,
+        "endS": 3.4,
+        "phone": "AA1"
+      },
+      {
+        "startS": 3.4,
+        "endS": 3.46,
+        "phone": "G"
+      },
+      {
+        "startS": 3.46,
+        "endS": 3.76,
+        "phone": "SIL"
+      },
+      {
+        "startS": 3.76,
+        "endS": 3.85,
+        "phone": "L"
+      },
+      {
+        "startS": 3.85,
+        "endS": 3.94,
+        "phone": "UH1"
+      },
+      {
+        "startS": 3.94,
+        "endS": 4.03,
+        "phone": "K"
+      },
+      {
+        "startS": 4.03,
+        "endS": 4.31,
+        "phone": "AW1"
+      },
+      {
+        "startS": 4.31,
+        "endS": 4.43,
+        "phone": "T"
+      },
+      {
+        "startS": 4.43,
+        "endS": 4.65,
+        "phone": "SIL"
+      },
+      {
+        "startS": 4.65,
+        "endS": 4.8,
+        "phone": "AY1"
+      },
+      {
+        "startS": 4.8,
+        "endS": 4.98,
+        "phone": "SH"
+      },
+      {
+        "startS": 4.98,
+        "endS": 5.24,
+        "phone": "AW1"
+      },
+      {
+        "startS": 5.24,
+        "endS": 5.35,
+        "phone": "T"
+      },
+      {
+        "startS": 5.35,
+        "endS": 5.58,
+        "phone": "SIL"
+      },
+      {
+        "startS": 5.58,
+        "endS": 5.68,
+        "phone": "F"
+      },
+      {
+        "startS": 5.68,
+        "endS": 5.71,
+        "phone": "R"
+      },
+      {
+        "startS": 5.71,
+        "endS": 5.76,
+        "phone": "ER0"
+      },
+      {
+        "startS": 5.76,
+        "endS": 5.83,
+        "phone": "HH"
+      },
+      {
+        "startS": 5.83,
+        "endS": 5.91,
+        "phone": "IY1"
+      },
+      {
+        "startS": 5.91,
+        "endS": 6.01,
+        "phone": "Z"
+      },
+      {
+        "startS": 6.01,
+        "endS": 6.1,
+        "phone": "F"
+      },
+      {
+        "startS": 6.1,
+        "endS": 6.35,
+        "phone": "OY1"
+      },
+      {
+        "startS": 6.35,
+        "endS": 6.39,
+        "phone": "L"
+      },
+      {
+        "startS": 6.39,
+        "endS": 6.46,
+        "phone": "D"
+      },
+      {
+        "startS": 6.46,
+        "endS": 6.52,
+        "phone": "Y"
+      },
+      {
+        "startS": 6.52,
+        "endS": 6.61,
+        "phone": "UW1"
+      },
+      {
+        "startS": 6.61,
+        "endS": 6.69,
+        "phone": "AH0"
+      },
+      {
+        "startS": 6.69,
+        "endS": 6.78,
+        "phone": "G"
+      },
+      {
+        "startS": 6.78,
+        "endS": 7,
+        "phone": "EH1"
+      },
+      {
+        "startS": 7,
+        "endS": 7.14,
+        "phone": "N"
+      },
+      {
+        "startS": 7.14,
+        "endS": 7.42,
+        "phone": "SIL"
+      },
+      {
+        "startS": 7.42,
+        "endS": 7.52,
+        "phone": "K"
+      },
+      {
+        "startS": 7.52,
+        "endS": 7.57,
+        "phone": "R"
+      },
+      {
+        "startS": 7.57,
+        "endS": 7.68,
+        "phone": "IY0"
+      },
+      {
+        "startS": 7.68,
+        "endS": 7.85,
+        "phone": "EY1"
+      },
+      {
+        "startS": 7.85,
+        "endS": 7.89,
+        "phone": "T"
+      },
+      {
+        "startS": 7.89,
+        "endS": 7.96,
+        "phone": "IH0"
+      },
+      {
+        "startS": 7.96,
+        "endS": 8.05,
+        "phone": "NG"
+      },
+      {
+        "startS": 8.05,
+        "endS": 8.15,
+        "phone": "K"
+      },
+      {
+        "startS": 8.15,
+        "endS": 8.38,
+        "phone": "EY1"
+      },
+      {
+        "startS": 8.38,
+        "endS": 8.57,
+        "phone": "AA0"
+      },
+      {
+        "startS": 8.57,
+        "endS": 8.76,
+        "phone": "S"
+      },
+      {
+        "startS": 8.76,
+        "endS": 8.794438,
+        "phone": "SIL"
+      }
+    ]
+  },
+  "viseme-words": {
+    "source": "docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/metrics.json (.mfa)",
+    "cues": [
+      {
+        "startS": 0,
+        "endS": 0.07,
+        "phone": "P"
+      },
+      {
+        "startS": 0.07,
+        "endS": 0.27,
+        "phone": "UH1"
+      },
+      {
+        "startS": 0.27,
+        "endS": 0.42,
+        "phone": "T"
+      },
+      {
+        "startS": 0.42,
+        "endS": 0.99,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.99,
+        "endS": 1.14,
+        "phone": "F"
+      },
+      {
+        "startS": 1.14,
+        "endS": 1.43,
+        "phone": "AE1"
+      },
+      {
+        "startS": 1.43,
+        "endS": 1.52,
+        "phone": "T"
+      },
+      {
+        "startS": 1.52,
+        "endS": 2.13,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.13,
+        "endS": 2.24,
+        "phone": "TH"
+      },
+      {
+        "startS": 2.24,
+        "endS": 2.42,
+        "phone": "IH1"
+      },
+      {
+        "startS": 2.42,
+        "endS": 2.54,
+        "phone": "NG"
+      },
+      {
+        "startS": 2.54,
+        "endS": 2.59,
+        "phone": "K"
+      },
+      {
+        "startS": 2.59,
+        "endS": 3.23,
+        "phone": "SIL"
+      },
+      {
+        "startS": 3.23,
+        "endS": 3.35,
+        "phone": "T"
+      },
+      {
+        "startS": 3.35,
+        "endS": 3.54,
+        "phone": "IH1"
+      },
+      {
+        "startS": 3.54,
+        "endS": 3.68,
+        "phone": "P"
+      },
+      {
+        "startS": 3.68,
+        "endS": 4.25,
+        "phone": "SIL"
+      },
+      {
+        "startS": 4.25,
+        "endS": 4.37,
+        "phone": "K"
+      },
+      {
+        "startS": 4.37,
+        "endS": 4.61,
+        "phone": "AA1"
+      },
+      {
+        "startS": 4.61,
+        "endS": 4.76,
+        "phone": "L"
+      },
+      {
+        "startS": 4.76,
+        "endS": 5.34,
+        "phone": "SIL"
+      },
+      {
+        "startS": 5.34,
+        "endS": 5.47,
+        "phone": "CH"
+      },
+      {
+        "startS": 5.47,
+        "endS": 5.62,
+        "phone": "EH1"
+      },
+      {
+        "startS": 5.62,
+        "endS": 5.79,
+        "phone": "R"
+      },
+      {
+        "startS": 5.79,
+        "endS": 6.4,
+        "phone": "SIL"
+      },
+      {
+        "startS": 6.4,
+        "endS": 6.58,
+        "phone": "S"
+      },
+      {
+        "startS": 6.58,
+        "endS": 6.88,
+        "phone": "ER1"
+      },
+      {
+        "startS": 6.88,
+        "endS": 7.5,
+        "phone": "SIL"
+      },
+      {
+        "startS": 7.5,
+        "endS": 7.61,
+        "phone": "L"
+      },
+      {
+        "startS": 7.61,
+        "endS": 7.85,
+        "phone": "AA1"
+      },
+      {
+        "startS": 7.85,
+        "endS": 8,
+        "phone": "T"
+      },
+      {
+        "startS": 8,
+        "endS": 8.57,
+        "phone": "SIL"
+      },
+      {
+        "startS": 8.57,
+        "endS": 8.66,
+        "phone": "R"
+      },
+      {
+        "startS": 8.66,
+        "endS": 8.87,
+        "phone": "EH1"
+      },
+      {
+        "startS": 8.87,
+        "endS": 8.95,
+        "phone": "D"
+      },
+      {
+        "startS": 8.95,
+        "endS": 9.57,
+        "phone": "SIL"
+      },
+      {
+        "startS": 9.57,
+        "endS": 9.69,
+        "phone": "K"
+      },
+      {
+        "startS": 9.69,
+        "endS": 9.8,
+        "phone": "AA1"
+      },
+      {
+        "startS": 9.8,
+        "endS": 10.02,
+        "phone": "R"
+      },
+      {
+        "startS": 10.02,
+        "endS": 10.62,
+        "phone": "P"
+      },
+      {
+        "startS": 10.62,
+        "endS": 10.67,
+        "phone": "B"
+      },
+      {
+        "startS": 10.67,
+        "endS": 10.92,
+        "phone": "EH1"
+      },
+      {
+        "startS": 10.92,
+        "endS": 11,
+        "phone": "D"
+      },
+      {
+        "startS": 11,
+        "endS": 11.63,
+        "phone": "SIL"
+      },
+      {
+        "startS": 11.63,
+        "endS": 11.75,
+        "phone": "T"
+      },
+      {
+        "startS": 11.75,
+        "endS": 12.15,
+        "phone": "OW1"
+      },
+      {
+        "startS": 12.15,
+        "endS": 12.74,
+        "phone": "P"
+      },
+      {
+        "startS": 12.74,
+        "endS": 12.79,
+        "phone": "B"
+      },
+      {
+        "startS": 12.79,
+        "endS": 13,
+        "phone": "UH1"
+      },
+      {
+        "startS": 13,
+        "endS": 13.12,
+        "phone": "K"
+      },
+      {
+        "startS": 13.12,
+        "endS": 13.153063,
+        "phone": "SIL"
+      }
+    ]
+  },
+  "i-feel-the-pain-is-better-now": {
+    "source": ".cache/step3.TextGrid (MFA 3.4.2 live run, this card)",
+    "cues": [
+      {
+        "startS": 0,
+        "endS": 0.28,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.28,
+        "endS": 0.31,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.31,
+        "endS": 0.5,
+        "phone": "F"
+      },
+      {
+        "startS": 0.5,
+        "endS": 0.83,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.83,
+        "endS": 1.02,
+        "phone": "L"
+      },
+      {
+        "startS": 1.02,
+        "endS": 1.18,
+        "phone": "D"
+      },
+      {
+        "startS": 1.18,
+        "endS": 1.36,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.36,
+        "endS": 1.53,
+        "phone": "P"
+      },
+      {
+        "startS": 1.53,
+        "endS": 1.56,
+        "phone": "P"
+      },
+      {
+        "startS": 1.56,
+        "endS": 1.93,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.93,
+        "endS": 2.05,
+        "phone": "N"
+      },
+      {
+        "startS": 2.05,
+        "endS": 2.19,
+        "phone": "IH1"
+      },
+      {
+        "startS": 2.19,
+        "endS": 2.41,
+        "phone": "Z"
+      },
+      {
+        "startS": 2.41,
+        "endS": 2.56,
+        "phone": "P"
+      },
+      {
+        "startS": 2.56,
+        "endS": 2.59,
+        "phone": "B"
+      },
+      {
+        "startS": 2.59,
+        "endS": 2.87,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.87,
+        "endS": 2.92,
+        "phone": "T"
+      },
+      {
+        "startS": 2.92,
+        "endS": 3.15,
+        "phone": "ER0"
+      },
+      {
+        "startS": 3.15,
+        "endS": 3.33,
+        "phone": "N"
+      },
+      {
+        "startS": 3.33,
+        "endS": 4.09,
+        "phone": "AW1"
+      },
+      {
+        "startS": 4.09,
+        "endS": 4.13125,
+        "phone": "SIL"
+      }
+    ]
+  }
+}

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1906,
+    "keep-evidence": 1907,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26731,6 +26731,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-a.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Independently reviewed shrink-a root-surface exception (exact measurements)."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-shrink-b.json",

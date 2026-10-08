@@ -6,9 +6,6 @@
  * from what the tree actually consumes, then proved by `pnpm packages:typecheck:agent`.
  */
 
-export type {
-  StationApiClient,
-} from "./api-client.js";
 export {
   createStationApiPersistenceSink,
 } from "./api-client.js";
@@ -27,8 +24,6 @@ export type {
 } from "./room-prop-classification.js";
 export {
   classifyRoomProp,
-  PARAMETRIC_KINDS,
-  resolveRoomPropBuilderEquipmentId,
   stampRoomPropAliasesOnEquipmentRoot,
 } from "./room-prop-classification.js";
 export type {
@@ -54,17 +49,12 @@ export {
 } from "./station-api-client.js";
 export {
   anchorFixtureNearFaceToPlane,
-  buildDoorLeafFixture,
-  buildWallBoardFixture,
 } from "./station-architecture-fixtures.js";
 export {
   buildPatientChair,
   isPatientChairSlotId,
   PATIENT_CHAIR_SEAT_HEIGHT_METERS,
 } from "./station-chair.js";
-export {
-  resolveChartFieldsForScenario,
-} from "./station-chart.js";
 export type {
   StationContextView,
 } from "./station-context.js";
@@ -85,7 +75,6 @@ export {
   buildGltfEquipmentPlaceholderSlot,
   collectDeclaredEquipmentEvidenceFromScene,
   countEquipmentGeometry,
-  EXAM_TABLE_LENGTH_M,
   listDeclaredEquipmentBuilderArms,
   normalizeGltfEquipmentMount,
   parametricEquipmentKindCount,
@@ -98,10 +87,6 @@ export type {
 export {
   measureParametricComposite,
 } from "./station-equipment-composite-measure.js";
-export type {
-  EnvironmentRow,
-  StationFixtureVocabularyReport,
-} from "./station-fixture-vocabulary-inspect.js";
 export {
   inspectStationFixtureVocabulary,
 } from "./station-fixture-vocabulary-inspect.js";
@@ -132,5 +117,4 @@ export type {
 } from "./station-vitals.js";
 export {
   classifyInitialVitalsRaw,
-  resolveInitialVitalsForScenario,
 } from "./station-vitals.js";

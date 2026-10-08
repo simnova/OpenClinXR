@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 107
-- archive-candidate: 116
-- current-reference: 214
+- archive-candidate: 152
+- current-reference: 213
 - decision-record: 47
-- evidence: 167
+- evidence: 134
 - generated-evidence: 11
 - historical-synthesis: 18
 - protected-policy: 10
@@ -158,6 +158,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/viseme-audio-clock/wav2arkit/NOTICE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -187,6 +188,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/agent-ops/capability-requests/TEMPLATE.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
 - `docs/agent-ops/delegation-scorecard.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/temporal-review-queue.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
+- `docs/agent-ops/worker-session-time-split-2026-09-29.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/openclinxr/README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/admin-ux-and-testing-brief.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -218,9 +220,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/openclaw-runbook-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md` - current-reference; Written room spec (envelope, finishes, door wall/position/hinge, no-windows decision, six camera views) used verbatim in every v2 imagine-multiview reference prompt; keep alongside the v2 reference set it drove (row-32 provenance).
-- `docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md` - current-reference; Grading rubric (enclosure, wall colour, troffer flush, T-bar grid, cove base, door trim, vinyl floor, ceiling tiles) for ward-finish runtime captures against the committed Imagine multiview reference set; recorded grades live in docs/openclinxr/room-realism/ward-multiview/grades.json.
-- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - current-reference; Exact Grok Imagine prompts retained as provenance for the operator-selected step-down door reference.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/session-state-websocket-message-design.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/statecharts-and-sequences.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -240,9 +239,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/physics-touch-contract/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `packages/openclinxr/factory-stations/src/room_chain/README.md` - current-reference; Station README for room_chain stage caching: cache-key input list, and a D9 finding that room_generate's Infinigen GENERATE step is not bit-deterministic run to run (RED4 divergence isolated to stage 1, 4 vertices on Cube.003). Subordinate to protected + drift rules.
-- `packages/openclinxr/factory-stations/src/room_clinic_finish/README.md` - current-reference; Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules.
-- `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules.
+- `packages/openclinxr/factory-stations/src/room_chain/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/factory-stations/src/room_clinic_finish/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/physics-touch-artifacts/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -346,6 +345,8 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `artifacts/openclinxr/assembled-exam-learner-faculty/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/blocked-card-unlock-plan-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/bothyboard-agent-customer-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -374,7 +375,9 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-scene-layout-research-brief-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/kimodo-mlx-bedside-approach-cagematch-2026-09-26.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/lipsync-speech/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PULSE-PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -394,6 +397,38 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/room-realism-dual90-ideation-plan-2026-09-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/room-realism/DUAL90-FINDINGS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/ao-overlap-fix/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/brown-band/DIAGNOSIS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/brown-band/FIX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/ceiling-cornice/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/cornice-ab/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/cornice-flush/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/door-finish/READER-AUDIT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/ROOM-SPEC.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/imagine-multiview-v2/screening.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/imagine-multiview/grading-checklist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/lens-refit/MEASUREMENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/light-balance/CHAIN-BASELINE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/light-balance/HEMISPHERE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/light-balance/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/room-chain-metal-measure/ao-cycles-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/room-chain-metal-measure/iteration-timing-2026-09-29.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/room-chain-metal-measure/report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/room-dimensions-fix/measurement/MEASUREMENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-defects/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/BATCH-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/INVENTORY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/RECIPES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/rooms-regen/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/s3-tone-mapping/humanoid-ab/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/ship-ward-room/READER-AUDIT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/skirting-fix/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/stepdown-door-ideas/prompts.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/room-realism/stepdown-room-v1-finish/REPORT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance-v2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/acceptance.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/scene-closure-2026-09-09/board-manifest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

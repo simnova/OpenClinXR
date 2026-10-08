@@ -35,9 +35,7 @@ export {
 export {
   MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
   resolveHumanoidVariantOrCastPath,
-  resolveLocalHumanoidRuntimeAssetFileName,
   resolveLocalHumanoidRuntimeAssetUrl,
-  resolvePoolCastPathWithSiblings,
 } from "./humanoid-runtime-asset-url.js";
 export {
   assignMissingRoomPrimitiveMaterials,
@@ -48,11 +46,11 @@ export {
   deriveInteriorPreviewCamera,
   loadInfinigenEnvironmentIntoStation,
 } from "./infinigen-station-environment.js";
+/** Boot the isolated-subject lab from the #app element and URL spec (probe-only entry). */
 export {
   bootIsolatedSubjectLab,
 } from "./isolated-subject-lab.js";
 export {
-  applyExamFormBootPresentation,
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
   learnerExamResumeNextStation,
@@ -63,11 +61,6 @@ export {
 } from "./learner-exam-scenario-source.js";
 export type {
   LightingRig,
-  LightingRigLight,
-  RigLightType,
-} from "./lighting-rig-contract.js";
-export {
-  LIGHTING_RIG_SCHEMA_VERSION,
 } from "./lighting-rig-contract.js";
 export {
   parseLightingRig,
