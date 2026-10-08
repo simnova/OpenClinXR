@@ -11882,10 +11882,11 @@
       "entrypoint": ".",
       "symbol": "applyPedsActorPlayerSequenceListenerCues",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:336"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1400 defines a local wrapper delegating to actorDialogueStore.applyPedsActorPlayerSequenceListenerCues (main.ts:1405); main.ts:330 imports the same-spelled type from @openclinxr/xr-trace-readiness. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1400",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
@@ -11902,90 +11903,99 @@
       "entrypoint": ".",
       "symbol": "dedupePedsActorPlayerRuntimeTurns",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1368"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: the name appears nowhere in apps/ui-xr/src/main.ts; exercised only as a store method (store.test.ts:145) and in-package (playback.ts, store.ts). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "packages/openclinxr/xr-actor-dialogue/src/store.test.ts:145",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "humanoidDialogueDurationMs",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1254"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1437 defines a local function delegating to actorDialogueStore.humanoidDialogueDurationMs (main.ts:1438). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1437",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "initialDialogueTextForSelectedScenario",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1349"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1363 defines a local function delegating to actorDialogueStore.initialDialogueTextForSelectedScenario (main.ts:1364). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1363",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "localDialogueActorIdForTraceTag",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1437"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1448 defines a local function delegating to actorDialogueStore.localDialogueActorIdForTraceTag (main.ts:1449). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1448",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "localDialogueGazeTargetForTraceTag",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1440"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1451 defines a local function delegating to actorDialogueStore.localDialogueGazeTargetForTraceTag (main.ts:1452). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1451",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "normalizePedsActorPlayerEmotion",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1269"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1384 defines a local function delegating to actorDialogueStore.normalizePedsActorPlayerEmotion (main.ts:1385). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1384",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "pedsActorPlayerBundleDialogueTurns",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1274"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1381 defines a local function delegating to actorDialogueStore.pedsActorPlayerBundleDialogueTurns (main.ts:1382). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1381",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "PedsActorPlayerRuntimePlaybackEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:525"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1250 is a local alias to PedsActorPlayerRuntimePlaybackEvidenceFromStore (consumed import main.ts:31); main.ts:345 imports the same-spelled type from @openclinxr/xr-trace-readiness. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published type on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1250",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "PedsActorPlayerRuntimeSequenceEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1233"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1247 is a local alias to PedsActorPlayerRuntimeSequenceEvidenceFromStore (consumed import main.ts:32). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published type on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1247",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
@@ -12002,10 +12012,11 @@
       "entrypoint": ".",
       "symbol": "PedsActorPlayerRuntimeTurn",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1232"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1246 is a local alias to PedsActorPlayerRuntimeTurnFromStore (consumed import main.ts:33). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published type on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1246",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
@@ -12032,10 +12043,11 @@
       "entrypoint": ".",
       "symbol": "PedsAdaptiveDialogueBranchResolution",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:402"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: the type is defined locally in apps/ui-xr/src/peds-adaptive-dialogue-policy.ts:6 and main.ts:394-397 imports it from ./peds-adaptive-dialogue-policy.js, not from the package. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published type on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/peds-adaptive-dialogue-policy.ts:6",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
@@ -12052,120 +12064,132 @@
       "entrypoint": ".",
       "symbol": "PedsAdaptiveDialogueEvidence",
       "kind": "type",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:526"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1249 is a local alias to PedsAdaptiveDialogueEvidenceFromStore (consumed import main.ts:34). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published type on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1249",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "playLiveFrozenActorTurn",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1343"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:4322 defines a local function playLiveFrozenActorTurn (factory/evidence tests slice main.ts source at this definition). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:4322",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "playPedsActorPlayerRuntimeSequence",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1397"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1407 defines a local wrapper delegating to actorDialogueStore.playPedsActorPlayerRuntimeSequence (main.ts:1408). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1407",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "playPedsActorPlayerRuntimeTurn",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1387"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1387 defines a local wrapper delegating to actorDialogueStore.playPedsActorPlayerRuntimeTurn (main.ts:1398). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1387",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "recordPedsActorPlayerRuntimePlaybackEvidence",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:351"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1410 defines a local wrapper delegating to actorDialogueStore.recordPedsActorPlayerRuntimePlaybackEvidence (main.ts:1422); main.ts:345 imports the same-spelled type from @openclinxr/xr-trace-readiness. No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1410",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "runtimeDialogueTurnForTraceTag",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1279"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1366 defines a local function delegating to actorDialogueStore.runtimeDialogueTurnForTraceTag (main.ts:1367). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1366",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "scenarioDialogueEmotionContext",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1435"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1440 defines a local wrapper delegating to actorDialogueStore.scenarioDialogueEmotionContext (main.ts:1446). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1440",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "schedulePedsActorPlayerRuntimePlaybackIfReady",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1355"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1369 defines a local function delegating to actorDialogueStore.schedulePedsActorPlayerRuntimePlaybackIfReady (main.ts:1370). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1369",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "triggerHumanoidDialogue",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1416"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1427 defines a local function delegating to actorDialogueStore.triggerHumanoidDialogue (main.ts:1435). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1427",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "triggerHumanoidDialogueForTrace",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1413"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1424 defines a local function delegating to actorDialogueStore.triggerHumanoidDialogueForTrace (main.ts:1425). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1424",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "triggerPedsActorPlayerRuntimeTurnForTrace",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1364"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1378 defines a local function delegating to actorDialogueStore.triggerPedsActorPlayerRuntimeTurnForTrace (main.ts:1379). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1378",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-actor-dialogue",
       "entrypoint": ".",
       "symbol": "triggerPedsAdaptiveDialogueBranch",
       "kind": "runtime",
-      "disposition": "keep",
-      "owner": "apps/ui-xr",
-      "rationale": "Confirmed external consumer via symbol-level import binding.",
-      "evidence": "apps/ui-xr/src/main.ts:1358"
+      "disposition": "remove",
+      "owner": "packages/openclinxr/xr-actor-dialogue",
+      "rationale": "Stale keep: main.ts:1372 defines a local function delegating to actorDialogueStore.triggerPedsAdaptiveDialogueBranch (main.ts:1376). No specifier, path-reach, dynamic, or own-test entrypoint consumer binds the published free function on xad-shrink @ 5dabb3700. Implementation stays in package.",
+      "evidence": "apps/ui-xr/src/main.ts:1372",
+      "reviewedBy": "Codex gpt-5.6-terra independent review (not an author) of index tree bb37ebd0e47802371131eff50a8f43c30ce22fec: session 01a11a6c-7ba9-7473-a257-5ffa105930c7 rejected 5 type-row rationales, session 01a11a6f-b5fd-7f72-a619-e85894a87825 rejected one evidence line (store.test.ts:143), session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf approved: 0 bindings for all 24 names, only these 24 rows changed, every cited file:line accurate, 44fb5d551 removes exactly these 24 exports; 2026-10-08"
     },
     {
       "package": "packages/openclinxr/xr-asset-loading",

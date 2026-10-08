@@ -123,3 +123,79 @@ xr-station-room 1. Plan lines 83 and 92 count tests as consumers; PSR-03 showed 
 un-publishing such a name raises `testInternalImports` above its shrink-only ceiling. Each amended
 row names the consuming test as owner, with file:line evidence. `--require-reviewed-group psr-01e`
 still exits 0.
+
+## Amendment at xr-actor-dialogue shrink (worker, 2026-10-08; reviewed by Codex gpt-5.6-terra, session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf)
+
+24 `packages/openclinxr/xr-actor-dialogue` rows move from `keep` to `remove` (797 remove rows
+become 821). Every row's keep evidence cited `apps/ui-xr/src/main.ts` at source revision
+40b6a874 as a symbol-level import binding; on xad-shrink @ 5dabb3700 none of the 24 is bound by
+any consumer. The tree's only package-specifier import is `apps/ui-xr/src/main.ts:29-35`, which
+binds exactly 5 other names (`createActorDialogueStore`, `ActorDialoguePlaybackEvidence`,
+`ActorDialogueSequence`, `ActorDialogueTurn`, `ActorDialogueAdaptiveEvidence`); a repo-wide
+multiline import scan finds no other `from "@openclinxr/xr-actor-dialogue"`, no dynamic
+`import()`/`require()` of the specifier in `apps/` or `tools/`, and no relative path-reach
+import into the package `src/` (the only references are `readFileSync` source-text reads in
+`apps/ui-xr/src/static-assets.test.ts:676,760` for substring assertions). The own-package test
+`packages/openclinxr/xr-actor-dialogue/src/store.test.ts:5` binds only `createActorDialogueStore`
+through `./index.js`. Per row, with the stale keep evidence in parentheses:
+
+- `PedsActorPlayerRuntimePlaybackEvidence` (was main.ts:525): now a local alias at
+  `apps/ui-xr/src/main.ts:1250` to the consumed import (main.ts:31); main.ts:345 imports the
+  same-spelled type from `@openclinxr/xr-trace-readiness`.
+- `PedsActorPlayerRuntimeSequenceEvidence` (was main.ts:1233): now a local alias at
+  `apps/ui-xr/src/main.ts:1247` to the consumed import (main.ts:32).
+- `PedsActorPlayerRuntimeTurn` (was main.ts:1232): now a local alias at
+  `apps/ui-xr/src/main.ts:1246` to the consumed import (main.ts:33).
+- `PedsAdaptiveDialogueBranchResolution` (was main.ts:402): type defined locally at
+  `apps/ui-xr/src/peds-adaptive-dialogue-policy.ts:6`, imported by main.ts:394-397 from
+  `./peds-adaptive-dialogue-policy.js`.
+- `PedsAdaptiveDialogueEvidence` (was main.ts:526): now a local alias at
+  `apps/ui-xr/src/main.ts:1249` to the consumed import (main.ts:34).
+- `applyPedsActorPlayerSequenceListenerCues` (was main.ts:336): main.ts:1400 defines a local
+  wrapper delegating to `actorDialogueStore` (main.ts:1405); main.ts:330 imports the same-spelled
+  type from `@openclinxr/xr-trace-readiness`.
+- `dedupePedsActorPlayerRuntimeTurns` (was main.ts:1368): absent from main.ts entirely; exercised
+  only as a store method (`store.test.ts:145`) and in-package.
+- `humanoidDialogueDurationMs` (was main.ts:1254): main.ts:1437 defines a local function
+  delegating to the store (main.ts:1438).
+- `initialDialogueTextForSelectedScenario` (was main.ts:1349): main.ts:1363 defines a local
+  function delegating to the store (main.ts:1364).
+- `localDialogueActorIdForTraceTag` (was main.ts:1437): main.ts:1448 defines a local function
+  delegating to the store (main.ts:1449).
+- `localDialogueGazeTargetForTraceTag` (was main.ts:1440): main.ts:1451 defines a local function
+  delegating to the store (main.ts:1452).
+- `normalizePedsActorPlayerEmotion` (was main.ts:1269): main.ts:1384 defines a local function
+  delegating to the store (main.ts:1385).
+- `pedsActorPlayerBundleDialogueTurns` (was main.ts:1274): main.ts:1381 defines a local function
+  delegating to the store (main.ts:1382).
+- `playLiveFrozenActorTurn` (was main.ts:1343): main.ts:4322 defines the local function (factory
+  and evidence tests slice main.ts source at this definition).
+- `playPedsActorPlayerRuntimeSequence` (was main.ts:1397): main.ts:1407 defines a local wrapper
+  delegating to the store (main.ts:1408).
+- `playPedsActorPlayerRuntimeTurn` (was main.ts:1387): main.ts:1387 defines a local wrapper
+  delegating to the store (main.ts:1398).
+- `recordPedsActorPlayerRuntimePlaybackEvidence` (was main.ts:351): main.ts:1410 defines a local
+  wrapper delegating to the store (main.ts:1422); main.ts:345 imports the same-spelled type from
+  `@openclinxr/xr-trace-readiness`.
+- `runtimeDialogueTurnForTraceTag` (was main.ts:1279): main.ts:1366 defines a local function
+  delegating to the store (main.ts:1367).
+- `scenarioDialogueEmotionContext` (was main.ts:1435): main.ts:1440 defines a local wrapper
+  delegating to the store (main.ts:1446).
+- `schedulePedsActorPlayerRuntimePlaybackIfReady` (was main.ts:1355): main.ts:1369 defines a
+  local function delegating to the store (main.ts:1370).
+- `triggerHumanoidDialogue` (was main.ts:1416): main.ts:1427 defines a local function delegating
+  to the store (main.ts:1435).
+- `triggerHumanoidDialogueForTrace` (was main.ts:1413): main.ts:1424 defines a local function
+  delegating to the store (main.ts:1425).
+- `triggerPedsActorPlayerRuntimeTurnForTrace` (was main.ts:1364): main.ts:1378 defines a local
+  function delegating to the store (main.ts:1379).
+- `triggerPedsAdaptiveDialogueBranch` (was main.ts:1358): main.ts:1372 defines a local function
+  delegating to the store (main.ts:1376).
+
+Each amended row names `packages/openclinxr/xr-actor-dialogue` as owner with the disproof above
+as rationale and evidence, and carries `reviewedBy: reviewed by Codex gpt-5.6-terra, session 01a11a71-9d93-7821-9ec0-4f29ca1f7ecf`; the coordinator
+arranges the independent review before this amendment lands. `rawInventoryHash` and `groupHash`
+are unchanged (recomputed with the repo's own `gates.ts` `groupHash` over the frozen raw rows:
+`e43ee9c2…` / `7e8b0ae8…`, both match). String-content tests in `static-assets.test.ts` assert on
+main.ts substrings and the package's own source text, not on entrypoint publication, so they are
+unaffected by un-publishing.

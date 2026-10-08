@@ -20,7 +20,9 @@ const FROZEN = {
   "psr-01b": "74e4fb9a76a42899212b79988668ba396e07314b31d0620518430200af37e335",
   "psr-01c": "dfa31d1b9f37d5b54d34c3d2ecdd22abd97e6ddec808e48c4d307c2ee9afe1b1",
   "psr-01d": "bd4d89908a9e5f64d7a29d3b13b2ba2b285de0ece210d41482cb9eee5073019a",
-  "psr-01e": "59b530c7490e2e6b095e42e47af160176964cb2594fa5952746d7477c542a228",
+  // 2026-10-08 (operator-approved pin move): psr-01e amendment moves 24 stale
+  // xr-actor-dialogue keeps to remove; Codex session 01a11a71 approved it (was 59b530c7).
+  "psr-01e": "a5292a8290da273cc7eb2d4ecc9528676606390c9856a474a43841fb7aa371d6",
 } as const;
 const PSR_DIR = "docs/openclinxr/package-public-surface-reduction";
 const APPROVALS_DIR = `${PSR_DIR}/approvals`;
