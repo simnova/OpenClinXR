@@ -63,6 +63,13 @@ function isShellFixture(name: string, box: AxisAlignedBox, interior: AxisAligned
   return isRoomShellName(name) || isSkippedFixtureName(name) || coversInteriorFootprint(box, interior);
 }
 
+function slotIdOfFixtureName(name: string): string | undefined {
+  const parts = name.split(".");
+  const at = parts.indexOf("fixture-slot");
+  if (at < 0 || at + 1 >= parts.length) return undefined;
+  return parts[at + 1];
+}
+
 function radiusFor(actor: ActorT): number {
   const width = actor.bodyDimensions?.[0];
   if (typeof width === "number" && Number.isFinite(width) && width >= 0.15 && width <= 0.35) return width / 2;
