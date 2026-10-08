@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { CACHE_DIR, readCachedStt, readCachedTts, ttsKey } from "./client.js";
 import { CLIP_IDS, CLIPS } from "./clips.js";
-import { buildPhonePlan, scoreClip, type ClosureSpan } from "./measure.js";
+import { buildPhonePlan, phoneWeight, scoreClip, snapWordStarts, type ClosureSpan } from "./measure.js";
 
 const HERE = new URL(".", import.meta.url).pathname;
 const norm = (w: string): string => w.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gu, "");
@@ -19,7 +19,7 @@ type WordCue = { startS: number; endS: number; word: string };
 function loadInputs(): {
   pronMap: Record<string, string[]>;
   mfaCues: Record<string, { phones: PhoneCue[]; words: WordCue[] }>;
-  anchors: Record<string, { closures: ClosureSpan[]; firstWordStartS: number }>;
+  anchors: Record<string, { closures: ClosureSpan[]; firstWordStartS: number; snappedStarts: number[] }>;
 } {
   const phonePlans = JSON.parse(readFileSync(`${HERE}phone-plans.json`, "utf8")) as Record<
     string,
@@ -34,7 +34,7 @@ function loadInputs(): {
   >;
   const anchors = JSON.parse(readFileSync(`${HERE}audio-anchors.json`, "utf8")) as Record<
     string,
-    { closures: ClosureSpan[]; firstWordStartS: number }
+    { closures: ClosureSpan[]; firstWordStartS: number; snappedStarts: number[] }
   >;
   return { pronMap, mfaCues, anchors };
 }
@@ -67,6 +67,8 @@ describe("grok-voice cached audio clock (replay, no network)", () => {
       const score = scoreClip(id, refWords, stt.words, pronMap, mfaCues[id]!.phones, mfaCues[id]!.words, {
         closures: an.closures,
         firstWordStartS: an.firstWordStartS,
+        wordStarts: an.snappedStarts,
+        split: "duration",
       });
       expect({ type: "clip_score", audioSha256: entry.audioSha256, sttText: stt.text, ...score }).toEqual(
         expected.get(id),
@@ -87,6 +89,8 @@ describe("grok-voice cached audio clock (replay, no network)", () => {
         scoreClip(id, refWords, stt.words, pronMap, mfaCues[id]!.phones, mfaCues[id]!.words, {
           closures: an.closures,
           firstWordStartS: an.firstWordStartS,
+          wordStarts: an.snappedStarts,
+          split: "duration",
         });
       }
       ms.push(performance.now() - t0);
@@ -99,6 +103,37 @@ describe("grok-voice cached audio clock (replay, no network)", () => {
       `${JSON.stringify({ type: "replay_latency", runs: 20, ms: ms.map((m) => Number(m.toFixed(2))), replayP50Ms: q(0.5), replayP95Ms: q(0.95) }, null, 2)}\n`,
     );
     expect(q(0.5)).toBeGreaterThanOrEqual(0);
+  });
+
+  it("snaps word starts to the nearest audio onset within the window", () => {
+    // Frames: quiet until 0.20 s, speech 0.20-0.50, quiet gap, onset 0.70.
+    const frames = Array.from({ length: 100 }, (_, f) => {
+      const t = f * 0.01;
+      return (t >= 0.2 && t < 0.5) || t >= 0.7 ? -20 : -60;
+    });
+    const stt = [
+      { word: "a", start: 0.36, end: 0.44 }, // 160 ms past the 0.20 onset -> kept
+      { word: "bed", start: 0.83, end: 0.95 }, // 130 ms late vs 0.70 onset -> snapped
+      { word: "toe", start: 0.4, end: 0.46 }, // nearest onset 0.20 is 200 ms away -> kept
+    ];
+    expect(snapWordStarts(stt, frames, -40, 0.15, 0.01).map((s) => Number(s.toFixed(2)))).toEqual([
+      0.36, 0.7, 0.4,
+    ]);
+  });
+
+  it("weights within-word splits by fixed phone durations", () => {
+    // FAT: F(0.9) AE1(1.15*1.1=1.265): vowel span exceeds the stop share.
+    expect(phoneWeight("F")).toBe(0.9);
+    expect(phoneWeight("AE1")).toBeCloseTo(1.265, 10);
+    expect(phoneWeight("P")).toBe(0.6);
+    const ref = ["fat"];
+    const stt = [{ word: "fat", start: 1.0, end: 1.2 }];
+    const pron = { fat: ["F", "AE1", "T"] };
+    const even = buildPhonePlan(ref, stt, pron, { split: "even" });
+    const weighted = buildPhonePlan(ref, stt, pron, { split: "duration" });
+    expect(even.plan.map((p) => Number(p.startS.toFixed(4)))).toEqual([1, 1.0667, 1.1333]);
+    // Total weight 0.9+1.265+0.6=2.765: F ends 1.0651, AE1 ends 1.1566.
+    expect(weighted.plan.map((p) => Number(p.startS.toFixed(4)))).toEqual([1, 1.0651, 1.1566]);
   });
 
   it("emits closure P phones from STT gaps with no MFA input", () => {

@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fetchStt, fetchTts, CACHE_DIR, ttsKey } from "../client.js";
 import { CLIP_IDS, CLIPS, STT_MODEL, TTS_MODEL, VOICE } from "../clips.js";
-import { scoreClip, type ClosureSpan, type PhoneCue, type WordCue } from "../measure.js";
+import { scoreClip, fricativeInitial, snapWordStarts, SNAP_WINDOW_S, type ClosureSpan, type PhoneCue, type WordCue } from "../measure.js";
 import {
   applyMfaClosureRule,
   MFA_ACOUSTIC_MODEL,
@@ -180,9 +180,17 @@ for (const w of ["phone", "though", "cough"]) {
 }
 writeFileSync(path.join(OUT, "phone-plans.json"), JSON.stringify(phonePlans, null, 2));
 
-// 5. MFA align each Grok clip (temp dict = stock + OOV albuterol from cmudict).
+// 5. MFA align each Grok clip (temp dict = stock + every cmudict-fallback
+// entry in phone-plans, e.g. albuterol/steroids/inhaler/spacer/stuffy, so
+// MFA never fails on a word the stock dictionary lacks; line format matches
+// the pre-existing albuterol entry).
 const tmpDict = path.join(mkdtempSync(path.join(tmpdir(), `mfa-dict-${process.pid}-`)), "custom.dict");
-writeFileSync(tmpDict, `${mfaDictText.replace(/\s+$/, "")}\nalbuterol AE2 L B Y UW1 T ER0 AO0 L\n`);
+{
+  const extra = Object.entries(phonePlans)
+    .filter(([, v]) => (v as { source: string }).source === "cmudict-fallback")
+    .map(([w, v]) => `${w} ${(v as { phones: string[] }).phones.join(" ")}`);
+  writeFileSync(tmpDict, `${mfaDictText.replace(/\s+$/, "")}\n${extra.join("\n")}\n`);
+}
 const wavTmp = mkdtempSync(path.join(tmpdir(), `grok-wav-${process.pid}-`));
 for (const id of CLIP_IDS) {
   const a = audioByClip.get(id)!;
@@ -214,7 +222,8 @@ writeFileSync(path.join(OUT, "mfa-cues.json"), JSON.stringify(mfaCues, null, 2))
 const ANCHOR_THRESHOLD_DB = -40;
 const FRAME_S = 0.01;
 
-function framePeakDb(mp3Path: string): number[] {
+/** Per-10-ms peak dBFS plus zero-crossing rate over the 16 kHz mono decode. */
+function frameStats(mp3Path: string): { db: number[]; zcr: number[] } {
   const raw: Buffer = execFileSync(
     "ffmpeg",
     ["-v", "error", "-i", mp3Path, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", "-f", "s16le", "-"],
@@ -222,18 +231,24 @@ function framePeakDb(mp3Path: string): number[] {
   );
   const bytes = Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength);
   const n = Math.floor(bytes.length / 2);
-  const dbs: number[] = [];
+  const db: number[] = [];
+  const zcr: number[] = [];
   const per = 160;
   for (let i = 0; i < n; i += per) {
     let peak = 0;
+    let cross = 0;
+    let prev = 0;
     for (let k = i; k < Math.min(i + per, n); k += 1) {
       const v = bytes.readInt16LE(k * 2);
       const a = v < 0 ? -v : v;
       if (a > peak) peak = a;
+      if (k > i && (prev < 0) !== (v < 0)) cross += 1;
+      prev = v;
     }
-    dbs.push(peak <= 0 ? -99 : 20 * Math.log10(peak / 32768));
+    db.push(peak <= 0 ? -99 : 20 * Math.log10(peak / 32768));
+    zcr.push(cross / per);
   }
-  return dbs;
+  return { db, zcr };
 }
 
 const anchors: Record<
@@ -241,9 +256,19 @@ const anchors: Record<
   {
     audioSha256: string;
     thresholdDb: number;
+    /** Snap window/convention: every STT word start moves to the nearest
+     * rising-edge energy onset within +-SNAP_WINDOW_S (measure.ts), else it
+     * keeps STT bounds. Window chosen on the original 4 clips' audio+STT
+     * only; the 10 clin lines are held out. Threshold -40 dBFS from the
+     * original-4 noise/speech separation, verified against the new clips'
+     * own noise floors (never MFA). */
+    snapWindowS: number;
+    noiseFloorDb: number;
     energyOnsetS: number;
     leadingOffsetS: number;
     firstWordStartS: number;
+    /** Snapped per-word starts (rounded to ms); passed as wordStarts. */
+    snappedStarts: number[];
     closures: ClosureSpan[];
   }
 > = {};
@@ -254,20 +279,30 @@ const anchors: Record<
   for (const id of CLIP_IDS) {
     const a = audioByClip.get(id)!;
     const mp3Path = path.join(CACHE_DIR, `${ttsKey(CLIPS[id].text)}.mp3`);
-    const dbs = framePeakDb(mp3Path);
+    const { db: dbs, zcr } = frameStats(mp3Path);
     let onsetIdx = dbs.findIndex((v) => v >= ANCHOR_THRESHOLD_DB);
     if (onsetIdx < 0) onsetIdx = 0;
     const energyOnsetS = Number((onsetIdx * FRAME_S).toFixed(3));
+    const noiseFloorDb = Number(Math.min(...dbs.slice(0, 20)).toFixed(0));
     const stt = readCachedStt(a.sha);
     const words = refWordsByClip.get(id)!;
+    // Snap each STT word start to the nearest audio onset first; closures
+    // and the word-0 offset then derive from the SNAPPED bounds.
+    // Fricative-initial words snap to the ZCR frication edge, the rest to
+    // the energy edge (see measure.ts constants for the audio-only basis).
+    const fricFirst = words.map((w, i) =>
+      i < stt.words.length ? fricativeInitial(pron[w!]?.[0]) : false,
+    );
+    const snapped = snapWordStarts(stt.words, dbs, ANCHOR_THRESHOLD_DB, SNAP_WINDOW_S, FRAME_S, undefined, zcr, fricFirst);
     const leadingOffsetS = Number(Math.max(0, stt.words[0]!.start - energyOnsetS).toFixed(3));
-    const firstWordStartS = Number((stt.words[0]!.start - leadingOffsetS).toFixed(3));
+    const firstWordStartS = Number(snapped[0]!.toFixed(3));
+    const snappedEnd = (i: number): number => stt.words[i]!.end;
     const closures: ClosureSpan[] = [];
     for (let i = 0; i < Math.min(words.length, stt.words.length); i += 1) {
       const init = pron[words[i]!]![0];
       if (!init || !bilabial(init)) continue;
-      const gapStart = i === 0 ? 0 : stt.words[i - 1]!.end;
-      const gapEnd = stt.words[i]!.start;
+      const gapStart = i === 0 ? 0 : snappedEnd(i - 1);
+      const gapEnd = snapped[i]!;
       if (!(gapEnd > gapStart)) continue;
       let lastLoud = -1;
       for (let f = 0; f < dbs.length; f += 1) {
@@ -278,19 +313,25 @@ const anchors: Record<
         if (dbs[f]! >= ANCHOR_THRESHOLD_DB) lastLoud = f;
       }
       const tQuiet = lastLoud < 0 ? gapStart : Math.min(Math.max((lastLoud + 1) * FRAME_S, gapStart), gapEnd);
+      // A snap-pinched gap rounds to zero width; a sub-frame P is
+      // acoustically meaningless, so only emit positive-width closures.
+      const qStart = Number(tQuiet.toFixed(3));
+      const qEnd = Number(gapEnd.toFixed(3));
+      if (!(qEnd > qStart)) continue;
       closures.push({
         wordIndex: i,
         phone: "P",
-        startS: Number(tQuiet.toFixed(3)),
-        endS: Number(gapEnd.toFixed(3)),
+        startS: qStart,
+        endS: qEnd,
       });
     }
-    anchors[id] = { audioSha256: a.sha, thresholdDb: ANCHOR_THRESHOLD_DB, energyOnsetS, leadingOffsetS, firstWordStartS, closures };
+    anchors[id] = { audioSha256: a.sha, thresholdDb: ANCHOR_THRESHOLD_DB, snapWindowS: SNAP_WINDOW_S, noiseFloorDb, energyOnsetS, leadingOffsetS, firstWordStartS, snappedStarts: snapped.map((s) => Number(s.toFixed(3))), closures };
   }
 }
 writeFileSync(path.join(OUT, "audio-anchors.json"), JSON.stringify(anchors, null, 2));
 
-// 6. Score each clip from the recorded STT words.
+// 6. Score each clip from the recorded STT words (final method: snapped
+// starts + closure emissions + duration-weighted within-word split).
 const pronMap: Record<string, string[]> = Object.fromEntries(Object.entries(phonePlans).map(([k, v]) => [k, v.phones]));
 for (const id of CLIP_IDS) {
   const { readCachedStt } = await import("../client.js");
@@ -300,6 +341,8 @@ for (const id of CLIP_IDS) {
   const score = scoreClip(id, refWordsByClip.get(id)!, stt.words, pronMap, mfaCues[id]!.phones, mfaCues[id]!.words, {
     closures: an.closures,
     firstWordStartS: an.firstWordStartS,
+    wordStarts: an.snappedStarts,
+    split: "duration",
   });
   results.push({ type: "clip_score", audioSha256: a.sha, sttText: stt.text, ...score });
 }

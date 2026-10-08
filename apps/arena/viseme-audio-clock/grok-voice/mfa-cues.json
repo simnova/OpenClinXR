@@ -1112,5 +1112,2130 @@
         "word": "now"
       }
     ]
+  },
+  "clin-01": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.07,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.07,
+        "endS": 0.25,
+        "phone": "SH"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.32,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.32,
+        "endS": 0.42,
+        "phone": "T"
+      },
+      {
+        "startS": 0.42,
+        "endS": 0.52,
+        "phone": "EY1"
+      },
+      {
+        "startS": 0.52,
+        "endS": 0.59,
+        "phone": "K"
+      },
+      {
+        "startS": 0.59,
+        "endS": 0.69,
+        "phone": "S"
+      },
+      {
+        "startS": 0.69,
+        "endS": 0.85,
+        "phone": "T"
+      },
+      {
+        "startS": 0.85,
+        "endS": 0.97,
+        "phone": "UW1"
+      },
+      {
+        "startS": 0.97,
+        "endS": 1.1,
+        "phone": "P"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.2,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.2,
+        "endS": 1.27,
+        "phone": "F"
+      },
+      {
+        "startS": 1.27,
+        "endS": 1.36,
+        "phone": "S"
+      },
+      {
+        "startS": 1.36,
+        "endS": 1.42,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.42,
+        "endS": 1.46,
+        "phone": "V"
+      },
+      {
+        "startS": 1.46,
+        "endS": 1.55,
+        "phone": "AE2"
+      },
+      {
+        "startS": 1.55,
+        "endS": 1.64,
+        "phone": "L"
+      },
+      {
+        "startS": 1.64,
+        "endS": 1.72,
+        "phone": "B"
+      },
+      {
+        "startS": 1.72,
+        "endS": 1.81,
+        "phone": "Y"
+      },
+      {
+        "startS": 1.81,
+        "endS": 1.85,
+        "phone": "UW1"
+      },
+      {
+        "startS": 1.85,
+        "endS": 1.88,
+        "phone": "T"
+      },
+      {
+        "startS": 1.88,
+        "endS": 2,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2,
+        "endS": 2.13,
+        "phone": "AO0"
+      },
+      {
+        "startS": 2.13,
+        "endS": 2.19,
+        "phone": "L"
+      },
+      {
+        "startS": 2.19,
+        "endS": 2.25,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.25,
+        "endS": 2.31,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.31,
+        "endS": 2.39,
+        "phone": "V"
+      },
+      {
+        "startS": 2.39,
+        "endS": 2.43,
+        "phone": "R"
+      },
+      {
+        "startS": 2.43,
+        "endS": 2.5,
+        "phone": "IY0"
+      },
+      {
+        "startS": 2.5,
+        "endS": 2.67,
+        "phone": "F"
+      },
+      {
+        "startS": 2.67,
+        "endS": 2.78,
+        "phone": "AO1"
+      },
+      {
+        "startS": 2.78,
+        "endS": 2.94,
+        "phone": "R"
+      },
+      {
+        "startS": 2.94,
+        "endS": 3.09,
+        "phone": "AW1"
+      },
+      {
+        "startS": 3.09,
+        "endS": 3.25,
+        "phone": "ER0"
+      },
+      {
+        "startS": 3.25,
+        "endS": 3.46,
+        "phone": "Z"
+      },
+      {
+        "startS": 3.46,
+        "endS": 3.648,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.07,
+        "endS": 0.32,
+        "word": "she"
+      },
+      {
+        "startS": 0.32,
+        "endS": 0.69,
+        "word": "takes"
+      },
+      {
+        "startS": 0.69,
+        "endS": 0.97,
+        "word": "two"
+      },
+      {
+        "startS": 0.97,
+        "endS": 1.36,
+        "word": "puffs"
+      },
+      {
+        "startS": 1.36,
+        "endS": 1.46,
+        "word": "of"
+      },
+      {
+        "startS": 1.46,
+        "endS": 2.19,
+        "word": "albuterol"
+      },
+      {
+        "startS": 2.25,
+        "endS": 2.5,
+        "word": "every"
+      },
+      {
+        "startS": 2.5,
+        "endS": 2.94,
+        "word": "four"
+      },
+      {
+        "startS": 2.94,
+        "endS": 3.46,
+        "word": "hours"
+      }
+    ]
+  },
+  "clin-02": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.13,
+        "phone": "P"
+      },
+      {
+        "startS": 0.13,
+        "endS": 0.2,
+        "phone": "M"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.29,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.29,
+        "endS": 0.53,
+        "phone": "CH"
+      },
+      {
+        "startS": 0.53,
+        "endS": 0.58,
+        "phone": "EH1"
+      },
+      {
+        "startS": 0.58,
+        "endS": 0.7,
+        "phone": "S"
+      },
+      {
+        "startS": 0.7,
+        "endS": 0.76,
+        "phone": "T"
+      },
+      {
+        "startS": 0.76,
+        "endS": 0.86,
+        "phone": "F"
+      },
+      {
+        "startS": 0.86,
+        "endS": 0.93,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.93,
+        "endS": 0.99,
+        "phone": "L"
+      },
+      {
+        "startS": 0.99,
+        "endS": 1.1,
+        "phone": "Z"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.27,
+        "phone": "T"
+      },
+      {
+        "startS": 1.27,
+        "endS": 1.4,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.4,
+        "endS": 1.43,
+        "phone": "T"
+      },
+      {
+        "startS": 1.43,
+        "endS": 1.46,
+        "phone": "SIL"
+      },
+      {
+        "startS": 1.46,
+        "endS": 1.49,
+        "phone": "HH"
+      },
+      {
+        "startS": 1.49,
+        "endS": 1.54,
+        "phone": "W"
+      },
+      {
+        "startS": 1.54,
+        "endS": 1.57,
+        "phone": "EH1"
+      },
+      {
+        "startS": 1.57,
+        "endS": 1.62,
+        "phone": "N"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.71,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.71,
+        "endS": 1.85,
+        "phone": "R"
+      },
+      {
+        "startS": 1.85,
+        "endS": 1.91,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.91,
+        "endS": 2.01,
+        "phone": "N"
+      },
+      {
+        "startS": 2.01,
+        "endS": 2.13,
+        "phone": "F"
+      },
+      {
+        "startS": 2.13,
+        "endS": 2.31,
+        "phone": "AE1"
+      },
+      {
+        "startS": 2.31,
+        "endS": 2.5,
+        "phone": "S"
+      },
+      {
+        "startS": 2.5,
+        "endS": 2.59,
+        "phone": "T"
+      },
+      {
+        "startS": 2.59,
+        "endS": 2.76,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.13,
+        "endS": 0.29,
+        "word": "my"
+      },
+      {
+        "startS": 0.29,
+        "endS": 0.76,
+        "word": "chest"
+      },
+      {
+        "startS": 0.76,
+        "endS": 1.1,
+        "word": "feels"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.43,
+        "word": "tight"
+      },
+      {
+        "startS": 1.46,
+        "endS": 1.62,
+        "word": "when"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.71,
+        "word": "i"
+      },
+      {
+        "startS": 1.71,
+        "endS": 2.01,
+        "word": "run"
+      },
+      {
+        "startS": 2.01,
+        "endS": 2.59,
+        "word": "fast"
+      }
+    ]
+  },
+  "clin-03": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.15,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.15,
+        "endS": 0.21,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.21,
+        "endS": 0.25,
+        "phone": "AH0"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.4,
+        "phone": "F"
+      },
+      {
+        "startS": 0.4,
+        "endS": 0.51,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.51,
+        "endS": 0.56,
+        "phone": "V"
+      },
+      {
+        "startS": 0.56,
+        "endS": 0.67,
+        "phone": "ER0"
+      },
+      {
+        "startS": 0.67,
+        "endS": 0.76,
+        "phone": "S"
+      },
+      {
+        "startS": 0.76,
+        "endS": 0.82,
+        "phone": "T"
+      },
+      {
+        "startS": 0.82,
+        "endS": 0.87,
+        "phone": "AA1"
+      },
+      {
+        "startS": 0.87,
+        "endS": 0.93,
+        "phone": "R"
+      },
+      {
+        "startS": 0.93,
+        "endS": 0.98,
+        "phone": "T"
+      },
+      {
+        "startS": 0.98,
+        "endS": 1.03,
+        "phone": "IH0"
+      },
+      {
+        "startS": 1.03,
+        "endS": 1.15,
+        "phone": "D"
+      },
+      {
+        "startS": 1.15,
+        "endS": 1.25,
+        "phone": "TH"
+      },
+      {
+        "startS": 1.25,
+        "endS": 1.3,
+        "phone": "R"
+      },
+      {
+        "startS": 1.3,
+        "endS": 1.42,
+        "phone": "IY1"
+      },
+      {
+        "startS": 1.42,
+        "endS": 1.5,
+        "phone": "N"
+      },
+      {
+        "startS": 1.5,
+        "endS": 1.63,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.63,
+        "endS": 1.71,
+        "phone": "T"
+      },
+      {
+        "startS": 1.71,
+        "endS": 1.76,
+        "phone": "S"
+      },
+      {
+        "startS": 1.76,
+        "endS": 1.79,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.79,
+        "endS": 1.87,
+        "phone": "G"
+      },
+      {
+        "startS": 1.87,
+        "endS": 2.03,
+        "phone": "OW1"
+      },
+      {
+        "startS": 2.03,
+        "endS": 2.06,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.06,
+        "endS": 2.15,
+        "phone": "AE1"
+      },
+      {
+        "startS": 2.15,
+        "endS": 2.22,
+        "phone": "T"
+      },
+      {
+        "startS": 2.22,
+        "endS": 2.31,
+        "phone": "W"
+      },
+      {
+        "startS": 2.31,
+        "endS": 2.37,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.37,
+        "endS": 2.41,
+        "phone": "N"
+      },
+      {
+        "startS": 2.41,
+        "endS": 2.53,
+        "phone": "HH"
+      },
+      {
+        "startS": 2.53,
+        "endS": 2.56,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.56,
+        "endS": 2.6,
+        "phone": "N"
+      },
+      {
+        "startS": 2.6,
+        "endS": 2.67,
+        "phone": "D"
+      },
+      {
+        "startS": 2.67,
+        "endS": 2.75,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2.75,
+        "endS": 2.85,
+        "phone": "D"
+      },
+      {
+        "startS": 2.85,
+        "endS": 2.9,
+        "phone": "W"
+      },
+      {
+        "startS": 2.9,
+        "endS": 3,
+        "phone": "AH1"
+      },
+      {
+        "startS": 3,
+        "endS": 3.14,
+        "phone": "N"
+      },
+      {
+        "startS": 3.14,
+        "endS": 3.408,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.15,
+        "endS": 0.25,
+        "word": "the"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.67,
+        "word": "fever"
+      },
+      {
+        "startS": 0.67,
+        "endS": 1.15,
+        "word": "started"
+      },
+      {
+        "startS": 1.15,
+        "endS": 1.42,
+        "word": "three"
+      },
+      {
+        "startS": 1.42,
+        "endS": 1.76,
+        "word": "nights"
+      },
+      {
+        "startS": 1.76,
+        "endS": 2.03,
+        "word": "ago"
+      },
+      {
+        "startS": 2.06,
+        "endS": 2.22,
+        "word": "at"
+      },
+      {
+        "startS": 2.22,
+        "endS": 2.41,
+        "word": "one"
+      },
+      {
+        "startS": 2.41,
+        "endS": 2.85,
+        "word": "hundred"
+      },
+      {
+        "startS": 2.85,
+        "endS": 3.14,
+        "word": "one"
+      }
+    ]
+  },
+  "clin-04": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.09,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.09,
+        "endS": 0.2,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.33,
+        "phone": "F"
+      },
+      {
+        "startS": 0.33,
+        "endS": 0.41,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.41,
+        "endS": 0.48,
+        "phone": "L"
+      },
+      {
+        "startS": 0.48,
+        "endS": 0.57,
+        "phone": "B"
+      },
+      {
+        "startS": 0.57,
+        "endS": 0.66,
+        "phone": "EH1"
+      },
+      {
+        "startS": 0.66,
+        "endS": 0.7,
+        "phone": "T"
+      },
+      {
+        "startS": 0.7,
+        "endS": 0.8,
+        "phone": "ER0"
+      },
+      {
+        "startS": 0.8,
+        "endS": 0.95,
+        "phone": "AE1"
+      },
+      {
+        "startS": 0.95,
+        "endS": 1.02,
+        "phone": "F"
+      },
+      {
+        "startS": 1.02,
+        "endS": 1.08,
+        "phone": "T"
+      },
+      {
+        "startS": 1.08,
+        "endS": 1.14,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.14,
+        "endS": 1.19,
+        "phone": "DH"
+      },
+      {
+        "startS": 1.19,
+        "endS": 1.24,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.24,
+        "endS": 1.39,
+        "phone": "P"
+      },
+      {
+        "startS": 1.39,
+        "endS": 1.43,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.43,
+        "endS": 1.54,
+        "phone": "F"
+      },
+      {
+        "startS": 1.54,
+        "endS": 1.77,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.77,
+        "endS": 1.85,
+        "phone": "P"
+      },
+      {
+        "startS": 1.85,
+        "endS": 1.89,
+        "phone": "B"
+      },
+      {
+        "startS": 1.89,
+        "endS": 1.93,
+        "phone": "AH1"
+      },
+      {
+        "startS": 1.93,
+        "endS": 1.96,
+        "phone": "T"
+      },
+      {
+        "startS": 1.96,
+        "endS": 2.02,
+        "phone": "IH1"
+      },
+      {
+        "startS": 2.02,
+        "endS": 2.07,
+        "phone": "T"
+      },
+      {
+        "startS": 2.07,
+        "endS": 2.17,
+        "phone": "K"
+      },
+      {
+        "startS": 2.17,
+        "endS": 2.23,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.23,
+        "endS": 2.3,
+        "phone": "M"
+      },
+      {
+        "startS": 2.3,
+        "endS": 2.38,
+        "phone": "Z"
+      },
+      {
+        "startS": 2.38,
+        "endS": 2.46,
+        "phone": "B"
+      },
+      {
+        "startS": 2.46,
+        "endS": 2.65,
+        "phone": "AE1"
+      },
+      {
+        "startS": 2.65,
+        "endS": 2.8,
+        "phone": "K"
+      },
+      {
+        "startS": 2.8,
+        "endS": 3,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.09,
+        "endS": 0.2,
+        "word": "i"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.48,
+        "word": "feel"
+      },
+      {
+        "startS": 0.48,
+        "endS": 0.8,
+        "word": "better"
+      },
+      {
+        "startS": 0.8,
+        "endS": 1.14,
+        "word": "after"
+      },
+      {
+        "startS": 1.14,
+        "endS": 1.24,
+        "word": "the"
+      },
+      {
+        "startS": 1.24,
+        "endS": 1.77,
+        "word": "puffer"
+      },
+      {
+        "startS": 1.85,
+        "endS": 1.96,
+        "word": "but"
+      },
+      {
+        "startS": 1.96,
+        "endS": 2.07,
+        "word": "it"
+      },
+      {
+        "startS": 2.07,
+        "endS": 2.38,
+        "word": "comes"
+      },
+      {
+        "startS": 2.38,
+        "endS": 2.8,
+        "word": "back"
+      }
+    ]
+  },
+  "clin-05": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.06,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.06,
+        "endS": 0.14,
+        "phone": "W"
+      },
+      {
+        "startS": 0.14,
+        "endS": 0.19,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.19,
+        "endS": 0.23,
+        "phone": "L"
+      },
+      {
+        "startS": 0.23,
+        "endS": 0.28,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.28,
+        "endS": 0.33,
+        "phone": "AH0"
+      },
+      {
+        "startS": 0.33,
+        "endS": 0.47,
+        "phone": "S"
+      },
+      {
+        "startS": 0.47,
+        "endS": 0.53,
+        "phone": "T"
+      },
+      {
+        "startS": 0.53,
+        "endS": 0.58,
+        "phone": "EH1"
+      },
+      {
+        "startS": 0.58,
+        "endS": 0.75,
+        "phone": "R"
+      },
+      {
+        "startS": 0.75,
+        "endS": 0.85,
+        "phone": "OY0"
+      },
+      {
+        "startS": 0.85,
+        "endS": 0.91,
+        "phone": "D"
+      },
+      {
+        "startS": 0.91,
+        "endS": 0.97,
+        "phone": "Z"
+      },
+      {
+        "startS": 0.97,
+        "endS": 1.01,
+        "phone": "M"
+      },
+      {
+        "startS": 1.01,
+        "endS": 1.09,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.09,
+        "endS": 1.14,
+        "phone": "K"
+      },
+      {
+        "startS": 1.14,
+        "endS": 1.22,
+        "phone": "HH"
+      },
+      {
+        "startS": 1.22,
+        "endS": 1.29,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.46,
+        "phone": "SH"
+      },
+      {
+        "startS": 1.46,
+        "endS": 1.57,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.57,
+        "endS": 1.66,
+        "phone": "K"
+      },
+      {
+        "startS": 1.66,
+        "endS": 1.76,
+        "phone": "IY0"
+      },
+      {
+        "startS": 1.76,
+        "endS": 1.8,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.8,
+        "endS": 1.83,
+        "phone": "N"
+      },
+      {
+        "startS": 1.83,
+        "endS": 1.87,
+        "phone": "D"
+      },
+      {
+        "startS": 1.87,
+        "endS": 1.97,
+        "phone": "HH"
+      },
+      {
+        "startS": 1.97,
+        "endS": 2.02,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.02,
+        "endS": 2.08,
+        "phone": "NG"
+      },
+      {
+        "startS": 2.08,
+        "endS": 2.13,
+        "phone": "G"
+      },
+      {
+        "startS": 2.13,
+        "endS": 2.21,
+        "phone": "R"
+      },
+      {
+        "startS": 2.21,
+        "endS": 2.39,
+        "phone": "IY0"
+      },
+      {
+        "startS": 2.39,
+        "endS": 2.616,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.06,
+        "endS": 0.23,
+        "word": "will"
+      },
+      {
+        "startS": 0.23,
+        "endS": 0.33,
+        "word": "the"
+      },
+      {
+        "startS": 0.33,
+        "endS": 0.97,
+        "word": "steroids"
+      },
+      {
+        "startS": 0.97,
+        "endS": 1.14,
+        "word": "make"
+      },
+      {
+        "startS": 1.14,
+        "endS": 1.29,
+        "word": "her"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.76,
+        "word": "shaky"
+      },
+      {
+        "startS": 1.76,
+        "endS": 1.87,
+        "word": "and"
+      },
+      {
+        "startS": 1.87,
+        "endS": 2.39,
+        "word": "hungry"
+      }
+    ]
+  },
+  "clin-06": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.14,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.14,
+        "endS": 0.25,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.42,
+        "phone": "K"
+      },
+      {
+        "startS": 0.42,
+        "endS": 0.55,
+        "phone": "AA1"
+      },
+      {
+        "startS": 0.55,
+        "endS": 0.64,
+        "phone": "F"
+      },
+      {
+        "startS": 0.64,
+        "endS": 0.75,
+        "phone": "T"
+      },
+      {
+        "startS": 0.75,
+        "endS": 0.93,
+        "phone": "S"
+      },
+      {
+        "startS": 0.93,
+        "endS": 0.99,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.99,
+        "endS": 1.07,
+        "phone": "K"
+      },
+      {
+        "startS": 1.07,
+        "endS": 1.16,
+        "phone": "S"
+      },
+      {
+        "startS": 1.16,
+        "endS": 1.28,
+        "phone": "T"
+      },
+      {
+        "startS": 1.28,
+        "endS": 1.43,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.43,
+        "endS": 1.5,
+        "phone": "M"
+      },
+      {
+        "startS": 1.5,
+        "endS": 1.58,
+        "phone": "Z"
+      },
+      {
+        "startS": 1.58,
+        "endS": 1.63,
+        "phone": "L"
+      },
+      {
+        "startS": 1.63,
+        "endS": 1.72,
+        "phone": "AE1"
+      },
+      {
+        "startS": 1.72,
+        "endS": 1.82,
+        "phone": "S"
+      },
+      {
+        "startS": 1.82,
+        "endS": 1.86,
+        "phone": "T"
+      },
+      {
+        "startS": 1.86,
+        "endS": 1.9,
+        "phone": "N"
+      },
+      {
+        "startS": 1.9,
+        "endS": 2.04,
+        "phone": "AY1"
+      },
+      {
+        "startS": 2.04,
+        "endS": 2.14,
+        "phone": "T"
+      },
+      {
+        "startS": 2.14,
+        "endS": 2.27,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.27,
+        "endS": 2.3,
+        "phone": "AE1"
+      },
+      {
+        "startS": 2.3,
+        "endS": 2.36,
+        "phone": "N"
+      },
+      {
+        "startS": 2.36,
+        "endS": 2.42,
+        "phone": "D"
+      },
+      {
+        "startS": 2.42,
+        "endS": 2.53,
+        "phone": "S"
+      },
+      {
+        "startS": 2.53,
+        "endS": 2.67,
+        "phone": "AE1"
+      },
+      {
+        "startS": 2.67,
+        "endS": 2.71,
+        "phone": "T"
+      },
+      {
+        "startS": 2.71,
+        "endS": 2.85,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.85,
+        "endS": 2.96,
+        "phone": "P"
+      },
+      {
+        "startS": 2.96,
+        "endS": 3.168,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.14,
+        "endS": 0.25,
+        "word": "i"
+      },
+      {
+        "startS": 0.25,
+        "endS": 0.75,
+        "word": "coughed"
+      },
+      {
+        "startS": 0.75,
+        "endS": 1.16,
+        "word": "six"
+      },
+      {
+        "startS": 1.16,
+        "endS": 1.58,
+        "word": "times"
+      },
+      {
+        "startS": 1.58,
+        "endS": 1.86,
+        "word": "last"
+      },
+      {
+        "startS": 1.86,
+        "endS": 2.14,
+        "word": "night"
+      },
+      {
+        "startS": 2.27,
+        "endS": 2.42,
+        "word": "and"
+      },
+      {
+        "startS": 2.42,
+        "endS": 2.71,
+        "word": "sat"
+      },
+      {
+        "startS": 2.71,
+        "endS": 2.96,
+        "word": "up"
+      }
+    ]
+  },
+  "clin-07": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.06,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.06,
+        "endS": 0.19,
+        "phone": "SH"
+      },
+      {
+        "startS": 0.19,
+        "endS": 0.26,
+        "phone": "IY1"
+      },
+      {
+        "startS": 0.26,
+        "endS": 0.39,
+        "phone": "F"
+      },
+      {
+        "startS": 0.39,
+        "endS": 0.44,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.44,
+        "endS": 0.5,
+        "phone": "N"
+      },
+      {
+        "startS": 0.5,
+        "endS": 0.56,
+        "phone": "IH0"
+      },
+      {
+        "startS": 0.56,
+        "endS": 0.66,
+        "phone": "SH"
+      },
+      {
+        "startS": 0.66,
+        "endS": 0.7,
+        "phone": "T"
+      },
+      {
+        "startS": 0.7,
+        "endS": 0.74,
+        "phone": "DH"
+      },
+      {
+        "startS": 0.74,
+        "endS": 0.81,
+        "phone": "IY0"
+      },
+      {
+        "startS": 0.81,
+        "endS": 0.86,
+        "phone": "IH0"
+      },
+      {
+        "startS": 0.86,
+        "endS": 0.89,
+        "phone": "N"
+      },
+      {
+        "startS": 0.89,
+        "endS": 1.02,
+        "phone": "HH"
+      },
+      {
+        "startS": 1.02,
+        "endS": 1.12,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.12,
+        "endS": 1.19,
+        "phone": "L"
+      },
+      {
+        "startS": 1.19,
+        "endS": 1.29,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.48,
+        "phone": "T"
+      },
+      {
+        "startS": 1.48,
+        "endS": 1.51,
+        "phone": "W"
+      },
+      {
+        "startS": 1.51,
+        "endS": 1.63,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.63,
+        "endS": 1.75,
+        "phone": "S"
+      },
+      {
+        "startS": 1.75,
+        "endS": 1.82,
+        "phone": "D"
+      },
+      {
+        "startS": 1.82,
+        "endS": 1.95,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.95,
+        "endS": 2.02,
+        "phone": "L"
+      },
+      {
+        "startS": 2.02,
+        "endS": 2.1,
+        "phone": "IY0"
+      },
+      {
+        "startS": 2.1,
+        "endS": 2.21,
+        "phone": "F"
+      },
+      {
+        "startS": 2.21,
+        "endS": 2.24,
+        "phone": "R"
+      },
+      {
+        "startS": 2.24,
+        "endS": 2.27,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2.27,
+        "endS": 2.42,
+        "phone": "S"
+      },
+      {
+        "startS": 2.42,
+        "endS": 2.5,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.5,
+        "endS": 2.55,
+        "phone": "V"
+      },
+      {
+        "startS": 2.55,
+        "endS": 2.61,
+        "phone": "AH0"
+      },
+      {
+        "startS": 2.61,
+        "endS": 2.68,
+        "phone": "N"
+      },
+      {
+        "startS": 2.68,
+        "endS": 2.74,
+        "phone": "D"
+      },
+      {
+        "startS": 2.74,
+        "endS": 2.93,
+        "phone": "EY1"
+      },
+      {
+        "startS": 2.93,
+        "endS": 3.14,
+        "phone": "Z"
+      },
+      {
+        "startS": 3.14,
+        "endS": 3.336,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.06,
+        "endS": 0.26,
+        "word": "she"
+      },
+      {
+        "startS": 0.26,
+        "endS": 0.7,
+        "word": "finished"
+      },
+      {
+        "startS": 0.7,
+        "endS": 0.81,
+        "word": "the"
+      },
+      {
+        "startS": 0.81,
+        "endS": 1.29,
+        "word": "inhaler"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.75,
+        "word": "twice"
+      },
+      {
+        "startS": 1.75,
+        "endS": 2.1,
+        "word": "daily"
+      },
+      {
+        "startS": 2.1,
+        "endS": 2.27,
+        "word": "for"
+      },
+      {
+        "startS": 2.27,
+        "endS": 2.68,
+        "word": "seven"
+      },
+      {
+        "startS": 2.68,
+        "endS": 3.14,
+        "word": "days"
+      }
+    ]
+  },
+  "clin-08": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.13,
+        "phone": "P"
+      },
+      {
+        "startS": 0.13,
+        "endS": 0.2,
+        "phone": "M"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.3,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.3,
+        "endS": 0.52,
+        "phone": "TH"
+      },
+      {
+        "startS": 0.52,
+        "endS": 0.58,
+        "phone": "R"
+      },
+      {
+        "startS": 0.58,
+        "endS": 0.68,
+        "phone": "OW1"
+      },
+      {
+        "startS": 0.68,
+        "endS": 0.75,
+        "phone": "T"
+      },
+      {
+        "startS": 0.75,
+        "endS": 0.88,
+        "phone": "HH"
+      },
+      {
+        "startS": 0.88,
+        "endS": 1.01,
+        "phone": "ER1"
+      },
+      {
+        "startS": 1.01,
+        "endS": 1.1,
+        "phone": "T"
+      },
+      {
+        "startS": 1.1,
+        "endS": 1.21,
+        "phone": "S"
+      },
+      {
+        "startS": 1.21,
+        "endS": 1.26,
+        "phone": "SIL"
+      },
+      {
+        "startS": 1.26,
+        "endS": 1.29,
+        "phone": "AE1"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.33,
+        "phone": "N"
+      },
+      {
+        "startS": 1.33,
+        "endS": 1.37,
+        "phone": "D"
+      },
+      {
+        "startS": 1.37,
+        "endS": 1.41,
+        "phone": "M"
+      },
+      {
+        "startS": 1.41,
+        "endS": 1.49,
+        "phone": "AY1"
+      },
+      {
+        "startS": 1.49,
+        "endS": 1.65,
+        "phone": "N"
+      },
+      {
+        "startS": 1.65,
+        "endS": 1.81,
+        "phone": "OW1"
+      },
+      {
+        "startS": 1.81,
+        "endS": 1.91,
+        "phone": "Z"
+      },
+      {
+        "startS": 1.91,
+        "endS": 1.96,
+        "phone": "IH1"
+      },
+      {
+        "startS": 1.96,
+        "endS": 2.01,
+        "phone": "Z"
+      },
+      {
+        "startS": 2.01,
+        "endS": 2.12,
+        "phone": "S"
+      },
+      {
+        "startS": 2.12,
+        "endS": 2.18,
+        "phone": "T"
+      },
+      {
+        "startS": 2.18,
+        "endS": 2.25,
+        "phone": "AH1"
+      },
+      {
+        "startS": 2.25,
+        "endS": 2.37,
+        "phone": "F"
+      },
+      {
+        "startS": 2.37,
+        "endS": 2.55,
+        "phone": "IY0"
+      },
+      {
+        "startS": 2.55,
+        "endS": 2.76,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.13,
+        "endS": 0.3,
+        "word": "my"
+      },
+      {
+        "startS": 0.3,
+        "endS": 0.75,
+        "word": "throat"
+      },
+      {
+        "startS": 0.75,
+        "endS": 1.21,
+        "word": "hurts"
+      },
+      {
+        "startS": 1.26,
+        "endS": 1.37,
+        "word": "and"
+      },
+      {
+        "startS": 1.37,
+        "endS": 1.49,
+        "word": "my"
+      },
+      {
+        "startS": 1.49,
+        "endS": 1.91,
+        "word": "nose"
+      },
+      {
+        "startS": 1.91,
+        "endS": 2.01,
+        "word": "is"
+      },
+      {
+        "startS": 2.01,
+        "endS": 2.55,
+        "word": "stuffy"
+      }
+    ]
+  },
+  "clin-09": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.12,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.12,
+        "endS": 0.2,
+        "phone": "T"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.3,
+        "phone": "EY1"
+      },
+      {
+        "startS": 0.3,
+        "endS": 0.37,
+        "phone": "K"
+      },
+      {
+        "startS": 0.37,
+        "endS": 0.57,
+        "phone": "S"
+      },
+      {
+        "startS": 0.57,
+        "endS": 0.64,
+        "phone": "L"
+      },
+      {
+        "startS": 0.64,
+        "endS": 0.81,
+        "phone": "OW1"
+      },
+      {
+        "startS": 0.81,
+        "endS": 0.9,
+        "phone": "B"
+      },
+      {
+        "startS": 0.9,
+        "endS": 0.96,
+        "phone": "R"
+      },
+      {
+        "startS": 0.96,
+        "endS": 1.07,
+        "phone": "EH1"
+      },
+      {
+        "startS": 1.07,
+        "endS": 1.17,
+        "phone": "TH"
+      },
+      {
+        "startS": 1.17,
+        "endS": 1.32,
+        "phone": "S"
+      },
+      {
+        "startS": 1.32,
+        "endS": 1.36,
+        "phone": "W"
+      },
+      {
+        "startS": 1.36,
+        "endS": 1.4,
+        "phone": "IH0"
+      },
+      {
+        "startS": 1.4,
+        "endS": 1.45,
+        "phone": "TH"
+      },
+      {
+        "startS": 1.45,
+        "endS": 1.48,
+        "phone": "DH"
+      },
+      {
+        "startS": 1.48,
+        "endS": 1.52,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.52,
+        "endS": 1.62,
+        "phone": "S"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.69,
+        "phone": "P"
+      },
+      {
+        "startS": 1.69,
+        "endS": 1.8,
+        "phone": "EY1"
+      },
+      {
+        "startS": 1.8,
+        "endS": 1.92,
+        "phone": "S"
+      },
+      {
+        "startS": 1.92,
+        "endS": 2.07,
+        "phone": "ER0"
+      },
+      {
+        "startS": 2.07,
+        "endS": 2.15,
+        "phone": "SIL"
+      },
+      {
+        "startS": 2.15,
+        "endS": 2.26,
+        "phone": "EH1"
+      },
+      {
+        "startS": 2.26,
+        "endS": 2.38,
+        "phone": "V"
+      },
+      {
+        "startS": 2.38,
+        "endS": 2.43,
+        "phone": "R"
+      },
+      {
+        "startS": 2.43,
+        "endS": 2.49,
+        "phone": "IY0"
+      },
+      {
+        "startS": 2.49,
+        "endS": 2.59,
+        "phone": "M"
+      },
+      {
+        "startS": 2.59,
+        "endS": 2.62,
+        "phone": "AO1"
+      },
+      {
+        "startS": 2.62,
+        "endS": 2.73,
+        "phone": "R"
+      },
+      {
+        "startS": 2.73,
+        "endS": 2.77,
+        "phone": "N"
+      },
+      {
+        "startS": 2.77,
+        "endS": 2.85,
+        "phone": "IH0"
+      },
+      {
+        "startS": 2.85,
+        "endS": 2.96,
+        "phone": "NG"
+      },
+      {
+        "startS": 2.96,
+        "endS": 3.168,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.12,
+        "endS": 0.37,
+        "word": "take"
+      },
+      {
+        "startS": 0.37,
+        "endS": 0.81,
+        "word": "slow"
+      },
+      {
+        "startS": 0.81,
+        "endS": 1.32,
+        "word": "breaths"
+      },
+      {
+        "startS": 1.32,
+        "endS": 1.45,
+        "word": "with"
+      },
+      {
+        "startS": 1.45,
+        "endS": 1.52,
+        "word": "the"
+      },
+      {
+        "startS": 1.52,
+        "endS": 2.07,
+        "word": "spacer"
+      },
+      {
+        "startS": 2.15,
+        "endS": 2.49,
+        "word": "every"
+      },
+      {
+        "startS": 2.49,
+        "endS": 2.96,
+        "word": "morning"
+      }
+    ]
+  },
+  "clin-10": {
+    "phones": [
+      {
+        "startS": 0,
+        "endS": 0.06,
+        "phone": "SIL"
+      },
+      {
+        "startS": 0.06,
+        "endS": 0.12,
+        "phone": "K"
+      },
+      {
+        "startS": 0.12,
+        "endS": 0.16,
+        "phone": "AE1"
+      },
+      {
+        "startS": 0.16,
+        "endS": 0.2,
+        "phone": "N"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.32,
+        "phone": "AY1"
+      },
+      {
+        "startS": 0.32,
+        "endS": 0.43,
+        "phone": "S"
+      },
+      {
+        "startS": 0.43,
+        "endS": 0.49,
+        "phone": "T"
+      },
+      {
+        "startS": 0.49,
+        "endS": 0.53,
+        "phone": "IH1"
+      },
+      {
+        "startS": 0.53,
+        "endS": 0.59,
+        "phone": "L"
+      },
+      {
+        "startS": 0.59,
+        "endS": 0.68,
+        "phone": "P"
+      },
+      {
+        "startS": 0.68,
+        "endS": 0.72,
+        "phone": "L"
+      },
+      {
+        "startS": 0.72,
+        "endS": 0.8,
+        "phone": "EY1"
+      },
+      {
+        "startS": 0.8,
+        "endS": 0.93,
+        "phone": "S"
+      },
+      {
+        "startS": 0.93,
+        "endS": 1.05,
+        "phone": "AA1"
+      },
+      {
+        "startS": 1.05,
+        "endS": 1.15,
+        "phone": "K"
+      },
+      {
+        "startS": 1.15,
+        "endS": 1.24,
+        "phone": "ER0"
+      },
+      {
+        "startS": 1.24,
+        "endS": 1.29,
+        "phone": "AE1"
+      },
+      {
+        "startS": 1.29,
+        "endS": 1.34,
+        "phone": "T"
+      },
+      {
+        "startS": 1.34,
+        "endS": 1.45,
+        "phone": "S"
+      },
+      {
+        "startS": 1.45,
+        "endS": 1.52,
+        "phone": "K"
+      },
+      {
+        "startS": 1.52,
+        "endS": 1.62,
+        "phone": "UW1"
+      },
+      {
+        "startS": 1.62,
+        "endS": 1.67,
+        "phone": "L"
+      },
+      {
+        "startS": 1.67,
+        "endS": 1.76,
+        "phone": "T"
+      },
+      {
+        "startS": 1.76,
+        "endS": 1.8,
+        "phone": "AH0"
+      },
+      {
+        "startS": 1.8,
+        "endS": 1.85,
+        "phone": "D"
+      },
+      {
+        "startS": 1.85,
+        "endS": 2.11,
+        "phone": "EY1"
+      },
+      {
+        "startS": 2.11,
+        "endS": 2.376,
+        "phone": "SIL"
+      }
+    ],
+    "words": [
+      {
+        "startS": 0.06,
+        "endS": 0.2,
+        "word": "can"
+      },
+      {
+        "startS": 0.2,
+        "endS": 0.32,
+        "word": "i"
+      },
+      {
+        "startS": 0.32,
+        "endS": 0.59,
+        "word": "still"
+      },
+      {
+        "startS": 0.59,
+        "endS": 0.8,
+        "word": "play"
+      },
+      {
+        "startS": 0.8,
+        "endS": 1.24,
+        "word": "soccer"
+      },
+      {
+        "startS": 1.24,
+        "endS": 1.34,
+        "word": "at"
+      },
+      {
+        "startS": 1.34,
+        "endS": 1.67,
+        "word": "school"
+      },
+      {
+        "startS": 1.67,
+        "endS": 2.11,
+        "word": "today"
+      }
+    ]
   }
 }

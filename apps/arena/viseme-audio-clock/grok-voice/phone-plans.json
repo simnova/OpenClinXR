@@ -344,6 +344,570 @@
     ],
     "source": "cmudict-fallback"
   },
+  "she": {
+    "phones": [
+      "SH",
+      "IY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "takes": {
+    "phones": [
+      "T",
+      "EY1",
+      "K",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "two": {
+    "phones": [
+      "T",
+      "UW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "puffs": {
+    "phones": [
+      "P",
+      "AH1",
+      "F",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "of": {
+    "phones": [
+      "AH1",
+      "V"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "every": {
+    "phones": [
+      "EH1",
+      "V",
+      "R",
+      "IY0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "four": {
+    "phones": [
+      "F",
+      "AO1",
+      "R"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "hours": {
+    "phones": [
+      "AW1",
+      "ER0",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "my": {
+    "phones": [
+      "M",
+      "AY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "chest": {
+    "phones": [
+      "CH",
+      "EH1",
+      "S",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "feels": {
+    "phones": [
+      "F",
+      "IY1",
+      "L",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "tight": {
+    "phones": [
+      "T",
+      "AY1",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "when": {
+    "phones": [
+      "HH",
+      "W",
+      "IH1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "run": {
+    "phones": [
+      "R",
+      "AH1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "fast": {
+    "phones": [
+      "F",
+      "AE1",
+      "S",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "fever": {
+    "phones": [
+      "F",
+      "IY1",
+      "V",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "started": {
+    "phones": [
+      "S",
+      "T",
+      "AA1",
+      "R",
+      "T",
+      "IH0",
+      "D"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "three": {
+    "phones": [
+      "TH",
+      "R",
+      "IY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "nights": {
+    "phones": [
+      "N",
+      "AY1",
+      "T",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "ago": {
+    "phones": [
+      "AH0",
+      "G",
+      "OW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "at": {
+    "phones": [
+      "AE1",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "one": {
+    "phones": [
+      "W",
+      "AH1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "hundred": {
+    "phones": [
+      "HH",
+      "AH1",
+      "N",
+      "D",
+      "ER0",
+      "D"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "after": {
+    "phones": [
+      "AE1",
+      "F",
+      "T",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "puffer": {
+    "phones": [
+      "P",
+      "AH1",
+      "F",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "but": {
+    "phones": [
+      "B",
+      "AH1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "it": {
+    "phones": [
+      "IH0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "comes": {
+    "phones": [
+      "K",
+      "AH1",
+      "M",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "back": {
+    "phones": [
+      "B",
+      "AE1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "will": {
+    "phones": [
+      "W",
+      "AH0",
+      "L"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "steroids": {
+    "phones": [
+      "S",
+      "T",
+      "EH1",
+      "R",
+      "OY0",
+      "D",
+      "Z"
+    ],
+    "source": "cmudict-fallback"
+  },
+  "make": {
+    "phones": [
+      "M",
+      "EY1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "her": {
+    "phones": [
+      "HH",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "shaky": {
+    "phones": [
+      "SH",
+      "EY1",
+      "K",
+      "IY0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "and": {
+    "phones": [
+      "AE1",
+      "N",
+      "D"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "hungry": {
+    "phones": [
+      "HH",
+      "AH1",
+      "NG",
+      "G",
+      "R",
+      "IY0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "coughed": {
+    "phones": [
+      "K",
+      "AO1",
+      "F",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "six": {
+    "phones": [
+      "S",
+      "IH1",
+      "K",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "times": {
+    "phones": [
+      "T",
+      "AY1",
+      "M",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "last": {
+    "phones": [
+      "L",
+      "AE1",
+      "S",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "night": {
+    "phones": [
+      "N",
+      "AY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "sat": {
+    "phones": [
+      "S",
+      "AE1",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "up": {
+    "phones": [
+      "AH1",
+      "P"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "finished": {
+    "phones": [
+      "F",
+      "IH1",
+      "N",
+      "IH0",
+      "SH",
+      "T"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "inhaler": {
+    "phones": [
+      "IH0",
+      "N",
+      "HH",
+      "EY1",
+      "L",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "twice": {
+    "phones": [
+      "T",
+      "W",
+      "AY1",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "daily": {
+    "phones": [
+      "D",
+      "EY1",
+      "L",
+      "IY0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "seven": {
+    "phones": [
+      "S",
+      "EH1",
+      "V",
+      "AH0",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "days": {
+    "phones": [
+      "D",
+      "EY1",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "throat": {
+    "phones": [
+      "TH",
+      "R",
+      "OW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "hurts": {
+    "phones": [
+      "HH",
+      "ER1",
+      "T",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "nose": {
+    "phones": [
+      "N",
+      "OW1",
+      "Z"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "stuffy": {
+    "phones": [
+      "S",
+      "T",
+      "AH1",
+      "F",
+      "IY0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "take": {
+    "phones": [
+      "T",
+      "EY1",
+      "K"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "slow": {
+    "phones": [
+      "S",
+      "L",
+      "OW1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "breaths": {
+    "phones": [
+      "B",
+      "R",
+      "EH1",
+      "TH",
+      "S"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "with": {
+    "phones": [
+      "W",
+      "IH1",
+      "TH"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "spacer": {
+    "phones": [
+      "S",
+      "P",
+      "EY1",
+      "S",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "morning": {
+    "phones": [
+      "M",
+      "AO1",
+      "R",
+      "N",
+      "IH0",
+      "NG"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "can": {
+    "phones": [
+      "K",
+      "AE1",
+      "N"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "still": {
+    "phones": [
+      "S",
+      "T",
+      "IH1",
+      "L"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "play": {
+    "phones": [
+      "P",
+      "L",
+      "EY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "soccer": {
+    "phones": [
+      "S",
+      "AA1",
+      "K",
+      "ER0"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "school": {
+    "phones": [
+      "S",
+      "K",
+      "UW1",
+      "L"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
+  "today": {
+    "phones": [
+      "T",
+      "AH0",
+      "D",
+      "EY1"
+    ],
+    "source": "mfa-english_us_arpa"
+  },
   "phone": {
     "phones": [
       "F",

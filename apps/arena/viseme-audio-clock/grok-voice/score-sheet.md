@@ -1,197 +1,143 @@
-# Score sheet — Grok Voice (OpenRouter) cached audio clock bake-off
+# Score sheet — Grok Voice (OpenRouter) cached audio clock: onset snap + durations
 
-## Decision: REJECT for next-slice adoption (full-phone scoring)
+## Decision: REJECT vs the bar (p95), gap narrowed on a 14-clip fixture
 
-Correcting both measurement defects flipped the verdict back: scored over
-every non-silence phone with same-word pairing, the clock meets the median
-clauses but fails p95 on both bar clips. Pangram medianAbs 0.96 → 0.9 f
-(✓) but p95Abs 2.67 f (✗); viseme-words medianAbs 1.14 → 0.99 f (✓) but
-p95Abs 3.33 f (✗). Closures on the bar clip set hold 11/11 (all four
-clips 14/14). The p95 tails are genuine STT word-start lag on a few words
-(fat-F +3.33 f, sir-S +4.62 f: STT starts 110–150 ms after MFA), not
-pairing artifacts — so the result is negative and this card closes.
+Final method (S2: pause-gated onset snap + duration-weighted split) over every
+non-silence phone with same-word pairing: pangram medianAbs 0.72 ✓ / p95Abs
+2.46 ✗; viseme-words medianAbs 0.60 ✓ / p95Abs 1.90 ✓. Bar clip closures
+11/11 ✓. The bar (medianAbs ≤ 1 f, p95Abs ≤ 2 f on pangram + viseme-words,
+all closures) fails on pangram p95 only. Viseme-words passes fully for the
+first time (was 0.99/3.33): the fat-F/sir-S tails are gone. Remaining pangram
+p95 is mid-phrase STT segmentation (out/I region), unreachable by any onset
+rule. Held-out 10 clin lines behave the same as the bar clips (median 10/10
+≤ 1 f, p95 2/10 ≤ 2 f, closures 20/20), so the snap parameters are not fitted
+to the fixture they are judged on.
 
 ## Method (deterministic, no model grades a model)
 
 - Reference: repo MFA path (`tools/openclinxr/evidence/parent-fitted-teeth/mfa-align.ts`,
-  MFA 3.4.2, `english_us_arpa` model+dictionary, temp dict = stock + one
-  appended `albuterol` line from cmudict). Closure rule applied (SIL before
-  P/B/M → P), contact deconfliction not applied (runtime halo concern, not
-  timing). MFA is an aligner, not ground truth; all numbers are agreement
-  with MFA.
-- Provider: OpenRouter. TTS `x-ai/grok-voice-tts-1.0`, voice Ara (the repo
-  selects `Samantha`/mock voices for these fixtures, none maps to
-  Eve/Ara/Rex/Sal/Leo, so the card rule falls through to Ara). STT
+  MFA 3.4.2, `english_us_arpa` model+dictionary, temp dict = stock + every
+  cmudict-fallback entry in `phone-plans.json`). Closure rule applied (SIL
+  before P/B/M → P), contact deconfliction not applied. MFA is an aligner,
+  not ground truth; all numbers are agreement with MFA.
+- Provider: OpenRouter. TTS `x-ai/grok-voice-tts-1.0`, voice Ara (repo voices
+  do not map to Eve/Ara/Rex/Sal/Leo, card rule falls through to Ara). STT
   `x-ai/grok-stt-1.0`, `verbose_json` + word timestamps, language `en`.
-- Probe (one call, `with_timestamps: true` on "hi."): HTTP 200, plain
-  `audio/mpeg` bytes, no timing payload. The parameter is accepted and
-  ignored — TTS returns no character timings. Timing source is therefore STT
-  word timestamps on the TTS audio (second preference in the card order).
-- Joining rule: each STT word span is split uniformly across that word's
-  dictionary phones (even subdivision). Phones from the MFA dictionary
-  (45 words) then cmudict (1: albuterol); per-word sources in
-  `phone-plans.json`. The repo dialogue pronunciation map was dropped: it
-  reaches across a package boundary and is not on xr-dialogue's public
-  surface (architecture rule). Closure/labiodental hit: a planned same-label phone
-  onset falls inside the MFA interval widened by 2 frames at 30 fps
-  (known-good convention from wav2arkit/headaudio).
-- Fixtures: pangram (23 words, 8.6 s), viseme-words (13 words, 7.7 s),
-  pain sentence (7 words, 2.3 s), OOV "Give the albuterol now." (4 words,
-  1.9 s). Each recorded ONCE (5 TTS + 5 STT paid calls total, incl. probes);
-  everything after replays from `~/.openclinxr-cache/grok-voice/`.
-- Follow-up plan (this round, recomputed offline with `--recompute`, zero
-  API calls — the run completed with `OPENROUTER_API_KEY` unset):
-  (a) closure-gap rule: the same predicate the MFA cue source applies
-  (`tools/openclinxr/evidence/parent-fitted-teeth/mfa-align.ts`,
-  `applyMfaClosureRule`: silence immediately before a P/B/M initial is the
-  closure and labels P). No published package entrypoint exports that
-  function and a relative import into another package's src is refused by
-  the architecture rule, so the predicate is vendored verbatim into
-  `measure.ts` (BILABIAL = P/B/M, gap-before-it becomes P) with provenance
-  stated there — not re-derived. Necessary adaptation, stated openly: MFA
-  relabels a phone-tier SIL interval while the STT plan has none, so the
-  same predicate EMITS a P phone spanning the STT inter-word gap (or the
-  leading silence for word 0) when the next word starts with P/B/M.
-  Closure onset is the audio-energy quiet point (end of the last 10-ms
-  frame at or above threshold with frame end inside the gap, clamped to
-  the gap, falling back to gap start when the whole gap is quiet).
-  (b) leading-silence offset: per-clip energy onset (first 10-ms frame at
-  or above threshold on the ffmpeg 16 kHz mono decode of the cached TTS
-  mp3) re-anchors word 0 only (`firstWordStartS` = STT start − max(0,
-  STT start − onset)); later words keep STT bounds because their lag is
-  per-word duration drift, not a uniform clock offset. Threshold −40 dBFS
-  peak per 10-ms frame: mp3 encoder idle noise measures ≤ −51 dB in the
-  leading frames of all four clips while speech onset measures ≥ −29 dB,
-  so −40 dB separates the two with ≥ 11 dB margin on both sides — chosen
-  from the audio alone, never fitted to MFA.
-  Closure-gap rule source: `measure.ts` `ClosureSpan`/`PlanOpts` block
-  (predicate vendored verbatim from `mfa-align.ts:applyMfaClosureRule`).
-  Vendoring warning: no published entrypoint exports that function, so a
-  change there will NOT propagate here. `grok-voice.test.ts` carries a
-  snapshot test of the source text that fails on divergence and forces a
-  deliberate re-vendor.
-- Plan inputs (counterweight): the plan reads reference words, STT word
-  bounds, dictionary pronunciations (`phone-plans.json`), and
-  `audio-anchors.json` (STT-gap bounds + cached-audio energy frames +
-  stated threshold) — never `mfa-cues.json`. `buildPhonePlan` takes no MFA
-  parameter; `grok-voice.test.ts` asserts its code contains no MFA input
-  and that the committed anchors re-derive from cached mp3 bytes via an
-  independent ffmpeg decode. A plan that read MFA to place closures would
-  pass by construction; this one cannot.
-- Leading silence: threshold −40 dBFS peak per 10-ms frame, source =
-  offline ffmpeg 16 kHz mono decode of the cached TTS mp3 bytes (same
-  toolchain as the record path). Measured offsets (STT word-0 start −
-  energy onset, clamped ≥ 0): pangram 30 ms (0.140 − 0.110),
-  viseme-words 0 ms (0.100 − 0.100), pain 82 ms (0.222 − 0.140),
-  oov 0 ms (0.161 − 0.170 → clamped). Emission onsets (tQuiet):
-  beige 0.750, put-lead 0.0, bed 6.09, book 7.17, pain-P 0.68,
-  better-B 1.33. Full per-clip record in `audio-anchors.json`.
-- Replay proof: `grok-voice.test.ts` stubs `fetch` to throw, recomputes all
-  four clip scores from cache, and asserts deep equality with `results.jsonl`
-  (6 tests pass, incl. the closure-emission unit test, the no-MFA-input
-  counterweight test, the independent audio re-decode test, and the
-  vendored-predicate divergence test). 20 replay runs (cache read + full scoring): p50 0.58 ms,
-  p95 1.67 ms (`replay-timings.json`).
+- Probe (earlier round, `with_timestamps: true` on "hi."): HTTP 200, plain
+  `audio/mpeg` bytes, no timing payload. Timing source is STT word timestamps
+  on the TTS audio. Hit rule: planned same-label phone onset inside the MFA
+  interval widened by 2 frames at 30 fps (repo convention).
+- Fixtures: original 4 (pangram 23 words 8.6 s, viseme-words 13 words 7.7 s,
+  pain 7 words 2.3 s, oov 4 words 1.9 s) plus 10 clinical-dialogue lines
+  recorded ONCE this round (patient + parent answers; drugs albuterol /
+  steroids / inhaler; numbers two/four/three/one-hundred-one/six/seven/twice;
+  questions clin-05 + clin-10; fricative-initial she/feels/fast/fever/six/
+  slow/spacer/soccer/throat and stop-initial takes/two/tight/better/take/
+  play/puffer/daily words). All 10 STT transcripts match the reference word
+  for word; zero OOV. Everything after records replays from
+  `~/.openclinxr-cache/grok-voice/`. The one `--record` run was killed
+  mid-MFA-alignment, so per-call ms for the 10 new lines was not captured;
+  characters (454) and STT usage ($0.00084, 30.24 s) come from the cache.
+- Statistics: over ABSOLUTE onset error; median = mean of the two middle
+  values for even n; p95 = nearest-rank ceil(0.95·n)−1 (for small n this is
+  near the max); signed median kept as bias. Coverage is every non-silence
+  MFA phone paired within the same order-matched word (miss, never skip).
+- Step S0 (baseline): even split, STT starts, closure-gap emissions + word-0
+  energy offset (previous round's method, reproduced exactly: pangram
+  0.90/2.67, viseme-words 0.99/3.33).
+- Step S1 (+snap): each late STT word start snaps back to its audio onset
+  inside its own STT gap (previous word end .. STT start, ±150 ms window).
+  Stop/vowel-initial words snap to the energy edge (-40 dBFS rising edge out
+  of a 90 ms pause); fricative-initial words (F V S Z SH ZH TH DH HH) snap
+  to the ZCR frication edge (ZCR ≥ 0.25 above a -55 dBFS floor, 50 ms
+  sub-0.25 run — voiceless frication sits 15+ dB under the energy threshold
+  for 100+ ms, so energy alone reads it late). Snap is backward-only and
+  gap-bounded: an onset belonging to a neighboring word can never capture
+  the snap (this exact failure cost +5.1 f on he's-HH before bounding).
+  Threshold (-40 dBFS: orig-4 idle noise ≤ -51 dB, speech ≥ -29 dB), window
+  (±150 ms: covers the orig-4 near-onset class, viseme p95 124 ms; leaves
+  300-700 ms continuous-speech starts untouched), pause run (90 ms: orig-4
+  quiet-run distribution is empty between 80 and 100 ms), and ZCR levels
+  (pause 2-8%, frication 42-81%, vowels 4-12%) all come from the ORIGINAL 4
+  clips' audio + STT alone, never MFA. The 10 clin lines are held out.
+- Step S2 (+durations): S1 starts with the even split replaced by fixed
+  per-phone relative weights (measure.ts `phoneWeight`: diphthongs 1.5,
+  monophthongs 1.15 with stressed ×1.1 / unstressed ×0.8, affricates 1.0,
+  SH/ZH 1.0, fricatives 0.9, liquids 0.85, nasals 0.8, glides 0.7, stops
+  0.6, flap 0.5 — class ordering from Crystal & House 1988 mean segment
+  durations, cf. Klatt 1979; fixed a priori, no MFA input anywhere in plan
+  construction).
+- Plan inputs (counterweight): reference words, STT bounds, dictionary
+  pronunciations, audio frames. Never `mfa-cues.json`. `grok-voice.test.ts`
+  asserts the plan builder source contains no MFA input, anchors re-derive
+  from cached mp3 bytes via ffmpeg, and the vendored closure predicate
+  matches `mfa-align.ts` or fails.
 
-## Results (agreement with MFA, which is not ground truth)
+## Results S0 → S1 → S2 (medianAbs / p95Abs in frames; closures; phone hits)
 
-| clip | phone hits (n scored) | paired n | medianAbs (fr) | p95Abs (fr) | bias signed med (fr) | STT word drift med (ms) |
-|---|---|---|---|---|---|---|
-| pangram | 66/73 | 69 | 0.9 | 2.67 | 0.42 | 45 |
-| viseme-words | 34/41 | 35 | 0.99 | 3.33 | 0.66 | 37 |
-| pain | 16/17 | 17 | 0.71 | 3.18 | 0.46 | 65 |
-| oov | 16/16 | 16 | 0.66 | 3.66 | 0.64 | 28 |
-
-Measurement correction (round 2): the first two rounds computed median and
-p95 over SIGNED onset errors. A signed p95 is the upper tail only, so large
-early (negative) errors were invisible — viseme-words reported p95 3.0 f
-while two pairings sat at −150/−118 f. All statistics below run over
-ABSOLUTE error (`medianAbsFrames`, `p95AbsFrames` in `results.jsonl`); the
-signed median is kept as `biasMedianFrames`. The pass bar scores
-medianAbs ≤ 1 f and p95Abs ≤ 2 f.
-
-Measurement correction (round 3): median now uses the mean of the two
-middle values for even n (previously the lower middle element — pangram's
-old closure-only errors [−1.34, −1.15, −0.3, 0.06] reported bias −1.15
-beside medianAbs 0.3, which cannot both hold; true values −0.725 and
-0.725). p95 uses nearest-rank index ceil(0.95·n)−1; stated plainly, with
-small n this is the max — the 4-phone closure subset previously reported
-reached it exactly. Coverage is now every non-silence MFA phone (n scored
-per clip above), paired within the same order-matched word; a phone with
-no same-label planned counterpart in its word is a miss, never a skip
-(unpaired = scored − paired: pangram 4, viseme-words 6, mostly dictionary
-pronunciation variants such as MFA dog D AA1 G vs plan D AO1 G). Global
-nearest-same-label pairing is refused: it paired across words and reported
-acoustic distances of up to 150 f as clock errors. The bar was judged on
-the paired n per clip shown above. Both the before column (89e80b0ed
-method) and the after column were recomputed offline from the cache with
-the corrected method.
-
-Before → after (same corrected measures, same pass bar):
-
-| clip | phone hits (n) | paired n | medianAbs (fr) | p95Abs (fr) | bias (fr) |
+| clip | S0 | S1 (snap) | S2 (snap+dur) | closures S2 | hits S2 |
 |---|---|---|---|---|---|
-| pangram | 65/73 → 66/73 | 68 → 69 | 1.0 → 0.9 | 15.6 → 2.67 | 0.55 → 0.42 |
-| viseme-words | 32/41 → 34/41 | 33 → 35 | 1.41 → 0.99 | 93.08 → 3.33 | 1.2 → 0.66 |
-| pain | 16/17 → 16/17 | 17 → 17 | 1.19 → 0.71 | 3.18 → 3.18 | 0.71 → 0.46 |
-| oov | 16/16 → 16/16 | 16 → 16 | 0.66 → 0.66 | 3.66 → 3.66 | 0.64 → 0.64 |
+| pangram | 0.90 / 2.67 | 0.88 / 2.46 | 0.72 / 2.46 | 4/4 | 68/73 |
+| viseme-words | 0.99 / 3.33 | 0.82 / 1.92 | 0.60 / 1.90 | 7/7 | 34/41 |
+| pain | 0.71 / 3.18 | 1.05 / 3.18 | 0.68 / 2.60 | 2/2 | 16/17 |
+| oov | 0.66 / 3.66 | 0.66 / 3.66 | 0.75 / 2.90 | 1/1 | 16/16 |
+| clin-01 | 0.57 / 2.49 | 0.60 / 2.16 | 0.67 / 2.43 | 2/2 | 32/33 |
+| clin-02 | 1.38 / 3.09 | 1.03 / 2.76 | 0.90 / 2.76 | 2/2 | 24/26 |
+| clin-03 | 0.69 / 2.61 | 0.90 / 2.61 | 0.60 / 2.31 | 0/0 | 37/37 |
+| clin-04 | 0.47 / 2.30 | 0.67 / 2.30 | 0.57 / 1.92 | 6/6 | 29/31 |
+| clin-05 | 0.75 / 2.79 | 0.75 / 2.25 | 0.77 / 2.16 | 1/1 | 28/30 |
+| clin-06 | 1.00 / 2.85 | 0.85 / 2.85 | 0.83 / 1.71 | 2/2 | 26/28 |
+| clin-07 | 0.68 / 2.64 | 0.95 / 2.41 | 0.77 / 2.10 | 0/0 | 32/35 |
+| clin-08 | 0.92 / 3.66 | 0.69 / 3.00 | 0.62 / 3.00 | 3/3 | 25/26 |
+| clin-09 | 0.85 / 2.11 | 0.85 / 2.11 | 0.74 / 2.12 | 3/3 | 31/31 |
+| clin-10 | 0.60 / 2.58 | 0.67 / 2.18 | 0.63 / 2.07 | 1/1 | 25/25 |
 
-Closure totals, stated exactly: on the bar clip set (pangram +
-viseme-words) 8/11 → 11/11; across all four clips 11/14 → 14/14. No other
-denominator is used anywhere in this sheet.
-
-Per-interval misses now: the old −100 f-class closure pairings are gone
-(replaced by gap emissions within −0.9…0.0 f), but the full-phone p95 tails
-are genuine STT word-start lag on a few words (viseme-words fat-F +3.33 f,
-sir-S +4.62 f: STT starts 110–150 ms after MFA) plus even-split compression
-inside words — neither reachable by a gap or onset rule.
+Honest warts: S1 alone regresses median on pain (0.71 → 1.05) and hits on
+pangram (66 → 65) and clin-05 (28 → 26); durations rescue all three in S2.
+oov median is the one cell where S2 (0.75) sits above S0 (0.66) while p95
+improves (3.66 → 2.90). clin-08 p95 sticks at 3.00 (throat-TH: `then`/`throat`
+region mid-phrase STT lag, no pause to snap from). Snap moved 0-8 starts per
+clip and never fires mid-phrase; the leftover tails are all mid-utterance
+STT segmentation with no acoustic onset cue.
 
 Pass bar (card): onset medianAbs ≤ 1 fr and p95Abs ≤ 2 fr on pangram and
-viseme-words, all closures hit, homophone check holds. Score: pangram
-medianAbs 0.9 ✓, p95Abs 2.67 ✗, words medianAbs 0.99 ✓, p95Abs 3.33 ✗,
-closures 4/4 and 7/7 ✓, homophone (phone→F OW N starts F; though DH OW ≠ cough
-K AO F) ✓. p95 fails on both bar clips → REJECT (negative result closes the card).
+viseme-words, all closures hit, homophone holds. Score: pangram 0.72 ✓ /
+2.46 ✗, viseme-words 0.60 ✓ / 1.90 ✓, closures 11/11 ✓, homophone
+(phone→F OW N starts F; DH OW ≠ K AO F) ✓. Pangram p95 fails → REJECT.
 
-Latency (5 recorded calls each): TTS p50 484 ms / p95 692 ms;
-STT p50 517 ms / p95 2056 ms (one slow oov call). Replay p50 0.58 ms —
-three orders of magnitude below any live path, but replay speed does not
-rescue the timing misses above.
+Latency the live path would add per turn (offline benchmark over all 14
+clips, decode + snap + plan build, no MFA): snap + plan compute p50
+0.08 ms / p95 0.88 ms; mp3→16 kHz decode via an ffmpeg subprocess p50
+43 ms / p95 216 ms (subprocess spawn dominates; in-process decode would be
+less). Replay scoring (cache read + full S2 scoring, `replay-timings.json`):
+unchanged harness, rerun with 14 clips.
 
-Billing (measured): 246 TTS characters (USD not itemized — TTS returns raw
-bytes; cost is characters-billed per OpenRouter pricing); STT 21.22 s audio,
-$0.000589. Generations pinned by X-Generation-Id in `cache-manifest.json`.
+Billing (measured): new lines 454 TTS characters; STT 30.24 s audio,
+$0.00084. Generations pinned by X-Generation-Id in `cache-manifest.json`
+(29 entries: 9 prior + 20 new). Per-call ms for the 10 new lines is
+recorded as null — the record run was killed during MFA alignment, after
+all 20 paid calls had cached; no second network call was made.
 
 ## Measured reasons
 
-- Every miss traces to pre-burst closure silence, not to wrong words. MFA's
-  closure rule relabels SIL-before-P/B/M as P; the even-split plan anchors
-  onsets at STT word starts (≈ the burst), so it cannot land inside the
-  silence: pangram 36.95 f pairs jumped-P with the silence before beige-B
-  (the beige B itself hit at 0.1 f); viseme-words −118/−150 f pair
-  tip-P with silences before bed-B/book-B (both B onsets hit at 0.5 f).
-  STT word timestamps structurally cannot recover closure silence — the same
-  rule that helps MFA would have to be re-applied to STT word gaps.
-- Word-boundary agreement itself is good: STT word-start drift vs MFA
-  medians 21–65 ms; zero word mismatches; all four STT transcripts match the
-  reference word for word (punctuation aside).
-- Clip-start disagreement is real: put-P onset error 3.0 f comes from TTS
-  leading silence (MFA starts the phone at 0.00 s, STT starts the word at
-  0.10 s) — a further ~100 ms systematic a live clock would have to absorb.
-- Follow-up resolution: the closure-gap emission absorbs the silence
-  mechanism (all six closure pairings now land within −0.9…0.0 f of MFA
-  from STT-gap + audio-energy inputs alone) and the leading-silence offset
-  re-anchors clip start (30/0/82/0 ms per clip, audio-measured). What
-  remains is a systematic early bias on pangram (−1.15 f, from intra-word
-  even-split compression on "jumped": 281 ms in STT time against 330 ms in
-  MFA time) — visible now that bias is reported separately from magnitude.
-  No gap or onset rule reaches inside a word; per-phone durations would be
-  a different slice.
+- The old tails were STT word-start lag after pauses (fat-F +3.33 f, sir-S
+  +4.62 f: 110-150 ms late) plus even-split compression inside words. The
+  ZCR edge lands fricative onsets within ~1 f of MFA (frication ZCR jumps
+  6→49% where energy still reads pause); the energy edge lands stop onsets;
+  durations fix the inside-word compression (pangram bias holds 0.42 while
+  median falls 0.90 → 0.72).
+- What remains is mid-phrase STT segmentation with no pause cue (pangram
+  out/I, clin-08 throat region): no onset rule reaches it. Next lever would
+  be a different slice (e.g. sub-word STT confidences or a finer acoustic
+  pass), not a wider snap window — widening re-admits neighbor theft.
 
 ## Repro
 
 Recorded once: `direnv exec /Volumes/files/src/openclinxr pnpm exec tsx
-apps/arena/viseme-audio-clock/grok-voice/record.ts` (paid calls only here).
-Recompute offline: same with `--recompute` (no network). Test:
-`pnpm exec vitest run apps/arena/viseme-audio-clock/grok-voice`.
-Per-interval detail in `results.jsonl` `clip_score` lines; MFA cues in
-`mfa-cues.json`; cache keys + generation ids in `cache-manifest.json`.
+apps/arena/viseme-audio-clock/grok-voice/scripts/record.ts` (paid calls only
+here; rerun replays from cache). Test (fetch stubbed to throw):
+`pnpm exec vitest run apps/arena/viseme-audio-clock/grok-voice` (8 tests:
+replay-exact on all 14 clips, snap + duration units, closure emission,
+no-MFA-input, audio re-decode, vendored-predicate sync). Per-interval detail
+in `results.jsonl` `clip_score` lines; MFA cues in `mfa-cues.json`; cache
+keys + generation ids in `cache-manifest.json`.

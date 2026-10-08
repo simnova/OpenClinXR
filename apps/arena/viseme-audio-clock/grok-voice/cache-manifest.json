@@ -103,7 +103,7 @@
     "text": "I feel the pain is better now.",
     "usage": {
       "seconds": 2.28,
-      "cost": 0.000063333333333384
+      "cost": 6.3333333333384e-05
     },
     "date": "2026-10-08T15:41:50.976Z"
   },
@@ -117,8 +117,278 @@
     "text": "Give the albuterol now.",
     "usage": {
       "seconds": 1.896,
-      "cost": 0.0000526666666667088
+      "cost": 5.26666666667088e-05
     },
     "date": "2026-10-08T15:41:53.035Z"
+  },
+  {
+    "key": "a881054f90a841a689dd6478f7829be753dfe43be06947c85c21f39e209799d1",
+    "kind": "tts",
+    "clip": "clin-01",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "She takes two puffs of albuterol every four hours.",
+    "audioSha256": "c109dd694bb4dd9869939da49cc004fbac5c612de4796f643114f101cdcb9c46",
+    "bytes": 58368,
+    "generationId": "gen-tts-1791481578-2DwbYMZOXUGB34O7hNgi",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:19.430Z"
+  },
+  {
+    "key": "stt:c109dd694bb4dd9869939da49cc004fbac5c612de4796f643114f101cdcb9c46",
+    "kind": "stt",
+    "clip": "clin-01",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "c109dd694bb4dd9869939da49cc004fbac5c612de4796f643114f101cdcb9c46",
+    "words": 9,
+    "text": "She takes two puffs of albuterol every four hours.",
+    "usage": {
+      "seconds": 3.648,
+      "cost": 0.0001013333333334144
+    },
+    "date": "2026-10-08T17:46:19.430Z"
+  },
+  {
+    "key": "40534e446c7948fbd6e9a2164afe8d6b0ba4ae6146fdbb9af4aa69619c627585",
+    "kind": "tts",
+    "clip": "clin-02",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "My chest feels tight when I run fast.",
+    "audioSha256": "921fca8983abc95b459316420137b7f6d7ad04620751061097df440ddee20db3",
+    "bytes": 44160,
+    "generationId": "gen-tts-1791481580-zTWZOMeZXW8C951sJqRQ",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:21.436Z"
+  },
+  {
+    "key": "stt:921fca8983abc95b459316420137b7f6d7ad04620751061097df440ddee20db3",
+    "kind": "stt",
+    "clip": "clin-02",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "921fca8983abc95b459316420137b7f6d7ad04620751061097df440ddee20db3",
+    "words": 8,
+    "text": "My chest feels tight when I run fast.",
+    "usage": {
+      "seconds": 2.76,
+      "cost": 7.6666666666728e-05
+    },
+    "date": "2026-10-08T17:46:21.436Z"
+  },
+  {
+    "key": "3aa732c88b40fae9369e04b96a896f00faa24ae52390fd304d2ea34aed916115",
+    "kind": "tts",
+    "clip": "clin-03",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "The fever started three nights ago at one hundred one.",
+    "audioSha256": "a265e54b917329e29fa090680cfa7afa922fc3d40ef3c620a619c4b5d4de52d5",
+    "bytes": 54528,
+    "generationId": "gen-tts-1791481581-8KYMfIVMrLjG3jgR44vy",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:22.589Z"
+  },
+  {
+    "key": "stt:a265e54b917329e29fa090680cfa7afa922fc3d40ef3c620a619c4b5d4de52d5",
+    "kind": "stt",
+    "clip": "clin-03",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "a265e54b917329e29fa090680cfa7afa922fc3d40ef3c620a619c4b5d4de52d5",
+    "words": 10,
+    "text": "The fever started three nights ago at one hundred one.",
+    "usage": {
+      "seconds": 3.408,
+      "cost": 9.46666666667424e-05
+    },
+    "date": "2026-10-08T17:46:22.589Z"
+  },
+  {
+    "key": "defa86912ddf5578c2572ffa2cb355dfcec12c02a4771be867ff372eb6dd0b14",
+    "kind": "tts",
+    "clip": "clin-04",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "I feel better after the puffer but it comes back.",
+    "audioSha256": "e4ad3ceced2c3c8dc8dc10051396a52ec77962e5a366c05d63d24758edb91f50",
+    "bytes": 48000,
+    "generationId": "gen-tts-1791481582-Zs1GnIRNtOtEXR8fZR1D",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:23.550Z"
+  },
+  {
+    "key": "stt:e4ad3ceced2c3c8dc8dc10051396a52ec77962e5a366c05d63d24758edb91f50",
+    "kind": "stt",
+    "clip": "clin-04",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "e4ad3ceced2c3c8dc8dc10051396a52ec77962e5a366c05d63d24758edb91f50",
+    "words": 10,
+    "text": "I feel better after the puffer, but it comes back.",
+    "usage": {
+      "seconds": 3,
+      "cost": 8.33333333334e-05
+    },
+    "date": "2026-10-08T17:46:23.550Z"
+  },
+  {
+    "key": "9f410cad7bd7b1a37250e69e3882cf71239225b13e47943aa7afd161be704037",
+    "kind": "tts",
+    "clip": "clin-05",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "Will the steroids make her shaky and hungry?",
+    "audioSha256": "039a320c8f92a2088bd11858cdd546ba51172347569cb34af42ba87a03749bce",
+    "bytes": 41856,
+    "generationId": "gen-tts-1791481583-E8vvLvNSMxxxAY5QTIuy",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:24.336Z"
+  },
+  {
+    "key": "stt:039a320c8f92a2088bd11858cdd546ba51172347569cb34af42ba87a03749bce",
+    "kind": "stt",
+    "clip": "clin-05",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "039a320c8f92a2088bd11858cdd546ba51172347569cb34af42ba87a03749bce",
+    "words": 8,
+    "text": "Will the steroids make her shaky and hungry?",
+    "usage": {
+      "seconds": 2.616,
+      "cost": 7.26666666667248e-05
+    },
+    "date": "2026-10-08T17:46:24.336Z"
+  },
+  {
+    "key": "0629bb4dac9209f52b9aaf87d31a93405a1543bdcb6d935c90d2f0bc0c9a9ec7",
+    "kind": "tts",
+    "clip": "clin-06",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "I coughed six times last night and sat up.",
+    "audioSha256": "51578e1d7f58a51797e91b622a11ca39443b9c0c754b9c84fe99cc605021fa46",
+    "bytes": 50688,
+    "generationId": "gen-tts-1791481584-TXY5AXNghkeZiprSGV7E",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:25.123Z"
+  },
+  {
+    "key": "stt:51578e1d7f58a51797e91b622a11ca39443b9c0c754b9c84fe99cc605021fa46",
+    "kind": "stt",
+    "clip": "clin-06",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "51578e1d7f58a51797e91b622a11ca39443b9c0c754b9c84fe99cc605021fa46",
+    "words": 9,
+    "text": "I coughed six times last night and sat up.",
+    "usage": {
+      "seconds": 3.168,
+      "cost": 8.80000000000704e-05
+    },
+    "date": "2026-10-08T17:46:25.123Z"
+  },
+  {
+    "key": "cf0765360b1b373fa971eda1567527e6664bc13fd7d2f265b8d20ec955eec9d0",
+    "kind": "tts",
+    "clip": "clin-07",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "She finished the inhaler twice daily for seven days.",
+    "audioSha256": "b85a1b604fa20f568427ae89dcf16696a45f67a521a38a119465480da4cfa780",
+    "bytes": 53376,
+    "generationId": "gen-tts-1791481585-I9dBVcBL4Gk55DQTcLaL",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:26.163Z"
+  },
+  {
+    "key": "stt:b85a1b604fa20f568427ae89dcf16696a45f67a521a38a119465480da4cfa780",
+    "kind": "stt",
+    "clip": "clin-07",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "b85a1b604fa20f568427ae89dcf16696a45f67a521a38a119465480da4cfa780",
+    "words": 9,
+    "text": "She finished the inhaler twice daily for seven days.",
+    "usage": {
+      "seconds": 3.336,
+      "cost": 9.26666666667408e-05
+    },
+    "date": "2026-10-08T17:46:26.163Z"
+  },
+  {
+    "key": "0d747839f195929cac2a136c21b9c94fa1b766bd77bb4140ed3bc7cf4d4d6c91",
+    "kind": "tts",
+    "clip": "clin-08",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "My throat hurts and my nose is stuffy.",
+    "audioSha256": "1c3fe0a03ea8930a59b7c9be0b8b6cae9a395b958800fef0c267db4db7a29567",
+    "bytes": 44160,
+    "generationId": "gen-tts-1791481586-CkfF7LMkEBzE2wrU8mjO",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:27.167Z"
+  },
+  {
+    "key": "stt:1c3fe0a03ea8930a59b7c9be0b8b6cae9a395b958800fef0c267db4db7a29567",
+    "kind": "stt",
+    "clip": "clin-08",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "1c3fe0a03ea8930a59b7c9be0b8b6cae9a395b958800fef0c267db4db7a29567",
+    "words": 8,
+    "text": "My throat hurts and my nose is stuffy.",
+    "usage": {
+      "seconds": 2.76,
+      "cost": 7.6666666666728e-05
+    },
+    "date": "2026-10-08T17:46:27.167Z"
+  },
+  {
+    "key": "3069fdeb4f7a5804d36c52a9fdef68a638a8378a7241d692464fdaca89e3761d",
+    "kind": "tts",
+    "clip": "clin-09",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "Take slow breaths with the spacer every morning.",
+    "audioSha256": "22c56b4545462d503b51a49353c829d0c53b6ae1c9c48c453f0eb2b983c932a9",
+    "bytes": 50688,
+    "generationId": "gen-tts-1791481587-dz8rJM3AEek5L3ASzlRL",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:27.997Z"
+  },
+  {
+    "key": "stt:22c56b4545462d503b51a49353c829d0c53b6ae1c9c48c453f0eb2b983c932a9",
+    "kind": "stt",
+    "clip": "clin-09",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "22c56b4545462d503b51a49353c829d0c53b6ae1c9c48c453f0eb2b983c932a9",
+    "words": 8,
+    "text": "Take slow breaths with the spacer every morning.",
+    "usage": {
+      "seconds": 3.168,
+      "cost": 8.80000000000704e-05
+    },
+    "date": "2026-10-08T17:46:27.997Z"
+  },
+  {
+    "key": "7a086e045a7b1547bc3ea41a98af76ff2749eb0502459e1037e795bbeda09595",
+    "kind": "tts",
+    "clip": "clin-10",
+    "model": "x-ai/grok-voice-tts-1.0",
+    "voice": "ara",
+    "text": "Can I still play soccer at school today?",
+    "audioSha256": "fb2689ff6869799e6a6f3645717882d615068e2ba6cbe19007f65bfe10faa591",
+    "bytes": 38016,
+    "generationId": "gen-tts-1791481588-kqwu2REqjpzq8rwDRmjz",
+    "contentType": "audio/mpeg",
+    "date": "2026-10-08T17:46:28.759Z"
+  },
+  {
+    "key": "stt:fb2689ff6869799e6a6f3645717882d615068e2ba6cbe19007f65bfe10faa591",
+    "kind": "stt",
+    "clip": "clin-10",
+    "model": "x-ai/grok-stt-1.0",
+    "audioSha256": "fb2689ff6869799e6a6f3645717882d615068e2ba6cbe19007f65bfe10faa591",
+    "words": 8,
+    "text": "Can I still play soccer at school today?",
+    "usage": {
+      "seconds": 2.376,
+      "cost": 6.60000000000528e-05
+    },
+    "date": "2026-10-08T17:46:28.759Z"
   }
 ]

@@ -2,9 +2,36 @@
   "pangram": {
     "audioSha256": "378a2974343beb50c370b9e36e3c1f55cfaf29f417dbff120d3ebe6392224ec1",
     "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
     "energyOnsetS": 0.11,
     "leadingOffsetS": 0.03,
-    "firstWordStartS": 0.11,
+    "firstWordStartS": 0.14,
+    "snappedStarts": [
+      0.14,
+      0.421,
+      0.862,
+      1.282,
+      1.823,
+      2.144,
+      2.224,
+      2.425,
+      2.725,
+      3.046,
+      3.326,
+      3.627,
+      4.43,
+      4.729,
+      4.96,
+      5.09,
+      5.77,
+      5.971,
+      6.232,
+      6.632,
+      6.773,
+      7.33,
+      7.855
+    ],
     "closures": [
       {
         "wordIndex": 2,
@@ -17,9 +44,26 @@
   "viseme-words": {
     "audioSha256": "e2d91fdedcb6d48bf8af9a699d9d0bc88420a6bd6fdd675f90e8bdb831a573ec",
     "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
     "energyOnsetS": 0.1,
     "leadingOffsetS": 0,
     "firstWordStartS": 0.1,
+    "snappedStarts": [
+      0.1,
+      0.62,
+      1.25,
+      2.022,
+      2.6,
+      3.2,
+      3.77,
+      4.41,
+      5.13,
+      5.686,
+      6.287,
+      6.82,
+      7.348
+    ],
     "closures": [
       {
         "wordIndex": 0,
@@ -44,9 +88,20 @@
   "pain": {
     "audioSha256": "2220474e80fe179bb81b9b79cc0fe4294906c31f734fd25b3fc7a7f55fdf017e",
     "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
     "energyOnsetS": 0.14,
     "leadingOffsetS": 0.082,
     "firstWordStartS": 0.14,
+    "snappedStarts": [
+      0.14,
+      0.27,
+      0.585,
+      0.726,
+      1.17,
+      1.372,
+      1.695
+    ],
     "closures": [
       {
         "wordIndex": 3,
@@ -65,9 +120,297 @@
   "oov": {
     "audioSha256": "173b1c6da43e3e91b237db3ecb2055e6833eb421052b69cb0d2c827b2c337c12",
     "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
     "energyOnsetS": 0.17,
     "leadingOffsetS": 0,
     "firstWordStartS": 0.161,
+    "snappedStarts": [
+      0.161,
+      0.363,
+      0.565,
+      1.271
+    ],
     "closures": []
+  },
+  "clin-01": {
+    "audioSha256": "c109dd694bb4dd9869939da49cc004fbac5c612de4796f643114f101cdcb9c46",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.13,
+    "leadingOffsetS": 0.05,
+    "firstWordStartS": 0.1,
+    "snappedStarts": [
+      0.1,
+      0.361,
+      0.762,
+      1.022,
+      1.383,
+      1.543,
+      2.265,
+      2.52,
+      2.926
+    ],
+    "closures": [
+      {
+        "wordIndex": 3,
+        "phone": "P",
+        "startS": 0.98,
+        "endS": 1.022
+      }
+    ]
+  },
+  "clin-02": {
+    "audioSha256": "921fca8983abc95b459316420137b7f6d7ad04620751061097df440ddee20db3",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.15,
+    "leadingOffsetS": 0.011,
+    "firstWordStartS": 0.15,
+    "snappedStarts": [
+      0.15,
+      0.363,
+      0.806,
+      1.148,
+      1.511,
+      1.712,
+      1.813,
+      2.04
+    ],
+    "closures": [
+      {
+        "wordIndex": 0,
+        "phone": "P",
+        "startS": 0,
+        "endS": 0.15
+      }
+    ]
+  },
+  "clin-03": {
+    "audioSha256": "a265e54b917329e29fa090680cfa7afa922fc3d40ef3c620a619c4b5d4de52d5",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.16,
+    "leadingOffsetS": 0.02,
+    "firstWordStartS": 0.18,
+    "snappedStarts": [
+      0.18,
+      0.27,
+      0.68,
+      1.163,
+      1.463,
+      1.764,
+      2.105,
+      2.325,
+      2.486,
+      2.927
+    ],
+    "closures": []
+  },
+  "clin-04": {
+    "audioSha256": "e4ad3ceced2c3c8dc8dc10051396a52ec77962e5a366c05d63d24758edb91f50",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.1,
+    "leadingOffsetS": 0.061,
+    "firstWordStartS": 0.1,
+    "snappedStarts": [
+      0.1,
+      0.23,
+      0.544,
+      0.886,
+      1.168,
+      1.289,
+      1.852,
+      1.993,
+      2.114,
+      2.436
+    ],
+    "closures": [
+      {
+        "wordIndex": 2,
+        "phone": "P",
+        "startS": 0.54,
+        "endS": 0.544
+      },
+      {
+        "wordIndex": 5,
+        "phone": "P",
+        "startS": 1.248,
+        "endS": 1.289
+      },
+      {
+        "wordIndex": 6,
+        "phone": "P",
+        "startS": 1.72,
+        "endS": 1.852
+      },
+      {
+        "wordIndex": 9,
+        "phone": "P",
+        "startS": 2.39,
+        "endS": 2.436
+      }
+    ]
+  },
+  "clin-05": {
+    "audioSha256": "039a320c8f92a2088bd11858cdd546ba51172347569cb34af42ba87a03749bce",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.08,
+    "leadingOffsetS": 0.021,
+    "firstWordStartS": 0.08,
+    "snappedStarts": [
+      0.08,
+      0.262,
+      0.423,
+      0.986,
+      1.187,
+      1.3,
+      1.771,
+      1.932
+    ],
+    "closures": [
+      {
+        "wordIndex": 3,
+        "phone": "P",
+        "startS": 0.98,
+        "endS": 0.986
+      }
+    ]
+  },
+  "clin-06": {
+    "audioSha256": "51578e1d7f58a51797e91b622a11ca39443b9c0c754b9c84fe99cc605021fa46",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.14,
+    "leadingOffsetS": 0.081,
+    "firstWordStartS": 0.14,
+    "snappedStarts": [
+      0.14,
+      0.301,
+      0.882,
+      1.203,
+      1.604,
+      1.885,
+      2.28,
+      2.4,
+      2.767
+    ],
+    "closures": []
+  },
+  "clin-07": {
+    "audioSha256": "b85a1b604fa20f568427ae89dcf16696a45f67a521a38a119465480da4cfa780",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.09,
+    "leadingOffsetS": 0.031,
+    "firstWordStartS": 0.08,
+    "snappedStarts": [
+      0.08,
+      0.28,
+      0.703,
+      0.824,
+      1.367,
+      1.789,
+      2.13,
+      2.28,
+      2.713
+    ],
+    "closures": []
+  },
+  "clin-08": {
+    "audioSha256": "1c3fe0a03ea8930a59b7c9be0b8b6cae9a395b958800fef0c267db4db7a29567",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.15,
+    "leadingOffsetS": 0.011,
+    "firstWordStartS": 0.15,
+    "snappedStarts": [
+      0.15,
+      0.4,
+      0.806,
+      1.269,
+      1.39,
+      1.612,
+      1.954,
+      2.095
+    ],
+    "closures": [
+      {
+        "wordIndex": 0,
+        "phone": "P",
+        "startS": 0,
+        "endS": 0.15
+      }
+    ]
+  },
+  "clin-09": {
+    "audioSha256": "22c56b4545462d503b51a49353c829d0c53b6ae1c9c48c453f0eb2b983c932a9",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.14,
+    "leadingOffsetS": 0,
+    "firstWordStartS": 0.14,
+    "snappedStarts": [
+      0.14,
+      0.481,
+      0.862,
+      1.323,
+      1.464,
+      1.584,
+      2.206,
+      2.546
+    ],
+    "closures": [
+      {
+        "wordIndex": 2,
+        "phone": "P",
+        "startS": 0.86,
+        "endS": 0.862
+      },
+      {
+        "wordIndex": 7,
+        "phone": "P",
+        "startS": 2.54,
+        "endS": 2.546
+      }
+    ]
+  },
+  "clin-10": {
+    "audioSha256": "fb2689ff6869799e6a6f3645717882d615068e2ba6cbe19007f65bfe10faa591",
+    "thresholdDb": -40,
+    "snapWindowS": 0.15,
+    "noiseFloorDb": -99,
+    "energyOnsetS": 0.07,
+    "leadingOffsetS": 0,
+    "firstWordStartS": 0.06,
+    "snappedStarts": [
+      0.06,
+      0.302,
+      0.35,
+      0.624,
+      0.81,
+      1.269,
+      1.409,
+      1.712
+    ],
+    "closures": [
+      {
+        "wordIndex": 3,
+        "phone": "P",
+        "startS": 0.6,
+        "endS": 0.624
+      }
+    ]
   }
 }
