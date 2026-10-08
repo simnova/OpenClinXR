@@ -22,6 +22,7 @@ import {
   type LearnerSttInput,
   type LearnerSttRecord,
 } from "./learner-stt-adapter.js";
+import { GrokVoiceProviderAdapter } from "./grok-voice-provider.js";
 
 export class VoiceGateway {
   constructor(private readonly options: VoiceGatewayOptions) {}
@@ -61,7 +62,21 @@ export class VoiceGateway {
 }
 
 export function createDefaultVoiceGateway(options: VoiceGatewayOptions): VoiceGateway {
-  return new VoiceGateway(options);
+  const selection = options.voiceProvider;
+  if (selection?.kind !== "grok-voice") {
+    return new VoiceGateway(options);
+  }
+  return new VoiceGateway({
+    ...options,
+    adapters: [
+      ...options.adapters,
+      new GrokVoiceProviderAdapter({
+        mode: selection.mode ?? "replay",
+        ...(selection.cacheDir !== undefined ? { cacheDir: selection.cacheDir } : {}),
+        zeroDelay: (selection.emulateLatency ?? true) === false,
+      }),
+    ],
+  });
 }
 
 export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPostureInput): RealtimeVoiceGatewayPosture {

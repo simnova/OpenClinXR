@@ -30,6 +30,7 @@
     "src/barge-in-appends-execution-not-plan.test.ts",
     "src/carry-learner-stt-interruption.test.ts",
     "src/emotional-prosody-blocker-ids-are-unified.test.ts",
+    "src/grok-voice-provider.test.ts",
     "src/the-learner-stt-emits-classifier-ready-transcripts.test.ts",
     "src/voice-gateway.test.ts"
   ],

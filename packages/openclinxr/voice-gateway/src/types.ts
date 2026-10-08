@@ -186,6 +186,19 @@ export interface VoiceProviderAdapter {
 export type VoiceGatewayOptions = {
   adapters: VoiceProviderAdapter[];
   routeId: string;
+  /**
+   * Selects the internal Grok voice provider (record/replay of cached Grok voice turns).
+   * The adapter class stays module-internal; selection is by kind string so no new
+   * exported name is added. Replay (default) never touches the network; record calls
+   * OpenRouter with OPENROUTER_API_KEY from env and rewrites the cache; live calls
+   * without writing. emulateLatency (default true) paces replay with per-entry latency.
+   */
+  voiceProvider?: {
+    kind: "grok-voice";
+    mode?: "replay" | "record" | "live";
+    cacheDir?: string;
+    emulateLatency?: boolean;
+  };
 };
 
 export type RealtimeVoiceGatewayPostureInput = {
