@@ -398,16 +398,21 @@ describe("S2 parity counterweight (cached Grok voice fixtures, no network)", () 
     for (const { clip, text, sttWords, mp3Path } of clips) {
       const committed = anchorsAll[clip]!;
       const refWords = text.split(/\s+/).filter(Boolean);
+      // Both sides use the same audio-aware gap fill (the bake passes its
+      // samples through; the committed-anchors build passes the same decode
+      // here), so this still verifies bake == plan build, not the fill.
+      const decoded = decodeMp3Mono16k(mp3Path);
       const expected = buildPhonePlan(refWords, sttWords, pronMap, {
         closures: committed.closures,
         firstWordStartS: committed.firstWordStartS,
         wordStarts: committed.snappedStarts,
         split: "duration",
+        audio: { samples: decoded, sampleRate: 16000 },
       });
       expect(expected.mismatches, `${clip} mismatches`).toEqual([]);
       expect(expected.oovWords, `${clip} oov`).toEqual([]);
       const actual = bakeLiveSttCueTrack({
-        samples: decodeMp3Mono16k(mp3Path),
+        samples: decoded,
         sampleRate: 16000,
         sttWords,
         transcript: text,
