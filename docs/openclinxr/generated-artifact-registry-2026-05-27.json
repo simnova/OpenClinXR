@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1907,
+    "keep-evidence": 1920,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -27130,6 +27130,97 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/capture-manifest.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_chest_pain_priority_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/ed_stroke_alert_handoff_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_asthma_parent_anxiety_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-isometric.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-overhead.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
+    },
+    {
+      "path": "docs/openclinxr/room-layout-audit-2026-10-08/humanoid-repairs/peds_fever_v1-room.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Final browser-rendered humanoid repair evidence; keep with the all-room layout audit."
     },
     {
       "path": "docs/openclinxr/room-layout-audit-2026-10-08/isometric/adult_abdominal_pain_v1-isometric.png",

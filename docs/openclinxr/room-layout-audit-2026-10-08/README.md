@@ -16,9 +16,9 @@ Four rooms remain below the strict all-actors gate: Pediatric Asthma, Pediatric 
 
 1. **Room-owned props now fail closed.** Only the generic ED exam bay and inpatient ward receive their corresponding runtime prop libraries. Twelve other environments had inherited the 30-item ED set, adding 360 erroneous prop groups across the shipped scenario set. Their environment fixtures and scenario-declared equipment remain.
 2. **Spawn metadata is no longer furniture.** The `learner_start` anchor remains available for navigation but its debug cube is not rendered.
-3. **Stroke no longer includes an unused stretcher.** Its patient is authored standing and the encounter does not declare patient-support equipment.
+3. **Stroke now stages one coherent supine treatment group.** The patient posture, authored support, and room fixture all resolve to the same stretcher. The patient is aligned head-to-pillow and feet-to-foot-end rather than standing beside an unrelated support.
 4. **Review UI is excluded from room evidence.** The large portal review panel is hidden only by the room-capture harness; product behavior remains unchanged.
-5. **The corrupt adult gown shell is suppressed precisely.** The current `mpfb-gown-adult-patient.glb` contains one malformed garment node that produces cyan shards in both standing and supine poses. The loader hides only that node on that asset and retains the actor and clean underlying body/clothing. The asset still needs a proper gown rebake.
+5. **Two corrupt outer garment shells are suppressed precisely.** The current `mpfb-gown-adult-patient.glb` contains a malformed hospital-gown node and a stray lab-coat node that produce cyan shards. The loader hides only those two nodes on that asset and retains the clean fitted T-shirt underlayer. This is a readable fallback, not a hospital-gown rebuild; the asset still needs a properly fitted gown rebake.
 6. **Overhead views cover the complete retained scene.** The orthographic camera is placed above the highest retained room object, fits the room footprint, and records its bounds and hidden shell names.
 7. **Readable camera promotion is measured.** The solver can promote an already-passing camera only when the replacement also passes, keeps a containment margin of at least 0.08, does not worsen near-camera occlusion, and increases projected actor coverage by at least 1.5×.
 
@@ -29,7 +29,17 @@ Four rooms remain below the strict all-actors gate: Pediatric Asthma, Pediatric 
 - `all-rooms-isometric.png` — isometric orthographic projection for all 15 rooms.
 - `perspective/`, `overhead/`, and `isometric/` — individual full-resolution captures.
 - `capture-manifest.json` — live scene readings and hashes for every retained view.
+- `humanoid-repairs/` — final perspective, top-down orthographic, and isometric evidence for Pediatric Asthma, Pediatric Fever, Chest Pain, and Stroke Handoff, with a separate SHA-256 manifest.
 - `../staging-solver/comparison/all-rooms-score.json` — before/after scoring and gate result.
+
+## Humanoid repair extension
+
+- **Pediatric Asthma:** removed the bind-relative arm rotations that reversed the child's arms; preserved the authored head cue; removed duplicated case furniture; and moved the shared family chair clear of the exam surface. The retained overhead and isometric views show the three actors separated with the child's arms hanging naturally.
+- **Supine patients:** the pose loop now reapplies the closed-loop shoulder solution every frame instead of letting animation restore the raised bind pose. Chest Pain, Pediatric Fever, and Stroke Handoff now remain lengthwise on their supports with heads at the pillow end, feet at the foot end, and arms lowered beside the torso without entering the ribs or rails.
+- **Pediatric Fever:** removed stale authored camera and placement overrides that put the parent outside the room. The shared child asset now renders continuously and fits its current clothing, but it is still a general pediatric asset rather than a fever-specific wardrobe.
+- **Stroke Handoff:** changed the posture, support instance, and equipment together, then moved the wall clock to a back-wall mounting so its face is readable in the retained isometric view.
+
+The focused captures establish the repaired runtime behavior on these four encounters. They do not establish a new hospital-gown asset or a scenario-specific fever wardrobe; those remain asset-pipeline work.
 
 ## Claim boundary
 

@@ -38,50 +38,6 @@ export const AUTHORED_STAGING_SOLUTIONS: Readonly<Record<string, AuthoredStaging
       }
     }
   },
-  "peds_fever_v1": {
-    "camera": {
-      "eye": [
-        -1.804096,
-        2.16,
-        -3.262557
-      ],
-      "look": [
-        -2.631624,
-        0.828027,
-        -0.64664
-      ],
-      "fov": 90
-    },
-    "placements": {
-      "nurse_aisha_brooks_v1": {
-        "supportSurface": "none",
-        "plantOffsetMeters": {
-          "x": -2.702273,
-          "y": 0,
-          "z": 0.118944
-        },
-        "headingRadians": -2.541284
-      },
-      "parent_mei_chen_v1": {
-        "supportSurface": "chair",
-        "plantOffsetMeters": {
-          "x": -3.345119,
-          "y": 0,
-          "z": 1.026838
-        },
-        "headingRadians": -2.572431
-      },
-      "patient_noah_chen_v1": {
-        "supportSurface": "stretcher",
-        "plantOffsetMeters": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "headingRadians": -0.26
-      }
-    }
-  },
   "primary_care_dyslipidemia_joint_pain_v1": {
     "camera": {
       "eye": [

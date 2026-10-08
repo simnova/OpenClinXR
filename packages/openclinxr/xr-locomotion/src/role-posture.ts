@@ -14,17 +14,11 @@ export function applyGeneratedHumanoidRoleSpecificPosture(
     if (ctx.isPediatricAsthmaScenario()) {
       const pediatricRespiratoryDistressRotations: JointRotations = new Map([
         ["head", { x: -0.18, y: 0.1 }],
-        ["upper_armL", { x: -1.34, y: 0.16, z: -0.5 }],
-        ["forearmL", { x: -0.78, y: -0.2, z: 0.62 }],
-        ["handL", { x: 0.18, y: 0.14, z: -0.24 }],
-        ["upper_armR", { x: -1.22, y: -0.12, z: 0.44 }],
-        ["forearmR", { x: -0.7, y: 0.2, z: -0.58 }],
-        ["handR", { x: 0.18, y: -0.14, z: 0.24 }],
       ]);
       applyHumanoidJointRotationsByAlias(
         humanoid,
         pediatricRespiratoryDistressRotations,
-        "pediatric_asthma_hunched_hands_near_chest",
+        "pediatric_asthma_head_attention_without_bind_relative_arm_override",
       );
       humanoid.scale.set(0.78, 0.74, 0.78);
       humanoid.rotation.x = -0.14;
@@ -32,7 +26,7 @@ export function applyGeneratedHumanoidRoleSpecificPosture(
       humanoid.userData["openClinXrRoleSpecificPostureCueIds"] = [
         "pediatric_patient_smaller_silhouette_cue",
         "pediatric_asthma_hunched_work_of_breathing_pose_cue",
-        "patient_hands_near_chest_respiratory_distress_cue",
+        "patient_arms_preserve_relaxed_runtime_pose_cue",
         "pediatric_patient_case_role_distinct_from_adult_actor_pose_cue",
       ];
       return;

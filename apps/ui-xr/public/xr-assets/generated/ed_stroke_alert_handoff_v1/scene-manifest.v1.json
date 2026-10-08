@@ -103,7 +103,15 @@
         "z": 1.1
       },
       "verticalOffsetMeters": -0.98,
-      "labelPrefix": "Patient"
+      "labelPrefix": "Patient",
+      "posture": "supine",
+      "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "supportInstanceId": "ed_stroke_bay_v1:stretcher"
     },
     "stroke_nurse_chen_v1": {
       "slotKind": "clinical_team",
@@ -119,7 +127,7 @@
       },
       "verticalOffsetMeters": -0.95,
       "labelPrefix": "Team",
-      "headingRadians": -1.870266446162492
+      "headingRadians": -1.840645482733366
     },
     "son_eric_brooks_v1": {
       "slotKind": "family_or_observer",
@@ -135,15 +143,15 @@
       },
       "verticalOffsetMeters": -0.95,
       "labelPrefix": "Family",
-      "headingRadians": 2.140552780277875
+      "headingRadians": 2.1995926132103296
     }
   },
   "equipmentPlacements": {
     "wall_clock_equipment": {
       "position": {
-        "x": -2.4,
+        "x": -1.75,
         "y": 1.55,
-        "z": -1.15
+        "z": -1.42
       },
       "label": "Wall Clock",
       "interactionCueIds": [

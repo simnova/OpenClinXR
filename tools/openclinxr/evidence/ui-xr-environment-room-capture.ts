@@ -1553,7 +1553,13 @@ export async function captureStationEnvironmentRooms(
               if (holdType !== "OrthographicCamera") {
                 throw new Error(`hold camera type is ${String(holdType)} before ${shot.mode} screenshot`);
               }
-              const webglCanvas = page.locator("#station-canvas");
+              // Keep the capture resilient to the app shell temporarily replacing the station
+              // canvas during a layout-camera swap. There is only one DOM canvas in the station;
+              // the scene package's label/texture canvases never enter the document.
+              const stationCanvas = page.locator("#station-canvas");
+              const webglCanvas = (await stationCanvas.count()) > 0
+                ? stationCanvas
+                : page.locator("canvas").first();
               if ((await webglCanvas.count()) === 0) {
                 throw new Error("station canvas missing before layout screenshot");
               }

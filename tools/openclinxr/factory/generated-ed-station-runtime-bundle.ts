@@ -1274,13 +1274,23 @@ function runtimeActorPlacementsForScenario(
         ...(typeof placement.headingRadians === "number" ? { headingRadians: placement.headingRadians } : {}),
       };
     }
+    const environmentId = scenarioBank.find(
+      (candidate) => candidate.scenarioId === preset.scenarioId,
+    )?.environment?.environmentId ?? "";
+    const supportSlotId = placement.supportSurface === "exam_table"
+      ? "exam_surface"
+      : placement.supportSurface === "stretcher" || placement.supportSurface === "bed"
+        ? "stretcher"
+        : placement.supportSurface === "chair"
+          ? "family_chair"
+          : null;
     return {
       ...fallback,
       posture,
       placementProvenance: "authored_intent",
       plantOffsetMeters: { ...placement.plantOffsetMeters },
-      ...(placement.supportSurface === "exam_table"
-        ? { supportInstanceId: `${scenarioBank.find((candidate) => candidate.scenarioId === preset.scenarioId)?.environment?.environmentId ?? ""}:exam_surface` }
+      ...(supportSlotId
+        ? { supportInstanceId: `${environmentId}:${supportSlotId}` }
         : {}),
     };
   };
@@ -1386,7 +1396,9 @@ export async function refreshPublicActorPlacements(
   const bundle = JSON.parse(await readFile(bundlePath, "utf8")) as LearnerRuntimeAssetBundle;
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as EncounterRuntimeAssetBundle["sceneManifest"];
   bundle.sceneManifest.actorPlacements = actorPlacements;
+  bundle.sceneManifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
   manifest.actorPlacements = actorPlacements;
+  manifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
   await writeFile(bundlePath, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
@@ -1405,7 +1417,11 @@ function runtimeEquipmentPlacementsForScenario(
   return Object.fromEntries((preset.equipment.length > 0 ? preset.equipment : ["primary_equipment"]).map((equipmentId, index) => [
     equipmentId,
     {
-      position: placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
+      // The real clock GLB's face lies in XY. Mount it on the back wall so it faces the room;
+      // the historical x-wall placement showed its 3 cm edge as a metre-high black spear.
+      position: equipmentId === "wall_clock_equipment"
+        ? { x: -1.75, y: 1.55, z: -1.42 }
+        : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
       label: equipmentDisplayLabel(equipmentId),
       interactionCueIds: [`${equipmentId}:selectable_equipment_reference`, `${equipmentId}:clinical_workflow_cue`],
     },

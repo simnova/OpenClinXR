@@ -11,7 +11,7 @@ export const strokeAlertScenario = draftScenario({
     "Deliver concise oral handoff",
   ],
   actors: [
-    actor("patient_samuel_brooks_v1", "patient", "Samuel Brooks", "slurred speech, right arm weakness, frustrated by word-finding difficulty", [
+    { ...actor("patient_samuel_brooks_v1", "patient", "Samuel Brooks", "slurred speech, right arm weakness, frustrated by word-finding difficulty", [
       "Last known well was 70 minutes ago",
       "Takes aspirin and blood pressure medication, not anticoagulants",
       "Has diabetes and hypertension",
@@ -25,7 +25,10 @@ export const strokeAlertScenario = draftScenario({
       ["slow_yes_no_questions", "speech_difficulty_acknowledged", "exam_step_explained"],
       ["rapid_fire_questions", "ignored_deficits", "no_stroke_activation_explanation"],
       ["aphasia-aware pacing", "preserve patient agency", "plain stroke-alert explanation"],
-    ), "My right arm feels weak, and I cannot get the words out clearly."),
+    ), "My right arm feels weak, and I cannot get the words out clearly."), placement: {
+      supportSurface: "stretcher",
+      plantOffsetMeters: { x: 0, y: 0, z: 0 },
+    } },
     actor("son_eric_brooks_v1", "family", "Eric Brooks", "anxious son who knows last-known-well and gets frustrated if ignored", [
       "Saw patient normal at breakfast at 7:30",
     ], satirProfile(

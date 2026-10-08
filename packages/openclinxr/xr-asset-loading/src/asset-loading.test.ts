@@ -260,21 +260,27 @@ describe("rebindHeadLockedTeeth", () => {
 });
 
 describe("broken adult gown shell suppression", () => {
-  it("hides only the corrupt gown node on the affected asset", () => {
+  it("hides only the corrupt gown and stray labcoat nodes on the affected asset", () => {
     const root = new Group();
     const broken = new Mesh();
     broken.name = "openclinxr_real_garment_from_phenotype_hospital_gown";
+    const strayLabcoat = new Mesh();
+    strayLabcoat.name = "openclinxr_real_garment_labcoat_v1";
     const body = new Mesh();
     body.name = "mpfb_robert_reference_body";
     const cleanUnderlayer = new Mesh();
     cleanUnderlayer.name = "makeclothes_library_toigo_t_shirt";
-    root.add(broken, body, cleanUnderlayer);
+    root.add(broken, strayLabcoat, body, cleanUnderlayer);
 
-    expect(suppressBrokenAdultGownShell(root, "/generated-humanoids/mpfb-gown-adult-patient.glb")).toEqual([broken.name]);
+    expect(suppressBrokenAdultGownShell(root, "/generated-humanoids/mpfb-gown-adult-patient.glb")).toEqual([
+      broken.name,
+      strayLabcoat.name,
+    ]);
     expect(broken.visible).toBe(false);
+    expect(strayLabcoat.visible).toBe(false);
     expect(body.visible).toBe(true);
     expect(cleanUnderlayer.visible).toBe(true);
-    expect(root.userData.openClinXrSuppressedBrokenGarmentNodes).toEqual([broken.name]);
+    expect(root.userData.openClinXrSuppressedBrokenGarmentNodes).toEqual([broken.name, strayLabcoat.name]);
   });
 
   it("does not suppress similarly named nodes on another asset", () => {

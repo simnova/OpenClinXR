@@ -15,7 +15,7 @@ import {
   STRETCHER_LENGTH_METERS,
 } from "@openclinxr/xr-station";
 import { type Object3D, Quaternion, Vector3 } from "three";
-import { flexSupineArmsOntoDeck } from "./hob-arm-flex.js";
+import { flexSupineArmsOntoDeck, reapplyStoredSupineArmFlex } from "./hob-arm-flex.js";
 import {
   alignSupineHeadToPillow,
   captureSupineRestHeadReference,
@@ -83,6 +83,7 @@ function recordPlantStep(
  */
 export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupinePoseResult {
   const result = applySupinePose(humanoidRoot);
+  reapplyStoredSupineArmFlex(humanoidRoot);
   reapplyStoredSupineFootFlex(humanoidRoot);
   const stored = humanoidRoot.userData?.openClinXrSupineRootQuat as
     | { x: number; y: number; z: number; w: number }

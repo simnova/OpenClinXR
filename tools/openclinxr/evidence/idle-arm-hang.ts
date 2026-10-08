@@ -415,7 +415,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = browserPageWindow as unknown as {
+      const win = globalThis as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: {
@@ -451,10 +451,10 @@ export async function readLiveArmHangFromPage(page: Page): Promise<{
   arms: ArmMeasurement[];
 }> {
   return page.evaluate(`(() => {
-    const win = browserPageWindow;
+    const win = globalThis;
     const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(browserPageWindow.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {
