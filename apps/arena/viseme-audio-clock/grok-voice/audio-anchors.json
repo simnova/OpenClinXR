@@ -1,0 +1,73 @@
+{
+  "pangram": {
+    "audioSha256": "378a2974343beb50c370b9e36e3c1f55cfaf29f417dbff120d3ebe6392224ec1",
+    "thresholdDb": -40,
+    "energyOnsetS": 0.11,
+    "leadingOffsetS": 0.03,
+    "firstWordStartS": 0.11,
+    "closures": [
+      {
+        "wordIndex": 2,
+        "phone": "P",
+        "startS": 0.75,
+        "endS": 0.862
+      }
+    ]
+  },
+  "viseme-words": {
+    "audioSha256": "e2d91fdedcb6d48bf8af9a699d9d0bc88420a6bd6fdd675f90e8bdb831a573ec",
+    "thresholdDb": -40,
+    "energyOnsetS": 0.1,
+    "leadingOffsetS": 0,
+    "firstWordStartS": 0.1,
+    "closures": [
+      {
+        "wordIndex": 0,
+        "phone": "P",
+        "startS": 0,
+        "endS": 0.1
+      },
+      {
+        "wordIndex": 10,
+        "phone": "P",
+        "startS": 6.09,
+        "endS": 6.287
+      },
+      {
+        "wordIndex": 12,
+        "phone": "P",
+        "startS": 7.17,
+        "endS": 7.348
+      }
+    ]
+  },
+  "pain": {
+    "audioSha256": "2220474e80fe179bb81b9b79cc0fe4294906c31f734fd25b3fc7a7f55fdf017e",
+    "thresholdDb": -40,
+    "energyOnsetS": 0.14,
+    "leadingOffsetS": 0.082,
+    "firstWordStartS": 0.14,
+    "closures": [
+      {
+        "wordIndex": 3,
+        "phone": "P",
+        "startS": 0.68,
+        "endS": 0.726
+      },
+      {
+        "wordIndex": 5,
+        "phone": "P",
+        "startS": 1.33,
+        "endS": 1.372
+      }
+    ]
+  },
+  "oov": {
+    "audioSha256": "173b1c6da43e3e91b237db3ecb2055e6833eb421052b69cb0d2c827b2c337c12",
+    "thresholdDb": -40,
+    "energyOnsetS": 0.17,
+    "leadingOffsetS": 0,
+    "firstWordStartS": 0.161,
+    "closures": []
+  }
+}

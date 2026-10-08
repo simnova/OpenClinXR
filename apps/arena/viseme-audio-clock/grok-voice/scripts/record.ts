@@ -11,9 +11,9 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fetchStt, fetchTts } from "../client.js";
+import { fetchStt, fetchTts, CACHE_DIR, ttsKey } from "../client.js";
 import { CLIP_IDS, CLIPS, STT_MODEL, TTS_MODEL, VOICE } from "../clips.js";
-import { scoreClip, type PhoneCue, type WordCue } from "../measure.js";
+import { scoreClip, type ClosureSpan, type PhoneCue, type WordCue } from "../measure.js";
 import {
   applyMfaClosureRule,
   MFA_ACOUSTIC_MODEL,
@@ -199,13 +199,108 @@ for (const id of CLIP_IDS) {
 }
 writeFileSync(path.join(OUT, "mfa-cues.json"), JSON.stringify(mfaCues, null, 2));
 
+// 5b. Audio anchors (STT gaps + cached-audio energy only; never MFA cues).
+// Closure rule: same predicate as applyMfaClosureRule (silence immediately
+// before a P/B/M initial becomes P), emitted over the STT inter-word gap
+// (or the leading silence for word 0). Closure onset is the audio-energy
+// quiet point: end of the last 10-ms frame at or above threshold with frame
+// end <= gap end, clamped to the gap, falling back to gap start when the
+// whole gap is quiet. Leading-silence offset: per-clip energy onset (first
+// frame at or above threshold) re-anchors word 0 only. Threshold -40 dBFS
+// peak per 10-ms frame separates mp3 encoder idle noise (measured <= -51 dB
+// in leading frames of all four clips) from speech onset (>= -29 dB); it is
+// chosen from the audio alone, not fitted to MFA. Decodes the cached TTS
+// mp3s offline with ffmpeg: zero network.
+const ANCHOR_THRESHOLD_DB = -40;
+const FRAME_S = 0.01;
+
+function framePeakDb(mp3Path: string): number[] {
+  const raw: Buffer = execFileSync(
+    "ffmpeg",
+    ["-v", "error", "-i", mp3Path, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", "-f", "s16le", "-"],
+    { encoding: "buffer", maxBuffer: 64 * 1024 * 1024 },
+  );
+  const bytes = Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength);
+  const n = Math.floor(bytes.length / 2);
+  const dbs: number[] = [];
+  const per = 160;
+  for (let i = 0; i < n; i += per) {
+    let peak = 0;
+    for (let k = i; k < Math.min(i + per, n); k += 1) {
+      const v = bytes.readInt16LE(k * 2);
+      const a = v < 0 ? -v : v;
+      if (a > peak) peak = a;
+    }
+    dbs.push(peak <= 0 ? -99 : 20 * Math.log10(peak / 32768));
+  }
+  return dbs;
+}
+
+const anchors: Record<
+  string,
+  {
+    audioSha256: string;
+    thresholdDb: number;
+    energyOnsetS: number;
+    leadingOffsetS: number;
+    firstWordStartS: number;
+    closures: ClosureSpan[];
+  }
+> = {};
+{
+  const { readCachedStt } = await import("../client.js");
+  const bilabial = (p: string): boolean => ["P", "B", "M"].includes(p.trim().toUpperCase().replace(/[0-2]$/u, ""));
+  const pron = Object.fromEntries(Object.entries(phonePlans).map(([k, v]) => [k, v.phones])) as Record<string, string[]>;
+  for (const id of CLIP_IDS) {
+    const a = audioByClip.get(id)!;
+    const mp3Path = path.join(CACHE_DIR, `${ttsKey(CLIPS[id].text)}.mp3`);
+    const dbs = framePeakDb(mp3Path);
+    let onsetIdx = dbs.findIndex((v) => v >= ANCHOR_THRESHOLD_DB);
+    if (onsetIdx < 0) onsetIdx = 0;
+    const energyOnsetS = Number((onsetIdx * FRAME_S).toFixed(3));
+    const stt = readCachedStt(a.sha);
+    const words = refWordsByClip.get(id)!;
+    const leadingOffsetS = Number(Math.max(0, stt.words[0]!.start - energyOnsetS).toFixed(3));
+    const firstWordStartS = Number((stt.words[0]!.start - leadingOffsetS).toFixed(3));
+    const closures: ClosureSpan[] = [];
+    for (let i = 0; i < Math.min(words.length, stt.words.length); i += 1) {
+      const init = pron[words[i]!]![0];
+      if (!init || !bilabial(init)) continue;
+      const gapStart = i === 0 ? 0 : stt.words[i - 1]!.end;
+      const gapEnd = stt.words[i]!.start;
+      if (!(gapEnd > gapStart)) continue;
+      let lastLoud = -1;
+      for (let f = 0; f < dbs.length; f += 1) {
+        const fs = f * FRAME_S;
+        const fe = (f + 1) * FRAME_S;
+        if (fe > gapEnd + 1e-9) break;
+        if (fs < gapStart - 1e-9) continue;
+        if (dbs[f]! >= ANCHOR_THRESHOLD_DB) lastLoud = f;
+      }
+      const tQuiet = lastLoud < 0 ? gapStart : Math.min(Math.max((lastLoud + 1) * FRAME_S, gapStart), gapEnd);
+      closures.push({
+        wordIndex: i,
+        phone: "P",
+        startS: Number(tQuiet.toFixed(3)),
+        endS: Number(gapEnd.toFixed(3)),
+      });
+    }
+    anchors[id] = { audioSha256: a.sha, thresholdDb: ANCHOR_THRESHOLD_DB, energyOnsetS, leadingOffsetS, firstWordStartS, closures };
+  }
+}
+writeFileSync(path.join(OUT, "audio-anchors.json"), JSON.stringify(anchors, null, 2));
+
 // 6. Score each clip from the recorded STT words.
 const pronMap: Record<string, string[]> = Object.fromEntries(Object.entries(phonePlans).map(([k, v]) => [k, v.phones]));
 for (const id of CLIP_IDS) {
   const { readCachedStt } = await import("../client.js");
   const a = audioByClip.get(id)!;
   const stt = readCachedStt(a.sha);
-  const score = scoreClip(id, refWordsByClip.get(id)!, stt.words, pronMap, mfaCues[id]!.phones, mfaCues[id]!.words);
+  const an = anchors[id]!;
+  const score = scoreClip(id, refWordsByClip.get(id)!, stt.words, pronMap, mfaCues[id]!.phones, mfaCues[id]!.words, {
+    closures: an.closures,
+    firstWordStartS: an.firstWordStartS,
+  });
   results.push({ type: "clip_score", audioSha256: a.sha, sttText: stt.text, ...score });
 }
 
