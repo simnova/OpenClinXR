@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { buildPatientStretcher } from "@openclinxr/xr-station";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow } from "./index.js";
-import { Bone, Group, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
+import { AnimationMixer, AnimationClip, QuaternionKeyframeTrack, Quaternion, Bone, Group, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { makeSupineSupportPlanes, measureSupineSupportRegions, settleSupineSupportRegions, type SupineSupportPlane } from "./supine-support-contact.js";
 
@@ -132,6 +132,26 @@ function expectContact(root: Group, bed: Group): void {
 }
 
 describe("shipped supine body rests on both articulated mattress sections", () => {
+  it("preserves the bedless policy and refuses one missing arm without keeping its new finger curl", async () => {
+    const bedless = await shippedBody();
+    const untouched = bedless.getObjectByName("finger2-2R")!;
+    const native = untouched.quaternion.clone().normalize();
+    applyAndPlantSupineOnDeck(bedless, { deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    expect(bedless.userData.openClinXrSupineHandCandidate).toBeUndefined();
+    expect(untouched.quaternion.clone().normalize().angleTo(native)).toBeLessThan(1e-7);
+    const root = await shippedBody();
+    root.getObjectByName("lowerarm01R")!.name = "missing_canonical_forearm";
+    const finger = root.getObjectByName("finger2-2R")!;
+    const original = finger.quaternion.clone().normalize();
+    const bed = buildPatientStretcher({ slotId: "refusal", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 30 });
+    const parent = new Group(); parent.scale.setScalar(0.82); parent.add(root);
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    const right = (root.userData.openClinXrSupineHandCandidate as Array<{ side: string; unresolved: string | null }>).find((row) => row.side === "R")!;
+    expect(right.unresolved).toBe("missing real chain or anatomical hand surface");
+    expect(finger.quaternion.clone().normalize().angleTo(original), "refused right hand restores native caller fingers").toBeLessThan(1e-7);
+    applySupinePoseHoldingIncline(root);
+    expect(finger.quaternion.clone().normalize().angleTo(original)).toBeLessThan(1e-7);
+  }, 30_000);
   it.each([
     ["mpfb-gown-adult-patient.glb", 30, 0],
     ["mpfb-peds-patient-child.glb", 0, 0],
@@ -141,16 +161,40 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees });
     bed.rotation.y = yaw;
     const parent = new (await import("three")).Group(); parent.rotation.y = -0.26; parent.scale.setScalar(0.82); parent.add(root); parent.updateMatrixWorld(true);
+    const pips = ["finger2-2L", "finger2-2R"].map((name) => root.getObjectByName(name)!);
+    const nativePips = pips.map((bone) => bone.quaternion.clone().normalize());
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    for (let i = 0; i < pips.length; i += 1) expect(pips[i]!.quaternion.clone().normalize().angleTo(nativePips[i]!), `${pips[i]!.name} public plant selected soft curl`).toBeCloseTo(0.4, 5);
+    const candidates = root.userData.openClinXrSupineHandCandidate as Array<{ side: string; accepted: boolean; unresolved: string | null; hand: { samples: number; outside: number; minGap: number; contactGap: number }; forearm: { samples: number; outside: number; minGap: number; contactGap: number } }>;
+    expect(candidates.map((row) => row.side).sort()).toEqual(["L", "R"]);
+    for (const row of candidates) {
+      expect(row.accepted, `${row.side} production candidate`).toBe(true);
+      expect(row.unresolved).toBeNull();
+      for (const patch of [row.hand, row.forearm]) {
+        expect(patch.samples).toBeGreaterThanOrEqual(4);
+        expect(patch.outside).toBe(0);
+        expect(patch.minGap).toBeGreaterThanOrEqual(0);
+        expect(patch.contactGap).toBeLessThanOrEqual(0.025);
+      }
+    }
+    const owned = ["upperarm01L", "lowerarm01L", "wristL", "finger2-2L", "upperarm01R", "lowerarm01R", "wristR", "finger2-2R"].map((name) => root.getObjectByName(name)!);
+    const accepted = owned.map((bone) => bone.quaternion.clone().normalize());
+    const overwrite = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 1.1).toArray();
+    const mixer = new AnimationMixer(root);
+    mixer.clipAction(new AnimationClip("real arm wrist finger overwrite", 1, owned.map((bone) => new QuaternionKeyframeTrack(`${bone.name}.quaternion`, [0, 1], [...overwrite, ...overwrite])))).play();
     expectContact(root, bed);
     expect(root.userData.openClinXrSupineArticulatedSupportResolved).toBe(true);
     const base = { ...root.position, scaleX: root.scale.x, scaleY: root.scale.y, scaleZ: root.scale.z };
     for (let frame = 0; frame < 120; frame += 1) {
+      mixer.update(1 / 60);
+      if (frame === 0) expect(owned[2]!.quaternion.clone().normalize().angleTo(accepted[2]!), "real mixer actually overwrites wrist").toBeGreaterThan(0.1);
       applySupinePoseHoldingIncline(root);
       holdSupinePlantFrame(root, base, Math.sin(frame * 0.1));
       reapplySupineHeadToStoredPillow(root);
       expectContact(root, bed);
+      for (let i = 0; i < owned.length; i += 1) expect(owned[i]!.quaternion.clone().normalize().angleTo(accepted[i]!), `${owned[i]!.name} survives real mixer + hold`).toBeLessThan(1e-7);
     }
+    mixer.stopAllAction();
     expectContact(root, bed);
     const metrics = measureSupineSupportRegions(root, makeSupineSupportPlanes(bed, 0.55));
     const occiput = metrics.occiput.contactPoint!;
@@ -170,6 +214,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const original = root.position.clone();
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
     expect(root.position.distanceTo(original), "repeat plant stays stable").toBeLessThan(0.001);
+    for (let i = 0; i < owned.length; i += 1) expect(owned[i]!.quaternion.clone().normalize().angleTo(accepted[i]!), `${owned[i]!.name} repeated public plant quaternion`).toBeLessThan(1e-6);
     expectContact(root, bed);
   }, 30_000);
 });

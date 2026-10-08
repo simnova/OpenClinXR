@@ -37,6 +37,7 @@ import {
 } from "./hob-extremity-flex.js";
 import { collectJointNames } from "./pose-bone-runtime.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
+import { applyContactAwareSupineArms } from "./supine-hand-rest.js";
 import { plantLegacySupineIncline } from "./supine-legacy-incline.js";
 import { type ApplySupinePoseResult, applySupinePose } from "./supine-pose.js";
 import { reapplySupineArticulatedContact, resetSupineArticulatedContact, solveSupineArticulatedContact } from "./supine-articulated-contact.js";
@@ -450,6 +451,7 @@ export function applyAndPlantSupineOnDeck(
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) solveSupineArticulatedContact(humanoidRoot, makeSupineSupportPlanes(input.stretcher, input.deckTopWorldY, true), input.stretcher);
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) {
     humanoidRoot.userData.openClinXrSupineArmFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY, { targetAboveDeck: 0.065, floorAboveDeck: 0.035 });
+    applyContactAwareSupineArms(humanoidRoot, input.stretcher);
   }
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
