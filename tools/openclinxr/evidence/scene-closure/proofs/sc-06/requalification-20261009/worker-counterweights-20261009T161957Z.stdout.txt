@@ -1,0 +1,19 @@
+(node:68341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[32m✔ unchanged actual source is RED for stale gown identity [90m(14.468625ms)[39m[39m
+[32m✔ corrected identity fixture passes same validator (not producer or actual acceptance) [90m(31.842333ms)[39m[39m
+[32m✔ same-size changed asset bytes fail [90m(15.797375ms)[39m[39m
+[32m✔ seed change fails [90m(30.707708ms)[39m[39m
+[32m✔ historical dates cannot be redated [90m(28.01825ms)[39m[39m
+[32m✔ extra case cannot be silently added [90m(0.367042ms)[39m[39m
+[32m✔ other actor hash cannot be dropped [90m(23.073166ms)[39m[39m
+[32m✔ stale acknowledgment fails after new plan revision [90m(27.311417ms)[39m[39m
+[32m✔ forged revision with matching acknowledgment fails [90m(29.714291ms)[39m[39m
+[34mℹ tests 9[39m
+[34mℹ suites 0[39m
+[34mℹ pass 9[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 262.310625[39m

@@ -1,42 +1,8 @@
-// biome-ignore-all lint/suspicious/noApproximativeNumericConstant: every number below is a MEASURED
-// value from the freeze, not a reference to a math constant. The bedside heading for this ward
-// happens to land on pi because the physician faces straight down the long axis of the bed;
-// rewriting it as Math.PI would replace an observation with an assertion.
-import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evidence-mod.js";
-
-/**
- * GENERATED — do not hand-edit. Regenerate with:
- *   pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts [caseId...]
- *
- * The accepted scene plan each case was frozen with, keyed by scenario id, so the shipped runtime
- * has something to reopen without a server round trip.
- *
- * IT IS A REAL FREEZE OUTPUT. The generator reads each case's document and its selected humanoid
- * GLBs off disk and hashes their bytes with `node:crypto`; nothing here was typed. Geometry is
- * captured from the shipped UI-XR entry after Infinigen hull load and hull_inset reanchor — the
- * room a learner sees — then observed with the production observer. The browser cannot produce the
- * asset hashes, which is the server/browser split required behavior 4 asks for.
- *
- * A CASE ABSENT FROM THIS MAP HAS NO FROZEN PLAN, and `admitFrozenScenePlan` returns
- * `no_plan_carried` for it. That is the honest answer, not a failure: most encounters have never
- * been frozen.
- *
- * WHICH ROLE WALKS for an admitted case is carried on the record itself, `case.walkerRole`
- * (this generator's `CASE_CONFIGS.walkerRole`), NOT inferred from a runtime slot position — a
- * case's walker is a property of the case, not an accident of how many humanoids it casts.
- * `apps/ui-xr/src/main.ts` reads it off `frozenScenePlanAdmission.record.case.walkerRole` and
- * resolves it against the booted bundle's own actor list. It is a field on the already-exported
- * `DurableAcceptedScenePlanRecord` type, not a new export name, so it does not need an admission
- * overlay against this package's closed psr-01d reviewed public surface.
- *
- * IF A BOUND ASSET IS REPUBLISHED that case's record goes stale, and the footgun lands on the
- * EVIDENCE GATE rather than the browser runtime: `verify.ts` rehashes the bytes off disk and
- * refuses with a digest drift, while the runtime's observed-room admission carries the record's own
- * digests and answers geometry only. The repair is to run the generator again for that case, which
- * re-reads the bytes and is therefore a fresh observation.
- */
-export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedScenePlanRecord>> =
-  Object.freeze({
+{
+  "sourceHead": "a83246b4a2d0efae62843aaaad6a614675946746",
+  "caseId": "scene_closure_supine_bedside_v1",
+  "recordPath": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+  "records": {
     "scene_closure_supine_bedside_v1": {
       "schemaVersion": "openclinxr.accepted-scene-plan.v1",
       "planId": "scene_closure_supine_bedside_plan_v1",
@@ -70,8 +36,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
-          "byteCount": 20462752
+          "assetSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
+          "byteCount": 19149628
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
@@ -167,11 +133,38 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277",
+      "planRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277"
+        "acknowledgedPlanRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e"
       }
     }
-  } as Record<string, DurableAcceptedScenePlanRecord>);
+  },
+  "pins": {
+    "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts": "04469c3532366e6abbad10688b05a83917dec9460258ef07a00920fddb39a1ef",
+    "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts": "bd1c4ce236136a82c48438254b4b1e74b2c430b39a7c3b5d24a449c5a29e48d0",
+    "apps/ui-xr/src/the-runtime-reproduces-the-frozen-room-digest.test.ts": "3822c6984ea238691f2195660509708fbb186e778d8bff741f713a9d520dada3",
+    "tools/openclinxr/factory/scene-closure-case-source.ts": "1b36d9562b773ee693bb1aba0a474afdacd8a998d5492b2955c1b7cb91e2f82d",
+    "packages/openclinxr/asset-registry/src/scene-plan-freeze-mod.ts": "4c2e6a6f20bccda77d09cbffbf3c70609664073063814168c92519566d230ff4",
+    "packages/openclinxr/asset-registry/src/canonical-json.ts": "fb7fda596523b0d221abe28974782a60aa35e6cd954ddd1232a07c44d1b1c1d7"
+  },
+  "actualAssets": {
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": {
+      "sha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
+      "bytes": 20462752
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": {
+      "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+      "bytes": 9618436
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": {
+      "sha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+      "bytes": 8775848
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": {
+      "sha256": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+      "bytes": 10529172
+    }
+  }
+}
