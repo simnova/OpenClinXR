@@ -1,0 +1,20 @@
+{
+  "reason": "normal precommit refuses tracked local .log artifacts",
+  "noRuleOrAssertionChanged": true,
+  "rows": [
+    {
+      "original": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/materializer.log",
+      "portable": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/materializer.txt",
+      "sha256": "9f4096bd66b4b0241826dd10a6b7d6a8f97d804ac9501e84e95c2a6b18963fff",
+      "immutableExternalOriginal": "artifacts/skin-material-depth-2026-10-09/factory-skin-successor-20261009/raw-fresh-attempt/materializer.log",
+      "sameBytes": true
+    },
+    {
+      "original": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/bake-blender.log",
+      "portable": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/bake-blender.txt",
+      "sha256": "a59341d32a375df86584b9f0bb55044178e66a78144a2d9cc30dbe7421e17085",
+      "immutableExternalOriginal": "artifacts/skin-material-depth-2026-10-09/factory-skin-successor-20261009/raw-fresh-attempt/bake-blender.log",
+      "sameBytes": true
+    }
+  ]
+}

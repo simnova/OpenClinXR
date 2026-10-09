@@ -1,0 +1,8 @@
+{
+  "schema": "openclinxr.factory-skin-publication-record.v1",
+  "actualOutputSha256": "d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb",
+  "lookupReceiptSha256": "bb4098a2d999d4d0aec4e1ef31682e10201043b92f7f4cca88923b8fe7fae92c",
+  "outcome": "committed",
+  "receiptPrewritten": true,
+  "bookkeepingComplete": true
+}

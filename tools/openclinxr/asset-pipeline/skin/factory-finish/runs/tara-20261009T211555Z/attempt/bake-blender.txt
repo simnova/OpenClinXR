@@ -1,0 +1,29 @@
+00:00.009  color_management | Using OCIO=/Applications/Blender.app/Contents/Resources/5.1/datafiles/colormanagement/config.ocio
+[TRELLIS2] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/Trellis2ImageToShape (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x156dc38c0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+[PBR] Auto-detect failed: HTTPConnectionPool(host='127.0.0.1', port=8188): Max retries exceeded with url: /object_info/MarigoldModelLoader (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x15736c550>: Failed to establish a new connection: [Errno 61] Connection refused'))
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20260503
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+17:22:12 | INFO: Data are loaded, start creating Blender stuff
+17:22:12 | INFO: Blender create Mesh node makeclothes_library_female_tight_jeans_pants_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node makeclothes_library_toigo_t_shirt_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node makeclothes_library_eyes_low_poly_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh
+17:22:12 | INFO: Blender create Mesh node openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh
+17:22:12 | INFO: Blender create Mesh node openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh
+17:22:12 | INFO: Blender create Mesh node mpfb_parent_tara_johnson_v1_body
+17:22:13 | INFO: glTF import finished in 0.40s
+00:03.582  cycles           | WARNING Maximum number of closures exceeded: 96 > 64
+SKIN_NORMAL_DETAIL {"statureMeters": 1.6599, "dermalScale": 102.8164, "dermalBumpStrength": 0.4, "dermalRamp": [0.0, 1.0], "dermalVoronoiFeature": "F1", "dermalVoronoiRandomness": 0.85, "dermalCellTexels": 6.0, "dermalInstancesConfigured": 9, "otherBumpInputsLeftAtShipped": 16, "voronoiScaleForced": 1}
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE_RESULT {"normalSha256": "9d2c7fd2c6ec537edce5ed2f83a29a1d0e3167b5acb3523a9f84ce9935bb8f62", "assetSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481", "blender": "5.1.1", "mpfb": "2.0.15"}
+Blender 5.1.1 (hash b70da489d7f4 built 2026-04-14 01:46:23)
+
+Blender quit
+
+/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/bake_final_rest.py:445: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  mat.use_nodes = True

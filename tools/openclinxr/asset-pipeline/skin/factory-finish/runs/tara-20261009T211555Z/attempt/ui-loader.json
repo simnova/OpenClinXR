@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "probe": "actual-ui-xr-loader",
+  "url": "http://127.0.0.1:4191/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "finishedSha256": "d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb",
+  "networkBodySha256": "d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb",
+  "materialName": "mpfb_skin_peds_anxious_parent",
+  "actorId": "parent_tara_johnson_v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "assetPaths": [
+    "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb"
+  ],
+  "decoded": {
+    "albedo": {
+      "width": 2048,
+      "height": 2048,
+      "rgbaSha256": "5de31dfda34400a04dff296bddf90d307cddfdb7e0506d0db536ea77f91674ce"
+    },
+    "normal": {
+      "width": 1024,
+      "height": 1024,
+      "rgbaSha256": "a87ac871008112e74ca2a604d7c11eca10f7c06ef7882e5efc83eea7d600e83a"
+    }
+  },
+  "bindings": [
+    {
+      "albedo": {
+        "width": 2048,
+        "height": 2048,
+        "rgbaSha256": "5de31dfda34400a04dff296bddf90d307cddfdb7e0506d0db536ea77f91674ce"
+      },
+      "normal": {
+        "width": 1024,
+        "height": 1024,
+        "rgbaSha256": "a87ac871008112e74ca2a604d7c11eca10f7c06ef7882e5efc83eea7d600e83a"
+      },
+      "normalScale": [
+        1,
+        -1
+      ],
+      "color": [
+        0.9397697136895858,
+        0.8895572980798023,
+        0.8384035119542469
+      ]
+    }
+  ]
+}

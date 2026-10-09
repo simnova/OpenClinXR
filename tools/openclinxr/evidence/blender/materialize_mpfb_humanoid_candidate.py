@@ -2279,6 +2279,21 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--skin-recipe-id",
+        default=None,
+        help="Explicit factory skin recipe. Omit to keep the legacy seated-rest replay.",
+    )
+    parser.add_argument(
+        "--skin-job-root",
+        default=None,
+        help="Job root that must contain the initial body output and the runtime candidate.",
+    )
+    parser.add_argument(
+        "--skin-attempt-dir",
+        default=None,
+        help="Attempt directory inside the job root for the skin receipt and bake.",
+    )
+    parser.add_argument(
         "--no-body-subdiv",
         action="store_true",
         help=(
@@ -3555,7 +3570,18 @@ def run_teeth_rest_clearance(actor_glb):
     )
 
 
-def replay_seated_rest_bind(actor_glb):
+def _factory_skin_recipe():
+    import sys
+
+    path = str(REPO_ROOT / "tools/openclinxr/asset-pipeline/skin/factory-finish")
+    if path not in sys.path:
+        sys.path.insert(0, path)
+    import recipe as skin_recipe
+
+    return skin_recipe
+
+
+def replay_seated_rest_bind(actor_glb, skin_recipe_id=None, skin_job_root=None, skin_attempt_dir=None):
     """#0 — re-derive the seated actor's shipped candidate GLB from the bake just written.
 
     The seated bind is a POST-step on the freshly exported actor GLB: seated_clip_bind_stage.py
@@ -3569,7 +3595,16 @@ def replay_seated_rest_bind(actor_glb):
     Any missing input or non-zero stage exit FAILS the bake: the actor's only consumer is this
     candidate, and shipping an actor whose runtime candidate cannot be re-derived is the silent
     drop this card exists to refuse (#372 posture).
+
+    An explicit skin recipe is refused before that legacy return when the stem is not a
+    seated-rest actor. When the recipe is present, the initial body and the runtime
+    candidate stay inside the job root, and the stage receives the same recipe arguments.
     """
+    if skin_recipe_id and actor_glb.stem not in SEATED_REST_OUTPUT_STEMS:
+        raise RuntimeError(
+            f"explicit skin recipe {skin_recipe_id!r} refused for {actor_glb.name}: "
+            "stem is not a seated-rest replay target"
+        )
     if actor_glb.stem not in SEATED_REST_OUTPUT_STEMS:
         return
     import subprocess
@@ -3587,10 +3622,30 @@ def replay_seated_rest_bind(actor_glb):
                 f"#0 seated-rest replay: missing {label} at {path} — refusing to finish a "
                 "bake whose runtime candidate cannot be re-derived"
             )
-    output_glb = REPO_ROOT / MOTION_BIND_OUT_DIR_REL / f"{actor_glb.stem}.motion-bind.glb"
+    if skin_recipe_id:
+        if skin_recipe_id != "tara-cc0-final-rest-v1":
+            raise RuntimeError(f"unsupported skin recipe {skin_recipe_id!r}")
+        if not skin_job_root or not skin_attempt_dir:
+            raise RuntimeError("explicit skin recipe requires a job root and an attempt directory")
+        job = pathlib.Path(skin_job_root).resolve()
+        attempt = pathlib.Path(skin_attempt_dir).resolve()
+        actor_out = pathlib.Path(actor_glb).resolve()
+        if not actor_out.is_relative_to(job):
+            raise RuntimeError(f"initial body output outside job root: {actor_out}")
+        if not attempt.is_relative_to(job):
+            raise RuntimeError(f"skin attempt dir outside job root: {attempt}")
+        _factory_skin_recipe().assert_reserved_attempt(job, attempt)
+        output_glb = job / f"{actor_glb.stem}.motion-bind.glb"
+    else:
+        output_glb = REPO_ROOT / MOTION_BIND_OUT_DIR_REL / f"{actor_glb.stem}.motion-bind.glb"
     cmd = [
         _resolve_blender_binary(),
         "--background",
+    ]
+    if skin_recipe_id:
+        cmd.extend(["--python-exit-code", "1"])
+    cmd.extend(
+        [
         "--python",
         str(REPO_ROOT / SEATED_REST_STAGE_REL),
         "--",
@@ -3604,10 +3659,24 @@ def replay_seated_rest_bind(actor_glb):
         str(REPO_ROOT / SEATED_REST_SOURCE_MAP_REL),
         "--output",
         str(output_glb),
-    ]
+        ]
+    )
+    if skin_recipe_id:
+        cmd.extend(
+            [
+                "--skin-recipe-id",
+                str(skin_recipe_id),
+                "--skin-job-root",
+                str(job),
+                "--skin-attempt-dir",
+                str(attempt),
+            ]
+        )
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=900)
-    log_tail = ((proc.stdout or "") + (proc.stderr or ""))[-3000:]
-    if proc.returncode != 0:
+    log_text = (proc.stdout or "") + (proc.stderr or "")
+    log_tail = log_text[-3000:]
+    output_missing = not output_glb.is_file() or output_glb.stat().st_size == 0
+    if proc.returncode != 0 or "Traceback (most recent call last)" in log_text or output_missing:
         raise RuntimeError(
             f"#0 seated-rest replay failed (exit {proc.returncode}); the actor bake is not "
             f"complete without its runtime candidate.\n{log_tail}"
@@ -3617,6 +3686,34 @@ def replay_seated_rest_bind(actor_glb):
 
 def main():
     args = parse_args()
+    if args.skin_recipe_id or args.skin_job_root or args.skin_attempt_dir:
+        if not (args.skin_recipe_id and args.skin_job_root and args.skin_attempt_dir):
+            raise RuntimeError("skin recipe, job root, and attempt dir must be passed together")
+        _skin_recipe_path = REPO_ROOT / "tools/openclinxr/asset-pipeline/skin/factory-finish/tara-cc0-v1.json"
+        if not _skin_recipe_path.is_file():
+            raise RuntimeError(f"authored skin recipe missing: {_skin_recipe_path}")
+        _skin_authored = json.loads(_skin_recipe_path.read_text(encoding="utf-8"))
+        if args.skin_recipe_id != _skin_authored.get("id"):
+            raise RuntimeError(f"unsupported skin recipe {args.skin_recipe_id!r}")
+        _skin_stem = pathlib.Path(args.output).stem
+        if _skin_stem != _skin_authored.get("outputStem"):
+            raise RuntimeError(f"unsupported skin actor stem {_skin_stem!r}")
+        if args.reference:
+            raise RuntimeError("explicit Tara skin recipe refuses a separate measured --reference")
+        if args.eye_colour_reference != _skin_authored.get("eyeColourReference"):
+            raise RuntimeError(
+                f"unsupported skin actor identity eye={args.eye_colour_reference!r}"
+            )
+        if args.actor_role != _skin_authored.get("actorRole"):
+            raise RuntimeError(f"unsupported skin actor role {args.actor_role!r}")
+        _skin_job = pathlib.Path(args.skin_job_root).resolve()
+        _skin_out = pathlib.Path(args.output).resolve()
+        _skin_attempt = pathlib.Path(args.skin_attempt_dir).resolve()
+        if not _skin_out.is_relative_to(_skin_job) or not _skin_attempt.is_relative_to(_skin_job):
+            raise RuntimeError("skin outputs must stay inside the job root before any bake write")
+        if _skin_out.exists():
+            raise RuntimeError(f"refusing to overwrite initial body output {_skin_out}")
+        _factory_skin_recipe().assert_reserved_attempt(_skin_job, _skin_attempt)
     global _BAKE_DEVICE
     _BAKE_DEVICE = args.bake_device
     if args.print_bake_device:
@@ -7002,7 +7099,12 @@ def main():
     # clip. Run the bind LAST so every rebake of this actor replays the clip into the
     # candidate and its asset-adjacent report; without this, an unrelated rebake re-derives
     # the candidate from the CMU walk and silently drops the seated rest again.
-    replay_seated_rest_bind(pathlib.Path(args.output))
+    replay_seated_rest_bind(
+        pathlib.Path(args.output),
+        skin_recipe_id=args.skin_recipe_id,
+        skin_job_root=args.skin_job_root,
+        skin_attempt_dir=args.skin_attempt_dir,
+    )
 
 if __name__ == "__main__":
     main()
