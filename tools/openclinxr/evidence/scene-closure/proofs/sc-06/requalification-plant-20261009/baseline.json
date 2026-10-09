@@ -1,0 +1,170 @@
+{
+  "sourceHead": "a83246b4a2d0efae62843aaaad6a614675946746",
+  "caseId": "scene_closure_supine_bedside_v1",
+  "recordPath": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+  "records": {
+    "scene_closure_supine_bedside_v1": {
+      "schemaVersion": "openclinxr.accepted-scene-plan.v1",
+      "planId": "scene_closure_supine_bedside_plan_v1",
+      "durableStore": "database_source_of_truth",
+      "run": {
+        "stationRunId": "scene_closure_build_time_freeze",
+        "sessionId": "scene_closure_build_time_freeze",
+        "acceptedAtIso": "2026-09-10T00:00:00.000Z"
+      },
+      "case": {
+        "caseId": "scene_closure_supine_bedside_v1",
+        "caseVersion": 2,
+        "caseSourceVersion": "openclinxr.scene-closure-case-source.v2",
+        "caseContentSha256": "1b36d9562b773ee693bb1aba0a474afdacd8a998d5492b2955c1b7cb91e2f82d",
+        "stationId": "scene_closure_supine_bedside_station_v1",
+        "environmentId": "inpatient_ward_room_v1",
+        "walkerRole": "physician"
+      },
+      "bundle": {
+        "bundleId": "scene_closure_supine_bedside_station_v1:bundle",
+        "bundleSha256": "293813ec50a859d5e322f4fec0776e9ffdbc485167f1bfc82616416f566a243d"
+      },
+      "instances": [
+        {
+          "instanceId": "inpatient_ward_room_v1:stretcher",
+          "kind": "support",
+          "contentId": "ward_stretcher_v1"
+        },
+        {
+          "instanceId": "scene_closure_supine_bedside_station_v1:patient_margaret_ellis_v1",
+          "kind": "actor",
+          "contentId": "patient_margaret_ellis_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+          "assetSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
+          "byteCount": 19149628
+        },
+        {
+          "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
+          "kind": "actor",
+          "contentId": "senior_resident_ward_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+          "assetSha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+          "byteCount": 9618436
+        },
+        {
+          "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
+          "kind": "actor",
+          "contentId": "ward_nurse_patel_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+          "assetSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+          "byteCount": 8775848
+        },
+        {
+          "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
+          "kind": "actor",
+          "contentId": "daughter_lena_ellis_v1",
+          "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+          "assetSha256": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+          "byteCount": 10529172
+        }
+      ],
+      "revisions": {
+        "solverVersion": "openclinxr.bedside-layout-solver.v1",
+        "rigRevision": "mpfb2_standard_137_joint",
+        "clipRevision": "openclinxr_retarget_walk_source",
+        "geometryRevision": "geom-v1-d983811a-17",
+        "rubricVersion": "openclinxr.scene-closure-arrival-rubric.v1"
+      },
+      "variation": {
+        "seed": "62a49d3f625f5154c1fe67f6fdf86f8b345db4ebe539cd218b8aa943186c28ee",
+        "variationIndex": 0
+      },
+      "resolvedLayout": {
+        "approachSide": "patient_right",
+        "standoffMeters": 0.75,
+        "targetPosition": {
+          "x": -0.78,
+          "y": 0,
+          "z": 1.1399999995529653
+        },
+        "targetHeadingRadians": 3.141592653589793,
+        "floorFrameId": "inpatient_ward_room_v1:floor",
+        "observedObstacleIds": [
+          "inpatient_ward_room_v1:stretcher",
+          "inpatient_ward_room_v1:overbed_surface",
+          "inpatient_ward_room_v1:door_leaf",
+          "inpatient_ward_room_v1:wall_board",
+          ":oxygen-panel",
+          ":suction-canister",
+          ":glove-box-stack",
+          ":sharps-bin",
+          ":biohazard-trash",
+          ":supply-cabinet",
+          ":hand-sanitizer",
+          ":wall-clock",
+          ":patient-blanket",
+          ":privacy-curtain"
+        ],
+        "waypointCount": 5,
+        "routeLengthMeters": 1.3058713568030198
+      },
+      "arrival": {
+        "arrivalErrorMeters": 0.0041,
+        "settledHeadingErrorDegrees": 1.7,
+        "stoppedSeconds": 2.4,
+        "stoppedRootTravelMeters": 0.0009
+      },
+      "eventOrder": [
+        {
+          "sequence": 1,
+          "eventId": "evt-admitted",
+          "eventType": "encounter_admitted",
+          "atSecond": 0
+        },
+        {
+          "sequence": 2,
+          "eventId": "turn-001",
+          "eventType": "actor_turn",
+          "atSecond": 1.5
+        },
+        {
+          "sequence": 3,
+          "eventId": "evt-arrived",
+          "eventType": "bedside_arrival",
+          "atSecond": 6.2
+        }
+      ],
+      "dialogueTurnIds": [
+        "turn-001"
+      ],
+      "planRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e",
+      "acknowledgment": {
+        "acknowledgedBy": "scene_closure_build_time_freeze",
+        "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
+        "acknowledgedPlanRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e"
+      }
+    }
+  },
+  "pins": {
+    "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts": "04469c3532366e6abbad10688b05a83917dec9460258ef07a00920fddb39a1ef",
+    "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts": "bd1c4ce236136a82c48438254b4b1e74b2c430b39a7c3b5d24a449c5a29e48d0",
+    "apps/ui-xr/src/the-runtime-reproduces-the-frozen-room-digest.test.ts": "3822c6984ea238691f2195660509708fbb186e778d8bff741f713a9d520dada3",
+    "tools/openclinxr/factory/scene-closure-case-source.ts": "1b36d9562b773ee693bb1aba0a474afdacd8a998d5492b2955c1b7cb91e2f82d",
+    "packages/openclinxr/asset-registry/src/scene-plan-freeze-mod.ts": "4c2e6a6f20bccda77d09cbffbf3c70609664073063814168c92519566d230ff4",
+    "packages/openclinxr/asset-registry/src/canonical-json.ts": "fb7fda596523b0d221abe28974782a60aa35e6cd954ddd1232a07c44d1b1c1d7"
+  },
+  "actualAssets": {
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": {
+      "sha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
+      "bytes": 20462752
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": {
+      "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+      "bytes": 9618436
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": {
+      "sha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+      "bytes": 8775848
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": {
+      "sha256": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+      "bytes": 10529172
+    }
+  }
+}
