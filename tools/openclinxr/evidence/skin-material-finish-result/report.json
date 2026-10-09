@@ -1,0 +1,1088 @@
+{
+  "schema": "openclinxr.skin-material-finish-result.v1",
+  "scope": "one active repaired motion-bound parent, explicit post-bind material application; reviewed native focused material consumer",
+  "baseMain": "a83246b4a2d0efae62843aaaad6a614675946746",
+  "protectedPlant": "0d56d46fe2d1593b7bded901edff463e2208582b",
+  "sourceSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "candidateSha256": "538c29ecc7a38a416079e4c0f567083a3078189ce12ba4936ea3478be5f53561",
+  "helperSha256": "c23523da8b726c5563d1ff32aebd37e08ff4ebe9ffadc1acc685bcd2f94dbff4",
+  "normalSha256": "56fb3ddb9754a954894a02f65248cab715ca47a94a35bf9a3eea19df6964db03",
+  "albedo": {
+    "sha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+    "license": "CC0-1.0",
+    "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+    "assetId": "toigo_light_skin_female_freckles",
+    "dimensions": [
+      2048,
+      2048
+    ]
+  },
+  "normalDimensions": [
+    1024,
+    1024
+  ],
+  "sourceCandidateBytes": [
+    13067296,
+    19144352
+  ],
+  "originalBINPrefixPreservedBytes": 12736880,
+  "evidence": [
+    {
+      "role": "source",
+      "path": "source-face-front.png",
+      "sha256": "e76762e0635d74dbe9750ec0ba5ac7c3698b2dc10cf659c1392f3e45e176ffec",
+      "metadata": {
+        "id": "Actual-main-tinted",
+        "view": "face-front",
+        "sha256": "e76762e0635d74dbe9750ec0ba5ac7c3698b2dc10cf659c1392f3e45e176ffec",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          17,
+          249
+        ],
+        "nonBackground": 281820,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "941149ee2145da871e1e7bc80a3fca5105c4aed69f85bdf1a046c3c0cd2873e6"
+    },
+    {
+      "role": "source",
+      "path": "source-face-raking.png",
+      "sha256": "be4ebd4e01aebf5a3ea84234298338e1cd9c33d08d80e4f8680f22f90897a9e8",
+      "metadata": {
+        "id": "Actual-main-tinted",
+        "view": "face-raking",
+        "sha256": "be4ebd4e01aebf5a3ea84234298338e1cd9c33d08d80e4f8680f22f90897a9e8",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          3,
+          205
+        ],
+        "nonBackground": 281766,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "941149ee2145da871e1e7bc80a3fca5105c4aed69f85bdf1a046c3c0cd2873e6"
+    },
+    {
+      "role": "source",
+      "path": "source-face-raking-opposite.png",
+      "sha256": "06657aa8f8e7ba57aa0278bd18a24ab62189cda259f99f41c73669e03d58c6a5",
+      "metadata": {
+        "id": "Actual-main-tinted",
+        "view": "face-raking-opposite",
+        "sha256": "06657aa8f8e7ba57aa0278bd18a24ab62189cda259f99f41c73669e03d58c6a5",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          3,
+          217
+        ],
+        "nonBackground": 281796,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "941149ee2145da871e1e7bc80a3fca5105c4aed69f85bdf1a046c3c0cd2873e6"
+    },
+    {
+      "role": "source",
+      "path": "source-hand.png",
+      "sha256": "9d2aef76da5ec566acd06c35ef15127677277e348d40dd97008258c4fdbd7fda",
+      "metadata": {
+        "id": "Actual-main-tinted",
+        "view": "hand",
+        "sha256": "9d2aef76da5ec566acd06c35ef15127677277e348d40dd97008258c4fdbd7fda",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -0.4416254338144193,
+          0.9822991989901686,
+          3,
+          1
+        ],
+        "scale": 0.4,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          70,
+          251
+        ],
+        "nonBackground": 69500,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "941149ee2145da871e1e7bc80a3fca5105c4aed69f85bdf1a046c3c0cd2873e6"
+    },
+    {
+      "role": "candidate",
+      "path": "candidate-face-front.png",
+      "sha256": "ab4d95af8117116c374ab8ae275ad46debd4f6690126db1cd4fbbfe8a670bcdb",
+      "metadata": {
+        "id": "CC0-pack-REST-normal",
+        "view": "face-front",
+        "sha256": "ab4d95af8117116c374ab8ae275ad46debd4f6690126db1cd4fbbfe8a670bcdb",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          17,
+          249
+        ],
+        "nonBackground": 282046,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "a69c8a6e6dc47262b93b3f3ec186e3e6c2010387b0e87d6bef92244906c61d8f"
+    },
+    {
+      "role": "candidate",
+      "path": "candidate-face-raking.png",
+      "sha256": "4b791170f678f9db06d7de7524f4180615e382b64f2ea293c862e215590ab62f",
+      "metadata": {
+        "id": "CC0-pack-REST-normal",
+        "view": "face-raking",
+        "sha256": "4b791170f678f9db06d7de7524f4180615e382b64f2ea293c862e215590ab62f",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          3,
+          204
+        ],
+        "nonBackground": 282006,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "a69c8a6e6dc47262b93b3f3ec186e3e6c2010387b0e87d6bef92244906c61d8f"
+    },
+    {
+      "role": "candidate",
+      "path": "candidate-face-raking-opposite.png",
+      "sha256": "095e21b3c1ad79fd18b82f8c2ec8f8c369540da77284f532cc97c5fa728e02f0",
+      "metadata": {
+        "id": "CC0-pack-REST-normal",
+        "view": "face-raking-opposite",
+        "sha256": "095e21b3c1ad79fd18b82f8c2ec8f8c369540da77284f532cc97c5fa728e02f0",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1.4781169819497806,
+          3,
+          1
+        ],
+        "scale": 0.42,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          3,
+          217
+        ],
+        "nonBackground": 281987,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "a69c8a6e6dc47262b93b3f3ec186e3e6c2010387b0e87d6bef92244906c61d8f"
+    },
+    {
+      "role": "candidate",
+      "path": "candidate-hand.png",
+      "sha256": "08ec6bd00519fab013e9ab1696a0ddc3815cc191010344ee2a6d2cc165a5bc55",
+      "metadata": {
+        "id": "CC0-pack-REST-normal",
+        "view": "hand",
+        "sha256": "08ec6bd00519fab013e9ab1696a0ddc3815cc191010344ee2a6d2cc165a5bc55",
+        "camera": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -0.4416254338144193,
+          0.9822991989901686,
+          3,
+          1
+        ],
+        "scale": 0.4,
+        "bounds": [
+          [
+            -0.5076154411659992,
+            0.007190892502932161,
+            -0.09144373350486197
+          ],
+          [
+            0.5076153929018771,
+            1.6599168357016383,
+            0.3252535029191856
+          ]
+        ],
+        "range": [
+          72,
+          228
+        ],
+        "nonBackground": 69754,
+        "revision": "184",
+        "skinMeshes": [
+          {
+            "name": "mpfb_peds_anxious_parent_body_1",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_9",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          },
+          {
+            "name": "mpfb_peds_anxious_parent_body_10",
+            "materials": [
+              {
+                "name": "mpfb_skin_peds_anxious_parent",
+                "opacity": 1,
+                "alphaTest": 0,
+                "transparent": false,
+                "roughness": 0.7799999713897705,
+                "normalScale": [
+                  1,
+                  -1
+                ],
+                "color": [
+                  0.9397697136895858,
+                  0.8895572980798023,
+                  0.8384035119542469
+                ],
+                "type": "MeshStandardMaterial",
+                "normalEnabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "originalCaptureManifestSha256": "a69c8a6e6dc47262b93b3f3ec186e3e6c2010387b0e87d6bef92244906c61d8f"
+    }
+  ],
+  "independentVerdict": "bounded restoration over actual main accepted; no compelling improvement over neutral original CC0 control",
+  "pixelEvidenceQualification": "focused Three r184 loaded material + actual family tint helper; no full UI room/Quest parity. Legacy named ray landmark fields deliberately omitted after camera framing correction; original immutable manifests retained externally.",
+  "notTested": [
+    "allcast",
+    "secondbody",
+    "allpose",
+    "all back/lateral seams",
+    "physical PBR or skin transport",
+    "automatic factory dispatch or normal bake",
+    "beyond-original-pack realism",
+    "performance/VR budget"
+  ],
+  "knownGateBlocker": "preexisting SC06 gown frozen record drift; must not bypass or restamp",
+  "retainedFiles": [
+    {
+      "path": "binding-red-green.json",
+      "sha256": "f78b9b712577045e18d1ba4fb78dbeee1efd3906c70bb2d27fbc0fda5c2a1f99"
+    },
+    {
+      "path": "candidate-face-front.png",
+      "sha256": "ab4d95af8117116c374ab8ae275ad46debd4f6690126db1cd4fbbfe8a670bcdb"
+    },
+    {
+      "path": "candidate-face-raking-opposite.png",
+      "sha256": "095e21b3c1ad79fd18b82f8c2ec8f8c369540da77284f532cc97c5fa728e02f0"
+    },
+    {
+      "path": "candidate-face-raking.png",
+      "sha256": "4b791170f678f9db06d7de7524f4180615e382b64f2ea293c862e215590ab62f"
+    },
+    {
+      "path": "candidate-hand.png",
+      "sha256": "08ec6bd00519fab013e9ab1696a0ddc3815cc191010344ee2a6d2cc165a5bc55"
+    },
+    {
+      "path": "comparison.jpg",
+      "sha256": "ac00b582d8406a100394190368a1b53bc69b13894030e83ce71bdeb511178777"
+    },
+    {
+      "path": "neck-uv-support.json",
+      "sha256": "f34e6b37d25cbd258701989a526b4c0db85b7e28ba4c0ae21073b10ae7935741"
+    },
+    {
+      "path": "rest-basis-audit.json",
+      "sha256": "fb3cd52e3c17b81594a358afe925f407ecc2fc239faceeab606d3b70715aba43"
+    },
+    {
+      "path": "source-face-front.png",
+      "sha256": "e76762e0635d74dbe9750ec0ba5ac7c3698b2dc10cf659c1392f3e45e176ffec"
+    },
+    {
+      "path": "source-face-raking-opposite.png",
+      "sha256": "06657aa8f8e7ba57aa0278bd18a24ab62189cda259f99f41c73669e03d58c6a5"
+    },
+    {
+      "path": "source-face-raking.png",
+      "sha256": "be4ebd4e01aebf5a3ea84234298338e1cd9c33d08d80e4f8680f22f90897a9e8"
+    },
+    {
+      "path": "source-hand.png",
+      "sha256": "9d2aef76da5ec566acd06c35ef15127677277e348d40dd97008258c4fdbd7fda"
+    }
+  ],
+  "textureCostEstimates": {
+    "method": "RGBA8 4bytes/texel; full mip pyramid approximated4/3, ignoresalignment/actualdriverformat/texturecompression",
+    "maps": {
+      "oldAlbedo": {
+        "dimensions": [
+          1024,
+          1024
+        ],
+        "compressedPNGBytes": 759710,
+        "decodedRGBA8BaseLevelBytesEstimate": 4194304,
+        "decodedRGBA8CompleteMipChainBytesEstimate": 5592405
+      },
+      "oldNormal": {
+        "dimensions": [
+          1024,
+          1024
+        ],
+        "compressedPNGBytes": 1092177,
+        "decodedRGBA8BaseLevelBytesEstimate": 4194304,
+        "decodedRGBA8CompleteMipChainBytesEstimate": 5592405
+      },
+      "newAlbedo": {
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "compressedPNGBytes": 5153644,
+        "decodedRGBA8BaseLevelBytesEstimate": 16777216,
+        "decodedRGBA8CompleteMipChainBytesEstimate": 22369621
+      },
+      "newNormal": {
+        "dimensions": [
+          1024,
+          1024
+        ],
+        "compressedPNGBytes": 923059,
+        "decodedRGBA8BaseLevelBytesEstimate": 4194304,
+        "decodedRGBA8CompleteMipChainBytesEstimate": 5592405
+      }
+    },
+    "notMeasured": "GPUallocatedmemory/FPS/uploadlatency/totalrenderertexturecount; unusedretainedsourceimages maynotload"
+  }
+}

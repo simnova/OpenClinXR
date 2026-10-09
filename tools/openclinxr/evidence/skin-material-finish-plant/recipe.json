@@ -1,0 +1,31 @@
+{
+  "schema": "openclinxr.skin-finish-recipe.v1",
+  "sourceSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "materialName": "mpfb_skin_peds_anxious_parent",
+  "normal": {
+    "path": "tools/openclinxr/evidence/skin-material-finish-plant/normal.png",
+    "sha256": "56fb3ddb9754a954894a02f65248cab715ca47a94a35bf9a3eea19df6964db03",
+    "imageName": "experimental-current-mpfb-final-basis-normal",
+    "conditionedOnSourceSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+    "bakeManifest": "tools/openclinxr/evidence/skin-material-finish-plant/bake-receipt.json",
+    "bakeManifestSha256": "4bd6eccf726c17bbbe66c91fc2e9eef308949b4f36cdd609857033a6e93e32ab"
+  },
+  "albedo": {
+    "path": "tools/openclinxr/evidence/skin-material-finish-plant/albedo.png",
+    "sha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+    "imageName": "experimental-toigo_light_skin_female_freckles",
+    "license": "CC0-1.0",
+    "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+    "assetId": "toigo_light_skin_female_freckles"
+  },
+  "scope": [
+    "one exact repaired motion-bound Tara asset",
+    "explicit post-bind invocation; no automatic actor refresh"
+  ],
+  "notClaimed": [
+    "physical skin validation",
+    "better than CC0 pack",
+    "allcast/allpose acceptance",
+    "full MPFB closure parity"
+  ]
+}

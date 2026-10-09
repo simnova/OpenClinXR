@@ -1,0 +1,97 @@
+{
+  "asset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "assetSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "frame": 1,
+  "objects": [
+    {
+      "object": "mpfb_peds_anxious_parent_body.001",
+      "vertexCount": 16061,
+      "cornerCount": 80268,
+      "positionHash": "d2bb6b6147d2b567ee79c3ebba80bfbee55fc2af366c45e1fe82aaee1a891569",
+      "cornerNormalHash": "14bbae03abae3f4c7a9c2f89329a071899de9321975be52fe773117e0d15c684",
+      "UVHash": "b39ccc7ce12fa75d72e9a2cd82bd057277c897c00a13628d9bb3100f22727dda",
+      "normalDeviationFromUnitMax": 2.0690838142822798e-07,
+      "attributes": [
+        ".select_vert",
+        "position",
+        ".corner_vert",
+        ".corner_edge",
+        ".select_poly",
+        "UVMap",
+        "material_index",
+        "sharp_face",
+        ".edge_verts",
+        ".select_edge",
+        "custom_normal",
+        "sharp_edge"
+      ],
+      "evaluatedVsRawMaxLocalPositionDelta": 2.647054034991639e-07,
+      "modifiers": [
+        {
+          "name": "Armature",
+          "type": "ARMATURE",
+          "showRender": true
+        }
+      ],
+      "shapeValues": {
+        "Basis": 1.0,
+        "eye-left-closure": 0.0,
+        "eye-left-opened-up": 0.0,
+        "eye-left-slit": 0.0,
+        "eye-right-closure": 0.0,
+        "eye-right-opened-up": 0.0,
+        "eye-right-slit": 0.0,
+        "eyebrows-left-down": 0.0,
+        "eyebrows-left-extern-up": 0.0,
+        "eyebrows-left-inner-up": 0.0,
+        "eyebrows-left-up": 0.0,
+        "eyebrows-right-down": 0.0,
+        "eyebrows-right-extern-up": 0.0,
+        "eyebrows-right-inner-up": 0.0,
+        "eyebrows-right-up": 0.0,
+        "mouth-compression": 0.0,
+        "mouth-corner-puller": 0.0,
+        "mouth-depression-retraction": 0.0,
+        "mouth-depression-retraction.001": 0.0,
+        "mouth-elevation": 0.0,
+        "mouth-eversion": 0.0,
+        "mouth-open": 0.0,
+        "mouth-parling": 0.0,
+        "mouth-part-later": 0.0,
+        "mouth-protusion": 0.0,
+        "mouth-pursing": 0.0,
+        "mouth-retraction": 0.0,
+        "mouth-upward-retraction": 0.0,
+        "neck-platysma": 0.0,
+        "nose-compression-uncompress": 0.0,
+        "nose-depression": 0.0,
+        "nose-left-dilatation": 0.0,
+        "nose-left-elevation": 0.0,
+        "viseme_aa": 0.0,
+        "viseme_CH": 0.0,
+        "viseme_DD": 0.0,
+        "viseme_E": 0.0,
+        "viseme_FF": 0.0,
+        "viseme_I": 0.0,
+        "viseme_kk": 0.0,
+        "viseme_nn": 0.0,
+        "viseme_O": 0.0,
+        "viseme_PP": 0.0,
+        "viseme_RR": 0.0,
+        "viseme_sil": 0.0,
+        "viseme_SS": 0.0,
+        "viseme_TH": 0.0,
+        "viseme_U": 0.0
+      },
+      "action": null
+    }
+  ],
+  "armatures": [
+    {
+      "name": "mpfb_peds_anxious_parent_standard_rig",
+      "action": "ClinicalIdleConversation",
+      "posePosition": "REST",
+      "poseBoneNonIdentity": 2
+    }
+  ]
+}

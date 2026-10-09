@@ -1,0 +1,23 @@
+{
+  "expectedNormalAlbedo": [
+    "56fb3ddb9754a954894a02f65248cab715ca47a94a35bf9a3eea19df6964db03",
+    "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf"
+  ],
+  "rows": [
+    {
+      "name": "actualMain",
+      "actualBoundNormalSha256": "970e60cb71c1d837925b8f9c58b4e2ca23321f1c51525b5ced0f67d4fd1a05d0",
+      "actualBoundAlbedoSha256": "92d4aa5fae7fdabcbf76fb823fd7cd2f30526a4d7bea93a58eccec512dcef97c",
+      "sameBindingAssertionPassed": false,
+      "failure": "actual bound normal/albedo PNG hashes do not match accepted maps"
+    },
+    {
+      "name": "acceptedCandidate",
+      "actualBoundNormalSha256": "56fb3ddb9754a954894a02f65248cab715ca47a94a35bf9a3eea19df6964db03",
+      "actualBoundAlbedoSha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+      "sameBindingAssertionPassed": true,
+      "failure": null
+    }
+  ],
+  "qualification": "External direct map-binding assertion. Frozen validate(source,source) instead fails earlier on byteLength padding metadata; it is not the map-binding RED."
+}
