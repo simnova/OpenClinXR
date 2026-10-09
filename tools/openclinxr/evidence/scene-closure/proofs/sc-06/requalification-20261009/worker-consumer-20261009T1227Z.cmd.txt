@@ -1,0 +1,1 @@
+pnpm --filter @openclinxr/ui-xr test src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts src/the-runtime-reproduces-the-frozen-room-digest.test.ts

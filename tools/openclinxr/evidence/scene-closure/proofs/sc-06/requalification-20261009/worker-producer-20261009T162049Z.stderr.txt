@@ -1,0 +1,26 @@
+(node:68632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `pnpm --trace-warnings ...` to show where the warning was created)
+(node:68633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:68640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/node_modules/@openclinxr/compute-slots/dist/slots.js' imported from /Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/tools/openclinxr/evidence/lib/slotted-playwright.ts
+[90m    at finalizeResolution (node:internal/modules/esm/resolve:271:11)[39m
+[90m    at moduleResolve (node:internal/modules/esm/resolve:865:10)[39m
+[90m    at defaultResolve (node:internal/modules/esm/resolve:992:11)[39m
+[90m    at nextResolve (node:internal/modules/esm/hooks:785:28)[39m
+    at resolveBase [90m(file:///Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/[39mnode_modules/[4m.pnpm[24m/tsx@4.21.0/node_modules/[4mtsx[24m/dist/esm/index.mjs?1791562850387:2:3744[90m)[39m
+    at resolveDirectory [90m(file:///Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/[39mnode_modules/[4m.pnpm[24m/tsx@4.21.0/node_modules/[4mtsx[24m/dist/esm/index.mjs?1791562850387:2:4243[90m)[39m
+    at resolveTsPaths [90m(file:///Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/[39mnode_modules/[4m.pnpm[24m/tsx@4.21.0/node_modules/[4mtsx[24m/dist/esm/index.mjs?1791562850387:2:4984[90m)[39m
+    at resolve [90m(file:///Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/[39mnode_modules/[4m.pnpm[24m/tsx@4.21.0/node_modules/[4mtsx[24m/dist/esm/index.mjs?1791562850387:2:5361[90m)[39m
+[90m    at nextResolve (node:internal/modules/esm/hooks:785:28)[39m
+[90m    at AsyncLoaderHooksOnLoaderHookWorker.resolve (node:internal/modules/esm/hooks:269:30)[39m {
+  code: [32m'ERR_MODULE_NOT_FOUND'[39m,
+  url: [32m'file:///Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/node_modules/@openclinxr/compute-slots/dist/slots.js'[39m
+}
+
+Node.js v24.18.1

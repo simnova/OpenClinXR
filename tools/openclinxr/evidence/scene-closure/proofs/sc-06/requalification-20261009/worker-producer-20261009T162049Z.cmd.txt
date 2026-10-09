@@ -1,0 +1,1 @@
+pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts scene_closure_supine_bedside_v1
