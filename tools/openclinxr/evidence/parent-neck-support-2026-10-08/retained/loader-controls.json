@@ -1,0 +1,314 @@
+{
+  "sourceSha256": "1c94d737877d9cc2a9fb1e9fe9d1b7a7f49702ec0129d630c420140bf0597333",
+  "candidateSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "errors": [],
+  "attributeComparison": [
+    {
+      "source": "mpfb_peds_anxious_parent_body_2",
+      "candidate": "mpfb_peds_anxious_parent_body_2",
+      "maxAccessorValueDelta": {
+        "position": 0.0,
+        "normal": 0.0,
+        "uv": 0.0,
+        "skinIndex": 0,
+        "skinWeight": 2.9802322387695312e-08
+      },
+      "bonesEqual": true,
+      "morphDictionaryEqual": true
+    },
+    {
+      "source": "mpfb_peds_anxious_parent_body_5",
+      "candidate": "mpfb_peds_anxious_parent_body_5",
+      "maxAccessorValueDelta": {
+        "position": 0.0,
+        "normal": 0.0,
+        "uv": 0.0,
+        "skinIndex": 0,
+        "skinWeight": 7.450580596923828e-09
+      },
+      "bonesEqual": true,
+      "morphDictionaryEqual": true
+    },
+    {
+      "source": "mpfb_peds_anxious_parent_body_2",
+      "candidate": "mpfb_peds_anxious_parent_body_9",
+      "maxAccessorValueDelta": {
+        "position": 0.0,
+        "normal": 0.0,
+        "uv": 0.0,
+        "skinIndex": 0,
+        "skinWeight": 2.9802322387695312e-08
+      },
+      "bonesEqual": true,
+      "morphDictionaryEqual": true
+    },
+    {
+      "source": "mpfb_peds_anxious_parent_body_5",
+      "candidate": "mpfb_peds_anxious_parent_body_10",
+      "maxAccessorValueDelta": {
+        "position": 0.0,
+        "normal": 0.0,
+        "uv": 0.0,
+        "skinIndex": 0,
+        "skinWeight": 7.450580596923828e-09
+      },
+      "bonesEqual": true,
+      "morphDictionaryEqual": true
+    }
+  ],
+  "claimScope": "actual getter semanticvalues; original binaryattributes exact; repeated GLTFLoader normalizeSkinWeights produces tiny float changes after primitive split, not exactweightidentity",
+  "poseComparisons": [
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398296282060626e-08
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398296282060626e-08
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0396313649001218e-08
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0396313649001218e-08
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0399055439848313e-08
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalIdleConversation",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0399055439848313e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398296353457508e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398296353457508e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.019810579476631e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.019810579476631e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 3.3374999284744264,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 3.3374999284744264,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0142081224868696e-08
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 3.3374999284744264,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "openclinxr_retarget_seated_talking_cc0",
+      "time": 3.3374999284744264,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0142081224868696e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 0.5,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_2",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_5",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_9",
+      "sampledVertices": 10,
+      "maxWorldDeltaM": 0.0
+    },
+    {
+      "clip": "ClinicalExpressionMicroTransition",
+      "time": 3.375,
+      "part": "mpfb_peds_anxious_parent_body_10",
+      "sampledVertices": 89,
+      "maxWorldDeltaM": 1.0398294930601068e-08
+    }
+  ]
+}
