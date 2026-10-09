@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 214,
-    "archive-candidate": 117,
+    "archive-candidate": 118,
     "evidence": 174,
     "temporary": 54,
     "protected-policy": 10,
@@ -4173,6 +4173,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/model-provider-and-voice-routing.md",

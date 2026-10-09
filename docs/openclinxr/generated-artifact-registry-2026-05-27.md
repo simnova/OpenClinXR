@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1937
+- keep-evidence: 1941
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3735,6 +3735,10 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/local-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/lockfile-drift-gate-counterweight-2026-09-15.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/locomotion/foot-inertialize-variant-a-2026-10-09.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/locomotion/foot-inertialize-variant-b-2026-10-09.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/locomotion/foot-inertialize-variant-c-2026-10-09.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/materialize-guard-withdraw-clip-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/model-vetting-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
