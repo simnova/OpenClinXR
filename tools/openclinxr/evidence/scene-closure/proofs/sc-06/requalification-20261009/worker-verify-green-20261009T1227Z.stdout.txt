@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "caseId": "scene_closure_supine_bedside_v1",
+  "actors": 4,
+  "pins": 6,
+  "scope": "disk identity and unchanged freeze semantics; actual producer provenance reviewed separately"
+}

@@ -70,8 +70,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
-          "byteCount": 19149628
+          "assetSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
+          "byteCount": 20462752
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e",
+      "planRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-e52f8ae28c1cecc192323a070e0b3e7e"
+        "acknowledgedPlanRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.5 /Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-eaf6079e/apps/ui-xr
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  12:26:47
+   Duration  3.91s (transform 835ms, setup 0ms, import 1.47s, tests 3.19s, environment 0ms)
+

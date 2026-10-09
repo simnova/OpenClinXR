@@ -1,0 +1,14 @@
+# raw input hashes (sha256) collected 2026-10-09T16:26:35Z observer
+04469c3532366e6abbad10688b05a83917dec9460258ef07a00920fddb39a1ef  tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts
+de78ea0d3b3b8ae58b36a921c24e87af030e4cd777ce809bcc7742872c6791fd  packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts
+b8a2b9ff8312f98f943b17602f7dfd0fa3e991cbe46e3f210758f3627cd64099  tools/openclinxr/evidence/scene-closure/proofs/sc-06/requalification-plant-20261009/verify.mjs
+fdc22ac3b6874de0760d6068461132dfb501d467eb15c860f0acdf95eee5173b  tools/openclinxr/evidence/scene-closure/proofs/sc-06/requalification-plant-20261009/verify.test.mjs
+560d9221e0687a30e3c637d96127142b619262854dd2520d51a819d3487c557b  tools/openclinxr/evidence/scene-closure/proofs/sc-06/requalification-plant-20261009/baseline.json
+bd1c4ce236136a82c48438254b4b1e74b2c430b39a7c3b5d24a449c5a29e48d0  apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts
+3822c6984ea238691f2195660509708fbb186e778d8bff741f713a9d520dada3  apps/ui-xr/src/the-runtime-reproduces-the-frozen-room-digest.test.ts
+
+# actual asset disk identity
+0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0  apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb
+6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4  apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb
+4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9  apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb
+4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf  apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb
