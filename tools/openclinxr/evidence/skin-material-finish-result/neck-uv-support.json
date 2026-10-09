@@ -1,0 +1,42 @@
+{
+  "candidateSha256": "538c29ecc7a38a416079e4c0f567083a3078189ce12ba4936ea3478be5f53561",
+  "albedoSha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+  "coordinateConvention": "raw glTF TEXCOORD_0 v to PNG row, GLTFLoader flipY=false",
+  "rows": [
+    {
+      "mesh": 4,
+      "primitive": 8,
+      "restoredTriangles": 5,
+      "sampleCount": 75,
+      "nearBlackSamplesMaxRGBBelow20": 0,
+      "channelMin": [
+        196,
+        144,
+        99
+      ],
+      "channelMax": [
+        215,
+        166,
+        132
+      ]
+    },
+    {
+      "mesh": 4,
+      "primitive": 9,
+      "restoredTriangles": 119,
+      "sampleCount": 1785,
+      "nearBlackSamplesMaxRGBBelow20": 0,
+      "channelMin": [
+        192,
+        142,
+        100
+      ],
+      "channelMax": [
+        222,
+        175,
+        140
+      ]
+    }
+  ],
+  "scope": "barycentric texture support sampling of the two repaired exposed-neck parts; not all body seams/filtered pixels/allpose proof"
+}
