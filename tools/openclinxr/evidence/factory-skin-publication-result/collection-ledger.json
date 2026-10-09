@@ -1,0 +1,17 @@
+{
+  "collector": "native coordinator after fresh actual producer and frozen loader",
+  "noProducerRecordsRestamped": true,
+  "rawLog": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/materializer.log",
+    "sha256": "9f4096bd66b4b0241826dd10a6b7d6a8f97d804ac9501e84e95c2a6b18963fff"
+  },
+  "portableIdenticalTranscript": {
+    "path": "tools/openclinxr/evidence/factory-skin-publication-result/actual-materializer-transcript.txt",
+    "sha256": "9f4096bd66b4b0241826dd10a6b7d6a8f97d804ac9501e84e95c2a6b18963fff"
+  },
+  "screenshot": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/ui-loader.json.png",
+    "sha256": "8e35851b90586a9ae7684180bcd90299181c3c8bcfd1fdb1c60010cf97a0f569"
+  },
+  "runUUID": "e7756770-6d76-44f0-805d-50aeaa274c37"
+}

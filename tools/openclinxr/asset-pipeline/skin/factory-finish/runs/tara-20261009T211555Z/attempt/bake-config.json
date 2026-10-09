@@ -1,0 +1,24 @@
+{
+  "resolution": [
+    1024,
+    1024
+  ],
+  "frequencyUnits": "authored-texture-frequency",
+  "cycles": {
+    "device": "CPU",
+    "samples": 8,
+    "margin": 4,
+    "normalSpace": "TANGENT"
+  },
+  "dermal": {
+    "cellTexels": 6.0,
+    "bumpStrength": 0.4,
+    "voronoiFeature": "F1",
+    "voronoiRandomness": 0.85,
+    "rampValley": 0.0,
+    "rampPeak": 1.0
+  },
+  "tools": {
+    "mpfbModule": "bl_ext.user_default.mpfb"
+  }
+}

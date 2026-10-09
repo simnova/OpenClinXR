@@ -1,0 +1,53 @@
+{
+  "schema": "openclinxr.factory-skin-publication.v1",
+  "attemptId": "e7756770-6d76-44f0-805d-50aeaa274c37",
+  "frequencyUnits": "authored-texture-frequency",
+  "source": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/final-rest-source.glb",
+    "sha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481"
+  },
+  "finished": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/mpfb-peds-parent-aisha.motion-bind.glb",
+    "sha256": "d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb"
+  },
+  "normal": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/final-rest-normal.png",
+    "sha256": "9d2c7fd2c6ec537edce5ed2f83a29a1d0e3167b5acb3523a9f84ce9935bb8f62"
+  },
+  "albedo": {
+    "path": "tools/openclinxr/evidence/skin-material-finish-plant/albedo.png",
+    "sha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf"
+  },
+  "authoredRecipe": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/tara-cc0-v1.json",
+    "sha256": "2d557189980c89a41ec16ae79dcab28c4fa58a084a94973fdc39f406042118b6"
+  },
+  "executionRecipe": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/execution-recipe.json",
+    "sha256": "9230329aa0cd8651518518d6654f09869539f4618233dd706c6a3e146237cc39"
+  },
+  "receipt": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/receipt.json",
+    "sha256": "bb4098a2d999d4d0aec4e1ef31682e10201043b92f7f4cca88923b8fe7fae92c"
+  },
+  "basis": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/basis.json",
+    "sha256": "4630a840e777f558fc62a60162e0631f40f00ddd117ff077d90dd948e89fb27f"
+  },
+  "ui": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/ui-loader.json",
+    "sha256": "5e5630d77fb33c556edfe8a25c05135c98a8280ccd6dcdcbeb89ab74486af41d"
+  },
+  "materializerInvocation": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/materializer-invocation.json",
+    "sha256": "862e65bbc988ed1edd5d54d5afdaa2a86b275411a4310ac905e83b87bfec1c72"
+  },
+  "publication": {
+    "path": "tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/publication.json",
+    "sha256": "689aa3564218b1feabd6a18fc5ff40f57495c235d70ff956cca609f96b66c8aa"
+  },
+  "toolLog": {
+    "path": "tools/openclinxr/evidence/factory-skin-publication-result/actual-materializer-transcript.txt",
+    "sha256": "9f4096bd66b4b0241826dd10a6b7d6a8f97d804ac9501e84e95c2a6b18963fff"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "openclinxr.factory-skin-authored-recipe.v1",
+  "id": "tara-cc0-final-rest-v1",
+  "materialName": "mpfb_skin_peds_anxious_parent",
+  "actorId": "parent_tara_johnson_v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "outputStem": "mpfb-peds-parent-aisha",
+  "eyeColourReference": "peds_anxious_parent",
+  "actorRole": "parent",
+  "albedo": {
+    "path": "tools/openclinxr/evidence/skin-material-finish-plant/albedo.png",
+    "sha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+    "imageName": "toigo_light_skin_female_freckles",
+    "license": "CC0-1.0",
+    "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+    "assetId": "toigo_light_skin_female_freckles"
+  },
+  "normal": {
+    "imageName": "tara-final-rest-normal",
+    "resolution": [1024, 1024],
+    "frequencyUnits": "authored-texture-frequency"
+  },
+  "bake": {
+    "resolution": [1024, 1024],
+    "frequencyUnits": "authored-texture-frequency",
+    "cycles": {
+      "device": "CPU",
+      "samples": 8,
+      "margin": 4,
+      "normalSpace": "TANGENT"
+    },
+    "dermal": {
+      "cellTexels": 6.0,
+      "bumpStrength": 0.4,
+      "voronoiFeature": "F1",
+      "voronoiRandomness": 0.85,
+      "rampValley": 0.0,
+      "rampPeak": 1.0
+    },
+    "tools": {
+      "mpfbModule": "bl_ext.user_default.mpfb"
+    }
+  },
+  "rest": "armature pose_position REST before the normal bake and the basis readout",
+  "scope": [
+    "one explicit Tara recipe",
+    "normal baked on the posture-corrected final REST source",
+    "approved CC0 albedo appended, not re-authored"
+  ]
+}

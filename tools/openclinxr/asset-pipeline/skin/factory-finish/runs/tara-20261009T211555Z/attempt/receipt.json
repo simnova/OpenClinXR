@@ -1,0 +1,25 @@
+{
+  "schema": "openclinxr.factory-skin-receipt.v1",
+  "attemptId": "e7756770-6d76-44f0-805d-50aeaa274c37",
+  "sourceSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481",
+  "normalSha256": "9d2c7fd2c6ec537edce5ed2f83a29a1d0e3167b5acb3523a9f84ce9935bb8f62",
+  "conditionedOnSourceSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481",
+  "finishedSha256": "d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb",
+  "authoredRecipeSha256": "2d557189980c89a41ec16ae79dcab28c4fa58a084a94973fdc39f406042118b6",
+  "executionRecipeSha256": "9230329aa0cd8651518518d6654f09869539f4618233dd706c6a3e146237cc39",
+  "bakeSettingsSha256": "031a7e01d5e8fcaa6489a6e8ea6ad4a12ff6f8d3756d0c703ba9411cdf06140d",
+  "observedBlender": "5.1.1",
+  "observedMpfb": {
+    "module": "bl_ext.user_default.mpfb",
+    "version": "2.0.15",
+    "name": "MPFB"
+  },
+  "checks": {
+    "sourceBINPrefixBytes": 39068768,
+    "payloadRecordsUnchanged": true,
+    "originalImagesUnchanged": true,
+    "nonSkinMaterialsUnchanged": true,
+    "requestedMapsActuallyBound": true
+  },
+  "frequencyUnits": "authored-texture-frequency"
+}

@@ -1,0 +1,23 @@
+{
+  "exitCode": 0,
+  "processExitCode": 0,
+  "entrypoint": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "args": [
+    "--output",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/mpfb-peds-parent-aisha.glb",
+    "--eye-colour-reference",
+    "peds_anxious_parent",
+    "--actor-role",
+    "parent",
+    "--no-body-subdiv",
+    "--skin-recipe-id",
+    "tara-cc0-final-rest-v1",
+    "--skin-job-root",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z",
+    "--skin-attempt-dir",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt"
+  ],
+  "jobRoot": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z",
+  "runtimeOutput": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/mpfb-peds-parent-aisha.motion-bind.glb",
+  "attemptId": "e7756770-6d76-44f0-805d-50aeaa274c37"
+}

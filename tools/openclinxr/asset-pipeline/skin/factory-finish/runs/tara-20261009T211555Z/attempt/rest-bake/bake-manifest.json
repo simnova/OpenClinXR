@@ -1,0 +1,60 @@
+{
+  "asset": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/final-rest-source.glb",
+  "assetSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481",
+  "normalSha256": "9d2c7fd2c6ec537edce5ed2f83a29a1d0e3167b5acb3523a9f84ce9935bb8f62",
+  "normalPath": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/final-rest-normal.png",
+  "basisPath": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/basis.json",
+  "blender": "5.1.1",
+  "mpfb": {
+    "module": "bl_ext.user_default.mpfb",
+    "version": "2.0.15",
+    "name": "MPFB"
+  },
+  "evaluationMode": "REST",
+  "resolution": [
+    1024,
+    1024
+  ],
+  "frequencyUnits": "authored-texture-frequency",
+  "outputScope": "tangent normal texture only; source GLB bytes not modified",
+  "detail": {
+    "statureMeters": 1.6599,
+    "dermalScale": 102.8164,
+    "dermalBumpStrength": 0.4,
+    "dermalRamp": [
+      0.0,
+      1.0
+    ],
+    "dermalVoronoiFeature": "F1",
+    "dermalVoronoiRandomness": 0.85,
+    "dermalCellTexels": 6.0,
+    "dermalInstancesConfigured": 9,
+    "otherBumpInputsLeftAtShipped": 16,
+    "voronoiScaleForced": 1
+  },
+  "authoredBake": {
+    "resolution": [
+      1024,
+      1024
+    ],
+    "frequencyUnits": "authored-texture-frequency",
+    "cycles": {
+      "device": "CPU",
+      "samples": 8,
+      "margin": 4,
+      "normalSpace": "TANGENT"
+    },
+    "dermal": {
+      "cellTexels": 6.0,
+      "bumpStrength": 0.4,
+      "voronoiFeature": "F1",
+      "voronoiRandomness": 0.85,
+      "rampValley": 0.0,
+      "rampPeak": 1.0
+    },
+    "tools": {
+      "mpfbModule": "bl_ext.user_default.mpfb"
+    }
+  },
+  "jobRoot": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z"
+}

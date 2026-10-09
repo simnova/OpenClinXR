@@ -1,0 +1,24 @@
+{
+  "schema": "openclinxr.factory-skin-execution-recipe.v1",
+  "recipeId": "tara-cc0-final-rest-v1",
+  "sourceSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481",
+  "materialName": "mpfb_skin_peds_anxious_parent",
+  "frequencyUnits": "authored-texture-frequency",
+  "bakeSettingsSha256": "031a7e01d5e8fcaa6489a6e8ea6ad4a12ff6f8d3756d0c703ba9411cdf06140d",
+  "normal": {
+    "path": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/final-rest-normal.png",
+    "sha256": "9d2c7fd2c6ec537edce5ed2f83a29a1d0e3167b5acb3523a9f84ce9935bb8f62",
+    "imageName": "tara-final-rest-normal",
+    "conditionedOnSourceSha256": "f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481",
+    "bakeManifest": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/rest-bake/bake-manifest.json",
+    "bakeManifestSha256": "95b41a11798d4e9cd0ce5383b61bd38c2388548026806307c27114aeb96bb119"
+  },
+  "albedo": {
+    "path": "/Users/patrick/.grok/worktrees/src-openclinxr/2026-10-09-b7f1907f/tools/openclinxr/evidence/skin-material-finish-plant/albedo.png",
+    "sha256": "8d8b7dac34f97ebdd8605b51d527ac6863685054b33e1004b3e309599542beaf",
+    "imageName": "toigo_light_skin_female_freckles",
+    "license": "CC0-1.0",
+    "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+    "assetId": "toigo_light_skin_female_freckles"
+  }
+}

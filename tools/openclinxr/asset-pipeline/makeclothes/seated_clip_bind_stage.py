@@ -11,7 +11,7 @@ derived from --output (<stem>.motion-bind-report.json beside the GLB) unless
 --report is passed explicitly. Writing the default into tools/evidence left
 the shipped asset's provenance describing a superseded bake.
 """
-import argparse, json, os, shutil, subprocess, sys, tempfile, traceback
+import argparse, hashlib, json, os, shutil, subprocess, sys, tempfile, traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,6 +33,9 @@ def _parse_args(argv):
     ap.add_argument("--source-map", required=True)
     ap.add_argument("--output", required=True)
     ap.add_argument("--report", default=None)
+    ap.add_argument("--skin-recipe-id", default=None)
+    ap.add_argument("--skin-attempt-dir", default=None)
+    ap.add_argument("--skin-job-root", default=None)
     return ap.parse_args(argv)
 
 
@@ -52,6 +55,46 @@ def _default_report_path(output_path):
 def _write_report(path, payload):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+def _skin_mode(args):
+    return bool(getattr(args, "skin_recipe_id", None))
+
+
+def _fail(args, reason, log, extra=None):
+    """Selected skin attempts record failure beside the attempt, never on the accepted report."""
+    if not _skin_mode(args):
+        return _reject(args.report, reason, log, extra)
+    payload = {
+        "schema": "openclinxr.factory-skin-stage-failure.v1",
+        "reason": reason,
+        "log": (log or "")[-8000:],
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        **(extra or {}),
+    }
+    print(f"SKIN_PUBLISH_REFUSED {reason}", file=sys.stderr)
+    attempt_raw = getattr(args, "skin_attempt_dir", None)
+    job_raw = getattr(args, "skin_job_root", None)
+    if not attempt_raw or not job_raw:
+        return 2
+    attempt = Path(attempt_raw).resolve()
+    job = Path(job_raw).resolve()
+    if not attempt.is_relative_to(job):
+        print("SKIN_STAGE_FAILURE_REPORT_UNWRITTEN outside job root", file=sys.stderr)
+        return 2
+    failure = attempt / "stage-failure.json"
+    if not attempt.is_dir():
+        print("SKIN_STAGE_FAILURE_REPORT_UNWRITTEN attempt is not reserved", file=sys.stderr)
+        return 2
+    if failure.exists():
+        print(f"SKIN_STAGE_FAILURE_REPORT_PRESERVED {failure}", file=sys.stderr)
+        return 2
+    try:
+        with failure.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, indent=2) + "\n")
+    except OSError as exc:
+        print(f"SKIN_STAGE_FAILURE_REPORT_UNWRITTEN {exc!r}", file=sys.stderr)
+    return 2
+
 
 def _reject(report_path, reason, log, extra=None):
     payload = {
@@ -181,6 +224,108 @@ def _correct_held_posture(output_glb, clip_path, log_lines):
     log_lines.append("held_posture_corrected=true")
 
 
+def _sha256(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def _write_publication_record(attempt, finished_bytes, receipt_bytes, outcome, bookkeeping_complete):
+    payload = {
+        "schema": "openclinxr.factory-skin-publication-record.v1",
+        "actualOutputSha256": _sha256(finished_bytes),
+        "lookupReceiptSha256": _sha256(receipt_bytes),
+        "outcome": outcome,
+        "receiptPrewritten": True,
+        "bookkeepingComplete": bookkeeping_complete,
+    }
+    (Path(attempt) / "publication.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def finalize_factory_skin(source_glb, recipe_id=None, attempt_dir=None, job_root=None):
+    """Bake and finish the posture-corrected GLB. Tests replace this function."""
+    finish_dir = _repo_root() / "tools/openclinxr/asset-pipeline/skin/factory-finish"
+    if str(finish_dir) not in sys.path:
+        sys.path.insert(0, str(finish_dir))
+    import importlib
+    module = importlib.import_module("finalize")
+    return module.finalize_source(source_glb, recipe_id, attempt_dir, job_root)
+
+
+def _commit_factory_skin(args, tmp_glb, log_lines, driven, mesh_count):
+    """Finish the final posture, then commit the GLB only after the receipt exists."""
+    job = Path(args.skin_job_root).resolve()
+    attempt = Path(args.skin_attempt_dir).resolve()
+    output = Path(args.output).resolve()
+    if not attempt.is_relative_to(job) or not output.is_relative_to(job):
+        raise RuntimeError(f"skin publication path outside job root {job}")
+    result = finalize_factory_skin(
+        str(tmp_glb),
+        recipe_id=args.skin_recipe_id,
+        attempt_dir=str(attempt),
+        job_root=str(job),
+    )
+    finished = Path(result.finished_glb)
+    receipt = Path(result.receipt_path)
+    if not finished.resolve().is_relative_to(job) or not receipt.resolve().is_relative_to(job):
+        raise RuntimeError("finalizer wrote outside the job root")
+    if not receipt.is_file():
+        raise RuntimeError("skin receipt missing before GLB commit")
+    receipt_bytes = receipt.read_bytes()
+    finished_bytes = finished.read_bytes()
+    claimed = json.loads(receipt_bytes).get("finishedSha256")
+    observed = _sha256(finished_bytes)
+    if (
+        not isinstance(claimed, str)
+        or len(claimed) != 64
+        or any(char not in "0123456789abcdef" for char in claimed)
+        or claimed != observed
+    ):
+        raise RuntimeError("finished GLB hash does not match its receipt")
+    staging = attempt / "publication-staging.glb"
+    if staging.exists():
+        raise RuntimeError(f"publication staging already exists: {staging}")
+    shutil.copyfile(finished, staging)
+    if staging.read_bytes() != finished_bytes or not finished.is_file():
+        raise RuntimeError("staged copy diverges from the immutable attempt finished GLB")
+    os.replace(os.fspath(staging), args.output)
+    if not finished.is_file() or finished.read_bytes() != finished_bytes:
+        raise RuntimeError("publication consumed the attempt finished GLB")
+    if Path(args.output).read_bytes() != finished_bytes:
+        raise RuntimeError("published bytes diverged from the staged copy")
+    payload = {
+        "schemaVersion": "openclinxr.seated-clip-bind.v1",
+        "stageId": STAGE_ID,
+        "verdict": "ok",
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "sourceClip": args.clip,
+        "targetRig": args.actor,
+        "targetMap": args.map,
+        "sourceMap": args.source_map,
+        "operator": "mcp.load_and_retarget",
+        "heldPostureCorrected": True,
+        "skinRecipeId": args.skin_recipe_id,
+        "addonModule": ADDON_MODULE,
+        "outputGlb": args.output,
+        "clipName": CLIP_NAME,
+        "drivenBones": driven,
+        "drivenBoneCount": len(driven),
+        "outputMeshCount": mesh_count,
+        "totalRotationDeltaRad": sum(b["totalRotationDeltaRad"] for b in driven),
+        "outputBytes": os.path.getsize(args.output),
+        "reportPath": args.report,
+        "log": "\n".join(log_lines),
+        "claimScope": "one_actor_one_cc0_seated_clip_retarget_bind_not_a_motion_library",
+        "notEvidenceFor": ["clinical_motion_realism", "quest_readiness", "visual_motion_quality", "runtime_playback"],
+    }
+    try:
+        _write_report(args.report, payload)
+    except OSError:
+        _write_publication_record(attempt, finished_bytes, receipt_bytes, "interrupted_recoverable", False)
+        return 3
+    _write_publication_record(attempt, finished_bytes, receipt_bytes, "committed", True)
+    print(json.dumps({"verdict": "ok", "clipName": CLIP_NAME, "driven": len(driven), "output": args.output, "skinRecipeId": args.skin_recipe_id}))
+    return 0
+
+
 def _driven_bones(arm):
     ad = arm.animation_data
     action = ad.action if ad else None
@@ -214,7 +359,7 @@ def main(argv):
     log_lines = []
     for required in (args.actor, args.clip, args.map, args.source_map):
         if not os.path.isfile(required):
-            return _reject(args.report, f"missing_input:{required}", "")
+            return _fail(args, f"missing_input:{required}", "")
     try:
         startup_objects = set(bpy.context.scene.objects)
         arm = _import_actor(args.actor)
@@ -223,18 +368,18 @@ def main(argv):
             f"actor_armature={arm.name} pose_bones={len(arm.pose.bones)} actor_objects={len(actor_objects)}"
         )
     except Exception as exc:
-        return _reject(args.report, "actor_import_failed", f"{exc!r}\n{traceback.format_exc()}")
+        return _fail(args, "actor_import_failed", f"{exc!r}\n{traceback.format_exc()}")
 
     ok, enable_log = _enable_retarget_bvh()
     log_lines.append(enable_log)
     if not ok:
-        return _reject(args.report, "retarget_bvh_not_runnable_headless", "\n".join(log_lines))
+        return _fail(args, "retarget_bvh_not_runnable_headless", "\n".join(log_lines))
 
     try:
         from bl_ext.user_default.retarget_bvh.bsettings import BD
         from bl_ext.user_default.retarget_bvh.utils import getErrorMessage, setSilentMode
     except Exception as exc:
-        return _reject(args.report, "retarget_bvh_import_failed", f"{exc!r}\n{traceback.format_exc()}")
+        return _fail(args, "retarget_bvh_import_failed", f"{exc!r}\n{traceback.format_exc()}")
 
     if BD.prefs is None:
         addon = bpy.context.preferences.addons.get(ADDON_MODULE)
@@ -262,8 +407,8 @@ def main(argv):
         err = getErrorMessage() or ""
         log_lines.append(f"load_and_retarget message={err!r}")
     except Exception as exc:
-        return _reject(
-            args.report,
+        return _fail(
+            args,
             "load_and_retarget_raised",
             "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}",
         )
@@ -272,13 +417,13 @@ def main(argv):
     real = [b for b in driven if b["keyframes"] > 1 and b["totalRotationDeltaRad"] > MIN_TOTAL_DELTA_RAD]
     ad = arm.animation_data
     if ad is None or ad.action is None:
-        return _reject(args.report, "no_action_after_retarget", "\n".join(log_lines))
+        return _fail(args, "no_action_after_retarget", "\n".join(log_lines))
     ad.action.name = CLIP_NAME
     log_lines.append(f"driven={len(driven)} real={len(real)} action={CLIP_NAME}")
 
     if len(real) < MIN_DRIVEN_BONES:
-        return _reject(
-            args.report,
+        return _fail(
+            args,
             "zero_or_thin_channels",
             "\n".join(log_lines),
             extra={"drivenBones": driven, "realDrivenCount": len(real)},
@@ -293,7 +438,7 @@ def main(argv):
     mesh_count = sum(1 for ob in bpy.context.scene.objects if ob.type == "MESH")
     log_lines.append(f"scene_meshes={mesh_count}")
     if mesh_count < 1:
-        return _reject(args.report, "zero_meshes", "\n".join(log_lines), extra={"realDrivenCount": len(real)})
+        return _fail(args, "zero_meshes", "\n".join(log_lines), extra={"realDrivenCount": len(real)})
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     job_tmp = Path(
@@ -305,15 +450,18 @@ def main(argv):
     try:
         bpy.ops.export_scene.gltf(filepath=str(tmp_glb), export_format="GLB", export_animations=True)
     except Exception as exc:
-        return _reject(args.report, "export_failed", "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}")
+        return _fail(args, "export_failed", "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}")
 
     try:
         _correct_held_posture(str(tmp_glb), args.clip, log_lines)
+        if getattr(args, "skin_recipe_id", None):
+            return _commit_factory_skin(args, tmp_glb, log_lines, real, mesh_count)
         shutil.copy2(tmp_glb, args.output)
     except Exception as exc:
-        return _reject(
-            args.report,
-            "held_posture_correction_failed",
+        reason = "skin_publish_refused" if getattr(args, "skin_recipe_id", None) else "held_posture_correction_failed"
+        return _fail(
+            args,
+            reason,
             "\n".join(log_lines) + f"\n{exc!r}\n{traceback.format_exc()}",
         )
     finally:
