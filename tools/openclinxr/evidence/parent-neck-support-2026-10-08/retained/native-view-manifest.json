@@ -1,0 +1,839 @@
+{
+  "records": [
+    {
+      "id": "source",
+      "view": "face-front",
+      "path": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/artifacts/skin-realism-2026-10-08/iteration8-neck-diagnosis/browser-fringe-final/source-face-front.png",
+      "sha256": "3199cad74ceb657dacf5b1e82ef0eaf2fa428370ed2839610d04f55c39eca77f",
+      "camera": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1.4773259059997859,
+        3,
+        1
+      ],
+      "scale": 0.42,
+      "materials": [
+        {
+          "name": "mat_makeclothes_library_cargo_pants.001",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_toigo_t_shirt",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "renderer": "184"
+    },
+    {
+      "id": "source",
+      "view": "face-three-quarter",
+      "path": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/artifacts/skin-realism-2026-10-08/iteration8-neck-diagnosis/browser-fringe-final/source-face-three-quarter.png",
+      "sha256": "a989b74e418fac38798108f82d31cd195345962aab5b77b2fd961bc7e7719526",
+      "camera": [
+        0.838443616300637,
+        0,
+        -0.5449883505954142,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.5449883505954142,
+        0,
+        0.838443616300637,
+        0,
+        1.6349650517862422,
+        1.4773259059997859,
+        2.515330848901911,
+        1
+      ],
+      "scale": 0.42,
+      "materials": [
+        {
+          "name": "mat_makeclothes_library_cargo_pants.001",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_toigo_t_shirt",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "renderer": "184"
+    },
+    {
+      "id": "candidate",
+      "view": "face-front",
+      "path": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/artifacts/skin-realism-2026-10-08/iteration8-neck-diagnosis/browser-fringe-final/candidate-face-front.png",
+      "sha256": "c483a6e6476c9f03f43e219ec76f313db14831c29f21fdbe3204a2ef2322ed5b",
+      "camera": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1.4773259059997859,
+        3,
+        1
+      ],
+      "scale": 0.42,
+      "materials": [
+        {
+          "name": "mat_makeclothes_library_cargo_pants.001",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_toigo_t_shirt",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "renderer": "184"
+    },
+    {
+      "id": "candidate",
+      "view": "face-three-quarter",
+      "path": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/artifacts/skin-realism-2026-10-08/iteration8-neck-diagnosis/browser-fringe-final/candidate-face-three-quarter.png",
+      "sha256": "47c8273543174e97bcbd78b68abaefed97e0b5a14a0c2b8b8b51fe415f43ad7b",
+      "camera": [
+        0.838443616300637,
+        0,
+        -0.5449883505954142,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.5449883505954142,
+        0,
+        0.838443616300637,
+        0,
+        1.6349650517862422,
+        1.4773259059997859,
+        2.515330848901911,
+        1
+      ],
+      "scale": 0.42,
+      "materials": [
+        {
+          "name": "mat_makeclothes_library_cargo_pants.001",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_toigo_t_shirt",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_upper_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_lower_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_foot_mpfb_peds_anxious_parent_body_mesh.001",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_hidden_orphan_mpfb_peds_anxious_parent_body_mesh",
+          "opacity": 0,
+          "transparent": false,
+          "alphaTest": 0.5,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mpfb_skin_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        },
+        {
+          "name": "mat_openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh",
+          "opacity": 1,
+          "transparent": false,
+          "alphaTest": 0,
+          "normalScale": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "renderer": "184"
+    }
+  ],
+  "errors": [],
+  "sourceSha256": "1c94d737877d9cc2a9fb1e9fe9d1b7a7f49702ec0129d630c420140bf0597333",
+  "candidateSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e"
+}

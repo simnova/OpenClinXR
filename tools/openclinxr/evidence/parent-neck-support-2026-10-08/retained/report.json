@@ -1,0 +1,30 @@
+{
+  "sourceSha256": "1c94d737877d9cc2a9fb1e9fe9d1b7a7f49702ec0129d630c420140bf0597333",
+  "outputSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "albedoSha256": "92d4aa5fae7fdabcbf76fb823fd7cd2f30526a4d7bea93a58eccec512dcef97c",
+  "normalScale": null,
+  "originalBinaryBytesPreserved": 11977168,
+  "protectedDocumentKeys": [
+    "asset",
+    "accessors",
+    "samplers",
+    "meshes",
+    "nodes",
+    "skins",
+    "animations",
+    "scenes",
+    "scene"
+  ],
+  "existingImageRecordsUnchanged": true,
+  "nonSkinMaterialsUnchanged": true,
+  "noGeometryRebuild": true,
+  "output": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/artifacts/skin-realism-2026-10-08/iteration8-neck-diagnosis/worker-adoption-20261009/candidate.glb",
+  "recipeSha256": "520277aee61a88ecf20aa1fc53146cda4a38c15a2591cb8e0e057bb407fba2a7",
+  "originalSourceBinaryBytesPreserved": 11942584,
+  "changedTexels": 7453,
+  "outsideSupportChanged": 0,
+  "claimScope": "explicit owner-reviewed source-specific front/threequarter support, not automatic anatomy heuristic",
+  "toolSha256": "bd253cad6d04dccf84ff19e4468b8274c70726f3899cc0a360ff8af72e8c0e27",
+  "runtimeAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "evidenceProvenance": "Retained previously independently accepted nativeviews; same source1c94/candidatec219 hashes, no recapture/restamp. New deterministic tool replay separate."
+}

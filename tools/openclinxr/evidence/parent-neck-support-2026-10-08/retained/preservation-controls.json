@@ -1,0 +1,298 @@
+{
+  "sourceSha256": "1c94d737877d9cc2a9fb1e9fe9d1b7a7f49702ec0129d630c420140bf0597333",
+  "candidateSha256": "c2192d06115c940d17dee6614b6d23128806c54b340cea1a7a4f99a091e48d0e",
+  "checks": [
+    {
+      "name": "original11942584binaryprefixunchanged",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:asset",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:nodes",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:skins",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:animations",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:scenes",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:scene",
+      "pass": true
+    },
+    {
+      "name": "originaldocument:samplers",
+      "pass": true
+    },
+    {
+      "name": "originalrecordprefix:accessors",
+      "pass": true
+    },
+    {
+      "name": "originalrecordprefix:bufferViews",
+      "pass": true
+    },
+    {
+      "name": "originalrecordprefix:images",
+      "pass": true
+    },
+    {
+      "name": "originalrecordprefix:textures",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:0",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:1",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:2",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:3",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:5",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:6",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:7",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:8",
+      "pass": true
+    },
+    {
+      "name": "nonbodymesh:9",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:0",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:1",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:2",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:3",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:4",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:5",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:6",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:7",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:8",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:9",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:10",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:11",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:12",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:13",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:14",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:15",
+      "pass": true
+    },
+    {
+      "name": "materialOnlyAuthorizedAlbedo:16",
+      "pass": true
+    },
+    {
+      "name": "materialCountUnchanged",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:0",
+      "pass": true
+    },
+    {
+      "name": "exactorderedremaining:1",
+      "pass": true
+    },
+    {
+      "name": "exactorderedrestored:1",
+      "pass": true
+    },
+    {
+      "name": "sharedattributesmorphextras:1",
+      "pass": true
+    },
+    {
+      "name": "restoredexistingSkinMaterial:1",
+      "pass": true
+    },
+    {
+      "name": "remainingAllOriginalKeysExceptIndices:1",
+      "pass": true
+    },
+    {
+      "name": "coveredremainderstillmasked:1",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:2",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:3",
+      "pass": true
+    },
+    {
+      "name": "exactorderedremaining:4",
+      "pass": true
+    },
+    {
+      "name": "exactorderedrestored:4",
+      "pass": true
+    },
+    {
+      "name": "sharedattributesmorphextras:4",
+      "pass": true
+    },
+    {
+      "name": "restoredexistingSkinMaterial:4",
+      "pass": true
+    },
+    {
+      "name": "remainingAllOriginalKeysExceptIndices:4",
+      "pass": true
+    },
+    {
+      "name": "coveredremainderstillmasked:4",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:5",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:6",
+      "pass": true
+    },
+    {
+      "name": "unrelatedbodyprimitive:7",
+      "pass": true
+    },
+    {
+      "name": "triangleunioncountzeroaddedlost",
+      "pass": true
+    },
+    {
+      "name": "only2newparts",
+      "pass": true
+    },
+    {
+      "name": "outsideactualUVsupportunchanged",
+      "pass": true
+    },
+    {
+      "name": "outsideadmittedcontaminationunchanged",
+      "pass": true
+    },
+    {
+      "name": "nonzerogenuineappliedrepair",
+      "pass": true
+    },
+    {
+      "name": "coveredclothpositive",
+      "pass": true
+    },
+    {
+      "name": "blanketunhidecounterweightRED",
+      "pass": true
+    },
+    {
+      "name": "sameSelectionPathExposedPositive",
+      "pass": true
+    },
+    {
+      "name": "sourceGenuineStructuralRED_exactRequired124",
+      "pass": true
+    },
+    {
+      "name": "candidateExactRequired124GREEN",
+      "pass": true
+    },
+    {
+      "name": "connectedDarkFringeAdmitted",
+      "pass": true
+    },
+    {
+      "name": "isolatedLegitimateDarkMarkPreserved",
+      "pass": true
+    },
+    {
+      "name": "ringPollutionRefuses:[0, 0, 0]",
+      "pass": true
+    },
+    {
+      "name": "ringPollutionRefuses:[30, 150, 220]",
+      "pass": true
+    }
+  ],
+  "count": 71,
+  "triangleCounts": {
+    "before": 26756,
+    "after": 26756,
+    "restored": 124,
+    "remainingMaskedInAffectedPrimitives": 2758
+  },
+  "claimScope": "exactasset payload + partition +pixel preservation andtwo-sided rayfixture; not allposes/allgarments"
+}
