@@ -1,5 +1,5 @@
 """Owner plant. Actual stage branch with heavy upstream APIs stubbed; NOT Blender evidence."""
-import importlib.util,json,pathlib,sys,tempfile,types,unittest,contextlib,io,ast,subprocess
+import importlib.util,json,pathlib,sys,tempfile,types,unittest,contextlib,io,ast,subprocess,hashlib
 ROOT=pathlib.Path(__file__).resolve().parents[4]
 S=types.SimpleNamespace
 
@@ -32,7 +32,7 @@ def run_stage(failure=False, replace_failure=False, bookkeeping_failure=False):
             def finish(source,*args,**kwargs):
                 events.append('finish');assert pathlib.Path(source).read_bytes()==b'FINAL_REST','finish ran before final posture'
                 if failure:raise RuntimeError('controlled source-conditioned bake refusal')
-                finished=attempt/'finished.glb';finished.write_bytes(b'FINISHED_FINAL_REST');receipt=attempt/'receipt.json';receipt.write_text(json.dumps({'finishedSha256':'owner-unit-placeholder-not-real-evidence'}));return S(finished_glb=finished,receipt_path=receipt,outcome='finished')
+                finished=attempt/'finished.glb';finished.write_bytes(b'FINISHED_FINAL_REST');receipt=attempt/'receipt.json';receipt.write_text(json.dumps({'finishedSha256':hashlib.sha256(finished.read_bytes()).hexdigest()}));return S(finished_glb=finished,receipt_path=receipt,outcome='finished')
             mod.finalize_factory_skin=finish
             real_replace=mod.os.replace
             def replace(source,dest):

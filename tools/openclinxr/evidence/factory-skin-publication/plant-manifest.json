@@ -1,10 +1,11 @@
 {
   "acceptance.mjs": "5655abc4879b28b2575e0f89fd5733f8a3d387289939f8f0695386c1506d2b51",
-  "acceptance.test.py": "891d089a4e037be37faa1820d333e3dffaac1416ebdf5dd5492c74c6895b8613",
-  "controls.mjs": "24b67e9e08344e2e06b13615bed7ce8b3197381dd7a09bcb54ed4dda4468dc8f",
-  "loader-proof.mjs": "695c3c8d7888f666ff12329e85abd562353da8047e1728c1fc2940a28b37d7c7",
+  "acceptance.test.py": "84df06fd761136aa08699558aa0d7bcc2d2acca49a0108b0b96663f25b1a6ac8",
+  "controls.mjs": "06718713cab7c32e68e4fb350cae57ad60871c31202a8c8e8bdae8a94b384cfd",
+  "loader-proof.mjs": "6cfca84eb76ef35e2a0601ff695c8cb699aef8610f68b1a3e21d6fad82cd9e54",
   "validate.mjs": "9a1dc22c9207a422b42b5c18d9b9ca321626a9a0cdb867ec1789307fc3a8ca91",
   "validate.py": "f7688e910095f22bd7cd5944701c4d6efd3f2b8abfdb7bab741dbd00c875a7c2",
   "validate.test.py": "e15f572e4c6e0d1823819dcdea3ef22bb1066ab276fb5b0a37167a39ee10909c",
-  "verify-plant.mjs": "25272c9bafba12e04c2b4187cc0bb74c9b82b28b47f2ae82c089581b6f3d681b"
+  "verify-plant.mjs": "25272c9bafba12e04c2b4187cc0bb74c9b82b28b47f2ae82c089581b6f3d681b",
+  "loader-normal-scale.test.mjs": "c3b6941bb648e0bfdd34dce830837aff38872b65a6ca788a3241bc554d67dd5e"
 }

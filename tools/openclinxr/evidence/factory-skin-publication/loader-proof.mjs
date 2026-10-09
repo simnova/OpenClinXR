@@ -13,16 +13,30 @@ if(bytes.toString('ascii',0,4)!=='glTF')throw Error('invalid GLB');
 const jlen=bytes.readUInt32LE(12);const doc=JSON.parse(bytes.toString('utf8',20,20+jlen));const bin=bytes.subarray(28+jlen);const mat=doc.materials.filter(m=>m.name===materialName);if(mat.length!==1)throw Error('skin material ambiguous');
 function image(index){const image=doc.images[doc.textures[index].source];const view=doc.bufferViews[image.bufferView];if(image.mimeType!=='image/png'||view.buffer!==0)throw Error('embedded PNG required');return bin.subarray(view.byteOffset??0,(view.byteOffset??0)+view.byteLength).toString('base64');}
 const normalScale=mat[0].normalTexture.scale??1;
+// Pinned Three r184 flips normalScale.y when a primitive lacks tangent attributes.
+function expectedSkinNormalScale(doc,materialIndex,scale){
+ const modes=new Set();
+ for(const mesh of doc.meshes??[])for(const primitive of mesh.primitives??[])if(primitive.material===materialIndex)modes.add(Object.hasOwn(primitive.attributes??{},'TANGENT'));
+ if(modes.size===0)throw Error('skin primitive missing');
+ if(modes.size!==1)throw Error('mixed skin tangent modes require per-primitive binding');
+ return [scale,modes.has(true)?scale:-scale];
+}
+const expectedNormalScale=expectedSkinNormalScale(doc,doc.materials.indexOf(mat[0]),normalScale);
 const expected={albedo:image(mat[0].pbrMetallicRoughness.baseColorTexture.index),normal:image(mat[0].normalTexture.index)};
 const target='/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb';
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 try{
  const page=await browser.newPage({viewport:{width:1280,height:960}});let fetched;const pending=[];
- page.on('response',r=>{if(new URL(r.url()).pathname===target)pending.push(r.body().then(b=>{fetched=hash(b);}));});
+ // Retain and read the actual browser response on the SAME configured CDP session.
+ const network=await page.context().newCDPSession(page);
+ await network.send('Network.enable',{maxResourceBufferSize:bytes.length*2,maxTotalBufferSize:bytes.length*8});
+ const targetRequests=new Set();let networkBodyError;
+ network.on('Network.responseReceived',event=>{if(new URL(event.response.url).pathname===target)targetRequests.add(event.requestId);});
+ network.on('Network.loadingFinished',event=>{if(targetRequests.has(event.requestId))pending.push(network.send('Network.getResponseBody',{requestId:event.requestId}).then(response=>{fetched=hash(Buffer.from(response.body,response.base64Encoded?'base64':'utf8'));}).catch(error=>{networkBodyError=error;}));});
  await page.route('**'+target+'*',route=>route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}));
  await page.goto(url.href,{waitUntil:'networkidle'});
  // Current UI may require explicit ordinary station start; never load a standalone model viewer.
- const start=page.getByRole('button',{name:/enter|start station|start experience/i}).first();if(await start.isVisible().catch(()=>false))await start.click();
+ const start=page.getByRole('button',{name:/^(?:Start station|Start experience)$/i}).first();if(await start.isVisible().catch(()=>false)&&await start.isEnabled().catch(()=>false))await start.click();
  await page.waitForFunction(()=>{const s=window.__openClinXrDebugScene;let found=false;s?.traverse(o=>{if(o.userData?.openClinXrActorId==='parent_tara_johnson_v1'&&o.userData?.openClinXrAssetPath)found=true;});return found;},{},{timeout:90000});
  const loaded=await page.evaluate(async({expected,materialName})=>{
   const digest=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(n=>n.toString(16).padStart(2,'0')).join('');
@@ -33,9 +47,9 @@ try{
   const bindings=[];for(const m of materials)bindings.push({albedo:await pixels(m.map?.image),normal:await pixels(m.normalMap?.image),normalScale:[m.normalScale.x,m.normalScale.y],color:[m.color.r,m.color.g,m.color.b]});
   return {actorId:'parent_tara_johnson_v1',scenarioId:window.__openClinXrDebugScene.userData.openClinXrEncounterDoorwayTheme?.scenarioId,assetPaths:roots.map(r=>r.userData.openClinXrAssetPath),decoded,bindings};
  },{expected,materialName});
- await Promise.all(pending);if(fetched!==hash(bytes))throw Error('actual loader network-body hash mismatch');
+ await Promise.all(pending);if(networkBodyError)throw networkBodyError;if(fetched!==hash(bytes))throw Error('actual loader network-body hash mismatch');
  if(loaded.scenarioId!=='peds_asthma_parent_anxiety_v1'||!loaded.bindings.length)throw Error('actual Tara skin not staged');
- for(const b of loaded.bindings){if(b.normalScale[0]!==normalScale||b.normalScale[1]!==normalScale)throw Error('loaded normalScale mismatch');}
+ for(const b of loaded.bindings){if(b.normalScale[0]!==expectedNormalScale[0]||b.normalScale[1]!==expectedNormalScale[1])throw Error('loaded normalScale mismatch');}
  for(const b of loaded.bindings)for(const k of ['albedo','normal'])if(JSON.stringify(b[k])!==JSON.stringify(loaded.decoded[k]))throw Error('loaded '+k+' pixels mismatch');
  mkdirSync(dirname(output),{recursive:true});await page.screenshot({path:output+'.png'});
  writeFileSync(output,JSON.stringify({schemaVersion:1,probe:'actual-ui-xr-loader',url:url.href,finishedSha256:hash(bytes),networkBodySha256:fetched,materialName,...loaded},null,2)+'\n',{flag:'wx'});
