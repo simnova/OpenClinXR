@@ -6,18 +6,17 @@ import {
 import { AnimationClip } from "three";
 import {
   type LocomotionStanceLabels,
-  resolveLocomotionStanceLabels,
+  resolveOneShotStanceLabels,
   stanceAtTime,
 } from "./locomotion-stance-labels.js";
-import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
 
 /**
  * Walk-to-stop handoff wiring, resolved lazily from the actor's own bound clips.
  *
  * The runtime never names a stop clip per actor. It finds one by prefix among the clips the
- * actor already carries, measures everything off it (entry stance from its own labels at time
- * 0, travel from its root-bone keys, forward from its stance windows), and hands the result to
- * the phase machine as a `StopClipTrigger`. No clip found, or any measurement missing, resolves
+ * actor already carries, measures everything off it (entry stance from one-shot labels at time
+ * 0 against the actor's own walk band, travel and forward from its root-bone keys), and hands
+ * the result to the phase machine as a `StopClipTrigger`. No clip found, or any measurement missing, resolves
  * null and the walk ends exactly as before — that null is the whole feature gate.
  */
 
@@ -97,8 +96,7 @@ export function stopTrackDisplacementMeters(track: StopClipWiring["rootTrackXz"]
  * Build the handoff wiring for an actor's slot, or null when there is no stop take to hand to.
  * Pure against the clips; the caller caches the result per approach and rebuilds when the clip
  * name changes. Every number comes off the bound clip: entry stance from its own labels at time
- * 0, displacement from its root keys, forward from its stance windows via the same time-scale
- * measurement the walk uses.
+ * 0, displacement and forward from its root keys.
  */
 export function resolveStopWiring(input: {
   labelSlot: WiringSlot | null;
@@ -119,20 +117,30 @@ export function resolveStopWiring(input: {
     responseClips: clips,
     actorSlot: slot.actorSlot,
   };
-  const labels: LocomotionStanceLabels | null = resolveLocomotionStanceLabels(
-    stopSlot as Parameters<typeof resolveLocomotionStanceLabels>[0],
-  );
-  if (labels === null) return null;
-  const entry = stanceAtTime(labels, 0);
-  const entryStance: StopClipFoot = { left: entry.left, right: entry.right };
   const rootTrackXz = readStopRootTrackXz(clip);
   if (rootTrackXz === null) return null;
   const displacementMeters = stopTrackDisplacementMeters(rootTrackXz);
   if (!(displacementMeters > 0)) return null;
-  const speed = resolveLocomotionClipTimeScale(
-    stopSlot as Parameters<typeof resolveLocomotionClipTimeScale>[0],
+  // Forward is the net travel direction, NOT the stance-window advance the walk uses. A one-shot
+  // stop spends its longest contact run standing in the hold (both feet down, millimetres of
+  // drift — a noise direction), while its body travels metres; the net root vector is the travel,
+  // and it is the same vector the trigger distance is measured from, so distance and direction
+  // cannot disagree.
+  const first = rootTrackXz[0];
+  const last = rootTrackXz[rootTrackXz.length - 1];
+  if (first === undefined || last === undefined) return null;
+  const forward = { x: last.x - first.x, z: last.z - first.z };
+  // One-shot labels against the net travel direction (the loop's longest-contact run would be
+  // the hold, a noise direction). The band comes from the resolver: a stopping foot steps or
+  // stands, so low plus non-forward is stance. No walk take is needed here; the trigger still
+  // needs the walk's own stance reading, so a stop without a walk take never fires.
+  const labels = resolveOneShotStanceLabels(
+    stopSlot as Parameters<typeof resolveOneShotStanceLabels>[0],
+    { netForward: forward },
   );
-  if (speed === null) return null;
+  if (labels === null) return null;
+  const entry = stanceAtTime(labels, 0);
+  const entryStance: StopClipFoot = { left: entry.left, right: entry.right };
   const noRootClip = clip.clone();
   const rootTrack = noRootClip.tracks.find((candidate) => candidate.name === "root.position");
   if (rootTrack) {
@@ -152,7 +160,7 @@ export function resolveStopWiring(input: {
     rootTrackXz,
     displacementMeters,
     durationSeconds: clip.duration,
-    routeYawRadians: travelYawForClipForward(input.travelHeadingRadians, speed.clipForwardBody),
+    routeYawRadians: travelYawForClipForward(input.travelHeadingRadians, forward),
     noRootClip,
   };
 }

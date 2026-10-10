@@ -129,6 +129,20 @@ export type DecodedPhysician = {
   /** The clip's rest frame, which `playLocomotionClip` settles onto when the drive stops. */
   restLeft: Vector3;
   restRight: Vector3;
+  /**
+   * The actor's baked walk-to-stop take, decoded from a scratch GLB carrying the grafted clip.
+   * Absent when the GLB carries no stop take (shipped bytes) or the assay runs the legacy
+   * control. Toe tracks in the same body frame as the walk tracks; rootTrack in the clip's own
+   * body frame (local channel values, the same keys the runtime reads off the bound clip).
+   */
+  stop?: {
+    clipName: string;
+    left: JointSample[];
+    right: JointSample[];
+    firstMs: number;
+    periodMs: number;
+    rootTrack: Array<{ t: number; x: number; y: number; z: number }>;
+  } | null;
 };
 
 
@@ -346,6 +360,22 @@ export type ApproachRun = {
   stoppedRootTravelMeters: number;
   walkFrameCount: number;
   settleFrameCount: number;
+  stopFrameCount: number;
+  stopTriggered: boolean;
+  stopClipName: string | null;
+  stopEntryStance: { left: boolean; right: boolean } | null;
+  stopDisplacementMeters: number | null;
+  /**
+   * Distance walked before the stopping entry frame past the trigger point, in metres: the
+   * phase-match wait. Floored at the route start when the trigger distance covers the whole
+   * route. Null when the stop never triggered.
+   */
+  triggerResidualM: number | null;
+  /**
+   * The implemented residual bound: one full walk-loop cycle of travel (walk speed times walk
+   * clip period). Null when the stop never triggered.
+   */
+  residualBoundM: number | null;
   travelHeadingRadians: number;
   clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
   invalidationReason: string | null;
@@ -366,6 +396,13 @@ export function runApproach(input: {
   seconds: number;
   decoded: DecodedPhysician;
   stanceLockEnabled?: boolean;
+  /**
+   * Wire the decoded stop take into the run (synthetic stop clip beside the walk clip, so the
+   * production wiring resolves it by name exactly as in a browser). False runs the same bytes
+   * with the stop feature off: the legacy control. Defaults false, so existing callers
+   * (SC-05 proofs) keep byte-for-byte behaviour.
+   */
+  stopEnabled?: boolean;
   /** Fired every frame; return an override for the observed geometry revision or support state. */
   perturb?: (frameIndex: number) => { geometryRevision?: string; supportAccepted?: boolean } | undefined;
 }): ApproachRun {
@@ -417,6 +454,14 @@ export function runApproach(input: {
   sole.name = "decoded_lowest_skinned_vertex";
   sole.position.set(0, input.decoded.meshMinY, 0);
   humanoid.add(sole);
+  // The root-motion anchor for a stop-enabled run: the synthetic stop clip below carries a
+  // "root.position" track (the decoded local root keys, the same keys the runtime reads off a
+  // bound clip), and the calibration mixer needs a node of that name to bind it to. Never
+  // driven, never recorded — tracks record toes, the path records the slot — so its pose cannot
+  // move a metric; it only keeps the binding silent.
+  const rootMarker = marker();
+  rootMarker.name = "root";
+  humanoid.add(rootMarker);
   slot.add(humanoid);
 
   const clipAdvance = measureStanceGroundAdvance(input.decoded.left, {
@@ -489,12 +534,35 @@ export function runApproach(input: {
   const stanceMixer = new AnimationMixer(humanoid);
   const stanceAction = stanceMixer.clipAction(stanceClip);
   stanceAction.play();
+  const responseClips = [stanceClip];
+  // The stop take, synthesised from the decoded scratch-GLB tracks beside the walk clip, so the
+  // production wiring (`resolveStopWiring`) finds it by name and measures it exactly as in a
+  // browser: entry stance off its own labels, travel off its root keys. Toe tracks mirror the
+  // walk clip's construction (0-based seconds off the decoded samples); the root track carries
+  // the decoded local root keys under the "root" marker's name.
+  const stopData = input.stopEnabled === true ? (input.decoded.stop ?? null) : null;
+  if (stopData) {
+    const stopTimes = (track: JointSample[]): Float32Array =>
+      new Float32Array(track.map((sample) => (sample.atMs - stopData.firstMs) / 1000));
+    const stopValues = (track: JointSample[]): Float32Array =>
+      new Float32Array(track.flatMap((sample) => [sample.position.x, sample.position.y, sample.position.z]));
+    const stopRootTimes = new Float32Array(stopData.rootTrack.map((key) => key.t));
+    const stopRootValues = new Float32Array(
+      stopData.rootTrack.flatMap((key) => [key.x, key.y, key.z]),
+    );
+    const stopClip = new AnimationClip(stopData.clipName, stopData.periodMs / 1000, [
+      new VectorKeyframeTrack(`${toeL.name}.position`, stopTimes(stopData.left), stopValues(stopData.left)),
+      new VectorKeyframeTrack(`${toeR.name}.position`, stopTimes(stopData.right), stopValues(stopData.right)),
+      new VectorKeyframeTrack(`${rootMarker.name}.position`, stopRootTimes, stopRootValues),
+    ]);
+    responseClips.push(stopClip);
+  }
   approach.stanceLabelSlot = {
     root: humanoid,
     actorSlot: slot,
     mixer: stanceMixer,
     locomotionClipName: WALK_CLIP,
-    responseClips: [stanceClip],
+    responseClips,
   };
 
   const dt = 1 / SIMULATION_HZ;
@@ -504,6 +572,8 @@ export function runApproach(input: {
   const path: Array<{ x: number; z: number; phase: string }> = [];
   let clipMs = 0;
   let locomotionActive = false;
+  let stopActive = false;
+  let prevPhase = "not_started";
   for (let index = 0; index < Math.round(input.seconds * SIMULATION_HZ); index += 1) {
     const nowMs = index * dt * 1000;
     const override = input.perturb?.(index);
@@ -518,11 +588,16 @@ export function runApproach(input: {
     }
     // A stopped drive settles the actor on the clip's REST frame, which is what
     // `playLocomotionClip` now does through `action.reset()` + one zero-delta mixer update.
+    // While stopping, the mixer poses the walk-to-stop blend itself (walk action fading, stop
+    // take fading in at the production weights the frame module sets), so the manual drive
+    // stands down exactly as the browser consumer does.
     const walking = locomotionActive || index === 0;
-    const local = walking ? sampleTrack(input.decoded.left, clipMs, input.decoded) : input.decoded.restLeft;
-    const localRight = walking ? sampleTrack(input.decoded.right, clipMs, input.decoded) : input.decoded.restRight;
-    toeL.position.set(local.x, local.y, local.z);
-    toeR.position.set(localRight.x, localRight.y, localRight.z);
+    if (!stopActive) {
+      const local = walking ? sampleTrack(input.decoded.left, clipMs, input.decoded) : input.decoded.restLeft;
+      const localRight = walking ? sampleTrack(input.decoded.right, clipMs, input.decoded) : input.decoded.restRight;
+      toeL.position.set(local.x, local.y, local.z);
+      toeR.position.set(localRight.x, localRight.y, localRight.z);
+    }
     slot.updateMatrixWorld(true);
     const frame = advanceCaseOwnedBedsideApproach(approach, {
       nowMs,
@@ -531,6 +606,14 @@ export function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
+    // Production restarts the walk take on the settling entry (consumer playback); the assay's
+    // mixer needs the same restart, or the settling turn reads the stopped walk action's frozen
+    // time and never closes.
+    if (frame.phase === "settling" && prevPhase === "stopping") {
+      stanceAction.reset().play();
+    }
+    prevPhase = frame.phase;
+    stopActive = frame.phase === "stopping";
     // Production `playLocomotionClip` settles on the clip rest frame when locomotion is zero. The
     // first settling sample would otherwise still carry the last walk pose because this instrument
     // advances clip time from the previous frame's drive.
@@ -580,6 +663,34 @@ export function runApproach(input: {
     stoppedRootTravelMeters,
     walkFrameCount: path.filter((entry) => entry.phase === "walking").length,
     settleFrameCount: path.filter((entry) => entry.phase === "settling").length,
+    stopFrameCount: path.filter((entry) => entry.phase === "stopping").length,
+    stopTriggered: path.some((entry) => entry.phase === "stopping"),
+    stopClipName: approach.stopWiring?.clipName ?? null,
+    stopEntryStance: approach.stopWiring
+      ? { left: approach.stopWiring.entryStance.left, right: approach.stopWiring.entryStance.right }
+      : null,
+    stopDisplacementMeters: approach.stopWiring?.displacementMeters ?? null,
+    triggerResidualM: (() => {
+      const entryIndex = path.findIndex((entry) => entry.phase === "stopping");
+      const displacement = approach.stopWiring?.displacementMeters;
+      if (entryIndex < 0 || displacement === undefined) return null;
+      let routeLength = 0;
+      const waypoints = input.intent.plan.waypoints;
+      for (let index = 1; index < waypoints.length; index += 1) {
+        const from = waypoints[index - 1]?.position;
+        const to = waypoints[index]?.position;
+        if (from === undefined || to === undefined) continue;
+        routeLength += Math.hypot(to.x - from.x, to.z - from.z);
+      }
+      const travelledAtEntry = frames[entryIndex]?.travelledMeters ?? 0;
+      // Floored at the route start: when the trigger distance covers the whole route (D >=
+      // routeLength here), the wait starts at the walk's first frame and the residual is the
+      // distance walked before the stance phases matched.
+      return travelledAtEntry - Math.max(0, routeLength - displacement);
+    })(),
+    residualBoundM: approach.stopWiring
+      ? approach.walkSpeedMetersPerSecond * (input.decoded.periodMs / 1000)
+      : null,
     travelHeadingRadians: approach.travelHeadingRadians,
     clipAdvance,
     floorBandPlant: approach.floorBandPlant,

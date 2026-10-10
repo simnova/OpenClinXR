@@ -63,15 +63,17 @@ export function resolveStopStanceForFrame(
 }
 
 /**
- * The baked-stop handoff inputs, resolved only while walking. The wiring is measured once per
- * actor from its own bound stop take (null while the actor carries none, which keeps the legacy
- * ending); the walk stance is this frame's label reading off the playing walk action.
+ * The baked-stop handoff inputs. The wiring is measured once per actor from its own bound stop
+ * take (null while the actor carries none, which keeps the legacy ending); the walk stance is
+ * this frame's label reading off the playing walk action. Resolved while walking AND while
+ * stopping: the executor needs the trigger config on every stopping frame, not just the entry.
  */
 export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
   stop: StopClipTrigger | null;
   walkStance: { left: boolean; right: boolean } | null;
 } {
-  if (approach.execution.phase !== "walking") return { stop: null, walkStance: null };
+  const phase = approach.execution.phase;
+  if (phase !== "walking" && phase !== "stopping") return { stop: null, walkStance: null };
   if (approach.stopWiring === undefined) {
     approach.stopWiring = resolveStopWiring({
       labelSlot: approach.stanceLabelSlot,
@@ -80,7 +82,7 @@ export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
   }
   const wiring = approach.stopWiring;
   if (wiring === null || wiring === undefined) return { stop: null, walkStance: null };
-  const stance = resolveClipStanceForFrame(approach);
+  const stance = phase === "walking" ? resolveClipStanceForFrame(approach) : undefined;
   return {
     stop: {
       clipName: wiring.clipName,

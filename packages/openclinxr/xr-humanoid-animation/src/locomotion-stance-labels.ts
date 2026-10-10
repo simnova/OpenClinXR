@@ -34,6 +34,8 @@ import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 export type LocomotionStanceLabels = {
   clipName: string;
   cycleSeconds: number;
+  /** False for a one-shot labelled with one-sided ends; true (default) for a loop. */
+  cyclic?: boolean;
   /** Clip's forward axis in the sampled body frame, unit length. */
   forward: { x: number; z: number };
   stanceSpeedMetersPerSecond: number;
@@ -75,7 +77,21 @@ export function computeLocomotionStanceLabels(input: {
   forward: { x: number; z: number };
   left: ReadonlyArray<{ atMs: number; position: { x: number; y: number; z: number } }>;
   right: ReadonlyArray<{ atMs: number; position: { x: number; y: number; z: number } }>;
+  /**
+   * True for a looping take (walk): end samples differentiate across the wrap, since the last
+   * frame flows into the first. False for a one-shot (walk-to-stop): the last frame is metres
+   * from the first, so wrapping reads the whole clip's travel as one frame's foot speed and
+   * unlabels both end samples. Defaults true, which keeps every existing caller identical.
+   */
+  cyclic?: boolean;
+  /**
+   * Explicit speed band in m/s, replacing the median-derived band. Used for one-shot takes,
+   * whose sample median is the standing hold rather than a walk to derive from. Absent means
+   * derive from these tracks, exactly as before.
+   */
+  speedBandOverride?: { lowerSpeedMps: number; upperSpeedMps: number };
 }): LocomotionStanceLabels {
+  const cyclic = input.cyclic ?? true;
   const length = Math.hypot(input.forward.x, input.forward.z);
   const forward = length > 0 ? { x: input.forward.x / length, z: input.forward.z / length } : { x: 0, z: 1 };
   const count = input.left.length;
@@ -84,6 +100,33 @@ export function computeLocomotionStanceLabels(input: {
     track: ReadonlyArray<{ atMs: number; position: Sample }>,
     index: number,
   ): number => {
+    if (!cyclic) {
+      // One-sided ends for a one-shot: the ends have no wrap neighbour, only the clip itself.
+      const current = track[index];
+      if (current === undefined) return 0;
+      if (index === 0) {
+        const next = track[1];
+        if (next === undefined) return 0;
+        const dtSeconds = (next.atMs - current.atMs) / 1000;
+        if (!(dtSeconds > 0)) return 0;
+        return (
+          ((next.position.x - current.position.x) * forward.x
+            + (next.position.z - current.position.z) * forward.z)
+          / dtSeconds
+        );
+      }
+      if (index === track.length - 1) {
+        const previous = track[track.length - 2];
+        if (previous === undefined) return 0;
+        const dtSeconds = (current.atMs - previous.atMs) / 1000;
+        if (!(dtSeconds > 0)) return 0;
+        return (
+          ((current.position.x - previous.position.x) * forward.x
+            + (current.position.z - previous.position.z) * forward.z)
+          / dtSeconds
+        );
+      }
+    }
     const previous = track[(index - 1 + track.length) % track.length];
     const next = track[(index + 1) % track.length];
     if (previous === undefined || next === undefined) return 0;
@@ -116,7 +159,10 @@ export function computeLocomotionStanceLabels(input: {
   // [slowest-backward, 1.1x] median, stated beside each number.
   const speedToleranceMetersPerSecond = Math.max(2 * mad, 0.1 * median);
   const backwardSpeedsSorted = [...backwardSpeeds].sort((a, b) => a - b);
-  const lowerSpeedMetersPerSecond = backwardSpeedsSorted.length > 0 ? backwardSpeedsSorted[0] ?? 0 : 0;
+  const lowerSpeedMetersPerSecond = input.speedBandOverride?.lowerSpeedMps
+    ?? (backwardSpeedsSorted.length > 0 ? backwardSpeedsSorted[0] ?? 0 : 0);
+  const upperSpeedMetersPerSecond = input.speedBandOverride?.upperSpeedMps
+    ?? stanceSpeedMetersPerSecond + speedToleranceMetersPerSecond;
   const allHeights: number[] = [];
   for (const sample of input.left) allHeights.push(sample.position.y);
   for (const sample of input.right) allHeights.push(sample.position.y);
@@ -135,12 +181,13 @@ export function computeLocomotionStanceLabels(input: {
       const backward = -alongOf(track, index);
       const speedOk =
         backward >= lowerSpeedMetersPerSecond
-        && backward <= stanceSpeedMetersPerSecond + speedToleranceMetersPerSecond;
+        && backward <= upperSpeedMetersPerSecond;
       return speedOk && sample.position.y <= heightCutMeters;
     });
   return {
     clipName: input.clipName,
     cycleSeconds: input.cycleSeconds,
+    cyclic,
     forward,
     stanceSpeedMetersPerSecond,
     speedToleranceMetersPerSecond,
@@ -243,14 +290,25 @@ function sampleTrack(
  * recomputed when the clip name or duration changes. Returns null when there is
  * nothing to label.
  */
-export function resolveLocomotionStanceLabels(slot: SlotLike): LocomotionStanceLabels | null {
+export function resolveLocomotionStanceLabels(
+  slot: SlotLike,
+  options?: { cyclic?: boolean },
+): LocomotionStanceLabels | null {
   const clipName = slot.locomotionClipName;
   if (!clipName) return null;
   const clip = slot.responseClips?.find((candidate: { name: string }) => candidate.name === clipName);
   if (!clip || clip.duration <= 0) return null;
+  const cyclic = options?.cyclic ?? true;
   const rootUserData = slot.root.userData as Record<string, unknown>;
   const cached = rootUserData["openClinXrLocomotionStanceLabels"] as LocomotionStanceLabels | undefined;
-  if (cached && cached.clipName === clipName && cached.cycleSeconds === clip.duration) return cached;
+  if (
+    cached
+    && cached.clipName === clipName
+    && cached.cycleSeconds === clip.duration
+    && (cached.cyclic ?? true) === cyclic
+  ) {
+    return cached;
+  }
   const toes = resolveToeBones(slot.root);
   if (toes.left === null || toes.right === null) return null;
   const left = sampleTrack(slot, toes.left);
@@ -263,6 +321,53 @@ export function resolveLocomotionStanceLabels(slot: SlotLike): LocomotionStanceL
     forward,
     left: left.samples,
     right: right.samples,
+    cyclic,
+  });
+  rootUserData["openClinXrLocomotionStanceLabels"] = labels;
+  return labels;
+}
+
+/**
+ * Stance labels for a one-shot take (walk-to-stop), whose distribution the loop construction
+ * cannot read: the sample median is the standing hold, which would unlabel the whole walk
+ * portion as overspeed, and the longest near-floor run is the hold, a noise direction. The
+ * caller passes the take's net travel direction; the band is low plus non-forward (lower zero,
+ * upper unbounded): a stopping foot steps at walk speed or slower, stands still, or reverses
+ * at touchdown/liftoff — nothing in a stop take travels low and fast while airborne, and the
+ * height gate (the take's own envelope) binds the generosity. Shares the userData cache with
+ * the loop resolver, keyed by clip plus topology.
+ */
+export function resolveOneShotStanceLabels(
+  slot: SlotLike,
+  input: { netForward: { x: number; z: number } },
+): LocomotionStanceLabels | null {
+  const clipName = slot.locomotionClipName;
+  if (!clipName) return null;
+  const clip = slot.responseClips?.find((candidate: { name: string }) => candidate.name === clipName);
+  if (!clip || clip.duration <= 0) return null;
+  const rootUserData = slot.root.userData as Record<string, unknown>;
+  const cached = rootUserData["openClinXrLocomotionStanceLabels"] as LocomotionStanceLabels | undefined;
+  if (
+    cached
+    && cached.clipName === clipName
+    && cached.cycleSeconds === clip.duration
+    && (cached.cyclic ?? true) === false
+  ) {
+    return cached;
+  }
+  const toes = resolveToeBones(slot.root);
+  if (toes.left === null || toes.right === null) return null;
+  const left = sampleTrack(slot, toes.left);
+  const right = sampleTrack(slot, toes.right);
+  if (left === null || right === null) return null;
+  const labels = computeLocomotionStanceLabels({
+    clipName,
+    cycleSeconds: clip.duration,
+    forward: input.netForward,
+    left: left.samples,
+    right: right.samples,
+    cyclic: false,
+    speedBandOverride: { lowerSpeedMps: 0, upperSpeedMps: Number.POSITIVE_INFINITY },
   });
   rootUserData["openClinXrLocomotionStanceLabels"] = labels;
   return labels;

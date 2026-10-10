@@ -31,13 +31,19 @@ import { computeTurnQuality,
  */
 
 const WALK_CLIP = "openclinxr_retarget_walk_source";
+/**
+ * Stop-take name prefix, mirroring the production `STOP_CLIP_NAME_PREFIX`
+ * (stop-clip-wiring-mod.ts). Tools files cannot import package src (shrink-only freeze on
+ * cross-boundary path imports), so the string is restated here beside its owner.
+ */
+const STOP_CLIP_PREFIX = "openclinxr_retarget_kimodo_stop";
 const CONTACT_JOINTS = ["toe1-1.L", "toe1-1.R"] as const;
 const SIM_SECONDS = 12;
 
 const RIGS = [
-  { rig: "physician", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb" },
-  { rig: "nurse", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
-  { rig: "child", glb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb" },
+  { rig: "physician", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb", stopGlb: ".openclinxr/evidence/s1-stop/physician-stop.glb" },
+  { rig: "nurse", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb", stopGlb: ".openclinxr/evidence/s1-stop/nurse-stop.glb" },
+  { rig: "child", glb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb", stopGlb: ".openclinxr/evidence/s1-stop/child-stop.glb" },
 ] as const;
 
 async function lowestSkinnedVertexY(glbPath: string): Promise<number> {
@@ -59,7 +65,7 @@ async function lowestSkinnedVertexY(glbPath: string): Promise<number> {
   return lowest;
 }
 
-async function decodeRig(glbPath: string): Promise<DecodedPhysician> {
+async function decodeRig(glbPath: string, stopGlbPath: string): Promise<DecodedPhysician> {
   const [tracks, census, bones, meshMinY] = await Promise.all([
     jointTracks({ glbPath, clipName: WALK_CLIP, joints: CONTACT_JOINTS }),
     censusSkinnedGeometry(glbPath),
@@ -74,6 +80,7 @@ async function decodeRig(glbPath: string): Promise<DecodedPhysician> {
   if (first === undefined || last === undefined) throw new Error(`no toe track in ${glbPath}`);
   const restA = tracks[0]?.samples[0]?.position ?? { x: 0, y: 0, z: 0 };
   const restB = tracks[1]?.samples[0]?.position ?? { x: 0, y: 0, z: 0 };
+  const stop = await decodeStopClip(stopGlbPath);
   return {
     left,
     right,
@@ -85,7 +92,75 @@ async function decodeRig(glbPath: string): Promise<DecodedPhysician> {
     meshMinY,
     restLeft: { ...restA },
     restRight: { ...restB },
+    stop,
   };
+}
+
+/**
+ * The stop take of a scratch GLB: travel-removed toe tracks plus the local root keys, or null
+ * when the file carries no stop take. Unlike the walk decode there is no rest frame to drop:
+ * key 0 is the clip's first posed frame (the export's own frame-0 contacts describe it).
+ */
+async function decodeStopClip(stopGlbPath: string): Promise<DecodedPhysician["stop"]> {
+  const document = await new NodeIO().read(stopGlbPath);
+  const animation = document
+    .getRoot()
+    .listAnimations()
+    .find((candidate) => candidate.getName().startsWith(STOP_CLIP_PREFIX));
+  if (!animation) return null;
+  const clipName = animation.getName();
+  const rootTrack: Array<{ t: number; x: number; y: number; z: number }> = [];
+  for (const channel of animation.listChannels()) {
+    if (channel.getTargetNode()?.getName() !== "root" || channel.getTargetPath() !== "translation") continue;
+    const times = channel.getSampler()?.getInput()?.getArray();
+    const values = channel.getSampler()?.getOutput()?.getArray();
+    if (!times || !values) continue;
+    for (let index = 0; index < times.length; index += 1) {
+      rootTrack.push({
+        t: times[index] ?? 0,
+        x: values[index * 3] ?? 0,
+        y: values[index * 3 + 1] ?? 0,
+        z: values[index * 3 + 2] ?? 0,
+      });
+    }
+  }
+  if (rootTrack.length < 2) throw new Error(`no stop root track in ${stopGlbPath}`);
+  const [leftTrack, rightTrack] = await Promise.all([
+    jointTracks({ glbPath: stopGlbPath, clipName, joints: [CONTACT_JOINTS[0]] }),
+    jointTracks({ glbPath: stopGlbPath, clipName, joints: [CONTACT_JOINTS[1]] }),
+  ]);
+  const leftWorld = leftTrack[0]?.samples ?? [];
+  const rightWorld = rightTrack[0]?.samples ?? [];
+  if (leftWorld.length === 0 || rightWorld.length === 0) throw new Error(`no stop toe track in ${stopGlbPath}`);
+  if (leftWorld.length !== rootTrack.length || rightWorld.length !== rootTrack.length) {
+    throw new Error(
+      `stop toe/root key count mismatch in ${stopGlbPath}: `
+      + `toes ${leftWorld.length}/${rightWorld.length}, root ${rootTrack.length}. `
+      + "Index-wise travel removal would misalign.",
+    );
+  }
+  // TRAVEL-REMOVED toes (decoded world minus the root's own XZ travel, index-wise): the assay
+  // poses them as marker locals under the moving slot, and the slot already carries the travel
+  // via the stop prescription — replaying world toes counts it twice (measured: a 2.44 m
+  // single-frame teleport at the stopping entry). This mirrors the production clone, whose root
+  // XZ keys are reset so the skeleton never re-travels. Index 0 subtracts nothing, so entry
+  // continuity with the walk pose is preserved.
+  const baseX = rootTrack[0]?.x ?? 0;
+  const baseZ = rootTrack[0]?.z ?? 0;
+  const removeTravel = (samples: typeof leftWorld) =>
+    samples.map((sample, index) => ({
+      atMs: sample.atMs,
+      position: {
+        x: sample.position.x - ((rootTrack[index]?.x ?? 0) - baseX),
+        y: sample.position.y,
+        z: sample.position.z - ((rootTrack[index]?.z ?? 0) - baseZ),
+      },
+    }));
+  const left = removeTravel(leftWorld);
+  const right = removeTravel(rightWorld);
+  const firstMs = left[0]?.atMs ?? 0;
+  const lastMs = left[left.length - 1]?.atMs ?? firstMs;
+  return { clipName, left, right, firstMs, periodMs: lastMs - firstMs, rootTrack };
 }
 
 /** Count of single-frame stance-label jumps (>20 mm), mirroring maxStanceToeStepPerFrame scope. */
@@ -200,6 +275,7 @@ async function main(): Promise<void> {
     return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
   };
   const variant = flagValue("--variant", "A");
+  const stopDisabled = args.includes("--stop-disabled");
   const outPath = flagValue("--out", `docs/openclinxr/locomotion/foot-inertialize-variant-${variant.toLowerCase()}-2026-10-09.json`);
   let commit = "unknown";
   try {
@@ -209,12 +285,15 @@ async function main(): Promise<void> {
   }
 
   const rows: Array<Record<string, unknown>> = [];
-  for (const { rig, glb } of RIGS) {
-    const decoded = await decodeRig(glb);
+  for (const { rig, glb, stopGlb } of RIGS) {
+    // The assay decodes the walk AND the stop take from the scratch GLB (walk bytes untouched
+    // by the graft, so its decode matches the shipped file — the --stop-disabled control row
+    // proves that). Pre-fix rows decoded the shipped GLB, which carries no stop take.
+    const decoded = await decodeRig(stopGlb, stopGlb);
     const ward = stageWard();
     const intent = intentFor(ward);
     if (intent.refused) throw new Error(`approach refused: ${intent.reason}`);
-    const run = runApproach({ ward, intent, seconds: SIM_SECONDS, decoded });
+    const run = runApproach({ ward, intent, seconds: SIM_SECONDS, decoded, stopEnabled: !stopDisabled });
     const frames: TurnQualityFrame[] = run.frames.map((frame, index) => {
       const left = run.trackL[index];
       const right = run.trackR[index];
@@ -240,11 +319,38 @@ async function main(): Promise<void> {
       settlingIndex.map((index) => track[index]?.position.y ?? Number.NaN).filter((v) => Number.isFinite(v));
     const toeExcursions =
       countToeExcursions(settlingY(run.trackL), 0.005) + countToeExcursions(settlingY(run.trackR), 0.005);
+    // Max single-frame step of the labelled foot inside the stop clip's own stance windows
+    // (stopping phase only): the HOLD_SLIDE bar's instrument. Whole-run stance steps are
+    // reported separately and already exceed the hold bar on the pre-fix column.
+    let stopStanceStepM: number | null = null;
+    for (let index = 1; index < run.frames.length; index += 1) {
+      const frame = run.frames[index];
+      const previous = run.frames[index - 1];
+      if (frame === undefined || previous === undefined) continue;
+      if (frame.phase !== "stopping" || previous.phase !== "stopping") continue;
+      if (frame.stanceFoot !== "left" && frame.stanceFoot !== "right") continue;
+      const track = frame.stanceFoot === "left" ? run.trackL : run.trackR;
+      const a = track[index - 1]?.position;
+      const b = track[index]?.position;
+      if (a === undefined || b === undefined) continue;
+      const step = Math.hypot(b.x - a.x, b.z - a.z);
+      stopStanceStepM = stopStanceStepM === null ? step : Math.max(stopStanceStepM, step);
+    }
     rows.push({
       variant,
       rig,
       glb,
+      assayGlb: stopGlb,
+      stopEnabled: !stopDisabled,
       commit,
+      stopClipName: run.stopClipName,
+      stopTriggered: run.stopTriggered,
+      stopEntryStance: run.stopEntryStance,
+      stopDisplacementMeters: run.stopDisplacementMeters,
+      triggerResidualM: run.triggerResidualM,
+      residualBoundM: run.residualBoundM,
+      stopStanceStepM,
+      phases: run.phases,
       plantedSlideM: quality.plantedSlideM,
       maxToeStepPerFrameM: quality.maxToeStepPerFrameM,
       stanceToeStepPerFrameM: quality.stanceToeStepPerFrameM,
@@ -258,9 +364,10 @@ async function main(): Promise<void> {
       minStepLiftM: quality.minStepLiftM,
       walkFrames: run.walkFrameCount,
       settleFrames: run.settleFrameCount,
+      stopFrames: run.stopFrameCount,
     });
     process.stdout.write(
-      `${variant}/${rig}: plantedSlide=${quality.plantedSlideM?.toFixed(5)} maxToeStep=${quality.maxToeStepPerFrameM?.toFixed(5)} stanceStep=${quality.stanceToeStepPerFrameM?.toFixed(5)} arrival=${run.arrivalErrorMeters.toFixed(5)}\n`,
+      `${variant}/${rig}: plantedSlide=${quality.plantedSlideM?.toFixed(5)} maxToeStep=${quality.maxToeStepPerFrameM?.toFixed(5)} stanceStep=${quality.stanceToeStepPerFrameM?.toFixed(5)} arrival=${run.arrivalErrorMeters.toFixed(5)} stop=${run.stopTriggered ? run.stopClipName : "not-triggered"} phases=${run.phases.join(",")}\n`,
     );
   }
   await mkdir(path.dirname(outPath), { recursive: true });

@@ -1,0 +1,121 @@
+{
+  "variant": "S1STOP",
+  "commit": "ecef2aefc",
+  "measuredAt": "2026-10-10T22:05:25.640Z",
+  "rows": [
+    {
+      "variant": "S1STOP",
+      "rig": "physician",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+      "assayGlb": ".openclinxr/evidence/s1-stop/physician-stop.glb",
+      "stopEnabled": true,
+      "commit": "ecef2aefc",
+      "stopClipName": "openclinxr_retarget_kimodo_stop_physician",
+      "stopTriggered": true,
+      "stopEntryStance": {
+        "left": true,
+        "right": false
+      },
+      "stopDisplacementMeters": 2.5430439963149554,
+      "triggerResidualM": 0.14049405013514624,
+      "residualBoundM": 1.3698170202205404,
+      "stopStanceStepM": 0.024425136397803405,
+      "phases": [
+        "walking",
+        "stopping",
+        "settling",
+        "arrived"
+      ],
+      "plantedSlideM": 0.11970989121054575,
+      "maxToeStepPerFrameM": 0.356936162355832,
+      "stanceToeStepPerFrameM": 0.03819129032192856,
+      "stanceJumpsOver20mm": 19,
+      "sc05ArrivalErrM": 1.2049469860277147,
+      "settledYawErrDeg": 0,
+      "dutyFactor": 0.475,
+      "toeExcursions": 0,
+      "settleSeconds": 1.95,
+      "floorPenetrationM": 0.06522497961358663,
+      "minStepLiftM": 0.06522497961358663,
+      "walkFrames": 10,
+      "settleFrames": 117,
+      "stopFrames": 328
+    },
+    {
+      "variant": "S1STOP",
+      "rig": "nurse",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      "assayGlb": ".openclinxr/evidence/s1-stop/nurse-stop.glb",
+      "stopEnabled": true,
+      "commit": "ecef2aefc",
+      "stopClipName": "openclinxr_retarget_kimodo_stop_nurse",
+      "stopTriggered": true,
+      "stopEntryStance": {
+        "left": true,
+        "right": false
+      },
+      "stopDisplacementMeters": 3.0358423897068723,
+      "triggerResidualM": 0.14709015714086815,
+      "residualBoundM": 1.4341290650006766,
+      "stopStanceStepM": 0.03006325081912031,
+      "phases": [
+        "walking",
+        "stopping",
+        "settling",
+        "arrived"
+      ],
+      "plantedSlideM": 0.13552809079538453,
+      "maxToeStepPerFrameM": 0.4146154256180596,
+      "stanceToeStepPerFrameM": 0.04322521328774365,
+      "stanceJumpsOver20mm": 10,
+      "sc05ArrivalErrM": 1.6939197234082903,
+      "settledYawErrDeg": 0,
+      "dutyFactor": 0.5375000000000001,
+      "toeExcursions": 0,
+      "settleSeconds": 1.916666666666667,
+      "floorPenetrationM": 0.07549308291484468,
+      "minStepLiftM": 0.07549308291484468,
+      "walkFrames": 10,
+      "settleFrames": 115,
+      "stopFrames": 328
+    },
+    {
+      "variant": "S1STOP",
+      "rig": "child",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "assayGlb": ".openclinxr/evidence/s1-stop/child-stop.glb",
+      "stopEnabled": true,
+      "commit": "ecef2aefc",
+      "stopClipName": "openclinxr_retarget_kimodo_stop_child",
+      "stopTriggered": true,
+      "stopEntryStance": {
+        "left": true,
+        "right": false
+      },
+      "stopDisplacementMeters": 2.2511994385630243,
+      "triggerResidualM": 0.08801907429198816,
+      "residualBoundM": 0.850705601362382,
+      "stopStanceStepM": 0.03351505553304975,
+      "phases": [
+        "walking",
+        "stopping",
+        "settling",
+        "arrived"
+      ],
+      "plantedSlideM": 0.09705645342094789,
+      "maxToeStepPerFrameM": 0.3375121209566046,
+      "stanceToeStepPerFrameM": 0.03351505553304975,
+      "stanceJumpsOver20mm": 148,
+      "sc05ArrivalErrM": 0.9049810966093651,
+      "settledYawErrDeg": 0,
+      "dutyFactor": 0.55,
+      "toeExcursions": 0,
+      "settleSeconds": 1.983333333333333,
+      "floorPenetrationM": 0.05173001523732539,
+      "minStepLiftM": 0.052465003418330144,
+      "walkFrames": 10,
+      "settleFrames": 119,
+      "stopFrames": 328
+    }
+  ]
+}
