@@ -613,15 +613,34 @@ def main(argv: list[str]) -> int:
     # it for an in-place cycle is a reasonable, harmless mistake, not a contract violation.
     ik_used = False
     if args.foot_contacts and not args.strip_horizontal_root_motion:
+        # ROOT-MOTION REFUSAL 2026-10-09: the bake-time world pin is refused when root
+        # motion is kept. Measured on the fixed root path (all three rigs, seed 42):
+        # the base bind already preserves the plant (stance medians 0.007-0.018 m,
+        # hold travel 0.004-0.009 m), while the pin ADDS hold drift (0.020-0.048 m --
+        # the pin is captured mid-settle and the IK chain fights the travelling root
+        # for the rest of the window) without removing any jump (max step identical
+        # with and without it: the remaining single-frame maxima are the generator's
+        # own swing-foot speed, reproduced faithfully). Same remedy as the round-13
+        # in-place skip: leave planting to the runtime's own stance lock. A clear log
+        # line (not silent) because supplying contacts here is no longer harmless.
+        # The historical pin implementation below is retained for a future rework
+        # that can pin WITHOUT fighting root travel; re-enable by deleting this
+        # refusal and restoring the original branch condition.
+        log.append("foot_locking_skipped=root_motion_kept")
+        log.append(
+            "foot_locking_refused_reason=bake-time world pin degrades hold "
+            "0.004-0.009m to 0.020-0.048m on kept-root clips; base bind preserves plant"
+        )
+    elif False:  # historical root-motion pin branch, disabled by the refusal above
         try:
-            contacts = json.loads(Path(args.foot_contacts).read_text(encoding="utf-8"))
+            _contacts = json.loads(Path(args.foot_contacts).read_text(encoding="utf-8"))
         except Exception as exc:  # noqa: BLE001
             return _reject(args.report, "foot_contacts_load_failed", "\n".join(log) + f"\n{exc!r}")
 
         def stance_windows(col: int) -> list[tuple[int, int]]:
             windows: list[tuple[int, int]] = []
             start = -1
-            for i, row in enumerate(contacts):
+            for i, row in enumerate(_contacts):
                 f = frame_start + i
                 in_contact = row[col] == 1
                 if in_contact and start == -1:
