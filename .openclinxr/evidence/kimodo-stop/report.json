@@ -1,0 +1,349 @@
+{
+  "schemaVersion": "openclinxr.kimodo-stop-oneshot-report.v2",
+  "slice": "kimodo-stop-oneshot-three-rigs",
+  "question": "Does a Kimodo-generated walk-to-stop clip, bound WITH horizontal root motion kept, hold its planted feet in world space on all three rigs?",
+  "verdictLock": "fail_all_rigs",
+  "verdictLockReason": "No rig clears every bar with the bake-time foot lock: slide medians 0.076-0.154 m vs 0.02 (4-8x), final-hold travel 0.08-0.29 m, and a 0.75-1.03 m single-frame right-toe jump at decel onset on all three rigs. Only the root-stop bar passes.",
+  "verdictNoLock": "fail_all_rigs",
+  "verdictNoLockReason": "Without the lock the jumps shrink to 0.07-0.09 m and the hold stills (0.006-0.015 m, passing), but stance-phase slide medians stay 0.10-0.22 m (5-11x over 0.02) on all three rigs, so no rig clears every bar. The generator input passes the absolute bars (source medians 0.012-0.014 m); the retarget does not preserve it.",
+  "defectLocalization": "Two independent bind defects, both rig-independent in signature: (1) the bake-time foot lock (stage lines ~582-657) injects ~1 m single-frame toe jumps at decel onset (frame 66 R / frame 49 L physician) and drags hold feet; with the lock off the same frames show 0.07-0.09 m. (2) a base-bind vertical collapse unrelated to the lock: physician root 0.93->0.51 m and child root 0.66->-0.01 m with toes ending at -0.36/-0.63 m (below floor) on lock AND nolock alike, while the source stays upright (Hips z 0.92-1.00 child) and the nurse stays up (toes 0.02). hipHeightRatio: physician 0.945, nurse 0.974, child 0.665.",
+  "followUp": "Card: bake-time foot lock vs kept root motion in motion_bind_from_positions_stage.py (~582-657). Symptom measured: with --foot-contacts and no --strip-horizontal-root-motion, contact-labeled frames get their world XZ pinned while the root keeps advancing, then release in a single-frame jump (0.99 m physician R toe frame 66; 0.94 m L toe frame 49); hold feet travel 0.09-0.29 m. Without the lock: 0.07-0.09 m jumps, 0.006-0.015 m hold. Second card: per-rig vertical collapse (physician/child sink, nurse does not) despite upright source.",
+  "settings": {
+    "prompt": "A person walks forward, slows down and stops, standing still with both feet planted.",
+    "seed": 42,
+    "model": "nvidia/Kimodo-SOMA-RP-v1.1",
+    "constraintProfile": "2.0 s walk + 1.2 s cosine decel + 1.2 s hold at 30 fps (132 frames)",
+    "stanceFloorM": 0.01,
+    "yaw": "pass-1 kept, no rebind (a +3.40 deg rebind moved physician yaw -4.26 to -10.38)"
+  },
+  "perRig": {
+    "physician": {
+      "glb": "mpfb-clinical-physician-adult-stop.glb",
+      "inputSpeedMps": 1.03,
+      "source": {
+        "units": "meters",
+        "axis": "Z-up",
+        "fps": 30,
+        "contacts": "toe||toeEnd from export contacts.json",
+        "plantedSlideMedianM": 0.013447020431920212,
+        "plantedSlideMaxM": 0.025086622526154678,
+        "plantedWindows": 6,
+        "finalHoldToeTravelM": {
+          "LeftToeBase": 0.007828161086139361,
+          "RightToeBase": 0.008832981082647393
+        },
+        "maxToeStepPerFrameM": 0.03927433918083604,
+        "maxToeStepAt": {
+          "foot": "LeftToeBase",
+          "atMs": 2066.6666666666665
+        },
+        "rootDisplacementM": 0.03325116920665994,
+        "finalRootSpeedMps": 0.014739288357399826,
+        "steadyWalkRootSpeedMps": 0.12369196683045706
+      },
+      "lock": {
+        "clip": "openclinxr_retarget_kimodo_stop_physician_seed42",
+        "plantedSlideMedianM": 0.1537936445765931,
+        "plantedSlideMaxM": 0.1537936445765931,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.2667006042979741,
+          "toe1-1.R": 0.08686058838180964
+        },
+        "maxToeStepPerFrameM": 0.9939213177348689,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2791.6667461395264
+        },
+        "rootDisplacementM": 2.5087256227341346,
+        "finalRootSpeedMps": 0.01419155150979978,
+        "steadyWalkRootSpeedMps": 0.7635291727040391,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "nolock": {
+        "clip": "openclinxr_retarget_kimodo_stop_physician_seed42_nolock",
+        "plantedSlideMedianM": 0.18692097210968556,
+        "plantedSlideMaxM": 0.18692097210968556,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.015310256960720718,
+          "toe1-1.R": 0.014524714025039789
+        },
+        "maxToeStepPerFrameM": 0.08115260569698919,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2791.6667461395264
+        },
+        "rootDisplacementM": 2.508725637635032,
+        "finalRootSpeedMps": 0.014191235090125199,
+        "steadyWalkRootSpeedMps": 0.7635291872401138,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": true,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "shippedWalkContext": {
+        "plantedSlideMedianM": null,
+        "plantedSlideMaxM": 0,
+        "plantedWindows": 0,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.7881051880306811,
+          "toe1-1.R": 0.6721606758283545
+        },
+        "maxToeStepPerFrameM": 0.105663686331608,
+        "maxToeStepAt": {
+          "foot": "toe1-1.L",
+          "atMs": 1416.6666269302368
+        },
+        "rootDisplacementM": 0,
+        "finalRootSpeedMps": 0.04668875179949735,
+        "steadyWalkRootSpeedMps": 0.09196876788073884,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      }
+    },
+    "nurse": {
+      "glb": "mpfb-clinical-nurse-adult-stop.glb",
+      "inputSpeedMps": 1.19,
+      "source": {
+        "units": "meters",
+        "axis": "Z-up",
+        "fps": 30,
+        "contacts": "toe||toeEnd from export contacts.json",
+        "plantedSlideMedianM": 0.01404619315012643,
+        "plantedSlideMaxM": 0.022635611503897316,
+        "plantedWindows": 6,
+        "finalHoldToeTravelM": {
+          "LeftToeBase": 0.0073808198116149075,
+          "RightToeBase": 0.008038217172228312
+        },
+        "maxToeStepPerFrameM": 0.04724701874823376,
+        "maxToeStepAt": {
+          "foot": "LeftToeBase",
+          "atMs": 2066.6666666666665
+        },
+        "rootDisplacementM": 0.04472385726689405,
+        "finalRootSpeedMps": 0.014706865494415827,
+        "steadyWalkRootSpeedMps": 0.15473356032951266
+      },
+      "lock": {
+        "clip": "openclinxr_retarget_kimodo_stop_nurse_seed42",
+        "plantedSlideMedianM": 0.07633295405908336,
+        "plantedSlideMaxM": 0.1847732421402251,
+        "plantedWindows": 3,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.29203434799962663,
+          "toe1-1.R": 0.10835408891295048
+        },
+        "maxToeStepPerFrameM": 1.0315074899078056,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2791.6667461395264
+        },
+        "rootDisplacementM": 3.0356189117302868,
+        "finalRootSpeedMps": 0.015119390644890665,
+        "steadyWalkRootSpeedMps": 0.9238192349239035,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "nolock": {
+        "clip": "openclinxr_retarget_kimodo_stop_nurse_seed42_nolock",
+        "plantedSlideMedianM": 0.2159243873961104,
+        "plantedSlideMaxM": 0.2159243873961104,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.011374167474273358,
+          "toe1-1.R": 0.010756578674005576
+        },
+        "maxToeStepPerFrameM": 0.09376685181563058,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2833.3332538604736
+        },
+        "rootDisplacementM": 3.0356186733160073,
+        "finalRootSpeedMps": 0.015119884214877954,
+        "steadyWalkRootSpeedMps": 0.9238191752738644,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": true,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "shippedWalkContext": {
+        "plantedSlideMedianM": null,
+        "plantedSlideMaxM": 0,
+        "plantedWindows": 0,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.7639870910790867,
+          "toe1-1.R": 0.6674147151953154
+        },
+        "maxToeStepPerFrameM": 0.10278384474793424,
+        "maxToeStepAt": {
+          "foot": "toe1-1.L",
+          "atMs": 1416.6666269302368
+        },
+        "rootDisplacementM": 0,
+        "finalRootSpeedMps": 0.05050844304946498,
+        "steadyWalkRootSpeedMps": 0.09949286092103003,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      }
+    },
+    "child": {
+      "glb": "mpfb-peds-patient-child-stop.glb",
+      "inputSpeedMps": 1.29,
+      "source": {
+        "units": "meters",
+        "axis": "Z-up",
+        "fps": 30,
+        "contacts": "toe||toeEnd from export contacts.json",
+        "plantedSlideMedianM": 0.012191319037593192,
+        "plantedSlideMaxM": 0.020347808585293368,
+        "plantedWindows": 6,
+        "finalHoldToeTravelM": {
+          "LeftToeBase": 0.005364816716652723,
+          "RightToeBase": 0.006625046124334719
+        },
+        "maxToeStepPerFrameM": 0.04425354566972612,
+        "maxToeStepAt": {
+          "foot": "LeftToeBase",
+          "atMs": 2166.6666666666665
+        },
+        "rootDisplacementM": 0.049227669092451055,
+        "finalRootSpeedMps": 0.01095973726910526,
+        "steadyWalkRootSpeedMps": 0.14678672883887853
+      },
+      "lock": {
+        "clip": "openclinxr_retarget_kimodo_stop_child_seed42",
+        "plantedSlideMedianM": 0.13654408426817527,
+        "plantedSlideMaxM": 0.13654408426817527,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.25596817946241524,
+          "toe1-1.R": 0.08120866325311259
+        },
+        "maxToeStepPerFrameM": 0.7480912901052293,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2708.3332538604736
+        },
+        "rootDisplacementM": 2.1483085490692075,
+        "finalRootSpeedMps": 0.007925032212774043,
+        "steadyWalkRootSpeedMps": 0.6528510675741002,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "nolock": {
+        "clip": "openclinxr_retarget_kimodo_stop_child_seed42_nolock",
+        "plantedSlideMedianM": 0.10202615894887394,
+        "plantedSlideMaxM": 0.10202615894887394,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.006056264320268583,
+          "toe1-1.R": 0.006279711697081791
+        },
+        "maxToeStepPerFrameM": 0.0713832289511538,
+        "maxToeStepAt": {
+          "foot": "toe1-1.R",
+          "atMs": 2708.3332538604736
+        },
+        "rootDisplacementM": 2.148308586320493,
+        "finalRootSpeedMps": 0.007926104567688481,
+        "steadyWalkRootSpeedMps": 0.6528510451693597,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": true,
+          "maxToeStepLe008": true,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      },
+      "shippedWalkContext": {
+        "plantedSlideMedianM": 0.10057943567924031,
+        "plantedSlideMaxM": 0.10057943567924031,
+        "plantedWindows": 2,
+        "finalHoldToeTravelM": {
+          "toe1-1.L": 0.536089957688616,
+          "toe1-1.R": 0.46975666432636554
+        },
+        "maxToeStepPerFrameM": 0.07156440406015928,
+        "maxToeStepAt": {
+          "foot": "toe1-1.L",
+          "atMs": 1416.6666269302368
+        },
+        "rootDisplacementM": 0,
+        "finalRootSpeedMps": 0.034710856030192624,
+        "steadyWalkRootSpeedMps": 0.06837434545701854,
+        "bars": {
+          "slideMedianLe002": false,
+          "slideMedianWithinKnownGoodPlus0005": false,
+          "finalHoldPerFootLe002": false,
+          "maxToeStepLe008": false,
+          "finalRootSpeedLe10pct": true
+        },
+        "allBarsPass": false
+      }
+    }
+  },
+  "crossRigSignature": "Max toe step lands on toe1-1.R at 2708-2833 ms on all six bound clips (early decel). Lock amplifies a mild decel-onset discontinuity ~10x.",
+  "artifacts": [
+    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.glb",
+    ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.glb",
+    ".openclinxr/evidence/kimodo-stop/physician-stop-strip.png",
+    ".openclinxr/evidence/kimodo-stop/physician-nolock-strip.png",
+    ".openclinxr/evidence/kimodo-stop/nurse-stop-strip.png",
+    ".openclinxr/evidence/kimodo-stop/nurse-nolock-strip.png",
+    ".openclinxr/evidence/kimodo-stop/child-stop-strip.png",
+    ".openclinxr/evidence/kimodo-stop/child-nolock-strip.png",
+    ".openclinxr/evidence/kimodo-stop/physician-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/physician-nolock-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/nurse-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/nurse-nolock-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/child-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/child-nolock-metrics.json",
+    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.provenance.json",
+    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.provenance.json",
+    ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.provenance.json"
+  ],
+  "notTested": "No runtime root-motion consumer exists in this slice by design; visual grading of the strips is left to the orchestrator."
+}

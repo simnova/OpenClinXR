@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "openclinxr.motion-bind-from-positions-stage.v1",
+  "stageId": "motion_bind_from_positions_stage",
+  "verdict": "ok",
+  "clipName": "openclinxr_retarget_kimodo_stop_child_seed42_nolock",
+  "driven": 20,
+  "realDrivenCount": 20,
+  "expectedKeyframesPerBone": 132,
+  "hipHeightRatio": 0.6648591312007409,
+  "footLockingApplied": false,
+  "drivenBones": [
+    {
+      "bone": "clavicle.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.27619009790942073
+    },
+    {
+      "bone": "clavicle.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.2925266344100237
+    },
+    {
+      "bone": "foot.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.41249495185911655
+    },
+    {
+      "bone": "foot.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.521134477108717
+    },
+    {
+      "bone": "lowerarm01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.28034471720457077
+    },
+    {
+      "bone": "lowerarm01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.27698929980397224
+    },
+    {
+      "bone": "lowerleg01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.9084975942969322
+    },
+    {
+      "bone": "lowerleg01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.8783163465559483
+    },
+    {
+      "bone": "root",
+      "keyframes": 132,
+      "totalDeltaRad": 2.4743853207328357
+    },
+    {
+      "bone": "spine03",
+      "keyframes": 132,
+      "totalDeltaRad": 0.077512267511338
+    },
+    {
+      "bone": "spine04",
+      "keyframes": 132,
+      "totalDeltaRad": 0.0481874265242368
+    },
+    {
+      "bone": "spine05",
+      "keyframes": 132,
+      "totalDeltaRad": 0.17174663627520204
+    },
+    {
+      "bone": "toe1-1.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.3764198087155819
+    },
+    {
+      "bone": "toe1-1.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.4080769043939654
+    },
+    {
+      "bone": "upperarm01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.3008840214461088
+    },
+    {
+      "bone": "upperarm01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.33403065241873264
+    },
+    {
+      "bone": "upperleg01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.6863062307238579
+    },
+    {
+      "bone": "upperleg01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.6131642172113061
+    },
+    {
+      "bone": "wrist.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.16243248619139194
+    },
+    {
+      "bone": "wrist.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.15952340885996819
+    }
+  ],
+  "output": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop/nolock_bound.glb",
+  "generatedAt": "2026-10-10T00:16:09.888473+00:00",
+  "log": "actor_armature=mpfb_peds_patient_child_standard_rig pose_bones=137\nyaw_correction_degrees=0.0\nswing_pairs=19 rest_only=['neck', 'head']\nhip_height_ratio=0.664859\nframe0_pose_applied_for_verification\nretargeted_frames=132\ndriven=20 real=20 expected_keyframes_per_bone=132"
+}

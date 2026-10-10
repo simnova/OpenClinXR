@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.clip-graft.v1",
+  "generatedAt": "2026-10-10T00:16:16.438Z",
+  "clipName": "openclinxr_retarget_kimodo_stop_nurse_seed42_nolock",
+  "target": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.glb",
+    "sha256Before": "dfaa355de96b30f9ccb45535ce3b62a01e7dc35659cbad127706cea649a6a701",
+    "bytesBefore": 9025780
+  },
+  "source": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop/nolock_bound.glb",
+    "sha256": "a4b4e00ee1b0b5137e45d921ced59a4dc97464596e9b7b055cdbce8b35d1eda2",
+    "bytes": 8831292
+  },
+  "output": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop-nolock-tmp.glb",
+    "sha256": "861291336a96d11a09a72da03b0e73b3198ea7c6474e96d7a113b89f319a396e",
+    "bytes": 9275544
+  },
+  "graftedChannels": 411,
+  "graftedJoints": 137,
+  "removedClips": [],
+  "published": null,
+  "animationsAfter": [
+    "ClinicalIdleConversation",
+    "ClinicalExpressionMicroTransition",
+    "openclinxr_retarget_walk_source",
+    "openclinxr_retarget_kimodo_stop_nurse_seed42",
+    "openclinxr_retarget_kimodo_stop_nurse_seed42_nolock"
+  ],
+  "geometryParity": {
+    "primitives": 17,
+    "trianglesBefore": 38958,
+    "trianglesAfter": 38958,
+    "positionBytesIdentical": true
+  }
+}

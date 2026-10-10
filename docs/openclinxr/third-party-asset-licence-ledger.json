@@ -16,11 +16,11 @@
     "Cleared-not-acquired": 2,
     "Licence-uncertainties": 7,
     "Equipment-candidates": 15,
-    "Acquired": 28,
+    "Acquired": 30,
     "Obj-agpl-correction-table": 3,
     "Superseded": 1,
     "Bank-promote": 4,
-    "Refused": 9
+    "Refused": 10
   },
   "entries": [
     "row-01-cmudict-carnegie-mellon-pronouncing-dictionary-134k-english-",
@@ -101,6 +101,9 @@
     "prose-6-correction-sleeping-mechanism",
     "prose-7-graded-seated",
     "prose-8-tool-fact-retarget",
-    "prose-9-obj-agpl-correction"
+    "prose-9-obj-agpl-correction",
+    "row-10-amathislab-terra",
+    "row-34-100style-dataset",
+    "row-35-quaternius-universal-animation-library-free"
   ]
 }

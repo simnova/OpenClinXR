@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "openclinxr.kimodo-stop-oneshot-metrics.v1",
+  "glbPath": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+  "stopClip": "openclinxr_retarget_kimodo_stop_physician_seed42_nolock",
+  "knownGoodClip": "kimodo_source",
+  "knownGoodSource": {
+    "joints": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop/joints.json",
+    "contacts": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop/contacts.json",
+    "units": "meters",
+    "axis": "Z-up",
+    "fps": 30
+  },
+  "stanceFloorM": 0.01,
+  "inputSpeedMps": 1.03,
+  "stop": {
+    "clipName": "openclinxr_retarget_kimodo_stop_physician_seed42_nolock",
+    "frameCount": 132,
+    "durationSeconds": 5.45833333209157,
+    "plantedSlideStopM": {
+      "windowCount": 2,
+      "median": 0.18692097210968556,
+      "max": 0.18692097210968556,
+      "perFootMedian": {
+        "toe1-1.L": 0.18692097210968556,
+        "toe1-1.R": 0.13051061007877565
+      }
+    },
+    "finalHoldToeTravelM": {
+      "toe1-1.L": 0.015310256960720718,
+      "toe1-1.R": 0.014524714025039789
+    },
+    "maxToeStepPerFrameM": 0.08115260569698919,
+    "maxToeStepAt": {
+      "foot": "toe1-1.R",
+      "atMs": 2791.6667461395264
+    },
+    "rootDisplacementM": 2.508725637635032,
+    "rootTravelMetersInstrument": 2.508725637635032,
+    "finalRootSpeedMps": 0.014191235090125199,
+    "steadyWalkRootSpeedMps": 0.7635291872401138
+  },
+  "knownGood": {
+    "clipName": "kimodo_source",
+    "frameCount": 132,
+    "durationSeconds": 4.4,
+    "plantedSlideStopM": {
+      "windowCount": 6,
+      "median": 0.013447020431920212,
+      "max": 0.025086622526154678,
+      "perFootMedian": {
+        "LeftToeBase": 0.013447020431920212,
+        "RightToeBase": 0.011929551161000853
+      }
+    },
+    "finalHoldToeTravelM": {
+      "LeftToeBase": 0.007828161086139361,
+      "RightToeBase": 0.008832981082647393
+    },
+    "maxToeStepPerFrameM": 0.03927433918083604,
+    "maxToeStepAt": {
+      "foot": "LeftToeBase",
+      "atMs": 2066.6666666666665
+    },
+    "rootDisplacementM": 0.03325116920665994,
+    "rootTravelMetersInstrument": 0.03325116920665994,
+    "finalRootSpeedMps": 0.014739288357399826,
+    "steadyWalkRootSpeedMps": 0.12369196683045706
+  },
+  "shippedWalkContext": {
+    "clipName": "openclinxr_retarget_walk_source",
+    "frameCount": 41,
+    "durationSeconds": 1.666666705161333,
+    "plantedSlideStopM": {
+      "windowCount": 0,
+      "median": null,
+      "max": 0,
+      "perFootMedian": {
+        "toe1-1.L": null,
+        "toe1-1.R": null
+      }
+    },
+    "finalHoldToeTravelM": {
+      "toe1-1.L": 0.7881051880306811,
+      "toe1-1.R": 0.6721606758283545
+    },
+    "maxToeStepPerFrameM": 0.105663686331608,
+    "maxToeStepAt": {
+      "foot": "toe1-1.L",
+      "atMs": 1416.6666269302368
+    },
+    "rootDisplacementM": 0,
+    "rootTravelMetersInstrument": 0,
+    "finalRootSpeedMps": 0.04668875179949735,
+    "steadyWalkRootSpeedMps": 0.09196876788073884
+  },
+  "bars": {
+    "HOLD_SLIDE_MAX_METERS": 0.02,
+    "MAX_TOE_STEP_PER_FRAME_FLAG_METERS": 0.08,
+    "finalRootSpeedCapMps": 0.10300000000000001,
+    "results": {
+      "slideMedianLe002": false,
+      "slideMedianWithinKnownGoodPlus0005": false,
+      "finalHoldPerFootLe002": true,
+      "maxToeStepLe008": false,
+      "finalRootSpeedLe10pct": true
+    },
+    "allPass": false
+  }
+}

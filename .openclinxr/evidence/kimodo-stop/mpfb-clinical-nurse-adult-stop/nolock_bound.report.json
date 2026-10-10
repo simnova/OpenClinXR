@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "openclinxr.motion-bind-from-positions-stage.v1",
+  "stageId": "motion_bind_from_positions_stage",
+  "verdict": "ok",
+  "clipName": "openclinxr_retarget_kimodo_stop_nurse_seed42_nolock",
+  "driven": 20,
+  "realDrivenCount": 20,
+  "expectedKeyframesPerBone": 132,
+  "hipHeightRatio": 0.9744490234613769,
+  "footLockingApplied": false,
+  "drivenBones": [
+    {
+      "bone": "clavicle.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.30706287175416946
+    },
+    {
+      "bone": "clavicle.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.29743093252182007
+    },
+    {
+      "bone": "foot.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.4869356583803892
+    },
+    {
+      "bone": "foot.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.6621586326509714
+    },
+    {
+      "bone": "lowerarm01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.305001650005579
+    },
+    {
+      "bone": "lowerarm01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.28825657442212105
+    },
+    {
+      "bone": "lowerleg01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.872674135491252
+    },
+    {
+      "bone": "lowerleg01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.8598624877631664
+    },
+    {
+      "bone": "root",
+      "keyframes": 132,
+      "totalDeltaRad": 3.3114961563405814
+    },
+    {
+      "bone": "spine03",
+      "keyframes": 132,
+      "totalDeltaRad": 0.11586396489292383
+    },
+    {
+      "bone": "spine04",
+      "keyframes": 132,
+      "totalDeltaRad": 0.06425224151462317
+    },
+    {
+      "bone": "spine05",
+      "keyframes": 132,
+      "totalDeltaRad": 0.1854770090430975
+    },
+    {
+      "bone": "toe1-1.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.3685600054450333
+    },
+    {
+      "bone": "toe1-1.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.4528298731893301
+    },
+    {
+      "bone": "upperarm01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.3324666926637292
+    },
+    {
+      "bone": "upperarm01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.360558208078146
+    },
+    {
+      "bone": "upperleg01.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.7237166166305542
+    },
+    {
+      "bone": "upperleg01.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.6746629448607564
+    },
+    {
+      "bone": "wrist.L",
+      "keyframes": 132,
+      "totalDeltaRad": 0.18085420224815607
+    },
+    {
+      "bone": "wrist.R",
+      "keyframes": 132,
+      "totalDeltaRad": 0.12700579594820738
+    }
+  ],
+  "output": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop/nolock_bound.glb",
+  "generatedAt": "2026-10-10T00:16:02.112797+00:00",
+  "log": "actor_armature=mpfb_ed_chest_pain_nurse_adult_standard_rig pose_bones=137\nyaw_correction_degrees=0.0\nswing_pairs=19 rest_only=['neck', 'head']\nhip_height_ratio=0.974449\nframe0_pose_applied_for_verification\nretargeted_frames=132\ndriven=20 real=20 expected_keyframes_per_bone=132"
+}

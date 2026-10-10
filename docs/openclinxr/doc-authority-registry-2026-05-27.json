@@ -4175,6 +4175,13 @@
       "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
+      "path": "docs/openclinxr/kimodo-stop-oneshot-cagematch-2026-10-09.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": "docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",

@@ -1,0 +1,10 @@
+{
+  "id": "row-10-amathislab-terra",
+  "section": "Refused",
+  "rowIndex": 10,
+  "cells": [
+    " `amathislab/terra` ([repo](https://github.com/amathislab/terra), arXiv 2609.38653) — terrain-aware musculoskeletal locomotion",
+    "**REFUSAL — inputs are non-commercial.** Code is Apache-2.0, but it requires a licensed `SMPLH_NEUTRAL.pkl` and the `smplx` package (MPI non-commercial research licence) and consumes AMASS SMPL-H motion (refused, row 07). Output is PPO policies for MyoFullBody (a MuJoCo muscle model), not clips for the MPFB rig, and training needs CUDA. Read from the README 2026-10-09; nothing acquired.",
+    "2026-10-09 "
+  ]
+}

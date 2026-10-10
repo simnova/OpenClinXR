@@ -1,0 +1,13 @@
+{
+  "id": "row-35-quaternius-universal-animation-library-free",
+  "section": "Acquired",
+  "rowIndex": 35,
+  "cells": [
+    " Quaternius Universal Animation Library, free tier ([page](https://quaternius.com/packs/universalanimationlibrary.html), glTF mirror [J-Ponzo/gltf-universal-animation-library](https://github.com/J-Ponzo/gltf-universal-animation-library))",
+    "**CC0 1.0 — VERIFIED** on the Quaternius page and the mirror's LICENSE (GitHub spdx `CC0-1.0`).",
+    "46 clips on a 53-joint Rigify DEF- rig, MEASURED 2026-10-09 from `AnimationLibrary_Godot_Standard.gltf`: Walk_Loop, Walk_Formal_Loop, Jog_Fwd_Loop, Sprint_Loop, Idle_Loop, Idle_Talking_Loop, Sitting_Enter, Sitting_Exit, Sitting_Idle_Loop, Sitting_Talking_Loop, Crouch_*, Interact, PickUp_Table, Fixing_Kneeling and combat/emote clips. NO walk start/stop, NO turn-in-place, NO 8-direction strafe; root motion only on Roll_RM and Sword_Attack_RM",
+    "downloaded to scratch 2026-10-09, not in the tree",
+    "nothing",
+    "Candidate source for sit-down/stand-up only (Sitting_Enter/Sitting_Exit). Do not cite it for starts, stops or turns: the free tier has none. "
+  ]
+}

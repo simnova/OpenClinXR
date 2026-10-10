@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "openclinxr.kimodo-stop-oneshot-provenance.v1",
+  "generatedAt": "2026-10-10T00:05:22.710002+00:00",
+  "clipName": "openclinxr_retarget_kimodo_stop_physician_seed42",
+  "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+  "outputGlb": "/Volumes/files/src/openclinxr-wt/kimodo-stop/.openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+  "generation": {
+    "generatorRepo": "https://github.com/nv-tlabs/kimodo.git",
+    "generatorCommit": "58e781898b3d7e328a676a75d3e338c45dce3ad9",
+    "checkpoint": {
+      "modelRepoId": "nvidia/Kimodo-SOMA-RP-v1.1",
+      "resolved": true,
+      "snapshotHash": "6c9233af1180b8151e3c4703477104af5dce9dd5",
+      "weightFile": "model.safetensors",
+      "weightBlobSha256": "ef0a0ca45a6089ab4532dde609785771ae3f38755b4ae6cf314b0213e07cd4a3"
+    },
+    "textEncoder": {
+      "preset": "llm2vec",
+      "models": {
+        "base_model_name_or_path": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp",
+        "peft_model_name_or_path": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised"
+      },
+      "resolvedFrom": "kimodo/model/load_model.py:DEFAULT_TEXT_ENCODER, or the TEXT_ENCODER env var if set"
+    },
+    "prompt": "A person walks forward, slows down and stops, standing still with both feet planted.",
+    "seed": 42,
+    "diffusionSteps": 20,
+    "constraints": {
+      "walkSpeedMps": 1.03,
+      "walkSeconds": 2.0,
+      "decelSeconds": 1.2,
+      "holdSeconds": 1.2,
+      "headingRadians": 0.0
+    },
+    "constraintProfile": "constant walk speed, cosine-ease decel to zero, flat hold (build_stop_constraints.py)"
+  },
+  "windowSelection": {
+    "method": "one-shot: no loop-cycle cut; first steady walking frame through the end of the hold",
+    "trimStartFrame": 0
+  },
+  "bind": {
+    "station": "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py",
+    "stripHorizontalRootMotion": false,
+    "bakeTimeFootLockLog": "bind report footLockingApplied=True; foot_lock log line not found in bind output",
+    "yawCorrection": {
+      "naturalYawDeg": -4.26197139581101,
+      "targetYawDeg": -0.86,
+      "appliedCorrectionDeg": 0.0,
+      "rebindForYaw": false,
+      "correctedYawDeg": -4.26197139581101,
+      "measuredWith": "tools/openclinxr/factory/measure-clip-stance-forward.ts (offline, gltf-transform FK, no browser)"
+    },
+    "rateOneStanceAdvanceMetersPerSecond": 0.1950449153050851
+  },
+  "graft": {
+    "tool": "tools/openclinxr/factory/graft-bound-clip.ts",
+    "removedClips": [],
+    "graftedJoints": 137,
+    "geometryParity": {
+      "primitives": 18,
+      "trianglesBefore": 41718,
+      "trianglesAfter": 41718,
+      "positionBytesIdentical": true
+    }
+  },
+  "stationCommit": "6ab27f21b2fa5587172cb0c0ebd0cdddacd61b96",
+  "claims": {
+    "evidenceFor": [
+      "a deterministic, scripted (actor, prompt, seed, stop-constraints) -> bound one-shot stop clip pipeline with root motion kept",
+      "the clip's own measured stance-advance direction relative to the shipped clip's convention"
+    ],
+    "notEvidenceFor": [
+      "gait realism",
+      "clinical plausibility",
+      "Quest performance",
+      "foot-plant bar passage (see the cagematch report for this clip)",
+      "production readiness of the target actor GLB this was grafted onto (scratch output only)"
+    ]
+  }
+}

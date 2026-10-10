@@ -375,6 +375,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/humanoid-vetting-2026-09-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/kimodo-soma-rp-v11-cagematch-2026-09-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/kimodo-stop-oneshot-cagematch-2026-10-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -1,0 +1,13 @@
+{
+  "id": "row-34-100style-dataset",
+  "section": "Acquired",
+  "rowIndex": 34,
+  "cells": [
+    " 100STYLE locomotion dataset ([site](https://ianxmason.github.io/100style/), [Zenodo 8127870](https://zenodo.org/records/8127870))",
+    "**CC BY 4.0 — VERIFIED by peer consult 2026-10-09 against the dataset page** (\"Creative Commons Attribution 4.0 International License\"). Attribution: \"The 100STYLE Dataset – Ian Mason\". Commercial use permitted with credit.",
+    "styled locomotion incl. turns; `SpinAntiClock_TR3` frames 3985-4022 retargeted in the 2026-09-25 turn bake-off (wt/turn-100style)",
+    "2026-09-25, build-time bake-off only",
+    "nothing shipped",
+    "Usable with attribution. The one measured take doubled planted slide versus main's turn (0.245 vs 0.126 m); spin-style takes slide in the source. Labelled start/stop segmentation NOT verified. "
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.clip-graft.v1",
+  "generatedAt": "2026-10-10T00:16:15.879Z",
+  "clipName": "openclinxr_retarget_kimodo_stop_physician_seed42_nolock",
+  "target": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+    "sha256Before": "3134786118fbcbc2645e9a5950c3d26371c9d6b9dbe9ae4376d39bc895a6c3e0",
+    "bytesBefore": 9871644
+  },
+  "source": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop/nolock_bound.glb",
+    "sha256": "27e18090e230ba864c7a7fe2bb39d659391a49647b1dcb468c1025450ca18c12",
+    "bytes": 9366088
+  },
+  "output": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop-nolock-tmp.glb",
+    "sha256": "0f8a6fe9f057ac82403508f6dcbb69c3dfee1c53628917ad9d77d350e675d4b0",
+    "bytes": 10124704
+  },
+  "graftedChannels": 411,
+  "graftedJoints": 137,
+  "removedClips": [],
+  "published": null,
+  "animationsAfter": [
+    "ClinicalIdleConversation",
+    "ClinicalExpressionMicroTransition",
+    "openclinxr_retarget_walk_source",
+    "openclinxr_retarget_kimodo_stop_physician_seed42",
+    "openclinxr_retarget_kimodo_stop_physician_seed42_nolock"
+  ],
+  "geometryParity": {
+    "primitives": 18,
+    "trianglesBefore": 41718,
+    "trianglesAfter": 41718,
+    "positionBytesIdentical": true
+  }
+}

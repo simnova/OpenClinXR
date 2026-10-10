@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.clip-graft.v1",
+  "generatedAt": "2026-10-10T00:16:17.054Z",
+  "clipName": "openclinxr_retarget_kimodo_stop_child_seed42_nolock",
+  "target": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.glb",
+    "sha256Before": "b369097473603542bf2586a178d6963b16edc03bb622d5a99112b032ce80276d",
+    "bytesBefore": 11994016
+  },
+  "source": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop/nolock_bound.glb",
+    "sha256": "562811a5697a93c97c852fb705c43728258f0bcd20d05979314a9a00e7347d05",
+    "bytes": 11756304
+  },
+  "output": {
+    "path": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop-nolock-tmp.glb",
+    "sha256": "0b0fedd353d3e22c576cdbed96c0b724a1bde20762ee1fab6d9533db96c97f19",
+    "bytes": 12244604
+  },
+  "graftedChannels": 411,
+  "graftedJoints": 137,
+  "removedClips": [],
+  "published": null,
+  "animationsAfter": [
+    "ClinicalIdleConversation",
+    "ClinicalExpressionMicroTransition",
+    "openclinxr_retarget_walk_source",
+    "openclinxr_retarget_kimodo_stop_child_seed42",
+    "openclinxr_retarget_kimodo_stop_child_seed42_nolock"
+  ],
+  "geometryParity": {
+    "primitives": 17,
+    "trianglesBefore": 77422,
+    "trianglesAfter": 77422,
+    "positionBytesIdentical": true
+  }
+}
