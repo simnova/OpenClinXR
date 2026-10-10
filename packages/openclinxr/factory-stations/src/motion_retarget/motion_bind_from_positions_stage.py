@@ -525,7 +525,24 @@ def main(argv: list[str]) -> int:
         world_target_pos = Vector((horizontal_x, horizontal_y, target_root_rest_pos.z + vertical_bob))
         local_pos = target_actor.matrix_world.inverted() @ world_target_pos
         rest_local_pos = root_pb.bone.matrix_local.translation
-        root_pb.location = local_pos - rest_local_pos
+        if args.strip_horizontal_root_motion:
+            # In-place cycle path: historical formula, bit-for-bit preserved for the
+            # shipped loop clips (see the strip-flag regression in
+            # docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md).
+            root_pb.location = local_pos - rest_local_pos
+        else:
+            # ROOT-MOTION FIX 2026-10-09: PoseBone.location is expressed in the bone's
+            # own rest frame, not armature space -- the achieved armature-space offset
+            # is R_rest @ location (measured: map equals rest rotation to 6e-7 on all
+            # three rigs, .openclinxr/evidence/rootmotion-bind/pre-fix.json). Assigning
+            # the armature-space delta directly leaked forward travel into the other
+            # axes in proportion to distance walked (sin of the rest tilt from the
+            # 180-degree flip: nurse 0.27 / physician 8.79 / child 16.43 deg predicted
+            # root-height leaks of 0.01 / 0.38 / 0.61 m vs measured 0 / 0.42 / 0.67 m).
+            # Convert explicitly; roundtrip error 4.5e-8 m.
+            root_pb.location = (
+                target_rest_rot[root_target_name].inverted() @ (local_pos - rest_local_pos)
+            )
         parent_rot = current_world[root_target_name] if root_target_name in current_world else identity3
         local_root = rest_local_to_parent[root_target_name].inverted() @ parent_rot
         root_pb.rotation_quaternion = local_root.to_quaternion()
