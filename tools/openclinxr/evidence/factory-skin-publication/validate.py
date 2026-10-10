@@ -11,11 +11,15 @@ def assert_basis(reference,evaluated):
     for key,points in reference.items():
         other=evaluated[key];require(len(points)==len(other),'REST vertex count mismatch')
         require(all(len(a)==len(b)==3 and all(abs(x-y)<=1e-6 for x,y in zip(a,b)) for a,b in zip(points,other)),'evaluated Blender import is posed or basis changed')
+def _vec3(blob,j,acc):
+    a=j['accessors'][acc];require(a['componentType']==5126 and a['type']=='VEC3' and 'sparse' not in a,'unsupported POSITION layout');v=j['bufferViews'][a['bufferView']];o=v.get('byteOffset',0)+a.get('byteOffset',0);s=v.get('byteStride',12);return [struct.unpack_from('<fff',blob,o+i*s)for i in range(a['count'])]
+def _idx(blob,j,acc):
+    a=j['accessors'][acc];require(a['type']=='SCALAR' and 'sparse' not in a,'unsupported index layout');f={5121:'B',5123:'H',5125:'I'}.get(a['componentType']);require(f is not None,'unsupported index layout');v=j['bufferViews'][a['bufferView']];o=v.get('byteOffset',0)+a.get('byteOffset',0);z=struct.calcsize(f);return [struct.unpack_from('<'+f,blob,o+i*z)[0]for i in range(a['count'])]
 def positions(glb):
     jl=struct.unpack_from('<I',glb,12)[0];j=json.loads(glb[20:20+jl]);bin=glb[28+jl:];out={}
     for mi,m in enumerate(j['meshes']):
         for pi,p in enumerate(m['primitives']):
-            a=j['accessors'][p['attributes']['POSITION']];require(a['componentType']==5126 and a['type']=='VEC3' and 'sparse' not in a,'unsupported POSITION layout');v=j['bufferViews'][a['bufferView']];offset=v.get('byteOffset',0)+a.get('byteOffset',0);stride=v.get('byteStride',12);out[f'{mi}:{pi}']=[struct.unpack_from('<fff',bin,offset+i*stride)for i in range(a['count'])]
+            rows=_vec3(bin,j,p['attributes']['POSITION']);used=sorted(set(_idx(bin,j,p['indices'])));out[f'{mi}:{pi}']=[rows[i]for i in used]
     return out
 
 def assert_ui(ui,finished_sha):

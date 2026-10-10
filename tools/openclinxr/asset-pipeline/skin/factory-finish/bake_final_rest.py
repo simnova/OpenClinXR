@@ -86,6 +86,34 @@ def _load_config(path):
     return data
 
 
+def _read_vec3_rows(blob, document, accessor_index):
+    accessor = document["accessors"][accessor_index]
+    if accessor["componentType"] != 5126 or accessor["type"] != "VEC3" or "sparse" in accessor:
+        raise RuntimeError("unsupported POSITION layout")
+    view = document["bufferViews"][accessor["bufferView"]]
+    offset = view.get("byteOffset", 0) + accessor.get("byteOffset", 0)
+    stride = view.get("byteStride", 12)
+    return [
+        struct.unpack_from("<fff", blob, offset + i * stride) for i in range(accessor["count"])
+    ]
+
+
+def _read_scalar_indices(blob, document, accessor_index):
+    accessor = document["accessors"][accessor_index]
+    if accessor["type"] != "SCALAR" or "sparse" in accessor:
+        raise RuntimeError("unsupported index layout")
+    fmt = {5121: "B", 5123: "H", 5125: "I"}.get(accessor["componentType"])
+    if fmt is None:
+        raise RuntimeError("unsupported index layout")
+    view = document["bufferViews"][accessor["bufferView"]]
+    offset = view.get("byteOffset", 0) + accessor.get("byteOffset", 0)
+    size = struct.calcsize(fmt)
+    return [
+        struct.unpack_from("<" + fmt, blob, offset + i * size)[0]
+        for i in range(accessor["count"])
+    ]
+
+
 def glb_positions(raw):
     length = struct.unpack_from("<I", raw, 12)[0]
     document = json.loads(raw[20 : 20 + length])
@@ -93,15 +121,11 @@ def glb_positions(raw):
     found = {}
     for mesh_index, mesh in enumerate(document["meshes"]):
         for prim_index, prim in enumerate(mesh["primitives"]):
-            accessor = document["accessors"][prim["attributes"]["POSITION"]]
-            if accessor["componentType"] != 5126 or accessor["type"] != "VEC3" or "sparse" in accessor:
-                raise RuntimeError("unsupported POSITION layout")
-            view = document["bufferViews"][accessor["bufferView"]]
-            offset = view.get("byteOffset", 0) + accessor.get("byteOffset", 0)
-            stride = view.get("byteStride", 12)
-            found[f"{mesh_index}:{prim_index}"] = [
-                struct.unpack_from("<fff", blob, offset + i * stride) for i in range(accessor["count"])
-            ]
+            rows = _read_vec3_rows(blob, document, prim["attributes"]["POSITION"])
+            # Khronos glTF-Blender-IO mesh.py:422-426: one vertex per
+            # np.unique(indices), then POSITION at those sorted unique indices.
+            used = sorted(set(_read_scalar_indices(blob, document, prim["indices"])))
+            found[f"{mesh_index}:{prim_index}"] = [rows[i] for i in used]
     return found
 
 
