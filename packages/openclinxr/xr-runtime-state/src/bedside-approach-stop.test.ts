@@ -4,11 +4,12 @@ import {
   type BedsideApproachExecution,
   stepBedsideApproachExecution,
 } from "./bedside-approach-execution-mod.js";
-import type { StopClipTrigger } from "./bedside-approach-stop-mod.js";
+import { buildDistanceCurve, type StopClipTrigger } from "./bedside-approach-stop-mod.js";
 
 /**
- * The walking-to-stopping handoff: trigger distance, stance-phase match, clip-end transition,
- * and byte-for-byte legacy behaviour without a stop clip.
+ * The distance-indexed stop handoff: R-range entry with no stance gate, procedural stopping
+ * advance at the clip's own path speed, monotone clip time, and byte-for-byte legacy
+ * behaviour without a stop clip.
  */
 
 const START = { x: 0, y: 0, z: 0 };
@@ -17,6 +18,11 @@ const TRAVEL_HEADING = Math.PI / 2;
 const TARGET_HEADING = Math.PI;
 const WALK_SPEED = 0.75;
 const DT = 1 / 60;
+const TRACK = [
+  { t: 0, x: 0, z: 0 },
+  { t: 5.5, x: 0, z: 2.5 },
+];
+const PATH_SPEED = 2.5 / 5.5;
 
 function plan(): BedsideApproachPlan {
   return {
@@ -50,16 +56,19 @@ function execution(overrides: Partial<BedsideApproachExecution> = {}): BedsideAp
 }
 
 function stop(): StopClipTrigger {
+  const distCurve = buildDistanceCurve(TRACK, 0);
   return {
     clipName: "openclinxr_retarget_kimodo_stop_unit",
-    displacementMeters: 2.5,
     durationSeconds: 5.5,
-    entryStance: { left: true, right: false },
-    rootTrackXz: [
-      { t: 0, x: 0, z: 0 },
-      { t: 5.5, x: 0, z: 2.5 },
-    ],
+    rootTrackXz: TRACK.map((key) => ({ ...key })),
     routeYawRadians: TRAVEL_HEADING,
+    distCurve,
+    tEarliestS: 0,
+    rMaxM: distCurve[0]?.r ?? 0,
+    // R at the decel onset (t = 2.0): the path from 2.0 to 5.5.
+    rDecelM: (2.5 * 3.5) / 5.5,
+    decelOnsetS: 2.0,
+    holdOnsetS: 4.5,
   };
 }
 
@@ -67,8 +76,6 @@ function step(input: {
   execution: BedsideApproachExecution;
   observedPositionXz?: { x: number; z: number };
   stop?: StopClipTrigger | null;
-  walkStance?: { left: boolean; right: boolean } | null;
-  walkSpeedFactor?: number | null;
   nowMs?: number;
 }): BedsideApproachExecution {
   return stepBedsideApproachExecution({
@@ -87,44 +94,52 @@ function step(input: {
     settleTurnRateRadiansPerSecond: 1,
     observedHeadingRadians: TRAVEL_HEADING,
     ...(input.stop ? { stop: input.stop } : {}),
-    ...(input.walkStance ? { walkStance: input.walkStance } : {}),
-    ...(input.walkSpeedFactor !== undefined && input.walkSpeedFactor !== null
-      ? { walkSpeedFactor: input.walkSpeedFactor }
-      : {}),
   });
 }
 
-describe("the baked stop handoff", () => {
-  it("fires at the trigger distance on a matching stance foot", () => {
+describe("the distance-indexed stop handoff", () => {
+  it("fires as soon as remaining fits inside R, with no stance gate", () => {
     const next = step({
       execution: execution(),
       observedPositionXz: { x: 1, z: 0 },
       stop: stop(),
-      walkStance: { left: true, right: false },
     });
     expect(next.phase).toBe("stopping");
     expect(next.prescribedPositionXz).toEqual({ x: 1, z: 0 });
     expect(next.stopTriggerXz).toEqual({ x: 1, z: 0 });
     expect(next.stopElapsedSeconds).toBe(0);
+    // R^-1(2.0) on a 2.5 m / 5.5 s straight track: t = 1.1.
+    expect(next.stopClipTimeS ?? NaN).toBeCloseTo(1.1, 9);
     expect(next.drive).toEqual({ locomotion: 1 });
     expect(next.headingRadians).toBe(TRAVEL_HEADING);
   });
 
-  it("keeps walking on a stance mismatch (the residual)", () => {
+  it("keeps walking while remaining exceeds Rmax", () => {
     const next = step({
       execution: execution(),
-      observedPositionXz: { x: 1, z: 0 },
+      observedPositionXz: { x: 0.2, z: 0 },
       stop: stop(),
-      walkStance: { left: false, right: true },
     });
     expect(next.phase).toBe("walking");
-    expect(next.prescribedPositionXz.x).toBeCloseTo(1 + WALK_SPEED * DT, 9);
+    expect(next.prescribedPositionXz.x).toBeCloseTo(0.2 + WALK_SPEED * DT, 9);
     expect(next.stopElapsedSeconds ?? 0).toBe(0);
   });
 
-  it("prescribes the clip root travel, rotated into the route, mid-stop", () => {    const elapsed = 5.4;
+  it("stays legacy on a route too short to fit the deceleration", () => {
+    const next = step({
+      execution: execution(),
+      observedPositionXz: { x: 2, z: 0 },
+      stop: stop(),
+    });
+    expect(next.phase).toBe("walking");
+  });
+
+  it("advances the slot procedurally at the clip path speed mid-stop", () => {
+    // Consistent mid-stop state: clip time 1.0 with remaining R(1.0), so the re-derived
+    // time agrees with the procedural advance exactly.
+    const atT1 = 3 - (2.5 * 4.5) / 5.5;
     const next = stepBedsideApproachExecution({
-      execution: execution({ phase: "stopping", stopElapsedSeconds: elapsed, stopTriggerXz: { x: 1, z: 0 } }),
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 1, stopClipTimeS: 1, stopTriggerXz: { x: atT1, z: 0 } }),
       plan: plan(),
       start: START,
       target: TARGET,
@@ -132,7 +147,7 @@ describe("the baked stop handoff", () => {
       travelHeadingRadians: TRAVEL_HEADING,
       observedGeometryRevision: "geom-test",
       supportAccepted: true,
-      observedPositionXz: { x: 1, z: 0 },
+      observedPositionXz: { x: atT1, z: 0 },
       nowMs: 2000,
       deltaSeconds: DT,
       walkSpeedMetersPerSecond: WALK_SPEED,
@@ -141,18 +156,30 @@ describe("the baked stop handoff", () => {
       stop: stop(),
     });
     expect(next.phase).toBe("stopping");
-    const advanced = elapsed + DT;
-    expect(next.stopElapsedSeconds ?? 0).toBeCloseTo(advanced, 9);
-    expect(next.prescribedPositionXz.x).toBeCloseTo(1 + 2.5 * (advanced / 5.5), 9);
+    expect(next.stopElapsedSeconds ?? 0).toBeCloseTo(1 + DT, 9);
+    // Clip time re-derived from the new remaining agrees with the procedural advance.
+    expect(next.stopClipTimeS ?? NaN).toBeCloseTo(1 + DT, 9);
+    expect(next.prescribedPositionXz.x).toBeCloseTo(atT1 + PATH_SPEED * DT, 9);
     expect(next.prescribedPositionXz.z).toBeCloseTo(0, 9);
     expect(next.headingRadians).toBe(TRAVEL_HEADING);
   });
 
-  it("enters settling at the clip end with the legacy snapshot", () => {
+  it("never rewinds the clip time on a noisy observed position", () => {
+    const next = step({
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 2, stopClipTimeS: 2, stopTriggerXz: { x: 1, z: 0 } }),
+      observedPositionXz: { x: 0.5, z: 0 },
+      stop: stop(),
+    });
+    expect(next.phase).toBe("stopping");
+    expect(next.stopClipTimeS ?? NaN).toBe(2);
+  });
+
+  it("enters settling at the hold with the legacy snapshot", () => {
     const next = stepBedsideApproachExecution({
       execution: execution({
         phase: "stopping",
-        stopElapsedSeconds: 5.5 - DT / 2,
+        stopElapsedSeconds: 2,
+        stopClipTimeS: 4.6,
         stopTriggerXz: { x: 1, z: 0 },
       }),
       plan: plan(),
@@ -176,20 +203,30 @@ describe("the baked stop handoff", () => {
     expect(next.arrivedAtMs).toBe(7000);
   });
 
-  it("never fires on an entry stance with no planted foot", () => {
-    const noEntry: StopClipTrigger = { ...stop(), entryStance: { left: false, right: false } };
-    const next = step({
-      execution: execution(),
-      observedPositionXz: { x: 1, z: 0 },
-      stop: noEntry,
-      walkStance: { left: false, right: false },
+  it("enters settling at the clip end", () => {
+    const ending = stepBedsideApproachExecution({
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 3, stopClipTimeS: 5.5, stopTriggerXz: { x: 1, z: 0 } }),
+      plan: plan(),
+      start: START,
+      target: TARGET,
+      targetHeadingRadians: TARGET_HEADING,
+      travelHeadingRadians: TRAVEL_HEADING,
+      observedGeometryRevision: "geom-test",
+      supportAccepted: true,
+      observedPositionXz: { x: 2, z: 0 },
+      nowMs: 7000,
+      deltaSeconds: DT,
+      walkSpeedMetersPerSecond: WALK_SPEED,
+      settleTurnRateRadiansPerSecond: 1,
+      observedHeadingRadians: TRAVEL_HEADING,
+      stop: { ...stop(), holdOnsetS: 99 },
     });
-    expect(next.phase).toBe("walking");
+    expect(ending.phase).toBe("settling");
   });
 
   it("ends the walk as before within one frame of the target, stop or not", () => {
     const atTarget = { x: 3 - WALK_SPEED * DT / 2, z: 0 };
-    const next = step({ execution: execution(), observedPositionXz: atTarget, stop: stop(), walkStance: { left: true, right: false } });
+    const next = step({ execution: execution(), observedPositionXz: atTarget, stop: stop() });
     expect(next.phase).toBe("settling");
   });
 
@@ -228,93 +265,12 @@ describe("the baked stop handoff", () => {
     expect(next.phase).toBe("invalidated");
   });
 
-  it("measures stopping travel from the entry time, not clip zero", () => {
-    const offset: StopClipTrigger = {
-      ...stop(),
-      entryTimeS: 2.0,
-      rootTrackXz: [
-        { t: 0, x: 0, z: 0 },
-        { t: 2.0, x: 0, z: 1.8 },
-        { t: 5.5, x: 0, z: 2.5 },
-      ],
-    };
-    const next = stepBedsideApproachExecution({
+  it("freezes rather than inventing motion when the clip is gone mid-stop", () => {
+    const next = step({
       execution: execution({ phase: "stopping", stopElapsedSeconds: 1, stopTriggerXz: { x: 1, z: 0 } }),
-      plan: plan(),
-      start: START,
-      target: TARGET,
-      targetHeadingRadians: TARGET_HEADING,
-      travelHeadingRadians: TRAVEL_HEADING,
-      observedGeometryRevision: "geom-test",
-      supportAccepted: true,
       observedPositionXz: { x: 1, z: 0 },
-      nowMs: 2000,
-      deltaSeconds: 0,
-      walkSpeedMetersPerSecond: WALK_SPEED,
-      settleTurnRateRadiansPerSecond: 1,
-      observedHeadingRadians: TRAVEL_HEADING,
-      stop: offset,
     });
     expect(next.phase).toBe("stopping");
-    // Clip time 3.0 of 5.5: track z 1.8 + (2.5 - 1.8) * (1.0 / 3.5), minus the t0 value 1.8.
-    expect(next.prescribedPositionXz.x).toBeCloseTo(1 + 0.7 * (1 / 3.5), 9);
-  });
-
-  it("ends the stop at duration minus the entry time", () => {
-    const offset: StopClipTrigger = { ...stop(), entryTimeS: 2.0 };
-    const ending = stepBedsideApproachExecution({
-      execution: execution({ phase: "stopping", stopElapsedSeconds: 3.5 - DT, stopTriggerXz: { x: 1, z: 0 } }),
-      plan: plan(),
-      start: START,
-      target: TARGET,
-      targetHeadingRadians: TARGET_HEADING,
-      travelHeadingRadians: TRAVEL_HEADING,
-      observedGeometryRevision: "geom-test",
-      supportAccepted: true,
-      observedPositionXz: { x: 2, z: 0 },
-      nowMs: 7000,
-      deltaSeconds: DT,
-      walkSpeedMetersPerSecond: WALK_SPEED,
-      settleTurnRateRadiansPerSecond: 1,
-      observedHeadingRadians: TRAVEL_HEADING,
-      stop: offset,
-    });
-    expect(ending.phase).toBe("settling");
-    const continuing = stepBedsideApproachExecution({
-      execution: execution({ phase: "stopping", stopElapsedSeconds: 1, stopTriggerXz: { x: 1, z: 0 } }),
-      plan: plan(),
-      start: START,
-      target: TARGET,
-      targetHeadingRadians: TARGET_HEADING,
-      travelHeadingRadians: TRAVEL_HEADING,
-      observedGeometryRevision: "geom-test",
-      supportAccepted: true,
-      observedPositionXz: { x: 2, z: 0 },
-      nowMs: 7000,
-      deltaSeconds: DT,
-      walkSpeedMetersPerSecond: WALK_SPEED,
-      settleTurnRateRadiansPerSecond: 1,
-      observedHeadingRadians: TRAVEL_HEADING,
-      stop: offset,
-    });
-    expect(continuing.phase).toBe("stopping");
-  });
-
-  it("scales the walk advance by the distance-matching factor without touching the drive", () => {
-    const slowed = step({
-      execution: execution(),
-      observedPositionXz: { x: 1, z: 0 },
-      walkSpeedFactor: 0.8,
-    });
-    expect(slowed.phase).toBe("walking");
-    expect(slowed.prescribedPositionXz.x).toBeCloseTo(1 + WALK_SPEED * 0.8 * DT, 12);
-    expect(slowed.drive).toEqual({ locomotion: 1 });
-    const hurried = step({
-      execution: execution(),
-      observedPositionXz: { x: 1, z: 0 },
-      walkSpeedFactor: 1.2,
-    });
-    expect(hurried.prescribedPositionXz.x).toBeCloseTo(1 + WALK_SPEED * 1.2 * DT, 12);
-    expect(hurried.drive).toEqual({ locomotion: 1 });
+    expect(next.drive).toEqual({ locomotion: 0 });
   });
 });

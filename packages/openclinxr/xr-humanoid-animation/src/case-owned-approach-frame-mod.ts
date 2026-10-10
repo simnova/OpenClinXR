@@ -55,7 +55,7 @@ export function advanceCaseOwnedBedsideApproach(
   const previousPhase = approach.execution.phase;
   // The baked-stop handoff inputs (`resolveStopTriggerInput`, stop-clip-playback-mod.ts): null
   // while the actor carries no stop take, which keeps the legacy ending.
-  const { stop: stopTrigger, walkStance, speedFactor } = resolveStopTriggerInput(approach);
+  const { stop: stopTrigger } = resolveStopTriggerInput(approach);
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -72,12 +72,10 @@ export function advanceCaseOwnedBedsideApproach(
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
-    ...(walkStance ? { walkStance } : {}),
-    ...(speedFactor !== 1 ? { walkSpeedFactor: speedFactor } : {}),
   });
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
-  updateStopPlayback(approach, previousPhase, input.deltaSeconds, stopTrigger ? { trigger: stopTrigger, speedFactor } : null);
+  updateStopPlayback(approach, previousPhase, input.deltaSeconds, stopTrigger ? { trigger: stopTrigger } : null);
   // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
   // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
   // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
@@ -153,9 +151,7 @@ export function advanceCaseOwnedBedsideApproach(
     travelledMeters: execution.travelledMeters,
     stoppedSeconds: execution.stoppedSeconds,
     stopTimeSeconds:
-      execution.phase === "stopping"
-        ? (approach.stopWiring?.entryTimeS ?? 0) + (execution.stopElapsedSeconds ?? 0)
-        : null,
+      execution.phase === "stopping" ? (execution.stopClipTimeS ?? null) : null,
     invalidationReason: execution.invalidationReason,
   };
 }

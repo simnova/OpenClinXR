@@ -11,7 +11,9 @@ export {
 } from "./bedside-approach-execution-mod.js";
 
 export {
-  type StopClipFoot,
   type StopClipTrigger,
+  buildDistanceCurve,
+  distanceCurveInverseS,
+  rootPathSpeedAtMps,
   sampleStopRootTrackXZ,
 } from "./bedside-approach-stop-mod.js";

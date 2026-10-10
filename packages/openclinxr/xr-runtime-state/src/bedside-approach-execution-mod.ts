@@ -1,6 +1,5 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
 import {
-  type StopClipFoot,
   type StopClipTrigger,
   stepStopHandoff,
 } from "./bedside-approach-stop-mod.js";
@@ -127,6 +126,12 @@ export type BedsideApproachExecution = {
   invalidationReason: string | null;
   /** Seconds since stopping began (0 elsewhere). Optional: older constructions still check. */
   stopElapsedSeconds?: number;
+  /**
+   * Distance-indexed clip time in seconds while stopping: R^-1(remaining), monotone and never
+   * rewinding. The mixer poses the root-removed take at this time; the slot advance stays
+   * procedural. Optional for older constructions; absent reads as the curve top.
+   */
+  stopClipTimeS?: number;
   /** Slot XZ on the stopping entry frame; the stop prescription is measured from here. */
   stopTriggerXz?: { x: number; z: number } | null;
 };
@@ -217,6 +222,7 @@ export function beginBedsideApproachExecution(input: {
     stoppedSeconds: 0,
     invalidationReason: null,
     stopElapsedSeconds: 0,
+    stopClipTimeS: 0,
     stopTriggerXz: null,
   };
 }
@@ -268,11 +274,6 @@ export function stepBedsideApproachExecution(input: {
   observedHeadingRadians: number;
   /** Baked stop take for this actor; absent means the walk ends as before. */
   stop?: StopClipTrigger | null;
-  /** Walk clip stance reading in the stop entry's label language; null until the walk poses. */
-  walkStance?: StopClipFoot | null;
-  /** Distance-matching rate (1 unsteered): scales the slot advance only; the clip rate stays
-   * constant so phase runs free and the meeting can actually move. Absent is 1. */
-  walkSpeedFactor?: number | null;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -388,8 +389,7 @@ export function stepBedsideApproachExecution(input: {
     };
   }
 
-  const frameAdvanceMeters =
-    (input.walkSpeedFactor ?? 1) * input.walkSpeedMetersPerSecond * input.deltaSeconds;
+  const frameAdvanceMeters = input.walkSpeedMetersPerSecond * input.deltaSeconds;
   const remainingMeters = routeLength - travelledMeters;
   // ANTICIPATORY TURN — attempted twice, reverted both times, and both measurements are recorded
   // rather than only the second.
@@ -446,7 +446,6 @@ export function stepBedsideApproachExecution(input: {
     remainingMeters,
     blendedHeadingRadians,
     ...(input.stop ? { stop: input.stop } : {}),
-    ...(input.walkStance ? { walkStance: input.walkStance } : {}),
   });
   if (entry) return entry;
 

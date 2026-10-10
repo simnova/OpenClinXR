@@ -38,6 +38,11 @@ import {
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
 } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.js";
+import { STOP_CROSSFADE_SECONDS } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/stop-clip-wiring-mod.js";
+import {
+  SETTLING_FADE_SETTLE_SECONDS,
+  SETTLING_LEG_WEIGHT_TARGET,
+} from "../../../../../../packages/openclinxr/xr-runtime-state/src/bedside-approach-execution-mod.js";
 import { observeMountedApproachGeometry } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.js";
 import { resolveEffectiveVerticalOffsetMeters } from "../../../../../../packages/openclinxr/xr-pose/src/actor-floor-composition.js";
 import { supportedActorPlacementPosition } from "../../../../../../packages/openclinxr/xr-runtime-state/src/supported-actor-placement.js";
@@ -235,6 +240,65 @@ function sampleTrack(samples: readonly JointSample[], clipMs: number, decoded: D
   return { ...fallback.position };
 }
 
+/** Linear interpolation of a decoded one-shot stop track at a clip time, clamped to the ends. */
+function sampleStopPose(
+  samples: readonly JointSample[],
+  firstMs: number,
+  rootTrack: ReadonlyArray<{ t: number; x: number; y: number; z: number }>,
+  refTSeconds: number,
+  clipSeconds: number,
+): Vector3 {
+  const first = samples[0];
+  const last = samples[samples.length - 1];
+  if (first === undefined || last === undefined) throw new Error("empty stop track");
+  // The decode stores travel-removed toes (world minus the root's own travel since key 0),
+  // but the skeleton plays the take with its root frozen at the ENTRY key: re-base onto
+  // root(refT) or the entry frame teleports by the whole opening travel (measured ~0.9 m).
+  // Stored = world(t) - root(t) + root(0); wanted = world(t) - root(t) + root(refT).
+  const interpSamples = (atMs: number): Vector3 => {
+    if (atMs <= first.atMs) return { ...first.position };
+    if (atMs >= last.atMs) return { ...last.position };
+    for (let index = 1; index < samples.length; index += 1) {
+      const a = samples[index - 1];
+      const b = samples[index];
+      if (a === undefined || b === undefined) continue;
+      if (atMs <= b.atMs) {
+        const u = (atMs - a.atMs) / (b.atMs - a.atMs);
+        return {
+          x: a.position.x + (b.position.x - a.position.x) * u,
+          y: a.position.y + (b.position.y - a.position.y) * u,
+          z: a.position.z + (b.position.z - a.position.z) * u,
+        };
+      }
+    }
+    return { ...last.position };
+  };
+  const interpRoot = (t: number): { x: number; z: number } => {
+    const head = rootTrack[0];
+    const tail = rootTrack[rootTrack.length - 1];
+    if (head === undefined || tail === undefined) return { x: 0, z: 0 };
+    if (t <= head.t) return { x: head.x, z: head.z };
+    if (t >= tail.t) return { x: tail.x, z: tail.z };
+    for (let index = 1; index < rootTrack.length; index += 1) {
+      const a = rootTrack[index - 1];
+      const b = rootTrack[index];
+      if (a === undefined || b === undefined) continue;
+      if (t <= b.t) {
+        const u = b.t > a.t ? (t - a.t) / (b.t - a.t) : 0;
+        return { x: a.x + (b.x - a.x) * u, z: a.z + (b.z - a.z) * u };
+      }
+    }
+    return { x: tail.x, z: tail.z };
+  };
+  const local = firstMs + clipSeconds * 1000;
+  const toe = interpSamples(local);
+  const head = rootTrack[0];
+  const rootRef = interpRoot(refTSeconds);
+  const baseX = head?.x ?? 0;
+  const baseZ = head?.z ?? 0;
+  return { x: toe.x - baseX + rootRef.x, y: toe.y, z: toe.z - baseZ + rootRef.z };
+}
+
 // ── Staging, exactly as the browser entry builds it ─────────────────────────────────────────────
 
 
@@ -363,24 +427,12 @@ export type ApproachRun = {
   stopFrameCount: number;
   stopTriggered: boolean;
   stopClipName: string | null;
-  stopEntryStance: { left: boolean; right: boolean } | null;
-  stopDisplacementMeters: number | null;
+  /** Entry clip time t0 = R^-1(remaining at entry), in seconds. Null when never triggered. */
   stopEntryTimeS: number | null;
+  /** R(tEarliest): the longest remaining the stop could engage from. */
+  stopRMaxM: number | null;
   stopDecelOnsetS: number | null;
   stopHoldOnsetS: number | null;
-  /** The distance-matching factor at the trigger frame. Null when the stop never triggered. */
-  matchSFinal: number | null;
-  /**
-   * Distance walked before the stopping entry frame past the trigger point, in metres: the
-   * phase-match wait. Floored at the route start when the trigger distance covers the whole
-   * route. Null when the stop never triggered.
-   */
-  triggerResidualM: number | null;
-  /**
-   * The implemented residual bound: one full walk-loop cycle of travel (walk speed times walk
-   * clip period). Null when the stop never triggered.
-   */
-  residualBoundM: number | null;
   travelHeadingRadians: number;
   clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
   invalidationReason: string | null;
@@ -578,6 +630,12 @@ export function runApproach(input: {
   let clipMs = 0;
   let locomotionActive = false;
   let stopActive = false;
+  /** Frame index of the walking->stopping transition (-1 until a stop fires): the blend anchor. */
+  let stopEntryFrameIndex = -1;
+  /** Last distance-indexed clip time posed during stopping: the settle-blend's hold anchor. */
+  let lastStopClipT: number | null = null;
+  /** Rest-fade anchor after the settle-blend (drive-0 settling): null until it starts. */
+  let settleFadeAnchor: { left: Vector3; right: Vector3; startIndex: number } | null = null;
   // Once a stop has completed into settling, the markers stay mixer- and close-driven for the
   // rest of the run: manual rest driving and the rest override would snap them to rest in one
   // frame (measured 0.55 m), short-circuiting the production arrival close that converges them
@@ -596,17 +654,126 @@ export function runApproach(input: {
       clipMs += dt * 1000;
       // Keeps `stanceAction.time` (what `resolveClipStanceForFrame` reads) in lockstep with the
       // SAME `clipMs` driving `toeL`/`toeR` — one simulated clock, not two independently-advancing
-      // ones that could drift apart. Matching steers the slot only; the clip rate stays
-      // constant here exactly as in a browser (the drive carries no rate factor).
+      // ones that could drift apart.
       stanceMixer.update(dt);
     }
     // A stopped drive settles the actor on the clip's REST frame, which is what
     // `playLocomotionClip` now does through `action.reset()` + one zero-delta mixer update.
-    // While stopping, the mixer poses the walk-to-stop blend itself (walk action fading, stop
-    // take fading in at the production weights the frame module sets), so the manual drive
-    // stands down exactly as the browser consumer does.
+    // While stopping, the markers follow the DECODED stop take (travel-removed, like the
+    // production root-removed clone) at the executor's distance-indexed clip time: the slot
+    // carries the travel procedurally, so replaying take-world toes would count it twice.
     const walking = locomotionActive || index === 0;
-    if (!stopActive && !stopCompleted) {
+    const stopPoseT = stopActive && !stopCompleted && stopData
+      ? (frames[frames.length - 1]?.stopTimeSeconds ?? null)
+      : null;
+    if (stopPoseT !== null && stopData) {
+      lastStopClipT = stopPoseT;
+      const refT = approach.stopWiring?.tEarliestS ?? stopPoseT;
+      const stopLocal = sampleStopPose(stopData.left, stopData.firstMs, stopData.rootTrack, refT, stopPoseT);
+      const stopLocalRight = sampleStopPose(stopData.right, stopData.firstMs, stopData.rootTrack, refT, stopPoseT);
+      // The production entry crossfade (walk 1->0, stop 0->1 over STOP_CROSSFADE_SECONDS with
+      // BOTH takes advancing): the markers morph with the same weights, so the lock grades the
+      // morph instead of a one-frame take switch (measured 0.5-0.69 m teleport grading as slide
+      // and dragging the slot 0.25 m sideways on the nurse).
+      const elapsedBlend = stopEntryFrameIndex >= 0 ? (index - stopEntryFrameIndex) * dt : Number.POSITIVE_INFINITY;
+      if (elapsedBlend <= STOP_CROSSFADE_SECONDS) {
+        const u = Math.max(0, elapsedBlend / STOP_CROSSFADE_SECONDS);
+        const walkLocal = sampleTrack(input.decoded.left, clipMs, input.decoded);
+        const walkLocalRight = sampleTrack(input.decoded.right, clipMs, input.decoded);
+        const local = {
+          x: walkLocal.x + (stopLocal.x - walkLocal.x) * u,
+          y: walkLocal.y + (stopLocal.y - walkLocal.y) * u,
+          z: walkLocal.z + (stopLocal.z - walkLocal.z) * u,
+        };
+        const localRight = {
+          x: walkLocalRight.x + (stopLocalRight.x - walkLocalRight.x) * u,
+          y: walkLocalRight.y + (stopLocalRight.y - walkLocalRight.y) * u,
+          z: walkLocalRight.z + (stopLocalRight.z - walkLocalRight.z) * u,
+        };
+        toeL.position.set(local.x, local.y, local.z);
+        toeR.position.set(localRight.x, localRight.y, localRight.z);
+      } else {
+        toeL.position.set(stopLocal.x, stopLocal.y, stopLocal.z);
+        toeR.position.set(stopLocalRight.x, stopLocalRight.y, stopLocalRight.z);
+      }
+    } else if (
+      stopData && stopCompleted
+      && approach.execution.phase === "settling"
+      && (approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined)
+      && lastStopClipT !== null
+    ) {
+      // The production settle-blend (stop hold fading out, walk growing to the settling leg
+      // weight over SETTLING_FADE_SETTLE_SECONDS): the markers morph with the same weights, or
+      // the walk mixer's full-weight overwrite grades as a 0.8 m teleport on the blend's first
+      // frame. The remainder (1 - blend) sits on the bound pose, proxied by the rest frame.
+      const blendT = approach.stopSettleBlendT ?? 0;
+      const u = Math.min(1, blendT / SETTLING_FADE_SETTLE_SECONDS);
+      const refT = approach.stopWiring?.tEarliestS ?? lastStopClipT;
+      const holdLocal = sampleStopPose(stopData.left, stopData.firstMs, stopData.rootTrack, refT, lastStopClipT);
+      const holdLocalRight = sampleStopPose(stopData.right, stopData.firstMs, stopData.rootTrack, refT, lastStopClipT);
+      const walkLocal = sampleTrack(input.decoded.left, clipMs, input.decoded);
+      const walkLocalRight = sampleTrack(input.decoded.right, clipMs, input.decoded);
+      const w = SETTLING_LEG_WEIGHT_TARGET * u;
+      const b = (1 - SETTLING_LEG_WEIGHT_TARGET) * u;
+      const mix = (
+        hold: Vector3, walk: Vector3, rest: Vector3,
+      ): Vector3 => ({
+        x: hold.x * (1 - u) + walk.x * w + rest.x * b,
+        y: hold.y * (1 - u) + walk.y * w + rest.y * b,
+        z: hold.z * (1 - u) + walk.z * w + rest.z * b,
+      });
+      const local = mix(holdLocal, walkLocal, input.decoded.restLeft);
+      const localRight = mix(holdLocalRight, walkLocalRight, input.decoded.restRight);
+      toeL.position.set(local.x, local.y, local.z);
+      toeR.position.set(localRight.x, localRight.y, localRight.z);
+    } else if (
+      stopData && stopCompleted
+      && approach.execution.phase === "settling"
+      && (approach.stopSettleBlendT === null || approach.stopSettleBlendT === undefined)
+      && locomotionActive
+    ) {
+      // Post-blend turn stepping: the consumer holds the walk at the settling leg weight.
+      const walkLocal = sampleTrack(input.decoded.left, clipMs, input.decoded);
+      const walkLocalRight = sampleTrack(input.decoded.right, clipMs, input.decoded);
+      const w = SETTLING_LEG_WEIGHT_TARGET;
+      const b = 1 - SETTLING_LEG_WEIGHT_TARGET;
+      toeL.position.set(
+        walkLocal.x * w + input.decoded.restLeft.x * b,
+        walkLocal.y * w + input.decoded.restLeft.y * b,
+        walkLocal.z * w + input.decoded.restLeft.z * b,
+      );
+      toeR.position.set(
+        walkLocalRight.x * w + input.decoded.restRight.x * b,
+        walkLocalRight.y * w + input.decoded.restRight.y * b,
+        walkLocalRight.z * w + input.decoded.restRight.z * b,
+      );
+    } else if (
+      stopData && stopCompleted
+      && approach.execution.phase === "settling"
+      && (approach.stopSettleBlendT === null || approach.stopSettleBlendT === undefined)
+      && !locomotionActive
+    ) {
+      // Drive-0 fade wait: the consumer fades the action toward the bound pose over the same
+      // window. Anchored morph to rest; the arrival close owns the toes after this phase.
+      if (settleFadeAnchor === null) {
+        settleFadeAnchor = {
+          left: { x: toeL.position.x, y: toeL.position.y, z: toeL.position.z },
+          right: { x: toeR.position.x, y: toeR.position.y, z: toeR.position.z },
+          startIndex: index,
+        };
+      }
+      const u = Math.min(1, ((index - settleFadeAnchor.startIndex) * dt) / SETTLING_FADE_SETTLE_SECONDS);
+      toeL.position.set(
+        settleFadeAnchor.left.x + (input.decoded.restLeft.x - settleFadeAnchor.left.x) * u,
+        settleFadeAnchor.left.y + (input.decoded.restLeft.y - settleFadeAnchor.left.y) * u,
+        settleFadeAnchor.left.z + (input.decoded.restLeft.z - settleFadeAnchor.left.z) * u,
+      );
+      toeR.position.set(
+        settleFadeAnchor.right.x + (input.decoded.restRight.x - settleFadeAnchor.right.x) * u,
+        settleFadeAnchor.right.y + (input.decoded.restRight.y - settleFadeAnchor.right.y) * u,
+        settleFadeAnchor.right.z + (input.decoded.restRight.z - settleFadeAnchor.right.z) * u,
+      );
+    } else if (!stopActive && !stopCompleted) {
       const local = walking ? sampleTrack(input.decoded.left, clipMs, input.decoded) : input.decoded.restLeft;
       const localRight = walking ? sampleTrack(input.decoded.right, clipMs, input.decoded) : input.decoded.restRight;
       toeL.position.set(local.x, local.y, local.z);
@@ -621,6 +788,7 @@ export function runApproach(input: {
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
     if (stopActive && frame.phase !== "stopping") stopCompleted = true;
+    if (!stopActive && frame.phase === "stopping") stopEntryFrameIndex = index;
     stopActive = frame.phase === "stopping";
     // Production `playLocomotionClip` settles on the clip rest frame when locomotion is zero. The
     // first settling sample would otherwise still carry the last walk pose because this instrument
@@ -678,38 +846,10 @@ export function runApproach(input: {
     stopFrameCount: path.filter((entry) => entry.phase === "stopping").length,
     stopTriggered: path.some((entry) => entry.phase === "stopping"),
     stopClipName: approach.stopWiring?.clipName ?? null,
-    stopEntryStance: approach.stopFired?.entryStance
-      ?? (approach.stopWiring
-        ? { left: approach.stopWiring.entryStance.left, right: approach.stopWiring.entryStance.right }
-        : null),
-    stopDisplacementMeters: approach.stopFired?.displacementMeters
-      ?? approach.stopWiring?.displacementMeters ?? null,
-    stopEntryTimeS: approach.stopFired?.entryTimeS ?? approach.stopWiring?.entryTimeS ?? null,
+    stopEntryTimeS: approach.stopFired?.t0S ?? null,
+    stopRMaxM: approach.stopFired?.rMaxM ?? approach.stopWiring?.rMaxM ?? null,
     stopDecelOnsetS: approach.stopWiring?.decelOnsetS ?? null,
     stopHoldOnsetS: approach.stopWiring?.holdOnsetS ?? null,
-    matchSFinal: approach.stopFired?.speedFactor ?? null,
-    triggerResidualM: (() => {
-      const entryIndex = path.findIndex((entry) => entry.phase === "stopping");
-      const displacement = approach.stopFired?.displacementMeters
-        ?? approach.stopWiring?.displacementMeters;
-      if (entryIndex < 0 || displacement === undefined) return null;
-      let routeLength = 0;
-      const waypoints = input.intent.plan.waypoints;
-      for (let index = 1; index < waypoints.length; index += 1) {
-        const from = waypoints[index - 1]?.position;
-        const to = waypoints[index]?.position;
-        if (from === undefined || to === undefined) continue;
-        routeLength += Math.hypot(to.x - from.x, to.z - from.z);
-      }
-      const travelledAtEntry = frames[entryIndex]?.travelledMeters ?? 0;
-      // Floored at the route start: when the trigger distance covers the whole route (D >=
-      // routeLength here), the wait starts at the walk's first frame and the residual is the
-      // distance walked before the stance phases matched.
-      return travelledAtEntry - Math.max(0, routeLength - displacement);
-    })(),
-    residualBoundM: approach.stopWiring
-      ? approach.walkSpeedMetersPerSecond * (input.decoded.periodMs / 1000)
-      : null,
     travelHeadingRadians: approach.travelHeadingRadians,
     clipAdvance,
     floorBandPlant: approach.floorBandPlant,

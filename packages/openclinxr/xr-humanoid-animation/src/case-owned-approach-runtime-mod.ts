@@ -135,10 +135,10 @@ export type CaseOwnedBedsideApproach = {
    * Null until a stop fires.
    */
   stopFired?: {
-    displacementMeters: number;
-    entryTimeS: number;
-    entryStance: { left: boolean; right: boolean };
-    speedFactor: number;
+    /** Entry clip time t0 = R^-1(remaining at entry), in seconds. */
+    t0S: number;
+    /** R(tEarliest): the longest remaining the stop could engage from. */
+    rMaxM: number;
   } | null;
   /**
    * Seconds into the stopping-to-settling settle-blend, or null/undefined when inactive. While

@@ -1,6 +1,7 @@
 import {
+  buildDistanceCurve,
+  distanceCurveInverseS,
   sampleStopRootTrackXZ,
-  type StopClipFoot,
   type StopClipTrigger,
   travelYawForClipForward,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
@@ -16,9 +17,9 @@ import {
  * Walk-to-stop handoff wiring, resolved lazily from the actor's own bound clips.
  *
  * The runtime never names a stop clip per actor. It finds one by prefix among the clips the
- * actor already carries, measures everything off it (entry stance from one-shot labels at time
- * 0 against the actor's own walk band, travel and forward from its root-bone keys), and hands
- * the result to the phase machine as a `StopClipTrigger`. No clip found, or any measurement missing, resolves
+ * actor already carries, measures everything off it (decel onset off the root-bone speed
+ * track, the R(t) curve off the root-bone XZ keys, labels for the stance lock), and hands the
+ * result to the phase machine as a `StopClipTrigger`. No clip found, or any measurement missing, resolves
  * null and the walk ends exactly as before — that null is the whole feature gate.
  */
 
@@ -43,29 +44,26 @@ type WiringSlot = {
 
 export type StopClipWiring = {
   clipName: string;
-  entryStance: StopClipFoot;
-  /** Clip time playback starts at: the last entry-foot stance window before deceleration. */
-  entryTimeS: number;
+  /** Earliest admissible entry: one walk cycle before decel onset, stance-snapped. */
+  tEarliestS: number;
+  /** R(tEarliest): the longest remaining the stop can engage from. */
+  rMaxM: number;
+  /** R(decelOnset): routes shorter than this cannot fit the deceleration. */
+  rDecelM: number;
   /** First root-speed drop below 95% of steady walk, confirmed over the next second. */
   decelOnsetS: number;
   /** First near-stopped root time at or after onset (below 2% of steady walk). */
   holdOnsetS: number;
-  /**
-   * Every entry-foot stance-window start before decel onset, earliest first, each with its own
-   * trigger distance. The distance matcher picks among these when the default (last) would
-   * clamp the speed factor; earlier windows trade playing more of the take for a closer rate.
-   */
-  entryCandidates: Array<{ t0S: number; entryStance: StopClipFoot; displacementMeters: number }>;
   /** The stop take's own stance labels, sampled once at wiring time. */
   labels: LocomotionStanceLabels;
   rootTrackXz: StopClipTrigger["rootTrackXz"];
-  displacementMeters: number;
+  distCurve: StopClipTrigger["distCurve"];
   durationSeconds: number;
   routeYawRadians: number;
   /**
    * The stop take with its root-bone horizontal travel removed (every root XZ key reset to the
-   * first key). The mixer plays this while the slot carries the travel, so the travel counts
-   * once. Toe and vertical keys are untouched.
+   * entry key). The mixer plays this while the slot carries the travel procedurally, so the
+   * travel counts once. Toe and vertical keys are untouched.
    */
   noRootClip: AnimationClip;
 };
@@ -152,21 +150,6 @@ export function stopDecelOnsetS(
   return null;
 }
 
-/**
- * Start of the last stance window of the given foot that begins before onsetS, from one-shot
- * labels. Windows are run-length filtered (calibration speckle reads as isolated flips). The
- * handoff plays the clip from here instead of frame 0, so the runtime never replays the take's
- * opening steady walk. Null when no window qualifies.
- */
-export function stopEntryTimeS(
-  labels: LocomotionStanceLabels,
-  foot: "left" | "right",
-  onsetS: number,
-): number | null {
-  const starts = footRunStarts(labels, foot, 3).filter((start) => start < onsetS);
-  return starts.length > 0 ? (starts[starts.length - 1] ?? null) : null;
-}
-
 /** Net horizontal travel direction over the whole track (label axis; rotation uses the span). */
 function fullNetForward(track: StopClipWiring["rootTrackXz"]): { x: number; z: number } {
   const first = track[0];
@@ -178,7 +161,7 @@ function fullNetForward(track: StopClipWiring["rootTrackXz"]): { x: number; z: n
 /**
  * Max perpendicular distance of the span path (t >= t0) from its chord, in metres. The span
  * yaw maps the chord onto the route; a deviating span maps laterally instead, and the stance
- * pin then eats the advance fighting it. Candidates above the matcher's allowance are unusable.
+ * pin then eats the advance fighting it. Spans above the allowance resolve null (legacy).
  */
 export function spanStraightDeviationM(
   track: StopClipWiring["rootTrackXz"],
@@ -206,13 +189,16 @@ export function spanStraightDeviationM(
 /**
  * Build the handoff wiring for an actor's slot, or null when there is no stop take to hand to.
  * Pure against the clips; the caller caches the result per approach and rebuilds when the clip
- * name changes. Travel, forward, and playback start are measured from the entry time: the last
- * entry-foot stance window before deceleration, so the trigger distance covers the stop rather
- * than the take's opening walk.
+ * name changes. The R(t) curve runs from the earliest admissible entry — one walk cycle before
+ * decel onset, snapped to the latest stance-window start at or before that time — to the last
+ * key, so the entry gate (remaining inside R's range) engages on every route long enough to
+ * fit the deceleration.
  */
 export function resolveStopWiring(input: {
   labelSlot: WiringSlot | null;
   travelHeadingRadians: number;
+  /** One full cycle of the actor's walk clip, in seconds; absent leaves the default entry. */
+  cycleSeconds?: number | null;
 }): StopClipWiring | null {
   const slot = input.labelSlot;
   if (slot === null) return null;
@@ -241,8 +227,8 @@ export function resolveStopWiring(input: {
   // Forward is the net travel direction of the played span, NOT the stance-window advance the
   // walk uses. A one-shot stop spends its longest contact run standing in the hold (both feet
   // down, millimetres of drift — a noise direction), while its body travels metres; the span
-  // vector is the travel, and it is the same vector the trigger distance is measured from, so
-  // distance and direction cannot disagree.
+  // vector is the travel, and it is the same vector the R curve is measured from, so distance
+  // and direction cannot disagree.
   const labels = resolveOneShotStanceLabels(
     stopSlot as Parameters<typeof resolveOneShotStanceLabels>[0],
     { netForward: fullNetForward(rootTrackXz) },
@@ -255,54 +241,40 @@ export function resolveStopWiring(input: {
     if (atZero.left) return "left";
     return "right";
   })();
-  const entryTimeS = stopEntryTimeS(labels, entryFoot, decelOnsetS);
-  if (entryTimeS === null) return null;
-  const entry = stanceAtTime(labels, entryTimeS);
-  const entryStance: StopClipFoot = { left: entry.left, right: entry.right };
-  if (!entryStance.left && !entryStance.right) return null;
-  // Every entry-foot window start before onset, earliest first: the matcher falls back to
-  // earlier (longer-distance) entries when the default would force the rate out of bounds.
-  const entryCandidates: StopClipWiring["entryCandidates"] = [];
-  const startXz = sampleStopRootTrackXZ(rootTrackXz, entryTimeS);
+  const starts = footRunStarts(labels, entryFoot, 3).filter((start) => start < decelOnsetS);
+  if (starts.length === 0) return null;
+  // Earliest admissible entry: one walk cycle before decel onset, snapped to the latest
+  // stance-window start at or before that time (the window start is a continuity anchor the
+  // crossfade can land on). Falls back to the raw time, then to the latest start before
+  // onset, so a missing cycle never silently shrinks the range to a miss.
+  const cycle = input.cycleSeconds ?? null;
+  let tEarliestS = starts[starts.length - 1] ?? decelOnsetS;
+  if (cycle !== null && cycle !== undefined && cycle > 0) {
+    const raw = decelOnsetS - cycle;
+    const snapped = [...starts].reverse().find((start) => start <= raw);
+    tEarliestS = snapped ?? Math.max(0, raw);
+  }
+  if (!(tEarliestS < decelOnsetS)) return null;
+  if (spanStraightDeviationM(rootTrackXz, tEarliestS) > 0.1) return null;
+  const distCurve = buildDistanceCurve(rootTrackXz, tEarliestS);
+  if (distCurve.length < 2) return null;
+  const rMaxM = distCurve[0]?.r ?? 0;
+  if (!(rMaxM > 0)) return null;
   const endXz = sampleStopRootTrackXZ(rootTrackXz, clip.duration);
-  const displacementMeters = Math.hypot(endXz.x - startXz.x, endXz.z - startXz.z);
-  if (!(displacementMeters > 0)) return null;
-  const forward = { x: endXz.x - startXz.x, z: endXz.z - startXz.z };
-  {
-    for (const startS of footRunStarts(labels, entryFoot, 3)) {
-      if (startS >= decelOnsetS) continue;
-      const pair = stanceAtTime(labels, startS);
-      const fromXz = sampleStopRootTrackXZ(rootTrackXz, startS);
-      const candidateD = Math.hypot(endXz.x - fromXz.x, endXz.z - fromXz.z);
-      if (candidateD > 0) {
-        entryCandidates.push({
-          t0S: startS,
-          entryStance: { left: pair.left, right: pair.right },
-          displacementMeters: candidateD,
-        });
-      }
-    }
-  }
-  if (entryCandidates.length === 0) return null;
-  if ((globalThis as Record<string, unknown>)["__S1_DEBUG_WIRE"] === true) {
-    console.error(
-      `[s1wire] ${clipName} onset=${decelOnsetS.toFixed(3)} hold=${holdOnsetS.toFixed(3)} default t0=${entryTimeS.toFixed(3)} D=${displacementMeters.toFixed(3)}`,
-    );
-    for (const c of entryCandidates) {
-      console.error(
-        `[s1wire] cand t0=${c.t0S.toFixed(3)} D=${c.displacementMeters.toFixed(3)} foot=${c.entryStance.left ? "L" : "-"}${c.entryStance.right ? "R" : "-"} dev=${spanStraightDeviationM(rootTrackXz, c.t0S).toFixed(3)}`,
-      );
-    }
-  }
+  const earliestXz = sampleStopRootTrackXZ(rootTrackXz, tEarliestS);
+  const forward = { x: endXz.x - earliestXz.x, z: endXz.z - earliestXz.z };
+  if (!(Math.hypot(forward.x, forward.z) > 0)) return null;
+  const rDecelM = curveDistanceAt(distCurve, decelOnsetS);
   const noRootClip = clip.clone();
   const rootTrack = noRootClip.tracks.find((candidate) => candidate.name === "root.position");
   if (rootTrack) {
-    // Freeze at the entry key, not the first key: the slot prescription is measured from t0,
-    // so the skeleton must sit at the t0 offset or the whole body inherits a two-metre error.
+    // Freeze at the entry key: the slot prescription is measured from tEarliest, and entry
+    // lands within one frame of it, so the skeleton sits at the entry offset instead of
+    // inheriting the take's whole opening travel as a rigid error.
     let entryIndex = 0;
     let entryDistance = Number.POSITIVE_INFINITY;
     for (let index = 0; index < rootTrack.times.length; index += 1) {
-      const distance = Math.abs((rootTrack.times[index] ?? 0) - entryTimeS);
+      const distance = Math.abs((rootTrack.times[index] ?? 0) - tEarliestS);
       if (distance < entryDistance) {
         entryDistance = distance;
         entryIndex = index;
@@ -319,16 +291,39 @@ export function resolveStopWiring(input: {
   }
   return {
     clipName,
-    entryStance,
-    entryTimeS,
+    tEarliestS,
+    rMaxM,
+    rDecelM,
     decelOnsetS,
     holdOnsetS,
-    entryCandidates,
     labels,
     rootTrackXz,
-    displacementMeters,
+    distCurve,
     durationSeconds: clip.duration,
     routeYawRadians: travelYawForClipForward(input.travelHeadingRadians, forward),
     noRootClip,
   };
+}
+
+/** Sample r at clip time t on a dist curve (piecewise-linear, clamped to the ends). */
+function curveDistanceAt(
+  curve: ReadonlyArray<{ t: number; r: number }>,
+  timeSeconds: number,
+): number {
+  const first = curve[0];
+  const last = curve[curve.length - 1];
+  if (first === undefined || last === undefined) return 0;
+  if (timeSeconds <= first.t) return first.r;
+  if (timeSeconds >= last.t) return last.r;
+  for (let index = 1; index < curve.length; index += 1) {
+    const previous = curve[index - 1];
+    const next = curve[index];
+    if (previous === undefined || next === undefined) continue;
+    if (timeSeconds <= next.t) {
+      const span = next.t - previous.t;
+      const blend = span > 0 ? (timeSeconds - previous.t) / span : 0;
+      return previous.r + (next.r - previous.r) * blend;
+    }
+  }
+  return last.r;
 }

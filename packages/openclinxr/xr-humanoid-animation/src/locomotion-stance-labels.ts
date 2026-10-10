@@ -375,7 +375,7 @@ export function resolveOneShotStanceLabels(
 
 /**
  * Start times (seconds) of runs of at least `minRun` consecutive samples reading the given
- * foot (or pair) as stance. Calibration sampling leaves isolated single-sample flips that
+ * foot as stance. Calibration sampling leaves isolated single-sample flips that
  * nearest-sample readers never notice but forward scans trip on; runs see windows, not speckle.
  */
 export function footRunStarts(
@@ -385,18 +385,6 @@ export function footRunStarts(
 ): number[] {
   const track = foot === "left" ? labels.left : labels.right;
   return runStarts(labels, minRun, (index) => track[index] === true);
-}
-
-export function pairRunStarts(
-  labels: LocomotionStanceLabels,
-  pair: { left: boolean; right: boolean },
-  minRun: number,
-): number[] {
-  return runStarts(
-    labels,
-    minRun,
-    (index) => labels.left[index] === pair.left && labels.right[index] === pair.right,
-  );
 }
 
 function runStarts(
