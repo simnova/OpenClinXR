@@ -353,6 +353,18 @@ export function playLocomotionClip(
   return true;
 }
 
+/**
+ * Seed the leg-weight ramp state both `playLocomotionClip` and the stop settle-blend read and
+ * write. Single owner of the userData key: the frame module seeds it across the stopping to
+ * settling handoff so the consumer's ramp continues from the blend instead of restarting.
+ */
+export function seedLocomotionLegWeight(
+  root: { userData: Record<string, unknown> },
+  value: number,
+): void {
+  (root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] = { current: value };
+}
+
 /** Crossfade duration in seconds for upper-body blend in/out. */
 export const LOCOMOTION_CROSSFADE_DURATION_S = 0.3;
 /** Ramp duration for `legWeightTarget` changes (`playLocomotionClip`'s leg-weight ramp). */

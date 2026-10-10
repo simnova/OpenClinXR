@@ -365,6 +365,9 @@ export type ApproachRun = {
   stopClipName: string | null;
   stopEntryStance: { left: boolean; right: boolean } | null;
   stopDisplacementMeters: number | null;
+  stopEntryTimeS: number | null;
+  stopDecelOnsetS: number | null;
+  stopHoldOnsetS: number | null;
   /**
    * Distance walked before the stopping entry frame past the trigger point, in metres: the
    * phase-match wait. Floored at the route start when the trigger distance covers the whole
@@ -573,13 +576,21 @@ export function runApproach(input: {
   let clipMs = 0;
   let locomotionActive = false;
   let stopActive = false;
-  let prevPhase = "not_started";
+  // Once a stop has completed into settling, the markers stay mixer- and close-driven for the
+  // rest of the run: manual rest driving and the rest override would snap them to rest in one
+  // frame (measured 0.55 m), short-circuiting the production arrival close that converges them
+  // gradually on arrived. Walk-case runs never set this and keep byte-for-byte behavior.
+  let stopCompleted = false;
   for (let index = 0; index < Math.round(input.seconds * SIMULATION_HZ); index += 1) {
     const nowMs = index * dt * 1000;
     const override = input.perturb?.(index);
     // POSE FIRST, exactly as the frame loop does: `animation-loop.ts` calls `mixer.update` before
-    // it reads the drive, so the skeleton the stance lock measures is this frame's pose.
-    if (locomotionActive) {
+    // it reads the drive, so the skeleton the stance lock measures is this frame's pose. The
+    // settle-blend keeps updating after the drive drops: the frame module owns both mixer weights
+    // until the blend ends, exactly as in a browser.
+    const settleBlending =
+      approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
+    if (locomotionActive || settleBlending) {
       clipMs += dt * 1000;
       // Keeps `stanceAction.time` (what `resolveClipStanceForFrame` reads) in lockstep with the
       // SAME `clipMs` driving `toeL`/`toeR` — one simulated clock, not two independently-advancing
@@ -592,7 +603,7 @@ export function runApproach(input: {
     // take fading in at the production weights the frame module sets), so the manual drive
     // stands down exactly as the browser consumer does.
     const walking = locomotionActive || index === 0;
-    if (!stopActive) {
+    if (!stopActive && !stopCompleted) {
       const local = walking ? sampleTrack(input.decoded.left, clipMs, input.decoded) : input.decoded.restLeft;
       const localRight = walking ? sampleTrack(input.decoded.right, clipMs, input.decoded) : input.decoded.restRight;
       toeL.position.set(local.x, local.y, local.z);
@@ -606,18 +617,16 @@ export function runApproach(input: {
       supportAccepted: override?.supportAccepted ?? true,
     });
     if (frame === null) throw new Error("advanceCaseOwnedBedsideApproach returned null for a live approach");
-    // Production restarts the walk take on the settling entry (consumer playback); the assay's
-    // mixer needs the same restart, or the settling turn reads the stopped walk action's frozen
-    // time and never closes.
-    if (frame.phase === "settling" && prevPhase === "stopping") {
-      stanceAction.reset().play();
-    }
-    prevPhase = frame.phase;
+    if (stopActive && frame.phase !== "stopping") stopCompleted = true;
     stopActive = frame.phase === "stopping";
     // Production `playLocomotionClip` settles on the clip rest frame when locomotion is zero. The
     // first settling sample would otherwise still carry the last walk pose because this instrument
-    // advances clip time from the previous frame's drive.
-    if (frame.phase === "settling" || frame.phase === "arrived") {
+    // advances clip time from the previous frame's drive. Skipped while the settle-blend runs:
+    // the mixer shows the production blend (stop fading, walk growing) and a rest snap here
+    // would grade the instrument's own teleport instead of the handoff.
+    const blendingNow =
+      approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
+    if ((frame.phase === "settling" || frame.phase === "arrived") && !blendingNow && !stopCompleted) {
       toeL.position.set(input.decoded.restLeft.x, input.decoded.restLeft.y, input.decoded.restLeft.z);
       toeR.position.set(input.decoded.restRight.x, input.decoded.restRight.y, input.decoded.restRight.z);
       slot.updateMatrixWorld(true);
@@ -670,6 +679,9 @@ export function runApproach(input: {
       ? { left: approach.stopWiring.entryStance.left, right: approach.stopWiring.entryStance.right }
       : null,
     stopDisplacementMeters: approach.stopWiring?.displacementMeters ?? null,
+  stopEntryTimeS: approach.stopWiring?.entryTimeS ?? null,
+  stopDecelOnsetS: approach.stopWiring?.decelOnsetS ?? null,
+  stopHoldOnsetS: approach.stopWiring?.holdOnsetS ?? null,
     triggerResidualM: (() => {
       const entryIndex = path.findIndex((entry) => entry.phase === "stopping");
       const displacement = approach.stopWiring?.displacementMeters;

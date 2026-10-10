@@ -1,5 +1,7 @@
-import type {
-  StopClipTrigger,
+import {
+  SETTLING_FADE_SETTLE_SECONDS,
+  SETTLING_LEG_WEIGHT_TARGET,
+  type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import type {
   CaseOwnedBedsideApproach,
@@ -13,6 +15,7 @@ import {
   STOP_CROSSFADE_SECONDS,
   resolveStopWiring,
 } from "./stop-clip-wiring-mod.js";
+import { createStanceLockState } from "./stance-lock-mod.js";
 
 /**
  * Stop-take playback for the case-owned approach, split out of
@@ -48,10 +51,11 @@ export function resolveClipStanceForFrame(
 }
 
 /**
- * The stop take's stance reading for this frame: the wiring's own labels at the executor's stop
- * elapsed time. The mixer action's time is NOT read: both actions advance one dt per frame at
- * rate 1 through the handoff, so the executor's elapsed time and the playing action agree, and
- * the headless assay (which poses markers without advancing a stop action) reads the same value.
+ * The stop take's stance reading for this frame: the wiring's own labels at the played clip
+ * time (entry offset plus executor elapsed). The mixer action's time is NOT read: both actions
+ * advance one dt per frame at rate 1 through the handoff, so the executor's elapsed time and
+ * the playing action agree, and the headless assay (which poses markers without advancing a
+ * stop action) reads the same value.
  */
 export function resolveStopStanceForFrame(
   approach: CaseOwnedBedsideApproach,
@@ -59,7 +63,7 @@ export function resolveStopStanceForFrame(
   const wiring = approach.stopWiring;
   if (!wiring) return undefined;
   const elapsedSeconds = approach.execution.stopElapsedSeconds ?? 0;
-  return { labels: wiring.labels, actionTimeSeconds: elapsedSeconds };
+  return { labels: wiring.labels, actionTimeSeconds: wiring.entryTimeS + elapsedSeconds };
 }
 
 /**
@@ -89,6 +93,7 @@ export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
       displacementMeters: wiring.displacementMeters,
       durationSeconds: wiring.durationSeconds,
       entryStance: wiring.entryStance,
+      entryTimeS: wiring.entryTimeS,
       rootTrackXz: wiring.rootTrackXz,
       routeYawRadians: wiring.routeYawRadians,
     },
@@ -112,11 +117,12 @@ function walkMixerAction(approach: CaseOwnedBedsideApproach) {
 }
 
 /**
- * Stopping entry: play the root-removed stop take at weight 0 and claim the mixer. The consumer
- * skips its own walk playback while the flag is set; the per-frame blend below raises the stop
- * weight while lowering the walk weight across STOP_CROSSFADE_SECONDS, then stops the walk
- * action. The walk-phase chain claim stays in place through the handoff: the same locomotion
- * owner keeps driving the legs.
+ * Stopping entry: play the root-removed stop take from the entry time at weight 0 and claim the
+ * mixer. The consumer skips its own walk playback while the flag is set; the per-frame blend
+ * below raises the stop weight while lowering the walk weight across STOP_CROSSFADE_SECONDS
+ * (the walk take itself is never stopped, so its time stays continuous for the settling turn).
+ * The walk-phase chain claim stays in place through the handoff:
+ * the same locomotion owner keeps driving the legs.
  */
 export function startStopClipPlayback(approach: CaseOwnedBedsideApproach): void {
   const slot = approach.stanceLabelSlot;
@@ -124,6 +130,7 @@ export function startStopClipPlayback(approach: CaseOwnedBedsideApproach): void 
   if (slot?.mixer === undefined || !wiring) return;
   const action = slot.mixer.clipAction(wiring.noRootClip);
   action.reset();
+  action.time = wiring.entryTimeS;
   action.timeScale = 1;
   action.setEffectiveWeight(0);
   action.play();
@@ -135,12 +142,39 @@ export function blendStopClipPlayback(approach: CaseOwnedBedsideApproach, elapse
   const stopAction = stopMixerAction(approach);
   if (stopAction) stopAction.setEffectiveWeight(weight);
   const walkAction = walkMixerAction(approach);
-  if (walkAction) {
-    if (weight >= 1) {
-      walkAction.stop();
-    } else {
-      walkAction.setEffectiveWeight(1 - weight);
-    }
+  // The walk take is only faded, never stopped: its time stays continuous through the handoff
+  // so the settling turn reads unbroken walk phase afterwards.
+  if (walkAction) walkAction.setEffectiveWeight(1 - weight);
+}
+
+/**
+ * Per-frame stop mixer management, called after the executor step with the previous phase:
+ * stopping entry (fresh lock, stop take from the entry time), crossfade, exits, and the
+ * stopping-to-settling settle-blend with its per-frame advance.
+ */
+export function updateStopPlayback(
+  approach: CaseOwnedBedsideApproach,
+  previousPhase: string,
+  deltaSeconds: number,
+): void {
+  const phase = approach.execution.phase;
+  if (previousPhase !== "stopping" && phase === "stopping") {
+    // First stopping frame's pose predates the stop take (same discipline as the walk start):
+    // re-anchor the lock and disarm for one frame rather than reading the pose change as slide.
+    approach.lock = createStanceLockState();
+    approach.lockArmed = false;
+    startStopClipPlayback(approach);
+  } else if (phase === "stopping") {
+    approach.lockArmed = true;
+    blendStopClipPlayback(approach, approach.execution.stopElapsedSeconds ?? 0);
+  }
+  if (previousPhase === "stopping" && phase === "settling") {
+    beginStopSettleBlend(approach);
+  } else if (previousPhase === "stopping" && phase !== "stopping") {
+    teardownStopClipPlayback(approach);
+  }
+  if (phase === "settling") {
+    updateStopSettleBlend(approach, deltaSeconds);
   }
 }
 
@@ -153,4 +187,61 @@ export function teardownStopClipPlayback(approach: CaseOwnedBedsideApproach): vo
   }
   const slot = approach.stanceLabelSlot;
   if (slot) delete (slot.root.userData as Record<string, unknown>)[STOP_PLAYING_FLAG];
+  approach.stopSettleBlendT = null;
+}
+
+/**
+ * Stopping-to-settling entry: grow the settle-blend over the fade window. The walk take is
+ * already running (silenced, phase-continuous through the stop — see the blend above), so it
+ * is only (re)started here as a defensive fallback; the seed drops its weight to zero and the
+ * blend below grows it back to the settling weight while the stop take fades out. The consumer
+ * stands down until the blend ends (flag stays set) and resumes from the synced ramp. The walk
+ * clip's frame 0 is its symmetric rest frame, so even the fallback opens near standing.
+ */
+export function beginStopSettleBlend(approach: CaseOwnedBedsideApproach): void {
+  const slot = approach.stanceLabelSlot;
+  if (slot?.mixer === undefined) return;
+  const walkAction = walkMixerAction(approach);
+  if (walkAction && !walkAction.isRunning()) {
+    walkAction.reset();
+    walkAction.play();
+  }
+  // Seed the consumer's ramp at zero (its key, owned by locomotion-clip-playback-mod): without
+  // the seed the consumer's first settling frame snaps the restarted take to full weight — and
+  // on the drive-zero entry frame it stops the take outright.
+  (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] = { current: 0 };
+  approach.stopSettleBlendT = 0;
+}
+
+/**
+ * One settling frame of the settle-blend. After the window the stop action parks, the flag
+ * clears with the consumer's ramp synced to the blend end, and the consumer owns the mixer
+ * again. Any exit from settling mid-blend finishes immediately.
+ */
+export function updateStopSettleBlend(approach: CaseOwnedBedsideApproach, deltaSeconds: number): void {
+  const started = approach.stopSettleBlendT;
+  if (started === null || started === undefined) return;
+  if (approach.execution.phase !== "settling") {
+    teardownStopClipPlayback(approach);
+    return;
+  }
+  const t = started + deltaSeconds;
+  const u = Math.min(1, t / SETTLING_FADE_SETTLE_SECONDS);
+  const stopAction = stopMixerAction(approach);
+  if (stopAction) stopAction.setEffectiveWeight(1 - u);
+  const walkAction = walkMixerAction(approach);
+  if (walkAction) walkAction.setEffectiveWeight(SETTLING_LEG_WEIGHT_TARGET * u);
+  if (u >= 1) {
+    const slot = approach.stanceLabelSlot;
+    if (slot) {
+      // Sync the consumer's ramp to the blend end: its first post-blend frame continues at the
+      // settling leg weight instead of dipping back to the seed.
+      (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] = {
+        current: SETTLING_LEG_WEIGHT_TARGET,
+      };
+    }
+    teardownStopClipPlayback(approach);
+    return;
+  }
+  approach.stopSettleBlendT = t;
 }

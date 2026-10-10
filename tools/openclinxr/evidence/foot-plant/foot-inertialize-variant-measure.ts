@@ -323,6 +323,8 @@ async function main(): Promise<void> {
     // (stopping phase only): the HOLD_SLIDE bar's instrument. Whole-run stance steps are
     // reported separately and already exceed the hold bar on the pre-fix column.
     let stopStanceStepM: number | null = null;
+    let holdStanceStepM: number | null = null;
+    const holdOnsetS = run.stopHoldOnsetS;
     for (let index = 1; index < run.frames.length; index += 1) {
       const frame = run.frames[index];
       const previous = run.frames[index - 1];
@@ -335,6 +337,9 @@ async function main(): Promise<void> {
       if (a === undefined || b === undefined) continue;
       const step = Math.hypot(b.x - a.x, b.z - a.z);
       stopStanceStepM = stopStanceStepM === null ? step : Math.max(stopStanceStepM, step);
+      if (holdOnsetS !== null && (frame.stopTimeSeconds ?? 0) >= holdOnsetS) {
+        holdStanceStepM = holdStanceStepM === null ? step : Math.max(holdStanceStepM, step);
+      }
     }
     rows.push({
       variant,
@@ -347,6 +352,10 @@ async function main(): Promise<void> {
       stopTriggered: run.stopTriggered,
       stopEntryStance: run.stopEntryStance,
       stopDisplacementMeters: run.stopDisplacementMeters,
+      stopEntryTimeS: run.stopEntryTimeS,
+      stopDecelOnsetS: run.stopDecelOnsetS,
+      stopHoldOnsetS: run.stopHoldOnsetS,
+      holdStanceStepM,
       triggerResidualM: run.triggerResidualM,
       residualBoundM: run.residualBoundM,
       stopStanceStepM,

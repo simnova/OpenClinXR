@@ -26,12 +26,10 @@ import {
   createStanceLockState,
 } from "./stance-lock-mod.js";
 import {
-  blendStopClipPlayback,
   resolveClipStanceForFrame,
   resolveStopStanceForFrame,
   resolveStopTriggerInput,
-  startStopClipPlayback,
-  teardownStopClipPlayback,
+  updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
@@ -77,20 +75,8 @@ export function advanceCaseOwnedBedsideApproach(
     ...(walkStance ? { walkStance } : {}),
   });
   approach.execution = execution;
-  // STOPPING OWNS THE MIXER. The walk-to-stop crossfade plays the root-removed stop take here
-  // (the consumer skips its own walk playback while the stopping flag below is set); the slot
-  // write further down already covers stopping, since only settling is excluded there.
-  if (previousPhase !== "stopping" && execution.phase === "stopping") {
-    approach.lock = createStanceLockState();
-    approach.lockArmed = false;
-    startStopClipPlayback(approach);
-  } else if (execution.phase === "stopping") {
-    approach.lockArmed = true;
-    blendStopClipPlayback(approach, execution.stopElapsedSeconds ?? 0);
-  }
-  if (previousPhase === "stopping" && execution.phase !== "stopping") {
-    teardownStopClipPlayback(approach);
-  }
+  // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
+  updateStopPlayback(approach, previousPhase, input.deltaSeconds);
   // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
   // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
   // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
@@ -165,7 +151,10 @@ export function advanceCaseOwnedBedsideApproach(
     doubleSupport: execution.phase === "settling" ? approach.clipTurn.lock.doubleSupport : approach.lock.doubleSupport,
     travelledMeters: execution.travelledMeters,
     stoppedSeconds: execution.stoppedSeconds,
-    stopTimeSeconds: execution.phase === "stopping" ? (execution.stopElapsedSeconds ?? 0) : null,
+    stopTimeSeconds:
+      execution.phase === "stopping"
+        ? (approach.stopWiring?.entryTimeS ?? 0) + (execution.stopElapsedSeconds ?? 0)
+        : null,
     invalidationReason: execution.invalidationReason,
   };
 }
@@ -322,7 +311,14 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     // clip-motion drift and chases it every frame — measured, ~0.3-0.4 m of ADDITIONAL slot
     // translation on top of the pivot's own, over the ~9-18 frames the fade takes. The lock has
     // nothing left to do here (locomotion is 0; nothing is stepping), so it simply does not run.
-    if (approach.execution.drive.locomotion > 0) {
+    // While the stop settle-blend runs, the turn waits too: the mixer is morphing hold into
+    // stride, so poses and walk labels disagree and the fresh pin would anchor mid-morph while
+    // the turn pivots off flailing stance reads (measured 0.2-0.35 m opening jumps on the
+    // nurse). The turn starts on converged poses after the blend; the 0.3 s pause fits the
+    // settling window with margin.
+    const settleBlending =
+      approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
+    if (approach.execution.drive.locomotion > 0 && !settleBlending) {
       approach.clipTurn = applyClipDrivenSettlingTurn({
         actorSlot: approach.actorSlot,
         leftToe: approach.leftToe,

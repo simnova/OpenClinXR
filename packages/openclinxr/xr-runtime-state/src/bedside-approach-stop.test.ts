@@ -118,8 +118,7 @@ describe("the baked stop handoff", () => {
     expect(next.stopElapsedSeconds ?? 0).toBe(0);
   });
 
-  it("prescribes the clip root travel, rotated into the route, mid-stop", () => {
-    const elapsed = 5.4;
+  it("prescribes the clip root travel, rotated into the route, mid-stop", () => {    const elapsed = 5.4;
     const next = stepBedsideApproachExecution({
       execution: execution({ phase: "stopping", stopElapsedSeconds: elapsed, stopTriggerXz: { x: 1, z: 0 } }),
       plan: plan(),
@@ -223,5 +222,77 @@ describe("the baked stop handoff", () => {
       stop: stop(),
     });
     expect(next.phase).toBe("invalidated");
+  });
+
+  it("measures stopping travel from the entry time, not clip zero", () => {
+    const offset: StopClipTrigger = {
+      ...stop(),
+      entryTimeS: 2.0,
+      rootTrackXz: [
+        { t: 0, x: 0, z: 0 },
+        { t: 2.0, x: 0, z: 1.8 },
+        { t: 5.5, x: 0, z: 2.5 },
+      ],
+    };
+    const next = stepBedsideApproachExecution({
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 1, stopTriggerXz: { x: 1, z: 0 } }),
+      plan: plan(),
+      start: START,
+      target: TARGET,
+      targetHeadingRadians: TARGET_HEADING,
+      travelHeadingRadians: TRAVEL_HEADING,
+      observedGeometryRevision: "geom-test",
+      supportAccepted: true,
+      observedPositionXz: { x: 1, z: 0 },
+      nowMs: 2000,
+      deltaSeconds: 0,
+      walkSpeedMetersPerSecond: WALK_SPEED,
+      settleTurnRateRadiansPerSecond: 1,
+      observedHeadingRadians: TRAVEL_HEADING,
+      stop: offset,
+    });
+    expect(next.phase).toBe("stopping");
+    // Clip time 3.0 of 5.5: track z 1.8 + (2.5 - 1.8) * (1.0 / 3.5), minus the t0 value 1.8.
+    expect(next.prescribedPositionXz.x).toBeCloseTo(1 + 0.7 * (1 / 3.5), 9);
+  });
+
+  it("ends the stop at duration minus the entry time", () => {
+    const offset: StopClipTrigger = { ...stop(), entryTimeS: 2.0 };
+    const ending = stepBedsideApproachExecution({
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 3.5 - DT, stopTriggerXz: { x: 1, z: 0 } }),
+      plan: plan(),
+      start: START,
+      target: TARGET,
+      targetHeadingRadians: TARGET_HEADING,
+      travelHeadingRadians: TRAVEL_HEADING,
+      observedGeometryRevision: "geom-test",
+      supportAccepted: true,
+      observedPositionXz: { x: 2, z: 0 },
+      nowMs: 7000,
+      deltaSeconds: DT,
+      walkSpeedMetersPerSecond: WALK_SPEED,
+      settleTurnRateRadiansPerSecond: 1,
+      observedHeadingRadians: TRAVEL_HEADING,
+      stop: offset,
+    });
+    expect(ending.phase).toBe("settling");
+    const continuing = stepBedsideApproachExecution({
+      execution: execution({ phase: "stopping", stopElapsedSeconds: 1, stopTriggerXz: { x: 1, z: 0 } }),
+      plan: plan(),
+      start: START,
+      target: TARGET,
+      targetHeadingRadians: TARGET_HEADING,
+      travelHeadingRadians: TRAVEL_HEADING,
+      observedGeometryRevision: "geom-test",
+      supportAccepted: true,
+      observedPositionXz: { x: 2, z: 0 },
+      nowMs: 7000,
+      deltaSeconds: DT,
+      walkSpeedMetersPerSecond: WALK_SPEED,
+      settleTurnRateRadiansPerSecond: 1,
+      observedHeadingRadians: TRAVEL_HEADING,
+      stop: offset,
+    });
+    expect(continuing.phase).toBe("stopping");
   });
 });

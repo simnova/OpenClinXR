@@ -24,8 +24,15 @@ export type StopClipTrigger = {
   displacementMeters: number;
   /** Clip duration in seconds. The handoff to settling fires at this elapsed time. */
   durationSeconds: number;
-  /** Stance-label reading at clip time 0. The walk hands off only on an equal reading. */
+  /** Stance-label reading at the entry time. The walk hands off only on an equal reading. */
   entryStance: StopClipFoot;
+  /**
+   * Clip time the handoff starts playing from, in seconds. The walk-to-stop take opens with
+   * steady walking the runtime has already covered; playback starts at the last entry-foot
+   * stance window before deceleration instead. Optional for older constructions; absent means
+   * the clip start.
+   */
+  entryTimeS?: number;
   /** Root-bone horizontal track in the clip's own body frame, ascending time. */
   rootTrackXz: Array<{ t: number; x: number; z: number }>;
   /**
@@ -131,11 +138,12 @@ export function tryEnterStopping(input: StopStepInput): BedsideApproachExecution
 }
 
 /**
- * One frame of the baked deceleration. The slot follows the stop clip's own root travel,
- * measured from the trigger point and rotated into the route heading; the skeleton plays the
- * same clip with its root travel removed, so the travel is counted once. Heading stays the
- * travel heading throughout: the patient-facing turn waits for settling, exactly as before. At
- * the clip end, settling begins with the same snapshot the walking-to-settling handoff takes.
+ * One frame of the baked deceleration. The slot follows the stop clip's own root travel from
+ * the entry time on, measured from the trigger point and rotated into the route heading; the
+ * skeleton plays the same span with its root travel removed, so the travel is counted once.
+ * Heading stays the travel heading throughout: the patient-facing turn waits for settling,
+ * exactly as before. At the clip end, settling begins with the same snapshot the
+ * walking-to-settling handoff takes.
  */
 export function stepStopping(input: StopStepInput): BedsideApproachExecution {
   const execution = input.execution;
@@ -144,8 +152,9 @@ export function stepStopping(input: StopStepInput): BedsideApproachExecution {
     // The clip this stop was entered with is gone mid-stop. Freeze rather than invent motion.
     return { ...execution, travelledMeters: input.travelledMeters, drive: { locomotion: 0 } };
   }
+  const entryTimeS = stop.entryTimeS ?? 0;
   const elapsedSeconds = (execution.stopElapsedSeconds ?? 0) + input.deltaSeconds;
-  if (elapsedSeconds >= stop.durationSeconds) {
+  if (elapsedSeconds >= stop.durationSeconds - entryTimeS) {
     return {
       ...execution,
       phase: "settling",
@@ -157,8 +166,8 @@ export function stepStopping(input: StopStepInput): BedsideApproachExecution {
       stoppedSeconds: 0,
     };
   }
-  const at = sampleStopRootTrackXZ(stop.rootTrackXz, elapsedSeconds);
-  const atTrigger = sampleStopRootTrackXZ(stop.rootTrackXz, 0);
+  const at = sampleStopRootTrackXZ(stop.rootTrackXz, entryTimeS + elapsedSeconds);
+  const atTrigger = sampleStopRootTrackXZ(stop.rootTrackXz, entryTimeS);
   const localDx = at.x - atTrigger.x;
   const localDz = at.z - atTrigger.z;
   const cosYaw = Math.cos(stop.routeYawRadians);

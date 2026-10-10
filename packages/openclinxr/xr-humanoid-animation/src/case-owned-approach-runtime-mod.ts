@@ -130,6 +130,11 @@ export type CaseOwnedBedsideApproach = {
    * when the actor carries no stop take — null keeps the walk ending exactly as before.
    */
   stopWiring?: StopClipWiring | null;
+  /**
+   * Seconds into the stopping-to-settling settle-blend, or null/undefined when inactive. While
+   * active the frame module owns both mixer weights and the consumer stands down.
+   */
+  stopSettleBlendT?: number | null;
 };
 
 export type CaseOwnedBedsideApproachRefusal = { refused: true; reason: string };
