@@ -119,3 +119,24 @@ the source-vs-bound metrics, and the two fail verdicts for a distance-triggered
 one-shot stop built this way.
 notEvidenceFor: gait realism, clinical plausibility, Quest performance, runtime
 behavior (no consumer was built in this slice), or any other motion source.
+
+## CORRECTION (2026-10-09, rootmotion-bind)
+
+The source table's max-step column (0.039 / 0.047 / 0.044 m) is wrong. Remeasured on
+the source joints.json files (Z-up export, true horizontal = first two components):
+
+| rig | LeftToeBase max step (m) | RightToeBase max step (m) |
+|---|---|---|
+| physician | 0.144 | 0.130 |
+| nurse | 0.155 | 0.143 |
+| child | 0.152 | 0.145 |
+
+Cause: `measure_stop_oneshot.ts` `measureSource` builds `{x:p0, y:p1, z:p2}` from the
+Z-up export and then reuses `xz()`, which consumes x and z -- horizontal X plus
+VERTICAL -- understating the true swing-foot speed. The published column is reproduced
+exactly by the swapped-axis reading. The bound clips reproduce the generator's swing
+speed faithfully (e.g. physician bound 0.146 vs source 0.144), so the max-step
+failures are a property of the motion source, not the bind. The 0.08 m
+MAX_TOE_STEP_PER_FRAME_FLAG_METERS flag was built for runtime capture frames and is
+not comparable at the clip's 24-30 fps sample rate. The original table above is left
+unchanged; read it with this correction. Fix: docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md.

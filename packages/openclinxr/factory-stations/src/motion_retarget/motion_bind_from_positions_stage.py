@@ -616,113 +616,17 @@ def main(argv: list[str]) -> int:
         # ROOT-MOTION REFUSAL 2026-10-09: the bake-time world pin is refused when root
         # motion is kept. Measured on the fixed root path (all three rigs, seed 42):
         # the base bind already preserves the plant (stance medians 0.007-0.018 m,
-        # hold travel 0.004-0.009 m), while the pin ADDS hold drift (0.020-0.048 m --
-        # the pin is captured mid-settle and the IK chain fights the travelling root
-        # for the rest of the window) without removing any jump (max step identical
-        # with and without it: the remaining single-frame maxima are the generator's
-        # own swing-foot speed, reproduced faithfully). Same remedy as the round-13
-        # in-place skip: leave planting to the runtime's own stance lock. A clear log
-        # line (not silent) because supplying contacts here is no longer harmless.
-        # The historical pin implementation below is retained for a future rework
-        # that can pin WITHOUT fighting root travel; re-enable by deleting this
-        # refusal and restoring the original branch condition.
+        # hold travel 0.004-0.009 m), while the pin ADDS hold drift (0.020-0.048 m)
+        # without removing any jump (max step identical with and without it). Same
+        # remedy as the round-13 in-place skip: planting at playback belongs to the
+        # runtime's stance lock. Removed pin implementation: parent commit 844c29542.
         log.append("foot_locking_skipped=root_motion_kept")
         log.append(
             "foot_locking_refused_reason=bake-time world pin degrades hold "
             "0.004-0.009m to 0.020-0.048m on kept-root clips; base bind preserves plant"
         )
-    elif False:  # historical root-motion pin branch, disabled by the refusal above
-        try:
-            _contacts = json.loads(Path(args.foot_contacts).read_text(encoding="utf-8"))
-        except Exception as exc:  # noqa: BLE001
-            return _reject(args.report, "foot_contacts_load_failed", "\n".join(log) + f"\n{exc!r}")
-
-        def stance_windows(col: int) -> list[tuple[int, int]]:
-            windows: list[tuple[int, int]] = []
-            start = -1
-            for i, row in enumerate(_contacts):
-                f = frame_start + i
-                in_contact = row[col] == 1
-                if in_contact and start == -1:
-                    start = f
-                if not in_contact and start != -1:
-                    if f - 1 > start:
-                        windows.append((start, f - 1))
-                    start = -1
-            if start != -1 and frame_end > start:
-                windows.append((start, frame_end))
-            return windows
-
-        foot_specs = [
-            ("L", canonical_to_target.get("foot.L"), canonical_to_target.get("shin.L"), 1),
-            ("R", canonical_to_target.get("foot.R"), canonical_to_target.get("shin.R"), 4),
-        ]
-        for side, foot_name, shin_name, contact_col in foot_specs:
-            if not foot_name or not shin_name:
-                continue
-            windows = stance_windows(contact_col)
-            if not windows:
-                continue
-            foot_pb = target_actor.pose.bones[foot_name]
-            empty = bpy.data.objects.new(f"ik_target_{side}", None)
-            bpy.context.scene.collection.objects.link(empty)
-            ik = target_actor.pose.bones[shin_name].constraints.new("IK")
-            ik.name = f"openclinxr_footlock_{side}"
-            ik.target = empty
-            ik.chain_count = 2
-            ik.influence = 0.0
-            empty.keyframe_insert("location", frame=frame_start)
-            ik.keyframe_insert("influence", frame=frame_start)
-            for win_start, win_end in windows:
-                bpy.context.scene.frame_set(win_start)
-                bpy.context.view_layer.update()
-                pin_world = target_actor.matrix_world @ foot_pb.matrix
-                pin_pos = pin_world.translation.copy()
-                fade = 1
-                for f, val in (
-                    (max(frame_start, win_start - fade), 0.0),
-                    (win_start, 1.0),
-                    (win_end, 1.0),
-                    (min(frame_end, win_end + fade), 0.0),
-                ):
-                    empty.location = target_actor.matrix_world.inverted() @ pin_pos
-                    empty.keyframe_insert("location", frame=f)
-                    ik.influence = val
-                    ik.keyframe_insert("influence", frame=f)
-            ik_used = True
-        log.append(f"foot_locking_applied={ik_used}")
     elif args.foot_contacts and args.strip_horizontal_root_motion:
         log.append("foot_locking_skipped=in_place_cycle")
-
-    if ik_used:
-        bpy.ops.object.select_all(action="DESELECT")
-        target_actor.select_set(True)
-        bpy.context.view_layer.objects.active = target_actor
-        bpy.ops.object.mode_set(mode="POSE")
-        bpy.ops.pose.select_all(action="SELECT")
-        try:
-            bpy.ops.nla.bake(
-                frame_start=frame_start,
-                frame_end=frame_end,
-                only_selected=True,
-                visual_keying=True,
-                clear_constraints=True,
-                clear_parents=False,
-                use_current_action=False,
-                bake_types={"POSE"},
-            )
-        except Exception as exc:  # noqa: BLE001
-            bpy.ops.object.mode_set(mode="OBJECT")
-            return _reject(args.report, "footlock_bake_failed", "\n".join(log) + f"\n{exc!r}\n{traceback.format_exc()}")
-        bpy.ops.object.mode_set(mode="OBJECT")
-        old_action = baked_action
-        baked_action = target_actor.animation_data.action
-        if old_action is not None and old_action != baked_action and old_action.name == args.clip_name:
-            old_action.name = f"{args.clip_name}__pre_footlock"
-            bpy.data.actions.remove(old_action, do_unlink=True)
-        baked_action.name = args.clip_name
-        for empty_ob in [ob for ob in bpy.context.scene.objects if ob.name.startswith("ik_target_")]:
-            bpy.data.objects.remove(empty_ob, do_unlink=True)
 
     def iter_fcurves(action: bpy.types.Action):
         fcs = getattr(action, "fcurves", None)
