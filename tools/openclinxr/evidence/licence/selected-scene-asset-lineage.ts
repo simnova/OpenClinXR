@@ -60,6 +60,14 @@ export type ClipClearance = {
   excludedSubtrees: string[];
   /** Separate decisions, per the card: adopting a source is not shipping it is not rendering it publicly. */
   decisions: { adoptedForBuild: boolean; shippedInRedistributedBytes: boolean; renderedInPublicMedia: boolean };
+  /**
+   * Optional operator ruling that clears an otherwise-unrecognised grant for THIS prefix only.
+   * It fires only when `classifyRedistributionRights` returns "unknown" AND `quote` appears
+   * literally in the record text. A "refuses" classification always wins, with or without a
+   * ruling, and the licence name behind the ruling must NOT be added to the permissive regex
+   * list — that would clear any record mentioning it without a ruling.
+   */
+  operatorClearance?: { authority: string; date: string; quote: string };
   notes: string;
 };
 
@@ -92,6 +100,22 @@ export const SELECTED_CASE_CLIP_CLEARANCE: readonly ClipClearance[] = [
     decisions: { adoptedForBuild: true, shippedInRedistributedBytes: true, renderedInPublicMedia: true },
     notes:
       "Mesh2Motion human clip library. LICENSE-CC0.MD in the clone dedicates \"All 3d models, blend files, rigs, animations\" to CC0 1.0; LICENSE-MIT.MD covers the code and is a separate grant that says nothing about assets. The CarnegieMellonAnimations subtree beside those clips is excluded: its own readme.txt points at a third-party pack, so it is not the repository's work to dedicate.",
+  },
+  {
+    // The prefix convention the stop-clip publishing pass uses for its sourceClip values
+    // (e.g. "kimodo:nvidia/Kimodo-SOMA-RP-v1.1/seed42/stop"). Generated motion, not weights.
+    sourcePrefix: "kimodo:nvidia/Kimodo-SOMA-RP-v1.1/",
+    licenceRecordPath: "docs/openclinxr/asset-licence-records/row-36-kimodo-soma-rp-v1-1-generated-motion.json",
+    requiredRecordPhrases: ["NVIDIA Open Model License", "OPERATOR CLEARANCE 2026-10-10"],
+    excludedSubtrees: [],
+    decisions: { adoptedForBuild: true, shippedInRedistributedBytes: true, renderedInPublicMedia: true },
+    operatorClearance: {
+      authority: "patrick@simnova.com",
+      date: "2026-10-10",
+      quote: "approved, clear them under 2.4",
+    },
+    notes:
+      "Kimodo-SOMA-RP-v1.1 generated motion. The NVIDIA Open Model License (2025-10-24) Section 2.4 states NVIDIA claims no ownership rights in outputs, so generated clips clear for shipped bytes under the 2026-10-10 operator ruling. Caveat recorded, not resolved: the SOMA-RP-v1.1 training data (proprietary Bones Rigplay, 700 h) has unpublished terms, per docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md; NVIDIA's provenance claim was read, not independently verified.",
   },
 ];
 
@@ -535,22 +559,33 @@ export function assessClipSource(input: {
   }
   const verdict = classifyRedistributionRights(recordText);
   if (verdict === "refuses") {
+    // Refusal wins over everything, including an operator clearance: a record that refuses
+    // redistribution refuses even when it also carries a ruling quote.
     problems.push({
       kind: "clip-rights-refuse-redistribution",
       detail: `clip ${clipName} ships inside publicly fetchable bytes, but ${clearance.licenceRecordPath} refuses redistribution of the raw data. ${clearance.notes}`,
     });
-  } else if (verdict === "unknown") {
-    problems.push({
-      kind: "clip-rights-unknown",
-      detail: `clip ${clipName} rests on ${clearance.licenceRecordPath}, which states no redistribution grant this audit recognises. Unspecified is a refusal.`,
-    });
-  } else if (clearance.decisions.shippedInRedistributedBytes !== true) {
+    return { verdict, problems };
+  }
+  let resolved: RedistributionVerdict = verdict;
+  if (resolved === "unknown") {
+    const ruling = clearance.operatorClearance;
+    if (ruling && recordText.includes(ruling.quote)) {
+      resolved = "clears";
+    } else {
+      problems.push({
+        kind: "clip-rights-unknown",
+        detail: `clip ${clipName} rests on ${clearance.licenceRecordPath}, which states no redistribution grant this audit recognises. Unspecified is a refusal.`,
+      });
+    }
+  }
+  if (resolved === "clears" && clearance.decisions.shippedInRedistributedBytes !== true) {
     problems.push({
       kind: "clip-rights-refuse-redistribution",
       detail: `clip ${clipName} is shipped, but its clearance entry records shippedInRedistributedBytes: false.`,
     });
   }
-  return { verdict, problems };
+  return { verdict: resolved, problems };
 }
 
 export async function auditSelectedSceneAssetLineage(options?: {

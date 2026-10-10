@@ -16,7 +16,7 @@
     "Cleared-not-acquired": 2,
     "Licence-uncertainties": 7,
     "Equipment-candidates": 15,
-    "Acquired": 30,
+    "Acquired": 31,
     "Obj-agpl-correction-table": 3,
     "Superseded": 1,
     "Bank-promote": 4,
@@ -104,6 +104,7 @@
     "prose-9-obj-agpl-correction",
     "row-10-amathislab-terra",
     "row-34-100style-dataset",
-    "row-35-quaternius-universal-animation-library-free"
+    "row-35-quaternius-universal-animation-library-free",
+    "row-36-kimodo-soma-rp-v1-1-generated-motion"
   ]
 }

@@ -314,3 +314,64 @@ describe("the selected scene assets have cleared byte lineage", () => {
     expect(buildTimeOnly.problems.map((problem) => problem.kind)).toContain("clip-rights-refuse-redistribution");
   });
 });
+
+describe("Kimodo-generated motion clears under the 2026-10-10 operator ruling", () => {
+  const KIMODO_SOURCE = "kimodo:nvidia/Kimodo-SOMA-RP-v1.1/seed42/stop";
+  const KIMODO_RECORD_PATH =
+    "docs/openclinxr/asset-licence-records/row-36-kimodo-soma-rp-v1-1-generated-motion.json";
+
+  it("(a) a kimodo-prefixed clip whose record carries the ruling clears", async () => {
+    const recordText = await readFile(path.join(REPO, KIMODO_RECORD_PATH), "utf8");
+    // The NVIDIA output grant is neither a recognised permissive grant nor a refusal on its own
+    // merits, so the operator-clearance route is what clears it — not the classifier.
+    expect(classifyRedistributionRights(recordText)).toBe("unknown");
+    const assessment = assessClipSource({
+      clipName: "openclinxr_retarget_kimodo_stop",
+      sourceClip: KIMODO_SOURCE,
+      recordText,
+    });
+    expect(assessment.problems).toEqual([]);
+    expect(assessment.verdict).toBe("clears");
+  });
+
+  it("(b) the same clearance against a record WITHOUT the quote does not clear", async () => {
+    const recordText = await readFile(path.join(REPO, KIMODO_RECORD_PATH), "utf8");
+    const withoutQuote = recordText.replace("approved, clear them under 2.4", "");
+    expect(withoutQuote).not.toContain("approved, clear them under 2.4");
+    const assessment = assessClipSource({
+      clipName: "openclinxr_retarget_kimodo_stop",
+      sourceClip: KIMODO_SOURCE,
+      recordText: withoutQuote,
+    });
+    expect(assessment.verdict).toBe("unknown");
+    expect(assessment.problems.map((problem) => problem.kind)).toContain("clip-rights-unknown");
+  });
+
+  it("(c) a record containing REFUSAL refuses even with operatorClearance", async () => {
+    const recordText = await readFile(path.join(REPO, KIMODO_RECORD_PATH), "utf8");
+    const refused = `${recordText} REFUSAL: redistribution of this motion outside the lab is not permitted.`;
+    const assessment = assessClipSource({
+      clipName: "openclinxr_retarget_kimodo_stop",
+      sourceClip: KIMODO_SOURCE,
+      recordText: refused,
+    });
+    expect(assessment.verdict).toBe("refuses");
+    expect(assessment.problems.map((problem) => problem.kind)).toContain("clip-rights-refuse-redistribution");
+  });
+
+  it("(d) regression: an existing Mesh2Motion clip still clears and the CMU entry still refuses", () => {
+    const covered = assessClipSource({
+      clipName: "openclinxr_retarget_walk_formal_cc0",
+      sourceClip: "~/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb#Walk_Formal",
+      recordText: MESH2MOTION_RECORD_TEXT,
+    });
+    expect(covered.problems).toEqual([]);
+    expect(covered.verdict).toBe("clears");
+    const cmu = assessClipSource({
+      clipName: "openclinxr_retarget_cmu_walk",
+      sourceClip: "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01.bvh",
+      recordText: CMU_RECORD_TEXT,
+    });
+    expect(cmu.verdict).toBe("refuses");
+  });
+});

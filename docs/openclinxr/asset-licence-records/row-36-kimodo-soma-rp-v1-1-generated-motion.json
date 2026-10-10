@@ -1,0 +1,13 @@
+{
+  "id": "row-36-kimodo-soma-rp-v1-1-generated-motion",
+  "section": "Acquired",
+  "rowIndex": 36,
+  "cells": [
+    "nvidia/Kimodo-SOMA-RP-v1.1 generated motion, run locally via nv-tlabs/kimodo (Apache-2.0)",
+    "**NVIDIA Open Model License**, version dated 2025-10-24. The preamble states the models are usable in products. **Section 2.4**: \"NVIDIA claims no ownership rights in outputs. You are responsible for outputs and their subsequent uses.\" No attribution requirement applies to outputs (Section 3 attribution covers redistributing the model itself). **OPERATOR CLEARANCE 2026-10-10** (patrick@simnova.com): \"approved, clear them under 2.4\". Caveat recorded, not resolved: the SOMA-RP-v1.1 training data (proprietary Bones Rigplay, 700 h) has unpublished terms, per docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md; NVIDIA's provenance claim was read, not independently verified.",
+    "Generated joint-motion clips (SOMA30) for the stop-in-place publishing pass. Model outputs of a locally run checkpoint, not redistributed weights.",
+    "2026-10-10 (operator clearance date; clips land in shipped GLBs via the wt/s1-stop publishing pass)",
+    "kimodo_stop_oneshot_station.py -> motion_bind_from_positions_stage -> graft-bound-clip --publish",
+    "**Keep.** Cleared for shipped bytes under the Section 2.4 output grant plus the 2026-10-10 operator ruling."
+  ]
+}
