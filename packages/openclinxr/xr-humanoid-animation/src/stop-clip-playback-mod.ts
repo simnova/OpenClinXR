@@ -1,19 +1,24 @@
 import {
   SETTLING_FADE_SETTLE_SECONDS,
   SETTLING_LEG_WEIGHT_TARGET,
+  type StopClipFoot,
   type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
+import { LoopOnce } from "three";
 import type {
   CaseOwnedBedsideApproach,
 } from "./case-owned-approach-runtime-mod.js";
 import {
   type LocomotionStanceLabels,
+  pairRunStarts,
   resolveLocomotionStanceLabels,
   stanceAtTime,
 } from "./locomotion-stance-labels.js";
 import {
   STOP_CROSSFADE_SECONDS,
+  type StopClipWiring,
   resolveStopWiring,
+  spanStraightDeviationM,
 } from "./stop-clip-wiring-mod.js";
 import { createStanceLockState } from "./stance-lock-mod.js";
 
@@ -67,17 +72,136 @@ export function resolveStopStanceForFrame(
 }
 
 /**
+ * Distance-matching rate bounds. Both directions stay available, but steering applies ONLY
+ * when the computed factor lands inside them (actionable meeting); otherwise the walk coasts
+ * at unity and the legacy ending runs byte-identical. Rationale, measured across four law
+ * variants on the assay: unconditional clamp-steering from frame 0 reshuffles alignments
+ * (physician miss becomes hit, nurse hit becomes miss with a harmed path), and slow-only
+ * collapses to 1/3 engagement — while coast-when-out engages wherever alignment permits with
+ * zero harm otherwise. Guaranteed engagement is out of reach regardless (see the write-up:
+ * sub-cycle trigger window, exact-pair gate, straight-only usable spans, bounded authority).
+ */
+const MATCH_RATE_MIN = 0.8;
+const MATCH_RATE_MAX = 1.2;
+
+/**
+ * Action-time until the walk loop next reads the given stance pair: the next window start
+ * strictly after now (run-length filtered against calibration speckle). Null when the pair
+ * never occurs. The caller divides by the base (unsteered) rate for wall seconds, so the
+ * factor never feeds back into its own measurement.
+ */
+export function actionTimeToStancePair(
+  labels: LocomotionStanceLabels,
+  fromActionTimeS: number,
+  cycleS: number,
+  pair: { left: boolean; right: boolean },
+): number | null {
+  if (!(cycleS > 0)) return null;
+  const wrappedFrom = ((fromActionTimeS % cycleS) + cycleS) % cycleS;
+  const starts = pairRunStarts(labels, pair, 3);
+  for (const start of starts) {
+    if (start > wrappedFrom) return start - wrappedFrom;
+  }
+  if (starts.length === 0) return null;
+  return starts[0]! + cycleS - wrappedFrom;
+}
+
+/**
+ * Distance matching (per-approach): on the final leg, steer the SLOT rate so the entry stance
+ * phase lands at the trigger distance. The clip rate stays constant (the drive carries no
+ * factor), so walk phase free-runs while the slot hurries or drags — that relative motion is
+ * what moves the meeting; scaling both sides together would freeze it. Recomputed every frame
+ * until the trigger. Outside the one-cycle window, or when no candidate fits, the default
+ * (latest-entry) trigger applies unsteered, preserving long-route behavior. Earlier entry
+ * candidates compete only when the default would clamp, and only when fireable (D within
+ * remaining, so firing cannot overshoot by construction) and straight (span deviation within
+ * 0.1 m — a veering span maps laterally into the route and the stance pin eats the advance,
+ * measured 1.4 m swallowed on the nurse).
+ */
+function resolveMatchedTrigger(
+  approach: CaseOwnedBedsideApproach,
+  wiring: NonNullable<CaseOwnedBedsideApproach["stopWiring"]>,
+  walkStance: { left: boolean; right: boolean } | null,
+  actionTimeS: number | null,
+): { stop: StopClipTrigger; speedFactor: number } | null {
+  const remaining = approach.execution.routeLengthMeters - approach.execution.travelledMeters;
+  const v = approach.walkSpeedMetersPerSecond;
+  const cycle = approach.clipCycleSeconds;
+  if (!(v > 0) || !(cycle > 0)) return null;
+  const windowM = v * cycle;
+  if (remaining > wiring.displacementMeters + windowM) return null;
+  // The clip rate is never steered (slot-only matching), so the live walk rate is clean.
+  const walkAction = walkMixerAction(approach);
+  const baseRate = walkAction?.timeScale && walkAction.timeScale > 0 ? walkAction.timeScale : 1;
+  const walkLabels = approach.stanceLabels;
+  const actionTime = actionTimeS;
+  const rawS = (displacementM: number, pair: { left: boolean; right: boolean }): number | null => {
+    if (walkLabels === null || walkLabels === undefined || actionTime === null) return null;
+    const dtAction = actionTimeToStancePair(walkLabels, actionTime, cycle, pair);
+    if (dtAction === null || dtAction <= 0) return null;
+    return (remaining - displacementM) / (v * (dtAction / baseRate));
+  };
+  const defaultRaw = rawS(wiring.displacementMeters, wiring.entryStance);
+  const inBounds = (s: number | null): s is number => s !== null && s >= MATCH_RATE_MIN && s <= MATCH_RATE_MAX;
+  const buildTrigger = (t0S: number, entryStance: StopClipFoot, displacementM: number): StopClipTrigger => ({
+    clipName: wiring.clipName,
+    displacementMeters: displacementM,
+    durationSeconds: wiring.durationSeconds,
+    entryStance,
+    entryTimeS: t0S,
+    rootTrackXz: wiring.rootTrackXz,
+    routeYawRadians: wiring.routeYawRadians,
+  });
+  if (inBounds(defaultRaw)) {
+    return {
+      stop: buildTrigger(wiring.entryTimeS, wiring.entryStance, wiring.displacementMeters),
+      speedFactor: defaultRaw,
+    };
+  }
+  // Default would clamp: earlier entries compete, fireable and straight only; the winner
+  // applies only when in bounds. Otherwise coast at unity (default trigger, unsteered) so an
+  // un-actionable frame leaves the legacy trajectory untouched.
+  type Candidate = { t0S: number; entryStance: StopClipFoot; displacementMeters: number };
+  let best: { candidate: Candidate; rawS: number } | null = null;
+  for (const candidate of wiring.entryCandidates) {
+    if (candidate.displacementMeters > remaining) continue;
+    if (spanStraightDeviationM(wiring.rootTrackXz, candidate.t0S) > 0.1) continue;
+    if (candidate.t0S === wiring.entryTimeS && candidate.displacementMeters === wiring.displacementMeters) continue;
+    const s = rawS(candidate.displacementMeters, candidate.entryStance);
+    if (s === null) continue;
+    if (best === null || Math.abs(s - 1) < Math.abs(best.rawS - 1)) {
+      best = { candidate, rawS: s };
+    }
+  }
+  if (best !== null && inBounds(best.rawS)) {
+    return {
+      stop: buildTrigger(best.candidate.t0S, best.candidate.entryStance, best.candidate.displacementMeters),
+      speedFactor: best.rawS,
+    };
+  }
+  return {
+    stop: buildTrigger(wiring.entryTimeS, wiring.entryStance, wiring.displacementMeters),
+    speedFactor: 1,
+  };
+}
+
+/**
  * The baked-stop handoff inputs. The wiring is measured once per actor from its own bound stop
  * take (null while the actor carries none, which keeps the legacy ending); the walk stance is
  * this frame's label reading off the playing walk action. Resolved while walking AND while
  * stopping: the executor needs the trigger config on every stopping frame, not just the entry.
+ * While walking inside the matching window the trigger comes from distance matching (steered
+ * rate plus winning entry candidate) instead of the default latest entry.
  */
 export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
   stop: StopClipTrigger | null;
   walkStance: { left: boolean; right: boolean } | null;
+  speedFactor: number;
 } {
   const phase = approach.execution.phase;
-  if (phase !== "walking" && phase !== "stopping") return { stop: null, walkStance: null };
+  if (phase !== "walking" && phase !== "stopping") {
+    return { stop: null, walkStance: null, speedFactor: 1 };
+  }
   if (approach.stopWiring === undefined) {
     approach.stopWiring = resolveStopWiring({
       labelSlot: approach.stanceLabelSlot,
@@ -85,8 +209,18 @@ export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
     });
   }
   const wiring = approach.stopWiring;
-  if (wiring === null || wiring === undefined) return { stop: null, walkStance: null };
+  if (wiring === null || wiring === undefined) return { stop: null, walkStance: null, speedFactor: 1 };
   const stance = phase === "walking" ? resolveClipStanceForFrame(approach) : undefined;
+  const walkStance = stance ? stanceAtTime(stance.labels, stance.actionTimeSeconds) : null;
+  if (phase === "walking") {
+    const matched = resolveMatchedTrigger(
+      approach,
+      wiring,
+      walkStance,
+      stance ? stance.actionTimeSeconds : null,
+    );
+    if (matched) return { ...matched, walkStance };
+  }
   return {
     stop: {
       clipName: wiring.clipName,
@@ -97,7 +231,8 @@ export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
       rootTrackXz: wiring.rootTrackXz,
       routeYawRadians: wiring.routeYawRadians,
     },
-    walkStance: stance ? stanceAtTime(stance.labels, stance.actionTimeSeconds) : null,
+    walkStance,
+    speedFactor: 1,
   };
 }
 
@@ -132,6 +267,12 @@ export function startStopClipPlayback(approach: CaseOwnedBedsideApproach): void 
   action.reset();
   action.time = wiring.entryTimeS;
   action.timeScale = 1;
+  // One shot, clamped at the hold: the default LoopRepeat wraps past the end back into the
+  // take's opening walk, and the settle-blend would morph (and the stance lock would read)
+  // looped walk poses instead of the hold (measured: stop time wrapped 5.46 -> 0.0x on the
+  // nurse while the blend faded it in).
+  action.setLoop(LoopOnce, 1);
+  action.clampWhenFinished = true;
   action.setEffectiveWeight(0);
   action.play();
   (slot.root.userData as Record<string, unknown>)[STOP_PLAYING_FLAG] = true;
@@ -156,6 +297,7 @@ export function updateStopPlayback(
   approach: CaseOwnedBedsideApproach,
   previousPhase: string,
   deltaSeconds: number,
+  fired: { trigger: StopClipTrigger; speedFactor: number } | null,
 ): void {
   const phase = approach.execution.phase;
   if (previousPhase !== "stopping" && phase === "stopping") {
@@ -164,6 +306,14 @@ export function updateStopPlayback(
     approach.lock = createStanceLockState();
     approach.lockArmed = false;
     startStopClipPlayback(approach);
+    if (fired) {
+      approach.stopFired = {
+        displacementMeters: fired.trigger.displacementMeters,
+        entryTimeS: fired.trigger.entryTimeS ?? 0,
+        entryStance: { ...fired.trigger.entryStance },
+        speedFactor: fired.speedFactor,
+      };
+    }
   } else if (phase === "stopping") {
     approach.lockArmed = true;
     blendStopClipPlayback(approach, approach.execution.stopElapsedSeconds ?? 0);

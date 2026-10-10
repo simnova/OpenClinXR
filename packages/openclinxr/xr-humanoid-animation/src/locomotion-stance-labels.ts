@@ -374,6 +374,52 @@ export function resolveOneShotStanceLabels(
 }
 
 /**
+ * Start times (seconds) of runs of at least `minRun` consecutive samples reading the given
+ * foot (or pair) as stance. Calibration sampling leaves isolated single-sample flips that
+ * nearest-sample readers never notice but forward scans trip on; runs see windows, not speckle.
+ */
+export function footRunStarts(
+  labels: LocomotionStanceLabels,
+  foot: "left" | "right",
+  minRun: number,
+): number[] {
+  const track = foot === "left" ? labels.left : labels.right;
+  return runStarts(labels, minRun, (index) => track[index] === true);
+}
+
+export function pairRunStarts(
+  labels: LocomotionStanceLabels,
+  pair: { left: boolean; right: boolean },
+  minRun: number,
+): number[] {
+  return runStarts(
+    labels,
+    minRun,
+    (index) => labels.left[index] === pair.left && labels.right[index] === pair.right,
+  );
+}
+
+function runStarts(
+  labels: LocomotionStanceLabels,
+  minRun: number,
+  reads: (index: number) => boolean,
+): number[] {
+  const starts: number[] = [];
+  let index = 0;
+  while (index < labels.left.length) {
+    if (!reads(index)) {
+      index += 1;
+      continue;
+    }
+    let end = index;
+    while (end < labels.left.length && reads(end)) end += 1;
+    if (end - index >= minRun) starts.push((labels.atMs[index] ?? 0) / 1000);
+    index = end;
+  }
+  return starts;
+}
+
+/**
  * Which feet the bound clip's mixer action currently holds in stance. Null when
  * there are no labels: the lock then keeps its legacy height-band decision.
  */

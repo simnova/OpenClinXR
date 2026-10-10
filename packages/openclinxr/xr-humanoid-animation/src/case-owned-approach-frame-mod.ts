@@ -55,7 +55,7 @@ export function advanceCaseOwnedBedsideApproach(
   const previousPhase = approach.execution.phase;
   // The baked-stop handoff inputs (`resolveStopTriggerInput`, stop-clip-playback-mod.ts): null
   // while the actor carries no stop take, which keeps the legacy ending.
-  const { stop: stopTrigger, walkStance } = resolveStopTriggerInput(approach);
+  const { stop: stopTrigger, walkStance, speedFactor } = resolveStopTriggerInput(approach);
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -73,10 +73,11 @@ export function advanceCaseOwnedBedsideApproach(
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
     ...(walkStance ? { walkStance } : {}),
+    ...(speedFactor !== 1 ? { walkSpeedFactor: speedFactor } : {}),
   });
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
-  updateStopPlayback(approach, previousPhase, input.deltaSeconds);
+  updateStopPlayback(approach, previousPhase, input.deltaSeconds, stopTrigger ? { trigger: stopTrigger, speedFactor } : null);
   // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
   // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
   // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
@@ -311,14 +312,15 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     // clip-motion drift and chases it every frame — measured, ~0.3-0.4 m of ADDITIONAL slot
     // translation on top of the pivot's own, over the ~9-18 frames the fade takes. The lock has
     // nothing left to do here (locomotion is 0; nothing is stepping), so it simply does not run.
-    // While the stop settle-blend runs, the turn waits too: the mixer is morphing hold into
-    // stride, so poses and walk labels disagree and the fresh pin would anchor mid-morph while
-    // the turn pivots off flailing stance reads (measured 0.2-0.35 m opening jumps on the
-    // nurse). The turn starts on converged poses after the blend; the 0.3 s pause fits the
-    // settling window with margin.
+    // While the stop settle-blend runs, the whole settling lock waits: the mixer is morphing
+    // hold into stride, so pin, posture correction, yaw ease, and turn would all fight the
+    // morph (measured 0.2-0.35 m opening jumps on the nurse). They resume on converged poses.
     const settleBlending =
       approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
-    if (approach.execution.drive.locomotion > 0 && !settleBlending) {
+    if (settleBlending) {
+      return;
+    }
+    if (approach.execution.drive.locomotion > 0) {
       approach.clipTurn = applyClipDrivenSettlingTurn({
         actorSlot: approach.actorSlot,
         leftToe: approach.leftToe,

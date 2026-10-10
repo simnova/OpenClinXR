@@ -270,6 +270,9 @@ export function stepBedsideApproachExecution(input: {
   stop?: StopClipTrigger | null;
   /** Walk clip stance reading in the stop entry's label language; null until the walk poses. */
   walkStance?: StopClipFoot | null;
+  /** Distance-matching rate (1 unsteered): scales the slot advance only; the clip rate stays
+   * constant so phase runs free and the meeting can actually move. Absent is 1. */
+  walkSpeedFactor?: number | null;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -385,7 +388,8 @@ export function stepBedsideApproachExecution(input: {
     };
   }
 
-  const frameAdvanceMeters = input.walkSpeedMetersPerSecond * input.deltaSeconds;
+  const frameAdvanceMeters =
+    (input.walkSpeedFactor ?? 1) * input.walkSpeedMetersPerSecond * input.deltaSeconds;
   const remainingMeters = routeLength - travelledMeters;
   // ANTICIPATORY TURN — attempted twice, reverted both times, and both measurements are recorded
   // rather than only the second.
@@ -446,7 +450,8 @@ export function stepBedsideApproachExecution(input: {
   });
   if (entry) return entry;
 
-  // ADVANCE FROM WHERE THE BODY IS, not from a point on the route line. Re-projecting the slot onto  // the polyline every frame discards the stance lock's lateral correction, which unpins the toe by
+  // ADVANCE FROM WHERE THE BODY IS, not from a point on the route line. Re-projecting the slot onto
+  // the polyline every frame discards the stance lock's lateral correction, which unpins the toe by
   // exactly that amount: measured, it left `toe1-1.R` at a 0.00576 m worst frame against a 0.005 m
   // allowance. The lateral residual it preserves instead accumulates into the arrival error, where
   // a metric grades it rather than a re-projection hiding it.

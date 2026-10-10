@@ -355,6 +355,7 @@ async function main(): Promise<void> {
       stopEntryTimeS: run.stopEntryTimeS,
       stopDecelOnsetS: run.stopDecelOnsetS,
       stopHoldOnsetS: run.stopHoldOnsetS,
+      matchSFinal: run.matchSFinal,
       holdStanceStepM,
       triggerResidualM: run.triggerResidualM,
       residualBoundM: run.residualBoundM,

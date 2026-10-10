@@ -131,6 +131,16 @@ export type CaseOwnedBedsideApproach = {
    */
   stopWiring?: StopClipWiring | null;
   /**
+   * The trigger config that fired the stop, stashed on the stopping entry frame for evidence.
+   * Null until a stop fires.
+   */
+  stopFired?: {
+    displacementMeters: number;
+    entryTimeS: number;
+    entryStance: { left: boolean; right: boolean };
+    speedFactor: number;
+  } | null;
+  /**
    * Seconds into the stopping-to-settling settle-blend, or null/undefined when inactive. While
    * active the frame module owns both mixer weights and the consumer stands down.
    */

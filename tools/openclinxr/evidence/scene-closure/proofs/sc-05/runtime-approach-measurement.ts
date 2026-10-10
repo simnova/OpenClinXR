@@ -368,6 +368,8 @@ export type ApproachRun = {
   stopEntryTimeS: number | null;
   stopDecelOnsetS: number | null;
   stopHoldOnsetS: number | null;
+  /** The distance-matching factor at the trigger frame. Null when the stop never triggered. */
+  matchSFinal: number | null;
   /**
    * Distance walked before the stopping entry frame past the trigger point, in metres: the
    * phase-match wait. Floored at the route start when the trigger distance covers the whole
@@ -594,7 +596,8 @@ export function runApproach(input: {
       clipMs += dt * 1000;
       // Keeps `stanceAction.time` (what `resolveClipStanceForFrame` reads) in lockstep with the
       // SAME `clipMs` driving `toeL`/`toeR` — one simulated clock, not two independently-advancing
-      // ones that could drift apart.
+      // ones that could drift apart. Matching steers the slot only; the clip rate stays
+      // constant here exactly as in a browser (the drive carries no rate factor).
       stanceMixer.update(dt);
     }
     // A stopped drive settles the actor on the clip's REST frame, which is what
@@ -675,16 +678,20 @@ export function runApproach(input: {
     stopFrameCount: path.filter((entry) => entry.phase === "stopping").length,
     stopTriggered: path.some((entry) => entry.phase === "stopping"),
     stopClipName: approach.stopWiring?.clipName ?? null,
-    stopEntryStance: approach.stopWiring
-      ? { left: approach.stopWiring.entryStance.left, right: approach.stopWiring.entryStance.right }
-      : null,
-    stopDisplacementMeters: approach.stopWiring?.displacementMeters ?? null,
-  stopEntryTimeS: approach.stopWiring?.entryTimeS ?? null,
-  stopDecelOnsetS: approach.stopWiring?.decelOnsetS ?? null,
-  stopHoldOnsetS: approach.stopWiring?.holdOnsetS ?? null,
+    stopEntryStance: approach.stopFired?.entryStance
+      ?? (approach.stopWiring
+        ? { left: approach.stopWiring.entryStance.left, right: approach.stopWiring.entryStance.right }
+        : null),
+    stopDisplacementMeters: approach.stopFired?.displacementMeters
+      ?? approach.stopWiring?.displacementMeters ?? null,
+    stopEntryTimeS: approach.stopFired?.entryTimeS ?? approach.stopWiring?.entryTimeS ?? null,
+    stopDecelOnsetS: approach.stopWiring?.decelOnsetS ?? null,
+    stopHoldOnsetS: approach.stopWiring?.holdOnsetS ?? null,
+    matchSFinal: approach.stopFired?.speedFactor ?? null,
     triggerResidualM: (() => {
       const entryIndex = path.findIndex((entry) => entry.phase === "stopping");
-      const displacement = approach.stopWiring?.displacementMeters;
+      const displacement = approach.stopFired?.displacementMeters
+        ?? approach.stopWiring?.displacementMeters;
       if (entryIndex < 0 || displacement === undefined) return null;
       let routeLength = 0;
       const waypoints = input.intent.plan.waypoints;

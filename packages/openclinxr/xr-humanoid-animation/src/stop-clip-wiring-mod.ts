@@ -6,6 +6,7 @@ import {
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationClip } from "three";
 import {
+  footRunStarts,
   type LocomotionStanceLabels,
   resolveOneShotStanceLabels,
   stanceAtTime,
@@ -49,6 +50,12 @@ export type StopClipWiring = {
   decelOnsetS: number;
   /** First near-stopped root time at or after onset (below 2% of steady walk). */
   holdOnsetS: number;
+  /**
+   * Every entry-foot stance-window start before decel onset, earliest first, each with its own
+   * trigger distance. The distance matcher picks among these when the default (last) would
+   * clamp the speed factor; earlier windows trade playing more of the take for a closer rate.
+   */
+  entryCandidates: Array<{ t0S: number; entryStance: StopClipFoot; displacementMeters: number }>;
   /** The stop take's own stance labels, sampled once at wiring time. */
   labels: LocomotionStanceLabels;
   rootTrackXz: StopClipTrigger["rootTrackXz"];
@@ -147,23 +154,17 @@ export function stopDecelOnsetS(
 
 /**
  * Start of the last stance window of the given foot that begins before onsetS, from one-shot
- * labels. The handoff plays the clip from here instead of frame 0, so the runtime never replays
- * the take's opening steady walk. Null when no window qualifies.
+ * labels. Windows are run-length filtered (calibration speckle reads as isolated flips). The
+ * handoff plays the clip from here instead of frame 0, so the runtime never replays the take's
+ * opening steady walk. Null when no window qualifies.
  */
 export function stopEntryTimeS(
   labels: LocomotionStanceLabels,
   foot: "left" | "right",
   onsetS: number,
 ): number | null {
-  const stance = labels[foot];
-  let entry: number | null = null;
-  for (let index = 0; index < stance.length; index += 1) {
-    const startNew = stance[index] === true && (index === 0 || stance[index - 1] !== true);
-    if (!startNew) continue;
-    const startS = (labels.atMs[index] ?? 0) / 1000;
-    if (startS < onsetS) entry = startS;
-  }
-  return entry;
+  const starts = footRunStarts(labels, foot, 3).filter((start) => start < onsetS);
+  return starts.length > 0 ? (starts[starts.length - 1] ?? null) : null;
 }
 
 /** Net horizontal travel direction over the whole track (label axis; rotation uses the span). */
@@ -172,6 +173,34 @@ function fullNetForward(track: StopClipWiring["rootTrackXz"]): { x: number; z: n
   const last = track[track.length - 1];
   if (first === undefined || last === undefined) return { x: 0, z: 1 };
   return { x: last.x - first.x, z: last.z - first.z };
+}
+
+/**
+ * Max perpendicular distance of the span path (t >= t0) from its chord, in metres. The span
+ * yaw maps the chord onto the route; a deviating span maps laterally instead, and the stance
+ * pin then eats the advance fighting it. Candidates above the matcher's allowance are unusable.
+ */
+export function spanStraightDeviationM(
+  track: StopClipWiring["rootTrackXz"],
+  t0S: number,
+): number {
+  const start = sampleStopRootTrackXZ(track, t0S);
+  const last = track[track.length - 1];
+  if (last === undefined) return Number.POSITIVE_INFINITY;
+  const end = { x: last.x, z: last.z };
+  const chordX = end.x - start.x;
+  const chordZ = end.z - start.z;
+  const chordLen = Math.hypot(chordX, chordZ);
+  if (!(chordLen > 0)) return Number.POSITIVE_INFINITY;
+  let worst = 0;
+  for (const key of track) {
+    if (key.t < t0S) continue;
+    const px = key.x - start.x;
+    const pz = key.z - start.z;
+    const across = Math.abs(px * chordZ - pz * chordX) / chordLen;
+    if (across > worst) worst = across;
+  }
+  return worst;
 }
 
 /**
@@ -231,11 +260,40 @@ export function resolveStopWiring(input: {
   const entry = stanceAtTime(labels, entryTimeS);
   const entryStance: StopClipFoot = { left: entry.left, right: entry.right };
   if (!entryStance.left && !entryStance.right) return null;
+  // Every entry-foot window start before onset, earliest first: the matcher falls back to
+  // earlier (longer-distance) entries when the default would force the rate out of bounds.
+  const entryCandidates: StopClipWiring["entryCandidates"] = [];
   const startXz = sampleStopRootTrackXZ(rootTrackXz, entryTimeS);
   const endXz = sampleStopRootTrackXZ(rootTrackXz, clip.duration);
   const displacementMeters = Math.hypot(endXz.x - startXz.x, endXz.z - startXz.z);
   if (!(displacementMeters > 0)) return null;
   const forward = { x: endXz.x - startXz.x, z: endXz.z - startXz.z };
+  {
+    for (const startS of footRunStarts(labels, entryFoot, 3)) {
+      if (startS >= decelOnsetS) continue;
+      const pair = stanceAtTime(labels, startS);
+      const fromXz = sampleStopRootTrackXZ(rootTrackXz, startS);
+      const candidateD = Math.hypot(endXz.x - fromXz.x, endXz.z - fromXz.z);
+      if (candidateD > 0) {
+        entryCandidates.push({
+          t0S: startS,
+          entryStance: { left: pair.left, right: pair.right },
+          displacementMeters: candidateD,
+        });
+      }
+    }
+  }
+  if (entryCandidates.length === 0) return null;
+  if ((globalThis as Record<string, unknown>)["__S1_DEBUG_WIRE"] === true) {
+    console.error(
+      `[s1wire] ${clipName} onset=${decelOnsetS.toFixed(3)} hold=${holdOnsetS.toFixed(3)} default t0=${entryTimeS.toFixed(3)} D=${displacementMeters.toFixed(3)}`,
+    );
+    for (const c of entryCandidates) {
+      console.error(
+        `[s1wire] cand t0=${c.t0S.toFixed(3)} D=${c.displacementMeters.toFixed(3)} foot=${c.entryStance.left ? "L" : "-"}${c.entryStance.right ? "R" : "-"} dev=${spanStraightDeviationM(rootTrackXz, c.t0S).toFixed(3)}`,
+      );
+    }
+  }
   const noRootClip = clip.clone();
   const rootTrack = noRootClip.tracks.find((candidate) => candidate.name === "root.position");
   if (rootTrack) {
@@ -265,6 +323,7 @@ export function resolveStopWiring(input: {
     entryTimeS,
     decelOnsetS,
     holdOnsetS,
+    entryCandidates,
     labels,
     rootTrackXz,
     displacementMeters,

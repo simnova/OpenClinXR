@@ -68,6 +68,7 @@ function step(input: {
   observedPositionXz?: { x: number; z: number };
   stop?: StopClipTrigger | null;
   walkStance?: { left: boolean; right: boolean } | null;
+  walkSpeedFactor?: number | null;
   nowMs?: number;
 }): BedsideApproachExecution {
   return stepBedsideApproachExecution({
@@ -87,6 +88,9 @@ function step(input: {
     observedHeadingRadians: TRAVEL_HEADING,
     ...(input.stop ? { stop: input.stop } : {}),
     ...(input.walkStance ? { walkStance: input.walkStance } : {}),
+    ...(input.walkSpeedFactor !== undefined && input.walkSpeedFactor !== null
+      ? { walkSpeedFactor: input.walkSpeedFactor }
+      : {}),
   });
 }
 
@@ -294,5 +298,23 @@ describe("the baked stop handoff", () => {
       stop: offset,
     });
     expect(continuing.phase).toBe("stopping");
+  });
+
+  it("scales the walk advance by the distance-matching factor without touching the drive", () => {
+    const slowed = step({
+      execution: execution(),
+      observedPositionXz: { x: 1, z: 0 },
+      walkSpeedFactor: 0.8,
+    });
+    expect(slowed.phase).toBe("walking");
+    expect(slowed.prescribedPositionXz.x).toBeCloseTo(1 + WALK_SPEED * 0.8 * DT, 12);
+    expect(slowed.drive).toEqual({ locomotion: 1 });
+    const hurried = step({
+      execution: execution(),
+      observedPositionXz: { x: 1, z: 0 },
+      walkSpeedFactor: 1.2,
+    });
+    expect(hurried.prescribedPositionXz.x).toBeCloseTo(1 + WALK_SPEED * 1.2 * DT, 12);
+    expect(hurried.drive).toEqual({ locomotion: 1 });
   });
 });
