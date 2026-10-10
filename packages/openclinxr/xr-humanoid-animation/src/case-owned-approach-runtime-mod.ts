@@ -28,6 +28,7 @@ import {
   type SettlingStepTurnState,
 } from "./settling-step-turn-mod.js";
 import { createStanceLockState, type StanceLockState } from "./stance-lock-mod.js";
+import type { StopClipWiring } from "./stop-clip-wiring-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
 /**
@@ -123,6 +124,12 @@ export type CaseOwnedBedsideApproach = {
   closeState: ArrivalCloseState;
   /** What the floor-band plant did to the physician before the walk, recorded for evidence. */
   floorBandPlant: ReturnType<typeof resolveFloorBandPlantLocalY>;
+  /**
+   * The baked stop handoff for this actor, resolved lazily from `stanceLabelSlot`'s own clips by
+   * `resolveStopWiring` the first walking frame that asks for it. Undefined until resolved, null
+   * when the actor carries no stop take — null keeps the walk ending exactly as before.
+   */
+  stopWiring?: StopClipWiring | null;
 };
 
 export type CaseOwnedBedsideApproachRefusal = { refused: true; reason: string };
@@ -145,6 +152,8 @@ export type CaseOwnedApproachFrame = {
   travelledMeters: number;
   stoppedSeconds: number;
   invalidationReason: string | null;
+  /** Stop-clip time in seconds while `phase` is "stopping"; null in every other phase. */
+  stopTimeSeconds: number | null;
 };
 
 /**

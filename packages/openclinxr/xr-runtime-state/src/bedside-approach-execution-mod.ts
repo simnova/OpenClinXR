@@ -1,4 +1,9 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
+import {
+  type StopClipFoot,
+  type StopClipTrigger,
+  stepStopHandoff,
+} from "./bedside-approach-stop-mod.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -29,7 +34,7 @@ type Vector3 = { x: number; y: number; z: number };
  * notEvidenceFor: what a browser rendered, gait quality, or clinical appropriateness of the route.
  */
 
-export type ApproachPhase = "not_started" | "walking" | "settling" | "arrived" | "invalidated";
+export type ApproachPhase = "not_started" | "walking" | "stopping" | "settling" | "arrived" | "invalidated";
 
 /**
  * How far the observed heading may sit from the target before settling ends. ~2 deg: tight enough
@@ -120,6 +125,10 @@ export type BedsideApproachExecution = {
   arrivedAtMs: number | null;
   stoppedSeconds: number;
   invalidationReason: string | null;
+  /** Seconds since stopping began (0 elsewhere). Optional: older constructions still check. */
+  stopElapsedSeconds?: number;
+  /** Slot XZ on the stopping entry frame; the stop prescription is measured from here. */
+  stopTriggerXz?: { x: number; z: number } | null;
 };
 
 export type BedsideApproachExecutionRefusal = { refused: true; reason: string };
@@ -207,6 +216,8 @@ export function beginBedsideApproachExecution(input: {
     arrivedAtMs: null,
     stoppedSeconds: 0,
     invalidationReason: null,
+    stopElapsedSeconds: 0,
+    stopTriggerXz: null,
   };
 }
 
@@ -255,6 +266,10 @@ export function stepBedsideApproachExecution(input: {
    * the same discipline `observedPositionXz` already applies to travelled distance.
    */
   observedHeadingRadians: number;
+  /** Baked stop take for this actor; absent means the walk ends as before. */
+  stop?: StopClipTrigger | null;
+  /** Walk clip stance reading in the stop entry's label language; null until the walk poses. */
+  walkStance?: StopClipFoot | null;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -412,8 +427,26 @@ export function stepBedsideApproachExecution(input: {
     };
   }
 
-  // ADVANCE FROM WHERE THE BODY IS, not from a point on the route line. Re-projecting the slot onto
-  // the polyline every frame discards the stance lock's lateral correction, which unpins the toe by
+  // Baked-stop dispatch (`stepStopHandoff`): null continues the legacy advance below.
+  const entry = stepStopHandoff({
+    execution,
+    plan: input.plan,
+    start: input.start,
+    target: input.target,
+    targetHeadingRadians: input.targetHeadingRadians,
+    travelHeadingRadians: input.travelHeadingRadians,
+    observedPositionXz: input.observedPositionXz,
+    nowMs: input.nowMs,
+    deltaSeconds: input.deltaSeconds,
+    travelledMeters,
+    remainingMeters,
+    blendedHeadingRadians,
+    ...(input.stop ? { stop: input.stop } : {}),
+    ...(input.walkStance ? { walkStance: input.walkStance } : {}),
+  });
+  if (entry) return entry;
+
+  // ADVANCE FROM WHERE THE BODY IS, not from a point on the route line. Re-projecting the slot onto  // the polyline every frame discards the stance lock's lateral correction, which unpins the toe by
   // exactly that amount: measured, it left `toe1-1.R` at a 0.00576 m worst frame against a 0.005 m
   // allowance. The lateral residual it preserves instead accumulates into the arrival error, where
   // a metric grades it rather than a re-projection hiding it.

@@ -335,7 +335,7 @@ export function applyLocomotionOrderStanceLocks(registry: LocomotionOrderRegistr
     // order exists. That composer now skips a nurse carrying this flag (see its own doc comment).
     // Set while actually turning/walking (so the settling turn's own increments are not
     // discarded); cleared once arrived or refused, so ordinary idle sway resumes.
-    if (approach !== null && (approach.execution.phase === "walking" || approach.execution.phase === "settling")) {
+    if (approach !== null && (approach.execution.phase === "walking" || approach.execution.phase === "settling" || approach.execution.phase === "stopping")) {
       (approach.actorSlot.userData as Record<string, unknown>)["openClinXrLocomotionOrderActive"] = true;
     } else if (approach !== null) {
       delete (approach.actorSlot.userData as Record<string, unknown>)["openClinXrLocomotionOrderActive"];

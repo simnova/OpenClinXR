@@ -97,12 +97,12 @@ export function updateStationBedsideApproach(
     publishBedsideApproachRuntimeEvidence(state, null, false);
     return null;
   }
-  // RE-OBSERVED WHILE WALKING, and only while walking. `acceptance-v2.md` requires a change during
-  // travel to stop or invalidate the approach, so the room is re-measured on every frame of the
-  // walk; once the actor has stopped there is no travel left to invalidate and re-running a full
-  // Box3 sweep of the scene every frame would be cost with nothing to buy.
+  // RE-OBSERVED WHILE TRAVELLING (walking, stopping) and before the start. `acceptance-v2.md`
+  // requires a change during travel to stop or invalidate the approach, so the room is
+  // re-measured on every travelling frame; once the actor has stopped there is no travel left to
+  // invalidate and re-running a full Box3 sweep every frame would be cost with nothing to buy.
   const observedGeometryRevision =
-    approach.execution.phase === "walking" || approach.execution.phase === "not_started"
+    approach.execution.phase === "walking" || approach.execution.phase === "not_started" || approach.execution.phase === "stopping"
       ? geometryRevisionDigest(
           observeMountedApproachGeometry(context.scene, { supportInstanceId: supportInstanceIdFor(context) }),
         )

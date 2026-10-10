@@ -8,6 +8,7 @@ import { measureStanceGroundAdvance } from "./case-owned-approach-runtime-mod.js
 import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { resolveHipBone } from "./resolve-hip-bone.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
+import { STOP_PLAYING_FLAG } from "./stop-clip-playback-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
 /**
@@ -90,7 +91,12 @@ export function froudeWalkSpeedMetersPerSecond(
  * this package's naming table knows (`resolve-hip-bone.ts`) or the clip cannot be sampled — the
  * caller falls back to the fixed constant rather than dividing by an unmeasured length.
  */
-export function measureActorLegLengthMeters(slot: GeneratedHumanoidAnimationSlot): number | null {
+export function measureActorLegLengthMeters(
+  slot: Pick<
+    GeneratedHumanoidAnimationSlot,
+    "root" | "mixer" | "locomotionClipName" | "responseClips" | "actorSlot"
+  >,
+): number | null {
   const hips = resolveHipBone(slot.root);
   const hip = hips.left ?? hips.right;
   if (hip === null) return null;
@@ -145,7 +151,10 @@ export type LocomotionClipSpeedMeasurement = {
 };
 
 export function resolveLocomotionClipTimeScale(
-  slot: GeneratedHumanoidAnimationSlot,
+  slot: Pick<
+    GeneratedHumanoidAnimationSlot,
+    "root" | "mixer" | "locomotionClipName" | "responseClips" | "actorSlot"
+  >,
 ): LocomotionClipSpeedMeasurement | null {
   const clipName = slot.locomotionClipName;
   if (!clipName) return null;
@@ -346,10 +355,27 @@ export function playLocomotionClip(
 
 /** Crossfade duration in seconds for upper-body blend in/out. */
 export const LOCOMOTION_CROSSFADE_DURATION_S = 0.3;
-
 /** Ramp duration for `legWeightTarget` changes (`playLocomotionClip`'s leg-weight ramp). */
 export const LOCOMOTION_LEG_WEIGHT_RAMP_DURATION_S = 0.3;
 
+/**
+ * One slot's locomotion drive for this frame: the retargeted take drives the legs, and sliding
+ * the root is the fallback only for an actor with no take. While a case-owned approach runs its
+ * baked stop (`STOP_PLAYING_FLAG`), the frame module owns the mixer, so this stands down instead
+ * of restarting the walk take under it. Absent the flag this changes nothing.
+ */
+export function driveSlotLocomotion(
+  slot: GeneratedHumanoidAnimationSlot,
+  locomotion: number,
+  deltaSeconds: number,
+  timeScaleFactor: number,
+  legWeight: number,
+): void {
+  if ((slot.root.userData as Record<string, unknown>)[STOP_PLAYING_FLAG] === true) return;
+  if (!playLocomotionClip(slot, locomotion, deltaSeconds, timeScaleFactor, legWeight)) {
+    slot.root.position.z = slot.baseZ + locomotion * 0.6;
+  }
+}
 /**
  * Explicit per-rail bone name patterns for MPFB2 rig, anchored at start of sanitised name.
  * These are the bones the locomotion clip drives on the MPFB physician rig.

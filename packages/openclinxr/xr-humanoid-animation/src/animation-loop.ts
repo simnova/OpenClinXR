@@ -26,7 +26,7 @@ import {
   visemeOpenness,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
-import { playLocomotionClip } from "./locomotion-clip-playback.js";
+import { driveSlotLocomotion } from "./locomotion-clip-playback.js";
 import {
   applyLocomotionOrderStanceLocks,
   createLocomotionOrderRegistry,
@@ -193,16 +193,13 @@ export function updateGeneratedHumanoidAnimations(
     if (slotDrive && !isSupineFrame) {
       const locomotion = locomotionAppliesToThisSlot ? generatedDriveScalar(slotDrive.locomotion) : null;
       if (locomotion !== null) {
-        // A retargeted locomotion take, when the actor has one, drives the LEGS. Sliding the root
-        // is what this line did unconditionally, and it is the ~100% foot slide the approach
-        // executor's own metric reports: nothing animates the legs, so every planted foot travels
-        // the whole distance. The clip is played only when the drive asks for locomotion, and only
-        // on an actor that carries one, so an actor without a clip keeps the old behaviour exactly.
-        const locomotionTimeScaleFactor = generatedDriveScalar(slotDrive.locomotionTimeScaleFactor) ?? 1;
-        const locomotionLegWeight = generatedDriveScalar(slotDrive.locomotionLegWeight) ?? 1;
-        if (!playLocomotionClip(slot, locomotion, deltaSeconds, locomotionTimeScaleFactor, locomotionLegWeight)) {
-          slot.root.position.z = slot.baseZ + locomotion * 0.6;
-        }
+        driveSlotLocomotion(
+          slot,
+          locomotion,
+          deltaSeconds,
+          generatedDriveScalar(slotDrive.locomotionTimeScaleFactor) ?? 1,
+          generatedDriveScalar(slotDrive.locomotionLegWeight) ?? 1,
+        );
       }
       const gaze = generatedDriveScalar(slotDrive.gazeAversion ?? slotDrive.gaze);
       if (gaze !== null) applyGazeToHumanoid(slot.root, gaze);

@@ -1,5 +1,6 @@
 import {
   stepBedsideApproachExecution,
+  type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
@@ -15,7 +16,7 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { type LocomotionStanceLabels, resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import {
   restoreSettlingRestToePose,
@@ -24,6 +25,14 @@ import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
+import {
+  blendStopClipPlayback,
+  resolveClipStanceForFrame,
+  resolveStopStanceForFrame,
+  resolveStopTriggerInput,
+  startStopClipPlayback,
+  teardownStopClipPlayback,
+} from "./stop-clip-playback-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -46,6 +55,9 @@ export function advanceCaseOwnedBedsideApproach(
 ): CaseOwnedApproachFrame | null {
   if (approach === null) return null;
   const previousPhase = approach.execution.phase;
+  // The baked-stop handoff inputs (`resolveStopTriggerInput`, stop-clip-playback-mod.ts): null
+  // while the actor carries no stop take, which keeps the legacy ending.
+  const { stop: stopTrigger, walkStance } = resolveStopTriggerInput(approach);
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -61,8 +73,24 @@ export function advanceCaseOwnedBedsideApproach(
     walkSpeedMetersPerSecond: approach.walkSpeedMetersPerSecond,
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
     observedHeadingRadians: approach.actorSlot.rotation.y,
+    ...(stopTrigger ? { stop: stopTrigger } : {}),
+    ...(walkStance ? { walkStance } : {}),
   });
   approach.execution = execution;
+  // STOPPING OWNS THE MIXER. The walk-to-stop crossfade plays the root-removed stop take here
+  // (the consumer skips its own walk playback while the stopping flag below is set); the slot
+  // write further down already covers stopping, since only settling is excluded there.
+  if (previousPhase !== "stopping" && execution.phase === "stopping") {
+    approach.lock = createStanceLockState();
+    approach.lockArmed = false;
+    startStopClipPlayback(approach);
+  } else if (execution.phase === "stopping") {
+    approach.lockArmed = true;
+    blendStopClipPlayback(approach, execution.stopElapsedSeconds ?? 0);
+  }
+  if (previousPhase === "stopping" && execution.phase !== "stopping") {
+    teardownStopClipPlayback(approach);
+  }
   // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
   // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
   // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
@@ -137,6 +165,7 @@ export function advanceCaseOwnedBedsideApproach(
     doubleSupport: execution.phase === "settling" ? approach.clipTurn.lock.doubleSupport : approach.lock.doubleSupport,
     travelledMeters: execution.travelledMeters,
     stoppedSeconds: execution.stoppedSeconds,
+    stopTimeSeconds: execution.phase === "stopping" ? (execution.stopElapsedSeconds ?? 0) : null,
     invalidationReason: execution.invalidationReason,
   };
 }
@@ -259,35 +288,6 @@ export function readHeadYawWorldRadians(actorSlot: Object3D | null): number | nu
  * the stance toe to at or above floorOriginY without moving actorSlot Y. This is a NEW call
  * site with its own gate, NOT a deletion of the locomotion gate.
  */
-/**
- * The clip's own stance labels with this frame's action time, or undefined with nothing bound.
- *
- * RESOLVES LAZILY, AT THE SOURCE. Previously the caller had to have already populated
- * `approach.stanceLabels` itself (only `station-bedside-approach-mod.ts` ever did, via an eager
- * `resolveLocomotionStanceLabels` call at approach creation) — any other consumer of the shared
- * case-owned approach (the offline SC-05 harness, a future station, a different humanoid) that
- * populated `stanceLabelSlot` without ALSO remembering that separate call got `stanceLabels: null`
- * forever, and `applyClipDrivenSettlingTurn`'s `downFoot` has no fallback for a null label — the
- * settling turn's yaw then never increments and the phase never closes. Resolving here instead
- * means every caller that supplies a real `stanceLabelSlot` (root + mixer + clip) gets labels for
- * free on first use. `resolveLocomotionStanceLabels` caches its result on
- * `stanceSlot.root.userData`, so calling it every frame after the first is a userData read, not a
- * re-measurement.
- */
-function resolveClipStanceForFrame(
-  approach: CaseOwnedBedsideApproach,
-): { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined {
-  const stanceSlot = approach.stanceLabelSlot;
-  if (stanceSlot === null || stanceSlot.mixer === undefined) return undefined;
-  const labels = approach.stanceLabels ?? resolveLocomotionStanceLabels(stanceSlot);
-  if (labels === null) return undefined;
-  approach.stanceLabels = labels;
-  const clipName = stanceSlot.locomotionClipName;
-  const clip = clipName ? stanceSlot.responseClips?.find((candidate) => candidate.name === clipName) : undefined;
-  const action = clip && stanceSlot.mixer ? stanceSlot.mixer.existingAction(clip) : null;
-  return action ? { labels, actionTimeSeconds: action.time } : undefined;
-}
-
 export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null, deltaSeconds: number): void {
   if (approach === null) return;
   // HEAD LEADS THE TURN. Ahead of both the entry and the settling turns of a phase (walking,
@@ -295,7 +295,7 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   // exceed a natural range while the torso still faces the travel heading. `arrived`/`not_started`
   // are excluded: by `arrived` body heading already equals target heading, so the lead computes to
   // zero, and `not_started` has no target-facing decision to anticipate yet.
-  if (approach.execution.phase === "walking" || approach.execution.phase === "settling") {
+  if (approach.execution.phase === "walking" || approach.execution.phase === "settling" || approach.execution.phase === "stopping") {
     applyHeadGazeLeadYaw({
       actorSlot: approach.actorSlot,
       bodyHeadingRadians: approach.actorSlot.rotation.y,
@@ -481,7 +481,9 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   // The clip labels stance once per bound clip; the action time is this frame's. The slot is set
   // by the station resolve (browser), the offline harness, or stays null (rigs with no clip) —
   // `resolveClipStanceForFrame` resolves and caches `approach.stanceLabels` lazily either way.
-  const clipStance = resolveClipStanceForFrame(approach);
+  // While stopping, the lock reads the STOP take's labels at the stop elapsed time instead.
+  const clipStance =
+    approach.execution.phase === "stopping" ? resolveStopStanceForFrame(approach) : resolveClipStanceForFrame(approach);
   approach.lock = applyStanceLockedGroundAdvance({
     actorSlot: approach.actorSlot,
     leftToe: approach.leftToe,
