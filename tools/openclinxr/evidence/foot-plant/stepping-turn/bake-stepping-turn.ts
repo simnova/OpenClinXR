@@ -9,12 +9,13 @@ import {
 } from "./ik-noop-probe.js";
 import {
   findSteppingLegChain,
-  heelTargetForToeTarget,
-  solveSteppingLegCcd,
+  heelTargetForToeTargetStable,
+  solveSteppingLegHinge,
 } from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-leg-ik-mod.js";
 import {
   planSteppingTurn,
   steppingTurnAt,
+  steppingTurnLegScale,
 } from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-plan-mod.js";
 import { worldXyz } from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stance-lock-ik.js";
 import { decodeArrivalTurnRig } from "../arrival-turn-cagematch.js";
@@ -40,7 +41,11 @@ import {
  * notEvidenceFor: runtime slide (STEP 3), gait realism, or clinical plausibility.
  */
 
-const PHYSICIAN_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
+const RIGS = [
+  { rig: "physician", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb" },
+  { rig: "nurse", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
+  { rig: "child", glb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb" },
+] as const;
 const IDLE_CLIP = "ClinicalIdleConversation";
 const BAKED_CLIP = "stepping_turn_arrival";
 const SIM_SECONDS = 12;
@@ -59,11 +64,21 @@ async function main(): Promise<void> {
     const v = args[i + 1];
     return i >= 0 ? (v ?? fallback) : fallback;
   };
-  const outGlb = flagValue("--out", ".openclinxr/evidence/stepping-turn/stepping-turn-bake.glb");
-  const outMeta = flagValue("--meta", ".openclinxr/evidence/stepping-turn/bake-meta.json");
+  const rigFilter = flagValue("--rig", "");
+  const outGlbFlag = flagValue("--out", "");
+  const outMetaFlag = flagValue("--meta", "");
 
+  for (const { rig, glb } of RIGS) {
+    if (rigFilter && rig !== rigFilter) continue;
+    const outGlb = outGlbFlag !== "" ? outGlbFlag : `.openclinxr/evidence/stepping-turn/stepping-turn-bake-${rig}.glb`;
+    const outMeta = outMetaFlag !== "" ? outMetaFlag : `.openclinxr/evidence/stepping-turn/bake-meta-${rig}.json`;
+    await bakeRig(rig, glb, outGlb, outMeta);
+  }
+}
+
+async function bakeRig(rig: string, glbPath: string, outGlb: string, outMeta: string): Promise<void> {
   // Authoritative production run: slot path + yaw + tracks.
-  const decoded = await decodeArrivalTurnRig(PHYSICIAN_GLB);
+  const decoded = await decodeArrivalTurnRig(glbPath);
   const ward = stageWard();
   const intent = intentFor(ward);
   if (intent.refused) throw new Error(`approach refused: ${intent.reason}`);
@@ -95,22 +110,9 @@ async function main(): Promise<void> {
   const entryFrame = run.frames[entryIdx];
   if (!entryL || !entryR || !entryFrame) throw new Error("no entry track");
   const targetHeading = intent.target.headingRadians;
-  const plan = planSteppingTurn({
-    residualYawRadians: Math.atan2(
-      Math.sin(targetHeading - entryFrame.headingRadians),
-      Math.cos(targetHeading - entryFrame.headingRadians),
-    ),
-    entryYawRadians: entryFrame.headingRadians,
-    targetHeadingRadians: targetHeading,
-    leftToeXz: { x: entryL.position.x, z: entryL.position.z },
-    rightToeXz: { x: entryR.position.x, z: entryR.position.z },
-    leftToeY: entryL.position.y,
-    rightToeY: entryR.position.y,
-    stanceBaselineY: Math.min(entryL.position.y, entryR.position.y),
-  });
 
   // Mirror: idle body, assay scale. Legs are CCD-posed per frame below.
-  const { doc, source } = await readMirrorSource(PHYSICIAN_GLB, IDLE_CLIP);
+  const { doc, source } = await readMirrorSource(glbPath, IDLE_CLIP);
   const tIdle = source.tMin + 0.25 * (source.tMax - source.tMin);
   const { slot, objs } = buildMirrorAtClipTime(source, IDLE_CLIP, tIdle, assayScale);
   const objByName = (name: string): Object3D => {
@@ -155,6 +157,91 @@ async function main(): Promise<void> {
   const slotM = new Matrix4();
   const yawQ = new Quaternion();
   const yAxis = new Vector3(0, 1, 0);
+  // Idle reference (source 1): the actor's own standing hip height. The mirror starts in
+  // the idle pose, so record it before the per-frame CCD reshapes the legs.
+  slot.updateMatrixWorld(true);
+  const idleHipY = (worldXyz(objByName("upperleg01.L")).y + worldXyz(objByName("upperleg01.R")).y) / 2;
+  // Idle rest orientations for the hinge's frozen joints (explicit: previous frames'
+  // solves must not leak into the taut-regime knee placement).
+  const idleQuat = (name: string): { x: number; y: number; z: number; w: number } => {
+    const q = objByName(name).quaternion;
+    return { x: q.x, y: q.y, z: q.z, w: q.w };
+  };
+  const idleRest = (suffix: "L" | "R"): {
+    upper: { x: number; y: number; z: number; w: number };
+    lower: { x: number; y: number; z: number; w: number };
+  } => ({
+    upper: idleQuat(`upperleg02.${suffix}`),
+    lower: idleQuat(`lowerleg02.${suffix}`),
+  });
+  const idleRestL = idleRest("L");
+  const idleRestR = idleRest("R");
+  // Yaw-stable heel mapping (production contract): capture each side's toe-minus-heel
+  // offset once at idle, then rotate with slot yaw only. Re-reading the live offset
+  // every frame feeds solved orientations back into the next target (measured 120 deg
+  // of offset swing and 11 cm of heel overshoot).
+  slot.updateMatrixWorld(true);
+  const captureOffset = (suffix: "L" | "R"): { offset: { x: number; y: number; z: number }; yaw: number } => {
+    const heel = worldXyz(objByName(`foot.${suffix}`));
+    const toe = worldXyz(objByName(`toe1-1.${suffix}`));
+    return { offset: { x: toe.x - heel.x, y: toe.y - heel.y, z: toe.z - heel.z }, yaw: 0 };
+  };
+  const offsetL = captureOffset("L");
+  const offsetR = captureOffset("R");
+  // Baseline source: the idle mirror's own toe heights — the rig's natural standing toe
+  // height in this world, the bake-side equivalent of the production rest snapshot
+  // (rotation about Y preserves Y, so the assay slot yaw at capture is irrelevant).
+  const idleToeBaselineY = Math.min(worldXyz(objByName("toe1-1.L")).y, worldXyz(objByName("toe1-1.R")).y);
+  // Same plan construction as production (even split; a yaw-split optimizer was
+  // tried and removed after measuring the hold offset invariant across shares).
+  const entrySlot = slotXzByFrame.get(entryIdx);
+  if (!entrySlot) throw new Error("no entry slot path");
+  const bakePlanInput = {
+    residualYawRadians: Math.atan2(
+      Math.sin(targetHeading - entryFrame.headingRadians),
+      Math.cos(targetHeading - entryFrame.headingRadians),
+    ),
+    entryYawRadians: entryFrame.headingRadians,
+    targetHeadingRadians: targetHeading,
+    leftToeXz: { x: entryL.position.x, z: entryL.position.z },
+    rightToeXz: { x: entryR.position.x, z: entryR.position.z },
+    leftToeY: entryL.position.y,
+    rightToeY: entryR.position.y,
+    stanceBaselineY: idleToeBaselineY,
+    entrySlotXz: { x: entrySlot.x, z: entrySlot.z },
+    legScale: steppingTurnLegScale(run.restSepXzM),
+  };
+  const plan = planSteppingTurn(bakePlanInput);
+  // Per-frame pose metrics: knee flexion (0 = straight), hip-midpoint height, and knee
+  // back-bow (signed meters along the facing pole; negative = behind the hip-ankle line).
+  const measureLeg = (suffix: "L" | "R", pole: Vector3): { flexDeg: number; bowM: number } => {
+    const hip = worldXyz(objByName(`upperleg01.${suffix}`));
+    const knee = worldXyz(objByName(`lowerleg01.${suffix}`));
+    const heel = worldXyz(objByName(`foot.${suffix}`));
+    const thigh = new Vector3(knee.x - hip.x, knee.y - hip.y, knee.z - hip.z);
+    const shin = new Vector3(heel.x - knee.x, heel.y - knee.y, heel.z - knee.z);
+    const tl = thigh.length();
+    const sl = shin.length();
+    const cos = tl > 1e-9 && sl > 1e-9
+      ? Math.min(1, Math.max(-1, thigh.dot(shin) / (tl * sl)))
+      : 1;
+    // Closest point on the hip->heel line to the knee, signed along the pole.
+    const hipV = new Vector3(hip.x, hip.y, hip.z);
+    const heelV = new Vector3(heel.x, heel.y, heel.z);
+    const kneeV = new Vector3(knee.x, knee.y, knee.z);
+    const axis = heelV.clone().sub(hipV);
+    const axisLenSq = axis.lengthSq();
+    const u = axisLenSq > 1e-12 ? Math.min(1, Math.max(0, kneeV.clone().sub(hipV).dot(axis) / axisLenSq)) : 0;
+    const closest = hipV.add(axis.multiplyScalar(u));
+    const bowM = kneeV.sub(closest).dot(pole);
+    return { flexDeg: (Math.acos(cos) * 180) / Math.PI, bowM };
+  };
+  const flexL: number[] = [];
+  const flexR: number[] = [];
+  const hipY: number[] = [];
+  const bowMin: number[] = [];
+  const swingSide: string[] = [];
+  const missWorst: number[] = [];
   settlingIndices.forEach((frameIndex, k) => {
     const frame = run.frames[frameIndex];
     if (!frame) throw new Error(`no frame ${frameIndex}`);
@@ -162,19 +249,46 @@ async function main(): Promise<void> {
     if (!slotXz) throw new Error(`no slot path at ${frameIndex}`);
     const targets = steppingTurnAt(plan, k * DT);
     slot.rotation.y = frame.headingRadians;
-    slot.position.set(slotXz.x, assaySlotY, slotXz.z);
+    slot.position.set(slotXz.x, assaySlotY - targets.pelvisDipM, slotXz.z);
     slot.updateMatrixWorld(true);
+    // Production hinge path (frozen mids already idle in this mirror; pole = facing).
+    const bakePole = {
+      x: Math.sin(frame.headingRadians),
+      y: 0,
+      z: Math.cos(frame.headingRadians),
+    };
     for (const side of ["left", "right"] as const) {
       const chain = findSteppingLegChain(slot, side);
       if (chain === null) throw new Error(`no mirror chain for ${side}`);
       const toeTarget = side === targets.stanceFoot ? targets.stanceToe : targets.swingToe;
-      solveSteppingLegCcd({ chain, heelTargetWorld: heelTargetForToeTarget({ chain, toeTargetWorld: toeTarget }) });
+      const captured = side === "left" ? offsetL : offsetR;
+      const solved = solveSteppingLegHinge({
+        chain,
+        heelTargetWorld: heelTargetForToeTargetStable({
+          toeTargetWorld: toeTarget,
+          slotYawRadians: frame.headingRadians,
+          offsetEntry: captured.offset,
+          offsetYawRadians: captured.yaw,
+        }),
+        poleWorld: bakePole,
+        midRestQuats: side === "left" ? idleRestL : idleRestR,
+      });
+      missWorst.push(solved.missM);
     }
     slot.updateMatrixWorld(true);
+    // Pose metrics off the solved legs, before the quats are recorded below.
+    const pole = new Vector3(Math.sin(frame.headingRadians), 0, Math.cos(frame.headingRadians));
+    const mL = measureLeg("L", pole);
+    const mR = measureLeg("R", pole);
+    flexL.push(mL.flexDeg);
+    flexR.push(mR.flexDeg);
+    bowMin.push(Math.min(mL.bowM, mR.bowM));
+    hipY.push((worldXyz(objByName("upperleg01.L")).y + worldXyz(objByName("upperleg01.R")).y) / 2);
+    swingSide.push(targets.swingFoot);
     // Root motion = authoritative slot composed over the root bind.
     yawQ.setFromAxisAngle(yAxis, frame.headingRadians);
     slotM.compose(
-      new Vector3(slotXz.x, assaySlotY, slotXz.z),
+      new Vector3(slotXz.x, assaySlotY - targets.pelvisDipM, slotXz.z),
       yawQ,
       new Vector3(assayScale, assayScale, assayScale),
     );
@@ -190,8 +304,32 @@ async function main(): Promise<void> {
       row.push([o.quaternion.x, o.quaternion.y, o.quaternion.z, o.quaternion.w]);
       boneQuats.set(name, row);
     }
-    void worldXyz;
   });
+
+  // Pose summary: hold = mean over the last 5 settling frames; swing max per leg over
+  // frames it swung; dip = deepest hip drop below idle across the turn.
+  const meanLast5 = (a: number[]): number => {
+    const tail = a.slice(-5);
+    return tail.reduce((s, v) => s + v, 0) / Math.max(1, tail.length);
+  };
+  let maxSwingFlex = 0;
+  flexL.forEach((v, i) => {
+    if (swingSide[i] === "left") maxSwingFlex = Math.max(maxSwingFlex, v);
+  });
+  flexR.forEach((v, i) => {
+    if (swingSide[i] === "right") maxSwingFlex = Math.max(maxSwingFlex, v);
+  });
+  const backBowFrames = bowMin.filter((v) => v < -0.005).length;
+  const poseMetrics = {
+    idleHipYM: idleHipY,
+    holdKneeFlexDeg: { left: meanLast5(flexL), right: meanLast5(flexR) },
+    holdHipDeltaM: meanLast5(hipY) - idleHipY,
+    maxDipM: idleHipY - Math.min(...hipY),
+    maxSwingKneeFlexDeg: maxSwingFlex,
+    backBowFrames,
+    worstBowM: Math.min(...bowMin),
+    worstHeelMissM: Math.max(...missWorst),
+  };
 
   // Author the baked action into the shipped doc.
   const root = doc.getRoot();
@@ -231,13 +369,17 @@ async function main(): Promise<void> {
   const io = new NodeIO();
   await io.write(outGlb, doc);
   const meta = {
+    rig,
     clip: BAKED_CLIP,
+    legScale: steppingTurnLegScale(run.restSepXzM),
+    restSepXzM: run.restSepXzM,
     frames: times.length,
     durationS: times.length > 0 ? numAt(times, times.length - 1, "times") : 0,
     facingDeg: (targetHeading * 180) / Math.PI,
     settlingFrames: settlingIndices.length,
     planSteps: plan.steps.length,
     planTotalS: plan.totalS,
+    poseMetrics,
   };
   await mkdir(path.dirname(outMeta), { recursive: true });
   await writeFile(outMeta, `${JSON.stringify(meta, null, 2)}\n`, "utf8");

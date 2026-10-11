@@ -437,6 +437,8 @@ export type ApproachRun = {
   clipAdvance: { metersPerSecond: number; forward: { x: number; z: number } };
   invalidationReason: string | null;
   phases: string[];
+  /** Walk-start rest toe separation (world m); the stepping plan's leg-scale source. */
+  restSepXzM: number | null;
   floorBandPlant: { localY: number; planted: boolean; previousLowestMeshWorldY: number; targetLowestMeshWorldY: number };
 };
 
@@ -893,6 +895,7 @@ export function runApproach(input: {
     frames,
     trackL,
     trackR,
+    restSepXzM: approach.restStance?.sepXz ?? null,
     arrivalErrorMeters: Math.hypot(
       last.x - input.intent.target.position.x,
       last.z - input.intent.target.position.z,

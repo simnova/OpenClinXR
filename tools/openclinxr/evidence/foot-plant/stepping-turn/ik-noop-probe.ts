@@ -8,6 +8,11 @@ import {
   solveTwoBoneIK,
   worldXyz,
 } from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stance-lock-ik.js";
+import {
+  findSteppingLegChain,
+  heelTargetForToeTarget,
+  solveSteppingLegHinge,
+} from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-leg-ik-mod.js";
 
 /**
  * STEP 1 of the stepping-turn slice (2026-10-11): test the four-segment-chain lead.
@@ -408,6 +413,43 @@ async function main(): Promise<void> {
           slot.updateMatrixWorld(true);
           return dist(worldXyz(heel), target);
         };
+        // Production hinge path (frozen mids at bind, twist-free aim, pole-forward knee):
+        // same misses the shipped path must meet, plus the solved knee flexion in deg.
+        const runHinge = (target: { x: number; y: number; z: number }): { missM: number; flexDeg: number } => {
+          restore();
+          const stepChain = findSteppingLegChain(slot, side);
+          if (stepChain === null) throw new Error(`no stepping chain for ${side}`);
+          const heelTarget = heelTargetForToeTarget({
+            chain: stepChain,
+            toeTargetWorld: {
+              x: target.x + (worldXyz(toe).x - worldXyz(heel).x),
+              y: target.y + (worldXyz(toe).y - worldXyz(heel).y),
+              z: target.z + (worldXyz(toe).z - worldXyz(heel).z),
+            },
+          });
+          const result = solveSteppingLegHinge({
+            chain: stepChain,
+            heelTargetWorld: heelTarget,
+            poleWorld: { x: 0, y: 0, z: 1 },
+            midRestQuats: {
+              upper: bindQuat(nodeByName(`upperleg02.${suffix}`)),
+              lower: bindQuat(nodeByName(`lowerleg02.${suffix}`)),
+            },
+          });
+          slot.updateMatrixWorld(true);
+          return { missM: result.missM, flexDeg: kneeFlexDeg() };
+        };
+        const kneeFlexDeg = (): number => {
+          const hipW = new Vector3().setFromMatrixPosition(hip.matrixWorld);
+          const kneeW = new Vector3().setFromMatrixPosition(knee.matrixWorld);
+          const heelW = new Vector3().setFromMatrixPosition(heel.matrixWorld);
+          const thigh = kneeW.clone().sub(hipW);
+          const shin = heelW.clone().sub(kneeW);
+          const tl = thigh.length();
+          const sl = shin.length();
+          if (tl < 1e-9 || sl < 1e-9) return Number.NaN;
+          return (Math.acos(Math.min(1, Math.max(-1, thigh.dot(shin) / (tl * sl)))) * 180) / Math.PI;
+        };
 
         const displaced = { x: heel0.x + 0.2, y: heel0.y, z: heel0.z };
         const hip0 = worldXyz(hip);
@@ -448,6 +490,9 @@ async function main(): Promise<void> {
           existingSteppedMissM: runExisting(stepped),
           compositeSteppedMissM: runComposite(stepped),
           ccdSteppedMissM: runCcd(stepped),
+          hingeNoopMissM: runHinge(heel0).missM,
+          hingeSteppedMissM: runHinge(stepped).missM,
+          hingeSteppedFlexDeg: runHinge(stepped).flexDeg,
         };
         rows.push(row);
         const numbers = row as unknown as Record<string, number>;
@@ -456,7 +501,7 @@ async function main(): Promise<void> {
           return typeof v === "number" ? v.toFixed(4) : "?";
         };
         process.stdout.write(
-          `${rig}/${side}/f${f}: noop existing=${fmt("existingNoopMissM")} composite=${fmt("compositeNoopMissM")} ccd=${fmt("ccdNoopMissM")} | disp existing=${fmt("existingDisplacedMissM")} composite=${fmt("compositeDisplacedMissM")} ccd=${fmt("ccdDisplacedMissM")} | chord-vs-true ${((thighTrue - thighChord) * 1000).toFixed(1)}/${((shinTrue - shinChord) * 1000).toFixed(1)}mm\n`,
+          `${rig}/${side}/f${f}: noop existing=${fmt("existingNoopMissM")} composite=${fmt("compositeNoopMissM")} ccd=${fmt("ccdNoopMissM")} hinge=${fmt("hingeNoopMissM")} | step hinge=${fmt("hingeSteppedMissM")} flex=${fmt("hingeSteppedFlexDeg")} | chord-vs-true ${((thighTrue - thighChord) * 1000).toFixed(1)}/${((shinTrue - shinChord) * 1000).toFixed(1)}mm\n`,
         );
       }
     }

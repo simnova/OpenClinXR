@@ -18,6 +18,15 @@ import type { StanceFoot } from "./stance-lock-mod.js";
  * reachable 0.2 m step target, all rigs; on an unreachable lateral target its residual
  * equals the reach gap exactly (it converges to the reach limit, not past it).
  *
+ * WHY THE HINGE (`solveSteppingLegHinge`, below) AND NOT CCD FOR THE SHIPPED PATH.
+ * CCD's four ball joints hold the pelvis fixed (slot) while folding the knee: measured on
+ * the physician bake, hold flexion L/R 9/29 deg with all 91 frames back-bowed up to
+ * 87 mm — a crouch, graded FAIL against the upright reference. The hinge freezes the
+ * intermediates at rest (STEP-1-proven harmless) and solves the exact two-bone triangle
+ * in the pole plane with twist-free minimal arcs: non-iterative, so no redundant crouch
+ * to fall into and no limit cycle to stall in. (An alternating hip-aim/knee-hinge
+ * iteration was tried first and diverged into 70-120 deg folds on displaced targets.)
+ *
  * SCOPE: stepping-turn execution only, behind its default-off flag. The walking stance
  * lock and the clip-driven settling turn keep their own solvers untouched.
  */
@@ -51,7 +60,6 @@ function ccdSweep(joints: Object3D[], end: Object3D, target: Vector3): number {
   const toTarget = new Vector3();
   const axis = new Vector3();
   const delta = new Quaternion();
-  const parentQuat = new Quaternion();
   for (let j = joints.length - 1; j >= 0; j -= 1) {
     const joint = joints[j];
     if (!joint) continue;
@@ -67,12 +75,17 @@ function ccdSweep(joints: Object3D[], end: Object3D, target: Vector3): number {
     axis.crossVectors(toEnd, toTarget);
     if (axis.lengthSq() < 1e-12) continue;
     axis.normalize();
+    // Parent WORLD QUATERNION, not setFromRotationMatrix(parent.matrixWorld): the slot
+    // carries 0.86 scale and setFromRotationMatrix assumes an unscaled basis, which
+    // skews the axis and injects shear (measured: a hinge rotation landed 0.03 off its
+    // own exact target). getWorldQuaternion decomposes properly.
     joint.parent?.updateMatrixWorld(true);
-    if (joint.parent) parentQuat.setFromRotationMatrix(joint.parent.matrixWorld);
-    else parentQuat.identity();
+    const parentQ = new Quaternion();
+    if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
+    else parentQ.identity();
     // World-axis rotation -> joint-local delta, so the heel aims without twisting the foot:
     // only the four leg joints rotate; heel/toe orientation is whatever the mixer wrote.
-    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQuat.clone().invert()), Math.acos(cos));
+    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQ.clone().invert()), Math.acos(cos));
     joint.quaternion.premultiply(delta);
     joint.updateMatrixWorld(true);
   }
@@ -118,6 +131,12 @@ export function solveSteppingLegCcd(input: {
  * Heel target for a desired TOE placement, preserving the foot's CURRENT heel-to-toe
  * offset — the closed-loop construction `applyStanceToeXzPin` uses, so a small mismatch
  * between the anchor-time offset and the target self-corrects instead of accumulating.
+ *
+ * STATIC USE ONLY (probes, single shots). Per-frame callers MUST use
+ * `heelTargetForToeTargetStable` below: re-reading the live offset every frame feeds the
+ * solved leg orientation back into the next target — measured 120 deg of offset swing
+ * and 11 cm of heel overshoot on the physician bake, where the swing heel converged
+ * exactly and still read 72 deg of flexion against a 34 deg geometric demand.
  */
 export function heelTargetForToeTarget(input: {
   chain: SteppingLegChain;
@@ -133,4 +152,122 @@ export function heelTargetForToeTarget(input: {
     y: input.toeTargetWorld.y - (toeWorld.y - heelWorld.y),
     z: input.toeTargetWorld.z - (toeWorld.z - heelWorld.z),
   };
+}
+
+/**
+ * Yaw-stable heel target for per-frame callers. The entry offset (toe minus heel,
+ * captured once) rotates with the slot yaw ONLY — never with the solved leg — so the
+ * target cannot chase the solver's own output frame to frame. Residual error is bounded
+ * by the walk clip's own ankle motion (mm-scale), never accumulating.
+ */
+export function heelTargetForToeTargetStable(input: {
+  toeTargetWorld: { x: number; y: number; z: number };
+  slotYawRadians: number;
+  offsetEntry: { x: number; y: number; z: number };
+  offsetYawRadians: number;
+}): { x: number; y: number; z: number } {
+  const dyaw = input.slotYawRadians - input.offsetYawRadians;
+  const cos = Math.cos(dyaw);
+  const sin = Math.sin(dyaw);
+  const ox = input.offsetEntry.x;
+  const oz = input.offsetEntry.z;
+  return {
+    x: input.toeTargetWorld.x - (ox * cos + oz * sin),
+    y: input.toeTargetWorld.y - input.offsetEntry.y,
+    z: input.toeTargetWorld.z - (-ox * sin + oz * cos),
+  };
+}
+
+export type HingeQuat = { x: number; y: number; z: number; w: number };
+
+function quatInParentFrame(joint: Object3D, worldDelta: Quaternion): Quaternion {
+  const parentQ = new Quaternion();
+  if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
+  else parentQ.identity();
+  return new Quaternion()
+    .copy(parentQ)
+    .invert()
+    .multiply(worldDelta)
+    .multiply(parentQ);
+}
+
+/**
+ * Hinge-constrained leg solve: the shipped production path.
+ *
+ * Freezes both intermediate joints at their rest orientations (STEP-1-proven: they run
+ * within 3.8 mm of straight, so nothing is lost), computes the knee position from the
+ * cosine rule in the pole plane, and orients thigh then shin onto it with twist-free
+ * minimal arcs — analytic and non-iterative, so unlike CCD there is no redundant
+ * crouch to fall into and no limit cycle to stall in: the leg takes the straightest
+ * shape that reaches the target, pelvis rides at full height, knees stay forward.
+ *
+ * Twist discipline: both orientations are minimal arcs (no twist component by
+ * construction); intermediates are frozen, so upper-leg twist cannot change inside
+ * this solve. Each frame starts from the mixer's pose, so nothing accumulates frame
+ * to frame either.
+ */
+export function solveSteppingLegHinge(input: {
+  chain: SteppingLegChain;
+  heelTargetWorld: { x: number; y: number; z: number };
+  /** World-space forward the knee must bow toward (slot facing). */
+  poleWorld: { x: number; y: number; z: number };
+  /** Rest orientations for the frozen intermediates; null entries are left as-is. */
+  midRestQuats?: { upper: HingeQuat | null; lower: HingeQuat | null } | null;
+}): { converged: boolean; missM: number } {
+  const { chain } = input;
+  const target = new Vector3(input.heelTargetWorld.x, input.heelTargetWorld.y, input.heelTargetWorld.z);
+  const pole = new Vector3(input.poleWorld.x, input.poleWorld.y, input.poleWorld.z).normalize();
+  const hold = input.midRestQuats ?? null;
+  if (hold?.upper) chain.upperMid.quaternion.set(hold.upper.x, hold.upper.y, hold.upper.z, hold.upper.w);
+  if (hold?.lower) chain.lowerMid.quaternion.set(hold.lower.x, hold.lower.y, hold.lower.z, hold.lower.w);
+  chain.hip.updateMatrixWorld(true);
+  chain.knee.updateMatrixWorld(true);
+  chain.heel.updateMatrixWorld(true);
+  const hipW0 = chain.hip.getWorldPosition(new Vector3());
+  const kneeW0 = chain.knee.getWorldPosition(new Vector3());
+  const heelW0 = chain.heel.getWorldPosition(new Vector3());
+  const thighLen = hipW0.distanceTo(kneeW0);
+  const shinLen = kneeW0.distanceTo(heelW0);
+  if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target) };
+  // Already placed: touch nothing (exact no-ops stay exact; no churn near convergence).
+  if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target) };
+  const up = new Vector3(0, 1, 0);
+  // Bend plane from the pole (pole-side by construction = the back-bow guard).
+  const toT = target.clone().sub(hipW0);
+  const dist = Math.max(toT.length(), 1e-9);
+  toT.divideScalar(dist);
+  const bendNormal = new Vector3().crossVectors(toT, pole);
+  if (bendNormal.lengthSq() < 1e-12) bendNormal.crossVectors(toT, up);
+  if (bendNormal.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target) };
+  bendNormal.normalize();
+  const perpPole = pole.clone().addScaledVector(toT, -pole.dot(toT)).normalize();
+  const reach = thighLen + shinLen;
+  const clamped = Math.min(Math.max(dist, Math.abs(thighLen - shinLen) + 1e-6), reach - 0.001);
+  const cosHip = (thighLen * thighLen + clamped * clamped - shinLen * shinLen) / (2 * thighLen * clamped);
+  const hipAngle = Math.acos(Math.min(1, Math.max(-1, cosHip)));
+  const kneeTarget = hipW0
+    .clone()
+    .addScaledVector(toT, Math.cos(hipAngle) * thighLen)
+    .addScaledVector(perpPole, Math.sin(hipAngle) * thighLen);
+  const thighDir0 = kneeW0.clone().sub(hipW0).normalize();
+  const wantThighDir = kneeTarget.clone().sub(hipW0).normalize();
+  chain.hip.quaternion.premultiply(
+    quatInParentFrame(chain.hip, new Quaternion().setFromUnitVectors(thighDir0, wantThighDir)),
+  );
+  chain.hip.updateMatrixWorld(true);
+  chain.knee.updateMatrixWorld(true);
+  chain.heel.updateMatrixWorld(true);
+  const shinDir0 = chain.heel
+    .getWorldPosition(new Vector3())
+    .sub(chain.knee.getWorldPosition(new Vector3()))
+    .normalize();
+  const wantShinDir = target.clone().sub(kneeTarget).normalize();
+  chain.knee.quaternion.premultiply(
+    quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir)),
+  );
+  chain.hip.updateMatrixWorld(true);
+  chain.knee.updateMatrixWorld(true);
+  chain.heel.updateMatrixWorld(true);
+  const missM = chain.heel.getWorldPosition(new Vector3()).distanceTo(target);
+  return { converged: missM < 0.01, missM };
 }

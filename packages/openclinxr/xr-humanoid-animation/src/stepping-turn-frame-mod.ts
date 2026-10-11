@@ -20,12 +20,19 @@ export function enterSteppingTurn(approach: CaseOwnedBedsideApproach): void {
     approach.steppingTurn = null;
     return;
   }
+  // Baseline + scale sources (handback bar 1): the walk-start rest snapshot's own
+  // heights and separation — the rig's natural standing toe height and leg scale in
+  // this world — not the walk-frozen entry pose.
+  const rest = approach.restStance;
+  const baseline = rest !== null ? Math.min(rest.heightLeft, rest.heightRight) : null;
   approach.steppingTurn = beginSteppingTurn({
     actorSlot: approach.actorSlot,
     leftToe: approach.leftToe,
     rightToe: approach.rightToe,
     targetHeadingRadians: approach.intent.target.headingRadians,
     floorOriginY: approach.floorOriginY,
+    baselineYOverride: baseline,
+    restSepXzM: rest?.sepXz ?? null,
   });
 }
 
@@ -44,6 +51,7 @@ export function applySteppingTurn(approach: CaseOwnedBedsideApproach, deltaSecon
     rightToe: approach.rightToe,
     deltaSeconds,
     state: approach.steppingTurn,
+    restQuats: approach.restStance?.quats ?? null,
   });
   const leftY = (targets.stanceFoot === "left" ? targets.stanceToe : targets.swingToe).y;
   const rightY = (targets.stanceFoot === "right" ? targets.stanceToe : targets.swingToe).y;

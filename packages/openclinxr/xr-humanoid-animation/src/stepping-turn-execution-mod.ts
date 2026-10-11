@@ -2,13 +2,15 @@ import type { Object3D } from "three";
 import {
   planSteppingTurn,
   steppingTurnAt,
+  steppingTurnLegScale,
   type SteppingTurnPlan,
   type SteppingTurnTargets,
 } from "./stepping-turn-plan-mod.js";
 import {
   findSteppingLegChain,
-  heelTargetForToeTarget,
-  solveSteppingLegCcd,
+  heelTargetForToeTargetStable,
+  type HingeQuat,
+  solveSteppingLegHinge,
 } from "./stepping-turn-leg-ik-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
 
@@ -35,6 +37,13 @@ export type SteppingTurnExecState = {
   plan: SteppingTurnPlan;
   elapsedS: number;
   lastTargets: SteppingTurnTargets | null;
+  /** Slot Y at entry; the pelvis dip subtracts from this each frame. */
+  slotY0: number;
+  /** Toe-minus-heel offset per side with the yaw it was captured at (stable mapping). */
+  offsetEntry: {
+    left: { offset: { x: number; y: number; z: number }; yaw: number } | null;
+    right: { offset: { x: number; y: number; z: number }; yaw: number } | null;
+  };
 };
 
 function shortestYawDelta(fromRadians: number, toRadians: number): number {
@@ -48,6 +57,16 @@ export function beginSteppingTurn(input: {
   rightToe: Object3D | null;
   targetHeadingRadians: number;
   floorOriginY: number;
+  /**
+   * Stance baseline override: the rig's natural standing toe height (the walk-start
+   * rest snapshot's heights). Absent, the entry minimum is used — but a walk frozen
+   * mid-stride can hold both feet centimetres off the floor, and pinning that float
+   * for the whole turn crouches the bake (measured 44-62 deg hold flexion from a
+   * 6 cm float). Step 0 still starts at live heights and morphs down (no snap).
+   */
+  baselineYOverride?: number | null;
+  /** Walk-start rest toe separation (world m) for the rig leg scale; null = 1.0. */
+  restSepXzM?: number | null;
 }): SteppingTurnExecState | null {
   const { actorSlot, leftToe, rightToe } = input;
   if (leftToe === null || rightToe === null) return null;
@@ -57,7 +76,7 @@ export function beginSteppingTurn(input: {
   const leftWorld = worldXyz(leftToe);
   const rightWorld = worldXyz(rightToe);
   const entryYaw = actorSlot.rotation.y;
-  const plan = planSteppingTurn({
+  const planInput = {
     residualYawRadians: shortestYawDelta(entryYaw, input.targetHeadingRadians),
     entryYawRadians: entryYaw,
     targetHeadingRadians: input.targetHeadingRadians,
@@ -65,48 +84,99 @@ export function beginSteppingTurn(input: {
     rightToeXz: { x: rightWorld.x, z: rightWorld.z },
     leftToeY: leftWorld.y,
     rightToeY: rightWorld.y,
-    stanceBaselineY: Math.min(leftWorld.y, rightWorld.y),
-  });
-  return { plan, elapsedS: 0, lastTargets: steppingTurnAt(plan, 0) };
+    stanceBaselineY: input.baselineYOverride ?? Math.min(leftWorld.y, rightWorld.y),
+    entrySlotXz: { x: actorSlot.position.x, z: actorSlot.position.z },
+    legScale: steppingTurnLegScale(input.restSepXzM),
+  };
+  // Center the final pair under the pelvis (two-step turns): the yaw split steers the
+  // pivot-arc composition, so optimize it against the closed-form slot path. Falls back
+  // to even (or untouched for N != 2) with no gain.
+  const plan = planSteppingTurn(planInput);
+  return {
+    plan,
+    elapsedS: 0,
+    lastTargets: steppingTurnAt(plan, 0),
+    slotY0: actorSlot.position.y,
+    offsetEntry: { left: null, right: null },
+  };
 }
-
 export function advanceSteppingTurn(input: {
   actorSlot: Object3D;
   leftToe: Object3D | null;
   rightToe: Object3D | null;
   deltaSeconds: number;
   state: SteppingTurnExecState;
+  /** Rest orientations keyed by bone name (the walk-start snapshot); null leaves mids as-is. */
+  restQuats?: Record<string, HingeQuat> | null;
 }): SteppingTurnTargets {
   const { actorSlot, state } = input;
   state.elapsedS += input.deltaSeconds;
   const targets = steppingTurnAt(state.plan, state.elapsedS);
   state.lastTargets = targets;
 
-  // Pelvis yaw follows the feet.
+  // Pelvis yaw follows the feet; pelvis height dips a few cm mid-swing (the plan's
+  // dip profile, 0 at placements) so the lift-plus-reach span is shared between knee
+  // flexion and hip drop instead of crouching the knee alone.
   actorSlot.rotation.y = targets.yawRadians;
+  actorSlot.position.y = state.slotY0 - targets.pelvisDipM;
   actorSlot.updateMatrixWorld(true);
 
   // Shape the legs where bones exist, then pin the stance toe to its anchor with an
-  // exact rigid translate. Headless markers resolve no chain and skip the CCD, so the
+  // exact rigid translate. Headless markers resolve no chain and skip the solve, so the
   // pin reads the assay-posed locals there.
   //
   // ORDER (measured 2026-10-11: the reverse order walks the slot). The pin must read the
-  // POST-CCD stance world, not the pre-CCD one: the mixer keeps playing the walk clip
-  // underneath (leg weight 0.4), so the pre-CCD stance world is a walk-pose sample —
+  // POST-solve stance world, not the pre-solve one: the mixer keeps playing the walk clip
+  // underneath (leg weight 0.4), so the pre-solve stance world is a walk-pose sample —
   // pinning THAT teleports the slot by the walk sample's own discontinuity every frame
-  // (measured 0.42 m of slot travel on the child) and the subsequent CCD only moves the
-  // foot. CCD first puts the foot where the plan says; the pin then cancels only the
-  // yaw rotation's own displacement plus CCD residue — the exact-translate discipline
+  // (measured 0.42 m of slot travel on the child) and the subsequent solve only moves the
+  // foot. Hinge first puts the foot where the plan says; the pin then cancels only the
+  // yaw rotation's own displacement plus solve residue — the exact-translate discipline
   // `compensateSlotForYawChange` (stance-lock-ik.ts) uses, rather than a drift chase.
-  // Two passes: the second pin moves the slot by the first CCD's residue (~0.1 mm), so
-  // the heel it disturbs stays within the probe-measured CCD miss.
+  // Two passes: the second pin moves the slot by the first solve's residue (~0.1 mm), so
+  // the heel it disturbs stays within the probe-measured miss.
+  //
+  // Pole: the slot's own facing — knees bow forward along the body heading, never back.
+  const yawNow = actorSlot.rotation.y;
+  const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
   for (let pass = 0; pass < 2; pass += 1) {
     for (const side of ["left", "right"] as const) {
       const chain = findSteppingLegChain(actorSlot, side);
       if (chain === null) continue;
+      // Capture the heel-toe offset once (first resolving frame); after that it only
+      // rotates with slot yaw — re-reading it live feeds solved orientations back in.
+      if (state.offsetEntry[side] === null) {
+        chain.heel.updateMatrixWorld(true);
+        chain.toe.updateMatrixWorld(true);
+        const heelWorld = worldXyz(chain.heel);
+        const toeWorld = worldXyz(chain.toe);
+        state.offsetEntry[side] = {
+          offset: {
+            x: toeWorld.x - heelWorld.x,
+            y: toeWorld.y - heelWorld.y,
+            z: toeWorld.z - heelWorld.z,
+          },
+          yaw: targets.yawRadians,
+        };
+      }
       const toeTarget = side === targets.stanceFoot ? targets.stanceToe : targets.swingToe;
-      const heelTarget = heelTargetForToeTarget({ chain, toeTargetWorld: toeTarget });
-      solveSteppingLegCcd({ chain, heelTargetWorld: heelTarget });
+      const captured = state.offsetEntry[side];
+      if (captured === null) continue;
+      const heelTarget = heelTargetForToeTargetStable({
+        toeTargetWorld: toeTarget,
+        slotYawRadians: targets.yawRadians,
+        offsetEntry: captured.offset,
+        offsetYawRadians: captured.yaw,
+      });
+      const rest = input.restQuats ?? null;
+      const upper = rest?.[chain.upperMid.name] ?? null;
+      const lower = rest?.[chain.lowerMid.name] ?? null;
+      solveSteppingLegHinge({
+        chain,
+        heelTargetWorld: heelTarget,
+        poleWorld,
+        midRestQuats: { upper, lower },
+      });
     }
     actorSlot.updateMatrixWorld(true);
     const stanceToe = targets.stanceFoot === "left" ? input.leftToe : input.rightToe;
