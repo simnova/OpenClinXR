@@ -50,6 +50,20 @@ const _scratchEuler = new Euler();
 const _scratchQuat = new Quaternion();
 const _scratchBindQuat = new Quaternion();
 
+/**
+ * Arm release slew cap, per posture-pass call, in radians (2026-10-11 arm-settle).
+ *
+ * MEASURED in the browser on the physician: the uncapped owned-crossfade slerp covered ~87%
+ * of the ~35 deg clip-to-idle arm distance in a single settling frame (33.6 deg/frame against
+ * a ~2.3 deg/frame steady walking arm rate), because the walk action's own leg-weight fade
+ * shifts the mixer output idle-ward in the same frame the slerp pulls idle-ward. Capped at
+ * 2.0 deg/call, the release spans ~18 calls (~0.6 s at the 30 Hz approach cadence) and no
+ * single frame exceeds the walk clip's own steady per-frame arm rate. Arms only: the cap
+ * applies in the owned branch below, which only arm/hand bones (and head attention, excluded)
+ * ever reach with a target; leg/pelvis bones are never written by this pass.
+ */
+const ARM_RELEASE_SLEW_MAX_RAD = (2.0 * Math.PI) / 180;
+
 type BindQuaternion = { x: number; y: number; z: number; w: number };
 
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
@@ -321,7 +335,17 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       if (targetQuat !== null) {
         // Slerp from idle (weight=0) to current mixer pose (weight=1)
         // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
-        object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
+        let blendT = 1 - ownershipWeight;
+        // Arm release slew cap (2026-10-11 arm-settle; see ARM_RELEASE_SLEW_MAX_RAD): cover at
+        // most the capped angle per call, so the walk-end release spreads over ~0.5 s instead of
+        // snapping in one frame. Head-family attention keeps the exact blend.
+        if (idleRotation === undefined || !isHeadFamily(idleRotation)) {
+          const stepAngle = object.quaternion.angleTo(targetQuat);
+          if (stepAngle > ARM_RELEASE_SLEW_MAX_RAD && stepAngle > 0) {
+            blendT = Math.min(blendT, ARM_RELEASE_SLEW_MAX_RAD / stepAngle);
+          }
+        }
+        object.quaternion.slerp(targetQuat, blendT);
         // Sync rotation from quaternion so Euler accessors work
         object.rotation.setFromQuaternion(object.quaternion);
         object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
