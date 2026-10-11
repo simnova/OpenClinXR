@@ -45,13 +45,19 @@ Raw outputs land in the grok session directory, `~/.grok/sessions/<cwd>/<session
 2. `reference_to_video` with `first_frame` = that file, `duration` 6, `720p`, `16:9`. The prompt starts "The camera is locked off and never moves", then states the motion as positions and timings ("takes two more steps, stops, arms settle at the sides over about half a second, then stands still for the last two seconds"). Bare verbs produce bobbing in place.
 3. `ffmpeg -y -i ref.mp4 -vf fps=4 frames/frame_%03d.png`, then a contact sheet. Grade the motion before it becomes a target.
 
+**Same take from several angles (arm settle, 2026-10-11):**
+1. Extract the source clip's last frame: `ffmpeg -sseof -0.05 -i ref-side.mp4 -frames:v 1 side-last.png`.
+2. For each angle, `image_edit` the first frame and the last frame separately: "Same person, same clothing, same pose and the same moment of the stride, seen from <camera position, height, distance>. Full body head to feet in frame." Forbid `image_gen` in the brief; a fresh generation drifts in body and clothing.
+3. `reference_to_video` per angle with `first_frame` and `last_frame` set to the edited pair, `images=[side-first.png]` for identity (tag `<IMAGE_1>`; `first_frame` takes index 0), and the same motion prompt as the source clip.
+
+Measured on the first run: identity, clothing and end pose held across all four clips, and a front view came out as asked. A "45 degrees front-right" request came back as a second side view, and "overhead at 60 degrees" came back as a mild high angle of about 30 degrees, so check each clip's angle in the frames before using it. The clips share start and end poses but are generated independently, so mid-clip timing does not line up: read timings from one clip only.
+
 **Where `image_edit` fits:**
 - **End frame for a travelling or turning subject:** edit the first frame ("same person, same camera, now turned 90 degrees to face the camera, feet shoulder width"), pass it as `last_frame`. Pinning both ends stops the model inventing the destination.
-- **Second angle of the same take:** edit the side first-frame into an overhead or front view of the same person rather than a fresh `image_gen`, which drifts in body and clothing.
 - **Body-readable reference:** edit a clothed frame to "same person, same pose, plain fitted dark clothing" so knee and hip angles are visible. Motion is graded on the bare body (lab coats hide the hip and knee).
 - **Pose variant:** "same person, arms relaxed at the sides" for an idle target still.
 
-Not yet used in this repo; the first use should record what it produced here.
+First used 2026-10-11 for the multi-angle recipe above; record results of the other uses here when they run.
 
 ## Prompt rules that go in every brief
 
