@@ -1,1 +1,55 @@
-{}
+{
+  "r13": {
+    "image": "r13.png",
+    "width": 512,
+    "height": 512,
+    "hairAreaFraction": 0.09895107938718663,
+    "hairBboxAspect": 1.8630952380952381,
+    "volume": 0.09895107938718663,
+    "structure": 0.3629935313229523,
+    "partGapFraction": 0.5952380952380952,
+    "hairlineRatio": 0,
+    "meanHairLuminance": 0.18603424733107082,
+    "maskPixels": 13641
+  },
+  "r45": {
+    "image": "r45.png",
+    "width": 512,
+    "height": 512,
+    "hairAreaFraction": 0.12458652506963788,
+    "hairBboxAspect": 2.345864661654135,
+    "volume": 0.12458652506963788,
+    "structure": 0.16615838774080796,
+    "partGapFraction": 0.7518796992481203,
+    "hairlineRatio": 0,
+    "meanHairLuminance": 0.1639148509290179,
+    "maskPixels": 17175
+  },
+  "target": {
+    "image": "target.png",
+    "width": 512,
+    "height": 512,
+    "hairAreaFraction": 0.29369777158774374,
+    "hairBboxAspect": 1.1392857142857142,
+    "volume": 0.29369777158774374,
+    "structure": 0.14810043459755962,
+    "partGapFraction": 0.36428571428571427,
+    "hairlineRatio": 0,
+    "meanHairLuminance": 0.12615548171135674,
+    "maskPixels": 40488
+  },
+  "structure": {
+    "r13": 0.3629935313229523,
+    "r45": 0.16615838774080796,
+    "target": 0.14810043459755962
+  },
+  "cases": {
+    "pass": 10,
+    "fail": 0
+  },
+  "discrimination": {
+    "volume(r13)": 0.09895107938718663,
+    "volume(r45)": 0.12458652506963788,
+    "pass": true
+  }
+}
