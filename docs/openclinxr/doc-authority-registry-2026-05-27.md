@@ -379,6 +379,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/s1-stop-clip-runtime-2026-10-10.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/stop-take-selection-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/locomotion/inertialize-cagematch-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

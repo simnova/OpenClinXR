@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 214,
-    "archive-candidate": 118,
+    "archive-candidate": 119,
     "evidence": 174,
     "temporary": 54,
     "protected-policy": 10,
@@ -5555,6 +5555,13 @@
     },
     {
       "path": "docs/openclinxr/locomotion/stop-take-selection-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/inertialize-cagematch-2026-10-11.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
