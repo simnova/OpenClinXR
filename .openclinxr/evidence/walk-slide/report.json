@@ -1,0 +1,70 @@
+{
+  "arrivalErrM": {
+    "off": 0.0082,
+    "on": 0.1613
+  },
+  "arrivalNote": "XZ distance from the slot at the first arrived sample to targetWorld. Flag-on ends 16 cm from the target; flag-off lands within 1 cm.",
+  "bars": {
+    "arrival": "arrival <= off + 0.01 m",
+    "heelMissMedian": "heel miss median < 0.01 m with flag on",
+    "toeStep": "max toe step <= off + 0.02 m",
+    "walkSlide": "walk per-contact slide median reduced >= 0.01 m AND max reduced >= 0.02 m"
+  },
+  "barsPass": {
+    "arrival": false,
+    "heelMissMedian": false,
+    "toeStep": false,
+    "walkSlide": true
+  },
+  "baseRev": "732c305c9",
+  "capture": {
+    "actorId": "scene_closure physician (frozen-plan walker)",
+    "flags": "--full-body, stepping turn at default (off)",
+    "framesOff": 107,
+    "framesOn": 107,
+    "off": ".openclinxr/evidence/walk-slide/off/foot-plant-video.json",
+    "on": ".openclinxr/evidence/walk-slide/on/foot-plant-video.json",
+    "phases": "walking -> settling -> arrived (28/47/32 frames both runs)",
+    "tool": "tools/openclinxr/evidence/foot-plant/foot-plant-video-capture.ts"
+  },
+  "code": "No default changed; ccdStanceLockEnabled default off. Runtime change is a read-only diagnostic tap (stanceLockHeelMissM); capture and metric changes are tools-only. No new package export, no admission overlay needed.",
+  "flagEngagement": "The on-run is not a silent fallback: the deterministic sim diverges from the first stance frames, heel-miss median shifts 0.0617 -> 0.0258 m, and walk contact median shifts 0.1207 -> 0.0050 m. An ignored flag would leave bit-identical tracks.",
+  "heelMissExposedFrames": {
+    "off": 24,
+    "on": 24
+  },
+  "heelMissMedianM": {
+    "off": 0.0617,
+    "on": 0.0258
+  },
+  "heelMissMaxM": {
+    "off": 0.3786,
+    "on": 0.2112
+  },
+  "maxToeStepM": {
+    "off": 0.1364,
+    "on": 0.3425
+  },
+  "measuredAt": "2026-10-11",
+  "metricValidation": "Settling-phase contact episodes reproduce computeTurnQuality plantedSlideM exactly on the same capture (metricValidationDeltaM 0.00000 off and on). The per-contact machinery is validated; the walk numbers are usable.",
+  "notEvidenceFor": [
+    "gait realism",
+    "clinical plausibility",
+    "Quest performance"
+  ],
+  "onAnomaly": "Flag-on max toe step 0.3425 m is a single-frame 0.34 m jump of the stance-labelled left foot at sample 21 (off: 0.086 m same frame) \u2014 a solve snap, not a stride. Flag-on arrival error 0.161 m vs 0.008 m off.",
+  "reason": "1/4 bars pass. Walk slide improves (median -0.1157 m, max -0.0532 m) but heel miss median stays above the bar (0.0258 m), max toe step regresses by 0.206 m on a stance-foot snap, and arrival regresses by 0.153 m. Keep the flag off.",
+  "schemaVersion": "openclinxr.walk-slide-report.v1",
+  "toeStepNote": "Both runs' sub-0.11 m steps are healthy swing motion. The on-run max is the sample-21 stance snap; the off-run max is an early-walk transient.",
+  "verdict": "reject",
+  "walkContactMedianM": {
+    "off": 0.1207,
+    "on": 0.005
+  },
+  "walkContactMaxM": {
+    "off": 0.5114,
+    "on": 0.4582
+  },
+  "walkContacts": 4,
+  "walkNote": "Per-contact episodes (n=4 both runs) replace the maximal-run max. Flag-on pins the mid-walk contact well (median 5 mm) but leaves a 0.46 m max contact and snaps 0.34 m at the replant."
+}

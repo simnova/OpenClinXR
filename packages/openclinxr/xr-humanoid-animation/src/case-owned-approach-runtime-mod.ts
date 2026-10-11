@@ -103,10 +103,9 @@ export type CaseOwnedBedsideApproach = {
   /** False until a walking frame whose pose the clip has actually written; see the note on the lock. */
   lockArmed: boolean;
   /**
-   * ## CHANGED: retained for `settling-step-turn-mod.ts`'s own restLocal fallback (the
-   * no-restStance branch in `applyCaseOwnedStanceLock`'s arrived close) and its own tests, but no
-   * longer driven during settling — see `clipTurn` below, which replaced it as the settling-phase
-   * turn owner.
+   * ## CHANGED: retained for `settling-step-turn-mod.ts`'s own restLocal fallback (the no-restStance
+   * branch in `applyCaseOwnedStanceLock`'s arrived close) and its own tests, but no longer driven
+   * during settling — see `clipTurn` below, which replaced it as the settling-phase turn owner.
    */
   turnStep: SettlingStepTurnState;
   /**
@@ -125,6 +124,7 @@ export type CaseOwnedBedsideApproach = {
   /** Default-off flag: run the stepping turn instead of the clip-driven settling turn. */
   steppingTurnEnabled: boolean;
   ccdStanceLockEnabled: boolean; // Default-off: hinge four-joint stance-leg solve, not two-bone.
+  lastHeelMissM: number | null; // Read-only diagnostic: stance-leg heel-target miss in metres.
   /**
    * The actor's own standing pose, snapshotted on the first walking frame while the
    * skeleton still holds the idle pose. Drives the arrived close and the settling
@@ -355,7 +355,7 @@ export function createCaseOwnedBedsideApproach(input: {
     clipTurn: createClipDrivenSettlingTurnState(),
     steppingTurn: null,
     steppingTurnEnabled: input.steppingTurnEnabled ?? false,
-    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false,
+    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false, lastHeelMissM: null, // shares the flag line: file at zone budget
     restStance: null,
     closeState: createArrivalCloseState(),
     floorBandPlant,

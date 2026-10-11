@@ -210,9 +210,9 @@ function swingEpisodes(frames: readonly TurnQualityFrame[]): StepLift[] {
  * footfalls of the same foot with no intervening label change. A genuinely pinned toe moves by at
  * most the stance-lock's own per-frame correction cap; anything past this is a landing, not slide.
  */
-const PLANT_EPISODE_FOOTFALL_JUMP_METERS = 0.05;
+export const PLANT_EPISODE_FOOTFALL_JUMP_METERS = 0.05;
 /** Toe height above the floor that counts as lifted: half the ~1.5-2 cm natural toe clearance. */
-const PLANT_EPISODE_LIFT_METERS = 0.008;
+export const PLANT_EPISODE_LIFT_METERS = 0.008;
 
 /**
  * Contiguous runs of settling-phase frames sharing the same PLANTED (stance) foot label.

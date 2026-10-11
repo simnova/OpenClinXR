@@ -256,6 +256,8 @@ type RuntimeSample = {
   footBoneHeightMeters?: { left: number | null; right: number | null };
   /** DEBUG/DIAGNOSTIC for the turn-jump investigation — see station-bedside-approach-mod.ts. */
   pinReachReleased?: { left: boolean | null; right: boolean | null } | null;
+  /** READ-ONLY DIAGNOSTIC (2026-10-11): stance-leg heel-target miss in metres; null when no leg solve ran. */
+  stanceLockHeelMissM?: number | null;
   pinDebug?: {
     left: { anchorXz: { x: number; z: number } | null; weight: number };
     right: { anchorXz: { x: number; z: number } | null; weight: number };
@@ -2718,6 +2720,7 @@ async function main(): Promise<void> {
           footBoneHeightMeters: s.footBoneHeightMeters ?? null,
           pinReachReleased: s.pinReachReleased ?? null,
           pinDebug: s.pinDebug ?? null,
+          stanceLockHeelMissM: s.stanceLockHeelMissM ?? null,
         })),
         stanceWindows: windows,
         maxSlideMeters: maxSlide,

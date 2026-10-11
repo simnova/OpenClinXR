@@ -295,6 +295,8 @@ export function readHeadYawWorldRadians(actorSlot: Object3D | null): number | nu
  */
 export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | null, deltaSeconds: number): void {
   if (approach === null) return;
+  // Read-only diagnostic: a frame with no leg solve reports null, never a stale miss.
+  approach.lastHeelMissM = null;
   // HEAD LEADS THE TURN. Ahead of both the entry and the settling turns of a phase (walking,
   // settling), the head yaws toward the target heading first — bounded, so the neck does not
   // exceed a natural range while the torso still faces the travel heading. `arrived`/`not_started`
@@ -432,6 +434,7 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     contactBandMeters: approach.contactBandMeters,
     state: approach.lock,
     ccdStanceLockEnabled: approach.ccdStanceLockEnabled,
+    recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
       : {}),

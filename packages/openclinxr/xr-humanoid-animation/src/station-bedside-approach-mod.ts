@@ -325,6 +325,8 @@ export type BedsideApproachRuntimeEvidence = {
     pinReachReleased?: { left: boolean | null; right: boolean | null };
     /** DEBUG/DIAGNOSTIC: this frame's pin anchor + weight per side. */
     pinDebug?: { left: { anchorXz: { x: number; z: number } | null; weight: number }; right: { anchorXz: { x: number; z: number } | null; weight: number } };
+    /** READ-ONLY DIAGNOSTIC: stance-leg heel-target miss in metres this frame; null when no leg solve ran. */
+    stanceLockHeelMissM: number | null;
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -403,28 +405,25 @@ export function publishBedsideApproachRuntimeEvidence(
   state: StationBedsideApproachState,
   frame: CaseOwnedApproachFrame | null,
   /**
-   * Append this frame to the sample ring. FALSE from the drive step, which runs BEFORE the pose and
-   * before the lock: appending there too put two samples per frame into the ring, one uncorrected
-   * and one corrected, and a slide metric reading that ring measured the difference between them as
-   * foot travel. Measured in a browser: 0.25209 m worst frame and 9.29180 m total on a run whose
-   * feet were in fact pinned.
+   * Append this frame to the sample ring. FALSE from the drive step, which runs BEFORE the pose and before
+   * the lock: appending there too put two samples per frame into the ring, one uncorrected and one corrected,
+   * and a slide metric reading that ring measured the difference between them as foot travel. Measured in a
+   * browser: 0.25209 m worst frame and 9.29180 m total on a run whose feet were in fact pinned.
    */
   appendSample = true,
 ): void {
-  // `globalThis`, never a bare `window`: this module reaches the tools-relaxed TypeScript program,
-  // which has no DOM lib, and it is imported by node tests where `window` throws on reference.
+  // `globalThis`, never a bare `window`: this module reaches the tools-relaxed TypeScript program (no DOM lib) and node tests where `window` throws on reference.
   const host = (globalThis as unknown as { window?: Record<string, unknown> }).window
     ?? (globalThis as unknown as Record<string, unknown>);
   const previousEvidence = host["__openClinXrBedsideApproachEvidence"] as BedsideApproachRuntimeEvidence | undefined;
   const approach = state.approach;
   const previous = previousEvidence;
   const samples = previous?.samples ?? [];
-  // A WALKING FRAME WHOSE LOCK IS NOT YET ARMED IS NOT A WALK SAMPLE. `main.ts` produces the drive
-  // before the animation pass consumes it, so on the frame the drive first asks for locomotion the
-  // skeleton still holds the IDLE pose; publishing it as a walking sample publishes the idle pose as
-  // a walk pose, and a slide metric then reads the idle-to-walk pose change as a planted foot
-  // travelling — measured in a browser, a 0.25457 m "worst walking frame" on a run whose stance foot
-  // was pinned to five decimal places for every frame after it.
+  // A WALKING FRAME WHOSE LOCK IS NOT YET ARMED IS NOT A WALK SAMPLE. `main.ts` produces the drive before
+  // the animation pass consumes it, so on the frame the drive first asks for locomotion the skeleton still holds
+  // the IDLE pose; publishing it as a walking sample publishes the idle pose as a walk pose, and a slide metric
+  // then reads the idle-to-walk pose change as a planted foot travelling — measured in a browser, a 0.25457 m
+  // "worst walking frame" on a run whose stance foot was pinned to five decimal places for every frame after it.
   const posed = approach === null || frame === null || frame.phase !== "walking" || approach.lockArmed;
   if (appendSample && posed && approach !== null && frame !== null) {
     approach.actorSlot.updateMatrixWorld(true);
@@ -455,6 +454,7 @@ export function publishBedsideApproachRuntimeEvidence(
       },
       pinReachReleased: approach.clipTurn?.reachReleasedThisFrame ?? null,
       pinDebug: approach.clipTurn?.pinDebugThisFrame ?? null,
+      stanceLockHeelMissM: approach.lastHeelMissM,
     });
     while (samples.length > BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT) samples.shift();
   }

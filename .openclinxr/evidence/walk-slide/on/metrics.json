@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.ccd-browser-metrics.v2",
+  "report": ".openclinxr/evidence/walk-slide/on/foot-plant-video.json",
+  "ccdStanceLockEnabled": true,
+  "steppingTurnEnabled": false,
+  "walkSlideM": 0.46145536700186696,
+  "wholeSlideM": 0.46145536700186696,
+  "walkContactCount": 4,
+  "walkContactMedianM": 0.004954749376356247,
+  "walkContactMaxM": 0.45821251815294417,
+  "walkContactSlidesM": [
+    0.006685477477380557,
+    0,
+    0.45821251815294417,
+    0.0032240212753319366
+  ],
+  "settlingContactMaxM": 0.006354521602374173,
+  "plantedSlideM": 0.006354521602374173,
+  "metricValidationDeltaM": 0,
+  "maxToeStepM": 0.34254567398738983,
+  "heelMissMedianM": 0.025820754860738426,
+  "heelMissMaxM": 0.21124516410786215,
+  "heelMissExposed": true,
+  "arrivalErrM": 0.16134891505567456
+}
