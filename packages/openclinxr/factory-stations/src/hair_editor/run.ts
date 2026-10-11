@@ -52,8 +52,21 @@ export async function runHairEditor(input: unknown): Promise<Record<string, unkn
   }
   const tmpFile = path.join(os.tmpdir(), `hair-editor-plan-${process.pid}.json`);
   writeFileSync(tmpFile, JSON.stringify(planned.plan), "utf8");
+  const rawInput = (input ?? {}) as { outDir?: unknown; targetReadJson?: unknown };
+  const macrosFile = path.join(os.tmpdir(), `hair-editor-macros-${process.pid}.json`);
+  let macrosJson = "{}";
+  try {
+    const parsed = JSON.parse(String(rawInput.targetReadJson ?? "{}")) as { macros?: unknown };
+    if (parsed.macros !== undefined) macrosJson = JSON.stringify(parsed.macros);
+  } catch {
+    macrosJson = "{}";
+  }
+  writeFileSync(macrosFile, macrosJson, "utf8");
+  const outDir = typeof rawInput.outDir === "string" && rawInput.outDir.length > 0
+    ? rawInput.outDir
+    : path.join(os.tmpdir(), `hair-editor-out-${process.pid}`);
   const stageScript = path.join(repoRoot(), HAIR_EDITOR_STAGE_REL);
-  const result = await spawnBlenderProcess("blender", ["--background", "--python", stageScript, "--", "--plan", tmpFile, "--blend", blendPath], {
+  const result = await spawnBlenderProcess("blender", ["--background", "--python", stageScript, "--", "--apply", "--plan", tmpFile, "--macros", macrosFile, "--out", outDir, "--blend", blendPath], {
     cwd: repoRoot(),
     timeoutMs: 600_000,
   });
