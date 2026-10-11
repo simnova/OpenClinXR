@@ -13,8 +13,10 @@ Pipeline: build the walk-decel-hold Root2DConstraintSet -> generate with
 nv-tlabs/kimodo (same seed/prompt knobs as the loop station) -> export positions/contacts
 -> NO loop-cycle cut (one-shot: first steady walking frame through the end of the hold)
 -> bind WITH root motion (no --strip-horizontal-root-motion) and WITH --foot-contacts,
-so the stage applies its bake-time foot lock; the foot_locking_applied log line is
-recorded -> measure the clip yaw from NET ROOT TRAVEL over the walk+decel span (Hips
+but the stage REFUSES its bake-time foot lock when root motion is kept (logs
+foot_locking_skipped=root_motion_kept; footLockingApplied is false, see
+docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md); the
+foot_locking_skipped log line is recorded -> measure the clip yaw from NET ROOT TRAVEL over the walk+decel span (Hips
 chord in the exported joint positions, the same source the bind consumes) and correct to
 the shipped convention with a second bind pass only if |yaw - (-0.86)| > 5 deg ->
 graft by joint name onto the target actor WITHOUT removing its shipped walk clip
@@ -205,8 +207,10 @@ def main(argv: list[str]) -> int:
         joints_path.write_text(json.dumps(joints))
         contacts_path.write_text(json.dumps(contacts))
 
-    # 5. Bind pass 1: WITH horizontal root motion kept (no --strip flag), WITH --foot-contacts
-    # so the stage applies its bake-time foot lock. No yaw correction yet -- measured next.
+    # 5. Bind pass 1: WITH horizontal root motion kept (no --strip flag), WITH --foot-contacts,
+    # but the stage REFUSES its bake-time foot lock when root motion is kept (logs
+    # foot_locking_skipped=root_motion_kept; footLockingApplied is false, see
+    # docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md). No yaw correction yet -- measured next.
     pass1_glb = work_dir / "bound_pass1.glb"
     pass1_report = work_dir / "bound_pass1.report.json"
     pass1 = run([
