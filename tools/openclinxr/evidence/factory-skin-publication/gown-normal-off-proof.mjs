@@ -1,8 +1,8 @@
 /*
-IN-SCOPE: JSON-only deletion of ,"normalTexture":{"index":3} on mpfb_skin_robert_reference; BIN chunk byte-identical; provenance output fields re-recorded.
-OUT-OF-SCOPE: Blender runs; re-export; clothing, hair, eyes, teeth edits; gown mesh edits; sidecar PNG edits; hash-test file edits.
-CLAIM: edited GLB sha256 88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406, 20462724 bytes; BIN sha256 c1c3fbc9a3ef380271b700e9d42cc2cc163feb5fbf6359e67b26b254b605d584 unchanged.
-NOT TESTED: pixel grading; runtime rendering; realism gates; clinical or scoring validity.
+IN-SCOPE: JSON-only deletion of ,"normalTexture":{"index":3} on mpfb_skin_robert_reference; BIN chunk byte-identical; provenance output fields re-recorded; two-field scene-plan re-record (assetSha256 + byteCount on patient_margaret_ellis_v1).
+OUT-OF-SCOPE: Blender runs; re-export; clothing, hair, eyes, teeth edits; gown mesh edits; sidecar PNG edits; this follow-up does not edit the hash-test file, the freeze generator, other instances, or the GLB.
+CLAIM: edited GLB sha256 88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406, 20462724 bytes; BIN sha256 c1c3fbc9a3ef380271b700e9d42cc2cc163feb5fbf6359e67b26b254b605d584 unchanged; patient instance records same sha 88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406 and byte count 20462724.
+NOT TESTED: pixel grading and the learner WebGL route were not re-run here; runtime rendering; realism gates; clinical or scoring validity.
 */
 import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -90,6 +90,20 @@ check('glb-bytes', buf.length === EXPECT_GLB_BYTES);
 const shipped = readFileSync(HASH_TEST);
 const baseline = execSync(`git show origin/main:${HASH_TEST}`, { encoding: 'buffer', maxBuffer: 4 * 1024 * 1024 });
 check('hash-test-byte-identical-to-origin-main', Buffer.compare(shipped, baseline) === 0);
+
+const SCENE_PLAN = 'packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts';
+const OLD_SHA_LINE = '"assetSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0"';
+const OLD_BYTES_LINE = '"byteCount": 20462752';
+const curPlan = readFileSync(SCENE_PLAN, 'utf8');
+const originPlan = execSync(`git show origin/main:${SCENE_PLAN}`, { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+check('scene-plan-old-sha-line-unique-in-origin', originPlan.split(OLD_SHA_LINE).length - 1 === 1);
+check('scene-plan-old-bytes-line-unique-in-origin', originPlan.split(OLD_BYTES_LINE).length - 1 === 1);
+const expectedPlan = originPlan
+  .replace(OLD_SHA_LINE, `"assetSha256": "${EXPECT_GLB_SHA}"`)
+  .replace(OLD_BYTES_LINE, `"byteCount": ${EXPECT_GLB_BYTES}`);
+check('scene-plan-equals-origin-plus-two-field-rerecord', curPlan === expectedPlan);
+check('scene-plan-patient-sha', curPlan.includes(`"assetSha256": "${EXPECT_GLB_SHA}"`));
+check('scene-plan-patient-bytes', curPlan.includes(`"byteCount": ${EXPECT_GLB_BYTES}`));
 
 if (fails.length) {
   for (const f of fails) console.error(`FAIL ${f}`);

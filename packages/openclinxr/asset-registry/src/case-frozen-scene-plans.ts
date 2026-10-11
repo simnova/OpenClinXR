@@ -70,8 +70,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "0640ebfe12f5c8e53c5355ccf5b71ccf6c740d52af238f1e74b8845841d9caa0",
-          "byteCount": 20462752
+          "assetSha256": "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406",
+          "byteCount": 20462724
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
