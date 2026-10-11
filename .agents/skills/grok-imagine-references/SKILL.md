@@ -5,7 +5,7 @@ description: How to generate reference images and videos with Grok Imagine (imag
 
 # Grok Imagine from a headless worker
 
-Imagine tools exist only inside a grok session. Claude, Codex and OpenCode cannot call them directly; they launch a one-shot grok worker that does. Upstream tool reference (parameters, prompt craft): `~/.grok/bundled/skills/imagine/SKILL.md`. This file covers what that one does not: how this repo invokes it, what failed, and how outputs are used.
+Imagine tools exist only inside a grok session. Claude, Codex and OpenCode cannot call them directly; they launch a one-shot grok worker that does. Upstream tool reference (parameters, prompt craft): the `imagine` skill bundled with the grok CLI, in its `bundled/skills/imagine` directory under `~/.grok`. This file covers what that one does not: how this repo invokes it, what failed, and how outputs are used.
 
 ## Invocation
 
