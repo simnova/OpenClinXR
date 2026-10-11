@@ -1,0 +1,35 @@
+{
+ "ok": true,
+ "stage": "evaluate",
+ "error": "",
+ "blenderVersion": "5.1.1",
+ "eyeSource": "vertex-group:eye.L",
+ "crownZ": 1.593584656715393,
+ "browZ": 1.5501042774745397,
+ "hairlineZ": 1.5770621126038689,
+ "frontYMargin": 0.02,
+ "partHalfWidth": 0.0015,
+ "deletedFringe": 89,
+ "deletedPart": 49,
+ "remaining": 10053,
+ "hasSurfaceUV": true,
+ "headSource": "aisha-glb",
+ "front": "front.png",
+ "threeQuarter": "three_quarter.png",
+ "threeUp": "3up.png",
+ "evaluator": {
+  "front": {
+   "image": "front.png",
+   "width": 1024,
+   "height": 1024,
+   "hairAreaFraction": 0.12748794165504418,
+   "hairBboxAspect": 2.335616438356164,
+   "volume": 0.12748794165504418,
+   "structure": 0.11631067011413222,
+   "partGapFraction": 0.6883561643835616,
+   "hairlineRatio": 0.0,
+   "meanHairLuminance": 0.17070261730993644,
+   "maskPixels": 70202
+  }
+ }
+}
