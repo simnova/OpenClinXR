@@ -1,9 +1,9 @@
 {
   "schema": "openclinxr.psr-admission.v1",
   "id": "s1-stop-clip-runtime-v1",
-  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10",
   "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
-  "admissionHash": "bdc78650e26ee0174c36978c207e9ca8396b964dc572d886b84695ccef1e2053",
+  "admissionHash": "451bb3709d7df480c0e92126b19c69e878bd7e62d372c00af6d6f0606db78b4e",
   "packages": [
     "packages/openclinxr/xr-humanoid-animation",
     "packages/openclinxr/xr-runtime-state"
@@ -17,7 +17,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the per-frame time set and weights.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -27,7 +27,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the distance-driven entry.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -37,7 +37,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts; headless assay mirrors the entry crossfade.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -47,7 +47,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the mixer claim flag.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -56,8 +56,8 @@
       "kind": "type",
       "disposition": "keep",
       "owner": "s1-stop-worker",
-      "rationale": "S1 distance-indexed stop. Consumer: placeholder.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -67,7 +67,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the firing record.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -77,7 +77,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts builds R(t); runtime-state own stop test covers the helper.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -87,7 +87,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts inverts R(t) for entry.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -97,7 +97,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts samples the root track.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -107,7 +107,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-playback-mod.ts settle-blend; headless assay mirrors the same window.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -117,7 +117,7 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-playback-mod.ts settle-blend weight; headless assay mirrors the same mix.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     },
     {
       "package": "packages/openclinxr/xr-runtime-state",
@@ -127,13 +127,13 @@
       "disposition": "keep",
       "owner": "s1-stop-worker",
       "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts builds the trigger, stop-clip-playback-mod.ts and case-owned-approach-frame-mod.ts annotate it, runtime-state own stop test constructs it.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of s1-stop-clip-runtime-v1 at 59ea5f20c, 2026-10-10"
     }
   ],
   "sourceReview": {
     "producer": "s1-stop-worker",
-    "reviewer": "PENDING-ORCHESTRATOR-REVIEW",
-    "verdict": "PENDING-ORCHESTRATOR-REVIEW",
+    "reviewer": "claude-orchestrator",
+    "verdict": "ACCEPT_ENGINEERING_SOURCE_REVIEW",
     "scope": "S1 baked walk-to-stop handoff: distance-indexed entry and procedural advance (xr-runtime-state), root-removed distance-driven take playback (xr-humanoid-animation), headless assay mirrors. Inert until a cleared stop take ships; no clinical or Quest claims.",
     "baseline": "5f193881e"
   }
