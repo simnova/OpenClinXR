@@ -1,6 +1,6 @@
-# CCD stance lock on the four-joint leg solver: hypothesis refuted (2026-10-11)
+# CCD stance lock on the four-joint leg solver: inconclusive — headless assay cannot exercise the solver (2026-10-11)
 
-Verdict: REJECT. Runtime code changed (default-off flag); physician control rows
+Verdict: INCONCLUSIVE. The SC-05 headless assay cannot measure this flag: its marker rigs take the no-chain fallback under both settings, so on/off rows are bit-identical by construction. The solver gap on shipped bytes is real (two-bone heel miss median 0.176 m, max 0.399 m; hinge 0.000 m). The walk-slide hypothesis is untested, not refuted; it needs a real-skeleton (browser) measurement. Runtime code changed (default-off flag); physician control rows
 bit-identical. Evidence: `.openclinxr/evidence/ccd-lock/report.json`.
 
 ## Why this slice exists
@@ -57,6 +57,8 @@ defect — the assay rigs carry marker toes, not leg bones, so both candidates t
 lock's no-chain XZ-only fallback and neither solver runs in-assay. The on/off assay
 comparison is vacuous for the solver hypothesis by construction.
 
+Every SC-05 assay slide figure measures clip and root motion, not stance-lock IK on real bones.
+
 Part B (mirror probe, shipped GLB bytes, no-op heel target, 10 configs):
 
 | solver | median miss | max miss |
@@ -71,8 +73,7 @@ in this assay because there is no leg to solve.
 
 1/4 pass: heel-miss median 0.0000 < 0.01 (pass); walk reduction 0.0000 < 0.03 (FAIL);
 max step identical (pass); arrival identical (pass). Per the slice stop rule the
-physician FAIL refutes the hypothesis: the walk-phase slide does not come from the
-stance-leg solver choice. Nurse/child assay rows were not run (stop rule).
+physician FAIL fired, but the walk-slide hypothesis is untested, not refuted; it needs a real-skeleton (browser) measurement. Nurse/child assay rows were not run (stop rule).
 
 ## Limits
 
