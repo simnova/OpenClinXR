@@ -14,10 +14,11 @@ nv-tlabs/kimodo (same seed/prompt knobs as the loop station) -> export positions
 -> NO loop-cycle cut (one-shot: first steady walking frame through the end of the hold)
 -> bind WITH root motion (no --strip-horizontal-root-motion) and WITH --foot-contacts,
 so the stage applies its bake-time foot lock; the foot_locking_applied log line is
-recorded -> measure the clip's own stance-forward yaw and correct to the shipped
-convention with a second bind pass only if |yaw - (-0.86)| > 5 deg -> graft by joint
-name onto the target actor WITHOUT removing its shipped walk clip (never --publish,
-never the shipped path).
+recorded -> measure the clip yaw from NET ROOT TRAVEL over the walk+decel span (Hips
+chord in the exported joint positions, the same source the bind consumes) and correct to
+the shipped convention with a second bind pass only if |yaw - (-0.86)| > 5 deg ->
+graft by joint name onto the target actor WITHOUT removing its shipped walk clip
+(never --publish, never the shipped path).
 
 Usage:
   python3 kimodo_stop_oneshot_station.py \\
@@ -31,6 +32,7 @@ Usage:
 """
 import argparse
 import json
+import math
 import os
 import subprocess
 import sys
@@ -41,7 +43,6 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 STATION_SCRIPT = REPO_ROOT / "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py"
 EXPORT_SCRIPT = Path(__file__).with_name("export_joint_positions_and_contacts.py")
 BUILD_CONSTRAINTS_SCRIPT = Path(__file__).with_name("build_stop_constraints.py")
-MEASURE_YAW_TOOL = REPO_ROOT / "tools/openclinxr/factory/measure-clip-stance-forward.ts"
 GRAFT_TOOL = REPO_ROOT / "tools/openclinxr/factory/graft-bound-clip.ts"
 DEFAULT_BONE_MAP = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json"
 
@@ -230,12 +231,26 @@ def main(argv: list[str]) -> int:
         + (f"; log: {foot_lock_log}" if foot_lock_log else "; foot_lock log line not found in bind output")
     )
 
-    # 6. Measure the clip's own natural stepping direction with the production function.
-    measure_result = run([
-        "mise", "exec", "--", "tsx", str(MEASURE_YAW_TOOL), str(pass1_glb), args.clip_name,
-    ], cwd=REPO_ROOT)
-    natural = json.loads(measure_result.stdout.strip().splitlines()[-1])
-    yaw_correction_deg = SHIPPED_CONVENTION_YAW_DEG - natural["clipYawDeg"]
+    # 6. Clip yaw from NET ROOT TRAVEL over the walk+decel span: the Hips XY chord in
+    # the exported joint positions (Blender Z-up, ground plane = XY), converted to the
+    # glTF-convention yaw the shipped clips are measured in: yaw = atan2(dx, -dy).
+    # The old stance-advance measurement (measure-clip-stance-forward.ts) keys off the
+    # longest contact window, which on a one-shot take is the 2 s hold, and mis-reports
+    # yaw by 110-180 deg. The chord below is the same source the bind consumes, and a
+    # rigid bind yaw correction rotates it by exactly the applied angle.
+    def wrap_deg(deg: float) -> float:
+        return ((deg + 180.0) % 360.0) - 180.0
+
+    hips = joints.get("Hips") if isinstance(joints, dict) else None
+    if not hips or len(hips) < 2:
+        print("REFUSE no Hips track in exported joint positions", file=sys.stderr)
+        return 2
+    fps = len(hips) / duration_seconds
+    span_end = min(len(hips) - 1, int(round((spec["walkSeconds"] + spec["decelSeconds"]) * fps)) - 1)
+    dx = hips[span_end][0] - hips[0][0]
+    dy = hips[span_end][1] - hips[0][1]
+    natural = {"clipYawDeg": wrap_deg(math.degrees(math.atan2(dx, -dy)))}
+    yaw_correction_deg = wrap_deg(SHIPPED_CONVENTION_YAW_DEG - natural["clipYawDeg"])
 
     # 7. Bind pass 2 only if the yaw is off-convention by more than the threshold; otherwise
     # pass 1 is the clip (recorded either way).
@@ -256,9 +271,7 @@ def main(argv: list[str]) -> int:
             "--foot-contacts", str(contacts_path),
             "--yaw-correction-degrees", str(yaw_correction_deg),
         ])
-        corrected = json.loads(run([
-            "mise", "exec", "--", "tsx", str(MEASURE_YAW_TOOL), str(final_glb), args.clip_name,
-        ], cwd=REPO_ROOT).stdout.strip().splitlines()[-1])
+        corrected = {"clipYawDeg": wrap_deg(natural["clipYawDeg"] + yaw_correction_deg)}
     else:
         # Within threshold: pass 1 (already under the final clip name) IS the clip. No
         # second bind: a rebind with the measured correction was shown to move the yaw
@@ -319,9 +332,8 @@ def main(argv: list[str]) -> int:
                 "appliedCorrectionDeg": yaw_correction_deg if yaw_rebind else 0.0,
                 "rebindForYaw": bool(yaw_rebind),
                 "correctedYawDeg": corrected["clipYawDeg"],
-                "measuredWith": "tools/openclinxr/factory/measure-clip-stance-forward.ts (offline, gltf-transform FK, no browser)",
+                "measuredWith": "net Hips root-travel chord over walk+decel span (Blender XY -> glTF-convention yaw atan2(dx,-dy)); corrected yaw is natural + applied (rigid bind rotation, exact by construction), verified on the bound GLB by the sweep driver",
             },
-            "rateOneStanceAdvanceMetersPerSecond": corrected.get("metersPerSecond"),
         },
         "graft": {
             "tool": "tools/openclinxr/factory/graft-bound-clip.ts",
@@ -333,7 +345,7 @@ def main(argv: list[str]) -> int:
         "claims": {
             "evidenceFor": [
                 "a deterministic, scripted (actor, prompt, seed, stop-constraints) -> bound one-shot stop clip pipeline with root motion kept",
-                "the clip's own measured stance-advance direction relative to the shipped clip's convention",
+                "the clip's own net root-travel direction relative to the shipped clip's convention",
             ],
             "notEvidenceFor": [
                 "gait realism", "clinical plausibility", "Quest performance",
