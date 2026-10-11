@@ -33,7 +33,79 @@ def parse_args(argv):
     ap.add_argument("--out", required=True)
     ap.add_argument("--width", type=int, default=960)
     ap.add_argument("--height", type=int, default=540)
+    ap.add_argument("--garments-on", action="store_true",
+                    help="keep garments/hair/shoes and original materials (secondary check)")
     return ap.parse_args(argv)
+
+
+# Grading-render rule (operator, 2026-10-11): hide all garment and hair meshes, show
+# the BODY ONLY, with distinct material colours on thigh, shin and foot so the knee
+# hinge and foot contact read. substrings matched against imported object names.
+HIDE_SUBSTRINGS = ("lab_coat", "scrub_", "footwear", "_shoes", "hair", "eyebrow", "eyelash")
+
+THIGH_BONES = ("upperleg01.L", "upperleg01.R", "upperleg02.L", "upperleg02.R")
+SHIN_BONES = ("lowerleg01.L", "lowerleg01.R", "lowerleg02.L", "lowerleg02.R")
+FOOT_BONES = ("foot.L", "foot.R", "toe1-1.L", "toe1-1.R")
+
+
+def flat_material(name, rgb):
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Base Color"].default_value = (*rgb, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.7
+    bsdf.inputs["Emission Color"].default_value = (*rgb, 1.0)
+    bsdf.inputs["Emission Strength"].default_value = 0.35
+    return mat
+
+
+def apply_body_only(arm):
+    """Hide garments/hair/shoes; recolor the largest mesh by leg segment. Returns body."""
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    if not meshes:
+        raise RuntimeError("no meshes after glTF import")
+    for o in meshes:
+        lname = o.name.lower()
+        if any(s in lname for s in HIDE_SUBSTRINGS):
+            o.hide_render = True
+    shown = [o for o in meshes if not o.hide_render]
+    body = max(shown, key=lambda o: len(o.data.vertices))
+    print(f"body mesh: {body.name} verts={len(body.data.vertices)}", flush=True)
+    mesh = body.data
+    gray = flat_material("STEP_BODY", (0.55, 0.57, 0.60))
+    thigh = flat_material("STEP_THIGH", (1.0, 0.30, 0.10))
+    shin = flat_material("STEP_SHIN", (0.10, 0.75, 0.65))
+    foot = flat_material("STEP_FOOT", (1.0, 0.85, 0.15))
+    mesh.materials.clear()
+    for m in (gray, thigh, shin, foot):
+        mesh.materials.append(m)
+
+    def seg_of(bone_name):
+        if bone_name in THIGH_BONES:
+            return 1
+        if bone_name in SHIN_BONES:
+            return 2
+        if bone_name in FOOT_BONES:
+            return 3
+        return 0
+
+    group_seg = {}
+    for i, vg in enumerate(body.vertex_groups):
+        group_seg[i] = seg_of(vg.name)
+    counts = [0, 0, 0, 0]
+    for poly in mesh.polygons:
+        best_seg = 0
+        best_w = 0.0
+        for vi in poly.vertices:
+            for g in mesh.vertices[vi].groups:
+                seg = group_seg.get(g.group, 0)
+                if seg and g.weight > best_w:
+                    best_w = g.weight
+                    best_seg = seg
+        poly.material_index = best_seg
+        counts[best_seg] += 1
+    print(f"face segments gray/thigh/shin/foot: {counts}", flush=True)
+    return body
 
 
 def arm_world(arm):
@@ -66,6 +138,8 @@ def main(argv):
     if arm.animation_data is None:
         arm.animation_data_create()
     arm.animation_data.action = action
+    if not args.garments_on:
+        apply_body_only(arm)
     start, end = int(action.frame_range[0]), int(action.frame_range[1])
 
     scene = bpy.context.scene

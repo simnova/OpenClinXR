@@ -2,8 +2,9 @@
 
 Verdict: ADOPT_WITH_LIMITS. Runtime code changed (default-off flag); control rows
 bit-identical on all rigs. Evidence: `.openclinxr/evidence/stepping-turn/`
-(`cagematch.json`, `ik-noop.json`, `report.json`, `stepping-turn-bake.glb`,
-`step-strip.png`, `step-vs-ref.png`).
+(`cagematch.json`, `ik-noop.json`, `report.json`, `stepping-turn-bake-{physician,
+nurse,child}.glb`, `step-strip-body.png`, `step-strip-garments.png`,
+`step-vs-ref.png`).
 
 ## Why this slice exists
 
@@ -35,15 +36,15 @@ framing and runs the production solver + application, 3 rigs x 2 sides x 5 clip 
 
 - `stepping-turn-plan-mod.ts` (pure): N = ceil(|residual|/45 deg) alternating steps
   (2 for the 62-63 deg SC-05 residual), inner foot first (right for a positive
-  residual: shorter arc, weight stays on the outer pivot), 0.7 s/step, 0.035 m lift
-  peak, min-jerk yaw + lift, placements rotated about the stance foot and gathered
-  to 0.25 m shoulder width (a 0.42-0.53 m walk split pivoted wide walks the torso
-  0.30-0.36 m off the spot). 8 unit tests (count, alternation, exact landing,
-  chaining, width cap, timing/lift, Y hand-off continuity, gathered endpoints).
-- `stepping-turn-leg-ik-mod.ts`: production CCD + heel-from-toe closed-loop offset.
-- `stepping-turn-execution-mod.ts`: yaw from plan, CCD legs, stance pinned by exact
-  rigid translate, two passes (CCD-then-pin: pinning the pre-CCD walk pose walked the
-  slot 0.42 m on the child — the pin must read the post-CCD world).
+  residual: shorter arc, weight stays on the outer pivot), 0.7 s/step, 0.030 m lift,
+  0.015 pelvis dip (rig-scaled), min-jerk yaw + lift, body-centered placements under
+  the predicted slot with progressive gather widths, rest-snapshot baseline with
+  step-0 plant morph, leg scale from rest sep. 9 unit tests.
+- `stepping-turn-leg-ik-mod.ts`: analytic hinge (pole-plane cosine triangle,
+  twist-free) + yaw-stable heel mapping; CCD kept as documented fallback.
+- `stepping-turn-execution-mod.ts`: yaw/dip from plan, hinge legs, stance pinned by
+  exact rigid translate, two passes (hinge-then-pin: pinning the pre-solve walk pose
+  walked the slot 0.42 m on the child — the pin must read the post-solve world).
 - `stepping-turn-frame-mod.ts` bridge + `case-owned-approach-arrived-mod.ts`
   extraction keep frame-mod at 427 lines (budget 500).
 - Assay (`runtime-approach-measurement.ts`): flag passthrough, markers posed from
@@ -58,28 +59,56 @@ rigs). Stepping S rows:
 
 | rig | turn slide | whole | yaw err | max step | dur | lift |
 |---|---|---|---|---|---|---|
-| physician | 0.0000 | 0.0997 (bar 0.0900) | 0.00 | 0.0504 (bar 0.0879) | 1.52 | 0.0350 x2ep |
-| nurse | 0.0000 | 0.1364 (bar 0.1064) | 0.00 | 0.0501 (bar 0.1372) | 1.52 | 0.0350 x2ep |
-| child | 0.0000 | 0.0569 (bar 0.4280) | 0.00 | 0.0333 (bar 0.4236) | 1.52 | 0.0350 x2ep |
+| physician | 0.0000 | 0.0997 (bar 0.0900) | 0.00 | 0.0504 (bar 0.0879) | 1.52 | 0.0300 x2ep |
+| nurse | 0.0000 | 0.1364 (bar 0.1064) | 0.00 | 0.0501 (bar 0.1372) | 1.52 | 0.0300 x2ep |
+| child | 0.0000 | 0.0569 (bar 0.4280) | 0.00 | 0.0333 (bar 0.4236) | 1.52 | 0.0274 x2ep |
 
 Turn-phase slide 0.12-0.136 -> 0.0000 on all rigs; control swing episodes lift
-0.0000 m (a swivel, confirmed) vs 0.0350 over exactly 2 episodes. The whole-run bar
+0.0000 m (a swivel, confirmed) vs 0.027-0.030 over exactly 2 episodes. The whole-run bar
 fails on physician/nurse by 0.01/0.03 m: the walk phase alone contributes
 0.0997/0.1364 and the brief forbids touching it. Arrival 0.105-0.156 m, control
 parity (0.130-0.159); the 0.05 SC-05 cap fails for both.
 
-## STEP 4: side-view strip vs reference
+## STEP 4: side-view strip vs reference (body-only render rule)
 
-`bake-stepping-turn.ts` bakes the production slot path + plan + CCD into
-`stepping-turn-bake.glb` (`stepping_turn_arrival`, 91 frames); Blender EEVEE strip
-(fixed camera, full body, floor ticks, framing verified) beside 6 reference frames
-at matching turn phases: `step-vs-ref.png`. Both show two lift-and-place steps with
-body yaw following the feet.
+`bake-stepping-turn.ts` bakes the production slot path + plan + hinge into per-rig
+`stepping-turn-bake-{physician,nurse,child}.glb` (`stepping_turn_arrival`, 91
+frames); Blender EEVEE strips with fixed camera, full body, floor ticks. Render rule
+(operator 2026-10-11): grading renders hide garments/hair/shoes and show the BODY
+ONLY with distinct thigh (orange) / shin (teal) / foot (yellow) materials so the knee
+hinge and foot contact read; `step-strip-body.png` beside 6 reference frames at
+matching turn phases (`step-vs-ref.png`); `step-strip-garments.png` as secondary.
+
+## Pose bars (per rig, bake-measured)
+
+| rig | hold flex L/R | pelvis Δ | dip | swing max | back-bow | heel miss |
+|---|---|---|---|---|---|---|
+| physician | 5.8 / 5.8 | 0.0000 | 0.0144 | 35.9 | 0 fr | 0.0351 |
+| nurse | 5.7 / 5.6 | 0.0000 | 0.0155 | 39.8 | 0 fr | 0.0380 |
+| child | 6.8 / 6.6 | 0.0000 | 0.0105 | 60.1 | 0 fr | 0.0651 |
+
+Bars: hold <= 10 deg both legs, pelvis within 0.02 m of idle, swing <= 45 deg,
+zero back-bow frames. 11/12 pass. Hinge no-op + displaced miss 0.00000 worst case
+(all 30 probe configs, analytic closed form); the bake misses above are unreachable
+stance frames (hip swung past max extension mid-turn — honest gap, optimal placement).
+
+What fixed the FAIL pose (CCD: hold 9/29 deg, 91 bowed frames, crouch): the hinge
+freezes intermediates at rest, solves the exact two-bone triangle in the pole plane
+with twist-free minimal arcs (no iteration, no limit cycle), maps toe->heel through
+a yaw-stable entry offset (re-reading the live offset fed solved orientations back
+in: 120 deg of offset swing, 11 cm overshoot), pins the walk-frozen float down to
+the rest baseline on step 0, dips the pelvis 0.015 (scaled), scales spatial targets
+by rest-sep leg scale (REF 0.6058: 0.96/1.03/0.70), and lands placements under the
+predicted slot with progressive gather widths. A setFromRotationMatrix-on-scaled-
+matrix shear bug (slot 0.86) was found and fixed along the way (getWorldQuaternion).
 
 ## Limits (why with-limits, not adopt)
 
-1. Whole-run slide stays walk-bound on adult rigs until the walk improves (out of
+1. Child swing knee peaks 60.1 deg (bar 45): the absolute 0.42 m walk-frozen entry
+   split on 0.52 m legs forces long first-step travels; N=3 measured 59.4 deg and
+   breaks timing (2.05 s). Hold passes (6.8/6.6); ratios consistent with adults.
+2. Whole-run slide stays walk-bound on adult rigs until the walk improves (out of
    scope; control bit-identity required it).
-2. Arrival at control parity via pivot migration, not improved to any cap.
-3. The browser CCD path is probe- + bake-proven only; flipping the flag for
+3. Arrival at control parity via pivot migration, not improved to any cap.
+4. The browser leg path is probe- + bake-proven only; flipping the flag for
    production needs orchestrator review. Nurse/child strips not rendered.
