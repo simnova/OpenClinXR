@@ -91,6 +91,8 @@ function outputDirFromArgv(): string {
 /**
  * Step-capture lean slice: full-body side view (head to feet in frame) instead of
  * the feet-filling framing. Opt-in `--full-body` (or `--full-body=1`); default off.
+ * Wired in main(): pulls the dry-decided side pose back and swaps the side gate to
+ * the full-body variant (head+toes inside, no lower-half rule).
  */
 function fullBodyFromArgv(): boolean {
   return process.argv.some((arg) => arg === "--full-body" || arg === "--full-body=1");
@@ -308,6 +310,8 @@ type FootPlantVideoReport = {
   recorderGlobalPresent: boolean;
   /** Step-capture slice: the --stepping-turn flag value for this run (default false). */
   steppingTurnEnabled: boolean;
+  /** Step-capture lean slice: --full-body pulls the side view back to head-to-feet (default false). */
+  fullBodySideView: boolean;
   fpsCandidates: {
     fakeClock: { honoured: boolean; fps: number };
     gpuRealtime: { fps: number | null };
@@ -350,6 +354,7 @@ type FootPlantVideoReport = {
       walkingFrames: number;
       toesInsideEveryWalkingFrame: boolean;
       toesLowerHalfEveryWalkingFrame: boolean;
+      headInsideEveryWalkingFrame: boolean;
       toeSpanFraction: number;
       subjectVisibleMeshes: number;
       nonSubjectVisibleMeshes: number;
@@ -2195,10 +2200,11 @@ function insideNdc(p: NdcPoint, bound: number): boolean {
   return p !== null && !p.behind && Math.abs(p.x) <= bound && Math.abs(p.y) <= bound;
 }
 
-function summarizeFeetFraming(pass: RecordedPass): {
+function summarizeFeetFraming(pass: RecordedPass, fullBody = false): {
   walkingFrames: number;
   toesInsideEveryWalkingFrame: boolean;
   toesLowerHalfEveryWalkingFrame: boolean;
+  headInsideEveryWalkingFrame: boolean;
   toeSpanFraction: number;
   subjectVisibleMeshes: number;
   nonSubjectVisibleMeshes: number;
@@ -2207,6 +2213,7 @@ function summarizeFeetFraming(pass: RecordedPass): {
 } {
   const walk = pass.framing.filter((f) => f.phase === "walking");
   const toesInside = walk.length > 0 && walk.every((f) => insideNdc(f.left, 0.9) && insideNdc(f.right, 0.9));
+  const headInside = walk.length > 0 && walk.every((f) => insideNdc(f.head, 0.9));
   const lowerHalf =
     walk.length > 0 &&
     walk.every((f) => f.left !== null && f.right !== null && f.left.y < 0 && f.right.y < 0);
@@ -2218,8 +2225,18 @@ function summarizeFeetFraming(pass: RecordedPass): {
   const subjectVisibleMeshes = pass.subjectVisibleMeshes ?? 0;
   const nonSubjectVisibleMeshes = pass.nonSubjectVisibleMeshes ?? 0;
   const subjectScreenHeightFraction = pass.subjectScreenHeightFraction ?? 0;
-  const drawnPass =
-    toesInside &&
+  // Full-body side view (step-capture lean slice): head AND toes inside every
+  // walking frame replaces the feet-filling lower-half rule; the pulled-back
+  // camera shrinks the toe span, so the span floor drops to 0.2. Default path
+  // unchanged.
+  const drawnPass = fullBody
+    ? toesInside &&
+      headInside &&
+      spanFraction >= 0.2 &&
+      subjectVisibleMeshes > 0 &&
+      nonSubjectVisibleMeshes === 0 &&
+      subjectScreenHeightFraction >= 0.35
+    : toesInside &&
     lowerHalf &&
     // 0.30 of frame width: the corrected walk covers the 1.24 m route in ~1.2 m of travel, and
     // at the distance that keeps both toes in frame that is ~0.31 of the width. 0.40 was an
@@ -2232,6 +2249,7 @@ function summarizeFeetFraming(pass: RecordedPass): {
     walkingFrames: walk.length,
     toesInsideEveryWalkingFrame: toesInside,
     toesLowerHalfEveryWalkingFrame: lowerHalf,
+    headInsideEveryWalkingFrame: headInside,
     toeSpanFraction: spanFraction,
     subjectVisibleMeshes,
     nonSubjectVisibleMeshes,
@@ -2321,6 +2339,7 @@ function probeMp4(mp4Path: string): { durationSeconds: number; frameCount: numbe
 async function main(): Promise<void> {
   const outputDir = path.resolve(process.cwd(), outputDirFromArgv());
   const steppingTurnEnabled = steppingTurnEnabledFromArgv();
+  const fullBodySideView = fullBodyFromArgv();
   const stagingDir = path.resolve(process.cwd(), ".openclinxr/evidence/foot-plant-video-staging");
   await mkdir(outputDir, { recursive: true });
   await mkdir(stagingDir, { recursive: true });
@@ -2393,7 +2412,17 @@ async function main(): Promise<void> {
         .slice(0, 10)
         .map((c) => ({ name: c.name, pose: c.pose }));
       process.stdout.write(`[dry] three-quarter take-1: ${tqTake1.name}; scan: ${scanShortlist.map((s) => s.name).join(", ")}\n`);
-      const feetPass = await recordPass(server, browser, bundleJson, "feet-side", poses.feetSide, dry.fill.feetSide, path.join(stagingDir, "feet-side"), {
+      // Step-capture lean slice: --full-body pulls the side view back so head
+      // and feet share the frame (three-quarter is already full-body). The
+      // side pass still isolates the physician, so the pulled-back eye leaving
+      // the room shell is fine; the full-body framing gate decides pass/fail.
+      const feetPose = fullBodySideView ? pullBackForFullBody(poses.feetSide) : poses.feetSide;
+      if (fullBodySideView) {
+        process.stdout.write(
+          `[full-body] side eye=(${feetPose.eye.x.toFixed(2)},${feetPose.eye.y.toFixed(2)},${feetPose.eye.z.toFixed(2)}) look=(${feetPose.look.x.toFixed(2)},${feetPose.look.y.toFixed(2)},${feetPose.look.z.toFixed(2)}) fov=${feetPose.fov}\n`,
+        );
+      }
+      const feetPass = await recordPass(server, browser, bundleJson, "feet-side", feetPose, dry.fill.feetSide, path.join(stagingDir, "feet-side"), {
         cx: (dryStart.x + dryTarget.x) / 2,
         cz: (dryStart.z + dryTarget.z) / 2,
         floorY: dryEvidence.floorOriginY ?? 0,
@@ -2506,13 +2535,14 @@ async function main(): Promise<void> {
 
       // Framing gate from the per-frame record-time projections: the script
       // exits non-zero unless both views hold the subject every walking frame.
-      const feetSummary = summarizeFeetFraming(passes["feet-side"]);
+      const feetSummary = summarizeFeetFraming(passes["feet-side"], fullBodySideView);
       const tqSummary = summarizeTqFraming(passes["three-quarter"], "three-quarter");
       const framingCheck = {
         feetSide: {
           walkingFrames: feetSummary.walkingFrames,
           toesInsideEveryWalkingFrame: feetSummary.toesInsideEveryWalkingFrame,
           toesLowerHalfEveryWalkingFrame: feetSummary.toesLowerHalfEveryWalkingFrame,
+          headInsideEveryWalkingFrame: feetSummary.headInsideEveryWalkingFrame,
           toeSpanFraction: feetSummary.toeSpanFraction,
           subjectVisibleMeshes: feetSummary.subjectVisibleMeshes,
           nonSubjectVisibleMeshes: feetSummary.nonSubjectVisibleMeshes,
@@ -2530,7 +2560,7 @@ async function main(): Promise<void> {
         },
       };
       process.stdout.write(
-        `[gate] feet-side frames=${feetSummary.walkingFrames} toesInside=${feetSummary.toesInsideEveryWalkingFrame} lowerHalf=${feetSummary.toesLowerHalfEveryWalkingFrame} span=${feetSummary.toeSpanFraction.toFixed(3)} subjMeshes=${feetSummary.subjectVisibleMeshes} nonSubjMeshes=${feetSummary.nonSubjectVisibleMeshes} subjH=${feetSummary.subjectScreenHeightFraction.toFixed(3)} pass=${feetSummary.pass}\n`,
+        `[gate] feet-side frames=${feetSummary.walkingFrames} toesInside=${feetSummary.toesInsideEveryWalkingFrame} lowerHalf=${feetSummary.toesLowerHalfEveryWalkingFrame} headInside=${feetSummary.headInsideEveryWalkingFrame} span=${feetSummary.toeSpanFraction.toFixed(3)} subjMeshes=${feetSummary.subjectVisibleMeshes} nonSubjMeshes=${feetSummary.nonSubjectVisibleMeshes} subjH=${feetSummary.subjectScreenHeightFraction.toFixed(3)} fullBody=${fullBodySideView} pass=${feetSummary.pass}\n`,
       );
       // A refused run still writes its report: the measurements are what explain the refusal.
       let framingFailure: Error | null = null;
@@ -2636,6 +2666,7 @@ async function main(): Promise<void> {
         driveSource: evidence.driveSource,
         recorderGlobalPresent: false,
         steppingTurnEnabled,
+        fullBodySideView,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },
           gpuRealtime: { fps: gpuFps },
