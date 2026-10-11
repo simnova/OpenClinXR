@@ -181,6 +181,91 @@ function bindQuat(node: GltfNode): Quaternion {
   return new Quaternion(numAt(ro, 0, "bind"), numAt(ro, 1, "bind"), numAt(ro, 2, "bind"), numAt(ro, 3, "bind"));
 }
 
+export type MirrorSource = {
+  nodes: GltfNode[];
+  byName: Map<string, GltfNode>;
+  parentOf: Map<GltfNode, GltfNode>;
+  channels: Map<string, Partial<Record<"translation" | "rotation" | "scale", ChannelData>>>;
+  tMin: number;
+  tMax: number;
+};
+
+export type MirrorRig = { slot: Group; objs: Map<string, Object3D> };
+
+/** Read the GLB hierarchy + walk-clip samplers once; shared by the probe and the strip bake. */
+export async function readMirrorSource(
+  glb: string,
+  clipName: string,
+): Promise<{ doc: Awaited<ReturnType<NodeIO["read"]>>; source: MirrorSource }> {
+  const doc = await new NodeIO().read(glb);
+  const root = doc.getRoot();
+  const rawNodes = root.listNodes();
+  const nodes = rawNodes as unknown as GltfNode[];
+  const byName = new Map(nodes.map((n) => [n.getName(), n]));
+  const parentOf = new Map<GltfNode, GltfNode>();
+  for (const p of nodes) {
+    for (const c of p.listChildren()) parentOf.set(c as unknown as GltfNode, p);
+  }
+  const anim = root.listAnimations().find((a) => a.getName() === clipName);
+  if (!anim) throw new Error(`no clip ${clipName} in ${glb}`);
+  const channels = new Map<string, Partial<Record<"translation" | "rotation" | "scale", ChannelData>>>();
+  let tMin = Number.POSITIVE_INFINITY;
+  let tMax = Number.NEGATIVE_INFINITY;
+  for (const ch of anim.listChannels()) {
+    const target = ch.getTargetNode();
+    const sampler = ch.getSampler();
+    if (!target || !sampler) continue;
+    const input = sampler.getInput()?.getArray() as Float32Array | undefined;
+    const output = sampler.getOutput()?.getArray() as Float32Array | undefined;
+    const interp = sampler.getInterpolation();
+    if (!input || !output) continue;
+    if (interp === "CUBICSPLINE") throw new Error(`CUBICSPLINE refused on ${target.getName()}`);
+    if (input.length === 0) continue;
+    tMin = Math.min(tMin, numAt(input, 0, "input"));
+    tMax = Math.max(tMax, numAt(input, input.length - 1, "input"));
+    const entry = channels.get(target.getName()) ?? {};
+    const targetPath = ch.getTargetPath() as "translation" | "rotation" | "scale";
+    entry[targetPath] = { times: input, values: output, stride: targetPath === "rotation" ? 4 : 3 };
+    channels.set(target.getName(), entry);
+  }
+  return { doc, source: { nodes, byName, parentOf, channels, tMin, tMax } };
+}
+
+/** Mirror the GLB hierarchy into live Object3Ds, bind TRS overridden by the clip at time t. */
+export function buildMirrorAtClipTime(source: MirrorSource, clipName: string, t: number, slotScale: number): MirrorRig {
+  void clipName;
+  const objs = new Map<string, Object3D>();
+  for (const n of source.nodes) {
+    const o = new Object3D();
+    o.name = n.getName();
+    const tr = n.getTranslation() ?? [0, 0, 0];
+    const sc = n.getScale() ?? [1, 1, 1];
+    const ch = source.channels.get(n.getName());
+    const pos = ch?.translation
+      ? sampleVec(ch.translation, t)
+      : [numAt(tr, 0, "bindT"), numAt(tr, 1, "bindT"), numAt(tr, 2, "bindT")] as [number, number, number];
+    const quat = ch?.rotation ? sampleQuat(ch.rotation, t) : bindQuat(n);
+    const scl = ch?.scale
+      ? sampleVec(ch.scale, t)
+      : [numAt(sc, 0, "bindS"), numAt(sc, 1, "bindS"), numAt(sc, 2, "bindS")] as [number, number, number];
+    o.position.set(pos[0], pos[1], pos[2]);
+    o.quaternion.copy(quat);
+    o.scale.set(scl[0], scl[1], scl[2]);
+    objs.set(n.getName(), o);
+  }
+  const slot = new Group();
+  slot.name = "probe_slot";
+  slot.scale.setScalar(slotScale);
+  for (const n of source.nodes) {
+    const o = objAt(objs, n.getName());
+    const p = source.parentOf.get(n);
+    if (p) objAt(objs, p.getName()).add(o);
+    else slot.add(o);
+  }
+  slot.updateMatrixWorld(true);
+  return { slot, objs };
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const flagValue = (flag: string, fallback: string): string => {

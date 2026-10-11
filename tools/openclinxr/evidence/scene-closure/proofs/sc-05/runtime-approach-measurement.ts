@@ -463,6 +463,11 @@ export function runApproach(input: {
   /** Fired every frame; return an override for the observed geometry revision or support state. */
   perturb?: (frameIndex: number) => { geometryRevision?: string; supportAccepted?: boolean } | undefined;
   /**
+   * Default-off: run the procedural stepping turn for settling instead of the clip-driven
+   * one. Control runs (absent/false) keep byte-for-byte behaviour.
+   */
+  steppingTurnEnabled?: boolean;
+  /**
    * Diagnostic tap: fired every frame after the stance lock runs with the lock's own
    * applied correction and the slot XZ. Absent in production; used by the stop-takes
    * slide decomposition to attribute slot travel to lock correction vs pose mix.
@@ -546,6 +551,7 @@ export function runApproach(input: {
     clipAdvance,
     clipCycleSeconds: input.decoded.periodMs / 1000,
     routeHeadingRadians,
+    steppingTurnEnabled: input.steppingTurnEnabled ?? false,
   });
   if ("refused" in approach) throw new Error(`createCaseOwnedBedsideApproach refused: ${approach.reason}`);
   if (input.stanceLockEnabled === false) {
@@ -650,13 +656,25 @@ export function runApproach(input: {
   for (let index = 0; index < Math.round(input.seconds * SIMULATION_HZ); index += 1) {
     const nowMs = index * dt * 1000;
     const override = input.perturb?.(index);
+    //
+    // STEPPING TURN (default-off): once settling has been reached, the markers belong to the
+    // plan — see the pose-stage note below. The stance mixer's per-frame overwrite is part of
+    // the same fight (measured: it re-stamped walk-clip locals over the plan pose every frame
+    // while the pin read them, spiralling the slot 95 deg about the anchor for a 31 deg yaw),
+    // so it stands down here too. Labels resolve from it, but the plan never reads labels.
+    // Walking frames (and the settling-entry frame) are untouched.
+    const lastRecordedPhase = frames.length > 0
+      ? (frames[frames.length - 1]?.phase ?? null)
+      : null;
+    const steppingHoldMarkers = input.steppingTurnEnabled === true
+      && (lastRecordedPhase === "settling" || lastRecordedPhase === "arrived");
     // POSE FIRST, exactly as the frame loop does: `animation-loop.ts` calls `mixer.update` before
     // it reads the drive, so the skeleton the stance lock measures is this frame's pose. The
     // settle-blend keeps updating after the drive drops: the frame module owns both mixer weights
     // until the blend ends, exactly as in a browser.
     const settleBlending =
       approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
-    if (locomotionActive || settleBlending) {
+    if ((locomotionActive || settleBlending) && !steppingHoldMarkers) {
       clipMs += dt * 1000;
       // Keeps `stanceAction.time` (what `resolveClipStanceForFrame` reads) in lockstep with the
       // SAME `clipMs` driving `toeL`/`toeR` — one simulated clock, not two independently-advancing
@@ -668,6 +686,16 @@ export function runApproach(input: {
     // While stopping, the markers follow the DECODED stop take (travel-removed, like the
     // production root-removed clone) at the executor's distance-indexed clip time: the slot
     // carries the travel procedurally, so replaying take-world toes would count it twice.
+    //
+    // STEPPING TURN (default-off): once settling has been reached, the markers belong to the
+    // plan — the walk/rest sample write below would fight the stance pin with the walk
+    // clip's own per-frame discontinuities (measured 0.42 m of slot travel on the child:
+    // the pin kept pinning walk-posed markers while the assay re-posed them to plan right
+    // after, so the slot absorbed a walk-sample jump every frame). The markers hold their
+    // last plan-posed locals instead; the post-lock posing below keeps them on the plan.
+    // Walking frames (and the settling-entry frame) still pose from the clip as before.
+    // (The `steppingHoldMarkers` computation lives at the top of this loop, where it also
+    // gates the stance mixer's own per-frame marker overwrite.)
     const walking = locomotionActive || index === 0;
     const stopPoseT = stopActive && !stopCompleted && stopData
       ? (frames[frames.length - 1]?.stopTimeSeconds ?? null)
@@ -779,7 +807,7 @@ export function runApproach(input: {
         settleFadeAnchor.right.y + (input.decoded.restRight.y - settleFadeAnchor.right.y) * u,
         settleFadeAnchor.right.z + (input.decoded.restRight.z - settleFadeAnchor.right.z) * u,
       );
-    } else if (!stopActive && !stopCompleted) {
+    } else if (!stopActive && !stopCompleted && !steppingHoldMarkers) {
       const local = walking ? sampleTrack(input.decoded.left, clipMs, input.decoded) : input.decoded.restLeft;
       const localRight = walking ? sampleTrack(input.decoded.right, clipMs, input.decoded) : input.decoded.restRight;
       toeL.position.set(local.x, local.y, local.z);
@@ -803,7 +831,10 @@ export function runApproach(input: {
     // would grade the instrument's own teleport instead of the handoff.
     const blendingNow =
       approach.stopSettleBlendT !== null && approach.stopSettleBlendT !== undefined;
-    if ((frame.phase === "settling" || frame.phase === "arrived") && !blendingNow && !stopCompleted) {
+    if ((frame.phase === "settling" || frame.phase === "arrived") && !blendingNow && !stopCompleted
+      // Stepping turn (default-off): markers are posed from the published plan targets below,
+      // not snapped to rest — the plan owns both feet for the whole settling phase.
+      && input.steppingTurnEnabled !== true) {
       toeL.position.set(input.decoded.restLeft.x, input.decoded.restLeft.y, input.decoded.restLeft.z);
       toeR.position.set(input.decoded.restRight.x, input.decoded.restRight.y, input.decoded.restRight.z);
       slot.updateMatrixWorld(true);
@@ -812,6 +843,25 @@ export function runApproach(input: {
     // `updateGeneratedHumanoidAnimations` consumes it, so a lock folded into the drive step reads
     // the previous frame's pose. Measured in a browser that way: 4.09996 m of total slide.
     applyCaseOwnedStanceLock(approach, dt);
+    // STEPPING TURN (default-off): pose the assay markers from the production plan targets the
+    // lock just published — the same targets a browser feeds its leg CCD with. The markers are
+    // assay-side stand-ins for feet (headless rigs carry no leg bones); production never writes
+    // toe locals. Control runs never enter this branch.
+    const steppingTargets = input.steppingTurnEnabled === true && frame.phase === "settling"
+      ? approach.steppingTurn?.lastTargets ?? null
+      : null;
+    if (steppingTargets !== null) {
+      const leftWorld = steppingTargets.stanceFoot === "left" ? steppingTargets.stanceToe : steppingTargets.swingToe;
+      const rightWorld = steppingTargets.stanceFoot === "right" ? steppingTargets.stanceToe : steppingTargets.swingToe;
+      const parent = toeL.parent;
+      if (parent !== null) {
+        parent.updateWorldMatrix(true, false);
+        const toLocal = parent.matrixWorld.clone().invert();
+        toeL.position.set(leftWorld.x, leftWorld.y, leftWorld.z).applyMatrix4(toLocal);
+        toeR.position.set(rightWorld.x, rightWorld.y, rightWorld.z).applyMatrix4(toLocal);
+        slot.updateMatrixWorld(true);
+      }
+    }
     if (input.recordLock) {
       input.recordLock(index, { ...approach.lock.correctionMeters }, { x: slot.position.x, z: slot.position.z });
     }

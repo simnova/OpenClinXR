@@ -62,8 +62,11 @@ function dist2d(a: { x: number; z: number }, b: { x: number; z: number }): numbe
  * Port of plantEpisodeMaxSlide (turn-quality-metrics.ts, settling-scoped) parameterised
  * by a phase allow-list. Identical anchor/reset discipline: anchor resets on stance-foot
  * change or on a lifted re-plant jumping > 0.05 m; a jump without a lift counts as slide.
+ *
+ * Exported for the stepping-turn cagematch, which grades the same disciplines on its own
+ * candidate rows. No behaviour change to this harness.
  */
-function episodeMaxSlide(
+export function episodeMaxSlide(
   frames: readonly TurnQualityFrame[],
   phases: ReadonlySet<string>,
 ): number | null {
@@ -96,8 +99,8 @@ function episodeMaxSlide(
   return Number.isFinite(maxSlide) ? maxSlide : null;
 }
 
-/** Max single-frame stance-labelled toe step inside the phase allow-list. */
-function stanceStepMax(
+/** Max single-frame stance-labelled toe step inside the phase allow-list. Exported for the stepping-turn cagematch. */
+export function stanceStepMax(
   frames: readonly TurnQualityFrame[],
   phases: ReadonlySet<string>,
 ): number | null {

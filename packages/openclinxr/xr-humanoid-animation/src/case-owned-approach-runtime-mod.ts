@@ -28,6 +28,7 @@ import {
   type SettlingStepTurnState,
 } from "./settling-step-turn-mod.js";
 import { createStanceLockState, type StanceLockState } from "./stance-lock-mod.js";
+import type { SteppingTurnExecState } from "./stepping-turn-execution-mod.js";
 import type { StopClipWiring } from "./stop-clip-wiring-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -114,6 +115,15 @@ export type CaseOwnedBedsideApproach = {
    * `clip-driven-settling-turn-mod.ts`.
    */
   clipTurn: ClipDrivenSettlingTurnState;
+  /**
+   * Procedural stepping turn (lift-and-place steps) for the settling phase, behind the
+   * default-off `steppingTurnEnabled` flag. Null unless the flag is on AND settling has
+   * been entered; the clip-driven `clipTurn` above is left constructed but undriven then,
+   * so control runs (flag off) never touch this field.
+   */
+  steppingTurn: SteppingTurnExecState | null;
+  /** Default-off flag: run the stepping turn instead of the clip-driven settling turn. */
+  steppingTurnEnabled: boolean;
   /**
    * The actor's own standing pose, snapshotted on the first walking frame while the
    * skeleton still holds the idle pose. Drives the arrived close and the settling
@@ -244,6 +254,8 @@ export function createCaseOwnedBedsideApproach(input: {
   /** One full cycle of the clip, in seconds. The terminal turn completes in exactly one. */
   clipCycleSeconds: number;
   routeHeadingRadians: number;
+  /** Default-off: run the procedural stepping turn for settling instead of the clip-driven one. */
+  steppingTurnEnabled?: boolean;
 }): CaseOwnedBedsideApproach | CaseOwnedBedsideApproachRefusal {
   const floorFrame = input.geometry.floorFrame;
   if (floorFrame === null) {
@@ -339,6 +351,8 @@ export function createCaseOwnedBedsideApproach(input: {
     lockArmed: false,
     turnStep: createSettlingStepTurnState(),
     clipTurn: createClipDrivenSettlingTurnState(),
+    steppingTurn: null,
+    steppingTurnEnabled: input.steppingTurnEnabled ?? false,
     restStance: null,
     closeState: createArrivalCloseState(),
     floorBandPlant,
