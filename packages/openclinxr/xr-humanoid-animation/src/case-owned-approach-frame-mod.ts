@@ -134,10 +134,22 @@ export function advanceCaseOwnedBedsideApproach(
   } else if (execution.phase === "walking") {
     approach.lockArmed = true;
   }
+  // THE STEPPING TURN OWNS THE LEGS (flag on, live plan, settling): the walk clip
+  // stands down. Otherwise the mixer keeps marching underneath at leg weight 0.4 and
+  // the stance pin chases its per-frame perturbation — measured in a browser, the slot
+  // inherits the march (~0.28 m/s ≈ clip advance × weight) while the toes stay pinned,
+  // so the pelvis ends the turn ~0.48 m behind the feet with straight legs (a mid-turn
+  // lean-back read). Headless holds the markers instead (runtime-approach-measurement's
+  // steppingHoldMarkers) and the bake is upright. Forcing the drive to 0 ramps the
+  // action and leg weight to 0 over 0.3 s (locomotion-clip-playback-mod, never snapped);
+  // CCD then solves from a stable pose and the pin stops chasing. A null plan (failed
+  // entry) skips this and keeps the executor's own drive for the clip path.
+  const steppingOwnsLegs =
+    approach.steppingTurnEnabled && approach.steppingTurn !== null && execution.phase === "settling";
   return {
-    locomotion: execution.drive.locomotion,
+    locomotion: steppingOwnsLegs ? 0 : execution.drive.locomotion,
     locomotionTimeScaleFactor: execution.drive.timeScaleFactor ?? 1,
-    locomotionLegWeight: execution.drive.legWeight ?? 1,
+    locomotionLegWeight: steppingOwnsLegs ? 0 : (execution.drive.legWeight ?? 1),
     driveSource: execution.driveSource,
     phase: execution.phase,
     positionXz: { x: approach.actorSlot.position.x, z: approach.actorSlot.position.z },

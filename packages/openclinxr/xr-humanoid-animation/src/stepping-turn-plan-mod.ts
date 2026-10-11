@@ -9,15 +9,15 @@
  * each lifting the swing foot on a smooth arc and placing it under the moving torso,
  * pelvis yaw following the feet.
  *
- * PLACEMENTS ARE BODY-RELATIVE, not rotated about the stance foot. An earlier revision
- * rotated each placement about the pinned stance and gathered the pair toward shoulder
- * width: the asymmetric gather (only the swing foot moves) drags the pair midpoint
- * toward the stance by half the gathered distance while the slot is unaffected —
- * measured 91-165 mm of pair-vs-slot offset at hold across rigs (a lunge the far leg
- * spans as 29 deg of knee bend), invariant across yaw splits 0.05-0.9. Predicting the
- * slot's rigid arc about each stance (closed form, exact to 0.1 mm against the assay)
- * and landing each swing under the predicted slot keeps the pair under the pelvis by
- * construction; migration magnitude is unchanged, but torso and feet travel together.
+ * PLACEMENTS MIRROR THE STANCE ACROSS THE PREDICTED SLOT END. An earlier revision
+ * landed each swing lateral to the slot (square, shoulder width): the arc-vs-lateral
+ * mismatch leaves the pair midpoint off the slot (measured 0.209 m on the SC-05
+ * browser entry — the pelvis-behind-feet lean read). Mirroring centers the pair
+ * exactly on every landing, for any entry; each step stays short because the slot
+ * never strays far from the pair. Predicting to the step end (not start) still
+ * matters: the slot arcs about the stance during the step, and a start-relative
+ * goal goes stale by the arc displacement. The stance stays exactly where it
+ * stands; only the swing travels.
  *
  * PURE GEOMETRY: no three.js, no bones, no mixer. Inputs are world-XZ foot positions and
  * yaws; outputs are per-step placements plus a per-frame evaluator. The runtime execution
@@ -25,7 +25,7 @@
  * from the same published targets the browser feeds its leg hinge with.
  *
  * Rhythm reference (not shipped): 2 steps for <= 90 deg, ~0.6-0.8 s per step, foot lift a
- * few cm, body yaw following the feet, ending shoulder-width apart facing the target.
+ * few cm, body yaw following the feet, pair centered under the pelvis on every landing.
  */
 
 export type StepFoot = "left" | "right";
@@ -53,15 +53,19 @@ export const STEPPING_TURN_LIFT_PEAK_M = 0.03;
  */
 export const STEPPING_TURN_PELVIS_DIP_M = 0.015;
 /**
- * Half inter-foot distance at placement (physician scale, leg-scaled per rig): feet
- * land 0.25 m apart (shoulder width), square under the torso. Each step's goal width
- * lerps from the live entry width toward shoulder across the turn, so a wide
- * mid-stride entry (0.42-0.53 m on SC-05) gathers progressively instead of dumping the
- * whole gather into step 0's travel (measured: the child's 0.42 m entry gathered to
- * 0.18 m in one step flew the swing heel 0.3 m+ and bent the short leg 68 deg).
- * Narrow entries keep their width throughout (never spread).
+ * Standing hold crouch through the turn, physician scale (rig-scaled with the
+ * rest): the slot rides this far below its entry height on top of the per-step
+ * dip, ramping in over the first 0.3 s. The dip returns to zero at each placement,
+ * where the leg is longest and the heel target sits at/beyond reach — measured in
+ * a browser, the hinge misses by ~2 cm there and the stance pin drags the slot by
+ * the miss every frame (~0.5 m of pelvis travel over the turn while the toes stay
+ * pinned). A 0.02 hold keeps spans inside reach at the placements with a soft knee
+ * instead of a locked one; the arrived close converges from wherever the turn
+ * leaves the body, so no release ramp is needed.
  */
-export const STEPPING_TURN_REST_HALF_WIDTH_M = 0.125;
+export const STEPPING_TURN_HOLD_DIP_M = 0.02;
+/** Ramp-in for the hold dip: entry continuity (the slot starts at assay height). */
+export const STEPPING_TURN_HOLD_RAMP_S = 0.3;
 /**
  * Walk-start rest toe-separation scale reference, world meters: calibrates the rig
  * leg-length scale (see `steppingTurnLegScale`). Measured per rig on the same ward:
@@ -167,13 +171,6 @@ export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan
     left: { ...input.leftToeXz },
     right: { ...input.rightToeXz },
   };
-  // Goal-width schedule: lerp entry width toward shoulder across the steps so travel
-  // distributes evenly instead of front-loading the gather. Never spreads.
-  const entryWidth = Math.hypot(
-    input.leftToeXz.x - input.rightToeXz.x,
-    input.leftToeXz.z - input.rightToeXz.z,
-  );
-  const shoulderWidth = 2 * STEPPING_TURN_REST_HALF_WIDTH_M * input.legScale;
   // Per-foot world Y, threaded through the plan like XZ so every hand-off is continuous:
   // a foot starts a swing where its stance hold left it, and starts a stance where its
   // swing landed (the baseline). Only step 0 reads live heights, so nothing snaps.
@@ -194,23 +191,20 @@ export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan
     const stanceFoot: StepFoot = swingFoot === "left" ? "right" : "left";
     const stanceXz = { ...feet[stanceFoot] };
     const swingFromXz = { ...feet[swingFoot] };
-    // Body-centered goal: under the PREDICTED END slot at the step-end heading, square
-    // (lateral rest offset, no fore/aft split — the turn squares the stance). Predicting
-    // to the step end (not start) matters: the slot arcs about the stance during the
-    // step, and a start-relative goal goes stale by the arc displacement (measured
-    // 119 mm of hold offset with start-relative goals on SC-05 entries). The stance
-    // stays exactly where it stands; only the swing travels.
-    const yawEnd = yawStart + yaw;
+    // Mirrored goal: the swing lands at the mirror of the stance across the
+    // predicted END slot, so the pair centers exactly under the pelvis on every
+    // landing — not just near it. The lateral-offset construction this replaces
+    // leaves the midpoint off by the arc-vs-lateral mismatch (measured 0.209 m on
+    // the SC-05 entry, ending the turn with the pelvis behind the feet); mirroring
+    // is exact by construction for any entry, and each step stays short because
+    // the slot never strays far from the pair. Predicting to the step end (not
+    // start) still matters: the slot arcs about the stance during the step, and a
+    // start-relative goal goes stale by the arc displacement. The stance stays
+    // exactly where it stands; only the swing travels.
     const slotEnd = rotateAbout(slotPred, stanceXz, yaw);
-    const lateral: Xz = { x: Math.cos(yawEnd), z: -Math.sin(yawEnd) };
-    const side = swingFoot === "right" ? 1 : -1;
-    const goalWidth = Math.min(
-      entryWidth,
-      entryWidth + (shoulderWidth - entryWidth) * ((index + 1) / stepCount),
-    );
     const swingToXz = {
-      x: slotEnd.x + lateral.x * side * (goalWidth / 2),
-      z: slotEnd.z + lateral.z * side * (goalWidth / 2),
+      x: 2 * slotEnd.x - stanceXz.x,
+      z: 2 * slotEnd.z - stanceXz.z,
     };
     // Step 0 keeps live heights (no snap); later steps continue from the hand-off:
     // stance holds what the foot landed at (baseline), swing leaves what its hold left.
@@ -259,7 +253,7 @@ export type SteppingTurnTargets = {
   u: number;
   /** Absolute slot yaw the pelvis holds this frame. */
   yawRadians: number;
-  /** Slot Y drop below the entry height this frame (0 at placements). */
+  /** Slot Y drop below the entry height this frame (hold dip at placements). */
   pelvisDipM: number;
   stanceFoot: StepFoot;
   swingFoot: StepFoot;
@@ -306,7 +300,10 @@ export function steppingTurnAt(plan: SteppingTurnPlan, elapsedS: number): Steppi
     stepIndex: step.index,
     u,
     yawRadians,
-    pelvisDipM: STEPPING_TURN_PELVIS_DIP_M * plan.legScale * Math.sin(Math.PI * u),
+    pelvisDipM:
+      (STEPPING_TURN_PELVIS_DIP_M * Math.sin(Math.PI * u)
+        + STEPPING_TURN_HOLD_DIP_M * Math.min(1, elapsedS / STEPPING_TURN_HOLD_RAMP_S))
+      * plan.legScale,
     stanceFoot: step.stanceFoot,
     swingFoot: step.swingFoot,
     stanceToe: { x: step.stanceXz.x, y: stanceY, z: step.stanceXz.z },

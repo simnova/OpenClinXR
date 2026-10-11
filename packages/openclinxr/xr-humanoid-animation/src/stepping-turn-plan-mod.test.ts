@@ -71,7 +71,7 @@ describe("the stepping-turn plan", () => {
     expect(second.swingFromXz.x).toBeCloseTo(first.stanceXz.x, 12);
   });
 
-  it("lands placements body-centered: pair under the predicted slot, square, shoulder width", () => {
+  it("lands placements body-centered: each swing mirrors its stance across the slot end", () => {
     const plan = planFor(62.67);
     const last = plan.steps[plan.steps.length - 1];
     if (!last) throw new Error("expected steps");
@@ -92,18 +92,30 @@ describe("the stepping-turn plan", () => {
       z: (last.stanceXz.z + last.swingToXz.z) / 2,
     };
     expect(Math.hypot(pairMid.x - slot.x, pairMid.z - slot.z)).toBeLessThan(0.03);
-    // Shoulder width and square to the final heading.
+    // Spread sanity (no lunges), unchanged.
     const spread = Math.hypot(last.swingToXz.x - last.stanceXz.x, last.swingToXz.z - last.stanceXz.z);
     expect(spread).toBeGreaterThan(0.15);
     expect(spread).toBeLessThan(0.4);
-    const targetYaw = ENTRY_YAW + 62.67 * DEG;
-    const facing = { x: Math.sin(targetYaw), z: Math.cos(targetYaw) };
-    const inter = {
-      x: last.swingToXz.x - last.stanceXz.x,
-      z: last.swingToXz.z - last.stanceXz.z,
-    };
-    const along = Math.abs(inter.x * facing.x + inter.z * facing.z) / Math.max(1e-9, spread);
-    expect(along).toBeLessThan(0.35);
+    // Mirror property on every step: goal + stance == 2 * slot end, so the pair
+    // centers exactly under the pelvis on every landing. Orientation follows the
+    // entry (a fore/aft split reads as a gathered step): squareness is not
+    // promised, centering is. (2026-10-11: lateral-square goals left the midpoint
+    // 0.209 m off on the SC-05 browser entry — the pelvis-behind-feet lean — while
+    // mirror holds it by construction.)
+    let slotEach = { x: 0, z: 0 };
+    for (const step of plan.steps) {
+      const dx = slotEach.x - step.stanceXz.x;
+      const dz = slotEach.z - step.stanceXz.z;
+      const cos = Math.cos(step.yawRadians);
+      const sin = Math.sin(step.yawRadians);
+      const slotEnd = {
+        x: step.stanceXz.x + dx * cos + dz * sin,
+        z: step.stanceXz.z - dx * sin + dz * cos,
+      };
+      expect(step.swingToXz.x).toBeCloseTo(2 * slotEnd.x - step.stanceXz.x, 9);
+      expect(step.swingToXz.z).toBeCloseTo(2 * slotEnd.z - step.stanceXz.z, 9);
+      slotEach = slotEnd;
+    }
   });
 
   it("ends every swing exactly on its placement", () => {
@@ -138,10 +150,11 @@ describe("the stepping-turn plan", () => {
     const start = steppingTurnAt(plan, 0);
     expect(start.swingToe.y).toBeCloseTo(0.016, 12);
     expect(start.stanceToe.y).toBeCloseTo(0.016, 12);
-    // Pelvis dip: 0 at placements, 0.015 peak mid-step.
+    // Pelvis dip: 0 at the entry (hold ramps in), 0.015 swing dip plus the full
+    // 0.02 hold once ramped (mid-step here is past the 0.3 s ramp), hold at the end.
     expect(start.pelvisDipM).toBeCloseTo(0, 12);
-    expect(mid.pelvisDipM).toBeCloseTo(0.015, 3);
-    expect(steppingTurnAt(plan, plan.totalS).pelvisDipM).toBeCloseTo(0, 9);
+    expect(mid.pelvisDipM).toBeCloseTo(0.015 + 0.02, 3);
+    expect(steppingTurnAt(plan, plan.totalS).pelvisDipM).toBeCloseTo(0.02, 9);
   });
 
   it("hands Y off continuously: step 0 keeps live heights, later steps continue them", () => {

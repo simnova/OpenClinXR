@@ -88,6 +88,30 @@ function outputDirFromArgv(): string {
   return flag ? flag.slice("--output-dir=".length) : OUTPUT_DIR;
 }
 
+/**
+ * Step-capture lean slice: full-body side view (head to feet in frame) instead of
+ * the feet-filling framing. Opt-in `--full-body` (or `--full-body=1`); default off.
+ */
+function fullBodyFromArgv(): boolean {
+  return process.argv.some((arg) => arg === "--full-body" || arg === "--full-body=1");
+}
+
+/**
+ * Pull a feet-side pose back for full-body framing: same side view axis, ~2x the
+ * distance, look raised to mid-torso so head and feet share the frame.
+ */
+function pullBackForFullBody(pose: CameraPose): CameraPose {
+  const dx = pose.eye.x - pose.look.x;
+  const dy = pose.eye.y - pose.look.y;
+  const dz = pose.eye.z - pose.look.z;
+  const look = { x: pose.look.x, y: 0.75, z: pose.look.z };
+  return {
+    eye: { x: look.x + dx * 2, y: look.y + dy * 2, z: look.z + dz * 2 },
+    look,
+    fov: pose.fov,
+  };
+}
+
 type ScenarioBuild = {
   scenarioId: string;
   bundleRoute: string;
@@ -315,6 +339,12 @@ type FootPlantVideoReport = {
   maxSlideMeters: number;
   medianSlideMeters: number;
   fps: number;
+  /**
+   * Lean probe: per-step measured pelvis/hip/neck/head world positions from the
+   * feet-side pass, joined to `frames` by simMs/tMs offline. Empty when the
+   * probe never resolved (a measurement gap, not a verdict).
+   */
+  bodyProbe: BodyProbe[];
   framingCheck: {
     feetSide: {
       walkingFrames: number;
@@ -934,6 +964,54 @@ const ROOM_SOURCE = String.raw`
     slot: tail.slot,
   };
 })()
+`;
+/**
+ * Lean probe: measured world positions of the physician's own pelvis/hip/neck/head
+ * bones, read after the frame was driven. Bone-name conventions mirror the package
+ * resolvers (sanitised names: GLTFLoader strips dots, so upperleg01.L loads as
+ * upperleg01L; pelvis matched like arrival-stance-close-mod.ts, head like
+ * inner-mouth-cavity-drive.ts). Capture-only read; nothing is written.
+ */
+const BODY_PROBE_SOURCE = String.raw`
+((p) => {
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return { ok: false, reason: "no-debug-scene" };
+  const actorId = p.actorId;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (ud.openClinXrActorId === actorId) physRoot = o;
+  });
+  if (!physRoot) return { ok: false, reason: "no-physician-actor-" + actorId };
+  const worldOf = (node) => {
+    if (!node) return null;
+    if (typeof node.updateWorldMatrix === "function") node.updateWorldMatrix(true, false);
+    const e = node.matrixWorld ? node.matrixWorld.elements : null;
+    if (!e) return null;
+    return { x: e[12], y: e[13], z: e[14] };
+  };
+  const byName = (name) => physRoot.getObjectByName(name) || null;
+  let pelvis = null;
+  let neck = null;
+  let head = byName("head");
+  physRoot.traverse((o) => {
+    const raw = typeof o.name === "string" ? o.name : "";
+    const san = raw.replaceAll(".", "");
+    if (!pelvis && /^pelvis/i.test(san)) pelvis = o;
+    if (!neck && /neck/i.test(san)) neck = o;
+    if (!head && /head/i.test(san)) head = o;
+  });
+  return {
+    ok: true,
+    simMs: Date.now(),
+    pelvis: worldOf(pelvis),
+    hipsL: worldOf(byName("upperleg01L") || byName("upperleg01.L")),
+    hipsR: worldOf(byName("upperleg01R") || byName("upperleg01.R")),
+    neck: worldOf(neck),
+    head: worldOf(head),
+  };
+})
 `;
 const READ_CAM_SOURCE = String.raw`
 (() => {
@@ -1750,6 +1828,22 @@ type ScanEye = { name: string; pose: CameraPose };
 
 type ScanResult = { name: string; projFail: number; clear: number; n: number };
 
+/**
+ * Step-capture lean probe (2026-10-11): measured world positions of the
+ * physician's own pelvis/hip/neck/head bones per record step, read off the
+ * loaded skeleton after the frame was driven (same exposed-telemetry half as
+ * the toe evidence). Joined offline to the runtime frames by simMs (both read
+ * Date.now under the same fake clock). Null when the rig carries no such bone.
+ */
+type BodyProbe = {
+  simMs: number;
+  pelvis: Vec3 | null;
+  hipsL: Vec3 | null;
+  hipsR: Vec3 | null;
+  neck: Vec3 | null;
+  head: Vec3 | null;
+};
+
 type RecordedPass = {
   shotSimMs: number[];
   evidence: RuntimeEvidence;
@@ -1766,6 +1860,8 @@ type RecordedPass = {
   subjectScreenHeightFraction: number;
   /** The walk playback record off the physician's userData, read before the page closed. */
   playback: Record<string, unknown> | null;
+  /** Per-step measured pelvis/hip/neck/head world positions (lean probe). */
+  bodyProbe: BodyProbe[];
 };
 
 /**
@@ -1879,6 +1975,7 @@ async function recordPass(
     const shotBytes: number[] = [];
     let prevStance: string | null = null;
     const framing: FramingSample[] = [];
+    const bodyProbe: BodyProbe[] = [];
     const scanAcc = scanEyes.map(() => ({ projFail: 0, clear: 0, n: 0 }));
     let markers = 0;
     let step = 0;
@@ -1895,6 +1992,19 @@ async function recordPass(
       shotBytes.push(buf.length);
       const now = (await page.evaluate(`(() => Date.now())()`)) as number;
       shotSimMs.push(now);
+      // Lean probe: measured pelvis/hip/neck/head world positions for this exact
+      // frame. Fail-soft (a missed bone reads null offline); never fails the pass.
+      try {
+        const probe = (await page.evaluate(
+          `${BODY_PROBE_SOURCE}(${JSON.stringify({ actorId: activeWalkerActorId() })})`,
+        )) as (BodyProbe & { ok: boolean }) | { ok: boolean; reason?: string };
+        if (probe !== null && typeof probe === "object" && (probe as { ok: boolean }).ok === true) {
+          const p = probe as BodyProbe & { ok: boolean };
+          bodyProbe.push({ simMs: p.simMs, pelvis: p.pelvis, hipsL: p.hipsL, hipsR: p.hipsR, neck: p.neck, head: p.head });
+        }
+      } catch {
+        // Probe loss is a measurement gap, not a capture failure.
+      }
       step += 1;
       summary = await readSummary(page);
       const evidence = await readEvidence(page);
@@ -1974,6 +2084,7 @@ async function recordPass(
       nonSubjectVisibleMeshes: drawn.nonSubjectVisibleMeshes,
       subjectScreenHeightFraction: drawn.subjectScreenHeightFraction,
       playback,
+      bodyProbe,
     };
   } finally {
     await context.close().catch(() => undefined);
@@ -2552,6 +2663,7 @@ async function main(): Promise<void> {
         maxSlideMeters: maxSlide,
         medianSlideMeters: medianSlide,
         fps,
+        bodyProbe: passes["feet-side"].bodyProbe,
         framingCheck,
         walkDiagnostics: {
           clipStanceAdvanceMetersPerSecond: evidence.clipStanceAdvanceMetersPerSecond ?? null,

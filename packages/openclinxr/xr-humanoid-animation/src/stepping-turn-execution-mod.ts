@@ -1,4 +1,5 @@
 import type { Object3D } from "three";
+import { Quaternion, Vector3 } from "three";
 import {
   planSteppingTurn,
   steppingTurnAt,
@@ -44,11 +45,30 @@ export type SteppingTurnExecState = {
     left: { offset: { x: number; y: number; z: number }; yaw: number } | null;
     right: { offset: { x: number; y: number; z: number }; yaw: number } | null;
   };
+  /**
+   * Foot-bone WORLD orientation per side at capture, with the yaw it was captured
+   * at. Re-asserted every frame (yaw-compensated): the heel-target map above is built
+   * from the entry foot orientation, but the foot's world orientation also swings with
+   * knee articulation (walk-bent at entry, extending through the turn), so a frozen
+   * LOCAL quaternion still leaves a structural toe residual that the stance pin
+   * integrates into slot travel — measured, ~0.5 m of pelvis-behind-feet drift with
+   * the toes still pinned. Holding the WORLD orientation (yawed with the slot, like
+   * the map) keeps the live mapping exact through any articulation; the hinge never
+   * touches the foot bone, so nothing fights the freeze. (The bake's idle-constant
+   * feet are the same construction with a near-zero articulation delta, which is why
+   * it never spiralled.)
+   */
+  footQuat: {
+    left: { q: HingeQuat; yaw: number } | null;
+    right: { q: HingeQuat; yaw: number } | null;
+  };
 };
 
 function shortestYawDelta(fromRadians: number, toRadians: number): number {
   return Math.atan2(Math.sin(toRadians - fromRadians), Math.cos(toRadians - fromRadians));
 }
+
+const Y_AXIS = new Vector3(0, 1, 0);
 
 /** Capture the entry pose and plan the turn. Null when there are no live toes to plan from. */
 export function beginSteppingTurn(input: {
@@ -98,6 +118,7 @@ export function beginSteppingTurn(input: {
     lastTargets: steppingTurnAt(plan, 0),
     slotY0: actorSlot.position.y,
     offsetEntry: { left: null, right: null },
+    footQuat: { left: null, right: null },
   };
 }
 export function advanceSteppingTurn(input: {
@@ -145,6 +166,10 @@ export function advanceSteppingTurn(input: {
       if (chain === null) continue;
       // Capture the heel-toe offset once (first resolving frame); after that it only
       // rotates with slot yaw — re-reading it live feeds solved orientations back in.
+      // The foot's WORLD orientation is frozen beside it (see footQuat), applied
+      // AFTER the hinge solve below: the solve rotates the knee, so a freeze built
+      // on pre-solve parents is stale by the solve's own articulation and the pin
+      // integrates that stale-by-one-pass error every frame.
       if (state.offsetEntry[side] === null) {
         chain.heel.updateMatrixWorld(true);
         chain.toe.updateMatrixWorld(true);
@@ -156,6 +181,15 @@ export function advanceSteppingTurn(input: {
             y: toeWorld.y - heelWorld.y,
             z: toeWorld.z - heelWorld.z,
           },
+          yaw: targets.yawRadians,
+        };
+        const parentQ = new Quaternion();
+        if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
+        else parentQ.identity();
+        const localQ = chain.heel.quaternion;
+        const worldQ = parentQ.clone().multiply(localQ);
+        state.footQuat[side] = {
+          q: { x: worldQ.x, y: worldQ.y, z: worldQ.z, w: worldQ.w },
           yaw: targets.yawRadians,
         };
       }
@@ -177,6 +211,20 @@ export function advanceSteppingTurn(input: {
         poleWorld,
         midRestQuats: { upper, lower },
       });
+      // Yaw-compensated world freeze, on post-solve parents: the foot yaws with the
+      // slot (like the map) but keeps its entry pitch/roll through any articulation,
+      // so the live mapping stays exact and the pin stops chasing. Refresh the heel
+      // subtree: the pin below reads the toe through it.
+      const frozen = state.footQuat[side];
+      if (frozen !== null) {
+        const parentQ = new Quaternion();
+        if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
+        else parentQ.identity();
+        const yawDelta = new Quaternion().setFromAxisAngle(Y_AXIS, targets.yawRadians - frozen.yaw);
+        const wantWorld = yawDelta.multiply(new Quaternion(frozen.q.x, frozen.q.y, frozen.q.z, frozen.q.w));
+        chain.heel.quaternion.copy(parentQ.invert().multiply(wantWorld));
+        chain.heel.updateWorldMatrix(true, false);
+      }
     }
     actorSlot.updateMatrixWorld(true);
     const stanceToe = targets.stanceFoot === "left" ? input.leftToe : input.rightToe;
