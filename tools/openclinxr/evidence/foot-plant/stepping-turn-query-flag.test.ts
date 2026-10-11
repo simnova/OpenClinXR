@@ -5,7 +5,7 @@ import {
 } from "../../../../packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-query-flag-mod.js";
 
 /**
- * Unit test for the stepping-turn `steppingTurn=1` query parser.
+ * Unit test for the stepping-turn `steppingTurn=0` opt-out query parser.
  *
  * WHY IT LIVES HERE, AND WHY IT IMPORTS dist. The parser is deliberately
  * private: nothing outside @openclinxr/xr-humanoid-animation binds it, so
@@ -21,21 +21,17 @@ import {
  * vitest (`pnpm --filter @openclinxr/xr-humanoid-animation build`).
  */
 describe("stepping-turn query flag", () => {
-  it("reads exactly steppingTurn=1 as true", () => {
+  it("reads steppingTurn=1 as true", () => {
     expect(parseSteppingTurnEnabled("?steppingTurn=1")).toBe(true);
   });
 
-  it("reads absent as false", () => {
-    expect(parseSteppingTurnEnabled("")).toBe(false);
-    expect(parseSteppingTurnEnabled("?stationId=x")).toBe(false);
+  it("reads absent as true", () => {
+    expect(parseSteppingTurnEnabled("")).toBe(true);
+    expect(parseSteppingTurnEnabled("?stationId=x")).toBe(true);
   });
 
-  it("reads anything other than exactly 1 as false", () => {
+  it("reads only exactly steppingTurn=0 as false", () => {
     expect(parseSteppingTurnEnabled("?steppingTurn=0")).toBe(false);
-    expect(parseSteppingTurnEnabled("?steppingTurn=true")).toBe(false);
-    expect(parseSteppingTurnEnabled("?steppingTurn=True")).toBe(false);
-    expect(parseSteppingTurnEnabled("?steppingTurn=")).toBe(false);
-    expect(parseSteppingTurnEnabled("?steppingTurn=11")).toBe(false);
   });
 
   it("reads the flag beside other params", () => {

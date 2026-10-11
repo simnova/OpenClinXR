@@ -1,9 +1,12 @@
 /**
  * Stepping-turn query flag for the case-owned bedside approach.
  *
- * Default OFF: absent or anything other than exactly `steppingTurn=1` reads false.
- * Same `=== "1"` shape as the apps/ui-xr URL debug flags
- * (`humanoidSourceCleanCapture`, `humanoidComparatorDebugFaceCues`).
+ * Default ON: only exactly `steppingTurn=0` reads false; absent or any other
+ * value reads true.
+ * Opt-out `!== "0"` shape (unlike the apps/ui-xr URL debug flags
+ * (`humanoidSourceCleanCapture`, `humanoidComparatorDebugFaceCues`), which stay
+ * opt-in `=== "1"`): the stepping arrival turn is on by default and only
+ * `?steppingTurn=0` disables it.
  *
  * WHY IT IS READ HERE, not passed through `StationBedsideApproachContext`. That
  * context is at its 12-field ceiling: one more field trips the narrow-context
@@ -15,7 +18,7 @@
 
 /** Pure parser, unit-tested without a DOM. */
 export function parseSteppingTurnEnabled(search: string): boolean {
-  return new URLSearchParams(search).get("steppingTurn") === "1";
+  return new URLSearchParams(search).get("steppingTurn") !== "0";
 }
 
 /** Browser entry read; false anywhere without a location search (node, tools). */
