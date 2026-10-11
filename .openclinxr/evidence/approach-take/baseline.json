@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.approach-take-baseline.v1",
+  "stage": 0,
+  "knownGood": ".openclinxr/evidence/s1-stop/pre-fix.json (present in this worktree; no copy needed)",
+  "note": "The assay stages one ward and resolves one intent; the route is rig-independent. Per-rig rows repeat the same route; rigs differ only in decoded walk-clip advance (walkFrames 92/88/149).",
+  "routes": {
+    "physician": { "lengthM": 1.3058713568030198, "shape": "straight", "waypointCount": 5, "hash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00", "hashShort": "b195b40700549c99" },
+    "nurse": { "lengthM": 1.3058713568030198, "shape": "straight", "waypointCount": 5, "hash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00", "hashShort": "b195b40700549c99" },
+    "child": { "lengthM": 1.3058713568030198, "shape": "straight", "waypointCount": 5, "hash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00", "hashShort": "b195b40700549c99" }
+  },
+  "arrivalHeadingRadians": 3.141592653589793,
+  "routeRecord": ".openclinxr/evidence/approach-take/route.json"
+}

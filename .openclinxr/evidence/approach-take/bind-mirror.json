@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "openclinxr.approach-take-bind-mirror.v1",
+  "finding": "The motion-bind stage rotation path is exactly yaw-negating: bound pelvis yaw equals negated source pelvis yaw at every matched take fraction.",
+  "take": "nurse seed 4 (uncompensated constraints, arrivalDelta +63.63 deg)",
+  "method": "source: SOMA RightLeg-LeftLeg lateral from work-nurse-seed4/joints.json (Blender Z-up export), yaw atan2(latZ,-latX) in Kimodo XZ. bound: upperleg01 R-L world tracks from nurse-seed4.glb via jointTracks FK, same formula in three XZ. Kimodo ground truth: npz global_root_heading channel 0.16 -> 64.36 deg (its own code, independent of both formulas).",
+  "series": {
+    "fractions": [
+      0.0,
+      0.2,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "sourceDeg": [
+      -0.62,
+      -1.07,
+      -1.01,
+      -2.17,
+      0.19,
+      59.0,
+      63.3,
+      63.03,
+      62.86
+    ],
+    "boundDeg": [
+      0.62,
+      1.07,
+      1.03,
+      2.18,
+      -0.17,
+      -58.99,
+      -63.3,
+      -63.03,
+      -62.86
+    ]
+  },
+  "runtimeEffect": "assay slot ended at 54.18 deg vs 180 deg target (residual 125.8 deg) -> fallback settling on every take; whole-run slide dominated by the fallback turn.",
+  "compensation": "build_approach_constraints.py --negate-arrival-delta (bindYawMirrorCompensated in profile/provenance); endFacing diagnostic compares source pelvis against the EFFECTIVE (negated) request.",
+  "s1Impact": "none: S1 stop takes walk straight then stop (no deliberate turn); a lateral mirror preserves straight-motion magnitudes, and S1 selection/assay grade magnitudes. Shipped walk loop is straight."
+}

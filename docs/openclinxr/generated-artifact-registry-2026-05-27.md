@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1942
+- keep-evidence: 1943
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3834,7 +3834,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.- `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.
 - `docs/openclinxr/package-public-surface-reduction/admissions/s1-stop-clip-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

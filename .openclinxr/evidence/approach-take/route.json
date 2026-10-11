@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "openclinxr.approach-take-route.v1",
+  "waypointCount": 5,
+  "lengthM": 1.3058713568030198,
+  "shape": "straight",
+  "maxAcrossTrackM": 8.501779435174676e-17,
+  "points": [
+    {
+      "x": -1.95,
+      "z": 1.72
+    },
+    {
+      "x": -1.6575,
+      "z": 1.5749999998882414
+    },
+    {
+      "x": -1.365,
+      "z": 1.4299999997764825
+    },
+    {
+      "x": -1.0725,
+      "z": 1.284999999664724
+    },
+    {
+      "x": -0.78,
+      "z": 1.1399999995529653
+    }
+  ],
+  "arrivalHeadingRadians": 3.141592653589793,
+  "canonical": "-1950,1720;-1657,1575;-1365,1430;-1072,1285;-780,1140|31416",
+  "routeHash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00",
+  "routeHashShort": "b195b40700549c99"
+}
