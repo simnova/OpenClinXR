@@ -144,8 +144,11 @@ describe("compiler-resolved surface meter", () => {
     // "." (47 psr-01e-kept runtime-app names) for apps/ui-xr and adding ./package-actor-turn, ./package-viseme,
     // and ./evidence-viseme; tools keep the shared ./actor-audio-runtime seam (no ./tooling-actor-audio)
     // — three declared entrypoints (133 -> 136).
-    // Re-derived independently by counting `exports` keys in package.json (133 before, 136 after).
-    expect(report.totals.entrypoints).toBe(136);
+    // 2026-10-11 stepping-turn assay seam: xr-humanoid-animation adds one reviewed ./stepping-turn
+    // subpath so the SC-05 assay and bake bind the plan, hinge, and stance-lock reads without
+    // relative src reaches (136 -> 137).
+    // Re-derived independently by counting `exports` keys in package.json (136 before, 137 after).
+    expect(report.totals.entrypoints).toBe(137);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

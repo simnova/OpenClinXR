@@ -5,14 +5,12 @@ import type { Node as GltfNode } from "@gltf-transform/core";
 import { Group, Object3D, Quaternion, Vector3 } from "three";
 import {
   findStanceChain,
-  solveTwoBoneIK,
-  worldXyz,
-} from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stance-lock-ik.js";
-import {
   findSteppingLegChain,
   heelTargetForToeTarget,
   solveSteppingLegHinge,
-} from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-leg-ik-mod.js";
+  solveTwoBoneIK,
+  worldXyz,
+} from "@openclinxr/xr-humanoid-animation/stepping-turn";
 
 /**
  * STEP 1 of the stepping-turn slice (2026-10-11): test the four-segment-chain lead.

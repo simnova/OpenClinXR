@@ -51,6 +51,19 @@
       "applyStationBedsideStanceLock",
       "createStationBedsideApproachState",
       "updateStationBedsideApproach"
+    ],
+    "./stepping-turn": [
+      "STEPPING_TURN_STEP_DURATION_S",
+      "findStanceChain",
+      "findSteppingLegChain",
+      "heelTargetForToeTarget",
+      "heelTargetForToeTargetStable",
+      "planSteppingTurn",
+      "solveSteppingLegHinge",
+      "solveTwoBoneIK",
+      "steppingTurnAt",
+      "steppingTurnLegScale",
+      "worldXyz"
     ]
   }
 }

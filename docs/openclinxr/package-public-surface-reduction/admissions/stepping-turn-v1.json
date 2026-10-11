@@ -1,0 +1,129 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "stepping-turn-v1",
+  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "5a81f92215564427542ab62bb21550024ab3b0095f1a2f170057bc500a8b054e",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "STEPPING_TURN_STEP_DURATION_S",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn plan rhythm. Consumer: stepping-turn-plan-mod.test.ts asserts per-step 0.7 s timing through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "findStanceChain",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn assay chain lookup. Consumer: tools/openclinxr/evidence/foot-plant/stepping-turn/ik-noop-probe.ts resolves the shipped leg chain through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "findSteppingLegChain",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn four-joint chain. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts resolve the stepping chain through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "heelTargetForToeTarget",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn static heel mapping. Consumer: ik-noop-probe.ts static probe path through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "heelTargetForToeTargetStable",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn yaw-stable heel mapping. Consumer: bake-stepping-turn.ts per-frame bake path through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "planSteppingTurn",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn plan entry. Consumers: stepping-turn-plan-mod.test.ts, bake-stepping-turn.ts rebuild the settling-entry plan through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "solveSteppingLegHinge",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn hinge solve. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts drive the production hinge through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "solveTwoBoneIK",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn baseline two-bone solve. Consumer: ik-noop-probe.ts existing/composite miss baseline through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "steppingTurnAt",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn per-frame evaluator. Consumers: stepping-turn-plan-mod.test.ts, bake-stepping-turn.ts evaluate placements through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "steppingTurnLegScale",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn rig leg scale. Consumer: bake-stepping-turn.ts scales widths and dip through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "worldXyz",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "stepping-turn-worker",
+      "rationale": "Stepping-turn world read. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts read mirror world positions through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    }
+  ],
+  "sourceReview": {
+    "producer": "stepping-turn-worker",
+    "reviewer": "PENDING-ORCHESTRATOR-REVIEW",
+    "verdict": "PENDING-ORCHESTRATOR-REVIEW",
+    "scope": "Stepping-turn assay seam: publish the plan, hinge, and stance-lock reads consumed by the SC-05 assay and bake on a dedicated ./stepping-turn subpath so tools stop reaching across the package boundary by relative path. No behaviour change.",
+    "baseline": "wt/stepping-turn"
+  }
+}

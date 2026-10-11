@@ -31,6 +31,10 @@
     "./manifest-motion-clip-playback": {
       "types": "./dist/manifest-motion-clip-playback.d.ts",
       "default": "./dist/manifest-motion-clip-playback.js"
+    },
+    "./stepping-turn": {
+      "types": "./dist/stepping-turn.d.ts",
+      "default": "./dist/stepping-turn.js"
     }
   },
   "scripts": {

@@ -254,6 +254,27 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./stepping-turn",
+    "names": [
+      {
+        "name": "planSteppingTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "steppingTurnAt",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STEPPING_TURN_STEP_DURATION_S",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {

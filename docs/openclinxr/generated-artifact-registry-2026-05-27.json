@@ -26593,6 +26593,13 @@
       "rationale": "Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stepping-turn assay seam: admits the plan, hinge, and stance-lock reads the SC-05 assay and bake bind through the xr-humanoid-animation ./stepping-turn subpath."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/teeth-viseme-consumers-v1.json",
       "authority": "keep-evidence",
       "tracked": true,

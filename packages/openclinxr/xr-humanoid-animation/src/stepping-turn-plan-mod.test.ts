@@ -3,7 +3,7 @@ import {
   planSteppingTurn,
   STEPPING_TURN_STEP_DURATION_S,
   steppingTurnAt,
-} from "./stepping-turn-plan-mod.js";
+} from "./stepping-turn.js";
 
 const DEG = Math.PI / 180;
 const ENTRY_YAW = (117.33 * Math.PI) / 180;

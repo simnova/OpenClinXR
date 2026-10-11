@@ -154,6 +154,7 @@ export type SteppingTurnPlanInput = {
   legScale: number;
 };
 
+/** Plan N alternating lift-and-place steps covering the residual yaw. */
 export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan {
   const { residualYawRadians, entryYawRadians, targetHeadingRadians, stanceBaselineY } = input;
   const direction = residualYawRadians >= 0 ? 1 : -1;

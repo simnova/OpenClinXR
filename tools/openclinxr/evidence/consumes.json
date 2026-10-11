@@ -775,6 +775,52 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./stepping-turn",
+    "names": [
+      {
+        "name": "findStanceChain",
+        "kind": "runtime"
+      },
+      {
+        "name": "findSteppingLegChain",
+        "kind": "runtime"
+      },
+      {
+        "name": "heelTargetForToeTarget",
+        "kind": "runtime"
+      },
+      {
+        "name": "heelTargetForToeTargetStable",
+        "kind": "runtime"
+      },
+      {
+        "name": "planSteppingTurn",
+        "kind": "runtime"
+      },
+      {
+        "name": "solveSteppingLegHinge",
+        "kind": "runtime"
+      },
+      {
+        "name": "solveTwoBoneIK",
+        "kind": "runtime"
+      },
+      {
+        "name": "steppingTurnAt",
+        "kind": "runtime"
+      },
+      {
+        "name": "steppingTurnLegScale",
+        "kind": "runtime"
+      },
+      {
+        "name": "worldXyz",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {

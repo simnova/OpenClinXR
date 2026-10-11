@@ -10,14 +10,12 @@ import {
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
-  solveSteppingLegHinge,
-} from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-leg-ik-mod.js";
-import {
   planSteppingTurn,
+  solveSteppingLegHinge,
   steppingTurnAt,
   steppingTurnLegScale,
-} from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stepping-turn-plan-mod.js";
-import { worldXyz } from "../../../../../packages/openclinxr/xr-humanoid-animation/src/stance-lock-ik.js";
+  worldXyz,
+} from "@openclinxr/xr-humanoid-animation/stepping-turn";
 import { decodeArrivalTurnRig } from "../arrival-turn-cagematch.js";
 import {
   intentFor,
