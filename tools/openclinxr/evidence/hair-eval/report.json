@@ -6,9 +6,15 @@
     "hairAreaFraction": 0.09895107938718663,
     "hairBboxAspect": 1.8630952380952381,
     "volume": 0.09895107938718663,
-    "structure": 0.3629935313229523,
+    "structure": 355.5745089773109,
+    "structureV0": 0.3629935313229523,
     "partGapFraction": 0.5952380952380952,
-    "hairlineRatio": 0,
+    "partGapMm": 57.95454545454545,
+    "partGapScore": 54.95454545454545,
+    "hairlineRatio": 0.8440366972477065,
+    "fringeDetected": false,
+    "eyeRowFound": true,
+    "faceWidthPx": 22,
     "meanHairLuminance": 0.18603424733107082,
     "maskPixels": 13641
   },
@@ -19,9 +25,15 @@
     "hairAreaFraction": 0.12458652506963788,
     "hairBboxAspect": 2.345864661654135,
     "volume": 0.12458652506963788,
-    "structure": 0.16615838774080796,
+    "structure": 600.7182508544697,
+    "structureV0": 0.16615838774080796,
     "partGapFraction": 0.7518796992481203,
-    "hairlineRatio": 0,
+    "partGapMm": null,
+    "partGapScore": null,
+    "hairlineRatio": 0.9203187250996016,
+    "fringeDetected": false,
+    "eyeRowFound": true,
+    "faceWidthPx": 51,
     "meanHairLuminance": 0.1639148509290179,
     "maskPixels": 17175
   },
@@ -32,19 +44,55 @@
     "hairAreaFraction": 0.29369777158774374,
     "hairBboxAspect": 1.1392857142857142,
     "volume": 0.29369777158774374,
-    "structure": 0.14810043459755962,
+    "structure": 2766.5689692195992,
+    "structureV0": 0.14810043459755962,
     "partGapFraction": 0.36428571428571427,
-    "hairlineRatio": 0,
+    "partGapMm": 467.6470588235294,
+    "partGapScore": 464.6470588235294,
+    "hairlineRatio": 0.6610169491525424,
+    "fringeDetected": true,
+    "eyeRowFound": true,
+    "faceWidthPx": 17,
     "meanHairLuminance": 0.12615548171135674,
     "maskPixels": 40488
   },
   "structure": {
-    "r13": 0.3629935313229523,
-    "r45": 0.16615838774080796,
-    "target": 0.14810043459755962
+    "r13": 355.5745089773109,
+    "r45": 600.7182508544697,
+    "target": 2766.5689692195992
+  },
+  "hairlineRatio": {
+    "r13": 0.8440366972477065,
+    "r45": 0.9203187250996016,
+    "target": 0.6610169491525424
+  },
+  "fringeDetected": {
+    "r13": false,
+    "r45": false,
+    "target": true
+  },
+  "partGapMm": {
+    "r13": 57.95454545454545,
+    "r45": null,
+    "target": 467.6470588235294
+  },
+  "partGapScore": {
+    "r13": 54.95454545454545,
+    "r45": null,
+    "target": 464.6470588235294
+  },
+  "negative": {
+    "attempts": [
+      {
+        "formula": "mean over erode(mask,3px) of (hp/local)^2, hp=lum-gauss(lum,2), local=gauss(lum,8)+0.02",
+        "targetValue": 0.012843415518896053,
+        "r45Value": 0.003918973999809881,
+        "r13Value": 0.014370619514376586
+      }
+    ]
   },
   "cases": {
-    "pass": 10,
+    "pass": 20,
     "fail": 0
   },
   "discrimination": {
