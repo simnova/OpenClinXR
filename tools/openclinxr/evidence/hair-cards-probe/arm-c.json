@@ -1,0 +1,43 @@
+{
+ "arms": {
+  "C": {
+   "ok": true,
+   "error": "",
+   "strandCountBefore": 252,
+   "strandCountAfter": 252,
+   "hairTriangleCount": 5040,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/arm-c.glb",
+   "glbSha256": "0dfd74174f680a4297c3f3103db98c975fd1206d582fbe42aae1319ae120ca64",
+   "bodySha256": "77f74e95a53171515e8ef2324535d065a8f922b77751f118d6aa722873ed4d3d",
+   "headPng": "tools/openclinxr/evidence/hair-cards-probe/arm-c-head.png",
+   "guideCount": 252,
+   "segments": 10,
+   "cardCount": 2520,
+   "bytes": 209000,
+   "uvAttributeStored": true,
+   "read": "Ribbon cards along 252 guides (segments 10) on shipped Aisha; EEVEE head render. Not lab evidence."
+  }
+ },
+ "bodySha256": "77f74e95a53171515e8ef2324535d065a8f922b77751f118d6aa722873ed4d3d",
+ "stage": "count",
+ "blenderVersion": "5.1.1",
+ "cardCount": 2520,
+ "trisPerCard": 2.0,
+ "cardBboxM": [
+  0.1969900131225586,
+  0.22813284397125244,
+  0.38363373279571533
+ ],
+ "headBboxM": [
+  0.9723601341247559,
+  0.3990037143230438,
+  1.5881778001785278
+ ],
+ "withDuplicate": {
+  "cardCount": 101910,
+  "trisPerCard": 2.0
+ },
+ "render": {
+  "engine": "EEVEE"
+ }
+}

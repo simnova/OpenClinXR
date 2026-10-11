@@ -1,0 +1,16 @@
+{
+ "arms": {
+  "C": {
+   "ok": true,
+   "error": null,
+   "strandCountBefore": 0,
+   "strandCountAfter": 0,
+   "hairTriangleCount": 510,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/fixtures/c.glb",
+   "glbSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "bodySha256": "body-sha-common-aaa",
+   "headPng": "h.png",
+   "read": "r"
+  }
+ }
+}

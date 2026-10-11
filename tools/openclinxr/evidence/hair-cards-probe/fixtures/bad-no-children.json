@@ -1,0 +1,40 @@
+{
+ "arms": {
+  "A": {
+   "ok": true,
+   "error": null,
+   "strandCountBefore": 10,
+   "strandCountAfter": 10,
+   "hairTriangleCount": 510,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/fixtures/c.glb",
+   "glbSha256": "a0914075b1ca74605824cdf74fb11a4c7afd069e469604cc3da945d4487ff57c",
+   "bodySha256": "body-sha-common-aaa",
+   "headPng": "h.png",
+   "read": "r"
+  },
+  "B": {
+   "ok": true,
+   "error": null,
+   "strandCountBefore": 5,
+   "strandCountAfter": 9,
+   "hairTriangleCount": 510,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/fixtures/c.glb",
+   "glbSha256": "a0914075b1ca74605824cdf74fb11a4c7afd069e469604cc3da945d4487ff57c",
+   "bodySha256": "body-sha-common-aaa",
+   "headPng": "h.png",
+   "read": "r"
+  },
+  "C": {
+   "ok": true,
+   "error": null,
+   "strandCountBefore": 0,
+   "strandCountAfter": 0,
+   "hairTriangleCount": 510,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/fixtures/c.glb",
+   "glbSha256": "a0914075b1ca74605824cdf74fb11a4c7afd069e469604cc3da945d4487ff57c",
+   "bodySha256": "body-sha-common-aaa",
+   "headPng": "h.png",
+   "read": "r"
+  }
+ }
+}

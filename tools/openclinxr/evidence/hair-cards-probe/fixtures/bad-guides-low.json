@@ -1,0 +1,43 @@
+{
+ "arms": {
+  "C": {
+   "ok": true,
+   "error": "",
+   "strandCountBefore": 252,
+   "strandCountAfter": 252,
+   "hairTriangleCount": 2000,
+   "glbPath": "tools/openclinxr/evidence/hair-cards-probe/fixtures/c-low.glb",
+   "glbSha256": "0aa5b742e465cc56244b3b02c50e989469666d27b83d128136d3ab98a0329b12",
+   "bodySha256": "body-sha-common-aaa",
+   "headPng": "tools/openclinxr/evidence/hair-cards-probe/fixtures/head-big.bin",
+   "read": "r",
+   "guideCount": 100,
+   "segments": 10,
+   "cardCount": 100,
+   "bytes": 12568,
+   "uvAttributeStored": true
+  }
+ },
+ "bodySha256": "body-sha-common-aaa",
+ "stage": "count",
+ "blenderVersion": "5.1.1",
+ "cardCount": 100,
+ "trisPerCard": 20,
+ "cardBboxM": [
+  1,
+  1,
+  1
+ ],
+ "headBboxM": [
+  1,
+  1,
+  1
+ ],
+ "withDuplicate": {
+  "cardCount": 100,
+  "trisPerCard": 20
+ },
+ "render": {
+  "engine": "EEVEE"
+ }
+}
