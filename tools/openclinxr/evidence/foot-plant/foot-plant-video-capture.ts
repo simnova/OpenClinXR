@@ -82,6 +82,17 @@ function steppingTurnEnabledFromArgv(): boolean {
   return flag ? flag.slice("--stepping-turn=".length) === "1" : false;
 }
 
+/**
+ * CCD-browser slice (2026-10-11): opt-in `ccdStanceLock=1` URL query flag for the
+ * case-owned bedside approach. Absent or anything other than exactly "1" reads
+ * false, matching the runtime parser (`ccd-stance-lock-query-flag-mod.ts`,
+ * default off). Default off: existing invocations are unchanged.
+ */
+function ccdStanceLockEnabledFromArgv(): boolean {
+  const flag = process.argv.find((arg) => arg.startsWith("--ccd-stance-lock="));
+  return flag ? flag.slice("--ccd-stance-lock=".length) === "1" : false;
+}
+
 /** Step-capture slice: opt-in output dir; default is the existing OUTPUT_DIR. */
 function outputDirFromArgv(): string {
   const flag = process.argv.find((arg) => arg.startsWith("--output-dir="));
@@ -310,6 +321,8 @@ type FootPlantVideoReport = {
   recorderGlobalPresent: boolean;
   /** Step-capture slice: the --stepping-turn flag value for this run (default false). */
   steppingTurnEnabled: boolean;
+  /** CCD-browser slice: the --ccd-stance-lock flag value for this run (default false). */
+  ccdStanceLockEnabled: boolean;
   /** Step-capture lean slice: --full-body pulls the side view back to head-to-feet (default false). */
   fullBodySideView: boolean;
   fpsCandidates: {
@@ -2339,6 +2352,7 @@ function probeMp4(mp4Path: string): { durationSeconds: number; frameCount: numbe
 async function main(): Promise<void> {
   const outputDir = path.resolve(process.cwd(), outputDirFromArgv());
   const steppingTurnEnabled = steppingTurnEnabledFromArgv();
+  const ccdStanceLockEnabled = ccdStanceLockEnabledFromArgv();
   const fullBodySideView = fullBodyFromArgv();
   const stagingDir = path.resolve(process.cwd(), ".openclinxr/evidence/foot-plant-video-staging");
   await mkdir(outputDir, { recursive: true });
@@ -2354,9 +2368,11 @@ async function main(): Promise<void> {
   ACTIVE_BUNDLE_ROUTE = scenario.bundleRoute;
   const baseBuildUrl = scenario.buildUrl;
   ACTIVE_BUILD_URL = (baseUrl: string) =>
-    baseBuildUrl(baseUrl) + (steppingTurnEnabled ? "&steppingTurn=1" : "");
+    baseBuildUrl(baseUrl)
+    + (steppingTurnEnabled ? "&steppingTurn=1" : "")
+    + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
-  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}\n`);
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}\n`);
   const bundleJson = scenario.bundleJson;
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
@@ -2656,6 +2672,18 @@ async function main(): Promise<void> {
         { stdio: "pipe" },
       );
 
+      // CCD-browser slice: 6 native-resolution full-body stills, evenly spaced
+      // over the walking-phase feet-side assembly frames (native screenshots,
+      // not tiles — per-run still evidence beside the mp4s).
+      const stillPaths: string[] = [];
+      for (let k = 0; k < 6; k += 1) {
+        const pick = asmFiles[Math.min(asmFiles.length - 1, Math.floor(((k + 0.5) / 6) * asmFiles.length))]!;
+        const stillPath = path.join(outputDir, `still-${k}.png`);
+        await copyFile(path.join(stagingDir, "feet-side-asm", pick), stillPath);
+        stillPaths.push(stillPath);
+      }
+      process.stdout.write(`[stills] ${stillPaths.length} native stills -> ${outputDir}\n`);
+
       const fps = frameCounts.feetSide / durations.feetSide;
       const reportDir = outputDirFromArgv();
       const report: FootPlantVideoReport = {
@@ -2666,6 +2694,7 @@ async function main(): Promise<void> {
         driveSource: evidence.driveSource,
         recorderGlobalPresent: false,
         steppingTurnEnabled,
+        ccdStanceLockEnabled,
         fullBodySideView,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },

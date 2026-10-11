@@ -24,6 +24,7 @@ import {
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
+import { readCcdStanceLockEnabled } from "./ccd-stance-lock-query-flag-mod.js";
 import { readSteppingTurnEnabled } from "./stepping-turn-query-flag-mod.js";
 import { findStanceChain } from "./stance-lock-ik.js";
 /**
@@ -216,10 +217,9 @@ export function resolveStationBedsideApproach(
   // backward at (speed at rate 1) x timeScale. The executor must advance the body at that same speed;
   // advancing at the rate-1 speed left the foot outrunning the body by ~0.3 m/s, and the stance lock
   // dragged the body back to hold the pin every step (measured: 0.30 m/s ground speed, lurch 2.25).
-  const playbackTimeScale =
-    context.animationSlot !== undefined
-      ? (resolveLocomotionClipTimeScale(context.animationSlot as never)?.timeScale ?? 1)
-      : 1;
+  const playbackTimeScale = context.animationSlot !== undefined
+    ? (resolveLocomotionClipTimeScale(context.animationSlot as never)?.timeScale ?? 1)
+    : 1;
   const rateOneAdvance = measureStanceGroundAdvance(sampled.samples, {
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
     floorOriginY: 0,
@@ -236,7 +236,7 @@ export function resolveStationBedsideApproach(
     clipAdvance: { ...rateOneAdvance, metersPerSecond: rateOneAdvance.metersPerSecond * playbackTimeScale },
     clipCycleSeconds: sampled.cycleSeconds / playbackTimeScale,
     routeHeadingRadians: headingRadiansToward(intent.start, intent.target.position),
-    steppingTurnEnabled: readSteppingTurnEnabled(),
+    steppingTurnEnabled: readSteppingTurnEnabled(), ccdStanceLockEnabled: readCcdStanceLockEnabled(),
   });
   if ("refused" in approach) {
     state.settled = true;

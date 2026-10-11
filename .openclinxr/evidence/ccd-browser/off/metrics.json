@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.ccd-browser-metrics.v1",
+  "report": ".openclinxr/evidence/ccd-browser/off/foot-plant-video.json",
+  "ccdStanceLockEnabled": false,
+  "steppingTurnEnabled": true,
+  "walkSlideM": 0.5108367285689279,
+  "wholeSlideM": 0.5108367285689279,
+  "maxToeStepM": 0.1361496889663899,
+  "heelMissMedianM": null,
+  "heelMissMaxM": null,
+  "heelMissExposed": false,
+  "arrivalErrM": 0.27505452188861135
+}
