@@ -1,0 +1,145 @@
+{
+  "bars": {
+    "arrivalErrLe": "control + 0.01 m",
+    "maxToeStepLe": "control + 0.02 m",
+    "residualYawLe": "2 deg",
+    "sweptViolations": "zero",
+    "wholeSlideLe": "control - 0.03 m"
+  },
+  "candidateB": {
+    "atOtherRadii": {
+      "note": "radii 0.75 and 1.0 also loop (3.72 m / 4.00 m winners) with stretcher violations; full family table in geometry.json"
+    },
+    "atRMin": {
+      "arcAngleTotalDeg": 106.62,
+      "family": "RSL",
+      "maxLateralM": 1.2092,
+      "pathLengthM": 4.1492,
+      "radiusM": 1.3216,
+      "sweptViolations": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.234
+        }
+      ],
+      "verdict": "FAIL (fixtures)"
+    },
+    "compactButOverBudget": {
+      "arcAngleTotalDeg": 109.66,
+      "family": "LSR",
+      "maxLateralM": 0.2779,
+      "pathLengthM": 1.4643,
+      "perStepYawDeg": 79.29,
+      "phaseBudgetDeg": 30.0,
+      "radiusM": 0.5,
+      "ratioToBudget": 2.64,
+      "sweptViolations": [],
+      "verdict": "not a candidate: below R_MIN, 2.6x over the per-phase yaw budget"
+    },
+    "endTangent": "target facing, exact by construction (closure 0.0 mm / 0.0 deg)"
+  },
+  "candidateC": {
+    "C1pushback": {
+      "detail": "push 0.5/1.0/1.5 m -> winners RSL 5.48/6.56/7.51 m, lateral 1.53/1.77/1.94 m; only the 7.51 m tour is violation-free",
+      "verdict": "FAIL"
+    },
+    "C2waypoint": {
+      "cornerDeg": {
+        "d0.5": 86.1,
+        "d0.75": 98.3,
+        "d1.0": 109.7
+      },
+      "detail": "legs swept-clean at every d, but the corner at W (86-110 deg) exceeds the 63.6 deg in-place turn it replaces; best case d->0 degenerates to the control",
+      "verdict": "FAIL"
+    }
+  },
+  "commit": "8202abdfa",
+  "controlInstrument": "tools/openclinxr/evidence/foot-plant/arrival-turn-cagematch.ts (runApproach + computeTurnQuality; control rows bit-identical to .openclinxr/evidence/approach-take/assay.json CONTROL rows)",
+  "controlRows": {
+    "child": {
+      "maxToeStepPerFrameM": 0.4036,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "residualTurnDeg": 62.95,
+      "routeLengthM": 1.306,
+      "sc05ArrivalErrM": 0.1382,
+      "settledYawErrDeg": 0.0,
+      "settlingSlideM": 0.0827,
+      "slideByPhase": {
+        "hold": null,
+        "settling": 0.0827,
+        "walk": 0.0569
+      },
+      "stanceToeStepPerFrameM": 0.0263,
+      "sweptViolations": 0,
+      "wholeApproachSlideM": 0.458
+    },
+    "nurse": {
+      "maxToeStepPerFrameM": 0.1172,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "residualTurnDeg": 62.15,
+      "routeLengthM": 1.306,
+      "sc05ArrivalErrM": 0.1302,
+      "settledYawErrDeg": 0.0,
+      "settlingSlideM": 0.136,
+      "slideByPhase": {
+        "hold": null,
+        "settling": 0.136,
+        "walk": 0.1364
+      },
+      "stanceToeStepPerFrameM": 0.0444,
+      "sweptViolations": 0,
+      "wholeApproachSlideM": 0.1364
+    },
+    "physician": {
+      "maxToeStepPerFrameM": 0.0679,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "residualTurnDeg": 62.67,
+      "routeLengthM": 1.306,
+      "sc05ArrivalErrM": 0.1588,
+      "settledYawErrDeg": 0.0,
+      "settlingSlideM": 0.12,
+      "slideByPhase": {
+        "hold": null,
+        "settling": 0.12,
+        "walk": 0.0997
+      },
+      "stanceToeStepPerFrameM": 0.0388,
+      "sweptViolations": 0,
+      "wholeApproachSlideM": 0.12
+    }
+  },
+  "geometryInstrument": "tools/openclinxr/evidence/foot-plant/arrival-turn-geometry.ts (turn-center Dubins CSC, closure-verified; swept resample 0.04 m via public bedsideClearanceViolations)",
+  "measuredAt": "2026-10-11T16:00:00.000Z",
+  "minRadiusM": 1.3216,
+  "minRadiusSource": "measured step length 0.6920 m (walk speed 0.8517 m/s over 1.5333 s walking x half the decoded 1625.0 ms clip period) divided by SETTLING_CLIP_TURN_MAX_PHASE_RADIANS (30 deg, clip-driven-settling-turn-mod.ts:83)",
+  "notRun": {
+    "reason": "B fails fixtures at every gait-budget radius and C fails analytically (C1 loops 5.5-7.5 m, C2 corner 86-110 deg > 63.6 deg); walking a fixture-violating path to grade its slide would evidence a path that can never ship",
+    "runtimeBC": null
+  },
+  "priorArtDiagnosis": "wt/turn-freeze 2f8080585 bent the walked path into a circular arc defined by start point + start tangent + end point. Reconstructed from the live SC-05 intent: with zero bias the construction is degenerate (target lies exactly on the start-tangent line, infinite radius, the straight line); with the shipped 0.02 bias the circle has radius 29.4 m and delivers 1.27 deg of the required 63.63 deg, leaving 62.36 deg residual (measured then: 61.6 vs 62.3 deg). A 10x bias increase (0.1) still delivers only 6.36 deg. An arc pinned by start point + start tangent + end point has its END TANGENT fixed by that geometry, not by the target facing, so the arrival heading is unconstrained and the residual turn cannot shrink. Confirmed, not refuted.",
+  "route": {
+    "obstacleIds": [
+      "inpatient_ward_room_v1:stretcher",
+      "inpatient_ward_room_v1:overbed_surface",
+      "inpatient_ward_room_v1:door_leaf",
+      "inpatient_ward_room_v1:wall_board"
+    ],
+    "requiredTurnDeg": 63.63,
+    "startHeadingDeg": 116.37,
+    "targetFacingDeg": 180.0
+  },
+  "verdict": "reject",
+  "verdictReason": "No end-heading-constrained curve fits this room inside the gait yaw budget: at R_MIN 1.32 m the shortest closing Dubins path is a 4.15 m loop deviating 1.21 m laterally through the stretcher (0.234 m overlap); the only compact violation-free fit (R 0.5 m, 1.46 m) demands 79 deg footfall pivots, 2.6x over budget. Pushback (C1) loops worse; facing-ray waypoint (C2) replaces the 63.6 deg turn with an 86-110 deg corner. No runtime code changed; control rows stand as the known-good column."
+}
