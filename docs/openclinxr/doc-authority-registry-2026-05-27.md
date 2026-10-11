@@ -384,6 +384,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/locomotion/approach-take-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/arrival-turn-cagematch-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/pinned-turn-cagematch-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/locomotion/stepping-turn-2026-10-11.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

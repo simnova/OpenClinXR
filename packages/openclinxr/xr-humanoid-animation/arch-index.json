@@ -60,6 +60,7 @@
     "src/locomotion-order-mod.test.ts",
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
+    "src/stepping-turn-plan-mod.test.ts",
     "src/the-arrived-stance-closes.test.ts",
     "src/the-clip-labels-its-own-stance.test.ts",
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
