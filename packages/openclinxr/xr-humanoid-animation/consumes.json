@@ -257,6 +257,11 @@
     "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {
+        "name": "advanceCaseOwnedBedsideApproach",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "applyCaseOwnedStanceLock",
         "kind": "runtime",
         "via": "own-test"

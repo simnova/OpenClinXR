@@ -65,7 +65,7 @@
     "src/the-frame-loop-composes-position-x-from-its-base.test.ts",
     "src/the-locomotion-drive-plays-a-clip.test.ts",
     "src/the-planted-toe-stays-pinned-during-the-turn.test.ts",
-    "src/the-settling-turn-stands-down-after-a-stop.test.ts",
+    "src/the-settling-lock-stands-down-after-a-stop.test.ts",
     "src/the-stance-lock-keeps-clip-speed.test.ts",
     "src/the-standing-actor-does-not-slide-during-idle-sway.test.ts",
     "src/the-standing-foot-stays-above-the-floor.test.ts",

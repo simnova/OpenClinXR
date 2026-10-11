@@ -1,7 +1,7 @@
 {
   "variant": "STOPTAKES",
-  "commit": "d1c6c5d62",
-  "measuredAt": "2026-10-11T02:17:57.963Z",
+  "commit": "da4294ce8",
+  "measuredAt": "2026-10-11T02:36:11.303Z",
   "rows": [
     {
       "variant": "STOPTAKES",
@@ -9,7 +9,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
       "assayGlb": ".openclinxr/evidence/stop-takes/physician/seed8/stop.glb",
       "stopEnabled": true,
-      "commit": "d1c6c5d62",
+      "commit": "da4294ce8",
       "stopClipName": "openclinxr_retarget_kimodo_stop_physician_seed8",
       "stopTriggered": true,
       "stopEntryTimeS": 1.6632475163873461,
@@ -45,7 +45,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
       "assayGlb": ".openclinxr/evidence/stop-takes/nurse/seed3/stop.glb",
       "stopEnabled": true,
-      "commit": "d1c6c5d62",
+      "commit": "da4294ce8",
       "stopClipName": "openclinxr_retarget_kimodo_stop_nurse_seed3",
       "stopTriggered": true,
       "stopEntryTimeS": 1.938707833356825,
@@ -81,7 +81,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
       "assayGlb": ".openclinxr/evidence/stop-takes/child/seed6/stop.glb",
       "stopEnabled": true,
-      "commit": "d1c6c5d62",
+      "commit": "da4294ce8",
       "stopClipName": "openclinxr_retarget_kimodo_stop_child_seed6",
       "stopTriggered": true,
       "stopEntryTimeS": 1.424000793741748,
