@@ -2369,7 +2369,7 @@ async function main(): Promise<void> {
   const baseBuildUrl = scenario.buildUrl;
   ACTIVE_BUILD_URL = (baseUrl: string) =>
     baseBuildUrl(baseUrl)
-    + (steppingTurnEnabled ? "&steppingTurn=1" : "")
+    + (steppingTurnEnabled ? "&steppingTurn=1" : "&steppingTurn=0")
     + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
   process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}\n`);
