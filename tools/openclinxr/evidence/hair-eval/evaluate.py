@@ -182,7 +182,7 @@ def structure_v0(lum, mask):
 
 def structure_v1(lum, mask):
     # Attempt 2 (attempt 1 = mean of (hp/local)^2 gave r13 > target > r45,
-    # see findings.md): strand structure grows with both strand contrast
+    # see findings.txt): strand structure grows with both strand contrast
     # AND strand-bearing area, so total high-pass contrast energy over the
     # eroded interior instead of the area-normalized mean. Same building
     # blocks (hp, local, 3px erosion), different aggregate.

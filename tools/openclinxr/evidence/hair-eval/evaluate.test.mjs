@@ -80,7 +80,7 @@ const missing = run([join(fixtures, "does-not-exist.png"), "--json"]);
 check("missing path exits non-zero", missing.code !== 0, `code=${missing.code}`);
 
 // (S) structure ordering: target > r45 > r13 (falsifiable; attempt history
-// lives in findings.md and report.json negative.attempts)
+// lives in findings.txt and report.json negative.attempts)
 check(
   "structure(target) > structure(r45) > structure(r13)",
   r13 && r45 && target
