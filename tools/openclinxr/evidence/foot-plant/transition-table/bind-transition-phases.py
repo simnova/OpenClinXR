@@ -25,6 +25,8 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 EVID = REPO_ROOT / ".openclinxr/evidence/transition-table/constraints"
 EXPORT_SCRIPT = REPO_ROOT / "tools/openclinxr/factory/kimodo-loop/export_joint_positions_and_contacts.py"
 STATION_SCRIPT = REPO_ROOT / "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py"
+STAMP_SCRIPT = REPO_ROOT / "tools/openclinxr/evidence/foot-plant/transition-table/stamp-walk-fingers.ts"
+PHASES_JSON = REPO_ROOT / ".openclinxr/evidence/transition-table/phases.json"
 ACTOR = REPO_ROOT / "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb"
 MAP = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json"
 
@@ -94,6 +96,17 @@ def main(argv):
             rebind = True
         out_glb = pdir / f"transition-phase{p}.glb"
         out_glb.write_bytes(final_glb.read_bytes())
+        # Finger carry-through (walk grasp is static; bind leaves fingers at rest).
+        phases_doc = json.loads(PHASES_JSON.read_text())
+        clip_time = next(x["clipTimeS"] for x in phases_doc["phases"] if x["phase"] == p)
+        run([
+            "mise", "exec", "--", "tsx", str(STAMP_SCRIPT),
+            "--shipped", str(ACTOR),
+            "--walk-clip", "openclinxr_retarget_walk_source",
+            "--bound", str(out_glb),
+            "--clip", clip,
+            "--time", str(clip_time),
+        ], cwd=REPO_ROOT)
         row = {"phase": p, "clip": clip, "naturalYawDeg": round(yaw, 3),
                "appliedCorrectionDeg": round(corr, 3) if rebind else 0.0,
                "rebindForYaw": rebind, "glb": str(out_glb.relative_to(REPO_ROOT)),

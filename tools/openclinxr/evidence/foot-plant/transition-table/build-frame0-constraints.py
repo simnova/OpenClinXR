@@ -29,8 +29,14 @@ Method per walk phase p:
     root). Head NOT pinned: expand_joint_names supports only those five bases (read from
     kimodo/skeleton/base.py). Locals in the EE dict come from the swing math against the
     SOMA rest skeleton (the correction's fallback embedded as carrier: from_dict FKs
-    local+root, so full locals are required regardless). Planted foot pinned at frame 0
-    only: a remaining-window pin is unstatable without per-frame IK (stated, not hidden).
+    local+root, so full locals are required regardless).
+    Round 2 (handback 2026-10-11): the switch-contact foot is additionally pinned at
+    its frame-0 SOMA position over EVERY frame of its remaining walk-contact window
+    (dedicated left/right-foot subclass dicts), and BOTH feet are pinned at
+    standing-rest offsets from the path-end root over the hold span (path flat there:
+    no conflict). Known tension, stated: the window pin's EE side-effect holds
+    smooth_root_2d frozen while root2d moves it over frames 1..K; both are soft
+    guides and the harness judges the outcome.
 
 In-script verification (no generation burns on a broken solve):
 - frame asserts: toe forward of foot, head above hips, feet lowest, lateral sign (both sides)
@@ -336,13 +342,71 @@ def main(argv):
         c2 = Root2DConstraintSet.from_dict(skel, root2d)
         assert len(c2.frame_indices) == total_frames
 
+        # ---- window pin: the switch-contact foot stays at its frame-0 SOMA position
+        # over its remaining walk-contact window (walk 60 Hz frames -> clip 30 fps).
+        # Faithful per handback 2026-10-11; known tension: the EE side-effect pins
+        # smooth_root_2d frozen at frame-0 XZ for frames 1..K while root2d moves it.
+        # Both are soft guides; the harness judges the outcome.
+        from kimodo.constraints import LeftFootConstraintSet, RightFootConstraintSet
+        side = ph["contactFoot"]
+        W = int(ph.get("windowWalkFrames", 0))
+        K = int(round(W / 2))
+        HOLD_START = int(round((WALK_SECONDS + DECEL_SECONDS) * FPS))
+        assert K < HOLD_START, f"phase {p}: window K={K} overlaps hold at {HOLD_START}"
+        foot_type = "left-foot" if side == "L" else "right-foot"
+        foot_cls = LeftFootConstraintSet if side == "L" else RightFootConstraintSet
+        foot_win = {
+            "type": foot_type,
+            "frame_indices": list(range(K + 1)),
+            "local_joints_rot": [local_aa for _ in range(K + 1)],
+            "root_positions": [root.tolist() for _ in range(K + 1)],
+            "smooth_root_2d": [[root[0], root[2]] for _ in range(K + 1)],
+        }
+        cw = foot_cls.from_dict(skel, foot_win)
+        gw = cw.global_joints_positions.numpy().astype(np.float64)
+        w3 = 0.0
+        for jn in (["LeftFoot", "LeftToeBase"] if side == "L" else ["RightFoot", "RightToeBase"]):
+            for k in range(K + 1):
+                w3 = max(w3, float(np.linalg.norm(gw[k, skel.bone_index[jn]] - pj0[bi[jn]])))
+        assert w3 < 1e-5, f"phase {p}: window-pin round-trip error {w3}"
+
+        # ---- hold pins: both feet planted at standing-rest offsets from the
+        # path-end root over the hold span (path is flat there: no conflict).
+        path_end = path[-1]
+        root_hold = np.array([path_end[0], SOURCE_REST_HIPS_Y, path_end[1]])
+        hold_frames = list(range(HOLD_START, total_frames))
+        zeros_aa = [[[0.0, 0.0, 0.0] for _ in names] for _ in hold_frames]
+        hold_dicts = []
+        for htype, hcls in (("left-foot", LeftFootConstraintSet), ("right-foot", RightFootConstraintSet)):
+            hd = {
+                "type": htype,
+                "frame_indices": hold_frames,
+                "local_joints_rot": zeros_aa,
+                "root_positions": [root_hold.tolist() for _ in hold_frames],
+                "smooth_root_2d": [[root_hold[0], root_hold[2]] for _ in hold_frames],
+            }
+            ch = hcls.from_dict(skel, hd)
+            gh = ch.global_joints_positions.numpy().astype(np.float64)
+            # Standing rest: fk(identity, root_hold) == neutral + root_hold.
+            ref = neutral + root_hold
+            w4 = 0.0
+            for jn in (["LeftFoot", "LeftToeBase"] if htype == "left-foot" else ["RightFoot", "RightToeBase"]):
+                for k in range(len(hold_frames)):
+                    w4 = max(w4, float(np.linalg.norm(gh[k, skel.bone_index[jn]] - ref[bi[jn]])))
+            assert w4 < 1e-5, f"phase {p}: hold-pin {htype} error {w4}"
+            hold_dicts.append(hd)
+
         pdir = out_dir / f"phase{p}"
         pdir.mkdir(parents=True, exist_ok=True)
-        (pdir / "constraints.json").write_text(json.dumps([ee, root2d], indent=1) + "\n")
+        (pdir / "constraints.json").write_text(json.dumps([ee, foot_win, *hold_dicts, root2d], indent=1) + "\n")
         (pdir / "frame0-soma.json").write_text(json.dumps({
             "phase": p,
             "contactFoot": ph["contactFoot"],
             "clipTimeS": ph["clipTimeS"],
+            "windowWalkFrames": W,
+            "windowClipFrames": K,
+            "holdFrames": hold_frames,
+            "holdRoot": root_hold.tolist(),
             "root": root.tolist(),
             "pathDelta": delta.tolist(),
             "hipHeightRatio": HIP_HEIGHT_RATIO,
@@ -353,9 +417,10 @@ def main(argv):
         }, indent=1) + "\n")
         summary.append({"phase": p, "fkErr": worst, "loaderErr": w2,
                         "contact": ph["contactFoot"], "root": [round(float(v), 4) for v in root],
+                        "windowWalkFrames": W, "windowClipFrames": K,
                         "perJointErrM": {k: round(v, 5) for k, v in sorted(errs.items(), key=lambda kv: -kv[1])[:8]}})
         print(f"phase {p}: contact={ph['contactFoot']} fkErr={worst:.2e} loaderErr={w2:.2e} "
-              f"root={[round(float(v),4) for v in root]}", flush=True)
+              f"W={W} K={K} root={[round(float(v),4) for v in root]}", flush=True)
 
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
     print(f"OK {len(summary)} phases -> {out_dir}")

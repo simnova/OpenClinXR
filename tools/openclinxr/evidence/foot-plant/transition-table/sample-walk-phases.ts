@@ -262,7 +262,12 @@ async function main(): Promise<void> {
     let contact: string;
     if (l !== r) contact = l ? "L" : "R";
     else { const pl = pos[toeL]; const pr = pos[toeR]; contact = pl[1] <= pr[1] ? "L" : "R"; }
-    phases.push({ phase: p, clipTimeS: t, frame60Hz: f, contactFoot: contact, labelL: l, labelR: r, bones });
+    // Remaining contact window: walk frames from S (inclusive) while the contact
+    // foot's own cyclic label holds. Drives the transition clip's foot-pin window.
+    const labArr = contact === "L" ? labels.left : labels.right;
+    let windowWalkFrames = 0;
+    while (windowWalkFrames < labArr.length && labArr[(f + windowWalkFrames) % labArr.length]) windowWalkFrames += 1;
+    phases.push({ phase: p, clipTimeS: t, frame60Hz: f, contactFoot: contact, labelL: l, labelR: r, bones, windowWalkFrames });
   }
   const report = {
     schemaVersion: "openclinxr.transition-table-phases.v1",
