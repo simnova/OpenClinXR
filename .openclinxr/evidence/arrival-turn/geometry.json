@@ -1,0 +1,389 @@
+{
+  "measuredAt": "2026-10-11T16:00:48.973Z",
+  "route": {
+    "start": {
+      "x": -1.95,
+      "z": 1.72
+    },
+    "target": {
+      "x": -0.78,
+      "z": 1.1399999995529653
+    },
+    "startHeadingDeg": 116.3688335387572,
+    "targetFacingDeg": 180,
+    "requiredTurnDeg": 63.631166461242756,
+    "chordLenM": 1.3058713568030198,
+    "obstacleCount": 4,
+    "obstacleIds": [
+      "inpatient_ward_room_v1:stretcher",
+      "inpatient_ward_room_v1:overbed_surface",
+      "inpatient_ward_room_v1:door_leaf",
+      "inpatient_ward_room_v1:wall_board"
+    ]
+  },
+  "gait": {
+    "stepLengthM": 0.6919698924301324,
+    "walkSpeedMps": 0.8516552326976216,
+    "walkSeconds": 1.5333333333333334,
+    "clipPeriodMs": 1625.000037252903,
+    "phaseBudgetDeg": 29.999999999999996,
+    "rMinM": 1.3215651462122722
+  },
+  "priorArtArc": [
+    {
+      "bias": 0,
+      "degenerate": true
+    },
+    {
+      "bias": 0.01,
+      "degenerate": false,
+      "radiusM": 58.79387378099305,
+      "startTangentDeg": 115.73252187414477,
+      "endTangentDeg": 117.00514520336962,
+      "residualDeg": 62.99485479663033,
+      "deliveredDeg": 0.6363116646124283
+    },
+    {
+      "bias": 0.02,
+      "degenerate": false,
+      "radiusM": 29.398749853359462,
+      "startTangentDeg": 115.09621020953234,
+      "endTangentDeg": 117.64145686798204,
+      "residualDeg": 62.3585431320179,
+      "deliveredDeg": 1.2726233292248565
+    },
+    {
+      "bias": 0.1,
+      "degenerate": false,
+      "radiusM": 5.891369483356171,
+      "startTangentDeg": 110.0057168926329,
+      "endTangentDeg": 122.73195018488147,
+      "residualDeg": 57.2680498151185,
+      "deliveredDeg": 6.363116646124254
+    }
+  ],
+  "candidateB": [
+    {
+      "radiusM": 0.5,
+      "family": "LSR",
+      "pathLengthM": 1.4642718107614465,
+      "closureErrM": 0,
+      "closureYawErrDeg": 0,
+      "arcAngleTotalDeg": 109.65855921331423,
+      "maxLateralM": 0.2779226216456046,
+      "perStepYawDeg": 79.29390877273632,
+      "withinPhaseBudget": false,
+      "sweptViolations": [],
+      "families": [
+        {
+          "family": "LSR",
+          "pathLengthM": 1.4642718107614465,
+          "arcAngleTotalDeg": 109.65855921331423,
+          "maxLateralM": 0.2779226216456046,
+          "sweptCount": 0
+        },
+        {
+          "family": "LSR",
+          "pathLengthM": 2.4032452683097834,
+          "arcAngleTotalDeg": 217.2569915979664,
+          "maxLateralM": 0.38593427404015246,
+          "sweptCount": 0
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 3.2520366342235043,
+          "arcAngleTotalDeg": 187.97594714027343,
+          "maxLateralM": 0.7925040114928973,
+          "sweptCount": 0
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 4.362731640869864,
+          "arcAngleTotalDeg": 315.2522195544561,
+          "maxLateralM": 0.7220739062167068,
+          "sweptCount": 0
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 4.598669808025005,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 0.9999983739946451,
+          "sweptCount": 0
+        },
+        {
+          "family": "LSL",
+          "pathLengthM": 7.503631167684757,
+          "arcAngleTotalDeg": 656.3688335387571,
+          "maxLateralM": 0.9999997604069866,
+          "sweptCount": 0
+        }
+      ]
+    },
+    {
+      "radiusM": 0.75,
+      "family": "RSL",
+      "pathLengthM": 3.7200418831702784,
+      "closureErrM": 0,
+      "closureYawErrDeg": 0,
+      "arcAngleTotalDeg": 155.56232295166492,
+      "maxLateralM": 1.001548534243799,
+      "perStepYawDeg": 52.86260584849088,
+      "withinPhaseBudget": false,
+      "sweptViolations": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.11520687121188306
+        }
+      ],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 3.7200418831702784,
+          "arcAngleTotalDeg": 155.56232295166492,
+          "maxLateralM": 1.001548534243799,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 5.903295896403621,
+          "arcAngleTotalDeg": 322.3506437026912,
+          "maxLateralM": 1.083076430878162,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 6.304024234587201,
+          "arcAngleTotalDeg": 423.63116646124286,
+          "maxLateralM": 1.499998188794738,
+          "sweptCount": 1
+        },
+        {
+          "family": "LSL",
+          "pathLengthM": 10.6131429775207,
+          "arcAngleTotalDeg": 656.3688335387571,
+          "maxLateralM": 1.4999972316570234,
+          "sweptCount": 1
+        }
+      ]
+    },
+    {
+      "radiusM": 1,
+      "family": "RSL",
+      "pathLengthM": 3.9991696033753446,
+      "closureErrM": 4.440892098500626e-16,
+      "closureYawErrDeg": 0,
+      "arcAngleTotalDeg": 131.00080174033096,
+      "maxLateralM": 1.1273413175905325,
+      "perStepYawDeg": 39.64695438636816,
+      "withinPhaseBudget": false,
+      "sweptViolations": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.23404999999999998
+        }
+      ],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 3.9991696033753446,
+          "arcAngleTotalDeg": 131.00080174033096,
+          "maxLateralM": 1.1273413175905325,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 7.449593055876976,
+          "arcAngleTotalDeg": 328.6955031016327,
+          "maxLateralM": 1.4441233409211143,
+          "sweptCount": 2
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 8.084413598340745,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 1.999961886568332,
+          "sweptCount": 1
+        },
+        {
+          "family": "LSL",
+          "pathLengthM": 13.72670108857654,
+          "arcAngleTotalDeg": 656.3688335387573,
+          "maxLateralM": 1.9999930683781972,
+          "sweptCount": 2
+        }
+      ]
+    },
+    {
+      "radiusM": 1.3215651462122722,
+      "family": "RSL",
+      "pathLengthM": 4.149221990417041,
+      "closureErrM": 2.220446049250313e-16,
+      "closureYawErrDeg": 0,
+      "arcAngleTotalDeg": 106.61788916047809,
+      "maxLateralM": 1.2092448105956233,
+      "perStepYawDeg": 29.999999999999996,
+      "withinPhaseBudget": true,
+      "sweptViolations": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.23404999999999998
+        }
+      ],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 4.149221990417041,
+          "arcAngleTotalDeg": 106.61788916047809,
+          "maxLateralM": 1.2092448105956233,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 9.445584654198385,
+          "arcAngleTotalDeg": 336.23897766684445,
+          "maxLateralM": 1.9085232989205323,
+          "sweptCount": 3
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 10.515959353674129,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 2.6431293875439006,
+          "sweptCount": 2
+        },
+        {
+          "family": "LSL",
+          "pathLengthM": 17.73561630107733,
+          "arcAngleTotalDeg": 656.3688335387573,
+          "maxLateralM": 2.6431302911100767,
+          "sweptCount": 3
+        }
+      ]
+    }
+  ],
+  "candidateC1": [
+    {
+      "pushbackM": 0.5,
+      "closingFamilies": 4,
+      "winnerFamily": "RSL",
+      "winnerLengthM": 5.477712489546471,
+      "winnerLateralM": 1.5346251524840437,
+      "winnerSwept": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.23404999999999998
+        }
+      ],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 5.477712489546471,
+          "arcAngleTotalDeg": 134.92402692304648,
+          "maxLateralM": 1.5346251524840437,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 9.922140307514054,
+          "arcAngleTotalDeg": 327.6099168694649,
+          "maxLateralM": 1.908523968571418,
+          "sweptCount": 3
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 10.733766991195056,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 2.6431171897656838,
+          "sweptCount": 2
+        }
+      ]
+    },
+    {
+      "pushbackM": 1,
+      "closingFamilies": 4,
+      "winnerFamily": "RSL",
+      "winnerLengthM": 6.564722809896519,
+      "winnerLateralM": 1.766715232331485,
+      "winnerSwept": [
+        {
+          "obstacleId": "inpatient_ward_room_v1:stretcher",
+          "overlapMeters": 0.1362541331806454
+        }
+      ],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 6.564722809896519,
+          "arcAngleTotalDeg": 155.73722117266453,
+          "maxLateralM": 1.766715232331485,
+          "sweptCount": 1
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 10.406809757482831,
+          "arcAngleTotalDeg": 322.308931428436,
+          "maxLateralM": 1.9085220658442386,
+          "sweptCount": 3
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 11.112261861370047,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 2.643112949219905,
+          "sweptCount": 1
+        }
+      ]
+    },
+    {
+      "pushbackM": 1.5,
+      "closingFamilies": 4,
+      "winnerFamily": "RSL",
+      "winnerLengthM": 7.50997920960855,
+      "winnerLateralM": 1.936663850767814,
+      "winnerSwept": [],
+      "families": [
+        {
+          "family": "RSL",
+          "pathLengthM": 7.50997920960855,
+          "arcAngleTotalDeg": 171.84520094772654,
+          "maxLateralM": 1.936663850767814,
+          "sweptCount": 0
+        },
+        {
+          "family": "RSL",
+          "pathLengthM": 10.895858282477967,
+          "arcAngleTotalDeg": 318.63825263579344,
+          "maxLateralM": 1.9085177460348048,
+          "sweptCount": 3
+        },
+        {
+          "family": "RSR",
+          "pathLengthM": 11.551754671222007,
+          "arcAngleTotalDeg": 423.6311664612428,
+          "maxLateralM": 2.643129202656837,
+          "sweptCount": 0
+        }
+      ]
+    }
+  ],
+  "candidateC2": [
+    {
+      "waypointDM": 0.5,
+      "cornerDeg": 86.08842816568153,
+      "leg1Swept": [],
+      "leg2Swept": []
+    },
+    {
+      "waypointDM": 0.75,
+      "cornerDeg": 98.26717331407163,
+      "leg1Swept": [],
+      "leg2Swept": []
+    },
+    {
+      "waypointDM": 1,
+      "cornerDeg": 109.74683658603348,
+      "leg1Swept": [],
+      "leg2Swept": []
+    }
+  ]
+}

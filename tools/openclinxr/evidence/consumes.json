@@ -30,6 +30,11 @@
         "via": "path-reach"
       },
       {
+        "name": "bedsideClearanceViolations",
+        "kind": "runtime",
+        "via": "specifier"
+      },
+      {
         "name": "bedsideTargetForClinician",
         "kind": "runtime",
         "via": "path-reach"

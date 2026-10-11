@@ -1,0 +1,112 @@
+{
+  "candidate": "A",
+  "commit": "8202abdfa",
+  "measuredAt": "2026-10-11T15:53:31.101Z",
+  "rows": [
+    {
+      "candidate": "A",
+      "rig": "physician",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+      "commit": "8202abdfa",
+      "routeLengthM": 1.3058713568030198,
+      "travelHeadingDeg": 117.32823212313899,
+      "targetHeadingDeg": 180,
+      "requiredTurnDeg": 62.67176787686102,
+      "residualTurnDeg": 62.67176787686102,
+      "settlingSlideM": 0.1200203383849259,
+      "wholeApproachSlideM": 0.1200203383849259,
+      "slideByPhase": {
+        "walk": 0.0997303855340303,
+        "settling": 0.1200203383849259,
+        "hold": 0
+      },
+      "stepMaxByPhase": {
+        "walk": 0.01557141798491691,
+        "settling": 0.0387848406808507,
+        "hold": 0
+      },
+      "maxToeStepPerFrameM": 0.06794738486622334,
+      "stanceToeStepPerFrameM": 0.0387848406808507,
+      "sc05ArrivalErrM": 0.15882740489228533,
+      "settledYawErrDeg": 0,
+      "sweptViolations": 0,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "walkFrames": 92,
+      "settleFrames": 120
+    },
+    {
+      "candidate": "A",
+      "rig": "nurse",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      "commit": "8202abdfa",
+      "routeLengthM": 1.3058713568030198,
+      "travelHeadingDeg": 117.85243658749509,
+      "targetHeadingDeg": 180,
+      "requiredTurnDeg": 62.14756341250493,
+      "residualTurnDeg": 62.14756341250493,
+      "settlingSlideM": 0.1360341836712718,
+      "wholeApproachSlideM": 0.13635056049882913,
+      "slideByPhase": {
+        "walk": 0.13635056049882913,
+        "settling": 0.1360341836712718,
+        "hold": 0
+      },
+      "stepMaxByPhase": {
+        "walk": 0.013483728550054752,
+        "settling": 0.04442390118398667,
+        "hold": 0
+      },
+      "maxToeStepPerFrameM": 0.11724597288234495,
+      "stanceToeStepPerFrameM": 0.04442390118398667,
+      "sc05ArrivalErrM": 0.1302095634397721,
+      "settledYawErrDeg": 0,
+      "sweptViolations": 0,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "walkFrames": 88,
+      "settleFrames": 121
+    },
+    {
+      "candidate": "A",
+      "rig": "child",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "commit": "8202abdfa",
+      "routeLengthM": 1.3058713568030198,
+      "travelHeadingDeg": 117.04864627876181,
+      "targetHeadingDeg": 180,
+      "requiredTurnDeg": 62.95135372123819,
+      "residualTurnDeg": 62.95135372123819,
+      "settlingSlideM": 0.08270642785545018,
+      "wholeApproachSlideM": 0.4579945847439031,
+      "slideByPhase": {
+        "walk": 0.05685549658927162,
+        "settling": 0.08270642785545018,
+        "hold": 0
+      },
+      "stepMaxByPhase": {
+        "walk": 0.007627264947623226,
+        "settling": 0.026308585738920982,
+        "hold": 0
+      },
+      "maxToeStepPerFrameM": 0.4036281665969933,
+      "stanceToeStepPerFrameM": 0.026308585738920982,
+      "sc05ArrivalErrM": 0.13815482285186464,
+      "settledYawErrDeg": 0,
+      "sweptViolations": 0,
+      "phases": [
+        "walking",
+        "settling",
+        "arrived"
+      ],
+      "walkFrames": 149,
+      "settleFrames": 115
+    }
+  ]
+}
