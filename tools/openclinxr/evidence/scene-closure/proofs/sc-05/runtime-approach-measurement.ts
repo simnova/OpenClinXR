@@ -470,6 +470,12 @@ export function runApproach(input: {
    */
   steppingTurnEnabled?: boolean;
   /**
+   * Default-off: the stance lock solves the stance leg with the hinge-constrained
+   * four-joint solver instead of solveTwoBoneIK. Control runs (absent/false) keep
+   * byte-for-byte behaviour.
+   */
+  ccdStanceLockEnabled?: boolean;
+  /**
    * Diagnostic tap: fired every frame after the stance lock runs with the lock's own
    * applied correction and the slot XZ. Absent in production; used by the stop-takes
    * slide decomposition to attribute slot travel to lock correction vs pose mix.
@@ -554,6 +560,7 @@ export function runApproach(input: {
     clipCycleSeconds: input.decoded.periodMs / 1000,
     routeHeadingRadians,
     steppingTurnEnabled: input.steppingTurnEnabled ?? false,
+    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false,
   });
   if ("refused" in approach) throw new Error(`createCaseOwnedBedsideApproach refused: ${approach.reason}`);
   if (input.stanceLockEnabled === false) {

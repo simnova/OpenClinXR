@@ -1,8 +1,8 @@
 import type { Object3D } from "three";
-import { Vector3 } from "three";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { stanceAtTime } from "./locomotion-stance-labels.js";
 import { capCorrection, compensateSlotForYawChange, computeFootfallBias, findStanceChain, pivotSlotAroundAnchor, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
+import { applyStanceLegSolve } from "./stance-lock-leg-ik-mod.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 
 export { solveTwoBoneIK, applySettledPostureCorrection, pivotSlotAroundAnchor }; // kept resolving after the split
@@ -168,6 +168,10 @@ export function applyStanceLockedGroundAdvance(input: {
    * labelled stance are pinned; the height band is not consulted for crowning.
    */
   clipStance?: { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined;
+  /** Default-off: stance leg uses the hinge four-joint solve instead of the two-bone one. */
+  ccdStanceLockEnabled?: boolean;
+  /** Diagnostic tap: stance-leg heel-target miss in metres per solved frame. */
+  recordHeelMiss?: (missM: number | null) => void;
 }): StanceLockState {
   const { actorSlot, leftToe, rightToe, state } = input;
   actorSlot.updateMatrixWorld(true);
@@ -445,35 +449,14 @@ export function applyStanceLockedGroundAdvance(input: {
     z: anchor.z - heelToToe.z,
   };
 
-  // Max extension is upperLen + lowerLen (full extension), not current hip-to-heel distance
-  hip.updateMatrixWorld(true);
-  knee.updateMatrixWorld(true);
-  heel.updateMatrixWorld(true);
-  const hipWorld = new Vector3().setFromMatrixPosition(hip.matrixWorld);
-  const kneeWorld = new Vector3().setFromMatrixPosition(knee.matrixWorld);
-  const heelWorldPos = new Vector3().setFromMatrixPosition(heel.matrixWorld);
-  const upperLen = hipWorld.distanceTo(kneeWorld);
-  const lowerLen = kneeWorld.distanceTo(heelWorldPos);
-  const maxExtension = upperLen + lowerLen;
-  const softening = 0.005; // 5 mm softening zone
-
-  // Solve IK to place heel at heelTarget (which puts toe at targetToeY)
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
-  if (ikResult) {
-    // Apply local rotations to hip and knee only
-    // hipDelta is a from-identity delta; compose with current animated hip pose
-    hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
-    // kneeQuat is an absolute local bend; set directly
-    knee.quaternion.copy(ikResult.kneeQuat);
-    // Update world matrices so subsequent frames see the corrected pose
-    hip.updateMatrixWorld(true);
-    knee.updateMatrixWorld(true);
-    // Force toe to update
-    toeBone.updateMatrixWorld(true);
-  } else {
-    // Fallback: if IK fails, at least clamp the slot Y to not move
-    // But the requirement is to NOT move actorSlot Y
-  }
+  // Leg IK: two-bone by default; hinge four-joint behind `ccdStanceLockEnabled` (see
+  // `stance-lock-leg-ik-mod.ts` — the shipped math moved there verbatim, only the module moved).
+  applyStanceLegSolve({
+    actorSlot, stanceFoot, hip, knee, heel, toeBone,
+    heelTargetWorld: heelTarget,
+    ccdStanceLockEnabled: input.ccdStanceLockEnabled,
+    recordMiss: input.recordHeelMiss,
+  });
 
   // No clamp here either: same continued pin as the fallback path above.
   return {

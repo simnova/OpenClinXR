@@ -124,6 +124,7 @@ export type CaseOwnedBedsideApproach = {
   steppingTurn: SteppingTurnExecState | null;
   /** Default-off flag: run the stepping turn instead of the clip-driven settling turn. */
   steppingTurnEnabled: boolean;
+  ccdStanceLockEnabled: boolean; // Default-off: hinge four-joint stance-leg solve, not two-bone.
   /**
    * The actor's own standing pose, snapshotted on the first walking frame while the
    * skeleton still holds the idle pose. Drives the arrived close and the settling
@@ -256,6 +257,7 @@ export function createCaseOwnedBedsideApproach(input: {
   routeHeadingRadians: number;
   /** Default-off: run the procedural stepping turn for settling instead of the clip-driven one. */
   steppingTurnEnabled?: boolean;
+  ccdStanceLockEnabled?: boolean;
 }): CaseOwnedBedsideApproach | CaseOwnedBedsideApproachRefusal {
   const floorFrame = input.geometry.floorFrame;
   if (floorFrame === null) {
@@ -353,6 +355,7 @@ export function createCaseOwnedBedsideApproach(input: {
     clipTurn: createClipDrivenSettlingTurnState(),
     steppingTurn: null,
     steppingTurnEnabled: input.steppingTurnEnabled ?? false,
+    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false,
     restStance: null,
     closeState: createArrivalCloseState(),
     floorBandPlant,

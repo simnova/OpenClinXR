@@ -419,6 +419,7 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     floorOriginY: approach.floorOriginY,
     contactBandMeters: approach.contactBandMeters,
     state: approach.lock,
+    ccdStanceLockEnabled: approach.ccdStanceLockEnabled,
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
       : {}),
