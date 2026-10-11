@@ -1,7 +1,6 @@
 /** Public subpath entry: keep-only re-exports. Implementation: ./bedside-approach-execution-mod.js */
 
 export {
-  type ApproachPhase,
   type BedsideApproachExecution,
   beginBedsideApproachExecution,
   SETTLING_FADE_SETTLE_SECONDS,
@@ -14,6 +13,5 @@ export {
   type StopClipTrigger,
   buildDistanceCurve,
   distanceCurveInverseS,
-  rootPathSpeedAtMps,
   sampleStopRootTrackXZ,
 } from "./bedside-approach-stop-mod.js";

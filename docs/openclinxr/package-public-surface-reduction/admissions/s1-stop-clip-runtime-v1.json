@@ -1,0 +1,140 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "s1-stop-clip-runtime-v1",
+  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "bdc78650e26ee0174c36978c207e9ca8396b964dc572d886b84695ccef1e2053",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation",
+    "packages/openclinxr/xr-runtime-state"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "blendStopClipPlayback",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the per-frame time set and weights.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "startStopClipPlayback",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the distance-driven entry.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "STOP_CROSSFADE_SECONDS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts; headless assay mirrors the entry crossfade.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "STOP_PLAYING_FLAG",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the mixer claim flag.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "StopClipPlaybackState",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: placeholder.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "updateStopPlayback",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: the-stop-action-follows-distance.test.ts covers the firing record.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "buildDistanceCurve",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts builds R(t); runtime-state own stop test covers the helper.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "distanceCurveInverseS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts inverts R(t) for entry.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "sampleStopRootTrackXZ",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts samples the root track.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "SETTLING_FADE_SETTLE_SECONDS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-playback-mod.ts settle-blend; headless assay mirrors the same window.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "SETTLING_LEG_WEIGHT_TARGET",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-playback-mod.ts settle-blend weight; headless assay mirrors the same mix.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-runtime-state",
+      "entrypoint": "./bedside-approach-execution",
+      "symbol": "StopClipTrigger",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "s1-stop-worker",
+      "rationale": "S1 distance-indexed stop. Consumer: stop-clip-wiring-mod.ts builds the trigger, stop-clip-playback-mod.ts and case-owned-approach-frame-mod.ts annotate it, runtime-state own stop test constructs it.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    }
+  ],
+  "sourceReview": {
+    "producer": "s1-stop-worker",
+    "reviewer": "PENDING-ORCHESTRATOR-REVIEW",
+    "verdict": "PENDING-ORCHESTRATOR-REVIEW",
+    "scope": "S1 baked walk-to-stop handoff: distance-indexed entry and procedural advance (xr-runtime-state), root-removed distance-driven take playback (xr-humanoid-animation), headless assay mirrors. Inert until a cleared stop take ships; no clinical or Quest claims.",
+    "baseline": "5f193881e"
+  }
+}

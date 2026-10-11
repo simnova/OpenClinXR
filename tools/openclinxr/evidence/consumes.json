@@ -761,6 +761,10 @@
         "name": "updateGeneratedHumanoidAnimations",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "STOP_CROSSFADE_SECONDS",
+        "kind": "runtime"
       }
     ]
   },
@@ -895,6 +899,14 @@
         "name": "beginBedsideApproachExecution",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "SETTLING_FADE_SETTLE_SECONDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "SETTLING_LEG_WEIGHT_TARGET",
+        "kind": "runtime"
       }
     ]
   },

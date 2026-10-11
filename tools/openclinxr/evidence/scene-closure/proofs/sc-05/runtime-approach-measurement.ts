@@ -38,11 +38,11 @@ import {
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
 } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.js";
-import { STOP_CROSSFADE_SECONDS } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/stop-clip-wiring-mod.js";
+import { STOP_CROSSFADE_SECONDS } from "@openclinxr/xr-humanoid-animation";
 import {
   SETTLING_FADE_SETTLE_SECONDS,
   SETTLING_LEG_WEIGHT_TARGET,
-} from "../../../../../../packages/openclinxr/xr-runtime-state/src/bedside-approach-execution-mod.js";
+} from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { observeMountedApproachGeometry } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/mounted-approach-geometry.js";
 import { resolveEffectiveVerticalOffsetMeters } from "../../../../../../packages/openclinxr/xr-pose/src/actor-floor-composition.js";
 import { supportedActorPlacementPosition } from "../../../../../../packages/openclinxr/xr-runtime-state/src/supported-actor-placement.js";

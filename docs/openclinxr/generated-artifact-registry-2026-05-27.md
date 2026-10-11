@@ -25,7 +25,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 253
-- keep-evidence: 1941
+- keep-evidence: 1942
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3837,6 +3837,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.
+- `docs/openclinxr/package-public-surface-reduction/admissions/s1-stop-clip-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/staging-layout-view-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/startup-cast-v1.json` - keep-evidence; keep; Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast.
 - `docs/openclinxr/package-public-surface-reduction/admissions/teeth-viseme-consumers-v1.json` - keep-evidence; keep; This session re-admits the viseme symbols bound by couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts.

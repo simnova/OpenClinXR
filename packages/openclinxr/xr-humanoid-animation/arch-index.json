@@ -15,7 +15,11 @@
     "HumanoidSpeechPlayback",
     "MouthGazePoseComparatorEvidenceRecord",
     "RuntimeHumanoidActingCueEvidenceRecord",
+    "STOP_CROSSFADE_SECONDS",
+    "STOP_PLAYING_FLAG",
+    "StopClipPlaybackState",
     "applyHumanoidMorphTargetCue",
+    "blendStopClipPlayback",
     "buildHumanoidSpeechEvidence",
     "createHumanoidEmotionExpressionState",
     "humanoidDialogueDurationMs",
@@ -24,11 +28,19 @@
     "orientHumanoidTowardGazeTarget",
     "resolveHumanoidGazeTargetWorld",
     "startHumanoidEmotionTransition",
+    "startStopClipPlayback",
     "updateGeneratedHumanoidAnimations",
-    "updateHumanoidEmotionExpression"
+    "updateHumanoidEmotionExpression",
+    "updateStopPlayback"
   ],
   "exportSummaries": {
-    "isGeneratedRuntimeDrive": "Local type-guard twin: keep call sites honest about unshaped floor userData."
+    "STOP_CROSSFADE_SECONDS": "Walk-to-stop crossfade window in seconds: walk fades 1 to 0 while the stop fades 0 to 1.",
+    "STOP_PLAYING_FLAG": "Distance-indexed stop-take playback: start the root-removed take at the entry clip time (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry crossfade, and manage stopping entry, crossfade, exits, and the settle-blend.",
+    "StopClipPlaybackState": "The slice of the case-owned approach the stop mixer touches.",
+    "blendStopClipPlayback": "Distance-indexed stop-take playback: start the root-removed take at the entry clip time (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry crossfade, and manage stopping entry, crossfade, exits, and the settle-blend.",
+    "isGeneratedRuntimeDrive": "Local type-guard twin: keep call sites honest about unshaped floor userData.",
+    "startStopClipPlayback": "Distance-indexed stop-take playback: start the root-removed take at the entry clip time (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry crossfade, and manage stopping entry, crossfade, exits, and the settle-blend.",
+    "updateStopPlayback": "Distance-indexed stop-take playback: start the root-removed take at the entry clip time (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry crossfade, and manage stopping entry, crossfade, exits, and the settle-blend."
   },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
@@ -56,6 +68,7 @@
     "src/the-stance-lock-keeps-clip-speed.test.ts",
     "src/the-standing-actor-does-not-slide-during-idle-sway.test.ts",
     "src/the-standing-foot-stays-above-the-floor.test.ts",
+    "src/the-stop-action-follows-distance.test.ts",
     "src/the-walk-action-timescale-matches-the-executor.test.ts",
     "src/the-walking-foot-stays-above-the-floor.test.ts"
   ],

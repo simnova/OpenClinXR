@@ -240,5 +240,31 @@
         "via": "own-test"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": "./bedside-approach-execution",
+    "names": [
+      {
+        "name": "BedsideApproachExecution",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "buildDistanceCurve",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "stepBedsideApproachExecution",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "StopClipTrigger",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]

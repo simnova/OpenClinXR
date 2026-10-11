@@ -1,7 +1,7 @@
 {
   "variant": "S1STOP",
-  "commit": "0a79a28cf",
-  "measuredAt": "2026-10-10T23:55:06.452Z",
+  "commit": "5f193881e",
+  "measuredAt": "2026-10-11T00:49:10.624Z",
   "rows": [
     {
       "variant": "S1STOP",
@@ -9,7 +9,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
       "assayGlb": ".openclinxr/evidence/s1-stop/physician-stop.glb",
       "stopEnabled": false,
-      "commit": "0a79a28cf",
+      "commit": "5f193881e",
       "stopClipName": null,
       "stopTriggered": false,
       "stopEntryTimeS": null,
@@ -44,7 +44,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
       "assayGlb": ".openclinxr/evidence/s1-stop/nurse-stop.glb",
       "stopEnabled": false,
-      "commit": "0a79a28cf",
+      "commit": "5f193881e",
       "stopClipName": null,
       "stopTriggered": false,
       "stopEntryTimeS": null,
@@ -79,7 +79,7 @@
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
       "assayGlb": ".openclinxr/evidence/s1-stop/child-stop.glb",
       "stopEnabled": false,
-      "commit": "0a79a28cf",
+      "commit": "5f193881e",
       "stopClipName": null,
       "stopTriggered": false,
       "stopEntryTimeS": null,

@@ -219,6 +219,36 @@
         "name": "updateHumanoidEmotionExpression",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "blendStopClipPlayback",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "startStopClipPlayback",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STOP_CROSSFADE_SECONDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STOP_PLAYING_FLAG",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateStopPlayback",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "StopClipPlaybackState",
+        "kind": "type",
+        "via": "own-test"
       }
     ]
   },
@@ -333,6 +363,30 @@
       {
         "name": "travelYawForClipForward",
         "kind": "runtime"
+      },
+      {
+        "name": "buildDistanceCurve",
+        "kind": "runtime"
+      },
+      {
+        "name": "distanceCurveInverseS",
+        "kind": "runtime"
+      },
+      {
+        "name": "sampleStopRootTrackXZ",
+        "kind": "runtime"
+      },
+      {
+        "name": "SETTLING_FADE_SETTLE_SECONDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "SETTLING_LEG_WEIGHT_TARGET",
+        "kind": "runtime"
+      },
+      {
+        "name": "StopClipTrigger",
+        "kind": "type"
       }
     ]
   },

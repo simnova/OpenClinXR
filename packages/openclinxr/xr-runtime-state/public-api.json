@@ -120,7 +120,13 @@
     ],
     "./bedside-approach-execution": [
       "BedsideApproachExecution",
+      "SETTLING_FADE_SETTLE_SECONDS",
+      "SETTLING_LEG_WEIGHT_TARGET",
+      "StopClipTrigger",
       "beginBedsideApproachExecution",
+      "buildDistanceCurve",
+      "distanceCurveInverseS",
+      "sampleStopRootTrackXZ",
       "stepBedsideApproachExecution",
       "travelYawForClipForward"
     ],

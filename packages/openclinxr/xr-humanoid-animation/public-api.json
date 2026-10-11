@@ -12,7 +12,11 @@
       "HumanoidSpeechPlayback",
       "MouthGazePoseComparatorEvidenceRecord",
       "RuntimeHumanoidActingCueEvidenceRecord",
+      "STOP_CROSSFADE_SECONDS",
+      "STOP_PLAYING_FLAG",
+      "StopClipPlaybackState",
       "applyHumanoidMorphTargetCue",
+      "blendStopClipPlayback",
       "buildHumanoidSpeechEvidence",
       "createHumanoidEmotionExpressionState",
       "humanoidDialogueDurationMs",
@@ -21,8 +25,10 @@
       "orientHumanoidTowardGazeTarget",
       "resolveHumanoidGazeTargetWorld",
       "startHumanoidEmotionTransition",
+      "startStopClipPlayback",
       "updateGeneratedHumanoidAnimations",
-      "updateHumanoidEmotionExpression"
+      "updateHumanoidEmotionExpression",
+      "updateStopPlayback"
     ],
     "./case-owned-approach-runtime": [
       "CaseOwnedApproachFrame",

@@ -28,6 +28,27 @@ import { createStanceLockState } from "./stance-lock-mod.js";
 export const STOP_PLAYING_FLAG = "openClinXrStopClipPlaying";
 
 /**
+ * The slice of the case-owned approach the stop mixer touches. Narrower than the full
+ * approach type on purpose: `CaseOwnedBedsideApproach` carries a REMOVE disposition in the
+ * frozen surface review and must not be republished, while headless tests still need a
+ * named, admitted type to fabricate. The frame module passes the whole approach, which stays
+ * assignable; every function in this module takes exactly this.
+ */
+export type StopClipPlaybackState = Pick<
+  CaseOwnedBedsideApproach,
+  | "stanceLabelSlot"
+  | "stanceLabels"
+  | "stopWiring"
+  | "execution"
+  | "lock"
+  | "lockArmed"
+  | "stopFired"
+  | "stopSettleBlendT"
+  | "travelHeadingRadians"
+  | "clipCycleSeconds"
+>;
+
+/**
  * The walk clip's stance reading for this frame. Resolved lazily and cached on the approach the
  * first frame either the walking lock or the stop trigger needs it.
  *
@@ -38,7 +59,7 @@ export const STOP_PLAYING_FLAG = "openClinXrStopClipPlaying";
  * labels for free on first use; the userData cache makes repeat calls a read, not a measurement.
  */
 export function resolveClipStanceForFrame(
-  approach: CaseOwnedBedsideApproach,
+  approach: StopClipPlaybackState,
 ): { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined {
   const stanceSlot = approach.stanceLabelSlot;
   if (stanceSlot === null || stanceSlot.mixer === undefined) return undefined;
@@ -60,7 +81,7 @@ export function resolveClipStanceForFrame(
  * action at all — the executor's clip time is the single source in both paths.
  */
 export function resolveStopStanceForFrame(
-  approach: CaseOwnedBedsideApproach,
+  approach: StopClipPlaybackState,
 ): { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined {
   const wiring = approach.stopWiring;
   if (!wiring) return undefined;
@@ -77,7 +98,7 @@ export function resolveStopStanceForFrame(
  * clip time derived from remaining. Resolved while walking AND while stopping: the executor
  * needs the trigger config on every stopping frame, not just the entry.
  */
-export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
+export function resolveStopTriggerInput(approach: StopClipPlaybackState): {
   stop: StopClipTrigger | null;
 } {
   const phase = approach.execution.phase;
@@ -109,14 +130,14 @@ export function resolveStopTriggerInput(approach: CaseOwnedBedsideApproach): {
   };
 }
 
-function stopMixerAction(approach: CaseOwnedBedsideApproach) {
+function stopMixerAction(approach: StopClipPlaybackState) {
   const slot = approach.stanceLabelSlot;
   const wiring = approach.stopWiring;
   if (slot?.mixer === undefined || !wiring) return null;
   return slot.mixer.existingAction(wiring.noRootClip);
 }
 
-function walkMixerAction(approach: CaseOwnedBedsideApproach) {
+function walkMixerAction(approach: StopClipPlaybackState) {
   const slot = approach.stanceLabelSlot;
   if (slot?.mixer === undefined) return null;
   const clipName = slot.locomotionClipName;
@@ -134,7 +155,7 @@ function walkMixerAction(approach: CaseOwnedBedsideApproach) {
  * stays continuous for the settling turn. The walk-phase chain claim stays in place through
  * the handoff: the same locomotion owner keeps driving the legs.
  */
-export function startStopClipPlayback(approach: CaseOwnedBedsideApproach, entryTimeS: number): void {
+export function startStopClipPlayback(approach: StopClipPlaybackState, entryTimeS: number): void {
   const slot = approach.stanceLabelSlot;
   const wiring = approach.stopWiring;
   if (slot?.mixer === undefined || !wiring) return;
@@ -155,7 +176,7 @@ export function startStopClipPlayback(approach: CaseOwnedBedsideApproach, entryT
   (slot.root.userData as Record<string, unknown>)[STOP_PLAYING_FLAG] = true;
 }
 
-export function blendStopClipPlayback(approach: CaseOwnedBedsideApproach, elapsedSeconds: number): void {
+export function blendStopClipPlayback(approach: StopClipPlaybackState, elapsedSeconds: number): void {
   const weight = Math.min(1, elapsedSeconds / STOP_CROSSFADE_SECONDS);
   const stopAction = stopMixerAction(approach);
   // Distance drive: the pose follows the remaining distance, set explicitly every frame.
@@ -176,7 +197,7 @@ export function blendStopClipPlayback(approach: CaseOwnedBedsideApproach, elapse
  * stopping-to-settling settle-blend with its per-frame advance.
  */
 export function updateStopPlayback(
-  approach: CaseOwnedBedsideApproach,
+  approach: StopClipPlaybackState,
   previousPhase: string,
   deltaSeconds: number,
   fired: { trigger: StopClipTrigger } | null,
@@ -210,7 +231,7 @@ export function updateStopPlayback(
 }
 
 /** Any exit from stopping: park the stop action and hand the mixer back to the consumer. */
-export function teardownStopClipPlayback(approach: CaseOwnedBedsideApproach): void {
+export function teardownStopClipPlayback(approach: StopClipPlaybackState): void {
   const stopAction = stopMixerAction(approach);
   if (stopAction) {
     stopAction.setEffectiveWeight(0);
@@ -229,7 +250,7 @@ export function teardownStopClipPlayback(approach: CaseOwnedBedsideApproach): vo
  * stands down until the blend ends (flag stays set) and resumes from the synced ramp. The walk
  * clip's frame 0 is its symmetric rest frame, so even the fallback opens near standing.
  */
-export function beginStopSettleBlend(approach: CaseOwnedBedsideApproach): void {
+export function beginStopSettleBlend(approach: StopClipPlaybackState): void {
   const slot = approach.stanceLabelSlot;
   if (slot?.mixer === undefined) return;
   const walkAction = walkMixerAction(approach);
@@ -249,7 +270,7 @@ export function beginStopSettleBlend(approach: CaseOwnedBedsideApproach): void {
  * clears with the consumer's ramp synced to the blend end, and the consumer owns the mixer
  * again. Any exit from settling mid-blend finishes immediately.
  */
-export function updateStopSettleBlend(approach: CaseOwnedBedsideApproach, deltaSeconds: number): void {
+export function updateStopSettleBlend(approach: StopClipPlaybackState, deltaSeconds: number): void {
   const started = approach.stopSettleBlendT;
   if (started === null || started === undefined) return;
   if (approach.execution.phase !== "settling") {

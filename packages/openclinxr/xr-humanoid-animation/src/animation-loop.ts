@@ -26,7 +26,7 @@ import {
   visemeOpenness,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
-import { driveSlotLocomotion } from "./locomotion-clip-playback.js";
+import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
 import {
   applyLocomotionOrderStanceLocks,
   createLocomotionOrderRegistry,

@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
+import type { StopClipPlaybackState } from "./index.js";
 import {
   blendStopClipPlayback,
   startStopClipPlayback,
+  STOP_CROSSFADE_SECONDS,
   STOP_PLAYING_FLAG,
   updateStopPlayback,
-} from "./stop-clip-playback-mod.js";
-import { STOP_CROSSFADE_SECONDS } from "./stop-clip-wiring-mod.js";
+} from "./index.js";
 
 /**
  * The stop action is distance-driven: it starts at the entry clip time with timeScale 0, so
@@ -21,7 +21,7 @@ const DURATION = 5.5;
 const T0 = 1.25;
 
 function distanceSlot(): {
-  approach: CaseOwnedBedsideApproach;
+  approach: StopClipPlaybackState;
   mixer: THREE.AnimationMixer;
   walkClip: THREE.AnimationClip;
   stopClip: THREE.AnimationClip;
@@ -74,7 +74,7 @@ function distanceSlot(): {
     lockArmed: false,
     stopFired: null,
     stopSettleBlendT: null,
-  } as unknown as CaseOwnedBedsideApproach;
+  } as unknown as StopClipPlaybackState;
   return { approach, mixer, walkClip, stopClip };
 }
 

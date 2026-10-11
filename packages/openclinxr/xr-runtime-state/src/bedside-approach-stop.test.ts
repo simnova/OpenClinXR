@@ -2,9 +2,10 @@ import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-app
 import { describe, expect, it } from "vitest";
 import {
   type BedsideApproachExecution,
+  buildDistanceCurve,
   stepBedsideApproachExecution,
-} from "./bedside-approach-execution-mod.js";
-import { buildDistanceCurve, type StopClipTrigger } from "./bedside-approach-stop-mod.js";
+  type StopClipTrigger,
+} from "./bedside-approach-execution.js";
 
 /**
  * The distance-indexed stop handoff: R-range entry with no stance gate, procedural stopping

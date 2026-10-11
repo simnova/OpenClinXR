@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1941,
+    "keep-evidence": 1942,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26563,6 +26563,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/s1-stop-clip-runtime-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/staging-layout-view-v1.json",

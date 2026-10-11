@@ -27,6 +27,29 @@ export type {
   MouthGazePoseComparatorEvidenceRecord,
   RuntimeHumanoidActingCueEvidenceRecord,
 } from "./speech-evidence.js";
+/**
+ * Distance-indexed stop-take playback: start the root-removed take at the entry clip time
+ * (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry
+ * crossfade, and manage stopping entry, crossfade, exits, and the settle-blend.
+ */
+export {
+  blendStopClipPlayback,
+  startStopClipPlayback,
+  STOP_PLAYING_FLAG,
+  updateStopPlayback,
+} from "./stop-clip-playback-mod.js";
+/** Walk-to-stop crossfade window in seconds: walk fades 1 to 0 while the stop fades 0 to 1. */
+export {
+  STOP_CROSSFADE_SECONDS,
+} from "./stop-clip-wiring-mod.js";
+/**
+ * The slice of the case-owned approach the stop mixer touches. Narrower than the full
+ * approach type, which the frozen surface review keeps off the public surface: tests
+ * fabricate exactly this.
+ */
+export type {
+  StopClipPlaybackState,
+} from "./stop-clip-playback-mod.js";
 export type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
