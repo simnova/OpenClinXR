@@ -462,6 +462,12 @@ export function runApproach(input: {
   stopEnabled?: boolean;
   /** Fired every frame; return an override for the observed geometry revision or support state. */
   perturb?: (frameIndex: number) => { geometryRevision?: string; supportAccepted?: boolean } | undefined;
+  /**
+   * Diagnostic tap: fired every frame after the stance lock runs with the lock's own
+   * applied correction and the slot XZ. Absent in production; used by the stop-takes
+   * slide decomposition to attribute slot travel to lock correction vs pose mix.
+   */
+  recordLock?: (frameIndex: number, correctionMeters: { x: number; z: number }, slotXz: { x: number; z: number }) => void;
 }): ApproachRun {
   const slot = input.ward.roots.get("additional_cast");
   if (slot === undefined) throw new Error("the additional_cast slot was not staged");
@@ -806,6 +812,9 @@ export function runApproach(input: {
     // `updateGeneratedHumanoidAnimations` consumes it, so a lock folded into the drive step reads
     // the previous frame's pose. Measured in a browser that way: 4.09996 m of total slide.
     applyCaseOwnedStanceLock(approach, dt);
+    if (input.recordLock) {
+      input.recordLock(index, { ...approach.lock.correctionMeters }, { x: slot.position.x, z: slot.position.z });
+    }
     locomotionActive = frame.locomotion > 0;
     const relocked = frame;
     frames.push(relocked);

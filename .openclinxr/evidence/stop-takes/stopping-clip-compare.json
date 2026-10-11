@@ -1,0 +1,87 @@
+{
+  "physician": {
+    "arrivalErrM": 0.013671977871390855,
+    "windows": [
+      {
+        "foot": "left",
+        "windowMs": [
+          2416.6667461395264,
+          2708.3332538604736
+        ],
+        "frames": 17,
+        "runtimeTravelM": 0.018177333073485208,
+        "clipTravelM": 0.03206279133885392
+      },
+      {
+        "foot": "right",
+        "windowMs": [
+          3083.3332538604736,
+          3250
+        ],
+        "frames": 9,
+        "runtimeTravelM": 0.009841048007510862,
+        "clipTravelM": 0.01171320561528984
+      }
+    ]
+  },
+  "nurse": {
+    "arrivalErrM": 0.01546241464605237,
+    "windows": [
+      {
+        "foot": "left",
+        "windowMs": [
+          2208.3332538604736,
+          2416.6667461395264
+        ],
+        "frames": 12,
+        "runtimeTravelM": 0.01976398379244711,
+        "clipTravelM": 0.0061720878102488694
+      },
+      {
+        "foot": "left",
+        "windowMs": [
+          3208.3332538604736,
+          3375
+        ],
+        "frames": 10,
+        "runtimeTravelM": 0.03176360682159513,
+        "clipTravelM": 0.005350114827433326
+      },
+      {
+        "foot": "right",
+        "windowMs": [
+          2791.6667461395264,
+          3041.6667461395264
+        ],
+        "frames": 14,
+        "runtimeTravelM": 0.025678628333451553,
+        "clipTravelM": 0.007450211953147035
+      }
+    ]
+  },
+  "child": {
+    "arrivalErrM": 0.011509456227600436,
+    "windows": [
+      {
+        "foot": "left",
+        "windowMs": [
+          3083.3332538604736,
+          3250
+        ],
+        "frames": 10,
+        "runtimeTravelM": 0.008215431109542719,
+        "clipTravelM": 0.01642928596264314
+      },
+      {
+        "foot": "right",
+        "windowMs": [
+          2500,
+          2666.6667461395264
+        ],
+        "frames": 10,
+        "runtimeTravelM": 0.009270886568917884,
+        "clipTravelM": 0.009065291280263022
+      }
+    ]
+  }
+}

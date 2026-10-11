@@ -109,3 +109,65 @@ is in take entry continuity, not yaw: residual yaws read 0.000 deg on all rigs.
   `sweep.json` but not root-caused.
 - ui-xr / licence / architecture suites not run (nothing shipped; shipped bytes proven
   untouched by bit-identical control rows). No browser capture (ship-gated).
+
+## Slide decomposition and fix attempt — 2026-10-11 (no ship)
+
+The selected takes stance-slide <= 0.02 m offline, yet the runtime assay showed
+whole-approach slide 0.158-0.204 m and stop-window stance step 0.054-0.085 m.
+Measured before changing anything (`.openclinxr/evidence/stop-takes/slide-decomposition.json`,
+lock-off via a temporary diagnostic since reverted).
+
+Per rig x phase x lock (slideM median / maxStanceStepM, metres; settling includes arrived):
+
+| rig | lock | crossfade | stopping | settling |
+| physician 8 | on | 0.5719 / 0.0833 | 0.0364 / 0.0083 | 0.0226 / 0.0354 |
+| physician 8 | off | (no labels) | 0.0182 / 0.0024 | no band windows |
+| nurse 3 | on | 0.3149 / 0.0679 | 0.0647 / 0.0118 | 0.0294 / 0.0294 |
+| nurse 3 | off | (no labels) | 0.0257 / 0.0040 | 0.0860 / 0.0533 |
+| child 6 | on | 0.1580 / 0.0536 | 0.0246 / 0.0050 | 0.0251 / 0.0278 |
+| child 6 | off | (no labels) | 0.0093 / 0.0017 | 0.3327 / 0.0349 |
+
+Lock-off arrivals: 0.011-0.016 (vs 0.024-0.125 lock-on). Lock-off settled yaw: ~62-63
+deg on all rigs — the settling turn is load-bearing for the residual bar.
+
+Stopping phase, lock off, planted-toe world travel vs the same toe in the bound clip
+at the same clip times (per contact window): physician 0.0182/0.0098 vs 0.0321/0.0117;
+nurse 0.0198/0.0318/0.0257 vs 0.0062/0.0054/0.0075; child 0.0082/0.0093 vs 0.0164/0.0091.
+The runtime reproduces the take within ~1-3 cm per window.
+
+Component verdict:
+
+- Crossfade pose mix (take-side): 0.16-0.57 m stance travel over the 16-frame
+  walk-to-stop morph; all stopStep maxima live here. Lock on/off single-frame steps
+  identical (nurse 0.0764 both) — no minimal runtime fix (entry phase mismatch).
+- Settling turn pivot/pin (load-bearing): slot travel 0.15-0.22 m with lock vs 0.0
+  without; pivot arcs are by-construction turn motion and the turn is required for
+  the residual bar. Not removable.
+- Stopping pin: exonerated — slot travel identical lock on/off (e.g. 1.0667 vs
+  1.0617); forward drift is deliberately uncorrected (no-backward clamp), lateral
+  only. Stopping slide stays 0.02-0.06.
+- Procedural slot advance vs take root path: minor (+1-3 cm per window, above).
+- Settle morphs (blend 0.7-0.9 m over 18 frames; consumer rest morph 0.26 m):
+  structural production mixer behavior.
+
+Fixes applied (same component: settling-phase post-stop handling), each gated so
+walk-only control rows stay bit-identical, each with a failing-first unit test:
+
+- Arrived close re-target (`recaptureStopRestStance`): re-capture rest from the
+  take's hold pose at stopping-to-settling instead of converging stop-planted feet
+  into walk-start rest. Arrived stillness improved ~8x (settling bucket
+  0.19/0.18/0.08 to 0.023/0.029/0.025).
+- Settling-turn pin stand-down (`postStop` gate): skip pin/lift when settling after
+  a stop with residual already under tolerance. Signalled by the executor's stop
+  clip time, which persists through settling/arrived — `stopFired` is unusable
+  (wiring resolves a frame after the entry branch fires, so it stays null).
+
+Re-measured assay: bars still fail on every rig (slide 0.204/0.181/0.158;
+stopStep 0.085/0.070/0.054). The assay's slide bar grades the settling TURN phase
+(load-bearing) and its stopStep bar grades the crossfade morph (take-side);
+neither fix moves them. Ship decision: NO SHIP, second confirmation. Shipped GLBs
+untouched; no provenance freeze regen; no capture.
+
+Deeper follow-ups: take entry-phase alignment (crossfade), turn-pivot cost
+(residual bar's price), footfall-bias spread (documented arrival keeper, do not
+touch for slide).

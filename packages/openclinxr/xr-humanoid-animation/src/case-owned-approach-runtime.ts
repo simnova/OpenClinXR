@@ -14,3 +14,10 @@ export {
   applyCaseOwnedStanceLock,
   sampleLocomotionStanceTrack,
 } from "./case-owned-approach-frame-mod.js";
+export {
+  applyClipDrivenSettlingTurn,
+  createClipDrivenSettlingTurnState,
+} from "./clip-driven-settling-turn-mod.js";
+export {
+  recaptureStopRestStance,
+} from "./stop-rest-recapture-mod.js";

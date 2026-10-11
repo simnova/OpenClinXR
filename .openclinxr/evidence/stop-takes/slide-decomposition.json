@@ -1,0 +1,324 @@
+{
+  "schemaVersion": "openclinxr.stop-slide-decomposition.v1",
+  "buckets": "walk | crossfade (first 0.25 s of stopping) | stopping (rest) | settling (incl arrived)",
+  "rigs": {
+    "physician": {
+      "lockOn": {
+        "arrivalErrM": 0.0236329317970853,
+        "settledYawErrDeg": 0,
+        "triggered": true,
+        "rMaxM": 1.7745248355574588,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": 0,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.5804070768793033
+          },
+          "crossfade": {
+            "slideM": 0.5719379027288424,
+            "stanceRuns": 2,
+            "maxStanceStepM": 0.08332021636677318,
+            "frames": 16,
+            "lockCorrectionSumM": 0.31880782548599473,
+            "slotTravelM": 0.20405731794844334,
+            "unlabeledToeTravelM": 1.2190881644343259
+          },
+          "stopping": {
+            "slideM": 0.03636130099992697,
+            "stanceRuns": 3,
+            "maxStanceStepM": 0.008324516883318792,
+            "frames": 134,
+            "lockCorrectionSumM": 5.717284433049063,
+            "slotTravelM": 1.066725784482137,
+            "unlabeledToeTravelM": 1.4634423428658532
+          },
+          "settling": {
+            "slideM": 0.022596399565419315,
+            "stanceRuns": 9,
+            "maxStanceStepM": 0.03537443876662604,
+            "frames": 569,
+            "lockCorrectionSumM": 49.22334552548107,
+            "slotTravelM": 0.19849132312193865,
+            "unlabeledToeTravelM": 1.2333882533907894
+          }
+        }
+      },
+      "lockOff": {
+        "arrivalErrM": 0.013671977871390855,
+        "settledYawErrDeg": 62.67176787686102,
+        "triggered": true,
+        "rMaxM": 1.7745248355574588,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.5804070768793033
+          },
+          "crossfade": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 16,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0.20328677173935789,
+            "unlabeledToeTravelM": 1.2185943226037759
+          },
+          "stopping": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 134,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 1.061707789118188,
+            "unlabeledToeTravelM": 1.4668365046131997
+          },
+          "settling": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 569,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 1.035694959061267
+          }
+        },
+        "stoppingClipCompare": [
+          {
+            "foot": "left",
+            "runtimeTravelM": 0.018177333073485208,
+            "clipTravelM": 0.3077486721968723,
+            "frames": 17
+          },
+          {
+            "foot": "right",
+            "runtimeTravelM": 0.009841048007510862,
+            "clipTravelM": 0.0046615936463007745,
+            "frames": 9
+          }
+        ]
+      }
+    },
+    "nurse": {
+      "lockOn": {
+        "arrivalErrM": 0.12530198294762535,
+        "settledYawErrDeg": 0,
+        "triggered": true,
+        "rMaxM": 2.152476026536229,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": 0,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.6246052658107238
+          },
+          "crossfade": {
+            "slideM": 0.31491506231390354,
+            "stanceRuns": 3,
+            "maxStanceStepM": 0.06794424751940371,
+            "frames": 16,
+            "lockCorrectionSumM": 0.24137738488293267,
+            "slotTravelM": 0.25246660371762353,
+            "unlabeledToeTravelM": 1.4911564879828172
+          },
+          "stopping": {
+            "slideM": 0.0647419751424375,
+            "stanceRuns": 4,
+            "maxStanceStepM": 0.0117906644365969,
+            "frames": 129,
+            "lockCorrectionSumM": 3.7222428099810045,
+            "slotTravelM": 1.0091900982248958,
+            "unlabeledToeTravelM": 1.4668378039234165
+          },
+          "settling": {
+            "slideM": 0.02943074020403389,
+            "stanceRuns": 6,
+            "maxStanceStepM": 0.02943074020403389,
+            "frames": 574,
+            "lockCorrectionSumM": 0.19118343722293665,
+            "slotTravelM": 0.21731252556387431,
+            "unlabeledToeTravelM": 1.5070232333188789
+          }
+        }
+      },
+      "lockOff": {
+        "arrivalErrM": 0.01546241464605237,
+        "settledYawErrDeg": 62.14756341250493,
+        "triggered": true,
+        "rMaxM": 2.152476026536229,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.6246052658107238
+          },
+          "crossfade": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 16,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0.2524133838652169,
+            "unlabeledToeTravelM": 1.4902726349320774
+          },
+          "stopping": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 129,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 1.0053677780594237,
+            "unlabeledToeTravelM": 1.4604506069170067
+          },
+          "settling": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 574,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 1.25500616669718
+          }
+        },
+        "stoppingClipCompare": [
+          {
+            "foot": "left",
+            "runtimeTravelM": 0.01976398379244711,
+            "clipTravelM": 0.4160008196736274,
+            "frames": 12
+          },
+          {
+            "foot": "left",
+            "runtimeTravelM": 0.03176360682159513,
+            "clipTravelM": 0.004012860235511831,
+            "frames": 10
+          },
+          {
+            "foot": "right",
+            "runtimeTravelM": 0.025678628333451553,
+            "clipTravelM": 0.18892644579129536,
+            "frames": 14
+          }
+        ]
+      }
+    },
+    "child": {
+      "lockOn": {
+        "arrivalErrM": 0.040516363699385695,
+        "settledYawErrDeg": 0,
+        "triggered": true,
+        "rMaxM": 1.6412132858250874,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": 0,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.42591900042177966
+          },
+          "crossfade": {
+            "slideM": 0.15801989997898,
+            "stanceRuns": 3,
+            "maxStanceStepM": 0.05357626297633838,
+            "frames": 16,
+            "lockCorrectionSumM": 0.1172069210120201,
+            "slotTravelM": 0.17427501163621723,
+            "unlabeledToeTravelM": 0.876480403371465
+          },
+          "stopping": {
+            "slideM": 0.02463714649179939,
+            "stanceRuns": 3,
+            "maxStanceStepM": 0.004995356071742617,
+            "frames": 143,
+            "lockCorrectionSumM": 2.4325992106338155,
+            "slotTravelM": 1.103430797540561,
+            "unlabeledToeTravelM": 1.3270154842807818
+          },
+          "settling": {
+            "slideM": 0.02507617685297343,
+            "stanceRuns": 8,
+            "maxStanceStepM": 0.027807998740966795,
+            "frames": 560,
+            "lockCorrectionSumM": 16.557437747013118,
+            "slotTravelM": 0.15210651464741162,
+            "unlabeledToeTravelM": 0.9246866302551798
+          }
+        }
+      },
+      "lockOff": {
+        "arrivalErrM": 0.011509456227600436,
+        "settledYawErrDeg": 62.95135372123819,
+        "triggered": true,
+        "rMaxM": 1.6412132858250874,
+        "buckets": {
+          "walk": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 1,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.42591900042177966
+          },
+          "crossfade": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 16,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0.1742713829185461,
+            "unlabeledToeTravelM": 0.8766567781693997
+          },
+          "stopping": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 143,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 1.100888677012567,
+            "unlabeledToeTravelM": 1.3292914222751087
+          },
+          "settling": {
+            "slideM": null,
+            "stanceRuns": 0,
+            "maxStanceStepM": null,
+            "frames": 560,
+            "lockCorrectionSumM": null,
+            "slotTravelM": 0,
+            "unlabeledToeTravelM": 0.8004702038532588
+          }
+        },
+        "stoppingClipCompare": [
+          {
+            "foot": "left",
+            "runtimeTravelM": 0.008215431109542719,
+            "clipTravelM": 0.0030844929338987447,
+            "frames": 10
+          },
+          {
+            "foot": "right",
+            "runtimeTravelM": 0.009270886568917884,
+            "clipTravelM": 0.24303741846063628,
+            "frames": 10
+          }
+        ]
+      }
+    }
+  }
+}

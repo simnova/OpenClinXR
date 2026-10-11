@@ -25,6 +25,7 @@ import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
+import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
   resolveClipStanceForFrame,
   resolveStopStanceForFrame,
@@ -76,6 +77,8 @@ export function advanceCaseOwnedBedsideApproach(
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
   updateStopPlayback(approach, previousPhase, input.deltaSeconds, stopTrigger ? { trigger: stopTrigger } : null);
+  // Stop handoff rest re-target: the take's hold pose, not walk-start rest.
+  if (previousPhase === "stopping" && execution.phase === "settling") recaptureStopRestStance(approach);
   // ## CHANGED: "settling" is excluded here. The clip-driven settling turn
   // (`applyClipDrivenSettlingTurn`, run later in the frame from `applyCaseOwnedStanceLock`, after
   // the mixer has posed the skeleton) owns `actorSlot.rotation.y` and any drift-correcting XZ
@@ -329,6 +332,8 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
         timeScaleFactor: approach.execution.drive.timeScaleFactor ?? 1,
         clipStance: resolveClipStanceForFrame(approach),
         state: approach.clipTurn,
+        // Post-stop stillness (see `postStop` on the turn input): pin nothing spurious.
+        postStop: approach.execution.stopClipTimeS != null,
       });
     } else {
       // WAITING FOR THE FADE: no more stepping, so the re-anchoring lock does not run (that is the

@@ -197,6 +197,17 @@ export function applyClipDrivenSettlingTurn(input: {
   timeScaleFactor: number;
   clipStance: { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined;
   state: ClipDrivenSettlingTurnState;
+  /**
+   * True when settling after a completed distance-indexed stop. With no meaningful
+   * residual yaw the walk clip's continued steps are spurious, and pinning them drags
+   * the slot while arrival never converges (stop-takes slide decomposition). The
+   * pin/lift apparatus stands down; labels are still published. Walk-only runs and
+   * nonzero residuals are untouched. The caller signals this from the executor's stop
+   * clip time, which persists from stopping through settling/arrived (walk-only runs
+   * never set it); `stopFired` is unusable because the wiring resolves a frame after
+   * the entry branch fires, so it stays null on the runs that need the gate.
+   */
+  postStop?: boolean;
 }): ClipDrivenSettlingTurnState {
   const { actorSlot, state } = input;
   const anchorPositionXz = state.anchorPositionXz ?? { x: actorSlot.position.x, z: actorSlot.position.z };
@@ -214,6 +225,10 @@ export function applyClipDrivenSettlingTurn(input: {
   const travelUnit = { x: Math.sin(input.targetHeadingRadians), z: Math.cos(input.targetHeadingRadians) };
 
   const remaining = shortestYawDelta(actorSlot.rotation.y, input.targetHeadingRadians);
+  // Post-stop stillness (see `postStop`): no turn is needed at or under tolerance, and
+  // the pin below would only chase the walk clip's spurious continued steps.
+  const postStopStill =
+    (input.postStop ?? false) && Math.abs(remaining) <= SETTLE_TURN_TOLERANCE_RADIANS;
   const labelled = input.clipStance ? stanceAtTime(input.clipStance.labels, input.clipStance.actionTimeSeconds) : null;
   // A foot IS the pivot only when the clip labels it, and only it, stance this frame. Both-down
   // (double support) or neither keeps the incumbent phase foot rather than reassigning mid-window.
@@ -332,6 +347,10 @@ export function applyClipDrivenSettlingTurn(input: {
     right: { anchorXz: null, weight: 0 },
   };
   const pinSides: readonly StanceFoot[] = ["left", "right"];
+  // Skipped wholesale under post-stop stillness (see `postStop`): the pin would chase
+  // the walk clip's spurious steps and drag the slot; the lift assist answers pin
+  // weights this path never raises. Pin state, counters, and debug stay as they were.
+  if (!postStopStill) {
   for (const side of pinSides) {
     const toe = side === "left" ? input.leftToe : input.rightToe;
     const otherSide: StanceFoot = side === "left" ? "right" : "left";
@@ -418,6 +437,7 @@ export function applyClipDrivenSettlingTurn(input: {
       }
     }
   }
+  } // end postStopStill pin/lift skip
   next = { ...next, pin, reachReleasedFrameCount, reachReleasedThisFrame, pinDebugThisFrame };
 
   const leftHeight = input.leftToe !== null ? worldXyz(input.leftToe).y - input.floorOriginY : Number.NaN;
