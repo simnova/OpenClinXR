@@ -94,6 +94,13 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/grok-imagine-references/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/grok-worker-monitoring/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
