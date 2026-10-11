@@ -72,6 +72,22 @@ function scenarioIdFromArgv(): string {
   return flag ? flag.slice("--scenario=".length) : SCENE_CLOSURE_SCENARIO_ID;
 }
 
+/**
+ * Step-capture slice (2026-10-11): opt-in `steppingTurn=1` URL query flag for the
+ * case-owned bedside approach. Absent or anything other than exactly "1" reads
+ * false, matching the runtime parser. Default off: existing invocations are unchanged.
+ */
+function steppingTurnEnabledFromArgv(): boolean {
+  const flag = process.argv.find((arg) => arg.startsWith("--stepping-turn="));
+  return flag ? flag.slice("--stepping-turn=".length) === "1" : false;
+}
+
+/** Step-capture slice: opt-in output dir; default is the existing OUTPUT_DIR. */
+function outputDirFromArgv(): string {
+  const flag = process.argv.find((arg) => arg.startsWith("--output-dir="));
+  return flag ? flag.slice("--output-dir=".length) : OUTPUT_DIR;
+}
+
 type ScenarioBuild = {
   scenarioId: string;
   bundleRoute: string;
@@ -266,6 +282,8 @@ type FootPlantVideoReport = {
   actorId: string;
   driveSource: string | null;
   recorderGlobalPresent: boolean;
+  /** Step-capture slice: the --stepping-turn flag value for this run (default false). */
+  steppingTurnEnabled: boolean;
   fpsCandidates: {
     fakeClock: { honoured: boolean; fps: number };
     gpuRealtime: { fps: number | null };
@@ -2190,7 +2208,8 @@ function probeMp4(mp4Path: string): { durationSeconds: number; frameCount: numbe
 }
 
 async function main(): Promise<void> {
-  const outputDir = path.resolve(process.cwd(), OUTPUT_DIR);
+  const outputDir = path.resolve(process.cwd(), outputDirFromArgv());
+  const steppingTurnEnabled = steppingTurnEnabledFromArgv();
   const stagingDir = path.resolve(process.cwd(), ".openclinxr/evidence/foot-plant-video-staging");
   await mkdir(outputDir, { recursive: true });
   await mkdir(stagingDir, { recursive: true });
@@ -2203,9 +2222,11 @@ async function main(): Promise<void> {
   const scenario = buildScenario(scenarioIdFromArgv());
   ACTIVE_SCENARIO_ID = scenario.scenarioId;
   ACTIVE_BUNDLE_ROUTE = scenario.bundleRoute;
-  ACTIVE_BUILD_URL = scenario.buildUrl;
+  const baseBuildUrl = scenario.buildUrl;
+  ACTIVE_BUILD_URL = (baseUrl: string) =>
+    baseBuildUrl(baseUrl) + (steppingTurnEnabled ? "&steppingTurn=1" : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
-  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}\n`);
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}\n`);
   const bundleJson = scenario.bundleJson;
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
@@ -2495,6 +2516,7 @@ async function main(): Promise<void> {
       );
 
       const fps = frameCounts.feetSide / durations.feetSide;
+      const reportDir = outputDirFromArgv();
       const report: FootPlantVideoReport = {
         schemaVersion: "openclinxr.foot-plant-video.v1",
         measuredAt: new Date().toISOString(),
@@ -2502,6 +2524,7 @@ async function main(): Promise<void> {
         actorId: activeWalkerActorId(),
         driveSource: evidence.driveSource,
         recorderGlobalPresent: false,
+        steppingTurnEnabled,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },
           gpuRealtime: { fps: gpuFps },
@@ -2543,10 +2566,10 @@ async function main(): Promise<void> {
           ? { requestedFile: humanoidOverride, served: humanoidOverrideRecords.slice() }
           : null,
         videos: {
-          feetSide: `${OUTPUT_DIR}/feet-side.mp4`,
-          feetSideSlow: `${OUTPUT_DIR}/feet-side-slow.mp4`,
-          threeQuarter: `${OUTPUT_DIR}/three-quarter.mp4`,
-          contactSheet: `${OUTPUT_DIR}/feet-side-contact.png`,
+          feetSide: `${reportDir}/feet-side.mp4`,
+          feetSideSlow: `${reportDir}/feet-side-slow.mp4`,
+          threeQuarter: `${reportDir}/three-quarter.mp4`,
+          contactSheet: `${reportDir}/feet-side-contact.png`,
           durationsSeconds: durations,
         },
         markers: {

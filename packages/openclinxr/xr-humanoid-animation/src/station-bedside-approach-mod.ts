@@ -24,8 +24,8 @@ import {
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
+import { readSteppingTurnEnabled } from "./stepping-turn-query-flag-mod.js";
 import { findStanceChain } from "./stance-lock-ik.js";
-
 /**
  * The station's own bedside approach: observed once the physician's skeleton is in the scene, then
  * stepped every frame.
@@ -236,6 +236,7 @@ export function resolveStationBedsideApproach(
     clipAdvance: { ...rateOneAdvance, metersPerSecond: rateOneAdvance.metersPerSecond * playbackTimeScale },
     clipCycleSeconds: sampled.cycleSeconds / playbackTimeScale,
     routeHeadingRadians: headingRadiansToward(intent.start, intent.target.position),
+    steppingTurnEnabled: readSteppingTurnEnabled(),
   });
   if ("refused" in approach) {
     state.settled = true;
@@ -484,7 +485,6 @@ export function publishBedsideApproachRuntimeEvidence(
     notEvidenceFor: [...NOT_EVIDENCE_FOR],
   } satisfies BedsideApproachRuntimeEvidence;
 }
-
 
 /**
  * Pin the planted toe for this frame. Call AFTER the animation pass has posed the skeleton.
