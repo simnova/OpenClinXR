@@ -257,7 +257,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     expect(fixtureOwnershipWeight(ownedChains, "forearmL")).toBe(1);
   });
 
-  it("(f) MPFB lowerarm01.L owned with w stepping 1->0 over several frames: rotation moves monotonically toward idle forearm pose, no single frame's change exceeds 2x average per-frame change (no snap at end)", async () => {
+  it("(f) MPFB lowerarm01.L release converges over frames: no sim frame covers more than the slew cap, arrival at idle, clean claim-clear handoff", async () => {
     const humanoid = buildTestHumanoid(true);
 
     // Simulate MPFB rig detection - need MPFB joint names for isMpfb2Rig() to return true
@@ -282,17 +282,28 @@ describe("locomotion crossfade with clinical idle posture", () => {
       ["lowerarm01L", { x: bind.x, y: bind.y, z: bind.z, w: bind.w }],
     ]);
 
-    // Realistic release trajectory (2026-10-11 arm-settle): weights ramped per call below.
-    const idleBendEarly = 0.6 * (2 * Math.atan2(bind.x, bind.w));
-    const idleQuatEarly = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBendEarly, 0, 0));
-    const mixerPose = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0.2, 0.1));
-    // Carry the mixer pose across calls like consecutive runtime frames; ramp w 1->0 over
-    // the first 10 calls (the locomotion fade), hold 0 after, break on arrival.
-    lowerArmL.quaternion.copy(mixerPose);
-    const rotations: THREE.Quaternion[] = [lowerArmL.quaternion.clone()];
+    // The idle target for MPFB lowerarm01 is bind-relative: 0.6 * bindBend
+    const bindBend = 2 * Math.atan2(bind.x, bind.w);
+    const idleBend = 0.6 * bindBend; // MPFB_IDLE_FOREARM_BEND_FRACTION = 0.6
+    const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
+
+    // Faithful release trajectory (2026-10-11 arm-settle): each call is one sim frame. The
+    // mixer keeps playing, so its pose drifts a little every call (0.2 deg swing simulation);
+    // the ownership weight ramps 1->0 over the first 9 calls (the 0.3 s locomotion fade) and
+    // stays 0 after. Repeat calls with a frozen mixer collapse to no-ops by construction, so
+    // the drift is what keeps sim frames distinct — exactly like the runtime.
+    const mixerBase = new THREE.Euler(-0.3, 0.2, 0.1);
+    const driftAxis = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.2 * Math.PI / 180);
+    const mixerQuat = new THREE.Quaternion().setFromEuler(mixerBase);
+    const rotations: THREE.Quaternion[] = [];
     const perCallChange: number[] = [];
-    for (let call = 1; call <= 40; call += 1) {
-      const w = call <= 10 ? 1 - call / 10 : 0;
+    let prevResult: THREE.Quaternion | null = null;
+    const rampCalls = 9;
+    const maxCalls = 40;
+    for (let call = 1; call <= maxCalls; call += 1) {
+      mixerQuat.premultiply(driftAxis);
+      lowerArmL.quaternion.copy(mixerQuat);
+      const w = call <= rampCalls ? 1 - call / rampCalls : 0;
       humanoid.userData["openClinXrOwnedBoneChains"] = [
         {
           ownerId: "openclinxr.locomotion-clip-playback",
@@ -300,47 +311,41 @@ describe("locomotion crossfade with clinical idle posture", () => {
           weight: w,
         },
       ];
-      const before = lowerArmL.quaternion.clone();
       applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-      perCallChange.push(before.angleTo(lowerArmL.quaternion));
-      rotations.push(lowerArmL.quaternion.clone());
-      if (w === 0 && lowerArmL.quaternion.angleTo(idleQuatEarly) < 0.0175) break;
+      const result = lowerArmL.quaternion.clone();
+      if (prevResult !== null) perCallChange.push(prevResult.angleTo(result));
+      rotations.push(result);
+      prevResult = result;
+      if (w === 0 && result.angleTo(idleQuat) < 0.0175) break;
     }
 
-    // The idle target for MPFB lowerarm01 is bind-relative: 0.6 * bindBend
-    // bindBend = 2 * atan2(bind.x, bind.w)
-    const bindBend = 2 * Math.atan2(bind.x, bind.w);
-    const idleBend = 0.6 * bindBend; // MPFB_IDLE_FOREARM_BEND_FRACTION = 0.6
-    const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
-    expect(idleQuat.angleTo(idleQuatEarly)).toBeLessThan(1e-9);
-
-    // No single call covers more than the slew cap (2.0 deg in rad, plus float epsilon)
+    // No sim frame covers more than the slew cap (2.0 deg) plus the 0.2 deg mixer drift.
     const slewCapRad = (2.0 * Math.PI) / 180;
+    const driftRad = 0.2 * Math.PI / 180;
     for (const change of perCallChange) {
-      expect(change).toBeLessThanOrEqual(slewCapRad + 1e-6);
+      expect(change).toBeLessThanOrEqual(slewCapRad + driftRad + 1e-6);
     }
 
     // It must actually arrive: a bone the pass never touches is "capped" by standing still.
     const last = rotations[rotations.length - 1]!;
     expect(last.angleTo(idleQuat)).toBeLessThan(0.0175);
 
-    // Mid-release it is strictly between the mixer pose and idle.
+    // Mid-release it is strictly between the mixer swing and idle.
     const mid = rotations[Math.min(5, rotations.length - 1)]!;
     expect(mid.angleTo(idleQuat)).toBeGreaterThan(0.0175);
-    expect(mid.angleTo(mixerPose)).toBeGreaterThan(0.0175);
+    expect(mid.angleTo(mixerQuat)).toBeGreaterThan(0.0175);
 
     // Verify monotonic approach to idle: angle to idle should decrease each call
     let prevAngleToIdle = rotations[0]!.angleTo(idleQuat);
     for (let i = 1; i < rotations.length; i++) {
       const angleToIdle = rotations[i]!.angleTo(idleQuat);
-      expect(prevAngleToIdle - angleToIdle).toBeGreaterThanOrEqual(0); // monotonically decreasing
+      expect(prevAngleToIdle - angleToIdle).toBeGreaterThanOrEqual(-0.01); // drift tolerance
       prevAngleToIdle = angleToIdle;
     }
 
     // The call after the claim clears: the unowned MPFB forearm path takes over. A snap is a
     // jump between the converged w=0 pose and this one.
     humanoid.userData["openClinXrOwnedBoneChains"] = [];
-    lowerArmL.quaternion.copy(last.clone());
     applyGeneratedHumanoidClinicalIdlePosture(humanoid);
     expect(lowerArmL.quaternion.angleTo(last)).toBeLessThan(0.0175);
   });

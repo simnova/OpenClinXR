@@ -23,6 +23,11 @@
 import type { Object3D, SkinnedMesh } from "three";
 import { Euler, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+import {
+  armReleaseStore,
+  writeArmReleaseSlew,
+  type ArmReleasePrev,
+} from "./clinical-idle-arm-release.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
@@ -49,20 +54,6 @@ export {
 const _scratchEuler = new Euler();
 const _scratchQuat = new Quaternion();
 const _scratchBindQuat = new Quaternion();
-
-/**
- * Arm release slew cap, per posture-pass call, in radians (2026-10-11 arm-settle).
- *
- * MEASURED in the browser on the physician: the uncapped owned-crossfade slerp covered ~87%
- * of the ~35 deg clip-to-idle arm distance in a single settling frame (33.6 deg/frame against
- * a ~2.3 deg/frame steady walking arm rate), because the walk action's own leg-weight fade
- * shifts the mixer output idle-ward in the same frame the slerp pulls idle-ward. Capped at
- * 2.0 deg/call, the release spans ~18 calls (~0.6 s at the 30 Hz approach cadence) and no
- * single frame exceeds the walk clip's own steady per-frame arm rate. Arms only: the cap
- * applies in the owned branch below, which only arm/hand bones (and head attention, excluded)
- * ever reach with a target; leg/pelvis bones are never written by this pass.
- */
-const ARM_RELEASE_SLEW_MAX_RAD = (2.0 * Math.PI) / 180;
 
 type BindQuaternion = { x: number; y: number; z: number; w: number };
 
@@ -208,6 +199,7 @@ function applyMpfbForearmIdle(
   object: Object3D,
   bindStore: Map<string, BindQuaternion>,
   bonesTouched: string[],
+  releaseStore: Map<string, ArmReleasePrev> | null,
 ): void {
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
@@ -222,8 +214,23 @@ function applyMpfbForearmIdle(
     bindStore.set(sanitised, bind);
   }
   if (!bind) return;
-  applyBoneEuler(object, mpfbForearmIdleEuler(bind));
-  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  const idleEuler = mpfbForearmIdleEuler(bind);
+  if (releaseStore === null) {
+    applyBoneEuler(object, idleEuler);
+    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  } else {
+    // Slew-limited like every other arm write (arm-settle): same absolute target, capped motion.
+    const target = _scratchQuat.setFromEuler(
+      _scratchEuler.set(
+        idleEuler.x ?? object.rotation.x,
+        idleEuler.y ?? (idleEuler.absolute ? 0 : object.rotation.y),
+        idleEuler.z ?? (idleEuler.absolute ? 0 : object.rotation.z),
+        object.rotation.order,
+      ),
+    );
+    writeArmReleaseSlew(object, releaseStore, sanitised, target, 1,
+      "relaxed_arms_scenario_conversation_pose");
+  }
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
@@ -276,6 +283,10 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
   const headNeckBinds: Map<string, BindQuaternion> =
     humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
     ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
+
+  // Arm release smoothing state (2026-10-11 arm-settle): per-bone last blend, same
+  // first-untouched-sight pattern as the bind stores above.
+  const releaseStore = armReleaseStore(humanoid);
 
   // Head-family rotations are the hangMap's own "head" entry object, reached either by
   // landmark resolution or by the head/neck alias fallback — identity-compared, never inferred.
@@ -333,22 +344,20 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       // If targetQuat is still null, this bone has no idle target (e.g., spine, neck without hang entry)
       // Leave it to the mixer - no blend applied.
       if (targetQuat !== null) {
-        // Slerp from idle (weight=0) to current mixer pose (weight=1)
-        // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
-        let blendT = 1 - ownershipWeight;
-        // Arm release slew cap (2026-10-11 arm-settle; see ARM_RELEASE_SLEW_MAX_RAD): cover at
-        // most the capped angle per call, so the walk-end release spreads over ~0.5 s instead of
-        // snapping in one frame. Head-family attention keeps the exact blend.
         if (idleRotation === undefined || !isHeadFamily(idleRotation)) {
-          const stepAngle = object.quaternion.angleTo(targetQuat);
-          if (stepAngle > ARM_RELEASE_SLEW_MAX_RAD && stepAngle > 0) {
-            blendT = Math.min(blendT, ARM_RELEASE_SLEW_MAX_RAD / stepAngle);
-          }
+          // Slew-limited release (2026-10-11 arm-settle): capped total motion per call plus
+          // repeat-collapse, so the walk-end release cannot snap in one frame.
+          writeArmReleaseSlew(object, releaseStore, sanitised, targetQuat, 1 - ownershipWeight,
+            "relaxed_arms_scenario_conversation_pose_crossfade");
+        } else {
+          // Head-family attention keeps the exact blend.
+          // Slerp from idle (weight=0) to current mixer pose (weight=1)
+          // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
+          object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
+          // Sync rotation from quaternion so Euler accessors work
+          object.rotation.setFromQuaternion(object.quaternion);
+          object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
         }
-        object.quaternion.slerp(targetQuat, blendT);
-        // Sync rotation from quaternion so Euler accessors work
-        object.rotation.setFromQuaternion(object.quaternion);
-        object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
       }
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
       return;
@@ -356,7 +365,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
 
     // MPFB forearm bind-relative idle (only if not owned)
     if (isMpfbRig && sanitised.startsWith("lowerarm01")) {
-      applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched);
+      applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched, releaseStore);
       return;
     }
 
@@ -367,8 +376,18 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       applyHeadAttentionBindRelative(object, headNeckBinds, rotation, bonesTouched);
       return;
     }
-    applyBoneEuler(object, rotation);
-    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+    // Slew-limited like the owned release (arm-settle): same absolute target the direct write
+    // below used to set, capped motion so the claim-clear frame cannot snap.
+    const idleTarget = _scratchQuat.setFromEuler(
+      _scratchEuler.set(
+        rotation.x ?? object.rotation.x,
+        rotation.y ?? (rotation.absolute ? 0 : object.rotation.y),
+        rotation.z ?? (rotation.absolute ? 0 : object.rotation.z),
+        object.rotation.order,
+      ),
+    );
+    writeArmReleaseSlew(object, releaseStore, sanitised, idleTarget, 1,
+      "relaxed_arms_scenario_conversation_pose");
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
   };
 
