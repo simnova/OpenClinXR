@@ -152,6 +152,7 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "aisha-ref-lipsC": FEMALE_COVERING_LOWER,
     "aisha-ref-inert": FEMALE_COVERING_LOWER,
     "aisha-ref2": FEMALE_COVERING_LOWER,
+    "aisha-ref3": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2492,6 +2493,7 @@ EYE_DIAMETER_TARGET_MM = {
     "aisha-ref-lipsC": 24.0,
     "aisha-ref-inert": 24.0,
     "aisha-ref2": 24.0,
+    "aisha-ref3": 24.0,
 }
 
 
