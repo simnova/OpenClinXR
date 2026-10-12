@@ -1,0 +1,1203 @@
+{
+  "routeDir": {
+    "x": 0.894023684921358,
+    "z": -0.44801969912006817
+  },
+  "routeLengthM": 1.2018299347988535,
+  "walkingFrames": 28,
+  "walkingSeconds": 1.325,
+  "scenario": "scene_closure_supine_bedside_v1",
+  "actorId": "senior_resident_ward_v1",
+  "perFrame": [
+    {
+      "frame": 0,
+      "tMs": 1791761412684,
+      "rootAdvanceM": 0,
+      "leftBodyAlongM": null,
+      "rightBodyAlongM": null,
+      "leftToeHeightM": 0.026578812103507016,
+      "rightToeHeightM": 0.007566403194272903,
+      "stanceLabel": null
+    },
+    {
+      "frame": 1,
+      "tMs": 1791761413184,
+      "rootAdvanceM": 0.06867471100224322,
+      "leftBodyAlongM": -0.013728697759970227,
+      "rightBodyAlongM": -0.002772029215946748,
+      "leftToeHeightM": 0.02264807465036453,
+      "rightToeHeightM": 0.0058900798285483474,
+      "stanceLabel": null
+    },
+    {
+      "frame": 2,
+      "tMs": 1791761413184,
+      "rootAdvanceM": 0,
+      "leftBodyAlongM": 0,
+      "rightBodyAlongM": -0.13429268048171522,
+      "leftToeHeightM": 0.02264807465036453,
+      "rightToeHeightM": 0.03326765135590409,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 3,
+      "tMs": 1791761413217,
+      "rootAdvanceM": 0.045326055288748376,
+      "leftBodyAlongM": -0.020947212818046835,
+      "rightBodyAlongM": 0.02820959237318319,
+      "leftToeHeightM": 0.014319812488721696,
+      "rightToeHeightM": 0.021887091178462575,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 4,
+      "tMs": 1791761413250,
+      "rootAdvanceM": 0.04532638988797304,
+      "leftBodyAlongM": -0.022821024320721264,
+      "rightBodyAlongM": 0.021841506331350038,
+      "leftToeHeightM": 0.006738167426831872,
+      "rightToeHeightM": 0.01191096660258005,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 5,
+      "tMs": 1791761413283,
+      "rootAdvanceM": 0.04532166494484556,
+      "leftBodyAlongM": -0.021841438050803588,
+      "rightBodyAlongM": 0.042358785746541464,
+      "leftToeHeightM": 0.00413293043016856,
+      "rightToeHeightM": 0.0014062433723856793,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 6,
+      "tMs": 1791761413316,
+      "rootAdvanceM": 0.04532224325113149,
+      "leftBodyAlongM": -0.10032608405454521,
+      "rightBodyAlongM": -0.01043052022496397,
+      "leftToeHeightM": 0.0020155603896525043,
+      "rightToeHeightM": 0.006249350839697562,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 7,
+      "tMs": 1791761413349,
+      "rootAdvanceM": 0.04532487447304838,
+      "leftBodyAlongM": -0.03819196119811063,
+      "rightBodyAlongM": 0.009473035062540418,
+      "leftToeHeightM": 0.007167858870782404,
+      "rightToeHeightM": 0.01061720489540674,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 8,
+      "tMs": 1791761413382,
+      "rootAdvanceM": 0.0453254784385349,
+      "leftBodyAlongM": -0.04172918763981004,
+      "rightBodyAlongM": 0.02693600074973731,
+      "leftToeHeightM": 0.013227895877964718,
+      "rightToeHeightM": 0.013167022554549948,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 9,
+      "tMs": 1791761413415,
+      "rootAdvanceM": 0.04532573849128309,
+      "leftBodyAlongM": -0.03879090175493469,
+      "rightBodyAlongM": 0.0412385722014801,
+      "leftToeHeightM": 0.019602164783572615,
+      "rightToeHeightM": 0.013260188128292605,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 10,
+      "tMs": 1791761413448,
+      "rootAdvanceM": 0.04532571438853987,
+      "leftBodyAlongM": -0.02472807414449794,
+      "rightBodyAlongM": 0.055492707739084546,
+      "leftToeHeightM": 0.0243971533235382,
+      "rightToeHeightM": 0.011967055119804684,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 11,
+      "tMs": 1791761413481,
+      "rootAdvanceM": 0.04532552028361056,
+      "leftBodyAlongM": -0.007381129534442078,
+      "rightBodyAlongM": 0.0617998567648645,
+      "leftToeHeightM": 0.026258346711701255,
+      "rightToeHeightM": 0.01319265390338975,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 12,
+      "tMs": 1791761413514,
+      "rootAdvanceM": 0.045326017852951477,
+      "leftBodyAlongM": 0.0018391437854199594,
+      "rightBodyAlongM": 0.05723393236591451,
+      "leftToeHeightM": 0.02547241280064358,
+      "rightToeHeightM": 0.01793248840392056,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 13,
+      "tMs": 1791761413547,
+      "rootAdvanceM": 0.045325574036383605,
+      "leftBodyAlongM": 0.0015662899991798565,
+      "rightBodyAlongM": 0.044264858117478295,
+      "leftToeHeightM": 0.023190017899990922,
+      "rightToeHeightM": 0.023797657012297496,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 14,
+      "tMs": 1791761413580,
+      "rootAdvanceM": 0.04532611665269592,
+      "leftBodyAlongM": -0.003860450046413606,
+      "rightBodyAlongM": 0.0282812357417462,
+      "leftToeHeightM": 0.020687306759216623,
+      "rightToeHeightM": 0.026763595252958516,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 15,
+      "tMs": 1791761413613,
+      "rootAdvanceM": 0.04532579010505385,
+      "leftBodyAlongM": -0.011117251763100473,
+      "rightBodyAlongM": 0.016801601134175365,
+      "leftToeHeightM": 0.019086762398399057,
+      "rightToeHeightM": 0.027308128959115018,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 16,
+      "tMs": 1791761413646,
+      "rootAdvanceM": 0.04532965345645494,
+      "leftBodyAlongM": -0.020699810240786848,
+      "rightBodyAlongM": 0.0086045793776209,
+      "leftToeHeightM": 0.019682007881688682,
+      "rightToeHeightM": 0.026483140390357915,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 17,
+      "tMs": 1791761413679,
+      "rootAdvanceM": 0.04533001451712191,
+      "leftBodyAlongM": -0.026380301707016694,
+      "rightBodyAlongM": -0.0014985355784376657,
+      "leftToeHeightM": 0.02276500753320554,
+      "rightToeHeightM": 0.024048359953369833,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 18,
+      "tMs": 1791761413712,
+      "rootAdvanceM": 0.045325983571992676,
+      "leftBodyAlongM": -0.00029561244042903434,
+      "rightBodyAlongM": -0.019524310661327777,
+      "leftToeHeightM": 0.020641083586183884,
+      "rightToeHeightM": 0.017686815663622436,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 19,
+      "tMs": 1791761413745,
+      "rootAdvanceM": 0.04532641175211341,
+      "leftBodyAlongM": -0.0046296017567885785,
+      "rightBodyAlongM": -0.02175427215418718,
+      "leftToeHeightM": 0.0194029952350199,
+      "rightToeHeightM": 0.00885203110240465,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 20,
+      "tMs": 1791761413778,
+      "rootAdvanceM": 0.045326858540752524,
+      "leftBodyAlongM": 0.008452313293750818,
+      "rightBodyAlongM": -0.022344929901920486,
+      "leftToeHeightM": 0.015470962787331427,
+      "rightToeHeightM": 0.0026298229038897517,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 21,
+      "tMs": 1791761413811,
+      "rootAdvanceM": 0.04532954634331886,
+      "leftBodyAlongM": 0.036845604877735715,
+      "rightBodyAlongM": -0.020254329873386205,
+      "leftToeHeightM": 0.005650634455435566,
+      "rightToeHeightM": 0.002669134979343936,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 22,
+      "tMs": 1791761413844,
+      "rootAdvanceM": 0.04531980320526494,
+      "leftBodyAlongM": -0.0013647583790446604,
+      "rightBodyAlongM": -0.10041080681599426,
+      "leftToeHeightM": 0.009464037168987943,
+      "rightToeHeightM": 0,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 23,
+      "tMs": 1791761413877,
+      "rootAdvanceM": 0.045329392002167714,
+      "leftBodyAlongM": 0.016366728222081812,
+      "rightBodyAlongM": -0.011924901697189499,
+      "leftToeHeightM": 0.013302560933681193,
+      "rightToeHeightM": 0.004796390111349108,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 24,
+      "tMs": 1791761413910,
+      "rootAdvanceM": 0.04532859384655473,
+      "leftBodyAlongM": 0.035374908033362455,
+      "rightBodyAlongM": -0.03573136449486948,
+      "leftToeHeightM": 0.01426464414308766,
+      "rightToeHeightM": 0.009621745222322883,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 25,
+      "tMs": 1791761413943,
+      "rootAdvanceM": 0.04532797893221141,
+      "leftBodyAlongM": 0.04875291599524921,
+      "rightBodyAlongM": -0.0299566930962634,
+      "leftToeHeightM": 0.013157548444218167,
+      "rightToeHeightM": 0.01449055139921912,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 26,
+      "tMs": 1791761413976,
+      "rootAdvanceM": 0.04532741271952029,
+      "leftBodyAlongM": 0.05989016966566012,
+      "rightBodyAlongM": -0.027101156882618136,
+      "leftToeHeightM": 0.012932511696144053,
+      "rightToeHeightM": 0.01891309857936585,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 27,
+      "tMs": 1791761414009,
+      "rootAdvanceM": 0.045326396814336756,
+      "leftBodyAlongM": 0.06104031970210248,
+      "rightBodyAlongM": -0.021577483874720478,
+      "leftToeHeightM": 0.015841450146696925,
+      "rightToeHeightM": 0.02212050293982054,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 28,
+      "tMs": 1791761414042,
+      "rootAdvanceM": 0.0000012046731705799831,
+      "leftBodyAlongM": -0.0000012046731705799831,
+      "rightBodyAlongM": 0.0016561666813720466,
+      "leftToeHeightM": 0.015837161474635944,
+      "rightToeHeightM": 0.03063380754197359,
+      "stanceLabel": null
+    },
+    {
+      "frame": 29,
+      "tMs": 1791761414075,
+      "rootAdvanceM": -0.00002977686640448168,
+      "leftBodyAlongM": 0.00002977686640453142,
+      "rightBodyAlongM": -0.00012105886797793526,
+      "leftToeHeightM": 0.015748904496031987,
+      "rightToeHeightM": 0.030725779558408106,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 30,
+      "tMs": 1791761414108,
+      "rootAdvanceM": -0.00010478488738528707,
+      "leftBodyAlongM": 0.00010478488738523733,
+      "rightBodyAlongM": 0.0032610280357352342,
+      "leftToeHeightM": 0.01553422079719656,
+      "rightToeHeightM": 0.03454416878704608,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 31,
+      "tMs": 1791761414141,
+      "rootAdvanceM": -0.00020348570375844726,
+      "leftBodyAlongM": 0.00020348570375844726,
+      "rightBodyAlongM": 0.0057300987684169545,
+      "leftToeHeightM": 0.015152544396091927,
+      "rightToeHeightM": 0.03784807999648303,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 32,
+      "tMs": 1791761414174,
+      "rootAdvanceM": -0.00028979837996195433,
+      "leftBodyAlongM": 0.00028979837996195433,
+      "rightBodyAlongM": 0.008461799361424853,
+      "leftToeHeightM": 0.014603923235270239,
+      "rightToeHeightM": 0.040522440505324483,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 33,
+      "tMs": 1791761414207,
+      "rootAdvanceM": -0.0003420984022077698,
+      "leftBodyAlongM": 0.00034209840220781956,
+      "rightBodyAlongM": 0.011170150123240189,
+      "leftToeHeightM": 0.013915510067783285,
+      "rightToeHeightM": 0.04252679815065322,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 34,
+      "tMs": 1791761414240,
+      "rootAdvanceM": -0.0004942661081116336,
+      "leftBodyAlongM": 0.0004942661081115342,
+      "rightBodyAlongM": 0.013626989714941182,
+      "leftToeHeightM": 0.012696935905968126,
+      "rightToeHeightM": 0.0438450233356347,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 35,
+      "tMs": 1791761414273,
+      "rootAdvanceM": -0.0005500959171170095,
+      "leftBodyAlongM": 0.0005500959171170095,
+      "rightBodyAlongM": 0.015860833757089635,
+      "leftToeHeightM": 0.011655695087636267,
+      "rightToeHeightM": 0.044410605287655794,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 36,
+      "tMs": 1791761414306,
+      "rootAdvanceM": -0.0006101977626669128,
+      "leftBodyAlongM": 0.0006101977626669128,
+      "rightBodyAlongM": 0.017534710043787805,
+      "leftToeHeightM": 0.010498309996577027,
+      "rightToeHeightM": 0.044209340208666084,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 37,
+      "tMs": 1791761414339,
+      "rootAdvanceM": -0.0006786208658272695,
+      "leftBodyAlongM": 0.000678620865827369,
+      "rightBodyAlongM": 0.01865624710588214,
+      "leftToeHeightM": 0.00926391250105471,
+      "rightToeHeightM": 0.043248862750632555,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 38,
+      "tMs": 1791761414372,
+      "rootAdvanceM": -0.0007596776718035056,
+      "leftBodyAlongM": 0.0007596776718034061,
+      "rightBodyAlongM": 0.019019464839019767,
+      "leftToeHeightM": 0.008018594458234635,
+      "rightToeHeightM": 0.04162560752639362,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 39,
+      "tMs": 1791761414405,
+      "rootAdvanceM": -0.0011346527730826392,
+      "leftBodyAlongM": 0.0011346527730826891,
+      "rightBodyAlongM": 0.017762033803741327,
+      "leftToeHeightM": 0.006773520807740449,
+      "rightToeHeightM": 0.039657013338476974,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 40,
+      "tMs": 1791761414438,
+      "rootAdvanceM": -0.001621917064757879,
+      "leftBodyAlongM": 0.0016219170647578294,
+      "rightBodyAlongM": 0.018179031147969444,
+      "leftToeHeightM": 0.005547877711264054,
+      "rightToeHeightM": 0.03693823544617543,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 41,
+      "tMs": 1791761414471,
+      "rootAdvanceM": -0.002141492159173663,
+      "leftBodyAlongM": 0.0021414921591737623,
+      "rightBodyAlongM": 0.019278163244911255,
+      "leftToeHeightM": 0.004402240964365464,
+      "rightToeHeightM": 0.033856402087301146,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 42,
+      "tMs": 1791761414504,
+      "rootAdvanceM": -0.005832903984281318,
+      "leftBodyAlongM": 0.005832903984281318,
+      "rightBodyAlongM": 0.01614764213580185,
+      "leftToeHeightM": 0.0033975271775419785,
+      "rightToeHeightM": 0.03038609447559594,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 43,
+      "tMs": 1791761414537,
+      "rootAdvanceM": -0.007961104243550874,
+      "leftBodyAlongM": 0.007961104243550924,
+      "rightBodyAlongM": 0.01795616085110097,
+      "leftToeHeightM": 0.0025021595749717684,
+      "rightToeHeightM": 0.026625583234124048,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 44,
+      "tMs": 1791761414570,
+      "rootAdvanceM": -0.010196439401238233,
+      "leftBodyAlongM": 0.010196439401238332,
+      "rightBodyAlongM": 0.017514800377169213,
+      "leftToeHeightM": 0.0017861530657402036,
+      "rightToeHeightM": 0.022662449049183506,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 45,
+      "tMs": 1791761414603,
+      "rootAdvanceM": -0.012545812384232585,
+      "leftBodyAlongM": 0.012545812384232385,
+      "rightBodyAlongM": 0.017142651388601056,
+      "leftToeHeightM": 0.0012612429904243216,
+      "rightToeHeightM": 0.018574006855136896,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 46,
+      "tMs": 1791761414636,
+      "rootAdvanceM": -0.015015331779758372,
+      "leftBodyAlongM": 0.015015331779758324,
+      "rightBodyAlongM": 0.01706582510195803,
+      "leftToeHeightM": 0.0009218864038398195,
+      "rightToeHeightM": 0.014428372898910122,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 47,
+      "tMs": 1791761414669,
+      "rootAdvanceM": -0.017607355613227727,
+      "leftBodyAlongM": 0.01760735561322768,
+      "rightBodyAlongM": 0.017538883317791767,
+      "leftToeHeightM": 0.0007392388095836255,
+      "rightToeHeightM": 0.010283834708383607,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 48,
+      "tMs": 1791761414702,
+      "rootAdvanceM": -0.020318001750857257,
+      "leftBodyAlongM": 0.020318001750857354,
+      "rightBodyAlongM": 0.01883024635135642,
+      "leftToeHeightM": 0.0006542980328037157,
+      "rightToeHeightM": 0.006199216738655033,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 49,
+      "tMs": 1791761414735,
+      "rootAdvanceM": 0.005650366387596254,
+      "leftBodyAlongM": 0.008653259600468923,
+      "rightBodyAlongM": 0.007380838124360709,
+      "leftToeHeightM": 0.004442589147336265,
+      "rightToeHeightM": 0.005689867160363515,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 50,
+      "tMs": 1791761414768,
+      "rootAdvanceM": 0.006077083315212464,
+      "leftBodyAlongM": -0.0051141332319998,
+      "rightBodyAlongM": -0.006077083315212464,
+      "leftToeHeightM": 0.008987811925759912,
+      "rightToeHeightM": 0.0060951819488462705,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 51,
+      "tMs": 1791761414801,
+      "rootAdvanceM": 0.0069986155020332575,
+      "leftBodyAlongM": -0.007406470112101588,
+      "rightBodyAlongM": -0.0069986155020332575,
+      "leftToeHeightM": 0.013444321834617107,
+      "rightToeHeightM": 0.0065668313746514995,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 52,
+      "tMs": 1791761414834,
+      "rootAdvanceM": 0.008058852343823752,
+      "leftBodyAlongM": -0.010222891864093307,
+      "rightBodyAlongM": -0.008058852343823752,
+      "leftToeHeightM": 0.01763285860259832,
+      "rightToeHeightM": 0.007143040709619894,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 53,
+      "tMs": 1791761414867,
+      "rootAdvanceM": 0.009381523745364908,
+      "leftBodyAlongM": -0.013470872604017487,
+      "rightBodyAlongM": -0.009381523745364908,
+      "leftToeHeightM": 0.021420002460347212,
+      "rightToeHeightM": 0.007909922613148296,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 54,
+      "tMs": 1791761414900,
+      "rootAdvanceM": 0.01152250366248445,
+      "leftBodyAlongM": -0.017213045974015073,
+      "rightBodyAlongM": -0.011522503662484349,
+      "leftToeHeightM": 0.024663895959511642,
+      "rightToeHeightM": 0.00922795636153538,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 55,
+      "tMs": 1791761414933,
+      "rootAdvanceM": 0.01125867409195509,
+      "leftBodyAlongM": -0.021129936886390907,
+      "rightBodyAlongM": -0.01125867409195519,
+      "leftToeHeightM": 0.02730303926699848,
+      "rightToeHeightM": 0.013590261616281657,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 56,
+      "tMs": 1791761414966,
+      "rootAdvanceM": 0.010556664038515705,
+      "leftBodyAlongM": -0.02118678186488257,
+      "rightBodyAlongM": -0.010556664038515705,
+      "leftToeHeightM": 0.029422368437443322,
+      "rightToeHeightM": 0.01906510961627289,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 57,
+      "tMs": 1791761414999,
+      "rootAdvanceM": 0.010672474854766913,
+      "leftBodyAlongM": -0.022799522773603233,
+      "rightBodyAlongM": -0.010672474854766913,
+      "leftToeHeightM": 0.030829383039670033,
+      "rightToeHeightM": 0.02512815123973424,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 58,
+      "tMs": 1791761415032,
+      "rootAdvanceM": 0.012047137999521288,
+      "leftBodyAlongM": -0.024837213289624592,
+      "rightBodyAlongM": -0.012047137999521387,
+      "leftToeHeightM": 0.031739219074679345,
+      "rightToeHeightM": 0.024913175459141762,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 59,
+      "tMs": 1791761415065,
+      "rootAdvanceM": 0.010102227159030551,
+      "leftBodyAlongM": -0.02458712553959481,
+      "rightBodyAlongM": -0.010102227159030452,
+      "leftToeHeightM": 0.03158347200851705,
+      "rightToeHeightM": 0.024579397653811993,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 60,
+      "tMs": 1791761415098,
+      "rootAdvanceM": 0.008345100435532382,
+      "leftBodyAlongM": -0.025033233376160487,
+      "rightBodyAlongM": -0.008345100435532283,
+      "leftToeHeightM": 0.03240651425325275,
+      "rightToeHeightM": 0.02387600103500176,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 61,
+      "tMs": 1791761415131,
+      "rootAdvanceM": 0.006746346468690635,
+      "leftBodyAlongM": -0.021224955818040334,
+      "rightBodyAlongM": -0.006746346468690835,
+      "leftToeHeightM": 0.031213660111649763,
+      "rightToeHeightM": 0.022718079050409748,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 62,
+      "tMs": 1791761415164,
+      "rootAdvanceM": 0.00534803464778041,
+      "leftBodyAlongM": -0.018510610319516216,
+      "rightBodyAlongM": -0.005348034647780311,
+      "leftToeHeightM": 0.029231699393631322,
+      "rightToeHeightM": 0.021084955900592034,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 63,
+      "tMs": 1791761415197,
+      "rootAdvanceM": 0.004163212789130964,
+      "leftBodyAlongM": -0.015582412768652486,
+      "rightBodyAlongM": -0.004163212789130964,
+      "leftToeHeightM": 0.026596202326331378,
+      "rightToeHeightM": 0.01900223916599203,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 64,
+      "tMs": 1791761415230,
+      "rootAdvanceM": 0.003179752361376721,
+      "leftBodyAlongM": -0.012559296299648299,
+      "rightBodyAlongM": -0.0031797523613769202,
+      "leftToeHeightM": 0.02338204925580975,
+      "rightToeHeightM": 0.016522732929944564,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 65,
+      "tMs": 1791761415263,
+      "rootAdvanceM": 0.0023686195418731616,
+      "leftBodyAlongM": -0.009534096532056988,
+      "rightBodyAlongM": -0.0023686195418729625,
+      "leftToeHeightM": 0.019671864778369588,
+      "rightToeHeightM": 0.013710836840101534,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 66,
+      "tMs": 1791761415296,
+      "rootAdvanceM": 0.0016920382662825061,
+      "leftBodyAlongM": -0.006606918396034878,
+      "rightBodyAlongM": -0.0016920382662825061,
+      "leftToeHeightM": 0.01555757060957641,
+      "rightToeHeightM": 0.010632493609632782,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 67,
+      "tMs": 1791761415329,
+      "rootAdvanceM": 0.0011099415034556963,
+      "leftBodyAlongM": -0.003900360219775207,
+      "rightBodyAlongM": -0.0011099415034556963,
+      "leftToeHeightM": 0.011135413365989236,
+      "rightToeHeightM": 0.007350496083218014,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 68,
+      "tMs": 1791761415362,
+      "rootAdvanceM": 0.0005846880190054343,
+      "leftBodyAlongM": -0.0015705900130597028,
+      "rightBodyAlongM": -0.0005846880190054343,
+      "leftToeHeightM": 0.006500406153236354,
+      "rightToeHeightM": 0.0039238430623479426,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 69,
+      "tMs": 1791761415395,
+      "rootAdvanceM": 0.00008476614346661425,
+      "leftBodyAlongM": 0.00018444984294087871,
+      "rightBodyAlongM": -0.00008476614346661425,
+      "leftToeHeightM": 0.001740859145307097,
+      "rightToeHeightM": 0.0004095149850487506,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 70,
+      "tMs": 1791761415428,
+      "rootAdvanceM": 0.000004930433686269652,
+      "leftBodyAlongM": 0.00010624622787275197,
+      "rightBodyAlongM": -0.000004930433686269652,
+      "leftToeHeightM": -0.0012146594421358764,
+      "rightToeHeightM": 0.001013166589987305,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 71,
+      "tMs": 1791761415461,
+      "rootAdvanceM": 0.000011697573153386604,
+      "leftBodyAlongM": -0.00013366535174381662,
+      "rightBodyAlongM": -0.000011697573153386604,
+      "leftToeHeightM": -0.001683402217584215,
+      "rightToeHeightM": 0.001003649913025706,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 72,
+      "tMs": 1791761415494,
+      "rootAdvanceM": 0.0000111743829217455,
+      "leftBodyAlongM": 0.0001465279600926982,
+      "rightBodyAlongM": -0.000011174382921844757,
+      "leftToeHeightM": -0.0017003457525815308,
+      "rightToeHeightM": 0.0009932017539922428,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 73,
+      "tMs": 1791761415527,
+      "rootAdvanceM": 0.00001065033032893318,
+      "leftBodyAlongM": 0.00020809335074775345,
+      "rightBodyAlongM": -0.000010650330328734668,
+      "leftToeHeightM": -0.0015898167090731413,
+      "rightToeHeightM": 0.000981830975323325,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 74,
+      "tMs": 1791761415560,
+      "rootAdvanceM": 0.000010125763829882691,
+      "leftBodyAlongM": 0.00021610619671583756,
+      "rightBodyAlongM": -0.000010125763830081429,
+      "leftToeHeightM": -0.0014357993198620411,
+      "rightToeHeightM": 0.0009695472804831934,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 75,
+      "tMs": 1791761415593,
+      "rootAdvanceM": 0,
+      "leftBodyAlongM": -0.11220880387937877,
+      "rightBodyAlongM": -0.000001983867044860368,
+      "leftToeHeightM": 0.1053555133273107,
+      "rightToeHeightM": 0.000965738169209307,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 76,
+      "tMs": 1791761415626,
+      "rootAdvanceM": 0.0000018742614569711505,
+      "leftBodyAlongM": 0.0005014139146008651,
+      "rightBodyAlongM": -0.0000018742614569711505,
+      "leftToeHeightM": 0.08989741463931838,
+      "rightToeHeightM": 0.0009609651412594844,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 77,
+      "tMs": 1791761415659,
+      "rootAdvanceM": 0.0000017645571860718129,
+      "leftBodyAlongM": 0.0013516169807528196,
+      "rightBodyAlongM": -0.0000017645571860718129,
+      "leftToeHeightM": 0.07627505848988171,
+      "rightToeHeightM": 0.0009552370653143211,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 78,
+      "tMs": 1791761415692,
+      "rootAdvanceM": 0.0000016548448320347875,
+      "leftBodyAlongM": 0.0048926417652255475,
+      "rightBodyAlongM": -0.000001654844832134044,
+      "leftToeHeightM": 0.053215593113211224,
+      "rightToeHeightM": 0.0009485636346060616,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 79,
+      "tMs": 1791761415725,
+      "rootAdvanceM": 0.000001545214611891491,
+      "leftBodyAlongM": 0.006824070727534064,
+      "rightBodyAlongM": -0.0000015452146116927537,
+      "leftToeHeightM": 0.035776678509578816,
+      "rightToeHeightM": 0.0009409553580807667,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 80,
+      "tMs": 1791761415758,
+      "rootAdvanceM": 0.0000014357562219342888,
+      "leftBodyAlongM": 0.007896361429393805,
+      "rightBodyAlongM": -0.0000014357562221332494,
+      "leftToeHeightM": 0.02270311898166817,
+      "rightToeHeightM": 0.0009324235507375961,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 81,
+      "tMs": 1791761415791,
+      "rootAdvanceM": 0.00000132655871422253,
+      "leftBodyAlongM": 0.00833783500869494,
+      "rightBodyAlongM": -0.0000013265587141230496,
+      "leftToeHeightM": 0.01297072587946703,
+      "rightToeHeightM": 0.0009229803231629446,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 82,
+      "tMs": 1791761415824,
+      "rootAdvanceM": 0.0000012177103657252387,
+      "leftBodyAlongM": 0.0083413814569509,
+      "rightBodyAlongM": -0.0000012177103658247192,
+      "leftToeHeightM": 0.005770198735069648,
+      "rightToeHeightM": 0.0009126385702649259,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 83,
+      "tMs": 1791761415857,
+      "rootAdvanceM": 0.0000011092985595896722,
+      "leftBodyAlongM": 0.008057840853943588,
+      "rightBodyAlongM": -0.000001109298559490192,
+      "leftToeHeightM": 0.0004749711973706938,
+      "rightToeHeightM": 0.0009014119592216513,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 84,
+      "tMs": 1791761415890,
+      "rootAdvanceM": 0.0000010014096562700412,
+      "leftBodyAlongM": 0.007599155114361433,
+      "rightBodyAlongM": -0.0000010014096562700412,
+      "leftToeHeightM": -0.00339367065456872,
+      "rightToeHeightM": 0.0008893149166554482,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 85,
+      "tMs": 1791761415923,
+      "rootAdvanceM": 8.941288833251924e-7,
+      "leftBodyAlongM": 0.007045096047372997,
+      "rightBodyAlongM": -8.941288833251924e-7,
+      "leftToeHeightM": -0.0061983339446278485,
+      "rightToeHeightM": 0.0008763626150466997,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 86,
+      "tMs": 1791761415956,
+      "rootAdvanceM": -0.000013823740488036204,
+      "leftBodyAlongM": -4.6354329107242905e-7,
+      "rightBodyAlongM": 0.019017889301008773,
+      "leftToeHeightM": -0.006199089743557706,
+      "rightToeHeightM": -0.00358573523671063,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 87,
+      "tMs": 1791761415989,
+      "rootAdvanceM": 4.038767114744984e-7,
+      "leftBodyAlongM": -4.038767114744984e-7,
+      "rightBodyAlongM": 0.01645555159532181,
+      "leftToeHeightM": -0.006198926273932176,
+      "rightToeHeightM": -0.006745266224664648,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 88,
+      "tMs": 1791761416022,
+      "rootAdvanceM": 3.4487539652582416e-7,
+      "leftBodyAlongM": -3.4487539652582416e-7,
+      "rightBodyAlongM": 0.014251733992358578,
+      "leftToeHeightM": -0.006197851798478357,
+      "rightToeHeightM": -0.008927662512131382,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 89,
+      "tMs": 1791761416055,
+      "rootAdvanceM": 2.865559362230236e-7,
+      "leftBodyAlongM": -2.865559362230236e-7,
+      "rightBodyAlongM": 0.012355909911979527,
+      "leftToeHeightM": -0.006195874952912808,
+      "rightToeHeightM": -0.010382720788400954,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 90,
+      "tMs": 1791761416088,
+      "rootAdvanceM": 2.2893451727389117e-7,
+      "leftBodyAlongM": -2.2893451727389117e-7,
+      "rightBodyAlongM": 0.01072398366820681,
+      "leftToeHeightM": -0.00619300474356993,
+      "rightToeHeightM": -0.011301341810786965,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 91,
+      "tMs": 1791761416121,
+      "rootAdvanceM": -0.0000012642425614972374,
+      "leftBodyAlongM": 0.006451055495036408,
+      "rightBodyAlongM": -9.039151574887098e-8,
+      "leftToeHeightM": -0.008196896991271116,
+      "rightToeHeightM": -0.011306461652829176,
+      "stanceLabel": "left"
+    },
+    {
+      "frame": 92,
+      "tMs": 1791761416154,
+      "rootAdvanceM": 5.707610771464587e-8,
+      "leftBodyAlongM": 0.00585207310459325,
+      "rightBodyAlongM": -5.707610771464587e-8,
+      "leftToeHeightM": -0.009616002066418675,
+      "rightToeHeightM": -0.011312418484874395,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 93,
+      "tMs": 1791761416187,
+      "rootAdvanceM": 2.413608714603766e-8,
+      "leftBodyAlongM": 0.0052719595177359874,
+      "rightBodyAlongM": -2.413608714603766e-8,
+      "leftToeHeightM": -0.010603563246897457,
+      "rightToeHeightM": -0.011319198676277203,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 94,
+      "tMs": 1791761416220,
+      "rootAdvanceM": -8.39560442184153e-9,
+      "leftBodyAlongM": 0.004724260601607345,
+      "rightBodyAlongM": 8.39560442184153e-9,
+      "leftToeHeightM": -0.011273946956760698,
+      "rightToeHeightM": -0.011326788101260143,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 95,
+      "tMs": 1791761416253,
+      "rootAdvanceM": -4.048702945600798e-8,
+      "leftBodyAlongM": 0.004223564759863065,
+      "rightBodyAlongM": 4.048702945600798e-8,
+      "leftToeHeightM": -0.011705749508074716,
+      "rightToeHeightM": -0.01133517215058178,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 96,
+      "tMs": 1791761416286,
+      "rootAdvanceM": -7.210729355238751e-8,
+      "leftBodyAlongM": 0.0037503105421689935,
+      "rightBodyAlongM": 7.210729355238751e-8,
+      "leftToeHeightM": -0.011977630742551607,
+      "rightToeHeightM": -0.01134433574353396,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 97,
+      "tMs": 1791761416319,
+      "rootAdvanceM": -1.0322659092956352e-7,
+      "leftBodyAlongM": 0.00332920314765729,
+      "rightBodyAlongM": 1.0322659083030693e-7,
+      "leftToeHeightM": -0.012128252127457453,
+      "rightToeHeightM": -0.011354263340257138,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 98,
+      "tMs": 1791761416352,
+      "rootAdvanceM": -1.3381623422521676e-7,
+      "leftBodyAlongM": 0.0029498946359124206,
+      "rightBodyAlongM": 1.3381623422521676e-7,
+      "leftToeHeightM": -0.012192636070185309,
+      "rightToeHeightM": -0.01136493895436199,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 99,
+      "tMs": 1791761416385,
+      "rootAdvanceM": -1.6384869244122713e-7,
+      "leftBodyAlongM": 0.0026100309919717874,
+      "rightBodyAlongM": 1.6384869254048367e-7,
+      "leftToeHeightM": -0.012196660006002905,
+      "rightToeHeightM": -0.011376346165851488,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 100,
+      "tMs": 1791761416418,
+      "rootAdvanceM": -1.9329762005091238e-7,
+      "leftBodyAlongM": 0.002306727199014134,
+      "rightBodyAlongM": 1.9329762005091238e-7,
+      "leftToeHeightM": -0.012159363811334221,
+      "rightToeHeightM": -0.011388468134327576,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 101,
+      "tMs": 1791761416451,
+      "rootAdvanceM": -2.221378854152754e-7,
+      "leftBodyAlongM": 0.002036879108592248,
+      "rightBodyAlongM": 2.221378854152754e-7,
+      "leftToeHeightM": -0.01209467929508845,
+      "rightToeHeightM": -0.011401287612473561,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 102,
+      "tMs": 1791761416484,
+      "rootAdvanceM": -2.5034559333550484e-7,
+      "leftBodyAlongM": 0.0017973627643996797,
+      "rightBodyAlongM": 2.5034559343476143e-7,
+      "leftToeHeightM": -0.01201272702088977,
+      "rightToeHeightM": -0.0114147869598041,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 103,
+      "tMs": 1791761416517,
+      "rootAdvanceM": -2.778981099945715e-7,
+      "leftBodyAlongM": 0.0015851570741884165,
+      "rightBodyAlongM": 2.7789810989531493e-7,
+      "leftToeHeightM": -0.011920789054488637,
+      "rightToeHeightM": -0.011428948156664565,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 104,
+      "tMs": 1791761416550,
+      "rootAdvanceM": -3.047740769808254e-7,
+      "leftBodyAlongM": 0.0013974149302730865,
+      "rightBodyAlongM": 3.047740769808254e-7,
+      "leftToeHeightM": -0.01182403877385027,
+      "rightToeHeightM": -0.011443752818476628,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 105,
+      "tMs": 1791761416583,
+      "rootAdvanceM": -3.309534297680682e-7,
+      "leftBodyAlongM": 0.0012315001656017393,
+      "rightBodyAlongM": 3.309534297680682e-7,
+      "leftToeHeightM": -0.011726088384943337,
+      "rightToeHeightM": -0.011459182210211985,
+      "stanceLabel": "right"
+    },
+    {
+      "frame": 106,
+      "tMs": 1791761416616,
+      "rootAdvanceM": -3.5641741055344247e-7,
+      "leftBodyAlongM": 0.001085002286306725,
+      "rightBodyAlongM": 3.5641741055344247e-7,
+      "leftToeHeightM": -0.011629399510720992,
+      "rightToeHeightM": -0.011475217261084802,
+      "stanceLabel": "right"
+    }
+  ],
+  "contacts": [
+    {
+      "foot": "right",
+      "startFrame": 2,
+      "endFrame": 5,
+      "frames": 4,
+      "measuredSlideM": 0.2283839945726417,
+      "predictedSlideM": 0.2283839945726417,
+      "barPass": true,
+      "maxToeHeightM": 0.03326765135590409,
+      "labelledButNotMovingBackFrames": 3,
+      "peakBackwardSpeedMps": 0,
+      "startComplete": true,
+      "endComplete": true,
+      "steady": false
+    },
+    {
+      "foot": "left",
+      "startFrame": 6,
+      "endFrame": 21,
+      "frames": 16,
+      "measuredSlideM": 0.5107983626336117,
+      "predictedSlideM": 0.5107983626336117,
+      "barPass": true,
+      "maxToeHeightM": 0.026258346711701255,
+      "labelledButNotMovingBackFrames": 10,
+      "peakBackwardSpeedMps": 1.2645208375700012,
+      "startComplete": true,
+      "endComplete": true,
+      "steady": true
+    },
+    {
+      "foot": "right",
+      "startFrame": 22,
+      "endFrame": 27,
+      "frames": 6,
+      "measuredSlideM": 0.10034817426912991,
+      "predictedSlideM": 0.1003481742691299,
+      "barPass": true,
+      "maxToeHeightM": 0.02212050293982054,
+      "labelledButNotMovingBackFrames": 1,
+      "peakBackwardSpeedMps": 1.082768621056651,
+      "startComplete": true,
+      "endComplete": false,
+      "steady": false
+    }
+  ],
+  "droppedZeroLengthEpisodes": 0,
+  "unlabelledStance": [
+    {
+      "frame": 3,
+      "foot": "left",
+      "toeHeightM": 0.014319812488721696,
+      "backwardSpeedMps": 0.6347640247892979
+    },
+    {
+      "frame": 4,
+      "foot": "left",
+      "toeHeightM": 0.006738167426831872,
+      "backwardSpeedMps": 0.691546191537008
+    },
+    {
+      "frame": 5,
+      "foot": "left",
+      "toeHeightM": 0.00413293043016856,
+      "backwardSpeedMps": 0.6618617591152602
+    },
+    {
+      "frame": 6,
+      "foot": "right",
+      "toeHeightM": 0.006249350839697562,
+      "backwardSpeedMps": 0.3160763704534536
+    },
+    {
+      "frame": 18,
+      "foot": "right",
+      "toeHeightM": 0.017686815663622436,
+      "backwardSpeedMps": 0.5916457776159932
+    },
+    {
+      "frame": 19,
+      "foot": "right",
+      "toeHeightM": 0.00885203110240465,
+      "backwardSpeedMps": 0.6592203683087023
+    },
+    {
+      "frame": 20,
+      "foot": "right",
+      "toeHeightM": 0.0026298229038897517,
+      "backwardSpeedMps": 0.6771190879369844
+    },
+    {
+      "frame": 21,
+      "foot": "right",
+      "toeHeightM": 0.002669134979343936,
+      "backwardSpeedMps": 0.6137675719207941
+    }
+  ],
+  "fullGaitCycles": 0,
+  "steadyGaitCycles": 0,
+  "steadyState": {
+    "contacts": 1,
+    "rootSpeedMps": 1.373533925058295,
+    "stanceFootSpeedMps": 0.22367059195279024,
+    "steadyPeakBackwardSpeedMps": 1.2645208375700012,
+    "ratio": 6.140878481459934,
+    "dutyLabel": 0.4642857142857143,
+    "dutyKinematic": 0.4107142857142857,
+    "slidePerContactM": [
+      0.5107983626336117
+    ]
+  },
+  "labelErrors": {
+    "lateLiftoffFrames": 4,
+    "lateTouchdownFrames": 3,
+    "speedMismatchShare": 0.3006943197292881,
+    "labelExtensionShare": 0.6993056802707118,
+    "extensionTailShare": 0.43399024037486067
+  },
+  "instrumentBarPass": true
+}

@@ -29,6 +29,14 @@ import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-
  * contact is complete when both label boundaries were observed inside the walking phase
  * rather than at its edges.
  *
+ * TOE HEIGHT is toe world Y minus the walk-minimum toe Y (a stated proxy floor: the capture
+ * carries no floor datum, and the minimum stance dip sits ~4 mm, so the systematic error is a
+ * few mm — immaterial against the 60 mm band). `footBoneHeightMeters` is deliberately NOT
+ * used: it is the HEEL bone, which rides 6-13 cm above the floor even in stance on this
+ * capture, so the production toe band never admits it. The band test below therefore leans on
+ * motion, exactly like the production labeller (`locomotion-stance-labels.ts`: contact is a
+ * clip-motion property, height only a secondary gate).
+ *
  * claimScope: arithmetic over foot-plant-video.json frames and their production stance labels.
  * notEvidenceFor: gait realism, clinical plausibility, Quest performance.
  */
@@ -99,6 +107,7 @@ export type WalkSlideAccounting = {
     contacts: number;
     rootSpeedMps: number;
     stanceFootSpeedMps: number;
+    steadyPeakBackwardSpeedMps: number;
     ratio: number | null;
     dutyLabel: number | null;
     dutyKinematic: number | null;
@@ -107,8 +116,12 @@ export type WalkSlideAccounting = {
   labelErrors: {
     lateLiftoffFrames: number | null;
     lateTouchdownFrames: number | null;
-    overlapSlideShare: number | null;
-    extensionSlideShare: number | null;
+    /** Share of steady slide on kinematically-valid labelled frames (root outruns the foot). */
+    speedMismatchShare: number | null;
+    /** Share on labelled-but-not-kinematic frames (label too long / mid-stance carry). */
+    labelExtensionShare: number | null;
+    /** Of the extension share, the part after the last kinematic frame (liftoff tail). */
+    extensionTailShare: number | null;
   };
   instrumentBarPass: boolean;
 };
@@ -153,6 +166,17 @@ export function computeWalkSlideAccounting(
     if (routeLengthM > 0) routeDir = { x: dx / routeLengthM, z: dz / routeLengthM };
   }
 
+  // Proxy floor: the capture carries no floor datum. The walk-minimum toe Y is the stance
+  // dip (~4 mm here), so toe height above it carries a few-mm systematic error — immaterial
+  // against the 60 mm band. See the file header for why the heel field is not used.
+  let floorY: number | null = null;
+  for (const i of walkingIdx) {
+    const f = frames[i]!;
+    for (const toe of [f.left, f.right]) {
+      if (toe !== null && (floorY === null || toe.y < floorY)) floorY = toe.y;
+    }
+  }
+
   const perFrame: FrameAccounting[] = frames.map((f, i) => {
     const prev = i > 0 ? frames[i - 1] : null;
     let rootAdvanceM = 0;
@@ -178,8 +202,8 @@ export function computeWalkSlideAccounting(
       rootAdvanceM,
       leftBodyAlongM,
       rightBodyAlongM,
-      leftToeHeightM: f.footBoneHeightMeters?.left ?? null,
-      rightToeHeightM: f.footBoneHeightMeters?.right ?? null,
+      leftToeHeightM: f.left !== null && floorY !== null ? f.left.y - floorY : null,
+      rightToeHeightM: f.right !== null && floorY !== null ? f.right.y - floorY : null,
       stanceLabel: f.stanceFoot,
     };
   });
@@ -382,15 +406,16 @@ export function computeWalkSlideAccounting(
   let lateLiftoffSum = 0;
   let lateTouchdownSum = 0;
   let timedContacts = 0;
-  let overlapSum = 0;
+  let mismatchSum = 0;
   let extensionSum = 0;
+  let extensionTailSum = 0;
   let slideTotal = 0;
   for (const c of steady) {
     const startPos = walkingPos.get(c.startFrame) ?? 0;
     const endPos = walkingPos.get(c.endFrame) ?? 0;
     const lo = Math.max(0, startPos - 10);
     const hi = Math.min(walkingIdx.length - 1, endPos + 10);
-    const kin: number[] = [];
+    const kin = new Set<number>();
     for (let pos = lo; pos <= hi; pos += 1) {
       const i = walkingIdx[pos]!;
       const row = perFrame[i]!;
@@ -400,32 +425,68 @@ export function computeWalkSlideAccounting(
         h !== null && h < FOOT_CONTACT_HEIGHT_METERS &&
         s !== null && stanceFootSpeedMps > 0 && s >= 0.5 * stanceFootSpeedMps
       ) {
-        kin.push(i);
+        kin.add(i);
       }
     }
-    if (kin.length === 0) continue;
+    if (kin.size === 0) continue;
     timedContacts += 1;
-    const kinStart = kin[0]!;
-    const kinEnd = kin[kin.length - 1]!;
+    const kinStart = Math.min(...kin);
+    const kinEnd = Math.max(...kin);
     lateTouchdownSum += c.startFrame - kinStart;
     lateLiftoffSum += c.endFrame - kinEnd;
-    const toeAt = (frameIdx: number): Vec3 =>
-      (c.foot === "left" ? frames[frameIdx]!.left! : frames[frameIdx]!.right!) as Vec3;
-    const overlapVec = { x: toeAt(kinEnd).x - toeAt(kinStart).x, z: toeAt(kinEnd).z - toeAt(kinStart).z };
-    const overlap = Math.abs(dot(overlapVec.x, overlapVec.z, routeDir.x, routeDir.z));
-    const total = Math.abs(c.measuredSlideM);
-    overlapSum += Math.min(overlap, total);
-    extensionSum += Math.max(0, total - Math.min(overlap, total));
-    slideTotal += total;
+    // Exact per-frame partition of the contact's own predicted sum (= measured): kinematic
+    // labelled frames (speed mismatch) vs the rest (label extension / mid-stance carry).
+    for (let i = c.startFrame + 1; i <= c.endFrame; i += 1) {
+      const row = perFrame[i]!;
+      const body = c.foot === "left" ? row.leftBodyAlongM : row.rightBodyAlongM;
+      const part = row.rootAdvanceM + (body ?? 0);
+      if (kin.has(i)) mismatchSum += part;
+      else {
+        extensionSum += part;
+        if (i > kinEnd) extensionTailSum += part;
+      }
+    }
+    slideTotal += Math.abs(c.measuredSlideM);
   }
 
   const walkingSeconds =
     walkingIdx.length >= 2
       ? (frames[walkingIdx[walkingIdx.length - 1]!]!.tMs - frames[walkingIdx[0]!]!.tMs) / 1000
       : 0;
-  let rootTravelM = 0;
-  for (const i of walkingIdx.slice(1)) rootTravelM += perFrame[i]!.rootAdvanceM;
-  const rootSpeedMps = walkingSeconds > 0 ? rootTravelM / walkingSeconds : 0;
+
+  // Steady-scoped root speed: travel over the steady contacts' own span, so the walk-start
+  // probe gap and the stop transient do not dilute it. Falls back to the whole walk when
+  // there is no steady subset.
+  let rootSpeedMps: number;
+  if (steady.length > 0) {
+    const s0 = steady[0]!;
+    const s1 = steady[steady.length - 1]!;
+    const spanS = (frames[s1.endFrame]!.tMs - frames[s0.startFrame]!.tMs) / 1000;
+    let travelM = 0;
+    for (let i = s0.startFrame + 1; i <= s1.endFrame; i += 1) travelM += perFrame[i]!.rootAdvanceM;
+    rootSpeedMps = spanS > 0 ? travelM / spanS : 0;
+  } else {
+    let rootTravelM = 0;
+    for (const i of walkingIdx.slice(1)) rootTravelM += perFrame[i]!.rootAdvanceM;
+    rootSpeedMps = walkingSeconds > 0 ? rootTravelM / walkingSeconds : 0;
+  }
+
+  // Steady-scoped median stance-foot backward speed (the ratio's denominator), plus the
+  // steady peak for the against-the-clip comparison.
+  const steadySpeeds: number[] = [];
+  let steadyPeakBackwardSpeedMps = 0;
+  for (const c of steady) {
+    for (const i of walkingIdx.filter((k) => k > c.startFrame && k <= c.endFrame)) {
+      const cur = frames[i]!;
+      const prev = frames[i - 1]!;
+      if ((cur.tMs - prev.tMs) / 1000 > 0) {
+        const s = backwardSpeedMps(i, c.foot) ?? 0;
+        steadySpeeds.push(s);
+        if (s > steadyPeakBackwardSpeedMps) steadyPeakBackwardSpeedMps = s;
+      }
+    }
+  }
+  const steadyStanceFootSpeedMps = median(steadySpeeds);
 
   return {
     routeDir,
@@ -443,8 +504,9 @@ export function computeWalkSlideAccounting(
     steadyState: {
       contacts: steady.length,
       rootSpeedMps,
-      stanceFootSpeedMps,
-      ratio: stanceFootSpeedMps > 0 ? rootSpeedMps / stanceFootSpeedMps : null,
+      stanceFootSpeedMps: steadyStanceFootSpeedMps,
+      steadyPeakBackwardSpeedMps,
+      ratio: steadyStanceFootSpeedMps > 0 ? rootSpeedMps / steadyStanceFootSpeedMps : null,
       dutyLabel,
       dutyKinematic,
       slidePerContactM: steady.map((c) => c.measuredSlideM),
@@ -452,8 +514,9 @@ export function computeWalkSlideAccounting(
     labelErrors: {
       lateLiftoffFrames: timedContacts > 0 ? lateLiftoffSum / timedContacts : null,
       lateTouchdownFrames: timedContacts > 0 ? lateTouchdownSum / timedContacts : null,
-      overlapSlideShare: slideTotal > 0 ? overlapSum / slideTotal : null,
-      extensionSlideShare: slideTotal > 0 ? extensionSum / slideTotal : null,
+      speedMismatchShare: slideTotal > 0 ? mismatchSum / slideTotal : null,
+      labelExtensionShare: slideTotal > 0 ? extensionSum / slideTotal : null,
+      extensionTailShare: slideTotal > 0 ? extensionTailSum / slideTotal : null,
     },
     instrumentBarPass: contacts.every((c) => c.barPass),
   };

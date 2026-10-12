@@ -1,0 +1,150 @@
+{
+ "schemaVersion": "openclinxr.walk-account-report.v1",
+ "measuredAt": "2026-10-11",
+ "controlCapture": {
+  "path": ".openclinxr/evidence/walk-slide/off/foot-plant-video.json",
+  "accountingPath": ".openclinxr/evidence/walk-account/sc-05-accounting.json",
+  "scenario": "scene_closure_supine_bedside_v1",
+  "actorId": "senior_resident_ward_v1",
+  "driveSource": "case_owned_bedside_approach",
+  "steppingTurnEnabled": false,
+  "ccdStanceLockEnabled": false,
+  "tool": "tools/openclinxr/evidence/foot-plant/foot-plant-video-capture.ts",
+  "frames": 107
+ },
+ "contacts": [
+  {
+   "foot": "right",
+   "startFrame": 2,
+   "endFrame": 5,
+   "frames": 4,
+   "measuredSlideM": 0.2283839945726417,
+   "predictedSlideM": 0.2283839945726417,
+   "barPass": true,
+   "maxToeHeightM": 0.03326765135590409,
+   "labelledButNotMovingBackFrames": 3,
+   "peakBackwardSpeedMps": 0,
+   "startComplete": true,
+   "endComplete": true,
+   "steady": false
+  },
+  {
+   "foot": "left",
+   "startFrame": 6,
+   "endFrame": 21,
+   "frames": 16,
+   "measuredSlideM": 0.5107983626336117,
+   "predictedSlideM": 0.5107983626336117,
+   "barPass": true,
+   "maxToeHeightM": 0.026258346711701255,
+   "labelledButNotMovingBackFrames": 10,
+   "peakBackwardSpeedMps": 1.2645208375700012,
+   "startComplete": true,
+   "endComplete": true,
+   "steady": true
+  },
+  {
+   "foot": "right",
+   "startFrame": 22,
+   "endFrame": 27,
+   "frames": 6,
+   "measuredSlideM": 0.10034817426912991,
+   "predictedSlideM": 0.1003481742691299,
+   "barPass": true,
+   "maxToeHeightM": 0.02212050293982054,
+   "labelledButNotMovingBackFrames": 1,
+   "peakBackwardSpeedMps": 1.082768621056651,
+   "startComplete": true,
+   "endComplete": false,
+   "steady": false
+  }
+ ],
+ "droppedZeroLengthEpisodes": 0,
+ "routeLengthM": 1.2018,
+ "walkingFrames": 28,
+ "walkingSeconds": 1.325,
+ "fullGaitCycles": 0,
+ "steadyGaitCycles": 0,
+ "straightRouteCapture": null,
+ "steadyState": {
+  "contacts": 1,
+  "rootSpeedMps": 1.373533925058295,
+  "stanceFootSpeedMps": 0.22367059195279024,
+  "steadyPeakBackwardSpeedMps": 1.2645208375700012,
+  "ratio": 6.140878481459934,
+  "dutyLabel": 0.4642857142857143,
+  "dutyKinematic": 0.4107142857142857,
+  "slidePerContactM": [
+   0.5107983626336117
+  ]
+ },
+ "labelErrors": {
+  "lateLiftoffFrames": 4,
+  "lateTouchdownFrames": 3,
+  "speedMismatchShare": 0.3006943197292881,
+  "labelExtensionShare": 0.6993056802707118,
+  "extensionTailShare": 0.43399024037486067
+ },
+ "unlabelledStanceFrames": [
+  {
+   "frame": 3,
+   "foot": "left",
+   "toeHeightM": 0.0143,
+   "backwardSpeedMps": 0.635
+  },
+  {
+   "frame": 4,
+   "foot": "left",
+   "toeHeightM": 0.0067,
+   "backwardSpeedMps": 0.692
+  },
+  {
+   "frame": 5,
+   "foot": "left",
+   "toeHeightM": 0.0041,
+   "backwardSpeedMps": 0.662
+  },
+  {
+   "frame": 6,
+   "foot": "right",
+   "toeHeightM": 0.0062,
+   "backwardSpeedMps": 0.316
+  },
+  {
+   "frame": 18,
+   "foot": "right",
+   "toeHeightM": 0.0177,
+   "backwardSpeedMps": 0.592
+  },
+  {
+   "frame": 19,
+   "foot": "right",
+   "toeHeightM": 0.0089,
+   "backwardSpeedMps": 0.659
+  },
+  {
+   "frame": 20,
+   "foot": "right",
+   "toeHeightM": 0.0026,
+   "backwardSpeedMps": 0.677
+  },
+  {
+   "frame": 21,
+   "foot": "right",
+   "toeHeightM": 0.0027,
+   "backwardSpeedMps": 0.614
+  }
+ ],
+ "instrumentBar": "predictedSlideM within 0.03 m of measuredSlideM on every non-dropped contact",
+ "instrumentBarPass": true,
+ "conclusions": {
+  "rootVsClip": "Steady-state root runs 1.374 m/s against a median labelled stance-foot backward speed of 0.224 m/s (ratio 6.1; peak 1.265 m/s still below root): root is faster than the clip stance foot in steady state.",
+  "labelTiming": "The steady label starts 3 frames after kinematic touchdown (frames 3-5 stance-genuine but unlabelled) and ends 4 frames after kinematic liftoff: labels are late at touchdown and too long at liftoff.",
+  "slideShares": "Of the 0.511 m steady-contact slide, 30% accumulates on kinematically-valid stance frames (root outruns the foot) and 70% on labelled-but-not-stance frames (43% liftoff tail frames 18-21, 27% mid-stance carry frames 12-14)."
+ },
+ "notEvidenceFor": [
+  "gait realism",
+  "clinical plausibility",
+  "Quest performance"
+ ]
+}
