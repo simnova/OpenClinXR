@@ -86,7 +86,7 @@ const AABB_CORNER_SIGNS: ReadonlyArray<readonly [boolean, boolean, boolean]> = [
  * for pack views, or null for legacy framing — recorded in the evidence so the
  * 70-85% target is auditable, not just the pixel-coverage floor.
  */
-export function frameCamera(camera: PerspectiveCamera, bounds: Box3, view?: CaptureView): number | null {
+export function frameCamera(camera: PerspectiveCamera, bounds: Box3, view?: CaptureView, yawDegrees?: number): number | null {
   const center = bounds.getCenter(new Vector3());
   const size = bounds.getSize(new Vector3());
   const radius = Math.max(size.x, size.y, size.z, 0.4);
@@ -114,7 +114,9 @@ export function frameCamera(camera: PerspectiveCamera, bounds: Box3, view?: Capt
     return null;
   }
 
-  const [dx, dz] = VIEW_DIRECTIONS[view];
+  const [dx, dz] = Number.isFinite(yawDegrees as number)
+    ? [Math.sin(((yawDegrees as number) * Math.PI) / 180), Math.cos(((yawDegrees as number) * Math.PI) / 180)] as [number, number]
+    : VIEW_DIRECTIONS[view];
   const horiz = new Vector3(dx, 0, dz);
   // Proportional elevation (size.y, not the floored radius) — identical to the
   // old `radius * 0.35` for tall subjects, sane for small plates.

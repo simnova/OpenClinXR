@@ -18,11 +18,13 @@ import {
   Color,
   DirectionalLight,
   Group,
+  Light,
   Mesh,
   MeshStandardMaterial,
   type Object3D,
   PerspectiveCamera,
   PlaneGeometry,
+  REVISION,
   Scene,
   Vector3,
   WebGLRenderer,
@@ -36,6 +38,7 @@ import {
 } from "./articulating-hob-measure.js";
 import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
+import { isFittedHairMeshName } from "./head-box-from-geometry.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
 import { rebindHeadLockedTeeth } from "./humanoid-load-guard.js";
 import { buildDeclaredEquipmentGeometry, buildPatientChair } from "@openclinxr/xr-station";
@@ -100,6 +103,12 @@ export type IsolatedSubjectSpec = {
   focus?: "eyes" | "head" | "mouth";
   /** #495 ablation: when true, applySupinePose skips the 17 joint eulers (root basis only). */
   supineRootOnly?: boolean;
+  /** Skin-realism portrait: hide fitted hair meshes matched by /hair/i before framing. */
+  hideHair?: boolean;
+  /** Skin-realism portrait: yaw about the vertical axis in degrees (0 = front). Overrides view direction. */
+  yawDegrees?: number;
+  /** Skin-realism portrait: square render size in px when view != null (default 1024). */
+  renderSize?: number;
   label?: string;
 };
 
@@ -170,6 +179,7 @@ declare global {
     /** #495 ablation: the framed subject's live world AABB, recorded for every subject kind. */
     __openClinXrSubjectAabb?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
     __openClinXrIsolatedRenderFrame?: () => void;
+    __openClinXrIsolatedRuntimeDebug?: unknown;
   }
 }
 
@@ -204,6 +214,11 @@ function parseSpec(): IsolatedSubjectSpec {
   const exportGlbRaw = params.get("exportGlb");
   const subjectOnlyRaw = params.get("subjectOnly");
   const focusRaw = params.get("focus");
+  const hideHairRaw = params.get("hideHair");
+  const yawRaw = params.get("yawDegrees");
+  const renderSizeRaw = params.get("renderSize");
+  const yawDegrees = yawRaw != null && yawRaw !== "" ? Number(yawRaw) : undefined;
+  const renderSize = renderSizeRaw != null && renderSizeRaw !== "" ? Number(renderSizeRaw) : undefined;
   return {
     subjectId,
     subjectKind,
@@ -216,6 +231,9 @@ function parseSpec(): IsolatedSubjectSpec {
     ...(exportGlbRaw === "true" ? { exportGlb: true } : {}),
     ...(subjectOnlyRaw === "true" ? { subjectOnly: true } : {}),
     ...(focusRaw === "eyes" || focusRaw === "head" ? { focus: focusRaw as "eyes" | "head" } : {}),
+    ...(hideHairRaw === "true" ? { hideHair: true } : {}),
+    ...(yawDegrees != null && Number.isFinite(yawDegrees) ? { yawDegrees } : {}),
+    ...(renderSize != null && Number.isFinite(renderSize) ? { renderSize } : {}),
     label: params.get("label") ?? subjectId,
   };
 }
@@ -330,11 +348,30 @@ function buildFurniture(
   });
 }
 
+/** Skin-realism portrait: remove fitted hair meshes (/hair/i over mesh, node, geometry names) so the head frames without hair. */
+function removeFittedHair(root: Object3D): string[] {
+  const removed: string[] = [];
+  const targets: Object3D[] = [];
+  root.traverse((o) => {
+    if (!(o instanceof Mesh)) return;
+    const nodeName = typeof (o.userData?.name) === "string" ? String(o.userData.name) : "";
+    const geoName = o.geometry?.name ?? "";
+    if (isFittedHairMeshName(o.name) || (nodeName && isFittedHairMeshName(nodeName)) || (geoName && isFittedHairMeshName(geoName))) {
+      targets.push(o);
+      removed.push(o.name || nodeName || geoName);
+    }
+  });
+  for (const t of targets) t.parent?.remove(t);
+  return removed;
+}
+
 async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
   root: Object3D;
   meshCount: number;
   humanoid: Object3D | null;
-}> {
+  hairHidden: boolean;
+  hiddenHairMeshes: string[];
+} > {
   const container = new Group();
   container.name = `isolated_subject.${spec.subjectId}`;
   const incline = spec.inclineDegrees ?? 0;
@@ -384,11 +421,17 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     throw new Error(`Unsupported subjectKind: ${spec.subjectKind}`);
   }
 
+  let hiddenHairMeshes: string[] = [];
+  if (spec.hideHair === true) {
+    hiddenHairMeshes = removeFittedHair(container);
+    container.updateMatrixWorld(true);
+  }
+
   let meshCount = 0;
   container.traverse((o) => {
     if (o instanceof Mesh) meshCount += 1;
   });
-  return { root: container, meshCount, humanoid };
+  return { root: container, meshCount, humanoid, hairHidden: spec.hideHair === true, hiddenHairMeshes };
 }
 
 async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSpec): Promise<IsolatedSubjectEvidence> {
@@ -399,8 +442,11 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
   const square = spec.view != null;
-  const width = square ? PACK_WIDTH : WIDTH_LEGACY;
-  const height = square ? PACK_HEIGHT : HEIGHT_LEGACY;
+  const packSize = spec.renderSize != null && Number.isFinite(spec.renderSize)
+    ? Math.min(4096, Math.max(512, Math.round(spec.renderSize)))
+    : PACK_WIDTH;
+  const width = square ? packSize : WIDTH_LEGACY;
+  const height = square ? packSize : HEIGHT_LEGACY;
   renderer.setSize(width, height, false);
   renderer.setClearColor(new Color(BG));
   renderer.setPixelRatio(1);
@@ -435,7 +481,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     scene.add(ground);
   }
 
-  const { root, meshCount, humanoid } = await buildSubjectRoot(spec);
+  const { root, meshCount, humanoid, hairHidden, hiddenHairMeshes } = await buildSubjectRoot(spec);
   scene.add(root);
   window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
@@ -474,7 +520,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds);
 
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
-  const frameSpanFraction = frameCamera(camera, frameBounds, spec.view);
+  const frameSpanFraction = frameCamera(camera, frameBounds, spec.view, spec.yawDegrees);
 
   const packFraming = recordPackFraming(camera, frameBounds, spec.view);
   window.__openClinXrIsolatedRenderFrame = () => { renderer.render(scene, camera); };
@@ -565,7 +611,69 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     ],
   };
   window.__openClinXrIsolatedSubjectEvidence = evidence;
+  window.__openClinXrIsolatedRuntimeDebug = collectRuntimeDebug({ renderer, scene, root, hairHidden, hiddenHairMeshes });
   return evidence;
+}
+
+/** Skin-realism portrait: live renderer/lights/material values read from the scene, never source-read. */
+function collectRuntimeDebug(input: { renderer: WebGLRenderer; scene: Scene; root: Object3D; hairHidden: boolean; hiddenHairMeshes: string[] }): unknown {
+  const { renderer, scene, root, hairHidden, hiddenHairMeshes } = input;
+  const lights: Array<{ type: string; color: string; intensity: number; position: { x: number; y: number; z: number } }> = [];
+  scene.traverse((o) => {
+    if (o instanceof Light) {
+      const color = `#${o.color.getHexString()}`;
+      lights.push({ type: o.type, color, intensity: o.intensity, position: { x: o.position.x, y: o.position.y, z: o.position.z } });
+    }
+  });
+  let skin: { name: string; type: string; roughness: number; metalness: number; hasNormalMap: boolean; baseColorTextureSize: number[] | null } | null = null;
+  root.traverse((o) => {
+    if (skin || !(o instanceof Mesh)) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (m && /skin/i.test(m.name)) {
+        const std = m as MeshStandardMaterial;
+        const map = (std as unknown as { map?: { image?: { width?: number; height?: number } } }).map;
+        skin = {
+          name: m.name,
+          type: m.type,
+          roughness: typeof std.roughness === "number" ? std.roughness : -1,
+          metalness: typeof std.metalness === "number" ? std.metalness : -1,
+          hasNormalMap: (std as unknown as { normalMap?: unknown }).normalMap != null,
+          baseColorTextureSize: map?.image?.width ? [map.image.width, map.image.height ?? map.image.width] : null,
+        };
+        return;
+      }
+    }
+  });
+  if (!skin) {
+    root.traverse((o) => {
+      if (skin || !(o instanceof Mesh)) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      const m = mats[0];
+      if (!m) return;
+      const std = m as MeshStandardMaterial;
+      const map = (std as unknown as { map?: { image?: { width?: number; height?: number } } }).map;
+      skin = {
+        name: m.name,
+        type: m.type,
+        roughness: typeof std.roughness === "number" ? std.roughness : -1,
+        metalness: typeof std.metalness === "number" ? std.metalness : -1,
+        hasNormalMap: (std as unknown as { normalMap?: unknown }).normalMap != null,
+        baseColorTextureSize: map?.image?.width ? [map.image.width, map.image.height ?? map.image.width] : null,
+      };
+    });
+  }
+  return {
+    threeRevision: REVISION,
+    toneMapping: renderer.toneMapping,
+    toneMappingExposure: renderer.toneMappingExposure,
+    outputColorSpace: renderer.outputColorSpace,
+    environmentMap: scene.environment != null,
+    lights,
+    skinMaterial: skin,
+    hairHidden,
+    hiddenHairMeshes,
+  };
 }
 
 export function bootIsolatedSubjectLab(): void {
