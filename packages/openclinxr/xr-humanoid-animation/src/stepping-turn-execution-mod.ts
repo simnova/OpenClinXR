@@ -339,7 +339,7 @@ export function advanceSteppingTurn(input: {
         if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
         else parentQ.identity();
         const localQ = chain.heel.quaternion;
-        const worldQ = parentQ.clone().multiply(localQ);
+        const worldQ = parentQ.clone().multiply(localQ).normalize();
         state.footQuat[side] = {
           q: { x: worldQ.x, y: worldQ.y, z: worldQ.z, w: worldQ.w },
           yaw: targets.yawRadians,
@@ -390,9 +390,12 @@ export function advanceSteppingTurn(input: {
         const parentQ = new Quaternion();
         if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
         else parentQ.identity();
+        // Unit by construction: the decomposed parentQ carries hierarchy
+        // scale/shear and three's invert assumes unit (see quatInParentFrame).
+        parentQ.normalize();
         const yawDelta = new Quaternion().setFromAxisAngle(Y_AXIS, targets.yawRadians - frozen.yaw);
-        const wantWorld = yawDelta.multiply(new Quaternion(frozen.q.x, frozen.q.y, frozen.q.z, frozen.q.w));
-        chain.heel.quaternion.copy(parentQ.invert().multiply(wantWorld));
+        const wantWorld = yawDelta.multiply(new Quaternion(frozen.q.x, frozen.q.y, frozen.q.z, frozen.q.w)).normalize();
+        chain.heel.quaternion.copy(parentQ.invert().multiply(wantWorld)).normalize();
         chain.heel.updateWorldMatrix(true, false);
       }
     }

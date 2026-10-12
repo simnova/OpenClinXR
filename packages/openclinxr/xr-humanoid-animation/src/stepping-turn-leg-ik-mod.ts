@@ -40,6 +40,18 @@ export type SteppingLegChain = {
   toe: Object3D;
 };
 
+/**
+ * Guard: every leg-joint local quaternion the solver writes is unit. The
+ * conversions above are normalised by construction; this keeps a stored
+ * non-unit rest snapshot or a future writer from reintroducing drift.
+ */
+function normaliseLegChainJoints(chain: SteppingLegChain): void {
+  chain.hip.quaternion.normalize();
+  chain.upperMid.quaternion.normalize();
+  chain.knee.quaternion.normalize();
+  chain.lowerMid.quaternion.normalize();
+}
+
 /** Resolve the full four-joint leg chain; null on a rig without one (headless markers). */
 export function findSteppingLegChain(actorSlot: Object3D, stanceFoot: StanceFoot): SteppingLegChain | null {
   const base = findStanceChain(actorSlot, stanceFoot);
@@ -83,10 +95,14 @@ function ccdSweep(joints: Object3D[], end: Object3D, target: Vector3): number {
     const parentQ = new Quaternion();
     if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
     else parentQ.identity();
+    // Unit by construction (see quatInParentFrame): the decomposed parentQ is
+    // not exactly unit under the scaled actor, and three's invert assumes unit.
+    parentQ.normalize();
     // World-axis rotation -> joint-local delta, so the heel aims without twisting the foot:
     // only the four leg joints rotate; heel/toe orientation is whatever the mixer wrote.
-    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQ.clone().invert()), Math.acos(cos));
+    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQ.clone().invert()).normalize(), Math.acos(cos));
     joint.quaternion.premultiply(delta);
+    joint.quaternion.normalize();
     joint.updateMatrixWorld(true);
   }
   end.updateMatrixWorld(true);
@@ -199,13 +215,21 @@ function quatInParentFrame(
   const parentQ = new Quaternion();
   if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
   else parentQ.identity();
+  // getWorldQuaternion decomposes a matrix that carries the actor hierarchy's
+  // scale/shear, so it is not exactly unit (measured 0.99995..1.00034 in the
+  // SC-05 turn). three's invert is conjugate-only and assumes unit input, so an
+  // unnormalised parentQ makes the local delta norm |P|^2 instead of 1 and the
+  // premultiplied joint drifts off unit frame over frame. Normalise by
+  // construction; the probe keeps the raw pre-normalise norm as the shear signal.
   const parentQNorm = parentQ.length();
+  parentQ.normalize();
   const deltaNorm = worldDelta.length();
   const local = new Quaternion()
     .copy(parentQ)
     .invert()
     .multiply(worldDelta)
-    .multiply(parentQ);
+    .multiply(parentQ)
+    .normalize();
   return { local, parentQNorm, deltaNorm };
 }
 
@@ -271,6 +295,7 @@ export function solveSteppingLegHinge(input: {
   const probe = input.onWrite ?? null;
   if (hold?.upper) chain.upperMid.quaternion.set(hold.upper.x, hold.upper.y, hold.upper.z, hold.upper.w);
   if (hold?.lower) chain.lowerMid.quaternion.set(hold.lower.x, hold.lower.y, hold.lower.z, hold.lower.w);
+  normaliseLegChainJoints(chain);
   if (probe) {
     if (hold?.upper) probe({ joint: "upperMid", normAfter: chain.upperMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
     if (hold?.lower) probe({ joint: "lowerMid", normAfter: chain.lowerMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
@@ -443,6 +468,7 @@ export function solveSteppingLegHinge(input: {
   const kneeProbed = quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir));
   chain.knee.quaternion.premultiply(kneeProbed.local);
   if (probe) probe({ joint: "knee", normAfter: chain.knee.quaternion.length(), parentQNorm: kneeProbed.parentQNorm, deltaNorm: kneeProbed.deltaNorm });
+  normaliseLegChainJoints(chain);
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);

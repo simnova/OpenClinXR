@@ -1,6 +1,6 @@
+import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import type { Object3D } from "three";
 import { MathUtils, Quaternion, Vector3 } from "three";
-import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import type { StanceFoot, StanceLockState } from "./stance-lock-mod.js";
 
 /**
@@ -134,19 +134,22 @@ export function solveTwoBoneIK(
     }
   }
 
-  // Convert world hinge axis to hip local space
+  // Convert world hinge axis to hip local space. Unit by construction: the
+  // setFromRotationMatrix quats inherit the actor hierarchy's scale/shear (the
+  // 0.86 slot scale), and three's invert assumes unit input, so the converted
+  // axis is normalised before setFromAxisAngle, which needs a unit axis.
   const hipWorldQuat = new Quaternion().setFromRotationMatrix(hip.matrixWorld);
-  const hipLocalAxis = hingeAxis.clone().applyQuaternion(hipWorldQuat.clone().invert());
+  const hipLocalAxis = hingeAxis.clone().applyQuaternion(hipWorldQuat.clone().invert()).normalize();
 
   // Knee rotates around same hinge axis (in knee local space)
   const kneeWorldQuat = new Quaternion().setFromRotationMatrix(knee.matrixWorld);
-  const kneeLocalAxis = hingeAxis.clone().applyQuaternion(kneeWorldQuat.clone().invert());
+  const kneeLocalAxis = hingeAxis.clone().applyQuaternion(kneeWorldQuat.clone().invert()).normalize();
 
   // Create local rotations
   // Hip delta: rotates by hipAngle around hinge axis (from-identity delta)
-  const hipDelta = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle);
+  const hipDelta = new Quaternion().setFromAxisAngle(hipLocalAxis, hipAngle).normalize();
   // Knee absolute: bends by kneeBendAngle around hinge axis (well-defined absolute local bend)
-  const kneeQuat = new Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle);
+  const kneeQuat = new Quaternion().setFromAxisAngle(kneeLocalAxis, kneeBendAngle).normalize();
 
   return { hipDelta, kneeQuat };
 }
