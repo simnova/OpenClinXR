@@ -49,9 +49,19 @@ other writer touches the claim. The mixer never steps more than 1.6 deg.
 
 ## Renders
 
-Side + front body-only (garments/hair hidden) 0.5x clips of walk start and walk end:
-`.openclinxr/evidence/arm-settle/renders/arm-settle-{side-start,side-end,front-start,front-end}.mp4`.
-Front view matches the orchestrator reference framing.
+The worker's side/front clips were rejected by the orchestrator (the "front" camera sat behind
+the walker, inside the room, cropped) and are not kept. The graded visual is a side-by-side
+browser capture of main vs this fix from `foot-plant-video-capture.ts --full-body`: on main the
+arms are at the sides one frame after the stop; with the fix they are mid-blend on that frame.
+Garments were on in that capture.
+
+## Not shown
+
+- Leg/root equality with control: two control captures differ by 0.29 (leg quaternion component)
+  and 0.087 m (root, local) late in the run, so the fix's 0.37 / 0.18 is not distinguishable from
+  capture noise. The fix touches no leg code path; the stop-distance and arrival tests pass.
+- Walk-start step is 4.27 deg/frame against a 4.3 cap: that is the 40 deg idle-to-clip gap over
+  the 0.4 s ramp, not a tuned value.
 
 ## Files
 
@@ -61,6 +71,6 @@ Front view matches the orchestrator reference framing.
 - Unit tests: `xr-pose/.../the-posture-pass-applies-an-owned-bone-once.test.ts`,
   `xr-pose/.../no-arm-clamp-in-the-pose-path.test.ts`,
   `xr-humanoid-animation/.../the-upper-body-ownership-ramps.test.ts`
-- Tool: `tools/openclinxr/evidence/arm-settle/arm-settle-render.ts`
+- Tool: `tools/openclinxr/evidence/arm-settle/arm-settle-measure.ts`
 - Evidence: `.openclinxr/evidence/arm-settle/{control-tap,control-tap2,fix-tap}.json`,
   `report.json`
