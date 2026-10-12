@@ -257,7 +257,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     expect(fixtureOwnershipWeight(ownedChains, "forearmL")).toBe(1);
   });
 
-  it("(f) governor bounds transition jumps: teleport under ownership, then claim clear, arrival, frozen holds", async () => {
+  it("(f) MPFB lowerarm01.L release converges over frames: no sim frame covers more than the slew cap, arrival at idle, clean claim-clear handoff", async () => {
     const humanoid = buildTestHumanoid(true);
 
     // Simulate MPFB rig detection - need MPFB joint names for isMpfb2Rig() to return true
@@ -271,6 +271,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     humanoid.userData.openClinXrHumanoidRail = "mpfb2";
 
     // Replace forearmL with lowerarm01.L to match MPFB naming
+    const upperArmL = humanoid.getObjectByName("upper_armL")!;
     const lowerArmL = humanoid.getObjectByName("forearmL")!;
     lowerArmL.name = "lowerarm01.L";
 
@@ -280,47 +281,78 @@ describe("locomotion crossfade with clinical idle posture", () => {
     humanoid.userData.openClinXrMpfbForearmBinds = new Map([
       ["lowerarm01L", { x: bind.x, y: bind.y, z: bind.z, w: bind.w }],
     ]);
+
+    // The idle target for MPFB lowerarm01 is bind-relative: 0.6 * bindBend
     const bindBend = 2 * Math.atan2(bind.x, bind.w);
-    const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.6 * bindBend, 0, 0));
+    const idleBend = 0.6 * bindBend; // MPFB_IDLE_FOREARM_BEND_FRACTION = 0.6
+    const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
 
-    // Converge to idle first (unowned absolute write + governor first-sight record).
-    lowerArmL.quaternion.copy(idleQuat);
-    applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-    expect(lowerArmL.quaternion.angleTo(idleQuat)).toBeLessThan(1e-6);
-
-    // A 25 deg teleport under ownership (whatever the in-pass blend does with it).
-    const jump = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), 25 * Math.PI / 180);
-    const teleported = idleQuat.clone().premultiply(jump);
-    const rotations: THREE.Quaternion[] = [lowerArmL.quaternion.clone()];
+    // Faithful release trajectory (2026-10-11 arm-settle): each call is one sim frame. The
+    // mixer keeps playing while its action fades, so the mixer pose glides from the swing
+    // pose toward idle over ~18 calls (the 0.6 s release) with a small decaying swing on top;
+    // the ownership weight ramps 1->0 over the first 9 calls (the locomotion fade). The
+    // posture drags the arm idle-ward at most the slew cap per call on top of the mixer.
+    const swingBase = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0.2, 0.1));
+    const rotations: THREE.Quaternion[] = [];
+    const mixerPoses: THREE.Quaternion[] = [];
     const perCallChange: number[] = [];
-    const step = (w: number | null) => {
-      lowerArmL.quaternion.copy(teleported);
-      humanoid.userData["openClinXrOwnedBoneChains"] = w === null ? [] : [
-        { ownerId: "openclinxr.locomotion-clip-playback", boneNames: ["lowerarm01.L"], weight: w },
+    let prevResult: THREE.Quaternion | null = null;
+    const rampCalls = 9;
+    const fadeCalls = 18;
+    const maxCalls = 40;
+    for (let call = 1; call <= maxCalls; call += 1) {
+      const fade = Math.min(1, call / fadeCalls);
+      const swingAngle = Math.sin(call * 0.9) * 0.5 * Math.PI / 180 * (1 - fade * 0.5);
+      const mixerPose = swingBase.clone().slerp(idleQuat, fade)
+        .premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), swingAngle));
+      lowerArmL.quaternion.copy(mixerPose);
+      const w = call <= rampCalls ? 1 - call / rampCalls : 0;
+      humanoid.userData["openClinXrOwnedBoneChains"] = [
+        {
+          ownerId: "openclinxr.locomotion-clip-playback",
+          boneNames: ["upper_armL", "lowerarm01.L"],
+          weight: w,
+        },
       ];
-      const before = rotations[rotations.length - 1]!.clone();
       applyGeneratedHumanoidClinicalIdlePosture(humanoid);
       const result = lowerArmL.quaternion.clone();
-      perCallChange.push(before.angleTo(result));
+      if (prevResult !== null) perCallChange.push(prevResult.angleTo(result));
       rotations.push(result);
-    };
-    // Owned release, then the claim clears mid-convergence (the fade-end handoff).
-    step(0.5); step(0.5); step(0.5);
-    step(null); step(null); step(null); step(null); step(null);
-    step(null); step(null); step(null); step(null); step(null);
-
-    // No call covers more than the governor cap (3.5 deg), including the clear frame.
-    const govCapRad = (3.5 * Math.PI) / 180;
-    for (const change of perCallChange) {
-      expect(change).toBeLessThanOrEqual(govCapRad + 1e-6);
+      mixerPoses.push(mixerPose.clone());
+      prevResult = result;
+      if (w === 0 && result.angleTo(idleQuat) < 0.0175) break;
     }
 
-    // It still arrives back at idle.
-    expect(rotations[rotations.length - 1]!.angleTo(idleQuat)).toBeLessThan(0.02);
+    // No sim frame covers more than the slew cap (2.0 deg): the cap bounds consecutive
+    // results, so the mixer's own fade glide cannot snap through either. A pass-through
+    // bone would track the mixer glide (up to ~2.4 deg/call early) and fail this.
+    const slewCapRad = (2.0 * Math.PI) / 180;
+    for (const change of perCallChange) {
+      expect(change).toBeLessThanOrEqual(slewCapRad + 1e-6);
+    }
 
-    // A frozen mixer holds exactly (repeat collapse): one more call with no re-pose.
+    // It must actually arrive: a bone the pass never touches is "capped" by standing still.
+    const last = rotations[rotations.length - 1]!;
+    expect(last.angleTo(idleQuat)).toBeLessThan(0.0175);
+
+    // Mid-release the arm is still travelling (strictly between start and idle).
+    const mid = rotations[Math.min(5, rotations.length - 1)]!;
+    expect(mid.angleTo(idleQuat)).toBeGreaterThan(0.0175);
+    expect(mid.angleTo(rotations[0]!)).toBeGreaterThan(0.0175);
+
+    // Verify monotonic approach to idle within swing noise.
+    let prevAngleToIdle = rotations[0]!.angleTo(idleQuat);
+    for (let i = 1; i < rotations.length; i++) {
+      const angleToIdle = rotations[i]!.angleTo(idleQuat);
+      expect(prevAngleToIdle - angleToIdle).toBeGreaterThanOrEqual(-0.02);
+      prevAngleToIdle = angleToIdle;
+    }
+
+    // The call after the claim clears: the unowned MPFB forearm path takes over. A snap is a
+    // jump between the converged w=0 pose and this one.
+    humanoid.userData["openClinXrOwnedBoneChains"] = [];
     applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-    expect(lowerArmL.quaternion.angleTo(rotations[rotations.length - 1]!)).toBeLessThan(1e-9);
+    expect(lowerArmL.quaternion.angleTo(last)).toBeLessThan(0.0175);
   });
 
 });
