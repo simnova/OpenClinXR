@@ -205,34 +205,22 @@ const ARM_PROBE_SOURCE = String.raw`
   });
   const chainSummary = claimSites.length ? claimSites : null;
   const postureTag = (o) => (o && o.userData && o.userData.openClinXrClinicalIdlePosture) || null;
-  // Served-code proof from inside the page: the v4 release store exists on the
-  // actor root only when the fixed posture pass ran. Report presence, size, and the
-  // upper-arm entries (mixer pose seen vs result written) to see the blend in situ.
-  let releaseStore = null;
-  let node = actor;
-  while (node) {
-    const ud = node.userData || {};
+  // Served-code proof from inside the page: collect EVERY release store scene-wide
+  // (one per humanoid running the fixed pass) with upper-arm entries, so the walker's
+  // own blend state is visible even when another actor sorts first in traversal.
+  const releaseStores: Array<{ node: string; actorId: unknown; size: number; upperEntries: Record<string, unknown> }> = [];
+  scene.traverse((o) => {
+    const ud = o.userData || {};
     if (ud.openClinXrArmReleasePrev instanceof Map) {
       const m = ud.openClinXrArmReleasePrev;
-      const entries = {};
-      m.forEach((v, k) => {
-        if (typeof k === "string" && k.indexOf("upperarm") === 0) entries[k] = v;
+      const entries: Record<string, unknown> = {};
+      m.forEach((v: unknown, k: unknown) => {
+        if (typeof k === "string" && /arm/i.test(k)) entries[k] = v;
       });
-      releaseStore = { node: node.name || "(unnamed)", size: m.size, upperEntries: entries };
-      break;
+      releaseStores.push({ node: o.name || "(unnamed)", actorId: ud.openClinXrActorId || null, size: m.size, upperEntries: entries });
     }
-    node = node.parent;
-  }
-  // Also search the whole scene (root may differ from the actor subtree).
-  if (!releaseStore) {
-    scene.traverse((o) => {
-      if (releaseStore) return;
-      const ud = o.userData || {};
-      if (ud.openClinXrArmReleasePrev instanceof Map) {
-        releaseStore = { node: o.name || "(unnamed)", size: ud.openClinXrArmReleasePrev.size, upperEntries: null };
-      }
-    });
-  }
+  });
+  const releaseStore = releaseStores.length ? releaseStores : null;
   return {
     ok: true,
     releaseStore,
@@ -267,7 +255,7 @@ type ArmFrame = {
   points: Record<string, Vec3 | null>;
   chains: Array<{ ownerId: string; weight: number; bones: number; hasUpperArm: boolean }> | null;
   postureTags?: Record<string, string | null>;
-  releaseStore?: { node: string; size: number; upperEntries: Record<string, unknown> | null } | null;
+  releaseStore?: Array<{ node: string; actorId: unknown; size: number; upperEntries: Record<string, unknown> }> | null;
 };
 
 function quatAngleDeg(a: Quat, b: Quat): number {
