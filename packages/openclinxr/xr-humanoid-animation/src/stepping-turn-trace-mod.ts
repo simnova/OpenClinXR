@@ -81,6 +81,8 @@ export type SteppingTurnTraceFrame = {
   legs: SteppingTurnLegSolveTrace[];
   /** Mixer walk-clip + leg-weight snapshot (turn-leg-snaps stage 1b); null when untraced. */
   mixer: SteppingTurnMixerState | null;
+  /** Hip-write stacks recorded while the solve was muted (stage 1c instrument). */
+  hipWrites: string[];
   /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
   pivot: {
     dx: number;
@@ -94,6 +96,37 @@ export type SteppingTurnTraceFrame = {
 };
 
 const TRACE_KEY = "__openClinXrSteppingTurnTrace";
+
+/** Instrument-only hip-write trap (turn-leg-snaps stage 1c, reverted after use). */
+let hipTrapMuted = false;
+let hipTrapArmed = false;
+const hipTrapStacks: string[] = [];
+export function setHipWriteTrapMuted(muted: boolean): void {
+  hipTrapMuted = muted;
+}
+/** Hook the hips' quaternion change callbacks; stacks recorded while unmuted. */
+export function armHipWriteTrap(hipLeft: Object3D, hipRight: Object3D): void {
+  if (hipTrapArmed) return;
+  hipTrapArmed = true;
+  for (const hip of [hipLeft, hipRight]) {
+    const q = hip.quaternion as unknown as { _onChangeCallback?: () => void };
+    const prev = q._onChangeCallback;
+    q._onChangeCallback = () => {
+      try {
+        prev?.();
+      } catch {
+        /* keep prior behaviour */
+      }
+      if (hipTrapMuted) return;
+      if (hipTrapStacks.length >= 12) return;
+      hipTrapStacks.push(`${hip.name} :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
+    };
+  }
+}
+/** Drain recorded stacks (clears the buffer). */
+export function drainHipWriteStacks(): string[] {
+  return hipTrapStacks.splice(0, hipTrapStacks.length);
+}
 
 /** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
 export function snapshotLegQuats(input: {

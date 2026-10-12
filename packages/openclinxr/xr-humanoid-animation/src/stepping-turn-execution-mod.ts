@@ -22,9 +22,12 @@ import {
 } from "./stepping-turn-slot-pivot-mod.js";
 import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
+  armHipWriteTrap,
+  drainHipWriteStacks,
   isSteppingTurnTraceEnabled,
   readSteppingTurnMixerState,
   recordSteppingTurnTraceFrame,
+  setHipWriteTrapMuted,
   snapshotLegQuats,
   type SteppingTurnLegSolveTrace,
   type SteppingTurnTracePass,
@@ -302,6 +305,13 @@ export function advanceSteppingTurn(input: {
   };
   const legBefore: Record<"left" | "right", Record<string, HingeQuat | null> | null> = { left: null, right: null };
   const legLast: Record<"left" | "right", TraceLegLast | null> = { left: null, right: null };
+  // Stage-1c instrument: mute the hip-write trap across our own solves.
+  setHipWriteTrapMuted(true);
+  if (traceOn) {
+    const trapL = findSteppingLegChain(actorSlot, "left");
+    const trapR = findSteppingLegChain(actorSlot, "right");
+    if (trapL && trapR) armHipWriteTrap(trapL.hip, trapR.hip);
+  }
   for (let pass = 0; pass < 2; pass += 1) {
     let traceOffsetCaptured = false;
     let traceFootCaptured = false;
@@ -423,6 +433,7 @@ export function advanceSteppingTurn(input: {
   if (traceOn) {
     const floorY = input.floorOriginY ?? null;
     const traceLegs: SteppingTurnLegSolveTrace[] = [];
+    setHipWriteTrapMuted(false);
     for (const side of ["left", "right"] as const) {
       const last = legLast[side];
       if (last === null) continue;
@@ -477,6 +488,7 @@ export function advanceSteppingTurn(input: {
       floorOriginY: floorY,
       legs: traceLegs,
       mixer: readSteppingTurnMixerState(actorSlot),
+      hipWrites: drainHipWriteStacks(),
       pivot: tracePivot,
     });
   }
