@@ -503,11 +503,15 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
   }
   await mkdir(outDir, { recursive: true });
 
-  const glbAbs = path.join(cwd, glbRepoPath);
+  const glbAbs = path.isAbsolute(glbRepoPath) ? glbRepoPath : path.join(cwd, glbRepoPath);
   const glbSha256 = sha256File(glbAbs);
   // The lab resolves bodyGlb against the ui-xr public dir: strip that prefix.
+  // A GLB anywhere else on disk is served to the page through the same
+  // Playwright local-file route that textures use (the /__spike/ prefix),
+  // so scratch regenerations render without copying into apps/ui-xr/public.
   const publicPrefix = "apps/ui-xr/public/";
-  const bodyGlb = glbRepoPath.startsWith(publicPrefix) ? glbRepoPath.slice(publicPrefix.length) : glbRepoPath;
+  const glbUnderPublic = !path.isAbsolute(glbRepoPath) && glbRepoPath.startsWith(publicPrefix);
+  const bodyGlb = glbUnderPublic ? glbRepoPath.slice(publicPrefix.length) : "/__spike/model.glb";
 
   // Product rig file bytes (sha recorded; the page loads the same file via the product path).
   let rigFile: { environmentId: string; path: string; sha256: string; exposure: number } | null = null;
@@ -527,6 +531,9 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
   // Local texture files -> /__spike/ URLs (never copied into apps/ui-xr/public).
   const skinOv = { ...((variant.skinOverride ?? {}) as Record<string, unknown>) };
   const spikeFiles = new Map<string, { bytes: Buffer; contentType: string }>();
+  if (!glbUnderPublic) {
+    spikeFiles.set("/__spike/model.glb", { bytes: readFileSync(glbAbs), contentType: "model/gltf-binary" });
+  }
   const inputShas: Record<string, { sha256: string; servedUrl: string }> = {};
   let texIndex = 0;
   for (const key of TEXTURE_URL_KEYS) {
@@ -666,7 +673,7 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
         productEnvironmentId: variant.productEnvironmentId ?? null,
         portrait: variant.portrait ?? false,
       },
-      glb: { path: glbRepoPath, sha256: glbSha256 },
+      glb: { path: glbAbs, sha256: glbSha256 },
       rig: rigFile,
       inputs: inputShas,
       viewport: { width: size, height: size },

@@ -70,11 +70,14 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
   const loader = new TextureLoader();
   const matched: MeshStandardMaterial[] = [];
   const matchedNames: string[] = [];
+  const availableNames: string[] = [];
   root.traverse((o) => {
     if (!(o instanceof Mesh)) return;
     const mats = Array.isArray(o.material) ? o.material : [o.material];
     for (const m of mats) {
-      if (!m || !re.test(m.name)) continue;
+      if (!m) continue;
+      if (!availableNames.includes(m.name)) availableNames.push(m.name);
+      if (!re.test(m.name)) continue;
       if (m instanceof MeshStandardMaterial && !matched.includes(m)) {
         matched.push(m);
         matchedNames.push(m.name);
@@ -82,7 +85,7 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
     }
   });
   if (matched.length === 0) {
-    throw new Error(`skinOverride matched no material (pattern /${pattern}/i) — refusing rather than rendering the base skin`);
+    throw new Error(`skinOverride matched no material (pattern /${pattern}/i) — refusing rather than rendering the base skin. Available materials: ${JSON.stringify(availableNames.sort())}`);
   }
   const texSize = (t: { image?: { width?: number; height?: number } } | null): [number, number] | null =>
     t?.image?.width ? [t.image.width, t.image.height ?? t.image.width] : null;
@@ -268,16 +271,19 @@ export async function applyMaterialOverrides(
       throw new Error(`materialOverride.match is not a valid regex: ${ov.match}`);
     }
     const hits: Array<{ mesh: Mesh; index: number }> = [];
+    const availableSlots: string[] = [];
     root.traverse((o) => {
       if (!(o instanceof Mesh)) return;
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach((m, index) => {
         if (!m) return;
+        const slot = `${o.name}|${m.name}`;
+        if (!availableSlots.includes(slot)) availableSlots.push(slot);
         if (re.test(m.name) || re.test(o.name)) hits.push({ mesh: o, index });
       });
     });
     if (hits.length === 0) {
-      throw new Error(`materialOverride /${ov.match}/i matched nothing — refusing rather than silently no-opping`);
+      throw new Error(`materialOverride /${ov.match}/i matched nothing — refusing rather than silently no-opping. Available mesh|material slots: ${JSON.stringify(availableSlots.sort())}`);
     }
     let baseTex: Awaited<ReturnType<TextureLoader["loadAsync"]>> | null = null;
     if (ov.baseColorUrl) {
