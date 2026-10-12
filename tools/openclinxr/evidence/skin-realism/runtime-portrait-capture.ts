@@ -639,9 +639,15 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
       const headBoxPx = portraitDbg?.headBoxPx ?? null;
       if (variant.portrait === true) {
         // Tight-portrait gate: chin-to-crown within 5% of 0.78 * frame.
+        // Enforced on the first (construction) view only: framePortraitCamera
+        // solves the camera distance straight-on and keeps that same distance
+        // for yaw views (inter-view scale preserved), so their projected AABB
+        // height legitimately grows with |yaw| (measured 841.7 vs 798.7 at
+        // yaw 40, +5.4%). Gating every yaw contradicts the framing design and
+        // aborts 3-view variants after writing front+yaw40 with no JSON.
         if (headHeightPx == null) throw new Error(`variant ${variant.id} yaw ${yaw}: no portrait headHeightPx readout`);
         const want = 0.78 * size;
-        if (Math.abs(headHeightPx - want) > 0.05 * want) {
+        if (yaw === views[0] && Math.abs(headHeightPx - want) > 0.05 * want) {
           throw new Error(`variant ${variant.id} yaw ${yaw}: headHeightPx ${headHeightPx.toFixed(1)} not within 5% of ${want.toFixed(1)}`);
         }
       } else if (m.headWidthPx < 500) {
