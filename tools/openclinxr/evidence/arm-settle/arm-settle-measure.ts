@@ -56,7 +56,7 @@ async function buildAndProve(expected: {
   dist: Record<string, { mtimeMs: number; markers: Record<string, boolean> }>;
 }> {
   for (const filter of ["@openclinxr/xr-pose", "@openclinxr/xr-humanoid-animation"]) {
-    execFileSync("pnpm", ["-s", "turbo", "run", "build", `--filter=${filter}`, "--force"], {
+    execFileSync("pnpm", ["-s", "turbo", "run", "build", `--filter=${filter}`], {
       cwd: process.cwd(),
       stdio: "inherit",
       timeout: 600000,
