@@ -213,7 +213,12 @@ export function solveSteppingLegHinge(input: {
   poleWorld: { x: number; y: number; z: number };
   /** Rest orientations for the frozen intermediates; null entries are left as-is. */
   midRestQuats?: { upper: HingeQuat | null; lower: HingeQuat | null } | null;
-}): { converged: boolean; missM: number } {
+  /**
+   * Last frame's bend-plane normal (world), for degeneracy hysteresis. Null on
+   * the first solve: the plane tracks live until a previous one exists.
+   */
+  previousBendNormal?: { x: number; y: number; z: number } | null;
+}): { converged: boolean; missM: number; bendNormal: { x: number; y: number; z: number } | null } {
   const { chain } = input;
   const target = new Vector3(input.heelTargetWorld.x, input.heelTargetWorld.y, input.heelTargetWorld.z);
   const pole = new Vector3(input.poleWorld.x, input.poleWorld.y, input.poleWorld.z).normalize();
@@ -228,19 +233,54 @@ export function solveSteppingLegHinge(input: {
   const heelW0 = chain.heel.getWorldPosition(new Vector3());
   const thighLen = hipW0.distanceTo(kneeW0);
   const shinLen = kneeW0.distanceTo(heelW0);
-  if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target) };
+  const prevIn = input.previousBendNormal ?? null;
+  const prevNormal =
+    prevIn !== null && Number.isFinite(prevIn.x + prevIn.y + prevIn.z)
+      ? new Vector3(prevIn.x, prevIn.y, prevIn.z)
+      : null;
+  const prevOut = (n: Vector3 | null): { x: number; y: number; z: number } | null =>
+    n === null ? null : { x: n.x, y: n.y, z: n.z };
+  if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
   // Already placed: touch nothing (exact no-ops stay exact; no churn near convergence).
-  if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target) };
+  if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
   const up = new Vector3(0, 1, 0);
   // Bend plane from the pole (pole-side by construction = the back-bow guard).
   const toT = target.clone().sub(hipW0);
   const dist = Math.max(toT.length(), 1e-9);
   toT.divideScalar(dist);
-  const bendNormal = new Vector3().crossVectors(toT, pole);
-  if (bendNormal.lengthSq() < 1e-12) bendNormal.crossVectors(toT, up);
-  if (bendNormal.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target) };
-  bendNormal.normalize();
-  const perpPole = pole.clone().addScaledVector(toT, -pole.dot(toT)).normalize();
+  const rawNormal = new Vector3().crossVectors(toT, pole);
+  const rawLen = rawNormal.length();
+  /**
+   * HYSTERESIS ACROSS THE DEGENERACY (settle-entry stage 2). When the reach
+   * direction runs near-parallel to the pole, the raw plane's direction comes
+   * from sub-mm input noise (idle sway on a near-straight leg) — measured
+   * 64 deg one-frame upper-leg snaps at turn end on SC-05, bimodal across
+   * identical-build runs. Inside the band the previous frame's plane is reused
+   * (projected perpendicular to the current reach, so it stays a valid plane);
+   * outside it the plane tracks live, so genuine yaw-driven plane rotation
+   * across the turn is unaffected. Crossings are transient (the reach sweeps
+   * through the pole direction); a persistently degenerate reach keeps the
+   * last live plane rather than churning.
+   */
+  const HYSTERESIS_BAND = 0.15;
+  let bendNormal: Vector3 | null = null;
+  if (rawLen >= HYSTERESIS_BAND) {
+    bendNormal = rawNormal.clone().divideScalar(rawLen);
+  } else if (prevNormal !== null) {
+    const projected = prevNormal.clone().addScaledVector(toT, -prevNormal.dot(toT));
+    if (projected.lengthSq() >= 1e-12) bendNormal = projected.normalize();
+  }
+  if (bendNormal === null) {
+    const fallback = new Vector3().crossVectors(toT, up);
+    if (fallback.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+    bendNormal = fallback.normalize();
+  }
+  // Pole-side knee direction WITHOUT the old cancellation: `perpPole` used to
+  // be `pole - toT * (pole . toT)` normalized, which subtracts near-equal
+  // vectors exactly where the plane is degenerate — float noise becomes the
+  // knee side. `(bendNormal x toT)` is the identical direction by the triple
+  // product, computed from two clean unit vectors instead.
+  const perpPole = new Vector3().crossVectors(bendNormal, toT).normalize();
   const reach = thighLen + shinLen;
   const clamped = Math.min(Math.max(dist, Math.abs(thighLen - shinLen) + 1e-6), reach - 0.001);
   const cosHip = (thighLen * thighLen + clamped * clamped - shinLen * shinLen) / (2 * thighLen * clamped);
@@ -269,5 +309,5 @@ export function solveSteppingLegHinge(input: {
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
   const missM = chain.heel.getWorldPosition(new Vector3()).distanceTo(target);
-  return { converged: missM < 0.01, missM };
+  return { converged: missM < 0.01, missM, bendNormal: { x: bendNormal.x, y: bendNormal.y, z: bendNormal.z } };
 }

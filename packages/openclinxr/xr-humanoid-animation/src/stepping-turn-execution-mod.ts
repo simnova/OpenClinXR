@@ -63,6 +63,14 @@ export type SteppingTurnExecState = {
   pivotPendingWindow: string | null;
   /** Floor Y for the capture gate; stored at begin. */
   pivotFloorY: number;
+  /**
+   * Last hinge bend-plane normal per side (world), for the leg solver's
+   * degeneracy hysteresis. Null until the first solve resolves a chain.
+   */
+  hingeNormal: {
+    left: { x: number; y: number; z: number } | null;
+    right: { x: number; y: number; z: number } | null;
+  };
   /** Slot Y at entry; the pelvis dip subtracts from this each frame. */
   slotY0: number;
   /** Toe-minus-heel offset per side with the yaw it was captured at (stable mapping). */
@@ -145,6 +153,7 @@ export function beginSteppingTurn(input: {
     pivot: null,
     pivotPendingWindow: null,
     pivotFloorY: input.floorOriginY,
+    hingeNormal: { left: null, right: null },
     slotY0: actorSlot.position.y,
     offsetEntry: { left: null, right: null },
     footQuat: { left: null, right: null },
@@ -181,12 +190,17 @@ export function advanceSteppingTurn(input: {
   actorSlot.updateMatrixWorld(true);
 
   // HELD-ANCHOR PIVOT (stage-2 fix; `?steppingTurnLegacyPin=1` restores the old
-  // per-pass pin for A/B). The anchor is captured ONCE per planted window from
-  // a foot actually on the floor and held in world space; while no window has
-  // captured yet the slot holds XZ (yaw in place). No slot term here reads a
-  // toe world — the pin's feedback (gain up to 3.26, stage 1) is gone.
+  // per-pass pin for A/B). The anchor is the PLAN window's stance position —
+  // fixed numbers, never a live world read — pivoted about from the window's
+  // first frame, with a one-shot live baseline per window for continuity. The
+  // slot path is exactly the plan's own threaded arc, so spans stay as planned
+  // (short: the stance foot can actually land) and the endpoint is the plan's.
+  // No slot term reads a toe world — the pin's feedback (gain up to 3.26,
+  // stage 1) is gone. Landing is still OBSERVED per frame for the trace: the
+  // bookkeeping marks a window pending until its foot is actually down.
   const legacyPin = readSteppingTurnLegacyPin();
   const windowKey = steppingPivotWindowKey(targets.stepIndex, targets.stanceFoot);
+  const stepPlan = state.plan.steps[targets.stepIndex] ?? null;
   let tracePivot: {
     dx: number;
     dz: number;
@@ -197,21 +211,25 @@ export function advanceSteppingTurn(input: {
     legacy: boolean;
   } | null = null;
   if (!legacyPin) {
-    if (state.pivot?.windowKey !== windowKey) state.pivotPendingWindow = windowKey;
+    if (state.pivot === null || state.pivot.windowKey !== windowKey) {
+      if (stepPlan !== null) {
+        state.pivot = {
+          anchorXz: { ...stepPlan.stanceXz },
+          slotXzAtCapture: { x: actorSlot.position.x, z: actorSlot.position.z },
+          yawAtCaptureRadians: actorSlot.rotation.y,
+          windowKey,
+          capturedAtFrame: traceFrameIndex,
+        };
+      }
+      state.pivotPendingWindow = windowKey;
+    }
     if (state.pivotPendingWindow === windowKey) {
-      const stanceToeForCapture = targets.stanceFoot === "left" ? input.leftToe : input.rightToe;
-      if (stanceToeForCapture !== null) {
-        stanceToeForCapture.updateMatrixWorld(true);
-        const toeWorld = worldXyz(stanceToeForCapture);
+      const stanceToeForGate = targets.stanceFoot === "left" ? input.leftToe : input.rightToe;
+      if (stanceToeForGate !== null) {
+        stanceToeForGate.updateMatrixWorld(true);
+        const toeWorld = worldXyz(stanceToeForGate);
         const height = toeWorld.y - state.pivotFloorY;
         if (Number.isFinite(height) && height <= STEPPING_PIVOT_CAPTURE_HEIGHT_M) {
-          state.pivot = {
-            anchorXz: { x: toeWorld.x, z: toeWorld.z },
-            slotXzAtCapture: { x: actorSlot.position.x, z: actorSlot.position.z },
-            yawAtCaptureRadians: actorSlot.rotation.y,
-            windowKey,
-            capturedAtFrame: traceFrameIndex,
-          };
           state.pivotPendingWindow = null;
         }
       }
@@ -319,12 +337,14 @@ export function advanceSteppingTurn(input: {
       const rest = input.restQuats ?? null;
       const upper = rest?.[chain.upperMid.name] ?? null;
       const lower = rest?.[chain.lowerMid.name] ?? null;
-      solveSteppingLegHinge({
+      const hingeResult = solveSteppingLegHinge({
         chain,
         heelTargetWorld: heelTarget,
         poleWorld,
         midRestQuats: { upper, lower },
+        previousBendNormal: state.hingeNormal[side],
       });
+      if (hingeResult.bendNormal !== null) state.hingeNormal[side] = hingeResult.bendNormal;
       // Yaw-compensated world freeze, on post-solve parents: the foot yaws with the
       // slot (like the map) but keeps its entry pitch/roll through any articulation,
       // so the live mapping stays exact and the pin stops chasing. Refresh the heel
