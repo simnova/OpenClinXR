@@ -285,6 +285,11 @@
         "name": "STEPPING_TURN_STEP_DURATION_S",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "solveSteppingLegHinge",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
