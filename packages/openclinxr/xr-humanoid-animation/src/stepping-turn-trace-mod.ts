@@ -143,6 +143,51 @@ export function drainHipWriteStacks(): string[] {
   return hipTrapStacks.splice(0, hipTrapStacks.length);
 }
 
+const boneIds = new WeakMap<object, number>();
+let nextBoneId = 1;
+function boneIdOf(bone: object): number {
+  let id = boneIds.get(bone);
+  if (id === undefined) {
+    id = nextBoneId;
+    nextBoneId += 1;
+    boneIds.set(bone, id);
+  }
+  return id;
+}
+/**
+ * Per-frame rig census (stage-1e instrument): how many scene objects carry the
+ * thigh names, identity ids + ancestor paths of the resolved hips. Detects a
+ * duplicate-rig flip (name resolution landing on different objects per frame).
+ */
+export function censusSteppingLegs(actorSlot: Object3D, frame: number): string {
+  let upperLCount = 0;
+  let upperRCount = 0;
+  const pathOf = (bone: Object3D): string => {
+    const names: string[] = [];
+    let node: Object3D | null = bone;
+    while (node !== null && names.length < 6) {
+      names.push(node.name || "?");
+      node = node.parent;
+    }
+    return names.join("<");
+  };
+  const hipPath = (side: "left" | "right"): string => {
+    const all: Object3D[] = [];
+    actorSlot.traverse((o) => {
+      all.push(o);
+    });
+    const want = side === "left" ? "upperleg01L" : "upperleg01R";
+    const hit = all.find((o) => o.name.replaceAll(".", "") === want) ?? null;
+    return hit === null ? "missing" : `#${boneIdOf(hit)} ${pathOf(hit)}`;
+  };
+  actorSlot.traverse((o) => {
+    const flat = o.name.replaceAll(".", "");
+    if (flat === "upperleg01L") upperLCount += 1;
+    if (flat === "upperleg01R") upperRCount += 1;
+  });
+  return `census f${frame} upperLx${upperLCount} upperRx${upperRCount} L:${hipPath("left")} R:${hipPath("right")}`;
+}
+
 /** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
 export function snapshotLegQuats(input: {
   hip: Object3D;
