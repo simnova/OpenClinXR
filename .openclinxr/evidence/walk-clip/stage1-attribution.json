@@ -190,5 +190,11 @@
   "walkOnlyMaxDeg": 39.07,
   "startTransientFrame0MaxDeg": 19.53,
   "verdict": "measured leg pose equals the weight-normalised idle+walk blend within 1 deg on steady frames; frame 0 is idle-only (action starts after first snapshot)"
+ },
+ "stageB": {
+  "construction": "strip locomotion-owned leg tracks from autoplayed non-locomotion clips at registration (in place, after seated-admission reads; walk clip exempt by deliberate-selection prefix)",
+  "whyNotComplement": "zeroing idle weight during the walk would also mute idle upper-body/arm sway that the posture crossfade and arm fix were validated with; the strip keeps idle at weight 1 for the upper body and changes legs only (idle legs measured bind-static <=0.04 deg)",
+  "untouched": "posture ownership blend, 0.4/0.5 s upper-body ramp, leg-weight ramp and stop fade in playLocomotionClip, stance labels, root advance, walk clip and bind",
+  "cause": "packages/openclinxr/xr-asset-loading/src/humanoid-animation.ts:autoplay loop (stripLocomotionLegTracks)"
  }
 }

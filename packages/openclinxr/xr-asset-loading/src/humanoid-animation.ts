@@ -25,6 +25,49 @@ export type RegisterAnimationInput = {
   fixedSourcePoseSampleSeconds: number | null;
 };
 
+/**
+ * Locomotion-owned leg bones (sanitised GLTFLoader node names, dots
+ * stripped). While a walk action drives the legs, no other action may
+ * contribute to these bones: the idle take co-ran at weight 1 beside the
+ * walk at weight 1 and three.js normalised the pair to a half-amplitude
+ * walk (walk-clip slice, 2026-10-12: live leg amplitudes 0.29-0.50x, toe
+ * lift 0.035 m vs 0.159 m in the clip).
+ */
+const LOCOMOTION_OWNED_LEG_BONES: ReadonlySet<string> = new Set([
+  "upperleg01L", "upperleg01R",
+  "upperleg02L", "upperleg02R",
+  "lowerleg01L", "lowerleg01R",
+  "lowerleg02L", "lowerleg02R",
+  "footL", "footR",
+  "toe1-1L", "toe1-1R",
+  "pelvisL", "pelvisR",
+  "root",
+]);
+
+function legTrackName(track: { name: string }): string {
+  // Track names are `bone.path` and bone names themselves contain dots
+  // ("upperleg01.L.quaternion"), so the path is the LAST segment.
+  const dot = track.name.lastIndexOf(".");
+  return (dot < 0 ? track.name : track.name.slice(0, dot)).replaceAll(".", "");
+}
+
+/**
+ * Remove locomotion-owned leg tracks from an autoplayed non-locomotion
+ * clip, in place. The idle take's own leg tracks are bind-static (measured
+ * <=0.04 deg / 0 mm off bind on the physician), so standing legs keep the
+ * bind pose; the walk clip is never passed here (locomotion clips own the
+ * legs and are exempt by name). Runs inside the autoplay loop, AFTER the
+ * seated-admission reads above, so admissibility still sees intact clips;
+ * `responseClips` below shares these objects, but its locomotion consumers
+ * read the walk clip only. Idempotent: a second pass finds no leg tracks.
+ */
+export function stripLocomotionLegTracks(clip: AnimationClip): { removed: number; kept: number } {
+  const kept = clip.tracks.filter((track) => !LOCOMOTION_OWNED_LEG_BONES.has(legTrackName(track)));
+  const removed = clip.tracks.length - kept.length;
+  if (removed > 0) clip.tracks = kept;
+  return { removed, kept: kept.length };
+}
+
 export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, input: RegisterAnimationInput): void {
   // #83: seated figures keep a mixer only for non-leg facial/upper clips when role clips exist.
   // Falling back to ALL glTF clips played standing armature tracks that overwrote the sit every frame
@@ -101,8 +144,19 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
     input.humanoid.updateMatrixWorld(true);
   }
   if (mixer) {
+    const legStrips: Array<{ clip: string; removed: number; kept: number }> = [];
     for (const clip of clipsToPlay) {
+      // Locomotion clips own the legs: play them whole. Every other
+      // autoplayed clip loses its leg tracks first, so the idle take can
+      // never halve a walking leg chain again (walk-clip slice Stage B).
+      if (!isDeliberateSelectionOnlyClip(clip.name)) {
+        const strip = stripLocomotionLegTracks(clip);
+        legStrips.push({ clip: clip.name, removed: strip.removed, kept: strip.kept });
+      }
       mixer.clipAction(clip)?.play();
+    }
+    if (legStrips.length > 0) {
+      humanoidData["openClinXrAutoplayLegTrackStrip"] = legStrips;
     }
   }
   // Seated: procedural sit is authoritative; re-apply once after any fixed-pose sample so legs stay folded.
