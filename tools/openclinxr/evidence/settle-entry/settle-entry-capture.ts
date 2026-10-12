@@ -80,6 +80,17 @@ function urlQuery(vehicle: Vehicle): string {
   return "steppingTurn=1";
 }
 
+function traceFromArgv(): boolean {
+  return process.argv.includes("--trace");
+}
+
+const TRACE_SOURCE = `
+(() => {
+  const t = globalThis.__openClinXrSteppingTurnTrace;
+  return Array.isArray(t) ? t : null;
+})()
+`;
+
 function realSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -214,7 +225,7 @@ async function runOnce(
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    const url = `${buildSceneClosureUrl(baseUrl)}&${urlQuery(vehicle)}`;
+    const url = `${buildSceneClosureUrl(baseUrl)}&${urlQuery(vehicle)}${traceFromArgv() ? "&steppingTurnTrace=1" : ""}`;
     await page.goto(url, { waitUntil: "load", timeout: 180_000 });
     await page.clock.install();
     const pinMs = (await page.evaluate(`(() => Date.now())()`)) as number;
@@ -276,6 +287,11 @@ async function runOnce(
     process.stdout.write(
       `[${tag}] frames=${frames.length} route=${first?.startWorld ? `${Math.hypot((first.targetWorld?.x ?? 0) - first.startWorld.x, (first.targetWorld?.z ?? 0) - first.startWorld.z).toFixed(2)}m` : "?"} labels=${labels ? "yes" : "NO-LABELS"}\n`,
     );
+    const trace = traceFromArgv() ? ((await page.evaluate(TRACE_SOURCE)) as unknown[] | null) : null;
+    process.stdout.write(`[${tag}] stepping-turn trace frames=${trace === null ? "OFF" : trace.length}\n`);
+    if (traceFromArgv()) {
+      await writeFile(path.join(outDir, `${tag}.trace.json`), JSON.stringify(trace, null, 2));
+    }
     await writeFile(
       path.join(outDir, `${tag}.json`),
       JSON.stringify(

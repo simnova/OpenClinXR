@@ -14,6 +14,11 @@ import {
   solveSteppingLegHinge,
 } from "./stepping-turn-leg-ik-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
+import {
+  isSteppingTurnTraceEnabled,
+  recordSteppingTurnTraceFrame,
+  type SteppingTurnTracePass,
+} from "./stepping-turn-trace-mod.js";
 
 /**
  * Stepping-turn EXECUTION (2026-10-11): run a `SteppingTurnPlan` through the settling phase.
@@ -38,6 +43,8 @@ export type SteppingTurnExecState = {
   plan: SteppingTurnPlan;
   elapsedS: number;
   lastTargets: SteppingTurnTargets | null;
+  /** Settling-frame counter for the default-off slot-update trace. */
+  traceFrames: number;
   /** Slot Y at entry; the pelvis dip subtracts from this each frame. */
   slotY0: number;
   /** Toe-minus-heel offset per side with the yaw it was captured at (stable mapping). */
@@ -116,6 +123,7 @@ export function beginSteppingTurn(input: {
     plan,
     elapsedS: 0,
     lastTargets: steppingTurnAt(plan, 0),
+    traceFrames: 0,
     slotY0: actorSlot.position.y,
     offsetEntry: { left: null, right: null },
     footQuat: { left: null, right: null },
@@ -129,11 +137,20 @@ export function advanceSteppingTurn(input: {
   state: SteppingTurnExecState;
   /** Rest orientations keyed by bone name (the walk-start snapshot); null leaves mids as-is. */
   restQuats?: Record<string, HingeQuat> | null;
+  /** Floor Y for the default-off trace's toe-height records; null skips them. */
+  floorOriginY?: number | null;
 }): SteppingTurnTargets {
   const { actorSlot, state } = input;
   state.elapsedS += input.deltaSeconds;
   const targets = steppingTurnAt(state.plan, state.elapsedS);
   state.lastTargets = targets;
+  const traceOn = isSteppingTurnTraceEnabled();
+  const traceFrameIndex = state.traceFrames;
+  state.traceFrames += 1;
+  const traceYawPrev = actorSlot.rotation.y;
+  const traceSlotBeforeX = actorSlot.position.x;
+  const traceSlotBeforeZ = actorSlot.position.z;
+  const tracePasses: SteppingTurnTracePass[] = [];
 
   // Pelvis yaw follows the feet; pelvis height dips a few cm mid-swing (the plan's
   // dip profile, 0 at placements) so the lift-plus-reach span is shared between knee
@@ -161,6 +178,8 @@ export function advanceSteppingTurn(input: {
   const yawNow = actorSlot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
   for (let pass = 0; pass < 2; pass += 1) {
+    let traceOffsetCaptured = false;
+    let traceFootCaptured = false;
     for (const side of ["left", "right"] as const) {
       const chain = findSteppingLegChain(actorSlot, side);
       if (chain === null) continue;
@@ -171,6 +190,7 @@ export function advanceSteppingTurn(input: {
       // on pre-solve parents is stale by the solve's own articulation and the pin
       // integrates that stale-by-one-pass error every frame.
       if (state.offsetEntry[side] === null) {
+        if (traceOn && side === targets.stanceFoot) traceOffsetCaptured = true;
         chain.heel.updateMatrixWorld(true);
         chain.toe.updateMatrixWorld(true);
         const heelWorld = worldXyz(chain.heel);
@@ -216,6 +236,11 @@ export function advanceSteppingTurn(input: {
       // so the live mapping stays exact and the pin stops chasing. Refresh the heel
       // subtree: the pin below reads the toe through it.
       const frozen = state.footQuat[side];
+      if (traceOn && side === targets.stanceFoot) {
+        // The offset and the foot freeze are captured in the same once-only
+        // block above, so one flag covers both.
+        traceFootCaptured = traceOffsetCaptured;
+      }
       if (frozen !== null) {
         const parentQ = new Quaternion();
         if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
@@ -231,10 +256,59 @@ export function advanceSteppingTurn(input: {
     if (stanceToe !== null) {
       stanceToe.updateMatrixWorld(true);
       const world = worldXyz(stanceToe);
-      actorSlot.position.x += targets.stanceToe.x - world.x;
-      actorSlot.position.z += targets.stanceToe.z - world.z;
+      const dx = targets.stanceToe.x - world.x;
+      const dz = targets.stanceToe.z - world.z;
+      if (traceOn) {
+        tracePasses.push({
+          pass,
+          dx,
+          dz,
+          targetX: targets.stanceToe.x,
+          targetZ: targets.stanceToe.z,
+          targetY: targets.stanceToe.y,
+          toeWorldX: world.x,
+          toeWorldZ: world.z,
+          toeWorldY: world.y,
+          offsetCapturedThisFrame: traceOffsetCaptured,
+          footQuatCapturedThisFrame: traceFootCaptured,
+        });
+      }
+      actorSlot.position.x += dx;
+      actorSlot.position.z += dz;
       actorSlot.updateMatrixWorld(true);
     }
+  }
+  if (traceOn) {
+    const floorY = input.floorOriginY ?? null;
+    let toeLeftY: number | null = null;
+    let toeRightY: number | null = null;
+    if (input.leftToe !== null) {
+      input.leftToe.updateMatrixWorld(true);
+      toeLeftY = worldXyz(input.leftToe).y;
+    }
+    if (input.rightToe !== null) {
+      input.rightToe.updateMatrixWorld(true);
+      toeRightY = worldXyz(input.rightToe).y;
+    }
+    recordSteppingTurnTraceFrame({
+      frame: traceFrameIndex,
+      elapsedS: state.elapsedS,
+      stepIndex: targets.stepIndex,
+      u: targets.u,
+      stanceFoot: targets.stanceFoot,
+      swingFoot: targets.swingFoot,
+      yawPrev: traceYawPrev,
+      yawNew: targets.yawRadians,
+      dipY: targets.pelvisDipM,
+      slotBeforeX: traceSlotBeforeX,
+      slotBeforeZ: traceSlotBeforeZ,
+      slotAfterX: actorSlot.position.x,
+      slotAfterZ: actorSlot.position.z,
+      passes: tracePasses,
+      toeLeftY,
+      toeRightY,
+      floorOriginY: floorY,
+    });
   }
   return targets;
 }
