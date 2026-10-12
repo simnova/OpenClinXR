@@ -103,11 +103,33 @@ async function main(): Promise<void> {
         await page.clock.fastForward(STEP_SECONDS * 1000);
       }
       const ring = (await page.evaluate(
-        `(() => globalThis.__openClinXrLocoGroundTap ?? null)()`,
+        `(() => {
+          const ring = globalThis.__openClinXrLocoGroundTap ?? null;
+          if (!Array.isArray(ring)) return null;
+          return ring.map((r) => ({
+            frame: r.frame,
+            quat: r.mixer ? r.mixer.quat : null,
+            toeL: r.mixer && r.mixer.toeWorld ? r.mixer.toeWorld.left : null,
+            toeR: r.mixer && r.mixer.toeWorld ? r.mixer.toeWorld.right : null,
+            tMs: r.meta ? r.meta.tMs : null,
+            actorId: r.meta ? r.meta.actorId : null,
+            phase: r.meta ? r.meta.phase : null,
+            stanceLabel: r.meta ? r.meta.stanceLabel : null,
+            legWeight: r.meta ? r.meta.legWeightCurrent : null,
+            mixerActions: r.meta ? (r.meta.mixerActions ?? null) : null,
+          }));
+        })()`,
       )) as Array<{
         frame: number;
-        mixer: { toeWorld: { left: { x: number; y: number; z: number } | null; right: { x: number; y: number; z: number } | null }; slot: { x: number; z: number } | null };
-        meta: { tMs: number; stanceLabel: string | null; phase: string | null; actionTimeSeconds: number | null; actionTimeScale: number | null; actionPlaying: boolean | null; legWeightCurrent: number | null };
+        quat: Record<string, [number, number, number, number]> | null;
+        toeL: { x: number; y: number; z: number } | null;
+        toeR: { x: number; y: number; z: number } | null;
+        tMs: number;
+        actorId: string;
+        phase: string | null;
+        stanceLabel: string | null;
+        legWeight: number | null;
+        mixerActions: Array<{ clip: string; running: boolean | null; effectiveWeight: number | null; timeSeconds: number | null }> | null;
       }> | null;
       const mixerInfo = await page.evaluate(MIXER_DUMP_SOURCE);
       void ACTIONS_DUMP_SOURCE;
@@ -117,10 +139,10 @@ async function main(): Promise<void> {
       writeFileSync(outPath, `${JSON.stringify({ ring, mixerInfo }, null, 2)}\n`);
       // Compact console summary: ungated toe Y range + label-phase check.
       const rows = (ring ?? []).filter(
-        (r) => r.meta.phase === "walking" && r.mixer.toeWorld.left && r.mixer.toeWorld.right,
+        (r) => r.phase === "walking" && r.toeL && r.toeR,
       );
-      const lY = rows.map((r) => r.mixer.toeWorld.left!.y);
-      const rY = rows.map((r) => r.mixer.toeWorld.right!.y);
+      const lY = rows.map((r) => r.toeL!.y);
+      const rY = rows.map((r) => r.toeR!.y);
       console.log(
         `frames=${rows.length} toeL=[${Math.min(...lY).toFixed(4)},${Math.max(...lY).toFixed(4)}] toeR=[${Math.min(...rY).toFixed(4)},${Math.max(...rY).toFixed(4)}]`,
       );
@@ -129,12 +151,21 @@ async function main(): Promise<void> {
         let gatedMax = -Infinity;
         let ungatedMax = -Infinity;
         for (const r of rows) {
-          const y = foot === "left" ? r.mixer.toeWorld.left!.y : r.mixer.toeWorld.right!.y;
+          const y = foot === "left" ? r.toeL!.y : r.toeR!.y;
           ungatedMax = Math.max(ungatedMax, y);
-          if (r.meta.stanceLabel !== foot) gatedMax = Math.max(gatedMax, y);
+          if (r.stanceLabel !== foot) gatedMax = Math.max(gatedMax, y);
         }
         console.log(`${foot}: ungatedMax=${ungatedMax.toFixed(4)} gatedMax=${gatedMax.toFixed(4)}`);
       }
+      // Action inventory: distinct (clip, running, weight) states seen while walking.
+      const seen = new Map<string, number>();
+      for (const r of rows) {
+        for (const a of r.mixerActions ?? []) {
+          const k = `${a.clip}|running=${a.running}|w=${a.effectiveWeight}`;
+          seen.set(k, (seen.get(k) ?? 0) + 1);
+        }
+      }
+      for (const [k, n] of seen) console.log(`action ${k} frames=${n}`);
       console.log(`mixerInfo=${JSON.stringify(mixerInfo).slice(0, 1200)}`);
       console.log(`wrote ${outPath}`);
       await context?.close();

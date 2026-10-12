@@ -132,6 +132,68 @@ export type LocoGroundTapPose = {
   slot: { x: number; y: number; z: number; yaw: number } | null;
 };
 
+export type LocoGroundMixerActionProbe = {
+  clip: string;
+  running: boolean | null;
+  effectiveWeight: number | null;
+  timeSeconds: number | null;
+};
+/**
+ * Which mixer actions exist for this slot's clips, with running state,
+ * effective weight, and local time — read through the public
+ * `existingAction` API, never touching private mixer fields. Measurement
+ * only: no action is created, started, stopped, or reweighted. Null when the
+ * slot carries no mixer or no clip list (e.g. non-locomotion slots).
+ *
+ * Exported for the tools-side dist test only (same discipline as
+ * `locoGroundTapBoneNames`); not on the package public surface.
+ */
+export function probeMixerActions(slot: unknown): LocoGroundMixerActionProbe[] | null {
+  try {
+    const s = slot as {
+      mixer?: { existingAction?: (clip: unknown) => unknown };
+      responseClips?: Array<{ name?: string }>;
+    };
+    const mixer = s.mixer;
+    const clips = s.responseClips;
+    if (!mixer || !Array.isArray(clips)) return null;
+    const existing = mixer.existingAction;
+    if (typeof existing !== "function") return null;
+    const existingActionFor = (clip: unknown): unknown => existing.call(mixer, clip);
+    return clips.map((clip) => {
+      const name = typeof clip?.name === "string" ? clip.name : "(unnamed)";
+      type ProbedAction = {
+        isRunning?: () => boolean;
+        getEffectiveWeight?: () => number;
+        time?: number;
+      } | null;
+      let action: ProbedAction = null;
+      try {
+        action = existingActionFor(clip) as ProbedAction;
+      } catch {
+        action = null;
+      }
+      if (!action) return { clip: name, running: false, effectiveWeight: null, timeSeconds: null };
+      let running: boolean | null = null;
+      let weight: number | null = null;
+      try {
+        running = typeof action.isRunning === "function" ? action.isRunning() : null;
+        weight = typeof action.getEffectiveWeight === "function" ? action.getEffectiveWeight() : null;
+      } catch {
+        running = null;
+        weight = null;
+      }
+      return {
+        clip: name,
+        running,
+        effectiveWeight: typeof weight === "number" ? weight : null,
+        timeSeconds: typeof action.time === "number" ? action.time : null,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
 export type LocoGroundTapMeta = {
   tMs: number;
   actorId: string;
@@ -148,6 +210,7 @@ export type LocoGroundTapMeta = {
   heelMissM: number | null;
   actorScale: { x: number; y: number; z: number } | null;
   postureTags: Partial<Record<string, string | null>>;
+  mixerActions: LocoGroundMixerActionProbe[] | null;
 };
 
 export type LocoGroundTapFrame = {
@@ -329,6 +392,7 @@ export function commitLocoGroundTapFrame(
         ? null
         : { x: actorSlot.scale.x, y: actorSlot.scale.y, z: actorSlot.scale.z },
       postureTags,
+      mixerActions: probeMixerActions(slot),
     },
   };
   tapFrameCounter += 1;

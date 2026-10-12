@@ -162,5 +162,33 @@
    "stanceSpeed_liveRate1_over_bound": "0.52 (0.348/0.668)",
    "root_over_stance": "2.43 (1.374/0.566)"
   }
+ },
+ "stageA": {
+  "actions WhileWalking": [
+   {
+    "clip": "ClinicalIdleConversation",
+    "running": true,
+    "effectiveWeight": 1,
+    "legTracks": true
+   },
+   {
+    "clip": "ClinicalExpressionMicroTransition",
+    "running": true,
+    "effectiveWeight": 1,
+    "legTracks": false
+   },
+   {
+    "clip": "openclinxr_retarget_walk_source",
+    "running": true,
+    "effectiveWeight": 1,
+    "legTracks": true
+   }
+  ],
+  "frames": 136,
+  "blendSteadyMaxDeg": 0.414,
+  "blendSteadyMeanDeg": 0.01,
+  "walkOnlyMaxDeg": 39.07,
+  "startTransientFrame0MaxDeg": 19.53,
+  "verdict": "measured leg pose equals the weight-normalised idle+walk blend within 1 deg on steady frames; frame 0 is idle-only (action starts after first snapshot)"
  }
 }

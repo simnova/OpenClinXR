@@ -4,6 +4,7 @@ import {
   locoGroundTapBoneNames,
   parseLocoGroundEnabled,
   parseLocoGroundNoStanceLock,
+  probeMixerActions,
 } from "../../../../packages/openclinxr/xr-humanoid-animation/dist/loco-ground-tap-mod.js";
 
 /**
@@ -62,5 +63,45 @@ describe("locoGroundTapBoneNames", () => {
     for (const bone of ["upperleg01L", "lowerleg01R", "footL", "toe1-1R", "pelvisL", "pelvisR", "root"]) {
       expect(names).toContain(bone);
     }
+  });
+});
+
+describe("probeMixerActions", () => {
+  const action = (over: Partial<{ running: boolean; weight: number; time: number }>) => ({
+    isRunning: () => over.running ?? true,
+    getEffectiveWeight: () => over.weight ?? 1,
+    time: over.time ?? 0,
+  });
+  it("reports one row per response clip with running, weight, and time", () => {
+    const clips = [{ name: "idle" }, { name: "walk" }];
+    const slot = {
+      responseClips: clips,
+      mixer: { existingAction: (clip: unknown) => (clips.includes(clip as { name: string }) ? action({}) : null) },
+    };
+    expect(probeMixerActions(slot)).toEqual([
+      { clip: "idle", running: true, effectiveWeight: 1, timeSeconds: 0 },
+      { clip: "walk", running: true, effectiveWeight: 1, timeSeconds: 0 },
+    ]);
+  });
+  it("marks a missing action as not running with null weight and time", () => {
+    const slot = { responseClips: [{ name: "walk" }], mixer: { existingAction: () => null } };
+    expect(probeMixerActions(slot)).toEqual([
+      { clip: "walk", running: false, effectiveWeight: null, timeSeconds: null },
+    ]);
+  });
+  it("returns null with no mixer or no clip list, and never throws", () => {
+    expect(probeMixerActions({})).toBe(null);
+    expect(probeMixerActions({ mixer: {} })).toBe(null);
+    expect(probeMixerActions(null)).toBe(null);
+    expect(
+      probeMixerActions({
+        responseClips: [{ name: "x" }],
+        mixer: {
+          existingAction: () => {
+            throw new Error("boom");
+          },
+        },
+      }),
+    ).toEqual([{ clip: "x", running: false, effectiveWeight: null, timeSeconds: null }]);
   });
 });
