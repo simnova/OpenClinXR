@@ -46,7 +46,9 @@ import type { GeneratedHumanoidAnimationSlot } from "./types.js";
  * ## CHANGED 2026-09-23: Extended claim to upper body (clavicle, shoulder01, upperarm01/02,
  * lowerarm01/02, wrist, hand/finger bones, spine01-05, neck01-03). Replaced category
  * substring matching with explicit per-rail regex patterns anchored at start of sanitised name.
- * Added crossfade weight (ramp 0→1 over LOCOMOTION_CROSSFADE_DURATION_S on start, 1→0 on stop).
+ * Added crossfade weight (upper-body ownership ramp 0→1 over
+ * LOCOMOTION_UPPER_BODY_BLEND_IN_S on start, 1→0 over LOCOMOTION_UPPER_BODY_BLEND_OUT_S
+ * on stop; the leg action-weight fade stays on LOCOMOTION_CROSSFADE_DURATION_S).
  * On stop: fade action weight from 1 to 0 over fade duration instead of pausing at frame 0.
  * Leg claim stays until fade completes. Head is NOT claimed (gaze/attention stays with posture).
  */
@@ -230,10 +232,12 @@ export function playLocomotionClip(
   if (locomotion <= 0) {
     // Stopping: fade out the action weight and crossfade weight
     if (action.isRunning() || crossfadeState.weight > 0) {
-      // Ramp crossfade weight from 1 to 0
+      // Ramp crossfade weight from 1 to 0 over the upper-body blend-out. The leg action-weight
+      // fade below keeps the 0.3 s rate: it sets stance amplitude the arrival-close reads, so
+      // its timing is frozen while the arm-visible upper-body rate moves to the settle window.
       crossfadeState.targetWeight = 0;
-      const fadeRate = 1 / LOCOMOTION_CROSSFADE_DURATION_S; // per second
-      crossfadeState.weight = Math.max(0, crossfadeState.weight - fadeRate * deltaSeconds);
+      const upperFadeRate = 1 / LOCOMOTION_UPPER_BODY_BLEND_OUT_S; // per second
+      crossfadeState.weight = Math.max(0, crossfadeState.weight - upperFadeRate * deltaSeconds);
 
       // Fade the action's effective weight FROM WHEREVER IT ACTUALLY WAS, not from
       // `crossfadeState.weight` (the SEPARATE upper-body ownership tracker, which stays near 1
@@ -246,7 +250,8 @@ export function playLocomotionClip(
       const legWeightState = (rootUserData["openClinXrLocomotionLegWeight"] ??= { current: 1 }) as {
         current: number;
       };
-      legWeightState.current = Math.max(0, legWeightState.current - fadeRate * deltaSeconds);
+      const legFadeRate = 1 / LOCOMOTION_CROSSFADE_DURATION_S; // per second, frozen: stance timing
+      legWeightState.current = Math.max(0, legWeightState.current - legFadeRate * deltaSeconds);
 
       // Fade the action's effective weight
       if (action.isRunning()) {
@@ -335,10 +340,10 @@ export function playLocomotionClip(
   // lock, SC-05's runtime evidence) can read them without a second, unexported entrypoint.
   resolveLocomotionStanceLabels(slot);
 
-  // Ramp the UPPER-BODY ownership weight from 0 to 1. The action itself stays at
-  // full weight throughout the walk; see above.
+  // Ramp the UPPER-BODY ownership weight from 0 to 1 over the blend-in window. The action
+  // itself stays at full weight throughout the walk; see above.
   if (crossfadeState.weight < 1) {
-    const fadeRate = 1 / LOCOMOTION_CROSSFADE_DURATION_S;
+    const fadeRate = 1 / LOCOMOTION_UPPER_BODY_BLEND_IN_S;
     crossfadeState.weight = Math.min(1, crossfadeState.weight + fadeRate * deltaSeconds);
   }
 
@@ -375,6 +380,10 @@ export function seedLocomotionLegWeight(
 
 /** Crossfade duration in seconds for upper-body blend in/out. */
 export const LOCOMOTION_CROSSFADE_DURATION_S = 0.3;
+/** Upper-body ownership 0→1 from walk start: the visible arm-takeover window. */
+export const LOCOMOTION_UPPER_BODY_BLEND_IN_S = 0.4;
+/** Upper-body ownership 1→0 from the moment walking ends: the arm-settle window. */
+export const LOCOMOTION_UPPER_BODY_BLEND_OUT_S = 0.5;
 /** Ramp duration for `legWeightTarget` changes (`playLocomotionClip`'s leg-weight ramp). */
 export const LOCOMOTION_LEG_WEIGHT_RAMP_DURATION_S = 0.3;
 

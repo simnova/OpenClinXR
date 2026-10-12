@@ -348,8 +348,21 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
   };
 
-  humanoid.traverse((object) => {
+  // One application per bone OBJECT per call. A skinned figure shares its skeleton across
+  // its meshes, so the skeleton loop below re-presents the same bone objects once per mesh.
+  // Absolute writes are idempotent, but the ownership slerp above is not: N applications
+  // compound the mixer residual to w^N (measured w^19 on the physician), crushing a
+  // continuous ownership ramp into a one-frame step. Identity, not name: distinct objects
+  // sharing a name each still get their own write.
+  const appliedBones = new Set<Object3D>();
+  const applyOnce = (object: Object3D): void => {
+    if (appliedBones.has(object)) return;
+    appliedBones.add(object);
     tryApply(object);
+  };
+
+  humanoid.traverse((object) => {
+    applyOnce(object);
   });
 
   // Skeleton bones in case a skinned mesh holds the authoritative list (same as seated-pose).
@@ -360,7 +373,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     };
     if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
     for (const bone of skinned.skeleton.bones) {
-      tryApply(bone);
+      applyOnce(bone);
     }
     skinned.skeleton.update?.();
   });
