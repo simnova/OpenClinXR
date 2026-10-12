@@ -61,6 +61,7 @@
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
     "src/stepping-turn-plan-mod.test.ts",
+    "src/stepping-turn-slot-pivot-mod.test.ts",
     "src/the-arrived-stance-closes.test.ts",
     "src/the-ccd-stance-lock-switches-solvers.test.ts",
     "src/the-clip-labels-its-own-stance.test.ts",

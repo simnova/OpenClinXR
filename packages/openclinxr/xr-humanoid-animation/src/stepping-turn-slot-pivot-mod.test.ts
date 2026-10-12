@@ -17,8 +17,9 @@ import {
   STEPPING_PIVOT_CAPTURE_HEIGHT_M,
   steppingPivotWindowKey,
   steppingTurnAt,
-  type SteppingPivotAnchor,
 } from "./stepping-turn.js";
+
+type SteppingPivotAnchor = Parameters<typeof pivotSlotXzForSteppingFrame>[0]["anchor"];
 
 const DT = 1 / 30;
 const SEED_M = 0.0002;

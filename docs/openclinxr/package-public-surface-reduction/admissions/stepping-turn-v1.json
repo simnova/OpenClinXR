@@ -1,9 +1,9 @@
 {
   "schema": "openclinxr.psr-admission.v1",
   "id": "stepping-turn-v1",
-  "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11",
+  "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12",
   "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
-  "admissionHash": "2506ee0a433485e28fdda9f3542b63585fe311b738516abee861c110cf0b8860",
+  "admissionHash": "6fdad98385fffe920e2593397f4e3668b925d9d8675a67f9895f0ffe9d4b1719",
   "packages": [
     "packages/openclinxr/xr-humanoid-animation"
   ],
@@ -16,7 +16,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn plan rhythm. Consumer: stepping-turn-plan-mod.test.ts asserts per-step 0.7 s timing through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -26,7 +26,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn assay chain lookup. Consumer: tools/openclinxr/evidence/foot-plant/stepping-turn/ik-noop-probe.ts resolves the shipped leg chain through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -36,7 +36,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn four-joint chain. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts resolve the stepping chain through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -46,7 +46,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn static heel mapping. Consumer: ik-noop-probe.ts static probe path through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -56,7 +56,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn yaw-stable heel mapping. Consumer: bake-stepping-turn.ts per-frame bake path through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -66,7 +66,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn plan entry. Consumers: stepping-turn-plan-mod.test.ts, bake-stepping-turn.ts rebuild the settling-entry plan through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -76,7 +76,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn hinge solve. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts drive the production hinge through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -86,7 +86,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn baseline two-bone solve. Consumer: ik-noop-probe.ts existing/composite miss baseline through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -96,7 +96,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn per-frame evaluator. Consumers: stepping-turn-plan-mod.test.ts, bake-stepping-turn.ts evaluate placements through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -106,7 +106,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn rig leg scale. Consumer: bake-stepping-turn.ts scales widths and dip through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -116,7 +116,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn world read. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts read mirror world positions through the entrypoint.",
-      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -126,7 +126,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 feedforward slot pivot: rigid XZ about the held per-window anchor. Consumer: stepping-turn-slot-pivot-mod.test.ts two-run perturbation bound through the entrypoint.",
-      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -136,7 +136,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 planted-window key (stepIndex:stanceFoot). Consumer: stepping-turn-slot-pivot-mod.test.ts window-switch continuity through the entrypoint.",
-      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -146,7 +146,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 anchor-capture gate (0.03 m toe height). Consumer: stepping-turn-slot-pivot-mod.test.ts asserts the bar-6 threshold through the entrypoint.",
-      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11; pivot exports reviewed at 7b4dba46f, 2026-10-12"
     }
   ],
   "sourceReview": {

@@ -21,5 +21,4 @@ export {
   pivotSlotXzForSteppingFrame,
   STEPPING_PIVOT_CAPTURE_HEIGHT_M,
   steppingPivotWindowKey,
-  type SteppingPivotAnchor,
 } from "./stepping-turn-slot-pivot-mod.js";
