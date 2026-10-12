@@ -118,8 +118,23 @@ export function armHipWriteTrap(hipLeft: Object3D, hipRight: Object3D): void {
         /* keep prior behaviour */
       }
       if (hipTrapMuted) return;
-      if (hipTrapStacks.length >= 12) return;
-      hipTrapStacks.push(`${hip.name} :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
+      if (hipTrapStacks.length >= 24) return;
+      hipTrapStacks.push(`${hip.name} quat :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
+    };
+    // Euler-direct writes sync the quaternion with update=false, bypassing the
+    // trap above — but they DO fire the Euler callback (quaternion-synced writes
+    // pass update=false the other way, so this fires only on direct Euler writes).
+    const e = hip.rotation as unknown as { _onChangeCallback?: () => void };
+    const prevE = e._onChangeCallback;
+    e._onChangeCallback = () => {
+      try {
+        prevE?.();
+      } catch {
+        /* keep prior behaviour */
+      }
+      if (hipTrapMuted) return;
+      if (hipTrapStacks.length >= 24) return;
+      hipTrapStacks.push(`${hip.name} EULER :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
     };
   }
 }
