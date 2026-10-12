@@ -155,37 +155,36 @@ function boneIdOf(bone: object): number {
   return id;
 }
 /**
- * Per-frame rig census (stage-1e instrument): how many scene objects carry the
- * thigh names, identity ids + ancestor paths of the resolved hips. Detects a
- * duplicate-rig flip (name resolution landing on different objects per frame).
+ * Per-frame rig census (stage-1e instrument): every sanitised thigh/shin match
+ * under the slot with identity ids, plus the ids the chain resolver would take
+ * ([0] per bone). Detects duplicate-rig name-resolution flips.
  */
 export function censusSteppingLegs(actorSlot: Object3D, frame: number): string {
-  let upperLCount = 0;
-  let upperRCount = 0;
-  const pathOf = (bone: Object3D): string => {
-    const names: string[] = [];
-    let node: Object3D | null = bone;
-    while (node !== null && names.length < 6) {
-      names.push(node.name || "?");
-      node = node.parent;
-    }
-    return names.join("<");
-  };
-  const hipPath = (side: "left" | "right"): string => {
-    const all: Object3D[] = [];
+  const flat = (name: string): string => name.replaceAll(".", "");
+  const matches = (want: string): Object3D[] => {
+    const found: Object3D[] = [];
     actorSlot.traverse((o) => {
-      all.push(o);
+      if (o.name && flat(o.name) === want) found.push(o);
     });
-    const want = side === "left" ? "upperleg01L" : "upperleg01R";
-    const hit = all.find((o) => o.name.replaceAll(".", "") === want) ?? null;
-    return hit === null ? "missing" : `#${boneIdOf(hit)} ${pathOf(hit)}`;
+    // Mirror findBonesBySanitisedName's second pass (skeleton arrays can hold
+    // bones the graph walk never visits).
+    actorSlot.traverse((o) => {
+      const skinned = o as Object3D & { isSkinnedMesh?: boolean; skeleton?: { bones: Object3D[] } };
+      if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+      for (const bone of skinned.skeleton.bones) {
+        if (bone.name && flat(bone.name) === want) found.push(bone);
+      }
+    });
+    return found;
   };
-  actorSlot.traverse((o) => {
-    const flat = o.name.replaceAll(".", "");
-    if (flat === "upperleg01L") upperLCount += 1;
-    if (flat === "upperleg01R") upperRCount += 1;
-  });
-  return `census f${frame} upperLx${upperLCount} upperRx${upperRCount} L:${hipPath("left")} R:${hipPath("right")}`;
+  const ids = (want: string): string => matches(want).map((o) => `#${boneIdOf(o)}`).join(",") || "-";
+  const parts: string[] = [];
+  for (const base of ["upperleg01", "upperleg02", "lowerleg01", "lowerleg02"]) {
+    for (const side of ["L", "R"]) {
+      parts.push(`${base}${side}:[${ids(`${base}${side}`)}]`);
+    }
+  }
+  return `census f${frame} ${parts.join(" ")}`;
 }
 
 /** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
