@@ -29,6 +29,8 @@ export type SkinOverride = {
   normalScale?: number;
   roughness?: number;
   roughnessMapUrl?: string;
+  aoMapUrl?: string;
+  aoMapIntensity?: number;
   materialNameMatch?: string;
 };
 
@@ -56,6 +58,7 @@ export type SkinOverrideApplied = {
   normal: { url: string; size: [number, number]; scale: number } | null;
   roughness: number | null;
   roughnessMap: { url: string; size: [number, number] } | null;
+  ao: { url: string; size: [number, number]; intensity: number } | null;
 };
 
 /** Variant evaluator: override skin maps/scalars on matching materials (post-load, no GLB write). */
@@ -92,6 +95,7 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
   let baseColor: SkinOverrideApplied["baseColor"] = null;
   let normal: SkinOverrideApplied["normal"] = null;
   let roughnessMap: SkinOverrideApplied["roughnessMap"] = null;
+  let ao: SkinOverrideApplied["ao"] = null;
   if (override.baseColorUrl) {
     const tex = await loader.loadAsync(override.baseColorUrl);
     tex.colorSpace = SRGBColorSpace;
@@ -135,7 +139,22 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
     roughness = override.roughness;
     for (const m of matched) m.roughness = override.roughness;
   }
-  return { pattern, matchedMaterials: matchedNames, baseColor, normal, roughness, roughnessMap };
+  if (override.aoMapUrl) {
+    const tex = await loader.loadAsync(override.aoMapUrl);
+    tex.colorSpace = NoColorSpace;
+    tex.flipY = false;
+    const intensity = override.aoMapIntensity ?? 1;
+    ao = { url: override.aoMapUrl, size: texSize(tex) ?? [0, 0], intensity };
+    for (const m of matched) {
+      // aoMap shares the base-colour UV set here (same channel as map).
+      const srcChannel = (m.map as unknown as { channel?: number } | null)?.channel ?? 0;
+      (tex as unknown as { channel?: number }).channel = srcChannel;
+      m.aoMap = tex;
+      m.aoMapIntensity = intensity;
+      m.needsUpdate = true;
+    }
+  }
+  return { pattern, matchedMaterials: matchedNames, baseColor, normal, roughness, roughnessMap, ao };
 }
 
 /**

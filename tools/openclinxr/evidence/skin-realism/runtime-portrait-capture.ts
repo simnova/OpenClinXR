@@ -289,7 +289,7 @@ export type VariantDef = {
   views?: number[];
 };
 
-const TEXTURE_URL_KEYS = ["baseColorUrl", "normalUrl", "roughnessMapUrl"] as const;
+const TEXTURE_URL_KEYS = ["baseColorUrl", "normalUrl", "roughnessMapUrl", "aoMapUrl"] as const;
 
 const RIG_TONE_NUMBERS: Record<string, number> = {
   None: 0,
@@ -376,6 +376,14 @@ export function assertVariantLanded(variant: VariantDef, record: Record<string, 
     lines.push(`normalScale applied=${String(applied?.normal?.scale)}`);
   } else {
     lines.push(`hasNormalMap=${String(skin.hasNormalMap)}`);
+  }
+  if (skinOv.aoMapUrl) {
+    const applied = (record.runtimeDebug as Record<string, { ao?: { url?: string; intensity?: number } }>)?.skinOverrideApplied;
+    lines.push(`aoMap applied=${String(applied?.ao?.url)} intensity=${String(applied?.ao?.intensity)}`);
+    if (!applied?.ao?.url) fail("aoMap did not land (no skinOverrideApplied.ao)");
+    if (skinOv.aoMapIntensity != null && applied?.ao?.intensity !== skinOv.aoMapIntensity) {
+      fail(`aoMapIntensity applied ${String(applied?.ao?.intensity)} != ${String(skinOv.aoMapIntensity)}`);
+    }
   }
   const requestedMatOvs = (variant.materialOverrides ?? []) as Array<Record<string, unknown>>;
   const appliedMatOvs = (record.materialOverridesApplied ?? []) as Array<{
