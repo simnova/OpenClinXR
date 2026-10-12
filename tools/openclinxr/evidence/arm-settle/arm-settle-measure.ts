@@ -198,6 +198,8 @@ const ARM_PROBE_SOURCE = String.raw`
   const shoR = pick([/^shoulder01R$/]) || upperR;
   const wristL = pick([/^wristL$/, /^handL$/]);
   const wristR = pick([/^wristR$/, /^handR$/]);
+  const toeL = pick([/^toe11L$/, /^toeL$/]);
+  const toeR = pick([/^toe11R$/, /^toeR$/]);
   const pelvis = pick([/^pelvis$/, /pelvis/i]);
   const neck = pick([/^neck0[123]$/, /^neck$/, /neck/i]);
   // Ownership claim: set on slot.root userData, which is NOT necessarily an ancestor of
@@ -263,6 +265,7 @@ const ARM_PROBE_SOURCE = String.raw`
       shoulderL: worldOf(shoL), elbowL: worldOf(lowerL), wristL: worldOf(wristL),
       shoulderR: worldOf(shoR), elbowR: worldOf(lowerR), wristR: worldOf(wristR),
       pelvis: worldOf(pelvis), neck: worldOf(neck),
+      toeL: worldOf(toeL), toeR: worldOf(toeR),
     },
     chains: chainSummary,
   };
@@ -288,6 +291,37 @@ type ArmFrame = {
 function quatAngleDeg(a: Quat, b: Quat): number {
   const dot = Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w));
   return (2 * Math.acos(dot) * 180) / Math.PI;
+}
+
+/**
+ * Feet summary over settling+arrived frames: max per-frame toe XZ step (planted-slide
+ * proxy; overestimates true planted slide since it includes swing) and max toe height
+ * (clearance proxy). Compared control-vs-fix; must not worsen.
+ */
+function feetAnalysis(frames: ArmFrame[]): {
+  maxToeStepXZMeters: { L: number; R: number };
+  maxToeHeightMeters: { L: number; R: number };
+  settledFrameCount: number;
+} {
+  const settled = frames.filter((f) => f.phase === "settling" || f.phase === "arrived");
+  const out = {
+    maxToeStepXZMeters: { L: 0, R: 0 },
+    maxToeHeightMeters: { L: 0, R: 0 },
+    settledFrameCount: settled.length,
+  };
+  for (let i = 1; i < settled.length; i++) {
+    const prev = settled[i - 1]!;
+    const cur = settled[i]!;
+    for (const side of ["L", "R"] as const) {
+      const a = prev.points[`toe${side}`] as Vec3 | null;
+      const b = cur.points[`toe${side}`] as Vec3 | null;
+      if (!a || !b) continue;
+      const step = Math.hypot(b.x - a.x, b.z - a.z);
+      if (step > out.maxToeStepXZMeters[side]) out.maxToeStepXZMeters[side] = step;
+      if (b.y > out.maxToeHeightMeters[side]) out.maxToeHeightMeters[side] = b.y;
+    }
+  }
+  return out;
 }
 
 function sub(a: Vec3, b: Vec3): Vec3 {
@@ -492,6 +526,7 @@ async function main(): Promise<void> {
             R: mean(elbowBend.map((e) => e.R).filter(Number.isFinite)),
           },
           holdFrameCount: hold.length,
+          feet: feetAnalysis(frames),
           boneNames: {
             upperL: frames[0]?.bones.upperL?.name ?? null,
             upperR: frames[0]?.bones.upperR?.name ?? null,
