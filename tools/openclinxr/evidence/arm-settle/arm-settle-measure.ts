@@ -14,7 +14,8 @@
  * Flag-default runtime (stepping turn at default = on; no query flags appended).
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, stat, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "../lib/slotted-playwright.js";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
@@ -38,6 +39,61 @@ function outNameFromArgv(): string {
 
 function realSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Code-under-test proof (arm-settle): rebuild the two runtime packages whose dist the
+ * browser serves, then record content markers grepped FROM the built dist plus dist
+ * mtimes and the git sha into the measurement JSON. A capture whose dist lacks the
+ * expected markers does not count: tsgo --build can skip emit, so mtime alone proves
+ * nothing. Expected markers per run are passed in (fix run: slew strings present;
+ * control run: slew strings absent).
+ */
+async function buildAndProve(expected: { present: string[]; absent: string[] }): Promise<{
+  gitSha: string;
+  dist: Record<string, { mtimeMs: number; markers: Record<string, boolean> }>;
+}> {
+  for (const filter of ["@openclinxr/xr-pose", "@openclinxr/xr-humanoid-animation"]) {
+    execFileSync("pnpm", ["-s", "turbo", "run", "build", `--filter=${filter}`], {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      timeout: 600000,
+    });
+  }
+  const gitSha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  const distFiles = [
+    "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js",
+    "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js",
+  ];
+  const markers = [...expected.present, ...expected.absent];
+  const dist: Record<string, { mtimeMs: number; markers: Record<string, boolean> }> = {};
+  for (const file of distFiles) {
+    const content = await readFile(path.resolve(process.cwd(), file), "utf8");
+    const fileMarkers: Record<string, boolean> = {};
+    for (const marker of markers) fileMarkers[marker] = content.includes(marker);
+    const mtimeMs = (await stat(path.resolve(process.cwd(), file))).mtimeMs;
+    dist[file] = { mtimeMs, markers: fileMarkers };
+  }
+  const problems: string[] = [];
+  for (const [file, record] of Object.entries(dist)) {
+    for (const marker of expected.present) {
+      if (!record.markers[marker]) problems.push(`${file} lacks expected marker ${marker}`);
+    }
+    for (const marker of expected.absent) {
+      if (record.markers[marker]) problems.push(`${file} unexpectedly contains ${marker}`);
+    }
+  }
+  if (problems.length > 0) throw new Error(`code proof failed:\n${problems.join("\n")}`);
+  return { gitSha, dist };
+}
+
+function markersFromArgv(): { present: string[]; absent: string[] } {
+  // --expect-fix: the release-smoothing fix must be in the served dist.
+  // Default (control): the fix must be absent (reverted tree).
+  if (process.argv.some((arg) => arg === "--expect-fix")) {
+    return { present: ["writeArmReleaseSlew", "ARM_RELEASE_SLEW_MAX_RAD"], absent: [] };
+  }
+  return { present: [], absent: ["writeArmReleaseSlew", "ARM_RELEASE_SLEW_MAX_RAD"] };
 }
 
 const SUMMARY_SOURCE = String.raw`
@@ -201,6 +257,8 @@ async function readSummary(page: Page) {
 
 async function main(): Promise<void> {
   const outName = outNameFromArgv();
+  const codeProof = await buildAndProve(markersFromArgv());
+  process.stdout.write(`[arm-settle] code proof: sha=${codeProof.gitSha} markers ok\n`);
   const scenarioId = SCENE_CLOSURE_SCENARIO_ID;
   const bundleJson = buildSceneClosureBundleJson();
   const bundle = JSON.parse(bundleJson) as { actors: Array<{ actorId: string; role: string }> };
@@ -375,6 +433,7 @@ async function main(): Promise<void> {
               measuredAt: new Date().toISOString(),
               scenario: scenarioId,
               actorId: walkerActorId,
+              codeProof,
               runtimeFlags: "flag-default (no steppingTurn/ccdStanceLock query flags)",
               stepSeconds: STEP_SECONDS,
               holdSeconds: HOLD_SECONDS,
