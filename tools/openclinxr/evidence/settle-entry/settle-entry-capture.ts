@@ -38,7 +38,7 @@ const PRE_WALK_STEP_CAP = 900;
 const STEP_CAP = 1500;
 const DIST_FILES = [
   "packages/openclinxr/xr-humanoid-animation/dist/case-owned-approach-frame-mod.js",
-  "packages/openclinxr/xr-humanoid-animation/dist/bedside-approach-execution-mod.js",
+  "packages/openclinxr/xr-runtime-state/dist/bedside-approach-execution-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/clip-driven-settling-turn-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-plan-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-execution-mod.js",
@@ -65,6 +65,14 @@ function outFromArgv(): string {
   const flag = process.argv.find((a) => a.startsWith("--out="))?.slice("--out=".length);
   if (!flag) throw new Error("usage: settle-entry-capture.ts --out=dir");
   return flag;
+}
+
+function startFromArgv(): number {
+  const flag = process.argv.find((a) => a.startsWith("--start="))?.slice("--start=".length);
+  if (flag === undefined) return 0;
+  const n = Number(flag);
+  if (!Number.isInteger(n) || n < 0) throw new Error("usage: --start=N (non-negative)");
+  return n;
 }
 
 function urlQuery(vehicle: Vehicle): string {
@@ -297,6 +305,7 @@ async function runOnce(
 async function main(): Promise<void> {
   const vehicle = vehicleFromArgv();
   const runs = runsFromArgv();
+  const start = startFromArgv();
   const outDir = outFromArgv();
   await mkdir(outDir, { recursive: true });
 
@@ -322,7 +331,7 @@ async function main(): Promise<void> {
   const services = createLocalComputeServices();
   try {
     await services.sceneCapture.withBrowser(`settle-entry-${vehicle}`, async (browser) => {
-      for (let i = 0; i < runs; i += 1) {
+      for (let i = start; i < start + runs; i += 1) {
         await runOnce(vehicle, i, outDir, distProof, bundleJson, server.url, browser as Browser);
       }
     });
