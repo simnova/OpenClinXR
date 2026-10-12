@@ -1,0 +1,713 @@
+{
+  "schemaVersion": "openclinxr.loco-ground-report.v1",
+  "measuredAt": "2026-10-12T06:08:40.316Z",
+  "contactBandMeters": 0.06,
+  "rows": {
+    "lockOff": {
+      "row": "lockOff",
+      "urlQuery": "locoGround=1&noStanceLock=1",
+      "distMarker": {
+        "files": [
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/loco-ground-tap-mod.js",
+            "sha256": "aacfbfeafbca24a6b9624d22ea21ab625e50085c15cd0b6103b199f2a601c633",
+            "markerHits": 3
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/stance-lock-mod.js",
+            "sha256": "96448ddb8e98d4b6cf89f0eff7fc502579eec789defb643f46b6ddfe3e7cb795",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/case-owned-approach-frame-mod.js",
+            "sha256": "6b0e90d3a8b22754a34f5f936c21507115e682ad3ac06c9f9548544bc6b7d349",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/station-bedside-approach-mod.js",
+            "sha256": "cf988b728a05b9fcca46611c150e9cf5d644f6feaf50e9cdb6e16ef2cdf79656",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js",
+            "sha256": "fc286226a99528e4b69b10501b40977948e52663af83e0715766dbc8c1dcfc65",
+            "markerHits": 0
+          }
+        ],
+        "marker": "__openClinXrLocoGroundTap"
+      },
+      "routeLengthMeters": 6,
+      "video": ".openclinxr/evidence/loco-ground/lockOff/loco-ground-lockOff-0.5x.mp4",
+      "walkingTapFrames": 131,
+      "evidenceJoinMatched": 130,
+      "evidenceJoinUnmatched": 0,
+      "contacts": 12,
+      "strides": 6,
+      "steadyDefinition": "drop first/last 2 contacts (first/last gait cycle)",
+      "steadyFrames": 91,
+      "excludedFrames": {
+        "nonWalkingTap": 80,
+        "unarmedFirstWalking": 1,
+        "nullLabelWalking": 7,
+        "droppedZeroLengthContacts": 0,
+        "transientStart": 19,
+        "transientStop": 13
+      },
+      "writerTable": [
+        {
+          "bone": "root",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisL",
+          "abMaxDeg": 0,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "upperleg01L",
+          "abMaxDeg": 0.02353313873836307,
+          "abMedianDeg": 0.012063217987331395,
+          "bcMaxDeg": 0.02353313873836307,
+          "bcMedianDeg": 0.012063217987331395
+        },
+        {
+          "bone": "upperleg02L",
+          "abMaxDeg": 0.0000024148365394514667,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000024148365394514667,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "lowerleg01L",
+          "abMaxDeg": 0.015280710790637636,
+          "abMedianDeg": 0.007183387760324166,
+          "bcMaxDeg": 0.015280710790637636,
+          "bcMedianDeg": 0.007183387760324166
+        },
+        {
+          "bone": "lowerleg02L",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "footL",
+          "abMaxDeg": 0.02014040003781572,
+          "abMedianDeg": 0.018413213903667666,
+          "bcMaxDeg": 0.02014040003781572,
+          "bcMedianDeg": 0.018413213903667666
+        },
+        {
+          "bone": "toe1-1L",
+          "abMaxDeg": 0.0066604501359660605,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0066604501359660605,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisR",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "upperleg01R",
+          "abMaxDeg": 0.016192623271238882,
+          "abMedianDeg": 0.012031361385409445,
+          "bcMaxDeg": 0.016192623271238882,
+          "bcMedianDeg": 0.012031361385409445
+        },
+        {
+          "bone": "upperleg02R",
+          "abMaxDeg": 0.0000017075472925031877,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000017075472925031877,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "lowerleg01R",
+          "abMaxDeg": 0.01835911431131733,
+          "abMedianDeg": 0.008938946228743621,
+          "bcMaxDeg": 0.01835911431131733,
+          "bcMedianDeg": 0.008938946228743621
+        },
+        {
+          "bone": "lowerleg02R",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "footR",
+          "abMaxDeg": 0.024632072519157566,
+          "abMedianDeg": 0.01841110195904712,
+          "bcMaxDeg": 0.024632072519157566,
+          "bcMedianDeg": 0.01841110195904712
+        },
+        {
+          "bone": "toe1-1R",
+          "abMaxDeg": 0.02072890364335181,
+          "abMedianDeg": 0.0000026861976031968315,
+          "bcMaxDeg": 0.02072890364335181,
+          "bcMedianDeg": 0.0000026861976031968315
+        }
+      ],
+      "writersTouched": {
+        "afterPosture": [],
+        "afterLock": []
+      },
+      "postureTagsDistinct": [
+        null
+      ],
+      "actionWeightRange": [
+        null,
+        null
+      ],
+      "actionTimeScale": 1.6254950209839607,
+      "legWeightRange": [
+        1,
+        1
+      ],
+      "lockCorrectionMedianM": 0.13449135409435514,
+      "heelMissMaxM": null,
+      "actorScale": {
+        "x": 0.86,
+        "y": 0.86,
+        "z": 0.86
+      },
+      "plannedSpeedMps": 1.3735070727044982,
+      "steadyRootSpeedMps": 1.3735070727045002,
+      "perFoot": {
+        "left": {
+          "worldStationaryFraction": 0,
+          "kinematicContactFraction": 0.5714285714285714,
+          "lowerFootSpeedMedianMps": 0.8218863230347813,
+          "lowerFootSpeedMaxMps": 3.256095019558727,
+          "swingToeHeightMaxM": 0.03125137694389094,
+          "mixerSwingToeHeightMaxM": 0.03129643301946474,
+          "bodyFrameSpeedMedianMps": 0.5663271507260963,
+          "mixerBodyFrameSpeedMedianMps": 0.5663311406438757
+        },
+        "right": {
+          "worldStationaryFraction": 0,
+          "kinematicContactFraction": 0.5494505494505495,
+          "lowerFootSpeedMedianMps": 0.8186581972702014,
+          "lowerFootSpeedMaxMps": 3.2429430855067762,
+          "swingToeHeightMaxM": 0.03208590414635055,
+          "mixerSwingToeHeightMaxM": 0.03205337417142584,
+          "bodyFrameSpeedMedianMps": 0.5591941709234832,
+          "mixerBodyFrameSpeedMedianMps": 0.5591945415978886
+        }
+      },
+      "releaseStepMaxM": 0.04409039425885529,
+      "releaseTransitions": 11,
+      "transientStart": {
+        "frames": 19,
+        "stationaryLeft": 0,
+        "stationaryRight": 0,
+        "maxStepM": 0.10713379726442859
+      },
+      "transientStop": {
+        "frames": 13,
+        "stationaryLeft": 0,
+        "stationaryRight": 0,
+        "maxStepM": 0.10760531564804937
+      }
+    },
+    "twoBone": {
+      "row": "twoBone",
+      "urlQuery": "locoGround=1",
+      "distMarker": {
+        "files": [
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/loco-ground-tap-mod.js",
+            "sha256": "aacfbfeafbca24a6b9624d22ea21ab625e50085c15cd0b6103b199f2a601c633",
+            "markerHits": 3
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/stance-lock-mod.js",
+            "sha256": "96448ddb8e98d4b6cf89f0eff7fc502579eec789defb643f46b6ddfe3e7cb795",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/case-owned-approach-frame-mod.js",
+            "sha256": "6b0e90d3a8b22754a34f5f936c21507115e682ad3ac06c9f9548544bc6b7d349",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/station-bedside-approach-mod.js",
+            "sha256": "cf988b728a05b9fcca46611c150e9cf5d644f6feaf50e9cdb6e16ef2cdf79656",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js",
+            "sha256": "fc286226a99528e4b69b10501b40977948e52663af83e0715766dbc8c1dcfc65",
+            "markerHits": 0
+          }
+        ],
+        "marker": "__openClinXrLocoGroundTap"
+      },
+      "routeLengthMeters": 6,
+      "video": ".openclinxr/evidence/loco-ground/twoBone/loco-ground-twoBone-0.5x.mp4",
+      "walkingTapFrames": 131,
+      "evidenceJoinMatched": 130,
+      "evidenceJoinUnmatched": 0,
+      "contacts": 12,
+      "strides": 6,
+      "steadyDefinition": "drop first/last 2 contacts (first/last gait cycle)",
+      "steadyFrames": 91,
+      "excludedFrames": {
+        "nonWalkingTap": 80,
+        "unarmedFirstWalking": 1,
+        "nullLabelWalking": 7,
+        "droppedZeroLengthContacts": 0,
+        "transientStart": 19,
+        "transientStop": 13
+      },
+      "writerTable": [
+        {
+          "bone": "root",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisL",
+          "abMaxDeg": 0,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "upperleg01L",
+          "abMaxDeg": 0.02353313873836307,
+          "abMedianDeg": 0.012063217987331395,
+          "bcMaxDeg": 7.020122495944506,
+          "bcMedianDeg": 0.01729169645415437
+        },
+        {
+          "bone": "upperleg02L",
+          "abMaxDeg": 0.0000024148365394514667,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000024148365394514667,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "lowerleg01L",
+          "abMaxDeg": 0.015280710790637636,
+          "abMedianDeg": 0.007183387760324166,
+          "bcMaxDeg": 12.201848063447155,
+          "bcMedianDeg": 0.010280349501295059
+        },
+        {
+          "bone": "lowerleg02L",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "footL",
+          "abMaxDeg": 0.02014040003781572,
+          "abMedianDeg": 0.018413213903667666,
+          "bcMaxDeg": 0.02014040003781572,
+          "bcMedianDeg": 0.018413213903667666
+        },
+        {
+          "bone": "toe1-1L",
+          "abMaxDeg": 0.0066604501359660605,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0066604501359660605,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisR",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "upperleg01R",
+          "abMaxDeg": 0.016192623271238882,
+          "abMedianDeg": 0.012031361385409445,
+          "bcMaxDeg": 7.458707478579688,
+          "bcMedianDeg": 0.012118389507840437
+        },
+        {
+          "bone": "upperleg02R",
+          "abMaxDeg": 0.0000017075472925031877,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000017075472925031877,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "lowerleg01R",
+          "abMaxDeg": 0.01835911431131733,
+          "abMedianDeg": 0.008938946228743621,
+          "bcMaxDeg": 14.61856653608054,
+          "bcMedianDeg": 0.010456848275335776
+        },
+        {
+          "bone": "lowerleg02R",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "footR",
+          "abMaxDeg": 0.024632072519157566,
+          "abMedianDeg": 0.01841110195904712,
+          "bcMaxDeg": 0.024632072519157566,
+          "bcMedianDeg": 0.01841110195904712
+        },
+        {
+          "bone": "toe1-1R",
+          "abMaxDeg": 0.02072890364335181,
+          "abMedianDeg": 0.0000026861976031968315,
+          "bcMaxDeg": 0.02072890364335181,
+          "bcMedianDeg": 0.0000026861976031968315
+        }
+      ],
+      "writersTouched": {
+        "afterPosture": [],
+        "afterLock": [
+          "upperleg01L:7.02deg",
+          "lowerleg01L:12.20deg",
+          "upperleg01R:7.46deg",
+          "lowerleg01R:14.62deg"
+        ]
+      },
+      "postureTagsDistinct": [
+        null
+      ],
+      "actionWeightRange": [
+        null,
+        null
+      ],
+      "actionTimeScale": 1.6254950209839607,
+      "legWeightRange": [
+        1,
+        1
+      ],
+      "lockCorrectionMedianM": 0.1344521479652639,
+      "heelMissMaxM": 0.39167498447977217,
+      "actorScale": {
+        "x": 0.86,
+        "y": 0.86,
+        "z": 0.86
+      },
+      "plannedSpeedMps": 1.3735070727044982,
+      "steadyRootSpeedMps": 1.3737621116228123,
+      "perFoot": {
+        "left": {
+          "worldStationaryFraction": 0.08791208791208792,
+          "kinematicContactFraction": 0.5714285714285714,
+          "lowerFootSpeedMedianMps": 1.29605220774142,
+          "lowerFootSpeedMaxMps": 3.256194595656517,
+          "swingToeHeightMaxM": 0.030541679144186103,
+          "mixerSwingToeHeightMaxM": 0.030805806310672805,
+          "bodyFrameSpeedMedianMps": 0.6470708986986222,
+          "mixerBodyFrameSpeedMedianMps": 0.5662846280871926
+        },
+        "right": {
+          "worldStationaryFraction": 0.03296703296703297,
+          "kinematicContactFraction": 0.5494505494505495,
+          "lowerFootSpeedMedianMps": 1.2280101147835962,
+          "lowerFootSpeedMaxMps": 4.888451556059932,
+          "swingToeHeightMaxM": 0.03208868307886677,
+          "mixerSwingToeHeightMaxM": 0.032292239160698025,
+          "bodyFrameSpeedMedianMps": 0.7651049554509447,
+          "mixerBodyFrameSpeedMedianMps": 0.5591894490682977
+        }
+      },
+      "releaseStepMaxM": 0.04409110211563443,
+      "releaseTransitions": 11,
+      "transientStart": {
+        "frames": 19,
+        "stationaryLeft": 0.15789473684210525,
+        "stationaryRight": 0,
+        "maxStepM": 0.10713398893061472
+      },
+      "transientStop": {
+        "frames": 13,
+        "stationaryLeft": 0,
+        "stationaryRight": 0,
+        "maxStepM": 0.16637692058681094
+      }
+    },
+    "ccd": {
+      "row": "ccd",
+      "urlQuery": "locoGround=1&ccdStanceLock=1",
+      "distMarker": {
+        "files": [
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/loco-ground-tap-mod.js",
+            "sha256": "aacfbfeafbca24a6b9624d22ea21ab625e50085c15cd0b6103b199f2a601c633",
+            "markerHits": 3
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/stance-lock-mod.js",
+            "sha256": "96448ddb8e98d4b6cf89f0eff7fc502579eec789defb643f46b6ddfe3e7cb795",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/case-owned-approach-frame-mod.js",
+            "sha256": "6b0e90d3a8b22754a34f5f936c21507115e682ad3ac06c9f9548544bc6b7d349",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/station-bedside-approach-mod.js",
+            "sha256": "cf988b728a05b9fcca46611c150e9cf5d644f6feaf50e9cdb6e16ef2cdf79656",
+            "markerHits": 0
+          },
+          {
+            "file": "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js",
+            "sha256": "fc286226a99528e4b69b10501b40977948e52663af83e0715766dbc8c1dcfc65",
+            "markerHits": 0
+          }
+        ],
+        "marker": "__openClinXrLocoGroundTap"
+      },
+      "routeLengthMeters": 6,
+      "video": ".openclinxr/evidence/loco-ground/ccd/loco-ground-ccd-0.5x.mp4",
+      "walkingTapFrames": 131,
+      "evidenceJoinMatched": 130,
+      "evidenceJoinUnmatched": 0,
+      "contacts": 12,
+      "strides": 6,
+      "steadyDefinition": "drop first/last 2 contacts (first/last gait cycle)",
+      "steadyFrames": 91,
+      "excludedFrames": {
+        "nonWalkingTap": 80,
+        "unarmedFirstWalking": 1,
+        "nullLabelWalking": 7,
+        "droppedZeroLengthContacts": 0,
+        "transientStart": 19,
+        "transientStop": 13
+      },
+      "writerTable": [
+        {
+          "bone": "root",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisL",
+          "abMaxDeg": 0,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "upperleg01L",
+          "abMaxDeg": 0.02353313873836307,
+          "abMedianDeg": 0.012063217987331395,
+          "bcMaxDeg": 32.502391294143585,
+          "bcMedianDeg": 0.016415341835490326
+        },
+        {
+          "bone": "upperleg02L",
+          "abMaxDeg": 0.0000024148365394514667,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000024148365394514667,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "lowerleg01L",
+          "abMaxDeg": 0.015280710790637636,
+          "abMedianDeg": 0.007183387760324166,
+          "bcMaxDeg": 12.475502117132649,
+          "bcMedianDeg": 0.009438980062663619
+        },
+        {
+          "bone": "lowerleg02L",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "footL",
+          "abMaxDeg": 0.02014040003781572,
+          "abMedianDeg": 0.018413213903667666,
+          "bcMaxDeg": 0.02014040003781572,
+          "bcMedianDeg": 0.018413213903667666
+        },
+        {
+          "bone": "toe1-1L",
+          "abMaxDeg": 0.0066604501359660605,
+          "abMedianDeg": 0,
+          "bcMaxDeg": 0.0066604501359660605,
+          "bcMedianDeg": 0
+        },
+        {
+          "bone": "pelvisR",
+          "abMaxDeg": 0.0000034150945850063755,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000034150945850063755,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "upperleg01R",
+          "abMaxDeg": 0.016192623271238882,
+          "abMedianDeg": 0.012031361385409445,
+          "bcMaxDeg": 32.795282039211024,
+          "bcMedianDeg": 0.012118389507840437
+        },
+        {
+          "bone": "upperleg02R",
+          "abMaxDeg": 0.0000017075472925031877,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000017075472925031877,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "lowerleg01R",
+          "abMaxDeg": 0.01835911431131733,
+          "abMedianDeg": 0.008938946228743621,
+          "bcMaxDeg": 13.469172789178101,
+          "bcMedianDeg": 0.009357801537384447
+        },
+        {
+          "bone": "lowerleg02R",
+          "abMaxDeg": 0.0000029575586669421963,
+          "abMedianDeg": 0.0000017075472925031877,
+          "bcMaxDeg": 0.0000029575586669421963,
+          "bcMedianDeg": 0.0000017075472925031877
+        },
+        {
+          "bone": "footR",
+          "abMaxDeg": 0.024632072519157566,
+          "abMedianDeg": 0.01841110195904712,
+          "bcMaxDeg": 0.024632072519157566,
+          "bcMedianDeg": 0.01841110195904712
+        },
+        {
+          "bone": "toe1-1R",
+          "abMaxDeg": 0.02072890364335181,
+          "abMedianDeg": 0.0000026861976031968315,
+          "bcMaxDeg": 0.02072890364335181,
+          "bcMedianDeg": 0.0000026861976031968315
+        }
+      ],
+      "writersTouched": {
+        "afterPosture": [],
+        "afterLock": [
+          "upperleg01L:32.50deg",
+          "lowerleg01L:12.48deg",
+          "upperleg01R:32.80deg",
+          "lowerleg01R:13.47deg"
+        ]
+      },
+      "postureTagsDistinct": [
+        null
+      ],
+      "actionWeightRange": [
+        null,
+        null
+      ],
+      "actionTimeScale": 1.6254950209839607,
+      "legWeightRange": [
+        1,
+        1
+      ],
+      "lockCorrectionMedianM": 0.13443512429158033,
+      "heelMissMaxM": 0.21603027637036043,
+      "actorScale": {
+        "x": 0.86,
+        "y": 0.86,
+        "z": 0.86
+      },
+      "plannedSpeedMps": 1.3735070727044982,
+      "steadyRootSpeedMps": 1.373763420451118,
+      "perFoot": {
+        "left": {
+          "worldStationaryFraction": 0.31868131868131866,
+          "kinematicContactFraction": 0.5714285714285714,
+          "lowerFootSpeedMedianMps": 1.736398808776917,
+          "lowerFootSpeedMaxMps": 10.028935485701057,
+          "swingToeHeightMaxM": 0.028283501535810072,
+          "mixerSwingToeHeightMaxM": 0.03002802592347674,
+          "bodyFrameSpeedMedianMps": 1.0733537992338522,
+          "mixerBodyFrameSpeedMedianMps": 0.5661963840849791
+        },
+        "right": {
+          "worldStationaryFraction": 0.3956043956043956,
+          "kinematicContactFraction": 0.5494505494505495,
+          "lowerFootSpeedMedianMps": 1.7382784294491038,
+          "lowerFootSpeedMaxMps": 10.659227217040842,
+          "swingToeHeightMaxM": 0.030531988366559834,
+          "mixerSwingToeHeightMaxM": 0.03224502860415803,
+          "bodyFrameSpeedMedianMps": 1.1849571488195876,
+          "mixerBodyFrameSpeedMedianMps": 0.5591767139538367
+        }
+      },
+      "releaseStepMaxM": 0.04409225307758152,
+      "releaseTransitions": 11,
+      "transientStart": {
+        "frames": 19,
+        "stationaryLeft": 0.5263157894736842,
+        "stationaryRight": 0.10526315789473684,
+        "maxStepM": 0.3425325144970598
+      },
+      "transientStop": {
+        "frames": 13,
+        "stationaryLeft": 0,
+        "stationaryRight": 0.9230769230769231,
+        "maxStepM": 0.26373717618689585
+      }
+    }
+  },
+  "clip": {
+    "name": "openclinxr_retarget_walk_source",
+    "durationSeconds": 1.7083333730697632,
+    "trackCount": 411,
+    "playedTimeScale": 1.6254950209839607,
+    "provenance": "Blender retarget via packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py; shipped in apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb (glTF-Transform v4.3.0); source-take origin before the retarget not traced in this slice",
+    "perFoot": {
+      "left": {
+        "kinematicContactFrames": 52,
+        "stanceBackwardBodySpeedMedianMps": 0.5636967881698025,
+        "stanceBackwardBodySpeedCv": 0.10790096269610672,
+        "stationaryRootSpeedMps": 0.5636967881698025,
+        "strideLengthWorldM": 0.7705374677872234,
+        "cycleDurationPlayedS": 0.561,
+        "cycleDurationAtTimeScale1S": 0.911902706772002,
+        "swingToeHeightMaxM": 0.03129643301946474,
+        "swingToeMaxCyclePhase": null,
+        "kinematicDutyFactor": 0.5714285714285714
+      },
+      "right": {
+        "kinematicContactFrames": 50,
+        "stanceBackwardBodySpeedMedianMps": 0.5587758015355391,
+        "stanceBackwardBodySpeedCv": 0.11338449436970728,
+        "stationaryRootSpeedMps": 0.5587758015355391,
+        "strideLengthWorldM": 0.6345602675894781,
+        "cycleDurationPlayedS": 0.462,
+        "cycleDurationAtTimeScale1S": 0.7509786996945899,
+        "swingToeHeightMaxM": 0.03205337417142584,
+        "swingToeMaxCyclePhase": 0.7857142857142857,
+        "kinematicDutyFactor": 0.5494505494505495
+      }
+    }
+  },
+  "claimScope": "per-writer tap angles and steady-state foot metrics for three browser loco-ground rows",
+  "notEvidenceFor": [
+    "gait_realism",
+    "clinical_plausibility",
+    "quest_performance"
+  ]
+}
