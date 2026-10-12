@@ -205,8 +205,37 @@ const ARM_PROBE_SOURCE = String.raw`
   });
   const chainSummary = claimSites.length ? claimSites : null;
   const postureTag = (o) => (o && o.userData && o.userData.openClinXrClinicalIdlePosture) || null;
+  // Served-code proof from inside the page: the v4 release store exists on the
+  // actor root only when the fixed posture pass ran. Report presence, size, and the
+  // upper-arm entries (mixer pose seen vs result written) to see the blend in situ.
+  let releaseStore = null;
+  let node = actor;
+  while (node) {
+    const ud = node.userData || {};
+    if (ud.openClinXrArmReleasePrev instanceof Map) {
+      const m = ud.openClinXrArmReleasePrev;
+      const entries = {};
+      m.forEach((v, k) => {
+        if (typeof k === "string" && k.indexOf("upperarm") === 0) entries[k] = v;
+      });
+      releaseStore = { node: node.name || "(unnamed)", size: m.size, upperEntries: entries };
+      break;
+    }
+    node = node.parent;
+  }
+  // Also search the whole scene (root may differ from the actor subtree).
+  if (!releaseStore) {
+    scene.traverse((o) => {
+      if (releaseStore) return;
+      const ud = o.userData || {};
+      if (ud.openClinXrArmReleasePrev instanceof Map) {
+        releaseStore = { node: o.name || "(unnamed)", size: ud.openClinXrArmReleasePrev.size, upperEntries: null };
+      }
+    });
+  }
   return {
     ok: true,
+    releaseStore,
     bones: {
       upperL: bone(upperL), upperR: bone(upperR),
       lowerL: bone(lowerL), lowerR: bone(lowerR),
@@ -237,6 +266,7 @@ type ArmFrame = {
   points: Record<string, Vec3 | null>;
   chains: Array<{ ownerId: string; weight: number; bones: number; hasUpperArm: boolean }> | null;
   postureTags?: Record<string, string | null>;
+  releaseStore?: { node: string; size: number; upperEntries: Record<string, unknown> | null } | null;
 };
 
 function quatAngleDeg(a: Quat, b: Quat): number {
@@ -334,7 +364,7 @@ async function main(): Promise<void> {
           const probe = (await page.evaluate(
             `${ARM_PROBE_SOURCE}(${JSON.stringify({ actorId: walkerActorId })})`,
           )) as
-            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null> }
+            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null>; releaseStore: ArmFrame["releaseStore"] }
             | { ok: false; reason?: string };
           if (!probe.ok) throw new Error(`arm probe failed at step ${step}: ${(probe as { reason?: string }).reason}`);
           summary = await readSummary(page);
@@ -348,6 +378,7 @@ async function main(): Promise<void> {
             points: probe.points,
             chains: probe.chains,
             postureTags: probe.postureTags,
+            releaseStore: probe.releaseStore ?? null,
           });
           step += 1;
           if (step % 60 === 0) {
