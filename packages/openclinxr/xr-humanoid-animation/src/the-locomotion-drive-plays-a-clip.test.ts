@@ -194,7 +194,7 @@ describe("the locomotion drive plays a retargeted clip instead of sliding the ro
     const upperChain = claimedAfterWalk.find((c) => c.boneNames.includes("upperarm01.L"));
     expect(upperChain).toBeDefined();
     expect(upperChain!.weight).toBeCloseTo(1, 2);
-    // Stop - should fade out over LOCOMOTION_CROSSFADE_DURATION_S (0.3s)
+    // Stop - should fade out over LOCOMOTION_UPPER_BODY_BLEND_OUT_S (0.5s)
     runFrame(slot, 0);
     const playback = slot.root.userData["openClinXrLocomotionClipPlayback"] as {
       playing: boolean;
@@ -207,8 +207,8 @@ describe("the locomotion drive plays a retargeted clip instead of sliding the ro
     expect(playback.crossfadeWeight).toBeGreaterThan(0);
     // Leg claim should still exist during fade
     expect(slot.root.userData["openClinXrOwnedBoneChains"]).not.toEqual([]);
-    // Continue fading until fully stopped
-    for (let i = 0; i < 30; i++) {
+    // Continue fading until fully stopped (blend-out window plus float-residue frame)
+    for (let i = 0; i < 40; i++) {
       runFrame(slot, 0);
     }
     const playbackFinal = slot.root.userData["openClinXrLocomotionClipPlayback"] as {

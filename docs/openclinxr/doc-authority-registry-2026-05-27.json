@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 107,
     "current-reference": 214,
-    "archive-candidate": 125,
+    "archive-candidate": 126,
     "evidence": 174,
     "temporary": 54,
     "protected-policy": 10,
@@ -5625,6 +5625,13 @@
     },
     {
       "path": "docs/openclinxr/locomotion/walk-accounting-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/arm-settle-2026-10-11.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",

@@ -102,10 +102,6 @@ function markersFromArgv(): { files: Record<string, { present: string[]; absent:
   const animationFile = "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js";
   const splitFile = "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-split-mod.js";
   const poseFile = "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js";
-  const loopFile = "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js";
-  // TEMPORARY arm-settle tap (reverted before the final commit): the instrumented control run
-  // serves the tap from the loop dist; the fix run asserts its absence.
-  const tapMarkers = { present: ["openClinXrSnapDebug", "openClinXrOwnedBoneChainsWriter"], absent: [] as string[] };
   if (process.argv.some((arg) => arg === "--expect-fix")) {
     return {
       files: {
@@ -125,7 +121,6 @@ function markersFromArgv(): { files: Record<string, { present: string[]; absent:
         present: [],
         absent: ["openClinXrMixerActionDebug", "locomotionSplitActions", "__openclinxr_upper_body"],
       },
-      [loopFile]: tapMarkers,
     },
   };
 }
@@ -280,18 +275,12 @@ const ARM_PROBE_SOURCE = `
   // plus per-action weights/times on the slot root, which is not necessarily the actorId-tagged
   // node the arm probe resolves (actorSlot carries the tag too) — search scene-wide like the
   // claim census does. Reverted after the capture.
-  // TEMPORARY arm-settle tap (reverted before the final commit): prefer the stash whose actorId
-  // matches the walker; several slots stash per frame.
   let snapDebug = null;
-  let snapFallback = null;
   scene.traverse((o) => {
+    if (snapDebug) return;
     const ud = o.userData || {};
-    if (ud.openClinXrSnapDebug !== undefined && ud.openClinXrSnapDebug !== null) {
-      if (ud.openClinXrSnapDebug.actorId === p.actorId) snapDebug = ud.openClinXrSnapDebug;
-      else if (snapFallback === null) snapFallback = ud.openClinXrSnapDebug;
-    }
+    if (ud.openClinXrSnapDebug !== undefined && ud.openClinXrSnapDebug !== null) snapDebug = ud.openClinXrSnapDebug;
   });
-  if (snapDebug === null) snapDebug = snapFallback;
   // LEGS-IDENTICAL probe (arm-settle bar 2): local quats of every leg/foot/pelvis bone plus the
   // actor root's local/world position, compared against the control run within 1e-6. Scene-graph
   // names are dotted (upperleg01.L); san() strips dots before matching, as the arm probe does.

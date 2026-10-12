@@ -169,8 +169,6 @@ function declareLegClaim(input: {
     ...existing.filter((chain) => chain.ownerId !== SETTLING_STEP_TURN_OWNER_ID),
     { ownerId, boneNames },
   ];
-  // TEMPORARY arm-settle tap (reverted before the final commit): tag the claim writer.
-  host.userData["openClinXrOwnedBoneChainsWriter"] = "settling-step-turn:declareLegClaim";
 }
 
 export function restoreSettlingRestToePose(input: {

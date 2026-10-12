@@ -264,9 +264,6 @@ export function playLocomotionClip(
       // Keep leg claim while fading (weight > 0 means still blending)
       const chains = locomotionOwnedBoneChains(slot, crossfadeState.weight);
       rootUserData["openClinXrOwnedBoneChains"] = chains;
-      // TEMPORARY arm-settle tap (reverted before the final commit): tag the claim writer.
-      rootUserData["openClinXrOwnedBoneChainsWriter"] =
-        `loco:stopping xf=${crossfadeState.weight.toFixed(3)} d=${deltaSeconds}`;
       rootUserData["openClinXrLocomotionClipPlayback"] = {
         clipName,
         playing: legWeightState.current > 0,
@@ -280,8 +277,6 @@ export function playLocomotionClip(
 
     // Fully stopped
     rootUserData["openClinXrOwnedBoneChains"] = [];
-    // TEMPORARY arm-settle tap (reverted before the final commit).
-    rootUserData["openClinXrOwnedBoneChainsWriter"] = "loco:fully-stopped";
     rootUserData["openClinXrLocomotionClipPlayback"] = {
       clipName,
       playing: false,
@@ -350,9 +345,6 @@ export function playLocomotionClip(
   // Claim bones with current crossfade weight
   const chains = locomotionOwnedBoneChains(slot, crossfadeState.weight);
   rootUserData["openClinXrOwnedBoneChains"] = chains;
-  // TEMPORARY arm-settle tap (reverted before the final commit): tag the claim writer.
-  rootUserData["openClinXrOwnedBoneChainsWriter"] =
-    `loco:walking xf=${crossfadeState.weight.toFixed(3)} d=${deltaSeconds}`;
   rootUserData["openClinXrLocomotionClipPlayback"] = {
     clipName,
     playing: true,
