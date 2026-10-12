@@ -8,6 +8,7 @@ except ImportError:
     Vector = None
 import numpy as np
 import traceback
+from collections.abc import Iterable
 from pathlib import Path
 
 
@@ -62,12 +63,21 @@ def apply_macros(basemesh: bpy.types.Object, phenotype: dict) -> dict:
     return TargetService.get_macro_info_dict_from_basemesh(basemesh)
 
 
-def load_mpfb_face_shape_keys(basemesh: bpy.types.Object, *, min_count: int = 24) -> dict:
+def load_mpfb_face_shape_keys(
+    basemesh: bpy.types.Object,
+    *,
+    min_count: int = 24,
+    required_names: Iterable[str] | None = None,
+) -> dict:
     """Load native MPFB face/expression/mouth targets AFTER macro bake (#221 A2).
 
     Does NOT invent viseme_* names or a runtime name map — exports MakeHuman-family names
     so the inspect can measure intersects vs disjoint_measured against the runtime vocabulary.
     Targets come from the user MPFB extension data/targets tree (not vendored).
+
+    required_names: explicitly requested shape-key names (e.g. from --face-targets)
+    that must be loaded even if they fall outside the bounded cap. When None (the
+    default) the loaded set is exactly what the cap yields — no behaviour change.
     """
     from bl_ext.user_default.mpfb.services.targetservice import TargetService
 
@@ -111,6 +121,30 @@ def load_mpfb_face_shape_keys(basemesh: bpy.types.Object, *, min_count: int = 24
                 loaded_names.append(name)
             except Exception:
                 continue
+
+        # Explicitly requested targets are always loaded, even outside the cap.
+        # Absent callers (required_names None/empty) keep the capped set exactly.
+        if required_names:
+            wanted = [str(n) for n in required_names]
+            missing = [n for n in wanted if n not in loaded_names]
+            if missing:
+                by_name: dict[str, Path] = {}
+                for path in candidates:
+                    try:
+                        name = TargetService.filename_to_shapekey_name(path.name, encode_name=False)
+                    except Exception:
+                        continue
+                    if name in missing and name not in by_name:
+                        by_name[name] = path
+                for name in missing:
+                    path = by_name.get(name)
+                    if path is None:
+                        continue
+                    try:
+                        TargetService.load_target(basemesh, str(path), weight=0.0, name=name)
+                        loaded_names.append(name)
+                    except Exception:
+                        continue
 
         # Zero all non-basis keys so export defaults are rest.
         if basemesh.data.shape_keys:

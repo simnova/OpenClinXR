@@ -2302,7 +2302,60 @@ def parse_args():
             "match the pre-subdiv shipped 26,756-class body."
         ),
     )
+    parser.add_argument(
+        "--face-targets",
+        default=None,
+        help=(
+            "Comma-separated face shape-key weights baked into the Basis, e.g. "
+            '"mouth-upperlip-volume-incr=0.6,mouth-lowerlip-volume-incr=0.6". '
+            "Applied to the loaded face shape keys and folded into the Basis with "
+            "TargetService.bake_targets BEFORE the #318 helper strip. Unknown "
+            "names refuse loudly with the available key names. Empty/absent "
+            "changes nothing."
+        ),
+    )
     return parser.parse_args(argv)
+
+
+def parse_face_targets(raw: str | None) -> dict:
+    """Parse --face-targets "name=weight,..." into an ordered dict.
+
+    Empty/absent input returns {} (the flag is inert when unused). Malformed
+    entries refuse loudly; weights must be finite floats.
+    """
+    if raw is None:
+        return {}
+    text = raw.strip()
+    if not text:
+        return {}
+    out: dict = {}
+    for part in text.split(","):
+        entry = part.strip()
+        if not entry:
+            continue
+        if "=" not in entry:
+            raise ValueError(
+                f"malformed --face-targets entry {entry!r}: want name=weight"
+            )
+        name, _, weight_raw = entry.partition("=")
+        name = name.strip()
+        weight_raw = weight_raw.strip()
+        if not name:
+            raise ValueError(
+                f"malformed --face-targets entry {entry!r}: empty target name"
+            )
+        try:
+            weight = float(weight_raw)
+        except ValueError:
+            raise ValueError(
+                f"malformed --face-targets entry {entry!r}: weight is not a float"
+            )
+        if not math.isfinite(weight):
+            raise ValueError(
+                f"malformed --face-targets entry {entry!r}: weight is not finite"
+            )
+        out[name] = weight
+    return out
 
 
 def install_visemes02_targets():
@@ -4099,7 +4152,10 @@ def main():
         _sys2.path.insert(0, str(_makeclothes_dir))
     from mpfb_body import load_mpfb_face_shape_keys  # noqa: E402
 
-    face_status = load_mpfb_face_shape_keys(human)
+    _face_targets = parse_face_targets(args.face_targets)
+    face_status = load_mpfb_face_shape_keys(
+        human, required_names=list(_face_targets) or None
+    )
     print(f"FACE_TARGETS {face_status}")
     if face_status.get("error") or (face_status.get("loaded") or 0) < 8:
         raise RuntimeError(f"face target load failed: {face_status}")
@@ -4115,6 +4171,35 @@ def main():
     # AU12 mouth-corner-puller is shipped on factory GLBs and must not regress
     if "mouth-corner-puller" not in (face_status.get("names") or []):
         raise RuntimeError("missing required AU12 face target: mouth-corner-puller")
+
+    # --face-targets: fold requested weights into the Basis BEFORE the #318
+    # helper strip (same load-bearing order as the visemes below). Absent/empty
+    # is inert: no weight is set and no bake runs, so the output matches a run
+    # without the flag. (_face_targets parsed above and passed as required_names
+    # so explicitly requested targets are loaded even outside the cap.)
+    if _face_targets:
+        from bl_ext.user_default.mpfb.services.targetservice import TargetService as _FaceBakeService  # noqa: E402
+
+        _key_blocks = (
+            human.data.shape_keys.key_blocks if human.data.shape_keys else []
+        )
+        _available = sorted(kb.name for kb in _key_blocks)
+        _unknown = [n for n in _face_targets if n not in _available]
+        if _unknown:
+            raise RuntimeError(
+                f"unknown --face-targets {sorted(_unknown)}; "
+                f"available face shape keys: {_available}"
+            )
+        for _name, _w in _face_targets.items():
+            human.data.shape_keys.key_blocks[_name].value = float(_w)
+        print(f"FACE_TARGETS_APPLY {json.dumps(_face_targets)}")
+        _FaceBakeService.bake_targets(human)
+        bpy.context.view_layer.update()
+        if human.data.shape_keys:
+            for _kb in human.data.shape_keys.key_blocks:
+                if _kb.name != "Basis":
+                    _kb.value = 0.0
+        print("FACE_TARGETS_BAKED True")
 
     # #432 (E6.3) — apply the 15 visemes02 targets BEFORE the #318 helper strip, as clothes
     # do. FaceService.load_targets is the proven tool (#428: faceservice.py:154): the flags
