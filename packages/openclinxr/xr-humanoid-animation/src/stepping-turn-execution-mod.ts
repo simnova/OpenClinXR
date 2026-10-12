@@ -1,37 +1,40 @@
 import type { Object3D } from "three";
 import { Quaternion, Vector3 } from "three";
-import {
-  planSteppingTurn,
-  steppingTurnAt,
-  steppingTurnLegScale,
-  type SteppingTurnPlan,
-  type SteppingTurnTargets,
-} from "./stepping-turn-plan-mod.js";
+import { worldXyz } from "./stance-lock-ik.js";
 import {
   findSteppingLegChain,
-  heelTargetForToeTargetStable,
   type HingeQuat,
+  heelTargetForToeTargetStable,
   solveSteppingLegHinge,
 } from "./stepping-turn-leg-ik-mod.js";
-import { worldXyz } from "./stance-lock-ik.js";
+import {
+  planSteppingTurn,
+  type SteppingTurnPlan,
+  type SteppingTurnTargets,
+  steppingTurnAt,
+  steppingTurnLegScale,
+} from "./stepping-turn-plan-mod.js";
+import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   pivotSlotXzForSteppingFrame,
   STEPPING_PIVOT_CAPTURE_HEIGHT_M,
-  steppingPivotWindowKey,
   type SteppingPivotAnchor,
+  steppingPivotWindowKey,
 } from "./stepping-turn-slot-pivot-mod.js";
-import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   armHipWriteTrap,
   censusSteppingLegs,
+  createSteppingTurnLegCollector,
   drainHipWriteStacks,
   isSteppingTurnTraceEnabled,
   readSteppingTurnMixerState,
+  recordSteppingTurnLegBefore,
+  recordSteppingTurnLegLast,
   recordSteppingTurnTraceFrame,
-  setHipWriteTrapMuted,
-  snapshotLegQuats,
-  type SteppingTurnLegSolveTrace,
   type SteppingTurnTracePass,
+  setHipWriteTrapMuted,
+  steppingTurnLegOnWriteFor,
+  takeSteppingTurnLegTraces,
 } from "./stepping-turn-trace-mod.js";
 
 /**
@@ -297,15 +300,7 @@ export function advanceSteppingTurn(input: {
   const yawNow = actorSlot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
   // Turn-leg-snaps stage 1: per-leg solve record (trace-only; last pass wins).
-  type TraceLegLast = {
-    toe: { x: number; y: number; z: number };
-    heel: { x: number; y: number; z: number };
-    hip: { x: number; y: number; z: number };
-    diag: ReturnType<typeof solveSteppingLegHinge>["diag"];
-    plane: { x: number; y: number; z: number } | null;
-  };
-  const legBefore: Record<"left" | "right", Record<string, HingeQuat | null> | null> = { left: null, right: null };
-  const legLast: Record<"left" | "right", TraceLegLast | null> = { left: null, right: null };
+  const legs = createSteppingTurnLegCollector();
   // Stage-1c instrument: mute the hip-write trap across our own solves.
   setHipWriteTrapMuted(true);
   if (traceOn) {
@@ -319,7 +314,7 @@ export function advanceSteppingTurn(input: {
     for (const side of ["left", "right"] as const) {
       const chain = findSteppingLegChain(actorSlot, side);
       if (chain === null) continue;
-      if (traceOn && pass === 0) legBefore[side] = snapshotLegQuats(chain);
+      if (traceOn && pass === 0) recordSteppingTurnLegBefore(legs, side, chain);
       // Capture the heel-toe offset once (first resolving frame); after that it only
       // rotates with slot yaw — re-reading it live feeds solved orientations back in.
       // The foot's WORLD orientation is frozen beside it (see footQuat), applied
@@ -368,17 +363,18 @@ export function advanceSteppingTurn(input: {
         poleWorld,
         midRestQuats: { upper, lower },
         previousBendNormal: state.hingeNormal[side],
+        onWrite: traceOn ? steppingTurnLegOnWriteFor(legs, side, pass) : undefined,
       });
       if (hingeResult.bendNormal !== null) state.hingeNormal[side] = hingeResult.bendNormal;
       if (traceOn) {
         const hipW = worldXyz(chain.hip);
-        legLast[side] = {
+        recordSteppingTurnLegLast(legs, side, {
           toe: { x: toeTarget.x, y: toeTarget.y, z: toeTarget.z },
           heel: { x: heelTarget.x, y: heelTarget.y, z: heelTarget.z },
           hip: { x: hipW.x, y: hipW.y, z: hipW.z },
           diag: hingeResult.diag,
           plane: hingeResult.bendNormal,
-        };
+        });
       }
       // Yaw-compensated world freeze, on post-solve parents: the foot yaws with the
       // slot (like the map) but keeps its entry pitch/roll through any articulation,
@@ -433,32 +429,8 @@ export function advanceSteppingTurn(input: {
   }
   if (traceOn) {
     const floorY = input.floorOriginY ?? null;
-    const traceLegs: SteppingTurnLegSolveTrace[] = [];
+    const traceLegs = takeSteppingTurnLegTraces(actorSlot, legs, targets);
     setHipWriteTrapMuted(false);
-    for (const side of ["left", "right"] as const) {
-      const last = legLast[side];
-      if (last === null) continue;
-      const chainNow = findSteppingLegChain(actorSlot, side);
-      traceLegs.push({
-        side,
-        toeTarget: last.toe,
-        heelTarget: last.heel,
-        hipWorld: last.hip,
-        reachRatio: last.diag.reachRatio,
-        plane: last.plane,
-        planeSource: last.diag.planeSource,
-        planeAngleDeg: last.diag.planeAngleDeg,
-        kneeSideSign: last.diag.kneeSideSign,
-        iterations: last.diag.iterations,
-        residualM: last.diag.residualM,
-        skipped: last.diag.skipped,
-        quatsBefore: legBefore[side] ?? {},
-        quatsAfter: chainNow !== null ? snapshotLegQuats(chainNow) : {},
-        stance: side === targets.stanceFoot,
-        stepIndex: targets.stepIndex,
-        planDone: targets.done,
-      });
-    }
     let toeLeftY: number | null = null;
     let toeRightY: number | null = null;
     if (input.leftToe !== null) {

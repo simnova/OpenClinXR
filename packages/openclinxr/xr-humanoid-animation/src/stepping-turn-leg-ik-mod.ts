@@ -1,6 +1,6 @@
+import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import type { Object3D } from "three";
 import { Quaternion, Vector3 } from "three";
-import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import { findStanceChain } from "./stance-lock-ik.js";
 import type { StanceFoot } from "./stance-lock-mod.js";
 
@@ -180,15 +180,33 @@ export function heelTargetForToeTargetStable(input: {
 
 export type HingeQuat = { x: number; y: number; z: number; w: number };
 
-function quatInParentFrame(joint: Object3D, worldDelta: Quaternion): Quaternion {
+/**
+ * Per-write quaternion-norm record (turn-leg-snaps cause probe, default off).
+ * The solver calls `onWrite` after every joint write when the caller supplies
+ * it; `parentQNorm`/`deltaNorm` are null on hold-sets (no parent-frame delta).
+ */
+export type SteppingLegNormWrite = {
+  joint: "hip" | "upperMid" | "knee" | "lowerMid";
+  normAfter: number;
+  parentQNorm: number | null;
+  deltaNorm: number | null;
+};
+
+function quatInParentFrame(
+  joint: Object3D,
+  worldDelta: Quaternion,
+): { local: Quaternion; parentQNorm: number; deltaNorm: number } {
   const parentQ = new Quaternion();
   if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
   else parentQ.identity();
-  return new Quaternion()
+  const parentQNorm = parentQ.length();
+  const deltaNorm = worldDelta.length();
+  const local = new Quaternion()
     .copy(parentQ)
     .invert()
     .multiply(worldDelta)
     .multiply(parentQ);
+  return { local, parentQNorm, deltaNorm };
 }
 
 /**
@@ -231,6 +249,11 @@ export function solveSteppingLegHinge(input: {
   /** Rest orientations for the frozen intermediates; null entries are left as-is. */
   midRestQuats?: { upper: HingeQuat | null; lower: HingeQuat | null } | null;
   /**
+   * Norm probe (default off): called after every joint write with the written
+   * quaternion's norm plus the parent-frame conversion's input norms.
+   */
+  onWrite?: ((write: SteppingLegNormWrite) => void) | undefined;
+  /**
    * Last frame's bend-plane normal (world), for degeneracy hysteresis. Null on
    * the first solve: the plane tracks live until a previous one exists.
    */
@@ -245,8 +268,13 @@ export function solveSteppingLegHinge(input: {
   const target = new Vector3(input.heelTargetWorld.x, input.heelTargetWorld.y, input.heelTargetWorld.z);
   const pole = new Vector3(input.poleWorld.x, input.poleWorld.y, input.poleWorld.z).normalize();
   const hold = input.midRestQuats ?? null;
+  const probe = input.onWrite ?? null;
   if (hold?.upper) chain.upperMid.quaternion.set(hold.upper.x, hold.upper.y, hold.upper.z, hold.upper.w);
   if (hold?.lower) chain.lowerMid.quaternion.set(hold.lower.x, hold.lower.y, hold.lower.z, hold.lower.w);
+  if (probe) {
+    if (hold?.upper) probe({ joint: "upperMid", normAfter: chain.upperMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
+    if (hold?.lower) probe({ joint: "lowerMid", normAfter: chain.lowerMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
+  }
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
@@ -401,9 +429,9 @@ export function solveSteppingLegHinge(input: {
     .addScaledVector(perpPole, Math.sin(hipAngle) * thighLen);
   const thighDir0 = kneeW0.clone().sub(hipW0).normalize();
   const wantThighDir = kneeTarget.clone().sub(hipW0).normalize();
-  chain.hip.quaternion.premultiply(
-    quatInParentFrame(chain.hip, new Quaternion().setFromUnitVectors(thighDir0, wantThighDir)),
-  );
+  const hipProbed = quatInParentFrame(chain.hip, new Quaternion().setFromUnitVectors(thighDir0, wantThighDir));
+  chain.hip.quaternion.premultiply(hipProbed.local);
+  if (probe) probe({ joint: "hip", normAfter: chain.hip.quaternion.length(), parentQNorm: hipProbed.parentQNorm, deltaNorm: hipProbed.deltaNorm });
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
@@ -412,9 +440,9 @@ export function solveSteppingLegHinge(input: {
     .sub(chain.knee.getWorldPosition(new Vector3()))
     .normalize();
   const wantShinDir = target.clone().sub(kneeTarget).normalize();
-  chain.knee.quaternion.premultiply(
-    quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir)),
-  );
+  const kneeProbed = quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir));
+  chain.knee.quaternion.premultiply(kneeProbed.local);
+  if (probe) probe({ joint: "knee", normAfter: chain.knee.quaternion.length(), parentQNorm: kneeProbed.parentQNorm, deltaNorm: kneeProbed.deltaNorm });
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);

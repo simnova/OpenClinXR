@@ -8,6 +8,13 @@
  * false. Internal module, not a public entrypoint export.
  */
 import type { Object3D } from "three";
+import {
+  findSteppingLegChain,
+  type HingeQuat,
+  type SteppingLegChain,
+  type SteppingLegNormWrite,
+  type solveSteppingLegHinge,
+} from "./stepping-turn-leg-ik-mod.js";
 
 export type SteppingTurnTracePass = {
   pass: number;
@@ -28,6 +35,15 @@ export type SteppingTurnTracePass = {
 };
 
 export type SteppingLegQuat = { x: number; y: number; z: number; w: number };
+
+/** Per-write norm record with the solve pass that produced it (cause probe). */
+export type SteppingTurnLegNormWrite = {
+  pass: number;
+  joint: "hip" | "upperMid" | "knee" | "lowerMid";
+  normAfter: number;
+  parentQNorm: number | null;
+  deltaNorm: number | null;
+};
 
 /**
  * Per-frame per-leg hinge-solve record (turn-leg-snaps slice, stage 1). Pure
@@ -54,6 +70,8 @@ export type SteppingTurnLegSolveTrace = {
   skipped: boolean;
   quatsBefore: Record<string, SteppingLegQuat | null>;
   quatsAfter: Record<string, SteppingLegQuat | null>;
+  /** Per-write norms across both solve passes; empty when unprobed. */
+  normWrites: SteppingTurnLegNormWrite[];
   stance: boolean;
   stepIndex: number;
   planDone: boolean;
@@ -187,6 +205,87 @@ export function censusSteppingLegs(actorSlot: Object3D, frame: number): string {
   return `census f${frame} ${parts.join(" ")}`;
 }
 
+/** Last-pass solve record per leg (trace-only; last pass wins). */
+export type SteppingTurnLegLast = {
+  toe: { x: number; y: number; z: number };
+  heel: { x: number; y: number; z: number };
+  hip: { x: number; y: number; z: number };
+  diag: ReturnType<typeof solveSteppingLegHinge>["diag"];
+  plane: { x: number; y: number; z: number } | null;
+};
+
+export type SteppingTurnLegCollector = {
+  before: Record<"left" | "right", Record<string, HingeQuat | null> | null>;
+  last: Record<"left" | "right", SteppingTurnLegLast | null>;
+  normWrites: Record<"left" | "right", SteppingTurnLegNormWrite[]>;
+};
+
+/** Per-leg solve-record collector (turn-leg-snaps stage 1); trace-only. */
+export function createSteppingTurnLegCollector(): SteppingTurnLegCollector {
+  return { before: { left: null, right: null }, last: { left: null, right: null }, normWrites: { left: [], right: [] } };
+}
+
+/** Snapshot the four leg-joint locals before the first solve pass. */
+export function recordSteppingTurnLegBefore(collector: SteppingTurnLegCollector, side: "left" | "right", chain: SteppingLegChain): void {
+  collector.before[side] = snapshotLegQuats(chain);
+}
+
+/** Keep the last pass's solve record (last pass wins). */
+export function recordSteppingTurnLegLast(collector: SteppingTurnLegCollector, side: "left" | "right", last: SteppingTurnLegLast): void {
+  collector.last[side] = last;
+}
+
+/** Norm-probe sink for one solve pass (default off; no-op when unprobed). */
+export function steppingTurnLegOnWriteFor(
+  collector: SteppingTurnLegCollector,
+  side: "left" | "right",
+  pass: number,
+): ((write: SteppingLegNormWrite) => void) | undefined {
+  return (write) => {
+    collector.normWrites[side].push({
+      pass,
+      joint: write.joint,
+      normAfter: write.normAfter,
+      parentQNorm: write.parentQNorm,
+      deltaNorm: write.deltaNorm,
+    });
+  };
+}
+
+/** Assemble the per-leg trace records after the last solve pass. */
+export function takeSteppingTurnLegTraces(
+  actorSlot: Object3D,
+  collector: SteppingTurnLegCollector,
+  targets: { stanceFoot: string; stepIndex: number; done: boolean },
+): SteppingTurnLegSolveTrace[] {
+  const traces: SteppingTurnLegSolveTrace[] = [];
+  for (const side of ["left", "right"] as const) {
+    const last = collector.last[side];
+    if (last === null) continue;
+    const chainNow = findSteppingLegChain(actorSlot, side);
+    traces.push({
+      side,
+      toeTarget: last.toe,
+      heelTarget: last.heel,
+      hipWorld: last.hip,
+      reachRatio: last.diag.reachRatio,
+      plane: last.plane,
+      planeSource: last.diag.planeSource,
+      planeAngleDeg: last.diag.planeAngleDeg,
+      kneeSideSign: last.diag.kneeSideSign,
+      iterations: last.diag.iterations,
+      residualM: last.diag.residualM,
+      skipped: last.diag.skipped,
+      quatsBefore: collector.before[side] ?? {},
+      quatsAfter: chainNow !== null ? snapshotLegQuats(chainNow) : {},
+      normWrites: collector.normWrites[side],
+      stance: side === targets.stanceFoot,
+      stepIndex: targets.stepIndex,
+      planDone: targets.done,
+    });
+  }
+  return traces;
+}
 /** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
 export function snapshotLegQuats(input: {
   hip: Object3D;
