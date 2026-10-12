@@ -1,0 +1,166 @@
+{
+ "schemaVersion": "openclinxr.walk-clip-attribution.v1",
+ "measuredAt": "2026-10-12T06:37:28.602Z",
+ "contactBandM": 0.06,
+ "actorScale": 0.86,
+ "source": {
+  "glb": "/tmp/walkclip/walk-source.glb",
+  "clip": "Walk",
+  "channels": 198,
+  "sha256": "f6b64391e01fecbaed0c77a059371bc76685cf5b8f39363032f02565506cd993",
+  "metrics": {
+   "frames": 41,
+   "durationS": 1.6666666269302368,
+   "fps": 24.000000572204602,
+   "floorToeY": 0.015306158093978547,
+   "foot": {
+    "left": {
+     "swingToeMaxM": 0.17217005796308038,
+     "swingAnkleMaxM": 0.3299282623473014,
+     "duty": 0.574999988377094,
+     "cycleS": 1.6666666269302368,
+     "stanceSpeedMedMps": 0.7855894998169821,
+     "stanceSpeedCVMps": 0.21763314820272722,
+     "strideM": 0.7234379762378854,
+     "naturalSpeedMps": 0.43406279609159476,
+     "contactWindows": 1
+    },
+    "right": {
+     "swingToeMaxM": 0.1721686612449661,
+     "swingAnkleMaxM": 0.3299274128474884,
+     "duty": 0.5749999749660486,
+     "cycleS": 1.6666666269302368,
+     "stanceSpeedMedMps": 0.7856189812409415,
+     "stanceSpeedCVMps": 0.2122853235498321,
+     "strideM": 0.3631557448649125,
+     "naturalSpeedMps": 0.2178934521139322,
+     "contactWindows": 2
+    }
+   },
+   "hipHeightMeanM": 0.8756440814815026,
+   "hipHeightStandingM": 0.9015000665447926,
+   "kneeFlexMinDeg": 9.222426526872368,
+   "kneeFlexMaxDeg": 88.00554259252478
+  }
+ },
+ "bound": {
+  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+  "clip": "openclinxr_retarget_walk_source",
+  "channels": 411,
+  "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+  "metrics": {
+   "frames": 41,
+   "durationS": 1.666666705161333,
+   "fps": 23.999999445676817,
+   "floorToeY": 0.013952658267162124,
+   "foot": {
+    "left": {
+     "swingToeMaxM": 0.15893960729072432,
+     "swingAnkleMaxM": 0.27114400856388965,
+     "duty": 0.6249999728985137,
+     "cycleS": 1.666666705161333,
+     "stanceSpeedMedMps": 0.6612819596027198,
+     "stanceSpeedCVMps": 0.2855778630418481,
+     "strideM": 0.3179183113403659,
+     "naturalSpeedMps": 0.1907509823984823,
+     "contactWindows": 2
+    },
+    "right": {
+     "swingToeMaxM": 0.15868380544109129,
+     "swingAnkleMaxM": 0.2708892715579628,
+     "duty": 0.5249999878741803,
+     "cycleS": 1.666666705161333,
+     "stanceSpeedMedMps": 0.6764817157714701,
+     "stanceSpeedCVMps": 0.5165930541280027,
+     "strideM": 0.4935898156826618,
+     "naturalSpeedMps": 0.2961538825693901,
+     "contactWindows": 1
+    }
+   },
+   "hipHeightMeanM": 0.7984448407289167,
+   "hipHeightStandingM": 0.7872556645670009,
+   "kneeFlexMinDeg": 2.559286369025841,
+   "kneeFlexMaxDeg": 76.46210652982148
+  }
+ },
+ "browser": {
+  "source": ".openclinxr/evidence/loco-ground/report.json",
+  "note": "lockOff mixer-pose clip table, reused; see attribution doc"
+ },
+ "liveProbe": {
+  "source": ".openclinxr/evidence/walk-clip/live-mixer-probe.json (quats stripped after analysis; ranges below)",
+  "walkingFrames": 137,
+  "ungatedToeYRange": {
+   "left": [
+    0.007,
+    0.0347
+   ],
+   "right": [
+    0.0027,
+    0.0312
+   ]
+  },
+  "gatedSwingMax": {
+   "left": 0.0347,
+   "right": 0.0312
+  },
+  "mixerQuatRangeDeg_live_vs_clip": {
+   "upperleg01L": [
+    15.62,
+    37.01
+   ],
+   "upperleg01R": [
+    19.53,
+    68.94
+   ],
+   "lowerleg01L": [
+    34.78,
+    74.09
+   ],
+   "lowerleg01R": [
+    34.72,
+    78.74
+   ],
+   "footL": [
+    17.01,
+    43.36
+   ],
+   "footR": [
+    16.95,
+    43.16
+   ],
+   "toe1-1L": [
+    12.62,
+    25.3
+   ],
+   "toe1-1R": [
+    8.33,
+    16.66
+   ]
+  },
+  "halfBlendPredictionToeY": {
+   "full": [
+    0.0177,
+    0.1735
+   ],
+   "half_bind": [
+    0.0007,
+    0.0479
+   ],
+   "half_idle": [
+    0.0007,
+    0.0479
+   ]
+  },
+  "mechanism": "idle action (ClinicalIdleConversation) keeps running at weight 1 beside walk at weight 1; three.js normalizes -> half-amplitude legs"
+ },
+ "conclusion": {
+  "blame": "playback",
+  "ratios": {
+   "jointAmplitude_live_over_clip": "0.29-0.50",
+   "toeLift_live_over_bound": "0.22 (0.035/0.159)",
+   "stanceSpeed_liveRate1_over_bound": "0.52 (0.348/0.668)",
+   "root_over_stance": "2.43 (1.374/0.566)"
+  }
+ }
+}
