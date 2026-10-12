@@ -239,8 +239,8 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
 
   // Planted windows during settling: runs of equal stanceFoot; slide = stance-toe XZ span.
   const windowSlidesM: number[] = [];
-  let runStart: number | null = null;
-  let runFoot: string | null = null;
+  const runStart: number | null = null;
+  const runFoot: string | null = null;
   const flush = (): void => {
     if (runStart === null || runFoot === null) return;
     const end = windowSlidesM.length; // placeholder, replaced below
@@ -378,8 +378,8 @@ async function main(): Promise<void> {
   // Slot scatter at arrival.
   const slots = metrics.map((m) => m.arrivalSlot).filter((s) => s !== null);
   if (slots.length >= 2) {
-    const cx = slots.reduce((s, v) => s + v!.x, 0) / slots.length;
-    const cz = slots.reduce((s, v) => s + v!.z, 0) / slots.length;
+    const cx = slots.reduce((acc, v) => acc + v!.x, 0) / slots.length;
+    const cz = slots.reduce((acc, v) => acc + v!.z, 0) / slots.length;
     const dev = slots.map((v) => Math.hypot(v!.x - cx, v!.z - cz));
     const s = stats(dev);
     lines.push(`- arrival slot scatter (dist from centroid): n=${s.n} mean=${fmt(s.mean)}m sd=${fmt(s.sd)}m range=[${fmt(s.min)},${fmt(s.max)}]m`);
