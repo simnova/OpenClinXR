@@ -288,21 +288,24 @@ describe("locomotion crossfade with clinical idle posture", () => {
     const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
 
     // Faithful release trajectory (2026-10-11 arm-settle): each call is one sim frame. The
-    // mixer keeps playing, so its pose drifts a little every call (0.2 deg swing simulation);
-    // the ownership weight ramps 1->0 over the first 9 calls (the 0.3 s locomotion fade) and
-    // stays 0 after. Repeat calls with a frozen mixer collapse to no-ops by construction, so
-    // the drift is what keeps sim frames distinct — exactly like the runtime.
-    const mixerBase = new THREE.Euler(-0.3, 0.2, 0.1);
-    const driftAxis = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.2 * Math.PI / 180);
-    const mixerQuat = new THREE.Quaternion().setFromEuler(mixerBase);
+    // mixer keeps playing while its action fades, so the mixer pose glides from the swing
+    // pose toward idle over ~18 calls (the 0.6 s release) with a small decaying swing on top;
+    // the ownership weight ramps 1->0 over the first 9 calls (the locomotion fade). The
+    // posture drags the arm idle-ward at most the slew cap per call on top of the mixer.
+    const swingBase = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0.2, 0.1));
     const rotations: THREE.Quaternion[] = [];
+    const mixerPoses: THREE.Quaternion[] = [];
     const perCallChange: number[] = [];
     let prevResult: THREE.Quaternion | null = null;
     const rampCalls = 9;
+    const fadeCalls = 18;
     const maxCalls = 40;
     for (let call = 1; call <= maxCalls; call += 1) {
-      mixerQuat.premultiply(driftAxis);
-      lowerArmL.quaternion.copy(mixerQuat);
+      const fade = Math.min(1, call / fadeCalls);
+      const swingAngle = Math.sin(call * 0.9) * 0.5 * Math.PI / 180 * (1 - fade * 0.5);
+      const mixerPose = swingBase.clone().slerp(idleQuat, fade)
+        .premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), swingAngle));
+      lowerArmL.quaternion.copy(mixerPose);
       const w = call <= rampCalls ? 1 - call / rampCalls : 0;
       humanoid.userData["openClinXrOwnedBoneChains"] = [
         {
@@ -315,31 +318,33 @@ describe("locomotion crossfade with clinical idle posture", () => {
       const result = lowerArmL.quaternion.clone();
       if (prevResult !== null) perCallChange.push(prevResult.angleTo(result));
       rotations.push(result);
+      mixerPoses.push(mixerPose.clone());
       prevResult = result;
       if (w === 0 && result.angleTo(idleQuat) < 0.0175) break;
     }
 
-    // No sim frame covers more than the slew cap (2.0 deg) plus the 0.2 deg mixer drift.
+    // No sim frame covers more than the slew cap (2.0 deg): the cap bounds consecutive
+    // results, so the mixer's own fade glide cannot snap through either. A pass-through
+    // bone would track the mixer glide (up to ~2.4 deg/call early) and fail this.
     const slewCapRad = (2.0 * Math.PI) / 180;
-    const driftRad = 0.2 * Math.PI / 180;
     for (const change of perCallChange) {
-      expect(change).toBeLessThanOrEqual(slewCapRad + driftRad + 1e-6);
+      expect(change).toBeLessThanOrEqual(slewCapRad + 1e-6);
     }
 
     // It must actually arrive: a bone the pass never touches is "capped" by standing still.
     const last = rotations[rotations.length - 1]!;
     expect(last.angleTo(idleQuat)).toBeLessThan(0.0175);
 
-    // Mid-release it is strictly between the mixer swing and idle.
+    // Mid-release the arm is still travelling (strictly between start and idle).
     const mid = rotations[Math.min(5, rotations.length - 1)]!;
     expect(mid.angleTo(idleQuat)).toBeGreaterThan(0.0175);
-    expect(mid.angleTo(mixerQuat)).toBeGreaterThan(0.0175);
+    expect(mid.angleTo(rotations[0]!)).toBeGreaterThan(0.0175);
 
-    // Verify monotonic approach to idle: angle to idle should decrease each call
+    // Verify monotonic approach to idle within swing noise.
     let prevAngleToIdle = rotations[0]!.angleTo(idleQuat);
     for (let i = 1; i < rotations.length; i++) {
       const angleToIdle = rotations[i]!.angleTo(idleQuat);
-      expect(prevAngleToIdle - angleToIdle).toBeGreaterThanOrEqual(-0.01); // drift tolerance
+      expect(prevAngleToIdle - angleToIdle).toBeGreaterThanOrEqual(-0.02);
       prevAngleToIdle = angleToIdle;
     }
 

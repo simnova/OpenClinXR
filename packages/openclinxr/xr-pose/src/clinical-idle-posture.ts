@@ -25,6 +25,8 @@ import { Euler, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 import {
   armReleaseStore,
+  isArmReleaseBone,
+  recordArmReleasePose,
   writeArmReleaseSlew,
   type ArmReleasePrev,
 } from "./clinical-idle-arm-release.js";
@@ -284,8 +286,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
     ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
 
-  // Arm release smoothing state (2026-10-11 arm-settle): per-bone last blend, same
-  // first-untouched-sight pattern as the bind stores above.
+  // Arm release smoothing state (2026-10-11 arm-settle), same pattern as the binds above.
   const releaseStore = armReleaseStore(humanoid);
 
   // Head-family rotations are the hangMap's own "head" entry object, reached either by
@@ -302,13 +303,13 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     if (ownershipWeight !== undefined) {
       // Bone is owned by locomotion executor
       if (ownershipWeight >= 1) {
-        // Full ownership: skip posture write entirely
+        // Full ownership: skip the write, but keep the release store fresh for arm bones.
+        if (isArmReleaseBone(sanitised)) recordArmReleasePose(object, releaseStore, sanitised);
         return;
       }
       // Crossfade: blend between idle rotation and current mixer rotation
-      // Finding 1: for bones owned with w<1 that have no idle target in hangMap (like MPFB lowerarm01,
-      // spine01-05, neck01-03), compute their idle target the same way the unowned path would,
-      // then slerp toward it by (1 - w). For bones with no idle target at all, leave to mixer.
+      // Finding 1: bones owned with w<1 but no hangMap entry get their idle target the
+      // same way the unowned path would, then slerp toward it by (1 - w).
       const idleRotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
       
       // For MPFB forearm (lowerarm01), compute bind-relative idle target if no hangMap entry

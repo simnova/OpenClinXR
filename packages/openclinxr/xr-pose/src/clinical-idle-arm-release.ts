@@ -44,15 +44,25 @@ export function armReleaseStore(humanoid: Object3D): Map<string, ArmReleasePrev>
 }
 
 /**
+ * Whether a sanitised bone name belongs to the arm release scope (upper/forearm/hand on
+ * every shipped rail, including mixamorig names). Legs, spine, neck and head never blend
+ * here, so the full-ownership skip path only records release state for these.
+ */
+export function isArmReleaseBone(sanitised: string): boolean {
+  return /arm|hand|wrist/i.test(sanitised);
+}
+
+/**
  * Slew-limited arm write shared by the owned crossfade and the unowned idle paths.
  *
  * Repeat-collapse: when the bone holds either the mixer pose seen at the last blend or the
  * last result written, there is no new frame to blend — this pass's second skeleton
  * traversal over the same Bone objects, or a wall rAF tick with no sim advance under the
- * fake clock — so hold the last result instead of compounding the blend. Otherwise slerp
- * toward the target and cap the TOTAL motion from the last result (defaulting to the entry
- * pose) at ARM_RELEASE_SLEW_MAX_RAD, so neither the crossfade weight ramp nor the walk
- * action's own weight fade can snap the arm in one frame.
+ * fake clock — so hold instead of compounding the blend. Otherwise slerp toward the target
+ * and cap the TOTAL motion from the last result at ARM_RELEASE_SLEW_MAX_RAD. The last
+ * result stays fresh because the full-ownership skip path records it every frame, so the
+ * cap absorbs the walk action's own weight-fade glide instead of teleporting across stale
+ * history. First sight lands exact, preserving load-time behavior.
  */
 export function writeArmReleaseSlew(
   object: Object3D,
@@ -75,13 +85,13 @@ export function writeArmReleaseSlew(
   }
   _slewA.copy(cur).slerp(targetQuat, blendT);
   if (prev !== undefined) {
-    // Cap total motion from the last result — but never on first sight (no prev): the
-    // load-time call must still land the exact idle pose, matching historical behavior.
     _slewB.set(prev.written.x, prev.written.y, prev.written.z, prev.written.w);
     const step = _slewB.angleTo(_slewA);
     if (step > ARM_RELEASE_SLEW_MAX_RAD && step > 0) {
-      _slewB.slerp(_slewA, ARM_RELEASE_SLEW_MAX_RAD / step);
-      _slewA.copy(_slewB);
+      // Cap via the live bone quat as scratch (entry already saved the pose above):
+      // from = last result, to = desired, out = capped.
+      object.quaternion.copy(_slewB).slerp(_slewA, ARM_RELEASE_SLEW_MAX_RAD / step);
+      _slewA.copy(object.quaternion);
     }
   }
   object.quaternion.copy(_slewA);
@@ -93,3 +103,19 @@ export function writeArmReleaseSlew(
   });
 }
 
+/**
+ * Record-only release state for the full-ownership skip path: no write, just keep the
+ * store fresh (mixer pose and result both equal the current pose) so the release cap
+ * above always measures against last frame when ownership releases.
+ */
+export function recordArmReleasePose(
+  object: Object3D,
+  store: Map<string, ArmReleasePrev>,
+  key: string,
+): void {
+  const cur = object.quaternion;
+  store.set(key, {
+    mixer: { x: cur.x, y: cur.y, z: cur.z, w: cur.w },
+    written: { x: cur.x, y: cur.y, z: cur.z, w: cur.w },
+  });
+}
