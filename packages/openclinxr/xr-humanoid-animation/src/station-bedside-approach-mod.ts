@@ -25,12 +25,7 @@ import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.j
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { readCcdStanceLockEnabled } from "./ccd-stance-lock-query-flag-mod.js";
-import {
-  commitLocoGroundTapFrame,
-  extendLocoGroundRoute,
-  readLocoGroundEnabled,
-  readLocoGroundNoStanceLock,
-} from "./loco-ground-tap-mod.js";
+import { commitLocoGroundTapForApproach, extendLocoGroundIntent } from "./loco-ground-tap-mod.js";
 import { readSteppingTurnEnabled } from "./stepping-turn-query-flag-mod.js";
 import { findStanceChain } from "./stance-lock-ik.js";
 /**
@@ -201,25 +196,6 @@ export function resolveStationBedsideApproach(
     state.refusal = `${intent.code}: ${intent.reason}`;
     return;
   }
-  // LOCO-GROUND VEHICLE (2026-10-12): `?locoGround=1` lengthens the 1.2 m
-  // bedside walk to a straight 6 m approach so steady-state gait exists. The
-  // shipped plan's own clearance stands; the added segment is outside the room
-  // and is NOT re-vetted (slice report: not-tested). Default off: untouched.
-  let approachIntent = intent;
-  if (readLocoGroundEnabled()) {
-    const extended = extendLocoGroundRoute({
-      start: intent.start,
-      target: intent.target.position,
-      waypoints: intent.plan.waypoints,
-    });
-    if (extended !== null) {
-      approachIntent = {
-        ...intent,
-        start: extended.start,
-        plan: { ...intent.plan, waypoints: extended.waypoints },
-      };
-    }
-  }
   const toes = resolveToeBones(humanoidRoot);
   const sampled =
     context.clipStanceSamples !== undefined && context.clipStanceSamples.length > 0
@@ -251,16 +227,16 @@ export function resolveStationBedsideApproach(
   });
   publishClipForwardDiagnostic(rateOneAdvance, playbackTimeScale);
   const approach = createCaseOwnedBedsideApproach({
-    intent: approachIntent,
+    intent: extendLocoGroundIntent(intent),
     geometry,
-    observedGeometryRevision: approachIntent.geometryRevision,
+    observedGeometryRevision: extendLocoGroundIntent(intent).geometryRevision,
     runId: context.runId,
     actorSlot: slot,
     humanoidRoot,
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
     clipAdvance: { ...rateOneAdvance, metersPerSecond: rateOneAdvance.metersPerSecond * playbackTimeScale },
     clipCycleSeconds: sampled.cycleSeconds / playbackTimeScale,
-    routeHeadingRadians: headingRadiansToward(approachIntent.start, approachIntent.target.position),
+    routeHeadingRadians: headingRadiansToward(extendLocoGroundIntent(intent).start, extendLocoGroundIntent(intent).target.position),
     steppingTurnEnabled: readSteppingTurnEnabled(), ccdStanceLockEnabled: readCcdStanceLockEnabled(),
   });
   if ("refused" in approach) {
@@ -519,15 +495,5 @@ export function publishBedsideApproachRuntimeEvidence(
  * `applyCaseOwnedStanceLock` for the measurement that forced the split.
  */
 export function applyStationBedsideStanceLock(state: StationBedsideApproachState, deltaSeconds: number): void {
-  // `?noStanceLock=1` (with `?locoGround=1`) skips the lock so the
-  // lock-disabled row isolates clip + root. Evidence still publishes.
-  if (!readLocoGroundNoStanceLock()) {
-    applyCaseOwnedStanceLock(state.approach, deltaSeconds);
-  }
-  publishBedsideApproachRuntimeEvidence(state, state.lastFrame);
-  // LOCO-GROUND TAP point (c): the rendered pose, after every writer.
-  const approach = state.approach;
-  if (approach !== null && readLocoGroundEnabled() && approach.stanceLabelSlot !== null) {
-    commitLocoGroundTapFrame(approach.stanceLabelSlot, approach, state.lastFrame);
-  }
+  applyCaseOwnedStanceLock(state.approach, deltaSeconds); publishBedsideApproachRuntimeEvidence(state, state.lastFrame); commitLocoGroundTapForApproach(state);
 }

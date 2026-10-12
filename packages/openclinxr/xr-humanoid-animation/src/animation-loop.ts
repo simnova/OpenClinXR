@@ -27,10 +27,7 @@ import {
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
-import {
-  readLocoGroundNoStanceLock,
-  snapshotLocoGroundTap,
-} from "./loco-ground-tap-mod.js";
+import { snapshotLocoGroundTap } from "./loco-ground-tap-mod.js";
 import {
   applyLocomotionOrderStanceLocks,
   createLocomotionOrderRegistry,
@@ -153,7 +150,6 @@ export function updateGeneratedHumanoidAnimations(
       continue;
     }
     slot.mixer?.update(deltaSeconds);
-    // LOCO-GROUND TAP point (a): the clip's own pose, before any writer runs.
     snapshotLocoGroundTap(slot, "mixer");
     const rootUserData = slot.root.userData as Record<string, unknown>;
     const actorSlotUserData = slot.actorSlot.userData as Record<string, unknown>;
@@ -291,10 +287,6 @@ export function updateGeneratedHumanoidAnimations(
       gazeAlternationTargetActorId: pediatricAsthmaOverlay.gazeTargetActorId,
       bodyMotionMode: bodyMotionCue.mode,
     });
-    // LOCO-GROUND TAP point (b): after the posture pass, the locomotion
-    // drive weights and the root position/rotation/scale writes above, and
-    // before the face/speech cue (face rig only, no leg bones) and the stance
-    // lock, which runs after this pass. No-op unless `locoGround=1`.
     snapshotLocoGroundTap(slot, "posture");
     updateHumanoidSpeechCue(ctx, slot, nowMs, camera);
   }
@@ -302,11 +294,7 @@ export function updateGeneratedHumanoidAnimations(
   updateVirtualDeviceActorSpeechPulses(ctx, nowMs);
   // AFTER the pose: a lock reading last frame's pose cancels nothing (same reasoning main.ts's own
   // call to `applyStationBedsideStanceLock` after this function documents for the physician).
-  // `?noStanceLock=1` (with `locoGround=1`) skips every lock so the
-  // lock-disabled row isolates clip + root. Default off: unchanged.
-  if (!readLocoGroundNoStanceLock()) {
-    applyLocomotionOrderStanceLocks(locomotionOrderRegistry, deltaSeconds, nowMs);
-  }
+  applyLocomotionOrderStanceLocks(locomotionOrderRegistry, deltaSeconds, nowMs);
 }
 
 export function updateHumanoidSpeechCue(

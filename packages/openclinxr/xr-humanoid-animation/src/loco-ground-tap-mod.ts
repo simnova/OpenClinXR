@@ -31,6 +31,8 @@
  * lock so the lock-disabled row isolates clip + root.
  */
 
+import type { ResolvedBedsideApproach } from "@openclinxr/asset-registry/case-approach-intent";
+
 export const LOCO_GROUND_ROUTE_METERS = 6;
 export const LOCO_GROUND_TAP_RING_LIMIT = 3000;
 
@@ -58,7 +60,6 @@ export function readLocoGroundNoStanceLock(): boolean {
   return typeof search === "string" && parseLocoGroundNoStanceLock(search);
 }
 
-type Xz = { x: number; z: number };
 type Xyz = { x: number; y: number; z: number };
 
 /**
@@ -117,7 +118,7 @@ const LOCO_GROUND_TAP_BONES = [
   "lowerleg02L", "lowerleg02R",
   "footL", "footR",
   "toe1-1L", "toe1-1R",
-  "pelvis",
+  "pelvisL", "pelvisR",
   "root",
 ] as const;
 
@@ -340,4 +341,50 @@ export function commitLocoGroundTapFrame(
 /** Test/peer seam: which sanitised bone names the tap records. */
 export function locoGroundTapBoneNames(): string[] {
   return [...LOCO_GROUND_TAP_BONES];
+}
+
+/**
+ * Vehicle applicator: `?locoGround=1` lengthens the 1.2 m bedside walk to a
+ * straight 6 m approach so steady-state gait exists. The shipped plan's own
+ * clearance stands; the added segment is outside the room and is NOT
+ * re-vetted (slice report: not-tested). Pure: returns the input untouched when
+ * the flag is off or the route is already long enough. Default off.
+ */
+const locoIntentCache = new WeakMap<ResolvedBedsideApproach, ResolvedBedsideApproach>();
+
+export function extendLocoGroundIntent(intent: ResolvedBedsideApproach): ResolvedBedsideApproach {
+  if (!readLocoGroundEnabled()) return intent;
+  const cached = locoIntentCache.get(intent);
+  if (cached) return cached;
+  const extended = extendLocoGroundRoute({
+    start: intent.start,
+    target: intent.target.position,
+    waypoints: intent.plan.waypoints,
+  });
+  const out = extended === null
+    ? intent
+    : { ...intent, start: extended.start, plan: { ...intent.plan, waypoints: extended.waypoints } };
+  locoIntentCache.set(intent, out);
+  return out;
+}
+
+/**
+ * Tap point (c) applicator: the rendered pose, after every writer. Call after
+ * the stance lock with the station state; no-op unless `locoGround=1` or the
+ * approach carries no label slot.
+ */
+export function commitLocoGroundTapForApproach(state: {
+  approach: {
+    stanceLabelSlot: { root?: unknown; actorSlot?: unknown } | null;
+    intent?: { physicianActorId?: string };
+    lockArmed?: boolean;
+    lock?: { stanceFoot?: string | null; correctionMeters?: { x: number; z: number } };
+    lastHeelMissM?: number | null;
+  } | null;
+  lastFrame: { phase?: string; stanceFoot?: string | null } | null;
+}): void {
+  if (!readLocoGroundEnabled()) return;
+  const approach = state.approach;
+  if (approach === null || approach.stanceLabelSlot === null) return;
+  commitLocoGroundTapFrame(approach.stanceLabelSlot, approach, state.lastFrame);
 }

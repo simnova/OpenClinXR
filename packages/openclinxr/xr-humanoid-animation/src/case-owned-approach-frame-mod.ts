@@ -1,6 +1,5 @@
 import {
   stepBedsideApproachExecution,
-  type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
@@ -15,7 +14,6 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import { applyCaseOwnedArrivedLock } from "./case-owned-approach-arrived-mod.js";
 import {
@@ -27,6 +25,7 @@ import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
+import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
   resolveClipStanceForFrame,
@@ -434,6 +433,11 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     contactBandMeters: approach.contactBandMeters,
     state: approach.lock,
     ccdStanceLockEnabled: approach.ccdStanceLockEnabled,
+    // LOCO-GROUND lock-disabled row: the SAME code path computes production
+    // labels and the would-be correction, but nothing is written — the
+    // rendered walk isolates clip + root. Settling/arrived writers above are
+    // unaffected, so the run still terminates.
+    observeOnly: readLocoGroundNoStanceLock(),
     recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
