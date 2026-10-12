@@ -6,6 +6,15 @@ import type { OwnedChain } from "@openclinxr/xr-pose";
 import { sampleLocomotionStanceTrack } from "./case-owned-approach-frame-mod.js";
 import { measureStanceGroundAdvance } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import {
+  applySplitLocomotionTimeScale,
+  applySplitUpperWeight,
+  isLocomotionUpperBodySanitisedName,
+  locomotionSplitActions,
+  startSplitLocomotionActions,
+  stopSplitLocomotionActions,
+  seedLocomotionUpperWeight,
+} from "./locomotion-clip-split-mod.js";
 import { resolveHipBone } from "./resolve-hip-bone.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { STOP_PLAYING_FLAG } from "./stop-clip-playback-mod.js";
@@ -218,7 +227,13 @@ export function playLocomotionClip(
   if (!clipName || !mixer) return false;
   const clip = slot.responseClips?.find((candidate: { name: string }) => candidate.name === clipName);
   if (!clip) return false;
-  const action = mixer.clipAction(clip);
+  // ARM-SETTLE SPLIT (physician): the take plays as two time-synced actions. `action` is the
+  // ORIGINAL take's action, kept playing at weight 0 as the timekeeper — it advances time with
+  // the mixer but writes nothing, so stance-time readers are untouched. `lowerAction` carries
+  // the legs at today's weight logic; `upperAction` carries the arms at the ramped weight.
+  const split = locomotionSplitActions(mixer, clip);
+  const action = split.keeper;
+  const lowerAction = split.lower;
   const rootUserData = slot.root.userData as Record<string, unknown>;
 
   // Persist crossfade state on the root userData
@@ -248,12 +263,13 @@ export function playLocomotionClip(
       };
       legWeightState.current = Math.max(0, legWeightState.current - fadeRate * deltaSeconds);
 
-      // Fade the action's effective weight
+      // The upper body fades on its own ramp (0.5 s), not the leg fade above.
+      const upperWeight = applySplitUpperWeight(split, rootUserData, 0, deltaSeconds);
+
+      // Fade the lower body's effective weight; the keeper stays at 0 (time only).
       if (action.isRunning()) {
-        action.setEffectiveWeight(legWeightState.current);
-        if (legWeightState.current <= 0) {
-          action.stop();
-        }
+        lowerAction.setEffectiveWeight(legWeightState.current);
+        if (legWeightState.current <= 0 && upperWeight <= 0) stopSplitLocomotionActions(split);
       }
 
       // Keep leg claim while fading (weight > 0 means still blending)
@@ -265,6 +281,7 @@ export function playLocomotionClip(
         timeSeconds: action.time,
         mode: "retargeted_clip_drives_legs_fading_upper_body",
         crossfadeWeight: crossfadeState.weight,
+        upperWeight,
         notEvidenceFor: "gait realism, clinical plausibility, or Quest readiness",
       };
       return true;
@@ -281,12 +298,13 @@ export function playLocomotionClip(
     crossfadeState.targetWeight = 0;
     (rootUserData["openClinXrLocomotionLegWeight"] as { current: number } | undefined) ??= { current: 0 };
     (rootUserData["openClinXrLocomotionLegWeight"] as { current: number }).current = 0;
+    seedLocomotionUpperWeight(slot.root, 0);
     return true;
   }
 
   // Walking: start or continue
   if (!action.isRunning()) {
-    action.reset().play();
+    startSplitLocomotionActions(split);
     // FULL clip weight from the first frame. The crossfade below governs ONLY the
     // upper-body ownership blend (read by the posture pass); the leg pose the stance
     // lock pins must be the clip's own pose immediately. Snapping the action's weight
@@ -298,6 +316,7 @@ export function playLocomotionClip(
     // walk still gets full weight on its first posed frame, exactly as before.
     (rootUserData["openClinXrLocomotionLegWeight"] as { current: number } | undefined) ??= { current: 1 };
     (rootUserData["openClinXrLocomotionLegWeight"] as { current: number }).current = 1;
+    seedLocomotionUpperWeight(slot.root, 0);
     crossfadeState.weight = 0;
     crossfadeState.targetWeight = 1;
   }
@@ -317,13 +336,20 @@ export function playLocomotionClip(
   const legWeightStep =
     Math.sign(legWeightDelta) * Math.min(Math.abs(legWeightDelta), legWeightRampPerSecond * deltaSeconds);
   legWeightState.current += legWeightStep;
-  action.setEffectiveWeight(legWeightState.current);
+  lowerAction.setEffectiveWeight(legWeightState.current);
+
+  // Full upper weight only on a full-weight walk; a reduced leg target (settling) fades the
+  // arms toward the idle takes underneath instead of snapping them. Same deltaSeconds drive as
+  // the leg ramp, own 0.4 s up / 0.5 s down rates.
+  const upperWeight = applySplitUpperWeight(split, rootUserData, legWeightTarget >= 1 ? 1 : 0, deltaSeconds);
 
   // DERIVED rate, re-applied every walking frame so nothing downstream can
   // silently return the action to 1: the clip's own stance speed scaled to the
   // executor's planned speed (`resolveLocomotionClipTimeScale`).
   const speedMeasurement = resolveLocomotionClipTimeScale(slot);
-  if (speedMeasurement !== null) action.timeScale = speedMeasurement.timeScale * timeScaleFactor;
+  if (speedMeasurement !== null) {
+    applySplitLocomotionTimeScale(split, speedMeasurement.timeScale * timeScaleFactor);
+  }
   // Cached on `slot.root.userData["openClinXrLocomotionStanceLabels"]` (resolveLocomotionStanceLabels's
   // own memoisation, keyed by clip name + duration), the same publish-on-userData pattern as the
   // speed measurement above — the clip's own stance labels published where a consumer (the stance
@@ -346,6 +372,7 @@ export function playLocomotionClip(
     timeSeconds: action.time,
     mode: "retargeted_clip_drives_full_body_with_crossfade",
     crossfadeWeight: crossfadeState.weight,
+    upperWeight,
     timeScale: speedMeasurement?.timeScale ?? 1,
     measuredClipGroundSpeedMps: speedMeasurement?.groundSpeedMetersPerSecond ?? 0,
     notEvidenceFor: "gait realism, clinical plausibility, or Quest readiness",
@@ -448,21 +475,9 @@ export function locomotionOwnedBoneChains(
     for (const pattern of LOCOMOTION_MPFB2_BONE_PATTERNS) {
       if (pattern.test(sanitised)) {
         boneNames.push(name);
-        // Track upper-body bones for weight assignment
-        if (
-          sanitised.startsWith("clavicle") ||
-          sanitised.startsWith("shoulder01") ||
-          sanitised.startsWith("upperarm0") ||
-          sanitised.startsWith("lowerarm0") ||
-          sanitised.startsWith("wrist") ||
-          sanitised.startsWith("hand") ||
-          sanitised.startsWith("metacarpal") ||
-          sanitised.startsWith("proximal") ||
-          sanitised.startsWith("intermediate") ||
-          sanitised.startsWith("distal") ||
-          sanitised.startsWith("spine0") ||
-          sanitised.startsWith("neck0")
-        ) {
+        // Upper-body membership shares the split predicate (ownership excludes head: gaze and
+        // head attention stay with the posture pass).
+        if (isLocomotionUpperBodySanitisedName(sanitised, { includeHead: false })) {
           upperBodyBoneNames.push(name);
         }
         break;
