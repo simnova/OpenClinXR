@@ -147,6 +147,9 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "mpfb-ob-patient-aisha": FEMALE_COVERING_LOWER,
     "mpfb-peds-parent-aisha": FEMALE_COVERING_LOWER,
     "mpfb-viseme-inspect": FEMALE_COVERING_LOWER,
+    # realism-95 reference regen: same adult-female civilian lower as Aisha.
+    "aisha-ref-control": FEMALE_COVERING_LOWER,
+    "aisha-ref-lipsC": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2469,6 +2472,10 @@ EYE_DIAMETER_TARGET_MM = {
     # #651 — the ED patient's own 178 cm adult-male body (case-driven numeric
     # identity bake); adult axial length applies.
     "mpfb-gown-adult-patient": 24.0,
+    # realism-95 reference regen: undecimated Aisha re-bakes under scratch stems;
+    # same adult-female body as mpfb-ob-patient-aisha, so adult axial length applies.
+    "aisha-ref-control": 24.0,
+    "aisha-ref-lipsC": 24.0,
 }
 
 
