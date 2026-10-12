@@ -150,6 +150,7 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     # realism-95 reference regen: same adult-female civilian lower as Aisha.
     "aisha-ref-control": FEMALE_COVERING_LOWER,
     "aisha-ref-lipsC": FEMALE_COVERING_LOWER,
+    "aisha-ref-inert": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2311,8 +2312,8 @@ def parse_args():
         help=(
             "Comma-separated face shape-key weights baked into the Basis, e.g. "
             '"mouth-upperlip-volume-incr=0.6,mouth-lowerlip-volume-incr=0.6". '
-            "Applied to the loaded face shape keys and folded into the Basis with "
-            "TargetService.bake_targets BEFORE the #318 helper strip. Unknown "
+            "Applied to the loaded face shape keys and folded into the Basis "
+            "(from_mix copy, keys preserved) BEFORE the #318 helper strip. Unknown "
             "names refuse loudly with the available key names. Empty/absent "
             "changes nothing."
         ),
@@ -2476,6 +2477,7 @@ EYE_DIAMETER_TARGET_MM = {
     # same adult-female body as mpfb-ob-patient-aisha, so adult axial length applies.
     "aisha-ref-control": 24.0,
     "aisha-ref-lipsC": 24.0,
+    "aisha-ref-inert": 24.0,
 }
 
 
@@ -4185,8 +4187,6 @@ def main():
     # without the flag. (_face_targets parsed above and passed as required_names
     # so explicitly requested targets are loaded even outside the cap.)
     if _face_targets:
-        from bl_ext.user_default.mpfb.services.targetservice import TargetService as _FaceBakeService  # noqa: E402
-
         _key_blocks = (
             human.data.shape_keys.key_blocks if human.data.shape_keys else []
         )
@@ -4200,12 +4200,20 @@ def main():
         for _name, _w in _face_targets.items():
             human.data.shape_keys.key_blocks[_name].value = float(_w)
         print(f"FACE_TARGETS_APPLY {json.dumps(_face_targets)}")
-        _FaceBakeService.bake_targets(human)
+        # Fold the weighted mix into the Basis WITHOUT removing keys:
+        # TargetService.bake_targets deletes every key block, and the eyebrow
+        # FACS transfer downstream requires the eyebrows-* body keys. A temp
+        # from_mix key captures the mix; its cos are copied onto the Basis,
+        # the temp is dropped, then all non-Basis keys return to 0.
+        _mix = human.shape_key_add(name="face_targets_bake_mix", from_mix=True)
+        _basis = human.data.shape_keys.key_blocks["Basis"]
+        for _i, _pt in enumerate(_mix.data):
+            _basis.data[_i].co = _pt.co
+        human.shape_key_remove(_mix)
         bpy.context.view_layer.update()
-        if human.data.shape_keys:
-            for _kb in human.data.shape_keys.key_blocks:
-                if _kb.name != "Basis":
-                    _kb.value = 0.0
+        for _kb in human.data.shape_keys.key_blocks:
+            if _kb.name != "Basis":
+                _kb.value = 0.0
         print("FACE_TARGETS_BAKED True")
 
     # #432 (E6.3) — apply the 15 visemes02 targets BEFORE the #318 helper strip, as clothes
