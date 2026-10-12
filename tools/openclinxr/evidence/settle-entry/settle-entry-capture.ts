@@ -111,6 +111,8 @@ type FrameProbe = {
   upperR: Quat | null;
   /** All four leg joints per side (turn-leg-snaps stage 1); null on old builds. */
   legBones: Record<string, Quat | null> | null;
+  /** Hip/knee world positions per side (turn-leg-snaps fix runs); null on old builds. */
+  legWorlds: Record<string, Vec3 | null> | null;
   footYawL: number | null;
   footYawR: number | null;
   stoppedSeconds: number;
@@ -129,7 +131,7 @@ const PROBE_SOURCE = `
   const scene = globalThis.__openClinXrDebugScene;
   let clipTime = null;
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
-  let legBones = null;
+  let legBones = null, legWorlds = null;
   if (scene) {
     const actorId = ev ? ev.physicianActorId : null;
     let physRoot = null;
@@ -166,6 +168,19 @@ const PROBE_SOURCE = `
           legBones[base + side] = qOf(base + side, base + "." + side);
         }
       }
+      const wOf = (a, b) => {
+        const bone = byName(a) || byName(b);
+        if (!bone) return null;
+        if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+        const e = bone.matrixWorld.elements;
+        return { x: e[12], y: e[13], z: e[14] };
+      };
+      legWorlds = {
+        hipL: wOf("upperleg01L", "upperleg01.L"),
+        kneeL: wOf("lowerleg01L", "lowerleg01.L"),
+        hipR: wOf("upperleg01R", "upperleg01.R"),
+        kneeR: wOf("lowerleg01R", "lowerleg01.R"),
+      };
       const yawOf = (a, b) => {
         const bone = byName(a) || byName(b);
         if (!bone) return null;
@@ -186,7 +201,7 @@ const PROBE_SOURCE = `
     stanceFoot: tail ? tail.stanceFoot : null,
     travelledMeters: tail && tail.travelledMeters !== undefined ? tail.travelledMeters : null,
     clipTime,
-    upperL, upperR, legBones, footYawL, footYawR,
+    upperL, upperR, legBones, legWorlds, footYawL, footYawR,
     stoppedSeconds: ev ? ev.stoppedSeconds : 0,
     targetHeading: ev ? ev.targetHeadingRadians : null,
     travelHeading: ev ? ev.travelHeadingRadians : null,

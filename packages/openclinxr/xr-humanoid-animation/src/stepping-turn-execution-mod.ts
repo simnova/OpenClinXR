@@ -22,17 +22,13 @@ import {
   steppingPivotWindowKey,
 } from "./stepping-turn-slot-pivot-mod.js";
 import {
-  armHipWriteTrap,
-  censusSteppingLegs,
   createSteppingTurnLegCollector,
-  drainHipWriteStacks,
   isSteppingTurnTraceEnabled,
   readSteppingTurnMixerState,
   recordSteppingTurnLegBefore,
   recordSteppingTurnLegLast,
   recordSteppingTurnTraceFrame,
   type SteppingTurnTracePass,
-  setHipWriteTrapMuted,
   steppingTurnLegOnWriteFor,
   takeSteppingTurnLegTraces,
 } from "./stepping-turn-trace-mod.js";
@@ -301,13 +297,6 @@ export function advanceSteppingTurn(input: {
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
   // Turn-leg-snaps stage 1: per-leg solve record (trace-only; last pass wins).
   const legs = createSteppingTurnLegCollector();
-  // Stage-1c instrument: mute the hip-write trap across our own solves.
-  setHipWriteTrapMuted(true);
-  if (traceOn) {
-    const trapL = findSteppingLegChain(actorSlot, "left");
-    const trapR = findSteppingLegChain(actorSlot, "right");
-    if (trapL && trapR) armHipWriteTrap(trapL.hip, trapR.hip);
-  }
   for (let pass = 0; pass < 2; pass += 1) {
     let traceOffsetCaptured = false;
     let traceFootCaptured = false;
@@ -433,7 +422,6 @@ export function advanceSteppingTurn(input: {
   if (traceOn) {
     const floorY = input.floorOriginY ?? null;
     const traceLegs = takeSteppingTurnLegTraces(actorSlot, legs, targets);
-    setHipWriteTrapMuted(false);
     let toeLeftY: number | null = null;
     let toeRightY: number | null = null;
     if (input.leftToe !== null) {
@@ -464,7 +452,6 @@ export function advanceSteppingTurn(input: {
       floorOriginY: floorY,
       legs: traceLegs,
       mixer: readSteppingTurnMixerState(actorSlot),
-      hipWrites: [...drainHipWriteStacks(), censusSteppingLegs(actorSlot, traceFrameIndex)],
       pivot: tracePivot,
     });
   }

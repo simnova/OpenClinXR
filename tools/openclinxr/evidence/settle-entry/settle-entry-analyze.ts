@@ -16,6 +16,7 @@
  */
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { normBandOf, quatStepDeg, type NormBand } from "./quat-norm-math.js";
 
 type Vec3 = { x: number; y: number; z: number };
 type Quat = { x: number; y: number; z: number; w: number };
@@ -33,6 +34,8 @@ type Frame = {
   upperL: Quat | null;
   upperR: Quat | null;
   legBones: Record<string, Quat | null> | null;
+  /** Hip/knee world positions per side (turn-leg-snaps fix runs); null on old builds. */
+  legWorlds: Record<string, Vec3 | null> | null;
   footYawL: number | null;
   footYawR: number | null;
   stoppedSeconds: number;
@@ -86,11 +89,6 @@ function shortestYawDelta(from: number, to: number): number {
   return Math.atan2(Math.sin(to - from), Math.cos(to - from));
 }
 
-function quatStepDeg(a: Quat, b: Quat): number {
-  const dot = Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w);
-  return (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI;
-}
-
 function xzStep(a: Vec3, b: Vec3): number {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
@@ -137,6 +135,11 @@ type RunMetrics = {
   walkRecordedS: number;
   maxFootStepM: number;
   maxLegStepDeg: number;
+  /** Min/max quaternion norm per bone over all frames (its own metric). */
+  legNormBands: Record<string, NormBand | null>;
+  /** Thigh segment (hip-to-knee world) min/max per side; null without legWorlds. */
+  thighLenL: NormBand | null;
+  thighLenR: NormBand | null;
   windowSlidesM: number[];
   meanWindowSlideM: number;
   maxWindowSlideM: number;
@@ -281,6 +284,29 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
   void runStart;
   void runFoot;
 
+  // Per-bone quaternion norm bands over ALL frames (not just the window).
+  const legNormBands: Record<string, NormBand | null> = {};
+  const boneKeys = [
+    "upperleg01L", "upperleg02L", "lowerleg01L", "lowerleg02L",
+    "upperleg01R", "upperleg02R", "lowerleg01R", "lowerleg02R",
+  ];
+  for (const key of boneKeys) {
+    legNormBands[key] = normBandOf(frames.map((f) => f.legBones?.[key] ?? null));
+  }
+  legNormBands["upperL"] = normBandOf(frames.map((f) => f.upperL));
+  legNormBands["upperR"] = normBandOf(frames.map((f) => f.upperR));
+  // Thigh segment length (hip-to-knee world distance) per side; needs legWorlds.
+  const thighLen = (side: "L" | "R"): NormBand | null => {
+    const lens: number[] = [];
+    for (const f of frames) {
+      const hip = f.legWorlds?.[`hip${side}`] ?? null;
+      const knee = f.legWorlds?.[`knee${side}`] ?? null;
+      if (hip && knee) lens.push(Math.hypot(hip.x - knee.x, hip.y - knee.y, hip.z - knee.z));
+    }
+    if (lens.length === 0) return null;
+    return { min: Math.min(...lens), max: Math.max(...lens) };
+  };
+
   return {
     tag,
     walkFrames: walkIdx.length,
@@ -305,6 +331,9 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     walkRecordedS,
     maxFootStepM,
     maxLegStepDeg,
+    legNormBands,
+    thighLenL: thighLen("L"),
+    thighLenR: thighLen("R"),
     windowSlidesM,
     meanWindowSlideM:
       windowSlidesM.length === 0 ? 0 : windowSlidesM.reduce((s, v) => s + v, 0) / windowSlidesM.length,
@@ -321,6 +350,7 @@ async function main(): Promise<void> {
   const preWalkFirst: Array<{ tag: string; n: number; firstPhase: unknown; lastPhase: unknown }> = [];
   for (const file of files) {
     const run = JSON.parse(await readFile(path.join(dir, file), "utf8")) as RunFile;
+    if (!Array.isArray((run as unknown as { frames?: unknown }).frames)) continue;
     const tag = file.replace(/\.json$/, "");
     const m = analyzeRun(tag, run);
     metrics.push(m);
@@ -344,6 +374,21 @@ async function main(): Promise<void> {
     lines.push(
       `| ${m.tag} | ${m.clipTimeW?.toFixed(3) ?? "?"} | ${m.labelW} | ${m.clipTimeS?.toFixed(3) ?? "?"} | ${m.labelS} | ${m.firstSingleAfterEntry} | ${m.residualDeg?.toFixed(1) ?? "?"} | ${m.predictedFirstSwing ?? "?"} | ${m.actualFirstStance ?? "?"} | ${m.alongM?.toFixed(3) ?? "?"} | ${m.lateralM?.toFixed(3) ?? "?"} | ${m.arrivalYawDeg?.toFixed(1) ?? "?"} | ${m.plantFoot ?? "?"}:${m.plantYawDeg?.toFixed(1) ?? "?"} | ${m.settlingS.toFixed(2)} | ${m.walkRecordedS.toFixed(2)} |`,
     );
+  }
+  lines.push("");
+
+  // Per-run leg quaternion norm bands + thigh variation (turn-leg-snaps bars).
+  lines.push("## leg quaternion norm per bone (min..max over all frames) + thigh length variation");
+  for (const m of metrics) {
+    const bands = Object.entries(m.legNormBands)
+      .map(([k, b]) => `${k}=${b === null ? "?" : `${b.min.toFixed(4)}..${b.max.toFixed(4)}`}`)
+      .join(" ");
+    const thigh =
+      m.thighLenL === null && m.thighLenR === null
+        ? "thigh=n/a(no legWorlds)"
+        : `thighL=${m.thighLenL === null ? "?" : `${m.thighLenL.min.toFixed(4)}..${m.thighLenL.max.toFixed(4)}`} `
+          + `thighR=${m.thighLenR === null ? "?" : `${m.thighLenR.min.toFixed(4)}..${m.thighLenR.max.toFixed(4)}`}`;
+    lines.push(`- ${m.tag}: ${bands} | ${thigh}`);
   }
   lines.push("");
 
@@ -382,6 +427,22 @@ async function main(): Promise<void> {
   show("max one-frame upper-leg step (window)", "deg", metrics.map((m) => m.maxLegStepDeg), 2);
   show("mean planted-window slide", "m", metrics.map((m) => m.meanWindowSlideM));
   show("max planted-window slide", "m", metrics.map((m) => m.maxWindowSlideM));
+  // Turn-leg-snaps bars: worst min quaternion norm across bones/runs, max thigh variation.
+  const worstMinNorm = Math.min(
+    ...metrics.flatMap((m) => Object.values(m.legNormBands).map((b) => b?.min ?? 1)),
+  );
+  const worstMaxNorm = Math.max(
+    ...metrics.flatMap((m) => Object.values(m.legNormBands).map((b) => b?.max ?? 1)),
+  );
+  lines.push(`- leg quaternion norm over all bones/runs: min=${fmt(worstMinNorm)} max=${fmt(worstMaxNorm)} (bar: 1 +/- 1e-4)`);
+  const thighVars = metrics.flatMap((m) =>
+    [m.thighLenL, m.thighLenR].filter((b) => b !== null).map((b) => b.max - b.min),
+  );
+  lines.push(
+    thighVars.length === 0
+      ? `- thigh length variation: n/a (no legWorlds in these captures)`
+      : `- thigh length variation (hip-to-knee world): n=${thighVars.length} max=${fmt(Math.max(...thighVars))}m (bar: <= 0.002)`,
+  );
   // Slot scatter at arrival.
   const slots = metrics.map((m) => m.arrivalSlot).filter((s) => s !== null);
   if (slots.length >= 2) {
@@ -407,6 +468,7 @@ async function main(): Promise<void> {
   const runByTag = new Map<string, Frame[]>();
   for (const file of files) {
     const run = JSON.parse(await readFile(path.join(dir, file), "utf8")) as RunFile;
+    if (!Array.isArray((run as unknown as { frames?: unknown }).frames)) continue;
     runByTag.set(file.replace(/\.json$/, ""), run.frames);
   }
   const maxLen = Math.max(...[...runByTag.values()].map((f) => f.length));

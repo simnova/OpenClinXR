@@ -14,6 +14,7 @@
  */
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { quatNorm, quatStepDeg } from "./quat-norm-math.js";
 
 const SNAP_DEG = 24.5;
 const PLANE_FLIP_DEG = 45;
@@ -86,11 +87,6 @@ function outFromArgv(): string | null {
   return process.argv.find((a) => a.startsWith("--out="))?.slice("--out=".length) ?? null;
 }
 
-function quatStepDeg(a: Quat, b: Quat): number {
-  const dot = Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w);
-  return (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI;
-}
-
 function vecStep(a: Vec3, b: Vec3): number {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }
@@ -113,13 +109,14 @@ async function main(): Promise<void> {
   const files = (await readdir(dir)).filter((f) => f.endsWith(".trace.json")).sort();
   if (files.length === 0) throw new Error(`no trace files in ${dir}`);
   const events: SnapEvent[] = [];
-  const runMax: Array<{ run: string; frames: number; maxStepDeg: number; snaps: number }> = [];
+  const runMax: Array<{ run: string; frames: number; maxStepDeg: number; snaps: number; minNorm: number }> = [];
 
   for (const file of files) {
     const run = file.replace(/\.trace\.json$/, "");
     const trace = JSON.parse(await readFile(path.join(dir, file), "utf8")) as TraceFrame[];
     let maxStep = 0;
     let snaps = 0;
+    let minNorm = 1;
     for (let i = 1; i < trace.length; i += 1) {
       const prev = trace[i - 1]!;
       const curr = trace[i]!;
@@ -131,6 +128,7 @@ async function main(): Promise<void> {
           const qa = pl.quatsAfter[bone];
           const qb = cl.quatsAfter[bone];
           if (!qa || !qb) continue;
+          minNorm = Math.min(minNorm, quatNorm(qa), quatNorm(qb));
           const step = quatStepDeg(qa, qb);
           if (step > maxStep) maxStep = step;
           if (step <= SNAP_DEG) continue;
@@ -164,16 +162,16 @@ async function main(): Promise<void> {
         }
       }
     }
-    runMax.push({ run, frames: trace.length, maxStepDeg: maxStep, snaps });
+    runMax.push({ run, frames: trace.length, maxStepDeg: maxStep, snaps, minNorm });
   }
 
   const counts = new Map<string, number>();
   for (const e of events) counts.set(e.klass, (counts.get(e.klass) ?? 0) + 1);
 
   console.log(`# turn-leg-snaps stage1: ${files.length} runs, thresholds snap>${SNAP_DEG}deg planeFlip>${PLANE_FLIP_DEG}deg targetJump>${TARGET_JUMP_M}m reach>=${REACH_SATURATED}`);
-  console.log("## per-run max one-frame leg-bone step (trace quatsAfter, all 4 joints x both legs)");
+  console.log("## per-run max one-frame leg-bone step (trace quatsAfter, all 4 joints x both legs; normalised angles) + min quat norm");
   for (const r of runMax) {
-    console.log(`- ${r.run}: frames=${r.frames} max=${r.maxStepDeg.toFixed(1)}deg snaps=${r.snaps}`);
+    console.log(`- ${r.run}: frames=${r.frames} max=${r.maxStepDeg.toFixed(1)}deg snaps=${r.snaps} minNorm=${r.minNorm.toFixed(4)}`);
   }
   console.log("## class counts");
   for (const k of ["plane_flip", "knee_side_flip", "target_jump", "hold_transition", "plan_end", "reach_saturation", "other"]) {

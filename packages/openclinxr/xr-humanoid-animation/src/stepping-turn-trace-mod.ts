@@ -99,8 +99,6 @@ export type SteppingTurnTraceFrame = {
   legs: SteppingTurnLegSolveTrace[];
   /** Mixer walk-clip + leg-weight snapshot (turn-leg-snaps stage 1b); null when untraced. */
   mixer: SteppingTurnMixerState | null;
-  /** Hip-write stacks recorded while the solve was muted (stage 1c instrument). */
-  hipWrites: string[];
   /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
   pivot: {
     dx: number;
@@ -114,96 +112,6 @@ export type SteppingTurnTraceFrame = {
 };
 
 const TRACE_KEY = "__openClinXrSteppingTurnTrace";
-
-/** Instrument-only hip-write trap (turn-leg-snaps stage 1c, reverted after use). */
-let hipTrapMuted = false;
-let hipTrapArmed = false;
-const hipTrapStacks: string[] = [];
-export function setHipWriteTrapMuted(muted: boolean): void {
-  hipTrapMuted = muted;
-}
-/** Hook the hips' quaternion change callbacks; stacks recorded while unmuted. */
-export function armHipWriteTrap(hipLeft: Object3D, hipRight: Object3D): void {
-  if (hipTrapArmed) return;
-  hipTrapArmed = true;
-  for (const hip of [hipLeft, hipRight]) {
-    const q = hip.quaternion as unknown as { _onChangeCallback?: () => void };
-    const prev = q._onChangeCallback;
-    q._onChangeCallback = () => {
-      try {
-        prev?.();
-      } catch {
-        /* keep prior behaviour */
-      }
-      if (hipTrapMuted) return;
-      if (hipTrapStacks.length >= 24) return;
-      hipTrapStacks.push(`${hip.name} quat :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
-    };
-    // Euler-direct writes sync the quaternion with update=false, bypassing the
-    // trap above — but they DO fire the Euler callback (quaternion-synced writes
-    // pass update=false the other way, so this fires only on direct Euler writes).
-    const e = hip.rotation as unknown as { _onChangeCallback?: () => void };
-    const prevE = e._onChangeCallback;
-    e._onChangeCallback = () => {
-      try {
-        prevE?.();
-      } catch {
-        /* keep prior behaviour */
-      }
-      if (hipTrapMuted) return;
-      if (hipTrapStacks.length >= 24) return;
-      hipTrapStacks.push(`${hip.name} EULER :: ${(new Error().stack ?? "").split("\n").slice(1, 6).join(" <- ")}`);
-    };
-  }
-}
-/** Drain recorded stacks (clears the buffer). */
-export function drainHipWriteStacks(): string[] {
-  return hipTrapStacks.splice(0, hipTrapStacks.length);
-}
-
-const boneIds = new WeakMap<object, number>();
-let nextBoneId = 1;
-function boneIdOf(bone: object): number {
-  let id = boneIds.get(bone);
-  if (id === undefined) {
-    id = nextBoneId;
-    nextBoneId += 1;
-    boneIds.set(bone, id);
-  }
-  return id;
-}
-/**
- * Per-frame rig census (stage-1e instrument): every sanitised thigh/shin match
- * under the slot with identity ids, plus the ids the chain resolver would take
- * ([0] per bone). Detects duplicate-rig name-resolution flips.
- */
-export function censusSteppingLegs(actorSlot: Object3D, frame: number): string {
-  const flat = (name: string): string => name.replaceAll(".", "");
-  const matches = (want: string): Object3D[] => {
-    const found: Object3D[] = [];
-    actorSlot.traverse((o) => {
-      if (o.name && flat(o.name) === want) found.push(o);
-    });
-    // Mirror findBonesBySanitisedName's second pass (skeleton arrays can hold
-    // bones the graph walk never visits).
-    actorSlot.traverse((o) => {
-      const skinned = o as Object3D & { isSkinnedMesh?: boolean; skeleton?: { bones: Object3D[] } };
-      if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-      for (const bone of skinned.skeleton.bones) {
-        if (bone.name && flat(bone.name) === want) found.push(bone);
-      }
-    });
-    return found;
-  };
-  const ids = (want: string): string => matches(want).map((o) => `#${boneIdOf(o)}`).join(",") || "-";
-  const parts: string[] = [];
-  for (const base of ["upperleg01", "upperleg02", "lowerleg01", "lowerleg02"]) {
-    for (const side of ["L", "R"]) {
-      parts.push(`${base}${side}:[${ids(`${base}${side}`)}]`);
-    }
-  }
-  return `census f${frame} ${parts.join(" ")}`;
-}
 
 /** Last-pass solve record per leg (trace-only; last pass wins). */
 export type SteppingTurnLegLast = {
