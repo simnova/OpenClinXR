@@ -120,6 +120,9 @@ const LOCO_GROUND_TAP_BONES = [
   "toe1-1L", "toe1-1R",
   "pelvisL", "pelvisR",
   "root",
+  // Stage C bar 5 (arm regression): upper-arm quats only; the arm fix's own
+  // posture/write path is untouched, this only observes it.
+  "upperarm01L", "upperarm01R",
 ] as const;
 
 export type LocoGroundTapPoint = "mixer" | "posture" | "frame";
@@ -129,6 +132,8 @@ type TapQuat = [number, number, number, number];
 export type LocoGroundTapPose = {
   quat: Partial<Record<string, TapQuat>>;
   toeWorld: { left: Xyz | null; right: Xyz | null };
+  /** Stage C bar 2: ankle (foot-bone) world for swing ankle heights. */
+  ankleWorld: { left: Xyz | null; right: Xyz | null };
   slot: { x: number; y: number; z: number; yaw: number } | null;
 };
 
@@ -276,6 +281,8 @@ function snapPose(
   }
   const toeL = findTapBone(bones, "toe1-1L");
   const toeR = findTapBone(bones, "toe1-1R");
+  const ankleL = findTapBone(bones, "footL");
+  const ankleR = findTapBone(bones, "footR");
   // updateWorldMatrix(true, false): parents first, then this node — a correct
   // world read off the CURRENT locals without depending on a fresh render.
   let left: Xyz | null = null;
@@ -288,9 +295,20 @@ function snapPose(
     toeR.updateWorldMatrix(true, false);
     right = worldOfNode(toeR);
   }
+  let ankleLeft: Xyz | null = null;
+  let ankleRight: Xyz | null = null;
+  if (ankleL !== null) {
+    ankleL.updateWorldMatrix(true, false);
+    ankleLeft = worldOfNode(ankleL);
+  }
+  if (ankleR !== null) {
+    ankleR.updateWorldMatrix(true, false);
+    ankleRight = worldOfNode(ankleR);
+  }
   return {
     quat,
     toeWorld: { left, right },
+    ankleWorld: { left: ankleLeft, right: ankleRight },
     slot: actorSlot === null
       ? null
       : {

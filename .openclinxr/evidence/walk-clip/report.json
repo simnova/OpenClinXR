@@ -1,0 +1,268 @@
+{
+ "attribution": {
+  "bind": {
+   "ankleMaxM": [
+    0.271,
+    0.271
+   ],
+   "channels": 411,
+   "clip": "openclinxr_retarget_walk_source",
+   "duty": [
+    0.62,
+    0.52
+   ],
+   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+   "hipHeightMeanM": 0.798,
+   "hipHeightStandingM": 0.787,
+   "kneeFlexDeg": [
+    2.6,
+    76.5
+   ],
+   "scale": 0.86,
+   "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+   "stanceSpeedMedMps": [
+    0.661,
+    0.676
+   ],
+   "strideM": [
+    0.318,
+    0.494
+   ],
+   "swingToeMaxM": [
+    0.159,
+    0.159
+   ],
+   "thighRangeDeg": [
+    37.01,
+    68.94
+   ]
+  },
+  "blame": "playback",
+  "browser": {
+   "cycleRate1S": [
+    0.912,
+    0.751
+   ],
+   "duty": [
+    0.571,
+    0.549
+   ],
+   "naturalSpeedMps": 0.845,
+   "note": "lockOff mixer-pose clip table reused from loco-ground report",
+   "stanceSpeedMedMps": [
+    0.564,
+    0.559
+   ],
+   "strideM": [
+    0.771,
+    0.635
+   ],
+   "swingToeMaxM": [
+    0.029,
+    0.031
+   ]
+  },
+  "ratios": {
+   "jointAmplitudeLiveOverClip": "0.29-0.50",
+   "rootOverStance": "2.43 (1.374/0.566)",
+   "stanceSpeedLiveRate1OverBound": "0.52 (0.348/0.668)",
+   "toeLiftLiveOverBound": "0.22 (0.035/0.159)"
+  },
+  "source": {
+   "ankleMaxM": [
+    0.33,
+    0.33
+   ],
+   "channels": 198,
+   "clip": "human-base-animations.glb#Walk",
+   "duty": [
+    0.57,
+    0.57
+   ],
+   "fps": 24,
+   "hipHeightMeanM": 0.876,
+   "hipHeightStandingM": 0.902,
+   "kneeFlexDeg": [
+    9.2,
+    88.0
+   ],
+   "scale": 1,
+   "stanceSpeedMedMps": [
+    0.786,
+    0.786
+   ],
+   "strideM": [
+    0.723,
+    0.363
+   ],
+   "swingToeMaxM": [
+    0.172,
+    0.172
+   ],
+   "thighRangeDeg": [
+    37.01,
+    68.94
+   ]
+  }
+ },
+ "bars": {
+  "bar1Amplitude": {
+   "control": "0.29-0.50",
+   "fix": {
+    "footL": 0.99,
+    "footR": 0.95,
+    "lowerleg01L": 1.0,
+    "lowerleg01R": 0.99,
+    "root": 1.0,
+    "toe1-1L": 0.99,
+    "toe1-1R": 1.0,
+    "upperleg01L": 0.99,
+    "upperleg01R": 1.0
+   },
+   "gate": ">= 0.95 every leg bone, statics held",
+   "verdict": "pass"
+  },
+  "bar2Swing": {
+   "controlAnkle": [
+    0.072,
+    0.073
+   ],
+   "controlToe": [
+    0.027,
+    0.029
+   ],
+   "fixAnkle": [
+    0.217,
+    0.218
+   ],
+   "fixToe": [
+    0.155,
+    0.158
+   ],
+   "gate": "toe >= 0.127, ankle >= 0.21, lockOff steady",
+   "verdict": "pass"
+  },
+  "bar3Standing": {
+   "arrivedMaxDeg": 21.06,
+   "arrivedNote": "footR differs via settling-turn travel divergence; walk byte-identical, yaw identical",
+   "gate": "within 1 deg of control",
+   "preWalkMaxDeg": 0.0,
+   "verdict": "partial"
+  },
+  "bar4Transitions": {
+   "controlEndFootStepM": 0.103,
+   "controlStartFootStepM": 0.157,
+   "controlStartThighDeg": 17.51,
+   "fixEndFootStepM": 0.16,
+   "fixStartFootStepM": 0.367,
+   "fixStartThighDeg": 35.01,
+   "gate": "no worse than control +10%",
+   "note": "start snaps idle->full clip mid-stride in one frame; reported, no limiter",
+   "verdict": "fail-reported"
+  },
+  "bar5Arms": {
+   "controlHold": [
+    13.92,
+    13.92
+   ],
+   "controlStart": [
+    4.31,
+    5.7
+   ],
+   "fixEnd": [
+    1.05,
+    1.5
+   ],
+   "fixHold": [
+    13.92,
+    13.92
+   ],
+   "fixStart": [
+    4.31,
+    5.7
+   ],
+   "gate": "upper-arm step <= 4.3 at transitions, hold 13.1 +/- 1",
+   "note": "fix identical to control bit-for-bit; 4.3 cap fails on both (vehicle vs arm-lane rig)",
+   "verdict": "pass-regression-fail-absolute"
+  },
+  "bar6Report": {
+   "ctlLockOff": {
+    "heelMissMax": null,
+    "ratio": 2.46,
+    "root": 1.36,
+    "stancePlayed": 0.552,
+    "stanceRate1": 0.34,
+    "stationary": [
+     0,
+     0
+    ]
+   },
+   "ctlTwoBone": {
+    "heelMissMax": 0.392,
+    "ratio": 2.46,
+    "root": 1.36,
+    "stancePlayed": 0.552,
+    "stanceRate1": 0.34,
+    "stationary": [
+     0.088,
+     0.015
+    ]
+   },
+   "fixLockOff": {
+    "heelMissMax": null,
+    "ratio": 1.25,
+    "root": 1.36,
+    "stancePlayed": 1.087,
+    "stanceRate1": 0.669,
+    "stationary": [
+     0.471,
+     0.412
+    ]
+   },
+   "fixTwoBone": {
+    "heelMissMax": 0.125,
+    "ratio": 1.26,
+    "root": 1.368,
+    "stancePlayed": 1.088,
+    "stanceRate1": 0.669,
+    "stationary": [
+     0.103,
+     0.206
+    ]
+   }
+  }
+ },
+ "cause": "packages/openclinxr/xr-asset-loading/src/humanoid-animation.ts:autoplay loop (idle co-ran at weight 1 beside walk at weight 1; three.js normalised to half amplitude)",
+ "construction": "stripLocomotionLegTracks removes the 15 locomotion-owned leg-bone tracks from autoplayed non-locomotion clips at registration (in place, after seated-admission reads, walk exempt by prefix, idempotent). Chosen over complement weights to keep idle at weight 1 for the upper body (posture crossfade and arm fix untouched).",
+ "limits": {
+  "L1StartSnap": "upperleg01R 35.01 deg, foot 0.367 m on frame 0->1 (control 17.51 deg / 0.157 m); inherent to full-weight-first-frame plus a clip starting mid-stride",
+  "L2EndStep": "fix 0.160 m vs control 0.103 m",
+  "L3ArrivedPlant": "footR 21.06 deg, plant displaced 18 cm lockOff / 6 cm shipped-lock via settling-turn travel; SC-05 arrival identical (0.062 vs 0.067)"
+ },
+ "measuredAt": "2026-10-12",
+ "notTested": "stopping-phase labels; other actors/clips/scenes; 60 fps; worn headsets; runtime calibration 0.845 @rate1 vs 0.669 measured here (different contact/floor definitions); SC-05 stepping-turn (disabled); replacement clips (dropped per directive); control worktree removed after runs",
+ "sc05": {
+  "control": {
+   "arrivalErrorM": 0.067,
+   "framingFeetSide": true,
+   "maxToeStepM": 0.0946,
+   "medianSlideM": 0.23,
+   "stanceWindows": 3
+  },
+  "fix": {
+   "arrivalErrorM": 0.062,
+   "framingFeetSide": false,
+   "framingNote": "toeSpanFraction 0.137 < 0.2 floor tuned on half-amplitude steps; camera auto-frame, not product",
+   "maxToeStepM": 0.1265,
+   "medianSlideM": 0.1,
+   "stanceWindows": 6
+  },
+  "maxSlideM": {
+   "control": 0.511,
+   "fix": 0.243
+  }
+ },
+ "schemaVersion": "openclinxr.walk-clip-report.v1",
+ "shippedGlbUnchanged": true,
+ "verdict": "adopt_with_limits"
+}

@@ -27,6 +27,43 @@ import {
 
 const STEP_SECONDS = 1 / 30;
 
+const HOLD_ANGLE_SOURCE = `(() => {
+  // Bar 5 absolute: upper-arm-from-trunk angle, live world FK. Per humanoid
+  // root carrying the three landmarks: trunk = pelvis-mid -> neck01,
+  // arm = upperarm01.L -> its upperarm02.L child. Sanitised names (no dots).
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return { ok: false, reason: "no-debug-scene" };
+  const byRoot = new Map();
+  scene.traverse((o) => {
+    if (!o || typeof o.name !== "string" || !o.name) return;
+    const s = o.name.replaceAll(".", "");
+    if (s !== "upperarm01L" && s !== "upperarm02L" && s !== "pelvisL" && s !== "pelvisR" && s !== "neck01") return;
+    let root = o;
+    while (root.parent && root.parent !== scene) root = root.parent;
+    if (!byRoot.has(root)) byRoot.set(root, { name: root.name || "(unnamed)", bones: {} });
+    byRoot.get(root).bones[s] = o;
+  });
+  const out = [];
+  for (const { name, bones } of byRoot.values()) {
+    if (!bones.upperarm01L || !bones.upperarm02L || !bones.pelvisL || !bones.pelvisR || !bones.neck01) {
+      out.push({ root: name, ok: false, reason: "missing-landmark" });
+      continue;
+    }
+    for (const b of Object.values(bones)) b.updateWorldMatrix(true, false);
+    const v = (o) => { const e = o.matrixWorld.elements; return [e[12], e[13], e[14]]; };
+    const sh = v(bones.upperarm01L); const el = v(bones.upperarm02L);
+    const pl = v(bones.pelvisL); const pr = v(bones.pelvisR); const nk = v(bones.neck01);
+    const ax = [el[0]-sh[0], el[1]-sh[1], el[2]-sh[2]];
+    const mid = [(pl[0]+pr[0])/2, (pl[1]+pr[1])/2, (pl[2]+pr[2])/2];
+    const tx = [nk[0]-mid[0], nk[1]-mid[1], nk[2]-mid[2]];
+    const dot = ax[0]*tx[0]+ax[1]*tx[1]+ax[2]*tx[2];
+    const la = Math.hypot(ax[0],ax[1],ax[2]); const lt = Math.hypot(tx[0],tx[1],tx[2]);
+    const c = Math.min(1, Math.max(-1, dot / ((la * lt) || 1)));
+    out.push({ root: name, ok: true, holdDeg: (Math.acos(c) * 180) / Math.PI });
+  }
+  return { ok: true, holds: out };
+})()`;
+
 const MIXER_DUMP_SOURCE = `(() => {
   const scene = globalThis.__openClinXrDebugScene;
   if (!scene) return { ok: false, reason: "no-debug-scene" };
@@ -89,6 +126,8 @@ async function main(): Promise<void> {
         timeout: 180_000,
       });
       // Let the scene settle: wait for the tap ring to exist and walking to start.
+      await page.clock.fastForward(STEP_SECONDS * 1000);
+      const holdEarly = await page.evaluate(HOLD_ANGLE_SOURCE);
       let ready = false;
       for (let i = 0; i < 120 && !ready; i += 1) {
         await page.clock.fastForward(STEP_SECONDS * 1000);
@@ -111,6 +150,8 @@ async function main(): Promise<void> {
             quat: r.mixer ? r.mixer.quat : null,
             toeL: r.mixer && r.mixer.toeWorld ? r.mixer.toeWorld.left : null,
             toeR: r.mixer && r.mixer.toeWorld ? r.mixer.toeWorld.right : null,
+            ankleL: r.mixer && r.mixer.ankleWorld ? r.mixer.ankleWorld.left : null,
+            ankleR: r.mixer && r.mixer.ankleWorld ? r.mixer.ankleWorld.right : null,
             tMs: r.meta ? r.meta.tMs : null,
             actorId: r.meta ? r.meta.actorId : null,
             phase: r.meta ? r.meta.phase : null,
@@ -124,6 +165,8 @@ async function main(): Promise<void> {
         quat: Record<string, [number, number, number, number]> | null;
         toeL: { x: number; y: number; z: number } | null;
         toeR: { x: number; y: number; z: number } | null;
+        ankleL: { x: number; y: number; z: number } | null;
+        ankleR: { x: number; y: number; z: number } | null;
         tMs: number;
         actorId: string;
         phase: string | null;
@@ -133,16 +176,17 @@ async function main(): Promise<void> {
       }> | null;
       const mixerInfo = await page.evaluate(MIXER_DUMP_SOURCE);
       void ACTIONS_DUMP_SOURCE;
+      const holdLate = await page.evaluate(HOLD_ANGLE_SOURCE);
       const outDir = ".openclinxr/evidence/walk-clip";
       mkdirSync(outDir, { recursive: true });
       const outPath = path.join(outDir, "live-mixer-probe.json");
-      writeFileSync(outPath, `${JSON.stringify({ ring, mixerInfo }, null, 2)}\n`);
+      writeFileSync(outPath, `${JSON.stringify({ ring, mixerInfo, holdEarly, holdLate }, null, 2)}\n`);
       // Compact console summary: ungated toe Y range + label-phase check.
       const rows = (ring ?? []).filter(
         (r) => r.phase === "walking" && r.toeL && r.toeR,
       );
-      const lY = rows.map((r) => r.toeL!.y);
-      const rY = rows.map((r) => r.toeR!.y);
+      const lY = rows.map((r) => (r.toeL ? r.toeL.y : Number.NaN));
+      const rY = rows.map((r) => (r.toeR ? r.toeR.y : Number.NaN));
       console.log(
         `frames=${rows.length} toeL=[${Math.min(...lY).toFixed(4)},${Math.max(...lY).toFixed(4)}] toeR=[${Math.min(...rY).toFixed(4)},${Math.max(...rY).toFixed(4)}]`,
       );
@@ -151,7 +195,9 @@ async function main(): Promise<void> {
         let gatedMax = -Infinity;
         let ungatedMax = -Infinity;
         for (const r of rows) {
-          const y = foot === "left" ? r.toeL!.y : r.toeR!.y;
+          const toe = foot === "left" ? r.toeL : r.toeR;
+          if (!toe) continue;
+          const y = toe.y;
           ungatedMax = Math.max(ungatedMax, y);
           if (r.stanceLabel !== foot) gatedMax = Math.max(gatedMax, y);
         }
@@ -167,6 +213,8 @@ async function main(): Promise<void> {
       }
       for (const [k, n] of seen) console.log(`action ${k} frames=${n}`);
       console.log(`mixerInfo=${JSON.stringify(mixerInfo).slice(0, 1200)}`);
+      console.log(`holdLate=${JSON.stringify(holdLate).slice(0, 600)}`);
+      console.log(`holdEarly=${JSON.stringify(holdEarly).slice(0, 600)}`);
       console.log(`wrote ${outPath}`);
       await context?.close();
     });
