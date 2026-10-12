@@ -14,42 +14,48 @@
 
 import {
   AmbientLight,
-  Box3,
   Color,
   DirectionalLight,
-  Group,
-  Light,
   Mesh,
   MeshStandardMaterial,
   type Object3D,
   PerspectiveCamera,
   PlaneGeometry,
-  REVISION,
   Scene,
   Vector3,
   WebGLRenderer,
 } from "three";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
-import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   type ArticulatingHobMeasure,
   measureArticulatingHob,
 } from "./articulating-hob-measure.js";
-import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
+import { type CaptureView, computeMeshBounds, frameCamera, framePortraitCamera } from "./camera-fit-to-bounds.js";
 import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
-import { isFittedHairMeshName } from "./head-box-from-geometry.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
-import { rebindHeadLockedTeeth } from "./humanoid-load-guard.js";
-import { buildDeclaredEquipmentGeometry, buildPatientChair } from "@openclinxr/xr-station";
 import {
-  buildPatientStretcher,
-  STRETCHER_DECK_TOP_METERS,
-  STRETCHER_LENGTH_METERS,
-} from "@openclinxr/xr-station";
-import { applyAndPlantSupineOnDeck } from "@openclinxr/xr-pose";
-import { resolvePoseBone } from "@openclinxr/asset-registry";
-import { collectJointNames, findBonesBySanitisedName } from "@openclinxr/xr-pose";
+  type MaterialOverride,
+  type MaterialOverrideApplied,
+  type SkinOverride,
+  type SkinOverrideApplied,
+  applyMaterialOverrides,
+  applySkinOverride,
+} from "./isolated-subject-material-variants.js";
+import {
+  type ProductLightingRigFns,
+  type ProductRigApplied,
+  type RigOverride,
+  applyProductRig,
+  applyRigOverride,
+} from "./isolated-subject-rig-variants.js";
+import {
+  type SupineJointDump,
+  collectRuntimeDebug,
+  dumpSupineJointState,
+  projectBoxPx,
+  round3,
+} from "./isolated-subject-debug-evidence.js";
+import { buildSubjectRoot } from "./isolated-subject-assembly.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
@@ -109,8 +115,24 @@ export type IsolatedSubjectSpec = {
   yawDegrees?: number;
   /** Skin-realism portrait: square render size in px when view != null (default 1024). */
   renderSize?: number;
+  /** Variant evaluator: override skin material maps/scalars after GLB load (no GLB write). */
+  skinOverride?: SkinOverride;
+  /**
+   * Variant evaluator: generic material overrides after GLB load (no GLB write).
+   * Each entry matches materials by regex over the material name OR the mesh name.
+   */
+  materialOverrides?: MaterialOverride[];
+  /** Variant evaluator: override the light rig / tone mapping / environment. */
+  rigOverride?: RigOverride;
+  /** Product rig lighting: light the subject with the shipped room rig (apps/ui-xr bridge). */
+  productEnvironmentId?: string;
+  /** Tight portrait framing: fov 24 at head-centre height, head fills 78% of frame height. */
+  portrait?: boolean;
   label?: string;
 };
+
+
+
 
 export type IsolatedSubjectEvidence = {
   source: "window.__openClinXrIsolatedSubjectEvidence";
@@ -147,27 +169,6 @@ export type IsolatedSubjectEvidence = {
 
 export type { ArticulatingHobMeasure };
 
-/**
- * #493: world-space joint dump after the real supine pose call. Additive recording
- * only — the pose path and the subject root are untouched. Consumed by
- * `supine-pose-two-subject-dump.ts` to answer "which quantity differs, by how much".
- */
-export type SupineJointDump = {
-  subjectKind: "runtime_posture" | "posture_on_furniture";
-  bodyGlb: string;
-  obtainedBy: string;
-  worldJoints: Record<string, { x: number; y: number; z: number }>;
-  /** Canonical landmark -> bone name actually present on this rig (via #306 resolver). */
-  resolvedBones: Record<string, string | null>;
-  posedMeshAabb: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
-  meshCount: number;
-  /** #496: sanitised joint-name set size (collectJointNames) — 23 on Anny, >100 on MPFB2. */
-  jointCount: number;
-  /** #495 ablation: true — this dump is only written after applyAndPlantSupineOnDeck ran. */
-  ranSupineCall: boolean;
-  /** #495 ablation: false when applySupinePose was called with applyJointEulers=false (root basis only). */
-  appliedJointEulers: boolean;
-};
 
 declare global {
   interface Window {
@@ -256,183 +257,15 @@ function measureCanvasCoverage(renderer: WebGLRenderer): number {
   return nonBg / (w * h);
 }
 
-async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
-  const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);
-  const url = bodyGlb.startsWith("/") ? bodyGlb : `/${bodyGlb.replace(/^\.\//, "")}`;
-  const gltf = await loader.loadAsync(url);
-  const root = gltf.scene; rebindHeadLockedTeeth(root);
-  root.name = "isolated_subject_humanoid";
-  root.userData.openClinXrIsolatedSubject = true;
-  return root;
-}
 
-/**
- * Canonical landmarks this measurement records, keyed by a stable dump name and
- * resolved per-rig through the #306 pose-bone resolver (same path the supine map
- * uses), so control (Anny) and treatment (MPFB recast) are comparable.
- */
-const SUPINE_DUMP_LANDMARKS: ReadonlyArray<readonly [string, string]> = [
-  ["root", "pelvis"],
-  ["thighL", "thighL"],
-  ["thighR", "thighR"],
-  ["spine01", "chest"],
-  ["wristL", "handL"],
-  ["wristR", "handR"],
-  ["head", "head"],
-];
 
-const round3 = (n: number): number => Math.round(n * 1000) / 1000;
 
-function dumpSupineJointState(
-  humanoid: Object3D,
-  bodyGlb: string,
-  subjectKind: "runtime_posture" | "posture_on_furniture",
-): SupineJointDump {
-  humanoid.updateMatrixWorld(true);
-  const jointNames = collectJointNames(humanoid);
-  const worldJoints: Record<string, { x: number; y: number; z: number }> = {};
-  const resolvedBones: Record<string, string | null> = {};
-  for (const [key, landmark] of SUPINE_DUMP_LANDMARKS) {
-    const resolved = resolvePoseBone(landmark, jointNames);
-    resolvedBones[key] = resolved;
-    if (resolved === null) continue;
-    const bone = findBonesBySanitisedName(humanoid, resolved)[0];
-    if (!bone) continue;
-    const p = new Vector3().setFromMatrixPosition(bone.matrixWorld);
-    worldJoints[key] = { x: round3(p.x), y: round3(p.y), z: round3(p.z) };
-  }
-  let meshCount = 0;
-  humanoid.traverse((o) => {
-    if (o instanceof Mesh) meshCount += 1;
-  });
-  const aabb = computeMeshBounds(humanoid);
-  return {
-    subjectKind,
-    bodyGlb,
-    obtainedBy:
-      "isolated-subject-lab runtime_posture path: applyAndPlantSupineOnDeck (product pose call) "
-      + "then updateMatrixWorld(true); world joints read from Bone matrixWorld via #306 resolvePoseBone, "
-      + "posed mesh AABB from computeMeshBounds over live Mesh geometry",
-    worldJoints,
-    resolvedBones,
-    posedMeshAabb: {
-      min: { x: round3(aabb.min.x), y: round3(aabb.min.y), z: round3(aabb.min.z) },
-      max: { x: round3(aabb.max.x), y: round3(aabb.max.y), z: round3(aabb.max.z) },
-    },
-    meshCount,
-    jointCount: jointNames.size,
-    ranSupineCall: true,
-    appliedJointEulers: ((humanoid.userData.openClinXrSupinePoseBones as string[] | undefined) ?? []).length > 0,
-  };
-}
 
-function buildFurniture(
-  builder: "patient_stretcher" | "patient_chair",
-  inclineDegrees?: number,
-): Group {
-  if (builder === "patient_chair") {
-    return buildPatientChair({
-      slotId: "isolated_patient_chair",
-      purpose: "isolated subject harness",
-      position: { x: 0, y: 0, z: 0 },
-      trimColor: 0x6b4f2a,
-    });
-  }
-  return buildPatientStretcher({
-    slotId: "isolated_ed_stretcher",
-    purpose: "isolated subject harness",
-    position: { x: 0, y: 0, z: 0 },
-    trimColor: 0x3a7ca5,
-    inclineDegrees: inclineDegrees ?? 0,
-  });
-}
 
-/** Skin-realism portrait: remove fitted hair meshes (/hair/i over mesh, node, geometry names) so the head frames without hair. */
-function removeFittedHair(root: Object3D): string[] {
-  const removed: string[] = [];
-  const targets: Object3D[] = [];
-  root.traverse((o) => {
-    if (!(o instanceof Mesh)) return;
-    const nodeName = typeof (o.userData?.name) === "string" ? String(o.userData.name) : "";
-    const geoName = o.geometry?.name ?? "";
-    if (isFittedHairMeshName(o.name) || (nodeName && isFittedHairMeshName(nodeName)) || (geoName && isFittedHairMeshName(geoName))) {
-      targets.push(o);
-      removed.push(o.name || nodeName || geoName);
-    }
-  });
-  for (const t of targets) t.parent?.remove(t);
-  return removed;
-}
 
-async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
-  root: Object3D;
-  meshCount: number;
-  humanoid: Object3D | null;
-  hairHidden: boolean;
-  hiddenHairMeshes: string[];
-} > {
-  const container = new Group();
-  container.name = `isolated_subject.${spec.subjectId}`;
-  const incline = spec.inclineDegrees ?? 0;
-  let humanoid: Object3D | null = null;
 
-  if (spec.subjectKind === "furniture_builder") {
-    const builder = spec.builder ?? "patient_stretcher";
-    container.add(buildFurniture(builder, incline));
-  } else if (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture") {
-    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
-    humanoid = await loadHumanoid(bodyGlb);
-    let stretcher: Group | null = null;
-    if (spec.subjectKind === "posture_on_furniture" || spec.builder === "patient_stretcher") {
-      // Deck leads: incline on the stretcher builder, not a body-only tip.
-      stretcher = buildFurniture("patient_stretcher", incline);
-      container.add(stretcher);
-    }
-    const pillowWorldX = -STRETCHER_LENGTH_METERS * 0.38;
-    applyAndPlantSupineOnDeck(humanoid, {
-      deckTopWorldY: STRETCHER_DECK_TOP_METERS,
-      deckCenter: { x: 0, z: 0 },
-      pillowWorldX,
-      ...(stretcher ? { stretcher } : { inclineDegrees: incline }),
-      ...(spec.supineRootOnly === true ? { applyJointEulers: false } : {}),
-    });
-    humanoid.updateMatrixWorld(true);
-    // Framing: lateral (Z) recenter only. X recenter after hinge tip slides the body along
-    // the long axis and reopens the back-plane gap (gap ∝ sinθ offset) — plant owns X.
-    const hb = computeMeshBounds(humanoid);
-    const hc = hb.getCenter(new Vector3());
-    humanoid.position.z -= hc.z;
-    if (Math.abs(incline) < 1e-3) {
-      humanoid.position.x -= hc.x;
-    }
-    humanoid.updateMatrixWorld(true);
-    container.add(humanoid);
-  } else if (spec.subjectKind === "equipment_builder") {
-    const equipmentId = spec.equipmentId;
-    if (!equipmentId) {
-      throw new Error("equipment_builder requires equipmentId");
-    }
-    container.add(buildDeclaredEquipmentGeometry(equipmentId));
-  } else if (spec.subjectKind === "glb") {
-    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
-    container.add(await loadHumanoid(bodyGlb));
-  } else {
-    throw new Error(`Unsupported subjectKind: ${spec.subjectKind}`);
-  }
 
-  let hiddenHairMeshes: string[] = [];
-  if (spec.hideHair === true) {
-    hiddenHairMeshes = removeFittedHair(container);
-    container.updateMatrixWorld(true);
-  }
 
-  let meshCount = 0;
-  container.traverse((o) => {
-    if (o instanceof Mesh) meshCount += 1;
-  });
-  return { root: container, meshCount, humanoid, hairHidden: spec.hideHair === true, hiddenHairMeshes };
-}
 
 async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSpec): Promise<IsolatedSubjectEvidence> {
   mount.replaceChildren();
@@ -441,6 +274,18 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   mount.append(canvas);
 
   const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
+  // Product rig call order per apps/ui-xr/src/main.ts: ACES first, right after
+  // renderer creation, so the rig exposure value takes effect.
+  if (spec.productEnvironmentId) {
+    const fns = (window as unknown as { __openClinXrProductLightingRigFns?: ProductLightingRigFns })
+      .__openClinXrProductLightingRigFns;
+    if (!fns) {
+      throw new Error(
+        "productEnvironmentId requested but the apps-side product-lighting bridge is absent — refusing rather than inventing a rig",
+      );
+    }
+    fns.configureStationRendererToneMapping(renderer);
+  }
   const square = spec.view != null;
   const packSize = spec.renderSize != null && Number.isFinite(spec.renderSize)
     ? Math.min(4096, Math.max(512, Math.round(spec.renderSize)))
@@ -453,13 +298,17 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   const scene = new Scene();
   scene.background = new Color(BG);
-  scene.add(new AmbientLight("#dceee6", 1.45));
-  const key = new DirectionalLight("#ffffff", 2.2);
-  key.position.set(3.2, 5.2, 4.1);
-  scene.add(key);
-  const fill = new DirectionalLight("#b6d8ca", 1.1);
-  fill.position.set(-3.5, 2.8, -2.2);
-  scene.add(fill);
+  // Variant evaluator: removeDefaultLights drops this exact default rig (identical otherwise).
+  // A product rig or a studio rig also replaces the lab defaults.
+  if (spec.rigOverride?.removeDefaultLights !== true && !spec.productEnvironmentId && !spec.rigOverride?.studio) {
+    scene.add(new AmbientLight("#dceee6", 1.45));
+    const key = new DirectionalLight("#ffffff", 2.2);
+    key.position.set(3.2, 5.2, 4.1);
+    scene.add(key);
+    const fill = new DirectionalLight("#b6d8ca", 1.1);
+    fill.position.set(-3.5, 2.8, -2.2);
+    scene.add(fill);
+  }
 
   // #265: subject-only mode skips the neutral ground plane entirely. The grounded
   // render is the #262 input defect — TRELLIS reconstructed the lit ground plane as
@@ -485,6 +334,20 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   scene.add(root);
   window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
+
+  // Variant evaluator: skin maps/scalars post-load, never a GLB write.
+  let skinOverrideApplied: SkinOverrideApplied | null = null;
+  if (spec.skinOverride) {
+    skinOverrideApplied = await applySkinOverride(root, spec.skinOverride);
+    root.updateMatrixWorld(true);
+  }
+
+  // Variant evaluator: generic material overrides post-load, never a GLB write.
+  let materialOverridesApplied: MaterialOverrideApplied[] | null = null;
+  if (spec.materialOverrides) {
+    materialOverridesApplied = await applyMaterialOverrides(root, spec.materialOverrides);
+    root.updateMatrixWorld(true);
+  }
 
   if (humanoid && (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture")) {
     window.__openClinXrSupineJointDump = dumpSupineJointState(
@@ -520,7 +383,50 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds);
 
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
-  const frameSpanFraction = frameCamera(camera, frameBounds, spec.view, spec.yawDegrees);
+  let frameSpanFraction: number | null;
+  let portrait: {
+    fovDeg: number;
+    fillTarget: number;
+    distanceM: number;
+    headHeightPx: number;
+    headBoxPx: { x0: number; y0: number; x1: number; y1: number };
+    yawDegrees: number;
+  } | null = null;
+  if (spec.portrait === true) {
+    // Tight portrait: fov 24 at head-centre height, chin-to-crown fills 78%.
+    const framed = framePortraitCamera(camera, frameBounds, spec.yawDegrees ?? 0);
+    frameSpanFraction = null;
+    const boxPx = projectBoxPx(camera, frameBounds, renderer.domElement.width, renderer.domElement.height);
+    portrait = {
+      fovDeg: 24,
+      fillTarget: 0.78,
+      distanceM: framed.distanceM,
+      headHeightPx: boxPx.heightPx,
+      headBoxPx: { x0: boxPx.x0, y0: boxPx.y0, x1: boxPx.x1, y1: boxPx.y1 },
+      yawDegrees: spec.yawDegrees ?? 0,
+    };
+  } else {
+    frameSpanFraction = frameCamera(camera, frameBounds, spec.view, spec.yawDegrees);
+  }
+
+  // Variant evaluator: rig lights resolve AFTER focus so relativeToHead offsets
+  // anchor to the framed head centre (portable across humanoids); tone mapping
+  // and environment apply here, before the first frame renders.
+  if (spec.rigOverride) {
+    applyRigOverride(scene, renderer, spec.rigOverride, frameBounds.getCenter(new Vector3()));
+  }
+
+  // Product rig: base + overlay through the PRODUCT functions, overlay
+  // re-anchored so the rig's patient locus sits on the framed head centre.
+  let productRig: ProductRigApplied | null = null;
+  if (spec.productEnvironmentId) {
+    productRig = await applyProductRig(
+      scene,
+      renderer,
+      spec.productEnvironmentId,
+      frameBounds.getCenter(new Vector3()),
+    );
+  }
 
   const packFraming = recordPackFraming(camera, frameBounds, spec.view);
   window.__openClinXrIsolatedRenderFrame = () => { renderer.render(scene, camera); };
@@ -611,70 +517,10 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     ],
   };
   window.__openClinXrIsolatedSubjectEvidence = evidence;
-  window.__openClinXrIsolatedRuntimeDebug = collectRuntimeDebug({ renderer, scene, root, hairHidden, hiddenHairMeshes });
+  window.__openClinXrIsolatedRuntimeDebug = collectRuntimeDebug({ renderer, scene, root, hairHidden, hiddenHairMeshes, skinOverrideApplied, materialOverridesApplied, productRig, portrait });
   return evidence;
 }
 
-/** Skin-realism portrait: live renderer/lights/material values read from the scene, never source-read. */
-function collectRuntimeDebug(input: { renderer: WebGLRenderer; scene: Scene; root: Object3D; hairHidden: boolean; hiddenHairMeshes: string[] }): unknown {
-  const { renderer, scene, root, hairHidden, hiddenHairMeshes } = input;
-  const lights: Array<{ type: string; color: string; intensity: number; position: { x: number; y: number; z: number } }> = [];
-  scene.traverse((o) => {
-    if (o instanceof Light) {
-      const color = `#${o.color.getHexString()}`;
-      lights.push({ type: o.type, color, intensity: o.intensity, position: { x: o.position.x, y: o.position.y, z: o.position.z } });
-    }
-  });
-  let skin: { name: string; type: string; roughness: number; metalness: number; hasNormalMap: boolean; baseColorTextureSize: number[] | null } | null = null;
-  root.traverse((o) => {
-    if (skin || !(o instanceof Mesh)) return;
-    const mats = Array.isArray(o.material) ? o.material : [o.material];
-    for (const m of mats) {
-      if (m && /skin/i.test(m.name)) {
-        const std = m as MeshStandardMaterial;
-        const map = (std as unknown as { map?: { image?: { width?: number; height?: number } } }).map;
-        skin = {
-          name: m.name,
-          type: m.type,
-          roughness: typeof std.roughness === "number" ? std.roughness : -1,
-          metalness: typeof std.metalness === "number" ? std.metalness : -1,
-          hasNormalMap: (std as unknown as { normalMap?: unknown }).normalMap != null,
-          baseColorTextureSize: map?.image?.width ? [map.image.width, map.image.height ?? map.image.width] : null,
-        };
-        return;
-      }
-    }
-  });
-  if (!skin) {
-    root.traverse((o) => {
-      if (skin || !(o instanceof Mesh)) return;
-      const mats = Array.isArray(o.material) ? o.material : [o.material];
-      const m = mats[0];
-      if (!m) return;
-      const std = m as MeshStandardMaterial;
-      const map = (std as unknown as { map?: { image?: { width?: number; height?: number } } }).map;
-      skin = {
-        name: m.name,
-        type: m.type,
-        roughness: typeof std.roughness === "number" ? std.roughness : -1,
-        metalness: typeof std.metalness === "number" ? std.metalness : -1,
-        hasNormalMap: (std as unknown as { normalMap?: unknown }).normalMap != null,
-        baseColorTextureSize: map?.image?.width ? [map.image.width, map.image.height ?? map.image.width] : null,
-      };
-    });
-  }
-  return {
-    threeRevision: REVISION,
-    toneMapping: renderer.toneMapping,
-    toneMappingExposure: renderer.toneMappingExposure,
-    outputColorSpace: renderer.outputColorSpace,
-    environmentMap: scene.environment != null,
-    lights,
-    skinMaterial: skin,
-    hairHidden,
-    hiddenHairMeshes,
-  };
-}
 
 export function bootIsolatedSubjectLab(): void {
   const app = document.querySelector<HTMLDivElement>("#app");

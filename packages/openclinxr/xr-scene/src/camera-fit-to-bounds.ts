@@ -46,6 +46,75 @@ export function computeMeshBounds(root: Object3D): Box3 {
   return bounds;
 }
 
+/** Corner points of an AABB. */
+function boxCorners(box: Box3): Vector3[] {
+  const { min, max } = box;
+  const corners: Vector3[] = [];
+  for (const x of [min.x, max.x]) {
+    for (const y of [min.y, max.y]) {
+      for (const z of [min.z, max.z]) corners.push(new Vector3(x, y, z));
+    }
+  }
+  return corners;
+}
+
+/** Projected AABB height as a fraction of the frame height (NDC span / 2). */
+function projectedHeightFraction(camera: PerspectiveCamera, box: Box3): number {
+  camera.updateMatrixWorld(true);
+  const v = new Vector3();
+  let lo = Infinity, hi = -Infinity;
+  for (const c of boxCorners(box)) {
+    v.copy(c).applyMatrix4(camera.matrixWorldInverse).applyMatrix4(camera.projectionMatrix);
+    if (v.y < lo) lo = v.y;
+    if (v.y > hi) hi = v.y;
+  }
+  return (hi - lo) / 2;
+}
+
+/** Tight portrait framing: fov 24 (~85 mm lens) at head-centre height, head fills `fill` of frame height. Yaw keeps the same distance. */
+export function framePortraitCamera(
+  camera: PerspectiveCamera,
+  headBox: Box3,
+  yawDegrees: number,
+  fill = 0.78,
+  fovDeg = 24,
+): { distanceM: number } {
+  const centre = headBox.getCenter(new Vector3());
+  const size = headBox.getSize(new Vector3());
+  const headH = Math.max(size.y, 1e-4);
+  const half = ((fovDeg * Math.PI) / 180) / 2;
+  // Seed from the thin-box approximation, then iterate: near corners project
+  // larger than the centre plane, so one shot overshoots (measured +17%).
+  let distance = headH / (2 * Math.tan(half) * fill);
+  const yaw = ((yawDegrees ?? 0) * Math.PI) / 180;
+  camera.fov = fovDeg;
+  camera.near = 0.01;
+  // Solve the distance once straight-on; yaw views keep that same distance.
+  for (let i = 0; i < 8; i += 1) {
+    camera.position.set(centre.x, centre.y, centre.z + distance);
+    camera.lookAt(centre);
+    camera.far = Math.max(50, distance * 4);
+    camera.updateProjectionMatrix();
+    const span = projectedHeightFraction(camera, headBox);
+    if (!Number.isFinite(span) || span < 1e-6) break;
+    const next = distance * (span / fill);
+    if (Math.abs(next - distance) < Math.max(distance * 1e-4, 1e-6)) {
+      distance = next;
+      break;
+    }
+    distance = next;
+  }
+  camera.position.set(
+    centre.x + Math.sin(yaw) * distance,
+    centre.y,
+    centre.z + Math.cos(yaw) * distance,
+  );
+  camera.lookAt(centre);
+  camera.far = Math.max(50, distance * 4);
+  camera.updateProjectionMatrix();
+  return { distanceM: distance };
+}
+
 /** Unit-ish camera direction per pack view: [dx, dz] on the XZ plane (front = +Z). */
 const VIEW_DIRECTIONS: Record<CaptureView, [number, number]> = {
   front: [0, 1],
