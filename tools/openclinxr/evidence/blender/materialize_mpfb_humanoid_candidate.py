@@ -153,6 +153,8 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "aisha-ref-inert": FEMALE_COVERING_LOWER,
     "aisha-ref2": FEMALE_COVERING_LOWER,
     "aisha-ref3": FEMALE_COVERING_LOWER,
+    # eyegeo: same adult-female values as ref3 (identical bake, new output name).
+    "eyegeo-final": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2494,6 +2496,8 @@ EYE_DIAMETER_TARGET_MM = {
     "aisha-ref-inert": 24.0,
     "aisha-ref2": 24.0,
     "aisha-ref3": 24.0,
+    # eyegeo: same adult-female values as ref3 (identical bake, new output name).
+    "eyegeo-final": 24.0,
 }
 
 
