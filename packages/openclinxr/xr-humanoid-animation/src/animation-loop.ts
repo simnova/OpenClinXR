@@ -150,6 +150,32 @@ export function updateGeneratedHumanoidAnimations(
     }
     slot.mixer?.update(deltaSeconds);
     const rootUserData = slot.root.userData as Record<string, unknown>;
+    // TEMPORARY arm-settle tap (reverted before the final commit): snapshot the physician
+    // upper-arm quat right after the mixer, plus the ownership weight the posture pass is
+    // about to read for that bone (undefined = unowned).
+    let snapBoneBox: { bone: Object3D | null } = { bone: null };
+    slot.root.traverse((node) => {
+      if (snapBoneBox.bone !== null) return;
+      const san = node.name.replaceAll(".", "");
+      if (san === "upperarm01L" || san === "upper_armL") snapBoneBox.bone = node;
+    });
+    const snapBone: Object3D | null = snapBoneBox.bone;
+    const snapBefore = snapBone === null
+      ? null
+      : { x: snapBone.quaternion.x, y: snapBone.quaternion.y, z: snapBone.quaternion.z, w: snapBone.quaternion.w };
+    let snapWeightUsed: number | null = null;
+    {
+      const claims = rootUserData["openClinXrOwnedBoneChains"];
+      if (Array.isArray(claims) && snapBone !== null) {
+        const boneName = snapBone.name;
+        for (const chain of claims as Array<{ boneNames?: unknown; weight?: unknown }>) {
+          if (Array.isArray(chain?.boneNames) && (chain.boneNames as unknown[]).includes(boneName)) {
+            snapWeightUsed = typeof chain.weight === "number" ? chain.weight : 1;
+            break;
+          }
+        }
+      }
+    }
     const actorSlotUserData = slot.actorSlot.userData as Record<string, unknown>;
     const isSupineFrame =
       rootUserData["openClinXrActorPosture"] === "supine"
@@ -167,6 +193,30 @@ export function updateGeneratedHumanoidAnimations(
     if (!isSupineFrame && !seatedClipPerforming) {
       ctx.applyIdlePosture(slot.root);
       ctx.applyRolePosture(slot.root, slot.actorId);
+    }
+    // TEMPORARY arm-settle tap (continued): quat right after the posture pass + writer tag.
+    {
+      const after = snapBone === null
+        ? null
+        : { x: snapBone.quaternion.x, y: snapBone.quaternion.y, z: snapBone.quaternion.z, w: snapBone.quaternion.w };
+      const walkClip = slot.locomotionClipName
+        ? slot.responseClips?.find((candidate) => candidate.name === slot.locomotionClipName)
+        : undefined;
+      const walkAction = walkClip !== undefined && slot.mixer ? slot.mixer.existingAction(walkClip) : null;
+      (slot.root.userData as Record<string, unknown>)["openClinXrSnapDebug"] = {
+        actorId: slot.actorId,
+        afterMixer: snapBefore,
+        afterPosture: after,
+        weightUsed: snapWeightUsed,
+        writer: (slot.root.userData as Record<string, unknown>)["openClinXrOwnedBoneChainsWriter"] ?? null,
+        locomotionClipName: slot.locomotionClipName ?? null,
+        walkAction: walkAction
+          ? { w: walkAction.getEffectiveWeight(), t: walkAction.time, running: walkAction.isRunning() }
+          : null,
+        crossfade: (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionCrossfade"] ?? null,
+        legWeight: (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] ?? null,
+        deltaSeconds,
+      };
     }
     if (isSeatedFrame) {
       applyPosturePose(slot.root, "seated");
