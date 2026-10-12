@@ -292,7 +292,7 @@ export function solveSteppingLegHinge(input: {
       missM,
       bendNormal: prevOut(prevNormal),
       diag: {
-        reachRatio: missM / (thighLen + shinLen),
+        reachRatio: missM > 0 ? heelW0.distanceTo(target) / (thighLen + shinLen) : 0,
         planeSource: "held",
         planeAngleDeg: null,
         kneeSideSign: 0,

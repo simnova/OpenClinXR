@@ -79,6 +79,8 @@ export type SteppingTurnTraceFrame = {
   floorOriginY: number | null;
   /** Per-leg hinge-solve records (turn-leg-snaps stage 1); empty when untraced. */
   legs: SteppingTurnLegSolveTrace[];
+  /** Mixer walk-clip + leg-weight snapshot (turn-leg-snaps stage 1b); null when untraced. */
+  mixer: SteppingTurnMixerState | null;
   /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
   pivot: {
     dx: number;
@@ -107,6 +109,35 @@ export function snapshotLegQuats(input: {
     w: bone.quaternion.w,
   });
   return { hip: snap(input.hip), upperMid: snap(input.upperMid), knee: snap(input.knee), lowerMid: snap(input.lowerMid) };
+}
+
+export type SteppingTurnMixerState = {
+  clipName: string | null;
+  playing: boolean | null;
+  timeSeconds: number | null;
+  legWeight: number | null;
+};
+
+/** Read-only mixer snapshot (walk clip + leg weight) off the slot root chain. */
+export function readSteppingTurnMixerState(actorSlot: Object3D): SteppingTurnMixerState {
+  let node: Object3D | null = actorSlot;
+  while (node !== null) {
+    const ud = (node.userData ?? {}) as Record<string, unknown>;
+    const playback = ud["openClinXrLocomotionClipPlayback"] as
+      | { clipName?: unknown; playing?: unknown; timeSeconds?: unknown }
+      | undefined;
+    const weight = ud["openClinXrLocomotionLegWeight"] as { current?: unknown } | undefined;
+    if (playback !== undefined || weight !== undefined) {
+      return {
+        clipName: typeof playback?.clipName === "string" ? playback.clipName : null,
+        playing: typeof playback?.playing === "boolean" ? playback.playing : null,
+        timeSeconds: typeof playback?.timeSeconds === "number" ? playback.timeSeconds : null,
+        legWeight: typeof weight?.current === "number" ? weight.current : null,
+      };
+    }
+    node = node.parent;
+  }
+  return { clipName: null, playing: null, timeSeconds: null, legWeight: null };
 }
 
 /** Default off: only exactly `steppingTurnTrace=1` records. */

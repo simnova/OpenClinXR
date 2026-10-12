@@ -23,6 +23,7 @@ import {
 import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   isSteppingTurnTraceEnabled,
+  readSteppingTurnMixerState,
   recordSteppingTurnTraceFrame,
   snapshotLegQuats,
   type SteppingTurnLegSolveTrace,
@@ -475,6 +476,7 @@ export function advanceSteppingTurn(input: {
       toeRightY,
       floorOriginY: floorY,
       legs: traceLegs,
+      mixer: readSteppingTurnMixerState(actorSlot),
       pivot: tracePivot,
     });
   }
