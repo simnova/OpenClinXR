@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.loco-ground-report.v1",
-  "measuredAt": "2026-10-12T06:08:40.316Z",
+  "measuredAt": "2026-10-12T06:15:25.124Z",
   "contactBandMeters": 0.06,
   "rows": {
     "lockOff": {
@@ -176,7 +176,7 @@
         1,
         1
       ],
-      "lockCorrectionMedianM": 0.13449135409435514,
+      "lockCorrectionMedianM": 0.13443164206041144,
       "heelMissMaxM": null,
       "actorScale": {
         "x": 0.86,
@@ -189,37 +189,37 @@
         "left": {
           "worldStationaryFraction": 0,
           "kinematicContactFraction": 0.5714285714285714,
-          "lowerFootSpeedMedianMps": 0.8218863230347813,
-          "lowerFootSpeedMaxMps": 3.256095019558727,
-          "swingToeHeightMaxM": 0.03125137694389094,
-          "mixerSwingToeHeightMaxM": 0.03129643301946474,
-          "bodyFrameSpeedMedianMps": 0.5663271507260963,
-          "mixerBodyFrameSpeedMedianMps": 0.5663311406438757
+          "lowerFootSpeedMedianMps": 0.8226952523488547,
+          "lowerFootSpeedMaxMps": 3.2560042439326278,
+          "swingToeHeightMaxM": 0.028986200548573572,
+          "mixerSwingToeHeightMaxM": 0.028981684323760158,
+          "bodyFrameSpeedMedianMps": 0.5659695397943729,
+          "mixerBodyFrameSpeedMedianMps": 0.5659771716666979
         },
         "right": {
           "worldStationaryFraction": 0,
           "kinematicContactFraction": 0.5494505494505495,
-          "lowerFootSpeedMedianMps": 0.8186581972702014,
-          "lowerFootSpeedMaxMps": 3.2429430855067762,
-          "swingToeHeightMaxM": 0.03208590414635055,
-          "mixerSwingToeHeightMaxM": 0.03205337417142584,
-          "bodyFrameSpeedMedianMps": 0.5591941709234832,
-          "mixerBodyFrameSpeedMedianMps": 0.5591945415978886
+          "lowerFootSpeedMedianMps": 0.8174652811565128,
+          "lowerFootSpeedMaxMps": 3.1711369360491326,
+          "swingToeHeightMaxM": 0.03139491518698492,
+          "mixerSwingToeHeightMaxM": 0.03140499831718661,
+          "bodyFrameSpeedMedianMps": 0.5591294686650707,
+          "mixerBodyFrameSpeedMedianMps": 0.5591314282552889
         }
       },
-      "releaseStepMaxM": 0.04409039425885529,
+      "releaseStepMaxM": 0.04409448437968467,
       "releaseTransitions": 11,
       "transientStart": {
         "frames": 19,
         "stationaryLeft": 0,
         "stationaryRight": 0,
-        "maxStepM": 0.10713379726442859
+        "maxStepM": 0.1071292351983967
       },
       "transientStop": {
         "frames": 13,
         "stationaryLeft": 0,
         "stationaryRight": 0,
-        "maxStepM": 0.10760531564804937
+        "maxStepM": 0.10760157945435699
       }
     },
     "twoBone": {
@@ -680,25 +680,25 @@
     "perFoot": {
       "left": {
         "kinematicContactFrames": 52,
-        "stanceBackwardBodySpeedMedianMps": 0.5636967881698025,
-        "stanceBackwardBodySpeedCv": 0.10790096269610672,
-        "stationaryRootSpeedMps": 0.5636967881698025,
+        "stanceBackwardBodySpeedMedianMps": 0.5640708766346194,
+        "stanceBackwardBodySpeedCv": 0.10745105323453996,
+        "stationaryRootSpeedMps": 0.5640708766346194,
         "strideLengthWorldM": 0.7705374677872234,
         "cycleDurationPlayedS": 0.561,
         "cycleDurationAtTimeScale1S": 0.911902706772002,
-        "swingToeHeightMaxM": 0.03129643301946474,
+        "swingToeHeightMaxM": 0.028981684323760158,
         "swingToeMaxCyclePhase": null,
         "kinematicDutyFactor": 0.5714285714285714
       },
       "right": {
         "kinematicContactFrames": 50,
-        "stanceBackwardBodySpeedMedianMps": 0.5587758015355391,
-        "stanceBackwardBodySpeedCv": 0.11338449436970728,
-        "stationaryRootSpeedMps": 0.5587758015355391,
+        "stanceBackwardBodySpeedMedianMps": 0.5586575683353221,
+        "stanceBackwardBodySpeedCv": 0.11305959885552207,
+        "stationaryRootSpeedMps": 0.5586575683353221,
         "strideLengthWorldM": 0.6345602675894781,
         "cycleDurationPlayedS": 0.462,
         "cycleDurationAtTimeScale1S": 0.7509786996945899,
-        "swingToeHeightMaxM": 0.03205337417142584,
+        "swingToeHeightMaxM": 0.03140499831718661,
         "swingToeMaxCyclePhase": 0.7857142857142857,
         "kinematicDutyFactor": 0.5494505494505495
       }

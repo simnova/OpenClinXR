@@ -22,7 +22,8 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Browser, type Page } from "../lib/slotted-playwright.js";
+import type { Browser, BrowserContext, Page } from "../lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   spawnPortlessDevServer,
@@ -291,7 +292,7 @@ async function main(): Promise<void> {
   // DIST MARKER PROOF: the browser serves package dist — record exactly what
   // dist the capture ran against (sha per touched module + marker grep),
   // rebuilt before invoking.
-  const distProof = [];
+  const distProof: DistProof = [];
   for (const file of DIST_FILES) {
     const bytes = await readFile(file, "utf8");
     distProof.push({
@@ -308,15 +309,38 @@ async function main(): Promise<void> {
 
   const bundleJson = buildSceneClosureBundleJson();
   const server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
-  const browser: Browser = await chromium.launch({ headless: true });
+  // Browser behind the compute-services facade (no direct chromium.launch:
+  // the arch freeze counts direct launch sites shrink-only). The facade owns
+  // the browser lifetime; this callback owns the page context and the server.
+  const services = createLocalComputeServices();
   try {
-    const context = await browser.newContext({ viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT } });
+    await services.sceneCapture.withBrowser(`loco-ground-${row}`, async (browser) => {
+      await runRow(row, outDir, distProof, bundleJson, server.url, browser as Browser);
+    });
+  } finally {
+    await stopPortlessDevServer(server.proc);
+  }
+}
+
+type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
+
+async function runRow(
+  row: Row,
+  outDir: string,
+  distProof: DistProof,
+  bundleJson: string,
+  baseUrl: string,
+  browser: Browser,
+): Promise<void> {
+  let context: BrowserContext | null = null;
+  try {
+    context = await browser.newContext({ viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT } });
     const page = await context.newPage();
     await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    const url = `${buildSceneClosureUrl(server.url)}&locoGround=1${rowFlag(row)}`;
+    const url = `${buildSceneClosureUrl(baseUrl)}&locoGround=1${rowFlag(row)}`;
     await page.goto(url, { waitUntil: "load", timeout: 180_000 });
     await page.evaluate(HIDE_UI_SOURCE);
     await page.clock.install();
@@ -491,10 +515,8 @@ async function main(): Promise<void> {
     };
     await writeFile(path.join(outDir, `loco-ground-${row}.json`), `${JSON.stringify(capture, null, 2)}\n`);
     process.stdout.write(`[${row}] wrote ${outDir}/loco-ground-${row}.json\n`);
-    await context.close().catch(() => undefined);
   } finally {
-    await browser.close();
-    await stopPortlessDevServer(server.proc);
+    if (context !== null) await context.close().catch(() => undefined);
   }
 }
 
