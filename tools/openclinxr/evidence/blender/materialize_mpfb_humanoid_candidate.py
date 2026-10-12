@@ -2318,6 +2318,18 @@ def parse_args():
             "changes nothing."
         ),
     )
+    parser.add_argument(
+        "--eyebrow-tris-budget",
+        type=int,
+        default=9000,
+        help=(
+            "Triangle budget for the #597 coverage-greedy eyebrow strand "
+            "reduction. Default 9000 keeps every other humanoid byte-stable; "
+            "pass a budget at or above the full fitted count (e.g. 40000 over "
+            "the 35,334-tri mindfront_eyebrows_05) to keep every strand and "
+            "restore shipped-density brows for one regeneration."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -4777,8 +4789,12 @@ def main():
         # (decimate-produced-humanoid.ts, brow excluded from face-preserving rungs)
         # are the other visibility levers. 9000 stays 3.5x below the 31,968-tri
         # full brow; raising tris to 21k replays the speckle FAILED treatment.
+        # --eyebrow-tris-budget (default 9000) restores the full shipped-density
+        # brow for a regeneration without touching other humanoids: the shipped
+        # aisha brow (21,468 verts / 35,334 tris) predates #597, so a budget at
+        # or above the full count keeps every strand (measured 2026-10-12).
         _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
-            _brow, eyes_asset, budget_tris=9000
+            _brow, eyes_asset, budget_tris=args.eyebrow_tris_budget
         )
         print(f"EYEBROW_REDUCTION {json.dumps(_brow_reduction_evidence)}")
 
@@ -5062,11 +5078,17 @@ def main():
         f"tris {_tongue_tris} material {[_tongue_mat.name]} licence {_tongue_lic_raw!r}"
     )
 
-    # Parent mouth realism: re-aimed tongue offset in the POSED frame + floor clamp.
+    # Parent mouth realism: re-aimed tongue offset in the POSED frame + cap clamp.
     # The prior blind local forward push crossed the teeth plane (gap -0.00324).
     # Forward is confirmed against the jaw bone as posed-frame -Y; the offset uses
-    # a larger forward component, and the floor clamp keeps tongue verts below the
-    # teeth band so the tongue cannot rise into it.
+    # a larger forward component, and the cap clamp keeps the tongue top at the
+    # shipped-measured height inside the teeth band so the tongue cannot rise
+    # into the upper teeth. The earlier floor clamp (top 1mm BELOW the teeth
+    # floor) hung the whole tongue under the chin: regen tongue mean 1.4066 vs
+    # shipped 1.447 (shipped tongue [1.4470,1.4896] sits 72% up its teeth band
+    # [1.4597,1.5011]; measured 2026-10-12). The fractional cap preserves the
+    # fitted placement (overshoot ~0 when the fit is right) instead of forcing
+    # the tongue below the mouth.
     _tongue_arm = next(
         (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
     )
@@ -5079,8 +5101,9 @@ def main():
             (_teeth_asset.matrix_world @ v.co).z for v in _teeth_asset.data.vertices
         ]
         _teeth_floor = min(_teeth_world_z)
+        _teeth_ceil = max(_teeth_world_z)
         _TONGUE_FWD_MM = 6.0
-        _TONGUE_FLOOR_MARGIN_MM = 1.0
+        _TONGUE_TOP_FRAC = 0.72
         _iw = _tongue_asset.matrix_world.inverted()
         _fwd_local = (_iw.to_3x3() @ _jaw_fwd) * (_TONGUE_FWD_MM / 1000.0)
         _floor_local_z = None
@@ -5088,10 +5111,10 @@ def main():
             _v.co = _v.co + _fwd_local
         bpy.context.view_layer.update()
         _iw2 = _tongue_asset.matrix_world.inverted()
-        # Shape-preserving floor clamp: single rigid translate so the mesh keeps
+        # Shape-preserving cap clamp: single rigid translate so the mesh keeps
         # its thickness. The prior per-vertex set-to-plane flattened the tongue
         # to zero Y extent (degenerate sheet).
-        _cap = _teeth_floor - (_TONGUE_FLOOR_MARGIN_MM / 1000.0)
+        _cap = _teeth_floor + _TONGUE_TOP_FRAC * (_teeth_ceil - _teeth_floor)
         _overshoot = max(
             (_tongue_asset.matrix_world @ _v.co).z - _cap
             for _v in _tongue_mesh.vertices
@@ -5107,9 +5130,10 @@ def main():
         _ty = [c.y for c in _tw]
         _tz = [c.z for c in _tw]
         print(
-            f"TONGUE_REAIM fwd_mm={_TONGUE_FWD_MM} floor_margin_mm={_TONGUE_FLOOR_MARGIN_MM} "
+            f"TONGUE_REAIM fwd_mm={_TONGUE_FWD_MM} top_frac={_TONGUE_TOP_FRAC} "
             f"jaw_fwd=({ _jaw_fwd.x:.4f},{_jaw_fwd.y:.4f},{_jaw_fwd.z:.4f}) "
-            f"teeth_floor_z={_teeth_floor:.6f} clamped={_clamped} "
+            f"teeth_floor_z={_teeth_floor:.6f} teeth_ceil_z={_teeth_ceil:.6f} "
+            f"clamped={_clamped} "
             f"tongue_y=[{min(_ty):.6f},{max(_ty):.6f}] tongue_z=[{min(_tz):.6f},{max(_tz):.6f}]"
         )
     else:
