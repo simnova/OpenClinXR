@@ -54,6 +54,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "applyHumanoidJointRotationsByAlias",
+        "kind": "runtime"
+      },
+      {
         "name": "applyGeneratedHumanoidClinicalIdlePosture",
         "kind": "runtime"
       },

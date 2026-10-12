@@ -70,7 +70,7 @@ Garments were on in that capture.
   (blend-in/out durations; leg fade untouched)
 - Unit tests: `xr-pose/.../the-posture-pass-applies-an-owned-bone-once.test.ts`,
   `xr-pose/.../no-arm-clamp-in-the-pose-path.test.ts`,
-  `xr-humanoid-animation/.../the-upper-body-ownership-ramps.test.ts`
+  `xr-humanoid-animation/.../the-locomotion-drive-plays-a-clip.test.ts` (fade-out window)
 - Tool: `tools/openclinxr/evidence/arm-settle/arm-settle-measure.ts`
 - Evidence: `.openclinxr/evidence/arm-settle/{control-tap,control-tap2,fix-tap}.json`,
   `report.json`
