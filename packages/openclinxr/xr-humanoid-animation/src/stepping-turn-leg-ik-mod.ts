@@ -243,8 +243,6 @@ export function solveSteppingLegHinge(input: {
   if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
   // Already placed: touch nothing (exact no-ops stay exact; no churn near convergence).
   if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
-  const up = new Vector3(0, 1, 0);
-  // Bend plane from the pole (pole-side by construction = the back-bow guard).
   const toT = target.clone().sub(hipW0);
   const dist = Math.max(toT.length(), 1e-9);
   toT.divideScalar(dist);
@@ -267,20 +265,26 @@ export function solveSteppingLegHinge(input: {
   if (rawLen >= HYSTERESIS_BAND) {
     bendNormal = rawNormal.clone().divideScalar(rawLen);
   } else if (prevNormal !== null) {
+    // Same-frame continuity only: the previous plane, re-perpendicularized to
+    // the current reach. Never the up-fallback here: crossed with the reach it
+    // bows the knee toward the sky instead of pole-side (measured 84 deg
+    // snaps), so without a previous plane the solve holds still for the frame.
     const projected = prevNormal.clone().addScaledVector(toT, -prevNormal.dot(toT));
     if (projected.lengthSq() >= 1e-12) bendNormal = projected.normalize();
-  }
-  if (bendNormal === null) {
-    const fallback = new Vector3().crossVectors(toT, up);
-    if (fallback.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
-    bendNormal = fallback.normalize();
+    else return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+  } else {
+    return { converged: false, missM: heelW0.distanceTo(target), bendNormal: null };
   }
   // Pole-side knee direction WITHOUT the old cancellation: `perpPole` used to
   // be `pole - toT * (pole . toT)` normalized, which subtracts near-equal
   // vectors exactly where the plane is degenerate — float noise becomes the
   // knee side. `(bendNormal x toT)` is the identical direction by the triple
-  // product, computed from two clean unit vectors instead.
-  const perpPole = new Vector3().crossVectors(bendNormal, toT).normalize();
+  // product as long as the normal is pole-family (guaranteed above: raw or
+  // previous-plane only, never the up axis), computed from two clean unit
+  // vectors instead.
+  const perpPole = new Vector3().crossVectors(bendNormal, toT);
+  if (perpPole.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+  perpPole.normalize();
   const reach = thighLen + shinLen;
   const clamped = Math.min(Math.max(dist, Math.abs(thighLen - shinLen) + 1e-6), reach - 0.001);
   const cosHip = (thighLen * thighLen + clamped * clamped - shinLen * shinLen) / (2 * thighLen * clamped);
