@@ -23,13 +23,6 @@
 import type { Object3D, SkinnedMesh } from "three";
 import { Euler, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
-import {
-  armReleaseStore,
-  isArmReleaseBone,
-  recordArmReleasePose,
-  writeArmReleaseSlew,
-  type ArmReleasePrev,
-} from "./clinical-idle-arm-release.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
@@ -201,7 +194,6 @@ function applyMpfbForearmIdle(
   object: Object3D,
   bindStore: Map<string, BindQuaternion>,
   bonesTouched: string[],
-  releaseStore: Map<string, ArmReleasePrev> | null,
 ): void {
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
@@ -216,23 +208,8 @@ function applyMpfbForearmIdle(
     bindStore.set(sanitised, bind);
   }
   if (!bind) return;
-  const idleEuler = mpfbForearmIdleEuler(bind);
-  if (releaseStore === null) {
-    applyBoneEuler(object, idleEuler);
-    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
-  } else {
-    // Slew-limited like every other arm write (arm-settle): same absolute target, capped motion.
-    const target = _scratchQuat.setFromEuler(
-      _scratchEuler.set(
-        idleEuler.x ?? object.rotation.x,
-        idleEuler.y ?? (idleEuler.absolute ? 0 : object.rotation.y),
-        idleEuler.z ?? (idleEuler.absolute ? 0 : object.rotation.z),
-        object.rotation.order,
-      ),
-    );
-    writeArmReleaseSlew(object, releaseStore, sanitised, target, 1,
-      "relaxed_arms_scenario_conversation_pose");
-  }
+  applyBoneEuler(object, mpfbForearmIdleEuler(bind));
+  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
@@ -286,9 +263,6 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
     ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
 
-  // Arm release smoothing state (2026-10-11 arm-settle), same pattern as the binds above.
-  const releaseStore = armReleaseStore(humanoid);
-
   // Head-family rotations are the hangMap's own "head" entry object, reached either by
   // landmark resolution or by the head/neck alias fallback — identity-compared, never inferred.
   const headAttention = hangMap.get("head");
@@ -303,13 +277,13 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     if (ownershipWeight !== undefined) {
       // Bone is owned by locomotion executor
       if (ownershipWeight >= 1) {
-        // Full ownership: skip the write, but keep the release store fresh for arm bones.
-        if (isArmReleaseBone(sanitised)) recordArmReleasePose(object, releaseStore, sanitised);
+        // Full ownership: skip posture write entirely
         return;
       }
       // Crossfade: blend between idle rotation and current mixer rotation
-      // Finding 1: bones owned with w<1 but no hangMap entry get their idle target the
-      // same way the unowned path would, then slerp toward it by (1 - w).
+      // Finding 1: for bones owned with w<1 that have no idle target in hangMap (like MPFB lowerarm01,
+      // spine01-05, neck01-03), compute their idle target the same way the unowned path would,
+      // then slerp toward it by (1 - w). For bones with no idle target at all, leave to mixer.
       const idleRotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
       
       // For MPFB forearm (lowerarm01), compute bind-relative idle target if no hangMap entry
@@ -345,20 +319,12 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       // If targetQuat is still null, this bone has no idle target (e.g., spine, neck without hang entry)
       // Leave it to the mixer - no blend applied.
       if (targetQuat !== null) {
-        if (idleRotation === undefined || !isHeadFamily(idleRotation)) {
-          // Slew-limited release (2026-10-11 arm-settle): capped total motion per call plus
-          // repeat-collapse, so the walk-end release cannot snap in one frame.
-          writeArmReleaseSlew(object, releaseStore, sanitised, targetQuat, 1 - ownershipWeight,
-            "relaxed_arms_scenario_conversation_pose_crossfade");
-        } else {
-          // Head-family attention keeps the exact blend.
-          // Slerp from idle (weight=0) to current mixer pose (weight=1)
-          // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
-          object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
-          // Sync rotation from quaternion so Euler accessors work
-          object.rotation.setFromQuaternion(object.quaternion);
-          object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
-        }
+        // Slerp from idle (weight=0) to current mixer pose (weight=1)
+        // ownershipWeight=0 means pure idle, ownershipWeight=1 means pure mixer
+        object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
+        // Sync rotation from quaternion so Euler accessors work
+        object.rotation.setFromQuaternion(object.quaternion);
+        object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
       }
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
       return;
@@ -366,7 +332,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
 
     // MPFB forearm bind-relative idle (only if not owned)
     if (isMpfbRig && sanitised.startsWith("lowerarm01")) {
-      applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched, releaseStore);
+      applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched);
       return;
     }
 
@@ -377,18 +343,8 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       applyHeadAttentionBindRelative(object, headNeckBinds, rotation, bonesTouched);
       return;
     }
-    // Slew-limited like the owned release (arm-settle): same absolute target the direct write
-    // below used to set, capped motion so the claim-clear frame cannot snap.
-    const idleTarget = _scratchQuat.setFromEuler(
-      _scratchEuler.set(
-        rotation.x ?? object.rotation.x,
-        rotation.y ?? (rotation.absolute ? 0 : object.rotation.y),
-        rotation.z ?? (rotation.absolute ? 0 : object.rotation.z),
-        object.rotation.order,
-      ),
-    );
-    writeArmReleaseSlew(object, releaseStore, sanitised, idleTarget, 1,
-      "relaxed_arms_scenario_conversation_pose");
+    applyBoneEuler(object, rotation);
+    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
   };
 
