@@ -141,6 +141,19 @@ const ARM_PROBE_SOURCE = String.raw`
   });
   if (!actor) return { ok: false, reason: "no-physician-actor-" + actorId };
   const san = (n) => (typeof n === "string" ? n.replaceAll(".", "") : "");
+  const pickAll = (tests) => {
+    const found = [];
+    actor.traverse((o) => {
+      const s = san(o.name);
+      for (const t of tests) {
+        if (t.test(s)) {
+          found.push({ name: o.name, uuid: o.uuid, visible: o.visible, parent: o.parent ? o.parent.name : null });
+          break;
+        }
+      }
+    });
+    return found;
+  };
   const pick = (tests) => {
     let found = null;
     actor.traverse((o) => {
@@ -150,6 +163,18 @@ const ARM_PROBE_SOURCE = String.raw`
     });
     return found;
   };
+  // Identity census: every arm-bone object under the actor (uuid distinguishes a flip
+  // between same-named objects from real articulation).
+  const census = {};
+  const censusTests = {
+    upperL: [/^upperarm01L$/, /^upper_armL$/],
+    upperR: [/^upperarm01R$/, /^upper_armR$/],
+    lowerL: [/^lowerarm01L$/, /^forearmL$/],
+    lowerR: [/^lowerarm01R$/, /^forearmR$/],
+  };
+  for (const key of Object.keys(censusTests)) {
+    census[key] = pickAll(censusTests[key]).map((m) => ({ uuid: m.uuid.slice(0, 8), visible: m.visible, parent: m.parent }));
+  }
   const bone = (o) => {
     if (!o) return null;
     return {
@@ -224,6 +249,7 @@ const ARM_PROBE_SOURCE = String.raw`
   return {
     ok: true,
     releaseStore,
+    census,
     bones: {
       upperL: bone(upperL), upperR: bone(upperR),
       lowerL: bone(lowerL), lowerR: bone(lowerR),
@@ -256,6 +282,7 @@ type ArmFrame = {
   chains: Array<{ ownerId: string; weight: number; bones: number; hasUpperArm: boolean }> | null;
   postureTags?: Record<string, string | null>;
   releaseStore?: Array<{ node: string; actorId: unknown; size: number; upperEntries: Record<string, unknown> }> | null;
+  census?: Record<string, Array<{ uuid: string; visible: boolean; parent: string | null }>>;
 };
 
 function quatAngleDeg(a: Quat, b: Quat): number {
@@ -366,7 +393,7 @@ async function main(): Promise<void> {
           const probe = (await page.evaluate(
             `${ARM_PROBE_SOURCE}(${JSON.stringify({ actorId: walkerActorId })})`,
           )) as
-            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null>; releaseStore: ArmFrame["releaseStore"] }
+            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null>; releaseStore: ArmFrame["releaseStore"]; census: Record<string, Array<{ uuid: string; visible: boolean; parent: string | null }>> }
             | { ok: false; reason?: string };
           if (!probe.ok) throw new Error(`arm probe failed at step ${step}: ${(probe as { reason?: string }).reason}`);
           summary = await readSummary(page);
@@ -385,6 +412,7 @@ async function main(): Promise<void> {
             chains: probe.chains,
             postureTags: probe.postureTags,
             releaseStore: probe.releaseStore ?? null,
+            census: probe.census ?? null,
           });
           step += 1;
           if (step % 60 === 0) {
