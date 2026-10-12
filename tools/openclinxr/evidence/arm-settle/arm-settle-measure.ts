@@ -271,6 +271,16 @@ const ARM_PROBE_SOURCE = `
     }
   });
   const releaseStore = releaseStores.length ? releaseStores : null;
+  // TEMPORARY snap attribution (arm-settle): the loop stashes pre/post-posture upper-arm quats
+  // plus per-action weights/times on the slot root, which is not necessarily the actorId-tagged
+  // node the arm probe resolves (actorSlot carries the tag too) — search scene-wide like the
+  // claim census does. Reverted after the capture.
+  let snapDebug = null;
+  scene.traverse((o) => {
+    if (snapDebug) return;
+    const ud = o.userData || {};
+    if (ud.openClinXrSnapDebug !== undefined && ud.openClinXrSnapDebug !== null) snapDebug = ud.openClinXrSnapDebug;
+  });
   // LEGS-IDENTICAL probe (arm-settle bar 2): local quats of every leg/foot/pelvis bone plus the
   // actor root's local/world position, compared against the control run within 1e-6. Scene-graph
   // names are dotted (upperleg01.L); san() strips dots before matching, as the arm probe does.
@@ -293,6 +303,7 @@ const ARM_PROBE_SOURCE = `
   return {
     ok: true,
     releaseStore,
+    snapDebug,
     census,
     actorRoot,
     legs,
@@ -332,6 +343,7 @@ type ArmFrame = {
     localQuat: Quat;
     world: Vec3 | null;
   } | null;
+  snapDebug?: unknown;
   chains: Array<{ ownerId: string; weight: number; bones: number; hasUpperArm: boolean }> | null;
   postureTags?: Record<string, string | null>;
   releaseStore?: Array<{ node: string; actorId: unknown; size: number; upperEntries: Record<string, unknown> }> | null;
@@ -598,7 +610,7 @@ async function main(): Promise<void> {
           const probe = (await page.evaluate(
             `${ARM_PROBE_SOURCE}(${JSON.stringify({ actorId: walkerActorId })})`,
           )) as
-            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null>; releaseStore: ArmFrame["releaseStore"]; census: Record<string, Array<{ uuid: string; visible: boolean; parent: string | null }>>; legs: ArmFrame["legs"]; actorRoot: ArmFrame["actorRoot"] }
+            | { ok: true; bones: ArmFrame["bones"]; points: ArmFrame["points"]; chains: ArmFrame["chains"]; postureTags: Record<string, string | null>; releaseStore: ArmFrame["releaseStore"]; census: Record<string, Array<{ uuid: string; visible: boolean; parent: string | null }>>; legs: ArmFrame["legs"]; actorRoot: ArmFrame["actorRoot"]; snapDebug: unknown }
             | { ok: false; reason?: string };
           if (!probe.ok) throw new Error(`arm probe failed at step ${step}: ${(probe as { reason?: string }).reason}`);
           summary = await readSummary(page);
@@ -616,6 +628,7 @@ async function main(): Promise<void> {
             points: probe.points,
             legs: probe.legs ?? {},
             actorRoot: probe.actorRoot ?? null,
+            snapDebug: probe.snapDebug ?? null,
             chains: probe.chains,
             postureTags: probe.postureTags,
             releaseStore: probe.releaseStore ?? null,
