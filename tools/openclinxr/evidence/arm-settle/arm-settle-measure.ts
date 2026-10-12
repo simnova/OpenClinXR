@@ -260,6 +260,7 @@ type Vec3 = { x: number; y: number; z: number };
 type ArmFrame = {
   step: number;
   simMs: number;
+  rafCount: number | null;
   phase: string | null;
   stoppedSeconds: number;
   bones: Record<string, { name: string; quat: Quat; euler: Vec3 } | null>;
@@ -331,6 +332,19 @@ async function main(): Promise<void> {
         await page.goto(buildUrl(server.url), { waitUntil: "load", timeout: 180_000 });
         const pinMs = (await page.evaluate(`(() => Date.now())()`)) as number;
         await page.clock.pauseAt(pinMs + 2000);
+        // rAF tick counter: under the fake clock, requestAnimationFrame fires only when
+        // fastForward elapses fake time past frame deadlines. The per-step delta counts
+        // how many runtime frames one probe step actually contains (1 vs many decides
+        // whether per-step rates are per-frame rates or pacing artifacts).
+        await page.evaluate(`(() => {
+          const host = globalThis;
+          host.__armSettleRafCount = 0;
+          const loop = () => {
+            host.__armSettleRafCount += 1;
+            requestAnimationFrame(loop);
+          };
+          requestAnimationFrame(loop);
+        })()`);
         const t0 = (await page.evaluate(`(() => Date.now())()`)) as number;
         await realSleep(1500);
         const t1 = (await page.evaluate(`(() => Date.now())()`)) as number;
@@ -369,9 +383,13 @@ async function main(): Promise<void> {
           if (!probe.ok) throw new Error(`arm probe failed at step ${step}: ${(probe as { reason?: string }).reason}`);
           summary = await readSummary(page);
           const simMs = (await page.evaluate(`(() => Date.now())()`)) as number;
+          const rafCount = (await page.evaluate(
+            `(() => (globalThis.__armSettleRafCount ?? null))()`,
+          )) as number | null;
           frames.push({
             step,
             simMs,
+            rafCount,
             phase: summary.phase,
             stoppedSeconds: summary.stoppedSeconds,
             bones: probe.bones,
