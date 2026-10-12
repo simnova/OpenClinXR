@@ -8,7 +8,6 @@ import {
   STOP_PLAYING_FLAG,
   updateStopPlayback,
 } from "./index.js";
-import { LOCOMOTION_UPPER_BODY_BLEND_OUT_S, splitLocomotionClip } from "./locomotion-clip-split-mod.js";
 
 /**
  * The stop action is distance-driven: it starts at the entry clip time with timeScale 0, so
@@ -111,21 +110,7 @@ describe("the distance-driven stop action", () => {
     blendStopClipPlayback(approach, STOP_CROSSFADE_SECONDS / 2);
     expect(stopAction.time).toBeCloseTo(T0 + 0.1, 9);
     expect(stopAction.getEffectiveWeight()).toBeCloseTo(0.5, 9);
-    // ARM-SETTLE SPLIT: the keeper holds time at weight 0, the lower body morphs exactly as the
-    // single take did, and the upper body fades on its own 0.5 s ramp.
-    expect(walkAction.getEffectiveWeight()).toBeCloseTo(0, 9);
-    if (!walkClip) throw new Error("no walk clip");
-    const split = splitLocomotionClip(walkClip);
-    const lowerAction = mixer.existingAction(split.lower);
-    const upperAction = mixer.existingAction(split.upper);
-    if (!lowerAction || !upperAction) throw new Error("no split actions");
-    expect(lowerAction.getEffectiveWeight()).toBeCloseTo(0.5, 9);
-    expect(upperAction.getEffectiveWeight()).toBeCloseTo(
-      1 - STOP_CROSSFADE_SECONDS / 2 / LOCOMOTION_UPPER_BODY_BLEND_OUT_S,
-      9,
-    );
-    expect(lowerAction.time).toBeCloseTo(walkAction.time, 9);
-    expect(upperAction.time).toBeCloseTo(walkAction.time, 9);
+    expect(walkAction.getEffectiveWeight()).toBeCloseTo(0.5, 9);
     mixer.update(1 / 60);
     // The mixer never integrates the stop time itself: it stays exactly where the drive put it.
     expect(stopAction.time).toBeCloseTo(T0 + 0.1, 9);

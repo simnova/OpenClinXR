@@ -4,12 +4,6 @@ import {
   type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { LoopOnce } from "three";
-import {
-  LOCOMOTION_UPPER_BODY_BLEND_OUT_S,
-  locomotionSplitActions,
-  seedLocomotionUpperWeight,
-  type LocomotionSplitActions,
-} from "./locomotion-clip-split-mod.js";
 import type {
   CaseOwnedBedsideApproach,
 } from "./case-owned-approach-runtime-mod.js";
@@ -152,19 +146,6 @@ function walkMixerAction(approach: StopClipPlaybackState) {
 }
 
 /**
- * ARM-SETTLE SPLIT: the keeper/lower/upper actions for the approach's walk take. Null when the
- * take cannot be resolved (same fallback discipline as `walkMixerAction`: the caller stands down).
- */
-function walkSplitActions(approach: StopClipPlaybackState): LocomotionSplitActions | null {
-  const slot = approach.stanceLabelSlot;
-  if (slot?.mixer === undefined) return null;
-  const clipName = slot.locomotionClipName;
-  const clip = clipName ? slot.responseClips?.find((candidate) => candidate.name === clipName) : undefined;
-  if (!clip) return null;
-  return locomotionSplitActions(slot.mixer, clip);
-}
-
-/**
  * Stopping entry: play the root-removed stop take from the entry time at weight 0 and claim the
  * mixer. The action is DISTANCE-DRIVEN (timeScale 0 with an explicit time set every stopping
  * frame from the executor's clip time), so the mixer never integrates it past the pose the
@@ -206,21 +187,8 @@ export function blendStopClipPlayback(approach: StopClipPlaybackState, elapsedSe
   }
   const walkAction = walkMixerAction(approach);
   // The walk take is only faded, never stopped: its time stays continuous through the handoff
-  // so the settling turn reads unbroken walk phase afterwards. ARM-SETTLE SPLIT: the keeper
-  // holds time at weight 0, the lower body fades exactly as the single take did (legs
-  // identical), and the upper body fades on its own 0.5 s ramp toward the idle underneath.
-  if (walkAction) walkAction.setEffectiveWeight(0);
-  const split = walkSplitActions(approach);
-  if (split) {
-    split.lower.setEffectiveWeight(1 - weight);
-    split.upper.setEffectiveWeight(
-      Math.max(0, 1 - elapsedSeconds / LOCOMOTION_UPPER_BODY_BLEND_OUT_S),
-    );
-    if (walkAction) {
-      split.lower.time = walkAction.time;
-      split.upper.time = walkAction.time;
-    }
-  }
+  // so the settling turn reads unbroken walk phase afterwards.
+  if (walkAction) walkAction.setEffectiveWeight(1 - weight);
 }
 
 /**
@@ -290,26 +258,10 @@ export function beginStopSettleBlend(approach: StopClipPlaybackState): void {
     walkAction.reset();
     walkAction.play();
   }
-  walkAction?.setEffectiveWeight(0);
-  // ARM-SETTLE SPLIT: the split actions follow the keeper's fallback so all three stay
-  // time-synced; both pose weights restart at 0 (upper stays 0 through settling: arms idle).
-  const split = walkSplitActions(approach);
-  if (split) {
-    for (const sub of [split.lower, split.upper] as const) {
-      if (!sub.isRunning()) {
-        sub.reset();
-        sub.play();
-      }
-      sub.setEffectiveWeight(0);
-    }
-    split.lower.time = walkAction ? walkAction.time : split.lower.time;
-    split.upper.time = walkAction ? walkAction.time : split.upper.time;
-  }
   // Seed the consumer's ramp at zero (its key, owned by locomotion-clip-playback-mod): without
   // the seed the consumer's first settling frame snaps the restarted take to full weight — and
   // on the drive-zero entry frame it stops the take outright.
   (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] = { current: 0 };
-  seedLocomotionUpperWeight(slot.root, 0);
   approach.stopSettleBlendT = 0;
 }
 
@@ -330,17 +282,7 @@ export function updateStopSettleBlend(approach: StopClipPlaybackState, deltaSeco
   const stopAction = stopMixerAction(approach);
   if (stopAction) stopAction.setEffectiveWeight(1 - u);
   const walkAction = walkMixerAction(approach);
-  if (walkAction) walkAction.setEffectiveWeight(0);
-  // ARM-SETTLE SPLIT: legs grow exactly as the single take did; arms stay at the idle underneath.
-  const split = walkSplitActions(approach);
-  if (split) {
-    split.lower.setEffectiveWeight(SETTLING_LEG_WEIGHT_TARGET * u);
-    split.upper.setEffectiveWeight(0);
-    if (walkAction) {
-      split.lower.time = walkAction.time;
-      split.upper.time = walkAction.time;
-    }
-  }
+  if (walkAction) walkAction.setEffectiveWeight(SETTLING_LEG_WEIGHT_TARGET * u);
   if (u >= 1) {
     const slot = approach.stanceLabelSlot;
     if (slot) {
@@ -349,7 +291,6 @@ export function updateStopSettleBlend(approach: StopClipPlaybackState, deltaSeco
       (slot.root.userData as Record<string, unknown>)["openClinXrLocomotionLegWeight"] = {
         current: SETTLING_LEG_WEIGHT_TARGET,
       };
-      seedLocomotionUpperWeight(slot.root, 0);
     }
     teardownStopClipPlayback(approach);
     return;
