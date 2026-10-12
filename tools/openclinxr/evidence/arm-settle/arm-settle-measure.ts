@@ -208,13 +208,13 @@ const ARM_PROBE_SOURCE = String.raw`
   // Served-code proof from inside the page: collect EVERY release store scene-wide
   // (one per humanoid running the fixed pass) with upper-arm entries, so the walker's
   // own blend state is visible even when another actor sorts first in traversal.
-  const releaseStores: Array<{ node: string; actorId: unknown; size: number; upperEntries: Record<string, unknown> }> = [];
+  const releaseStores = [];
   scene.traverse((o) => {
     const ud = o.userData || {};
     if (ud.openClinXrArmReleasePrev instanceof Map) {
       const m = ud.openClinXrArmReleasePrev;
-      const entries: Record<string, unknown> = {};
-      m.forEach((v: unknown, k: unknown) => {
+      const entries = {};
+      m.forEach((v, k) => {
         if (typeof k === "string" && /arm/i.test(k)) entries[k] = v;
       });
       releaseStores.push({ node: o.name || "(unnamed)", actorId: ud.openClinXrActorId || null, size: m.size, upperEntries: entries });
