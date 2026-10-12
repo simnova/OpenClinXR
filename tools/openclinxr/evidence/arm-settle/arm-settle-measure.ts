@@ -49,37 +49,37 @@ function realSleep(ms: number): Promise<void> {
  * nothing. Expected markers per run are passed in (fix run: slew strings present;
  * control run: slew strings absent).
  */
-async function buildAndProve(expected: { present: string[]; absent: string[] }): Promise<{
+async function buildAndProve(expected: {
+  files: Record<string, { present: string[]; absent: string[] }>;
+}): Promise<{
   gitSha: string;
   dist: Record<string, { mtimeMs: number; markers: Record<string, boolean> }>;
 }> {
   for (const filter of ["@openclinxr/xr-pose", "@openclinxr/xr-humanoid-animation"]) {
-    execFileSync("pnpm", ["-s", "turbo", "run", "build", `--filter=${filter}`], {
+    execFileSync("pnpm", ["-s", "turbo", "run", "build", `--filter=${filter}`, "--force"], {
       cwd: process.cwd(),
       stdio: "inherit",
       timeout: 600000,
     });
   }
   const gitSha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-  const distFiles = [
-    "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js",
-    "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js",
-  ];
-  const markers = [...expected.present, ...expected.absent];
   const dist: Record<string, { mtimeMs: number; markers: Record<string, boolean> }> = {};
-  for (const file of distFiles) {
+  for (const [file, want] of Object.entries(expected.files)) {
     const content = await readFile(path.resolve(process.cwd(), file), "utf8");
     const fileMarkers: Record<string, boolean> = {};
-    for (const marker of markers) fileMarkers[marker] = content.includes(marker);
+    for (const marker of [...want.present, ...want.absent]) {
+      fileMarkers[marker] = content.includes(marker);
+    }
     const mtimeMs = (await stat(path.resolve(process.cwd(), file))).mtimeMs;
     dist[file] = { mtimeMs, markers: fileMarkers };
   }
   const problems: string[] = [];
-  for (const [file, record] of Object.entries(dist)) {
-    for (const marker of expected.present) {
+  for (const [file, want] of Object.entries(expected.files)) {
+    const record = dist[file]!;
+    for (const marker of want.present) {
       if (!record.markers[marker]) problems.push(`${file} lacks expected marker ${marker}`);
     }
-    for (const marker of expected.absent) {
+    for (const marker of want.absent) {
       if (record.markers[marker]) problems.push(`${file} unexpectedly contains ${marker}`);
     }
   }
@@ -87,13 +87,26 @@ async function buildAndProve(expected: { present: string[]; absent: string[] }):
   return { gitSha, dist };
 }
 
-function markersFromArgv(): { present: string[]; absent: string[] } {
-  // --expect-fix: the release-smoothing fix must be in the served dist.
-  // Default (control): the fix must be absent (reverted tree).
+function markersFromArgv(): { files: Record<string, { present: string[]; absent: string[] }> } {
+  // --expect-fix: the release-smoothing fix must be in the served pose dist, and the
+  // temporary mixer-action debug must be gone from the animation dist.
+  // Default (control): the fix must be absent.
+  const animationFile = "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js";
+  const poseFile = "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js";
   if (process.argv.some((arg) => arg === "--expect-fix")) {
-    return { present: ["writeArmReleaseSlew", "ARM_RELEASE_SLEW_MAX_RAD"], absent: [] };
+    return {
+      files: {
+        [poseFile]: { present: ["writeArmReleaseSlew", "recordArmReleasePose"], absent: [] },
+        [animationFile]: { present: [], absent: ["openClinXrMixerActionDebug"] },
+      },
+    };
   }
-  return { present: [], absent: ["writeArmReleaseSlew", "ARM_RELEASE_SLEW_MAX_RAD"] };
+  return {
+    files: {
+      [poseFile]: { present: [], absent: ["writeArmReleaseSlew", "ARM_RELEASE_SLEW_MAX_RAD"] },
+      [animationFile]: { present: [], absent: ["openClinXrMixerActionDebug"] },
+    },
+  };
 }
 
 const SUMMARY_SOURCE = String.raw`
