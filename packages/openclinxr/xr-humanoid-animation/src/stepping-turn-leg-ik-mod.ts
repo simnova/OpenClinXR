@@ -206,6 +206,23 @@ function quatInParentFrame(joint: Object3D, worldDelta: Quaternion): Quaternion 
  * this solve. Each frame starts from the mixer's pose, so nothing accumulates frame
  * to frame either.
  */
+type SteppingLegHingeDiag = {
+  /** Hip-to-target distance over leg length (thigh + shin); >1 is oversaturated. */
+  reachRatio: number;
+  /** Which branch produced the bend plane: raw, previous-plane, hold, or none. */
+  planeSource: "computed" | "reused" | "held" | "none";
+  /** Angle between this frame's and last frame's plane normal, null if either is null. */
+  planeAngleDeg: number | null;
+  /** Sign of the knee-side direction against the pole (+1 forward, -1 back, 0 unknown). */
+  kneeSideSign: number;
+  /** Solver passes run (0: analytic, non-iterative). */
+  iterations: number;
+  /** Achieved heel miss in meters (same as missM). */
+  residualM: number;
+  /** True when the solve was skipped/held (early return, bones untouched). */
+  skipped: boolean;
+};
+
 export function solveSteppingLegHinge(input: {
   chain: SteppingLegChain;
   heelTargetWorld: { x: number; y: number; z: number };
@@ -218,7 +235,12 @@ export function solveSteppingLegHinge(input: {
    * the first solve: the plane tracks live until a previous one exists.
    */
   previousBendNormal?: { x: number; y: number; z: number } | null;
-}): { converged: boolean; missM: number; bendNormal: { x: number; y: number; z: number } | null } {
+}): {
+  converged: boolean;
+  missM: number;
+  bendNormal: { x: number; y: number; z: number } | null;
+  diag: SteppingLegHingeDiag;
+} {
   const { chain } = input;
   const target = new Vector3(input.heelTargetWorld.x, input.heelTargetWorld.y, input.heelTargetWorld.z);
   const pole = new Vector3(input.poleWorld.x, input.poleWorld.y, input.poleWorld.z).normalize();
@@ -240,9 +262,46 @@ export function solveSteppingLegHinge(input: {
       : null;
   const prevOut = (n: Vector3 | null): { x: number; y: number; z: number } | null =>
     n === null ? null : { x: n.x, y: n.y, z: n.z };
-  if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+  const planeAngleDeg = (n: Vector3 | null): number | null => {
+    if (n === null || prevNormal === null) return null;
+    const dot = Math.min(1, Math.max(-1, n.clone().normalize().dot(prevNormal.clone().normalize())));
+    return (Math.acos(dot) * 180) / Math.PI;
+  };
+  if (thighLen < 1e-6 || shinLen < 1e-6) {
+    const missM = heelW0.distanceTo(target);
+    return {
+      converged: false,
+      missM,
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio: 0,
+        planeSource: "none",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: missM,
+        skipped: true,
+      },
+    };
+  }
   // Already placed: touch nothing (exact no-ops stay exact; no churn near convergence).
-  if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+  if (heelW0.distanceTo(target) < 0.002) {
+    const missM = heelW0.distanceTo(target);
+    return {
+      converged: true,
+      missM,
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio: missM / (thighLen + shinLen),
+        planeSource: "held",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: missM,
+        skipped: true,
+      },
+    };
+  }
   const toT = target.clone().sub(hipW0);
   const dist = Math.max(toT.length(), 1e-9);
   toT.divideScalar(dist);
@@ -262,18 +321,50 @@ export function solveSteppingLegHinge(input: {
    */
   const HYSTERESIS_BAND = 0.15;
   let bendNormal: Vector3 | null = null;
+  let planeSource: SteppingLegHingeDiag["planeSource"] = "none";
+  const reachRatio = dist / (thighLen + shinLen);
   if (rawLen >= HYSTERESIS_BAND) {
     bendNormal = rawNormal.clone().divideScalar(rawLen);
+    planeSource = "computed";
   } else if (prevNormal !== null) {
     // Same-frame continuity only: the previous plane, re-perpendicularized to
     // the current reach. Never the up-fallback here: crossed with the reach it
     // bows the knee toward the sky instead of pole-side (measured 84 deg
     // snaps), so without a previous plane the solve holds still for the frame.
     const projected = prevNormal.clone().addScaledVector(toT, -prevNormal.dot(toT));
-    if (projected.lengthSq() >= 1e-12) bendNormal = projected.normalize();
-    else return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+    if (projected.lengthSq() >= 1e-12) {
+      bendNormal = projected.normalize();
+      planeSource = "reused";
+    } else
+      return {
+        converged: false,
+        missM: heelW0.distanceTo(target),
+        bendNormal: prevOut(prevNormal),
+        diag: {
+          reachRatio,
+          planeSource: "held",
+          planeAngleDeg: null,
+          kneeSideSign: 0,
+          iterations: 0,
+          residualM: heelW0.distanceTo(target),
+          skipped: true,
+        },
+      };
   } else {
-    return { converged: false, missM: heelW0.distanceTo(target), bendNormal: null };
+    return {
+      converged: false,
+      missM: heelW0.distanceTo(target),
+      bendNormal: null,
+      diag: {
+        reachRatio,
+        planeSource: "none",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: heelW0.distanceTo(target),
+        skipped: true,
+      },
+    };
   }
   // Pole-side knee direction WITHOUT the old cancellation: `perpPole` used to
   // be `pole - toT * (pole . toT)` normalized, which subtracts near-equal
@@ -283,8 +374,23 @@ export function solveSteppingLegHinge(input: {
   // previous-plane only, never the up axis), computed from two clean unit
   // vectors instead.
   const perpPole = new Vector3().crossVectors(bendNormal, toT);
-  if (perpPole.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target), bendNormal: prevOut(prevNormal) };
+  if (perpPole.lengthSq() < 1e-12)
+    return {
+      converged: false,
+      missM: heelW0.distanceTo(target),
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio,
+        planeSource,
+        planeAngleDeg: planeAngleDeg(bendNormal),
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: heelW0.distanceTo(target),
+        skipped: true,
+      },
+    };
   perpPole.normalize();
+  const kneeSideSign = Math.sign(perpPole.dot(pole)) as -1 | 0 | 1;
   const reach = thighLen + shinLen;
   const clamped = Math.min(Math.max(dist, Math.abs(thighLen - shinLen) + 1e-6), reach - 0.001);
   const cosHip = (thighLen * thighLen + clamped * clamped - shinLen * shinLen) / (2 * thighLen * clamped);
@@ -313,5 +419,18 @@ export function solveSteppingLegHinge(input: {
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
   const missM = chain.heel.getWorldPosition(new Vector3()).distanceTo(target);
-  return { converged: missM < 0.01, missM, bendNormal: { x: bendNormal.x, y: bendNormal.y, z: bendNormal.z } };
+  return {
+    converged: missM < 0.01,
+    missM,
+    bendNormal: { x: bendNormal.x, y: bendNormal.y, z: bendNormal.z },
+    diag: {
+      reachRatio,
+      planeSource,
+      planeAngleDeg: planeAngleDeg(bendNormal),
+      kneeSideSign,
+      iterations: 0,
+      residualM: missM,
+      skipped: false,
+    },
+  };
 }

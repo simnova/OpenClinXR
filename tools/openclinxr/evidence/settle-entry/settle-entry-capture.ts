@@ -109,6 +109,8 @@ type FrameProbe = {
   clipTime: number | null;
   upperL: Quat | null;
   upperR: Quat | null;
+  /** All four leg joints per side (turn-leg-snaps stage 1); null on old builds. */
+  legBones: Record<string, Quat | null> | null;
   footYawL: number | null;
   footYawR: number | null;
   stoppedSeconds: number;
@@ -127,6 +129,7 @@ const PROBE_SOURCE = `
   const scene = globalThis.__openClinXrDebugScene;
   let clipTime = null;
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
+  let legBones = null;
   if (scene) {
     const actorId = ev ? ev.physicianActorId : null;
     let physRoot = null;
@@ -157,6 +160,12 @@ const PROBE_SOURCE = `
       };
       upperL = qOf("upperleg01L", "upperleg01.L");
       upperR = qOf("upperleg01R", "upperleg01.R");
+      legBones = {};
+      for (const base of ["upperleg01", "upperleg02", "lowerleg01", "lowerleg02"]) {
+        for (const side of ["L", "R"]) {
+          legBones[base + side] = qOf(base + side, base + "." + side);
+        }
+      }
       const yawOf = (a, b) => {
         const bone = byName(a) || byName(b);
         if (!bone) return null;
@@ -177,7 +186,7 @@ const PROBE_SOURCE = `
     stanceFoot: tail ? tail.stanceFoot : null,
     travelledMeters: tail && tail.travelledMeters !== undefined ? tail.travelledMeters : null,
     clipTime,
-    upperL, upperR, footYawL, footYawR,
+    upperL, upperR, legBones, footYawL, footYawR,
     stoppedSeconds: ev ? ev.stoppedSeconds : 0,
     targetHeading: ev ? ev.targetHeadingRadians : null,
     travelHeading: ev ? ev.travelHeadingRadians : null,

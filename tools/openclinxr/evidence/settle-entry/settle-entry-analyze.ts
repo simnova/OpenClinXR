@@ -32,6 +32,7 @@ type Frame = {
   clipTime: number | null;
   upperL: Quat | null;
   upperR: Quat | null;
+  legBones: Record<string, Quat | null> | null;
   footYawL: number | null;
   footYawR: number | null;
   stoppedSeconds: number;
@@ -235,6 +236,12 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     if (a.rightToe && b.rightToe) maxFootStepM = Math.max(maxFootStepM, xzStep(a.rightToe, b.rightToe));
     if (a.upperL && b.upperL) maxLegStepDeg = Math.max(maxLegStepDeg, quatStepDeg(a.upperL, b.upperL));
     if (a.upperR && b.upperR) maxLegStepDeg = Math.max(maxLegStepDeg, quatStepDeg(a.upperR, b.upperR));
+    // All four leg joints per side when the capture records them (turn-leg-snaps).
+    for (const key of ["upperleg01L", "upperleg02L", "lowerleg01L", "lowerleg02L", "upperleg01R", "upperleg02R", "lowerleg01R", "lowerleg02R"]) {
+      const qa = a.legBones?.[key] ?? null;
+      const qb = b.legBones?.[key] ?? null;
+      if (qa && qb) maxLegStepDeg = Math.max(maxLegStepDeg, quatStepDeg(qa, qb));
+    }
   }
 
   // Planted windows during settling: runs of equal stanceFoot; slide = stance-toe XZ span.

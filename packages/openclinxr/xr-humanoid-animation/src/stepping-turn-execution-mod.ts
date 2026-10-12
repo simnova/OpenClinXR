@@ -24,6 +24,8 @@ import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   isSteppingTurnTraceEnabled,
   recordSteppingTurnTraceFrame,
+  snapshotLegQuats,
+  type SteppingTurnLegSolveTrace,
   type SteppingTurnTracePass,
 } from "./stepping-turn-trace-mod.js";
 
@@ -289,12 +291,23 @@ export function advanceSteppingTurn(input: {
   // Pole: the slot's own facing — knees bow forward along the body heading, never back.
   const yawNow = actorSlot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
+  // Turn-leg-snaps stage 1: per-leg solve record (trace-only; last pass wins).
+  type TraceLegLast = {
+    toe: { x: number; y: number; z: number };
+    heel: { x: number; y: number; z: number };
+    hip: { x: number; y: number; z: number };
+    diag: ReturnType<typeof solveSteppingLegHinge>["diag"];
+    plane: { x: number; y: number; z: number } | null;
+  };
+  const legBefore: Record<"left" | "right", Record<string, HingeQuat | null> | null> = { left: null, right: null };
+  const legLast: Record<"left" | "right", TraceLegLast | null> = { left: null, right: null };
   for (let pass = 0; pass < 2; pass += 1) {
     let traceOffsetCaptured = false;
     let traceFootCaptured = false;
     for (const side of ["left", "right"] as const) {
       const chain = findSteppingLegChain(actorSlot, side);
       if (chain === null) continue;
+      if (traceOn && pass === 0) legBefore[side] = snapshotLegQuats(chain);
       // Capture the heel-toe offset once (first resolving frame); after that it only
       // rotates with slot yaw — re-reading it live feeds solved orientations back in.
       // The foot's WORLD orientation is frozen beside it (see footQuat), applied
@@ -345,6 +358,16 @@ export function advanceSteppingTurn(input: {
         previousBendNormal: state.hingeNormal[side],
       });
       if (hingeResult.bendNormal !== null) state.hingeNormal[side] = hingeResult.bendNormal;
+      if (traceOn) {
+        const hipW = worldXyz(chain.hip);
+        legLast[side] = {
+          toe: { x: toeTarget.x, y: toeTarget.y, z: toeTarget.z },
+          heel: { x: heelTarget.x, y: heelTarget.y, z: heelTarget.z },
+          hip: { x: hipW.x, y: hipW.y, z: hipW.z },
+          diag: hingeResult.diag,
+          plane: hingeResult.bendNormal,
+        };
+      }
       // Yaw-compensated world freeze, on post-solve parents: the foot yaws with the
       // slot (like the map) but keeps its entry pitch/roll through any articulation,
       // so the live mapping stays exact and the pin stops chasing. Refresh the heel
@@ -398,6 +421,31 @@ export function advanceSteppingTurn(input: {
   }
   if (traceOn) {
     const floorY = input.floorOriginY ?? null;
+    const traceLegs: SteppingTurnLegSolveTrace[] = [];
+    for (const side of ["left", "right"] as const) {
+      const last = legLast[side];
+      if (last === null) continue;
+      const chainNow = findSteppingLegChain(actorSlot, side);
+      traceLegs.push({
+        side,
+        toeTarget: last.toe,
+        heelTarget: last.heel,
+        hipWorld: last.hip,
+        reachRatio: last.diag.reachRatio,
+        plane: last.plane,
+        planeSource: last.diag.planeSource,
+        planeAngleDeg: last.diag.planeAngleDeg,
+        kneeSideSign: last.diag.kneeSideSign,
+        iterations: last.diag.iterations,
+        residualM: last.diag.residualM,
+        skipped: last.diag.skipped,
+        quatsBefore: legBefore[side] ?? {},
+        quatsAfter: chainNow !== null ? snapshotLegQuats(chainNow) : {},
+        stance: side === targets.stanceFoot,
+        stepIndex: targets.stepIndex,
+        planDone: targets.done,
+      });
+    }
     let toeLeftY: number | null = null;
     let toeRightY: number | null = null;
     if (input.leftToe !== null) {
@@ -426,6 +474,7 @@ export function advanceSteppingTurn(input: {
       toeLeftY,
       toeRightY,
       floorOriginY: floorY,
+      legs: traceLegs,
       pivot: tracePivot,
     });
   }

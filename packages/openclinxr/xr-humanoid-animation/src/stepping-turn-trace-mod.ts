@@ -7,6 +7,7 @@
  * Enabled only by `?steppingTurnTrace=1` (browser capture); node/tests read
  * false. Internal module, not a public entrypoint export.
  */
+import type { Object3D } from "three";
 
 export type SteppingTurnTracePass = {
   pass: number;
@@ -24,6 +25,38 @@ export type SteppingTurnTracePass = {
   /** True when the entry offset / foot freeze was captured (not held) this pass. */
   offsetCapturedThisFrame: boolean;
   footQuatCapturedThisFrame: boolean;
+};
+
+export type SteppingLegQuat = { x: number; y: number; z: number; w: number };
+
+/**
+ * Per-frame per-leg hinge-solve record (turn-leg-snaps slice, stage 1). Pure
+ * observation: the execution module fills it from the solver's diagnostics and
+ * the bones' own quaternions; nothing here writes the scene. `quatsBefore` is
+ * read before the first solve pass, `quatsAfter` after the last; keys are the
+ * four leg joints (hip, upperMid, knee, lowerMid). Diagnostics mirror the
+ * solver's own return (stepping-turn-leg-ik-mod.ts): planeSource names which
+ * branch produced the bend plane (computed = raw, reused = previous-plane
+ * projection, held = no-op/early hold, none = degenerate with no previous).
+ */
+export type SteppingTurnLegSolveTrace = {
+  side: "left" | "right";
+  toeTarget: { x: number; y: number; z: number };
+  heelTarget: { x: number; y: number; z: number };
+  hipWorld: { x: number; y: number; z: number };
+  reachRatio: number;
+  plane: { x: number; y: number; z: number } | null;
+  planeSource: "computed" | "reused" | "held" | "none";
+  planeAngleDeg: number | null;
+  kneeSideSign: number;
+  iterations: number;
+  residualM: number;
+  skipped: boolean;
+  quatsBefore: Record<string, SteppingLegQuat | null>;
+  quatsAfter: Record<string, SteppingLegQuat | null>;
+  stance: boolean;
+  stepIndex: number;
+  planDone: boolean;
 };
 
 export type SteppingTurnTraceFrame = {
@@ -44,6 +77,8 @@ export type SteppingTurnTraceFrame = {
   toeLeftY: number | null;
   toeRightY: number | null;
   floorOriginY: number | null;
+  /** Per-leg hinge-solve records (turn-leg-snaps stage 1); empty when untraced. */
+  legs: SteppingTurnLegSolveTrace[];
   /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
   pivot: {
     dx: number;
@@ -57,6 +92,22 @@ export type SteppingTurnTraceFrame = {
 };
 
 const TRACE_KEY = "__openClinXrSteppingTurnTrace";
+
+/** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
+export function snapshotLegQuats(input: {
+  hip: Object3D;
+  upperMid: Object3D;
+  knee: Object3D;
+  lowerMid: Object3D;
+}): Record<string, SteppingLegQuat | null> {
+  const snap = (bone: Object3D): SteppingLegQuat => ({
+    x: bone.quaternion.x,
+    y: bone.quaternion.y,
+    z: bone.quaternion.z,
+    w: bone.quaternion.w,
+  });
+  return { hip: snap(input.hip), upperMid: snap(input.upperMid), knee: snap(input.knee), lowerMid: snap(input.lowerMid) };
+}
 
 /** Default off: only exactly `steppingTurnTrace=1` records. */
 export function isSteppingTurnTraceEnabled(): boolean {
