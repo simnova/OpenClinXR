@@ -126,7 +126,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 feedforward slot pivot: rigid XZ about the held per-window anchor. Consumer: stepping-turn-slot-pivot-mod.test.ts two-run perturbation bound through the entrypoint.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -136,7 +136,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 planted-window key (stepIndex:stanceFoot). Consumer: stepping-turn-slot-pivot-mod.test.ts window-switch continuity through the entrypoint.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
     },
     {
       "package": "packages/openclinxr/xr-humanoid-animation",
@@ -146,7 +146,7 @@
       "disposition": "keep",
       "owner": "settle-entry-worker",
       "rationale": "Settle-entry stage-2 anchor-capture gate (0.03 m toe height). Consumer: stepping-turn-slot-pivot-mod.test.ts asserts the bar-6 threshold through the entrypoint.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator review of the settle-entry pivot exports at 7b4dba46f, 2026-10-12"
     }
   ],
   "sourceReview": {

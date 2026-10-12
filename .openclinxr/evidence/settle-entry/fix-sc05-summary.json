@@ -1,0 +1,209 @@
+{
+  "dir": ".openclinxr/evidence/settle-entry/fix-sc05",
+  "metrics": [
+    {
+      "tag": "sc05-run0",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7941831323824272,
+        "z": 1.1638441473495131
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "right",
+      "plantYawDeg": -11.313105046368227,
+      "alongM": -0.023297754760912434,
+      "lateralM": 0.01506383919926973,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.16098468936464347,
+      "maxLegStepDeg": 60.57804343342603,
+      "windowSlidesM": [
+        0.009105697223177502,
+        0.0027455361623257546
+      ],
+      "meanWindowSlideM": 0.0059256166927516285,
+      "maxWindowSlideM": 0.009105697223177502
+    },
+    {
+      "tag": "sc05-run1",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7940589707618804,
+        "z": 1.163929277613186
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "right",
+      "plantYawDeg": -11.5196623984048,
+      "alongM": -0.023224322150133477,
+      "lateralM": 0.015195258077228779,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.1609950935239951,
+      "maxLegStepDeg": 51.56899603365879,
+      "windowSlidesM": [
+        0.007746006658171691,
+        0.002299491257904756
+      ],
+      "meanWindowSlideM": 0.005022748958038224,
+      "maxWindowSlideM": 0.007746006658171691
+    },
+    {
+      "tag": "sc05-run2",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7939109440543938,
+        "z": 1.1640145115337956
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "left",
+      "plantYawDeg": 2.7759278179246065,
+      "alongM": -0.023129553570423924,
+      "lateralM": 0.015337369454857908,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.1610146644185486,
+      "maxLegStepDeg": 34.08210422246588,
+      "windowSlidesM": [
+        0.0041449001112672254,
+        0.0014903105645822034
+      ],
+      "meanWindowSlideM": 0.002817605337924714,
+      "maxWindowSlideM": 0.0041449001112672254
+    },
+    {
+      "tag": "sc05-run3",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7940583935900218,
+        "z": 1.1639296387790883
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "right",
+      "plantYawDeg": -11.517381969232469,
+      "alongM": -0.02322396544206376,
+      "lateralM": 0.015195838014739426,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.16099515667437075,
+      "maxLegStepDeg": 51.51564359510309,
+      "windowSlidesM": [
+        0.007735121386687061,
+        0.002295273907961883
+      ],
+      "meanWindowSlideM": 0.0050151976473244726,
+      "maxWindowSlideM": 0.007735121386687061
+    },
+    {
+      "tag": "sc05-run4",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7937524161898281,
+        "z": 1.1640915105894145
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "right",
+      "plantYawDeg": -9.611734491718254,
+      "alongM": -0.023021718944513093,
+      "lateralM": 0.015476766843157096,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.16104253190515638,
+      "maxLegStepDeg": 16.46899626514125,
+      "windowSlidesM": [
+        0.0009529386996747196,
+        0.0012866004468478091
+      ],
+      "meanWindowSlideM": 0.0011197695732612645,
+      "maxWindowSlideM": 0.0012866004468478091
+    },
+    {
+      "tag": "sc05-run5",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7940586822272925,
+        "z": 1.1639294581963282
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "right",
+      "plantYawDeg": -11.518523401913871,
+      "alongM": -0.023224143842182965,
+      "lateralM": 0.015195548023352129,
+      "settlingS": 1.5666666666666667,
+      "walkRecordedS": 0.8333333333333334,
+      "maxFootStepM": 0.16099512507927477,
+      "maxLegStepDeg": 51.542343680127786,
+      "windowSlidesM": [
+        0.007740569079014556,
+        0.0022973839537079256
+      ],
+      "meanWindowSlideM": 0.005018976516361241,
+      "maxWindowSlideM": 0.007740569079014556
+    }
+  ]
+}
