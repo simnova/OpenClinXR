@@ -15,6 +15,13 @@ import {
 } from "./stepping-turn-leg-ik-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
 import {
+  pivotSlotXzForSteppingFrame,
+  STEPPING_PIVOT_CAPTURE_HEIGHT_M,
+  steppingPivotWindowKey,
+  type SteppingPivotAnchor,
+} from "./stepping-turn-slot-pivot-mod.js";
+import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
+import {
   isSteppingTurnTraceEnabled,
   recordSteppingTurnTraceFrame,
   type SteppingTurnTracePass,
@@ -45,6 +52,17 @@ export type SteppingTurnExecState = {
   lastTargets: SteppingTurnTargets | null;
   /** Settling-frame counter for the default-off slot-update trace. */
   traceFrames: number;
+  /**
+   * Held-anchor pivot (stage-2 fix): the anchor the turn pivots about, captured
+   * ONCE per planted window from a foot actually on the floor and held in world
+   * space. Null until the first capture; while null the slot holds XZ (yaw in
+   * place) instead of translating.
+   */
+  pivot: SteppingPivotAnchor | null;
+  /** Window key whose foot is still airborne: capture retried every frame. */
+  pivotPendingWindow: string | null;
+  /** Floor Y for the capture gate; stored at begin. */
+  pivotFloorY: number;
   /** Slot Y at entry; the pelvis dip subtracts from this each frame. */
   slotY0: number;
   /** Toe-minus-heel offset per side with the yaw it was captured at (stable mapping). */
@@ -124,6 +142,9 @@ export function beginSteppingTurn(input: {
     elapsedS: 0,
     lastTargets: steppingTurnAt(plan, 0),
     traceFrames: 0,
+    pivot: null,
+    pivotPendingWindow: null,
+    pivotFloorY: input.floorOriginY,
     slotY0: actorSlot.position.y,
     offsetEntry: { left: null, right: null },
     footQuat: { left: null, right: null },
@@ -158,6 +179,79 @@ export function advanceSteppingTurn(input: {
   actorSlot.rotation.y = targets.yawRadians;
   actorSlot.position.y = state.slotY0 - targets.pelvisDipM;
   actorSlot.updateMatrixWorld(true);
+
+  // HELD-ANCHOR PIVOT (stage-2 fix; `?steppingTurnLegacyPin=1` restores the old
+  // per-pass pin for A/B). The anchor is captured ONCE per planted window from
+  // a foot actually on the floor and held in world space; while no window has
+  // captured yet the slot holds XZ (yaw in place). No slot term here reads a
+  // toe world — the pin's feedback (gain up to 3.26, stage 1) is gone.
+  const legacyPin = readSteppingTurnLegacyPin();
+  const windowKey = steppingPivotWindowKey(targets.stepIndex, targets.stanceFoot);
+  let tracePivot: {
+    dx: number;
+    dz: number;
+    anchorX: number | null;
+    anchorZ: number | null;
+    anchorWindow: string | null;
+    pendingWindow: string | null;
+    legacy: boolean;
+  } | null = null;
+  if (!legacyPin) {
+    if (state.pivot?.windowKey !== windowKey) state.pivotPendingWindow = windowKey;
+    if (state.pivotPendingWindow === windowKey) {
+      const stanceToeForCapture = targets.stanceFoot === "left" ? input.leftToe : input.rightToe;
+      if (stanceToeForCapture !== null) {
+        stanceToeForCapture.updateMatrixWorld(true);
+        const toeWorld = worldXyz(stanceToeForCapture);
+        const height = toeWorld.y - state.pivotFloorY;
+        if (Number.isFinite(height) && height <= STEPPING_PIVOT_CAPTURE_HEIGHT_M) {
+          state.pivot = {
+            anchorXz: { x: toeWorld.x, z: toeWorld.z },
+            slotXzAtCapture: { x: actorSlot.position.x, z: actorSlot.position.z },
+            yawAtCaptureRadians: actorSlot.rotation.y,
+            windowKey,
+            capturedAtFrame: traceFrameIndex,
+          };
+          state.pivotPendingWindow = null;
+        }
+      }
+    }
+    if (state.pivot !== null) {
+      const pivoted = pivotSlotXzForSteppingFrame({ anchor: state.pivot, yawNowRadians: targets.yawRadians });
+      tracePivot = {
+        dx: pivoted.x - actorSlot.position.x,
+        dz: pivoted.z - actorSlot.position.z,
+        anchorX: state.pivot.anchorXz.x,
+        anchorZ: state.pivot.anchorXz.z,
+        anchorWindow: state.pivot.windowKey,
+        pendingWindow: state.pivotPendingWindow,
+        legacy: false,
+      };
+      actorSlot.position.x = pivoted.x;
+      actorSlot.position.z = pivoted.z;
+      actorSlot.updateMatrixWorld(true);
+    } else {
+      tracePivot = {
+        dx: 0,
+        dz: 0,
+        anchorX: null,
+        anchorZ: null,
+        anchorWindow: null,
+        pendingWindow: state.pivotPendingWindow,
+        legacy: false,
+      };
+    }
+  } else {
+    tracePivot = {
+      dx: 0,
+      dz: 0,
+      anchorX: null,
+      anchorZ: null,
+      anchorWindow: null,
+      pendingWindow: null,
+      legacy: true,
+    };
+  }
 
   // Shape the legs where bones exist, then pin the stance toe to its anchor with an
   // exact rigid translate. Headless markers resolve no chain and skip the solve, so the
@@ -273,9 +367,13 @@ export function advanceSteppingTurn(input: {
           footQuatCapturedThisFrame: traceFootCaptured,
         });
       }
-      actorSlot.position.x += dx;
-      actorSlot.position.z += dz;
-      actorSlot.updateMatrixWorld(true);
+      // LEGACY PIN (A/B only): the measured feedback loop. Default (held-anchor
+      // pivot above) never translates the slot from a toe read.
+      if (legacyPin) {
+        actorSlot.position.x += dx;
+        actorSlot.position.z += dz;
+        actorSlot.updateMatrixWorld(true);
+      }
     }
   }
   if (traceOn) {
@@ -308,6 +406,7 @@ export function advanceSteppingTurn(input: {
       toeLeftY,
       toeRightY,
       floorOriginY: floorY,
+      pivot: tracePivot,
     });
   }
   return targets;

@@ -17,3 +17,9 @@ export {
   steppingTurnLegScale,
   STEPPING_TURN_STEP_DURATION_S,
 } from "./stepping-turn-plan-mod.js";
+export {
+  pivotSlotXzForSteppingFrame,
+  STEPPING_PIVOT_CAPTURE_HEIGHT_M,
+  steppingPivotWindowKey,
+  type SteppingPivotAnchor,
+} from "./stepping-turn-slot-pivot-mod.js";

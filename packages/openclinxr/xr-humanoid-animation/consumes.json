@@ -262,6 +262,21 @@
         "via": "own-test"
       },
       {
+        "name": "pivotSlotXzForSteppingFrame",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "steppingPivotWindowKey",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "steppingTurnAt",
         "kind": "runtime",
         "via": "own-test"

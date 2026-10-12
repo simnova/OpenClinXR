@@ -117,6 +117,36 @@
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn world read. Consumers: ik-noop-probe.ts and bake-stepping-turn.ts read mirror world positions through the entrypoint.",
       "reviewedBy": "claude-orchestrator independent review of stepping-turn-v1 at f1ec3b87c, 2026-10-11"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "pivotSlotXzForSteppingFrame",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "settle-entry-worker",
+      "rationale": "Settle-entry stage-2 feedforward slot pivot: rigid XZ about the held per-window anchor. Consumer: stepping-turn-slot-pivot-mod.test.ts two-run perturbation bound through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "steppingPivotWindowKey",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "settle-entry-worker",
+      "rationale": "Settle-entry stage-2 planted-window key (stepIndex:stanceFoot). Consumer: stepping-turn-slot-pivot-mod.test.ts window-switch continuity through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "settle-entry-worker",
+      "rationale": "Settle-entry stage-2 anchor-capture gate (0.03 m toe height). Consumer: stepping-turn-slot-pivot-mod.test.ts asserts the bar-6 threshold through the entrypoint.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
     }
   ],
   "sourceReview": {

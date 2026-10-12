@@ -53,14 +53,17 @@
       "updateStationBedsideApproach"
     ],
     "./stepping-turn": [
+      "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
       "STEPPING_TURN_STEP_DURATION_S",
       "findStanceChain",
       "findSteppingLegChain",
       "heelTargetForToeTarget",
       "heelTargetForToeTargetStable",
+      "pivotSlotXzForSteppingFrame",
       "planSteppingTurn",
       "solveSteppingLegHinge",
       "solveTwoBoneIK",
+      "steppingPivotWindowKey",
       "steppingTurnAt",
       "steppingTurnLegScale",
       "worldXyz"

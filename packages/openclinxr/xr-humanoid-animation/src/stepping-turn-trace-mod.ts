@@ -44,6 +44,16 @@ export type SteppingTurnTraceFrame = {
   toeLeftY: number | null;
   toeRightY: number | null;
   floorOriginY: number | null;
+  /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
+  pivot: {
+    dx: number;
+    dz: number;
+    anchorX: number | null;
+    anchorZ: number | null;
+    anchorWindow: string | null;
+    pendingWindow: string | null;
+    legacy: boolean;
+  } | null;
 };
 
 const TRACE_KEY = "__openClinXrSteppingTurnTrace";

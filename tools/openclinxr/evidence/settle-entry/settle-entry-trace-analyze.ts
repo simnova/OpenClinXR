@@ -47,6 +47,15 @@ type TraceFrame = {
   toeLeftY: number | null;
   toeRightY: number | null;
   floorOriginY: number | null;
+  pivot: {
+    dx: number;
+    dz: number;
+    anchorX: number | null;
+    anchorZ: number | null;
+    anchorWindow: string | null;
+    pendingWindow: string | null;
+    legacy: boolean;
+  } | null;
 };
 
 type Frame = {
@@ -89,8 +98,8 @@ async function main(): Promise<void> {
   const capA = aTrace.map((t, i) => (t.passes.some((p) => p.offsetCapturedThisFrame) ? i : -1)).filter((i) => i >= 0);
   console.log(`anchor-capture trace frames (offset captured, runA): ${capA.join(",") || "none"}`);
 
-  console.log("| n | |dslot| (mm) | yawDiff (urad) | dipDiff (um) | pin0diff (mm) | pin1diff (mm) | toeReadDiff (mm) | gain |");
-  console.log("|---|---|---|---|---|---|---|---|");
+  console.log("| n | |dslot| (mm) | yawDiff (urad) | dipDiff (um) | pin0diff (mm) | pin1diff (mm) | toeReadDiff (mm) | pivotDiff (mm) | gain |");
+  console.log("|---|---|---|---|---|---|---|---|---|");
   let prev = 0;
   for (let i = 0; i < n; i += 1) {
     const fa = aSet[i]!;
@@ -111,12 +120,18 @@ async function main(): Promise<void> {
     const ra = ta.passes[0];
     const rb = tb.passes[0];
     const toeDiff = ra && rb ? Math.hypot(ra.toeWorldX - rb.toeWorldX, ra.toeWorldZ - rb.toeWorldZ) : NaN;
+    const pivDiff =
+      ta.pivot && tb.pivot ? Math.hypot(ta.pivot.dx - tb.pivot.dx, ta.pivot.dz - tb.pivot.dz) : NaN;
     const gain = i === 0 ? NaN : prev > 0 ? dslot / prev : NaN;
     prev = dslot;
+    const f = (v: number): string => (Number.isNaN(v) ? "—" : mm(v));
     console.log(
-      `| ${i} | ${mm(dslot)} | ${yawDiff.toFixed(3)} | ${dipDiff.toFixed(3)} | ${mm(p0)} | ${mm(p1)} | ${mm(toeDiff)} | ${Number.isNaN(gain) ? "—" : gain.toFixed(2)} |`,
+      `| ${i} | ${mm(dslot)} | ${yawDiff.toFixed(3)} | ${dipDiff.toFixed(3)} | ${f(p0)} | ${f(p1)} | ${f(toeDiff)} | ${f(pivDiff)} | ${Number.isNaN(gain) ? "—" : gain.toFixed(2)} |`,
     );
   }
+  const wins = [...new Set(aTrace.slice(0, n).map((t) => t.pivot?.anchorWindow ?? "?"))];
+  const pend = [...new Set(aTrace.slice(0, n).map((t) => t.pivot?.pendingWindow ?? "?"))];
+  console.log(`pivot windows (runA): ${wins.join(",")}; pending: ${pend.join(",")}; legacy=${aTrace[0]?.pivot?.legacy ?? "?"}`);
   // Term totals over the table: which term moves the slot between runs.
   let yawTot = 0;
   let dipTot = 0;

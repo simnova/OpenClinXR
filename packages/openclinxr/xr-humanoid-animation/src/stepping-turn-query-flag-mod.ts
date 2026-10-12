@@ -27,3 +27,21 @@ export function readSteppingTurnEnabled(): boolean {
     .window?.location?.search;
   return typeof search === "string" && parseSteppingTurnEnabled(search);
 }
+
+/**
+ * Legacy-pin A/B flag (settle-entry slice, stage 2 correctness fix).
+ *
+ * Default OFF (the feedforward held-anchor pivot runs): only exactly
+ * `steppingTurnLegacyPin=1` restores the old per-pass stance-pin slot
+ * translate that stage 1 measured unstable (gain up to 3.26). Same
+ * `globalThis`-window discipline as above; pure parser, unit-tested.
+ */
+export function parseSteppingTurnLegacyPin(search: string): boolean {
+  return new URLSearchParams(search).get("steppingTurnLegacyPin") === "1";
+}
+
+export function readSteppingTurnLegacyPin(): boolean {
+  const search = (globalThis as unknown as { window?: { location?: { search?: string } } })
+    .window?.location?.search;
+  return typeof search === "string" && parseSteppingTurnLegacyPin(search);
+}
