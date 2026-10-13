@@ -2334,6 +2334,44 @@ def parse_args():
             "restore shipped-density brows for one regeneration."
         ),
     )
+    parser.add_argument(
+        "--eye-subdivide",
+        type=int,
+        default=0,
+        help=(
+            "Eyeshell B1: midpoint-split each eyeball-cap face N times, keeping "
+            "the exact fitted-sphere projection and interpolated UVs/weights. "
+            "Default 0 keeps every other bake byte-stable."
+        ),
+    )
+    parser.add_argument(
+        "--eye-occlusion-shell",
+        action="store_true",
+        help=(
+            "Eyeshell B2: duplicate of the visible globe cap offset 0.3mm "
+            "outward, separate unlit alpha-blended material, per-vertex alpha "
+            "ramping 0 over the pupil to --eye-shell-margin at the lid margins "
+            "and --eye-shell-corner at the canthi."
+        ),
+    )
+    parser.add_argument("--eye-shell-margin", type=float, default=0.5)
+    parser.add_argument("--eye-shell-corner", type=float, default=0.8)
+    parser.add_argument("--eye-shell-ramp-mm", type=float, default=2.5)
+    parser.add_argument("--eye-shell-upper-boost", type=float, default=1.6)
+    parser.add_argument("--eye-shell-color", default="120,88,80")
+    parser.add_argument(
+        "--eye-tearline",
+        action="store_true",
+        help=(
+            "Eyeshell B3: thin unlit strip along the upper/lower lid margins "
+            "bridging lid to globe (plus snapped canthus fans), closing the "
+            "lid stand-off visually."
+        ),
+    )
+    parser.add_argument("--eye-tear-color", default="150,118,106")
+    parser.add_argument("--eye-tear-rough", type=float, default=0.45)
+    parser.add_argument("--eye-tear-fan-steps", default="1.5,3.0,4.5")
+    parser.add_argument("--eye-tear-snap-mm", type=float, default=2.5)
     return parser.parse_args(argv)
 
 
@@ -2498,6 +2536,8 @@ EYE_DIAMETER_TARGET_MM = {
     "aisha-ref3": 24.0,
     # eyegeo: same adult-female values as ref3 (identical bake, new output name).
     "eyegeo-final": 24.0,
+    # eyeshell: same adult-female body as eyegeo-final (new output name).
+    "eyeshell-final": 24.0,
 }
 
 
@@ -2597,6 +2637,548 @@ def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None):
         v.co = new_local[i]
     eyes_asset.data.update()
     return rows
+
+
+# ---------------------------------------------------------------------------
+# Eyeshell (lid shadow on the globe without touching eye albedo): B1 cap
+# subdivision, B2 occlusion shell, B3 tearline. All options default OFF so
+# every other bake stays byte-stable. Everything derives from the fitted
+# eyeball cap (least-squares sphere per eye) and the lid-margin vertex loops
+# (skin verts in a radial band off the globe). shr recipe: subdivide 1,
+# margin 0.5 / corner 0.8 / ramp 2.5mm / upper-boost 1.6 / shell sRGB
+# 160,120,108; tearline wide + straight-tangent fans (1.5,3,4.5mm, snap
+# 2.5mm, truncate on miss) sRGB 150,118,106 rough 0.45. Both materials publish
+# as constant-output KHR_materials_unlit (baked occlusion: no lighting
+# variance) via a post-export JSON patch beside the #360 factor patch,
+# because the Blender 5.1 exporter omits both alphaMode and the extension.
+# ---------------------------------------------------------------------------
+EYESHELL_UNLIT_BLEND = {}
+
+
+def _eyshell_srgb_to_linear(rgb):
+    a = np.asarray(rgb, dtype=float)
+    return tuple(float(v) for v in np.where(a <= 0.04045, a / 12.92, ((a + 0.055) / 1.055) ** 2.4))
+
+
+def _eyshell_smoothstep(e0, e1, x):
+    t = np.clip((np.asarray(x, dtype=float) - e0) / (e1 - e0), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def _eyshell_eye_sides(eyes_asset):
+    """Per-eye world vertex indices via eye.L/eye.R groups, x-sign fallback."""
+    groups = {g.name: g for g in eyes_asset.vertex_groups}
+    MW = eyes_asset.matrix_world
+    world = np.array([tuple(MW @ v.co) for v in eyes_asset.data.vertices], dtype=float)
+
+    def members(name):
+        g = groups.get(name)
+        if g is None:
+            return None
+        return [i for i, v in enumerate(eyes_asset.data.vertices)
+                if any(vg.group == g.index and vg.weight > 0.0 for vg in v.groups)]
+
+    left = members("eye.L")
+    right = members("eye.R")
+    if not left or not right:
+        left = [i for i in range(len(world)) if world[i, 0] < 0.0]
+        right = [i for i in range(len(world)) if world[i, 0] >= 0.0]
+        if not left or not right:
+            raise RuntimeError("EYESHELL: eye mesh has no L/R split to process")
+    return {"L": np.array(left), "R": np.array(right)}, world
+
+
+def _eyshell_subdivide_eye(eyes_asset, rounds):
+    """B1: midpoint-split each cap face, exact sphere projection, keep UVs."""
+    me = eyes_asset.data
+    if me.shape_keys:
+        raise RuntimeError("EYESHELL: eye mesh carries shape keys — refusing to rebuild")
+    uv_layer = me.uv_layers.active
+    if uv_layer is None:
+        raise RuntimeError("EYESHELL: eye mesh has no UV layer — refusing (B1 keeps UVs)")
+    uv_name = uv_layer.name
+    for _ in range(rounds):
+        sides, world = _eyshell_eye_sides(eyes_asset)
+        spheres = {}
+        for side, idx in sides.items():
+            c, r = _fit_eye_sphere(world[idx])
+            if r <= 0.0:
+                raise RuntimeError(f"EYESHELL: non-positive fitted radius on {side}")
+            spheres[side] = (c, r)
+        side_of = {}
+        for side, idx in sides.items():
+            for i in idx:
+                side_of[int(i)] = side
+        MW = eyes_asset.matrix_world
+        IW = MW.inverted()
+        from mathutils import Vector as _V
+        n_old = len(me.vertices)
+        old_co = [tuple(v.co) for v in me.vertices]
+        old_groups = []
+        for v in me.vertices:
+            old_groups.append([(eyes_asset.vertex_groups[vg.group].name, float(vg.weight))
+                               for vg in v.groups if vg.weight > 0.0])
+        old_mats = [p.material_index for p in me.polygons]
+        old_smooth = [bool(p.use_smooth) for p in me.polygons]
+        old_faces = []
+        for p in me.polygons:
+            vs = list(p.vertices)
+            lus = [uv_layer.data[li].uv for li in range(p.loop_start, p.loop_start + p.loop_total)]
+            old_faces.append((vs, [tuple(u) for u in lus]))
+        new_co = [tuple(c) for c in old_co]
+        new_groups = [list(g) for g in old_groups]
+        new_faces = []  # (vert ids, per-corner uv, mat, smooth)
+
+        def proj(i):
+            side = side_of.get(int(i))
+            if side is None:
+                return new_co[int(i)]
+            c, r = spheres[side]
+            p = np.array(MW @ _V(new_co[int(i)]), dtype=float)
+            p = c + (p - c) / float(np.linalg.norm(p - c)) * r
+            q = tuple(IW @ _V(tuple(p)))
+            new_co[int(i)] = q
+            return q
+
+        def merge(gh, hh):
+            acc = {}
+            for vtx, sc in ((gh, 0.5), (hh, 0.5)):
+                for nm, w in new_groups[int(vtx)]:
+                    acc[nm] = acc.get(nm, 0.0) + w * sc
+            top = sorted(acc.items(), key=lambda kv: -kv[1])[:4]
+            tot = sum(w for _, w in top) or 1.0
+            return [(nm, w / tot) for nm, w in top]
+
+        edge_mid = {}
+
+        def mid(g, h):
+            key = (int(g), int(h)) if g < h else (int(h), int(g))
+            m = edge_mid.get(key)
+            if m is None:
+                m = len(new_co)
+                edge_mid[key] = m
+                new_co.append((
+                    (new_co[int(g)][0] + new_co[int(h)][0]) / 2.0,
+                    (new_co[int(g)][1] + new_co[int(h)][1]) / 2.0,
+                    (new_co[int(g)][2] + new_co[int(h)][2]) / 2.0,
+                ))
+                new_groups.append(merge(g, h))
+                side_of[m] = side_of.get(int(g), side_of.get(int(h)))
+            return m, tuple(
+                (a + b) / 2.0 for a, b in
+                zip(_pending_uv[int(g)], _pending_uv[int(h)]))
+
+        _pending_uv = {}
+        for vs, lus in old_faces:
+            for i, vv in enumerate(vs):
+                _pending_uv[int(vv)] = lus[i]
+        for fi, (vs, lus) in enumerate(old_faces):
+            mat_i = old_mats[fi]
+            for i, vv in enumerate(vs):
+                _pending_uv[int(vv)] = lus[i]
+            if len(vs) == 3:
+                (a, b, c_) = (int(vs[0]), int(vs[1]), int(vs[2]))
+                (ua, ub, uc) = lus
+                _pending_uv[a], _pending_uv[b], _pending_uv[c_] = ua, ub, uc
+                ab, uab = mid(a, b)
+                bc, ubc = mid(b, c_)
+                ca, uca = mid(c_, a)
+                new_faces.append(([a, ab, ca], [ua, uab, uca], mat_i))
+                new_faces.append(([b, bc, ab], [ub, ubc, uab], mat_i))
+                new_faces.append(([c_, ca, bc], [uc, uca, ubc], mat_i))
+                new_faces.append(([ab, bc, ca], [uab, ubc, uca], mat_i))
+            elif len(vs) == 4:
+                (a, b, c_, d_) = (int(vs[0]), int(vs[1]), int(vs[2]), int(vs[3]))
+                (ua, ub, uc, ud) = lus
+                for vtx, u in ((a, ua), (b, ub), (c_, uc), (d_, ud)):
+                    _pending_uv[vtx] = u
+                ab, uab = mid(a, b)
+                bc, ubc = mid(b, c_)
+                cd, ucd = mid(c_, d_)
+                da, uda = mid(d_, a)
+                cen = len(new_co)
+                new_co.append((
+                    (new_co[a][0] + new_co[b][0] + new_co[c_][0] + new_co[d_][0]) / 4.0,
+                    (new_co[a][1] + new_co[b][1] + new_co[c_][1] + new_co[d_][1]) / 4.0,
+                    (new_co[a][2] + new_co[b][2] + new_co[c_][2] + new_co[d_][2]) / 4.0,
+                ))
+                acc = {}
+                for vtx, sc in ((a, 0.25), (b, 0.25), (c_, 0.25), (d_, 0.25)):
+                    for nm, w in new_groups[vtx]:
+                        acc[nm] = acc.get(nm, 0.0) + w * sc
+                top = sorted(acc.items(), key=lambda kv: -kv[1])[:4]
+                tot = sum(w for _, w in top) or 1.0
+                new_groups.append([(nm, w / tot) for nm, w in top])
+                side_of[cen] = side_of.get(a)
+                uc_ = tuple((ua[k] + ub[k] + uc[k] + ud[k]) / 4.0 for k in (0, 1))
+                new_faces.append(([a, ab, cen, da], [ua, uab, uc_, uda], mat_i))
+                new_faces.append(([ab, b, bc, cen], [uab, ub, ubc, uc_], mat_i))
+                new_faces.append(([cen, bc, c_, cd], [uc_, ubc, uc, ucd], mat_i))
+                new_faces.append(([da, cen, cd, d_], [uda, uc_, ucd, ud], mat_i))
+            else:
+                for k in range(1, len(vs) - 1):
+                    (a, b, c_) = (int(vs[0]), int(vs[k]), int(vs[k + 1]))
+                    (ua, ub, uc) = (_pending_uv[a], _pending_uv[b], _pending_uv[c_])
+                    ab, uab = mid(a, b)
+                    bc, ubc = mid(b, c_)
+                    ca, uca = mid(c_, a)
+                    new_faces.append(([a, ab, ca], [ua, uab, uca], mat_i))
+                    new_faces.append(([b, bc, ab], [ub, ubc, uab], mat_i))
+                    new_faces.append(([c_, ca, bc], [uc, uca, ubc], mat_i))
+                    new_faces.append(([ab, bc, ca], [uab, ubc, uca], mat_i))
+        for i in range(len(new_co)):
+            proj(i)
+        mat_names = [m.name if m else "" for m in me.materials]
+        me.clear_geometry()
+        me.from_pydata(
+            [tuple(c) for c in new_co], [],
+            [list(f) for f, _, _ in new_faces],
+        )
+        me.update()
+        while len(me.materials) < len(mat_names):
+            nm = mat_names[len(me.materials)]
+            me.materials.append(bpy.data.materials.get(nm))
+        for p, (_, _, mat_i) in zip(me.polygons, new_faces):
+            p.material_index = mat_i % max(len(mat_names), 1)
+            p.use_smooth = True
+        uvl = me.uv_layers.new(name=uv_name)
+        li = 0
+        for _, corners, _ in new_faces:
+            for u in corners:
+                uvl.data[li].uv = u
+                li += 1
+        # clear_geometry() also drops the object's vertex groups in Blender
+        # 5.1 (measured) — recreate every group the rebuilt verts reference,
+        # then assign. Refuse loudly if any vert ends weightless (the exporter
+        # would silently fall back to neutral_bone and freeze gaze).
+        known = {g.name for g in eyes_asset.vertex_groups}
+        for groups in new_groups:
+            for nm, _ in groups:
+                if nm not in known:
+                    eyes_asset.vertex_groups.new(name=nm)
+                    known.add(nm)
+        for i, groups in enumerate(new_groups):
+            for nm, w in groups:
+                if w > 0.0:
+                    eyes_asset.vertex_groups[nm].add([i], float(w), "REPLACE")
+        bare = [i for i, v in enumerate(me.vertices) if not list(v.groups)]
+        if bare:
+            raise RuntimeError(
+                f"EYESHELL: {len(bare)} subdivided eye verts weightless — refusing")
+        me.update()
+    print(f"EYESHELL_SUBDIVIDE rounds={rounds} eye verts={len(eyes_asset.data.vertices)}")
+
+
+def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
+                   shell_ramp_m, shell_upper_boost, tear_color, tear_rough,
+                   tear_fan_steps_m, tear_snap_m, build_shell=True):
+    """B2 shell + B3 tearline. Returns (shell_mat_name|None, tear_mat_name|None)."""
+    MW = eyes_asset.matrix_world
+    IW = MW.inverted()
+    from mathutils import Vector as _V
+    coll = eyes_asset.users_collection[0] if eyes_asset.users_collection \
+        else bpy.context.scene.collection
+    sides, world = _eyshell_eye_sides(eyes_asset)
+    spheres = {}
+    for side, idx in sides.items():
+        c, r = _fit_eye_sphere(world[idx])
+        spheres[side] = (c, float(r))
+        print(f"EYESHELL_SPHERE {side} center "
+              f"{[round(float(v), 6) for v in c]} r {float(r) * 1000.0:.3f}mm")
+    hW = human.matrix_world
+    skin_idx = next(
+        (i for i, m in enumerate(human.data.materials) if "skin" in (m.name or "").lower()),
+        0,
+    )
+    skin_world = np.array([tuple(hW @ v.co) for v in human.data.vertices], dtype=float)
+    loops, canthi = {}, {}
+    for side, idx in sides.items():
+        c, r = spheres[side]
+        d = np.linalg.norm(skin_world - c, axis=1) - r
+        m = (d >= 0.0005) & (d <= 0.004) & (np.abs(skin_world[:, 0] - c[0]) < 0.025)
+        cand = skin_world[m]
+        res = {}
+        for tag, sel in (("up", cand[:, 2] > c[2]), ("lo", cand[:, 2] <= c[2])):
+            pts = cand[sel]
+            if len(pts) < 4:
+                res[tag] = np.empty((0, 3))
+                continue
+            o = pts[np.argsort(pts[:, 0])]
+            xs = np.linspace(float(o[:, 0].min()), float(o[:, 0].max()), 25)
+            res[tag] = np.stack([xs, np.interp(xs, o[:, 0], o[:, 1]),
+                                 np.interp(xs, o[:, 0], o[:, 2])], axis=1)
+        loops[side] = res
+        if not len(res["up"]) and not len(res["lo"]):
+            raise RuntimeError(f"EYESHELL: no lid-margin loop found for {side} — refusing")
+        ends = [res[t][k] for t in ("up", "lo") for k in (0, -1) if len(res[t])]
+        ends = np.array(ends) if ends else np.empty((0, 3))
+        canthi[side] = np.array([ends[np.argmin(ends[:, 0])],
+                                 ends[np.argmax(ends[:, 0])]]) if len(ends) \
+            else np.empty((0, 3))
+        print(f"EYESHELL_LOOP {side} up {len(res['up'])} lo {len(res['lo'])} "
+              f"cand {len(cand)}")
+
+    def arc_min(sp, pts, c, r):
+        cosang = np.clip((sp - c) / r @ ((pts - c) / r).T, -1.0, 1.0)
+        return r * np.arccos(cosang).min(axis=1)
+
+    # ---- B2: duplicate the cap, offset outward, per-vertex alpha ----
+    # NOTE frames: Blender is z-up, so height is [:, 2] and the frontal
+    # (viewer-facing) plane is [:, [0, 2]] — the GLB prototype used y-up.
+    shell_mat_name = None
+    if build_shell:
+        side_map = {}
+        for s, idx in sides.items():
+            for i in idx:
+                side_map[int(i)] = s
+        shell_obj = eyes_asset.copy()
+        shell_obj.data = eyes_asset.data.copy()
+        shell_obj.name = "openclinxr_eye_occlusion_shell"
+        shell_obj.data.name = "openclinxr_eye_occlusion_shell_mesh"
+        for i, v in enumerate(shell_obj.data.vertices):
+            side = side_map.get(int(i))
+            if side is None:
+                continue
+            w = np.array(tuple(MW @ eyes_asset.data.vertices[i].co), dtype=float)
+            c, r = spheres[side]
+            n = (w - c) / float(np.linalg.norm(w - c))
+            shell_obj.data.vertices[i].co = IW @ _V(tuple(w + n * 0.0003))
+        shell_groups = {}
+        for v in eyes_asset.data.vertices:
+            shell_groups[v.index] = [(eyes_asset.vertex_groups[vg.group].name, float(vg.weight))
+                                     for vg in v.groups if vg.weight > 0.0]
+        for gname in {nm for groups in shell_groups.values() for nm, _ in groups}:
+            if shell_obj.vertex_groups.get(gname) is None:
+                shell_obj.vertex_groups.new(name=gname)
+        for i, groups in shell_groups.items():
+            for nm, w in groups:
+                shell_obj.vertex_groups[nm].add([i], w, "REPLACE")
+        alpha = np.zeros(len(shell_obj.data.vertices))
+        for side, idx in sides.items():
+            c, r = spheres[side]
+            w = np.array([tuple(MW @ shell_obj.data.vertices[i].co) for i in idx], dtype=float)
+            loop = np.vstack([loops[side]["up"], loops[side]["lo"]])
+            lp = c + (loop - c) / np.linalg.norm(loop - c, axis=1, keepdims=True) * r
+            dl = arc_min(w, lp, c, r)
+            a = shell_margin * (1.0 - _eyshell_smoothstep(0.0, shell_ramp_m, dl))
+            rho = np.linalg.norm(w[:, [0, 2]] - c[[0, 2]], axis=1)
+            low = w[:, 2] <= c[2]
+            clamp = np.zeros(len(w), dtype=bool)
+            clamp[low] = rho[low] < 0.0035
+            a[clamp] = 0.0
+            if len(canthi[side]):
+                cp = np.vstack([c + (p - c) / float(np.linalg.norm(p - c)) * r
+                                for p in canthi[side]])
+                dc = arc_min(w, cp, c, r)
+                corner = shell_corner * (1.0 - _eyshell_smoothstep(0.0, 0.004, dc))
+                corner[rho < 0.0045] = 0.0
+                a = np.maximum(a, corner)
+            upm = w[:, 2] > c[2]
+            a[upm] = np.minimum(a[upm] * shell_upper_boost, 0.75)
+            alpha[idx] = np.clip(a, 0.0, 1.0)
+        if len(shell_obj.data.color_attributes):
+            raise RuntimeError("EYESHELL: shell mesh already has color attributes")
+        ca = shell_obj.data.color_attributes.new(name="Color", type="FLOAT_COLOR", domain="POINT")
+        for i in range(len(shell_obj.data.vertices)):
+            ca.data[i].color = (1.0, 1.0, 1.0, float(alpha[i]))
+        # The 5.1 exporter emits a dummy white COLOR_0 plus the real attribute
+        # as COLOR_1 unless the attribute is both active AND render (measured)
+        # — and three.js reads COLOR_0 only. Pin both, then verify.
+        shell_obj.data.color_attributes.active_color = ca
+        try:
+            shell_obj.data.color_attributes.active_color_index = \
+                shell_obj.data.color_attributes.find(ca.name)
+            shell_obj.data.color_attributes.render_color_index = \
+                shell_obj.data.color_attributes.find(ca.name)
+        except Exception as e:
+            raise RuntimeError(f"EYESHELL: cannot pin shell color attribute: {e}")
+        if shell_obj.data.color_attributes.render_color_index != \
+                shell_obj.data.color_attributes.find(ca.name):
+            raise RuntimeError("EYESHELL: shell render color attribute did not stick")
+        shell_mat = bpy.data.materials.new("openclinxr_eye_occlusion_shell")
+        shell_mat.use_nodes = True
+        bsdf = shell_mat.node_tree.nodes.get("Principled BSDF")
+        if bsdf is not None:
+            bsdf.inputs["Base Color"].default_value = (*shell_color, 1.0)
+            bsdf.inputs["Roughness"].default_value = 1.0
+            # The 5.1 exporter emits a dummy white COLOR_0 plus the real
+            # attribute as COLOR_1 unless a Vertex Color node consumes the
+            # layer (measured): wire Color->Base Color and Alpha->Alpha so the
+            # ramp exports as the single COLOR_0. Only the alpha survives the
+            # exporter (rgb is forced white); baseColorFactor is restored by
+            # the post-export unlit patch, so the rgb here is cosmetic.
+            vc = shell_mat.node_tree.nodes.new("ShaderNodeVertexColor")
+            vc.layer_name = ca.name
+            shell_mat.node_tree.links.new(vc.outputs["Color"], bsdf.inputs["Base Color"])
+            shell_mat.node_tree.links.new(vc.outputs["Alpha"], bsdf.inputs["Alpha"])
+        try:
+            shell_mat.blend_method = "BLEND"
+        except Exception:
+            pass
+        try:
+            shell_mat.surface_render_method = "BLENDED"
+        except Exception:
+            pass
+        shell_obj.data.materials.clear()
+        shell_obj.data.materials.append(shell_mat)
+        for p in shell_obj.data.polygons:
+            p.use_smooth = True
+        for mod in eyes_asset.modifiers:
+            if mod.type == "ARMATURE":
+                nm = shell_obj.modifiers.new(mod.name, "ARMATURE")
+                nm.object = mod.object
+        shell_obj.parent = eyes_asset.parent
+        try:
+            shell_obj.matrix_world = eyes_asset.matrix_world.copy()
+        except Exception:
+            pass
+        coll.objects.link(shell_obj)
+        shell_mat_name = shell_mat.name
+        print(f"EYESHELL_SHELL verts={len(shell_obj.data.vertices)} "
+              f"alpha_med={float(np.median(alpha)):.3f} alpha_max={float(alpha.max()):.3f}")
+
+    # ---- B3: lid->globe strips + snapped corner fans ----
+    tear_name = None
+    if tear_color is not None:
+        skin_tris = []
+        for p in human.data.polygons:
+            if p.material_index == skin_idx:
+                vs = list(p.vertices)
+                for k in range(1, len(vs) - 1):
+                    skin_tris.append((vs[0], vs[k], vs[k + 1]))
+        skin_tris = np.array(skin_tris, dtype=np.int64)
+        P0 = skin_world[skin_tris[:, 0]]
+        P1 = skin_world[skin_tris[:, 1]]
+        P2 = skin_world[skin_tris[:, 2]]
+        fn = np.cross(P1 - P0, P2 - P0)
+        nl = np.linalg.norm(fn, axis=1, keepdims=True)
+        nl[nl == 0] = 1.0
+        fn /= nl
+        svn = np.zeros_like(skin_world)
+        for k in range(3):
+            np.add.at(svn, skin_tris[:, k], fn)
+        nl = np.linalg.norm(svn, axis=1, keepdims=True)
+        nl[nl == 0] = 1.0
+        svn /= nl
+        TP, TF = [], []
+        for side, idx in sides.items():
+            c, r = spheres[side]
+            vic = skin_world[np.abs(skin_world[:, 0] - c[0]) < 0.025]
+            vic_n = svn[np.abs(skin_world[:, 0] - c[0]) < 0.025]
+
+            def snap_proud(p):
+                dd = np.linalg.norm(vic - p, axis=1)
+                k = int(np.argmin(dd))
+                if dd[k] > tear_snap_m:
+                    return None
+                return vic[k] + vic_n[k] * 0.0002
+
+            def extend(loop):
+                # Fans past each loop end, WALKING the skin: each step re-aims
+                # along (last grounded - previous) so the fan follows the
+                # crease around the corner instead of firing a straight tangent
+                # into air. Truncates at the first step with no skin inside the
+                # snap radius (never floats). Recipe steps 1.5/3/4.5mm.
+                out = []
+                for end, nxt in ((0, 1), (-1, -2)):
+                    t = loop[end] - loop[nxt]
+                    t /= float(np.linalg.norm(t)) or 1.0
+                    ext, prev, cur = [], loop[nxt], loop[end]
+                    for s in tear_fan_steps_m:
+                        q = snap_proud(cur + t * s)
+                        if q is None:
+                            break
+                        ext.append(q)
+                        t = q - prev
+                        t /= float(np.linalg.norm(t)) or 1.0
+                        prev, cur = cur, q
+                    out.append(ext)
+                return np.array(out[0][::-1] + [row for row in loop] + out[1])
+
+            for tag in ("up", "lo"):
+                loop = loops[side][tag]
+                if len(loop) < 2:
+                    continue
+                outer_line = extend(loop)
+                dd = (outer_line - c) / np.linalg.norm(outer_line - c, axis=1, keepdims=True)
+                inner = c + dd * (r + 0.00015)
+                n = len(outer_line)
+                base = len(TP)
+                TP.extend([tuple(p) for p in outer_line])
+                TP.extend([tuple(p) for p in inner])
+                for i in range(n - 1):
+                    TF.append((base + i, base + n + i, base + i + 1))
+                    TF.append((base + i + 1, base + n + i, base + n + i + 1))
+        tear_mesh = bpy.data.meshes.new("openclinxr_eye_tearline_mesh")
+        tear_mesh.from_pydata(TP, [], TF)
+        tear_mesh.update()
+        tear_mat = bpy.data.materials.new("openclinxr_eye_tearline")
+        tear_mat.use_nodes = True
+        bsdf = tear_mat.node_tree.nodes.get("Principled BSDF")
+        if bsdf is not None:
+            bsdf.inputs["Base Color"].default_value = (*tear_color, 1.0)
+            bsdf.inputs["Roughness"].default_value = float(tear_rough)
+        tear_mesh.materials.append(tear_mat)
+        for p in tear_mesh.polygons:
+            p.use_smooth = True
+            p.material_index = 0
+        tear_obj = bpy.data.objects.new("openclinxr_eye_tearline", tear_mesh)
+        coll.objects.link(tear_obj)
+        tear_name = tear_mat.name
+        print(f"EYESHELL_TEARLINE verts={len(TP)} tris={len(TF)}")
+    if shell_mat_name is not None:
+        EYESHELL_UNLIT_BLEND[shell_mat_name] = (True, list(shell_color))
+    if tear_name is not None:
+        EYESHELL_UNLIT_BLEND[tear_name] = (False, list(tear_color) if tear_color is not None else None)
+    return shell_mat_name, tear_name
+
+
+def patch_glb_eye_occlusion(path, blend):
+    """Publish the eyeshell materials as constant-output KHR_materials_unlit.
+
+    The Blender 5.1 exporter omits alphaMode, baseColorFactor (when a Vertex
+    Color node drives the base color), and the unlit extension, so all three
+    are written back into the exported JSON chunk beside the #360 factor
+    patch. `blend` maps material name -> (blend_bool, [r,g,b]|None). The shell
+    keeps alphaMode BLEND (per-vertex COLOR_0 alpha); the tearline is opaque.
+    Mechanical JSON re-serialization; BIN bytes verbatim.
+    """
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"EYESHELL: not a GLB: {path}")
+    json_len = struct.unpack("<I", data[12:16])[0]
+    json_end = 20 + json_len
+    gltf = json.loads(data[20:json_end])
+    patched = []
+    for mat in gltf.get("materials", []):
+        if mat.get("name") not in blend:
+            continue
+        do_blend, rgb = blend[mat["name"]]
+        if do_blend:
+            mat["alphaMode"] = "BLEND"
+        if rgb is not None:
+            mat.setdefault("pbrMetallicRoughness", {})["baseColorFactor"] = \
+                [float(v) for v in rgb] + [1.0]
+        mat.setdefault("extensions", {})["KHR_materials_unlit"] = {}
+        patched.append(mat.get("name"))
+    if sorted(patched) != sorted(blend):
+        raise RuntimeError(
+            f"EYESHELL: unlit patch matched {patched}, wanted {sorted(blend)} in {path}")
+    if "KHR_materials_unlit" not in gltf.get("extensionsUsed", []):
+        gltf.setdefault("extensionsUsed", []).append("KHR_materials_unlit")
+    new_json = json.dumps(gltf, separators=(",", ":"))
+    new_json += " " * ((4 - len(new_json) % 4) % 4)
+    bin_chunk = data[json_end:]
+    out = bytearray()
+    out += b"glTF"
+    out += struct.pack("<II", 2, 12 + 8 + len(new_json) + len(bin_chunk))
+    out += struct.pack("<I", len(new_json)) + b"JSON"
+    out += new_json.encode("utf-8")
+    out += bin_chunk
+    with open(path, "wb") as f:
+        f.write(out)
+    print(f"GLB_EYESHELL_UNLIT {path} materials {','.join(sorted(patched))}")
 
 
 def _parse_obj_vertices(path):
@@ -4610,6 +5192,32 @@ def main():
         f"EYE_SOCKET_UNPAINT {eye_socket_unpainted} polygons reverted to skin "
         f"in the eye footprint x[{eye_min_x:.4f},{eye_max_x:.4f}] y[{eye_min_y:.4f},{eye_max_y:.4f}]"
     )
+
+    # Eyeshell (B1/B2/B3): lid shadow on the globe without touching eye albedo.
+    # All three options default OFF. Runs here, on the FINAL eye geometry after
+    # the anatomical resize and the eye-material assignment, before hair.
+    if getattr(args, "eye_subdivide", 0):
+        _eyshell_subdivide_eye(eyes_asset, int(args.eye_subdivide))
+    if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
+        _eyshell_shell_color = _eyshell_srgb_to_linear(
+            [float(v) / 255.0 for v in str(args.eye_shell_color).split(",")])
+        _eyshell_tear_color = _eyshell_srgb_to_linear(
+            [float(v) / 255.0 for v in str(args.eye_tear_color).split(",")]) \
+            if getattr(args, "eye_tearline", False) else None
+        _eyshell_build(
+            eyes_asset, human,
+            shell_color=_eyshell_shell_color,
+            shell_margin=float(args.eye_shell_margin),
+            shell_corner=float(args.eye_shell_corner),
+            shell_ramp_m=float(args.eye_shell_ramp_mm) / 1000.0,
+            shell_upper_boost=float(args.eye_shell_upper_boost),
+            tear_color=_eyshell_tear_color,
+            tear_rough=float(args.eye_tear_rough),
+            tear_fan_steps_m=[float(v) / 1000.0
+                              for v in str(args.eye_tear_fan_steps).split(",")],
+            tear_snap_m=float(args.eye_tear_snap_mm) / 1000.0,
+            build_shell=bool(getattr(args, "eye_occlusion_shell", False)),
+        )
 
     # #381 — the cast actor wears the fitted hair the library rail already proves.
     # The painted scalp region above IS the hair today unless a style is mapped
@@ -7182,6 +7790,14 @@ def main():
 
     # #739 — retreat the fitted teeth after the GLB exists (probe then apply).
     run_teeth_rest_clearance(output)
+
+    # Eyeshell: publish the shell/tearline materials as constant-output
+    # KHR_materials_unlit (plus alphaMode BLEND on the shell). Runs AFTER the
+    # teeth station, whose GLB rewrite drops unknown extensions (measured:
+    # a pre-#739 patch loses the extension while standard fields survive), and
+    # before the census so the measurements below read the FINAL bytes.
+    if EYESHELL_UNLIT_BLEND:
+        patch_glb_eye_occlusion(str(output), EYESHELL_UNLIT_BLEND)
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and
