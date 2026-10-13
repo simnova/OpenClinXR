@@ -10,6 +10,22 @@ export {
   updateGeneratedHumanoidAnimations,
 } from "./animation-loop.js";
 export {
+  clampFrameDtSeconds,
+  consumeFrameTime,
+  contactAtClipTime,
+  createFixedTimestepClock,
+  FIXED_SUBSTEP_SECONDS,
+  FRAME_DT_CLAMP_SECONDS,
+  interpolateSimScalar,
+  isSingleSupportContact,
+  MAX_SUBSTEPS_PER_FRAME,
+  substepsForSchedule,
+} from "./fixed-timestep-clock-mod.js";
+export type {
+  ConsumedFrameTime,
+  FixedTimestepClock,
+} from "./fixed-timestep-clock-mod.js";
+export {
   applyHumanoidMorphTargetCue,
   createHumanoidEmotionExpressionState,
   startHumanoidEmotionTransition,

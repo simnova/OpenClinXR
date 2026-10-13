@@ -58,6 +58,22 @@ export function advanceCaseOwnedBedsideApproach(
   // The baked-stop handoff inputs (`resolveStopTriggerInput`, stop-clip-playback-mod.ts): null
   // while the actor carries no stop take, which keeps the legacy ending.
   const { stop: stopTrigger } = resolveStopTriggerInput(approach);
+  // Contact-window walk exit (fixed-clock slice): the walk clip's stance labels
+  // at the action's current clip time gate the executor's exit band, so the exit
+  // substep is a clip-phase event. Read BEFORE stepping (one substep stale, exactly
+  // like the stance lock's pose read); null off the walking phase keeps legacy exits.
+  const clipStanceForExit =
+    approach.execution.phase === "walking" ? resolveClipStanceForFrame(approach) : undefined;
+  const walkExit =
+    clipStanceForExit === undefined
+      ? null
+      : {
+          cycleSeconds: clipStanceForExit.labels.cycleSeconds,
+          atMs: clipStanceForExit.labels.atMs,
+          left: clipStanceForExit.labels.left,
+          right: clipStanceForExit.labels.right,
+          clipTimeSeconds: clipStanceForExit.actionTimeSeconds,
+        };
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -74,6 +90,7 @@ export function advanceCaseOwnedBedsideApproach(
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
+    walkExit,
   });
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
