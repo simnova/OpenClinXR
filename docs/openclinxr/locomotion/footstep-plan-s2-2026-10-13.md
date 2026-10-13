@@ -156,3 +156,40 @@ carry, route-independent: travelled 2.0 → 2.0307, 6.0 → 6.0252,
 
 D4 read: `parseFootstepRouteMeters` honors only the literal 2
 (`footstep-plan-query-flag-mod.ts:27-32`); anything else reads null.
+
+## Exit at the toe crossing (exit-phase-per-foot M2, 2026-10-13)
+
+The walk exits on the frame-side route-axis R-L toe-separation sign flip,
+counted since walk start: flip j names passing j (measured: exactly one
+flip per passing, ~31 substeps apart, no flicker on 1.31/2.0/6.0 m), exit
+on flip k for whichever foot is passing, at any scale; the phase target
+stays the backstop. Two cuts: the last-half gate fired on the half-opening
+flip (stale phase count races the flip by +-1 substep) and exited 2.0 m a
+full half early (rootM 1.353, arrival broken); counting fixed it with no
+frame-side change. New small modules only: `footstep-crossing-exit-mod`
+(passing helpers moved verbatim + pure crossing test),
+`footstep-toe-separation-mod` (read-only). `footstepRouteM` now accepts
+any number in [0.8, 6.0] with the plan flag required; G4 probe
+`footstepProbeExitDelay` holds a recorded crossing late (default 0).
+
+Final gates (`footstepPlan=1&fixedClock=1`, n=3; commits ffe980a6d,
+c23414d68, 67e72194f; full rows in
+`.openclinxr/evidence/footstep-plan/parity-result/RESULT.json`):
+
+| route | exit (was) | end-stance | arrival | slide/m | G1/G2/G3 |
+|---|---|---|---|---|---|
+| 1.31 sc05, k=3 | 96 (96) | +0.0121 | 0.0327 | 0.0791 | PASS/PASS/PASS |
+| 2.0 sc05, k=4 | 128 (129) | +0.1019 | 0.0217 | 0.0345 | MISS/PASS/PASS |
+| 6.0 loco, k=11 | 348 (348) | +0.0660 | 0.0335 | 0.0199 | MISS/PASS/PASS |
+
+G4: delay=6 on 1.31 m holds the exit exactly 6 substeps (100 taps vs 94)
+and splits the feet -0.3732 (red); revert +0.0121 (green). G5: flags-off
+no-clock slide 0.3251 in [0.3208, 0.3266]; fixed-clock flags-off 0.2053
+matches s2-g-control; both packages' tests (113/140) and architecture
+(26/291) green.
+
+STILL: G1 on 2.0/6.0 m is settle-owned — both SC-05 settles open +0.0 to
++0.21 route-split through the identical turn while the slot-frame end
+differs by entry foot, and the loco close converges only partially by S1.
+Next mechanism (separate slice): settling-turn entry-foot behavior and
+arrival-close convergence.
