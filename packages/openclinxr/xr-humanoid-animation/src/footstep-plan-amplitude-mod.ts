@@ -38,8 +38,9 @@ import { resolveClipStanceForFrame } from "./stop-clip-playback-mod.js";
  *
  * Lift-offs come from clip TIME (static lift seconds + action time), never
  * from runtime stance labels: the plan is a pure function of route length
- * and the clock only advances its index. Arms, spine, toes, timeScale, the
- * clip, and the turn are untouched.
+ * and the clock only advances its index. Arms and spine stay at clip weight;
+ * toes blend with the legs (positions home too); timeScale, the clip, and
+ * the turn are untouched.
  *
  * claimScope: the walking legs' amplitude for one approach while flagged.
  * notEvidenceFor: gait realism, other actors, or unflagged runs (no flag =
@@ -52,6 +53,8 @@ export type FootstepBoneRest = {
   bone: Object3D;
   rest: { x: number; y: number; z: number; w: number };
   side: FootstepBoneSide;
+  /** Rest local position (toe bones only): the blend lerps positions home too. */
+  restLocal: { x: number; y: number; z: number } | null;
 };
 
 export type FootstepLegClock = {
@@ -155,11 +158,22 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   });
   for (const [name, quat] of Object.entries(rest.quats)) {
     const bone = byName.get(name);
-    if (bone !== undefined) bones.push({ bone, rest: { ...quat }, side: legSide(name) });
+    if (bone !== undefined) bones.push({ bone, rest: { ...quat }, side: legSide(name), restLocal: null });
   }
   for (const bone of collectPelvisBones(approach.actorSlot)) {
     const q = bone.quaternion;
-    bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side: "pelvis" });
+    bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side: "pelvis", restLocal: null });
+  }
+  // Toe bones: rotations alone leave the feet spread wide at scale 0 (measured
+  // 0.34 m lateral vs 0.19 m rest); lerping locals home too lands true standing.
+  const toes: Array<{ toe: Object3D | null; local: { x: number; y: number; z: number }; side: "left" | "right" }> = [
+    { toe: approach.leftToe, local: rest.toeLeft, side: "left" },
+    { toe: approach.rightToe, local: rest.toeRight, side: "right" },
+  ];
+  for (const { toe, local, side } of toes) {
+    if (toe === null) continue;
+    const q = toe.quaternion;
+    bones.push({ bone: toe, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side, restLocal: { ...local } });
   }
   const clockFor = (side: "left" | "right"): FootstepLegClock => ({
     scales: plan.legs[side].map((a) => a.scale),
@@ -220,8 +234,9 @@ const restQuat = new Quaternion();
  * Per-walking-frame amplitude blend (post-pose: call after the mixer posed
  * the skeleton, before the closed-loop advance reads the toes). Slerps each
  * cached leg/pelvis bone between its standing rest and the clip's current
- * pose by its side's held scale; normalizes (G6 quat norm). No flag, no
- * state, or a non-walking phase returns without touching anything.
+ * pose by its side's held scale, and lerps toe locals home by the same
+ * scale; normalizes (G6 quat norm). No flag, no state, or a non-walking
+ * phase returns without touching anything.
  */
 export function applyFootstepPlanStep(input: {
   approach: CaseOwnedBedsideApproach;
@@ -243,6 +258,16 @@ export function applyFootstepPlanStep(input: {
     entry.bone.quaternion.set(clipX, clipY, clipZ, clipW);
     entry.bone.quaternion.slerp(restQuat, 1 - scale);
     entry.bone.quaternion.normalize();
+    if (entry.restLocal) {
+      const px = entry.bone.position.x;
+      const py = entry.bone.position.y;
+      const pz = entry.bone.position.z;
+      entry.bone.position.set(
+        entry.restLocal.x + (px - entry.restLocal.x) * scale,
+        entry.restLocal.y + (py - entry.restLocal.y) * scale,
+        entry.restLocal.z + (pz - entry.restLocal.z) * scale,
+      );
+    }
   }
   approach.actorSlot.updateMatrixWorld(true);
 }
