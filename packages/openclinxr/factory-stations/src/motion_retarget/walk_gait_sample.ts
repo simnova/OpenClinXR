@@ -170,13 +170,13 @@ function sampleChannelValues(ch: Channel, t: number): number[] {
   return a.map((v, idx) => v + (b[idx]! - v) * f);
 }
 
-const GATE_JOINT_NAMES = (joints: WalkGateJoints): string[] => [
+const GATE_JOINT_NAMES = (joints: WalkGateJoints): string[] => [...new Set([
   ...joints.hips,
   joints.thighL, joints.kneeL, joints.ankleL, joints.toeL,
   joints.thighR, joints.kneeR, joints.ankleR, joints.toeR,
   joints.shoulderL, joints.elbowL, joints.shoulderR, joints.elbowR,
   joints.root,
-];
+])];
 
 /** Sample one clip's world positions and world rotations for the gate joints. */
 export async function sampleWalkClip(input: {
@@ -268,6 +268,11 @@ export async function sampleWalkClip(input: {
       }
       pos[name]!.push(P);
       quat[name]!.push(matToQuat(R));
+    }
+  }
+  for (const name of names) {
+    if (pos[name]!.length !== times.length || quat[name]!.length !== times.length) {
+      throw new Error(`track/frame length mismatch on ${name}: tracks must align with timestamps`);
     }
   }
   return {
