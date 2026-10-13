@@ -42,10 +42,52 @@ export type ProductLightingRigFns = {
     keyLightName: string;
     keyCastShadow: boolean;
   }) => Promise<{ variantId: string; lights: Light[]; rigApplied: boolean }>;
-  loadProductRigCast: (
-    environmentId: string,
-  ) => Promise<Array<{ actorId: string; position: [number, number, number] }> | null>;
+  resolveLightingRigPublicPath: (environmentId: string) => string;
 };
+
+/**
+ * Fetch + validate a lighting-rig cast JSON from a public URL (null when
+ * missing or malformed). Internal to this module: the lab calls it directly
+ * with the URL from the bridge's resolveLightingRigPublicPath, so the app
+ * side stays wiring-only and the package surface does not grow for it.
+ */
+async function loadProductRigCastFromUrl(url: string): Promise<Array<{
+  actorId: string;
+  position: [number, number, number];
+}> | null> {
+  let response: Response;
+  try {
+    response = await fetch(url, { cache: "no-store" });
+  } catch {
+    return null;
+  }
+  if (!response.ok) return null;
+  let json: unknown;
+  try {
+    json = await response.json();
+  } catch {
+    return null;
+  }
+  if (typeof json !== "object" || json === null) return null;
+  const cast: unknown = (json as { cast?: unknown }).cast;
+  if (!Array.isArray(cast)) return null;
+  const out: Array<{ actorId: string; position: [number, number, number] }> = [];
+  for (const entry of cast) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const actorId: unknown = (entry as { actorId?: unknown }).actorId;
+    if (typeof actorId !== "string") continue;
+    const p: unknown = (entry as { position?: unknown }).position;
+    if (
+      !Array.isArray(p) ||
+      p.length !== 3 ||
+      !p.every((v) => typeof v === "number" && Number.isFinite(v))
+    ) {
+      continue;
+    }
+    out.push({ actorId, position: [p[0] as number, p[1] as number, p[2] as number] });
+  }
+  return out;
+}
 
 export type ProductRigApplied = {
   environmentId: string;
@@ -214,7 +256,7 @@ export async function applyProductRig(
   if (!applied.rigApplied) {
     throw new Error(`product rig ${environmentId} did not apply — refusing rather than grading a fallback`);
   }
-  const cast = await fns.loadProductRigCast(environmentId);
+  const cast = await loadProductRigCastFromUrl(fns.resolveLightingRigPublicPath(environmentId));
   const patient = cast?.find((c) => c.actorId === "patient");
   if (!patient) {
     throw new Error(`product rig ${environmentId} has no patient cast entry — refusing rather than misplacing the rig`);

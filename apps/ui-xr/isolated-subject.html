@@ -35,40 +35,11 @@
         loadLightingRig,
         resolveLightingRigPublicPath,
       } from "./src/lighting-rig-runtime.js";
-
-      // Product-lighting bridge (composition-root wiring; the former
-      // apps/ui-xr/src/isolated-subject-product-lighting.ts module was removed
-      // so apps/ui-xr stays at its frozen composition-root budget). The lab
-      // lives in @openclinxr/xr-scene and cannot import from the app, so the
-      // page stashes the PRODUCT functions on window for the lab to call. No
-      // energy/intensity or colour-temperature math here — it all stays inside
-      // lighting-rig-runtime.ts.
-      async function loadProductRigCast(environmentId) {
-        try {
-          const response = await fetch(resolveLightingRigPublicPath(environmentId), { cache: "no-store" });
-          if (!response.ok) return null;
-          const json = await response.json();
-          if (!Array.isArray(json.cast)) return null;
-          const out = [];
-          for (const entry of json.cast) {
-            if (typeof entry.actorId !== "string") continue;
-            const p = entry.position;
-            if (!Array.isArray(p) || p.length !== 3 || !p.every((v) => typeof v === "number" && Number.isFinite(v))) {
-              continue;
-            }
-            out.push({ actorId: entry.actorId, position: p });
-          }
-          return out;
-        } catch {
-          return null;
-        }
-      }
-
       window.__openClinXrProductLightingRigFns = {
         applyStationInteriorLightingForEnvironment,
         configureStationRendererToneMapping,
         loadLightingRig,
-        loadProductRigCast,
+        resolveLightingRigPublicPath,
       };
       bootIsolatedSubjectLab();
     </script>
