@@ -1,0 +1,85 @@
+{
+  "result": "footstep-plan-creep-M1",
+  "commit": "ae19e9bb3",
+  "run": "creep-tap/sc05-run0.json + tap-sc05-run0.json",
+  "query": "steppingTurn=1&footstepPlan=1&fixedClock=1",
+  "scale": 0.7334295741662565,
+  "tapRecords": 94,
+  "stageTablePerSubstepMm": {
+    "longRight_probe8_18": {
+      "probeRange": [
+        8,
+        18
+      ],
+      "nSubsteps": 22,
+      "crowns": [
+        "right"
+      ],
+      "blendMoveMm": 65.528,
+      "advanceMoveMm": 9.356,
+      "interClipMm": 61.103
+    },
+    "longLeft_probe24_34": {
+      "probeRange": [
+        24,
+        34
+      ],
+      "nSubsteps": 22,
+      "crowns": [
+        "left"
+      ],
+      "blendMoveMm": 65.72,
+      "advanceMoveMm": 9.387,
+      "interClipMm": 62.076
+    },
+    "lastRight_probe39_44": {
+      "probeRange": [
+        39,
+        44
+      ],
+      "nSubsteps": 12,
+      "crowns": [
+        "right"
+      ],
+      "blendMoveMm": 39.248,
+      "advanceMoveMm": 6.773,
+      "interClipMm": 35.322
+    }
+  },
+  "rigidCarrySanityMaxMm": 0,
+  "midWalkFollowErrAbsSumMm": 0,
+  "midWalkFollowSubs": 75,
+  "crownHeldCreepPerSubstepMm": {
+    "alongRoute": 0.341,
+    "lateral": 1.254,
+    "n": 87
+  },
+  "clampedTail": [
+    {
+      "sub": 93,
+      "crown": "right",
+      "carried": false,
+      "advanceMm": 10.05,
+      "appliedDeltaMm": 0,
+      "blendMoveMm": 54.43
+    },
+    {
+      "sub": 94,
+      "crown": "right",
+      "carried": false,
+      "advanceMm": 0,
+      "appliedDeltaMm": 0,
+      "blendMoveMm": 59.1
+    },
+    {
+      "sub": 95,
+      "crown": "right",
+      "carried": false,
+      "advanceMm": 0,
+      "appliedDeltaMm": 0,
+      "blendMoveMm": 63.74
+    }
+  ],
+  "causeD1": "VERIFIED-stage: amplitude blend displaces the planted toe ~65mm/substep (28.5mm lateral); the 1-DOF along-route advance follows the blended foot with 0.00mm mid-walk error but cannot cancel lateral motion. Bone split (pelvis-rigid vs leg-relative) PENDING M1b tap.",
+  "causeD2": "VERIFIED-stage: executor-overcounted remaining clamps advance 10.05->0->0mm on the last 3 walking substeps while the mixer still strides (blend 54->64mm). Fix datum must be slot-true remaining."
+}
