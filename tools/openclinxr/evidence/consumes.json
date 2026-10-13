@@ -381,6 +381,14 @@
       {
         "name": "MPFB_WALK_JOINTS",
         "kind": "runtime"
+      },
+      {
+        "name": "runMotionRetarget",
+        "kind": "runtime"
+      },
+      {
+        "name": "WalkGateReport",
+        "kind": "type"
       }
     ]
   },
