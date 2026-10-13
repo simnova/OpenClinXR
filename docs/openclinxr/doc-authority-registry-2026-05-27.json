@@ -7,7 +7,7 @@
     "agent-methodology": 109,
     "current-reference": 214,
     "archive-candidate": 126,
-    "evidence": 180,
+    "evidence": 183,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5706,6 +5706,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/footstep-plan-s1-2026-10-13.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Footstep-plan S1 record: closed-loop opt-in, slide-meter known-good column, D2 cause split, build-time contact phases for the S2 planner."
     }
   ]
 }
