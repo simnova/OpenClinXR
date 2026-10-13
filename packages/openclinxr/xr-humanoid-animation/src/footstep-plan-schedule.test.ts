@@ -79,4 +79,43 @@ describe("footstep-plan schedule", () => {
     if ("refused" in nominal) throw new Error(`refused 1.31 m: ${nominal.reason}`);
     expect(halfCycleTravelMeters(nominal.scale)).toBeCloseTo(0.4366, 3);
   });
+
+  it("M1 travel table is self-consistent and its scales match the planner", () => {
+    // Stop-any-route O1: the per-foot affine fit lives in the committed
+    // data table (.openclinxr/evidence/stop-fit/half-travel-table.json) with
+    // the audit trail (build shas, exclusions, method). The fit points are
+    // repeated here as literals (no node:fs in this package's tests) so the
+    // table cannot drift silently: the recomputed fit must match the
+    // table's reported a/b/rms, and the table scales must reproduce the
+    // planner's uniform-scale arithmetic. No new public symbol: the model
+    // is module-private until M2 consumes it.
+    const lPoints: Array<[number, number]> = [[0.7334, 0.4943], [0.8425, 0.5246], [0.919, 0.5533]];
+    const rPoints: Array<[number, number]> = [[0.7334, 0.4292], [0.8425, 0.4669], [0.919, 0.5191]];
+    const leastSquares = (points: Array<[number, number]>): { a: number; b: number; rmsMm: number } => {
+      const n = points.length;
+      const sumX = points.reduce((s, p) => s + p[0], 0);
+      const sumY = points.reduce((s, p) => s + p[1], 0);
+      const sumXX = points.reduce((s, p) => s + p[0] * p[0], 0);
+      const sumXY = points.reduce((s, p) => s + p[0] * p[1], 0);
+      const a = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+      const b = (sumY - a * sumX) / n;
+      const rms = Math.sqrt(points.reduce((s, p) => s + (p[1] - (a * p[0] + b)) ** 2, 0) / n);
+      return { a, b, rmsMm: rms * 1000 };
+    };
+    const l = leastSquares(lPoints);
+    expect(l.a).toBeCloseTo(0.3152, 3);
+    expect(l.b).toBeCloseTo(0.262, 3);
+    expect(l.rmsMm).toBeCloseTo(2.05, 1);
+    const r = leastSquares(rPoints);
+    expect(r.a).toBeCloseTo(0.4749, 3);
+    expect(r.b).toBeCloseTo(0.0768, 3);
+    expect(r.rmsMm).toBeCloseTo(7.1, 1);
+    // Table scales reproduce the planner's uniform-scale arithmetic exactly.
+    const routeScales: Array<[number, number]> = [[1.306, 0.7335], [2.0, 0.8425], [6.0, 0.919]];
+    for (const [route, scale] of routeScales) {
+      const plan = planFootsteps(route);
+      if ("refused" in plan) throw new Error(`refused ${route} m`);
+      expect(plan.scale).toBeCloseTo(scale, 3);
+    }
+  });
 });

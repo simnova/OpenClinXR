@@ -74,6 +74,48 @@ export const FOOTSTEP_R_PASSING_S = 1.38;
 /** Minimum uniform scale: below this the plan refuses (the S2 STOP rule). */
 export const FOOTSTEP_MIN_SCALE = 0.7;
 
+/**
+ * Which passing a passing-to-passing half ends at. The stance foot carries
+ * the half: an R half (L passing -> R passing) travels on the planted right
+ * foot while the left swings, and symmetrically for L. Named by the END
+ * passing because the walk exits by counting passings (M2/M4).
+ */
+export type FootstepHalfEnd = "L" | "R";
+
+/*
+ * Per-foot affine travel model (stop-any-route M1, measured 2026-10-13):
+ * travel of one half ending at the named passing is a_foot x s + b_foot.
+ *
+ * Fit from zero-crossing halves on disk (see
+ * .openclinxr/evidence/stop-fit/half-travel-table.json for the full table,
+ * exclusions, and build shas): L ends (0.7334: 0.4943, 0.8425: 0.5246,
+ * 0.9190: 0.5533, rms 2.1 mm); R ends (0.7334 first-half 0.4292 flagged
+ * transient-suspect, 0.8425 middle 0.4669, 0.9190 all-run mean 0.5191 over a
+ * 0.508-0.532 run-to-run span on the loco scene, rms 7.1 mm). Last halves
+ * are excluded (exit clamp/band, D2); the stale-build 1.31 m L point is
+ * superseded by the current-build point at the same scale.
+ *
+ * The intercepts are interpolation-local, not physics (L extrapolates to
+ * 0.26 m at s = 0): valid only on s in [0.7, 1.0], the only range the
+ * planner (M2) and the late correction (M3) ever solve in. Refit with
+ * same-scene current-build captures (C3) before trusting residuals below.
+ */
+const TRAVEL_A_END_L = 0.3152;
+const TRAVEL_B_END_L = 0.262;
+const TRAVEL_A_END_R = 0.4749;
+const TRAVEL_B_END_R = 0.0768;
+
+/**
+ * Predicted travel of one half-cycle ending at `endFoot` at stride scale s,
+ * in metres. Module-private until the planner (M2) consumes it; tested
+ * through planFootsteps so the keep-only ./footstep-plan surface is
+ * unchanged. Pure; ranges are the caller's (M2/M3) business.
+ */
+function predictFootstepHalfTravelM(scale: number, endFoot: FootstepHalfEnd): number {
+  return (endFoot === "L" ? TRAVEL_A_END_L : TRAVEL_A_END_R) * scale
+    + (endFoot === "L" ? TRAVEL_B_END_L : TRAVEL_B_END_R);
+}
+
 export type FootstepPlan = {
   /** Whole passing-to-passing steps. */
   steps: number;
