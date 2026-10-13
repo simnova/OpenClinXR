@@ -1,6 +1,6 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
 import { type StopClipTrigger, stepStopHandoff } from "./bedside-approach-stop-mod.js";
-import { approachRouteLengthMeters, shortestYawDelta, stepWalkExitBand, type FootstepExitClock, type WalkExitContactWindow } from "./walk-exit-window.js";
+import { approachRouteLengthMeters, shortestYawDelta, stepWalkExitBand, type WalkExitContactWindow } from "./walk-exit-window.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -270,11 +270,11 @@ export function stepBedsideApproachExecution(input: {
   /** Baked stop take for this actor; absent means the walk ends as before. */
   stop?: StopClipTrigger | null;
   /**
-   * Contact-window gating for the walk exit (fixed-clock slice); absent means the legacy
-   * frame-band exit. Caller supplies stance labels at the action's clip time; see walk-exit-window.ts.
+   * Contact-window gating for the walk exit (fixed-clock slice); absent means
+   * the legacy frame-band exit. The caller supplies the walk clip's stance
+   * labels at the action's current clip time; see walk-exit-window.ts.
    */
   walkExit?: WalkExitContactWindow | null;
-  footstep?: FootstepExitClock | null;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -423,7 +423,6 @@ export function stepBedsideApproachExecution(input: {
     execution,
     walkSimSubsteps,
     walkExit: input.walkExit ?? null,
-    footstep: input.footstep ?? null,
     walkSpeedMetersPerSecond: input.walkSpeedMetersPerSecond,
     frameAdvanceMeters,
     deltaSeconds: input.deltaSeconds,

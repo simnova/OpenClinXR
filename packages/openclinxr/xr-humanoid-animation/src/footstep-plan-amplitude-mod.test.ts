@@ -2,12 +2,10 @@ import * as THREE from "three";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
 import {
-  advanceFootstepPlan,
   applyFootstepPlanStep,
   captureFootstepRest,
   footstepRouteExtensionForTest,
 } from "./footstep-plan-amplitude-mod.js";
-import { FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture shape, not the tested predicate
 type Loose = any;
@@ -18,7 +16,7 @@ function quat(x: number, y: number, z: number, w: number): THREE.Quaternion {
   return new THREE.Quaternion(x, y, z, w).normalize();
 }
 
-/** One bone under a slot, named like the rig (dots kept). */
+/** One leg bone under a slot, named like the rig (dots kept). */
 function bone(slot: THREE.Group, name: string, q: THREE.Quaternion): THREE.Object3D {
   const b = new THREE.Object3D();
   b.name = name;
@@ -32,55 +30,33 @@ function angleDeg(a: THREE.Quaternion, b: THREE.Quaternion): number {
   return (2 * Math.acos(dot) * 180) / Math.PI;
 }
 
-/** Approach carrying canned action times (static lift timetable, no mixer). */
-function clockedApproach(slot: THREE.Group, times: Array<number | null>): Loose {
-  let call = 0;
-  return {
-    execution: { phase: "walking" },
-    actorSlot: slot,
-    stanceLabelSlot: null,
-    __times: times,
-    __call: () => call++,
-  };
-}
-
 describe("footstep-plan amplitude blend", () => {
   afterEach(() => {
     delete (globalThis as unknown as { window?: unknown }).window;
   });
 
-  it("blends each leg by its own held scale (s=0 rest, s=1 clip, norms hold)", () => {
+  it("s=0 returns the standing pose, s=1 the clip pose, norms hold", () => {
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
     const slot = new THREE.Group();
     const rest = quat(0, 0, 0, 1);
     const clip = quat(0.3, 0.1, 0.05, 1);
-    const legL = bone(slot, "upperleg01.L", clip);
-    const legR = bone(slot, "upperleg01.R", clip);
-    const restOf = () => ({ x: rest.x, y: rest.y, z: rest.z, w: rest.w });
+    const leg = bone(slot, "upperleg01.L", clip);
     const approach: Loose = {
       execution: { phase: "walking" },
       actorSlot: slot,
-      footstep: {
-        legs: {
-          left: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-          right: { scales: [1], atS: [0.4], idx: 0, current: 1 },
-        },
-        pelvisScale: 1,
-        bones: [
-          { bone: legL, rest: restOf(), side: "left" },
-          { bone: legR, rest: restOf(), side: "right" },
-        ],
-        clipElapsed: 0,
-        prevActionTime: 0,
-        clipSpan: 9,
-        steps: 6,
-      },
+      footstep: { scale: 0, steps: 3, bones: [{ bone: leg, rest: { x: rest.x, y: rest.y, z: rest.z, w: rest.w } }] },
     };
-    applyFootstepPlanStep({ approach });
-    expect(angleDeg(legL.quaternion, rest)).toBeLessThan(1e-6);
-    expect(angleDeg(legR.quaternion, clip)).toBeLessThan(1e-6);
-    expect(Math.abs(legL.quaternion.length() - 1)).toBeLessThan(1e-4);
-    expect(Math.abs(legR.quaternion.length() - 1)).toBeLessThan(1e-4);
+    applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
+    expect(angleDeg(leg.quaternion, rest)).toBeLessThan(1e-6);
+    approach.footstep.scale = 1;
+    leg.quaternion.copy(clip);
+    applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
+    expect(angleDeg(leg.quaternion, clip)).toBeLessThan(1e-6);
+    approach.footstep.scale = 0.5;
+    leg.quaternion.copy(clip);
+    applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
+    expect(angleDeg(leg.quaternion, rest)).toBeCloseTo(angleDeg(clip, rest) / 2, 0);
+    expect(Math.abs(leg.quaternion.length() - 1)).toBeLessThan(1e-4);
   });
 
   it("no-ops without the flag, without state, or off the walking phase", () => {
@@ -88,119 +64,44 @@ describe("footstep-plan amplitude blend", () => {
     const clip = quat(0.3, 0.1, 0.05, 1);
     const leg = bone(slot, "upperleg01.L", clip);
     const state = {
-      legs: {
-        left: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-        right: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-      },
-      pelvisScale: 1,
-      bones: [{ bone: leg, rest: { x: 0, y: 0, z: 0, w: 1 }, side: "left" }],
-      clipElapsed: 0,
-      prevActionTime: 0,
-      clipSpan: 9,
-      steps: 6,
+      scale: 0,
+      steps: 3,
+      bones: [{ bone: leg, rest: { x: 0, y: 0, z: 0, w: 1 } }],
     };
     const before = leg.quaternion.clone();
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
     const walking: Loose = { execution: { phase: "walking" }, actorSlot: slot, footstep: state };
     const settling: Loose = { execution: { phase: "settling" }, actorSlot: slot, footstep: state };
     const stateless: Loose = { execution: { phase: "walking" }, actorSlot: slot, footstep: null };
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
-    applyFootstepPlanStep({ approach: walking });
+    applyFootstepPlanStep({ approach: walking, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(leg.quaternion.equals(before)).toBe(true);
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
-    applyFootstepPlanStep({ approach: settling });
+    applyFootstepPlanStep({ approach: settling, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(leg.quaternion.equals(before)).toBe(true);
-    applyFootstepPlanStep({ approach: stateless });
+    applyFootstepPlanStep({ approach: stateless, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(leg.quaternion.equals(before)).toBe(true);
   });
 
-  it("capture resolves the per-leg timetable and pelvis scale, clears without the flag", () => {
+  it("capture clears state without the flag and resolves scale with it", () => {
     const slot = new THREE.Group();
     bone(slot, "upperleg01.L", quat(0, 0, 0, 1));
-    bone(slot, "pelvis", quat(0, 0, 0, 1));
-    const leftToe = new THREE.Object3D();
-    leftToe.name = "toe1-1L";
-    leftToe.position.set(0.09, 0.01, 0);
-    slot.add(leftToe);
     const approach: Loose = {
       actorSlot: slot,
-      leftToe,
+      leftToe: null,
       rightToe: null,
       target: { x: 0, z: 1.31 },
       start: { x: 0, z: 0 },
-      restStance: {
-        quats: { "upperleg01.L": { x: 0, y: 0, z: 0, w: 1 } },
-        toeLeft: { x: 0.09, y: 0.005, z: 0 },
-        toeRight: { x: -0.09, y: 0.005, z: 0 },
-      },
-      footstep: null,
+      restStance: { quats: { "upperleg01.L": { x: 0, y: 0, z: 0, w: 1 } } },
+      footstep: { scale: 1, steps: 9, bones: [] },
     };
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
     captureFootstepRest(approach);
     expect(approach.footstep).toBeNull();
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
     captureFootstepRest(approach);
-    expect(approach.footstep.legs.left.scales[0]).toBe(1);
-    expect(approach.footstep.legs.left.atS[0]).toBeCloseTo(0.419, 3);
-    expect(approach.footstep.legs.right.scales[0]).toBe(1);
-    expect(approach.footstep.pelvisScale).toBe(0);
-    expect(approach.footstep.steps).toBe(6);
-    expect(approach.footstep.bones.length).toBe(3);
-    expect(approach.footstep.bones.map((b: Loose) => b.side).sort()).toEqual(["left", "left", "pelvis"]);
-    const byName = (n: string): Loose => approach.footstep.bones.find((b: Loose) => b.bone.name === n);
-    expect(byName("toe1-1L").restLocal).toEqual({ x: 0.09, y: 0.005, z: 0 });
-    expect(byName("upperleg01.L").restLocal).toEqual({ x: 0, y: 0, z: 0 });
-    expect(byName("pelvis").restLocal).toEqual({ x: 0, y: 0, z: 0 });
-  });
-
-  it("lerps toe locals home by the same scale (positions land standing at 0)", () => {
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
-    const slot = new THREE.Group();
-    const toe = new THREE.Object3D();
-    toe.name = "toe1-1L";
-    toe.position.set(0.2, 0.1, 0.3);
-    slot.add(toe);
-    const leg = bone(slot, "upperleg01.L", quat(0.3, 0, 0, 1));
-    leg.position.set(0.05, -0.4, 0.02);
-    const approach: Loose = {
-      execution: { phase: "walking" },
-      actorSlot: slot,
-      footstep: {
-        legs: {
-          left: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-          right: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-        },
-        pelvisScale: 1,
-        bones: [
-          {
-            bone: toe,
-            rest: { x: 0, y: 0, z: 0, w: 1 },
-            side: "left",
-            restLocal: { x: 0.09, y: 0.005, z: 0 },
-          },
-          {
-            bone: leg,
-            rest: { x: 0, y: 0, z: 0, w: 1 },
-            side: "left",
-            restLocal: { x: 0, y: -0.45, z: 0 },
-          },
-        ],
-        clipElapsed: 0,
-        prevActionTime: 0,
-        clipSpan: 9,
-        steps: 6,
-      },
-    };
-    applyFootstepPlanStep({ approach });
-    expect(toe.position.x).toBeCloseTo(0.09, 9);
-    expect(toe.position.y).toBeCloseTo(0.005, 9);
-    expect(leg.position.y).toBeCloseTo(-0.45, 9);
-    approach.footstep.legs.left.current = 1;
-    toe.position.set(0.2, 0.1, 0.3);
-    leg.position.set(0.05, -0.4, 0.02);
-    applyFootstepPlanStep({ approach });
-    expect(toe.position.x).toBeCloseTo(0.2, 9);
-    expect(toe.position.y).toBeCloseTo(0.1, 9);
-    expect(leg.position.y).toBeCloseTo(-0.4, 9);
+    expect(approach.footstep.scale).toBeCloseTo(0.7357, 3);
+    expect(approach.footstep.steps).toBe(3);
+    expect(approach.footstep.bones.length).toBe(1);
   });
 
   it("route extension gate: only flag plus exactly 2", () => {
@@ -250,16 +151,9 @@ describe("footstep-plan through the public walking entrypoint", () => {
       lockArmed: true,
       closedLoop: null,
       footstep: {
-        legs: {
-          left: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-          right: { scales: [1], atS: [0.4], idx: 0, current: 0 },
-        },
-        pelvisScale: 1,
-        bones: [{ bone: legL, rest: { x: rest.x, y: rest.y, z: rest.z, w: rest.w }, side: "left" }],
-        clipElapsed: 0,
-        prevActionTime: 0,
-        clipSpan: 9,
-        steps: 6,
+        scale: 0,
+        steps: 3,
+        bones: [{ bone: legL, rest: { x: rest.x, y: rest.y, z: rest.z, w: rest.w } }],
       },
       stanceLabels: null,
       stanceLabelSlot: null,
@@ -274,86 +168,5 @@ describe("footstep-plan through the public walking entrypoint", () => {
     expect(angleDeg(legL.quaternion, rest)).toBeLessThan(1e-6);
     // Closed loop implied by the plan flag alone (no closedLoopWalk flag set).
     expect(approach.closedLoop).not.toBeNull();
-  });
-});
-
-describe("footstep-plan clock", () => {
-  afterEach(() => {
-    delete (globalThis as unknown as { window?: unknown }).window;
-  });
-
-  /** Action time puppeteered per call; labels pre-seeded so no sampling runs. */
-  function clockedState(actionTimes: { value: number }): Loose {
-    const slot = new THREE.Group();
-    return {
-      execution: { phase: "walking" },
-      actorSlot: slot,
-      stanceLabels: { cycleSeconds: 1.708, atMs: [], left: [], right: [] },
-      stanceLabelSlot: {
-        mixer: { existingAction: () => ({ time: actionTimes.value }) },
-        locomotionClipName: "walk",
-        responseClips: [{ name: "walk" }],
-        root: {},
-        actorSlot: slot,
-      },
-      footstep: {
-        legs: {
-          left: { scales: [0.8], atS: [0.419], idx: 0, current: 0 },
-          right: { scales: [0.9], atS: [1.114], idx: 0, current: 0 },
-        },
-        pelvisScale: 1,
-        bones: [],
-        clipElapsed: 0,
-        prevActionTime: null,
-        clipSpan: 9,
-        steps: 6,
-      },
-    };
-  }
-
-  it("bootstraps, then adopts each leg scale as elapsed crosses its lift-off", () => {
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
-    const actionTimes = { value: FOOTSTEP_START_PHASE_S + 0.01 };
-    const approach: Loose = clockedState(actionTimes);
-    advanceFootstepPlan(approach);
-    expect(approach.footstep.prevActionTime).toBeCloseTo(FOOTSTEP_START_PHASE_S + 0.01, 9);
-    expect(approach.footstep.clipElapsed).toBeCloseTo(0.01, 9);
-    expect(approach.footstep.legs.left.current).toBe(0);
-    // Cross the left lift (elapsed 0.419): left adopts, right holds.
-    actionTimes.value = FOOTSTEP_START_PHASE_S + 0.43;
-    advanceFootstepPlan(approach);
-    expect(approach.footstep.legs.left.current).toBe(0.8);
-    expect(approach.footstep.legs.left.idx).toBe(1);
-    expect(approach.footstep.legs.right.current).toBe(0);
-    expect(approach.footstep.clipElapsed).toBeCloseTo(0.43, 9);
-    // Cross the right lift (elapsed 1.114): right adopts too.
-    actionTimes.value = FOOTSTEP_START_PHASE_S + 1.2;
-    advanceFootstepPlan(approach);
-    expect(approach.footstep.legs.right.current).toBe(0.9);
-    expect(approach.footstep.clipElapsed).toBeCloseTo(1.2, 9);
-  });
-
-  it("unwraps the action-time loop seam forward", () => {
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
-    const actionTimes = { value: 1.7 };
-    const approach: Loose = clockedState(actionTimes);
-    advanceFootstepPlan(approach);
-    const before = approach.footstep.clipElapsed;
-    actionTimes.value = 0.02;
-    advanceFootstepPlan(approach);
-    // Wrapped forward by ~0.028 clip-s (1.7 -> 1.708 -> 0.02), never backward.
-    expect(approach.footstep.clipElapsed - before).toBeCloseTo(0.028, 2);
-  });
-
-  it("stands down without the flag or without an action", () => {
-    const actionTimes = { value: FOOTSTEP_START_PHASE_S + 0.5 };
-    const approach: Loose = clockedState(actionTimes);
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
-    advanceFootstepPlan(approach);
-    expect(approach.footstep.prevActionTime).toBeNull();
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
-    approach.stanceLabelSlot = null;
-    advanceFootstepPlan(approach);
-    expect(approach.footstep.prevActionTime).toBeNull();
   });
 });

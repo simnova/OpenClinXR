@@ -23,12 +23,6 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
 import type { BedsideApproachExecution } from "./bedside-approach-execution-mod.js";
 
-/** Footstep-plan clock: elapsed clip time against the plan-complete span. */
-export type FootstepExitClock = {
-  clipElapsedS: number;
-  clipSpanS: number;
-};
-
 /** Total XZ length of a plan's polyline, in metres. */
 export function approachRouteLengthMeters(plan: BedsideApproachPlan): number {
   let total = 0;
@@ -78,41 +72,6 @@ function contactAtClipTime(  labels: WalkExitContactWindow,
 }
 
 /**
- * Footstep-plan exit (S2): leave the walk when the stride plan completes,
- * not when the remaining distance hits the band. The plan's closing beat
- * lands both feet together while the remaining distance is ~0 (the
- * closed-loop advance clamps to the remaining distance, so the root cannot
- * pass the target and the beat runs statically in place); a band/backstop
- * exit would fire mid-beat with feet split, defeating the plan. Same
- * settling shape as the legacy exit below (frozen at the observed spot,
- * drive stopped); null keeps walking. Internal like buildWalkExitBandStep.
- */
-export function stepFootstepPlanExit(input: {
-  execution: BedsideApproachExecution;
-  walkSimSubsteps: number;
-  travelledMeters: number;
-  remainingMeters: number;
-  unit: { x: number; z: number };
-  observedPositionXz: { x: number; z: number };
-  nowMs: number;
-  blendedHeadingRadians: number;
-  footstep: FootstepExitClock;
-}): BedsideApproachExecution | null {
-  if (input.footstep.clipElapsedS < input.footstep.clipSpanS) return null;
-  return {
-    ...input.execution,
-    walkSimSubsteps: input.walkSimSubsteps,
-    phase: "settling",
-    travelledMeters: input.travelledMeters,
-    drive: { locomotion: 0 },
-    headingRadians: input.blendedHeadingRadians,
-    prescribedPositionXz: { x: input.observedPositionXz.x, z: input.observedPositionXz.z },
-    arrivedAtMs: input.nowMs,
-    stoppedSeconds: 0,
-  };
-}
-
-/**
  * STOP WHEN THE NEXT FRAME WOULD OVERSHOOT. The legacy band is one frame's
  * advance rather than a fixed tolerance, so it is a property of the frame rate
  * and the walk speed and cannot be widened to admit an observation: at 60 Hz
@@ -140,7 +99,6 @@ export function stepWalkExitBand(input: {
   execution: BedsideApproachExecution;
   walkSimSubsteps: number;
   walkExit: WalkExitContactWindow | null;
-  footstep?: FootstepExitClock | null;
   walkSpeedMetersPerSecond: number;
   frameAdvanceMeters: number;
   deltaSeconds: number;
@@ -151,22 +109,6 @@ export function stepWalkExitBand(input: {
   nowMs: number;
   blendedHeadingRadians: number;
 }): BedsideApproachExecution | null {
-  // Footstep plan (S2): the legacy band is suppressed while the plan runs;
-  // the walk exits on the plan-complete clock, or on the backstop if the
-  // body ever reaches the target first. Absent clock keeps legacy behavior.
-  if (input.footstep !== undefined && input.footstep !== null) {
-    return stepFootstepPlanExit({
-      execution: input.execution,
-      walkSimSubsteps: input.walkSimSubsteps,
-      travelledMeters: input.travelledMeters,
-      remainingMeters: input.remainingMeters,
-      unit: input.unit,
-      observedPositionXz: input.observedPositionXz,
-      nowMs: input.nowMs,
-      blendedHeadingRadians: input.blendedHeadingRadians,
-      footstep: input.footstep,
-    });
-  }
   // The exit band is one frame's advance on genuine legacy frames
   // (byte-identical legacy behavior) and WALK_EXIT_BAND_SECONDS of walk on
   // the contact-gated path. Fixed-clock substeps on the ungated path keep
