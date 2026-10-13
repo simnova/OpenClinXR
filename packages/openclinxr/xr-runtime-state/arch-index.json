@@ -148,6 +148,7 @@
   "tests": [
     "src/a-resolved-placement-says-where-it-came-from.test.ts",
     "src/bedside-approach-stop.test.ts",
+    "src/footstep-crossing-exit.test.ts",
     "src/footstep-phase-correction.test.ts",
     "src/generated-drive-scalar.test.ts",
     "src/runtime-actor-slots.test.ts",
