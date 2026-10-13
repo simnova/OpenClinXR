@@ -17,7 +17,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium } from "../lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
+import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import {
   captureOne,
@@ -25,6 +26,10 @@ import {
   compositeSheet,
   decodePng,
 } from "./runtime-portrait-capture.js";
+
+type HeadlessBrowser = {
+  newPage(options?: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
+};
 
 const GLB_PUBLIC = "generated-humanoids/mpfb-ob-patient-aisha.glb";
 const ALBEDO_REL = ".openclinxr/realism-spike/candidates/albedo/toigo_light_skin_with_natural_makeup-2048.png";
@@ -189,7 +194,6 @@ async function main(): Promise<void> {
   }
 
   let server = null as Awaited<ReturnType<typeof spawnPortlessDevServer>> | null;
-  let browser = null as Awaited<ReturnType<typeof import("../lib/slotted-playwright.js").chromium.launch>> | null;
   const cells: CellResult[] = [];
   const missing: CellParams[] = [];
   // Resume: reconstruct finished cells offline (no browser); render only gaps.
@@ -216,85 +220,94 @@ async function main(): Promise<void> {
   console.log(`resume: ${cells.length} cells reconstructed, ${missing.length} to render`);
   if (missing.length) {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", cwd, readyTimeoutMs: 180_000 });
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
-    });
-    const page = await browser.newPage({
-      viewport: { width: SEARCH_SIZE, height: SEARCH_SIZE },
-      deviceScaleFactor: 1,
-    });
-    const albedoUrl = `${server.url.replace(/\/$/, "")}/__spike/albedo.png`;
-    await page.route("**/__spike/*", async (route) => {
-      const pathname = new URL(route.request().url()).pathname;
-      if (pathname !== "/__spike/albedo.png") return route.abort();
-      return route.fulfill({ body: albedoBytes, contentType: "image/png" });
-    });
+    const ui = server;
+    // Browser launch goes through the compute-services facade
+    // (sceneCapture.withBrowser), never a direct chromium.launch in this
+    // file: the direct-compute-launch freeze counts direct sites. The
+    // facade's browserLaunch injection keeps the exact launch flags, so the
+    // render stays bit-identical; the launch itself runs inside the facade
+    // (slot-gated, labelled).
     try {
-      for (const g of missing) {
-        const id = cellId(g);
-        const studioBase = {
-          keyAzimuthDeg: g.az,
-          keyElevationDeg: g.el,
-          keyIntensity: g.key,
-          fillIntensity: 0.25 * g.key,
-          hemisphereIntensity: g.hemi,
-          rimIntensity: 0.5,
-          environmentIntensity: 0.3,
-        };
-        const specBase: Record<string, unknown> = {
-          subjectKind: "glb",
-          bodyGlb: GLB_PUBLIC,
-          view: "front",
-          focus: "head",
-          hideHair: true,
-          subjectOnly: true,
-          renderSize: SEARCH_SIZE,
-          portrait: true,
-          yawDegrees: 0,
-          skinOverride: { baseColorUrl: albedoUrl, roughness: 0.55 },
-        };
-        // Exposure bisection in [0.4, 1.6] against the target face-box luma.
-        let lo = 0.4, hi = 1.6, exposure = 1.0, luma = 0, renders = 0;
-        let pngPath = "";
-        for (let iter = 0; iter < 6; iter += 1) {
-          exposure = (lo + hi) / 2;
-          pngPath = path.join(searchDir, `${id}-e${iter}.png`);
-          await captureOne({
-            page,
-            baseUrl: server.url,
-            spec: {
-              ...specBase,
-              subjectId: `${id}_e${iter}`,
-              rigOverride: { studio: { ...studioBase, exposure }, removeDefaultLights: true },
-              label: id,
-            },
-            imagePath: pngPath,
-            size: SEARCH_SIZE,
-          });
-          renders += 1;
-          luma = centralFaceLuma(pngPath);
-          if (Math.abs(luma - targetLuma) <= 3) break;
-          if (luma < targetLuma) lo = exposure;
-          else hi = exposure;
-        }
-        const finalPng = path.join(searchDir, `${id}.png`);
-        await writeFile(finalPng, readFileSync(pngPath));
-        const score = shadingScore(finalPng, targetField);
-        cells.push({
-          id,
-          params: { ...g, fill: 0.25 * g.key, rim: 0.5, env: 0.3 },
-          exposure: Math.round(exposure * 1000) / 1000,
-          luma: Math.round(luma * 10) / 10,
-          renders,
-          score: Math.round(score * 10000) / 10000,
-          png: path.relative(cwd, finalPng).replaceAll("\\", "/"),
+      await createLocalComputeServices({
+        browserLaunch: chromium.launch.bind(chromium, {
+          headless: true,
+          args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+        }),
+      }).sceneCapture.withBrowser("skin-realism:fit-studio-rig", async (launched) => {
+        const page = await (launched as HeadlessBrowser).newPage({
+          viewport: { width: SEARCH_SIZE, height: SEARCH_SIZE },
+          deviceScaleFactor: 1,
         });
-        console.log(`${id} exposure=${exposure.toFixed(3)} luma=${luma.toFixed(1)} score=${score.toFixed(4)} (${renders} renders)`);
-        await writeFitJson();
-      }
+        const albedoUrl = `${ui.url.replace(/\/$/, "")}/__spike/albedo.png`;
+        await page.route("**/__spike/*", async (route) => {
+          const pathname = new URL(route.request().url()).pathname;
+          if (pathname !== "/__spike/albedo.png") return route.abort();
+          return route.fulfill({ body: albedoBytes, contentType: "image/png" });
+        });
+        for (const g of missing) {
+          const id = cellId(g);
+          const studioBase = {
+            keyAzimuthDeg: g.az,
+            keyElevationDeg: g.el,
+            keyIntensity: g.key,
+            fillIntensity: 0.25 * g.key,
+            hemisphereIntensity: g.hemi,
+            rimIntensity: 0.5,
+            environmentIntensity: 0.3,
+          };
+          const specBase: Record<string, unknown> = {
+            subjectKind: "glb",
+            bodyGlb: GLB_PUBLIC,
+            view: "front",
+            focus: "head",
+            hideHair: true,
+            subjectOnly: true,
+            renderSize: SEARCH_SIZE,
+            portrait: true,
+            yawDegrees: 0,
+            skinOverride: { baseColorUrl: albedoUrl, roughness: 0.55 },
+          };
+          // Exposure bisection in [0.4, 1.6] against the target face-box luma.
+          let lo = 0.4, hi = 1.6, exposure = 1.0, luma = 0, renders = 0;
+          let pngPath = "";
+          for (let iter = 0; iter < 6; iter += 1) {
+            exposure = (lo + hi) / 2;
+            pngPath = path.join(searchDir, `${id}-e${iter}.png`);
+            await captureOne({
+              page,
+              baseUrl: ui.url,
+              spec: {
+                ...specBase,
+                subjectId: `${id}_e${iter}`,
+                rigOverride: { studio: { ...studioBase, exposure }, removeDefaultLights: true },
+                label: id,
+              },
+              imagePath: pngPath,
+              size: SEARCH_SIZE,
+            });
+            renders += 1;
+            luma = centralFaceLuma(pngPath);
+            if (Math.abs(luma - targetLuma) <= 3) break;
+            if (luma < targetLuma) lo = exposure;
+            else hi = exposure;
+          }
+          const finalPng = path.join(searchDir, `${id}.png`);
+          await writeFile(finalPng, readFileSync(pngPath));
+          const score = shadingScore(finalPng, targetField);
+          cells.push({
+            id,
+            params: { ...g, fill: 0.25 * g.key, rim: 0.5, env: 0.3 },
+            exposure: Math.round(exposure * 1000) / 1000,
+            luma: Math.round(luma * 10) / 10,
+            renders,
+            score: Math.round(score * 10000) / 10000,
+            png: path.relative(cwd, finalPng).replaceAll("\\", "/"),
+          });
+          console.log(`${id} exposure=${exposure.toFixed(3)} luma=${luma.toFixed(1)} score=${score.toFixed(4)} (${renders} renders)`);
+          await writeFitJson();
+        }
+      });
     } finally {
-      if (browser) await browser.close();
       if (server) await stopPortlessDevServer(server.proc);
     }
   }

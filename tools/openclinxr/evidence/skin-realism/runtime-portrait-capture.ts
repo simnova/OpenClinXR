@@ -19,8 +19,13 @@ import { readFileSync } from "node:fs";
 import { deflateSync, inflateSync } from "node:zlib";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
+
+type HeadlessBrowser = {
+  newPage(options?: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
+};
 
 const GLB_REPO_PATH = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
 const OUT_DIR = ".openclinxr/realism-spike/runtime";
@@ -192,82 +197,93 @@ export async function runRuntimePortraitCapture(options?: { cwd?: string }): Pro
   };
 
   let server = null as Awaited<ReturnType<typeof spawnPortlessDevServer>> | null;
-  let browser = null as Awaited<ReturnType<typeof import("../lib/slotted-playwright.js").chromium.launch>> | null;
   try {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", cwd, readyTimeoutMs: 180_000 });
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+    const ui = server;
+    // Browser launch goes through the compute-services facade
+    // (sceneCapture.withBrowser), never a direct chromium.launch in this
+    // file: the direct-compute-launch freeze counts direct sites. The
+    // facade's browserLaunch injection keeps the exact launch flags, so the
+    // render stays bit-identical; the launch itself runs inside the facade
+    // (slot-gated, labelled).
+    await createLocalComputeServices({
+      browserLaunch: chromium.launch.bind(chromium, {
+        headless: true,
+        args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+      }),
+    }).sceneCapture.withBrowser("skin-realism:runtime-portrait", async (launched) => {
+      const page = await (launched as HeadlessBrowser).newPage({
+        viewport: { width: RENDER_SIZE, height: RENDER_SIZE },
+        deviceScaleFactor: 1,
+      });
+
+      const frontAbs = path.join(outDir, FRONT_PNG);
+      const frontEvidence = await captureOne({
+        page, baseUrl: ui.url,
+        spec: { ...baseSpec, subjectId: "aisha_runtime_front", yawDegrees: 0, label: "Aisha runtime front" },
+        imagePath: frontAbs,
+      });
+
+      const debug = await page.evaluate(
+        () => (globalThis as unknown as { __openClinXrIsolatedRuntimeDebug?: unknown }).__openClinXrIsolatedRuntimeDebug ?? null,
+      );
+
+      const tqAbs = path.join(outDir, THREE_QUARTER_PNG);
+      const tqEvidence = await captureOne({
+        page, baseUrl: ui.url,
+        spec: { ...baseSpec, subjectId: "aisha_runtime_three_quarter", yawDegrees: 40, label: "Aisha runtime three-quarter 40deg" },
+        imagePath: tqAbs,
+      });
+
+      const frontMeasure = measureImage(frontAbs);
+      const tqMeasure = measureImage(tqAbs);
+
+      const record = {
+        glbSha256,
+        glbPath: GLB_REPO_PATH,
+        pngPaths: [path.join(OUT_DIR, FRONT_PNG), path.join(OUT_DIR, THREE_QUARTER_PNG)],
+        pngSha256s: [sha256File(frontAbs), sha256File(tqAbs)],
+        viewport: { width: RENDER_SIZE, height: RENDER_SIZE },
+        headWidthPx: frontMeasure.headWidthPx,
+        headWidthMethod: "image: widest lit row span within the top 35% of lit rows of aisha-runtime-front.png (background #18211d threshold; shoulders excluded)",
+        headWidthPxThreeQuarter: tqMeasure.headWidthPx,
+        litHeightFractionFront: Math.round(frontMeasure.litHeightFraction * 1000) / 1000,
+        litHeightFractionThreeQuarter: Math.round(tqMeasure.litHeightFraction * 1000) / 1000,
+        frameSpanFractionFront: frontEvidence.frameSpanFraction ?? null,
+        frameSpanFractionThreeQuarter: tqEvidence.frameSpanFraction ?? null,
+        hairHidden: true,
+        renderer: (debug as Record<string, unknown> | null)?.hasOwnProperty?.("threeRevision")
+          ? {
+              threeRevision: (debug as Record<string, unknown>).threeRevision,
+              toneMapping: (debug as Record<string, unknown>).toneMapping,
+              toneMappingExposure: (debug as Record<string, unknown>).toneMappingExposure,
+              outputColorSpace: (debug as Record<string, unknown>).outputColorSpace,
+            }
+          : debug,
+        lights: (debug as { lights?: unknown } | null)?.lights ?? null,
+        environmentMap: (debug as { environmentMap?: unknown } | null)?.environmentMap ?? null,
+        skinMaterial: (debug as { skinMaterial?: unknown } | null)?.skinMaterial ?? null,
+        runtimeDebug: debug,
+        command: "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts",
+      };
+      await writeFile(jsonPath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+
+      // Fail-closed self checks.
+      const failures: string[] = [];
+      for (const [label, m] of [["front", frontMeasure], ["three-quarter", tqMeasure]] as const) {
+        if (m.w !== RENDER_SIZE || m.h !== RENDER_SIZE) failures.push(`${label}: PNG is ${m.w}x${m.h}, expected ${RENDER_SIZE}x${RENDER_SIZE}`);
+        if (m.w !== m.h) failures.push(`${label}: PNG is not square`);
+        if (m.luminanceStd <= 10) failures.push(`${label}: image looks blank (luminance std ${m.luminanceStd.toFixed(2)})`);
+      }
+      if (frontMeasure.headWidthPx < 500) failures.push(`front headWidthPx ${frontMeasure.headWidthPx} < 500`);
+      if (failures.length) throw new Error(`runtime portrait self-check failed: ${failures.join("; ")}`);
+      console.log(`runtime portraits ok: front headWidthPx=${frontMeasure.headWidthPx} tq=${tqMeasure.headWidthPx}`);
     });
-    const page = await browser.newPage({ viewport: { width: RENDER_SIZE, height: RENDER_SIZE }, deviceScaleFactor: 1 });
-
-    const frontAbs = path.join(outDir, FRONT_PNG);
-    const frontEvidence = await captureOne({
-      page, baseUrl: server.url,
-      spec: { ...baseSpec, subjectId: "aisha_runtime_front", yawDegrees: 0, label: "Aisha runtime front" },
-      imagePath: frontAbs,
-    });
-
-    const debug = await page.evaluate(
-      () => (globalThis as unknown as { __openClinXrIsolatedRuntimeDebug?: unknown }).__openClinXrIsolatedRuntimeDebug ?? null,
-    );
-
-    const tqAbs = path.join(outDir, THREE_QUARTER_PNG);
-    const tqEvidence = await captureOne({
-      page, baseUrl: server.url,
-      spec: { ...baseSpec, subjectId: "aisha_runtime_three_quarter", yawDegrees: 40, label: "Aisha runtime three-quarter 40deg" },
-      imagePath: tqAbs,
-    });
-
-    const frontMeasure = measureImage(frontAbs);
-    const tqMeasure = measureImage(tqAbs);
-
-    const record = {
-      glbSha256,
-      glbPath: GLB_REPO_PATH,
-      pngPaths: [path.join(OUT_DIR, FRONT_PNG), path.join(OUT_DIR, THREE_QUARTER_PNG)],
-      pngSha256s: [sha256File(frontAbs), sha256File(tqAbs)],
-      viewport: { width: RENDER_SIZE, height: RENDER_SIZE },
-      headWidthPx: frontMeasure.headWidthPx,
-      headWidthMethod: "image: widest lit row span within the top 35% of lit rows of aisha-runtime-front.png (background #18211d threshold; shoulders excluded)",
-      headWidthPxThreeQuarter: tqMeasure.headWidthPx,
-      litHeightFractionFront: Math.round(frontMeasure.litHeightFraction * 1000) / 1000,
-      litHeightFractionThreeQuarter: Math.round(tqMeasure.litHeightFraction * 1000) / 1000,
-      frameSpanFractionFront: frontEvidence.frameSpanFraction ?? null,
-      frameSpanFractionThreeQuarter: tqEvidence.frameSpanFraction ?? null,
-      hairHidden: true,
-      renderer: (debug as Record<string, unknown> | null)?.hasOwnProperty?.("threeRevision")
-        ? {
-            threeRevision: (debug as Record<string, unknown>).threeRevision,
-            toneMapping: (debug as Record<string, unknown>).toneMapping,
-            toneMappingExposure: (debug as Record<string, unknown>).toneMappingExposure,
-            outputColorSpace: (debug as Record<string, unknown>).outputColorSpace,
-          }
-        : debug,
-      lights: (debug as { lights?: unknown } | null)?.lights ?? null,
-      environmentMap: (debug as { environmentMap?: unknown } | null)?.environmentMap ?? null,
-      skinMaterial: (debug as { skinMaterial?: unknown } | null)?.skinMaterial ?? null,
-      runtimeDebug: debug,
-      command: "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts",
-    };
-    await writeFile(jsonPath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
-
-    // Fail-closed self checks.
-    const failures: string[] = [];
-    for (const [label, m] of [["front", frontMeasure], ["three-quarter", tqMeasure]] as const) {
-      if (m.w !== RENDER_SIZE || m.h !== RENDER_SIZE) failures.push(`${label}: PNG is ${m.w}x${m.h}, expected ${RENDER_SIZE}x${RENDER_SIZE}`);
-      if (m.w !== m.h) failures.push(`${label}: PNG is not square`);
-      if (m.luminanceStd <= 10) failures.push(`${label}: image looks blank (luminance std ${m.luminanceStd.toFixed(2)})`);
-    }
-    if (frontMeasure.headWidthPx < 500) failures.push(`front headWidthPx ${frontMeasure.headWidthPx} < 500`);
-    if (failures.length) throw new Error(`runtime portrait self-check failed: ${failures.join("; ")}`);
-    console.log(`runtime portraits ok: front headWidthPx=${frontMeasure.headWidthPx} tq=${tqMeasure.headWidthPx}`);
   } catch (err) {
     const message = err instanceof Error ? `${err.message}\n${err.stack ?? ""}` : String(err);
     await writeFile(jsonPath, `${JSON.stringify({ glbSha256: (() => { try { return sha256File(path.join(cwd, GLB_REPO_PATH)); } catch { return null; } })(), error: message }, null, 2)}\n`, "utf8");
     throw err;
   } finally {
-    if (browser) await browser.close();
     if (server) await stopPortlessDevServer(server.proc);
   }
 }
@@ -577,147 +593,158 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
   }
 
   let server = null as Awaited<ReturnType<typeof spawnPortlessDevServer>> | null;
-  let browser = null as Awaited<ReturnType<typeof import("../lib/slotted-playwright.js").chromium.launch>> | null;
   try {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", cwd, readyTimeoutMs: 180_000 });
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
-    });
-    const page = await browser.newPage({ viewport: { width: size, height: size }, deviceScaleFactor: 1 });
-    await page.route("**/__spike/*", async (route) => {
-      const pathname = new URL(route.request().url()).pathname;
-      const file = spikeFiles.get(pathname);
-      if (!file) return route.abort();
-      return route.fulfill({ body: file.bytes, contentType: file.contentType });
-    });
-    // Absolute URLs keep TextureLoader same-origin without depending on page URL shape.
-    for (const key of TEXTURE_URL_KEYS) {
-      if (typeof skinOv[key] === "string" && (skinOv[key] as string).startsWith("/__spike/")) {
-        skinOv[key] = `${server.url.replace(/\/$/, "")}${skinOv[key] as string}`;
-      }
-    }
-    for (const ov of matOvs) {
-      if (typeof ov.baseColorUrl === "string" && (ov.baseColorUrl as string).startsWith("/__spike/")) {
-        ov.baseColorUrl = `${server.url.replace(/\/$/, "")}${ov.baseColorUrl as string}`;
-      }
-    }
-    for (const rel of Object.keys(inputShas)) {
-      const served = inputShas[rel]!;
-      served.servedUrl = `${server.url.replace(/\/$/, "")}${served.servedUrl}`;
-    }
-
-    const baseSpec: Record<string, unknown> = {
-      subjectKind: "glb",
-      bodyGlb,
-      view: "front",
-      focus: "head",
-      hideHair: true,
-      subjectOnly: true,
-      renderSize: size,
-      ...(Object.keys(skinOv).length ? { skinOverride: skinOv } : {}),
-      ...(matOvs.length ? { materialOverrides: matOvs } : {}),
-      ...(variant.rigOverride ? { rigOverride: variant.rigOverride } : {}),
-      ...(variant.productEnvironmentId ? { productEnvironmentId: variant.productEnvironmentId } : {}),
-      ...(variant.portrait === true ? { portrait: true } : {}),
-    };
-
-    const viewResults: Array<{ yaw: number; png: string; sha256: string; headWidthPx: number; headHeightPx: number | null; headBoxPx: { x0: number; y0: number; x1: number; y1: number } | null; frameSpanFraction: number | null }> = [];
-    let debug: unknown = null;
-    for (const yaw of views) {
-      const fileName = yaw === 0 ? `${variant.id}-front.png` : `${variant.id}-yaw${yaw}.png`;
-      const abs = path.join(outDir, fileName);
-      const evidence = await captureOne({
-        page, baseUrl: server.url,
-        spec: { ...baseSpec, subjectId: `${variant.id}_${yaw}`, yawDegrees: yaw, label: `${variant.id} yaw ${yaw}` },
-        imagePath: abs,
-        size,
+    const ui = server;
+    // Browser launch goes through the compute-services facade
+    // (sceneCapture.withBrowser), never a direct chromium.launch in this
+    // file: the direct-compute-launch freeze counts direct sites. The
+    // facade's browserLaunch injection keeps the exact launch flags, so the
+    // render stays bit-identical; the launch itself runs inside the facade
+    // (slot-gated, labelled).
+    await createLocalComputeServices({
+      browserLaunch: chromium.launch.bind(chromium, {
+        headless: true,
+        args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+      }),
+    }).sceneCapture.withBrowser("skin-realism:variant-portrait", async (launched) => {
+      const page = await (launched as HeadlessBrowser).newPage({
+        viewport: { width: size, height: size },
+        deviceScaleFactor: 1,
       });
-      const m = measureImage(abs);
-      if (m.w !== size || m.h !== size || m.w !== m.h) {
-        throw new Error(`variant ${variant.id} yaw ${yaw}: PNG is ${m.w}x${m.h}, expected square ${size}`);
-      }
-      if (m.luminanceStd <= 10) throw new Error(`variant ${variant.id} yaw ${yaw}: blank render`);
-      const viewDebug = await page.evaluate(
-        () => (globalThis as unknown as { __openClinXrIsolatedRuntimeDebug?: unknown }).__openClinXrIsolatedRuntimeDebug ?? null,
-      );
-      if (!viewDebug) throw new Error(`variant ${variant.id} yaw ${yaw}: no live runtime debug readout`);
-      const portraitDbg = (viewDebug as { portrait?: { headHeightPx?: unknown; headBoxPx?: { x0: number; y0: number; x1: number; y1: number } } | null }).portrait;
-      const headHeightPx = typeof portraitDbg?.headHeightPx === "number" ? portraitDbg.headHeightPx : null;
-      const headBoxPx = portraitDbg?.headBoxPx ?? null;
-      if (variant.portrait === true) {
-        // Tight-portrait gate: chin-to-crown within 5% of 0.78 * frame.
-        // Enforced on the first (construction) view only: framePortraitCamera
-        // solves the camera distance straight-on and keeps that same distance
-        // for yaw views (inter-view scale preserved), so their projected AABB
-        // height legitimately grows with |yaw| (measured 841.7 vs 798.7 at
-        // yaw 40, +5.4%). Gating every yaw contradicts the framing design and
-        // aborts 3-view variants after writing front+yaw40 with no JSON.
-        if (headHeightPx == null) throw new Error(`variant ${variant.id} yaw ${yaw}: no portrait headHeightPx readout`);
-        const want = 0.78 * size;
-        if (yaw === views[0] && Math.abs(headHeightPx - want) > 0.05 * want) {
-          throw new Error(`variant ${variant.id} yaw ${yaw}: headHeightPx ${headHeightPx.toFixed(1)} not within 5% of ${want.toFixed(1)}`);
+      await page.route("**/__spike/*", async (route) => {
+        const pathname = new URL(route.request().url()).pathname;
+        const file = spikeFiles.get(pathname);
+        if (!file) return route.abort();
+        return route.fulfill({ body: file.bytes, contentType: file.contentType });
+      });
+      // Absolute URLs keep TextureLoader same-origin without depending on page URL shape.
+      for (const key of TEXTURE_URL_KEYS) {
+        if (typeof skinOv[key] === "string" && (skinOv[key] as string).startsWith("/__spike/")) {
+          skinOv[key] = `${ui.url.replace(/\/$/, "")}${skinOv[key] as string}`;
         }
-      } else if (m.headWidthPx < 500) {
-        throw new Error(`variant ${variant.id} yaw ${yaw}: headWidthPx ${m.headWidthPx} < 500`);
       }
-      viewResults.push({
-        yaw,
-        png: path.relative(cwd, abs).replaceAll("\\", "/"),
-        sha256: sha256File(abs),
-        headWidthPx: m.headWidthPx,
-        headHeightPx,
-        headBoxPx,
-        frameSpanFraction: evidence.frameSpanFraction ?? null,
-      });
-      if (yaw === views[0]) debug = viewDebug;
-    }
-    if (!debug) throw new Error(`variant ${variant.id}: no live runtime debug readout`);
+      for (const ov of matOvs) {
+        if (typeof ov.baseColorUrl === "string" && (ov.baseColorUrl as string).startsWith("/__spike/")) {
+          ov.baseColorUrl = `${ui.url.replace(/\/$/, "")}${ov.baseColorUrl as string}`;
+        }
+      }
+      for (const rel of Object.keys(inputShas)) {
+        const served = inputShas[rel]!;
+        served.servedUrl = `${ui.url.replace(/\/$/, "")}${served.servedUrl}`;
+      }
 
-    const dbg = debug as Record<string, unknown>;
-    const record: Record<string, unknown> = {
-      id: variant.id,
-      variant: {
-        id: variant.id,
-        views,
+      const baseSpec: Record<string, unknown> = {
+        subjectKind: "glb",
+        bodyGlb,
+        view: "front",
+        focus: "head",
+        hideHair: true,
+        subjectOnly: true,
         renderSize: size,
-        skinOverride: variant.skinOverride ?? null,
-        materialOverrides: variant.materialOverrides ?? null,
-        rigOverride: variant.rigOverride ?? null,
-        productEnvironmentId: variant.productEnvironmentId ?? null,
-        portrait: variant.portrait ?? false,
-      },
-      glb: { path: glbAbs, sha256: glbSha256 },
-      rig: rigFile,
-      inputs: inputShas,
-      viewport: { width: size, height: size },
-      headWidthMethod: "image: widest lit row span within the top 35% of lit rows (background #18211d threshold; shoulders excluded)",
-      views: viewResults,
-      hairHidden: true,
-      renderer: {
-        threeRevision: dbg.threeRevision,
-        toneMapping: dbg.toneMapping,
-        toneMappingExposure: dbg.toneMappingExposure,
-        outputColorSpace: dbg.outputColorSpace,
-      },
-      lights: (dbg as { lights?: unknown }).lights ?? null,
-      environmentMap: (dbg as { environmentMap?: unknown }).environmentMap ?? null,
-      environmentIntensity: (dbg as { environmentIntensity?: unknown }).environmentIntensity ?? null,
-      skinMaterial: (dbg as { skinMaterial?: unknown }).skinMaterial ?? null,
-      skinOverrideApplied: (dbg as { skinOverrideApplied?: unknown }).skinOverrideApplied ?? null,
-      materialInventory: (dbg as { materialInventory?: unknown }).materialInventory ?? null,
-      materialOverridesApplied: (dbg as { materialOverridesApplied?: unknown }).materialOverridesApplied ?? null,
-      productRig: (dbg as { productRig?: unknown }).productRig ?? null,
-      portrait: (dbg as { portrait?: unknown }).portrait ?? null,
-      runtimeDebug: debug,
-      command: `MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant ${path.relative(cwd, variantPath).replaceAll("\\", "/")} --out ${path.relative(cwd, outDir).replaceAll("\\", "/")}`,
-    };
-    const landed = assertVariantLanded(variant, record);
-    (record as { landedChecks?: string[] }).landedChecks = landed;
-    await writeFile(path.join(outDir, `${variant.id}.json`), `${JSON.stringify(record, null, 2)}\n`, "utf8");
-    console.log(`variant ${variant.id} ok: ${landed.join(" | ")}`);
+        ...(Object.keys(skinOv).length ? { skinOverride: skinOv } : {}),
+        ...(matOvs.length ? { materialOverrides: matOvs } : {}),
+        ...(variant.rigOverride ? { rigOverride: variant.rigOverride } : {}),
+        ...(variant.productEnvironmentId ? { productEnvironmentId: variant.productEnvironmentId } : {}),
+        ...(variant.portrait === true ? { portrait: true } : {}),
+      };
+
+      const viewResults: Array<{ yaw: number; png: string; sha256: string; headWidthPx: number; headHeightPx: number | null; headBoxPx: { x0: number; y0: number; x1: number; y1: number } | null; frameSpanFraction: number | null }> = [];
+      let debug: unknown = null;
+      for (const yaw of views) {
+        const fileName = yaw === 0 ? `${variant.id}-front.png` : `${variant.id}-yaw${yaw}.png`;
+        const abs = path.join(outDir, fileName);
+        const evidence = await captureOne({
+          page, baseUrl: ui.url,
+          spec: { ...baseSpec, subjectId: `${variant.id}_${yaw}`, yawDegrees: yaw, label: `${variant.id} yaw ${yaw}` },
+          imagePath: abs,
+          size,
+        });
+        const m = measureImage(abs);
+        if (m.w !== size || m.h !== size || m.w !== m.h) {
+          throw new Error(`variant ${variant.id} yaw ${yaw}: PNG is ${m.w}x${m.h}, expected square ${size}`);
+        }
+        if (m.luminanceStd <= 10) throw new Error(`variant ${variant.id} yaw ${yaw}: blank render`);
+        const viewDebug = await page.evaluate(
+          () => (globalThis as unknown as { __openClinXrIsolatedRuntimeDebug?: unknown }).__openClinXrIsolatedRuntimeDebug ?? null,
+        );
+        if (!viewDebug) throw new Error(`variant ${variant.id} yaw ${yaw}: no live runtime debug readout`);
+        const portraitDbg = (viewDebug as { portrait?: { headHeightPx?: unknown; headBoxPx?: { x0: number; y0: number; x1: number; y1: number } } | null }).portrait;
+        const headHeightPx = typeof portraitDbg?.headHeightPx === "number" ? portraitDbg.headHeightPx : null;
+        const headBoxPx = portraitDbg?.headBoxPx ?? null;
+        if (variant.portrait === true) {
+          // Tight-portrait gate: chin-to-crown within 5% of 0.78 * frame.
+          // Enforced on the first (construction) view only: framePortraitCamera
+          // solves the camera distance straight-on and keeps that same distance
+          // for yaw views (inter-view scale preserved), so their projected AABB
+          // height legitimately grows with |yaw| (measured 841.7 vs 798.7 at
+          // yaw 40, +5.4%). Gating every yaw contradicts the framing design and
+          // aborts 3-view variants after writing front+yaw40 with no JSON.
+          if (headHeightPx == null) throw new Error(`variant ${variant.id} yaw ${yaw}: no portrait headHeightPx readout`);
+          const want = 0.78 * size;
+          if (yaw === views[0] && Math.abs(headHeightPx - want) > 0.05 * want) {
+            throw new Error(`variant ${variant.id} yaw ${yaw}: headHeightPx ${headHeightPx.toFixed(1)} not within 5% of ${want.toFixed(1)}`);
+          }
+        } else if (m.headWidthPx < 500) {
+          throw new Error(`variant ${variant.id} yaw ${yaw}: headWidthPx ${m.headWidthPx} < 500`);
+        }
+        viewResults.push({
+          yaw,
+          png: path.relative(cwd, abs).replaceAll("\\", "/"),
+          sha256: sha256File(abs),
+          headWidthPx: m.headWidthPx,
+          headHeightPx,
+          headBoxPx,
+          frameSpanFraction: evidence.frameSpanFraction ?? null,
+        });
+        if (yaw === views[0]) debug = viewDebug;
+      }
+      if (!debug) throw new Error(`variant ${variant.id}: no live runtime debug readout`);
+
+      const dbg = debug as Record<string, unknown>;
+      const record: Record<string, unknown> = {
+        id: variant.id,
+        variant: {
+          id: variant.id,
+          views,
+          renderSize: size,
+          skinOverride: variant.skinOverride ?? null,
+          materialOverrides: variant.materialOverrides ?? null,
+          rigOverride: variant.rigOverride ?? null,
+          productEnvironmentId: variant.productEnvironmentId ?? null,
+          portrait: variant.portrait ?? false,
+        },
+        glb: { path: glbAbs, sha256: glbSha256 },
+        rig: rigFile,
+        inputs: inputShas,
+        viewport: { width: size, height: size },
+        headWidthMethod: "image: widest lit row span within the top 35% of lit rows (background #18211d threshold; shoulders excluded)",
+        views: viewResults,
+        hairHidden: true,
+        renderer: {
+          threeRevision: dbg.threeRevision,
+          toneMapping: dbg.toneMapping,
+          toneMappingExposure: dbg.toneMappingExposure,
+          outputColorSpace: dbg.outputColorSpace,
+        },
+        lights: (dbg as { lights?: unknown }).lights ?? null,
+        environmentMap: (dbg as { environmentMap?: unknown }).environmentMap ?? null,
+        environmentIntensity: (dbg as { environmentIntensity?: unknown }).environmentIntensity ?? null,
+        skinMaterial: (dbg as { skinMaterial?: unknown }).skinMaterial ?? null,
+        skinOverrideApplied: (dbg as { skinOverrideApplied?: unknown }).skinOverrideApplied ?? null,
+        materialInventory: (dbg as { materialInventory?: unknown }).materialInventory ?? null,
+        materialOverridesApplied: (dbg as { materialOverridesApplied?: unknown }).materialOverridesApplied ?? null,
+        productRig: (dbg as { productRig?: unknown }).productRig ?? null,
+        portrait: (dbg as { portrait?: unknown }).portrait ?? null,
+        runtimeDebug: debug,
+        command: `MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant ${path.relative(cwd, variantPath).replaceAll("\\", "/")} --out ${path.relative(cwd, outDir).replaceAll("\\", "/")}`,
+      };
+      const landed = assertVariantLanded(variant, record);
+      (record as { landedChecks?: string[] }).landedChecks = landed;
+      await writeFile(path.join(outDir, `${variant.id}.json`), `${JSON.stringify(record, null, 2)}\n`, "utf8");
+      console.log(`variant ${variant.id} ok: ${landed.join(" | ")}`);
+    });
   } finally {
-    if (browser) await browser.close();
     if (server) await stopPortlessDevServer(server.proc);
   }
 }
@@ -825,10 +852,13 @@ export async function compositeSheet(input: {
   outPng: string;
 }): Promise<void> {
   const { cells, columns, cellW, cellH, outPng } = input;
-  let browser = null as Awaited<ReturnType<typeof import("../lib/slotted-playwright.js").chromium.launch>> | null;
-  try {
-    browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+  // Browser launch goes through the compute-services facade
+  // (sceneCapture.withBrowser), never a direct chromium.launch in this file:
+  // the direct-compute-launch freeze counts direct sites. The facade default
+  // launches headless with no extra flags — identical to the direct launch
+  // this replaces.
+  await createLocalComputeServices().sceneCapture.withBrowser("skin-realism:composite-sheet", async (launched) => {
+    const page = await (launched as HeadlessBrowser).newPage();
     const labelH = 40;
     const rows = Math.ceil(cells.length / columns);
     const width = columns * cellW, height = rows * (cellH + labelH);
@@ -848,9 +878,7 @@ export async function compositeSheet(input: {
     await page.locator(".grid").screenshot({ path: outPng });
     const [w, h] = pngDims(outPng);
     console.log(`sheet ok: ${cells.length} cells ${w}x${h} -> ${outPng}`);
-  } finally {
-    if (browser) await browser.close();
-  }
+  });
 }
 
 async function runSheetMode(input: { cwd: string; outDir: string }): Promise<void> {
