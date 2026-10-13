@@ -7,6 +7,8 @@ import { sampleLocomotionStanceTrack } from "./case-owned-approach-frame-mod.js"
 import { measureStanceGroundAdvance } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { resolveHipBone } from "./resolve-hip-bone.js";
+import { FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
+import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { STOP_PLAYING_FLAG } from "./stop-clip-playback-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
@@ -292,6 +294,10 @@ export function playLocomotionClip(
   // Walking: start or continue
   if (!action.isRunning()) {
     action.reset().play();
+    // FOOTSTEP-PLAN S2 (default OFF): begin at feet-passing (near standing)
+    // so the amplitude blend's walk-start adoption is centimetres. Untouched
+    // without the flag: the clip starts at its first key as before.
+    if (readFootstepPlanEnabled()) action.time = FOOTSTEP_START_PHASE_S;
     // FULL clip weight from the first frame. The crossfade below governs ONLY the
     // upper-body ownership blend (read by the posture pass); the leg pose the stance
     // lock pins must be the clip's own pose immediately. Snapping the action's weight

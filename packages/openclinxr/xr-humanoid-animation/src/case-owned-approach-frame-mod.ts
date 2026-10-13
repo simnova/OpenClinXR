@@ -28,6 +28,11 @@ import {
 import {
   applyClosedLoopWalkStep,
 } from "./closed-loop-root-advance-mod.js";
+import {
+  applyFootstepPlanStep,
+  captureFootstepRest,
+} from "./footstep-plan-amplitude-mod.js";
+import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
@@ -156,6 +161,7 @@ export function advanceCaseOwnedBedsideApproach(
         right: { ...approach.restStance.toeRight },
       };
     }
+    captureFootstepRest(approach);
   } else if (execution.phase === "walking") {
     approach.lockArmed = true;
   }
@@ -463,13 +469,16 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     // labels and the would-be correction, but nothing is written — the
     // rendered walk isolates clip + root. Settling/arrived writers above are
     // unaffected, so the run still terminates.
-    observeOnly: readLocoGroundNoStanceLock(),
+    observeOnly: readLocoGroundNoStanceLock() || readFootstepPlanEnabled(),
     recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
       : {}),
     ...(clipStance ? { clipStance } : {}),
   });
+  // FOOTSTEP-PLAN S2 (default OFF): stride-amplitude blend on the walking
+  // pose first; the closed loop below then advances on the scaled planted foot.
+  applyFootstepPlanStep({ approach, routeDx, routeDz, routeLength });
   // FOOTSTEP-PLAN S1 (default OFF): opt-in closed-loop root advance; no flag, no effect.
   applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
 }
