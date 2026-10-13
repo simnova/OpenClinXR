@@ -41,6 +41,24 @@
 /** Scale-1 travel of one passing-to-passing step, in metres (see header). */
 export const FOOTSTEP_STEP_TRAVEL_M = 0.5935;
 
+/**
+ * Travel of one half-cycle (one passing-to-passing step) at stride scale s,
+ * in metres: linear in s from the committed scale-1 table value.
+ *
+ * D1 check (S2c): D1's measured half is 0.486 m at A's nominal scale, while
+ * this function predicts halfCycleTravel(0.7357) = 0.4366 m. Inverted, D1's
+ * half maps to effective scale 0.486 / 0.5935 = 0.8189, i.e. +11% travel
+ * excess over the table on that half. Fresh-tree captures (s2c-a, n=3,
+ * scale 0.7334 certain) split it by half type: odd halves 0.430 m (table
+ * linear within 1.5%) run cool, even halves 0.481 m (D1 within 1%) run hot.
+ * The plan below keeps the committed table (no per-route fit); the excess
+ * is graded by the gates (arrival via the closed-loop clamp, last-window
+ * slide), not absorbed here.
+ */
+export function halfCycleTravelMeters(scale: number): number {
+  return scale * FOOTSTEP_STEP_TRAVEL_M;
+}
+
 /** Clip-local seconds where the walk action starts under the plan (L passing). */
 export const FOOTSTEP_START_PHASE_S = 0.55;
 
