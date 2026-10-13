@@ -120,6 +120,20 @@ function fullBodyFromArgv(): boolean {
 }
 
 /**
+ * Body-only motion-render slice (2026-10-13): opt-in `--body-only` (or `--body-only=1`);
+ * default off. When on, garment/hair meshes under the walker are hidden and leg
+ * segments are recoloured thigh/shin/foot in distinct colours, per the operator
+ * 2026-10-11 grading rule. Hide rule copied from
+ * `tools/openclinxr/evidence/loco-ground/loco-ground-capture.ts` (LOCO_ISOLATE_SOURCE
+ * hideRe); segment colours copied from
+ * `tools/openclinxr/evidence/foot-plant/stepping-turn/render_stepping_strip.py`
+ * (STEP_THIGH/SHIN/FOOT). Default off: existing invocations are unchanged.
+ */
+function bodyOnlyFromArgv(): boolean {
+  return process.argv.some((arg) => arg === "--body-only" || arg === "--body-only=1");
+}
+
+/**
  * Pull a feet-side pose back for full-body framing: same side view axis, ~2x the
  * distance, look raised to mid-torso so head and feet share the frame.
  */
@@ -339,6 +353,12 @@ type FootPlantVideoReport = {
   extraQuery: string;
   /** Step-capture lean slice: --full-body pulls the side view back to head-to-feet (default false). */
   fullBodySideView: boolean;
+  /** Body-only motion-render slice: --body-only hides garments/hair + colours leg segments (default false). */
+  bodyOnly: boolean;
+  /** Feet-side isolation room-hide count plus body-only garment hides (0 extra when bodyOnly is false). */
+  hiddenMeshCount: number;
+  /** Garment/hair mesh names hidden by the body-only rule (empty when bodyOnly is false). */
+  bodyOnlyHiddenMeshes: string[];
   fpsCandidates: {
     fakeClock: { honoured: boolean; fps: number };
     gpuRealtime: { fps: number | null };
@@ -728,6 +748,111 @@ const ISOLATE_SOURCE = String.raw`
   }
   globalThis.__footPlantHiddenUuids = hidden;
   return { ok: true, hiddenCount: hidden.length, floorAdded };
+})
+`;
+
+/**
+ * Body-only grading render (2026-10-13): hide garment/hair meshes under the walker
+ * and recolour leg segments thigh/shin/foot in distinct colours. Hide rule copied
+ * from `tools/openclinxr/evidence/loco-ground/loco-ground-capture.ts`
+ * (LOCO_ISOLATE_SOURCE hideRe); segment colours copied from
+ * `tools/openclinxr/evidence/foot-plant/stepping-turn/render_stepping_strip.py`
+ * (STEP_BODY gray + STEP_THIGH/SHIN/FOOT). Capture-page only; runs after isolation
+ * so the room-hide count it reports is unchanged when this step is skipped.
+ */
+const BODY_ONLY_SOURCE = String.raw`
+((p) => {
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return { ok: false, reason: "no-debug-scene" };
+  const actorId = p.actorId;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return { ok: false, reason: "no-physician-actor-" + actorId };
+  const hideRe = /hair|wig|garment|shirt|trouser|pant|shoe|boot|gown|scrub|cloth|dress|beard|brow|lash|sock|glove|cardigan|casual_top|lab_coat|footwear|eyebrow|eyelash/i;
+  const hiddenMeshes = [];
+  physRoot.traverse((o) => {
+    if (!o.isSkinnedMesh) return;
+    if (hideRe.test(o.name || "")) {
+      o.visible = false;
+      hiddenMeshes.push(o.name || "(unnamed)");
+    }
+  });
+  const thighRe = /upperleg01|upperleg02|thigh/i;
+  const shinRe = /lowerleg01|lowerleg02|shin/i;
+  const footRe = /foot|toe/i;
+  // Segment flat colours copied from render_stepping_strip.py STEP_THIGH/SHIN/FOOT.
+  const SEG_COLORS = { 1: 0xff4d1a, 2: 0x1abfa6, 3: 0xffd926 };
+  const colouredMeshes = [];
+  const segFractions = {};
+  physRoot.traverse((o) => {
+    if (!o.isSkinnedMesh || o.visible === false) return;
+    if (!o.geometry || !o.skeleton || !o.skeleton.bones) return;
+    const attrs = o.geometry.attributes || {};
+    const pos = attrs.position;
+    const skinIndex = attrs.skinIndex;
+    const skinWeight = attrs.skinWeight;
+    if (!pos || !skinIndex || !skinWeight) return;
+    const bones = o.skeleton.bones;
+    const segOf = (idx) => {
+      const nm = (bones[idx] && bones[idx].name) || "";
+      if (thighRe.test(nm)) return 1;
+      if (shinRe.test(nm)) return 2;
+      if (footRe.test(nm)) return 3;
+      return 0;
+    };
+    const n = pos.count;
+    const counts = [0, 0, 0, 0];
+    for (let v = 0; v < n; v += 1) {
+      let bestSeg = 0;
+      let bestW = 0;
+      for (let k = 0; k < 4; k += 1) {
+        const bi = skinIndex.getComponent ? skinIndex.getComponent(v, k) : 0;
+        const w = skinWeight.getComponent ? skinWeight.getComponent(v, k) : 0;
+        if (!w || w <= bestW) continue;
+        const seg = segOf(bi);
+        if (seg) { bestSeg = seg; bestW = w; }
+      }
+      counts[bestSeg] += 1;
+    }
+    let meshSeg = 0;
+    let meshFrac = 0;
+    for (let s = 1; s <= 3; s += 1) {
+      const frac = n > 0 ? counts[s] / n : 0;
+      if (frac > meshFrac) { meshFrac = frac; meshSeg = s; }
+    }
+    segFractions[o.name || "(unnamed)"] = counts;
+    // Whole-mesh flat tint by plurality segment: the shipped body arrives as
+    // region-split primitives (8 materials on the body mesh), so a leg-region
+    // primitive tints cleanly. Material-only (clone + color/emissive set, the
+    // same ops as the marker/floor code) — no geometry attribute surgery, which
+    // crashed the renderer (measured 2026-10-13: createBuffer byteLength).
+    // Threshold 0.35 keeps mixed torso meshes untouched.
+    if (meshSeg === 0 || meshFrac < 0.35) return;
+    try {
+      o.material = Array.isArray(o.material)
+        ? o.material.map((m) => (m && typeof m.clone === "function" ? m.clone() : m))
+        : (o.material && typeof o.material.clone === "function" ? o.material.clone() : o.material);
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of mats) {
+        if (!m) continue;
+        if (m.color && typeof m.color.set === "function") m.color.set(SEG_COLORS[meshSeg]);
+        if (m.emissive && typeof m.emissive.set === "function") m.emissive.set(SEG_COLORS[meshSeg]);
+        if (typeof m.emissiveIntensity === "number") m.emissiveIntensity = 0.35;
+        m.needsUpdate = true;
+      }
+      colouredMeshes.push((o.name || "(unnamed)") + ":seg" + meshSeg);
+    } catch (err) { /* colour loss is a grading gap, not a capture failure */ }
+  });
+  if (typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld(true);
+  return { ok: true, hiddenMeshes, colouredMeshes, segFractions };
 })
 `;
 
@@ -1885,6 +2010,9 @@ type RecordedPass = {
   fill: string;
   framing: FramingSample[];
   isolated: string;
+  isolatedHiddenCount: number;
+  bodyOnlyHiddenMeshes: string[];
+  bodyOnlyColoredMeshes: string[];
   scan: ScanResult[];
   // Drawn-subject check results (captured once per pass, on the last walking frame)
   subjectVisibleMeshes: number;
@@ -1912,6 +2040,7 @@ async function recordPass(
   stagingModeDir: string,
   isolate: { cx: number; cz: number; floorY: number } | null,
   scanEyes: ScanEye[] = [],
+  bodyOnly = false,
 ): Promise<RecordedPass> {
   const context = await browser.newContext({
     viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
@@ -1978,6 +2107,9 @@ async function recordPass(
     // isolation is requested (after 3 failed camera placements).
     // Each pass owns its page, so nothing is restored afterwards.
     let isolated = "not requested";
+    let isolatedHiddenCount = 0;
+    let bodyOnlyHiddenMeshes: string[] = [];
+    let bodyOnlyColoredMeshes: string[] = [];
     if (isolate) {
       const isolatePayload = { ...isolate, actorId: activeWalkerActorId() };
       const iso = (await page.evaluate(
@@ -1985,8 +2117,18 @@ async function recordPass(
       )) as { ok: boolean; hiddenCount?: number; floorAdded?: boolean; reason?: string };
       if (!iso.ok) throw new Error(`${mode} isolation failed: ${iso.reason ?? "unknown"}`);
       if (!iso.floorAdded) throw new Error(`${mode} isolation added no floor plane; refusing a floating subject`);
-      isolated = `hidden ${iso.hiddenCount ?? 0}, grid floor added`;
+      isolatedHiddenCount = iso.hiddenCount ?? 0;
+      isolated = `hidden ${isolatedHiddenCount}, grid floor added`;
       process.stdout.write(`[${mode}] isolation: ${isolated}\n`);
+    }
+    if (bodyOnly) {
+      const bo = (await page.evaluate(
+        `${BODY_ONLY_SOURCE}(${JSON.stringify({ actorId: activeWalkerActorId() })})`,
+      )) as { ok: boolean; hiddenMeshes?: string[]; colouredMeshes?: string[]; segFractions?: Record<string, number[]>; reason?: string };
+      if (!bo.ok) throw new Error(`${mode} body-only failed: ${bo.reason ?? "unknown"}`);
+      bodyOnlyHiddenMeshes = bo.hiddenMeshes ?? [];
+      bodyOnlyColoredMeshes = bo.colouredMeshes ?? [];
+      process.stdout.write(`[${mode}] body-only: hidden ${bodyOnlyHiddenMeshes.length} (${bodyOnlyHiddenMeshes.join(",") || "(none)"}) coloured ${bodyOnlyColoredMeshes.length} (${bodyOnlyColoredMeshes.join(",") || "(none)"})\n`);
     }
     // Capture-only fill light for the unlit far side (labeled overlay; toes untouched).
     const fillResult = fillEnabled
@@ -2111,7 +2253,7 @@ async function recordPass(
       `[${mode}] drawn-subject: subjMeshes=${drawn.subjectVisibleMeshes} nonSubjMeshes=${drawn.nonSubjectVisibleMeshes} subjH=${drawn.subjectScreenHeightFraction.toFixed(3)} upright=${drawn.upright}\n`,
     );
     const playback = await readPlayback(page);
-    return { shotSimMs, evidence: finalEvidence, markers, clockHonoured, pose, fill, framing, isolated, scan,
+    return { shotSimMs, evidence: finalEvidence, markers, clockHonoured, pose, fill, framing, isolated, isolatedHiddenCount, bodyOnlyHiddenMeshes, bodyOnlyColoredMeshes, scan,
       subjectVisibleMeshes: drawn.subjectVisibleMeshes,
       nonSubjectVisibleMeshes: drawn.nonSubjectVisibleMeshes,
       subjectScreenHeightFraction: drawn.subjectScreenHeightFraction,
@@ -2369,6 +2511,7 @@ async function main(): Promise<void> {
   const ccdStanceLockEnabled = ccdStanceLockEnabledFromArgv();
   const extraQuery = extraQueryFromArgv();
   const fullBodySideView = fullBodyFromArgv();
+  const bodyOnly = bodyOnlyFromArgv();
   const stagingDir = path.resolve(process.cwd(), ".openclinxr/evidence/foot-plant-video-staging");
   await mkdir(outputDir, { recursive: true });
   await mkdir(stagingDir, { recursive: true });
@@ -2388,7 +2531,7 @@ async function main(): Promise<void> {
     + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "")
     + (extraQuery ? `&${extraQuery}` : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
-  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}, query=${extraQuery || "(none)"}\n`);
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}, query=${extraQuery || "(none)"}, bodyOnly=${bodyOnly ? "1" : "0"}\n`);
   const bundleJson = scenario.bundleJson;
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
@@ -2458,14 +2601,14 @@ async function main(): Promise<void> {
         cx: (dryStart.x + dryTarget.x) / 2,
         cz: (dryStart.z + dryTarget.z) / 2,
         floorY: dryEvidence.floorOriginY ?? 0,
-      }, []);
+      }, [], bodyOnly);
       const stagingByMode: Record<CamMode, string> = {
         "feet-side": path.join(stagingDir, "feet-side"),
         "three-quarter": path.join(stagingDir, "three-quarter-0"),
       };
       const tqTake1Pass = await recordPass(
         server, browser, bundleJson, "three-quarter", tqTake1.pose,
-        tqTake1.name.startsWith("-perp"), path.join(stagingDir, "three-quarter-0"), null, scanShortlist,
+        tqTake1.name.startsWith("-perp"), path.join(stagingDir, "three-quarter-0"), null, scanShortlist, bodyOnly,
       );
       const tqTake1Summary = summarizeTqFraming(tqTake1Pass, "three-quarter-0");
       let tqWinnerPass = tqTake1Pass;
@@ -2492,7 +2635,7 @@ async function main(): Promise<void> {
           process.stdout.write(`[gate] three-quarter take-${attempt}: ${take.name}\n`);
           const tqTakePass = await recordPass(
             server, browser, bundleJson, "three-quarter", take.pose,
-            take.name.startsWith("-perp"), path.join(stagingDir, `three-quarter-${attempt - 1}`), null, [],
+            take.name.startsWith("-perp"), path.join(stagingDir, `three-quarter-${attempt - 1}`), null, [], bodyOnly,
           );
           const tqTakeSummary = summarizeTqFraming(tqTakePass, `three-quarter-${attempt - 1}`);
           const better =
@@ -2514,7 +2657,7 @@ async function main(): Promise<void> {
               cx: (dryStart.x + dryTarget.x) / 2,
               cz: (dryStart.z + dryTarget.z) / 2,
               floorY: dryEvidence.floorOriginY ?? 0,
-            }, [],
+            }, [], bodyOnly,
           );
           const isolateSummary = summarizeTqFraming(isolatePass, "three-quarter-isolated");
           if (isolateSummary.pass) {
@@ -2721,6 +2864,9 @@ async function main(): Promise<void> {
         ccdStanceLockEnabled,
         extraQuery,
         fullBodySideView,
+        bodyOnly,
+        hiddenMeshCount: passes["feet-side"].isolatedHiddenCount + passes["feet-side"].bodyOnlyHiddenMeshes.length,
+        bodyOnlyHiddenMeshes: passes["feet-side"].bodyOnlyHiddenMeshes,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },
           gpuRealtime: { fps: gpuFps },
