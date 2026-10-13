@@ -1,0 +1,427 @@
+{
+ "version": 1,
+ "cases": {
+  "aisha": {
+   "references": {
+    "goal_front": {
+     "prompt": "This is a render of a 3D character. Keep it EXACTLY in place: the same head position, size and outline, the same camera angle and framing, the same face shape, and every feature (eyes, eyebrows, nose, nostrils, lips, ears, jaw line) at exactly the same position and size, pixel for pixel. Do not move, resize, rotate or reshape anything. Keep the head bald, the same green top and the same plain dark background. Only change the surface so it looks like a real photograph of a person: natural human skin with fine pores and subtle natural colour variation, slightly rosier cheeks and nose, natural soft lips, realistic ears, realistic eyes with natural irises, sclera, eyelids and lashes, and natural eyebrows made of individual hairs. Skin tone: light-medium warm beige with a neutral-olive undertone, no freckles, no makeup. Lips: muted dusty pink. Eyes: dark brown. Lighting: completely flat, even and shadowless from all directions, with no highlights and no dark side; the skin colour should be uniform across the face apart from its natural colour variation.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-12",
+     "reference_input": {
+      "store_relpath": "project/views-v9/view-0.png",
+      "sha256": null,
+      "size": null,
+      "note": "input project/views-v9/view-0.png as recorded in refs.json; bytes not retained in scratch (project/edit-v9/named/view-0.png is a byte copy of the output, same sha); input sha unrecordable"
+     },
+     "output": {
+      "store_relpath": "project/edit-v9/edit-0.png",
+      "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "S/project/edit-v9/refs.json steps[0]; registered goal per S/brow/register.json"
+     },
+     "rejected": [],
+     "tone": {
+      "phenotype_tone": "warm_light",
+      "goal_facecore_lab": [
+       58.37,
+       9.05,
+       16.01
+      ],
+      "token_lab": [
+       68.24,
+       11.51,
+       19.09
+      ],
+      "distance_dLab": 10.63,
+      "threshold_dLab": 10.7,
+      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
+      "flagged": false
+     }
+    },
+    "goal_yaw": {
+     "prompt": "This is a render of a 3D character. Keep it EXACTLY in place: the same head position, size and outline, the same camera angle and framing, the same face shape, and every feature (eyes, eyebrows, nose, nostrils, lips, ears, jaw line) at exactly the same position and size, pixel for pixel. Do not move, resize, rotate or reshape anything. Keep the head bald, the same green top and the same plain dark background. Only change the surface so it looks like a real photograph of a person: natural human skin with fine pores and subtle natural colour variation, slightly rosier cheeks and nose, natural soft lips, realistic ears, realistic eyes with natural irises, sclera, eyelids and lashes, and natural eyebrows made of individual hairs. Skin tone: light-medium warm beige with a neutral-olive undertone, no freckles, no makeup. Lips: muted dusty pink. Eyes: dark brown. Lighting: completely flat, even and shadowless from all directions, with no highlights and no dark side; the skin colour should be uniform across the face apart from its natural colour variation.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-12",
+     "reference_input": {
+      "store_relpath": "project/views-v9/view-40.png",
+      "sha256": null,
+      "size": null,
+      "note": "input project/views-v9/view-40.png as recorded in refs.json; bytes not retained in scratch (project/edit-v9/named/view-40.png is a byte copy of the output, same sha); input sha unrecordable"
+     },
+     "output": {
+      "store_relpath": "project/edit-v9/edit-40.png",
+      "sha256": "a9158b4b30882fe2206ee35eeac3cb33e55a046f90ff4d76d3c7e630471cbb34",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "S/project/edit-v9/refs.json steps[1]; yaw-40 goal registered per S/brow/register.json"
+     },
+     "rejected": [],
+     "tone": {
+      "phenotype_tone": "warm_light",
+      "goal_facecore_lab": [
+       57.08,
+       9.74,
+       17.6
+      ],
+      "token_lab": [
+       68.24,
+       11.51,
+       19.09
+      ],
+      "distance_dLab": 11.4,
+      "threshold_dLab": 10.7,
+      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
+      "flagged": true
+     }
+    },
+    "face_tile": {
+     "prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Make the skin photorealistic: fine pores, natural subtle colour variation, slightly rosier cheeks and nose, natural matte lips with fine vertical creases. Completely even, flat lighting. Skin tone: light-medium warm beige with a neutral-olive undertone, no freckles, no blush patches. Lips: muted dusty pink.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-11",
+     "reference_input": {
+      "store_relpath": "imagine-uv2/face-core.png",
+      "sha256": "9a5d7fc83edb2ab47b9ba1b37fe721d850babd842007e7ed3a098aab71625029",
+      "size": [
+       710,
+       430
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "imagine-uv2/face-core-T.png",
+      "sha256": "015f4eec2b48da1ab9812bf10b851b6dec4e40628836da09285259e345976f1c",
+      "size": [
+       1312,
+       784
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "S/imagine-uv2/refs.json steps[2] (tone-steered T variant); consumed as join input"
+     },
+     "rejected": []
+    },
+    "scalp_island": {
+     "prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. The scalp, sides and back of the head become clean bald skin with the same tone and fine pore texture as the forehead: no hair, no stubble, no shadow band, no hairline. Face, ears, lips, eyes and eyebrows unchanged. Flat even lighting.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "scalp/ref-island-upright.png",
+      "sha256": "37a7f5ad0d00710274eb17f8e6204e392485f857d73eaaaf974229f9ee0f4bca",
+      "size": [
+       3072,
+       1598
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "scalp/scalp-cand-a.png",
+      "sha256": "bfff9cc920f18bf6125066b290a87f96156a2aab22c5adb6c3a17a7faf602a53",
+      "size": [
+       1408,
+       736
+      ]
+     },
+     "lock": {
+      "method": "ECC-affine+Farneback(fallback)",
+      "displacement_texels": {
+       "brow_med": 0.8225675225257874,
+       "earL_med": 1.372078537940979,
+       "earR_med": 2.481506109237671
+      },
+      "gate": "region med <= 4 texels@4096",
+      "pass": true,
+      "report_relpath": "scalp/lock-report.json"
+     },
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "PICK A per S/scalp/RESULT.md:5"
+     },
+     "rejected": [
+      {
+       "store_relpath": "scalp/scalp-cand-b.png",
+       "sha256": "fd23a2d20cedb41fc2440c81cf0cf53c5799d881034fd77096cc85be88648459",
+       "size": [
+        1408,
+        736
+       ],
+       "reason": "side/back dAB and yaw symmetry worse than A, 4x larger tone anchor (-10.9 vs -2.5 L); S/scalp/RESULT.md:4-5"
+      }
+     ]
+    },
+    "eye_texture": {
+     "prompt": "This image is a texture map for 3D eyeballs, not a photograph. Keep the layout EXACTLY: both eyeballs, both irises and both pupils stay at exactly the same position and exactly the same size, pixel for pixel; the plain grey background stays unchanged. Do not add eyelids, lashes, skin, reflections, highlights, shadows or catch-lights. Flat even lighting. Change only the surface detail: make each iris a photographic human deep-espresso brown iris, nearly black at the rim, with ultra-fine radial fibres visible mainly in the mid-band, a low-contrast collarette, a soft dark limbal ring diffusing gently into the sclera; keep the pupil black and round. Make the sclera a clean natural off-white, neutral to faintly warm, with only two or three hairline veins near each outer corner, no red patches. A moist eye look but with NO highlight, NO reflection, NO glint anywhere.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "eyetex/eye-ref-1024.png",
+      "sha256": "bdf4b435f75c059291de58b97a7e6cce352ab2855d44f74013f5fa51ee6ba864",
+      "size": [
+       1024,
+       1024
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "eyetex/eye-cand-c.png",
+      "sha256": "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     "lock": {
+      "method": "disk-match+ECC-affine+phase-refine",
+      "displacement_texels": {
+       "pupil_shift_L": 0.77,
+       "pupil_shift_R": 0.63
+      },
+      "gate": "pupil shift <= 2px and limbus radius rel <= 2%",
+      "pass": true,
+      "report_relpath": "eyetex/eye-lock-c.lock.json"
+     },
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "pick C (darkest iris, smallest catch, sclera closest to goal) per S/eyetex/RESULT.md"
+     },
+     "rejected": [
+      {
+       "store_relpath": "eyetex/eye-cand-a.png",
+       "sha256": "910f3332326564ca308209e77bc9696df407b769166f2fc05f438ef9c5cf5176",
+       "size": [
+        1024,
+        1024
+       ],
+       "reason": "iris lighter/flatter than C, larger catch-light block (119px 13x11); S/eyetex/RESULT.md"
+      },
+      {
+       "store_relpath": "eyetex/eye-cand-b.png",
+       "sha256": "b2cec23f89cb0b97b3f408147d994a26f3e76836c1fb6d187e2b7430e5a6e4bc",
+       "size": [
+        1024,
+        1024
+       ],
+       "reason": "warm chestnut hue rejected on brightness; S/eyetex/RESULT.md"
+      }
+     ]
+    },
+    "brow_band": {
+     "prompt": "Same image, identical composition, identical position and size of every feature: forehead, exactly two eyebrows, two eyes, two ears, nose, mouth sliver. Do not add, duplicate, move, resize or remove any feature. The only change: the two eyebrows become sparse, fine individual hairs with skin visible between the hairs, natural taper toward the tail, soft irregular edges, softer brown color. Everything else stays exactly as it is. Flat even lighting, no new shadows, no new edge lines, no text.",
+     "generator": "image_edit (xAI Imagine; driverModel unrecorded in scratch refs JSON)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "brow2/ref3-face.png",
+      "sha256": "a1650ddb424aca1d03dd05c0905ca2bd860389fe524f0af9e11a4265a588abd8",
+      "size": [
+       1550,
+       800
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "brow2/cand-c.png",
+      "sha256": "a21dceea353ceff7bdd376349c97596ae6891727f013657cde2da3d7a169cad5",
+      "size": [
+       1424,
+       720
+      ]
+     },
+     "lock": {
+      "method": "ECC-affine+Farneback(fallback)",
+      "displacement_texels": {
+       "median_landmark_shift": 0.95,
+       "eye_shifts": [
+        0.63,
+        0.52,
+        0.18,
+        0.49
+       ]
+      },
+      "gate": "median landmark shift <= 4 texels",
+      "pass": false,
+      "pass_note": "false = L-brow phase unreliable (resp < 0.1), which IS the intended dense-to-sparse change; eyes < 0.7, accepted per S/brow2/RESULT.md:6+10",
+      "report_relpath": "brow2/lock-c.json"
+     },
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "PICK C (only viable candidate) per S/brow2/RESULT.md:10; lock pass=false is the intended dense-to-sparse change"
+     },
+     "rejected": [
+      {
+       "store_relpath": "brow2/cand-b.png",
+       "sha256": "994bc620c612a16f3d9aebb6d681ccf5661ddba83d75a225a6806a60f165666d",
+       "size": [
+        2016,
+        512
+       ],
+       "reason": "layout invention: second giant brow pair plus smeared eyes; kept as negative evidence; S/brow2/RESULT.md:4"
+      },
+      {
+       "store_relpath": null,
+       "sha256": null,
+       "reason": "imagine-a: 3 calls returned 2000x512 vs 3072x800 REF, nothing saved (no placeholder per task rule); S/brow2/imagine-a.json"
+      }
+     ]
+    }
+   },
+   "phenotype_tone": "warm_light"
+  },
+  "body2": {
+   "references": {
+    "goal_front": {
+     "prompt": "Same person, same framing, same neutral closed-mouth expression, seen straight on. Photorealistic adult man in his late 50s, warm medium-brown skin with natural pores and subtle colour variation, dark brown thick eyebrows, brown eyes, closed relaxed mouth with natural matte lips. Same soft studio lighting, plain dark background, head and neck filling the frame like the original.",
+     "generator": "image_edit (xAI Imagine; driverModel image_edit as reported in refs-goal.json)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "body2/cap-bake/body2-bake-front.png",
+      "sha256": "68e5100df41cd488ff0afa35c63bc82a9665f70caaac8b30a88adf0045be3fcb",
+      "size": [
+       1024,
+       1024
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "body2/goal-front.png",
+      "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "first attempt kept per S/body2/LEDGER.md C1-goal-portrait-imagine"
+     },
+     "rejected": [],
+     "tone": {
+      "phenotype_tone": "warm_medium",
+      "goal_facecore_lab": [
+       49.26,
+       13.89,
+       19.44
+      ],
+      "token_lab": [
+       56.71,
+       12.27,
+       19.96
+      ],
+      "distance_dLab": 7.64,
+      "threshold_dLab": 10.7,
+      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
+      "flagged": false
+     }
+    },
+    "face_tile": {
+     "prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Make the skin photorealistic: fine pores, natural subtle colour variation, slightly rosier cheeks and nose, natural matte lips with fine vertical creases. Completely even, flat lighting. Skin tone: warm medium-brown with a neutral undertone, no freckles, no blush patches. Lips: muted warm brown-pink.",
+     "generator": "muse-spark (driverModel as reported in refs-facecore.json)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "body2/uv2-src/face-core.png",
+      "sha256": "86de989d97c00f8009fa7bd8a94ef1439e48b77b4ff41a9cd91c26809626c7b9",
+      "size": [
+       710,
+       430
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "body2/uv2-src/face-core-T.png",
+      "sha256": "a455bba980c944683b2c3ddde6c1ae8101c05bf08d6814e2b2d813f2bf5ff4ce",
+      "size": [
+       1312,
+       784
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "first attempt kept per S/body2/RESULT.md (Imagine calls: 3, all kept first attempt)"
+     },
+     "rejected": [
+      {
+       "store_relpath": "skins/run/uv2-src/face-core-T.png",
+       "sha256": "713ebf4c8ffdb9dff31a83da13e073d10c87c6734da2aa9646790c8a6cf0531e",
+       "size": [
+        1312,
+        784
+       ],
+       "reason": "T5 rerun replacement tile (clean-shaven clause, albedo-space source); became the final body2b chain input; recorded for provenance, not refused; S/skins/RESULT.md"
+      }
+     ]
+    },
+    "scalp_island": {
+     "prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Make the skin photorealistic: fine pores, natural subtle colour variation, slightly rosier cheeks and nose, natural matte lips with fine vertical creases. Completely even, flat lighting. Skin tone: warm medium-brown with a neutral undertone, no freckles, no blush patches. Lips: muted warm brown-pink. The top of the head is clean shaven smooth skin with only the faintest stubble shadow, the same skin tone as the forehead.",
+     "generator": "muse-spark via xAI Imagine image_edit (as reported in imagine-island.json)",
+     "created": "2026-10-13",
+     "reference_input": {
+      "store_relpath": "body2/uv2-src/island-upright.png",
+      "sha256": "90fefa0003a83c458b0ae7b53cc511a75b9ca58968814220e4cbf1cb92e64368",
+      "size": [
+       1536,
+       799
+      ],
+      "note": null
+     },
+     "output": {
+      "store_relpath": "body2/uv2-src/island-T.png",
+      "sha256": "3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069",
+      "size": [
+       1408,
+       736
+      ]
+     },
+     "lock": null,
+     "acceptance": {
+      "grader": "operator (station review)",
+      "verdict": "accepted",
+      "source": "first attempt kept per S/body2/RESULT.md (Imagine calls: 3, all kept first attempt)"
+     },
+     "rejected": [
+      {
+       "store_relpath": "skins/run/uv2-src/island-T.png",
+       "sha256": "1d3f225541a46e4d923e5ee704624bea8d3c2ace4661a9f992456b80ba7434fe",
+       "size": [
+        1408,
+        736
+       ],
+       "reason": "T5 rerun replacement island; became the final body2b chain input; recorded for provenance, not refused; S/skins/RESULT.md"
+      }
+     ]
+    }
+   },
+   "phenotype_tone": "warm_medium"
+  }
+ },
+ "tone_flag": {
+  "threshold_dLab": 10.7,
+  "source": "dLab 10.63 = accepted Aisha goal-front (S/project/edit-v9/edit-0.png) face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7. Aisha goal-yaw records 11.4 (flagged, accepted: yaw framing shifts the box mean); body2 goal-front records 7.64 (not flagged). Flag is advisory, never blocking."
+ },
+ "store": {
+  "root_env": "REFERENCE_SET_STORE_ROOT",
+  "note": "bytes live under the store root (gitignored scratch); manifest holds shas plus store-relative paths only"
+ }
+}
