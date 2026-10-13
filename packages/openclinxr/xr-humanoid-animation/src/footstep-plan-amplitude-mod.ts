@@ -145,11 +145,18 @@ const restQuat = new Quaternion();
  * `tap-<vehicle>-run<N>.json` beside the run file; `sub` joins to the
  * probe's `walkSimSubsteps` column.
  */
+export type FootstepTapPelvisPose = {
+  pos: { x: number; y: number; z: number };
+  quat: { x: number; y: number; z: number; w: number };
+} | null;
+
 export type FootstepTapStagePose = {
   left: { x: number; y: number; z: number } | null;
   right: { x: number; y: number; z: number } | null;
   slotX: number;
   slotZ: number;
+  /** M1b: pelvis world pose at this stage (rigid-vs-leg split), null off-rig. */
+  pelvis: FootstepTapPelvisPose;
 };
 
 export type FootstepTapRecord = {
@@ -187,6 +194,32 @@ export function snapshotFootstepTapStage(input: {
     right: tapToeWorld(input.rightToe),
     slotX: input.actorSlot.position.x,
     slotZ: input.actorSlot.position.z,
+    pelvis: tapPelvisWorld(input.actorSlot),
+  };
+}
+
+const tapPelvisCache = new WeakMap<object, Object3D | null>();
+
+/**
+ * M1b: pelvis world pose for the rigid-vs-leg split. The pelvis bone is
+ * resolved once per actor slot (same `^pelvis` match as the blend set);
+ * reads only, null when the rig carries none.
+ */
+function tapPelvisWorld(actorSlot: Object3D): FootstepTapPelvisPose {
+  let pelvis: Object3D | null | undefined;
+  if (tapPelvisCache.has(actorSlot)) {
+    pelvis = tapPelvisCache.get(actorSlot) ?? null;
+  } else {
+    pelvis = collectPelvisBones(actorSlot)[0] ?? null;
+    tapPelvisCache.set(actorSlot, pelvis);
+  }
+  if (pelvis === null || pelvis === undefined) return null;
+  pelvis.updateWorldMatrix(true, false);
+  const pe = pelvis.matrixWorld.elements;
+  const pq = pelvis.quaternion;
+  return {
+    pos: { x: pe[12] ?? 0, y: pe[13] ?? 0, z: pe[14] ?? 0 },
+    quat: { x: pq.x, y: pq.y, z: pq.z, w: pq.w },
   };
 }
 
