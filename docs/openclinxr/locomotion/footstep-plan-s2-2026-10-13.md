@@ -122,3 +122,37 @@ Side view, full-body, SC-05, 0.5x half-speed copy, both with `fixedClock=1`:
 - Settle-phase follow-up (stashed M3 module): end-stance numbers above still
   include the legacy settle.
 - The `footstep-plan-v1` admission rows are unsigned (`PENDING-ORCHESTRATOR-REVIEW`).
+
+## M1 toe-crossing table (exit-phase-per-foot, 2026-10-13)
+
+Run0 taps, `?footstepPlan=1&fixedClock=1`, dist 4c71742a/4429cda6 (current
+build). R-L = (rightToe − leftToe) along the route unit, blend stage (==
+post: the closed loop moves the slot, separation is slot-invariant). Exit
+substep = first settling frame's `walkSimSubsteps` (one past the max tap
+sub: the tap pushes only while the advance kept `walking`).
+
+| route | k | final scale | end foot (swings) | crossing subs (blend R-L) | first post | exit sub | lag |
+|---|---|---|---|---|---|---|---|
+| 1.31 sc05 | 3 | 0.7038 | R (left) | 94 (+0.0302) → 95 (−0.0268) | 95 | 96 | 1 |
+| 2.0 sc05 | 4 | 0.8036 | L (right) | 126 (−0.0503) → 127 (+0.0125) | 127 | 129 | 2 |
+| 6.0 loco | 11 | 0.7833 | R (left) | 346 (+0.0509) → 347 (−0.0115) | 347 | 348 | 1 |
+
+Phase-constant context (clip rate ≈0.0271 s/substep from the 2.0 m frame
+join): L constant wrapped 0.55 vs true L crossing ≈0.5415 (~8.5 ms late);
+R constant wrapped 1.38 vs true R crossings ≈1.3756 (1.31 m) and ≈1.377
+(6.0 m) (~3–4 ms late). The action read is one substep stale (mixer
+updates after the advance; `case-owned-approach-frame-mod.ts` comment).
+
+CAUSE D2: fixed clip-phase exit on a one-substep-stale read. The stale
+~27 ms plus the L constant's extra ~8 ms pushes the even exit a second
+full substep past the first post-crossing substep; odd exits fire one
+past. The extra substep carries the swinging right foot ~60 mm further
+forward (exit separation +0.0765 at tap 128 vs +0.0125 at tap 127).
+
+CAUSE D3: no bookkeeping mismatch — travelled == route exactly at settle
+entry (1.30587/2.0/6.0). The 0.033 arrival is the settling-turn pivot
+carry, route-independent: travelled 2.0 → 2.0307, 6.0 → 6.0252,
+1.3059 → 1.3248 while the slot translates under settling. No change.
+
+D4 read: `parseFootstepRouteMeters` honors only the literal 2
+(`footstep-plan-query-flag-mod.ts:27-32`); anything else reads null.
