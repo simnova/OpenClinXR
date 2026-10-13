@@ -21,9 +21,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { gateWalkClip, MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, runMotionRetarget } from "@openclinxr/factory-stations";
+import { GATE_BARS, MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, runMotionRetarget } from "@openclinxr/factory-stations";
 import type { WalkGateReport } from "@openclinxr/factory-stations";
 import { dropLeadingRestFrame } from "../../factory/graft-bound-clip.js";
+import { gateOneClip } from "./gate-one-clip.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -31,7 +32,6 @@ const HOME = process.env["HOME"] ?? "";
 const BASE_LIBRARY = path.join(HOME, ".openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb");
 const ADDON_LIBRARY = path.join(HOME, ".openclinxr-tools/mesh2motion-app/static/animations/human-addon-animations.glb");
 const PHYSICIAN_GLB = path.join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
-const STAGE_SCRIPT = path.join(REPO_ROOT, "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py");
 const TARGET_MAP = path.join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json");
 const SOURCE_MAP = path.join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mesh2motion-human-66.json");
 const EXTRACT_SCRIPT = path.join(REPO_ROOT, "packages/openclinxr/factory-stations/src/motion_retarget/extract-library-clip.ts");
@@ -163,10 +163,10 @@ export async function bindCensusClip(clip: string, sourceGlb: string, workdir: s
 
 export async function gateCensusClip(clip: string, library: string, workdir: string): Promise<CensusRow> {
   const sourceGlb = await extractCensusClip(clip, library, workdir);
-  const sourceGate = await gateWalkClip({ glbPath: sourceGlb, clipName: clip, joints: MESHMOTION_WALK_JOINTS });
+  const sourceGate = await gateOneClip({ glbPath: sourceGlb, clipName: clip, joints: MESHMOTION_WALK_JOINTS });
   const { boundGlb, dropped } = await bindCensusClip(clip, sourceGlb, workdir);
   const boundClip = await boundClipName(boundGlb);
-  const boundGate = await gateWalkClip({ glbPath: boundGlb, clipName: boundClip, joints: MPFB_WALK_JOINTS });
+  const boundGate = await gateOneClip({ glbPath: boundGlb, clipName: boundClip, joints: MPFB_WALK_JOINTS });
   return {
     clip,
     library,
@@ -205,6 +205,8 @@ async function main(): Promise<void> {
     for (const { clip, library } of wanted) rows.push(await gateCensusClip(clip, library, workdir));
     const out = path.join(workdir, "census-rows.json");
     writeFileSync(out, `${JSON.stringify(rows, null, 2)}\n`);
+    console.log("gate bars (threshold [provenance]):");
+    for (const [id, bar] of Object.entries(GATE_BARS)) console.log(`  ${id}: ${bar.threshold} [${bar.provenance}]`);
     for (const row of rows) {
       const fails = (g: WalkGateReport): string => g.bars.filter((b) => !b.pass).map((b) => b.id).join(",") || "none";
       console.log(`${row.clip}: source ${row.sourceGate.pass ? "PASS" : `FAIL(${fails(row.sourceGate)})`} | bound ${row.boundGate.pass ? "PASS" : `FAIL(${fails(row.boundGate)})`}`);

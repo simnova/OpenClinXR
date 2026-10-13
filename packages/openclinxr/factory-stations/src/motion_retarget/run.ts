@@ -37,6 +37,7 @@ export type MotionRetargetRunOptions = {
   symmetryGate?: MotionRetargetSymmetryGate;
 };
 
+/** Optional post-bind symmetry gate input: which bound clip to sample and with what joints. */
 export type MotionRetargetSymmetryGate = {
   outputGlb: string;
   clipName: string;

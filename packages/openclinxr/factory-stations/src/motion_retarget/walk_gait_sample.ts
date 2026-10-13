@@ -11,9 +11,12 @@ import { readFileSync } from "node:fs";
 import type { Node as GltfNode } from "@gltf-transform/core";
 import { NodeIO } from "@gltf-transform/core";
 
+/** 3D vector in clip units. */
 export type Vec3 = [number, number, number];
+/** Unit quaternion (x, y, z, w). */
 export type Quat = [number, number, number, number];
 
+/** Named joints the symmetry gate samples, plus metres-per-clip-unit scale. */
 export type WalkGateJoints = {
   hips: readonly [string, string] | readonly [string];
   thighL: string;
@@ -71,6 +74,7 @@ export const MPFB_WALK_JOINTS: WalkGateJoints = {
   scale: 0.86,
 };
 
+/** One clip's world positions and world rotations at the gate joints. */
 export type WalkSample = {
   times: number[];
   pos: Record<string, Vec3[]>;

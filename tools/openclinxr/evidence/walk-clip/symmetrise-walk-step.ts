@@ -25,7 +25,8 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { Accessor, NodeIO } from "@gltf-transform/core";
 import type { Node as GltfNode } from "@gltf-transform/core";
-import { gateWalkClip, MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, runMotionRetarget } from "@openclinxr/factory-stations";
+import { MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, runMotionRetarget } from "@openclinxr/factory-stations";
+import { gateOneClip } from "./gate-one-clip.js";
 import type { WalkGateReport } from "@openclinxr/factory-stations";
 import { dropLeadingRestFrame } from "../../factory/graft-bound-clip.js";
 
@@ -289,7 +290,7 @@ export async function symmetriseWalkStep(input: { sourceGlb: string; clipName: s
     restResidual = Math.max(restResidual, Math.hypot(mirrored[0] - tb[0], mirrored[1] - tb[1], mirrored[2] - tb[2]));
   }
 
-  const donor = await gateWalkClip({ glbPath: input.sourceGlb, clipName: input.clipName, joints: MESHMOTION_WALK_JOINTS });
+  const donor = await gateOneClip({ glbPath: input.sourceGlb, clipName: input.clipName, joints: MESHMOTION_WALK_JOINTS });
   const tL = donor.foot.left.strikeTimes[0]!;
   const tR = donor.foot.right.strikeTimes[0]!;
   if (tL === undefined || tR === undefined) throw new Error("donor has no strikes on one foot; refused");
@@ -546,7 +547,7 @@ async function main(): Promise<void> {
   const wantClose = args.includes("--close-seam");
   if (!sourceGlb || !outGlb) throw new Error("--source-glb and --out required");
   const built = await symmetriseWalkStep({ sourceGlb, clipName, outGlb });
-  const sourceGate = await gateWalkClip({ glbPath: outGlb, clipName: NEW_CLIP, joints: MESHMOTION_WALK_JOINTS });
+  const sourceGate = await gateOneClip({ glbPath: outGlb, clipName: NEW_CLIP, joints: MESHMOTION_WALK_JOINTS });
   console.log(`symmetric source gate: ${sourceGate.pass ? "PASS" : "FAIL"}`);
   for (const bar of sourceGate.bars) console.log(`  ${bar.pass ? "pass" : "FAIL"} ${bar.id}: ${bar.detail}`);
   let bound: { glb: string; sha256: string; clip: string; gate: WalkGateReport; dropped: boolean } | null = null;
@@ -588,14 +589,14 @@ async function main(): Promise<void> {
       console.log("no leading rest frame to drop; gating the raw bind output");
     }
     const gateGlb = dropped && existsSync(final) ? final : raw;
-    const gate = await gateWalkClip({ glbPath: gateGlb, clipName: clip, joints: MPFB_WALK_JOINTS });
+    const gate = await gateOneClip({ glbPath: gateGlb, clipName: clip, joints: MPFB_WALK_JOINTS });
     console.log(`symmetric bound gate: ${gate.pass ? "PASS" : "FAIL"}`);
     for (const bar of gate.bars) console.log(`  ${bar.pass ? "pass" : "FAIL"} ${bar.id}: ${bar.detail}`);
     bound = { glb: gateGlb, sha256: createHash("sha256").update(readFileSync(gateGlb)).digest("hex"), clip, gate, dropped };
     if (wantClose) {
       const closedGlb = path.join(workdir, "bound-symmetric-closed.glb");
       const { residualMm, residualDeg } = await closeLoopSeam({ glbPath: gateGlb, clipName: clip, outGlb: closedGlb });
-      const closedGate = await gateWalkClip({ glbPath: closedGlb, clipName: clip, joints: MPFB_WALK_JOINTS });
+      const closedGate = await gateOneClip({ glbPath: closedGlb, clipName: clip, joints: MPFB_WALK_JOINTS });
       console.log(`symmetric bound closed gate: ${closedGate.pass ? "PASS" : "FAIL"}`);
       for (const bar of closedGate.bars) console.log(`  ${bar.pass ? "pass" : "FAIL"} ${bar.id}: ${bar.detail}`);
       closed = { glb: closedGlb, sha256: createHash("sha256").update(readFileSync(closedGlb)).digest("hex"), residualMm, residualDeg, gate: closedGate };

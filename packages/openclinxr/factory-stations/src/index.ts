@@ -54,24 +54,16 @@ export {
   planMotionRetarget,
   runMotionRetarget,
 } from "./motion_retarget/run.js";
-export type {
-  MotionRetargetSymmetryGate,
-} from "./motion_retarget/run.js";
 export {
   evaluateWalkSymmetry,
   GATE_BARS,
-  gateWalkClip,
   MESHMOTION_WALK_JOINTS,
   MPFB_WALK_JOINTS,
   sampleWalkClip,
 } from "./motion_retarget/walk_symmetry_gate.js";
 export type {
-  GateBarId,
-  WalkGateBarResult,
-  WalkGateFootMetrics,
   WalkGateJoints,
   WalkGateReport,
-  WalkSample,
 } from "./motion_retarget/walk_symmetry_gate.js";
 export {
   planRoomGenerate,

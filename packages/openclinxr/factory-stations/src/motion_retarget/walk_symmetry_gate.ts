@@ -28,6 +28,7 @@ import type { Quat, Vec3, WalkGateJoints, WalkSample } from "./walk_gait_sample.
 export type { Quat, Vec3, WalkGateJoints, WalkSample };
 export { MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, sampleWalkClip };
 
+/** Identifiers of the nine fixed walk-clip symmetry bars. */
 export type GateBarId =
   | "stride-asymmetry"
   | "step-duration-asymmetry"
@@ -39,6 +40,7 @@ export type GateBarId =
   | "root-drift"
   | "arm-swing";
 
+/** Fixed gate thresholds with the provenance of each bar. */
 export const GATE_BARS: Record<GateBarId, { threshold: string; provenance: string }> = {
   "stride-asymmetry": { threshold: "<= 5 %", provenance: "two-consultant review 2026-10-12" },
   "step-duration-asymmetry": { threshold: "<= 5 %", provenance: "two-consultant review 2026-10-12" },
@@ -51,8 +53,10 @@ export const GATE_BARS: Record<GateBarId, { threshold: string; provenance: strin
   "arm-swing": { threshold: ">= 10 deg per side", provenance: "walk-clip census brief" },
 };
 
+/** One bar verdict: which bar, whether it passed, and the measured detail string. */
 export type WalkGateBarResult = { id: GateBarId; pass: boolean; detail: string };
 
+/** Per-foot gait metrics: duty, stride proxy, cycle, lifts, windows, strike times. */
 export type WalkGateFootMetrics = {
   duty: number;
   /**
@@ -70,6 +74,7 @@ export type WalkGateFootMetrics = {
   strikeTimes: number[];
 };
 
+/** Full gate report: provenance, per-foot and aggregate metrics, bar verdicts. */
 export type WalkGateReport = {
   provenance: { glb: string; clip: string; sha256: string; frames: number; durationS: number };
   foot: { left: WalkGateFootMetrics; right: WalkGateFootMetrics };

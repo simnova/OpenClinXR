@@ -56,6 +56,16 @@
         "via": "own-test"
       },
       {
+        "name": "GATE_BARS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateWalkSymmetry",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "planBodyParam",
         "kind": "runtime",
         "via": "own-test"
