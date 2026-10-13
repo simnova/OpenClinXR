@@ -13,7 +13,12 @@
  *
  * Usage:
  *   pnpm tsx tools/openclinxr/evidence/settle-entry/settle-entry-capture.ts \
- *     --vehicle=sc05 --runs=6 --out=.openclinxr/evidence/settle-entry/control
+ *     --vehicle=sc05 --runs=6 --out=.openclinxr/evidence/settle-entry/control \
+ *     [--pacing=capture|real|fixed72|jitter] [--query=fixedClock=0] [--start=N] [--trace]
+ *
+ * Pacing: capture = legacy fake 30 fps clock; real = wall-clock rAF with no
+ * fake clock; fixed72 = synthetic steady 72 Hz; jitter = seeded uniform over
+ * [1/90, 1/45] s, seed 20261012, identical schedule every run.
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -47,6 +52,45 @@ const DIST_FILES = [
 const DIST_MARKER = "__openClinXrBedsideApproachEvidence";
 
 type Vehicle = "sc05" | "loco";
+
+type Pacing = "capture" | "real" | "fixed72" | "jitter";
+
+function pacingFromArgv(): Pacing {
+  const flag = process.argv.find((a) => a.startsWith("--pacing="))?.slice("--pacing=".length);
+  if (flag === undefined) return "capture";
+  if (flag === "capture" || flag === "real" || flag === "fixed72" || flag === "jitter") return flag;
+  throw new Error("usage: --pacing=capture|real|fixed72|jitter");
+}
+
+/** Fixed seed so every jittered run replays the identical dt schedule. */
+const JITTER_SEED = 20261012;
+
+/** Deterministic uniform PRNG (mulberry32) for the reproducible jitter schedule. */
+function mulberry32(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let mixed = state;
+    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Per-step simulated dt for a synthetic pacing. capture = legacy 30 Hz fake
+ * clock; fixed72 = steady 72 Hz; jitter = seeded uniform over [1/90, 1/45] s.
+ */
+function syntheticStepSeconds(pacing: Pacing, draw: () => number): number {
+  if (pacing === "fixed72") return 1 / 72;
+  if (pacing === "jitter") return 1 / 90 + draw() * (1 / 45 - 1 / 90);
+  return STEP_SECONDS;
+}
+
+function extraQueryFromArgv(): string {
+  const flag = process.argv.find((a) => a.startsWith("--query="))?.slice("--query=".length);
+  return flag === undefined || flag === "" ? "" : `&${flag}`;
+}
 
 function vehicleFromArgv(): Vehicle {
   const flag = process.argv.find((a) => a.startsWith("--vehicle="))?.slice("--vehicle=".length);
@@ -102,6 +146,10 @@ type FrameProbe = {
   phase: string | null;
   sampleCount: number;
   slot: { x: number; y: number; z: number; yaw: number } | null;
+  /** Live rendered XZ of the physician root (post-interpolation once the fixed clock lands). */
+  liveSlot: { x: number; z: number } | null;
+  /** Per-display-frame fixed-clock stats; null on builds without the clock. */
+  fixedClock: { substeps: number; frameMs: number } | null;
   leftToe: Vec3 | null;
   rightToe: Vec3 | null;
   stanceFoot: string | null;
@@ -130,6 +178,14 @@ const PROBE_SOURCE = `
   const tail = samples.length ? samples[samples.length - 1] : null;
   const scene = globalThis.__openClinXrDebugScene;
   let clipTime = null;
+  let liveSlot = null;
+  let fixedClock = null;
+  try {
+    const stats = globalThis.__openClinXrFixedClockStats;
+    if (stats && typeof stats.substeps === "number") {
+      fixedClock = { substeps: stats.substeps, frameMs: stats.frameMs };
+    }
+  } catch { fixedClock = null; }
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
   let legBones = null, legWorlds = null;
   if (scene) {
@@ -145,6 +201,7 @@ const PROBE_SOURCE = `
       }
     });
     if (physRoot) {
+      liveSlot = { x: physRoot.position.x, z: physRoot.position.z };
       physRoot.traverse((o) => {
         const ud = o.userData || {};
         if (clipTime === null && ud.openClinXrLocomotionClipPlayback
@@ -196,6 +253,8 @@ const PROBE_SOURCE = `
     phase: ev ? ev.phase : null,
     sampleCount: samples.length,
     slot: tail && tail.slot ? tail.slot : null,
+    liveSlot,
+    fixedClock,
     leftToe: tail ? tail.leftToe : null,
     rightToe: tail ? tail.rightToe : null,
     stanceFoot: tail ? tail.stanceFoot : null,
@@ -225,14 +284,62 @@ const LABELS_SOURCE = `
 })()
 `;
 
+const ARRIVAL_SOURCE = `
+(() => {
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const samples = ev && ev.samples ? ev.samples : [];
+  for (const s of samples) {
+    if (s && s.phase === "arrived") return { slot: s.slot ?? null, atMs: s.atMs ?? null, sampleCount: samples.length };
+  }
+  return null;
+})()
+`;
+
 async function probe(page: Page): Promise<FrameProbe> {
   return (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
 }
 
 type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
 
+type CapturedFrame = FrameProbe & { step: number; dtSeconds: number };
+
+type LabelsRecord = {
+  clipName: string;
+  cycleSeconds: number;
+  atMs: number[];
+  left: boolean[];
+  right: boolean[];
+} | null;
+
+async function readLabels(page: Page): Promise<LabelsRecord> {
+  return (await page.evaluate(LABELS_SOURCE)) as LabelsRecord;
+}
+
+async function readArrival(page: Page): Promise<{ slot: unknown; atMs: unknown; sampleCount: number } | null> {
+  return (await page.evaluate(ARRIVAL_SOURCE)) as { slot: unknown; atMs: unknown; sampleCount: number } | null;
+}
+
 async function runOnce(
   vehicle: Vehicle,
+  pacing: Pacing,
+  extraQuery: string,
+  runIndex: number,
+  outDir: string,
+  distProof: DistProof,
+  bundleJson: string,
+  baseUrl: string,
+  browser: Browser,
+): Promise<void> {
+  if (pacing === "real") {
+    await runOnceRealTime(vehicle, extraQuery, runIndex, outDir, distProof, bundleJson, baseUrl, browser);
+    return;
+  }
+  await runOnceSynthetic(vehicle, pacing, extraQuery, runIndex, outDir, distProof, bundleJson, baseUrl, browser);
+}
+
+async function runOnceRealTime(
+  vehicle: Vehicle,
+  extraQuery: string,
   runIndex: number,
   outDir: string,
   distProof: DistProof,
@@ -241,6 +348,7 @@ async function runOnce(
   browser: Browser,
 ): Promise<void> {
   const tag = `${vehicle}-run${runIndex}`;
+  const pacing: Pacing = "real";
   let context: BrowserContext | null = null;
   try {
     context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
@@ -249,7 +357,103 @@ async function runOnce(
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
-    const url = `${buildSceneClosureUrl(baseUrl)}&${urlQuery(vehicle)}${traceFromArgv() ? "&steppingTurnTrace=1" : ""}`;
+    const url = `${buildSceneClosureUrl(baseUrl)}&${urlQuery(vehicle)}${extraQuery}${traceFromArgv() ? "&steppingTurnTrace=1" : ""}`;
+    await page.goto(url, { waitUntil: "load", timeout: 180_000 });
+    // No fake clock: the page runs on wall-clock rAF pacing. Pre-walk polls let GLB I/O proceed.
+    const preWalk: Array<FrameProbe & { preStep: number }> = [];
+    let poll = await probe(page);
+    let preSteps = 0;
+    while (poll.phase !== "walking" && preSteps < PRE_WALK_STEP_CAP) {
+      preWalk.push({ ...poll, preStep: preSteps });
+      await realSleep(200);
+      poll = await probe(page);
+      preSteps += 1;
+    }
+    if (poll.phase !== "walking") throw new Error(`never reached walking (phase=${poll.phase})`);
+    const g0 = poll.sampleCount;
+    await realSleep(1000);
+    const g1 = (await probe(page)).sampleCount;
+    process.stdout.write(`[${tag}] sample-growth: ${g0} -> ${g1} per 1000 ms wall\n`);
+    if (g1 <= g0) throw new Error("no samples in wall-clock mode");
+    const labels = await readLabels(page);
+    const frames: CapturedFrame[] = [];
+    let step = 0;
+    let previousWall = Date.now();
+    for (;;) {
+      await realSleep(50);
+      const frame = await probe(page);
+      const wallNow = Date.now();
+      frames.push({ ...frame, step, dtSeconds: (wallNow - previousWall) / 1000 });
+      previousWall = wallNow;
+      step += 1;
+      if (step % 60 === 0) {
+        process.stdout.write(
+          `[${tag}] poll ${step}: phase=${frame.phase} clipTime=${frame.clipTime?.toFixed(3) ?? "?"} stance=${frame.stanceFoot} stopped=${frame.stoppedSeconds.toFixed(2)}s\n`,
+        );
+      }
+      if (frame.phase === "arrived" && (frame.stoppedSeconds ?? 0) >= 1) break;
+      if (step >= 2400) throw new Error(`still not arrived after ${step} wall polls (phase=${frame.phase})`);
+    }
+    const first = frames[0];
+    process.stdout.write(
+      `[${tag}] frames=${frames.length} route=${first?.startWorld ? `${Math.hypot((first.targetWorld?.x ?? 0) - first.startWorld.x, (first.targetWorld?.z ?? 0) - first.startWorld.z).toFixed(2)}m` : "?"} labels=${labels ? "yes" : "NO-LABELS"}\n`,
+    );
+    const trace = traceFromArgv() ? ((await page.evaluate(TRACE_SOURCE)) as unknown[] | null) : null;
+    process.stdout.write(`[${tag}] stepping-turn trace frames=${trace === null ? "OFF" : trace.length}\n`);
+    if (traceFromArgv()) {
+      await writeFile(path.join(outDir, `${tag}.trace.json`), JSON.stringify(trace, null, 2));
+    }
+    await writeFile(
+      path.join(outDir, `${tag}.json`),
+      JSON.stringify(
+        {
+          schemaVersion: "openclinxr.settle-entry-capture.v1",
+          measuredAt: new Date().toISOString(),
+          vehicle,
+          pacing,
+          seed: null,
+          runIndex,
+          urlQuery: `${urlQuery(vehicle)}${extraQuery}`,
+          scenario: SCENE_CLOSURE_SCENARIO_ID,
+          distProof,
+          clockHonoured: false,
+          labels,
+          preWalk,
+          probeGapMs: null,
+          arrivalSample: await readArrival(page),
+          frames,
+        },
+        null,
+        2,
+      ),
+    );
+  } finally {
+    await context?.close();
+  }
+}
+
+async function runOnceSynthetic(
+  vehicle: Vehicle,
+  pacing: Pacing,
+  extraQuery: string,
+  runIndex: number,
+  outDir: string,
+  distProof: DistProof,
+  bundleJson: string,
+  baseUrl: string,
+  browser: Browser,
+): Promise<void> {
+  const tag = `${vehicle}-run${runIndex}`;
+  const draw = mulberry32(JITTER_SEED);
+  let context: BrowserContext | null = null;
+  try {
+    context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+    const page = await context.newPage();
+    await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
+    await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
+    });
+    const url = `${buildSceneClosureUrl(baseUrl)}&${urlQuery(vehicle)}${extraQuery}${traceFromArgv() ? "&steppingTurnTrace=1" : ""}`;
     await page.goto(url, { waitUntil: "load", timeout: 180_000 });
     await page.clock.install();
     const pinMs = (await page.evaluate(`(() => Date.now())()`)) as number;
@@ -283,21 +487,16 @@ async function runOnce(
     if (g1 <= g0) throw new Error("no samples under fake clock");
 
     // Stance labels: static per clip, fetch once.
-    const labels = (await page.evaluate(LABELS_SOURCE)) as {
-      clipName: string;
-      cycleSeconds: number;
-      atMs: number[];
-      left: boolean[];
-      right: boolean[];
-    } | null;
+    const labels = await readLabels(page);
 
     // Fine steps: record every frame until 1 s arrived.
-    const frames: Array<FrameProbe & { step: number }> = [];
+    const frames: CapturedFrame[] = [];
     let step = 0;
     for (;;) {
-      await page.clock.fastForward(STEP_SECONDS * 1000);
+      const stepSeconds = syntheticStepSeconds(pacing, draw);
+      await page.clock.fastForward(stepSeconds * 1000);
       const f = await probe(page);
-      frames.push({ ...f, step });
+      frames.push({ ...f, step, dtSeconds: stepSeconds });
       step += 1;
       if (step % 60 === 0) {
         process.stdout.write(
@@ -323,14 +522,17 @@ async function runOnce(
           schemaVersion: "openclinxr.settle-entry-capture.v1",
           measuredAt: new Date().toISOString(),
           vehicle,
+          pacing,
+          seed: pacing === "jitter" ? JITTER_SEED : null,
           runIndex,
-          urlQuery: urlQuery(vehicle),
+          urlQuery: `${urlQuery(vehicle)}${extraQuery}`,
           scenario: SCENE_CLOSURE_SCENARIO_ID,
           distProof,
           clockHonoured,
           labels,
           preWalk,
           probeGapMs: 500,
+          arrivalSample: await readArrival(page),
           frames,
         },
         null,
@@ -344,6 +546,8 @@ async function runOnce(
 
 async function main(): Promise<void> {
   const vehicle = vehicleFromArgv();
+  const pacing = pacingFromArgv();
+  const extraQuery = extraQueryFromArgv();
   const runs = runsFromArgv();
   const start = startFromArgv();
   const outDir = outFromArgv();
@@ -370,9 +574,9 @@ async function main(): Promise<void> {
   const server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
   const services = createLocalComputeServices();
   try {
-    await services.sceneCapture.withBrowser(`settle-entry-${vehicle}`, async (browser) => {
+    await services.sceneCapture.withBrowser(`settle-entry-${vehicle}-${pacing}`, async (browser) => {
       for (let i = start; i < start + runs; i += 1) {
-        await runOnce(vehicle, i, outDir, distProof, bundleJson, server.url, browser as Browser);
+        await runOnce(vehicle, pacing, extraQuery, i, outDir, distProof, bundleJson, server.url, browser as Browser);
       }
     });
   } finally {

@@ -24,8 +24,14 @@ type Slot = { x: number; y: number; z: number; yaw: number };
 
 type Frame = {
   step: number;
+  /** Simulated dt of this display frame; absent on pre-pacing captures (legacy 1/30 s). */
+  dtSeconds?: number;
   phase: string | null;
   slot: Slot | null;
+  /** Live rendered root XZ; null on pre-pacing captures. */
+  liveSlot?: { x: number; z: number } | null;
+  /** Per-display-frame fixed-clock stats; null without the clock. */
+  fixedClock?: { substeps: number; frameMs: number } | null;
   leftToe: Vec3 | null;
   rightToe: Vec3 | null;
   stanceFoot: string | null;
@@ -47,9 +53,13 @@ type Frame = {
 
 type RunFile = {
   vehicle: string;
+  pacing?: string;
+  seed?: number | null;
   runIndex: number;
   labels: { clipName: string; cycleSeconds: number; atMs: number[]; left: boolean[]; right: boolean[] } | null;
   preWalk: Array<Record<string, unknown>>;
+  /** First telemetry sample at phase arrived; null on pre-pacing captures. */
+  arrivalSample?: { slot: Slot | null; atMs: number | null; sampleCount: number } | null;
   frames: Frame[];
 };
 
@@ -143,6 +153,12 @@ type RunMetrics = {
   windowSlidesM: number[];
   meanWindowSlideM: number;
   maxWindowSlideM: number;
+  /** Walking-phase along-route monotonicity of the rendered track (bar 5). */
+  renderedReversals: number;
+  renderedMaxSecondDiffM: number;
+  /** Per-display-frame substep counts; empty without the fixed clock. */
+  substepHist: Record<string, number>;
+  meanFixedClockFrameMs: number | null;
 };
 
 function analyzeRun(tag: string, run: RunFile): RunMetrics {
@@ -186,11 +202,13 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     actualFirstStance === "left" ? "right" : actualFirstStance === "right" ? "left" : null;
 
   const arrivalSlot =
-    firstA?.slot !== null && firstA?.slot !== undefined
-      ? { x: firstA.slot.x, z: firstA.slot.z }
-      : lastS?.slot !== null && lastS?.slot !== undefined
-        ? { x: lastS.slot.x, z: lastS.slot.z }
-        : null;
+    run.arrivalSample?.slot !== null && run.arrivalSample?.slot !== undefined
+      ? { x: run.arrivalSample.slot.x, z: run.arrivalSample.slot.z }
+      : firstA?.slot !== null && firstA?.slot !== undefined
+        ? { x: firstA.slot.x, z: firstA.slot.z }
+        : lastS?.slot !== null && lastS?.slot !== undefined
+          ? { x: lastS.slot.x, z: lastS.slot.z }
+          : null;
   const arrivalYaw = firstA?.slot?.yaw ?? lastS?.slot?.yaw ?? null;
   // Plant foot: the lower toe on the arrival frame.
   const arrivalFrame = firstA ?? lastS;
@@ -222,8 +240,9 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     }
   }
 
-  const settlingS = settleIdx.length > 0 ? settleIdx.length / 30 : 0;
-  const walkRecordedS = walkIdx.length > 0 ? walkIdx.length / 30 : 0;
+  const frameDt = (f: Frame): number => (typeof f.dtSeconds === "number" && f.dtSeconds > 0 ? f.dtSeconds : 1 / 30);
+  const settlingS = settleIdx.length > 0 ? settleIdx.reduce((s, i) => s + frameDt(frames[i]!), 0) : 0;
+  const walkRecordedS = walkIdx.length > 0 ? walkIdx.reduce((s, i) => s + frameDt(frames[i]!), 0) : 0;
 
   // Window: last 0.6 s of walking (18 frames) plus all settling.
   const windowIdx = [
@@ -307,6 +326,43 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     return { min: Math.min(...lens), max: Math.max(...lens) };
   };
 
+  // Rendered-track monotonicity (bar 5): along-route projection of the live
+  // rendered root while walking must never step backward; second differences
+  // bound the stutter. Falls back to the telemetry slot on old captures.
+  let renderedReversals = 0;
+  let renderedMaxSecondDiffM = 0;
+  if (start !== null && target !== null) {
+    const rdx = target.x - start.x;
+    const rdz = target.z - start.z;
+    const rlen = Math.hypot(rdx, rdz);
+    if (rlen > 0) {
+      const alongs: number[] = [];
+      for (const i of walkIdx) {
+        const f = frames[i]!;
+        const px = f.liveSlot?.x ?? f.slot?.x ?? null;
+        const pz = f.liveSlot?.z ?? f.slot?.z ?? null;
+        if (px === null || pz === null) continue;
+        alongs.push(((px - start.x) * rdx + (pz - start.z) * rdz) / rlen);
+      }
+      for (let k = 1; k < alongs.length; k += 1) {
+        if (alongs[k]! - alongs[k - 1]! < -1e-9) renderedReversals += 1;
+      }
+      for (let k = 1; k + 1 < alongs.length; k += 1) {
+        const second = Math.abs(alongs[k + 1]! - 2 * alongs[k]! + alongs[k - 1]!);
+        if (second > renderedMaxSecondDiffM) renderedMaxSecondDiffM = second;
+      }
+    }
+  }
+  const substepHist: Record<string, number> = {};
+  const frameMsValues: number[] = [];
+  for (const f of frames) {
+    if (f.fixedClock !== null && f.fixedClock !== undefined) {
+      const key = String(f.fixedClock.substeps);
+      substepHist[key] = (substepHist[key] ?? 0) + 1;
+      frameMsValues.push(f.fixedClock.frameMs);
+    }
+  }
+
   return {
     tag,
     walkFrames: walkIdx.length,
@@ -338,6 +394,11 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     meanWindowSlideM:
       windowSlidesM.length === 0 ? 0 : windowSlidesM.reduce((s, v) => s + v, 0) / windowSlidesM.length,
     maxWindowSlideM: windowSlidesM.length === 0 ? 0 : Math.max(...windowSlidesM),
+    renderedReversals,
+    renderedMaxSecondDiffM,
+    substepHist,
+    meanFixedClockFrameMs:
+      frameMsValues.length === 0 ? null : frameMsValues.reduce((s, v) => s + v, 0) / frameMsValues.length,
   };
 }
 
@@ -427,6 +488,27 @@ async function main(): Promise<void> {
   show("max one-frame upper-leg step (window)", "deg", metrics.map((m) => m.maxLegStepDeg), 2);
   show("mean planted-window slide", "m", metrics.map((m) => m.meanWindowSlideM));
   show("max planted-window slide", "m", metrics.map((m) => m.maxWindowSlideM));
+  show("rendered walking reversals", "", metrics.map((m) => m.renderedReversals), 0);
+  show("rendered max second difference", "m", metrics.map((m) => m.renderedMaxSecondDiffM));
+  lines.push(`- walk-end clip time histogram (s): ${metrics.map((m) => m.clipTimeS?.toFixed(3) ?? "?").sort().join(" ")}`);
+  lines.push(`- plant foot per run: ${metrics.map((m) => `${m.tag}=${m.plantFoot ?? "?"}`).join(" ")}`);
+  const substepMerged: Record<string, number> = {};
+  for (const m of metrics) {
+    for (const [key, count] of Object.entries(m.substepHist)) {
+      substepMerged[key] = (substepMerged[key] ?? 0) + count;
+    }
+  }
+  lines.push(
+    Object.keys(substepMerged).length === 0
+      ? `- substeps-per-frame: n/a (no fixed-clock stats in these captures)`
+      : `- substeps-per-frame hist: ${Object.entries(substepMerged).map(([k, v]) => `${k}:${v}`).join(" ")}`,
+  );
+  const frameMsRuns = metrics.map((m) => m.meanFixedClockFrameMs).filter((v) => v !== null);
+  lines.push(
+    frameMsRuns.length === 0
+      ? `- fixed-clock added ms/frame: n/a`
+      : `- fixed-clock mean ms/frame per run: ${frameMsRuns.map((v) => v.toFixed(2)).join(" ")}`,
+  );
   // Turn-leg-snaps bars: worst min quaternion norm across bones/runs, max thigh variation.
   const worstMinNorm = Math.min(
     ...metrics.flatMap((m) => Object.values(m.legNormBands).map((b) => b?.min ?? 1)),
@@ -497,7 +579,10 @@ async function main(): Promise<void> {
   process.stdout.write(text + "\n");
   if (out !== null) {
     await mkdir(path.dirname(out), { recursive: true });
-    await writeFile(out, JSON.stringify({ dir, metrics }, null, 2));
+    const firstRun = files.length > 0
+      ? (JSON.parse(await readFile(path.join(dir, files[0]!), "utf8")) as { pacing?: unknown; seed?: unknown })
+      : null;
+    await writeFile(out, JSON.stringify({ dir, pacing: firstRun?.pacing ?? null, seed: firstRun?.seed ?? null, metrics }, null, 2));
     process.stdout.write(`[summary] wrote ${out}\n`);
   }
 }
