@@ -4,8 +4,7 @@ import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
 import {
   applyFootstepPlanStep,
   captureFootstepRest,
-  footstepRouteExtensionForTest,
-} from "./footstep-plan-amplitude-mod.js";
+} from "./footstep-plan.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture shape, not the tested predicate
 type Loose = any;
@@ -102,13 +101,6 @@ describe("footstep-plan amplitude blend", () => {
     expect(approach.footstep.scale).toBeCloseTo(0.7357, 3);
     expect(approach.footstep.steps).toBe(3);
     expect(approach.footstep.bones.length).toBe(1);
-  });
-
-  it("route extension gate: only flag plus exactly 2", () => {
-    expect(footstepRouteExtensionForTest("?footstepPlan=1&footstepRouteM=2")).toBe(2);
-    expect(footstepRouteExtensionForTest("?footstepPlan=1")).toBeNull();
-    expect(footstepRouteExtensionForTest("?footstepRouteM=2")).toBeNull();
-    expect(footstepRouteExtensionForTest("?footstepPlan=1&footstepRouteM=6")).toBeNull();
   });
 });
 

@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1944,
+    "keep-evidence": 1945,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -35089,6 +35089,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Fixed-timestep clock admission: admits the accumulator, interpolation, and contact-window reads apps/ui-xr/src/main.ts binds for the fixed-clock actor simulation."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath."
     }
   ]
 }

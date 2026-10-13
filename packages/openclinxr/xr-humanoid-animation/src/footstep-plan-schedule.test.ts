@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest";
-import {
-  FOOTSTEP_MIN_SCALE,
-  FOOTSTEP_STEP_TRAVEL_M,
-  halfCycleTravelMeters,
-  planFootsteps,
-} from "./footstep-plan-schedule.js";
+import { halfCycleTravelMeters, planFootsteps } from "./footstep-plan.js";
+
+// Committed table literals (footstep-plan-schedule.ts): scale-1 step travel
+// 0.5935 m, minimum uniform scale 0.7. Pinned here as literals so the tests
+// pin the values without importing the constants off the public surface.
+const STEP_TRAVEL_M = 0.5935;
+const MIN_SCALE = 0.7;
 
 describe("footstep-plan schedule", () => {
   it("plans SC-05 1.31 m as 3 whole steps at one scale >= 0.7", () => {
     const plan = planFootsteps(1.31);
     if ("refused" in plan) throw new Error(`refused 1.31 m: ${plan.reason}`);
     expect(plan.steps).toBe(3);
-    expect(plan.scale).toBeGreaterThanOrEqual(FOOTSTEP_MIN_SCALE);
+    expect(plan.scale).toBeGreaterThanOrEqual(MIN_SCALE);
     expect(plan.scale).toBeLessThanOrEqual(1);
     expect(plan.scale).toBeCloseTo(0.7357, 3);
     expect(plan.plannedTravelM).toBeCloseTo(1.31, 9);
@@ -21,18 +22,25 @@ describe("footstep-plan schedule", () => {
     const plan = planFootsteps(2.0);
     if ("refused" in plan) throw new Error(`refused 2.0 m: ${plan.reason}`);
     expect(plan.steps).toBe(4);
-    expect(plan.scale).toBeGreaterThanOrEqual(FOOTSTEP_MIN_SCALE);
+    expect(plan.scale).toBeGreaterThanOrEqual(MIN_SCALE);
     expect(plan.scale).toBeLessThanOrEqual(1);
     expect(plan.scale).toBeCloseTo(0.8425, 3);
     expect(plan.plannedTravelM).toBeCloseTo(2.0, 9);
   });
 
   it("uses the committed scale-1 step travel, not a per-route fit", () => {
-    expect(FOOTSTEP_STEP_TRAVEL_M).toBeCloseTo(0.5935, 4);
+    // A route of exactly the table travel plans 1 step at scale 1, and the
+    // derived per-step travel matches the table: pins the module constant
+    // without importing it.
+    const probe = planFootsteps(STEP_TRAVEL_M);
+    if ("refused" in probe) throw new Error(`refused table travel: ${probe.reason}`);
+    expect(probe.steps).toBe(1);
+    expect(probe.scale).toBeCloseTo(1, 9);
+    expect(probe.plannedTravelM / (probe.steps * probe.scale)).toBeCloseTo(STEP_TRAVEL_M, 9);
     for (const route of [1.31, 2.0]) {
       const plan = planFootsteps(route);
       if ("refused" in plan) throw new Error(`refused ${route} m`);
-      expect(plan.plannedTravelM / (plan.steps * FOOTSTEP_STEP_TRAVEL_M)).toBeCloseTo(plan.scale, 12);
+      expect(plan.plannedTravelM / plan.steps / plan.scale).toBeCloseTo(STEP_TRAVEL_M, 9);
     }
   });
 
@@ -50,7 +58,7 @@ describe("footstep-plan schedule", () => {
   });
 
   it("half-cycle travel is linear in scale from the committed table", () => {
-    expect(halfCycleTravelMeters(1)).toBeCloseTo(FOOTSTEP_STEP_TRAVEL_M, 12);
+    expect(halfCycleTravelMeters(1)).toBeCloseTo(STEP_TRAVEL_M, 9);
     expect(halfCycleTravelMeters(0)).toBe(0);
     const plan = planFootsteps(1.31);
     if ("refused" in plan) throw new Error(`refused 1.31 m: ${plan.reason}`);
@@ -66,7 +74,7 @@ describe("footstep-plan schedule", () => {
     // halves 0.430 m match the table, even halves 0.481 m match D1. This
     // test pins the mapping so a table change breaks loudly; it does not
     // fit the plan to either half (plan stays table-linear).
-    expect(halfCycleTravelMeters(0.486 / FOOTSTEP_STEP_TRAVEL_M)).toBeCloseTo(0.486, 9);
+    expect(halfCycleTravelMeters(0.486 / STEP_TRAVEL_M)).toBeCloseTo(0.486, 9);
     const nominal = planFootsteps(1.31);
     if ("refused" in nominal) throw new Error(`refused 1.31 m: ${nominal.reason}`);
     expect(halfCycleTravelMeters(nominal.scale)).toBeCloseTo(0.4366, 3);

@@ -51,6 +51,14 @@
       "stepFixedClockFrame",
       "substepsForSchedule"
     ],
+    "./footstep-plan": [
+      "applyFootstepPlanStep",
+      "captureFootstepRest",
+      "halfCycleTravelMeters",
+      "planFootsteps",
+      "parseFootstepPlanEnabled",
+      "parseFootstepRouteMeters"
+    ],
     "./locomotion-clip-playback": [
       "playLocomotionClip"
     ],

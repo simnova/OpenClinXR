@@ -1,0 +1,72 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "footstep-plan-v1",
+  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "9f314bdbd8da3fe1977226287ba966f49196e1f5dafd01226b8e560b2929a35a",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "applyFootstepPlanStep",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Per-frame stride-amplitude blend consumed by the case-owned stance lock tail call. Consumer: footstep-plan-amplitude-mod.test.ts blend cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "captureFootstepRest",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Walk-entry plan capture consumed by the case-owned advance walking-enter branch. Consumer: footstep-plan-amplitude-mod.test.ts capture case.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "halfCycleTravelMeters",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Half-cycle travel table read consumed by the stride planner. Consumer: footstep-plan-schedule.test.ts linearity and D1 table checks.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "planFootsteps",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Whole-step stride planner consumed by the walk-entry capture. Consumer: footstep-plan-schedule.test.ts plan and refusal cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "parseFootstepPlanEnabled",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Flag parser consumed by the frame, station, and clip-playback runtime reads. Consumer: footstep-plan-query-flag-mod.test.ts opt-in cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "parseFootstepRouteMeters",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "footstep-plan-worker",
+      "rationale": "Second-route parser consumed by the station route extension. Consumer: footstep-plan-query-flag-mod.test.ts route-gate cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    }
+  ]
+}
