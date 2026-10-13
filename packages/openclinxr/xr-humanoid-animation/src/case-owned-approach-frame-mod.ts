@@ -25,6 +25,12 @@ import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
+import {
+  applyClosedLoopRootAdvance,
+  createClosedLoopWalkState,
+  readPlannedWalkSpeed,
+} from "./closed-loop-root-advance-mod.js";
+import { readClosedLoopWalkEnabled } from "./closed-loop-walk-query-flag-mod.js";
 import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
@@ -467,4 +473,28 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
       : {}),
     ...(clipStance ? { clipStance } : {}),
   });
+  // FOOTSTEP-PLAN S1 (default OFF): replace the slot's along-route advance with
+  // what the planted foot actually did this frame, so the foot is
+  // world-stationary by construction. Opt-in only (`?closedLoopWalk=1`,
+  // walking phase); `?plannedWalkSpeed=1` restores the pure planned-speed
+  // advance inside the opt-in. The executor's prescription,
+  // travelled/arrival bookkeeping, timeScale and evidence are untouched: this
+  // only re-seats the slot post-pose, and the next frame's travelledMeters
+  // measures where the body actually is.
+  if (approach.execution.phase === "walking" && readClosedLoopWalkEnabled() && !readPlannedWalkSpeed() && routeLength > 0) {
+    const remainingMeters = Math.max(0, routeLength - approach.execution.travelledMeters);
+    if (approach.closedLoop === null) approach.closedLoop = createClosedLoopWalkState();
+    const closed = applyClosedLoopRootAdvance({
+      actorSlot: approach.actorSlot,
+      leftToe: approach.leftToe,
+      rightToe: approach.rightToe,
+      floorOriginY: approach.floorOriginY,
+      contactBandMeters: approach.contactBandMeters,
+      travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength },
+      remainingMeters,
+      plannedAdvanceMeters: approach.walkSpeedMetersPerSecond * deltaSeconds,
+      state: approach.closedLoop,
+    });
+    approach.closedLoop = closed.state;
+  }
 }
