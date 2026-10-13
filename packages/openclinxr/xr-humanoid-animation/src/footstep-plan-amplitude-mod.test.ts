@@ -146,8 +146,9 @@ describe("footstep-plan amplitude blend", () => {
     expect(approach.footstep.steps).toBe(6);
     expect(approach.footstep.bones.length).toBe(3);
     expect(approach.footstep.bones.map((b: Loose) => b.side).sort()).toEqual(["left", "left", "pelvis"]);
-    const toeEntry = approach.footstep.bones.find((b: Loose) => b.restLocal !== null && b.restLocal !== undefined);
-    expect(toeEntry.restLocal).toEqual({ x: 0.09, y: 0.005, z: 0 });
+    const byName = (n: string): Loose => approach.footstep.bones.find((b: Loose) => b.bone.name === n);
+    expect(byName("toe1-1L").restLocal).toEqual({ x: 0.09, y: 0.005, z: 0 });
+    expect(byName("upperleg01.L").restLocal).toEqual({ x: 0, y: 0, z: 0 });
   });
 
   it("lerps toe locals home by the same scale (positions land standing at 0)", () => {
@@ -157,6 +158,8 @@ describe("footstep-plan amplitude blend", () => {
     toe.name = "toe1-1L";
     toe.position.set(0.2, 0.1, 0.3);
     slot.add(toe);
+    const leg = bone(slot, "upperleg01.L", quat(0.3, 0, 0, 1));
+    leg.position.set(0.05, -0.4, 0.02);
     const approach: Loose = {
       execution: { phase: "walking" },
       actorSlot: slot,
@@ -166,12 +169,20 @@ describe("footstep-plan amplitude blend", () => {
           right: { scales: [1], atS: [0.4], idx: 0, current: 0 },
         },
         pelvisScale: 1,
-        bones: [{
-          bone: toe,
-          rest: { x: 0, y: 0, z: 0, w: 1 },
-          side: "left",
-          restLocal: { x: 0.09, y: 0.005, z: 0 },
-        }],
+        bones: [
+          {
+            bone: toe,
+            rest: { x: 0, y: 0, z: 0, w: 1 },
+            side: "left",
+            restLocal: { x: 0.09, y: 0.005, z: 0 },
+          },
+          {
+            bone: leg,
+            rest: { x: 0, y: 0, z: 0, w: 1 },
+            side: "left",
+            restLocal: { x: 0, y: -0.45, z: 0 },
+          },
+        ],
         clipElapsed: 0,
         prevActionTime: 0,
         clipSpan: 9,
@@ -181,11 +192,14 @@ describe("footstep-plan amplitude blend", () => {
     applyFootstepPlanStep({ approach });
     expect(toe.position.x).toBeCloseTo(0.09, 9);
     expect(toe.position.y).toBeCloseTo(0.005, 9);
+    expect(leg.position.y).toBeCloseTo(-0.45, 9);
     approach.footstep.legs.left.current = 1;
     toe.position.set(0.2, 0.1, 0.3);
+    leg.position.set(0.05, -0.4, 0.02);
     applyFootstepPlanStep({ approach });
     expect(toe.position.x).toBeCloseTo(0.2, 9);
     expect(toe.position.y).toBeCloseTo(0.1, 9);
+    expect(leg.position.y).toBeCloseTo(-0.4, 9);
   });
 
   it("route extension gate: only flag plus exactly 2", () => {

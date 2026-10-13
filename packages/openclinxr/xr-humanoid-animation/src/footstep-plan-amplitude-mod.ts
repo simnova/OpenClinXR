@@ -53,7 +53,7 @@ export type FootstepBoneRest = {
   bone: Object3D;
   rest: { x: number; y: number; z: number; w: number };
   side: FootstepBoneSide;
-  /** Rest local position (toe bones only): the blend lerps positions home too. */
+  /** Rest local position (leg chains + toes): the blend lerps positions home too. */
   restLocal: { x: number; y: number; z: number } | null;
 };
 
@@ -158,14 +158,22 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   });
   for (const [name, quat] of Object.entries(rest.quats)) {
     const bone = byName.get(name);
-    if (bone !== undefined) bones.push({ bone, rest: { ...quat }, side: legSide(name), restLocal: null });
+    if (bone !== undefined) {
+      bones.push({
+        bone,
+        rest: { ...quat },
+        side: legSide(name),
+        restLocal: { x: bone.position.x, y: bone.position.y, z: bone.position.z },
+      });
+    }
   }
   for (const bone of collectPelvisBones(approach.actorSlot)) {
     const q = bone.quaternion;
     bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side: "pelvis", restLocal: null });
   }
-  // Toe bones: rotations alone leave the feet spread wide at scale 0 (measured
-  // 0.34 m lateral vs 0.19 m rest); lerping locals home too lands true standing.
+  // Toe bones plus every leg-chain local: rotations alone leave the feet
+  // spread wide at scale 0 (measured 0.34 m lateral vs 0.19 m rest, the hips
+  // stay stepped); lerping locals home too lands true standing.
   const toes: Array<{ toe: Object3D | null; local: { x: number; y: number; z: number }; side: "left" | "right" }> = [
     { toe: approach.leftToe, local: rest.toeLeft, side: "left" },
     { toe: approach.rightToe, local: rest.toeRight, side: "right" },
