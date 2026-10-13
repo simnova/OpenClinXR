@@ -132,6 +132,78 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
 const restQuat = new Quaternion();
 
 /**
+ * M1 per-stage tap (footstep-plan-creep D1/D2, default OFF behind
+ * `?footstepPlan=1` — the same guard as the blend, so the default path
+ * runs zero extra reads). Pure observation: snapshots never write the
+ * scene, the slot, the bones, or the plan.
+ *
+ * One record per walking substep, three stages inside
+ * `applyCaseOwnedStanceLock`'s walking tail (case-owned-approach-frame-mod.ts):
+ * mixer = entry (clip pose; the observe-only lock writes nothing), blend =
+ * after `applyFootstepPlanStep`, post = after `applyClosedLoopWalkStep`
+ * (slot translated; toes re-read). The capture tool drains the ring to
+ * `tap-<vehicle>-run<N>.json` beside the run file; `sub` joins to the
+ * probe's `walkSimSubsteps` column.
+ */
+export type FootstepTapStagePose = {
+  left: { x: number; y: number; z: number } | null;
+  right: { x: number; y: number; z: number } | null;
+  slotX: number;
+  slotZ: number;
+};
+
+export type FootstepTapRecord = {
+  /** Executor walking-call index (joins to the probe `walkSimSubsteps`). */
+  sub: number;
+  scale: number | null;
+  stanceLabel: string | null;
+  plantedFoot: "left" | "right" | null;
+  carried: boolean | null;
+  advanceMeters: number | null;
+  appliedDeltaMeters: number | null;
+  mixer: FootstepTapStagePose;
+  blend: FootstepTapStagePose;
+  post: FootstepTapStagePose;
+};
+
+const FOOTSTEP_TAP_KEY = "__openClinXrFootstepTap";
+const FOOTSTEP_TAP_LIMIT = 3000;
+
+function tapToeWorld(toe: Object3D | null): { x: number; y: number; z: number } | null {
+  if (toe === null) return null;
+  toe.updateWorldMatrix(true, false);
+  const e = toe.matrixWorld.elements;
+  return { x: e[12] ?? 0, y: e[13] ?? 0, z: e[14] ?? 0 };
+}
+
+/** Snapshot one tap stage: both toe worlds + slot XZ, reads only. */
+export function snapshotFootstepTapStage(input: {
+  actorSlot: Object3D;
+  leftToe: Object3D | null;
+  rightToe: Object3D | null;
+}): FootstepTapStagePose {
+  return {
+    left: tapToeWorld(input.leftToe),
+    right: tapToeWorld(input.rightToe),
+    slotX: input.actorSlot.position.x,
+    slotZ: input.actorSlot.position.z,
+  };
+}
+
+/** Push one per-substep tap record; no-op unless `?footstepPlan=1`. */
+export function pushFootstepTapRecord(record: FootstepTapRecord): void {
+  if (!readFootstepPlanEnabled()) return;
+  const host = globalThis as unknown as Record<string, unknown>;
+  const ring = host[FOOTSTEP_TAP_KEY];
+  if (Array.isArray(ring)) {
+    ring.push(record);
+    while (ring.length > FOOTSTEP_TAP_LIMIT) ring.shift();
+  } else {
+    host[FOOTSTEP_TAP_KEY] = [record];
+  }
+}
+
+/**
  * Per-walking-frame amplitude blend (post-pose: call after the mixer posed
  * the skeleton, before the closed-loop advance reads the toes). Slerps each
  * cached leg/pelvis bone between its standing rest and the clip's current

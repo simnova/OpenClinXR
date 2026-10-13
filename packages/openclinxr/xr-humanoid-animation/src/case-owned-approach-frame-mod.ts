@@ -22,23 +22,15 @@ import {
   seedSteppingTurnClose,
 } from "./stepping-turn-frame-mod.js";
 import {
-  applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
-import {
-  applyClosedLoopWalkStep,
-} from "./closed-loop-root-advance-mod.js";
-import {
-  applyFootstepPlanStep,
-  captureFootstepRest,
-} from "./footstep-plan-amplitude-mod.js";
+import { captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
+import { applyWalkingPhaseLocks } from "./case-owned-approach-walking-tail-mod.js";
 import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
 import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
-import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
   resolveClipStanceForFrame,
-  resolveStopStanceForFrame,
   resolveStopTriggerInput,
   updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
@@ -459,40 +451,5 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     return;
   }
   if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
-  // The route the executor walks, as a unit direction: the stance rule reads clip-space toe
-  // travel along it, and the no-backward clamp holds the slot against it. The executor steps
-  // start-to-target, so this is its own axis, not a second opinion about the route.
-  const routeDx = approach.target.x - approach.start.x;
-  const routeDz = approach.target.z - approach.start.z;
-  const routeLength = Math.hypot(routeDx, routeDz);
-  // The clip labels stance once per bound clip; the action time is this frame's. The slot is set
-  // by the station resolve (browser), the offline harness, or stays null (rigs with no clip) —
-  // `resolveClipStanceForFrame` resolves and caches `approach.stanceLabels` lazily either way.
-  // While stopping, the lock reads the STOP take's labels at the stop elapsed time instead.
-  const clipStance =
-    approach.execution.phase === "stopping" ? resolveStopStanceForFrame(approach) : resolveClipStanceForFrame(approach);
-  approach.lock = applyStanceLockedGroundAdvance({
-    actorSlot: approach.actorSlot,
-    leftToe: approach.leftToe,
-    rightToe: approach.rightToe,
-    floorOriginY: approach.floorOriginY,
-    contactBandMeters: approach.contactBandMeters,
-    state: approach.lock,
-    ccdStanceLockEnabled: approach.ccdStanceLockEnabled,
-    // LOCO-GROUND lock-disabled row: the SAME code path computes production
-    // labels and the would-be correction, but nothing is written — the
-    // rendered walk isolates clip + root. Settling/arrived writers above are
-    // unaffected, so the run still terminates.
-    observeOnly: readLocoGroundNoStanceLock() || readFootstepPlanEnabled(),
-    recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
-    ...(routeLength > 0
-      ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
-      : {}),
-    ...(clipStance ? { clipStance } : {}),
-  });
-  // FOOTSTEP-PLAN S2 (default OFF): stride-amplitude blend on the walking
-  // pose first; the closed loop below then advances on the scaled planted foot.
-  applyFootstepPlanStep({ approach, routeDx, routeDz, routeLength });
-  // FOOTSTEP-PLAN S1 (default OFF): opt-in closed-loop root advance; no flag, no effect.
-  applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
+  applyWalkingPhaseLocks(approach, deltaSeconds);
 }

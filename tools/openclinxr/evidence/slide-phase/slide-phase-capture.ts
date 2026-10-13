@@ -315,6 +315,29 @@ async function runOnce(
     process.stdout.write(
       `[${tag}] frames=${frames.length} route=${first?.startWorld ? `${Math.hypot((first.targetWorld?.x ?? 0) - first.startWorld.x, (first.targetWorld?.z ?? 0) - first.startWorld.z).toFixed(2)}m` : "?"} labels=${labels ? "yes" : "NO-LABELS"}\n`,
     );
+    // Footstep-plan M1 tap (creep slice): drain the per-substep ring the
+    // flagged run recorded (`__openClinXrFootstepTap`; empty on control
+    // runs). Named `tap-<tag>.json` so the meter's `<vehicle>-run` filter
+    // never picks it up as a run file.
+    const tapRecords = (await page.evaluate(
+      `(() => Array.isArray(globalThis.__openClinXrFootstepTap) ? globalThis.__openClinXrFootstepTap : [])()`,
+    )) as unknown[];
+    await writeFile(
+      path.join(outDir, `tap-${tag}.json`),
+      JSON.stringify(
+        {
+          schemaVersion: "openclinxr.footstep-tap.v1",
+          measuredAt: new Date().toISOString(),
+          vehicle,
+          runIndex,
+          urlQuery: fullQuery,
+          records: tapRecords,
+        },
+        null,
+        2,
+      ),
+    );
+    process.stdout.write(`[${tag}] tapRecords=${tapRecords.length}\n`);
     await writeFile(
       path.join(outDir, `${tag}.json`),
       JSON.stringify(

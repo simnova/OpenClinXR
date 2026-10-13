@@ -277,6 +277,14 @@ export function applyClosedLoopRootAdvance(input: {
   return finish(advance, advance - actual, planted, false, next);
 }
 
+/** What one `applyClosedLoopWalkStep` call did (tap + caller summary). */
+export type ClosedLoopWalkStepSummary = {
+  plantedFoot: ClosedLoopPlantedFoot | null;
+  advanceMeters: number;
+  appliedDeltaMeters: number;
+  carried: boolean;
+};
+
 /**
  * S1 wiring step (default OFF): apply the closed-loop advance to a
  * case-owned approach when `?closedLoopWalk=1` opts in during the walking
@@ -284,6 +292,9 @@ export function applyClosedLoopRootAdvance(input: {
  * inside the opt-in. Without the flag this returns without touching
  * anything, so default runtime is unchanged. Lives here (not in the frame
  * module) to hold that file's zone budget.
+ *
+ * Returns the per-frame summary for the footstep-plan M1 tap (null when
+ * nothing was applied); callers that ignore it see no behaviour change.
  */
 export function applyClosedLoopWalkStep(input: {
   approach: {
@@ -300,12 +311,12 @@ export function applyClosedLoopWalkStep(input: {
   routeDz: number;
   routeLength: number;
   deltaSeconds: number;
-}): void {
+}): ClosedLoopWalkStepSummary | null {
   const { approach, routeLength } = input;
-  if (approach.execution.phase !== "walking" || routeLength <= 0) return;
+  if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
   // S2: ?footstepPlan=1 implies the closed loop (plus observe-only lock at the
   // call site), so the flag alone suffices; the S1 flags keep working as before.
-  if ((!readClosedLoopWalkEnabled() && !readFootstepPlanEnabled()) || readPlannedWalkSpeed()) return;
+  if ((!readClosedLoopWalkEnabled() && !readFootstepPlanEnabled()) || readPlannedWalkSpeed()) return null;
   const remainingMeters = Math.max(0, routeLength - approach.execution.travelledMeters);
   if (approach.closedLoop === null) approach.closedLoop = createClosedLoopWalkState();
   const closed = applyClosedLoopRootAdvance({
@@ -320,4 +331,10 @@ export function applyClosedLoopWalkStep(input: {
     state: approach.closedLoop,
   });
   approach.closedLoop = closed.state;
+  return {
+    plantedFoot: closed.plantedFoot,
+    advanceMeters: closed.advanceMeters,
+    appliedDeltaMeters: closed.appliedDeltaMeters,
+    carried: closed.carried,
+  };
 }
