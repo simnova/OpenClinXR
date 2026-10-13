@@ -18,6 +18,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
+import { DEFAULT_LOCO_GROUND_MOVEMENT_ID, locoGroundMovementFromId } from "./loco-ground-movements.js";
 
 const EVIDENCE_ROOT = ".openclinxr/evidence/loco-ground";
 const ROWS = ["lockOff", "twoBone", "ccd"] as const;
@@ -484,11 +485,12 @@ function minToeY(poses: TapPose[]): number | null {
 export type ClipInfo = { name: string; durationSeconds: number; trackCount: number };
 
 /**
- * Read the walk clip's own name/duration/track count off the shipped
- * physician GLB (JSON chunk + BIN times), not from a comment. The browser
- * plays this take through the retarget; these are the take's own numbers.
+ * Read the movement clip's own name/duration/track count off an actor GLB
+ * (JSON chunk + BIN times), not from a comment. The browser plays this take
+ * through the retarget; these are the take's own numbers. clipMatch defaults
+ * to "walk" (today's vehicle); pass the movement's match for other movements.
  */
-export async function readWalkClipInfo(glbPath: string): Promise<ClipInfo> {
+export async function readWalkClipInfo(glbPath: string, clipMatch = "walk"): Promise<ClipInfo> {
   const buf = await readFile(glbPath);
   const jsonLen = buf.readUInt32LE(12);
   const json = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
@@ -496,8 +498,8 @@ export async function readWalkClipInfo(glbPath: string): Promise<ClipInfo> {
     accessors?: Array<{ count?: number; bufferView?: number; byteOffset?: number }>;
     bufferViews?: Array<{ byteOffset?: number; byteLength?: number }>;
   };
-  const anim = (json.animations ?? []).find((a) => (a.name ?? "").includes("walk")) ?? null;
-  if (anim === null) throw new Error("no walk animation in the physician GLB");
+  const anim = (json.animations ?? []).find((a) => (a.name ?? "").includes(clipMatch)) ?? null;
+  if (anim === null) throw new Error(`no ${clipMatch} animation in ${glbPath}`);
   const binStart = 20 + jsonLen;
   const binLen = buf.readUInt32LE(binStart);
   const bin = buf.subarray(binStart + 8, binStart + 8 + binLen);
@@ -693,7 +695,11 @@ async function main(): Promise<void> {
   const lockRaw = raws["lockOff"];
   let clip: ClipReport | null = null;
   if (lockRaw) {
-    const info = await readWalkClipInfo("apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
+    const movement = locoGroundMovementFromId(
+      process.argv.find((a) => a.startsWith("--movement="))?.slice("--movement=".length)
+        ?? DEFAULT_LOCO_GROUND_MOVEMENT_ID,
+    );
+    const info = await readWalkClipInfo(movement.actorGlb, movement.clipMatch);
     const ev = lockRaw.evidence;
     const route = ev.startWorld !== null && ev.targetWorld !== null
       ? { x: ev.targetWorld.x - ev.startWorld.x, z: ev.targetWorld.z - ev.startWorld.z }

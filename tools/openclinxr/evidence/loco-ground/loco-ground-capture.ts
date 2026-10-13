@@ -35,6 +35,10 @@ import {
   SCENE_CLOSURE_BUNDLE_ROUTE,
   SCENE_CLOSURE_SCENARIO_ID,
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
+import {
+  DEFAULT_LOCO_GROUND_MOVEMENT_ID,
+  locoGroundMovementFromId,
+} from "./loco-ground-movements.js";
 
 const OUTPUT_ROOT = ".openclinxr/evidence/loco-ground";
 const VIDEO_WIDTH = 1280;
@@ -56,7 +60,18 @@ type Row = "lockOff" | "twoBone" | "ccd";
 function rowFromArgv(): Row {
   const flag = process.argv.find((a) => a.startsWith("--row="))?.slice("--row=".length);
   if (flag === "lockOff" || flag === "twoBone" || flag === "ccd") return flag;
-  throw new Error("usage: loco-ground-capture.ts --row=lockOff|twoBone|ccd [--humanoid-glb=<path> --out-subdir=<dir>]");
+  throw new Error("usage: loco-ground-capture.ts --row=lockOff|twoBone|ccd [--movement=<id> --humanoid-glb=<path> --out-subdir=<dir>]");
+}
+
+function movementFromArgv(): { id: string; actorGlb: string; routeLengthMeters: number | null } {
+  const id = process.argv.find((a) => a.startsWith("--movement="))?.slice("--movement=".length)
+    ?? DEFAULT_LOCO_GROUND_MOVEMENT_ID;
+  const movement = locoGroundMovementFromId(id);
+  return {
+    id: movement.id,
+    actorGlb: movement.actorGlb,
+    routeLengthMeters: movement.route.kind === "walk" ? movement.route.lengthMeters : null,
+  };
 }
 
 function humanoidGlbFromArgv(): string | null {
@@ -294,6 +309,7 @@ async function readTapRing(page: Page): Promise<unknown[]> {
 
 async function main(): Promise<void> {
   const row = rowFromArgv();
+  const movement = movementFromArgv();
   const outDir = path.join(OUTPUT_ROOT, outSubdirFromArgv(row));
   await mkdir(outDir, { recursive: true });
   const humanoidGlb = humanoidGlbFromArgv();
@@ -326,7 +342,7 @@ async function main(): Promise<void> {
   const services = createLocalComputeServices();
   try {
     await services.sceneCapture.withBrowser(`loco-ground-${row}`, async (browser) => {
-      await runRow(row, outDir, distProof, bundleJson, server.url, browser as Browser, humanoidBytes);
+      await runRow(row, movement, outDir, distProof, bundleJson, server.url, browser as Browser, humanoidBytes);
     });
   } finally {
     await stopPortlessDevServer(server.proc);
@@ -337,6 +353,7 @@ type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
 
 async function runRow(
   row: Row,
+  movement: { id: string; actorGlb: string; routeLengthMeters: number | null },
   outDir: string,
   distProof: DistProof,
   bundleJson: string,
@@ -353,10 +370,10 @@ async function runRow(
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
     // Humanoid override (walk-clip census stage 4): serve a candidate GLB wherever the
-    // app requests the shipped physician. Fail-closed: zero hits refuses the capture.
+    // app requests the movement's actor GLB. Fail-closed: zero hits refuses the capture.
     let humanoidHits = 0;
     if (humanoidBytes) {
-      await page.route("**/generated-humanoids/mpfb-clinical-physician-adult.glb", async (route) => {
+      await page.route(`**/generated-humanoids/${path.basename(movement.actorGlb)}`, async (route) => {
         humanoidHits += 1;
         await route.fulfill({ status: 200, contentType: "model/gltf-binary", body: humanoidBytes });
       });
@@ -391,7 +408,9 @@ async function runRow(
       `[${row}] route start=(${ev.startWorld.x.toFixed(2)},${ev.startWorld.z.toFixed(2)}) `
       + `target=(${ev.targetWorld.x.toFixed(2)},${ev.targetWorld.z.toFixed(2)}) length=${routeLength.toFixed(2)}m\n`,
     );
-    if (Math.abs(routeLength - 6) > 0.05) throw new Error(`vehicle route is ${routeLength.toFixed(2)}m, not 6m`);
+    if (movement.routeLengthMeters !== null && Math.abs(routeLength - movement.routeLengthMeters) > 0.05) {
+      throw new Error(`vehicle route is ${routeLength.toFixed(2)}m, not ${movement.routeLengthMeters}m`);
+    }
 
     // Wait for walking, then isolate + hide garments.
     let walking = ev.phase === "walking";
