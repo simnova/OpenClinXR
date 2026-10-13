@@ -1,0 +1,220 @@
+{
+ "doc": "face-replay compose report (scalp-forehead card). Inputs by sha256; region table measured on the output composite.",
+ "inputs": {
+  "base_skin": {
+   "name": "out-albedo.png",
+   "sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53",
+   "source": "join/out-albedo.png"
+  },
+  "locked_island": {
+   "name": "locked-pick.png",
+   "sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+   "expected_sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+   "source": "scalp/locked-pick.png"
+  },
+  "masks": {
+   "facecore": {
+    "name": "mask-facecore.png",
+    "sha256": "a36822ec886483564c62e83be91bccda3f2aa8669d2cd3282121e64f5b241d91",
+    "source": "derive/A/mask-facecore.png"
+   },
+   "scalp": {
+    "name": "mask-scalp.png",
+    "sha256": "66beb5e7915ace39231d5cc8ac407874dbe2eff5e1a9e39f903c4e0e0c27f61a",
+    "source": "derive/A/mask-scalp.png"
+   },
+   "ears-L": {
+    "name": "mask-ears-L.png",
+    "sha256": "e3942a2a80a9c6a7bb2e3d7f87bec8d03e7e318542d9709a69aa6e119730c4be",
+    "source": "derive/A/mask-ears-L.png"
+   },
+   "ears-R": {
+    "name": "mask-ears-R.png",
+    "sha256": "d2d7f2454d4daaeb47f2652b7e7c8c63d144294bd9f10ef0a346536f8386af82",
+    "source": "derive/A/mask-ears-R.png"
+   },
+   "neck": {
+    "name": "mask-neck.png",
+    "sha256": "0c4f6884a04110f74567758830d144729af61b27c8d4f0495759025846bbf839",
+    "source": "derive/A/mask-neck.png"
+   },
+   "brows-L": {
+    "name": "mask-brows-L.png",
+    "sha256": "c58546f20872dc4a6bcdd03f243c98792695a79f7629542dcf8e118a6507a9f4",
+    "source": "derive/A/mask-brows-L.png"
+   },
+   "brows-R": {
+    "name": "mask-brows-R.png",
+    "sha256": "c4716b7475e1a987ca5f7dacc642a0145b9284bbcbe9e09353b5d200020bb45a",
+    "source": "derive/A/mask-brows-R.png"
+   },
+   "lips": {
+    "name": "mask-lips.png",
+    "sha256": "f7fcafafc0d90f7a1f2b6482b3cd9dd46085e5c8697ce1f65cc09f0af8484d97",
+    "source": "derive/A/mask-lips.png"
+   },
+   "eyes-L": {
+    "name": "mask-eyes-L.png",
+    "sha256": "1126bf4a8bcffad85a7d6d749c31adc76019a0a38870de70a3e442d8b0a780d7",
+    "source": "derive/A/mask-eyes-L.png"
+   },
+   "eyes-R": {
+    "name": "mask-eyes-R.png",
+    "sha256": "c01587468bf35c0d75abba4668207f60a6dbb6c330f9e25ddc2df5c9bfe192d2",
+    "source": "derive/A/mask-eyes-R.png"
+   }
+  }
+ },
+ "parameters": {
+  "input_space": "atlas",
+  "island_box": [
+   2456,
+   614,
+   4054,
+   3686
+  ],
+  "feather_texels": 96.0,
+  "ncc_gate": 0.8,
+  "chroma_over": 6.0,
+  "skip_join": true,
+  "join_ran": false
+ },
+ "scalp": {
+  "tone_shift_Lab": [
+   -2.420184685334732,
+   0.769732257205975,
+   0.8300746782866391
+  ],
+  "tone_anchor": "central-hairline-column",
+  "treat_frac": 0.6873961103723404
+ },
+ "region_table": {
+  "regions": {
+   "crown": {
+    "n": 668988,
+    "mean_Lab": [
+     54.68878882612216,
+     10.211891703168114,
+     15.953835277882657
+    ]
+   },
+   "sides": {
+    "n": 1261605,
+    "mean_Lab": [
+     51.18500865899441,
+     9.674917350954402,
+     14.571483108984271
+    ]
+   },
+   "back": {
+    "n": 993594,
+    "mean_Lab": [
+     40.672084739671035,
+     9.351197466826681,
+     12.40181545017891
+    ]
+   },
+   "forehead": {
+    "n": 120796,
+    "mean_Lab": [
+     59.04146490530487,
+     9.91088203712171,
+     15.593992880294898
+    ]
+   },
+   "temple": {
+    "n": 76829,
+    "mean_Lab": [
+     52.39496175460495,
+     9.722915831883604,
+     15.557930316978277
+    ]
+   }
+  },
+  "forehead_temple_spread": {
+   "da": 0.18796620523810503,
+   "db": 0.036062563316621166,
+   "dab": 0.19139436455804734
+  },
+  "crown_minus_forehead": {
+   "dL": -4.352676079182707,
+   "da": 0.30100966604640433,
+   "db": 0.3598423975877587,
+   "dab": 0.46914109834363743
+  },
+  "sides_minus_temple": {
+   "dL": -1.2099530956105369,
+   "da": -0.047998480929202,
+   "db": -0.9864472079940061,
+   "dab": 0.9876142710242096
+  },
+  "back_minus_temple": {
+   "dL": -11.722877014933914,
+   "da": -0.3717183650569229,
+   "db": -3.156114866799367,
+   "dab": 3.177929450971588
+  },
+  "chroma_threshold": 24.54907428031718,
+  "chroma_coverage_over_forehead": {
+   "crown": 0.00028102148319551323,
+   "sides": 0.011133437169320033,
+   "back": 0.006792512837235329
+  },
+  "asymmetry": {
+   "crown": {
+    "dL": 1.0468691290462075,
+    "da": 0.009410286232142795,
+    "n_left": 91093,
+    "n_right": 577895
+   },
+   "sides": {
+    "dL": 53.584515582754086,
+    "da": 5.8895725818623985,
+    "n_left": 139202,
+    "n_right": 1122403
+   },
+   "forehead": {
+    "dL": 5.03632034009933,
+    "da": 1.2208275623628975,
+    "n_left": 66914,
+    "n_right": 53882
+   }
+  },
+  "boundary_gradient": {
+   "scalp_band_max": 33.14497498858494,
+   "forehead_interior_p99": 14.91101877519595
+  }
+ },
+ "exact_zero": {
+  "facecore": {
+   "n": 243789,
+   "rule": "eroded",
+   "max_dLab": 0.0
+  },
+  "lips": {
+   "n": 18692,
+   "rule": "contained",
+   "max_dLab": 0.0
+  },
+  "eyes": {
+   "n": 0,
+   "rule": "eroded",
+   "max_dLab": null
+  },
+  "brows": {
+   "n": 0,
+   "rule": "eroded",
+   "max_dLab": null
+  },
+  "ears": {
+   "n": 0,
+   "rule": "eroded",
+   "max_dLab": null
+  },
+  "neck": {
+   "n": 115,
+   "rule": "eroded",
+   "max_dLab": 0.0
+  }
+ }
+}

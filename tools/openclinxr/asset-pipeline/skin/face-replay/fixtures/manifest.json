@@ -1,0 +1,58 @@
+{
+ "sources": {
+  "base_good": {
+   "file": "scalp/out-albedo.png",
+   "sha256": "b5b5219136ad326288dffedef6ac482e29d65a8277e4de46139cb50ed8952bd7"
+  },
+  "base_bad": {
+   "file": "join/out-albedo.png",
+   "sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53"
+  },
+  "locked": {
+   "file": "scalp/locked-pick.png",
+   "sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5"
+  },
+  "mask-facecore": {
+   "file": "derive/A/mask-facecore.png",
+   "sha256": "a36822ec886483564c62e83be91bccda3f2aa8669d2cd3282121e64f5b241d91"
+  },
+  "mask-scalp": {
+   "file": "derive/A/mask-scalp.png",
+   "sha256": "66beb5e7915ace39231d5cc8ac407874dbe2eff5e1a9e39f903c4e0e0c27f61a"
+  },
+  "mask-note": "all mask-* crops share the derive/A geometry above"
+ },
+ "windows": {
+  "A": {
+   "box_upright_island": [
+    1150,
+    450,
+    512,
+    512
+   ],
+   "role": "scalp-forehead mechanism asserts + exact-zero facecore/brows"
+  },
+  "E": {
+   "box_upright_island": [
+    850,
+    800,
+    448,
+    448
+   ],
+   "role": "exact-zero ears/facecore/brows (transition zone: no chroma asserts here)"
+  },
+  "L": {
+   "box_upright_island": [
+    1300,
+    860,
+    448,
+    448
+   ],
+   "role": "exact-zero lips/eyes/brows/facecore"
+  }
+ },
+ "lineage": {
+  "base_bad": "best1 lineage: best1.variant.json skinOverride -> join/out-albedo.png (pre-scalp stubble cap)"
+ },
+ "notes": "Window L sits inside the exact-zero face zone: the good/bad L bases were byte-identical (sha 4702572a), so only base-good-L.png is tracked. Window A carries the mechanism asserts (real crown); E carries ears; L carries lips/eyes."
+}
