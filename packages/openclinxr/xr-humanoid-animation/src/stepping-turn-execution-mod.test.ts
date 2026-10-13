@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { afterEach, describe, expect, it } from "vitest";
-import { beginSteppingTurn } from "./stepping-turn-execution-mod.js";
+import { beginSteppingTurn } from "./stepping-turn.js";
 
 const DEG = Math.PI / 180;
 

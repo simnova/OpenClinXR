@@ -257,6 +257,11 @@
     "entrypoint": "./stepping-turn",
     "names": [
       {
+        "name": "beginSteppingTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "planSteppingTurn",
         "kind": "runtime",
         "via": "own-test"
@@ -283,6 +288,11 @@
       },
       {
         "name": "STEPPING_TURN_STEP_DURATION_S",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "steppingTurnLegScale",
         "kind": "runtime",
         "via": "own-test"
       },

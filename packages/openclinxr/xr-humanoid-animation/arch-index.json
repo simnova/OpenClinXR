@@ -64,6 +64,7 @@
     "src/locomotion-order-mod.test.ts",
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
+    "src/stepping-turn-execution-mod.test.ts",
     "src/stepping-turn-leg-quat-norm.test.ts",
     "src/stepping-turn-plan-mod.test.ts",
     "src/stepping-turn-slot-pivot-mod.test.ts",
