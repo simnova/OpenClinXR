@@ -1,1 +1,132 @@
-{"briefMissing":[],"cause":{"d2":"root speed != clip ground speed: closed-loop removes band-gated slide 0.3244 -> 0.0116 while deep reads 0 in both arms; toe roll inside the band would survive closed-loop and does not","deepShelf":"stance-labelled walking foot rides 0.026-0.054 m (2 of 25 frames <= 0.02); the entire band-gated slide lives on the 0.02-0.06 shelf"},"commits":["26dd0bc5f","2c2ca40","7ad04bb5d","cb32acb03","O4-this-commit"],"defects":{"d4":"deep gate vacuous as a window metric (0 windows every run both arms); kept as labelled no-window-formed with singleton counts, not tuned","d5":"closed-loop end state wrong for SC-05 (arrival 0.094-0.118 vs 0.028, fore-aft -0.50 vs -0.02, turn 0.0045 vs 0.0006); recorded for S2, not fixed","d6":"scratch probe-contact.ts removed"},"gates":{"g1":{"goal":"SC-05 6-run flags-off table = main baseline within section-c diffs","verdict":"MISS-strict","walkingSlidePerMetre":{"baseline":"0.3262 +- 0.0005 [0.3257, 0.3266]","control":"0.3244 +- 0.0024 [0.3208, 0.3266]","sectionCDiff":"0.0001"},"walkSum":{"baseline":"0.3549 +- 0.0005","control":"0.3529 +- 0.0026"},"note":"ranges overlap (2 W runs exactly on baseline max), slot bit-identical, non-walking quantities within section-c; session spread dwarfs n=2 section-c diffs; O1 wiring provably inert without the flag"},"g2":{"detail":"the-closed-loop-advance-follows-the-planted-foot.test.ts 5/5 on W","verdict":"PASS"},"g3":{"detail":"walk-contact-phases.test.ts pins sha plus every number to 1e-9, 1.708 s cycle, 1+1 windows","verdict":"PASS"},"g4":{"archSuite":"pending-T6-rerun","note":"pre-existing typecheck errors in untouched files predate S1; one red hook mid-slice (knip unused emitter) fixed via package script, no bypass","touchedTests":{"factory-stations-motion-retarget":"21/21","slide-phase-meter":"3/3","xr-humanoid-animation":"118/118"},"verdict":"PASS-pending-T6"}},"harm":"none: default runtime untouched (all new paths flagged default-off); no GLB/clip bytes edited; settle-entry and xr-runtime-state untouched per ownership","measure":{"x1":{"loco":{"closedloop":"0.0115 (n=1)","control":"0.3240 band / 0.0000 deep (n=1, 15 windows)"},"sc05":{"closedloop":"0.0116 +- 0.0003 band / 0.0000 deep (n=6)","control":"0.3244 +- 0.0024 band / 0.0000 deep (n=6)"},"restriction":"band-gated plus toe.y <= 0.02 m variant: deep windows 0 every run both arms both vehicles; control 1-2 deep singletons per run, closed-loop exactly 1 per run"},"x2":{"arrivalDist":{"closedloop":"0.0938-0.1180","control":"0.0277-0.0278"},"arrivalLateral":{"closedloop":"-0.036 to -0.058","control":"-0.014"},"endForeAftM":{"closedloop":"-0.5015 +- 0.0206","control":"-0.0226 +- 0.0004"},"endLateralM":{"closedloop":"-0.1886 +- 0.0014","control":"-0.1938 +- 0.0017"},"note":"worse than main as expected; S2 problem, not fixed","turnMaxM":{"closedloop":"0.0045 [0.0020, 0.0099]","control":"0.0006"}}},"o3":{"contactWindows":{"left":1,"right":1},"cycleS":1.708333,"gateCircleS":1.666667,"left":{"liftPhase":0.567,"plantPhase":0.9267,"stanceDurationS":1.0939,"stepLengthM":0.5635},"right":{"liftPhase":0.9741,"plantPhase":0.4381,"stanceDurationS":0.9158,"stepLengthM":0.5172},"seamDroppedEndFrame":true,"sha256":"6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4","stepFractionLR":0.5113,"stepFractionRL":0.4887},"prem":{"p1":"TRUE (CL 5e7e53e00 carries module, tests, both flags)","p2":"TRUE (contact intervals via gate crossings over sampleWalkClip samples)","p3":"TRUE (identical record keys control vs flagged; urlQuery differs only)"},"result":"footstep-plan-S1","still":[],"urlQuery":{"closedloop":"steppingTurn=1&closedLoopWalk=1&noStanceLock=1 (observe-only lock: the module's verified configuration)","control":"steppingTurn=1 / locoGround=1 (main defaults)","flaggedA":"steppingTurn=1&closedLoopWalk=1 (acting lock + closed-loop, n=1, pathological: ~0.21 m per frame advance, walk ends in 8 frames, travelled overshoot 1.381)"}}
+{
+ "briefMissing": [],
+ "cause": {
+  "d2": "root speed != clip ground speed: closed-loop removes band-gated slide 0.3244 -> 0.0116 while deep reads 0 in both arms; toe roll inside the band would survive closed-loop and does not",
+  "deepShelf": "stance-labelled walking foot rides 0.026-0.054 m (2 of 25 frames <= 0.02); the entire band-gated slide lives on the 0.02-0.06 shelf"
+ },
+ "commits": [
+  "7f6e26557",
+  "26dd0bc5f",
+  "7ad04bb5d",
+  "cb32acb03",
+  "dd6810805",
+  "17d9f605d"
+ ],
+ "defects": {
+  "d4": "deep gate vacuous as a window metric (0 windows every run both arms); kept as labelled no-window-formed with singleton counts, not tuned",
+  "d5": "closed-loop end state wrong for SC-05 (arrival 0.094-0.118 vs 0.028, fore-aft -0.50 vs -0.02, turn 0.0045 vs 0.0006); recorded for S2, not fixed",
+  "d6": "scratch probe-contact.ts removed"
+ },
+ "gates": {
+  "g1": {
+   "goal": "SC-05 6-run flags-off table = main baseline within section-c diffs",
+   "verdict": "MISS-strict",
+   "walkingSlidePerMetre": {
+    "baseline": "0.3262 +- 0.0005 [0.3257, 0.3266]",
+    "control": "0.3244 +- 0.0024 [0.3208, 0.3266]",
+    "sectionCDiff": "0.0001"
+   },
+   "walkSum": {
+    "baseline": "0.3549 +- 0.0005",
+    "control": "0.3529 +- 0.0026"
+   },
+   "note": "ranges overlap (2 W runs exactly on baseline max), slot bit-identical, non-walking quantities within section-c; session spread dwarfs n=2 section-c diffs; O1 wiring provably inert without the flag"
+  },
+  "g2": {
+   "detail": "the-closed-loop-advance-follows-the-planted-foot.test.ts 5/5 on W",
+   "verdict": "PASS"
+  },
+  "g3": {
+   "detail": "walk-contact-phases.test.ts pins sha plus every number to 1e-9, 1.708 s cycle, 1+1 windows",
+   "verdict": "PASS"
+  },
+  "g4": {
+   "verdict": "PASS",
+   "archSuite": "26 files / 291 tests green",
+   "touchedTests": {
+    "xr-humanoid-animation": "118/118",
+    "factory-stations-motion-retarget": "21/21",
+    "slide-phase-meter": "3/3"
+   },
+   "toolsTypecheck": "clean",
+   "knip": "green",
+   "hooks": "on",
+   "note": "pre-existing typecheck errors in untouched files predate S1; knip red mid-slice fixed via package script; O3 entrypoint shape tripped 5 arch ratchets, reworked to internal module, no bypass anywhere"
+  }
+ },
+ "harm": "none: default runtime untouched (all new paths flagged default-off); no GLB/clip bytes edited; settle-entry and xr-runtime-state untouched per ownership",
+ "measure": {
+  "x1": {
+   "loco": {
+    "closedloop": "0.0115 (n=1)",
+    "control": "0.3240 band / 0.0000 deep (n=1, 15 windows)"
+   },
+   "sc05": {
+    "closedloop": "0.0116 +- 0.0003 band / 0.0000 deep (n=6)",
+    "control": "0.3244 +- 0.0024 band / 0.0000 deep (n=6)"
+   },
+   "restriction": "band-gated plus toe.y <= 0.02 m variant: deep windows 0 every run both arms both vehicles; control 1-2 deep singletons per run, closed-loop exactly 1 per run"
+  },
+  "x2": {
+   "arrivalDist": {
+    "closedloop": "0.0938-0.1180",
+    "control": "0.0277-0.0278"
+   },
+   "arrivalLateral": {
+    "closedloop": "-0.036 to -0.058",
+    "control": "-0.014"
+   },
+   "endForeAftM": {
+    "closedloop": "-0.5015 +- 0.0206",
+    "control": "-0.0226 +- 0.0004"
+   },
+   "endLateralM": {
+    "closedloop": "-0.1886 +- 0.0014",
+    "control": "-0.1938 +- 0.0017"
+   },
+   "note": "worse than main as expected; S2 problem, not fixed",
+   "turnMaxM": {
+    "closedloop": "0.0045 [0.0020, 0.0099]",
+    "control": "0.0006"
+   }
+  }
+ },
+ "o3": {
+  "contactWindows": {
+   "left": 1,
+   "right": 1
+  },
+  "cycleS": 1.708333,
+  "gateCircleS": 1.666667,
+  "left": {
+   "liftPhase": 0.567,
+   "plantPhase": 0.9267,
+   "stanceDurationS": 1.0939,
+   "stepLengthM": 0.5635
+  },
+  "right": {
+   "liftPhase": 0.9741,
+   "plantPhase": 0.4381,
+   "stanceDurationS": 0.9158,
+   "stepLengthM": 0.5172
+  },
+  "seamDroppedEndFrame": true,
+  "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+  "stepFractionLR": 0.5113,
+  "stepFractionRL": 0.4887,
+  "module": "walk_contact_phases.ts (internal, deep import; entrypoint untouched)"
+ },
+ "prem": {
+  "p1": "TRUE (CL 5e7e53e00 carries module, tests, both flags)",
+  "p2": "TRUE (contact intervals via gate crossings over sampleWalkClip samples)",
+  "p3": "TRUE (identical record keys control vs flagged; urlQuery differs only)"
+ },
+ "result": "footstep-plan-S1",
+ "still": [],
+ "urlQuery": {
+  "closedloop": "steppingTurn=1&closedLoopWalk=1&noStanceLock=1 (observe-only lock: the module's verified configuration)",
+  "control": "steppingTurn=1 / locoGround=1 (main defaults)",
+  "flaggedA": "steppingTurn=1&closedLoopWalk=1 (acting lock + closed-loop, n=1, pathological: ~0.21 m per frame advance, walk ends in 8 frames, travelled overshoot 1.381)"
+ },
+ "envelopeCommitNote": "this O5 commit is the tip of wt/footstep-plan with message footstep-plan S1 O5; its hash is not self-recorded"
+}

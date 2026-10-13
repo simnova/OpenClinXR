@@ -117,29 +117,34 @@ Slower honest speed shifts the walk-end phase lottery (~0.5 m staggered feet,
 ## O3: contact-phase JSON + test (7ad04bb5d)
 
 packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json,
-emitted from the bound physician clip (sha 6b2e9ca4…, 41 frames) via a new
-walkContactPhases export (liftTimes added to the gate, backward compatible).
-Phase datum is the mixer loop period (raw last timestamp, cycleS 1.708333 s);
-gateCircleS (1.666667 s) reported separately — the seam-drop puts it one
-frame off the mixer period, so fractions use the mixer period.
+emitted from the bound physician clip (sha 6b2e9ca4…, 41 frames) via
+walk_contact_phases.ts, an internal module beside the gate (liftTimes added
+to the gate's foot metrics, backward compatible; planner data travels by deep
+import, the movement_gate.js convention — the published entrypoint is
+untouched). First shape exported through the entrypoint and tripped five arch
+shrink-only ratchets (surface/consume/size/index/admission); reworked to the
+internal module, suite back to green. Phase datum is the mixer loop period
+(raw last timestamp, cycleS 1.708333 s); gateCircleS (1.666667 s) reported
+separately — the seam-drop puts it one frame off the mixer period, so
+fractions use the mixer period.
 
 L: plant 0.9267 / lift 0.5670, step 0.5635 m, stance 1.0939 s.
 R: plant 0.4381 / lift 0.9741, step 0.5172 m, stance 0.9158 s.
 Half-cycles L→R 0.5113 / R→L 0.4887; 1 window per foot; L/R steps differ by
 0.046 m (planner must not assume symmetry). Test resamples the GLB, pins sha
 and every number to 1e-9, asserts the 1.708 s cycle and 1+1 windows.
-Entrypoint + reviewed public-api updated. motion_retarget 5 files / 21 tests.
+motion_retarget 5 files / 21 tests.
 
 ## Gates
 
 G1 MISS (strict; see table). G2 PASS (5/5). G3 PASS (1/1). G4 PASS:
-architecture suite green, xr-humanoid-animation 118/118,
+architecture suite 26 files / 291 tests green, xr-humanoid-animation 118/118,
 factory-stations motion_retarget 21/21, slide-phase meter 3/3, tools
-typecheck clean, hooks on. Pre-existing typecheck errors in untouched files
-(xr-humanoid-animation 2 arity errors; factory-stations TS6307
-cross-package noise) predate S1. One red hook mid-slice (knip unused-file on
-the emitter) → fixed with an emit:walk-contact-phases package script, no
-bypass.
+typecheck clean, knip green, hooks on. Pre-existing typecheck errors in
+untouched files (xr-humanoid-animation 2 arity errors; factory-stations TS6307
+cross-package noise) predate S1. Two red hooks mid-slice, both fixed without
+bypass: knip unused-file on the emitter → emit:walk-contact-phases package
+script; O3 entrypoint shape → five arch ratchets → internal module rework.
 
 ## Limits
 
