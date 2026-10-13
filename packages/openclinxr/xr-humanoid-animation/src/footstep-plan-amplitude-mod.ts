@@ -30,11 +30,11 @@ import { resolveClipStanceForFrame } from "./stop-clip-playback-mod.js";
  * halves at 0 bring each leg home in turn while the remaining distance is
  * ~0 (root clamped static: the swing lands beside the stance, no trail, no
  * drag); the walk exits on the plan-complete signal once the beat lands.
- * Pelvis holds the first carrying scale all walk (one adoption, zero
- * mid-walk transitions: a shared bone changing scale mid-stance would move
- * the planted foot, so it never changes; at 1.0 on both S2 routes the slerp
- * is the identity and the behavior is byte-identical to leaving it at clip
- * weight like the arms and spine).
+ * Pelvis holds scale 0 all walk (one adoption at walk start, zero mid-walk
+ * transitions: a shared bone changing scale mid-stance would move the
+ * planted foot, so it never changes; home all walk keeps the turn-entry
+ * pair centered under the slot instead of inheriting the clip's mid-stride
+ * pelvis offset, which alone spread the exit feet 0.15 m wide).
  *
  * Lift-offs come from clip TIME (static lift seconds + action time), never
  * from runtime stance labels: the plan is a pure function of route length
@@ -169,7 +169,12 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   }
   for (const bone of collectPelvisBones(approach.actorSlot)) {
     const q = bone.quaternion;
-    bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side: "pelvis", restLocal: null });
+    bones.push({
+      bone,
+      rest: { x: q.x, y: q.y, z: q.z, w: q.w },
+      side: "pelvis",
+      restLocal: { x: bone.position.x, y: bone.position.y, z: bone.position.z },
+    });
   }
   // Toe bones plus every leg-chain local: rotations alone leave the feet
   // spread wide at scale 0 (measured 0.34 m lateral vs 0.19 m rest, the hips
@@ -191,7 +196,7 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   });
   approach.footstep = {
     legs: { left: clockFor("left"), right: clockFor("right") },
-    pelvisScale: plan.halves[1] !== undefined ? plan.halves[1]!.scale : 1,
+    pelvisScale: 0,
     bones,
     clipElapsed: 0,
     prevActionTime: null,

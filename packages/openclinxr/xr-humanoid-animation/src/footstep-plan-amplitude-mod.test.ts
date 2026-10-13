@@ -142,13 +142,14 @@ describe("footstep-plan amplitude blend", () => {
     expect(approach.footstep.legs.left.scales[0]).toBe(1);
     expect(approach.footstep.legs.left.atS[0]).toBeCloseTo(0.419, 3);
     expect(approach.footstep.legs.right.scales[0]).toBe(1);
-    expect(approach.footstep.pelvisScale).toBe(1);
+    expect(approach.footstep.pelvisScale).toBe(0);
     expect(approach.footstep.steps).toBe(6);
     expect(approach.footstep.bones.length).toBe(3);
     expect(approach.footstep.bones.map((b: Loose) => b.side).sort()).toEqual(["left", "left", "pelvis"]);
     const byName = (n: string): Loose => approach.footstep.bones.find((b: Loose) => b.bone.name === n);
     expect(byName("toe1-1L").restLocal).toEqual({ x: 0.09, y: 0.005, z: 0 });
     expect(byName("upperleg01.L").restLocal).toEqual({ x: 0, y: 0, z: 0 });
+    expect(byName("pelvis").restLocal).toEqual({ x: 0, y: 0, z: 0 });
   });
 
   it("lerps toe locals home by the same scale (positions land standing at 0)", () => {
