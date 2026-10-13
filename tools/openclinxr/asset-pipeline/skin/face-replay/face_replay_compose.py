@@ -16,6 +16,18 @@ Ports two scratch behaviours into deterministic, size-agnostic code:
 (c) region masks are mesh-derived (face core, ears, neck, brows, scalp,
     lips, eyes) supplied either as a masks directory or derived on the fly
     from a subject GLB. No ellipses, no hand boxes, no subject constants.
+    Left/right comes from a mesh-side map (per-texel vertex x-sign,
+    rasterised from the subject GLB; 255 one side, 0 the other): image
+    halves are wrong in this atlas, whose halves share columns. The side
+    map is required input, validated 100% against the derived L/R masks.
+
+    Keep-out interiors erode past the W>0.001 reach (3.1 sigma) per role,
+    with lips/eyes covered whole where contained in the hard-zeroed core;
+    the apply step hard-zeroes the identical interiors, so the report is
+    exact by construction. The boundary clause is the interior crown step
+    (4-texel adjacent L difference inside the eroded scalp, max <= 8):
+    the old whole-band max is anatomy-dominated and identical in good and
+    rejected composites alike.
 
 Texture convention (stated once): texture row = v*S, col = u*S, sampled with
 flipY=false as three.js samples it; trimesh returns V upside-down, so V is
@@ -45,6 +57,17 @@ CHROMA_OVER = 6.0
 NCC_GATE = 0.80
 MIN_REGION_TEXELS = 64
 MIN_HALF_TEXELS = 500
+# Keep-out insets are computed inside zero_interiors (3.1 sigma for the
+# wide 96-texel roles, 3.3 sigma of the thin 24-texel keep-out feather).
+# Interior crown step: adjacent-column |dL| half-width in texels at 4096,
+# and its bound (separates measured accepted <=6.5 from rejected >=10.5).
+STEP_HALF_TEXELS = 4.0
+STEP_MAX_BOUND = 8.0
+# Thin-structure keep-out feather in texels at 4096 (ears, brows): tight
+# enough that their interiors survive past-reach erosion provably exact,
+# wide enough (24 texels) that the rim ramp stays gentle. Outline,
+# face-ring and scalp-region transitions keep the 96-texel feather.
+KB_FEATHER_TEXELS = 8.0
 
 MASK_ROLES = ("facecore", "scalp", "ears-L", "ears-R", "neck", "brows-L",
               "brows-R", "lips", "eyes-L", "eyes-R")
@@ -80,6 +103,17 @@ def load_mask(path: Path, size: tuple[int, int] | None = None) -> np.ndarray:
     if size is not None and img.size != (size[0], size[1]):
         img = img.resize((size[0], size[1]), Image.BILINEAR)
     return np.array(img).astype(np.float64) / 255.0
+
+
+def load_side(path: Path, size: tuple[int, int] | None = None,
+              arr: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Mesh-side halves: file holds 255 one side, 0 the other, 128 neither."""
+    if arr is None:
+        img = Image.open(path).convert("L")
+        if size is not None and img.size != (size[0], size[1]):
+            img = img.resize((size[0], size[1]), Image.NEAREST)
+        arr = np.array(img)
+    return arr > 200, arr < 55
 
 
 def gauss(arr: np.ndarray, sigma: float) -> np.ndarray:
@@ -347,7 +381,9 @@ def derive_masks_from_glb(glb_path: Path, size: int) -> dict[str, np.ndarray]:
 
     ear_l = lab_ear & (verts_all[:, 0] > cx)
     ear_r = lab_ear & (verts_all[:, 0] < cx)
-    return {
+    side_pos = verts_all[:, 0] >= cx
+    side_neg = verts_all[:, 0] < cx
+    out = {
         "facecore": feather(raster(lab_face), 32.0),
         "scalp": feather(raster(lab_scalp), 32.0),
         "ears-L": feather(raster(ear_l), 16.0),
@@ -359,6 +395,11 @@ def derive_masks_from_glb(glb_path: Path, size: int) -> dict[str, np.ndarray]:
         "eyes-L": feather(raster(lab_eye & (verts_all[:, 0] > cx)), 6.0),
         "eyes-R": feather(raster(lab_eye & (verts_all[:, 0] < cx)), 6.0),
     }
+    side_img = np.full((size, size), 128, np.uint8)
+    side_img[raster(side_pos) > 0] = 255
+    side_img[(raster(side_neg) > 0) & (side_img != 255)] = 0
+    out["side"] = side_img.astype(np.float64) / 255.0
+    return out
 
 
 def _bin(masks: dict[str, np.ndarray], role: str) -> np.ndarray:
@@ -398,14 +439,49 @@ def regions_from_masks(masks: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
             "face_bbox": np.array([fx0, fy0, fx1, fy1])}
 
 
+def zero_interiors(regions: dict[str, np.ndarray], scale: float,
+                   feather_texels: float) -> dict[str, tuple[np.ndarray,
+                                                             str]]:
+    """Keep-out interiors shared by the apply hard-zero and the report.
+
+    Wide roles (facecore, neck: 96-texel feather) erode past 3.1 sigma;
+    thin roles (lips, eyes, brows, ears: 24-texel keep-out feather, or
+    deep-face) erode past 3.3 of their own smaller sigma, with lips/eyes
+    asserting whole where contained in the hard-zeroed core. Both
+    consumers use these identical objects, so the report is exact by
+    construction, never by matching erosion twice.
+    """
+    import math
+
+    wide = max(1, int(math.ceil(3.1 * feather_texels / 3.0 * scale)))
+    thin = max(1, int(math.ceil(3.3 * KB_FEATHER_TEXELS / 3.0 * scale)))
+    core = ndimage.binary_erosion(regions["facecore"], iterations=wide)
+    out: dict[str, tuple[np.ndarray, str]] = {"facecore": (core, "eroded")}
+    for name in ("lips", "eyes"):
+        mask = regions[name]
+        if mask.any() and (mask & ~core).sum() == 0:
+            out[name] = (mask, "contained")
+        else:
+            out[name] = (ndimage.binary_erosion(mask, iterations=thin),
+                         "eroded")
+    out["neck"] = (ndimage.binary_erosion(regions["neck"], iterations=wide),
+                   "eroded")
+    for name in ("brows", "ears"):
+        out[name] = (ndimage.binary_erosion(regions[name],
+                                            iterations=thin),
+                     "eroded")
+    return out
+
+
 def _mean_lab(lab: np.ndarray, mask: np.ndarray):
     if int(mask.sum()) < MIN_REGION_TEXELS:
         return None
     return [float(v) for v in lab[mask].reshape(-1, 3).mean(axis=0)]
 
 
-def region_table(image_lab: np.ndarray,
-                 regions: dict[str, np.ndarray]) -> dict:
+def region_table(image_lab: np.ndarray, regions: dict[str, np.ndarray],
+                 sides: tuple[np.ndarray, np.ndarray],
+                 scale: float) -> dict:
     table: dict = {"regions": {}}
     for name in ("crown", "sides", "back", "forehead", "temple"):
         mask = regions[name]
@@ -447,15 +523,12 @@ def region_table(image_lab: np.ndarray,
     table["chroma_coverage_over_forehead"] = coverage
 
     def asym(mask: np.ndarray):
-        # Halves split at the region's own horizontal center (the head
-        # island is off-center in a full atlas; an image-center split would
-        # leave one half empty).
-        xs = np.where(mask.any(axis=0))[0]
-        if not len(xs):
-            return None
-        mid = (int(xs.min()) + int(xs.max())) // 2
-        left = mask & (np.arange(mask.shape[1])[None, :] < mid)
-        right = mask & (np.arange(mask.shape[1])[None, :] >= mid)
+        # Halves from the mesh-side map (per-texel vertex x-sign). Image
+        # halves are wrong in this atlas: the island is off-center and the
+        # halves share columns, so a column split leaves an 8:1 imbalance.
+        pos, neg = sides
+        left = mask & pos
+        right = mask & neg
         if int(left.sum()) < MIN_HALF_TEXELS or int(
                 right.sum()) < MIN_HALF_TEXELS:
             return None
@@ -463,7 +536,9 @@ def region_table(image_lab: np.ndarray,
         mr = image_lab[right].reshape(-1, 3).mean(axis=0)
         return {"dL": float(abs(ml[0] - mr[0])),
                 "da": float(abs(ml[1] - mr[1])),
-                "n_left": int(left.sum()), "n_right": int(right.sum())}
+                "db": float(abs(ml[2] - mr[2])),
+                "n_left": int(left.sum()), "n_right": int(right.sum()),
+                "ratio": float(left.sum() / max(right.sum(), 1))}
 
     table["asymmetry"] = {name: asym(regions[name]) for name in
                           ("crown", "sides", "forehead")}
@@ -481,34 +556,36 @@ def region_table(image_lab: np.ndarray,
         "forehead_interior_p99": float(np.percentile(
             grad[inner], 99)) if inner.any() else None,
     }
+    # Interior crown step: adjacent-column |dL| inside the eroded scalp
+    # catches blotch edges and stubble dots that the anatomy-dominated
+    # whole-band max (identical in good and rejected composites) misses.
+    # The half-width follows the input texels, not the working size: the
+    # island mapping is a rotation, so upright texels are atlas texels.
+    half = max(1, int(round(STEP_HALF_TEXELS * scale)))
+    sc_bin = regions["scalp_work"]
+    step_inner = regions["crown"] & ndimage.binary_erosion(
+        sc_bin, iterations=max(1, half + 2))
+    step_d = np.abs(lab_l[:, half:] - lab_l[:, :-half])
+    step_vals = step_d[step_inner[:, half:]]
+    table["crown_step"] = {
+        "half_px": half,
+        "n": int(step_inner.sum()),
+        "max": float(step_vals.max()) if step_vals.size else None,
+        "p999": float(np.percentile(step_vals, 99.9)) if step_vals.size
+        else None,
+        "bound": STEP_MAX_BOUND,
+    }
     return table
 
 
 def exact_zero_report(before_lab: np.ndarray, after_rgb: np.ndarray,
                       regions: dict[str, np.ndarray],
-                      scale: float, feather_texels: float) -> dict:
+                      interiors: dict[str, tuple[np.ndarray, str]]) -> dict:
     after_lab = lab_of(after_rgb).astype(np.float64)
     dlab = np.abs(before_lab - after_lab).max(axis=2)
     out: dict = {}
-    # Zero interiors are eroded past the W>0.001 reach of every feathered
-    # weight (about 3.1 sigma from any keep-out edge); the apply step
-    # hard-zeroes W inside the same interiors, so untouched bytes stay
-    # bit-exact and max_dLab is exactly 0.0 by construction.
-    inset = max(1, int(round(4 * feather_texels / 3.0 * scale)))
-    core_interior = ndimage.binary_erosion(regions["facecore"],
-                                           iterations=inset)
     for name in ("facecore", "lips", "eyes", "brows", "ears", "neck"):
-        mask = regions[name]
-        # Interior structures fully contained in the hard-zeroed core are
-        # exact over every texel (the apply step zeroes W there); the
-        # edge-adjacent roles use the eroded interior past W>0.001 reach.
-        if name in ("lips", "eyes") and mask.any() and (
-                mask & ~core_interior).sum() == 0:
-            interior = mask
-            rule = "contained"
-        else:
-            interior = ndimage.binary_erosion(mask, iterations=inset)
-            rule = "eroded"
+        interior, rule = interiors[name]
         n = int(interior.sum())
         out[name] = {"n": n, "rule": rule,
                      "max_dLab": float(dlab[interior].max()) if n else None}
@@ -604,38 +681,46 @@ def scalp_apply(base: np.ndarray, locked: np.ndarray,
     if treat_face.max() > 0:
         treat_face /= treat_face.max()
 
-    def soft(role: str) -> np.ndarray:
+    def soft(role: str, sigma: float) -> np.ndarray:
         if role not in masks:
             return np.zeros((h, w), np.float64)
-        g = gauss((masks[role] > 0.5).astype(np.float64), sig)
+        g = gauss((masks[role] > 0.5).astype(np.float64), sigma)
         if g.max() > 0:
             g /= g.max()
         return g
 
-    ear_soft = np.clip(soft("ears-L") + soft("ears-R"), 0, 1)
-    neck_soft = soft("neck")
-    brow_soft = np.clip(soft("brows-L") + soft("brows-R"), 0, 1)
-    scalp_bin = (((masks["scalp"] > 0.5) if "scalp" in masks
-                  else outline) & ~fc)
+    kb_sig = KB_FEATHER_TEXELS / 3.0 * scale
+    ear_soft = np.clip(soft("ears-L", kb_sig) + soft("ears-R", kb_sig), 0, 1)
+    neck_soft = soft("neck", sig)
+    brow_soft = np.clip(soft("brows-L", kb_sig) + soft("brows-R", kb_sig),
+                        0, 1)
+    scalp_bin = outline & ~fc
+    for role in ("ears-L", "ears-R", "neck", "brows-L", "brows-R"):
+        if role in masks:
+            scalp_bin &= ~(masks[role] > 0.5)
+    # NOTE: scalp is the island outline minus mesh keep-outs, not the
+    # scalp label: derived scalp UV maps carry raster gaps (an 84-texel
+    # one sits mid-crown here) that dip the feathered weight and bleed
+    # base dots through. Outline minus keep-outs is gap-free by
+    # construction; filled keep-out zones stay at W==0 through their own
+    # weights, and the exact-zero interiors are untouched.
     scalp_soft = gauss(scalp_bin.astype(np.float64), sig)
     if scalp_soft.max() > 0:
         scalp_soft /= scalp_soft.max()
     weight = (outline_soft * scalp_soft * treat_face * (1 - ear_soft)
               * (1 - neck_soft) * (1 - brow_soft)).astype(np.float64)
-    # Hard-zero inside keep-out interiors (past W>0.001 reach): truncating
-    # the far feather tail moves pixels by <0.015 Lab (invisible) and keeps
-    # the interiors bit-exact for the exact-zero report.
-    zero_inset = max(1, int(round(4 * feather_texels / 3.0 * scale)))
-    hard_zero = np.zeros((h, w), bool)
-    for role in ("facecore", "ears-L", "ears-R", "neck", "brows-L",
-                 "brows-R", "lips", "eyes-L", "eyes-R"):
-        if role in masks:
-            hard_zero |= ndimage.binary_erosion(
-                (masks[role] > 0.5), iterations=zero_inset)
-    weight[hard_zero] = 0.0
+    # Hard-zero inside the shared keep-out interiors (past W>0.001 reach):
+    # truncating the far feather tail moves pixels by <0.04 Lab (invisible)
+    # and keeps the interiors bit-exact for the exact-zero report, which
+    # reads these identical objects.
     regions = regions_from_masks(
         {k: (v > 0.5).astype(np.float64) if v.max() <= 1.0 else v
          for k, v in masks.items()})
+    interiors = zero_interiors(regions, scale, feather_texels)
+    hard_zero = np.zeros((h, w), bool)
+    for _name, (_interior, _rule) in interiors.items():
+        hard_zero |= _interior
+    weight[hard_zero] = 0.0
     # Mean-only Lab tone anchor on the central forehead column straddling
     # the hairline (central 74% of the facecore width, rows from 20% of the
     # facecore height above its top edge to 2% below): the locked island
@@ -700,7 +785,26 @@ def _record_inputs(args: argparse.Namespace) -> dict:
     if args.glb:
         inputs["glb"] = {"name": Path(args.glb).name,
                          "sha256": sha256_file(Path(args.glb))}
+    if args.side_map:
+        inputs["side_map"] = {"name": Path(args.side_map).name,
+                              "sha256": sha256_file(Path(args.side_map))}
     return inputs
+
+
+def _load_sides(args: argparse.Namespace, size: tuple[int, int],
+                glb_masks: dict[str, np.ndarray] | None = None
+                ) -> tuple[np.ndarray, np.ndarray]:
+    if args.side_map:
+        return load_side(Path(args.side_map), size)
+    if glb_masks is not None and "side" in glb_masks:
+        arr = glb_masks["side"]
+        img = Image.fromarray((np.clip(arr, 0, 1) * 255 + 0.5).astype(
+            np.uint8))
+        if img.size != (size[0], size[1]):
+            img = img.resize((size[0], size[1]), Image.NEAREST)
+        return load_side(Path("."), arr=np.array(img))
+    raise RuntimeError("NO_SIDE_MAP: pass --side-map (mesh-side raster, "
+                       "255/0): image halves are wrong in this atlas")
 
 
 def _to_upright(arr: np.ndarray, box: tuple[int, int, int, int]) -> np.ndarray:
@@ -715,6 +819,17 @@ def _to_upright(arr: np.ndarray, box: tuple[int, int, int, int]) -> np.ndarray:
     if crop.ndim == 2:
         return up.astype(np.float64) / 255.0
     return up
+
+
+def _sides_upright(sides: tuple[np.ndarray, np.ndarray],
+                   box: tuple[int, int, int, int]
+                   ) -> tuple[np.ndarray, np.ndarray]:
+    pos, neg = sides
+    combo = np.full(pos.shape, 128, np.uint8)
+    combo[pos] = 255
+    combo[neg & ~pos] = 0
+    up = _to_upright(combo.astype(np.float64) / 255.0, box)
+    return up > 200 / 255, up < 55 / 255
 
 
 def _from_upright(up: np.ndarray, box: tuple[int, int, int, int]) -> np.ndarray:
@@ -749,12 +864,26 @@ def compose(args: argparse.Namespace) -> dict:
     base = load_rgb(Path(args.base_skin))
     h, w = base.shape[:2]
     size = (w, h)
+    # Feather scale follows the input texels: the island mapping is a
+    # rotation (texels unchanged), fixture crops are proportionally scaled.
     scale = max(h, w) / REF_SIZE
     if args.glb:
         masks = derive_masks_from_glb(Path(args.glb), max(h, w))
+        glb_side = masks.pop("side", None)
         masks = {k: load_mask_from_array(v, size) for k, v in masks.items()}
+        if glb_side is not None:
+            img = Image.fromarray(
+                (np.clip(glb_side, 0, 1) * 255 + 0.5).astype(np.uint8))
+            if img.size != (size[0], size[1]):
+                img = img.resize((size[0], size[1]), Image.NEAREST)
+            glb_masks: dict[str, np.ndarray] | None = {
+                "side": np.array(img).astype(np.float64) / 255.0}
+        else:
+            glb_masks = None
     else:
         masks = load_masks_dir(Path(args.masks), size)
+        glb_masks = None
+    sides = _load_sides(args, size, glb_masks)
     island_box: tuple[int, int, int, int] | None = None
     if args.input_space == "atlas":
         if args.island_box:
@@ -786,32 +915,55 @@ def compose(args: argparse.Namespace) -> dict:
         report["parameters"]["join_ran"] = True
         report["join"] = join_info
         report["face_box"] = [x, y, fw, fh]
+    else:
+        report["parameters"]["join_limit"] = (
+            "join not run on this input: a full-size join needs the "
+            "pre-join source atlas (untracked provider-cache path outside "
+            "write scope) plus the ECC/dense-flow registration sub-step, "
+            "which has no station-python implementation; the join refresh "
+            "(NCC gate, feathered paste, continuous low band, no tiling) "
+            "is exercised fixture-scale")
     locked = load_rgb(locked_path)
-    before_full = lab_of(working).astype(np.float64)
+    # All measurement and treatment runs in upright-island space: the head
+    # island sits rotated 90 degrees in the atlas, so full-atlas rows and
+    # columns are anatomically scrambled (the "forehead" band would read a
+    # cheek strip). Atlas mode maps image, masks and sides upright first.
     if island_box is not None:
         work_up = _to_upright(working, island_box)
         masks_up = {k: _to_upright(v, island_box)
                     for k, v in masks.items()}
+        sides_up = _sides_upright(sides, island_box)
         locked_up = locked
         if (locked_up.shape[1], locked_up.shape[0]) != (
                 work_up.shape[1], work_up.shape[0]):
             locked_up = np.array(Image.fromarray(locked_up).resize(
                 (work_up.shape[1], work_up.shape[0]), Image.LANCZOS))
             report["parameters"]["locked_resized"] = True
+        before_lab = lab_of(work_up).astype(np.float64)
         out_up, scalp_info = scalp_apply(work_up, locked_up, masks_up,
                                          scale, args.feather_texels)
         out = working.copy()
         x0, y0, x1, y1 = island_box
         out[y0:y1, x0:x1] = _from_upright(out_up, island_box)
+        regions = regions_from_masks(masks_up)
+        out_lab = lab_of(out_up).astype(np.float64)
+        report["region_table"] = region_table(out_lab, regions, sides_up,
+                                              scale)
+        interiors = zero_interiors(regions, scale, args.feather_texels)
+        report["exact_zero"] = exact_zero_report(before_lab, out_up,
+                                                 regions, interiors)
     else:
+        before_lab = lab_of(working).astype(np.float64)
         out, scalp_info = scalp_apply(working, locked, masks, scale,
                                       args.feather_texels)
+        out_lab = lab_of(out).astype(np.float64)
+        regions = regions_from_masks(masks)
+        report["region_table"] = region_table(out_lab, regions, sides,
+                                              scale)
+        interiors = zero_interiors(regions, scale, args.feather_texels)
+        report["exact_zero"] = exact_zero_report(before_lab, out, regions,
+                                                 interiors)
     report["scalp"] = scalp_info
-    out_lab = lab_of(out).astype(np.float64)
-    regions = regions_from_masks(masks)
-    report["region_table"] = region_table(out_lab, regions)
-    report["exact_zero"] = exact_zero_report(before_full, out, regions,
-                                              scale, args.feather_texels)
     save_rgb(Path(args.out), out)
     with open(args.report, "w") as f:
         json.dump(report, f, indent=1)
@@ -830,19 +982,45 @@ def evaluate(args: argparse.Namespace) -> dict:
     img = load_rgb(Path(args.input))
     h, w = img.shape[:2]
     size = (w, h)
-    scale = max(h, w) / REF_SIZE
     if args.glb:
         masks = derive_masks_from_glb(Path(args.glb), max(h, w))
+        glb_side = masks.pop("side", None)
         masks = {k: load_mask_from_array(v, size) for k, v in masks.items()}
+        if glb_side is not None:
+            img_side = Image.fromarray(
+                (np.clip(glb_side, 0, 1) * 255 + 0.5).astype(np.uint8))
+            if img_side.size != (size[0], size[1]):
+                img_side = img_side.resize((size[0], size[1]), Image.NEAREST)
+            glb_masks: dict[str, np.ndarray] | None = {
+                "side": np.array(img_side).astype(np.float64) / 255.0}
+        else:
+            glb_masks = None
     else:
         masks = load_masks_dir(Path(args.masks), size)
+        glb_masks = None
+    sides = _load_sides(args, size, glb_masks)
     regions = regions_from_masks(masks)
     lab = lab_of(img).astype(np.float64)
+    island_box = None
+    if args.island_box:
+        island_box = tuple(int(v) for v in args.island_box)
+        img_up = _to_upright(img, island_box)
+        masks_up = {k: _to_upright(v, island_box) for k, v in masks.items()}
+        sides = _sides_upright(sides, island_box)
+        regions = regions_from_masks(masks_up)
+        lab = lab_of(img_up).astype(np.float64)
     report = {"mode": "evaluate",
               "inputs": {"image": {"name": Path(args.input).name,
                                    "sha256": sha256_file(Path(args.input))}},
-              "parameters": {"chroma_over": CHROMA_OVER},
-              "region_table": region_table(lab, regions)}
+              "parameters": {"chroma_over": CHROMA_OVER,
+                             "island_box": list(island_box)
+                             if island_box else None},
+              "region_table": region_table(lab, regions, sides,
+                                             max(h, w) / REF_SIZE)}
+    if args.side_map:
+        report["inputs"]["side_map"] = {
+            "name": Path(args.side_map).name,
+            "sha256": sha256_file(Path(args.side_map))}
     with open(args.report, "w") as f:
         json.dump(report, f, indent=1)
     return report
@@ -873,6 +1051,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--locked-sha", default=None)
     ap.add_argument("--masks", default=None)
     ap.add_argument("--glb", default=None)
+    ap.add_argument("--side-map", default=None)
     ap.add_argument("--out", default=None)
     ap.add_argument("--report", default=None)
     ap.add_argument("--input-space", default="atlas",

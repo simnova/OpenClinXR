@@ -8,6 +8,10 @@
    "file": "join/out-albedo.png",
    "sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53"
   },
+  "base_seam": {
+   "file": "replay/best2-albedo.png",
+   "sha256": "8e7f9df2060bbc7a8cf70f0a63ce5329f0a6bd8510bfa6f5e51434b9f472a053"
+  },
   "locked": {
    "file": "scalp/locked-pick.png",
    "sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5"
@@ -20,8 +24,13 @@
    "file": "derive/A/mask-scalp.png",
    "sha256": "66beb5e7915ace39231d5cc8ac407874dbe2eff5e1a9e39f903c4e0e0c27f61a"
   },
-  "mask-note": "all mask-* crops share the derive/A geometry above"
+  "side": {
+   "file": "eyegeo/final.glb mesh x-sign raster",
+   "glb_sha256": "68f7e7da6cb2693515211df92f39cb995e8fc8c6552cee45dd17a7eea5e6ed1a",
+   "map_sha256": "cd770a98de4694d81c5bb9e078f42eacefc8b6ecfb186fc2cf9da7171c2b2ce8"
+  }
  },
+ "mask-note": "all mask-* crops share the derive/A geometry above",
  "windows": {
   "A": {
    "box_upright_island": [
@@ -30,7 +39,7 @@
     512,
     512
    ],
-   "role": "scalp-forehead mechanism asserts + exact-zero facecore/brows"
+   "role": "scalp-forehead mechanism (chroma/coverage/step/keep-outs)"
   },
   "E": {
    "box_upright_island": [
@@ -39,7 +48,7 @@
     448,
     448
    ],
-   "role": "exact-zero ears/facecore/brows (transition zone: no chroma asserts here)"
+   "role": "exact-zero ears/facecore/brows (transition zone)"
   },
   "L": {
    "box_upright_island": [
@@ -49,10 +58,20 @@
     448
    ],
    "role": "exact-zero lips/eyes/brows/facecore"
+  },
+  "M": {
+   "box_upright_island": [
+    1345,
+    450,
+    448,
+    448
+   ],
+   "role": "mesh-side asymmetry + interior step (balanced midline)"
   }
  },
  "lineage": {
-  "base_bad": "best1 lineage: best1.variant.json skinOverride -> join/out-albedo.png (pre-scalp stubble cap)"
+  "base_bad": "best1 lineage: best1.variant.json skinOverride -> join/out-albedo.png (pre-scalp stubble cap)",
+  "base_seam": "rejected scalp attempt S/replay/RESULT3.md: thresholded hair-shadow continuation (patchy, midline step, hairline carry)"
  },
- "notes": "Window L sits inside the exact-zero face zone: the good/bad L bases were byte-identical (sha 4702572a), so only base-good-L.png is tracked. Window A carries the mechanism asserts (real crown); E carries ears; L carries lips/eyes."
+ "notes": "Window L sits inside the exact-zero face zone (good==bad byte-identical there, only base-good-L tracked). base-bad-E dropped as unused. Side maps are mesh x-sign rasters (255/0), validated 100% against the derived L/R masks."
 }

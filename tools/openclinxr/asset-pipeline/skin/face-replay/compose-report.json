@@ -1,5 +1,5 @@
 {
- "doc": "face-replay compose report (scalp-forehead card). Inputs by sha256; region table measured on the output composite.",
+ "doc": "face-replay compose report (scalp-forehead card, handback rev). Inputs by sha256; region table measured on the output composite in upright-island space.",
  "inputs": {
   "base_skin": {
    "name": "out-albedo.png",
@@ -63,6 +63,11 @@
     "sha256": "c01587468bf35c0d75abba4668207f60a6dbb6c330f9e25ddc2df5c9bfe192d2",
     "source": "derive/A/mask-eyes-R.png"
    }
+  },
+  "side_map": {
+   "name": "side-4096.png",
+   "sha256": "cd770a98de4694d81c5bb9e078f42eacefc8b6ecfb186fc2cf9da7171c2b2ce8",
+   "source": "port/side-4096.png (eyegeo/final.glb mesh x-sign raster)"
   }
  },
  "parameters": {
@@ -77,7 +82,8 @@
   "ncc_gate": 0.8,
   "chroma_over": 6.0,
   "skip_join": true,
-  "join_ran": false
+  "join_ran": false,
+  "join_limit": "join not run on this input: a full-size join needs the pre-join source atlas (untracked provider-cache path outside write scope) plus the ECC/dense-flow registration sub-step, which has no station-python implementation; the join refresh (NCC gate, feathered paste, continuous low band, no tiling) is exercised fixture-scale"
  },
  "scalp": {
   "tone_shift_Lab": [
@@ -86,108 +92,121 @@
    0.8300746782866391
   ],
   "tone_anchor": "central-hairline-column",
-  "treat_frac": 0.6873961103723404
+  "treat_frac": 0.9252813575563203
  },
  "region_table": {
   "regions": {
    "crown": {
-    "n": 668988,
+    "n": 618719,
     "mean_Lab": [
-     54.68878882612216,
-     10.211891703168114,
-     15.953835277882657
+     57.058069495737726,
+     9.221034920034782,
+     15.200490687444503
     ]
    },
    "sides": {
-    "n": 1261605,
+    "n": 1230927,
     "mean_Lab": [
-     51.18500865899441,
-     9.674917350954402,
-     14.571483108984271
+     55.496673191953136,
+     10.608068947188865,
+     15.73367893203106
     ]
    },
    "back": {
-    "n": 993594,
+    "n": 649493,
     "mean_Lab": [
-     40.672084739671035,
-     9.351197466826681,
-     12.40181545017891
+     50.8622934024268,
+     11.527594612158792,
+     16.12327722017904
     ]
    },
    "forehead": {
-    "n": 120796,
+    "n": 135555,
     "mean_Lab": [
-     59.04146490530487,
-     9.91088203712171,
-     15.593992880294898
+     54.386831775069744,
+     10.397499190106846,
+     15.058079789477116
     ]
    },
    "temple": {
-    "n": 76829,
+    "n": 95035,
     "mean_Lab": [
-     52.39496175460495,
-     9.722915831883604,
-     15.557930316978277
+     57.658101540849565,
+     10.167396217391287,
+     15.939944638116517
     ]
    }
   },
   "forehead_temple_spread": {
-   "da": 0.18796620523810503,
-   "db": 0.036062563316621166,
-   "dab": 0.19139436455804734
+   "da": 0.23010297271555835,
+   "db": -0.8818648486394007,
+   "dab": 0.9113906897255042
   },
   "crown_minus_forehead": {
-   "dL": -4.352676079182707,
-   "da": 0.30100966604640433,
-   "db": 0.3598423975877587,
-   "dab": 0.46914109834363743
+   "dL": 2.671237720667982,
+   "da": -1.1764642700720636,
+   "db": 0.14241089796738748,
+   "dab": 1.1850523375007835
   },
   "sides_minus_temple": {
-   "dL": -1.2099530956105369,
-   "da": -0.047998480929202,
-   "db": -0.9864472079940061,
-   "dab": 0.9876142710242096
+   "dL": -2.161428348896429,
+   "da": 0.4406727297975781,
+   "db": -0.2062657060854569,
+   "dab": 0.48655728983767305
   },
   "back_minus_temple": {
-   "dL": -11.722877014933914,
-   "da": -0.3717183650569229,
-   "db": -3.156114866799367,
-   "dab": 3.177929450971588
+   "dL": -6.795808138422764,
+   "da": 1.3601983947675045,
+   "db": 0.18333258206252445,
+   "dab": 1.372497908477025
   },
-  "chroma_threshold": 24.54907428031718,
+  "chroma_threshold": 24.36598559847423,
   "chroma_coverage_over_forehead": {
-   "crown": 0.00028102148319551323,
-   "sides": 0.011133437169320033,
-   "back": 0.006792512837235329
+   "crown": 0.0,
+   "sides": 0.004679400159392068,
+   "back": 0.0017613738716198634
   },
   "asymmetry": {
    "crown": {
-    "dL": 1.0468691290462075,
-    "da": 0.009410286232142795,
-    "n_left": 91093,
-    "n_right": 577895
+    "dL": 0.03152787128304624,
+    "da": 0.18781442025360207,
+    "db": 0.07457244433777355,
+    "n_left": 308795,
+    "n_right": 308937,
+    "ratio": 0.9995403593612937
    },
    "sides": {
-    "dL": 53.584515582754086,
-    "da": 5.8895725818623985,
-    "n_left": 139202,
-    "n_right": 1122403
+    "dL": 1.9724514712052965,
+    "da": 0.25400415411652766,
+    "db": 0.3730795992275677,
+    "n_left": 604126,
+    "n_right": 625537,
+    "ratio": 0.9657718088618259
    },
    "forehead": {
-    "dL": 5.03632034009933,
-    "da": 1.2208275623628975,
-    "n_left": 66914,
-    "n_right": 53882
+    "dL": 1.873957109035942,
+    "da": 0.09489909650012507,
+    "db": 0.5888463036846918,
+    "n_left": 67360,
+    "n_right": 67851,
+    "ratio": 0.9927635554376502
    }
   },
   "boundary_gradient": {
-   "scalp_band_max": 33.14497498858494,
-   "forehead_interior_p99": 14.91101877519595
+   "scalp_band_max": 20.20454786783647,
+   "forehead_interior_p99": 17.83767204182572
+  },
+  "crown_step": {
+   "half_px": 4,
+   "n": 603833,
+   "max": 7.187494998588733,
+   "p999": 4.544458607096857,
+   "bound": 8.0
   }
  },
  "exact_zero": {
   "facecore": {
-   "n": 243789,
+   "n": 295795,
    "rule": "eroded",
    "max_dLab": 0.0
   },
@@ -197,24 +216,24 @@
    "max_dLab": 0.0
   },
   "eyes": {
-   "n": 0,
-   "rule": "eroded",
-   "max_dLab": null
-  },
-  "brows": {
-   "n": 0,
-   "rule": "eroded",
-   "max_dLab": null
-  },
-  "ears": {
-   "n": 0,
-   "rule": "eroded",
-   "max_dLab": null
-  },
-  "neck": {
-   "n": 115,
+   "n": 7947,
    "rule": "eroded",
    "max_dLab": 0.0
+  },
+  "brows": {
+   "n": 30204,
+   "rule": "eroded",
+   "max_dLab": 0.0
+  },
+  "ears": {
+   "n": 14284,
+   "rule": "eroded",
+   "max_dLab": 0.0
+  },
+  "neck": {
+   "n": 0,
+   "rule": "eroded",
+   "max_dLab": null
   }
  }
 }
