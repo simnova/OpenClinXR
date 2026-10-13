@@ -53,6 +53,7 @@
     "src/a-silent-humanoid-still-blinks.test.ts",
     "src/an-owned-chain-survives-the-posture-pass.test.ts",
     "src/blink-drives-slit.test.ts",
+    "src/fixed-timestep-clock.test.ts",
     "src/humanoid-animation.test.ts",
     "src/inner-mouth-cavity-drive.test.ts",
     "src/jaw-viseme-drive.test.ts",

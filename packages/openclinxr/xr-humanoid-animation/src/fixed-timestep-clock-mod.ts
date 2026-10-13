@@ -97,6 +97,82 @@ export function interpolateSimScalar(
   return previousValue + (currentValue - previousValue) * alpha;
 }
 
+declare global {
+  interface Window {
+    /** Fixed-timestep clock: per-display-frame substep count + sim ms. */
+    __openClinXrFixedClockStats?: { substeps: number; frameMs: number };
+  }
+}
+
+/** Frame-scoped fixed-clock state, owned by the composition root. */
+export type FixedClockFrameState = {
+  clock: FixedTimestepClock;
+  simNowMs: number | null;
+  simXzYaw: { x: number; z: number; yaw: number } | null;
+};
+
+/** Fresh frame state: empty accumulator, sim time anchored on first frame. */
+export function createFixedClockFrameState(): FixedClockFrameState {
+  return { clock: createFixedTimestepClock(), simNowMs: null, simXzYaw: null };
+}
+
+/** Minimal structural slot the render interpolation reads and writes. */
+export type FixedClockSlotLike = {
+  position: { x: number; z: number };
+  rotation: { y: number };
+};
+
+/**
+ * One display frame of actor simulation under the fixed clock: restore the
+ * authoritative sim transform, run accumulator-fed 1/60 s substeps through the
+ * caller's simulate, then write the entry/exit-interpolated render transform
+ * and publish per-frame stats. Telemetry tails carry sim states; the live root
+ * carries the interpolation. The deterministic capture clock (frame dt exactly
+ * 1/60) renders the current sim state with no lag.
+ */
+export function stepFixedClockFrame(
+  state: FixedClockFrameState,
+  input: {
+    frameDtSeconds: number;
+    nowMs: number;
+    deterministic: boolean;
+    walkingSlot: FixedClockSlotLike | null;
+    simulate: (subDtSeconds: number, subNowMs: number) => void;
+  },
+): void {
+  const slot = input.walkingSlot;
+  if (slot !== null && state.simXzYaw !== null) {
+    slot.position.x = state.simXzYaw.x;
+    slot.position.z = state.simXzYaw.z;
+    slot.rotation.y = state.simXzYaw.yaw;
+  }
+  const prevSim =
+    slot !== null
+      ? { x: slot.position.x, z: slot.position.z, yaw: slot.rotation.y }
+      : null;
+  const consumed = consumeFrameTime(state.clock, input.frameDtSeconds);
+  const simBase = state.simNowMs ?? input.nowMs;
+  state.simNowMs = simBase;
+  const stepStartMs = performance.now();
+  for (let sub = 0; sub < consumed.substeps; sub += 1) {
+    const subNow = input.deterministic ? input.nowMs : simBase + (sub + 1) * FIXED_SUBSTEP_SECONDS * 1000;
+    input.simulate(FIXED_SUBSTEP_SECONDS, subNow);
+  }
+  if (!input.deterministic) state.simNowMs = simBase + consumed.substeps * FIXED_SUBSTEP_SECONDS * 1000;
+  if (slot !== null && prevSim !== null) {
+    const currSim = { x: slot.position.x, z: slot.position.z, yaw: slot.rotation.y };
+    state.simXzYaw = currSim;
+    const yawDelta = Math.atan2(Math.sin(currSim.yaw - prevSim.yaw), Math.cos(currSim.yaw - prevSim.yaw));
+    slot.position.x = interpolateSimScalar(prevSim.x, currSim.x, consumed.alpha);
+    slot.position.z = interpolateSimScalar(prevSim.z, currSim.z, consumed.alpha);
+    slot.rotation.y = prevSim.yaw + yawDelta * consumed.alpha;
+  }
+  window.__openClinXrFixedClockStats = {
+    substeps: consumed.substeps,
+    frameMs: performance.now() - stepStartMs,
+  };
+}
+
 /**
  * Nearest-sample stance read at a clip time, mirroring stanceAtTime
  * (locomotion-stance-labels.ts) without importing it, so packages below

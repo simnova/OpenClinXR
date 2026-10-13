@@ -126,14 +126,11 @@ import {
   type MouthGazePoseComparatorEvidenceRecord as PackageMouthGazePoseComparatorEvidenceRecord,
   type RuntimeHumanoidActingCueEvidenceRecord as PackageRuntimeHumanoidActingCueEvidenceRecord,
   resolveHumanoidGazeTargetWorld as resolvePackageHumanoidGazeTargetWorld,
-  consumeFrameTime as consumePackageFixedTimestepFrameTime,
-  createFixedTimestepClock as createPackageFixedTimestepClock,
-  FIXED_SUBSTEP_SECONDS as PACKAGE_FIXED_SUBSTEP_SECONDS,
-  interpolateSimScalar as interpolatePackageSimScalar,
   startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
   updateGeneratedHumanoidAnimations as updatePackageGeneratedHumanoidAnimations,
   updateHumanoidEmotionExpression as updatePackageHumanoidEmotionExpression,
 } from "@openclinxr/xr-humanoid-animation";
+import { createFixedClockFrameState, stepFixedClockFrame } from "@openclinxr/xr-humanoid-animation/fixed-timestep-clock";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
 import { requestUnscriptedLiveTurn } from "@openclinxr/xr-dialogue/package-actor-turn";
 import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
@@ -551,8 +548,6 @@ declare global {
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
       __openClinXrPortalTransitionEvidence?: PackagePortalTransitionEvidence;
     __openClinXrRequestLiveVoiceTurn?: typeof requestUnscriptedLiveTurn;
-    /** Fixed-timestep clock: per-display-frame substep count + sim ms (absent with ?fixedClock=0). */
-    __openClinXrFixedClockStats?: { substeps: number; frameMs: number };
    }
  }
 
@@ -2858,12 +2853,8 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   let previousRoomScalePose: RigPoseEvidence | null = null;
   let lastAnimateAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
-  // Fixed-timestep actor simulation (fixed-clock slice): accumulator-fed 1/60 s
-  // substeps, default ON, ?fixedClock=0 restores legacy frame-dt stepping for A/B.
-  const fixedClockDisabled = new URLSearchParams(window.location.search).get("fixedClock") === "0";
-  const fixedClock = createPackageFixedTimestepClock();
-  let fixedClockSimNowMs: number | null = null;
-  let fixedClockSimXzYaw: { x: number; z: number; yaw: number } | null = null;
+  // Fixed-timestep actor simulation, default ON; ?fixedClock=0 restores legacy frame-dt stepping.
+  const fixedClockDisabled = new URLSearchParams(window.location.search).get("fixedClock") === "0"; const fixedClockFrame = createFixedClockFrameState();
   /** #342b — one-shot latch for the derived interior preview camera. */
   let interiorPreviewCameraApplied = false;
   const flatPreviewFallbackFrameMs = 1000 / 30;
@@ -3379,15 +3370,15 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]> = "webxr_animation_loop",
   ): void {
     // Deterministic capture clock: fixed t=0 instead of wall-clock rAF time.
-    const now = isDeterministicCaptureClock()
+    const frameNowMs = isDeterministicCaptureClock()
       ? bootStartedAtMs
       : typeof timestamp === "number" ? timestamp : performance.now();
-    lastRenderLoopAtMs = now;
+    lastRenderLoopAtMs = frameNowMs;
     // Fixed 16ms step under the deterministic clock; wall-clock delta otherwise.
-    const deltaSeconds = isDeterministicCaptureClock()
+    const frameDtSeconds = isDeterministicCaptureClock()
       ? 1 / 60
-      : Math.min((now - lastAnimateAtMs) / 1000, 0.05);
-    lastAnimateAtMs = now;
+      : Math.min((frameNowMs - lastAnimateAtMs) / 1000, 0.05);
+    lastAnimateAtMs = frameNowMs;
     resize();
     applyInteriorPreviewCameraOnce();
     const roomScalePose = samplePackageRoomScalePose({
@@ -3396,10 +3387,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       presenting: Boolean(activeXrSession && renderer.xr.isPresenting),
     });
     const locomotionEvidence = applyPackageLocomotion({
-      deltaSeconds,
+      deltaSeconds: frameDtSeconds,
       keyboardLocomotion,
       locomotionRig,
-      now,
+      now: frameNowMs,
       renderer,
       session: activeXrSession,
       lastInputObservedAtMs,
@@ -3418,7 +3409,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       xrHandSelectState: maybePackageCompleteTraceActionFromHandSelect({
         renderer,
         handSelectState,
-        now,
+        now: frameNowMs,
         controllerInputActive: locomotionEvidence.inputSourceKinds?.includes("xr_gamepad") === true,
         isFullVrPresenting: () => Boolean(activeXrSession && renderer.xr.isPresenting),
         onSelect: () => {
@@ -3435,7 +3426,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     {
       const latency = recordHandSelectTraceLatency(
         inputEvidence.xrHandSelectState,
-        now,
+        frameNowMs,
         window.__openClinXrTraceLatencyEvidence ?? null,
       );
       if (latency) {
@@ -3447,7 +3438,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         source: inputEvidence.activeLocomotionSource ?? "none",
         distanceMeters: inputEvidence.locomotionDelta.distanceMeters,
         turnRadians: inputEvidence.locomotionDelta.turnRadians,
-        atMs: now,
+        atMs: frameNowMs,
       };
     }
     const examineeLocomotionEvidence = buildPackageExamineeLocomotionEvidence({
@@ -3489,80 +3480,35 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     });
     const frozenScenePlanReproduced = frozenScenePlanAdmission.status === "admitted"
       && frozenScenePlanAdmission.reproduced !== null;
-    // One actor-simulation substep: executor drive, animation pass (mixer +
-    // posture), stance lock. Identical call order to the legacy frame body, so
-    // frame-dt mode (?fixedClock=0) runs byte-identical code with one substep.
-    const stepActorSimulation = (subDt: number, subNow: number): void => {
+    // One fixed-clock substep; params reuse the legacy frame names the call-site tests pin.
+    const stepActorSimulation = (deltaSeconds: number, now: number): void => {
       const approachFrame = frozenScenePlanReproduced ? updateStationBedsideApproach(
-        caseOwnedBedsideApproach,
-        {
-          scene,
-          physicianSlot: generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId()) ?? null,
-          physicianActorId: runtimeWalkingActorId(),
-          firstClinicalSlotActorId: runtimeClinicalTeamActorId(),
-          firstClinicalSlotRole: runtimeActorRole(runtimeClinicalTeamActorId()) ?? "",
-          patientActorId: runtimePatientActorId(),
-          placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {},
-          runId: remoteStationRunId ?? "local_station_run",
-          animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeWalkingActorId()),
+      caseOwnedBedsideApproach,
+        { scene, physicianActorId: runtimeWalkingActorId(), patientActorId: runtimePatientActorId(),
+          physicianSlot: generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId()) ?? null, firstClinicalSlotActorId: runtimeClinicalTeamActorId(), firstClinicalSlotRole: runtimeActorRole(runtimeClinicalTeamActorId()) ?? "",
+          placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {}, runId: remoteStationRunId ?? "local_station_run", animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeWalkingActorId()),
           // `!== false`: an ABSENT slot is not a revoked one, and `?? false` collapsed the two. Measured
           // in a browser: the walk stopped with "support acceptance was lost" when the room GLB landed.
           supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
-        },
-        { nowMs: subNow, deltaSeconds: subDt },
-      ) : null;
+        }, { nowMs: now, deltaSeconds }) : null;
       floor.userData.genDrive = approachFrame ? { actorId: runtimeWalkingActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
       const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
       const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
-      updateGeneratedHumanoidAnimations(subDt, subNow, camera, genDriveForHumanoid, bundleLocomotionOrders());
-      applyStationBedsideStanceLock(caseOwnedBedsideApproach, subDt); // AFTER the pose: a lock reading last frame's pose cancels nothing.
+      updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders());
+      applyStationBedsideStanceLock(caseOwnedBedsideApproach, deltaSeconds); // AFTER the pose: a lock reading last frame's pose cancels nothing.
     };
-    syncPreparedActorAudio(now);
-    if (!fixedClockDisabled) {
-      // Fixed-timestep path: accumulator-fed 1/60 s substeps, rendered transform
-      // interpolated between the frame's entry/exit sim states. Telemetry tails
-      // carry sim states; the live root carries the interpolation.
-      const walkingSlot = generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId()) ?? null;
-      if (walkingSlot !== null && fixedClockSimXzYaw !== null) {
-        walkingSlot.position.x = fixedClockSimXzYaw.x;
-        walkingSlot.position.z = fixedClockSimXzYaw.z;
-        walkingSlot.rotation.y = fixedClockSimXzYaw.yaw;
-      }
-      const prevSim = walkingSlot !== null
-        ? { x: walkingSlot.position.x, z: walkingSlot.position.z, yaw: walkingSlot.rotation.y }
-        : null;
-      const consumed = consumePackageFixedTimestepFrameTime(fixedClock, deltaSeconds);
-      const simBase = fixedClockSimNowMs ?? now;
-      fixedClockSimNowMs = simBase;
-      const stepStartMs = performance.now();
-      for (let sub = 0; sub < consumed.substeps; sub += 1) {
-        const subNow = isDeterministicCaptureClock()
-          ? now
-          : simBase + (sub + 1) * PACKAGE_FIXED_SUBSTEP_SECONDS * 1000;
-        stepActorSimulation(PACKAGE_FIXED_SUBSTEP_SECONDS, subNow);
-      }
-      if (!isDeterministicCaptureClock()) fixedClockSimNowMs = simBase + consumed.substeps * PACKAGE_FIXED_SUBSTEP_SECONDS * 1000;
-      if (walkingSlot !== null && prevSim !== null) {
-        const currSim = { x: walkingSlot.position.x, z: walkingSlot.position.z, yaw: walkingSlot.rotation.y };
-        fixedClockSimXzYaw = currSim;
-        const yawDelta = Math.atan2(Math.sin(currSim.yaw - prevSim.yaw), Math.cos(currSim.yaw - prevSim.yaw));
-        walkingSlot.position.x = interpolatePackageSimScalar(prevSim.x, currSim.x, consumed.alpha);
-        walkingSlot.position.z = interpolatePackageSimScalar(prevSim.z, currSim.z, consumed.alpha);
-        walkingSlot.rotation.y = prevSim.yaw + yawDelta * consumed.alpha;
-      }
-      window.__openClinXrFixedClockStats = { substeps: consumed.substeps, frameMs: performance.now() - stepStartMs };
-    } else {
-      stepActorSimulation(deltaSeconds, now);
-    }
+    syncPreparedActorAudio(frameNowMs); if (!fixedClockDisabled) {
+      stepFixedClockFrame(fixedClockFrame, { frameDtSeconds: frameDtSeconds, nowMs: frameNowMs, deterministic: isDeterministicCaptureClock(), walkingSlot: generatedHumanoidActorSlotsByActorId.get(runtimeWalkingActorId()) ?? null, simulate: stepActorSimulation });
+    } else { stepActorSimulation(frameDtSeconds, frameNowMs); }
     window.__openClinXrSelectedCaseAudio = caseAudio.snapshot();
-    applyPhysicsBoneTransforms(now); // capture-gated; extracted module
-    updateEnvironmentRealismAnimations(deltaSeconds, now);
+    applyPhysicsBoneTransforms(frameNowMs); // capture-gated; extracted module
+    updateEnvironmentRealismAnimations(frameDtSeconds, frameNowMs);
     // Per-frame affect modulation of the loaded environment container. The behaviour moved to
     // @openclinxr/xr-station-room station-environment-affect-cue.ts unchanged — its thresholds, its
     // cue-name matching and its 800 ms breathing scale are byte-for-byte what ran here — because a
     // composition root composes and boots rather than deciding.
-    applyEnvironmentAffectCue({ container: gltfEnvContainer, floorUserData: floor?.userData ?? null, nowMs: now });
-    const captureSummary = recordFrame(now, {
+    applyEnvironmentAffectCue({ container: gltfEnvContainer, floorUserData: floor?.userData ?? null, nowMs: frameNowMs });
+    const captureSummary = recordFrame(frameNowMs, {
       qualitySource,
       isPresenting: isImmersiveFrameEvidenceActive({
         rendererPresenting: renderer.xr.isPresenting,
@@ -3572,7 +3518,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       visibilityState: document.visibilityState,
     });
     latestRuntimeInteractionEvidence = buildRuntimeInteractionEvidenceSnapshot({
-      now,
+      now: frameNowMs,
       inputEvidence,
       captureSummary,
       humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
@@ -3580,7 +3526,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // Standing-idle sway, composed onto each actor's persistent heading. The supine exclusion (a
     // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule moved
     // with it to @openclinxr/xr-runtime-state, unchanged.
-    applyStationIdleSway({ patient, nurse, nowMs: now });
+    applyStationIdleSway({ patient, nurse, nowMs: frameNowMs });
     renderer.render(scene, window.__openClinXrDebugHoldCamera ?? camera);
   }
 

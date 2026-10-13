@@ -50,8 +50,7 @@ export type WalkExitContactWindow = {
   clipTimeSeconds: number | null;
 };
 
-function contactAtClipTime(
-  labels: WalkExitContactWindow,
+function contactAtClipTime(  labels: WalkExitContactWindow,
   clipTimeSeconds: number,
 ): { left: boolean; right: boolean } {
   const count = labels.atMs.length;
@@ -71,6 +70,14 @@ function contactAtClipTime(
   }
   return { left: labels.left[best] ?? false, right: labels.right[best] ?? false };
 }
+
+/**
+ * Upper bound on substeps the exit may wait inside the legacy band for a
+ * window before forcing the exit. Single support covers most of every cycle,
+ * so a longer wait means degenerate labels, not a late window; forcing
+ * preserves progress and the wait is reported, never silently extended.
+ */
+export const WALK_EXIT_MAX_WAIT_SUBSTEPS = 60;
 
 /**
  * One walking-band substep inside the legacy overshoot band. Always returns a
@@ -116,7 +123,7 @@ export function buildWalkExitBandStep(input: {
   return {
     ...input.execution,
     phase: "walking",
-    travelledMeters: input.execution.travelledMeters,
+    travelledMeters: input.travelledMeters,
     drive: { locomotion: 1 },
     headingRadians: input.blendedHeadingRadians,
     prescribedPositionXz: {
@@ -125,5 +132,6 @@ export function buildWalkExitBandStep(input: {
     },
     arrivedAtMs: null,
     stoppedSeconds: 0,
+    walkExitWaitSubsteps: waited + 1,
   };
 }

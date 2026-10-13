@@ -9,7 +9,7 @@ import {
   isSingleSupportContact,
   MAX_SUBSTEPS_PER_FRAME,
   substepsForSchedule,
-} from "./index.js";
+} from "./fixed-timestep-clock.js";
 
 /**
  * Fixed-timestep actor-simulation clock, through the public entrypoint.

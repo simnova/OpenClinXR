@@ -132,6 +132,8 @@ export type BedsideApproachExecution = {
   stopClipTimeS?: number;
   /** Slot XZ on the stopping entry frame; the stop prescription is measured from here. */
   stopTriggerXz?: { x: number; z: number } | null;
+  /** Substeps waited inside the walk-exit band for a contact window. Absent reads as 0. */
+  walkExitWaitSubsteps?: number;
 };
 
 export type BedsideApproachExecutionRefusal = { refused: true; reason: string };

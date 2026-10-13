@@ -295,6 +295,57 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./fixed-timestep-clock",
+    "names": [
+      {
+        "name": "clampFrameDtSeconds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "consumeFrameTime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "contactAtClipTime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createFixedTimestepClock",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FIXED_SUBSTEP_SECONDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "interpolateSimScalar",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "isSingleSupportContact",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MAX_SUBSTEPS_PER_FRAME",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "substepsForSchedule",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {

@@ -1066,6 +1066,20 @@
  },
  {
   "provider": "@openclinxr/xr-humanoid-animation",
+  "entrypoint": "./fixed-timestep-clock",
+  "names": [
+   {
+    "name": "createFixedClockFrameState",
+    "kind": "runtime"
+   },
+   {
+    "name": "stepFixedClockFrame",
+    "kind": "runtime"
+   }
+  ]
+ },
+ {
+  "provider": "@openclinxr/xr-humanoid-animation",
   "entrypoint": "./locomotion-clip-playback",
   "names": [
    {
