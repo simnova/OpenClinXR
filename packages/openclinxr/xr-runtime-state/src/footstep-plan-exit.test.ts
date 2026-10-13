@@ -8,8 +8,9 @@ import {
 /**
  * Footstep-plan exit through the public entrypoint: while the plan clock
  * runs the legacy band is suppressed (the walk holds past the distance the
- * band would exit at); the walk ends on the plan-complete clock, or on the
- * backstop at the target. Absent clock keeps the legacy exit byte-for-byte.
+ * band would exit at, and past the target itself — the closed-loop clamp
+ * holds the root); the walk ends on the plan-complete clock. Absent clock
+ * keeps the legacy exit byte-for-byte.
  */
 
 type StepInput = Parameters<typeof stepBedsideApproachExecution>[0];
@@ -88,10 +89,10 @@ describe("footstep-plan exit", () => {
     expect(exited.prescribedPositionXz).toEqual({ x: 1.0, z: 0 });
   });
 
-  it("backstops at the target when the plan overshoots", () => {
+  it("holds past the target until the span (clamp, not exit, guards overshoot)", () => {
     const clock = { clipElapsedS: 0, clipSpanS: 10 };
-    const exited = step(walking(), 2.05, { footstep: clock });
-    expect(exited.phase).toBe("settling");
+    const held = step(walking(), 2.05, { footstep: clock });
+    expect(held.phase).toBe("walking");
   });
 
   it("keeps the legacy band exit byte-for-byte without the clock", () => {

@@ -80,11 +80,11 @@ function contactAtClipTime(  labels: WalkExitContactWindow,
 /**
  * Footstep-plan exit (S2): leave the walk when the stride plan completes,
  * not when the remaining distance hits the band. The plan's closing beat
- * lands both feet together while the remaining distance is ~0 (root clamped
- * static), so exiting on the clock ends the walk standing; exiting on the
- * band would fire mid-beat with feet split. Backstop: if the body reaches
- * the target first (plan overshoot), exit there rather than walking past it.
- * Same settling shape as the legacy exit below (frozen at the observed spot,
+ * lands both feet together while the remaining distance is ~0 (the
+ * closed-loop advance clamps to the remaining distance, so the root cannot
+ * pass the target and the beat runs statically in place); a band/backstop
+ * exit would fire mid-beat with feet split, defeating the plan. Same
+ * settling shape as the legacy exit below (frozen at the observed spot,
  * drive stopped); null keeps walking. Internal like buildWalkExitBandStep.
  */
 export function stepFootstepPlanExit(input: {
@@ -98,9 +98,7 @@ export function stepFootstepPlanExit(input: {
   blendedHeadingRadians: number;
   footstep: FootstepExitClock;
 }): BedsideApproachExecution | null {
-  const complete = input.footstep.clipElapsedS >= input.footstep.clipSpanS;
-  const backstop = input.remainingMeters <= 0;
-  if (!complete && !backstop) return null;
+  if (input.footstep.clipElapsedS < input.footstep.clipSpanS) return null;
   return {
     ...input.execution,
     walkSimSubsteps: input.walkSimSubsteps,
