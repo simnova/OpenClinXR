@@ -11,10 +11,11 @@ import {
  * the internal crossing module.
  *
  * The frame module raises `toeCrossed` on the route-axis R-L separation
- * sign flip; the executor fires from that event during the planned last
- * half only. Clip phases mirror the committed SC-05 passings (L 0.55 s,
- * R 1.38 s, cycle 1.70833 s). The correction is skipped throughout (its
- * own suite covers it), so the plan scale never moves under these sims.
+ * sign flip; the executor counts flips since walk start and fires on the
+ * target-th (flip j names passing j). Clip phases mirror the committed
+ * SC-05 passings (L 0.55 s, R 1.38 s, cycle 1.70833 s). The correction is
+ * skipped throughout (its own suite covers it), so the plan scale never
+ * moves under these sims.
  */
 
 type StepInput = Parameters<typeof stepBedsideApproachExecution>[0];
@@ -140,18 +141,26 @@ function simulateCrossing(input: {
 }
 
 describe("toe-crossing exit", () => {
-  it("fires on the last-half flip, far ahead of the phase target", () => {
-    // k=2: the last half opens at the R passing (unwrapped 1.38, ~step 30).
-    // The flip at step 40 exits there; the phase target (L passing 2.2583,
-    // ~step 62) never comes into play.
-    const sim = simulateCrossing({ steps: 2, flipAt: [40] });
+  it("fires on the target-th flip, far ahead of the phase target", () => {
+    // k=2: flips at steps 20 and 40 exit on the second; the phase target
+    // (L passing 2.2583, ~step 62) never comes into play.
+    const sim = simulateCrossing({ steps: 2, flipAt: [20, 40] });
     expect(sim.exitStep).toBe(40);
     expect(sim.exitClip ?? Number.NaN).toBeLessThan(2.0);
   });
 
+  it("a single flip is not enough: the walk holds for the second", () => {
+    // k=2 with one flip only: the count (1) never reaches the target (2),
+    // so the phase target at 2.2583 terminates the walk instead.
+    const sim = simulateCrossing({ steps: 2, flipAt: [40] });
+    expect(sim.exitStep).not.toBeNull();
+    expect(sim.exitStep ?? 0).toBeGreaterThan(55);
+    expect(sim.exitClip ?? Number.NaN).toBeCloseTo(2.2583, 1);
+  });
+
   it("ignores a mid-walk flip and falls back to the phase target", () => {
-    // k=3: the flip at step 5 lands in the first half (no passing crossed
-    // yet), so the walk continues to the k-th passing at 3.0883 (~step 92).
+    // k=3 with one early flip: the count (1) never reaches the target (3),
+    // so the k-th passing at 3.0883 (~step 92) terminates the walk instead.
     const sim = simulateCrossing({ steps: 3, flipAt: [5] });
     expect(sim.exitStep).not.toBeNull();
     expect(sim.exitStep ?? 0).toBeGreaterThan(80);
@@ -165,13 +174,15 @@ describe("toe-crossing exit", () => {
   });
 
   it("delay holds a recorded crossing past the phase target (G4 probe)", () => {
-    // k=2, flip 3 substeps ahead of the phase target with delay 6: the
-    // target crossing at ~step 62 must not fire early; the exit lands 6
-    // substeps after the flip, past the target.
+    // k=2: first flip mid-walk (count 1, no fire), second flip 3 substeps
+    // ahead of the phase target with delay 6. The target crossing at
+    // ~step 62 must not fire early; the exit lands 6 substeps after the
+    // recorded flip, past the target, and the walk holds until then.
     const targetStep = Math.round((2.2583 - PASS_START_S) / (DT * CLIP_RATE));
     const flip = targetStep - 3;
-    const sim = simulateCrossing({ steps: 2, flipAt: [flip], delay: 6 });
+    const sim = simulateCrossing({ steps: 2, flipAt: [30, flip], delay: 6 });
     expect(sim.exitStep).toBe(flip + 6);
     expect(sim.exitClip ?? Number.NaN).toBeGreaterThan(2.2583);
+    expect(sim.phases[targetStep]).toBe("walking");
   });
 });

@@ -151,8 +151,10 @@ export type FootstepPhaseState = {
   recountSteps: number;
   correct: FootstepCorrection | null;
   lastPassing: FootstepPassingEntry | null;
-  /** M2: walking-call index of the recorded last-half toe crossing; null until one is seen. */
+  /** M2: walking-call index of the recorded target flip; null until one is seen. */
   crossedAtSubstep: number | null;
+  /** M2: route-axis R-L toe-separation flips counted since walk start. */
+  flipCount: number;
   safetyTrip: { reason: string; travelledM: number; boundM: number; drained?: boolean } | null;
 };
 
@@ -335,6 +337,7 @@ export function stepFootstepPhaseExitBand(input: {
     lastPassing: null,
     safetyTrip: null,
     crossedAtSubstep: null,
+    flipCount: 0,
   };
   const nowU = exit.clipTimeS + phaseTest.wraps * exit.cycleS;
   // The init step (no lastClipS before this one) sets the datum: remaining
@@ -469,11 +472,10 @@ export function stepFootstepPhaseExitBand(input: {
     delaySubsteps: exit.exitDelaySubsteps ?? 0,
     substep: input.walkSimSubsteps,
     crossedAt: state.crossedAtSubstep,
-    lastHalf: state.passings === activeBase + activeSteps - 1,
+    flipCount: state.flipCount,
+    targetFlip: activeBase + activeSteps,
   });
-  state = crossing.crossedAt === state.crossedAtSubstep
-    ? state
-    : { ...state, crossedAtSubstep: crossing.crossedAt };
+  state = { ...state, flipCount: crossing.flipCount, crossedAtSubstep: crossing.crossedAt };
   if (
     crossing.fire
     || ((target !== null && nowU >= target) && crossing.crossedAt === null)
