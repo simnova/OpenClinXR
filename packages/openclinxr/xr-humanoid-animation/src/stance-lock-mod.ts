@@ -170,13 +170,22 @@ export function applyStanceLockedGroundAdvance(input: {
   clipStance?: { labels: LocomotionStanceLabels; actionTimeSeconds: number } | undefined;
   /** Default-off: stance leg uses the hinge four-joint solve instead of the two-bone one. */
   ccdStanceLockEnabled?: boolean;
+  /**
+   * Default-off: compute and return the lock state (stance labels, anchors,
+   * would-be correction) WITHOUT writing `actorSlot.position` or solving any
+   * leg. The loco-ground proving ground's lock-disabled row runs the SAME code
+   * path as the shipped lock so its labels are production labels, while the
+   * rendered frame isolates clip + root. Settling/arrived machinery is
+   * unaffected (separate call sites in `case-owned-approach-frame-mod.ts`).
+   */
+  observeOnly?: boolean;
   /** Diagnostic tap: stance-leg heel-target miss in metres per solved frame. */
   recordHeelMiss?: (missM: number | null) => void;
 }): StanceLockState {
   const { actorSlot, leftToe, rightToe, state } = input;
   actorSlot.updateMatrixWorld(true);
   // Pivot about the planted foot first — see `compensateSlotForYawChange` (`stance-lock-ik.ts`).
-  compensateSlotForYawChange(actorSlot, state);
+  if (!input.observeOnly) compensateSlotForYawChange(actorSlot, state);
   if (leftToe === null || rightToe === null) {
     return {
       ...createStanceLockState(),
@@ -331,9 +340,11 @@ export function applyStanceLockedGroundAdvance(input: {
     const magR = Math.hypot(stepR.x, stepR.z);
     const slowStep = magL <= magR ? stepL : stepR;
     const correctionMeters = { x: -slowStep.x, z: -slowStep.z };
-    actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
-    actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
-    actorSlot.updateMatrixWorld(true);
+    if (!input.observeOnly) {
+      actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+      actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
+      actorSlot.updateMatrixWorld(true);
+    }
     // Deliberately unclamped: bounding the slot's net here would slide the incoming
     // toe by the trimmed amount, and the frozen plant rubric grades exactly that step
     // (measured: clamping a healthy transfer pin reintroduces SC-05's 12.5 mm worst
@@ -383,9 +394,11 @@ export function applyStanceLockedGroundAdvance(input: {
       };
     }
     const correctionMeters = { x: anchor.x - toe.x, z: anchor.z - toe.z };
-    actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
-    actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
-    actorSlot.updateMatrixWorld(true);
+    if (!input.observeOnly) {
+      actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+      actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
+      actorSlot.updateMatrixWorld(true);
+    }
     // No clamp here: a continued pin plants the toe by construction, and the frozen
     // plant rubric grades exactly that. Sustained forward runs never reach this pin —
     // they are followed above — and switch frames are clamped at their own branch.
@@ -432,9 +445,11 @@ export function applyStanceLockedGroundAdvance(input: {
 
   // XZ correction for ground advance (slot translates to keep toe XZ anchored)
   const correctionMeters = { x: anchor.x - toeWorld.x, z: anchor.z - toeWorld.z };
-  actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
-  actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
-  actorSlot.updateMatrixWorld(true);
+  if (!input.observeOnly) {
+    actorSlot.position.x += capCorrection(correctionMeters, input.travelUnit).x;
+    actorSlot.position.z += capCorrection(correctionMeters, input.travelUnit).z;
+    actorSlot.updateMatrixWorld(true);
+  }
 
   // Y correction via two-bone IK: target toe Y at max(current toe Y, floorOriginY)
   // This is FLEXION (shortening), so the leg bends to lift the toe
@@ -451,12 +466,15 @@ export function applyStanceLockedGroundAdvance(input: {
 
   // Leg IK: two-bone by default; hinge four-joint behind `ccdStanceLockEnabled` (see
   // `stance-lock-leg-ik-mod.ts` — the shipped math moved there verbatim, only the module moved).
-  applyStanceLegSolve({
-    actorSlot, stanceFoot, hip, knee, heel, toeBone,
-    heelTargetWorld: heelTarget,
-    ccdStanceLockEnabled: input.ccdStanceLockEnabled,
-    recordMiss: input.recordHeelMiss,
-  });
+  // Skipped in observe mode: no bone writes, so `recordHeelMiss` never fires (null = no solve ran).
+  if (!input.observeOnly) {
+    applyStanceLegSolve({
+      actorSlot, stanceFoot, hip, knee, heel, toeBone,
+      heelTargetWorld: heelTarget,
+      ccdStanceLockEnabled: input.ccdStanceLockEnabled,
+      recordMiss: input.recordHeelMiss,
+    });
+  }
 
   // No clamp here either: same continued pin as the fallback path above.
   return {

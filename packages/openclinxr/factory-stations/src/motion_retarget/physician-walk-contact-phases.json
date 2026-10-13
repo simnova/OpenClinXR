@@ -1,0 +1,49 @@
+{
+  "schema": "openclinxr.walk-contact-phases.v1",
+  "provenance": {
+    "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "clip": "openclinxr_retarget_walk_source",
+    "sha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+    "frames": 41,
+    "clipSpanS": 1.666666705161333
+  },
+  "expressions": {
+    "seconds": "clip-local seconds (mixer origin); plantS = interpolated 0.06 m band entry, liftS = band exit",
+    "cycleS": "mixer loop period = raw last timestamp (three.js LoopRepeat duration); all fractions use it",
+    "gateCircleS": "gate duty normalizer ((clipSpan + step) / windows, post-seam-drop); differs by one frame when the seam duplicate drops",
+    "plantPhase": "((plantS % cycleS) + cycleS) % cycleS / cycleS",
+    "liftPhase": "((liftS % cycleS) + cycleS) % cycleS / cycleS",
+    "stepLengthM": "gate stride proxy: stance-phase foot travel relative to the root, metres at actor scale",
+    "stanceDurationS": "(liftS - plantS) mod cycleS, native clip rate",
+    "contactFraction": "stanceDurationS / cycleS",
+    "stepFractionLeftToRight": "(rightPlantS - leftPlantS) mod cycleS / cycleS",
+    "stepFractionRightToLeft": "(leftPlantS - rightPlantS) mod cycleS / cycleS"
+  },
+  "cycleS": 1.7083333730697632,
+  "gateCircleS": 1.6666666246377504,
+  "seamDroppedEndFrame": true,
+  "left": {
+    "plantS": 1.5831297063202592,
+    "liftS": 0.9686702508237068,
+    "plantPhase": 0.9267100504367475,
+    "liftPhase": 0.5670264750978142,
+    "stepLengthM": 0.5634737035132054,
+    "stanceDurationS": 1.0938739175732108,
+    "contactFraction": 0.6403164246610666
+  },
+  "right": {
+    "plantS": 0.7483869584426438,
+    "liftS": 1.6641433593254427,
+    "plantPhase": 0.4380801606057965,
+    "liftPhase": 0.9741326754830563,
+    "stepLengthM": 0.5172147215125219,
+    "stanceDurationS": 0.915756400882799,
+    "contactFraction": 0.53605251487726
+  },
+  "stepFractionLeftToRight": 0.511370110169049,
+  "stepFractionRightToLeft": 0.48862988983095096,
+  "contactWindows": {
+    "left": 1,
+    "right": 1
+  }
+}

@@ -1,0 +1,324 @@
+{
+ "bars": {
+  "amplitudeRatio": {
+   "upperleg01L": {
+    "live": 57.78771480744983,
+    "clip": 58.323706128174365,
+    "ratio": 0.990810060671614,
+    "staticHeld": false
+   },
+   "upperleg01R": {
+    "live": 68.91550670092086,
+    "clip": 68.93636498750378,
+    "ratio": 0.999697426944593,
+    "staticHeld": false
+   },
+   "upperleg02L": {
+    "live": 3.4150945850063755e-06,
+    "clip": 0.023691242788455573,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "upperleg02R": {
+    "live": 0,
+    "clip": 0,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "lowerleg01L": {
+    "live": 74.05774126385516,
+    "clip": 74.09459742922405,
+    "ratio": 0.9995025795854536,
+    "staticHeld": false
+   },
+   "lowerleg01R": {
+    "live": 78.24594093043898,
+    "clip": 78.73662854091663,
+    "ratio": 0.9937679880435488,
+    "staticHeld": false
+   },
+   "lowerleg02L": {
+    "live": 2.9575586669421963e-06,
+    "clip": 0,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "lowerleg02R": {
+    "live": 3.4150945850063755e-06,
+    "clip": 0,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "footL": {
+    "live": 47.911890743069385,
+    "clip": 48.199806169548516,
+    "ratio": 0.9940266268817274,
+    "staticHeld": false
+   },
+   "footR": {
+    "live": 45.909259440599484,
+    "clip": 48.13499792036896,
+    "ratio": 0.953760494942753,
+    "staticHeld": false
+   },
+   "toe1-1L": {
+    "live": 24.98808166116684,
+    "clip": 25.301780402806894,
+    "ratio": 0.9876017127393434,
+    "staticHeld": false
+   },
+   "toe1-1R": {
+    "live": 16.664018715211125,
+    "clip": 16.66406835970733,
+    "ratio": 0.9999970208657855,
+    "staticHeld": false
+   },
+   "pelvisL": {
+    "live": 0.03122789341901077,
+    "clip": 0.03122789341901077,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "pelvisR": {
+    "live": 3.4150945850063755e-06,
+    "clip": 0,
+    "ratio": null,
+    "staticHeld": true
+   },
+   "root": {
+    "live": 6.224737263954662,
+    "clip": 6.2266556254113254,
+    "ratio": 0.9996919114253188,
+    "staticHeld": false
+   }
+  },
+  "swing": {
+   "fixToeL": 0.15476016289133382,
+   "fixToeR": 0.1582444391690054,
+   "fixAnkleL": 0.21688908189267742,
+   "fixAnkleR": 0.218323697548886,
+   "ctlToeL": 0.027212685161873904,
+   "ctlToeR": 0.029127121141467982,
+   "ctlAnkleL": 0.07156200651333042,
+   "ctlAnkleR": 0.07266133843054759
+  },
+  "standing": {
+   "preWalk": {
+    "upperleg01L": 0,
+    "upperleg01R": 0,
+    "upperleg02L": 2.4148365394514667e-06,
+    "upperleg02R": 2.4148365394514667e-06,
+    "lowerleg01L": 1.7075472925031877e-06,
+    "lowerleg01R": 1.7075472925031877e-06,
+    "lowerleg02L": 0,
+    "lowerleg02R": 0,
+    "footL": 0,
+    "footR": 0,
+    "toe1-1L": 0,
+    "toe1-1R": 0,
+    "pelvisL": 9.659346157805868e-06,
+    "pelvisR": 9.659346157805868e-06,
+    "root": 0
+   },
+   "arrived": {
+    "upperleg01L": 3.616782427358768,
+    "upperleg01R": 8.581780267179024,
+    "upperleg02L": 0,
+    "upperleg02R": 1.7075472925031877e-06,
+    "lowerleg01L": 1.903249043761361,
+    "lowerleg01R": 1.901395777789369,
+    "lowerleg02L": 2.4148365394514667e-06,
+    "lowerleg02R": 2.4148365394514667e-06,
+    "footL": 4.803287905439203,
+    "footR": 22.88554512261668,
+    "toe1-1L": 0,
+    "toe1-1R": 0,
+    "pelvisL": 9.659346157805868e-06,
+    "pelvisR": 9.659346157805868e-06,
+    "root": 0
+   }
+  },
+  "transitions": {
+   "fixStart": {
+    "rotMax": {
+     "upperleg01L": 14.156146753014902,
+     "upperleg01R": 35.01403676298422,
+     "upperleg02L": 1.7075472925031877e-06,
+     "upperleg02R": 0,
+     "lowerleg01L": 7.095834725138595,
+     "lowerleg01R": 11.972046296912318,
+     "lowerleg02L": 2.4148365394514667e-06,
+     "lowerleg02R": 2.4148365394514667e-06,
+     "footL": 14.026349369717803,
+     "footR": 11.201219022710701,
+     "toe1-1L": 2.7841107639835965,
+     "toe1-1R": 15.789119795141076,
+     "pelvisL": 0.03380194382011747,
+     "pelvisR": 0.02559262260420057,
+     "root": 3.08452380044504,
+     "upperarm01L": 12.515784376843113,
+     "upperarm01R": 12.848400953641951
+    },
+    "footMax": 0.3665891054942675
+   },
+   "fixEnd": {
+    "rotMax": {
+     "upperleg01L": 7.160834872638432,
+     "upperleg01R": 7.503721127691633,
+     "upperleg02L": 2.4148365394514667e-06,
+     "upperleg02R": 0,
+     "lowerleg01L": 15.9585856872003,
+     "lowerleg01R": 11.26390723199903,
+     "lowerleg02L": 1.7075472925031877e-06,
+     "lowerleg02R": 2.4148365394514667e-06,
+     "footL": 12.913245257557813,
+     "footR": 5.312467240690288,
+     "toe1-1L": 0.018953578291765288,
+     "toe1-1R": 3.9646518270444315,
+     "pelvisL": 0.03122789341901077,
+     "pelvisR": 2.4148365394514667e-06,
+     "root": 0.6128891252408131,
+     "upperarm01L": 1.0495954120143216,
+     "upperarm01R": 1.5030743570268505
+    },
+    "footMax": 0.1595336422742763
+   },
+   "ctlStart": {
+    "rotMax": {
+     "upperleg01L": 7.07809383130299,
+     "upperleg01R": 17.507026760110318,
+     "upperleg02L": 2.4148365394514667e-06,
+     "upperleg02R": 1.7075472925031877e-06,
+     "lowerleg01L": 3.5480308575730706,
+     "lowerleg01R": 5.986210232828809,
+     "lowerleg02L": 1.7075472925031877e-06,
+     "lowerleg02R": 2.4148365394514667e-06,
+     "footL": 7.013223156628517,
+     "footR": 5.6006701713229505,
+     "toe1-1L": 1.3920634558046832,
+     "toe1-1R": 7.894564970033328,
+     "pelvisL": 0.027616120038033053,
+     "pelvisR": 0.027616124894725667,
+     "root": 1.5424332957596172,
+     "upperarm01L": 12.515784376843113,
+     "upperarm01R": 12.848400953641951
+    },
+    "footMax": 0.1566846949979196
+   },
+   "ctlEnd": {
+    "rotMax": {
+     "upperleg01L": 3.5811661185706805,
+     "upperleg01R": 3.7570921032625817,
+     "upperleg02L": 0,
+     "upperleg02R": 1.7075472925031877e-06,
+     "lowerleg01L": 7.979536858844779,
+     "lowerleg01R": 5.632126198140674,
+     "lowerleg02L": 2.4148365394514667e-06,
+     "lowerleg02R": 1.7075472925031877e-06,
+     "footL": 6.457081577256245,
+     "footR": 2.656445579605815,
+     "toe1-1L": 0.00947678933007407,
+     "toe1-1R": 1.9823371513454302,
+     "pelvisL": 0,
+     "pelvisR": 2.4148365394514667e-06,
+     "root": 0.3064449588242465,
+     "upperarm01L": 1.0495954120143216,
+     "upperarm01R": 1.5030743570268505
+    },
+    "footMax": 0.1030011442476318
+   }
+  },
+  "arms": {
+   "fixStart": {
+    "upperarm01L": 4.313608342401905,
+    "upperarm01R": 5.702693845143731
+   },
+   "fixEnd": {
+    "upperarm01L": 1.0495954120143216,
+    "upperarm01R": 1.5030743570268505
+   },
+   "ctlStart": {
+    "upperarm01L": 4.313608342401905,
+    "upperarm01R": 5.702693845143731
+   },
+   "ctlEnd": {
+    "upperarm01L": 1.0495954120143216,
+    "upperarm01R": 1.5030743570268505
+   },
+   "fixHold": {
+    "upperarm01L": 13.92,
+    "upperarm01R": 13.92
+   },
+   "ctlHold": {
+    "upperarm01L": 13.92,
+    "upperarm01R": 13.92
+   },
+   "holdDefinition": "trunk axis spine01->neck01, arm shoulder->elbow, arrived means, rest-chain FK"
+  }
+ },
+ "report": {
+  "fixLockOff": {
+   "stationary": {
+    "left": 0.47058823529411764,
+    "right": 0.4117647058823529
+   },
+   "stancePlayed": 1.087387506546682,
+   "stanceRate1": 0.6689557099641231,
+   "root": 1.3597720019774542,
+   "ratio": 1.250494413252741,
+   "heelMissMax": null
+  },
+  "fixTwoBone": {
+   "stationary": {
+    "left": 0.10294117647058823,
+    "right": 0.20588235294117646
+   },
+   "stancePlayed": 1.0878463216848437,
+   "stanceRate1": 0.6692379708919372,
+   "root": 1.3675412938396134,
+   "ratio": 1.2571089009351812,
+   "heelMissMax": 0.12483229793746493
+  },
+  "ctlLockOff": {
+   "stationary": {
+    "left": 0,
+    "right": 0
+   },
+   "stancePlayed": 0.5520198980218237,
+   "stanceRate1": 0.3396000603025677,
+   "root": 1.3597720019774542,
+   "ratio": 2.46326628233915,
+   "heelMissMax": null
+  },
+  "ctlTwoBone": {
+   "stationary": {
+    "left": 0.08823529411764706,
+    "right": 0.014705882352941176
+   },
+   "stancePlayed": 0.5520240306840059,
+   "stanceRate1": 0.3396026026970199,
+   "root": 1.3601761916104953,
+   "ratio": 2.4639800371101934,
+   "heelMissMax": 0.39166232094082865
+  }
+ },
+ "controlFail": {},
+ "sc05": {
+  "fix": {
+   "maxSlideM": 0.243,
+   "medianSlideM": 0.1,
+   "arrivalErrorM": 0.062,
+   "windows": 6,
+   "maxToeStepM": 0.1265,
+   "framingFeetSide": false
+  },
+  "control": {
+   "maxSlideM": 0.511,
+   "medianSlideM": 0.23,
+   "arrivalErrorM": 0.067,
+   "windows": 3,
+   "maxToeStepM": 0.0946,
+   "framingFeetSide": true
+  }
+ }
+}

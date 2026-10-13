@@ -4,6 +4,8 @@ import { factoryStationSchemas } from "../catalog.js";
 import { repoRoot } from "../repo-root.js";
 import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
 import { spawnBlenderProcess } from "../spawn-blender.js";
+import { gateWalkClip, MPFB_WALK_JOINTS } from "./walk_symmetry_gate.js";
+import type { WalkGateJoints, WalkGateReport } from "./walk_symmetry_gate.js";
 
 export const MOTION_RETARGET_STAGE_REL =
   "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py";
@@ -26,6 +28,20 @@ export type MotionRetargetRunOptions = {
   extraArgs: string[];
   cwd?: string;
   timeoutMs?: number;
+  /**
+   * Optional post-bind symmetry gate (walk clips only). When set and the bind exits 0,
+   * the station samples the bound output GLB and attaches the gate report. Absent by
+   * default: existing callers see byte-identical behavior. A gate sampling failure is
+   * recorded, never thrown.
+   */
+  symmetryGate?: MotionRetargetSymmetryGate;
+};
+
+/** Optional post-bind symmetry gate input: which bound clip to sample and with what joints. */
+export type MotionRetargetSymmetryGate = {
+  outputGlb: string;
+  clipName: string;
+  joints?: WalkGateJoints;
 };
 
 /** Unique spawn of motion_bind_stage.py. Tests must call plan(), not run(). */
@@ -43,7 +59,20 @@ export async function runMotionRetarget(input: unknown, options: MotionRetargetR
     ["--background", "--python", stageScript, "--", ...options.extraArgs],
     { cwd: options.cwd ?? repoRoot(), timeoutMs: options.timeoutMs ?? 300_000 },
   );
-  return { stationId: "motion_retarget", stageScript, blenderExit: result.code, stdout: result.stdout, stderr: result.stderr };
+  const out: Record<string, unknown> = { stationId: "motion_retarget", stageScript, blenderExit: result.code, stdout: result.stdout, stderr: result.stderr };
+  if (options.symmetryGate && result.code === 0) {
+    try {
+      const report: WalkGateReport = await gateWalkClip({
+        glbPath: options.symmetryGate.outputGlb,
+        clipName: options.symmetryGate.clipName,
+        joints: options.symmetryGate.joints ?? MPFB_WALK_JOINTS,
+      });
+      out["symmetryGate"] = report;
+    } catch (err) {
+      out["symmetryGateError"] = err instanceof Error ? err.message : String(err);
+    }
+  }
+  return out;
 }
 
 export const motionRetargetRunner: StationRunner = {

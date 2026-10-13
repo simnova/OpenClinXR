@@ -317,8 +317,10 @@ export function applyArrivalStanceClose(input: {
       bone.quaternion.copy(saved);
       const rest = snapshot.quats[bone.name];
       if (!rest) continue;
-      restQuat.set(rest.x, rest.y, rest.z, rest.w);
-      bone.quaternion.slerp(restQuat, attemptBlend);
+      // Unit by construction: the snapshot may carry a non-unit quaternion from
+      // a pre-fix capture, and slerp assumes unit inputs.
+      restQuat.set(rest.x, rest.y, rest.z, rest.w).normalize();
+      bone.quaternion.slerp(restQuat, attemptBlend).normalize();
     }
     const lerpLocal = (toe: Object3D, rest: Vec3): void => {
       const saved = savedLocals.get(toe) ?? copyVec(toe);
@@ -353,7 +355,7 @@ export function applyArrivalStanceClose(input: {
     collectLegChain(toe, actorSlot).every((bone) => {
       const rest = snapshot.quats[bone.name];
       if (!rest) return true;
-      restQuat.set(rest.x, rest.y, rest.z, rest.w);
+      restQuat.set(rest.x, rest.y, rest.z, rest.w).normalize();
       return bone.quaternion.angleTo(restQuat) < 0.01;
     }),
   );

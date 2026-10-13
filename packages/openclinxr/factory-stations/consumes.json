@@ -51,7 +51,22 @@
         "via": "own-test"
       },
       {
+        "name": "evaluateWalkSymmetry",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "factoryStationSchemas",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "GATE_BARS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "MPFB_WALK_JOINTS",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -107,6 +122,11 @@
       },
       {
         "name": "runStaging",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "sampleWalkClip",
         "kind": "runtime",
         "via": "own-test"
       }

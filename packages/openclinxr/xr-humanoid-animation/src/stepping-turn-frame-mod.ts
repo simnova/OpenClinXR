@@ -52,6 +52,7 @@ export function applySteppingTurn(approach: CaseOwnedBedsideApproach, deltaSecon
     deltaSeconds,
     state: approach.steppingTurn,
     restQuats: approach.restStance?.quats ?? null,
+    floorOriginY: approach.floorOriginY,
   });
   const leftY = (targets.stanceFoot === "left" ? targets.stanceToe : targets.swingToe).y;
   const rightY = (targets.stanceFoot === "right" ? targets.stanceToe : targets.swingToe).y;

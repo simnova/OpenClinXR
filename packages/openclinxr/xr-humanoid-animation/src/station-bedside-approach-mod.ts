@@ -25,8 +25,9 @@ import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.j
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import { resolveToeBones } from "./resolve-toe-bones.js";
 import { readCcdStanceLockEnabled } from "./ccd-stance-lock-query-flag-mod.js";
+import { commitLocoGroundTapForApproach, extendLocoGroundIntent } from "./loco-ground-tap-mod.js";
 import { readSteppingTurnEnabled } from "./stepping-turn-query-flag-mod.js";
-import { findStanceChain } from "./stance-lock-ik.js";
+import { findStanceChain, worldXyz } from "./stance-lock-ik.js";
 /**
  * The station's own bedside approach: observed once the physician's skeleton is in the scene, then
  * stepped every frame.
@@ -226,16 +227,16 @@ export function resolveStationBedsideApproach(
   });
   publishClipForwardDiagnostic(rateOneAdvance, playbackTimeScale);
   const approach = createCaseOwnedBedsideApproach({
-    intent,
+    intent: extendLocoGroundIntent(intent),
     geometry,
-    observedGeometryRevision: intent.geometryRevision,
+    observedGeometryRevision: extendLocoGroundIntent(intent).geometryRevision,
     runId: context.runId,
     actorSlot: slot,
     humanoidRoot,
     contactBandMeters: FOOT_CONTACT_HEIGHT_METERS,
     clipAdvance: { ...rateOneAdvance, metersPerSecond: rateOneAdvance.metersPerSecond * playbackTimeScale },
     clipCycleSeconds: sampled.cycleSeconds / playbackTimeScale,
-    routeHeadingRadians: headingRadiansToward(intent.start, intent.target.position),
+    routeHeadingRadians: headingRadiansToward(extendLocoGroundIntent(intent).start, extendLocoGroundIntent(intent).target.position),
     steppingTurnEnabled: readSteppingTurnEnabled(), ccdStanceLockEnabled: readCcdStanceLockEnabled(),
   });
   if ("refused" in approach) {
@@ -327,6 +328,8 @@ export type BedsideApproachRuntimeEvidence = {
     pinDebug?: { left: { anchorXz: { x: number; z: number } | null; weight: number }; right: { anchorXz: { x: number; z: number } | null; weight: number } };
     /** READ-ONLY DIAGNOSTIC: stance-leg heel-target miss in metres this frame; null when no leg solve ran. */
     stanceLockHeelMissM: number | null;
+    /** READ-ONLY DIAGNOSTIC: walk-relative executor call index; null when unset. */
+    walkSimSubsteps?: number | null;
   }>;
   startWorld: { x: number; y: number; z: number } | null;
   targetWorld: { x: number; y: number; z: number } | null;
@@ -357,12 +360,6 @@ const NOT_EVIDENCE_FOR = [
   "scoring_validity",
 ] as const;
 
-function worldOf(node: Object3D | null): { x: number; y: number; z: number } | null {
-  if (node === null) return null;
-  const elements = node.matrixWorld.elements;
-  return { x: elements[12] ?? Number.NaN, y: elements[13] ?? Number.NaN, z: elements[14] ?? Number.NaN };
-}
-
 /** Knee flexion in degrees: the angle between `hip->knee` and `knee->heel`, world space. A
  * straight leg (thigh/shin collinear) reads ~0; a bent knee reads larger. */
 function kneeFlexionDegreesFor(actorSlot: Object3D, side: "left" | "right"): number | null {
@@ -372,9 +369,9 @@ function kneeFlexionDegreesFor(actorSlot: Object3D, side: "left" | "right"): num
   hip.updateMatrixWorld(true);
   knee.updateMatrixWorld(true);
   heel.updateMatrixWorld(true);
-  const hipW = worldOf(hip);
-  const kneeW = worldOf(knee);
-  const heelW = worldOf(heel);
+  const hipW = worldXyz(hip);
+  const kneeW = worldXyz(knee);
+  const heelW = worldXyz(heel);
   if (hipW === null || kneeW === null || heelW === null) return null;
   const v1x = kneeW.x - hipW.x, v1y = kneeW.y - hipW.y, v1z = kneeW.z - hipW.z;
   const v2x = heelW.x - kneeW.x, v2y = heelW.y - kneeW.y, v2z = heelW.z - kneeW.z;
@@ -391,7 +388,7 @@ function footBoneHeightMetersFor(actorSlot: Object3D, side: "left" | "right", fl
   const chain = findStanceChain(actorSlot, side);
   if (chain === null) return null;
   chain.heel.updateMatrixWorld(true);
-  const heelW = worldOf(chain.heel);
+  const heelW = worldXyz(chain.heel);
   return heelW === null ? null : heelW.y - floorOriginY;
 }
 
@@ -437,11 +434,12 @@ export function publishBedsideApproachRuntimeEvidence(
         z: approach.actorSlot.position.z,
         yaw: approach.actorSlot.rotation.y,
       },
-      leftToe: worldOf(approach.leftToe),
-      rightToe: worldOf(approach.rightToe),
+      leftToe: approach.leftToe === null ? null : worldXyz(approach.leftToe),
+      rightToe: approach.rightToe === null ? null : worldXyz(approach.rightToe),
       stanceFoot: frame.stanceFoot,
       travelledMeters: frame.travelledMeters,
       correctionMeters: frame.stanceCorrectionMeters,
+      walkSimSubsteps: approach.execution.walkSimSubsteps ?? null,
       headPitchDeg: readHeadPitchDeg(approach.actorSlot),
       headYawWorldRadians: readHeadYawWorldRadians(approach.actorSlot),
       kneeFlexionDeg: {
@@ -494,6 +492,5 @@ export function publishBedsideApproachRuntimeEvidence(
  * `applyCaseOwnedStanceLock` for the measurement that forced the split.
  */
 export function applyStationBedsideStanceLock(state: StationBedsideApproachState, deltaSeconds: number): void {
-  applyCaseOwnedStanceLock(state.approach, deltaSeconds);
-  publishBedsideApproachRuntimeEvidence(state, state.lastFrame);
+  applyCaseOwnedStanceLock(state.approach, deltaSeconds); publishBedsideApproachRuntimeEvidence(state, state.lastFrame); commitLocoGroundTapForApproach(state);
 }

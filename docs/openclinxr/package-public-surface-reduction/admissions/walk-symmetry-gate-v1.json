@@ -1,0 +1,82 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "walk-symmetry-gate-v1",
+  "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "f957dde4efc2cc6ec57c8578e02cf2dc99c8f5a5f188044f1f42e94d1dcc8618",
+  "packages": [
+    "packages/openclinxr/factory-stations"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "sampleWalkClip",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Sample one GLB clip for the gate. Consumer: tools/openclinxr/evidence/walk-clip/gate-one-clip.ts samples every census and symmetrise gate.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "evaluateWalkSymmetry",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Pure symmetry evaluation on samples. Consumer: gate-one-clip.ts; covered through the entrypoint by walk-symmetry-gate.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "GATE_BARS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Gate thresholds with provenance. Consumer: walk-clip-census.ts prints them in the census table; covered through the entrypoint by the gate test.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "MESHMOTION_WALK_JOINTS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Mesh2Motion rig joint map. Consumer: census CLI and symmetrise step gate source clips.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "MPFB_WALK_JOINTS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "MPFB2 rig joint map. Consumer: measure-gait-three-point.ts and symmetrise step gate bound clips.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateReport",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Full gate report type. Consumer: walk-clip-census.ts CensusRow carries source and bound reports.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateJoints",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Rig joint-map input type. Consumer: gate-one-clip.ts takes joints for sampling and evaluation.",
+      "reviewedBy": "claude-orchestrator independent review of walk-symmetry-gate-v1 at a2fec46f3, 2026-10-12"
+    }
+  ]
+}

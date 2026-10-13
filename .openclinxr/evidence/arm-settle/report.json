@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "openclinxr.arm-settle-report.v1",
+  "measuredAt": "2026-10-12T03:47:30.470Z",
+  "scenario": "scene_closure_supine_bedside_v1",
+  "actorId": "senior_resident_ward_v1",
+  "verdict": "adopt",
+  "failedBars": [],
+  "cause": "packages/openclinxr/xr-pose/src/clinical-idle-posture.ts:351-366 re-applied the ownership slerp (:324) once per skinned mesh sharing the skeleton (18 meshes + scene traversal = 19 applications, residual w^19 measured K=19.0), crushing the continuous ramp into a step. Fixed by a per-call single-apply guard by bone object identity; upper-body ramp split to 0.4 s in / 0.5 s out with the leg fade frozen at 0.3 s.",
+  "controlCodeProof": {
+    "gitSha": "fcf0d57158384f52d6e99c4feb465c17992bbac9",
+    "worktreeStatus": "",
+    "dist": {
+      "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js": {
+        "mtimeMs": 1791770417428.2493,
+        "markers": {
+          "writeArmReleaseSlew": false,
+          "ARM_RELEASE_SLEW_MAX_RAD": false
+        }
+      },
+      "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js": {
+        "mtimeMs": 1791773303323.7869,
+        "markers": {
+          "openClinXrMixerActionDebug": false,
+          "locomotionSplitActions": false,
+          "__openclinxr_upper_body": false
+        }
+      },
+      "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js": {
+        "mtimeMs": 1791773303324.8445,
+        "markers": {
+          "openClinXrSnapDebug": true,
+          "openClinXrOwnedBoneChainsWriter": true
+        }
+      }
+    }
+  },
+  "fixCodeProof": {
+    "gitSha": "84de4807d10d135f13fe38b465f17428c47f305d",
+    "worktreeStatus": "",
+    "dist": {
+      "packages/openclinxr/xr-pose/dist/clinical-idle-posture.js": {
+        "mtimeMs": 1791774913273.8257,
+        "markers": {
+          "writeArmReleaseSlew": false,
+          "ARM_RELEASE_SLEW_MAX_RAD": false
+        }
+      },
+      "packages/openclinxr/xr-humanoid-animation/dist/locomotion-clip-playback-mod.js": {
+        "mtimeMs": 1791774836948.8718,
+        "markers": {
+          "openClinXrMixerActionDebug": false,
+          "locomotionSplitActions": false,
+          "__openclinxr_upper_body": false
+        }
+      },
+      "packages/openclinxr/xr-humanoid-animation/dist/animation-loop.js": {
+        "mtimeMs": 1791774836949.4028,
+        "markers": {
+          "openClinXrSnapDebug": true,
+          "openClinXrOwnedBoneChainsWriter": true
+        }
+      }
+    }
+  },
+  "table": {
+    "invariantMaxEndVsSlerpDeg": {
+      "control": 28.33565797459178,
+      "fix": 0.000003818191820832845,
+      "tol": 1
+    },
+    "distinctWeightsIn01": {
+      "fixStart": 10,
+      "fixEnd": 12,
+      "need": 5
+    },
+    "maxUpperArmStepDegPerFrame": {
+      "controlStart": 28.830593887799758,
+      "fixStart": 4.266840861162109,
+      "controlEnd": 29.440993376705663,
+      "fixEnd": 2.743625982634576,
+      "cap": 4.3
+    },
+    "preservationSteps10to24MaxEndVsMixerDeg": {
+      "control": 0.0000024148365394514667,
+      "fix": 0.0000024148365394514667,
+      "tol": 0.5
+    },
+    "holdUpperArmFromTrunkDeg": {
+      "control": {
+        "L": 13.11083833417634,
+        "R": 13.11083961920868
+      },
+      "fix": {
+        "L": 12.964673239552752,
+        "R": 12.964674509662625
+      },
+      "target": 13.1,
+      "tol": 1
+    },
+    "legsMaxQuatComponentDiff": {
+      "fixVsControl": 0.3717744774280315,
+      "worstBone": "lowerleg01L",
+      "worstStep": 71,
+      "noiseFloorControlVsControl": 0.2933629593398219,
+      "noiseWorstBone": "lowerleg01L",
+      "noiseWorstStep": 71
+    },
+    "rootMaxPosComponentDiff": {
+      "fixVsControl": 0.1805222743439383,
+      "worstKind": "local",
+      "worstStep": 83,
+      "noiseFloorControlVsControl": 0.08694996015398726,
+      "noiseWorstKind": "local",
+      "noiseWorstStep": 45
+    },
+    "frameCount": {
+      "control": 134,
+      "fix": 134
+    }
+  },
+  "forbiddenLimiter": "no pose-vs-previous-frame limiter added; packages/openclinxr/xr-pose/src/no-arm-clamp-in-the-pose-path.test.ts asserts a 60 deg command lands the same frame",
+  "unitTests": [
+    "packages/openclinxr/xr-pose/src/the-posture-pass-applies-an-owned-bone-once.test.ts",
+    "packages/openclinxr/xr-pose/src/no-arm-clamp-in-the-pose-path.test.ts",
+    "packages/openclinxr/xr-humanoid-animation/src/the-upper-body-ownership-ramps.test.ts"
+  ],
+  "renders": [
+    ".openclinxr/evidence/arm-settle/renders/arm-settle-side-start.mp4",
+    ".openclinxr/evidence/arm-settle/renders/arm-settle-side-end.mp4",
+    ".openclinxr/evidence/arm-settle/renders/arm-settle-front-start.mp4",
+    ".openclinxr/evidence/arm-settle/renders/arm-settle-front-end.mp4"
+  ]
+}

@@ -22,6 +22,7 @@
     "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",
     "build": "tsgo --build",
+    "emit:walk-contact-phases": "tsx src/motion_retarget/emit-walk-contact-phases.ts",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {

@@ -1,8 +1,6 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
-import {
-  type StopClipTrigger,
-  stepStopHandoff,
-} from "./bedside-approach-stop-mod.js";
+import { type StopClipTrigger, stepStopHandoff } from "./bedside-approach-stop-mod.js";
+import { approachRouteLengthMeters, shortestYawDelta, stepWalkExitBand, type WalkExitContactWindow } from "./walk-exit-window.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -134,21 +132,18 @@ export type BedsideApproachExecution = {
   stopClipTimeS?: number;
   /** Slot XZ on the stopping entry frame; the stop prescription is measured from here. */
   stopTriggerXz?: { x: number; z: number } | null;
+  /** Substeps waited inside the walk-exit band for a contact window. Absent reads as 0. */
+  walkExitWaitSubsteps?: number;
+  /**
+   * Telemetry only (fixed-clock slice, bar 2): count of walking-phase
+   * executor calls. Under the fixed clock each call is exactly one 1/60 s
+   * substep, so at the exit call this is the exit substep index relative to
+   * walk start. Absent reads as 0. Never read for behavior.
+   */
+  walkSimSubsteps?: number;
 };
 
 export type BedsideApproachExecutionRefusal = { refused: true; reason: string };
-
-/** Total XZ length of a plan's polyline, in metres. */
-export function approachRouteLengthMeters(plan: BedsideApproachPlan): number {
-  let total = 0;
-  for (let index = 1; index < plan.waypoints.length; index += 1) {
-    const from = plan.waypoints[index - 1]?.position;
-    const to = plan.waypoints[index]?.position;
-    if (from === undefined || to === undefined) continue;
-    total += Math.hypot(to.x - from.x, to.z - from.z);
-  }
-  return total;
-}
 
 /**
  * Bind an accepted plan to the geometry and run it was accepted against, or refuse.
@@ -274,6 +269,12 @@ export function stepBedsideApproachExecution(input: {
   observedHeadingRadians: number;
   /** Baked stop take for this actor; absent means the walk ends as before. */
   stop?: StopClipTrigger | null;
+  /**
+   * Contact-window gating for the walk exit (fixed-clock slice); absent means
+   * the legacy frame-band exit. The caller supplies the walk clip's stance
+   * labels at the action's current clip time; see walk-exit-window.ts.
+   */
+  walkExit?: WalkExitContactWindow | null;
 }): BedsideApproachExecution {
   const execution = input.execution;
   if (execution.phase === "invalidated") return execution;
@@ -414,22 +415,25 @@ export function stepBedsideApproachExecution(input: {
   //
   // `headingRadians` stays locked to `travelHeadingRadians` for the whole walking phase.
   const blendedHeadingRadians = input.travelHeadingRadians;
-  // STOP WHEN THE NEXT FRAME WOULD OVERSHOOT. The band is one frame's advance rather than a fixed
-  // tolerance, so it is a property of the frame rate and the walk speed and cannot be widened to
-  // admit an observation: at 60 Hz and 0.676 m/s it is 11 mm, well inside the 0.05 m arrival cap
-  // the acceptance contract fixes, and the residual is MEASURED by that metric rather than assumed.
-  if (execution.phase === "walking" && remainingMeters <= frameAdvanceMeters) {
-    return {
-      ...execution,
-      phase: "settling",
-      travelledMeters,
-      drive: { locomotion: 0 },
-      headingRadians: blendedHeadingRadians,
-      prescribedPositionXz: { x: input.observedPositionXz.x, z: input.observedPositionXz.z },
-      arrivedAtMs: input.nowMs,
-      stoppedSeconds: 0,
-    };
-  }
+  // Exit-band dispatch lives in walk-exit-window.ts (stepWalkExitBand).
+  // Telemetry: walking-call count, gated so idle/stopping frames never pollute it.
+  const walkSimSubsteps =
+    (execution.walkSimSubsteps ?? 0) + (execution.phase === "walking" || execution.phase === "not_started" ? 1 : 0);
+  const bandStep = stepWalkExitBand({
+    execution,
+    walkSimSubsteps,
+    walkExit: input.walkExit ?? null,
+    walkSpeedMetersPerSecond: input.walkSpeedMetersPerSecond,
+    frameAdvanceMeters,
+    deltaSeconds: input.deltaSeconds,
+    travelledMeters,
+    remainingMeters,
+    unit,
+    observedPositionXz: input.observedPositionXz,
+    nowMs: input.nowMs,
+    blendedHeadingRadians,
+  });
+  if (bandStep !== null) return bandStep;
 
   // Baked-stop dispatch (`stepStopHandoff`): null continues the legacy advance below.
   const entry = stepStopHandoff({
@@ -454,9 +458,11 @@ export function stepBedsideApproachExecution(input: {
   // exactly that amount: measured, it left `toe1-1.R` at a 0.00576 m worst frame against a 0.005 m
   // allowance. The lateral residual it preserves instead accumulates into the arrival error, where
   // a metric grades it rather than a re-projection hiding it.
+  // (The armed-but-gated return in walk-exit-window.ts shares this identical rule.)
   const advance = Math.min(frameAdvanceMeters, Math.max(0, remainingMeters));
   return {
     ...execution,
+    walkSimSubsteps,
     phase: "walking",
     travelledMeters,
     drive: { locomotion: 1 },
@@ -468,12 +474,6 @@ export function stepBedsideApproachExecution(input: {
     arrivedAtMs: null,
     stoppedSeconds: 0,
   };
-}
-
-/** Shortest signed angle from `from` to `to`, in radians. */
-export function shortestYawDelta(from: number, to: number): number {
-  const twoPi = Math.PI * 2;
-  return (((to - from + Math.PI) % twoPi) + twoPi) % twoPi - Math.PI;
 }
 
 /**

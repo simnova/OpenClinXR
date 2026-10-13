@@ -1,0 +1,122 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "fixed-clock-v1",
+  "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "fc6562fcffa2eb58eaf61f1b41686159e714ec1149f82de331c23d46a9f0bfc3",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "clampFrameDtSeconds",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Frame-dt clamp shared by the composition root. Consumer: apps/ui-xr/src/main.ts fixed-step wiring (consume path).",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "consumeFrameTime",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Accumulator consume per display frame. Consumer: stepFixedClockFrame substep loop.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "contactAtClipTime",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Nearest-sample stance read at a clip time. Consumer: fixed-timestep-clock.test.ts window reads.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "createFixedClockFrameState",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Frame-state constructor. Consumer: apps/ui-xr/src/main.ts scene setup.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "createFixedTimestepClock",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Clock constructor. Consumer: createFixedClockFrameState.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "FIXED_SUBSTEP_SECONDS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Simulator step 1/60 s. Consumer: fixed-timestep-clock.test.ts capture-clock case.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "interpolateSimScalar",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Entry/exit sim lerp for the rendered transform. Consumer: stepFixedClockFrame render interpolation.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "isSingleSupportContact",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Walk-exit contact window predicate. Consumer: fixed-timestep-clock.test.ts window reads.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "MAX_SUBSTEPS_PER_FRAME",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Per-frame substep cap 4. Consumer: fixed-timestep-clock.test.ts cap fuzz.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "stepFixedClockFrame",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "One display frame of actor simulation under the fixed clock. Consumer: apps/ui-xr/src/main.ts renderSceneFrame.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./fixed-timestep-clock",
+      "symbol": "substepsForSchedule",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "fixed-clock-worker",
+      "rationale": "Wall-schedule substep total for tests/reports. Consumer: fixed-timestep-clock.test.ts schedule equivalence.",
+      "reviewedBy": "claude-orchestrator independent review of fixed-clock-v1 at eee4a3096, 2026-10-13"
+    }
+  ]
+}

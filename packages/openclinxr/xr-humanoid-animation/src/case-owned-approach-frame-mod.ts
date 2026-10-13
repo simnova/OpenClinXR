@@ -1,6 +1,5 @@
 import {
   stepBedsideApproachExecution,
-  type StopClipTrigger,
 } from "@openclinxr/xr-runtime-state/bedside-approach-execution";
 import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
@@ -15,7 +14,6 @@ import {
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
 import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { resolveLocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import { applyCaseOwnedArrivedLock } from "./case-owned-approach-arrived-mod.js";
 import {
@@ -27,6 +25,10 @@ import {
   applyStanceLockedGroundAdvance,
   createStanceLockState,
 } from "./stance-lock-mod.js";
+import {
+  applyClosedLoopWalkStep,
+} from "./closed-loop-root-advance-mod.js";
+import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
   resolveClipStanceForFrame,
@@ -34,6 +36,7 @@ import {
   resolveStopTriggerInput,
   updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
+import { readWalkExitWindowEnabled } from "./walk-exit-window-query-flag-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -59,6 +62,27 @@ export function advanceCaseOwnedBedsideApproach(
   // The baked-stop handoff inputs (`resolveStopTriggerInput`, stop-clip-playback-mod.ts): null
   // while the actor carries no stop take, which keeps the legacy ending.
   const { stop: stopTrigger } = resolveStopTriggerInput(approach);
+  // Contact-window walk exit (fixed-clock slice): the walk clip's stance labels
+  // at the action's current clip time gate the executor's exit band, so the exit
+  // substep is a clip-phase event. Read BEFORE stepping (one substep stale, exactly
+  // like the stance lock's pose read); null off the walking phase keeps legacy exits.
+  const clipStanceForExit =
+    approach.execution.phase === "walking" ? resolveClipStanceForFrame(approach) : undefined;
+  // `walkExitWindow=1` opts into the contact-window exit (null contact =
+  // legacy immediate exit). Default OFF since the 2026-10-13 handback: the
+  // window's exit-phase steering of the clip-driven turn could not be landed
+  // back on the legacy arrival in two attempts. Fixed clock unaffected.
+  const walkExitWindowEnabled = readWalkExitWindowEnabled();
+  const walkExit =
+    clipStanceForExit === undefined || !walkExitWindowEnabled
+      ? null
+      : {
+          cycleSeconds: clipStanceForExit.labels.cycleSeconds,
+          atMs: clipStanceForExit.labels.atMs,
+          left: clipStanceForExit.labels.left,
+          right: clipStanceForExit.labels.right,
+          clipTimeSeconds: clipStanceForExit.actionTimeSeconds,
+        };
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -75,6 +99,7 @@ export function advanceCaseOwnedBedsideApproach(
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
+    walkExit,
   });
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
@@ -434,10 +459,17 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     contactBandMeters: approach.contactBandMeters,
     state: approach.lock,
     ccdStanceLockEnabled: approach.ccdStanceLockEnabled,
+    // LOCO-GROUND lock-disabled row: the SAME code path computes production
+    // labels and the would-be correction, but nothing is written — the
+    // rendered walk isolates clip + root. Settling/arrived writers above are
+    // unaffected, so the run still terminates.
+    observeOnly: readLocoGroundNoStanceLock(),
     recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
       : {}),
     ...(clipStance ? { clipStance } : {}),
   });
+  // FOOTSTEP-PLAN S1 (default OFF): opt-in closed-loop root advance; no flag, no effect.
+  applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
 }

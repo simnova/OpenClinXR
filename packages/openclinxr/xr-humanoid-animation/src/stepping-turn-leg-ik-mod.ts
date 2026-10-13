@@ -1,6 +1,6 @@
+import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import type { Object3D } from "three";
 import { Quaternion, Vector3 } from "three";
-import { findBonesBySanitisedName, sanitiseBoneName } from "@openclinxr/xr-pose";
 import { findStanceChain } from "./stance-lock-ik.js";
 import type { StanceFoot } from "./stance-lock-mod.js";
 
@@ -39,6 +39,18 @@ export type SteppingLegChain = {
   heel: Object3D;
   toe: Object3D;
 };
+
+/**
+ * Guard: every leg-joint local quaternion the solver writes is unit. The
+ * conversions above are normalised by construction; this keeps a stored
+ * non-unit rest snapshot or a future writer from reintroducing drift.
+ */
+function normaliseLegChainJoints(chain: SteppingLegChain): void {
+  chain.hip.quaternion.normalize();
+  chain.upperMid.quaternion.normalize();
+  chain.knee.quaternion.normalize();
+  chain.lowerMid.quaternion.normalize();
+}
 
 /** Resolve the full four-joint leg chain; null on a rig without one (headless markers). */
 export function findSteppingLegChain(actorSlot: Object3D, stanceFoot: StanceFoot): SteppingLegChain | null {
@@ -83,10 +95,14 @@ function ccdSweep(joints: Object3D[], end: Object3D, target: Vector3): number {
     const parentQ = new Quaternion();
     if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
     else parentQ.identity();
+    // Unit by construction (see quatInParentFrame): the decomposed parentQ is
+    // not exactly unit under the scaled actor, and three's invert assumes unit.
+    parentQ.normalize();
     // World-axis rotation -> joint-local delta, so the heel aims without twisting the foot:
     // only the four leg joints rotate; heel/toe orientation is whatever the mixer wrote.
-    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQ.clone().invert()), Math.acos(cos));
+    delta.setFromAxisAngle(axis.clone().applyQuaternion(parentQ.clone().invert()).normalize(), Math.acos(cos));
     joint.quaternion.premultiply(delta);
+    joint.quaternion.normalize();
     joint.updateMatrixWorld(true);
   }
   end.updateMatrixWorld(true);
@@ -180,15 +196,41 @@ export function heelTargetForToeTargetStable(input: {
 
 export type HingeQuat = { x: number; y: number; z: number; w: number };
 
-function quatInParentFrame(joint: Object3D, worldDelta: Quaternion): Quaternion {
+/**
+ * Per-write quaternion-norm record (turn-leg-snaps cause probe, default off).
+ * The solver calls `onWrite` after every joint write when the caller supplies
+ * it; `parentQNorm`/`deltaNorm` are null on hold-sets (no parent-frame delta).
+ */
+export type SteppingLegNormWrite = {
+  joint: "hip" | "upperMid" | "knee" | "lowerMid";
+  normAfter: number;
+  parentQNorm: number | null;
+  deltaNorm: number | null;
+};
+
+function quatInParentFrame(
+  joint: Object3D,
+  worldDelta: Quaternion,
+): { local: Quaternion; parentQNorm: number; deltaNorm: number } {
   const parentQ = new Quaternion();
   if (joint.parent) joint.parent.getWorldQuaternion(parentQ);
   else parentQ.identity();
-  return new Quaternion()
+  // getWorldQuaternion decomposes a matrix that carries the actor hierarchy's
+  // scale/shear, so it is not exactly unit (measured 0.99995..1.00034 in the
+  // SC-05 turn). three's invert is conjugate-only and assumes unit input, so an
+  // unnormalised parentQ makes the local delta norm |P|^2 instead of 1 and the
+  // premultiplied joint drifts off unit frame over frame. Normalise by
+  // construction; the probe keeps the raw pre-normalise norm as the shear signal.
+  const parentQNorm = parentQ.length();
+  parentQ.normalize();
+  const deltaNorm = worldDelta.length();
+  const local = new Quaternion()
     .copy(parentQ)
     .invert()
     .multiply(worldDelta)
-    .multiply(parentQ);
+    .multiply(parentQ)
+    .normalize();
+  return { local, parentQNorm, deltaNorm };
 }
 
 /**
@@ -206,6 +248,23 @@ function quatInParentFrame(joint: Object3D, worldDelta: Quaternion): Quaternion 
  * this solve. Each frame starts from the mixer's pose, so nothing accumulates frame
  * to frame either.
  */
+type SteppingLegHingeDiag = {
+  /** Hip-to-target distance over leg length (thigh + shin); >1 is oversaturated. */
+  reachRatio: number;
+  /** Which branch produced the bend plane: raw, previous-plane, hold, or none. */
+  planeSource: "computed" | "reused" | "held" | "none";
+  /** Angle between this frame's and last frame's plane normal, null if either is null. */
+  planeAngleDeg: number | null;
+  /** Sign of the knee-side direction against the pole (+1 forward, -1 back, 0 unknown). */
+  kneeSideSign: number;
+  /** Solver passes run (0: analytic, non-iterative). */
+  iterations: number;
+  /** Achieved heel miss in meters (same as missM). */
+  residualM: number;
+  /** True when the solve was skipped/held (early return, bones untouched). */
+  skipped: boolean;
+};
+
 export function solveSteppingLegHinge(input: {
   chain: SteppingLegChain;
   heelTargetWorld: { x: number; y: number; z: number };
@@ -213,13 +272,34 @@ export function solveSteppingLegHinge(input: {
   poleWorld: { x: number; y: number; z: number };
   /** Rest orientations for the frozen intermediates; null entries are left as-is. */
   midRestQuats?: { upper: HingeQuat | null; lower: HingeQuat | null } | null;
-}): { converged: boolean; missM: number } {
+  /**
+   * Norm probe (default off): called after every joint write with the written
+   * quaternion's norm plus the parent-frame conversion's input norms.
+   */
+  onWrite?: ((write: SteppingLegNormWrite) => void) | undefined;
+  /**
+   * Last frame's bend-plane normal (world), for degeneracy hysteresis. Null on
+   * the first solve: the plane tracks live until a previous one exists.
+   */
+  previousBendNormal?: { x: number; y: number; z: number } | null;
+}): {
+  converged: boolean;
+  missM: number;
+  bendNormal: { x: number; y: number; z: number } | null;
+  diag: SteppingLegHingeDiag;
+} {
   const { chain } = input;
   const target = new Vector3(input.heelTargetWorld.x, input.heelTargetWorld.y, input.heelTargetWorld.z);
   const pole = new Vector3(input.poleWorld.x, input.poleWorld.y, input.poleWorld.z).normalize();
   const hold = input.midRestQuats ?? null;
+  const probe = input.onWrite ?? null;
   if (hold?.upper) chain.upperMid.quaternion.set(hold.upper.x, hold.upper.y, hold.upper.z, hold.upper.w);
   if (hold?.lower) chain.lowerMid.quaternion.set(hold.lower.x, hold.lower.y, hold.lower.z, hold.lower.w);
+  normaliseLegChainJoints(chain);
+  if (probe) {
+    if (hold?.upper) probe({ joint: "upperMid", normAfter: chain.upperMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
+    if (hold?.lower) probe({ joint: "lowerMid", normAfter: chain.lowerMid.quaternion.length(), parentQNorm: null, deltaNorm: null });
+  }
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
@@ -228,19 +308,142 @@ export function solveSteppingLegHinge(input: {
   const heelW0 = chain.heel.getWorldPosition(new Vector3());
   const thighLen = hipW0.distanceTo(kneeW0);
   const shinLen = kneeW0.distanceTo(heelW0);
-  if (thighLen < 1e-6 || shinLen < 1e-6) return { converged: false, missM: heelW0.distanceTo(target) };
+  const prevIn = input.previousBendNormal ?? null;
+  const prevNormal =
+    prevIn !== null && Number.isFinite(prevIn.x + prevIn.y + prevIn.z)
+      ? new Vector3(prevIn.x, prevIn.y, prevIn.z)
+      : null;
+  const prevOut = (n: Vector3 | null): { x: number; y: number; z: number } | null =>
+    n === null ? null : { x: n.x, y: n.y, z: n.z };
+  const planeAngleDeg = (n: Vector3 | null): number | null => {
+    if (n === null || prevNormal === null) return null;
+    const dot = Math.min(1, Math.max(-1, n.clone().normalize().dot(prevNormal.clone().normalize())));
+    return (Math.acos(dot) * 180) / Math.PI;
+  };
+  if (thighLen < 1e-6 || shinLen < 1e-6) {
+    const missM = heelW0.distanceTo(target);
+    return {
+      converged: false,
+      missM,
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio: 0,
+        planeSource: "none",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: missM,
+        skipped: true,
+      },
+    };
+  }
   // Already placed: touch nothing (exact no-ops stay exact; no churn near convergence).
-  if (heelW0.distanceTo(target) < 0.002) return { converged: true, missM: heelW0.distanceTo(target) };
-  const up = new Vector3(0, 1, 0);
-  // Bend plane from the pole (pole-side by construction = the back-bow guard).
+  if (heelW0.distanceTo(target) < 0.002) {
+    const missM = heelW0.distanceTo(target);
+    return {
+      converged: true,
+      missM,
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio: missM > 0 ? heelW0.distanceTo(target) / (thighLen + shinLen) : 0,
+        planeSource: "held",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: missM,
+        skipped: true,
+      },
+    };
+  }
   const toT = target.clone().sub(hipW0);
   const dist = Math.max(toT.length(), 1e-9);
   toT.divideScalar(dist);
-  const bendNormal = new Vector3().crossVectors(toT, pole);
-  if (bendNormal.lengthSq() < 1e-12) bendNormal.crossVectors(toT, up);
-  if (bendNormal.lengthSq() < 1e-12) return { converged: false, missM: heelW0.distanceTo(target) };
-  bendNormal.normalize();
-  const perpPole = pole.clone().addScaledVector(toT, -pole.dot(toT)).normalize();
+  const rawNormal = new Vector3().crossVectors(toT, pole);
+  const rawLen = rawNormal.length();
+  /**
+   * HYSTERESIS ACROSS THE DEGENERACY (settle-entry stage 2). When the reach
+   * direction runs near-parallel to the pole, the raw plane's direction comes
+   * from sub-mm input noise (idle sway on a near-straight leg) — measured
+   * 64 deg one-frame upper-leg snaps at turn end on SC-05, bimodal across
+   * identical-build runs. Inside the band the previous frame's plane is reused
+   * (projected perpendicular to the current reach, so it stays a valid plane);
+   * outside it the plane tracks live, so genuine yaw-driven plane rotation
+   * across the turn is unaffected. Crossings are transient (the reach sweeps
+   * through the pole direction); a persistently degenerate reach keeps the
+   * last live plane rather than churning.
+   */
+  const HYSTERESIS_BAND = 0.15;
+  let bendNormal: Vector3 | null = null;
+  let planeSource: SteppingLegHingeDiag["planeSource"] = "none";
+  const reachRatio = dist / (thighLen + shinLen);
+  if (rawLen >= HYSTERESIS_BAND) {
+    bendNormal = rawNormal.clone().divideScalar(rawLen);
+    planeSource = "computed";
+  } else if (prevNormal !== null) {
+    // Same-frame continuity only: the previous plane, re-perpendicularized to
+    // the current reach. Never the up-fallback here: crossed with the reach it
+    // bows the knee toward the sky instead of pole-side (measured 84 deg
+    // snaps), so without a previous plane the solve holds still for the frame.
+    const projected = prevNormal.clone().addScaledVector(toT, -prevNormal.dot(toT));
+    if (projected.lengthSq() >= 1e-12) {
+      bendNormal = projected.normalize();
+      planeSource = "reused";
+    } else
+      return {
+        converged: false,
+        missM: heelW0.distanceTo(target),
+        bendNormal: prevOut(prevNormal),
+        diag: {
+          reachRatio,
+          planeSource: "held",
+          planeAngleDeg: null,
+          kneeSideSign: 0,
+          iterations: 0,
+          residualM: heelW0.distanceTo(target),
+          skipped: true,
+        },
+      };
+  } else {
+    return {
+      converged: false,
+      missM: heelW0.distanceTo(target),
+      bendNormal: null,
+      diag: {
+        reachRatio,
+        planeSource: "none",
+        planeAngleDeg: null,
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: heelW0.distanceTo(target),
+        skipped: true,
+      },
+    };
+  }
+  // Pole-side knee direction WITHOUT the old cancellation: `perpPole` used to
+  // be `pole - toT * (pole . toT)` normalized, which subtracts near-equal
+  // vectors exactly where the plane is degenerate — float noise becomes the
+  // knee side. `(bendNormal x toT)` is the identical direction by the triple
+  // product as long as the normal is pole-family (guaranteed above: raw or
+  // previous-plane only, never the up axis), computed from two clean unit
+  // vectors instead.
+  const perpPole = new Vector3().crossVectors(bendNormal, toT);
+  if (perpPole.lengthSq() < 1e-12)
+    return {
+      converged: false,
+      missM: heelW0.distanceTo(target),
+      bendNormal: prevOut(prevNormal),
+      diag: {
+        reachRatio,
+        planeSource,
+        planeAngleDeg: planeAngleDeg(bendNormal),
+        kneeSideSign: 0,
+        iterations: 0,
+        residualM: heelW0.distanceTo(target),
+        skipped: true,
+      },
+    };
+  perpPole.normalize();
+  const kneeSideSign = Math.sign(perpPole.dot(pole)) as -1 | 0 | 1;
   const reach = thighLen + shinLen;
   const clamped = Math.min(Math.max(dist, Math.abs(thighLen - shinLen) + 1e-6), reach - 0.001);
   const cosHip = (thighLen * thighLen + clamped * clamped - shinLen * shinLen) / (2 * thighLen * clamped);
@@ -251,9 +454,9 @@ export function solveSteppingLegHinge(input: {
     .addScaledVector(perpPole, Math.sin(hipAngle) * thighLen);
   const thighDir0 = kneeW0.clone().sub(hipW0).normalize();
   const wantThighDir = kneeTarget.clone().sub(hipW0).normalize();
-  chain.hip.quaternion.premultiply(
-    quatInParentFrame(chain.hip, new Quaternion().setFromUnitVectors(thighDir0, wantThighDir)),
-  );
+  const hipProbed = quatInParentFrame(chain.hip, new Quaternion().setFromUnitVectors(thighDir0, wantThighDir));
+  chain.hip.quaternion.premultiply(hipProbed.local);
+  if (probe) probe({ joint: "hip", normAfter: chain.hip.quaternion.length(), parentQNorm: hipProbed.parentQNorm, deltaNorm: hipProbed.deltaNorm });
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
@@ -262,12 +465,26 @@ export function solveSteppingLegHinge(input: {
     .sub(chain.knee.getWorldPosition(new Vector3()))
     .normalize();
   const wantShinDir = target.clone().sub(kneeTarget).normalize();
-  chain.knee.quaternion.premultiply(
-    quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir)),
-  );
+  const kneeProbed = quatInParentFrame(chain.knee, new Quaternion().setFromUnitVectors(shinDir0, wantShinDir));
+  chain.knee.quaternion.premultiply(kneeProbed.local);
+  if (probe) probe({ joint: "knee", normAfter: chain.knee.quaternion.length(), parentQNorm: kneeProbed.parentQNorm, deltaNorm: kneeProbed.deltaNorm });
+  normaliseLegChainJoints(chain);
   chain.hip.updateMatrixWorld(true);
   chain.knee.updateMatrixWorld(true);
   chain.heel.updateMatrixWorld(true);
   const missM = chain.heel.getWorldPosition(new Vector3()).distanceTo(target);
-  return { converged: missM < 0.01, missM };
+  return {
+    converged: missM < 0.01,
+    missM,
+    bendNormal: { x: bendNormal.x, y: bendNormal.y, z: bendNormal.z },
+    diag: {
+      reachRatio,
+      planeSource,
+      planeAngleDeg: planeAngleDeg(bendNormal),
+      kneeSideSign,
+      iterations: 0,
+      residualM: missM,
+      skipped: false,
+    },
+  };
 }

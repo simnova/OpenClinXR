@@ -2,6 +2,9 @@
   "entrypoints": {
     ".": [
       "FactoryStationSchema",
+      "GATE_BARS",
+      "MESHMOTION_WALK_JOINTS",
+      "MPFB_WALK_JOINTS",
       "PRODUCTION_STATION_IDS",
       "ProductionStationId",
       "ROOM_ALBEDO_REL",
@@ -10,7 +13,10 @@
       "StandardResult",
       "StationJsonSchema",
       "StationPropertySchema",
+      "WalkGateJoints",
+      "WalkGateReport",
       "applyStationPayloadToCompileSpec",
+      "evaluateWalkSymmetry",
       "factoryStationSchemas",
       "findEquipmentSubject",
       "planBodyParam",
@@ -28,6 +34,7 @@
       "runMotionRetarget",
       "runRoomGenerate",
       "runStaging",
+      "sampleWalkClip",
       "writeLipSyncFixtureWav"
     ],
     "./room-chain": ["ROOM_CHAIN_RECIPES", "runRoomChain"],

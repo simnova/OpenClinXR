@@ -124,7 +124,7 @@ export type CaseOwnedBedsideApproach = {
   /** Default-off flag: run the stepping turn instead of the clip-driven settling turn. */
   steppingTurnEnabled: boolean;
   ccdStanceLockEnabled: boolean; // Default-off: hinge four-joint stance-leg solve, not two-bone.
-  lastHeelMissM: number | null; // Read-only diagnostic: stance-leg heel-target miss in metres.
+  lastHeelMissM: number | null; closedLoop: import("./closed-loop-root-advance-mod.js").ClosedLoopWalkState | null; // heel-miss read-only diagnostic; closedLoop = S1 opt-in advance state (inline type: shares the line, file at zone budget)
   /**
    * The actor's own standing pose, snapshotted on the first walking frame while the
    * skeleton still holds the idle pose. Drives the arrived close and the settling
@@ -355,7 +355,7 @@ export function createCaseOwnedBedsideApproach(input: {
     clipTurn: createClipDrivenSettlingTurnState(),
     steppingTurn: null,
     steppingTurnEnabled: input.steppingTurnEnabled ?? false,
-    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false, lastHeelMissM: null, // shares the flag line: file at zone budget
+    ccdStanceLockEnabled: input.ccdStanceLockEnabled ?? false, lastHeelMissM: null, closedLoop: null, // shares the flag line: file at zone budget
     restStance: null,
     closeState: createArrivalCloseState(),
     floorBandPlant,

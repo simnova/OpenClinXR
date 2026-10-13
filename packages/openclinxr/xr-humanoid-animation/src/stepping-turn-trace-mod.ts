@@ -1,0 +1,271 @@
+/**
+ * Default-off per-frame trace of the stepping-turn slot update (settle-entry
+ * slice, stage 1). Records every term that changes actorSlot position or yaw
+ * in a settling frame, with its inputs. Pure observation: recording never
+ * writes the scene, the slot, or the plan.
+ *
+ * Enabled only by `?steppingTurnTrace=1` (browser capture); node/tests read
+ * false. Internal module, not a public entrypoint export.
+ */
+import type { Object3D } from "three";
+import {
+  findSteppingLegChain,
+  type HingeQuat,
+  type SteppingLegChain,
+  type SteppingLegNormWrite,
+  type solveSteppingLegHinge,
+} from "./stepping-turn-leg-ik-mod.js";
+
+export type SteppingTurnTracePass = {
+  pass: number;
+  /** Slot XZ translate applied by this pass's pin (the feedback term). */
+  dx: number;
+  dz: number;
+  /** Plan stance-toe world target this pass pinned toward. */
+  targetX: number;
+  targetZ: number;
+  targetY: number;
+  /** Stance-toe world actually read this pass (post-solve, child of the slot). */
+  toeWorldX: number;
+  toeWorldZ: number;
+  toeWorldY: number;
+  /** True when the entry offset / foot freeze was captured (not held) this pass. */
+  offsetCapturedThisFrame: boolean;
+  footQuatCapturedThisFrame: boolean;
+};
+
+export type SteppingLegQuat = { x: number; y: number; z: number; w: number };
+
+/** Per-write norm record with the solve pass that produced it (cause probe). */
+export type SteppingTurnLegNormWrite = {
+  pass: number;
+  joint: "hip" | "upperMid" | "knee" | "lowerMid";
+  normAfter: number;
+  parentQNorm: number | null;
+  deltaNorm: number | null;
+};
+
+/**
+ * Per-frame per-leg hinge-solve record (turn-leg-snaps slice, stage 1). Pure
+ * observation: the execution module fills it from the solver's diagnostics and
+ * the bones' own quaternions; nothing here writes the scene. `quatsBefore` is
+ * read before the first solve pass, `quatsAfter` after the last; keys are the
+ * four leg joints (hip, upperMid, knee, lowerMid). Diagnostics mirror the
+ * solver's own return (stepping-turn-leg-ik-mod.ts): planeSource names which
+ * branch produced the bend plane (computed = raw, reused = previous-plane
+ * projection, held = no-op/early hold, none = degenerate with no previous).
+ */
+export type SteppingTurnLegSolveTrace = {
+  side: "left" | "right";
+  toeTarget: { x: number; y: number; z: number };
+  heelTarget: { x: number; y: number; z: number };
+  hipWorld: { x: number; y: number; z: number };
+  reachRatio: number;
+  plane: { x: number; y: number; z: number } | null;
+  planeSource: "computed" | "reused" | "held" | "none";
+  planeAngleDeg: number | null;
+  kneeSideSign: number;
+  iterations: number;
+  residualM: number;
+  skipped: boolean;
+  quatsBefore: Record<string, SteppingLegQuat | null>;
+  quatsAfter: Record<string, SteppingLegQuat | null>;
+  /** Per-write norms across both solve passes; empty when unprobed. */
+  normWrites: SteppingTurnLegNormWrite[];
+  stance: boolean;
+  stepIndex: number;
+  planDone: boolean;
+};
+
+export type SteppingTurnTraceFrame = {
+  frame: number;
+  elapsedS: number;
+  stepIndex: number;
+  u: number;
+  stanceFoot: string;
+  swingFoot: string;
+  yawPrev: number;
+  yawNew: number;
+  dipY: number;
+  slotBeforeX: number;
+  slotBeforeZ: number;
+  slotAfterX: number;
+  slotAfterZ: number;
+  passes: SteppingTurnTracePass[];
+  toeLeftY: number | null;
+  toeRightY: number | null;
+  floorOriginY: number | null;
+  /** Per-leg hinge-solve records (turn-leg-snaps stage 1); empty when untraced. */
+  legs: SteppingTurnLegSolveTrace[];
+  /** Mixer walk-clip + leg-weight snapshot (turn-leg-snaps stage 1b); null when untraced. */
+  mixer: SteppingTurnMixerState | null;
+  /** Stage-2 held-anchor pivot term (null on legacy-pin frames). */
+  pivot: {
+    dx: number;
+    dz: number;
+    anchorX: number | null;
+    anchorZ: number | null;
+    anchorWindow: string | null;
+    pendingWindow: string | null;
+    legacy: boolean;
+  } | null;
+};
+
+const TRACE_KEY = "__openClinXrSteppingTurnTrace";
+
+/** Last-pass solve record per leg (trace-only; last pass wins). */
+export type SteppingTurnLegLast = {
+  toe: { x: number; y: number; z: number };
+  heel: { x: number; y: number; z: number };
+  hip: { x: number; y: number; z: number };
+  diag: ReturnType<typeof solveSteppingLegHinge>["diag"];
+  plane: { x: number; y: number; z: number } | null;
+};
+
+export type SteppingTurnLegCollector = {
+  before: Record<"left" | "right", Record<string, HingeQuat | null> | null>;
+  last: Record<"left" | "right", SteppingTurnLegLast | null>;
+  normWrites: Record<"left" | "right", SteppingTurnLegNormWrite[]>;
+};
+
+/** Per-leg solve-record collector (turn-leg-snaps stage 1); trace-only. */
+export function createSteppingTurnLegCollector(): SteppingTurnLegCollector {
+  return { before: { left: null, right: null }, last: { left: null, right: null }, normWrites: { left: [], right: [] } };
+}
+
+/** Snapshot the four leg-joint locals before the first solve pass. */
+export function recordSteppingTurnLegBefore(collector: SteppingTurnLegCollector, side: "left" | "right", chain: SteppingLegChain): void {
+  collector.before[side] = snapshotLegQuats(chain);
+}
+
+/** Keep the last pass's solve record (last pass wins). */
+export function recordSteppingTurnLegLast(collector: SteppingTurnLegCollector, side: "left" | "right", last: SteppingTurnLegLast): void {
+  collector.last[side] = last;
+}
+
+/** Norm-probe sink for one solve pass (default off; no-op when unprobed). */
+export function steppingTurnLegOnWriteFor(
+  collector: SteppingTurnLegCollector,
+  side: "left" | "right",
+  pass: number,
+): ((write: SteppingLegNormWrite) => void) | undefined {
+  return (write) => {
+    collector.normWrites[side].push({
+      pass,
+      joint: write.joint,
+      normAfter: write.normAfter,
+      parentQNorm: write.parentQNorm,
+      deltaNorm: write.deltaNorm,
+    });
+  };
+}
+
+/** Assemble the per-leg trace records after the last solve pass. */
+export function takeSteppingTurnLegTraces(
+  actorSlot: Object3D,
+  collector: SteppingTurnLegCollector,
+  targets: { stanceFoot: string; stepIndex: number; done: boolean },
+): SteppingTurnLegSolveTrace[] {
+  const traces: SteppingTurnLegSolveTrace[] = [];
+  for (const side of ["left", "right"] as const) {
+    const last = collector.last[side];
+    if (last === null) continue;
+    const chainNow = findSteppingLegChain(actorSlot, side);
+    traces.push({
+      side,
+      toeTarget: last.toe,
+      heelTarget: last.heel,
+      hipWorld: last.hip,
+      reachRatio: last.diag.reachRatio,
+      plane: last.plane,
+      planeSource: last.diag.planeSource,
+      planeAngleDeg: last.diag.planeAngleDeg,
+      kneeSideSign: last.diag.kneeSideSign,
+      iterations: last.diag.iterations,
+      residualM: last.diag.residualM,
+      skipped: last.diag.skipped,
+      quatsBefore: collector.before[side] ?? {},
+      quatsAfter: chainNow !== null ? snapshotLegQuats(chainNow) : {},
+      normWrites: collector.normWrites[side],
+      stance: side === targets.stanceFoot,
+      stepIndex: targets.stepIndex,
+      planDone: targets.done,
+    });
+  }
+  return traces;
+}
+/** Snapshot the four leg-joint local quats (keys hip/upperMid/knee/lowerMid). */
+export function snapshotLegQuats(input: {
+  hip: Object3D;
+  upperMid: Object3D;
+  knee: Object3D;
+  lowerMid: Object3D;
+}): Record<string, SteppingLegQuat | null> {
+  const snap = (bone: Object3D): SteppingLegQuat => ({
+    x: bone.quaternion.x,
+    y: bone.quaternion.y,
+    z: bone.quaternion.z,
+    w: bone.quaternion.w,
+  });
+  return { hip: snap(input.hip), upperMid: snap(input.upperMid), knee: snap(input.knee), lowerMid: snap(input.lowerMid) };
+}
+
+export type SteppingTurnMixerState = {
+  clipName: string | null;
+  playing: boolean | null;
+  timeSeconds: number | null;
+  legWeight: number | null;
+};
+
+/** Read-only mixer snapshot (walk clip + leg weight) off the slot root chain. */
+export function readSteppingTurnMixerState(actorSlot: Object3D): SteppingTurnMixerState {
+  let node: Object3D | null = actorSlot;
+  while (node !== null) {
+    const ud = (node.userData ?? {}) as Record<string, unknown>;
+    const playback = ud["openClinXrLocomotionClipPlayback"] as
+      | { clipName?: unknown; playing?: unknown; timeSeconds?: unknown }
+      | undefined;
+    const weight = ud["openClinXrLocomotionLegWeight"] as { current?: unknown } | undefined;
+    if (playback !== undefined || weight !== undefined) {
+      return {
+        clipName: typeof playback?.clipName === "string" ? playback.clipName : null,
+        playing: typeof playback?.playing === "boolean" ? playback.playing : null,
+        timeSeconds: typeof playback?.timeSeconds === "number" ? playback.timeSeconds : null,
+        legWeight: typeof weight?.current === "number" ? weight.current : null,
+      };
+    }
+    node = node.parent;
+  }
+  return { clipName: null, playing: null, timeSeconds: null, legWeight: null };
+}
+
+/** Default off: only exactly `steppingTurnTrace=1` records. */
+export function isSteppingTurnTraceEnabled(): boolean {
+  const search = (
+    globalThis as unknown as { window?: { location?: { search?: string } } }
+  ).window?.location?.search;
+  if (typeof search !== "string") return false;
+  try {
+    return new URLSearchParams(search).get("steppingTurnTrace") === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function recordSteppingTurnTraceFrame(frame: SteppingTurnTraceFrame): void {
+  if (!isSteppingTurnTraceEnabled()) return;
+  const host = globalThis as unknown as Record<string, unknown>;
+  const arr = host[TRACE_KEY];
+  if (Array.isArray(arr)) arr.push(frame);
+  else host[TRACE_KEY] = [frame];
+}
+
+export function readSteppingTurnTrace(): SteppingTurnTraceFrame[] {
+  const host = globalThis as unknown as Record<string, unknown>;
+  const arr = host[TRACE_KEY];
+  return Array.isArray(arr) ? (arr as SteppingTurnTraceFrame[]) : [];
+}
+
+export function clearSteppingTurnTrace(): void {
+  (globalThis as unknown as Record<string, unknown>)[TRACE_KEY] = [];
+}

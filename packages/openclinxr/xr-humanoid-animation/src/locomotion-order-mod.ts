@@ -10,6 +10,7 @@ import {
   createCaseOwnedApproachForOrder,
 } from "./case-owned-approach-runtime-mod.js";
 import { resolveLocomotionClipTimeScale } from "./locomotion-clip-playback-mod.js";
+import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { observeMountedApproachGeometry } from "./mounted-approach-geometry-mod.js";
 import {
   orderStraightRouteBlocked,
@@ -326,7 +327,8 @@ export function stepLocomotionOrders(
 export function applyLocomotionOrderStanceLocks(registry: LocomotionOrderRegistry, deltaSeconds: number, nowMs: number): void {
   for (const [actorId, state] of registry) {
     const approach = state?.approach ?? null;
-    applyCaseOwnedStanceLock(approach, deltaSeconds);
+    // Loco-ground lock-disabled row skips every lock (default off: unchanged).
+    if (!readLocoGroundNoStanceLock()) applyCaseOwnedStanceLock(approach, deltaSeconds);
     publishLocomotionOrderRuntimeEvidence(actorId, approach, nowMs);
     // ROOT CAUSE of the settling stall, MEASURED (2026-09-26): `applyStationIdleSway`
     // (@openclinxr/xr-runtime-state/composed-body-direction) unconditionally overwrites this

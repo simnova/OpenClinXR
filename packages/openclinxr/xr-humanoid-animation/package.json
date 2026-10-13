@@ -24,6 +24,10 @@
       "types": "./dist/station-bedside-approach.d.ts",
       "default": "./dist/station-bedside-approach.js"
     },
+    "./fixed-timestep-clock": {
+      "types": "./dist/fixed-timestep-clock.d.ts",
+      "default": "./dist/fixed-timestep-clock.js"
+    },
     "./locomotion-clip-playback": {
       "types": "./dist/locomotion-clip-playback.d.ts",
       "default": "./dist/locomotion-clip-playback.js"

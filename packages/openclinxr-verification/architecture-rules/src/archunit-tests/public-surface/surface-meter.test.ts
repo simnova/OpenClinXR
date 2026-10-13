@@ -147,8 +147,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-11 stepping-turn assay seam: xr-humanoid-animation adds one reviewed ./stepping-turn
     // subpath so the SC-05 assay and bake bind the plan, hinge, and stance-lock reads without
     // relative src reaches (136 -> 137).
-    // Re-derived independently by counting `exports` keys in package.json (136 before, 137 after).
-    expect(report.totals.entrypoints).toBe(137);
+    // 2026-10-12 fixed-timestep clock seam: xr-humanoid-animation adds one reviewed
+    // ./fixed-timestep-clock subpath so the composition root steps the sim through the
+    // accumulator without relative src reaches (137 -> 138).
+    // Re-derived independently by counting `exports` keys in package.json (137 before, 138 after).
+    expect(report.totals.entrypoints).toBe(138);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

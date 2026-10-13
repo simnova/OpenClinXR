@@ -369,6 +369,38 @@
       {
         "name": "runRoomGenerate",
         "kind": "runtime"
+      },
+      {
+        "name": "MESHMOTION_WALK_JOINTS",
+        "kind": "runtime"
+      },
+      {
+        "name": "MPFB_WALK_JOINTS",
+        "kind": "runtime"
+      },
+      {
+        "name": "runMotionRetarget",
+        "kind": "runtime"
+      },
+      {
+        "name": "WalkGateReport",
+        "kind": "type"
+      },
+      {
+        "name": "sampleWalkClip",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateWalkSymmetry",
+        "kind": "runtime"
+      },
+      {
+        "name": "GATE_BARS",
+        "kind": "runtime"
+      },
+      {
+        "name": "WalkGateJoints",
+        "kind": "type"
       }
     ]
   },

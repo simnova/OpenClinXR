@@ -27,6 +27,7 @@ import {
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
+import { snapshotLocoGroundTap } from "./loco-ground-tap-mod.js";
 import {
   applyLocomotionOrderStanceLocks,
   createLocomotionOrderRegistry,
@@ -149,6 +150,7 @@ export function updateGeneratedHumanoidAnimations(
       continue;
     }
     slot.mixer?.update(deltaSeconds);
+    snapshotLocoGroundTap(slot, "mixer");
     const rootUserData = slot.root.userData as Record<string, unknown>;
     const actorSlotUserData = slot.actorSlot.userData as Record<string, unknown>;
     const isSupineFrame =
@@ -285,6 +287,7 @@ export function updateGeneratedHumanoidAnimations(
       gazeAlternationTargetActorId: pediatricAsthmaOverlay.gazeTargetActorId,
       bodyMotionMode: bodyMotionCue.mode,
     });
+    snapshotLocoGroundTap(slot, "posture");
     updateHumanoidSpeechCue(ctx, slot, nowMs, camera);
   }
   ctx.recordActingCueEvidence(actorCues);

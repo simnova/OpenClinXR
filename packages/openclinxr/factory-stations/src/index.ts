@@ -55,6 +55,17 @@ export {
   runMotionRetarget,
 } from "./motion_retarget/run.js";
 export {
+  evaluateWalkSymmetry,
+  GATE_BARS,
+  MESHMOTION_WALK_JOINTS,
+  MPFB_WALK_JOINTS,
+  sampleWalkClip,
+} from "./motion_retarget/walk_symmetry_gate.js";
+export type {
+  WalkGateJoints,
+  WalkGateReport,
+} from "./motion_retarget/walk_symmetry_gate.js";
+export {
   planRoomGenerate,
   ROOM_ALBEDO_REL,
   ROOM_OCCLUSION_REL,

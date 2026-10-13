@@ -38,6 +38,19 @@
       "measureStanceGroundAdvance",
       "sampleLocomotionStanceTrack"
     ],
+    "./fixed-timestep-clock": [
+      "FIXED_SUBSTEP_SECONDS",
+      "MAX_SUBSTEPS_PER_FRAME",
+      "clampFrameDtSeconds",
+      "consumeFrameTime",
+      "contactAtClipTime",
+      "createFixedClockFrameState",
+      "createFixedTimestepClock",
+      "interpolateSimScalar",
+      "isSingleSupportContact",
+      "stepFixedClockFrame",
+      "substepsForSchedule"
+    ],
     "./locomotion-clip-playback": [
       "playLocomotionClip"
     ],
@@ -53,14 +66,17 @@
       "updateStationBedsideApproach"
     ],
     "./stepping-turn": [
+      "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
       "STEPPING_TURN_STEP_DURATION_S",
       "findStanceChain",
       "findSteppingLegChain",
       "heelTargetForToeTarget",
       "heelTargetForToeTargetStable",
+      "pivotSlotXzForSteppingFrame",
       "planSteppingTurn",
       "solveSteppingLegHinge",
       "solveTwoBoneIK",
+      "steppingPivotWindowKey",
       "steppingTurnAt",
       "steppingTurnLegScale",
       "worldXyz"
