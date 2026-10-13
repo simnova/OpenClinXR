@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   MPFB_WALK_JOINTS,
   sampleWalkClip,
+} from "../index.js";
+import {
   walkContactPhases,
   type WalkContactPhases,
-} from "../index.js";
+} from "./walk_contact_phases.js";
 
 /**
  * Footstep-plan S1 O3: the tracked contact-phase JSON matches a fresh

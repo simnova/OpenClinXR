@@ -18,8 +18,8 @@ import { fileURLToPath } from "node:url";
 import {
   MPFB_WALK_JOINTS,
   sampleWalkClip,
-  walkContactPhases,
 } from "./walk_symmetry_gate.js";
+import { walkContactPhases } from "./walk_contact_phases.js";
 
 const PHYSICIAN_GLB = "../../../apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
 const CLIP = "openclinxr_retarget_walk_source";
