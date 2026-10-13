@@ -32,6 +32,7 @@ import {
   applyFootstepPlanStep,
   captureFootstepRest,
 } from "./footstep-plan-amplitude-mod.js";
+import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
 import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
@@ -88,6 +89,18 @@ export function advanceCaseOwnedBedsideApproach(
           right: clipStanceForExit.labels.right,
           clipTimeSeconds: clipStanceForExit.actionTimeSeconds,
         };
+  // S2c M2 (default OFF): k-th-passing phase exit; needs the flag, a clip
+  // read, and a captured plan, else null (default and band paths untouched).
+  const footstepExit =
+    clipStanceForExit === undefined || !readFootstepPlanEnabled() || approach.footstep === null
+      ? null
+      : {
+          steps: approach.footstep.steps,
+          startPhaseS: FOOTSTEP_START_PHASE_S,
+          rPassingS: FOOTSTEP_R_PASSING_S,
+          cycleS: clipStanceForExit.labels.cycleSeconds,
+          clipTimeS: clipStanceForExit.actionTimeSeconds,
+        };
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -105,6 +118,7 @@ export function advanceCaseOwnedBedsideApproach(
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
     walkExit,
+    footstepExit,
   });
   approach.execution = execution;
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.

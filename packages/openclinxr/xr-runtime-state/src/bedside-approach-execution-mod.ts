@@ -1,6 +1,7 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
 import { type StopClipTrigger, stepStopHandoff } from "./bedside-approach-stop-mod.js";
-import { approachRouteLengthMeters, shortestYawDelta, stepWalkExitBand, type WalkExitContactWindow } from "./walk-exit-window.js";
+import { approachRouteLengthMeters, shortestYawDelta, stepFootstepPhaseExitBand, stepWalkExitBand, type FootstepPhaseExit, type WalkExitContactWindow } from "./walk-exit-window.js";
+export { travelYawForClipForward } from "./walk-exit-window.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -134,6 +135,9 @@ export type BedsideApproachExecution = {
   stopTriggerXz?: { x: number; z: number } | null;
   /** Substeps waited inside the walk-exit band for a contact window. Absent reads as 0. */
   walkExitWaitSubsteps?: number;
+  /** S2c M2 k-th-passing carry (see walk-exit-window.ts); absent = uninitialised/0. */
+  footstepLastClipS?: number | null;
+  footstepWraps?: number;
   /**
    * Telemetry only (fixed-clock slice, bar 2): count of walking-phase
    * executor calls. Under the fixed clock each call is exactly one 1/60 s
@@ -275,8 +279,10 @@ export function stepBedsideApproachExecution(input: {
    * labels at the action's current clip time; see walk-exit-window.ts.
    */
   walkExit?: WalkExitContactWindow | null;
+  /** S2c M2 k-th-passing exit (see walk-exit-window.ts); absent/null keeps the band. */
+  footstepExit?: FootstepPhaseExit | null;
 }): BedsideApproachExecution {
-  const execution = input.execution;
+  let execution = input.execution;
   if (execution.phase === "invalidated") return execution;
 
   const invalidation =
@@ -419,7 +425,23 @@ export function stepBedsideApproachExecution(input: {
   // Telemetry: walking-call count, gated so idle/stopping frames never pollute it.
   const walkSimSubsteps =
     (execution.walkSimSubsteps ?? 0) + (execution.phase === "walking" || execution.phase === "not_started" ? 1 : 0);
-  const bandStep = stepWalkExitBand({
+  const footstepStep = stepFootstepPhaseExitBand({
+    execution,
+    walkSimSubsteps,
+    footstepExit: input.footstepExit ?? null,
+    frameAdvanceMeters,
+    travelledMeters,
+    remainingMeters,
+    unit,
+    observedPositionXz: input.observedPositionXz,
+    nowMs: input.nowMs,
+    blendedHeadingRadians,
+  });
+  if (footstepStep.kind === "exited") return footstepStep.execution;
+  if (footstepStep.kind === "armed") {
+    execution = { ...execution, footstepLastClipS: footstepStep.lastClipS, footstepWraps: footstepStep.wraps };
+  }
+  const bandStep = footstepStep.kind === "armed" ? null : stepWalkExitBand({
     execution,
     walkSimSubsteps,
     walkExit: input.walkExit ?? null,
@@ -474,25 +496,4 @@ export function stepBedsideApproachExecution(input: {
     arrivedAtMs: null,
     stoppedSeconds: 0,
   };
-}
-
-/**
- * The slot yaw that points the CLIP's own measured travel direction along the route.
- *
- * MEASURED, NOT ASSUMED, and the measurement is a finding. The shipped physician rig faces +Z — its
- * toes sit 0.126 m in +Z of the ankle in the rest frame, and its left foot sits at +X — while the
- * stance windows of `openclinxr_retarget_walk_formal_cc0` advance the body along body -Z. The bound
- * clip therefore travels 180 degrees from the rig's own facing. Aligning to the clip's measured
- * direction is what makes the foot plant correct; it does NOT make the walk look right, and the
- * defect is recorded rather than papered over.
- *
- * `routeHeadingRadians` is the yaw whose local +Z points along the route, which is the convention
- * `headingRadiansToward` and `forwardVectorForHeading` already use.
- */
-export function travelYawForClipForward(
-  routeHeadingRadians: number,
-  clipForwardBody: { x: number; z: number },
-): number {
-  const clipYaw = Math.atan2(clipForwardBody.x, clipForwardBody.z);
-  return routeHeadingRadians - clipYaw;
 }

@@ -62,6 +62,15 @@ export function halfCycleTravelMeters(scale: number): number {
 /** Clip-local seconds where the walk action starts under the plan (L passing). */
 export const FOOTSTEP_START_PHASE_S = 0.55;
 
+/**
+ * Clip-local seconds of the R feet-passing, same run as the start phase
+ * (schedule header: L ~0.55 s, R ~1.38 s; fresh-tree s2c-a interpolates the
+ * R zero-crossing at 1.379 s). With the start phase this locates every
+ * passing: L at start + m x cycle, R at R_PASSING + m x cycle. The M2 exit
+ * counts the k-th passing after the start; the M3 freeze rewinds to it.
+ */
+export const FOOTSTEP_R_PASSING_S = 1.38;
+
 /** Minimum uniform scale: below this the plan refuses (the S2 STOP rule). */
 export const FOOTSTEP_MIN_SCALE = 0.7;
 
