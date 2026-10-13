@@ -78,8 +78,14 @@ export const FOOTSTEP_MIN_SCALE = 0.7;
 /** Swing-lift floor scale: a carrying step below this is fed from middles or refused. */
 export const FOOTSTEP_SWING_FLOOR_SCALE = 0.27;
 
-/** Closing beat after the last lift-off, clip seconds (one landing + margin). */
-export const FOOTSTEP_CLOSE_BEAT_S = 0.5;
+/**
+ * Homing allowance after a zero adoption, clip seconds (swing to plant plus
+ * the beat). The leg that adopts 0 first trails while the body still moves,
+ * so the span covers its next swing after the last zero adoption: only then
+ * are both feet home. Cited: mean swing = cycle − mean stance (~0.79 s)
+ * from the committed contact phases, plus the beat.
+ */
+export const FOOTSTEP_HOMING_S = 1.3;
 
 export type FootstepHalf = {
   /** Stance-majority foot of this half (R,L alternating from R). */
@@ -210,14 +216,27 @@ export function planFootsteps(routeLengthMeters: number): FootstepPlan | Footste
     byLeg[lift.side].push({ atS: lift.t - FOOTSTEP_START_PHASE_S, scale: halves[k]!.scale });
     if (lift.t - FOOTSTEP_START_PHASE_S > halves.length * HALF_S) break;
   }
-  // Clip span: through the last adoption the walk keeps, plus the beat.
-  const adoptionLifts: number[] = [];
+  // Clip span: the first zero-adopting leg trails while the body still
+  // moves, so the span covers its next swing (homing) after the last zero
+  // adoption, plus the beat. Without this the walk exits with that leg
+  // trailing (measured 0.15 m); with it both feet are home at the exit.
+  const zeroAdoptions: number[] = [];
   for (const side of ["left", "right"] as const) {
-    for (const adoption of byLeg[side]) adoptionLifts.push(adoption.atS + FOOTSTEP_START_PHASE_S);
+    for (const adoption of byLeg[side]) {
+      if (adoption.scale === 0) zeroAdoptions.push(adoption.atS + FOOTSTEP_START_PHASE_S);
+    }
   }
-  adoptionLifts.sort((a, b) => a - b);
-  const clipSpanS = (adoptionLifts.length > 0 ? adoptionLifts[adoptionLifts.length - 1]! : FOOTSTEP_START_PHASE_S)
-    - FOOTSTEP_START_PHASE_S + FOOTSTEP_CLOSE_BEAT_S;
+  zeroAdoptions.sort((a, b) => a - b);
+  const firstZero = zeroAdoptions.length > 0 ? zeroAdoptions[0]! : FOOTSTEP_START_PHASE_S;
+  const lastZero = zeroAdoptions.length > 0 ? zeroAdoptions[zeroAdoptions.length - 1]! : FOOTSTEP_START_PHASE_S;
+  // Next lift of the first-zero leg after the last zero adoption.
+  const liftOfSide = { left: FOOTSTEP_LIFT_L_S, right: FOOTSTEP_LIFT_R_S };
+  const firstZeroSide = (["left", "right"] as const).find((side) =>
+    byLeg[side].some((a) => a.scale === 0 && a.atS + FOOTSTEP_START_PHASE_S === firstZero),
+  ) ?? "left";
+  let homingLift = liftOfSide[firstZeroSide];
+  while (homingLift <= lastZero) homingLift += FOOTSTEP_CYCLE_S;
+  const clipSpanS = homingLift - FOOTSTEP_START_PHASE_S + FOOTSTEP_HOMING_S;
   return {
     halves,
     legs: byLeg,

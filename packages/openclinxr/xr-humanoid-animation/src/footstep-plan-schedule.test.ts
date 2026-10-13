@@ -20,7 +20,7 @@ describe("footstep-plan schedule", () => {
     expect(round3(plan.legs.left.map((a) => a.atS))).toEqual([0.419, 2.127, 3.835]);
     expect(plan.legs.right.map((a) => a.scale)).toEqual([1, 0]);
     expect(round3(plan.legs.right.map((a) => a.atS))).toEqual([1.114, 2.822]);
-    expect(plan.clipSpanS).toBeCloseTo(4.335, 2);
+    expect(plan.clipSpanS).toBeCloseTo(5.83, 2);
     expect(plan.plannedTravelM).toBeCloseTo(1.31, 9);
   });
 
@@ -35,7 +35,7 @@ describe("footstep-plan schedule", () => {
     expect(plan.legs.right[0]!.scale).toBe(1);
     expect(plan.legs.right[1]!.scale).toBeCloseTo(0.5794, 3);
     expect(plan.legs.right[2]!.scale).toBe(0);
-    expect(plan.clipSpanS).toBeCloseTo(5.03, 2);
+    expect(plan.clipSpanS).toBeCloseTo(6.84, 2);
     expect(plan.plannedTravelM).toBeCloseTo(2.0, 9);
   });
 
