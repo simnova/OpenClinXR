@@ -37,3 +37,20 @@ export function readFootstepRouteMeters(): number | null {
     .window?.location?.search;
   return typeof search === "string" ? parseFootstepRouteMeters(search) : null;
 }
+
+/**
+ * G6 probe: per-foot model scale override (?footstepProbeModel=1.2 seeds
+ * +20%). Module export for the frame module's struct fill, deliberately NOT
+ * re-exported from `./footstep-plan` (no new public symbol, no orchestrator
+ * admission row); the G6 capture tables cover it. Default 1: finite positive
+ * numbers only, anything else reads 1.
+ */
+export function readFootstepProbeModelScale(): number {
+  const search = (globalThis as unknown as { window?: { location?: { search?: string } } })
+    .window?.location?.search;
+  if (typeof search !== "string") return 1;
+  const raw = new URLSearchParams(search).get("footstepProbeModel");
+  if (raw === null) return 1;
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? value : 1;
+}
