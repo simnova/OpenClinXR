@@ -72,6 +72,109 @@ function contactAtClipTime(  labels: WalkExitContactWindow,
 }
 
 /**
+ * STOP WHEN THE NEXT FRAME WOULD OVERSHOOT. The legacy band is one frame's
+ * advance rather than a fixed tolerance, so it is a property of the frame rate
+ * and the walk speed and cannot be widened to admit an observation: at 60 Hz
+ * and 0.676 m/s it is 11 mm, well inside the 0.05 m arrival cap the acceptance
+ * contract fixes, and the residual is MEASURED by that metric rather than
+ * assumed.
+ *
+ * CONTACT-WINDOW GATING (fixed-clock slice): with a contact present the band
+ * is evaluated per fixed 1/60 s substep, so it is one simulator step, and the
+ * exit additionally requires the walk clip to sit inside a single-support
+ * contact window. The exit substep is then a clip-phase event rather than a
+ * frame-pacing artefact.
+ *
+ * Band width: the legacy path compares against one frame's advance, which at
+ * the deterministic 1/30 s capture frame is WALK_EXIT_BAND_SECONDS of walk.
+ * A one-substep band enters ~1 frame later and starts the clip-driven turn
+ * from a later gait phase (measured: +23 mm lateral arrival), so the gated
+ * path keeps the legacy physical width while the advance stays per-substep.
+ *
+ * Band cadence parity (fixed-clock slice, bar-2/C): legacy checks the band
+ * once per frame; the fixed clock must not check per substep or it fires up
+ * to one substep off legacy's exit (measured arrival steering). Check every
+ * second walking substep (= 1/30 sim-s, legacy's deterministic cadence), so
+ * the exit lands on legacy's walk-relative substep. Applies only to genuine
+ * fixed-clock substeps (deltaSeconds exactly 1/60) with a running counter;
+ * unit constructions without walkSimSubsteps and all legacy frame stepping
+ * keep the uncadenced check byte-for-byte.
+ *
+ * Returns the stepped execution when this call ends the walk (in-band exit or
+ * gated wait counted inside buildWalkExitBandStep), else null so the caller
+ * continues with the stop dispatch and the walking advance below.
+ */
+export function stepWalkExitBand(input: {
+  execution: BedsideApproachExecution;
+  walkSimSubsteps: number;
+  walkExit: WalkExitContactWindow | null;
+  walkSpeedMetersPerSecond: number;
+  frameAdvanceMeters: number;
+  deltaSeconds: number;
+  travelledMeters: number;
+  remainingMeters: number;
+  unit: { x: number; z: number };
+  observedPositionXz: { x: number; z: number };
+  nowMs: number;
+  blendedHeadingRadians: number;
+}): BedsideApproachExecution | null {
+  const exitBandMeters =
+    input.walkExit !== undefined && input.walkExit !== null
+      ? input.walkSpeedMetersPerSecond * WALK_EXIT_BAND_SECONDS
+      : input.frameAdvanceMeters;
+  const bandCadencedOut =
+    input.deltaSeconds === 1 / 60
+    && input.execution.walkSimSubsteps !== undefined
+    && input.walkSimSubsteps % 2 !== 0;
+  if (input.execution.phase !== "walking" || bandCadencedOut || input.remainingMeters > exitBandMeters) {
+    return null;
+  }
+  if (input.walkExit !== undefined && input.walkExit !== null) {
+    return buildWalkExitBandStep({
+      execution: { ...input.execution, walkSimSubsteps: input.walkSimSubsteps },
+      travelledMeters: input.travelledMeters,
+      remainingMeters: input.remainingMeters,
+      frameAdvanceMeters: input.frameAdvanceMeters,
+      unit: input.unit,
+      observedPositionXz: input.observedPositionXz,
+      nowMs: input.nowMs,
+      blendedHeadingRadians: input.blendedHeadingRadians,
+      contact: input.walkExit,
+    });
+  }
+  return {
+    ...input.execution,
+    walkSimSubsteps: input.walkSimSubsteps,
+    phase: "settling",
+    travelledMeters: input.travelledMeters,
+    drive: { locomotion: 0 },
+    headingRadians: input.blendedHeadingRadians,
+    prescribedPositionXz: { x: input.observedPositionXz.x, z: input.observedPositionXz.z },
+    arrivedAtMs: input.nowMs,
+    stoppedSeconds: 0,
+  };
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __openClinXrWalkExitProbe:
+    | { clipTimeSeconds: number | null; waitedSubsteps: number; walkSimSubsteps: number }
+    | undefined;
+}
+
+/**
+ * Width of the walk-exit band under the fixed clock, in seconds of walk
+ * advance (two 1/60 s substeps). The legacy frame-dt path exits on the first
+ * frame with remaining <= one frame's advance; at the deterministic 1/30 s
+ * capture frame that band is twice the substep band, so a one-substep band
+ * enters ~1 frame later and the clip-driven turn starts from a later gait
+ * phase (measured: exit clip 1.571 vs legacy 1.476, lateral arrival +23 mm).
+ * A fixed 1/30 s band keeps the exit route position pacing-independent while
+ * the per-substep advance granularity is unchanged.
+ */
+export const WALK_EXIT_BAND_SECONDS = 1 / 30;
+
+/**
  * Upper bound on substeps the exit may wait inside the legacy band for a
  * window before forcing the exit. Single support covers most of every cycle,
  * so a longer wait means degenerate labels, not a late window; forcing
@@ -106,6 +209,17 @@ export function buildWalkExitBandStep(input: {
   const inWindow = contact !== null && contact.left !== contact.right;
   const waited = input.execution.walkExitWaitSubsteps ?? 0;
   if (inWindow || waited >= WALK_EXIT_MAX_WAIT_SUBSTEPS) {
+    // Bar-2 probe: the exit substep's own clip time + wait + walking-call
+    // index, published for the capture instrument. Node-safe: globalThis var
+    // is undefined outside the browser, and the assignment is a no-op there
+    // for behavior (no read ever feeds back into the sim).
+    try {
+      (globalThis as unknown as { __openClinXrWalkExitProbe?: unknown }).__openClinXrWalkExitProbe = {
+        clipTimeSeconds: input.contact.clipTimeSeconds,
+        waitedSubsteps: waited,
+        walkSimSubsteps: input.execution.walkSimSubsteps ?? 0,
+      };
+    } catch { /* telemetry must never break the sim */ }
     return {
       ...input.execution,
       phase: "settling",

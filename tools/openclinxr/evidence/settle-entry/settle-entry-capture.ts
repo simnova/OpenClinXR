@@ -180,10 +180,15 @@ const PROBE_SOURCE = `
   let clipTime = null;
   let liveSlot = null;
   let fixedClock = null;
+  let walkExitProbe = null;
   try {
     const stats = globalThis.__openClinXrFixedClockStats;
     if (stats && typeof stats.substeps === "number") {
       fixedClock = { substeps: stats.substeps, frameMs: stats.frameMs };
+    }
+    const exit = globalThis.__openClinXrWalkExitProbe;
+    if (exit && typeof exit.walkSimSubsteps === "number") {
+      walkExitProbe = { clipTimeSeconds: exit.clipTimeSeconds, waitedSubsteps: exit.waitedSubsteps, walkSimSubsteps: exit.walkSimSubsteps };
     }
   } catch { fixedClock = null; }
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
@@ -255,6 +260,7 @@ const PROBE_SOURCE = `
     slot: tail && tail.slot ? tail.slot : null,
     liveSlot,
     fixedClock,
+    walkExitProbe,
     leftToe: tail ? tail.leftToe : null,
     rightToe: tail ? tail.rightToe : null,
     stanceFoot: tail ? tail.stanceFoot : null,

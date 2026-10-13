@@ -126,6 +126,8 @@ type RunMetrics = {
   settlingFrames: number;
   clipTimeW: number | null;
   clipTimeS: number | null;
+  /** In-sim exit-substep clip time (bar-2 probe); null on pre-probe captures. */
+  exitClipS: number | null;
   labelW: string;
   labelS: string;
   /** First single-stance label at/after entry (the clip-driven pivot prediction). */
@@ -173,6 +175,18 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
 
   const clipTimeW = lastW?.clipTime ?? null;
   const clipTimeS = firstS?.clipTime ?? null;
+  // Walk-end clip time, free of the render instrument: the exit substep's own
+  // clip time published from inside the sim (bar-2 probe). The rendered
+  // first-settling clipTime trails it by however many substeps ran later in
+  // the same display frame, which is a frame-alignment artefact, not the sim.
+  let exitClipS: number | null = null;
+  for (const f of frames) {
+    const probe = (f as Frame & { walkExitProbe?: { clipTimeSeconds?: unknown } | null }).walkExitProbe;
+    if (probe !== null && probe !== undefined && typeof probe.clipTimeSeconds === "number") {
+      exitClipS = probe.clipTimeSeconds;
+      break;
+    }
+  }
   let labelW = "?";
   let labelS = "?";
   let firstSingleAfterEntry = "?";
@@ -369,6 +383,7 @@ function analyzeRun(tag: string, run: RunFile): RunMetrics {
     settlingFrames: settleIdx.length,
     clipTimeW,
     clipTimeS,
+    exitClipS,
     labelW,
     labelS,
     firstSingleAfterEntry,
@@ -491,6 +506,7 @@ async function main(): Promise<void> {
   show("rendered walking reversals", "", metrics.map((m) => m.renderedReversals), 0);
   show("rendered max second difference", "m", metrics.map((m) => m.renderedMaxSecondDiffM));
   lines.push(`- walk-end clip time histogram (s): ${metrics.map((m) => m.clipTimeS?.toFixed(3) ?? "?").sort().join(" ")}`);
+  lines.push(`- in-sim exit clip histogram (s): ${metrics.map((m) => m.exitClipS?.toFixed(3) ?? "n/a").sort().join(" ")}`);
   lines.push(`- plant foot per run: ${metrics.map((m) => `${m.tag}=${m.plantFoot ?? "?"}`).join(" ")}`);
   const substepMerged: Record<string, number> = {};
   for (const m of metrics) {

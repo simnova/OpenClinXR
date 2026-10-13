@@ -5699,6 +5699,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/fixed-timestep-clock-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     }
   ]
 }

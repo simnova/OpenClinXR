@@ -33,6 +33,7 @@ import {
   resolveStopTriggerInput,
   updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
+import { readWalkExitWindowEnabled } from "./walk-exit-window-query-flag-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -64,8 +65,13 @@ export function advanceCaseOwnedBedsideApproach(
   // like the stance lock's pose read); null off the walking phase keeps legacy exits.
   const clipStanceForExit =
     approach.execution.phase === "walking" ? resolveClipStanceForFrame(approach) : undefined;
+  // `walkExitWindow=1` opts into the contact-window exit (null contact =
+  // legacy immediate exit). Default OFF since the 2026-10-13 handback: the
+  // window's exit-phase steering of the clip-driven turn could not be landed
+  // back on the legacy arrival in two attempts. Fixed clock unaffected.
+  const walkExitWindowEnabled = readWalkExitWindowEnabled();
   const walkExit =
-    clipStanceForExit === undefined
+    clipStanceForExit === undefined || !walkExitWindowEnabled
       ? null
       : {
           cycleSeconds: clipStanceForExit.labels.cycleSeconds,
