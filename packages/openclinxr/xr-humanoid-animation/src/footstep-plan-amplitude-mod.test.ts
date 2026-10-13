@@ -113,7 +113,7 @@ describe("footstep-plan amplitude blend", () => {
     expect(approach.footstep).toBeNull();
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
     captureFootstepRest(approach);
-    expect(approach.footstep.scale).toBeCloseTo(0.7357, 3);
+    expect(approach.footstep.scale).toBeCloseTo(0.707, 3);
     expect(approach.footstep.steps).toBe(3);
     expect(approach.footstep.bones.length).toBe(1);
   });

@@ -29,9 +29,12 @@
  *   (mid-stride: the control snap) vs 0.193 m at clip 0.55 (passing: stance
  *   width, matching the captured rest lateral ~0.19 m within 0.03).
  *
- * Linearity assumption travel(s) = s x STEP_TRAVEL_M is graded, not
- * asserted: G1 requires root path within 0.01 m of planned travel, and the
- * STOP rule fires past 0.02 m.
+ * Linearity assumption travel(s) = s x STEP_TRAVEL_M is superseded for the
+ * planner by the per-foot affine model below (M1, stop-any-route): halves
+ * ending at R and L travel different affines, and planFootsteps solves the
+ * uniform scale from their sum. halfCycleTravelMeters keeps the legacy
+ * linear table read (graded by the same gates as before); the planner no
+ * longer calls it.
  *
  * claimScope: step counts and scales for the physician walk clip.
  * notEvidenceFor: gait realism, other actors/clips, or any route whose plan
@@ -128,29 +131,50 @@ export type FootstepPlan = {
 export type FootstepPlanRefusal = { refused: true; reason: string };
 
 /**
- * Plan N whole steps at one uniform scale for a route of routeLengthMeters.
- * n is the smallest count with scale <= 1; refusal when that scale < 0.7
- * (a middle step under 0.7) or the length is not positive. No fitting: n and
- * scale follow arithmetically from the committed step travel, so 1.31 m -> 3
- * steps at 0.7357 and 2.0 m -> 4 steps at 0.8425 with no per-route constant.
+ * Plan k whole halves at one uniform scale for a route of routeLengthMeters.
+ * Halves alternate R-end, L-end from the L-passing walk start (half i ends R
+ * for odd i, L for even i), and each half's travel comes from the per-foot
+ * affine model (M1), not the shared linear table: k is the smallest count
+ * with the solved scale <= 1; refusal when that scale < 0.7 (a middle step
+ * under 0.7) or the length is not positive. The one scale seeds every half;
+ * the late correction (M3) re-solves it for the last two at the
+ * antepenultimate passing. No per-route constant: 1.31 m -> 3 halves at
+ * 0.7070, 2.0 m -> 4 halves at 0.8369, 6.0 m -> 11 halves at 0.9557.
  */
 export function planFootsteps(routeLengthMeters: number): FootstepPlan | FootstepPlanRefusal {
   if (!(routeLengthMeters > 0) || !Number.isFinite(routeLengthMeters)) {
     return { refused: true, reason: `no plan for route length ${routeLengthMeters}: nothing to walk` };
   }
-  let steps = Math.max(1, Math.ceil(routeLengthMeters / FOOTSTEP_STEP_TRAVEL_M));
-  let scale = routeLengthMeters / (steps * FOOTSTEP_STEP_TRAVEL_M);
-  while (scale > 1 && steps < 1000) {
-    steps += 1;
-    scale = routeLengthMeters / (steps * FOOTSTEP_STEP_TRAVEL_M);
+  for (let steps = 1; steps <= 1000; steps += 1) {
+    let slope = 0;
+    let intercept = 0;
+    for (let half = 1; half <= steps; half += 1) {
+      if (half % 2 === 1) {
+        slope += TRAVEL_A_END_R;
+        intercept += TRAVEL_B_END_R;
+      } else {
+        slope += TRAVEL_A_END_L;
+        intercept += TRAVEL_B_END_L;
+      }
+    }
+    const scale = (routeLengthMeters - intercept) / slope;
+    if (scale > 1) continue;
+    if (scale < FOOTSTEP_MIN_SCALE) {
+      return {
+        refused: true,
+        reason:
+          `route ${routeLengthMeters} m needs scale ${scale.toFixed(4)} < ${FOOTSTEP_MIN_SCALE}: `
+          + "a middle step under 0.7 (S2 STOP rule)",
+      };
+    }
+    let plannedTravelM = 0;
+    for (let half = 1; half <= steps; half += 1) {
+      plannedTravelM += predictFootstepHalfTravelM(scale, half % 2 === 1 ? "R" : "L");
+    }
+    return { steps, scale, plannedTravelM };
   }
-  if (scale < FOOTSTEP_MIN_SCALE) {
-    return {
-      refused: true,
-      reason:
-        `route ${routeLengthMeters} m needs scale ${scale.toFixed(4)} < ${FOOTSTEP_MIN_SCALE}: `
-        + "a middle step under 0.7 (S2 STOP rule)",
-    };
-  }
-  return { steps, scale, plannedTravelM: steps * scale * FOOTSTEP_STEP_TRAVEL_M };
+  return {
+    refused: true,
+    reason: `no plan for route length ${routeLengthMeters}: no whole-half count under 1000 reaches it`,
+  };
 }

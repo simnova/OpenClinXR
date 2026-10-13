@@ -8,46 +8,53 @@ const STEP_TRAVEL_M = 0.5935;
 const MIN_SCALE = 0.7;
 
 describe("footstep-plan schedule", () => {
-  it("plans SC-05 1.31 m as 3 whole steps at one scale >= 0.7", () => {
+  it("plans SC-05 1.31 m as 3 whole halves at one scale >= 0.7", () => {
     const plan = planFootsteps(1.31);
     if ("refused" in plan) throw new Error(`refused 1.31 m: ${plan.reason}`);
     expect(plan.steps).toBe(3);
     expect(plan.scale).toBeGreaterThanOrEqual(MIN_SCALE);
     expect(plan.scale).toBeLessThanOrEqual(1);
-    expect(plan.scale).toBeCloseTo(0.7357, 3);
+    expect(plan.scale).toBeCloseTo(0.707, 3);
     expect(plan.plannedTravelM).toBeCloseTo(1.31, 9);
   });
 
-  it("plans the 2.0 m route as 4 whole steps at one scale >= 0.7", () => {
+  it("plans the 2.0 m route as 4 whole halves at one scale >= 0.7", () => {
     const plan = planFootsteps(2.0);
     if ("refused" in plan) throw new Error(`refused 2.0 m: ${plan.reason}`);
     expect(plan.steps).toBe(4);
     expect(plan.scale).toBeGreaterThanOrEqual(MIN_SCALE);
     expect(plan.scale).toBeLessThanOrEqual(1);
-    expect(plan.scale).toBeCloseTo(0.8425, 3);
+    expect(plan.scale).toBeCloseTo(0.8369, 3);
     expect(plan.plannedTravelM).toBeCloseTo(2.0, 9);
   });
 
-  it("uses the committed scale-1 step travel, not a per-route fit", () => {
-    // A route of exactly the table travel plans 1 step at scale 1, and the
-    // derived per-step travel matches the table: pins the module constant
-    // without importing it.
-    const probe = planFootsteps(STEP_TRAVEL_M);
-    if ("refused" in probe) throw new Error(`refused table travel: ${probe.reason}`);
-    expect(probe.steps).toBe(1);
-    expect(probe.scale).toBeCloseTo(1, 9);
-    expect(probe.plannedTravelM / (probe.steps * probe.scale)).toBeCloseTo(STEP_TRAVEL_M, 9);
-    for (const route of [1.31, 2.0]) {
+  it("solves the uniform scale from the per-foot model, not the shared table", () => {
+    // M2: k halves ending R,L,R,... solve s from the M1 affines, so the
+    // planned travel is the per-foot sum by construction and every plan in
+    // [0.9, 6.0] carries a scale in [0.7, 1.0].
+    for (const route of [0.9, 1.31, 2.0, 6.0]) {
       const plan = planFootsteps(route);
-      if ("refused" in plan) throw new Error(`refused ${route} m`);
-      expect(plan.plannedTravelM / plan.steps / plan.scale).toBeCloseTo(STEP_TRAVEL_M, 9);
+      if ("refused" in plan) throw new Error(`refused ${route} m: ${plan.reason}`);
+      expect(plan.scale).toBeGreaterThanOrEqual(MIN_SCALE);
+      expect(plan.scale).toBeLessThanOrEqual(1);
+      expect(plan.plannedTravelM).toBeCloseTo(route, 9);
     }
+    // 6.0 m plans 11 halves (6 R-ends, 5 L-ends) inside the scale range.
+    const six = planFootsteps(6.0);
+    if ("refused" in six) throw new Error(`refused 6.0 m: ${six.reason}`);
+    expect(six.steps).toBe(11);
+    expect(six.scale).toBeCloseTo(0.9557, 3);
   });
 
   it("refuses a short route that would need a middle step under 0.7", () => {
     const plan = planFootsteps(0.7);
     if (!("refused" in plan)) throw new Error(`planned 0.7 m at scale ${plan.scale}`);
     expect(plan.reason).toMatch(/under 0\.7/);
+    // The per-foot intercepts keep short routes refused below ~0.89 m: the
+    // M6 parser accepts 0.8 m but the planner still stops it loudly here.
+    const short = planFootsteps(0.8);
+    if (!("refused" in short)) throw new Error(`planned 0.8 m at scale ${short.scale}`);
+    expect(short.reason).toMatch(/under 0\.7/);
   });
 
   it("refuses non-positive route lengths", () => {
@@ -57,27 +64,26 @@ describe("footstep-plan schedule", () => {
     }
   });
 
-  it("half-cycle travel is linear in scale from the committed table", () => {
+  it("half-cycle table stays linear in scale from the committed value", () => {
+    // The legacy table read is unchanged by M2 (the planner no longer calls
+    // it, but the S2 gates still grade against it).
     expect(halfCycleTravelMeters(1)).toBeCloseTo(STEP_TRAVEL_M, 9);
     expect(halfCycleTravelMeters(0)).toBe(0);
-    const plan = planFootsteps(1.31);
-    if ("refused" in plan) throw new Error(`refused 1.31 m: ${plan.reason}`);
-    // k x halfCycleTravel(s) === route by construction.
-    expect(plan.steps * halfCycleTravelMeters(plan.scale)).toBeCloseTo(1.31, 9);
+    expect(halfCycleTravelMeters(0.5)).toBeCloseTo(STEP_TRAVEL_M / 2, 9);
   });
 
-  it("D1 check: D1's 0.486 m half maps to effective scale 0.8189 on the table", () => {
-    // D1 (s2-lead2 frames 12/28) measured one half-cycle at 0.486 m. The
-    // table maps that half to scale 0.486 / 0.5935 = 0.8189, against A's
-    // nominal 0.7357 (table prediction 0.4366 m): +11% excess on that half.
-    // Fresh-tree s2c-a (n=3, scale 0.7334 certain) confirms the split: odd
-    // halves 0.430 m match the table, even halves 0.481 m match D1. This
-    // test pins the mapping so a table change breaks loudly; it does not
-    // fit the plan to either half (plan stays table-linear).
+  it("D1 check: the per-foot model predicts D1's measured 0.486 m half", () => {
+    // D1 (s2-lead2 frames 12/28) measured one half-cycle at 0.486 m against
+    // the old table's 0.4366 m prediction (+11% excess). Under M2 the plan
+    // scale for 1.31 m is 0.7070 and the M1 L affine (literals pinned in the
+    // M1 test below) predicts 0.3152 x 0.7070 + 0.2620 = 0.4849 m for an
+    // L-ending half: within 2 mm of D1's measurement. The excess was the
+    // missing foot term, not table noise. The table mapping itself is
+    // unchanged: 0.486 / 0.5935 still inverts exactly.
     expect(halfCycleTravelMeters(0.486 / STEP_TRAVEL_M)).toBeCloseTo(0.486, 9);
     const nominal = planFootsteps(1.31);
     if ("refused" in nominal) throw new Error(`refused 1.31 m: ${nominal.reason}`);
-    expect(halfCycleTravelMeters(nominal.scale)).toBeCloseTo(0.4366, 3);
+    expect(0.3152 * nominal.scale + 0.262).toBeCloseTo(0.486, 2);
   });
 
   it("M1 travel table is self-consistent and its scales match the planner", () => {
@@ -86,9 +92,8 @@ describe("footstep-plan schedule", () => {
     // the audit trail (build shas, exclusions, method). The fit points are
     // repeated here as literals (no node:fs in this package's tests) so the
     // table cannot drift silently: the recomputed fit must match the
-    // table's reported a/b/rms, and the table scales must reproduce the
-    // planner's uniform-scale arithmetic. No new public symbol: the model
-    // is module-private until M2 consumes it.
+    // table's reported a/b/rms. No new public symbol: the model is
+    // module-private, consumed by planFootsteps in the same file.
     const lPoints: Array<[number, number]> = [[0.7334, 0.4943], [0.8425, 0.5246], [0.919, 0.5533]];
     const rPoints: Array<[number, number]> = [[0.7334, 0.4292], [0.8425, 0.4669], [0.919, 0.5191]];
     const leastSquares = (points: Array<[number, number]>): { a: number; b: number; rmsMm: number } => {
@@ -110,12 +115,16 @@ describe("footstep-plan schedule", () => {
     expect(r.a).toBeCloseTo(0.4749, 3);
     expect(r.b).toBeCloseTo(0.0768, 3);
     expect(r.rmsMm).toBeCloseTo(7.1, 1);
-    // Table scales reproduce the planner's uniform-scale arithmetic exactly.
-    const routeScales: Array<[number, number]> = [[1.306, 0.7335], [2.0, 0.8425], [6.0, 0.919]];
-    for (const [route, scale] of routeScales) {
+    // Table scales are the runs' historical uniform scales (old shared-table
+    // arithmetic): every one sits inside the planner's [0.7, 1.0] range, and
+    // every table route still takes a plan under the per-foot solver.
+    for (const scale of [0.7335, 0.8425, 0.919]) {
+      expect(scale).toBeGreaterThanOrEqual(MIN_SCALE);
+      expect(scale).toBeLessThanOrEqual(1);
+    }
+    for (const route of [1.306, 2.0, 6.0]) {
       const plan = planFootsteps(route);
-      if ("refused" in plan) throw new Error(`refused ${route} m`);
-      expect(plan.scale).toBeCloseTo(scale, 3);
+      if ("refused" in plan) throw new Error(`refused table route ${route} m: ${plan.reason}`);
     }
   });
 });
