@@ -56,7 +56,15 @@ type Row = "lockOff" | "twoBone" | "ccd";
 function rowFromArgv(): Row {
   const flag = process.argv.find((a) => a.startsWith("--row="))?.slice("--row=".length);
   if (flag === "lockOff" || flag === "twoBone" || flag === "ccd") return flag;
-  throw new Error("usage: loco-ground-capture.ts --row=lockOff|twoBone|ccd");
+  throw new Error("usage: loco-ground-capture.ts --row=lockOff|twoBone|ccd [--humanoid-glb=<path> --out-subdir=<dir>]");
+}
+
+function humanoidGlbFromArgv(): string | null {
+  return process.argv.find((a) => a.startsWith("--humanoid-glb="))?.slice("--humanoid-glb=".length) ?? null;
+}
+
+function outSubdirFromArgv(fallback: string): string {
+  return process.argv.find((a) => a.startsWith("--out-subdir="))?.slice("--out-subdir=".length) ?? fallback;
 }
 
 function rowFlag(row: Row): string {
@@ -286,8 +294,11 @@ async function readTapRing(page: Page): Promise<unknown[]> {
 
 async function main(): Promise<void> {
   const row = rowFromArgv();
-  const outDir = path.join(OUTPUT_ROOT, row);
+  const outDir = path.join(OUTPUT_ROOT, outSubdirFromArgv(row));
   await mkdir(outDir, { recursive: true });
+  const humanoidGlb = humanoidGlbFromArgv();
+  const humanoidBytes = humanoidGlb ? await readFile(humanoidGlb) : null;
+  if (humanoidGlb && !humanoidBytes) throw new Error(`humanoid override missing: ${humanoidGlb}`);
 
   // DIST MARKER PROOF: the browser serves package dist — record exactly what
   // dist the capture ran against (sha per touched module + marker grep),
@@ -315,7 +326,7 @@ async function main(): Promise<void> {
   const services = createLocalComputeServices();
   try {
     await services.sceneCapture.withBrowser(`loco-ground-${row}`, async (browser) => {
-      await runRow(row, outDir, distProof, bundleJson, server.url, browser as Browser);
+      await runRow(row, outDir, distProof, bundleJson, server.url, browser as Browser, humanoidBytes);
     });
   } finally {
     await stopPortlessDevServer(server.proc);
@@ -331,6 +342,7 @@ async function runRow(
   bundleJson: string,
   baseUrl: string,
   browser: Browser,
+  humanoidBytes: Buffer | null,
 ): Promise<void> {
   let context: BrowserContext | null = null;
   try {
@@ -340,6 +352,15 @@ async function runRow(
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
+    // Humanoid override (walk-clip census stage 4): serve a candidate GLB wherever the
+    // app requests the shipped physician. Fail-closed: zero hits refuses the capture.
+    let humanoidHits = 0;
+    if (humanoidBytes) {
+      await page.route("**/generated-humanoids/mpfb-clinical-physician-adult.glb", async (route) => {
+        humanoidHits += 1;
+        await route.fulfill({ status: 200, contentType: "model/gltf-binary", body: humanoidBytes });
+      });
+    }
     const url = `${buildSceneClosureUrl(baseUrl)}&locoGround=1${rowFlag(row)}`;
     await page.goto(url, { waitUntil: "load", timeout: 180_000 });
     await page.evaluate(HIDE_UI_SOURCE);
@@ -515,6 +536,10 @@ async function runRow(
     };
     await writeFile(path.join(outDir, `loco-ground-${row}.json`), `${JSON.stringify(capture, null, 2)}\n`);
     process.stdout.write(`[${row}] wrote ${outDir}/loco-ground-${row}.json\n`);
+    if (humanoidBytes) {
+      process.stdout.write(`[${row}] humanoid override hits=${humanoidHits}\n`);
+      if (humanoidHits < 1) throw new Error("humanoid override never served; refusing capture (would measure shipped bytes)");
+    }
   } finally {
     if (context !== null) await context.close().catch(() => undefined);
   }

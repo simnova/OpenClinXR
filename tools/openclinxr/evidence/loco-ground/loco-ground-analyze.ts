@@ -46,7 +46,7 @@ type TapMeta = {
   actorScale: { x: number; y: number; z: number } | null;
   postureTags: Record<string, string | null | undefined>;
 };
-type TapFrame = { frame: number; mixer: TapPose; posture: TapPose; rendered: TapPose; meta: TapMeta };
+export type TapFrame = { frame: number; mixer: TapPose; posture: TapPose; rendered: TapPose; meta: TapMeta };
 type EvSample = {
   atMs: number;
   phase: string;
@@ -87,7 +87,7 @@ type WriterRow = {
   bcMedianDeg: number;
 };
 
-type RowReport = {
+export type RowReport = {
   row: string;
   urlQuery: string;
   distMarker: unknown;
@@ -132,7 +132,7 @@ function toeOf(pose: TapPose, foot: "left" | "right"): Xyz | null {
   return foot === "left" ? pose.toeWorld.left : pose.toeWorld.right;
 }
 
-function analyzeRow(row: string, capture: {
+export function analyzeRow(row: string, capture: {
   urlQuery: string;
   distMarker: unknown;
   routeLengthMeters: number;
@@ -481,14 +481,14 @@ function minToeY(poses: TapPose[]): number | null {
   return floor;
 }
 
-type ClipInfo = { name: string; durationSeconds: number; trackCount: number };
+export type ClipInfo = { name: string; durationSeconds: number; trackCount: number };
 
 /**
  * Read the walk clip's own name/duration/track count off the shipped
  * physician GLB (JSON chunk + BIN times), not from a comment. The browser
  * plays this take through the retarget; these are the take's own numbers.
  */
-async function readWalkClipInfo(glbPath: string): Promise<ClipInfo> {
+export async function readWalkClipInfo(glbPath: string): Promise<ClipInfo> {
   const buf = await readFile(glbPath);
   const jsonLen = buf.readUInt32LE(12);
   const json = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
@@ -516,7 +516,7 @@ async function readWalkClipInfo(glbPath: string): Promise<ClipInfo> {
   return { name: anim.name ?? "(unnamed)", durationSeconds: duration, trackCount: anim.channels?.length ?? 0 };
 }
 
-type ClipReport = {
+export type ClipReport = {
   name: string;
   durationSeconds: number;
   trackCount: number;
@@ -542,7 +542,7 @@ type ClipReport = {
  * band moving backward in the body frame at >= half the foot's own steady
  * peak — the same rule as the row metrics, restricted to the (a) pose.
  */
-function analyzeClip(armed: TapFrame[], unit: { x: number; z: number }, info: ClipInfo, timeScale: number | null): ClipReport {
+export function analyzeClip(armed: TapFrame[], unit: { x: number; z: number }, info: ClipInfo, timeScale: number | null): ClipReport {
   const steadySet = analyzeRowSteady(armed);
   const steadyList = [...steadySet].sort((a, b) => a - b);
   const floorMixer = minToeY(armed.map((t) => t.mixer));
