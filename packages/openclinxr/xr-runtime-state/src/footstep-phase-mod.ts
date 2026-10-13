@@ -11,6 +11,7 @@
  */
 
 import type { BedsideApproachExecution } from "./bedside-approach-execution-mod.js";
+import { endFootOf, halfDurationS, passingTimeU, stepFootstepToeCrossing } from "./footstep-crossing-exit-mod.js";
 
 /**
  * Footstep-plan S2c M2 exit input. All numbers cross from the frame module
@@ -42,6 +43,10 @@ export type FootstepPhaseExit = {
   planScale?: number;
   /** Unit-sim channel only (G6 off-leg): skip the late correction, keep logging. Never set at runtime. */
   skipLateCorrection?: boolean;
+  /** M2: frame-side R-L toe-separation sign flip this substep (route axis). Absent = no toe data. */
+  toeCrossed?: boolean;
+  /** M2 G4 probe: substeps to hold the exit after a recorded crossing. Absent = 0. */
+  exitDelaySubsteps?: number;
 };
 
 /**
@@ -146,6 +151,8 @@ export type FootstepPhaseState = {
   recountSteps: number;
   correct: FootstepCorrection | null;
   lastPassing: FootstepPassingEntry | null;
+  /** M2: walking-call index of the recorded last-half toe crossing; null until one is seen. */
+  crossedAtSubstep: number | null;
   safetyTrip: { reason: string; travelledM: number; boundM: number; drained?: boolean } | null;
 };
 
@@ -164,25 +171,6 @@ const FOOTSTEP_SOLVE_DEADBAND = 0.02;
 
 /** Remaining distance at or below which the walk ends at the passing (stranded rescue, feet together). */
 const FOOTSTEP_EXIT_NOW_REMAINING_M = 0.35;
-
-/** End foot of the j-th half (1-based): halves alternate R, L from the L-passing start. */
-function endFootOf(j: number): "L" | "R" {
-  return j % 2 === 1 ? "R" : "L";
-}
-
-/** Unwrapped clip seconds of the j-th passing (j >= 1); the walk start itself is passing zero. */
-function passingTimeU(exit: FootstepPhaseExit, j: number): number {
-  const fullCycles = Math.floor(j / 2);
-  return j % 2 === 1
-    ? exit.rPassingS + fullCycles * exit.cycleS
-    : exit.startPhaseS + fullCycles * exit.cycleS;
-}
-
-/** Clip duration of one half ending at the named foot (R halves span start->rPassing). */
-function halfDurationS(exit: FootstepPhaseExit, endFoot: "L" | "R"): number {
-  const rHalf = exit.rPassingS - exit.startPhaseS;
-  return endFoot === "R" ? rHalf : exit.cycleS - rHalf;
-}
 
 function modelComplete(exit: FootstepPhaseExit): boolean {
   return typeof exit.aEndR === "number"
@@ -346,6 +334,7 @@ export function stepFootstepPhaseExitBand(input: {
     correct: null,
     lastPassing: null,
     safetyTrip: null,
+    crossedAtSubstep: null,
   };
   const nowU = exit.clipTimeS + phaseTest.wraps * exit.cycleS;
   // The init step (no lastClipS before this one) sets the datum: remaining
@@ -472,8 +461,22 @@ export function stepFootstepPhaseExitBand(input: {
   } else {
     target = footstepExitPhaseForSteps(exit);
   }
+  // M2: exit at the toe crossing in the planned last half; the phase
+  // target below is the backstop until a crossing is recorded (and the G4
+  // probe holds a recorded crossing late). One terminator either way.
+  const crossing = stepFootstepToeCrossing({
+    toeCrossed: exit.toeCrossed === true,
+    delaySubsteps: exit.exitDelaySubsteps ?? 0,
+    substep: input.walkSimSubsteps,
+    crossedAt: state.crossedAtSubstep,
+    lastHalf: state.passings === activeBase + activeSteps - 1,
+  });
+  state = crossing.crossedAt === state.crossedAtSubstep
+    ? state
+    : { ...state, crossedAtSubstep: crossing.crossedAt };
   if (
-    (target !== null && nowU >= target)
+    crossing.fire
+    || ((target !== null && nowU >= target) && crossing.crossedAt === null)
     || input.walkSimSubsteps >= FOOTSTEP_EXIT_MAX_WAIT_SUBSTEPS
   ) {
     return exitHere({ ...state, correct: null });

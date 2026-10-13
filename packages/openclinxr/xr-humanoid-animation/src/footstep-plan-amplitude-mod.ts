@@ -5,6 +5,7 @@ import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod
 import { planFootsteps } from "./footstep-plan-schedule.js";
 import {
   parseFootstepPlanEnabled,
+  parseFootstepRouteMeters,
   readFootstepPlanEnabled,
   readFootstepProbeModelScale,
   readFootstepRouteMeters,
@@ -44,25 +45,30 @@ export type FootstepPlanState = {
   scale: number;
   steps: number;
   bones: FootstepBoneRest[];
+  /** M2: previous substep's route-axis R-L toe separation (m); null until read. */
+  lastToeSeparationM?: number | null;
 };
 
 const routeIntentCache = new WeakMap<ResolvedBedsideApproach, ResolvedBedsideApproach>();
 
 /**
- * 2.0 m second route (S2 gate cell): prepend collinear waypoints and move
- * the start back along the route axis until the polyline is 2.0 m, reusing
- * extendLocoGroundRoute with routeMeters 2. Pure; null route flag or an
- * already-long route returns the input untouched. Default off.
+ * Second route for the plan (gate cells plus any orchestrator route in
+ * [0.8, 6.0]): prepend collinear waypoints and move the start back along
+ * the route axis until the polyline matches the flag, reusing
+ * extendLocoGroundRoute. Pure; null route flag or an already-long route
+ * returns the input untouched. Default off (plan flag required).
  */
 export function extendFootstepRouteIntent(intent: ResolvedBedsideApproach): ResolvedBedsideApproach {
-  if (!readFootstepPlanEnabled() || readFootstepRouteMeters() === null) return intent;
+  if (!readFootstepPlanEnabled()) return intent;
+  const routeMeters = readFootstepRouteMeters();
+  if (routeMeters === null) return intent;
   const cached = routeIntentCache.get(intent);
   if (cached) return cached;
   const extended = extendLocoGroundRoute({
     start: intent.start,
     target: intent.target.position,
     waypoints: intent.plan.waypoints,
-    routeMeters: 2,
+    routeMeters,
   });
   const out = extended === null
     ? intent
@@ -74,8 +80,7 @@ export function extendFootstepRouteIntent(intent: ResolvedBedsideApproach): Reso
 /** Node-testable gate twin: pure parser over the search string. */
 export function footstepRouteExtensionForTest(search: string): number | null {
   if (!parseFootstepPlanEnabled(search)) return null;
-  const raw = new URLSearchParams(search).get("footstepRouteM");
-  return raw !== null && Number(raw) === 2 ? 2 : null;
+  return parseFootstepRouteMeters(search);
 }
 
 const PELVIS_BONE = /^pelvis/;
@@ -129,7 +134,7 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
     const q = bone.quaternion;
     bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w } });
   }
-  approach.footstep = { scale: plan.scale, steps: plan.steps, bones };
+  approach.footstep = { scale: plan.scale, steps: plan.steps, bones, lastToeSeparationM: null };
 }
 
 const restQuat = new Quaternion();

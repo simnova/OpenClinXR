@@ -20,15 +20,16 @@ export function readFootstepPlanEnabled(): boolean {
 }
 
 /**
- * Second-route length for the plan, in metres. Only exactly 2 is honored
- * (the S2 2.0 m cell); absent or anything else reads null and the walk keeps
- * the SC-05 route. Pure parser, unit-tested.
+ * Second-route length for the plan, in metres. Any number in [0.8, 6.0]
+ * is honored (the M2 exit-phase cell exercises 2.0; the orchestrator's
+ * unseen route lands in this range); absent or anything else reads null
+ * and the walk keeps its scene route. Pure parser, unit-tested.
  */
 export function parseFootstepRouteMeters(search: string): number | null {
   const raw = new URLSearchParams(search).get("footstepRouteM");
   if (raw === null) return null;
   const value = Number(raw);
-  return value === 2 ? 2 : null;
+  return Number.isFinite(value) && value >= 0.8 && value <= 6 ? value : null;
 }
 
 /** Browser entry read; null anywhere without a location search (node, tools). */
@@ -36,6 +37,22 @@ export function readFootstepRouteMeters(): number | null {
   const search = (globalThis as unknown as { window?: { location?: { search?: string } } })
     .window?.location?.search;
   return typeof search === "string" ? parseFootstepRouteMeters(search) : null;
+}
+
+/**
+ * G4 probe: hold the M2 crossing exit N substeps past the recorded
+ * crossing (?footstepProbeExitDelay=N). Module export for the frame
+ * module's struct fill. Default 0: integers in [0, 30] only, anything
+ * else reads 0.
+ */
+export function readFootstepExitDelaySubsteps(): number {
+  const search = (globalThis as unknown as { window?: { location?: { search?: string } } })
+    .window?.location?.search;
+  if (typeof search !== "string") return 0;
+  const raw = new URLSearchParams(search).get("footstepProbeExitDelay");
+  if (raw === null) return 0;
+  const value = Number(raw);
+  return Number.isInteger(value) && value >= 0 && value <= 30 ? value : 0;
 }
 
 /**

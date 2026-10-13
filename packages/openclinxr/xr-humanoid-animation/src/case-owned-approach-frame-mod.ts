@@ -28,7 +28,8 @@ import { captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
 import { applyFootstepCorrection } from "./footstep-plan-amplitude-mod.js";
 import { applyWalkingPhaseLocks } from "./case-owned-approach-walking-tail-mod.js";
 import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S, FOOTSTEP_TRAVEL_COEFFS } from "./footstep-plan-schedule.js";
-import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { readFootstepExitDelaySubsteps, readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { readFootstepToeSeparationM } from "./footstep-toe-separation-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
   resolveClipStanceForFrame,
@@ -46,6 +47,28 @@ type Vector3 = { x: number; y: number; z: number };
  * own stance track, and applying the stance lock. Split out of `case-owned-approach-runtime-mod.ts`
  * to clear that file's 500-line budget; behaviour is unchanged, only the module boundary moved.
  */
+
+/**
+ * M2 toe-crossing event (default OFF with the plan flag): route-axis R-L
+ * separation across consecutive substeps; true on the sign flip. Reads
+ * only; the stored previous substep lives on the plan state.
+ */
+function readFootstepToeCrossed(approach: CaseOwnedBedsideApproach): boolean {
+  const plan = approach.footstep;
+  if (plan === null) return false;
+  const curr = readFootstepToeSeparationM({
+    leftToe: approach.leftToe,
+    rightToe: approach.rightToe,
+    startX: approach.start.x,
+    startZ: approach.start.z,
+    targetX: approach.target.x,
+    targetZ: approach.target.z,
+  });
+  const prev = plan.lastToeSeparationM ?? null;
+  if (curr !== null) plan.lastToeSeparationM = curr;
+  return prev !== null && curr !== null && prev !== curr
+    && (curr === 0 || Math.sign(prev) !== Math.sign(curr));
+}
 
 export function advanceCaseOwnedBedsideApproach(
   approach: CaseOwnedBedsideApproach | null,
@@ -102,6 +125,8 @@ export function advanceCaseOwnedBedsideApproach(
           aEndL: FOOTSTEP_TRAVEL_COEFFS.aEndL,
           bEndL: FOOTSTEP_TRAVEL_COEFFS.bEndL,
           planScale: approach.footstep.scale,
+          toeCrossed: readFootstepToeCrossed(approach),
+          exitDelaySubsteps: readFootstepExitDelaySubsteps(),
         };
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
