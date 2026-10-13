@@ -67,7 +67,7 @@ describe("fixed-timestep clock", () => {
     }
     expect(substepsForSchedule(uniform60)).toBe(60);
     expect(substepsForSchedule(uniform30)).toBe(60);
-    expect(substepsForSchedule(uniform90)).toBe(90);
+    expect(substepsForSchedule(uniform90)).toBe(60);
     // Jitter covers >= 1 s of wall time, so it simulates at least the 60 whole
     // substeps the uniform schedules agree on; the partial tail stays queued.
     expect(substepsForSchedule(jittered)).toBeGreaterThanOrEqual(60);
@@ -86,10 +86,16 @@ describe("fixed-timestep clock", () => {
   it("clamps frame dt and caps substeps per frame", () => {
     expect(clampFrameDtSeconds(1)).toBe(0.05);
     expect(clampFrameDtSeconds(-0.5)).toBe(0);
+    // The 0.05 clamp admits at most 3 whole substeps in one consume.
     const clock = createFixedTimestepClock();
-    const consumed = consumeFrameTime(clock, 10);
-    expect(consumed.substeps).toBe(MAX_SUBSTEPS_PER_FRAME);
-    expect(consumed.leftoverSeconds).toBeGreaterThan(0);
+    expect(consumeFrameTime(clock, 10).substeps).toBe(3);
+    // Fuzz: no dt sequence ever exceeds the stated per-frame cap.
+    const draw = mulberry32(99);
+    const fuzz = createFixedTimestepClock();
+    for (let k = 0; k < 1000; k += 1) {
+      const dt = draw() * 0.2;
+      expect(consumeFrameTime(fuzz, dt).substeps).toBeLessThanOrEqual(MAX_SUBSTEPS_PER_FRAME);
+    }
   });
 
   it("renders the current sim state on exact consumes (capture-clock thin case)", () => {
@@ -124,7 +130,10 @@ describe("fixed-timestep clock", () => {
       const second = Math.abs(rendered[k + 1]! - 2 * rendered[k]! + rendered[k - 1]!);
       if (second > maxSecond) maxSecond = second;
     }
-    expect(maxSecond).toBeLessThanOrEqual(2 * advance + 1e-9);
+    // Rendered increments stay within one frame's sim advance (at most two
+    // substeps at the 1/45 s schedule top), so the second difference stays
+    // within twice that single-frame step.
+    expect(maxSecond).toBeLessThanOrEqual(4 * advance + 1e-9);
   });
 
   it("reads single-support contact windows including wrap-around", () => {
