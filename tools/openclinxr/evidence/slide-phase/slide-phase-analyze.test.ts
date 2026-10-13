@@ -98,6 +98,12 @@ describe("slide-phase validation (a): planted 0.05 m slide", () => {
     expect(m.walking.rootPathM).toBeCloseTo(0.55, 9);
     expect(m.walking.slidePerMetre).toBeCloseTo(0.05 / 0.55, 9);
 
+    // Deep gate (S1 M3): the plant rides at y = 0.02, inside the deep gate,
+    // so the deep variant agrees with the band variant on this record.
+    expect(m.walking.deepWindows).toHaveLength(2);
+    expect(m.walking.deepSumM).toBeCloseTo(0.05, 9);
+    expect(m.walking.deepSlidePerMetre).toBeCloseTo(0.05 / 0.55, 9);
+
     // Zero elsewhere: settle pair travel and both turn windows are frozen.
     expect(m.settle.leftTravelM).toBeCloseTo(0, 9);
     expect(m.settle.rightTravelM).toBeCloseTo(0, 9);
@@ -119,5 +125,24 @@ describe("slide-phase validation (a): planted 0.05 m slide", () => {
     expect(m.endStance.yawErrorRad).toBeCloseTo(0, 9);
     expect(m.endStance.bothInBand).toBe(true);
     expect(m.missing).toEqual([]);
+  });
+});
+
+describe("slide-phase deep gate (S1 M3): in-band roll above 0.02 m", () => {
+  it("band variant reports the travel while the deep variant reads 0", () => {
+    const run = syntheticRun();
+    // Lift the planted window's travel into the 0.02-0.06 m shelf: inside the
+    // contact band (still one band-gated window) but outside the deep gate.
+    for (let i = 0; i < 6; i += 1) {
+      run.frames[i]!.leftToe = toe(i * 0.01, 0.05, 0);
+    }
+    const m = computeSlidePhase("synthetic-shelf-run0", run);
+    expect(m.walking.windows).toHaveLength(2);
+    expect(m.walking.windows[0]!.travelM).toBeCloseTo(0.05, 9);
+    expect(m.walking.sumM).toBeCloseTo(0.05, 9);
+    expect(m.walking.deepWindows).toHaveLength(1);
+    expect(m.walking.deepWindows[0]!.foot).toBe("right");
+    expect(m.walking.deepSumM).toBeCloseTo(0, 9);
+    expect(m.walking.deepSlidePerMetre).toBeCloseTo(0, 9);
   });
 });

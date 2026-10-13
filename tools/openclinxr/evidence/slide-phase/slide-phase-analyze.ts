@@ -12,6 +12,10 @@ import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-
  *
  * Notation: |a-b|_xz = hypot(a.x-b.x, a.z-b.z). BAND = FOOT_CONTACT_HEIGHT_METERS.
  * planted(f, foot) := f.toe[foot] is present and f.toe[foot].y <= BAND.
+ * deepPlanted(f, foot) := f.toe[foot] is present and f.toe[foot].y <= DEEP_BAND_M
+ * (0.02 m, footstep-plan S1 M3 measurement, not a bar: the same windows as (2)
+ * but only frames with the toe truly near the ground, so heel-strike/toe-off
+ * roll inside the 6 cm band separates from true ground slide).
  *
  * Boundaries (record columns only):
  * - W0/W1 = first/last index with phase = "walking".
@@ -37,6 +41,9 @@ import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-
  *    rootPathM = SUM over consecutive walking indices with both slots present
  *    of |slot[i]-slot[i-1]|_xz. slidePerMetre = sumWalkSlide / rootPathM
  *    (null when rootPathM == 0).
+ * 2b. walking deep-gate (S1 M3): deepWindows = maximal runs as in (2) with
+ *    deepPlanted in place of planted. deepSumM = SUM windowTravel.
+ *    deepSlidePerMetre = deepSumM / rootPathM (null when rootPathM == 0).
  * 3. settle: pairs (i,i+1) with W1 <= i < T0, both endpoints planted(foot).
  *    settleTravel[foot] = SUM of |toe[i+1]-toe[i]|_xz over those pairs
  *    (0 when T0 == W1 + 1 with no planted pair; missing when T0 is null).
@@ -116,6 +123,10 @@ export type SlidePhaseMetrics = {
     sumM: number;
     rootPathM: number;
     slidePerMetre: number | null;
+    /** S1 M3: same windows under the deep gate (toe.y <= 0.02 m). */
+    deepWindows: StanceWindow[];
+    deepSumM: number;
+    deepSlidePerMetre: number | null;
   };
   settle: {
     fromFrame: number | null;
@@ -158,11 +169,23 @@ function planted(f: SlidePhaseFrame, foot: "left" | "right"): boolean {
   return t !== null && t.y <= FOOT_CONTACT_HEIGHT_METERS;
 }
 
+/**
+ * S1 M3 deep gate (measurement, not a bar): toe truly near the ground.
+ * Literal 0.02 m from the brief; mirrors planted()'s <= convention.
+ */
+const DEEP_BAND_M = 0.02;
+
+function gated(f: SlidePhaseFrame, foot: "left" | "right", bandMeters: number | null): boolean {
+  if (bandMeters === null) return toeOf(f, foot) !== null;
+  const t = toeOf(f, foot);
+  return t !== null && t.y <= bandMeters;
+}
+
 /** Maximal stanceFoot runs (>= 1 frame) inside an index list; singletons counted out. */
 function stanceRuns(
   frames: SlidePhaseFrame[],
   idx: number[],
-  opts: { bandGate: boolean },
+  opts: { bandMeters: number | null },
 ): { windows: StanceWindow[]; singleFrameRuns: number } {
   const windows: StanceWindow[] = [];
   let singleFrameRuns = 0;
@@ -196,7 +219,7 @@ function stanceRuns(
     const usable =
       foot !== null &&
       toeOf(f, foot) !== null &&
-      (!opts.bandGate || planted(f, foot));
+      gated(f, foot, opts.bandMeters);
     if (!usable || foot === null) {
       flush();
       continue;
@@ -312,8 +335,14 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
   const walkRuns =
     W0 === null
       ? { windows: [] as StanceWindow[], singleFrameRuns: 0 }
-      : stanceRuns(frames, walkingIdx, { bandGate: true });
+      : stanceRuns(frames, walkingIdx, { bandMeters: FOOT_CONTACT_HEIGHT_METERS });
   const sumM = walkRuns.windows.reduce((s, w) => s + w.travelM, 0);
+  // (2b) walking deep-gate: same windows, toe.y <= 0.02 m.
+  const deepRuns =
+    W0 === null
+      ? { windows: [] as StanceWindow[], singleFrameRuns: 0 }
+      : stanceRuns(frames, walkingIdx, { bandMeters: DEEP_BAND_M });
+  const deepSumM = deepRuns.windows.reduce((s, w) => s + w.travelM, 0);
   let rootPathM = 0;
   for (let k = 1; k < walkingIdx.length; k += 1) {
     const a = frames[walkingIdx[k - 1]!]!.slot;
@@ -355,8 +384,8 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
     turnStart !== null && S1 !== null
       ? settlingIdx.filter((i) => i >= turnStart && i <= S1)
       : [];
-  const turnRuns = stanceRuns(frames, turnIdx, { bandGate: true });
-  const replicaRuns = stanceRuns(frames, settlingIdx, { bandGate: false });
+  const turnRuns = stanceRuns(frames, turnIdx, { bandMeters: FOOT_CONTACT_HEIGHT_METERS });
+  const replicaRuns = stanceRuns(frames, settlingIdx, { bandMeters: null });
   const turnMax = turnRuns.windows.length === 0 ? 0 : Math.max(...turnRuns.windows.map((w) => w.travelM));
   const replicaMax =
     replicaRuns.windows.length === 0 ? 0 : Math.max(...replicaRuns.windows.map((w) => w.travelM));
@@ -417,6 +446,9 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
       sumM,
       rootPathM,
       slidePerMetre: rootPathM === 0 ? null : sumM / rootPathM,
+      deepWindows: deepRuns.windows,
+      deepSumM,
+      deepSlidePerMetre: rootPathM === 0 ? null : deepSumM / rootPathM,
     },
     settle: {
       fromFrame: settleFrom,
@@ -505,13 +537,15 @@ async function main(): Promise<void> {
 
   const lines: string[] = [];
   lines.push(`# slide-phase: ${dir} vehicle=${vehicle} (${metrics.length} runs)`);
-  lines.push("| run | startL | startR | 1stStep | walkWin | walkSum | rootM | slide/m | settleL | settleR | turnMax | pivot | lat | foreAft | yawErrDeg | band |");
-  lines.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  lines.push("| run | startL | startR | 1stStep | walkWin | walkSum | deepWin | deepSum | rootM | slide/m | deep/m | settleL | settleR | turnMax | pivot | lat | foreAft | yawErrDeg | band |");
+  lines.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const m of metrics) {
     lines.push(
       `| ${m.tag} | ${fmt(m.startTransient.leftTravelM)} | ${fmt(m.startTransient.rightTravelM)} | ` +
         `${fmt(m.startTransient.firstStepTravelM)} | ${m.walking.windows.length} | ${fmt(m.walking.sumM)} | ` +
-        `${fmt(m.walking.rootPathM, 3)} | ${fmt(m.walking.slidePerMetre)} | ${fmt(m.settle.leftTravelM)} | ` +
+        `${m.walking.deepWindows.length} | ${fmt(m.walking.deepSumM)} | ` +
+        `${fmt(m.walking.rootPathM, 3)} | ${fmt(m.walking.slidePerMetre)} | ${fmt(m.walking.deepSlidePerMetre)} | ` +
+        `${fmt(m.settle.leftTravelM)} | ` +
         `${fmt(m.settle.rightTravelM)} | ${fmt(m.turn.maxM)} | ${m.turn.pivotFoot ?? "n/a"} | ` +
         `${fmt(m.endStance.lateralM)} | ${fmt(m.endStance.foreAftM)} | ${fmt(m.endStance.yawErrorDeg, 2)} | ` +
         `${m.endStance.bothInBand === null ? "n/a" : m.endStance.bothInBand ? "yes" : "NO"} |`,
@@ -531,8 +565,10 @@ async function main(): Promise<void> {
   show("startTransient.rightTravelM", "m", metrics.map((m) => m.startTransient.rightTravelM));
   show("startTransient.firstStepTravelM", "m", metrics.map((m) => m.startTransient.firstStepTravelM));
   show("walking.sumM", "m", metrics.map((m) => m.walking.sumM));
+  show("walking.deepSumM", "m", metrics.map((m) => m.walking.deepSumM));
   show("walking.rootPathM", "m", metrics.map((m) => m.walking.rootPathM), 3);
   show("walking.slidePerMetre", "m/m", metrics.map((m) => m.walking.slidePerMetre));
+  show("walking.deepSlidePerMetre", "m/m", metrics.map((m) => m.walking.deepSlidePerMetre));
   show("settle.leftTravelM", "m", metrics.map((m) => m.settle.leftTravelM));
   show("settle.rightTravelM", "m", metrics.map((m) => m.settle.rightTravelM));
   show("turn.maxM", "m", metrics.map((m) => m.turn.maxM));
@@ -544,6 +580,7 @@ async function main(): Promise<void> {
   for (const m of metrics) {
     lines.push(
       `- ${m.tag}: walkWindows=[${m.walking.windows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
+        `deepWindows=[${m.walking.deepWindows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
         `turnWindows=[${m.turn.windows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
         `replicaUngatedMax=${m.turn.replicaUngatedMaxM.toFixed(4)} missing=[${m.missing.join("; ") || "none"}]`,
     );
