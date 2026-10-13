@@ -7,7 +7,7 @@
     "agent-methodology": 109,
     "current-reference": 214,
     "archive-candidate": 126,
-    "evidence": 183,
+    "evidence": 184,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5713,6 +5713,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Footstep-plan S1 record: closed-loop opt-in, slide-meter known-good column, D2 cause split, build-time contact phases for the S2 planner."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/footstep-plan-s2-2026-10-13.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Footstep-plan S2 record: stride-amplitude plan behind ?footstepPlan=1, three-build table (control/A/B-rejected/M2), D1-D3 trace finding, per-window slide, S2d gate-fix record, render paths."
     }
   ]
 }

@@ -100,6 +100,16 @@ function outputDirFromArgv(): string {
 }
 
 /**
+ * Footstep-plan slice (2026-10-13): extra URL query appended verbatim
+ * (e.g. `--query=footstepPlan=1&fixedClock=1`); empty by default so existing
+ * invocations are unchanged. Lets one capture binary serve flagged cells.
+ */
+function extraQueryFromArgv(): string {
+  const flag = process.argv.find((arg) => arg.startsWith("--query="));
+  return flag ? flag.slice("--query=".length) : "";
+}
+
+/**
  * Step-capture lean slice: full-body side view (head to feet in frame) instead of
  * the feet-filling framing. Opt-in `--full-body` (or `--full-body=1`); default off.
  * Wired in main(): pulls the dry-decided side pose back and swaps the side gate to
@@ -325,6 +335,8 @@ type FootPlantVideoReport = {
   steppingTurnEnabled: boolean;
   /** CCD-browser slice: the --ccd-stance-lock flag value for this run (default false). */
   ccdStanceLockEnabled: boolean;
+  /** Footstep-plan slice: the verbatim --query string appended to the capture URL ("" when none). */
+  extraQuery: string;
   /** Step-capture lean slice: --full-body pulls the side view back to head-to-feet (default false). */
   fullBodySideView: boolean;
   fpsCandidates: {
@@ -2355,6 +2367,7 @@ async function main(): Promise<void> {
   const outputDir = path.resolve(process.cwd(), outputDirFromArgv());
   const steppingTurnEnabled = steppingTurnEnabledFromArgv();
   const ccdStanceLockEnabled = ccdStanceLockEnabledFromArgv();
+  const extraQuery = extraQueryFromArgv();
   const fullBodySideView = fullBodyFromArgv();
   const stagingDir = path.resolve(process.cwd(), ".openclinxr/evidence/foot-plant-video-staging");
   await mkdir(outputDir, { recursive: true });
@@ -2372,9 +2385,10 @@ async function main(): Promise<void> {
   ACTIVE_BUILD_URL = (baseUrl: string) =>
     baseBuildUrl(baseUrl)
     + (steppingTurnEnabled ? "&steppingTurn=1" : "&steppingTurn=0")
-    + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "");
+    + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "")
+    + (extraQuery ? `&${extraQuery}` : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
-  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}\n`);
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}, query=${extraQuery || "(none)"}\n`);
   const bundleJson = scenario.bundleJson;
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
@@ -2647,6 +2661,14 @@ async function main(): Promise<void> {
       );
       durations.feetSideSlow = probeMp4(slowPath).durationSeconds;
       process.stdout.write(`[slow] feet-side-slow.mp4 ${durations.feetSideSlow.toFixed(2)} s\n`);
+      // Footstep-plan slice (2026-10-13): half-speed review copy of the feet-side walk.
+      const halfPath = path.join(outputDir, "feet-side-half.mp4");
+      execFileSync(
+        FFMPEG,
+        ["-y", "-i", mp4ByMode["feet-side"], "-filter:v", "setpts=2*PTS", "-r", "30", halfPath],
+        { stdio: "pipe" },
+      );
+      process.stdout.write(`[slow] feet-side-half.mp4 ${probeMp4(halfPath).durationSeconds.toFixed(2)} s\n`);
 
       // Contact sheet: 8 tiles over the walking phase only (feet-side assembly frames).
       const asmFiles = (await readdir(path.join(stagingDir, "feet-side-asm")))
@@ -2697,6 +2719,7 @@ async function main(): Promise<void> {
         recorderGlobalPresent: false,
         steppingTurnEnabled,
         ccdStanceLockEnabled,
+        extraQuery,
         fullBodySideView,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },
