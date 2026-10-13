@@ -1,6 +1,6 @@
 # Fixed-timestep animation clock (2026-10-12 measurement)
 
-Active in the browser. Default ON; `?fixedClock=0` restores legacy frame-dt stepping.
+Opt-in in the browser (`?fixedClock=1`; default is legacy frame-dt stepping since handback-2). `?walkExitWindow=1` opts into the contact-window exit under the clock.
 
 ## What is on the fixed clock (file:line)
 
@@ -104,11 +104,61 @@ per display frame, ~5x the root). No fix in this handback.
 
 ## Limits
 
-- The lateral arrival offset vs the main legacy exit (+0.023 m) stands: fixed
-  clock + legacy immediate exit is the default; the contact window is opt-in.
-  Both fix attempts are recorded above; no further tuning was tried.
-- Second-difference elevation at 72 Hz/jitter is render interpolation over the
-  slot root only (D above); bones are uninterpolated mixer poses.
+- The lateral arrival offset vs the main legacy exit (+0.023 m) stands, and
+  the end stance stays staggered (foot separation ~0.34 m vs main 0.036 m
+  side-by-side): fixed clock default OFF, legacy immediate exit default
+  everywhere. Both A fix attempts are recorded in handback-2 below.
+- Root interpolation stays: at fixed72 it does not worsen planted-foot world
+  slide vs legacy (5.03 vs 5.44 mm mean, p95/max equal); rendering the last
+  sim state instead worsened root second difference (0.0458 vs 0.0357) for a
+  0.6 mm slide gain, so it was reverted. Pose interpolation was declined:
+  the defect it would address measures absent.
+
+## Handback-2 A: identical-dt falsifier (measured)
+
+New `fixed60` capture pacing (one rAF per 1/60 step: legacy steps exactly
+1/60, the clock runs exactly one substep) plus walk-relative
+`walkSimSubsteps` telemetry in the evidence tail. At identical dt the two
+paths are the same walk up to a constant: clip-matched route progress offset
++0.0000 m sd 0.0000 across the walk, yaw identical everywhere. The 46 mm
+offset from the first falsifier run was a coarse pre-walk/growth jump
+artifact (100/500 ms fastForwards running the walk start unrecorded through
+multi-substep frames); fine 1/60 pre-walk removed it. No product-code defect
+was named by the diff, so none was fixed.
+
+Honest statement, shown: main's arrival is a function of frame rate; the
+fixed clock picks one. Legacy arrivals on main's own path (new tool,
+fixedClock=0): 1/30 (-0.0147, +0.0121), 1/60 (-0.0356, +0.0367, n=1;
+mean -0.0277 sd 0.0139 over n=3 — the forced-dt reference itself is
+session-unstable), 1/72 (-0.0428, +0.0343). Fixed-clock arrivals sit inside
+that cloud.
+
+Fix attempts (physical-band exit = legacy route position, not compensation):
+(1) legacy-width band + even-substep cadence — arrival unmoved (-0.0301,
++0.0384); the cadence provably nullifies the width. (2) legacy-width band,
+every substep — exit one frame earlier (clipW 1.49), arrival (-0.0436,
++0.0336): wrong way. Reverted to the narrow band. Foot separation never left
+the staggered cluster (0.27-0.35 vs main 0.036; forced-1/60 legacy itself
+0.276 sd 0.092, bimodal): the end stance is bistable in exit phase and no
+band formulation lands side-by-side. A missed both targets after two
+attempts: arrival within 0.01 of the forced-1/60 mean on means (0.0024/0.0054
+— met) but foot separation 0.31 from main's (not met).
+
+A verify (current build, default flags): 6 capture (-0.0301 sd 0.0001 /
++0.0384 sd 0.0002, left x6, yaw 180.0, sep +0.346 sd 0.003) + 6 real
+(-0.0302 sd 0.0000 / +0.0383 sd 0.0001, left x6, yaw 180.0, sep +0.340
+sd 0.005).
+
+## Handback-2 B: root vs pose (measured, baseline kept)
+
+Planted-foot world slide per rendered frame during continuous single support,
+fixed72, SC-05: fixed mean 5.03 mm p50 0.00 p95 24.18 max 217.6 (n=749);
+legacy mean 5.44 mm p50 0.01 p95 21.92 max 222.8 (n=754). No defect.
+Option (1) (render last sim state, 3 runs): slide mean 4.41 p95 24.16
+max 216.0; root second difference 0.0458 vs 0.0357 baseline — fails the
+bar-5 smoothness bar (source: handback-1 RESULT, 2x capture = 0.0236).
+Reverted. Option (2) (interpolate the pose) declined and unbuilt: it would
+address a slide defect that measures absent.
 
 ## Not tested
 

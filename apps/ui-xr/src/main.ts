@@ -2853,8 +2853,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   let previousRoomScalePose: RigPoseEvidence | null = null;
   let lastAnimateAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
-  // Fixed-timestep actor simulation, default ON; ?fixedClock=0 restores legacy frame-dt stepping.
-  const fixedClockDisabled = new URLSearchParams(window.location.search).get("fixedClock") === "0"; const fixedClockFrame = createFixedClockFrameState();
+  // Fixed-timestep actor simulation, default OFF (handback-2 landing): A missed
+  // both targets after two attempts (arrival offset stands; end stance stays
+  // staggered vs main side-by-side), so the legacy frame-dt path stays the
+  // default and ?fixedClock=1 opts into the fixed clock. Window stays opt-in
+  // (?walkExitWindow=1) under the clock.
+  const fixedClockDisabled = new URLSearchParams(window.location.search).get("fixedClock") !== "1"; const fixedClockFrame = createFixedClockFrameState();
   /** #342b — one-shot latch for the derived interior preview camera. */
   let interiorPreviewCameraApplied = false;
   const flatPreviewFallbackFrameMs = 1000 / 30;

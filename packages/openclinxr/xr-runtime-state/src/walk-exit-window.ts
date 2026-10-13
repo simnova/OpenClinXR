@@ -85,20 +85,11 @@ function contactAtClipTime(  labels: WalkExitContactWindow,
  * contact window. The exit substep is then a clip-phase event rather than a
  * frame-pacing artefact.
  *
- * Band width: the legacy path compares against one frame's advance, which at
- * the deterministic 1/30 s capture frame is WALK_EXIT_BAND_SECONDS of walk.
- * A one-substep band enters ~1 frame later and starts the clip-driven turn
- * from a later gait phase (measured: +23 mm lateral arrival), so the gated
- * path keeps the legacy physical width while the advance stays per-substep.
- *
- * Band cadence parity (fixed-clock slice, bar-2/C): legacy checks the band
- * once per frame; the fixed clock must not check per substep or it fires up
- * to one substep off legacy's exit (measured arrival steering). Check every
- * second walking substep (= 1/30 sim-s, legacy's deterministic cadence), so
- * the exit lands on legacy's walk-relative substep. Applies only to genuine
- * fixed-clock substeps (deltaSeconds exactly 1/60) with a running counter;
- * unit constructions without walkSimSubsteps and all legacy frame stepping
- * keep the uncadenced check byte-for-byte.
+ * Band width: the contact-gated path compares against WALK_EXIT_BAND_SECONDS
+ * of walk (the legacy 1/30 s frame's physical advance); the ungated path
+ * keeps its own frame's advance. A checked-every-2nd-substep cadence was
+ * tried and removed: it provably nullifies any width difference on this
+ * route, and the window gate already quantises the exit when opted in.
  *
  * Returns the stepped execution when this call ends the walk (in-band exit or
  * gated wait counted inside buildWalkExitBandStep), else null so the caller
@@ -118,15 +109,17 @@ export function stepWalkExitBand(input: {
   nowMs: number;
   blendedHeadingRadians: number;
 }): BedsideApproachExecution | null {
+  // The exit band is one frame's advance on genuine legacy frames
+  // (byte-identical legacy behavior) and WALK_EXIT_BAND_SECONDS of walk on
+  // the contact-gated path. Fixed-clock substeps on the ungated path keep
+  // their own substep advance: widening it to the legacy width was tried
+  // twice (handbacks 1-2) and moved arrival the wrong way or not at all, so
+  // the default stays narrow while the offset stands as a known limit.
   const exitBandMeters =
     input.walkExit !== undefined && input.walkExit !== null
       ? input.walkSpeedMetersPerSecond * WALK_EXIT_BAND_SECONDS
       : input.frameAdvanceMeters;
-  const bandCadencedOut =
-    input.deltaSeconds === 1 / 60
-    && input.execution.walkSimSubsteps !== undefined
-    && input.walkSimSubsteps % 2 !== 0;
-  if (input.execution.phase !== "walking" || bandCadencedOut || input.remainingMeters > exitBandMeters) {
+  if (input.execution.phase !== "walking" || input.remainingMeters > exitBandMeters) {
     return null;
   }
   if (input.walkExit !== undefined && input.walkExit !== null) {

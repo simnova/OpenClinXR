@@ -17,8 +17,10 @@
  *     [--pacing=capture|real|fixed72|jitter] [--query=fixedClock=0] [--start=N] [--trace]
  *
  * Pacing: capture = legacy fake 30 fps clock; real = wall-clock rAF with no
- * fake clock; fixed72 = synthetic steady 72 Hz; jitter = seeded uniform over
- * [1/90, 1/45] s, seed 20261012, identical schedule every run.
+ * fake clock; fixed72 = synthetic steady 72 Hz; fixed60 = synthetic steady
+ * 60 Hz (one rAF per step, so legacy steps exactly 1/60 and the fixed clock
+ * runs exactly one substep: the identical-dt falsifier); jitter = seeded
+ * uniform over [1/90, 1/45] s, seed 20261012, identical schedule every run.
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -38,7 +40,7 @@ import {
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
 
 const STEP_SECONDS = 1 / 30;
-const PRE_WALK_STEP_MS = 100;
+const PRE_WALK_STEP_MS = 1000 / 60;
 const PRE_WALK_STEP_CAP = 900;
 const STEP_CAP = 1500;
 const DIST_FILES = [
@@ -53,13 +55,13 @@ const DIST_MARKER = "__openClinXrBedsideApproachEvidence";
 
 type Vehicle = "sc05" | "loco";
 
-type Pacing = "capture" | "real" | "fixed72" | "jitter";
+type Pacing = "capture" | "real" | "fixed72" | "fixed60" | "jitter";
 
 function pacingFromArgv(): Pacing {
   const flag = process.argv.find((a) => a.startsWith("--pacing="))?.slice("--pacing=".length);
   if (flag === undefined) return "capture";
-  if (flag === "capture" || flag === "real" || flag === "fixed72" || flag === "jitter") return flag;
-  throw new Error("usage: --pacing=capture|real|fixed72|jitter");
+  if (flag === "capture" || flag === "real" || flag === "fixed72" || flag === "fixed60" || flag === "jitter") return flag;
+  throw new Error("usage: --pacing=capture|real|fixed72|fixed60|jitter");
 }
 
 /** Fixed seed so every jittered run replays the identical dt schedule. */
@@ -83,6 +85,7 @@ function mulberry32(seed: number): () => number {
  */
 function syntheticStepSeconds(pacing: Pacing, draw: () => number): number {
   if (pacing === "fixed72") return 1 / 72;
+  if (pacing === "fixed60") return 1 / 60;
   if (pacing === "jitter") return 1 / 90 + draw() * (1 / 45 - 1 / 90);
   return STEP_SECONDS;
 }
@@ -146,6 +149,8 @@ type FrameProbe = {
   phase: string | null;
   sampleCount: number;
   slot: { x: number; y: number; z: number; yaw: number } | null;
+  /** Last-8 tail samples for walk-absolute alignment; null entries when absent. */
+  tailHistory: Array<{ walkSimSubsteps: number | null; phase: string | null; slot: { x: number; y: number; z: number; yaw: number } | null; travelledMeters: number | null }> | null;
   /** Live rendered XZ of the physician root (post-interpolation once the fixed clock lands). */
   liveSlot: { x: number; z: number } | null;
   /** Per-display-frame fixed-clock stats; null on builds without the clock. */
@@ -154,8 +159,9 @@ type FrameProbe = {
   rightToe: Vec3 | null;
   stanceFoot: string | null;
   travelledMeters: number | null;
-  clipTime: number | null;
-  upperL: Quat | null;
+  /** Walk-relative executor call index from the tail sample; null when absent. */
+  walkSimSubsteps: number | null;
+  clipTime: number | null;  upperL: Quat | null;
   upperR: Quat | null;
   /** All four leg joints per side (turn-leg-snaps stage 1); null on old builds. */
   legBones: Record<string, Quat | null> | null;
@@ -176,6 +182,14 @@ const PROBE_SOURCE = `
   const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
   const samples = ev && ev.samples ? ev.samples : [];
   const tail = samples.length ? samples[samples.length - 1] : null;
+  // Walk-absolute history: last 8 tail samples carry the walk-relative index,
+  // so the falsifier aligns the two paths by executor call instead of probe grid.
+  const tailHistory = samples.slice(-8).map((s) => ({
+    walkSimSubsteps: typeof s.walkSimSubsteps === "number" ? s.walkSimSubsteps : null,
+    phase: s.phase ?? null,
+    slot: s.slot ?? null,
+    travelledMeters: s.travelledMeters !== undefined ? s.travelledMeters : null,
+  }));
   const scene = globalThis.__openClinXrDebugScene;
   let clipTime = null;
   let liveSlot = null;
@@ -258,6 +272,8 @@ const PROBE_SOURCE = `
     phase: ev ? ev.phase : null,
     sampleCount: samples.length,
     slot: tail && tail.slot ? tail.slot : null,
+    tailHistory,
+    walkSimSubsteps: tail && typeof tail.walkSimSubsteps === "number" ? tail.walkSimSubsteps : null,
     liveSlot,
     fixedClock,
     walkExitProbe,
@@ -486,10 +502,17 @@ async function runOnceSynthetic(
     }
     if (p.phase !== "walking") throw new Error(`never reached walking (phase=${p.phase})`);
     const g0 = p.sampleCount;
-    await page.clock.fastForward(500);
-    await realSleep(300);
+    // Growth check in fine steps (no coarse jumps: the walk may already have
+    // started, and a 500 ms jump would run it unrecorded through multi-substep
+    // frames).
+    for (let g = 0; g < 3; g += 1) {
+      await page.clock.fastForward(1000 / 60);
+      await realSleep(100);
+      preWalk.push({ ...(await probe(page)), preStep: preSteps });
+      preSteps += 1;
+    }
     const g1 = (await probe(page)).sampleCount;
-    process.stdout.write(`[${tag}] sample-growth: ${g0} -> ${g1} per 500 ms simulated\n`);
+    process.stdout.write(`[${tag}] sample-growth: ${g0} -> ${g1} per 3/60 s simulated\n`);
     if (g1 <= g0) throw new Error("no samples under fake clock");
 
     // Stance labels: static per clip, fetch once.
