@@ -1,4 +1,5 @@
 import type { Object3D } from "three";
+import { readClosedLoopWalkEnabled } from "./closed-loop-walk-query-flag-mod.js";
 
 /**
  * Closed-loop root advance for the walking phase (walk-closed-loop stage 2).
@@ -273,4 +274,47 @@ export function applyClosedLoopRootAdvance(input: {
   const advance = Math.min(backward, Math.max(0, input.remainingMeters));
   const actual = (slotPreXz.x - prevSlot.x) * ux + (slotPreXz.z - prevSlot.z) * uz;
   return finish(advance, advance - actual, planted, false, next);
+}
+
+/**
+ * S1 wiring step (default OFF): apply the closed-loop advance to a
+ * case-owned approach when `?closedLoopWalk=1` opts in during the walking
+ * phase; `?plannedWalkSpeed=1` restores the pure planned-speed advance
+ * inside the opt-in. Without the flag this returns without touching
+ * anything, so default runtime is unchanged. Lives here (not in the frame
+ * module) to hold that file's zone budget.
+ */
+export function applyClosedLoopWalkStep(input: {
+  approach: {
+    execution: { phase: string; travelledMeters: number };
+    actorSlot: Object3D;
+    leftToe: Object3D | null;
+    rightToe: Object3D | null;
+    floorOriginY: number;
+    contactBandMeters: number;
+    walkSpeedMetersPerSecond: number;
+    closedLoop: ClosedLoopWalkState | null;
+  };
+  routeDx: number;
+  routeDz: number;
+  routeLength: number;
+  deltaSeconds: number;
+}): void {
+  const { approach, routeLength } = input;
+  if (approach.execution.phase !== "walking" || routeLength <= 0) return;
+  if (!readClosedLoopWalkEnabled() || readPlannedWalkSpeed()) return;
+  const remainingMeters = Math.max(0, routeLength - approach.execution.travelledMeters);
+  if (approach.closedLoop === null) approach.closedLoop = createClosedLoopWalkState();
+  const closed = applyClosedLoopRootAdvance({
+    actorSlot: approach.actorSlot,
+    leftToe: approach.leftToe,
+    rightToe: approach.rightToe,
+    floorOriginY: approach.floorOriginY,
+    contactBandMeters: approach.contactBandMeters,
+    travelUnit: { x: input.routeDx / routeLength, z: input.routeDz / routeLength },
+    remainingMeters,
+    plannedAdvanceMeters: approach.walkSpeedMetersPerSecond * input.deltaSeconds,
+    state: approach.closedLoop,
+  });
+  approach.closedLoop = closed.state;
 }
