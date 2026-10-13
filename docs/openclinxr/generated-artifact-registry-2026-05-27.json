@@ -26565,6 +26565,13 @@
       "rationale": "Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/walk-symmetry-gate-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json",
       "authority": "keep-evidence",
       "tracked": true,

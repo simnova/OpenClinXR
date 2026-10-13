@@ -369,6 +369,18 @@
       {
         "name": "runRoomGenerate",
         "kind": "runtime"
+      },
+      {
+        "name": "gateWalkClip",
+        "kind": "runtime"
+      },
+      {
+        "name": "MESHMOTION_WALK_JOINTS",
+        "kind": "runtime"
+      },
+      {
+        "name": "MPFB_WALK_JOINTS",
+        "kind": "runtime"
       }
     ]
   },

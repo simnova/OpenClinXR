@@ -1,0 +1,142 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "walk-symmetry-gate-v1",
+  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "386d5b70119e9ec29782fd42878264b46515114be72ce3e58d9f281a57ccd2bc",
+  "packages": [
+    "packages/openclinxr/factory-stations"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "evaluateWalkSymmetry",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Walk-clip symmetry gate. Consumer: tools/openclinxr/evidence/walk-clip/measure-gait-three-point.ts reports per-bar verdicts on source and bound clips.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "GATE_BARS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Gate bar thresholds with provenance. Consumer: walk-clip census table cites the bar each clip fails.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "gateWalkClip",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Sample-and-evaluate entry point. Consumer: measure-gait-three-point.ts gates one GLB clip; motion_retarget station runner offers it as an optional post-bind check.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "MESHMOTION_WALK_JOINTS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Mesh2Motion rig joint map for the gate. Consumer: census CLI gates source clips.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "MPFB_WALK_JOINTS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "MPFB2 rig joint map for the gate. Consumer: measure-gait-three-point.ts gates bound clips.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "sampleWalkClip",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "GLB clip sampler for the gate. Consumer: gateWalkClip; census re-runs sample offline per clip.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "MotionRetargetSymmetryGate",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Options for the station post-bind gate. Consumer: runMotionRetarget symmetryGate option.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "GateBarId",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Gate bar identifiers. Consumer: census table keys bars by id.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateBarResult",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Per-bar verdict row. Consumer: measure-gait-three-point.ts prints bar details.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateFootMetrics",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Per-foot metrics. Consumer: census table reports stride/duty/lift per foot.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateJoints",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Rig joint map input. Consumer: census CLI passes source vs bound maps.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkGateReport",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Full gate report. Consumer: clip-census report.json embeds gate verdicts.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/factory-stations",
+      "entrypoint": ".",
+      "symbol": "WalkSample",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "clip-census-worker",
+      "rationale": "Sampled clip input. Consumer: walk-symmetry-gate.test.ts builds synthetic samples.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    }
+  ]
+}

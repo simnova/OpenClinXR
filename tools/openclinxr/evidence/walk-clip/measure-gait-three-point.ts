@@ -26,6 +26,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Node as GltfNode } from "@gltf-transform/core";
 import { NodeIO } from "@gltf-transform/core";
+import { gateWalkClip, MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS } from "@openclinxr/factory-stations";
 
 const CONTACT_BAND_M = 0.06;
 const ACTOR_SCALE = 0.86;
@@ -369,6 +370,12 @@ async function main(): Promise<void> {
   console.log(row("hip height mean (m)", S.hipHeightMeanM, B.hipHeightMeanM));
   console.log(row("hip height standing (m)", S.hipHeightStandingM, B.hipHeightStandingM));
   console.log(`| knee flexion range (deg) | ${f(S.kneeFlexMinDeg, 1)}-${f(S.kneeFlexMaxDeg, 1)} | ${f(B.kneeFlexMinDeg, 1)}-${f(B.kneeFlexMaxDeg, 1)} |`);
+  const sourceGate = await gateWalkClip({ glbPath: sourceGlb, clipName: "Walk", joints: MESHMOTION_WALK_JOINTS });
+  const boundGate = await gateWalkClip({ glbPath: boundGlb, clipName: "openclinxr_retarget_walk_source", joints: MPFB_WALK_JOINTS });
+  for (const gate of [sourceGate, boundGate]) {
+    console.log(`gate ${gate.provenance.clip}: ${gate.pass ? "PASS" : "FAIL"}`);
+    for (const bar of gate.bars) console.log(`  ${bar.pass ? "pass" : "FAIL"} ${bar.id}: ${bar.detail}`);
+  }
   console.log(`wrote ${out}`);
 }
 
