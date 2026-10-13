@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluateWalkSymmetry, MPFB_WALK_JOINTS, sampleWalkClip } from "../index.js";
 import { evaluateMovementGate, MOVEMENT_GATE_BARS } from "./movement_gate.js";
-import { slerpUnit } from "./walk_gait_sample.js";
 
 type GateInput = Parameters<typeof evaluateMovementGate>[0];
 type WalkJoints = Parameters<typeof evaluateWalkSymmetry>[1];
@@ -21,7 +20,6 @@ type WalkJoints = Parameters<typeof evaluateWalkSymmetry>[1];
 const PHYSICIAN_GLB = "../../../apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
 const NURSE_GLB = "../../../apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
 const CLIP = "openclinxr_retarget_walk_source";
-const ID_QUAT: [number, number, number, number] = [0, 0, 0, 1];
 
 const PAIRS: GateInput["pairs"] = [
   "upperleg01", "lowerleg01", "foot", "upperarm01", "lowerarm01",
@@ -88,16 +86,18 @@ describe("movement gate on the shipped Walk pair", () => {
     }
   });
 
-  it("a halved knee range fails rom-fidelity, then reverts to green", async () => {
+  it("a frozen knee fails rom-fidelity, then reverts to green", async () => {
     const { input } = await shippedPair();
     const green = evaluateMovementGate(input);
     const planted = { ...input, bound: cloneSample(input.bound) };
+    // Freeze the knee at its first frame: rotation range 0, ratio 0. Unit quats
+    // throughout, so seam and norm bars cannot see the plant.
     const track = planted.bound.quat["lowerleg01.L"]!;
-    planted.bound.quat["lowerleg01.L"] = track.map((q) => slerpUnit(q, ID_QUAT, 0.5));
+    planted.bound.quat["lowerleg01.L"] = track.map(() => [...track[0]!] as [number, number, number, number]);
     const red = evaluateMovementGate(planted);
     const knee = (r: typeof red) => r.romRatios.find((p) => p.bound === "lowerleg01.L")!.ratio;
     console.log(`rom plant lowerleg01.L ratio before=${knee(green).toFixed(3)} after=${knee(red).toFixed(3)}`);
-    expect(Math.abs(knee(red) - 1)).toBeGreaterThan(0.15);
+    expect(knee(red)).toBeLessThan(1e-6);
     expect(red.bars.find((b) => b.id === "rom-fidelity")!.pass).toBe(false);
     expect(red.pass).toBe(false);
     expect(red.bars.filter((b) => b.id !== "rom-fidelity" && !b.pass)).toEqual([]);

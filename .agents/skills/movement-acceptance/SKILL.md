@@ -30,7 +30,7 @@ NOT RUN (superseded by the loco-ground tap, which records mixer actions per fram
 | `walk_symmetry_gate.ts` via `gate-one-clip.ts` | clip symmetry/preservation offline (9 bars, §c) | runtime: the shipped walk fails 4/9 bars offline yet plays at full amplitude live after the playback fix (`docs/openclinxr/locomotion/walk-clip-census-2026-10-12.md` stage 4) |
 | loco-ground capture tap (a) mixer, (b) post-posture, (c) end-of-frame | which writer moved which bone, per frame (`docs/openclinxr/locomotion/loco-proving-ground-2026-10-12.md`) | anything before the mixer: clip choice, bind, labels are inputs, not findings |
 | loco-ground analyze steady state | label-independent foot metrics, first/last gait cycle dropped | start/stop transients (reported separately) and any run-to-run noise (same-build controls differ by 0.29 leg-quat / 0.087 m root, `docs/openclinxr/locomotion/arm-settle-2026-10-11.md`) |
-| headless SC-05 assay (`runApproach`) | clip + root motion slide over the 1.3 m bedside route | stance-lock IK and leg solvers: marker rigs carry no leg chains, so flag on/off rows are bit-identical by construction (`mem/sc05-headless-assay-skips-stance-lock-ik.md`) |
+| headless SC-05 assay (`runApproach`) | clip + root motion slide over the 1.3 m bedside route | stance-lock IK and leg solvers: marker rigs carry no leg chains, so flag on/off rows are bit-identical by construction (`docs/openclinxr/locomotion/ccd-stance-lock-2026-10-11.md`, verdict INCONCLUSIVE) |
 
 ## (c) Acceptance bars (every number carries its source)
 
@@ -44,7 +44,7 @@ is the production constant `FOOT_CONTACT_HEIGHT_METERS`
 
 Live playback (`walk-playback-blend-2026-10-12.md` bars 1–2): live/clip amplitude
 ≥ 0.95 on every leg bone; swing toe ≥ 0.127 m, ankle ≥ 0.21 m. Runtime timeScale
-target ≤ 1.1 (locomotion-plan mem `locomotion-plan-after-fable-grok-review-2026-10-12.md`;
+target ≤ 1.1 (`docs/openclinxr/locomotion/walk-clip-census-2026-10-12.md` browser check;
 shipped plays at 1.63, still open).
 
 Arrival and settling (`arrival-turn-stability-2026-10-12.md`,
@@ -60,14 +60,13 @@ it fails on ambient breathing oscillation with no turn at all
 
 | wrong diagnosis (cost) | refuting measurement | cheap check first |
 |---|---|---|
-| "the walk clip itself is the problem" (operator told; 2 days of compensating fixes) | three-point: source 0.172 / bound 0.159 / live 0.035 m; every leg joint at 0.29–0.50x (`mem/the-walk-shuffles-because-idle-co-runs-in-the-mixer.md`) | list every running mixer action with tracks on the affected bones plus effective weight before blaming a clip |
+| "the walk clip itself is the problem" (operator told; 2 days of compensating fixes) | three-point: source 0.172 / bound 0.159 / live 0.035 m; every leg joint at 0.29–0.50x (`docs/openclinxr/locomotion/walk-playback-blend-2026-10-12.md` §Attribution) | list every running mixer action with tracks on the affected bones plus effective weight before blaming a clip |
 | "shipped Walk is 67 % stride-lopsided" (instrument, not clip) | contacts wrapping the loop seam were split in two and averaged (`walk-clip-census-2026-10-12.md` §Instrument corrections) | resample the same motion at 8 phase offsets; identical motion must read identical numbers (`walk-symmetry-gate.test.ts` sweep) |
-| "85 deg one-frame leg snaps" drove 150 turns of solver traps | upperleg norm decayed 1.00 → 0.86; 2·acos(|dot|) on raw quats reads 84 deg for near-identical poses (`mem/check-quaternion-norm-before-trusting-a-rotation-step.md`) | print per-bone min/max quat norm; compare frame n to n − 2 (a real step differs, a norm artefact does not) |
-| "the walking foot penetrates 0.038 m" (3 dispatches, 1 land that degraded walking 5.3x) | split by phase: walking 0.0004 m, settling 0.0377 m (`mem/an-aggregate-maximum-names-no-defect.md`) | split any aggregate maximum by the phase/state column already in the evidence before it becomes a title |
+| "85 deg one-frame leg snaps" drove 150 turns of solver traps | upperleg norm decayed 1.00 → 0.86; 2·acos(\|dot\|) on raw quats reads 84 deg for near-identical poses; normalised control already met the bar (`docs/openclinxr/locomotion/turn-leg-quaternion-norm-2026-10-12.md` §Cause, §Metric) | print per-bone min/max quat norm; compare frame n to n − 2 (a real step differs, a norm artefact does not) |
+| "the walking foot is the worst foot" from one aggregate number | browser metric read 0.51 m walk slide while settling episodes read 0.058 m: different phases, different contacts, not a disagreement (`docs/openclinxr/locomotion/walk-slide-browser-2026-10-11.md` §Measurement) | split any aggregate maximum by the phase/state column already in the evidence before it becomes a title |
 | "the CCD lock does not affect slide" from the headless assay | on/off rows bit-identical: no leg chains run in-assay (`ccd-stance-lock-2026-10-11.md`) | confirm flag on/off rows differ before trusting any headless comparison |
-| arm snap blamed on mixer cut, then weight rules, then broken ramp (~600 turns, 3 briefs) | posture pass applied the ownership slerp 19x per frame (w¹⁹), crushing the ramp into a step (`arm-settle-2026-10-11.md`) | per-writer tap on the control build (value after each writer + inputs used); count applications per frame (`mem/tap-every-writer-before-naming-the-one-that-snaps.md`) |
-| stepping turn made default-on from slide + posture numbers | six-run arrival: lateral mean 0.191 m, sd 0.141 m (`mem/gate-an-arrival-change-on-where-it-ends-over-several-runs.md`) | gate any settling/turn change on n ≥ 6 arrival mean/sd/range, control beside fix |
-| "the seated source has no sitting" from a range measure | hip flexion −86.8 deg held constant (range 0.000); range measures movement (`mem/range-measures-movement-not-posture.md`) | pose questions use rest-to-frame-0 rotation; motion questions use range; report both labelled |
+| arm snap blamed on mixer cut, then weight rules, then broken ramp (~600 turns, 3 briefs) | posture pass applied the ownership slerp 19x per frame (w¹⁹), crushing the ramp into a step (`docs/openclinxr/locomotion/arm-settle-2026-10-11.md` §Cause) | per-writer tap on the control build (value after each writer + inputs used); count applications per frame |
+| stepping turn made default-on from slide + posture numbers | six-run arrival: lateral mean 0.191 m, sd 0.141 m (`docs/openclinxr/locomotion/arrival-turn-stability-2026-10-12.md` table) | gate any settling/turn change on n ≥ 6 arrival mean/sd/range, control beside fix |
 
 ## (e) Measurement rules
 
@@ -76,13 +75,13 @@ it fails on ambient breathing oscillation with no turn at all
 3. Normalise quaternions before angle metrics; report per-bone min/max norm as its own metric (rule d row 3; `tools/openclinxr/evidence/settle-entry/quat-norm-math.ts` — read-only reference, that directory is owned by another worker).
 4. Cyclic measures for one-cycle loops: three.js LoopRepeat period ends at the last timestamp, one closure step past it, sub-frame interpolated band crossings, merge seam-spanning contacts on the loop circle, drop a duplicated end frame, dedupe double-named joints (`walk_symmetry_gate.ts:188-280`, `walk-clip-census-2026-10-12.md`).
 5. Split by phase before quoting a maximum (rule d row 4).
-6. Grade motion on the bare body: hide garment/hair meshes, distinct thigh/shin/foot colours; garments-on render is a separate check (operator 2026-10-11, `mem/grade-motion-on-the-bare-body.md`; hide rule in `loco-ground-capture.ts:169`).
+6. Grade motion on the bare body: hide garment/hair meshes, distinct thigh/shin/foot colours; garments-on render is a separate check (operator 2026-10-11 per `docs/openclinxr/locomotion/stepping-turn-2026-10-11.md` STEP 4; hide rule in `loco-ground-capture.ts`).
 
 ## (f) Walk-specific today, not yet general
 
-- The proving ground hard-codes a 6 m route (`loco-ground-capture.ts:390` refuses
-  non-6 m) lengthened inside the runtime (`extendLocoGroundRoute`), and a clip found
-  by the name containing "walk" (`loco-ground-analyze.ts:499`).
+- The proving ground runs one movement row (`tools/openclinxr/evidence/loco-ground/loco-ground-movements.ts`):
+  default `physician-walk-6m` (6 m route refused otherwise, clip found by the name
+  containing "walk"); second entry `nurse-walk-6m` (same walk clip in the nurse GLB).
 - Gait bars (stride, duty, toe/ankle lift, L/R symmetry) assume an alternating biped
   gait; the contact band and lifts are foot-specific.
 - Only actor proven: physician `senior_resident_ward_v1` on the SC-05 bedside scene

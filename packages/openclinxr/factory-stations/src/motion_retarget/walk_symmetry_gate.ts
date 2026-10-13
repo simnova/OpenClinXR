@@ -22,8 +22,7 @@
  * clinical plausibility, runtime playback, Quest readiness.
  */
 
-import { MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, sampleWalkClip } from "./walk_gait_sample.js";
-import { dropDuplicatedEndFrame, measureLoopSeam, measureRootDrift } from "./movement_gate.js";
+import { MESHMOTION_WALK_JOINTS, MPFB_WALK_JOINTS, sampleWalkClip, slerpUnit } from "./walk_gait_sample.js";
 import type { Quat, Vec3, WalkGateJoints, WalkSample } from "./walk_gait_sample.js";
 
 export type { Quat, Vec3, WalkGateJoints, WalkSample };
@@ -119,6 +118,15 @@ function vecAngleDeg(a: Vec3, b: Vec3): number {
   return (Math.acos(c) * 180) / Math.PI;
 }
 
+/** Joint angle in degrees, normalising first (non-unit quats otherwise read as motion). */
+function quatAngleDeg(a: Quat, b: Quat): number {
+  const na = Math.hypot(a[0], a[1], a[2], a[3]);
+  const nb = Math.hypot(b[0], b[1], b[2], b[3]);
+  if (!(na > 0) || !(nb > 0)) return Number.NaN;
+  const dot = Math.abs((a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]) / (na * nb));
+  return ((2 * Math.acos(Math.min(1, dot))) * 180) / Math.PI;
+}
+
 /** Max pairwise angle of a segment direction over the clip (peak-to-peak ROM diameter). */
 function segmentDiameter(track: Vec3[]): number {
   let worst = 0;
@@ -141,6 +149,34 @@ function midTracks(a: Vec3[], b: Vec3[]): Vec3[] {
 
 function lerp3(a: Vec3, b: Vec3, f: number): Vec3 {
   return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f] as Vec3;
+}
+
+/** A last frame duplicating the first poisons every loop metric; detect and drop it. */
+function dropDuplicatedEndFrame(sample: WalkSample): { sample: WalkSample; dropped: boolean } {
+  const n = sample.times.length;
+  if (n < 3) return { sample, dropped: false };
+  let dupErr = 0;
+  for (const name of Object.keys(sample.quat)) {
+    const track = sample.quat[name]!;
+    dupErr = Math.max(dupErr, quatAngleDeg(track[n - 1]!, track[0]!));
+  }
+  let dupPos = 0;
+  for (const name of Object.keys(sample.pos)) {
+    const track = sample.pos[name]!;
+    dupPos = Math.max(
+      dupPos,
+      Math.hypot(track[n - 1]![0] - track[0]![0], track[n - 1]![1] - track[0]![1], track[n - 1]![2] - track[0]![2]),
+    );
+  }
+  if (!(dupErr < 0.5) || !(dupPos < 0.001)) return { sample, dropped: false };
+  return {
+    sample: {
+      times: sample.times.slice(0, n - 1),
+      pos: Object.fromEntries(Object.entries(sample.pos).map(([k, v]) => [k, v.slice(0, n - 1)])),
+      quat: Object.fromEntries(Object.entries(sample.quat).map(([k, v]) => [k, v.slice(0, n - 1)])),
+    },
+    dropped: true,
+  };
 }
 
 /**
@@ -318,12 +354,21 @@ export function evaluateWalkSymmetry(sample: WalkSample, joints: WalkGateJoints)
   const stepR = gapsR.length > 0 ? mean(gapsR) : Number.NaN;
   const naturalSpeedMps = cycle > 0 ? (left.strideM + right.strideM) / cycle : Number.NaN;
 
-  // Seam and root drift come from the movement-agnostic gate: the gait layer adds
-  // stride, duty, and symmetry bars over the same single-clip primitives.
-  const seam = measureLoopSeam(loop);
-  const seamErrorDeg = seam.seamErrorDeg;
-  const seamWorstJoint = seam.worstJoint;
-  const rootDriftM = measureRootDrift(loop, joints.root, s);
+  // Seam: max joint-orientation angle between the loop end (extrapolated one frame past
+  // it) and the loop start. Rotations are root-translation invariant, so root-motion
+  // clips need no delta removal; the worst joint names the comparison.
+  let seamErrorDeg = 0;
+  let seamWorstJoint = "";
+  for (const name of Object.keys(loop.quat)) {
+    const track = loop.quat[name]!;
+    const err = quatAngleDeg(slerpUnit(track[n - 2]!, track[n - 1]!, 2), track[0]!);
+    if (!(err >= 0)) continue;
+    if (err > seamErrorDeg) {
+      seamErrorDeg = err;
+      seamWorstJoint = name;
+    }
+  }
+  const rootDriftM = Math.hypot(root[n - 1]![0] - root[0]![0], root[n - 1]![1] - root[0]![1], root[n - 1]![2] - root[0]![2]);
   const cadenceSpm = cycle > 0 ? (60 * (left.contactWindows + right.contactWindows)) / cycle : Number.NaN;
 
   const strideAsymmetryPct = asymPct(left.strideM, right.strideM);

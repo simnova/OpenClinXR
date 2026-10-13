@@ -2,11 +2,15 @@
  * Movement-agnostic source-vs-bound retarget gate.
  *
  * The walk symmetry gate (walk_symmetry_gate.ts) keeps the gait-specific bars
- * (stride, step duration, duty, thigh asymmetry, lifts, arm swing) as a layer over
- * the generic single-clip primitives here (loop seam, root drift, quaternion norm)
- * plus the source-vs-bound range-of-motion fidelity bar. Any looping or one-shot
- * movement (turn, sit-to-stand, reach, another actor) reuses these bars; only the
- * gait layer is walk-specific.
+ * (stride, step duration, duty, thigh asymmetry, lifts, arm swing) over the same
+ * thresholds and algorithms, in its own copies: the shipped gait path stays
+ * byte-untouched (its test pins it), and this module stays genuinely private
+ * (no entrypoint reaches it), so the test-import-surface ceiling is unaffected.
+ * This module is the canonical generic home: any looping or one-shot movement
+ * (turn, sit-to-stand, reach, another actor) reuses these bars; only the gait
+ * layer is walk-specific. Keep the shared numbers identical in both places:
+ * dup-frame drop (< 0.5 deg, < 1 mm), seam (LoopRepeat extrapolation, worst
+ * joint), drift (first-to-last root, metres), norm cap (1e-3).
  *
  * Bars (provenance in MOVEMENT_GATE_BARS): per-joint rotation-range ratio within
  * 15 % (shipped Walk source-vs-bound control: thigh <= 2.1 %, arms <= 7.6 %,
