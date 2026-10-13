@@ -6,7 +6,6 @@ import { planFootsteps } from "./footstep-plan-schedule.js";
 import {
   parseFootstepPlanEnabled,
   readFootstepPlanEnabled,
-  readFootstepProbeModelScale,
   readFootstepRouteMeters,
 } from "./footstep-plan-query-flag-mod.js";
 import { extendLocoGroundRoute } from "./loco-ground-tap-mod.js";
@@ -106,9 +105,7 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   // and reverted: threshold shifts scale with the stride rate, so a lead
   // cannot move the exit substep — same substep 91 at leads 0.011 and 0.016,
   // and the turn mapped the micro-different entry worse. See the S2 report.)
-  // G6 probe: the model seed scales the plan solve only; the correction
-  // always runs the TRUE model (that asymmetry is what lets M3 recover).
-  const plan = planFootsteps(Math.hypot(routeDx, routeDz), readFootstepProbeModelScale());
+  const plan = planFootsteps(Math.hypot(routeDx, routeDz));
   const rest = approach.restStance;
   if ("refused" in plan || rest === null) {
     approach.footstep = null;
@@ -241,83 +238,6 @@ export function pushFootstepTapRecord(record: FootstepTapRecord): void {
     while (ring.length > FOOTSTEP_TAP_LIMIT) ring.shift();
   } else {
     host[FOOTSTEP_TAP_KEY] = [record];
-  }
-}
-
-/** One drained per-passing log entry (M5 record shape; the capture tool writes the file). */
-export type FootstepPassingRecord = {
-  k: number;
-  endFoot: "L" | "R";
-  scaleUsed: number;
-  predictedHalfM: number;
-  measuredHalfM: number;
-  remainingM: number;
-  residualM: number;
-  /** Executor walking-call index at the passing. */
-  sub: number;
-};
-
-const FOOTSTEP_PASSING_KEY = "__openClinXrFootstepPassing";
-const FOOTSTEP_PASSING_LIMIT = 64;
-
-const FOOTSTEP_SAFETY_KEY = "__openClinXrFootstepSafety";
-
-/** Push one passing entry; no-op unless `?footstepPlan=1`. */
-export function pushFootstepPassingRecord(record: FootstepPassingRecord): void {
-  if (!readFootstepPlanEnabled()) return;
-  const host = globalThis as unknown as Record<string, unknown>;
-  const ring = host[FOOTSTEP_PASSING_KEY];
-  if (Array.isArray(ring)) {
-    ring.push(record);
-    while (ring.length > FOOTSTEP_PASSING_LIMIT) ring.shift();
-  } else {
-    host[FOOTSTEP_PASSING_KEY] = [record];
-  }
-}
-
-/** Push one loud safety trip; no-op unless `?footstepPlan=1`. */
-export function pushFootstepSafetyRecord(record: { reason: string; travelledM: number; boundM: number }): void {
-  if (!readFootstepPlanEnabled()) return;
-  const host = globalThis as unknown as Record<string, unknown>;
-  const ring = host[FOOTSTEP_SAFETY_KEY];
-  if (Array.isArray(ring)) {
-    ring.push(record);
-  } else {
-    host[FOOTSTEP_SAFETY_KEY] = [record];
-  }
-}
-
-/**
- * Late-correction apply (M3, default OFF, same flag): consume the
- * executor's correction request into the plan state (scale + steps take
- * effect from this passing onward, never inside a half-cycle) and drain
- * the passing log entry plus any loud safety trip to the capture rings.
- * The request is cleared after applying so the next step never re-applies;
- * the executor's correctedAtPassing guard double-covers a missed clear.
- */
-export function applyFootstepCorrection(approach: CaseOwnedBedsideApproach): void {
-  if (!readFootstepPlanEnabled()) return;
-  const state = approach.execution.footstep;
-  if (state === null || state === undefined) return;
-  if (state.lastPassing !== null) {
-    pushFootstepPassingRecord({
-      ...state.lastPassing,
-      sub: approach.execution.walkSimSubsteps ?? -1,
-    });
-  }
-  const correct = state.correct;
-  if (correct !== null) {
-    const plan = approach.footstep;
-    if (plan !== null) {
-      plan.scale = correct.scale;
-      plan.steps = correct.steps;
-    }
-    state.correct = null;
-  }
-  const trip = state.safetyTrip;
-  if (trip !== null && trip.drained !== true) {
-    pushFootstepSafetyRecord({ reason: trip.reason, travelledM: trip.travelledM, boundM: trip.boundM });
-    trip.drained = true;
   }
 }
 

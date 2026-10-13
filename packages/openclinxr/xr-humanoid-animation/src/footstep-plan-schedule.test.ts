@@ -46,25 +46,6 @@ describe("footstep-plan schedule", () => {
     expect(six.scale).toBeCloseTo(0.9557, 3);
   });
 
-  it("G6 probe: modelScale seeds the plan solve (correction keeps TRUE model)", () => {
-    // ?footstepProbeModel=1.2 multiplies the affines before solving: 2.0 m
-    // collapses to k=3 at 0.989, 6.0 m to k=10 at 0.8368. The executor's
-    // struct coefficients stay TRUE (frame fill), which is what lets the
-    // late correction recover in the G6 legs.
-    const two = planFootsteps(2.0, 1.2);
-    if ("refused" in two) throw new Error(`refused seeded 2.0 m: ${two.reason}`);
-    expect(two.steps).toBe(3);
-    expect(two.scale).toBeCloseTo(0.989, 3);
-    const seededSix = planFootsteps(6.0, 1.2);
-    if ("refused" in seededSix) throw new Error(`refused seeded 6.0 m: ${seededSix.reason}`);
-    expect(seededSix.steps).toBe(9);
-    expect(seededSix.scale).toBeCloseTo(0.9815, 3);
-    // Unseeded plans are unaffected by the optional parameter.
-    const plain = planFootsteps(2.0);
-    if ("refused" in plain) throw new Error("refused 2.0 m");
-    expect(plain.scale).toBeCloseTo(0.8369, 4);
-  });
-
   it("refuses a short route that would need a middle step under 0.7", () => {
     const plan = planFootsteps(0.7);
     if (!("refused" in plan)) throw new Error(`planned 0.7 m at scale ${plan.scale}`);

@@ -109,17 +109,15 @@ const TRAVEL_A_END_R = 0.4749;
 const TRAVEL_B_END_R = 0.0768;
 
 /**
- * Model coefficients for the frame module's exit-struct fill (M3): the
- * executor cannot import this module (package direction), so the numbers
- * ride the FootstepPhaseExit struct as data. Module export, deliberately
- * NOT re-exported from `./footstep-plan` (no new public symbol).
+ * Predicted travel of one half-cycle ending at `endFoot` at stride scale s,
+ * in metres. Module-private until the planner (M2) consumes it; tested
+ * through planFootsteps so the keep-only ./footstep-plan surface is
+ * unchanged. Pure; ranges are the caller's (M2/M3) business.
  */
-export const FOOTSTEP_TRAVEL_COEFFS = {
-  aEndL: TRAVEL_A_END_L,
-  bEndL: TRAVEL_B_END_L,
-  aEndR: TRAVEL_A_END_R,
-  bEndR: TRAVEL_B_END_R,
-} as const;
+function predictFootstepHalfTravelM(scale: number, endFoot: FootstepHalfEnd): number {
+  return (endFoot === "L" ? TRAVEL_A_END_L : TRAVEL_A_END_R) * scale
+    + (endFoot === "L" ? TRAVEL_B_END_L : TRAVEL_B_END_R);
+}
 
 export type FootstepPlan = {
   /** Whole passing-to-passing steps. */
@@ -142,29 +140,21 @@ export type FootstepPlanRefusal = { refused: true; reason: string };
  * the late correction (M3) re-solves it for the last two at the
  * antepenultimate passing. No per-route constant: 1.31 m -> 3 halves at
  * 0.7070, 2.0 m -> 4 halves at 0.8369, 6.0 m -> 11 halves at 0.9557.
- *
- * modelScale (default 1) multiplies the affines before solving: the G6
- * probe channel only (?footstepProbeModel=1.2 seeds +20% at plan time; the
- * correction always uses the TRUE model, which is what lets M3 recover).
  */
-export function planFootsteps(routeLengthMeters: number, modelScale = 1): FootstepPlan | FootstepPlanRefusal {
+export function planFootsteps(routeLengthMeters: number): FootstepPlan | FootstepPlanRefusal {
   if (!(routeLengthMeters > 0) || !Number.isFinite(routeLengthMeters)) {
     return { refused: true, reason: `no plan for route length ${routeLengthMeters}: nothing to walk` };
   }
-  const aR = TRAVEL_A_END_R * modelScale;
-  const bR = TRAVEL_B_END_R * modelScale;
-  const aL = TRAVEL_A_END_L * modelScale;
-  const bL = TRAVEL_B_END_L * modelScale;
   for (let steps = 1; steps <= 1000; steps += 1) {
     let slope = 0;
     let intercept = 0;
     for (let half = 1; half <= steps; half += 1) {
       if (half % 2 === 1) {
-        slope += aR;
-        intercept += bR;
+        slope += TRAVEL_A_END_R;
+        intercept += TRAVEL_B_END_R;
       } else {
-        slope += aL;
-        intercept += bL;
+        slope += TRAVEL_A_END_L;
+        intercept += TRAVEL_B_END_L;
       }
     }
     const scale = (routeLengthMeters - intercept) / slope;
@@ -179,7 +169,7 @@ export function planFootsteps(routeLengthMeters: number, modelScale = 1): Footst
     }
     let plannedTravelM = 0;
     for (let half = 1; half <= steps; half += 1) {
-      plannedTravelM += half % 2 === 1 ? aR * scale + bR : aL * scale + bL;
+      plannedTravelM += predictFootstepHalfTravelM(scale, half % 2 === 1 ? "R" : "L");
     }
     return { steps, scale, plannedTravelM };
   }

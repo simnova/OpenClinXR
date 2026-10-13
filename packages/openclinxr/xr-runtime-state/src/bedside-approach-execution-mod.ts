@@ -1,7 +1,7 @@
 import type { BedsideApproachPlan } from "@openclinxr/asset-registry/bedside-approach-path";
 import { type StopClipTrigger, stepStopHandoff } from "./bedside-approach-stop-mod.js";
 import { shortestYawDelta, stepWalkExitBand, type WalkExitContactWindow } from "./walk-exit-window.js";
-import { stepFootstepPhaseExitBand, type FootstepPhaseExit, type FootstepPhaseState } from "./footstep-phase-mod.js";
+import { stepFootstepPhaseExitBand, type FootstepPhaseExit } from "./footstep-phase-mod.js";
 export { travelYawForClipForward } from "./walk-exit-window.js";
 
 type Vector3 = { x: number; y: number; z: number };
@@ -139,13 +139,6 @@ export type BedsideApproachExecution = {
   /** S2c M2 k-th-passing carry (see walk-exit-window.ts); absent = uninitialised/0. */
   footstepLastClipS?: number | null;
   footstepWraps?: number;
-  /**
-   * Footstep runtime state (stop-any-route M3/M4/M5: passing count, late
-   * correction request, per-passing log entry, safety trip). Optional and
-   * absent off-plan; the phase module rebuilds it every armed step and the
-   * frame module consumes it after each step.
-   */
-  footstep?: FootstepPhaseState | null;
   /**
    * Telemetry only (fixed-clock slice, bar 2): count of walking-phase
    * executor calls. Under the fixed clock each call is exactly one 1/60 s
@@ -369,12 +362,7 @@ export function stepBedsideApproachExecution(input: {
   });
   if (footstepStep.kind === "exited") return footstepStep.execution;
   if (footstepStep.kind === "armed") {
-    execution = {
-      ...execution,
-      footstepLastClipS: footstepStep.lastClipS,
-      footstepWraps: footstepStep.wraps,
-      footstep: footstepStep.footstep,
-    };
+    execution = { ...execution, footstepLastClipS: footstepStep.lastClipS, footstepWraps: footstepStep.wraps };
   }
   const bandStep = footstepStep.kind === "armed" ? null : stepWalkExitBand({
     execution,
