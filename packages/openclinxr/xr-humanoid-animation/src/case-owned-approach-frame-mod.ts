@@ -25,8 +25,9 @@ import {
   createStanceLockState,
 } from "./stance-lock-mod.js";
 import { captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
+import { applyFootstepCorrection } from "./footstep-plan-amplitude-mod.js";
 import { applyWalkingPhaseLocks } from "./case-owned-approach-walking-tail-mod.js";
-import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
+import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S, FOOTSTEP_TRAVEL_COEFFS } from "./footstep-plan-schedule.js";
 import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import {
@@ -83,6 +84,10 @@ export function advanceCaseOwnedBedsideApproach(
         };
   // S2c M2 (default OFF): k-th-passing phase exit; needs the flag, a clip
   // read, and a captured plan, else null (default and band paths untouched).
+  // M3 rides the same struct: the per-foot coefficients and the seed scale
+  // cross as data — this module owns the clip constants, so no package
+  // boundary is crossed. The coefficients stay TRUE model (the G6 probe
+  // seeds only the plan, never the correction).
   const footstepExit =
     clipStanceForExit === undefined || !readFootstepPlanEnabled() || approach.footstep === null
       ? null
@@ -92,6 +97,11 @@ export function advanceCaseOwnedBedsideApproach(
           rPassingS: FOOTSTEP_R_PASSING_S,
           cycleS: clipStanceForExit.labels.cycleSeconds,
           clipTimeS: clipStanceForExit.actionTimeSeconds,
+          aEndR: FOOTSTEP_TRAVEL_COEFFS.aEndR,
+          bEndR: FOOTSTEP_TRAVEL_COEFFS.bEndR,
+          aEndL: FOOTSTEP_TRAVEL_COEFFS.aEndL,
+          bEndL: FOOTSTEP_TRAVEL_COEFFS.bEndL,
+          planScale: approach.footstep.scale,
         };
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
@@ -113,6 +123,9 @@ export function advanceCaseOwnedBedsideApproach(
     footstepExit,
   });
   approach.execution = execution;
+  // M3 apply (default OFF): consume the executor's late-correction request
+  // into the plan state and drain the passing log, right after the step.
+  applyFootstepCorrection(approach);
   // Stop mixer management (entry, crossfade, exits, settle-blend) lives in stop-clip-playback.
   updateStopPlayback(approach, previousPhase, input.deltaSeconds, stopTrigger ? { trigger: stopTrigger } : null);
   // Stop handoff rest re-target: the take's hold pose, not walk-start rest.
