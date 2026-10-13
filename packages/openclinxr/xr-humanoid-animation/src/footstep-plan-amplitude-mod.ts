@@ -2,47 +2,82 @@ import type { Object3D } from "three";
 import { Quaternion } from "three";
 import type { ResolvedBedsideApproach } from "@openclinxr/asset-registry/case-approach-intent";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
-import { planFootsteps } from "./footstep-plan-schedule.js";
+import {
+  FOOTSTEP_CYCLE_S,
+  FOOTSTEP_START_PHASE_S,
+  planFootsteps,
+} from "./footstep-plan-schedule.js";
 import {
   parseFootstepPlanEnabled,
   readFootstepPlanEnabled,
   readFootstepRouteMeters,
 } from "./footstep-plan-query-flag-mod.js";
 import { extendLocoGroundRoute } from "./loco-ground-tap-mod.js";
+import { resolveClipStanceForFrame } from "./stop-clip-playback-mod.js";
 
 /**
  * Footstep-plan S2 stride amplitude (default OFF, `?footstepPlan=1`).
  *
  * Stride must change, not root speed: scaling root advance against an
  * unchanged leg pose is slide by construction (S1 D2). So the plan scales
- * stride AMPLITUDE: every walking frame, leg+pelvis bone rotations are
- * blended between the standing snapshot and the walk clip pose by the
- * plan's uniform scale, and the closed loop (running after this blend)
- * advances the root by what the SCALED planted foot does.
+ * stride AMPLITUDE per leg: each leg holds one scale from its lift-off to
+ * its next lift-off (M3), blending its chain between the standing snapshot
+ * and the walk clip pose; the closed loop (running after the blend) advances
+ * the root by what the SCALED planted foot does.
  *
- * Why uniform scale needs no transitions: the plan gives every step the
- * same scale, adopted by both legs plus pelvis at walk start while the
- * action begins at FOOTSTEP_START_PHASE_S (feet passing, near standing, so
- * adoption moves toes centimetres, not the 0.285 m control snap). No scale
- * ever changes mid-walk, so a planted foot can never move because of a
- * scale change: the STOP condition (scale change moves a planted toe) is
- * structurally unreachable, and the per-frame trace in the S2 report shows
- * it. Arms, spine, toes, timeScale, the clip, and the turn are untouched.
+ * The first half-beat holds 0 (standing = the current pose: no start pop);
+ * middles run 1.0; the last carrying step takes the shortfall; two closing
+ * halves at 0 bring each leg home in turn while the remaining distance is
+ * ~0 (root clamped static: the swing lands beside the stance, no trail, no
+ * drag); the walk exits on the plan-complete signal once the beat lands.
+ * Pelvis holds the first carrying scale all walk (one adoption, zero
+ * mid-walk transitions: a shared bone changing scale mid-stance would move
+ * the planted foot, so it never changes; at 1.0 on both S2 routes the slerp
+ * is the identity and the behavior is byte-identical to leaving it at clip
+ * weight like the arms and spine).
+ *
+ * Lift-offs come from clip TIME (static lift seconds + action time), never
+ * from runtime stance labels: the plan is a pure function of route length
+ * and the clock only advances its index. Arms, spine, toes, timeScale, the
+ * clip, and the turn are untouched.
  *
  * claimScope: the walking legs' amplitude for one approach while flagged.
  * notEvidenceFor: gait realism, other actors, or unflagged runs (no flag =
  * this module returns before touching anything).
  */
 
+export type FootstepBoneSide = "left" | "right" | "pelvis";
+
 export type FootstepBoneRest = {
   bone: Object3D;
   rest: { x: number; y: number; z: number; w: number };
+  side: FootstepBoneSide;
+};
+
+export type FootstepLegClock = {
+  /** Scales in lift-off order (plan timetable). */
+  scales: number[];
+  /** Elapsed clip seconds of each adoption (plan timetable). */
+  atS: number[];
+  /** Next adoption index. */
+  idx: number;
+  /** Scale currently held (adopted at the last lift-off). */
+  current: number;
 };
 
 export type FootstepPlanState = {
-  scale: number;
-  steps: number;
+  legs: { left: FootstepLegClock; right: FootstepLegClock };
+  /** Pelvis scale, adopted once at walk start and held (see header). */
+  pelvisScale: number;
   bones: FootstepBoneRest[];
+  /** Unwrapped action time elapsed since walk start, clip seconds. */
+  clipElapsed: number;
+  /** Previous drive-step action time (unwrap datum), or null before start. */
+  prevActionTime: number | null;
+  /** Plan-complete exit span, clip seconds from walk start. */
+  clipSpan: number;
+  /** Whole halves planned (carrying + closing), for the G1 window count. */
+  steps: number;
 };
 
 const routeIntentCache = new WeakMap<ResolvedBedsideApproach, ResolvedBedsideApproach>();
@@ -87,8 +122,12 @@ function collectPelvisBones(actorSlot: Object3D): Object3D[] {
   return found;
 }
 
+function legSide(name: string): "left" | "right" {
+  return name.replaceAll(".", "").endsWith("R") ? "right" : "left";
+}
+
 /**
- * Walk-entry capture: resolve the plan scale and pin bone refs + rest pose.
+ * Walk-entry capture: resolve the plan and pin bone refs + rest pose.
  * Call on the first walking frame (pre-clip pose, same frame as
  * captureRestStance). Flag off clears the state; a refused plan or missing
  * rest also clears it, so the blend below no-ops and the walk runs S1-style
@@ -101,10 +140,6 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   }
   const routeDx = approach.target.x - approach.start.x;
   const routeDz = approach.target.z - approach.start.z;
-  // Planned against the route length itself. (An exit-lead variant was tried
-  // and reverted: threshold shifts scale with the stride rate, so a lead
-  // cannot move the exit substep — same substep 91 at leads 0.011 and 0.016,
-  // and the turn mapped the micro-different entry worse. See the S2 report.)
   const plan = planFootsteps(Math.hypot(routeDx, routeDz));
   const rest = approach.restStance;
   if ("refused" in plan || rest === null) {
@@ -120,13 +155,63 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
   });
   for (const [name, quat] of Object.entries(rest.quats)) {
     const bone = byName.get(name);
-    if (bone !== undefined) bones.push({ bone, rest: { ...quat } });
+    if (bone !== undefined) bones.push({ bone, rest: { ...quat }, side: legSide(name) });
   }
   for (const bone of collectPelvisBones(approach.actorSlot)) {
     const q = bone.quaternion;
-    bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w } });
+    bones.push({ bone, rest: { x: q.x, y: q.y, z: q.z, w: q.w }, side: "pelvis" });
   }
-  approach.footstep = { scale: plan.scale, steps: plan.steps, bones };
+  const clockFor = (side: "left" | "right"): FootstepLegClock => ({
+    scales: plan.legs[side].map((a) => a.scale),
+    atS: plan.legs[side].map((a) => a.atS),
+    idx: 0,
+    current: 0,
+  });
+  approach.footstep = {
+    legs: { left: clockFor("left"), right: clockFor("right") },
+    pelvisScale: plan.halves[1] !== undefined ? plan.halves[1]!.scale : 1,
+    bones,
+    clipElapsed: 0,
+    prevActionTime: null,
+    clipSpan: plan.clipSpanS,
+    steps: plan.halves.length,
+  };
+}
+
+/**
+ * Drive-step clock (pre-pose action time, one substep stale like the exit
+ * labels): unwrap the action time into elapsed clip seconds and adopt each
+ * leg's next scale as the elapsed time crosses its lift-off. Adoptions land
+ * while the adopting leg is airborne (lift-off), so a planted foot never
+ * moves because of a scale change. No flag, no state, or a non-walking
+ * phase returns without touching anything.
+ */
+export function advanceFootstepPlan(approach: CaseOwnedBedsideApproach): void {
+  if (!readFootstepPlanEnabled()) return;
+  const state = approach.footstep;
+  if (state === null || state === undefined || approach.execution.phase !== "walking") return;
+  const at = resolveClipStanceForFrame(approach)?.actionTimeSeconds ?? null;
+  if (at === null || !(at >= 0) || !Number.isFinite(at)) return;
+  if (state.prevActionTime === null) {
+    state.prevActionTime = at;
+    state.clipElapsed = Math.max(0, at - FOOTSTEP_START_PHASE_S);
+    return;
+  }
+  let delta = at - state.prevActionTime;
+  delta -= Math.round(delta / FOOTSTEP_CYCLE_S) * FOOTSTEP_CYCLE_S;
+  if (!(delta >= 0) || delta > FOOTSTEP_CYCLE_S / 2) {
+    state.prevActionTime = at;
+    return;
+  }
+  state.prevActionTime = at;
+  state.clipElapsed += delta;
+  for (const side of ["left", "right"] as const) {
+    const leg = state.legs[side];
+    while (leg.idx < leg.scales.length && state.clipElapsed >= leg.atS[leg.idx]!) {
+      leg.current = leg.scales[leg.idx]!;
+      leg.idx += 1;
+    }
+  }
 }
 
 const restQuat = new Quaternion();
@@ -135,28 +220,28 @@ const restQuat = new Quaternion();
  * Per-walking-frame amplitude blend (post-pose: call after the mixer posed
  * the skeleton, before the closed-loop advance reads the toes). Slerps each
  * cached leg/pelvis bone between its standing rest and the clip's current
- * pose by the plan scale; normalizes (G6 quat norm). No flag, no state, or
- * a non-walking phase returns without touching anything.
+ * pose by its side's held scale; normalizes (G6 quat norm). No flag, no
+ * state, or a non-walking phase returns without touching anything.
  */
 export function applyFootstepPlanStep(input: {
   approach: CaseOwnedBedsideApproach;
-  routeDx: number;
-  routeDz: number;
-  routeLength: number;
 }): void {
   const { approach } = input;
   if (!readFootstepPlanEnabled()) return;
-  if (approach.execution.phase !== "walking" || input.routeLength <= 0) return;
+  if (approach.execution.phase !== "walking") return;
   const state = approach.footstep;
-  if (state === null) return;
+  if (state === null || state === undefined) return;
   for (const entry of state.bones) {
+    const scale = entry.side === "pelvis"
+      ? state.pelvisScale
+      : state.legs[entry.side].current;
     const clipX = entry.bone.quaternion.x;
     const clipY = entry.bone.quaternion.y;
     const clipZ = entry.bone.quaternion.z;
     const clipW = entry.bone.quaternion.w;
     restQuat.set(entry.rest.x, entry.rest.y, entry.rest.z, entry.rest.w).normalize();
     entry.bone.quaternion.set(clipX, clipY, clipZ, clipW);
-    entry.bone.quaternion.slerp(restQuat, 1 - state.scale);
+    entry.bone.quaternion.slerp(restQuat, 1 - scale);
     entry.bone.quaternion.normalize();
   }
   approach.actorSlot.updateMatrixWorld(true);

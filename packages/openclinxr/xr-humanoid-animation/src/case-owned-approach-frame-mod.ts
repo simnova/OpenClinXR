@@ -29,6 +29,7 @@ import {
   applyClosedLoopWalkStep,
 } from "./closed-loop-root-advance-mod.js";
 import {
+  advanceFootstepPlan,
   applyFootstepPlanStep,
   captureFootstepRest,
 } from "./footstep-plan-amplitude-mod.js";
@@ -88,6 +89,10 @@ export function advanceCaseOwnedBedsideApproach(
           right: clipStanceForExit.labels.right,
           clipTimeSeconds: clipStanceForExit.actionTimeSeconds,
         };
+  // FOOTSTEP-PLAN S2 (default OFF): stride-plan clock (elapsed clip time +
+  // lift-off scale adoption on the pre-pose action time) ahead of the
+  // executor, which exits on its clock. No flag, no state: no effect.
+  advanceFootstepPlan(approach);
   const execution = stepBedsideApproachExecution({
     execution: approach.execution,
     plan: approach.intent.plan,
@@ -104,6 +109,9 @@ export function advanceCaseOwnedBedsideApproach(
     settleTurnRateRadiansPerSecond: approach.settleTurnRateRadiansPerSecond,
     observedHeadingRadians: approach.actorSlot.rotation.y,
     ...(stopTrigger ? { stop: stopTrigger } : {}),
+    ...(approach.footstep
+      ? { footstep: { clipElapsedS: approach.footstep.clipElapsed, clipSpanS: approach.footstep.clipSpan } }
+      : {}),
     walkExit,
   });
   approach.execution = execution;
@@ -478,7 +486,7 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   });
   // FOOTSTEP-PLAN S2 (default OFF): stride-amplitude blend on the walking
   // pose first; the closed loop below then advances on the scaled planted foot.
-  applyFootstepPlanStep({ approach, routeDx, routeDz, routeLength });
+  applyFootstepPlanStep({ approach });
   // FOOTSTEP-PLAN S1 (default OFF): opt-in closed-loop root advance; no flag, no effect.
   applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
 }
