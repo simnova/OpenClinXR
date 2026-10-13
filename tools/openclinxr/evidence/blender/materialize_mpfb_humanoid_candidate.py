@@ -2335,6 +2335,17 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--eye-asset",
+        default="low-poly",
+        choices=("low-poly", "high-poly"),
+        help=(
+            "Eyetex: which CC0 MakeHuman eye asset to fit (low-poly default, "
+            "48 verts/eye, exact sphere; high-poly 532 verts/eye with a +12% "
+            "cornea bulge at the front pole, same brown.mhmat texture). "
+            "Default low-poly keeps every other bake byte-stable."
+        ),
+    )
+    parser.add_argument(
         "--eye-subdivide",
         type=int,
         default=0,
@@ -2538,6 +2549,8 @@ EYE_DIAMETER_TARGET_MM = {
     "eyegeo-final": 24.0,
     # eyeshell: same adult-female body as eyegeo-final (new output name).
     "eyeshell-final": 24.0,
+    # eyetex: same adult-female body as eyegeo-final (new output name).
+    "eyetex-final": 24.0,
 }
 
 
@@ -4873,14 +4886,35 @@ def main():
     # mesh, not the socket skin, is what the gaze drive must move (#296). The eye is a
     # SEPARATE object, so the #318 helper strip (which deletes the helper verts the fit
     # referenced) does not touch it.
-    _eyes_dir = (
-        pathlib.Path(__file__).resolve().parents[4]
-        / ".openclinxr-local/provider-cache/eyes/makehuman-default"
-    )
-    eye_mhclo = _eyes_dir / "low-poly.mhclo"
-    eye_obj = _eyes_dir / "low-poly.obj"
+    # Eyetex review 2026-10-13 (measured, baked): the high-poly asset fits,
+    # weights (eye.L/eye.R) and exports, but its stock UVs pinch BOTH corneal
+    # poles to the texture background corner (obj uv ~0.937,0.069) while
+    # low-poly poles sit mid-iris: a high-poly bake renders white eyes with
+    # any pupil-centred texture. The high-poly path stays available but is
+    # NOT the pick; production eyes stay low-poly (+ --eye-subdivide).
+    # Eyetex --eye-asset: "high-poly" fits data/eyes/hm08/high-poly instead
+    # (uuid 2c12f43b-1303-432c-b7ce-d78346baf2e6, same CC0 header + holders,
+    # 532 verts/eye, +12% cornea bulge at the front pole, declares the same
+    # ../materials/brown.mhmat so UVs map onto the same texture). Staged at
+    # .openclinxr-local/provider-cache/eyes/makehuman-highpoly/ (gitignored).
+    # Default "low-poly" keeps every other bake byte-stable.
+    _eye_asset = getattr(args, "eye_asset", "low-poly")
+    if _eye_asset == "high-poly":
+        _eyes_dir = (
+            pathlib.Path(__file__).resolve().parents[4]
+            / ".openclinxr-local/provider-cache/eyes/makehuman-highpoly"
+        )
+        _eye_stem = "high-poly"
+    else:
+        _eyes_dir = (
+            pathlib.Path(__file__).resolve().parents[4]
+            / ".openclinxr-local/provider-cache/eyes/makehuman-default"
+        )
+        _eye_stem = "low-poly"
+    eye_mhclo = _eyes_dir / f"{_eye_stem}.mhclo"
+    eye_obj = _eyes_dir / f"{_eye_stem}.obj"
     if not eye_mhclo.is_file() or not eye_obj.is_file():
-        raise RuntimeError(f"#337: CC0 MakeHuman default eye sources missing in provider cache: {_eyes_dir}")
+        raise RuntimeError(f"#337: CC0 MakeHuman {_eye_stem} eye sources missing in provider cache: {_eyes_dir}")
 
     from bl_ext.user_default.mpfb.services.humanservice import HumanService as _HumanService  # noqa: E402
 
@@ -4895,7 +4929,9 @@ def main():
     # #337 resume: name the eye mesh data with the eye channel so the exported glTF mesh
     # name matches the evidence regex (`/eye|cornea|iris|sclera/`) — the OBJ import's
     # `low-poly` data name does not. Same convention as the footwear channel rename.
-    eyes_asset.data.name = f"makeclothes_library_eyes_low_poly_mpfb_{subject_id}_mesh"
+    # Eyetex: stem tracks --eye-asset so high-poly bytes are distinguishable.
+    _eye_slug = _eye_stem.replace("-", "_")
+    eyes_asset.data.name = f"makeclothes_library_eyes_{_eye_slug}_mpfb_{subject_id}_mesh"
     eye_tris = sum(max(len(p.vertices) - 2, 0) for p in eyes_asset.data.polygons)
     # Probe: dominant vertex groups on the eye mesh immediately after add_mhclo_asset
     # (before the k-NN transfer below) — tells us whether interpolate_weights gave the
