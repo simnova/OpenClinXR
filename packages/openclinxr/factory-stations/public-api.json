@@ -13,6 +13,8 @@
       "StandardResult",
       "StationJsonSchema",
       "StationPropertySchema",
+      "WalkContactPhaseFoot",
+      "WalkContactPhases",
       "WalkGateJoints",
       "WalkGateReport",
       "applyStationPayloadToCompileSpec",
@@ -35,6 +37,7 @@
       "runRoomGenerate",
       "runStaging",
       "sampleWalkClip",
+      "walkContactPhases",
       "writeLipSyncFixtureWav"
     ],
     "./room-chain": ["ROOM_CHAIN_RECIPES", "runRoomChain"],

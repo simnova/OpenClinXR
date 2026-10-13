@@ -81,6 +81,7 @@
     "src/lip_sync/the-lip-sync-station-rhubarb-on-wav-not-say.test.ts",
     "src/motion_retarget/extract-library-clip.test.ts",
     "src/motion_retarget/movement-gate.test.ts",
+    "src/motion_retarget/walk-contact-phases.test.ts",
     "src/motion_retarget/root-location-frame.test.ts",
     "src/motion_retarget/walk-symmetry-gate.test.ts",
     "src/room_chain/the-room-chain-resolves-outdir-against-repo-root.test.ts",

@@ -60,8 +60,11 @@ export {
   MESHMOTION_WALK_JOINTS,
   MPFB_WALK_JOINTS,
   sampleWalkClip,
+  walkContactPhases,
 } from "./motion_retarget/walk_symmetry_gate.js";
 export type {
+  WalkContactPhaseFoot,
+  WalkContactPhases,
   WalkGateJoints,
   WalkGateReport,
 } from "./motion_retarget/walk_symmetry_gate.js";
