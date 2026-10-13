@@ -130,6 +130,11 @@ export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
 }
 
 const restQuat = new Quaternion();
+const clipQuat = new Quaternion();
+const deltaQuat = new Quaternion();
+const twistQuat = new Quaternion();
+const scaledTwist = new Quaternion();
+const IDENTITY_QUAT = new Quaternion();
 
 /**
  * M1 per-stage tap (footstep-plan-creep D1/D2, default OFF behind
@@ -238,10 +243,21 @@ export function pushFootstepTapRecord(record: FootstepTapRecord): void {
 
 /**
  * Per-walking-frame amplitude blend (post-pose: call after the mixer posed
- * the skeleton, before the closed-loop advance reads the toes). Slerps each
+ * the skeleton, before the closed-loop advance reads the toes). Blends each
  * cached leg/pelvis bone between its standing rest and the clip's current
  * pose by the plan scale; normalizes (G6 quat norm). No flag, no state, or
  * a non-walking phase returns without touching anything.
+ *
+ * CREEP M2 (default OFF, same flag): flexion-only blend. Only the twist
+ * about each bone's local X — the anatomical flexion axis (shipped-clip
+ * decomposition: knee/foot excursion is X-only within 3.4 deg, hip X
+ * dominates 2:1 with the off-X yaw/roll carrying the lateral) — is blended
+ * toward rest; the off-X yaw/roll stays clip-true. The M1 tap showed the
+ * full slerp displacing the planted toe 28.5 mm laterally per substep while
+ * the 1-DOF along-route advance follows with 0.00 mm mid-walk error, so the
+ * lateral is uncorrectable slide; hinge bones are unaffected (their delta
+ * is already X-only). Stride length (hip/knee/foot X) still scales, so
+ * travel and arrival keep their geometry; no constants, no IK, no timing.
  */
 export function applyFootstepPlanStep(input: {
   approach: CaseOwnedBedsideApproach;
@@ -254,14 +270,25 @@ export function applyFootstepPlanStep(input: {
   if (approach.execution.phase !== "walking" || input.routeLength <= 0) return;
   const state = approach.footstep;
   if (state === null) return;
+  const t = 1 - state.scale;
   for (const entry of state.bones) {
-    const clipX = entry.bone.quaternion.x;
-    const clipY = entry.bone.quaternion.y;
-    const clipZ = entry.bone.quaternion.z;
-    const clipW = entry.bone.quaternion.w;
+    clipQuat.set(
+      entry.bone.quaternion.x,
+      entry.bone.quaternion.y,
+      entry.bone.quaternion.z,
+      entry.bone.quaternion.w,
+    );
     restQuat.set(entry.rest.x, entry.rest.y, entry.rest.z, entry.rest.w).normalize();
-    entry.bone.quaternion.set(clipX, clipY, clipZ, clipW);
-    entry.bone.quaternion.slerp(restQuat, 1 - state.scale);
+    // clip -> rest delta, twist about local X only (flexion); off-X stays clip-true.
+    deltaQuat.copy(clipQuat).invert().multiply(restQuat);
+    const tn = Math.hypot(deltaQuat.x, deltaQuat.w);
+    if (tn > 1e-9) {
+      twistQuat.set(deltaQuat.x / tn, 0, 0, deltaQuat.w / tn);
+      scaledTwist.copy(IDENTITY_QUAT).slerp(twistQuat, t);
+      entry.bone.quaternion.copy(clipQuat).multiply(scaledTwist);
+    } else {
+      entry.bone.quaternion.copy(clipQuat);
+    }
     entry.bone.quaternion.normalize();
   }
   approach.actorSlot.updateMatrixWorld(true);

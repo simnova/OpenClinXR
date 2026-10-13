@@ -29,15 +29,22 @@ function angleDeg(a: THREE.Quaternion, b: THREE.Quaternion): number {
   return (2 * Math.acos(dot) * 180) / Math.PI;
 }
 
+/** Twist about local X (the blend's flexion axis), test-local. */
+function twistX(q: THREE.Quaternion): THREE.Quaternion {
+  const n = Math.hypot(q.x, q.w) || 1;
+  return new THREE.Quaternion(q.x / n, 0, 0, q.w / n);
+}
+
 describe("footstep-plan amplitude blend", () => {
   afterEach(() => {
     delete (globalThis as unknown as { window?: unknown }).window;
   });
 
-  it("s=0 returns the standing pose, s=1 the clip pose, norms hold", () => {
+  it("s=0 returns standing flexion with clip-true yaw/roll, s=1 the clip pose, norms hold", () => {
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
     const slot = new THREE.Group();
     const rest = quat(0, 0, 0, 1);
+    // Off-X clip deliberately: the creep M2 flexion-only blend keeps yaw/roll clip-true.
     const clip = quat(0.3, 0.1, 0.05, 1);
     const leg = bone(slot, "upperleg01.L", clip);
     const approach: Loose = {
@@ -46,15 +53,23 @@ describe("footstep-plan amplitude blend", () => {
       footstep: { scale: 0, steps: 3, bones: [{ bone: leg, rest: { x: rest.x, y: rest.y, z: rest.z, w: rest.w } }] },
     };
     applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
+    // Flexion reaches standing exactly; yaw/roll stay at the clip (lateral preserved, not standing).
+    expect(angleDeg(twistX(leg.quaternion), twistX(rest))).toBeLessThan(1e-6);
+    expect(angleDeg(leg.quaternion, rest)).toBeGreaterThan(1);
+    expect(angleDeg(leg.quaternion, clip)).toBeLessThan(angleDeg(clip, rest));
+    // X-only clip: no off-X exists, so s=0 is exactly standing (old pin, unchanged).
+    const clipX = quat(0.3, 0, 0, 1);
+    leg.quaternion.copy(clipX);
+    applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(angleDeg(leg.quaternion, rest)).toBeLessThan(1e-6);
     approach.footstep.scale = 1;
     leg.quaternion.copy(clip);
     applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(angleDeg(leg.quaternion, clip)).toBeLessThan(1e-6);
     approach.footstep.scale = 0.5;
-    leg.quaternion.copy(clip);
+    leg.quaternion.copy(clipX);
     applyFootstepPlanStep({ approach, routeDx: 0, routeDz: 1, routeLength: 1.31 });
-    expect(angleDeg(leg.quaternion, rest)).toBeCloseTo(angleDeg(clip, rest) / 2, 0);
+    expect(angleDeg(leg.quaternion, rest)).toBeCloseTo(angleDeg(clipX, rest) / 2, 0);
     expect(Math.abs(leg.quaternion.length() - 1)).toBeLessThan(1e-4);
   });
 
