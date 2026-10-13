@@ -1,0 +1,271 @@
+{
+  "dir": ".openclinxr/evidence/fixed-clock/cell1-noclock",
+  "pacing": "capture",
+  "seed": null,
+  "metrics": [
+    {
+      "tag": "sc05-run0",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7937412284810406,
+        "z": 1.164096396833039
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "left",
+      "plantYawDeg": 4.6073255275605325,
+      "alongM": -0.02301386549254509,
+      "lateralM": 0.015486113687376235,
+      "settlingS": 1.5666666666666682,
+      "walkRecordedS": 0.8333333333333333,
+      "maxFootStepM": 0.19428894855945214,
+      "maxLegStepDeg": 17.217735128646947,
+      "legNormBands": {
+        "upperleg01L": {
+          "min": 0.9999999911959943,
+          "max": 1.000000068811222
+        },
+        "upperleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "lowerleg01L": {
+          "min": 0.9999999897309642,
+          "max": 1.0000000319639262
+        },
+        "lowerleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "upperleg01R": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        },
+        "upperleg02R": {
+          "min": 1,
+          "max": 1.0000000084269978
+        },
+        "lowerleg01R": {
+          "min": 0.9999999875809888,
+          "max": 1.0000000415419528
+        },
+        "lowerleg02R": {
+          "min": 0.9999999999999997,
+          "max": 1.0000000000000002
+        },
+        "upperL": {
+          "min": 0.9999999911959943,
+          "max": 1.000000068811222
+        },
+        "upperR": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        }
+      },
+      "thighLenL": {
+        "min": 0.3464308099733137,
+        "max": 0.35453384116952774
+      },
+      "thighLenR": {
+        "min": 0.3464648015517094,
+        "max": 0.35468725393650424
+      },
+      "windowSlidesM": [
+        0.000962209176534322,
+        0.00017904465573826593
+      ],
+      "meanWindowSlideM": 0.000570626916136294,
+      "maxWindowSlideM": 0.000962209176534322,
+      "renderedReversals": 0,
+      "renderedMaxSecondDiffM": 3.3306690738754696e-16,
+      "substepHist": {},
+      "meanFixedClockFrameMs": null
+    },
+    {
+      "tag": "sc05-run1",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7938885281487971,
+        "z": 1.1640262608242102
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "left",
+      "plantYawDeg": 4.347357138900711,
+      "alongM": -0.02311468838404756,
+      "lateralM": 0.015357852249661422,
+      "settlingS": 1.5666666666666682,
+      "walkRecordedS": 0.8333333333333333,
+      "maxFootStepM": 0.19500612395568048,
+      "maxLegStepDeg": 17.22549834391079,
+      "legNormBands": {
+        "upperleg01L": {
+          "min": 0.999999991195994,
+          "max": 1.0000000688112223
+        },
+        "upperleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "lowerleg01L": {
+          "min": 0.9999999897309642,
+          "max": 1.0000000319639262
+        },
+        "lowerleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "upperleg01R": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        },
+        "upperleg02R": {
+          "min": 1,
+          "max": 1.0000000084269978
+        },
+        "lowerleg01R": {
+          "min": 0.9999999875809888,
+          "max": 1.0000000415419528
+        },
+        "lowerleg02R": {
+          "min": 0.9999999999999997,
+          "max": 1.0000000000000002
+        },
+        "upperL": {
+          "min": 0.999999991195994,
+          "max": 1.0000000688112223
+        },
+        "upperR": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        }
+      },
+      "thighLenL": {
+        "min": 0.3465605371086534,
+        "max": 0.35453435295877045
+      },
+      "thighLenR": {
+        "min": 0.3465053673461449,
+        "max": 0.35470501249586445
+      },
+      "windowSlidesM": [
+        0.0017134198852105209,
+        0.0002337808936927702
+      ],
+      "meanWindowSlideM": 0.0009736003894516456,
+      "maxWindowSlideM": 0.0017134198852105209,
+      "renderedReversals": 0,
+      "renderedMaxSecondDiffM": 3.3306690738754696e-16,
+      "substepHist": {},
+      "meanFixedClockFrameMs": null
+    },
+    {
+      "tag": "sc05-run2",
+      "walkFrames": 25,
+      "settlingFrames": 47,
+      "clipTimeW": 1.4223081433609666,
+      "clipTimeS": 1.4759494790534373,
+      "labelW": "R",
+      "labelS": "R",
+      "firstSingleAfterEntry": "R",
+      "entryYawDeg": 117.28723517296369,
+      "residualDeg": 62.71276482703631,
+      "predictedFirstSwing": "right",
+      "actualFirstStance": null,
+      "actualFirstSwing": null,
+      "arrivalSlot": {
+        "x": -0.7939956983508746,
+        "z": 1.163967432864321
+      },
+      "arrivalYawDeg": 180,
+      "plantFoot": "left",
+      "plantYawDeg": 4.176223667826551,
+      "alongM": -0.023184579586724742,
+      "lateralM": 0.015257545715146474,
+      "settlingS": 1.5666666666666682,
+      "walkRecordedS": 0.8333333333333333,
+      "maxFootStepM": 0.19494301860161184,
+      "maxLegStepDeg": 17.21360085898553,
+      "legNormBands": {
+        "upperleg01L": {
+          "min": 0.9999999911959939,
+          "max": 1.0000000688112225
+        },
+        "upperleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "lowerleg01L": {
+          "min": 0.9999999897309642,
+          "max": 1.0000000319639262
+        },
+        "lowerleg02L": {
+          "min": 0.9999999999999998,
+          "max": 1.0000000000000002
+        },
+        "upperleg01R": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        },
+        "upperleg02R": {
+          "min": 1,
+          "max": 1.0000000084269978
+        },
+        "lowerleg01R": {
+          "min": 0.9999999875809888,
+          "max": 1.0000000415419528
+        },
+        "lowerleg02R": {
+          "min": 0.9999999999999997,
+          "max": 1.0000000000000002
+        },
+        "upperL": {
+          "min": 0.9999999911959939,
+          "max": 1.0000000688112225
+        },
+        "upperR": {
+          "min": 0.9999999999999999,
+          "max": 1.000000067207606
+        }
+      },
+      "thighLenL": {
+        "min": 0.3463878849522629,
+        "max": 0.3545248803733935
+      },
+      "thighLenR": {
+        "min": 0.3464149701881382,
+        "max": 0.3546960407466454
+      },
+      "windowSlidesM": [
+        0.001980797605797702,
+        0.00026252938612072486
+      ],
+      "meanWindowSlideM": 0.0011216634959592133,
+      "maxWindowSlideM": 0.001980797605797702,
+      "renderedReversals": 0,
+      "renderedMaxSecondDiffM": 4.440892098500626e-16,
+      "substepHist": {},
+      "meanFixedClockFrameMs": null
+    }
+  ]
+}
