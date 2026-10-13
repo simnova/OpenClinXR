@@ -109,6 +109,10 @@ type FrameProbe = {
   travelHeading: number | null;
   startWorld: Vec3 | null;
   targetWorld: Vec3 | null;
+  /** S2: executor walking-call index (fixed-clock substep datum); null on old builds. */
+  walkSimSubsteps: number | null;
+  /** S2: knee flexion degrees per side, for the amplitude counterweight; null on old builds. */
+  kneeFlexionDeg: { left: number | null; right: number | null } | null;
 };
 
 /**
@@ -199,6 +203,8 @@ const PROBE_SOURCE = `
     travelHeading: ev ? ev.travelHeadingRadians : null,
     startWorld: ev ? ev.startWorld : null,
     targetWorld: ev ? ev.targetWorld : null,
+    walkSimSubsteps: tail && tail.walkSimSubsteps !== undefined ? tail.walkSimSubsteps : null,
+    kneeFlexionDeg: tail && tail.kneeFlexionDeg !== undefined ? tail.kneeFlexionDeg : null,
   };
 })()
 `;
