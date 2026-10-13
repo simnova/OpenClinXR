@@ -146,6 +146,7 @@ export function beginSteppingTurn(input: {
     stanceBaselineY: input.baselineYOverride ?? Math.min(leftWorld.y, rightWorld.y),
     entrySlotXz: { x: actorSlot.position.x, z: actorSlot.position.z },
     legScale: steppingTurnLegScale(input.restSepXzM),
+    restSepM: input.restSepXzM ?? null,
   };
   // Center the final pair under the pelvis (two-step turns): the yaw split steers the
   // pivot-arc composition, so optimize it against the closed-form slot path. Falls back

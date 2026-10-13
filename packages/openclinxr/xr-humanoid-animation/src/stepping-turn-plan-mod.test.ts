@@ -185,4 +185,122 @@ describe("the stepping-turn plan", () => {
   it("plans a single step for a 30 deg residual", () => {
     expect(planFor(30).steps.length).toBe(1);
   });
+
+  it("lands the final step beside the stance with the rest separation (not mirrored)", () => {
+    const restSepM = 0.22;
+    const plan = planSteppingTurn({
+      residualYawRadians: 62.67 * DEG,
+      entryYawRadians: ENTRY_YAW,
+      targetHeadingRadians: ENTRY_YAW + 62.67 * DEG,
+      leftToeXz: LEFT,
+      rightToeXz: RIGHT,
+      leftToeY: 0.016,
+      rightToeY: 0.016,
+      stanceBaselineY: 0.016,
+      entrySlotXz: { x: 0, z: 0 },
+      legScale: 1,
+      restSepM,
+    });
+    const [first, last] = plan.steps;
+    if (!first || !last) throw new Error("expected 2 steps");
+    // Non-final steps keep the mirror (their landings anchor the slot path).
+    const slotEach = { x: 0, z: 0 };
+    const cos0 = Math.cos(first.yawRadians);
+    const sin0 = Math.sin(first.yawRadians);
+    const slotEnd0 = {
+      x: first.stanceXz.x + (slotEach.x - first.stanceXz.x) * cos0 + (slotEach.z - first.stanceXz.z) * sin0,
+      z: first.stanceXz.z - (slotEach.x - first.stanceXz.x) * sin0 + (slotEach.z - first.stanceXz.z) * cos0,
+    };
+    expect(first.swingToXz.x).toBeCloseTo(2 * slotEnd0.x - first.stanceXz.x, 9);
+    expect(first.swingToXz.z).toBeCloseTo(2 * slotEnd0.z - first.stanceXz.z, 9);
+    // Final landing in the end frame: same fore-aft as the stance, rest lateral apart.
+    const endYaw = ENTRY_YAW + 62.67 * DEG;
+    const cos = Math.cos(endYaw);
+    const sin = Math.sin(endYaw);
+    let slot = { x: 0, z: 0 };
+    for (const step of plan.steps) {
+      const dx = slot.x - step.stanceXz.x;
+      const dz = slot.z - step.stanceXz.z;
+      const c = Math.cos(step.yawRadians);
+      const s = Math.sin(step.yawRadians);
+      slot = {
+        x: step.stanceXz.x + dx * c + dz * s,
+        z: step.stanceXz.z - dx * s + dz * c,
+      };
+    }
+    const body = (p: { x: number; z: number }): { lat: number; fore: number } => ({
+      lat: (p.x - slot.x) * cos - (p.z - slot.z) * sin,
+      fore: (p.x - slot.x) * sin + (p.z - slot.z) * cos,
+    });
+    const stanceB = body(last.stanceXz);
+    const swingB = body(last.swingToXz);
+    expect(swingB.fore).toBeCloseTo(stanceB.fore, 9);
+    expect(Math.abs(swingB.lat - stanceB.lat)).toBeCloseTo(restSepM, 9);
+  });
+
+  it("keeps the mirror on the final step for an invalid rest separation", () => {
+    for (const restSepM of [0, -0.2, null, undefined]) {
+      const plan = planSteppingTurn({
+        residualYawRadians: 30 * DEG,
+        entryYawRadians: ENTRY_YAW,
+        targetHeadingRadians: ENTRY_YAW + 30 * DEG,
+        leftToeXz: LEFT,
+        rightToeXz: RIGHT,
+        leftToeY: 0.016,
+        rightToeY: 0.016,
+        stanceBaselineY: 0.016,
+        entrySlotXz: { x: 0, z: 0 },
+        legScale: 1,
+        restSepM: restSepM ?? null,
+      });
+      expect(plan.steps.length).toBe(1);
+      const only = plan.steps[0];
+      if (!only) throw new Error("expected 1 step");
+      const cos = Math.cos(only.yawRadians);
+      const sin = Math.sin(only.yawRadians);
+      const slotEnd = {
+        x: only.stanceXz.x + (0 - only.stanceXz.x) * cos + (0 - only.stanceXz.z) * sin,
+        z: only.stanceXz.z - (0 - only.stanceXz.x) * sin + (0 - only.stanceXz.z) * cos,
+      };
+      expect(only.swingToXz.x).toBeCloseTo(2 * slotEnd.x - only.stanceXz.x, 9);
+      expect(only.swingToXz.z).toBeCloseTo(2 * slotEnd.z - only.stanceXz.z, 9);
+    }
+  });
+
+  it("lands a single-step turn beside the stance too (the one step is the final step)", () => {
+    const restSepM = 0.22;
+    const plan = planSteppingTurn({
+      residualYawRadians: 30 * DEG,
+      entryYawRadians: ENTRY_YAW,
+      targetHeadingRadians: ENTRY_YAW + 30 * DEG,
+      leftToeXz: LEFT,
+      rightToeXz: RIGHT,
+      leftToeY: 0.016,
+      rightToeY: 0.016,
+      stanceBaselineY: 0.016,
+      entrySlotXz: { x: 0, z: 0 },
+      legScale: 1,
+      restSepM,
+    });
+    expect(plan.steps.length).toBe(1);
+    const only = plan.steps[0];
+    if (!only) throw new Error("expected 1 step");
+    const endYaw = ENTRY_YAW + 30 * DEG;
+    const cos = Math.cos(endYaw);
+    const sin = Math.sin(endYaw);
+    const c = Math.cos(only.yawRadians);
+    const s = Math.sin(only.yawRadians);
+    const slot = {
+      x: only.stanceXz.x + (0 - only.stanceXz.x) * c + (0 - only.stanceXz.z) * s,
+      z: only.stanceXz.z - (0 - only.stanceXz.x) * s + (0 - only.stanceXz.z) * c,
+    };
+    const body = (p: { x: number; z: number }): { lat: number; fore: number } => ({
+      lat: (p.x - slot.x) * cos - (p.z - slot.z) * sin,
+      fore: (p.x - slot.x) * sin + (p.z - slot.z) * cos,
+    });
+    const stanceB = body(only.stanceXz);
+    const swingB = body(only.swingToXz);
+    expect(swingB.fore).toBeCloseTo(stanceB.fore, 9);
+    expect(Math.abs(swingB.lat - stanceB.lat)).toBeCloseTo(restSepM, 9);
+  });
 });
