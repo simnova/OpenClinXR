@@ -180,10 +180,13 @@ export async function closeLoopSeam(input: { glbPath: string; clipName: string; 
     const values = sampler.getOutput()?.getArray();
     if (!times || !values) continue;
     const n = times.length;
-    if (n <= SM) throw new Error(`clip too short to close (${n} frames)`);
     const stride = targetPath === "rotation" ? 4 : 3;
     const at = (k: number): number[] => Array.from(values.subarray(k * stride, k * stride + stride));
     const first = at(0);
+    if (n <= SM) {
+      values.set(first, (n - 1) * stride);
+      continue;
+    }
     for (let k = 0; k < n; k += 1) {
       if (k < n - SM) continue;
       const w = k === n - 1 ? 1 : 0.5 * (1 - Math.cos((Math.PI * (k - (n - SM))) / SM));
