@@ -127,6 +127,13 @@ export type SlidePhaseMetrics = {
     deepWindows: StanceWindow[];
     deepSumM: number;
     deepSlidePerMetre: number | null;
+    /**
+     * S1 T1: isolated sub-0.02 m frames that cannot form a window (singleton
+     * stance runs under the deep gate). When deepWindows is empty and this is
+     * small, the reading is "no window formed", not "no data": the
+     * stance-labelled walking foot never dwells within 2 cm of the floor.
+     */
+    deepSingleFrameRuns: number;
   };
   settle: {
     fromFrame: number | null;
@@ -449,6 +456,7 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
       deepWindows: deepRuns.windows,
       deepSumM,
       deepSlidePerMetre: rootPathM === 0 ? null : deepSumM / rootPathM,
+      deepSingleFrameRuns: deepRuns.singleFrameRuns,
     },
     settle: {
       fromFrame: settleFrom,
@@ -566,6 +574,7 @@ async function main(): Promise<void> {
   show("startTransient.firstStepTravelM", "m", metrics.map((m) => m.startTransient.firstStepTravelM));
   show("walking.sumM", "m", metrics.map((m) => m.walking.sumM));
   show("walking.deepSumM", "m", metrics.map((m) => m.walking.deepSumM));
+  show("walking.deepSingleFrameRuns", "frames", metrics.map((m) => m.walking.deepSingleFrameRuns), 0);
   show("walking.rootPathM", "m", metrics.map((m) => m.walking.rootPathM), 3);
   show("walking.slidePerMetre", "m/m", metrics.map((m) => m.walking.slidePerMetre));
   show("walking.deepSlidePerMetre", "m/m", metrics.map((m) => m.walking.deepSlidePerMetre));
@@ -581,6 +590,7 @@ async function main(): Promise<void> {
     lines.push(
       `- ${m.tag}: walkWindows=[${m.walking.windows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
         `deepWindows=[${m.walking.deepWindows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
+        `deepSingles=${m.walking.deepSingleFrameRuns} ` +
         `turnWindows=[${m.turn.windows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
         `replicaUngatedMax=${m.turn.replicaUngatedMaxM.toFixed(4)} missing=[${m.missing.join("; ") || "none"}]`,
     );

@@ -144,5 +144,19 @@ describe("slide-phase deep gate (S1 M3): in-band roll above 0.02 m", () => {
     expect(m.walking.deepWindows[0]!.foot).toBe("right");
     expect(m.walking.deepSumM).toBeCloseTo(0, 9);
     expect(m.walking.deepSlidePerMetre).toBeCloseTo(0, 9);
+    expect(m.walking.deepSingleFrameRuns).toBe(0);
+  });
+
+  it("counts an isolated sub-0.02 m frame as a singleton, not a window (S1 T1)", () => {
+    const run = syntheticRun();
+    for (let i = 0; i < 6; i += 1) {
+      run.frames[i]!.leftToe = toe(i * 0.01, 0.05, 0);
+    }
+    // One frame dips below the deep gate amid the shelf: isolated, no window.
+    run.frames[3]!.leftToe = toe(0.03, 0.019, 0);
+    const m = computeSlidePhase("synthetic-single-run0", run);
+    expect(m.walking.deepWindows).toHaveLength(1);
+    expect(m.walking.deepSingleFrameRuns).toBe(1);
+    expect(m.walking.deepSumM).toBeCloseTo(0, 9);
   });
 });
