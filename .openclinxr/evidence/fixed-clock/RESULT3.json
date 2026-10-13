@@ -9,10 +9,10 @@
   "7": "pass",
   "8": "pass on clock-on lockOff; default-off restores legacy loco behavior (= main values)"
  },
- "cause": "no product-code defect: identical-dt falsifier shows the two paths run the same walk (clip-matched progress offset +0.0000 sd 0.0000, yaw identical); the 46 mm first-run offset was a coarse pre-walk instrument artifact; main's arrival is a function of frame rate (legacy 1/30 [-0.0147,+0.0121], 1/60 [-0.0356,+0.0367], 1/72 [-0.0428,+0.0343>])",
+ "cause": "no product-code defect: identical-dt falsifier shows the two paths run the same walk (clip-matched progress offset +0.0000 sd 0.0000, yaw identical); the 46 mm first-run offset was a coarse pre-walk instrument artifact; main's arrival is a function of frame rate (legacy 1/30 [-0.0147,+0.0121], 1/60 [-0.0356,+0.0367], 1/72 [-0.0428,+0.0343])",
  "commits": [
   "5afd99ab8 handback2 falsifier/slide/default-off (rebased onto 4bbea14a8)",
-  "TBD-final"
+  "d5b14ebee-final"
  ],
  "default": {
   "value": "off",
