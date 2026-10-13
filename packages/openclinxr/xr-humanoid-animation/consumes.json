@@ -346,6 +346,42 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./footstep-plan",
+    "names": [
+      {
+        "name": "applyFootstepPlanStep",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "captureFootstepRest",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "halfCycleTravelMeters",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planFootsteps",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "parseFootstepPlanEnabled",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "parseFootstepRouteMeters",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {

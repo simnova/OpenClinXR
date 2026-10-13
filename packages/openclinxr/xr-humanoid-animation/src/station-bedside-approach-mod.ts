@@ -27,6 +27,7 @@ import { resolveToeBones } from "./resolve-toe-bones.js";
 import { readCcdStanceLockEnabled } from "./ccd-stance-lock-query-flag-mod.js";
 import { commitLocoGroundTapForApproach, extendLocoGroundIntent } from "./loco-ground-tap-mod.js";
 import { readSteppingTurnEnabled } from "./stepping-turn-query-flag-mod.js";
+import { extendFootstepRouteIntent } from "./footstep-plan-amplitude-mod.js";
 import { findStanceChain, worldXyz } from "./stance-lock-ik.js";
 /**
  * The station's own bedside approach: observed once the physician's skeleton is in the scene, then
@@ -227,9 +228,9 @@ export function resolveStationBedsideApproach(
   });
   publishClipForwardDiagnostic(rateOneAdvance, playbackTimeScale);
   const approach = createCaseOwnedBedsideApproach({
-    intent: extendLocoGroundIntent(intent),
+    intent: extendFootstepRouteIntent(extendLocoGroundIntent(intent)),
     geometry,
-    observedGeometryRevision: extendLocoGroundIntent(intent).geometryRevision,
+    observedGeometryRevision: extendFootstepRouteIntent(extendLocoGroundIntent(intent)).geometryRevision,
     runId: context.runId,
     actorSlot: slot,
     humanoidRoot,

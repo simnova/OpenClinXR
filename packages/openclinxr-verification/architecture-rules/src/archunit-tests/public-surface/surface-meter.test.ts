@@ -151,7 +151,11 @@ describe("compiler-resolved surface meter", () => {
     // ./fixed-timestep-clock subpath so the composition root steps the sim through the
     // accumulator without relative src reaches (137 -> 138).
     // Re-derived independently by counting `exports` keys in package.json (137 before, 138 after).
-    expect(report.totals.entrypoints).toBe(138);
+    // 2026-10-13 footstep-plan seam: xr-humanoid-animation adds one reviewed
+    // ./footstep-plan subpath so the footstep-plan tests pin the plan, blend,
+    // capture, and flag-parser reads without relative src reaches (138 -> 139).
+    // The branch changes no other package.json `exports` map, so the delta is this one key.
+    expect(report.totals.entrypoints).toBe(139);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

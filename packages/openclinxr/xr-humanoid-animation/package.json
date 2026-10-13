@@ -28,6 +28,10 @@
       "types": "./dist/fixed-timestep-clock.d.ts",
       "default": "./dist/fixed-timestep-clock.js"
     },
+    "./footstep-plan": {
+      "types": "./dist/footstep-plan.d.ts",
+      "default": "./dist/footstep-plan.js"
+    },
     "./locomotion-clip-playback": {
       "types": "./dist/locomotion-clip-playback.d.ts",
       "default": "./dist/locomotion-clip-playback.js"
