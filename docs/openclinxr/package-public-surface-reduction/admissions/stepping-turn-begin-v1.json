@@ -1,9 +1,9 @@
 {
   "schema": "openclinxr.psr-admission.v1",
   "id": "stepping-turn-begin-v1",
-  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "reviewedBy": "claude-orchestrator independent review of stepping-turn-begin-v1 at ae69666e9, 2026-10-13",
   "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
-  "admissionHash": "8be3fd44937113b056a76fa6c25af4125da9661e539f7f139f3b5fef618f9ba5",
+  "admissionHash": "39df0e51de0c9679305af6099caf726bafe05b793b1fa379b68381ee8f0bd0d6",
   "packages": [
     "packages/openclinxr/xr-humanoid-animation"
   ],
@@ -16,7 +16,7 @@
       "disposition": "keep",
       "owner": "stepping-turn-worker",
       "rationale": "Stepping-turn execution entry consumed by the test through the public entrypoint. Consumer: stepping-turn-execution-mod.test.ts rest gate cases.",
-      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+      "reviewedBy": "claude-orchestrator independent review of stepping-turn-begin-v1 at ae69666e9, 2026-10-13"
     }
   ]
 }
