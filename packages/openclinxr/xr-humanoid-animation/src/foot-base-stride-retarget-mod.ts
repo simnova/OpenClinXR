@@ -12,10 +12,7 @@ import {
   FOOT_BASE_ROWS,
   type FootBasePathRow,
 } from "./foot-base-path-data-mod.js";
-import {
-  stanceAtTime,
-  type LocomotionStanceLabels,
-} from "./locomotion-stance-labels.js";
+import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
@@ -32,13 +29,12 @@ import {
  * toe target = its foothold (XZ pinned by an exact slot translate), swing =
  * liftoff + along01 * step + lateral * side + height * up, each leg solved
  * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
- * the clip pose. Stance follows the clip labels (the metric reads the same
- * lock labels, so pin stance and metric stance coincide); handovers plant
- * the physical foot with anchor heights capped at the contact band, since
- * label flaps can fire mid-swing and an unclamped plant would float the
- * whole stance. Feet freeze yaw-compensated beside the offset, else ankle
- * articulation invalidates it by centimetres. Handovers anchor to the
- * solved foot (zero travel).
+ * the clip pose. Stance follows the observe-only stance lock from earlier
+ * in the same frame (also the published stanceFoot column, so pin stance
+ * and metric stance coincide by construction). Handovers plant the physical
+ * foot with anchor heights capped at the contact band; feet freeze
+ * yaw-compensated beside the offset, else ankle articulation invalidates it
+ * by centimetres. Handovers anchor to the solved foot (zero travel).
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
@@ -63,7 +59,7 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
 export type FootBaseApproachState = Pick<
   CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start"
+  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
 >;
 
 export type FootBaseClipRead = {
@@ -260,17 +256,14 @@ export function applyFootBaseStep(input: {
   const cycleS = clip.labels.cycleSeconds;
   const actionTimeS = clip.actionTimeSeconds;
   const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
-  // Labels-driven stance: single support crowns immediately, overlap keeps
-  // the incumbent. The metric's stance windows read the same lock labels,
-  // so pin stance and metric stance coincide by construction. Label flaps
-  // hand over and straight back; both anchor to the physical foot with
-  // re-snapped takeoff refs, so they are continuous non-events.
-  const labelled = stanceAtTime(clip.labels, actionTimeS);
-  const single: FootBaseSide | null = labelled.left && !labelled.right
-    ? "left"
-    : labelled.right && !labelled.left
-      ? "right"
-      : null;
+  // Stance follows the observe-only stance lock computed earlier this same
+  // frame (its stanceFoot is also what the capture publishes, so pin stance
+  // and metric stance coincide BY CONSTRUCTION — no clock/pose skew can put
+  // a swing frame inside a stance window). Overlap/null keeps the incumbent.
+  // Label flaps hand over and straight back; anchors are contact-clamped
+  // with re-snapped takeoff refs, so they are continuous non-events.
+  const lockStance = approach.lock.stanceFoot;
+  const single: FootBaseSide | null = lockStance === "left" || lockStance === "right" ? lockStance : null;
   let state = states.get(approach);
   if (!state) {
     const initial: FootBaseSide = single ?? (leftToeW.y <= rightToeW.y ? "left" : "right");

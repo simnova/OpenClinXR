@@ -99,11 +99,16 @@ describe("foot-base stride retarget", () => {
       execution: { phase: "walking", walkSimSubsteps: 0 },
       lockArmed: true,
       start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
     };
     const labels = stanceLabels();
     let sawRight = false;
     for (let frame = 0; frame < 140; frame += 1) {
       (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+      // The step follows the lock's stance (same source as the metric), not the label clock.
+      (approach as unknown as { lock: { stanceFoot: string | null } }).lock = {
+        stanceFoot: frame < 110 ? "left" : "right",
+      };
       const summary = applyFootBaseStep({
         approach: approach as never,
         routeDx: 0,
