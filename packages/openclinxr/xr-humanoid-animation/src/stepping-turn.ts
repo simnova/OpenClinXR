@@ -1,4 +1,4 @@
-/** Public subpath entry: keep-only re-exports for the stepping-turn assay seam. Implementation: ./stance-lock-ik.js, ./stepping-turn-leg-ik-mod.js, ./stepping-turn-plan-mod.js, ./stepping-turn-execution-mod.js. */
+/** Public subpath entry: keep-only re-exports for the stepping-turn assay seam. Implementation: ./stance-lock-ik.js, ./stepping-turn-leg-ik-mod.js, ./stepping-turn-plan-mod.js, ./stepping-turn-execution-mod.js, ./stepping-turn-backward-footfalls-mod.js. */
 
 export {
   findStanceChain,
@@ -25,3 +25,8 @@ export {
 export {
   beginSteppingTurn,
 } from "./stepping-turn-execution-mod.js";
+export {
+  firstStanceResidualXz,
+  overridePlanWithBackwardFootfalls,
+  planBackwardTurnFootfalls,
+} from "./stepping-turn-backward-footfalls-mod.js";

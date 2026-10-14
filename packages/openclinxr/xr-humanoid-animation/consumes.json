@@ -179,6 +179,11 @@
         "via": "own-test"
       },
       {
+        "name": "blendStopClipPlayback",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "createHumanoidEmotionExpressionState",
         "kind": "runtime",
         "via": "own-test"
@@ -207,25 +212,6 @@
         "via": "own-test"
       },
       {
-        "name": "updateGeneratedHumanoidAnimations",
-        "kind": "runtime"
-      },
-      {
-        "name": "updateGeneratedHumanoidAnimations",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "updateHumanoidEmotionExpression",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "blendStopClipPlayback",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "startStopClipPlayback",
         "kind": "runtime",
         "via": "own-test"
@@ -241,63 +227,42 @@
         "via": "own-test"
       },
       {
-        "name": "updateStopPlayback",
+        "name": "StopClipPlaybackState",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "updateGeneratedHumanoidAnimations",
+        "kind": "runtime"
+      },
+      {
+        "name": "updateGeneratedHumanoidAnimations",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "StopClipPlaybackState",
-        "kind": "type",
+        "name": "updateHumanoidEmotionExpression",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "updateStopPlayback",
+        "kind": "runtime",
         "via": "own-test"
       }
     ]
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
-    "entrypoint": "./stepping-turn",
+    "entrypoint": "./case-owned-approach-runtime",
     "names": [
       {
-        "name": "beginSteppingTurn",
+        "name": "advanceCaseOwnedBedsideApproach",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "planSteppingTurn",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "pivotSlotXzForSteppingFrame",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "steppingPivotWindowKey",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "steppingTurnAt",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "STEPPING_TURN_STEP_DURATION_S",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "steppingTurnLegScale",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "solveSteppingLegHinge",
+        "name": "applyCaseOwnedStanceLock",
         "kind": "runtime",
         "via": "own-test"
       }
@@ -374,11 +339,6 @@
         "via": "own-test"
       },
       {
-        "name": "planFootsteps",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "parseFootstepPlanEnabled",
         "kind": "runtime",
         "via": "own-test"
@@ -387,20 +347,14 @@
         "name": "parseFootstepRouteMeters",
         "kind": "runtime",
         "via": "own-test"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-humanoid-animation",
-    "entrypoint": "./case-owned-approach-runtime",
-    "names": [
+      },
       {
-        "name": "advanceCaseOwnedBedsideApproach",
+        "name": "parseFootstepTargetShiftM",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "applyCaseOwnedStanceLock",
+        "name": "planFootsteps",
         "kind": "runtime",
         "via": "own-test"
       }
@@ -412,6 +366,67 @@
     "names": [
       {
         "name": "playLocomotionClip",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./stepping-turn",
+    "names": [
+      {
+        "name": "beginSteppingTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "firstStanceResidualXz",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "overridePlanWithBackwardFootfalls",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "pivotSlotXzForSteppingFrame",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planBackwardTurnFootfalls",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planSteppingTurn",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "solveSteppingLegHinge",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STEPPING_TURN_STEP_DURATION_S",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "steppingPivotWindowKey",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "steppingTurnAt",
         "kind": "runtime",
         "via": "own-test"
       }
@@ -500,14 +515,6 @@
         "kind": "runtime"
       },
       {
-        "name": "stepBedsideApproachExecution",
-        "kind": "runtime"
-      },
-      {
-        "name": "travelYawForClipForward",
-        "kind": "runtime"
-      },
-      {
         "name": "buildDistanceCurve",
         "kind": "runtime"
       },
@@ -528,8 +535,16 @@
         "kind": "runtime"
       },
       {
+        "name": "stepBedsideApproachExecution",
+        "kind": "runtime"
+      },
+      {
         "name": "StopClipTrigger",
         "kind": "type"
+      },
+      {
+        "name": "travelYawForClipForward",
+        "kind": "runtime"
       }
     ]
   },

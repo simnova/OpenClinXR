@@ -15,7 +15,10 @@ import {
   steppingTurnLegScale,
 } from "./stepping-turn-plan-mod.js";
 import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
-import { maybeOverridePlanWithBackwardFootfalls } from "./stepping-turn-backward-footfalls-mod.js";
+import {
+  overridePlanWithBackwardFootfalls,
+  planBackwardTurnFootfalls,
+} from "./stepping-turn-backward-footfalls-mod.js";
 import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   pivotSlotXzForSteppingFrame,
@@ -165,14 +168,28 @@ export function beginSteppingTurn(input: {
   const planned = planSteppingTurn(planInput);
   // Turn-backward slice (plan flag only): consume the backward footfall list instead of
   // the entry-derived landing; step 0 keeps the live entry stance. Flag absent: untouched.
-  const plan = maybeOverridePlanWithBackwardFootfalls({
-    planned,
-    entryToes: { leftToeXz: planInput.leftToeXz, rightToeXz: planInput.rightToeXz },
-    targetXz: input.turnTargetXz ?? null,
-    targetHeadingRadians: input.targetHeadingRadians,
-    restSepM: planInput.restSepM ?? null,
-    planEnabled: readFootstepPlanEnabled(),
-  });
+  const first = planned.steps[0] ?? null;
+  const planTarget = input.turnTargetXz ?? null;
+  const restSepForFootfalls = planInput.restSepM ?? null;
+  const plan = readFootstepPlanEnabled()
+    && first !== null
+    && planTarget !== null
+    && restSepForFootfalls !== null
+    && restSepForFootfalls > 0
+    ? overridePlanWithBackwardFootfalls(
+      planned,
+      planBackwardTurnFootfalls({
+        targetXz: { x: planTarget.x, z: planTarget.z },
+        targetHeadingRadians: input.targetHeadingRadians,
+        restSepM: restSepForFootfalls,
+        steps: planned.steps.map((s) => ({ swingFoot: s.swingFoot, yawRadians: s.yawRadians })),
+      }),
+      {
+        stanceXz: first.stanceFoot === "left" ? { ...planInput.leftToeXz } : { ...planInput.rightToeXz },
+        swingFromXz: first.swingFoot === "left" ? { ...planInput.leftToeXz } : { ...planInput.rightToeXz },
+      },
+    )
+    : planned;
   return {
     plan,
     elapsedS: 0,

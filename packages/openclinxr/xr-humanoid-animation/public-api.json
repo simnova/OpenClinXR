@@ -55,9 +55,10 @@
       "applyFootstepPlanStep",
       "captureFootstepRest",
       "halfCycleTravelMeters",
-      "planFootsteps",
       "parseFootstepPlanEnabled",
-      "parseFootstepRouteMeters"
+      "parseFootstepRouteMeters",
+      "parseFootstepTargetShiftM",
+      "planFootsteps"
     ],
     "./locomotion-clip-playback": [
       "playLocomotionClip"
@@ -79,9 +80,12 @@
       "beginSteppingTurn",
       "findStanceChain",
       "findSteppingLegChain",
+      "firstStanceResidualXz",
       "heelTargetForToeTarget",
       "heelTargetForToeTargetStable",
+      "overridePlanWithBackwardFootfalls",
       "pivotSlotXzForSteppingFrame",
+      "planBackwardTurnFootfalls",
       "planSteppingTurn",
       "solveSteppingLegHinge",
       "solveTwoBoneIK",

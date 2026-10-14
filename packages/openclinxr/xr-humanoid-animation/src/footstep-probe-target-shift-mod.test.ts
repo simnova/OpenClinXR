@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseFootstepTargetShiftM } from "./footstep-probe-target-shift-mod.js";
+import { parseFootstepTargetShiftM } from "./footstep-plan.js";
 
 describe("the footstep probe target-shift flag", () => {
   it("reads 0 by default and parses signed metres", () => {

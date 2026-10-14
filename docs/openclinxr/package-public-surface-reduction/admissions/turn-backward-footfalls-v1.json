@@ -1,0 +1,52 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "turn-backward-footfalls-v1",
+  "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "767ffb6f31c345fb09a4ae4aebc1d6ead3d57cd8388658db0e6de3ebf9b8c255",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./footstep-plan",
+      "symbol": "parseFootstepTargetShiftM",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "turn-backward-worker",
+      "rationale": "G4 probe flag parser consumed by the stepping-turn bridge target shift. Consumer: footstep-probe-target-shift-mod.test.ts parser cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "firstStanceResidualXz",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "turn-backward-worker",
+      "rationale": "Walk-exit stance minus ideal first stance residual consumed by the slice report. Consumer: stepping-turn-backward-footfalls-mod.test.ts chain case.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "overridePlanWithBackwardFootfalls",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "turn-backward-worker",
+      "rationale": "Footfall-list consumer consumed by the plan-flag gate. Consumer: stepping-turn-backward-footfalls-mod.test.ts chain case.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./stepping-turn",
+      "symbol": "planBackwardTurnFootfalls",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "turn-backward-worker",
+      "rationale": "Backward footfall planner consumed by the plan-flag gate. Consumer: stepping-turn-backward-footfalls-mod.test.ts midpoint and chain cases.",
+      "reviewedBy": "PENDING-ORCHESTRATOR-REVIEW"
+    }
+  ]
+}

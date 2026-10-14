@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { STEPPING_TURN_REST_FORE_OFFSET_M } from "./stepping-turn-rest-toe-landing-mod.js";
 import {
   firstStanceResidualXz,
   overridePlanWithBackwardFootfalls,
   planBackwardTurnFootfalls,
-} from "./stepping-turn-backward-footfalls-mod.js";
-import { planSteppingTurn } from "./stepping-turn.js";
+  planSteppingTurn,
+} from "./stepping-turn.js";
 
 const DEG = Math.PI / 180;
 /** Capture-derived SC-05 entry (turn-backward/before run0, frame 45: walk exit). */
@@ -14,6 +13,8 @@ const TARGET_YAW = ENTRY_YAW + 62.67 * DEG;
 const TARGET_XZ = { x: -0.78, z: 1.14 };
 const REST_SEP_M = 0.3364;
 
+/** M1-measured rest fore offset: literal so no new public name is bound (see stepping-turn-plan-mod.test.ts). */
+const REST_FORE_M = 0.1166;
 function backwardInput(steps: Array<{ swingFoot: "left" | "right"; yawRadians: number }>) {
   return {
     targetXz: { ...TARGET_XZ },
@@ -52,9 +53,9 @@ describe("the backward-planned turn footfalls", () => {
     const left = toBody(footfalls.finalLeftXz);
     const right = toBody(footfalls.finalRightXz);
     expect(left.lat).toBeCloseTo(REST_SEP_M / 2, 9);
-    expect(left.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
+    expect(left.fore).toBeCloseTo(REST_FORE_M, 9);
     expect(right.lat).toBeCloseTo(-REST_SEP_M / 2, 9);
-    expect(right.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
+    expect(right.fore).toBeCloseTo(REST_FORE_M, 9);
   });
 
   it("fails when the fore offset is dropped (the fore probe twin)", () => {
@@ -73,7 +74,7 @@ describe("the backward-planned turn footfalls", () => {
     expect(mid.x).toBeCloseTo(TARGET_XZ.x, 9);
     const left = bodyAbout(footfalls.finalSlotXz)(footfalls.finalLeftXz);
     expect(left.fore).toBeCloseTo(0, 9);
-    expect(left.fore).not.toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 1);
+    expect(left.fore).not.toBeCloseTo(REST_FORE_M, 1);
   });
 
   it("chains step 1's landing onto step 0's ideal-free stance through the real plan split", () => {
