@@ -25,31 +25,21 @@ import {
 /**
  * Foot-base stride retargeting for the walking phase (foot-base slice, SC-05).
  *
- * Industry practice for variable stride (Grok rounds 1-4, Johansen 2009,
- * Half-Life: Alyx SIGGRAPH 2021): store each foot's toe path relative to the
- * segment between its footholds offline; at runtime rebuild it between new
- * footholds as the IK target; the stance foot stays fixed at its foothold.
+ * Industry practice for variable stride (Johansen 2009, Alyx SIGGRAPH 2021):
+ * each foot's toe path stored relative to its foothold segment offline,
+ * rebuilt between new footholds as the IK target; stance fixed at foothold.
+ * Replaces the amplitude blend plus closed-loop advance per substep: stance
+ * toe target = its foothold (XZ pinned by an exact slot translate), swing =
+ * liftoff + along01 * step + lateral * side + height * up, each leg solved
+ * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
+ * the clip pose. Stance follows the clip labels with a 6-substep handover
+ * dwell (labels flap up to 4 substeps at the wrap; the metric reads the same
+ * lock labels, so pin and metric stance coincide). Feet freeze
+ * yaw-compensated beside the offset, else ankle articulation invalidates it
+ * by centimetres. Handovers anchor to the solved foot (zero travel).
  *
- * Today's actuator (flexion blend toward rest by 1-s plus the closed-loop
- * advance) leaves ~0.079 m/m walking slide at s=0.70 because slide grows
- * with (1-s); this path replaces both calls with per-substep IK targets
- * rebuilt from the generated toe-path rows (`foot-base-path-data-mod.ts`):
- * stance toe target = its foothold (XZ pinned by an exact slot translate,
- * the stance-lock discipline), swing toe target = liftoff + along01 * step
- * + lateral * side + height * up, each leg solved with `solveSteppingLegHinge`
- * (NOT solveTwoBoneIK, NOT CCD — both measured worse on this rig) from a
- * yaw-stable heel target. Pelvis keeps the clip pose: nothing above the hips
- * is written. Stance follows the clip labels with a 6-substep handover dwell
- * (the labels flap up to 4 substeps at the wrap; the metric's stance windows
- * read the same lock labels, so pin stance and metric stance coincide). The
- * foot's world orientation is frozen yaw-compensated beside the offset, or
- * the mixer's ankle articulation invalidates the entry offset by centimetres.
- * Handovers anchor to the solved foot, so handover travel is zero.
- *
- * Default OFF behind `?footBase=1`, and this slice's route only (1.31 m):
- * any other route length falls back to the legacy blend + closed loop, so no
- * flagged-off byte changes. No new public symbol: not re-exported from
- * `./footstep-plan`; the walking tail reads this module by deep import.
+ * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
+ * `./footstep-plan` (no new public symbol, deep import from the tail).
  */
 
 export type FootBaseSide = "left" | "right";
@@ -85,6 +75,17 @@ export type FootBaseState = {
   pending: { side: FootBaseSide; count: number } | null;
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
+  /**
+   * Takeoff reference per foot, captured on role change (init/handover):
+   * physical position, absolute rebuild there, row height there. Targets
+   * follow rebuild DELTAS from the physical takeoff, so role changes are
+   * continuous even when rows and labels disagree; the constant offset
+   * re-anchors every handover and never accumulates.
+   */
+  takeoff: Record<
+    FootBaseSide,
+    { origin: { x: number; y: number; z: number }; absBase: { x: number; y: number; z: number }; baseH: number } | null
+  >;
   offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
   /** Entry foot world orientation per foot (yaw-compensated freeze, stepping-turn discipline). */
   footQuat: Record<FootBaseSide, { q: { x: number; y: number; z: number; w: number }; yaw: number } | null>;
@@ -97,11 +98,8 @@ export type FootBaseState = {
 };
 
 /**
- * Handover dwell in consecutive substeps. The runtime labels flap for up to
- * 4 substeps at the wrap (measured 2-frame blips, both runs); a real stance
- * persists 15+. Six filters the flap with margin while delaying real
- * handovers by ~100 ms, inside weight-transfer time (same scale as the
- * closed loop's HANDOVER_DWELL_FRAMES).
+ * Handover dwell in consecutive substeps. Runtime labels flap up to 4
+ * substeps at the wrap (measured 2-frame blips); real stance persists 15+.
  */
 export const FOOT_BASE_HANDOVER_DWELL_SUBSTEPS = 6;
 
@@ -221,6 +219,7 @@ function createState(stance: FootBaseSide): FootBaseState {
     pending: null,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
+    takeoff: { left: null, right: null },
     offsetEntry: { left: null, right: null },
     footQuat: { left: null, right: null },
     hingeNormal: { left: null, right: null },
@@ -312,30 +311,6 @@ export function applyFootBaseStep(input: {
   })();
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
 
-  const slot = approach.actorSlot;
-  if (!state.placed.left || !state.placed.right) {
-    state.foothold.left = { ...leftToeW };
-    state.foothold.right = { ...rightToeW };
-    state.placed.left = true;
-    state.placed.right = true;
-    state.stance = stance;
-  } else if (stance !== state.stance) {
-    // Handover: the new stance foot plants where it PHYSICALLY stands (last
-    // substep's solved position), not where the mixer clip poses it this
-    // frame — the clip runs at scale 1 while the rebuild runs at plan scale,
-    // so the mixer touchdown reads centimetres off the rebuilt one and
-    // adopting it shows up as a one-window slide step (measured 16-26 mm).
-    // Planting where the foot is makes handover travel exactly zero; the
-    // other foot's foothold is its liftoff point (a pinned foot lifts from
-    // where it stood).
-    const planted = state.lastSolved[stance] ?? (stance === "left" ? leftToeW : rightToeW);
-    state.foothold[stance] = { ...planted };
-    state.stance = stance;
-  }
-
-  const stanceRow = footBaseRowAt(stance, footBaseRelPhase(stance, phase01));
-  const swingRow = footBaseRowAt(swing, footBaseRelPhase(swing, phase01));
-
   const halfIndex = footBaseHalfIndex(unwrappedS, cycleS);
   const scale = approach.footstep?.scale ?? FOOT_BASE_DEFAULT_SCALE;
   const halfTravel = footBaseHalfTravelM(halfIndex, scale);
@@ -345,13 +320,58 @@ export function applyFootBaseStep(input: {
   const unitZ = input.routeDz / routeLen;
   const floorY = approach.floorOriginY;
 
-  // THE SLOT ADVANCE (measured fix 2026-10-14: pinning the stance toe to a
-  // fixed foothold while the executor prescribes its own advance cancels the
-  // whole stride and the walk thrashes in place — root 1.39 m for 0.28 m of
-  // travel). The body travels the foothold polyline: completed halves plus
-  // the current half's share by action time. The stance pin below is then a
-  // millimetre correction, not a fight; the executor's travelled/arrival
-  // bookkeeping is untouched, so exit and arrival behave as before.
+  const slot = approach.actorSlot;
+  const segX = unitX * halfTravel;
+  const segZ = unitZ * halfTravel;
+  const segLen = Math.abs(halfTravel);
+  const sideX = segLen > 1e-9 ? -segZ / segLen : 0;
+  const sideZ = segLen > 1e-9 ? segX / segLen : 0;
+
+  const rebuildAbsolute = (foot: FootBaseSide, row: FootBasePathRow): { x: number; y: number; z: number } => {
+    const from = state.foothold[foot];
+    return {
+      x: from.x + row.along01 * segX + row.lateralM * sideX,
+      y: floorY + row.heightM,
+      z: from.z + row.along01 * segZ + row.lateralM * sideZ,
+    };
+  };
+  const stanceRow = footBaseRowAt(stance, footBaseRelPhase(stance, phase01));
+  const swingRow = footBaseRowAt(swing, footBaseRelPhase(swing, phase01));
+  const snapTakeoff = (foot: FootBaseSide, row: FootBasePathRow): void => {
+    const physical = foot === "left" ? leftToeW : rightToeW;
+    const solved = state.lastSolved[foot] ?? physical;
+    state.takeoff[foot] = {
+      origin: { ...solved },
+      absBase: rebuildAbsolute(foot, row),
+      baseH: row.heightM,
+    };
+  };
+
+  if (!state.placed.left || !state.placed.right) {
+    state.foothold.left = { ...leftToeW };
+    state.foothold.right = { ...rightToeW };
+    state.placed.left = true;
+    state.placed.right = true;
+    state.stance = stance;
+    snapTakeoff("left", footBaseRowAt("left", footBaseRelPhase("left", phase01)));
+    snapTakeoff("right", footBaseRowAt("right", footBaseRelPhase("right", phase01)));
+  } else if (stance !== state.stance) {
+    // Handover: plant where the foot PHYSICALLY stands (last solved pos),
+    // not the mixer pose (clip scale 1 vs rebuild plan scale reads cm off;
+    // measured 16-26 mm window steps). Both feet re-snap takeoff refs, so
+    // targets stay continuous across the role change (see below).
+    const planted = state.lastSolved[stance] ?? (stance === "left" ? leftToeW : rightToeW);
+    state.foothold[stance] = { ...planted };
+    state.stance = stance;
+    snapTakeoff(stance, stanceRow);
+    snapTakeoff(swing, swingRow);
+  }
+
+  const stanceFoothold = state.foothold[stance];
+  // THE SLOT ADVANCE: the body travels the foothold polyline (completed
+  // halves plus the current half's share). Pinning against the executor's
+  // own advance cancels the stride and the walk thrashes (measured root
+  // 1.39 m for 0.28 m travel); the pin below is then a mm correction.
   let bodyTravelM = 0;
   for (let h = 1; h < halfIndex; h += 1) bodyTravelM += footBaseHalfTravelM(h, scale);
   const bounds = footBaseHalfBounds(halfIndex, cycleS);
@@ -364,23 +384,25 @@ export function applyFootBaseStep(input: {
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);
 
-  const stanceFoothold = state.foothold[stance];
+  // Takeoff-relative targets: absolute rebuild DELTAS from the handover
+  // value on the physical takeoff (constant offset per swing, re-anchored
+  // next handover). Stance XZ is an absolute pin; stance Y rides the row
+  // height delta from the handover height.
+  const stanceTakeoff = state.takeoff[stance];
+  const swingTakeoff = state.takeoff[swing];
   const stanceTarget = {
     x: stanceFoothold.x,
-    y: floorY + stanceRow.heightM,
+    y: stanceFoothold.y + (stanceRow.heightM - (stanceTakeoff?.baseH ?? stanceRow.heightM)),
     z: stanceFoothold.z,
   };
-  const prev = state.foothold[swing];
-  const segX = unitX * halfTravel;
-  const segZ = unitZ * halfTravel;
-  const segLen = Math.abs(halfTravel);
-  const sideX = segLen > 1e-9 ? -segZ / segLen : 0;
-  const sideZ = segLen > 1e-9 ? segX / segLen : 0;
-  const swingTarget = {
-    x: prev.x + swingRow.along01 * segX + swingRow.lateralM * sideX,
-    y: floorY + swingRow.heightM,
-    z: prev.z + swingRow.along01 * segZ + swingRow.lateralM * sideZ,
-  };
+  const swingAbsolute = rebuildAbsolute(swing, swingRow);
+  const swingTarget = swingTakeoff === null
+    ? swingAbsolute
+    : {
+        x: swingTakeoff.origin.x + (swingAbsolute.x - swingTakeoff.absBase.x),
+        y: swingTakeoff.origin.y + (swingAbsolute.y - swingTakeoff.absBase.y),
+        z: swingTakeoff.origin.z + (swingAbsolute.z - swingTakeoff.absBase.z),
+      };
 
   const sub = (approach.execution as { walkSimSubsteps?: number | null }).walkSimSubsteps ?? -1;
   let stanceMissM: number | null = null;
@@ -406,10 +428,8 @@ export function applyFootBaseStep(input: {
     }
     if (state.footQuat[side] === null) {
       // Freeze the foot's WORLD orientation beside the offset (stepping-turn
-      // discipline): re-reading the live offset every frame feeds solved
-      // orientations back in, and the mixer's own ankle articulation otherwise
-      // invalidates the entry offset by centimetres (measured ~5 cm stance
-      // misses). Rotates with slot yaw only, never with the solved leg.
+      // discipline): the mixer's ankle articulation otherwise invalidates
+      // the entry offset by centimetres (measured ~5 cm stance misses).
       const parentQ = new Quaternion();
       if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
       else parentQ.identity();
