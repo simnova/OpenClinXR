@@ -1,0 +1,384 @@
+{
+ "boundary_flags": {
+  "compose_crown_step": {
+   "bound": 8.0,
+   "max": 27.035232898484203,
+   "note": "subject UV property: scalp UV region spans near-full atlas, so the island box is near-full-atlas and the upright treatment covers 89.7% of texels; h1: listed as STAGES-NEEDING-CODE-CHANGE (compose scalp/join) with the evidence below; compose code NOT patched and no Imagine call this task",
+   "p999": 14.422129235874204,
+   "status": "miss-stated"
+  },
+  "compose_island_box": [
+   51,
+   149,
+   3959,
+   4022
+  ],
+  "compose_tone_shift_Lab": [
+   -23.834396457434426,
+   5.934010366431744,
+   3.546725238264625
+  ],
+  "compose_treat_frac": 0.896970871561765,
+  "derive_lipuv_up_texels": 0,
+  "lipuv_note": "upper arc empty on this subject (loop-mid split puts all 19496 texels in lo); fix_lips ratio 1.0 is a copy regardless",
+  "compose_scalp_evidence": {
+   "input_skin": "S/body2/join/compose-new/albedo-4096.png (sha 99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b): red scalp paint is already in the INPUT skin",
+   "pre_render_shows_red": "S/port5/render/body2-pre-front.png shows the red crown before any tracked stage ran (compose/derive/colour all downstream of the input)",
+   "crown_step": "S/port5/compose-report.json region_table.crown_step max 27.035 > bound 8.0 (p999 14.422); logged as a quality flag in r1 while the run continued"
+  }
+ },
+ "chain_manifest_sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+ "commands": [
+  "REUSED r1 (code+outputs unchanged, shas re-verified): python3 tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py --base-skin S/body2/join/compose-new/albedo-4096.png --locked-island S/body2/uv2-src/island-T.png --locked-sha 3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069 --glb S/body2/final.glb --skip-join --out S/port5/compose-albedo.png --report S/port5/compose-report.json",
+  "REUSED r1: python3 tools/openclinxr/asset-pipeline/skin/face-replay/derive.py S/body2/final.glb S/port5/chain/derive_out --size 4096 (chain-bb/derive_out is a byte copy; derive.json sha re-verified)",
+  "REUSED r1: MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm -s tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant S/port5/pre-compose.variant.json --out S/port5/render --glb S/body2/final.glb",
+  "python3 port5/make_belowbrow_mask.py port5/render/body2-pre-front.png port5/pre-bb-mask.png port5/pre-bb-mask.json",
+  "python3 port5/make_belowbrow_mask.py body2/goal-front.png port5/goal-bb-mask.png port5/goal-bb-mask.json",
+  "python3 tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_colour.py --solve --input-albedo S/port5/compose-albedo.png --albedo-mask S/port5/chain/derive_out/mask-facecore.png --pre-render S/port5/render/body2-pre-front.png --pre-mask S/port5/pre-bb-mask.png --goal-render S/body2/goal-front.png --goal-mask S/port5/goal-bb-mask.png --subject adult_male_street_casual --out-params S/port5/solve-params-body2-bb.json",
+  "python3 tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_colour.py --replay --input-albedo S/port5/compose-albedo.png --albedo-mask S/port5/chain/derive_out/mask-facecore.png --params S/port5/solve-params-body2-bb.json --out S/port5/solved-albedo-bb.png --report S/port5/solve-replay-report-bb.json",
+  "cp -r S/port5/chain/derive_out S/port5/chain-bb/derive_out (scratch copy so the tracked replay resolves AO/occupancy inputs)",
+  "python3 tools/openclinxr/asset-pipeline/skin/face-replay/replay.py --manifest tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json --subject adult_male_street_casual --store S/port5/chain-bb --glb S/body2/final.glb --albedo S/port5/solved-albedo-bb.png --skip-ao",
+  "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm -s tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant S/port5/body2-bb.variant.json --out S/port5/render --glb S/body2/final.glb",
+  "python3 port5/make_belowbrow_mask.py port5/render/body2-bb-front.png port5/bb-final-mask.png port5/bb-final-mask.json"
+ ],
+ "falsifier": {
+  "bake_log_line": "MACRO_BASE {\"gender\": 1.0, \"age\": 0.6, \"muscle\": 0.5, \"weight\": 0.5, \"proportions\": 0.5, \"height\": 0.5, \"cupsize\": 0.5, \"firmness\": 0.5, \"race\": {\"asian\": 0.33, \"caucasian\": 0.33, \"african\": 0.33}}",
+  "result": "premise_holds",
+  "sha_prefix": "94a9ca6c"
+ },
+ "final_albedo_sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+ "final_albedo_assert_differs_from_parent_sheet": true,
+ "inputs": {
+  "compose_base": {
+   "name": "albedo-4096.png",
+   "sha256": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
+   "source": "S/body2/join/compose-new/albedo-4096.png (first-chain post-join composite, manifest input family; join skipped in tracked compose per Aisha parity)"
+  },
+  "face_tile_accepted_but_not_consumed": {
+   "name": "face-core-T.png",
+   "reason": "join skipped (same join_limit as Aisha: pre-join source atlas on untracked provider-cache path outside write scope, ECC/dense-flow registration has no station-python implementation)",
+   "sha256": "a455bba980c944683b2c3ddde6c1ae8101c05bf08d6814e2b2d813f2bf5ff4ce",
+   "source": "S/body2/uv2-src/face-core-T.png"
+  },
+  "goal_front": {
+   "name": "goal-front.png",
+   "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+   "source": "S/body2/goal-front.png"
+  },
+  "locked_island": {
+   "name": "island-T.png",
+   "sha256": "3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069",
+   "source": "S/body2/uv2-src/island-T.png"
+  },
+  "below_brow_masks": {
+   "method": "S/port5/make_belowbrow_mask.py skinchroma-a6-largest-erode8-below-brow60 (scratch; tracked code untouched)",
+   "pre_mask": {
+    "name": "pre-bb-mask.png",
+    "sha256": "dedd451cf8b7674f782f6f5dd36c17454b06ca3276650e9894067af2567b10f5",
+    "source": "S/port5/pre-bb-mask.png (render eye 539.6 brow 480 mouth 719)"
+   },
+   "goal_mask": {
+    "name": "goal-bb-mask.png",
+    "sha256": "3fd0d50fedf9201fdc1157f52be41d5331538308e8140876ee84bfd4a913f760",
+    "source": "S/port5/goal-bb-mask.png (goal eye 419.0 brow 359 mouth 726; eye holes brow-merged, brow line still clears the crown)"
+   },
+   "final_mask": {
+    "name": "bb-final-mask.png",
+    "sha256": "4797a76ae05dbdf07b029e76bb86bac6cb8970df786441a87ded74d4288c3900",
+    "source": "S/port5/bb-final-mask.png (bb render eye 527.4 brow 467 mouth 719)"
+   }
+  },
+  "colour_solve_bb": {
+   "params": "S/port5/solve-params-body2-bb.json (sha be91c8c0aae7a0376de1703da1f8f11dec4c03dc65c618634e116001231a1254)",
+   "solved_albedo": "S/port5/solved-albedo-bb.png (sha 33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa)"
+  }
+ },
+ "parent_sheet_albedo_sha256": "97a4cf03a35d0550408ea86b71c5e23864c5dcc46b68651d7307befbfab7446d",
+ "parent_sheet_source": "tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent/albedo.png (read-only sha; never used as input; not a source of this subject)",
+ "reference_set_manifest_sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+ "render_vs_goal": {
+  "mask_method": "S/port5/make_belowbrow_mask.py skinchroma-a6-largest-erode8-below-brow60 applied identically to both renders (bb-final n=208933 eye 527.4 brow 467 mouth 719; goal n=156502 eye 419.0 brow 359 mouth 726)",
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     58.24,
+     12.37,
+     18.19
+    ],
+    "render_center": [
+     396,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     55.81,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     411,
+     514
+    ],
+    "goal_gatefrac": 0.989,
+    "dLab_render_minus_goal": [
+     2.43,
+     -3.17,
+     -3.85
+    ],
+    "within_3_per_channel": false
+   },
+   "R_cheek": {
+    "render_Lab": [
+     57.37,
+     13.97,
+     19.6
+    ],
+    "render_center": [
+     626,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     57.01,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     641,
+     514
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     0.36,
+     -1.57,
+     -2.44
+    ],
+    "within_3_per_channel": true
+   },
+   "forehead_below_brow": {
+    "render_Lab": [
+     60.37,
+     9.19,
+     18.16
+    ],
+    "render_center": [
+     511,
+     492
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     62.02,
+     15.45,
+     22.39
+    ],
+    "goal_center": [
+     526,
+     384
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     -1.65,
+     -6.26,
+     -4.23
+    ],
+    "within_3_per_channel": false
+   },
+   "chin": {
+    "render_Lab": [
+     67.34,
+     11.48,
+     15.85
+    ],
+    "render_center": [
+     511,
+     772
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     44.97,
+     17.68,
+     12.2
+    ],
+    "goal_center": [
+     526,
+     778
+    ],
+    "goal_gatefrac": 0.443,
+    "dLab_render_minus_goal": [
+     22.37,
+     -6.2,
+     3.65
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "gate": "every region within 3 per channel: FAIL",
+  "final_render_file": "S/port5/render/body2-bb-front.png",
+  "final_render_sha256": "248e63fd27be2eb5219a287cfde673da7629b503d6058cbcb1de5f1820640d68",
+  "yaw40_render_file": "S/port5/render/body2-bb-yaw40.png",
+  "yaw40_render_sha256": "a35809126820416647f31b2c8f9941cc9499739c71ffaf2428048c7a3c25dcbc",
+  "goal_file": "S/body2/goal-front.png"
+ },
+ "shipped_asset_gap": "shipped apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb is a DIFFERENT neutral-macro bake (gender 0.5, measured by port5 v1); not cited or rewritten by this task",
+ "six": [
+  53.036,
+  13.32,
+  20.466,
+  7.582,
+  2.415,
+  2.988
+ ],
+ "six_note": "rounded to 3dp in this report; exact values in S/port5/solve-params-body2-bb.json (sha be91c8c0aae7a0376de1703da1f8f11dec4c03dc65c618634e116001231a1254)",
+ "solve_gain_albedo_std": [
+  1.179,
+  1.155,
+  1.44
+ ],
+ "solve_offset_D_render_minus_albedo": [
+  -5.18,
+  0.955,
+  -0.604
+ ],
+ "stages": [
+  {
+   "name": "derive",
+   "output_shas": {
+    "ao.png": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4",
+    "derive.json": "43960d9dc77dbfa9d4eae9d03d3fa9a9626926dab91368a66ec8aa37f851ce21",
+    "landmarks-uv.json": "f3492bf8765be4331cdee426ff6deb9dbee7edae32f202b6aabd7fffcc54b185",
+    "lipuv.npz": "88baaf495337de147618355fadad25b7dfc48edf3ba549f692873ee5dff8b69e",
+    "mask-brows-L.png": "eaa41fa32c0d11123e0a10b1c31feaa3a686c45cad17e8a546b40610c74e4383",
+    "mask-brows-R.png": "3a678f330313843eb791428851a6cb2d4475cc22f2572cf5d1bd93277a162f78",
+    "mask-ears-L.png": "e7bb53a14f457494973b9725147565a2fb1c4ae9164d2fe890793c7fa7686390",
+    "mask-ears-R.png": "a179b7e9d12ac1b6a880906605415030e03c3d83478dc879d5758e96681c82c3",
+    "mask-eyes-L.png": "8812345106c565bd41914223814cac03f71f84ceac4f8fd884bd40475098d76f",
+    "mask-eyes-R.png": "7a6d687f2913cf3ab08311a9e40415f47aa2504c1dc653ef9f60a64aaba374e7",
+    "mask-facecore.png": "a2bf033966c2e972bb1909bf93a10e358b82e62c24ee852ea3f944d42effc3b2",
+    "mask-lips.png": "3bc49f3d331b61571be43be8767d56d99c8bf480312db893f221717e819707d7",
+    "mask-neck.png": "3a0cdf5ad7ad5d148caf0908ce782c48345258798a1fc649e335c436cb0d6463",
+    "mask-scalp.png": "ac2b776e404b48de9ba3e818bfde77823c1f047f2e1cd1647d79600affe3e4d1",
+    "occupancy.png": "9b6af278bfad79eb1fcc55e0fc0b4d44e1ecdccd09cf4b98037ec3a3260e1740",
+    "socket-wall-L.png": "a111f85080cd68a7d19105cb139a14723cc5679b107567e7d84afc64ead5d62c",
+    "socket-wall-R.png": "6c1b6cdaed0b20964323bf891ef253966c3b5550b501c16f1d33cb555a9ae725"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0,
+   "note": "r1 outputs reused byte-identical (chain-bb/derive_out is a copy); no rerun needed"
+  },
+  {
+   "name": "compose",
+   "join": "skipped (same join_limit as Aisha; face tile a455bb not consumed)",
+   "output_shas": {
+    "compose-albedo.png": "fa2825155a0c2d29b403fc902e214c94f2b3e4728e079c96ad9680aeb9040311"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0,
+   "needs_tracked_code_change": true,
+   "code_change_reason": "scalp/join: red scalp paint is in the INPUT skin (S/body2/join/compose-new/albedo-4096.png) and visible in the pre-solve render; crown_step max 27.035 > bound 8.0 (S/port5/compose-report.json). Treating near-full-atlas scalp UV as paintable scalp needs compose (scalp/join) code work; not patched this task per scope."
+  },
+  {
+   "name": "colour-solve",
+   "output_shas": {
+    "solve-params-body2-bb.json": "be91c8c0aae7a0376de1703da1f8f11dec4c03dc65c618634e116001231a1254"
+   },
+   "ran_unchanged": true,
+   "render_space_gain": true,
+   "tracked_code_edits": 0,
+   "note": "below-brow masks (pre-bb n=201062, goal-bb n=156502); albedo-mask unchanged"
+  },
+  {
+   "name": "colour-replay",
+   "output_shas": {
+    "solved-albedo-bb.png": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "occlusion",
+   "output_shas": {
+    "albedo_occ.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "roughness",
+   "output_shas": {
+    "roughness.png": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "lips",
+   "note": "ratio 1.0 no-op: albedo_lips.png sha identical to albedo_occ.png (chain-bb store)",
+   "output_shas": {
+    "albedo_lips.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "eye_corners",
+   "note": "socket walls non-empty on this subject (173/175 verts); painted L inner 743 outer 571, R inner 735 outer 568 texels",
+   "output_shas": {
+    "albedo_corners.png": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "symmetrise",
+   "note": "s=1.0 p95|dL-low|=4.143 mean|dL-low|=1.659 highcorr~0.99888",
+   "output_shas": {
+    "albedo_sym.png": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  },
+  {
+   "name": "socket",
+   "note": "band texels=4762 cheek_Lab=(45.0,12.7,14.0)",
+   "output_shas": {
+    "albedo_socket.png": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+   },
+   "ran_unchanged": true,
+   "tracked_code_edits": 0
+  }
+ ],
+ "stages_needing_tracked_code_change": [],
+ "stages_run_unchanged": 9,
+ "stages_total": 10,
+ "subject": "adult_male_street_casual",
+ "subject_glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+ "g2_verdict": "FAIL: below-brow global-affine solve cannot reconcile per-region lighting and surface differences (render glabella/chin highlights vs goal flat lighting and stubbled chin); no threshold tuned, numbers above",
+ "solve_means_below_brow": {
+  "pre_render": {
+   "mean": [
+    43.344900944683445,
+    17.703117743896822,
+    22.724376719081214
+   ],
+   "std": [
+    9.285248643982758,
+    2.6235756657551463,
+    2.942486117079419
+   ],
+   "n": 201062
+  },
+  "goal_render": {
+   "mean": [
+    47.85603754196708,
+    14.275026589669267,
+    19.862549288046925
+   ],
+   "std": [
+    10.946860067625403,
+    3.0297902987078076,
+    4.23832555215299
+   ],
+   "n": 156502
+  }
+ }
+}

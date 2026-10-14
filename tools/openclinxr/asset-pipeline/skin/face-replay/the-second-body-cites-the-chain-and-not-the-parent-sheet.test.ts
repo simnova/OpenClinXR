@@ -9,9 +9,11 @@
  * albedo sha while no report INPUT source mentions peds_anxious_parent.
  *
  * Counterweights, each its own tiny fixture in fixtures/second-body/:
- * a report citing a wrong manifest sha fails validation, and a report
+ * a report citing a wrong manifest sha fails validation, a report
  * aliasing the parent sheet (final albedo == parent albedo, input source
- * naming peds_anxious_parent) fails validation.
+ * naming peds_anxious_parent) fails validation, and a report whose
+ * compose crown_step exceeds its bound while compose is not listed in
+ * stages_needing_tracked_code_change fails validation.
  */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -91,6 +93,22 @@ function validateReport(report: SecondBodyReport): void {
       throw new Error(`input source cites the parent sheet: ${src}`);
     }
   }
+  const crown = (report as {
+    boundary_flags?: { compose_crown_step?: { max?: unknown; bound?: unknown } };
+    stages_needing_tracked_code_change?: unknown;
+  }).boundary_flags?.compose_crown_step;
+  if (crown && typeof crown.max === "number" &&
+    typeof crown.bound === "number" && crown.max > crown.bound) {
+    const need = (report as {
+      stages_needing_tracked_code_change?: unknown;
+    }).stages_needing_tracked_code_change;
+    const listed = Array.isArray(need) && need.some((s: unknown) =>
+      typeof s === "string" && s.toLowerCase().includes("compose"));
+    if (!listed) {
+      throw new Error("compose crown_step exceeds its bound but compose " +
+        "is not listed as needing a tracked code change");
+    }
+  }
 }
 
 function loadReport(file: string): SecondBodyReport {
@@ -111,4 +129,10 @@ describe("second body cites the chain and not the parent sheet", () => {
     expect(() => validateReport(loadReport(path.join(
       FIX, "report-alias-parent-sheet.json")))).toThrow();
   });
+
+  it("a report whose crown_step exceeds its bound without listing " +
+    "compose as needing change fails validation", () => {
+      expect(() => validateReport(loadReport(path.join(
+        FIX, "report-crown-step-unlisted.json")))).toThrow();
+    });
 });
