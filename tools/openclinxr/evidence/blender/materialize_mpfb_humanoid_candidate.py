@@ -2391,6 +2391,15 @@ def parse_args():
         ),
     )
     parser.add_argument("--eye-tear-color", default="150,118,106")
+    parser.add_argument(
+        "--eye-texture",
+        default=None,
+        help=(
+            "Eyetex: replacement diffuse texture for the fitted eye material "
+            "(UV-locked iris that stays centred when the eye yaws). Default "
+            "None keeps the case-driven brown_eye.png selector path untouched."
+        ),
+    )
     parser.add_argument("--eye-tear-rough", type=float, default=0.45)
     parser.add_argument("--eye-tear-fan-steps", default="1.5,3.0,4.5")
     parser.add_argument("--eye-tear-snap-mm", type=float, default=2.5)
@@ -2562,6 +2571,8 @@ EYE_DIAMETER_TARGET_MM = {
     "eyeshell-final": 24.0,
     # eyetex: same adult-female body as eyegeo-final (new output name).
     "eyetex-final": 24.0,
+    # eyetex card bake: same adult-female body (aisha bake under the card stem).
+    "aisha-eyetex": 24.0,
     # eyemesh: same adult-female body as eyetex-final (new output name).
     "aisha-hp-cornea": 24.0,
 }
@@ -4631,6 +4642,12 @@ def main():
         import json as _json
         TEXTURE_OVERRIDES.update(_json.loads(args.texture_overrides))
         print(f"TEXTURE_OVERRIDES {dict(TEXTURE_OVERRIDES)}")
+    # Eyetex: --eye-texture swaps the fitted eye diffuse for a UV-locked iris
+    # texture. The selector path still resolves the .mhmat; the override only
+    # replaces the image bytes consumed from its declared diffuseTexture.
+    if getattr(args, "eye_texture", None):
+        TEXTURE_OVERRIDES["mat_makeclothes_library_eyes"] = args.eye_texture
+        print(f"EYE_TEXTURE_OVERRIDE {args.eye_texture}")
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
