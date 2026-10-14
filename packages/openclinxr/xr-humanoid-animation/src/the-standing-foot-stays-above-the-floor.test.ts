@@ -635,4 +635,21 @@ describe("the settled solve applies the difference, not the absolute pose (arriv
     expect(floorOriginY - (leftToe.matrixWorld.elements[13] ?? Number.NaN)).toBeLessThanOrEqual(0.005 + 1e-6);
     expect(actorSlot.position.y).toBeCloseTo(0, 6);
   });
+
+  it("onlyFoot leaves the gliding foot alone while the close runs", () => {
+    const floorOriginY = 0;
+    const contactBandMeters = 0.06;
+    const { actorSlot, leftToe, rightToe } = makeToeChain(0.9, 0.45, 0.03, -0.02);
+    // Both feet below the floor (right lower); the close owns the left (swing) foot.
+    rightToe.position.y = -0.03;
+    rightToe.updateMatrixWorld(true);
+    const preLeft = leftToe.quaternion.clone();
+    const result = applySettledPostureCorrection({
+      actorSlot, leftToe, rightToe, floorOriginY, contactBandMeters, onlyFoot: "right",
+    });
+    expect(result.corrected).toBe(true);
+    expect(result.stanceFoot).toBe("right");
+    // The constrained-out foot is untouched (identity local rotation kept).
+    expect(leftToe.quaternion.equals(preLeft)).toBe(true);
+  });
 });
