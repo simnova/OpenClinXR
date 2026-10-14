@@ -1,0 +1,91 @@
+{
+ "coverageGate": {
+  "brightFractionCanthusCrop": {
+   "eye3-front": {
+    "L": 0.043,
+    "R": 0.155
+   },
+   "eye3-yaw-40": {
+    "L": 0.0,
+    "R": 0.186
+   },
+   "eye3-yaw40": {
+    "L": 0.237,
+    "R": 0.0
+   }
+  },
+  "method": "bright texel fraction r>150 g>140 b>130 on 380x320 canthus crops y440-600 of eye3 1024px baselines",
+  "note": "eye3 baselines show white stopping short of the lid at the outer canthi with dark temporal wedges; premise_live",
+  "result": "RED: dark gaps at outer canthi on all three views, worst yaw40-R 0.000 and yaw-40-L 0.000"
+ },
+ "falsifier": {
+  "baselineSize": "1024x1024 RGB",
+  "baselines": [
+   "realism-95 .openclinxr/realism-spike/eye3/final/eye3-front.png",
+   "realism-95 .openclinxr/realism-spike/eye3/final/eye3-yaw40.png",
+   "realism-95 .openclinxr/realism-spike/eye3/final/eye3-yaw-40.png"
+  ],
+  "shippedGlb": {
+   "bodyPrimMorphTargets": 47,
+   "conjunctivaCaruncleMeshes": [],
+   "eyeMeshes": [
+    "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_v1_mesh"
+   ],
+   "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb"
+  },
+  "verdict": "premise_live"
+ },
+ "gates": {
+  "failClosed": "exactly one /conjunctiva|caruncle/i mesh pair or throw not_found; hand-authored mesh with no .mhclo path fails",
+  "lidMorphInheritance": "fitted mesh bound to lid-margin body verts inherits weights plus eye-left/right closure/slit/opened-up morphs, lash T2+A3 pattern",
+  "whiteCoverage": "white coverage fraction along lid opening on front, yaw+40, yaw-40 canthus crops"
+ },
+ "licence": {
+  "header": "No licensable community conjunctiva/caruncle .mhclo exists: 77 MakeHuman asset packs swept 2026-10-14, eye-adjacent packs carry CC0/CC-BY headers but contain no conjunctiva, caruncle, sclera-shell, canthus, tear-duct, fornix, plica, or lacrimal garment; nothing downloaded, nothing redistributed.",
+  "licenceRecordPath": null,
+  "redistributable": false,
+  "requiredRecordPhrases": [],
+  "rights": "not_found"
+ },
+ "name": "eye-corner-conjunctiva-caruncle-fit",
+ "notEvidenceFor": [
+  "clinical_validity",
+  "production_asset_readiness"
+ ],
+ "outOfScope": [
+  "catalog-mod.ts edits",
+  "lash gates",
+  "materialize.py edits",
+  "yaw+25 shell-rebind sclera edge"
+ ],
+ "provenance": {
+  "meshManifest": "tools/openclinxr/asset-pipeline/eyes/mesh-decision.json MISSING mesh-manifest.json; eye bake glbSha256 2587a367cee976683217fc2f06f9e171492e4a358fd4b51b196200d276963d1c (aisha-hp-cornea.glb, highpoly_cornea)",
+  "producerSourceSha256": "a9679e6924cddf6d88d0b22ff8b6675bd28f5c052bdfb85fcba51aa8a3bfbcfb",
+  "textureManifest": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json iris-centred-c.png sha256 76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695"
+ },
+ "schemaVersion": "openclinxr.eye-corner-conjunctiva-caruncle.v1",
+ "search": {
+  "bulkGrep": "conjunctiva|caruncle|sclera|canthus|tear-duct|fornix|plica|lacrimal|eye corner|inner eye across <main> of all 83 pages: zero hits",
+  "licenceInventory": "animal01:CC0 animal02:CC-BY animal03:CC-BY animal04:CC-BY arms01:CC0 bodyparts02:CC-BY bodyparts03:CC-BY bodyparts04:CC0 bodyparts05:CC0 bodyparts06:CC-BY bp1(bodyparts01):CC0 cheek01:CC0 dress01:CC0 dress02:CC-BY dress03:CC-BY ears01:CC0 equipment01:CC0 equipment02:CC-BY equipment03:CC-BY eyebrows01:CC0 eyelashes01:CC0 faceunits01:nolicence-garment glasses01:CC0 glasses02:CC-BY gloves01:CC0 hair01:CC0 hair02:CC-BY hair03:CC-BY hands01:CC0 hats01:CC0 hats02:CC0 hats03:CC-BY hats04:CC-BY jewelry01:CC0 jewelry02:CC-BY masks01:CC0 masks02:CC-BY nose01:CC0 pants01:CC0 pants02:CC-BY pants03:CC-BY poses01-05:CC0 shirts01:CC0 shirts02:CC-BY shirts03:CC-BY shoes01:CC0 shoes02:CC-BY shoes03:CC-BY skins01:CC0 skins02:CC0 skins03:CC0 skirts01:CC0 skirts02:CC-BY suits01:CC0 suits02:CC0 suits03:CC-BY suits04:CC-BY suits05:CC0 sysassets(system):CC0 system_clothes_materials01:CC0 system_eye_materials01:CC0 system_eye_materials02:CC0 system_eye_materials03:CC-BY system_hair_materials01:CC0 system_hair_materials02:CC0 underwear01:CC0 underwear02:CC-BY underwear03:CC-BY underwear04:CC0",
+  "localCache": ".openclinxr-local/provider-cache/garments/sources: scrub-shirt, pants01, shirts01, shoes01 only; no eye assets",
+  "packsSearched": 77,
+  "pagesFetched": 83,
+  "source": "https://static.makehumancommunity.org/assets/assetpacks/ per-pack main listing, fetched 2026-10-14 to /tmp/corner_*.html"
+ },
+ "sheet": {
+  "crop": "canthus L/R 380x320 from y440-600 band per view",
+  "renderSize": "1280 wide (resized from 1400x1920 compose)",
+  "sha256": "897ae9ee9b6dad66e268e85797514135d622075029e597b7bc0f06e016fd36ff",
+  "src": ".openclinxr/realism-spike/cornerassets/corner-sheet.png",
+  "storePath": "assets:corner-assets/corner-sheet.png",
+  "storeRoot": "/Volumes/files/openclinxr-assets/store",
+  "storeSha256": "897ae9ee9b6dad66e268e85797514135d622075029e597b7bc0f06e016fd36ff",
+  "views": [
+   "eye3-front",
+   "eye3-yaw40",
+   "eye3-yaw-40"
+  ]
+ },
+ "status": "not_found",
+ "treatment": "not_found: no licensable community conjunctiva/caruncle .mhclo; search recorded, nothing fitted, nothing hand-authored"
+}
