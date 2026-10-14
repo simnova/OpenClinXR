@@ -477,17 +477,11 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
     return;
   }
   if (applyCaseOwnedArrivedLock(approach)) return;
-  // Settled/arrived phase: apply posture correction when not walking
-  if (approach.execution.phase === "arrived" && approach.execution.drive.locomotion <= 0) {
-    applySettledPostureCorrection({
-      actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      floorOriginY: approach.floorOriginY,
-      contactBandMeters: approach.contactBandMeters,
-    });
-    return;
-  }
+  // No second arrived correction here: the arrived lock above owns EVERY
+  // arrived frame with locomotion <= 0 (it returns true for all of them), so a
+  // correction after this point is dead code — and were it live it would apply
+  // the settled solve twice in one frame. The single per-frame application
+  // lives in `case-owned-approach-arrived-mod.ts`.
   if (approach.execution.drive.locomotion <= 0 || !approach.lockArmed) return;
   applyWalkingPhaseLocks(approach, deltaSeconds);
 }

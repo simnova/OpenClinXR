@@ -21,11 +21,14 @@ export function applyCaseOwnedArrivedLock(approach: CaseOwnedBedsideApproach): b
   // settling→arrived transition and froze a 0.50 m split stance (rest: 0.391 m).
   // It survives below as the no-snapshot fallback only.
   //
-  // The settled correction is SKIPPED while the close runs: its absolute-knee IK
-  // solve snapped the closing leg 0.40 m on the first arrived frame of the
-  // instrumented run (toe below floor + absolute reconfiguration). The close owns
-  // the transition and converges toes to rest heights (above the floor); the
-  // correction owns the steady state after the close yields.
+  // The settled correction runs on EVERY arrived frame, including while the
+  // close runs (arrived-foot-snap): starving it until close-done let the
+  // penetration deepen to a near-full-extension crouch, from which any
+  // one-frame lift is a horizontal teleport by lever geometry. Applied
+  // differentially each frame from the close's bent mid-glide poses, the same
+  // solve converges the penetration before the close yields, so close-done
+  // has nothing left to snap. The close still owns toe placement (it runs
+  // first); the correction only trims residual penetration after it.
   let closeActive = false;
   if (approach.restStance !== null) {
     if (!approach.closeState.done) {
@@ -81,14 +84,15 @@ export function applyCaseOwnedArrivedLock(approach: CaseOwnedBedsideApproach): b
     });
     approach.actorSlot.updateMatrixWorld(true);
   }
-  if (!closeActive) {
-    applySettledPostureCorrection({
-      actorSlot: approach.actorSlot,
-      leftToe: approach.leftToe,
-      rightToe: approach.rightToe,
-      floorOriginY: approach.floorOriginY,
-      contactBandMeters: approach.contactBandMeters,
-    });
-  }
+  // Every arrived frame (arrived-foot-snap): the close runs first and owns
+  // toe placement; the correction trims residual penetration after it,
+  // including while the close runs, so no singular end-state accumulates.
+  applySettledPostureCorrection({
+    actorSlot: approach.actorSlot,
+    leftToe: approach.leftToe,
+    rightToe: approach.rightToe,
+    floorOriginY: approach.floorOriginY,
+    contactBandMeters: approach.contactBandMeters,
+  });
   return true;
 }

@@ -1,6 +1,7 @@
 import type { Object3D } from "three";
 import { Vector3 } from "three";
-import { findStanceChain, solveTwoBoneIK, worldXyz } from "./stance-lock-ik.js";
+import { findStanceChain, worldXyz } from "./stance-lock-ik.js";
+import { solveSettledDifferential } from "./settled-posture-delta-mod.js";
 import type { StanceFoot } from "./stance-lock-mod.js";
 
 /**
@@ -106,14 +107,18 @@ export function applySettledPostureCorrection(input: {
   const maxExtension = upperLen + lowerLen;
   const softening = 0.005; // 5 mm softening zone
 
-  // Solve IK to place heel at heelTarget (which puts toe at targetToeY)
-  const ikResult = solveTwoBoneIK(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
+  // Solve IK to place heel at heelTarget (which puts toe at targetToeY).
+  // Differential application (arrived-foot-snap): the same two-bone triangle,
+  // applied as the difference from the current pose so a bent, twisted
+  // post-close crouch flexes further instead of being re-aimed into the
+  // target plane. From a straight leg this equals the absolute solve exactly.
+  const ikResult = solveSettledDifferential(hip, knee, heel, heelTarget, maxExtension, softening, actorSlot);
   if (ikResult) {
     // Apply local rotations to hip and knee only
     // hipDelta is a from-identity delta; compose with current animated hip pose
     hip.quaternion.multiplyQuaternions(hip.quaternion, ikResult.hipDelta);
-    // kneeQuat is an absolute local bend; set directly
-    knee.quaternion.copy(ikResult.kneeQuat);
+    // kneeDelta is the additional flexion; compose to preserve current twist
+    knee.quaternion.multiplyQuaternions(knee.quaternion, ikResult.kneeDelta);
     // Update world matrices so subsequent frames see the corrected pose
     hip.updateMatrixWorld(true);
     knee.updateMatrixWorld(true);

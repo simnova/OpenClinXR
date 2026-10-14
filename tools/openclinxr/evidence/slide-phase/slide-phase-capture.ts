@@ -182,8 +182,10 @@ const PROBE_SOURCE = `
       legWorlds = {
         hipL: wOf("upperleg01L", "upperleg01.L"),
         kneeL: wOf("lowerleg01L", "lowerleg01.L"),
+        heelL: wOf("footL", "foot.L"),
         hipR: wOf("upperleg01R", "upperleg01.R"),
         kneeR: wOf("lowerleg01R", "lowerleg01.R"),
+        heelR: wOf("footR", "foot.R"),
       };
       const yawOf = (a, b) => {
         const bone = byName(a) || byName(b);
