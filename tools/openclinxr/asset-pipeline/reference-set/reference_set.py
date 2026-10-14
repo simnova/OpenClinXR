@@ -37,40 +37,20 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-VERSION = 1
+# Load constants from single source of truth JSON
+_CONSTANTS_PATH = Path(__file__).with_name("reference_constants.json")
+with _CONSTANTS_PATH.open() as _f:
+    _C = json.load(_f)
+
+VERSION = _C["version"]
 KINDS = ("goal_front", "goal_yaw", "face_tile", "scalp_island",
          "eye_texture", "brow_band")
-# Aspect gate: relative |out-ref|/ref on w/h. History: accepted picks drift
-# 0.7-2.1% (face tile 710x430->1312x784 = 1.35%, brow C 1550x800->1424x720
-# = 2.08%); gross inventions (square from wide, portrait from texture)
-# differ by 10x more. Exact-size matching is wrong: sizes legitimately
-# change across calls, and the 2000x512-type failure left no bytes to
-# record anyway.
-ASPECT_TOLERANCE = 0.03
-# Flat-image gate: grayscale std below this is a placeholder/solid fill,
-# never a texture (real tiles measure in the tens).
-FLAT_STD_MIN = 2.0
-MIN_DIM = 8
-# Tone tokens: sRGB triples from the repo factory, recorded in
-# S/skins/pick.py:12 ("TONES sRGB from the repo factory, NOT invented
-# here"). Lab via D65 sRGB->Lab, same formula as pick.py srgb2lab.
-TONE_TOKENS = {
-    "warm_light": (0.78, 0.62, 0.52),
-    "warm_medium": (0.66, 0.50, 0.40),
-}
-FACECORE_BOX = (0.35, 0.32, 0.65, 0.60)
-# Flag bar: dLab 10.63 measured on the accepted Aisha goal-front
-# (S/project/edit-v9/edit-0.png face-core box mean Lab vs warm_light
-# token Lab); rounded up. A goal farther from its token than Aisha's
-# accepted goal is from hers gets flagged (recorded, never blocking).
-TONE_FLAG_THRESHOLD = 10.7
-TONE_FLAG_SOURCE = (
-    "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs "
-    "warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7"
-)
-
-REFUSE_CODES = ("REFUSE_MISSING", "REFUSE_SHA_MISMATCH", "REFUSE_FLAT",
-                "REFUSE_ASPECT", "REFUSE_NOT_IMAGE", "REFUSE_SCHEMA")
+ASPECT_TOLERANCE = _C["aspect_tolerance"]
+FLAT_STD_MIN = _C["flat_std_min"]
+MIN_DIM = _C["min_dim"]
+TONE_TOKENS = {k: tuple(v) for k, v in _C["tone_tokens"].items()}
+FACECORE_BOX = tuple(_C["facecore_box"])
+REFUSE_CODES = tuple(_C["refuse_codes"])
 
 
 class Refuse(Exception):
@@ -109,22 +89,61 @@ def facecore_mean_lab(image_path: Path) -> list[float]:
             srgb_to_lab(core).reshape(-1, 3).mean(axis=0)]
 
 
+def _token_lab(srgb: tuple[float, float, float]) -> list[float]:
+    """Lab of an sRGB token (0-1 range)."""
+    arr = np.array([[[c * 255 for c in srgb]]], dtype=np.float64)
+    return [float(v) for v in srgb_to_lab(arr)[0, 0]]
+
+
 def tone_check(image_path: Path, token: str) -> dict:
+    """Nearest-token test: flag when goal face-core Lab is closer to a
+    DIFFERENT token than to its own. No numeric bar.
+    
+    Returns: phenotype_tone, goal_facecore_lab, own_token_lab,
+             nearest_token, nearest_token_lab, own_distance, nearest_distance,
+             margin (own - nearest), flagged (own > nearest).
+    """
     if token not in TONE_TOKENS:
         raise Refuse(f"REFUSE_SCHEMA unknown phenotype tone {token!r}: "
                      f"refuse (want one of {sorted(TONE_TOKENS)})")
     goal_lab = facecore_mean_lab(image_path)
-    token_lab = [float(v) for v in
-                 srgb_to_lab(np.array([[[c * 255 for c in
-                                         TONE_TOKENS[token]]]]))[0, 0]]
-    dist = float(np.linalg.norm(np.array(goal_lab) - np.array(token_lab)))
-    return {"phenotype_tone": token,
-            "goal_facecore_lab": [round(v, 2) for v in goal_lab],
-            "token_lab": [round(v, 2) for v in token_lab],
-            "distance_dLab": round(dist, 2),
-            "threshold_dLab": TONE_FLAG_THRESHOLD,
-            "threshold_source": TONE_FLAG_SOURCE,
-            "flagged": dist > TONE_FLAG_THRESHOLD}
+    goal_arr = np.array(goal_lab, dtype=np.float64)
+    
+    # Distance to own token
+    own_token_lab = _token_lab(TONE_TOKENS[token])
+    own_dist = float(np.linalg.norm(goal_arr - np.array(own_token_lab)))
+    
+    # Find nearest other token
+    nearest_token = None
+    nearest_dist = float("inf")
+    nearest_lab = None
+    for name, srgb in TONE_TOKENS.items():
+        if name == token:
+            continue
+        lab = _token_lab(srgb)
+        d = float(np.linalg.norm(goal_arr - np.array(lab)))
+        if d < nearest_dist:
+            nearest_dist = d
+            nearest_token = name
+            nearest_lab = lab
+    
+    margin = round(own_dist - nearest_dist, 2)
+    flagged = own_dist > nearest_dist
+    
+    return {
+        "phenotype_tone": token,
+        "goal_facecore_lab": [round(v, 2) for v in goal_lab],
+        "own_token_lab": [round(v, 2) for v in own_token_lab],
+        "own_distance_dLab": round(own_dist, 2),
+        "nearest_token": nearest_token,
+        "nearest_token_lab": [round(v, 2) for v in nearest_lab],
+        "nearest_distance_dLab": round(nearest_dist, 2),
+        "margin_dLab": margin,
+        "flagged": flagged,
+        "note": ("confound: goal is a lit render-like image; token is an albedo "
+                 "colour; absolute distances carry a lighting offset; "
+                 "nearest-token test is relative across tokens under the same offset")
+    }
 
 
 def decode_check(path: Path) -> tuple[int, int, float]:

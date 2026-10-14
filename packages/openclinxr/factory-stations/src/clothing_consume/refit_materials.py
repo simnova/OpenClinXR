@@ -21,6 +21,7 @@ Blender assignment half requires bpy.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -29,14 +30,18 @@ try:
 except ImportError:  # plain-python test harness
     bpy = None  # type: ignore
 
+# Load skin tone tokens from single source of truth (materializer rail)
+# This file is at packages/openclinxr/factory-stations/src/clothing_consume/refit_materials.py
+# Constants are at tools/openclinxr/asset-pipeline/reference-set/reference_constants.json
+_CONSTANTS_PATH = Path(__file__).parents[5] / "tools" / "openclinxr" / "asset-pipeline" / "reference-set" / "reference_constants.json"
+with _CONSTANTS_PATH.open() as _f:
+    _C = json.load(_f)
+
 # Authored skin map — same values as SKIN_TONE_RGB in the materializer rail
-# (tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:180).
+# (tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py).
+# Convert RGB (0-1) to RGBA with alpha=1.0.
 SKIN_TONE_RGBA = {
-    "warm_light_child": (0.84, 0.70, 0.60, 1.0),
-    "warm_light": (0.78, 0.62, 0.52, 1.0),
-    "warm_medium": (0.66, 0.50, 0.40, 1.0),
-    "medium_warm": (0.58, 0.44, 0.36, 1.0),
-    "default": (0.68, 0.53, 0.44, 1.0),
+    k: (v[0], v[1], v[2], 1.0) for k, v in _C["tone_tokens"].items()
 }
 
 # Legacy Display fallbacks — the exact colours fit_stage.py hardcoded before

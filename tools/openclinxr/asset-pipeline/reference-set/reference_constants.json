@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:SKIN_TONE_RGB",
+  "tone_tokens": {
+    "warm_light_child": [0.84, 0.70, 0.60],
+    "warm_light": [0.78, 0.62, 0.52],
+    "warm_medium": [0.66, 0.50, 0.40],
+    "medium_warm": [0.58, 0.44, 0.36],
+    "default": [0.68, 0.53, 0.44]
+  },
+  "facecore_box": [0.35, 0.32, 0.65, 0.60],
+  "aspect_tolerance": 0.03,
+  "flat_std_min": 2.0,
+  "min_dim": 8,
+  "refuse_codes": ["REFUSE_MISSING", "REFUSE_SHA_MISMATCH", "REFUSE_FLAT", "REFUSE_ASPECT", "REFUSE_NOT_IMAGE", "REFUSE_SCHEMA"]
+}

@@ -9,28 +9,28 @@ import fs from "node:fs";
 import { inflateSync } from "node:zlib";
 import path from "node:path";
 
-export const SCHEMA_VERSION = 1;
+// Load constants from single source of truth JSON
+const CONSTANTS = JSON.parse(
+  fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "reference_constants.json"), "utf8")
+);
+
+export const SCHEMA_VERSION = CONSTANTS.version;
 export const KINDS = ["goal_front", "goal_yaw", "face_tile",
   "scalp_island", "eye_texture", "brow_band"] as const;
 export type Kind = (typeof KINDS)[number];
 
 /** Relative |out-ref|/ref on w/h: accepted picks drift 0.7-2.1%. */
-export const ASPECT_TOLERANCE = 0.03;
+export const ASPECT_TOLERANCE = CONSTANTS.aspect_tolerance;
 /** Grayscale std below this is a placeholder/solid fill, never texture. */
-export const FLAT_STD_MIN = 2.0;
-export const MIN_DIM = 8;
+export const FLAT_STD_MIN = CONSTANTS.flat_std_min;
+export const MIN_DIM = CONSTANTS.min_dim;
 
-/** sRGB triples from the repo factory (S/skins/pick.py:12). */
-export const TONE_TOKENS: Record<string, [number, number, number]> = {
-  warm_light: [0.78, 0.62, 0.52],
-  warm_medium: [0.66, 0.5, 0.4],
-};
-export const FACECORE_BOX = { x0: 0.35, y0: 0.32, x1: 0.65, y1: 0.6 };
-/** dLab bar from the accepted Aisha goal-front (see toneFlagSource). */
-export const TONE_FLAG_THRESHOLD = 10.7;
-export const TONE_FLAG_SOURCE =
-  "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs " +
-  "warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7";
+/** sRGB triples from the repo factory (materializer rail). */
+export const TONE_TOKENS: Record<string, [number, number, number]> = Object.fromEntries(
+  Object.entries(CONSTANTS.tone_tokens).map(([k, v]) => [k, v as [number, number, number]])
+);
+export const FACECORE_BOX = { x0: CONSTANTS.facecore_box[0], y0: CONSTANTS.facecore_box[1], x1: CONSTANTS.facecore_box[2], y1: CONSTANTS.facecore_box[3] };
+export const REFUSE_CODES = CONSTANTS.refuse_codes as string[];
 
 export type ReferenceEntry = {
   prompt: string;
@@ -49,16 +49,22 @@ export type ReferenceEntry = {
 
 export type Manifest = {
   version: number;
-  tone_flag: { threshold_dLab: number; source: string };
   cases: Record<string, {
     phenotype_tone?: string; references: Record<string, ReferenceEntry>;
   }>;
 };
 
 export type ToneReport = {
-  phenotype_tone: string; goal_facecore_lab: [number, number, number];
-  token_lab: [number, number, number]; distance_dLab: number;
-  threshold_dLab: number; threshold_source: string; flagged: boolean;
+  phenotype_tone: string;
+  goal_facecore_lab: [number, number, number];
+  own_token_lab: [number, number, number];
+  own_distance_dLab: number;
+  nearest_token: string;
+  nearest_token_lab: [number, number, number];
+  nearest_distance_dLab: number;
+  margin_dLab: number;
+  flagged: boolean;
+  note: string;
 };
 
 export function loadManifest(manifestPath: string): Manifest {
@@ -259,27 +265,58 @@ function srgbToLab01(r: number, g: number, b: number): [number, number, number] 
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 }
 
-/** Flag bar check on Lab means (pure math; image sampling lives in py). */
+/** Nearest-token test: flag when goal Lab is closer to a DIFFERENT token
+ * than to its own. No numeric bar. */
 export function toneFlag(toneName: string,
   goalLab: [number, number, number]): ToneReport {
   const tok = TONE_TOKENS[toneName];
   if (!tok) throw new Error(`REFUSE_SCHEMA unknown tone ${toneName}: refuse`);
+  
   const tokenLab = srgbToLab01(tok[0], tok[1], tok[2]);
-  const d = Math.sqrt(goalLab.reduce((s, v, i) => {
-    const t = tokenLab[i] ?? 0;
-    return s + (v - t) ** 2;
-  }, 0));
-  const dist = Math.round(d * 100) / 100;
-  const lab0 = tokenLab[0] ?? 0;
-  const lab1 = tokenLab[1] ?? 0;
-  const lab2 = tokenLab[2] ?? 0;
+  const ownDist = Math.sqrt(
+    goalLab.reduce((s, v, i) => s + (v - (tokenLab[i] ?? 0)) ** 2, 0)
+  );
+  
+  // Find nearest other token
+  let nearestToken = "";
+  let nearestDist = Infinity;
+  let nearestLab: [number, number, number] = [0, 0, 0];
+  for (const [name, srgb] of Object.entries(TONE_TOKENS)) {
+    if (name === toneName) continue;
+    const lab = srgbToLab01(srgb[0], srgb[1], srgb[2]);
+    const d = Math.sqrt(
+      goalLab.reduce((s, v, i) => s + (v - (lab[i] ?? 0)) ** 2, 0)
+    );
+    if (d < nearestDist) {
+      nearestDist = d;
+      nearestToken = name;
+      nearestLab = lab;
+    }
+  }
+  
+  const ownDistR = Math.round(ownDist * 100) / 100;
+  const nearestDistR = Math.round(nearestDist * 100) / 100;
+  const margin = Math.round((ownDist - nearestDist) * 100) / 100;
+  const flagged = ownDist > nearestDist;
+  
   return {
     phenotype_tone: toneName,
-    goal_facecore_lab: goalLab, token_lab: [
-      Math.round(lab0 * 100) / 100,
-      Math.round(lab1 * 100) / 100,
-      Math.round(lab2 * 100) / 100],
-    distance_dLab: dist, threshold_dLab: TONE_FLAG_THRESHOLD,
-    threshold_source: TONE_FLAG_SOURCE, flagged: dist > TONE_FLAG_THRESHOLD,
+    goal_facecore_lab: goalLab,
+    own_token_lab: [
+      Math.round(tokenLab[0] * 100) / 100,
+      Math.round(tokenLab[1] * 100) / 100,
+      Math.round(tokenLab[2] * 100) / 100
+    ],
+    own_distance_dLab: ownDistR,
+    nearest_token: nearestToken,
+    nearest_token_lab: [
+      Math.round(nearestLab[0] * 100) / 100,
+      Math.round(nearestLab[1] * 100) / 100,
+      Math.round(nearestLab[2] * 100) / 100
+    ],
+    nearest_distance_dLab: nearestDistR,
+    margin_dLab: margin,
+    flagged,
+    note: "confound: goal is a lit render-like image; token is an albedo colour; absolute distances carry a lighting offset; nearest-token test is relative across tokens under the same offset"
   };
 }

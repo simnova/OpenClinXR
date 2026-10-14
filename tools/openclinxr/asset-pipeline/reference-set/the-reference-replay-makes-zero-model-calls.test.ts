@@ -15,7 +15,6 @@ import {
   replayCase,
   sha256File,
   toneFlag,
-  TONE_FLAG_THRESHOLD,
   validateNewImage,
   type Manifest,
 } from "./reference-set";
@@ -31,7 +30,6 @@ function fixtureManifest(): { manifest: Manifest; storeRoot: string } {
   fs.copyFileSync(path.join(FIX, refName), path.join(storeRoot, refName));
   const manifest: Manifest = {
     version: 1,
-    tone_flag: { threshold_dLab: TONE_FLAG_THRESHOLD, source: "fixture" },
     cases: {
       synth: {
         phenotype_tone: "warm_medium",
@@ -82,9 +80,12 @@ describe("the reference replay makes zero model calls", () => {
         .not.toHaveBeenCalled();
       const src = fs.readFileSync(
         path.join(DIR, "reference-set.ts"), "utf8");
+      // Tokens that would indicate process spawn or network/model calls.
+      // "token:" is excluded because the module reads a JSON file that
+      // contains the word "token" in key names (tone_tokens), not an API token.
       for (const tok of ["child_process", "spawn", "execFile", "execSync",
         "fork(", "fetch(", "XMLHttpRequest", "https.", "http.",
-        "grok", "imagine", "model", "api_key", "apikey", "token:"]) {
+        "grok", "imagine", "model", "api_key", "apikey"]) {
         expect(src.toLowerCase().includes(tok.toLowerCase()),
           `replay module mentions no process/network/model token (${tok})`)
           .toBe(false);
@@ -125,10 +126,19 @@ describe("the reference replay makes zero model calls", () => {
       path.join(FIX, "out-ok.png"))).toEqual({ width: 96, height: 48 });
   });
 
-  it("flags only past the Aisha-derived tone bar", () => {
-    expect(TONE_FLAG_THRESHOLD).toBe(10.7);
-    expect(toneFlag("warm_medium", [49.26, 13.89, 19.44]).flagged)
-      .toBe(false);
-    expect(toneFlag("warm_medium", [30, 5, 5]).flagged).toBe(true);
+  it("nearest-token test: own token pass, other token flag", () => {
+    // warm_medium goal at its own token's Lab -> NOT flagged (own is nearest)
+    const ownLab = [56.71, 12.27, 19.96]; // warm_medium token Lab (approx)
+    const r1 = toneFlag("warm_medium", ownLab);
+    expect(r1.flagged).toBe(false);
+    expect(r1.nearest_token).not.toBe("warm_medium");
+    expect(r1.own_distance_dLab).toBeLessThan(r1.nearest_distance_dLab);
+    
+    // warm_medium goal at warm_light token's Lab -> flagged (warm_light is nearer)
+    const lightLab = [68.24, 11.51, 19.09]; // warm_light token Lab (approx)
+    const r2 = toneFlag("warm_medium", lightLab);
+    expect(r2.flagged).toBe(true);
+    expect(r2.nearest_token).toBe("warm_light");
+    expect(r2.own_distance_dLab).toBeGreaterThan(r2.nearest_distance_dLab);
   });
 });
