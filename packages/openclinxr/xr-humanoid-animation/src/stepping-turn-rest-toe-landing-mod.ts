@@ -12,15 +12,15 @@
  * drags the swing across that translation — measured 0.110 m of close-active
  * swing glide on 1.31 m (0.085 m on 2.0 m): a foot gliding after the stop.
  *
- * FIX (last step only): land the swing foot at its ABSOLUTE rest offset in
- * the end body frame — anatomical side lateral (±sep/2 from the per-run
- * snapshot separation, exact under the measured symmetry) and the measured
- * rest fore offset — instead of relative to the stance foot. The stance foot
- * is never re-posed (it stays pinned, so its own rest error glides nothing);
- * the slot arcs about the stance anchors only, so the slot path — and hence
- * arrival accuracy — is byte-identical to the beside plan. Earlier steps keep
- * the mirror (their landings anchor the slot path). Invalid rest separation
- * falls back to the mirror, exactly as before.
+ * FIX (every step): land each step's swing foot at its rest offset in THAT
+ * step's end frame (anatomical-side lateral ±sep/2 from the per-run snapshot
+ * separation plus the measured rest fore offset). Rotations compose across
+ * steps, so a foot placed at rest in its landing frame is still at rest in
+ * the turn's final frame — every foot the turn ever swings ends on its own
+ * rest toe position, and the arrival close (which pins one foot and converges
+ * the other toward rest) has nothing to move on either. The stance foot is
+ * never re-posed; the slot still arcs about the stance anchors only, so the
+ * turn keeps its lift-and-place structure with new anchors.
  *
  * WHY A CONSTANT FOR FORE. The snapshot (`captureRestStance`) keeps only the
  * scalar world separation for XZ — its per-toe locals are foot-relative, so

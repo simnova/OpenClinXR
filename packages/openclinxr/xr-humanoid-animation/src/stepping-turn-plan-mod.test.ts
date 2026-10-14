@@ -204,7 +204,9 @@ describe("the stepping-turn plan", () => {
     });
     const [first, last] = plan.steps;
     if (!first || !last) throw new Error("expected 2 steps");
-    // Non-final steps keep the mirror (their landings anchor the slot path).
+    // Non-final steps land at rest in their OWN end frame (rotations compose,
+    // so the foot is still at rest in the final frame): step 0 swings right.
+    expect(first.swingFoot).toBe("right");
     const slotEach = { x: 0, z: 0 };
     const cos0 = Math.cos(first.yawRadians);
     const sin0 = Math.sin(first.yawRadians);
@@ -212,8 +214,15 @@ describe("the stepping-turn plan", () => {
       x: first.stanceXz.x + (slotEach.x - first.stanceXz.x) * cos0 + (slotEach.z - first.stanceXz.z) * sin0,
       z: first.stanceXz.z - (slotEach.x - first.stanceXz.x) * sin0 + (slotEach.z - first.stanceXz.z) * cos0,
     };
-    expect(first.swingToXz.x).toBeCloseTo(2 * slotEnd0.x - first.stanceXz.x, 9);
-    expect(first.swingToXz.z).toBeCloseTo(2 * slotEnd0.z - first.stanceXz.z, 9);
+    const midYaw = ENTRY_YAW + first.yawRadians;
+    const midCos = Math.cos(midYaw);
+    const midSin = Math.sin(midYaw);
+    const firstB = {
+      lat: (first.swingToXz.x - slotEnd0.x) * midCos - (first.swingToXz.z - slotEnd0.z) * midSin,
+      fore: (first.swingToXz.x - slotEnd0.x) * midSin + (first.swingToXz.z - slotEnd0.z) * midCos,
+    };
+    expect(firstB.lat).toBeCloseTo(-restSepM / 2, 9);
+    expect(firstB.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
     // Final landing in the end frame: anatomical-side lateral ±sep/2 and the
     // measured rest fore offset (positive residual ends swinging left).
     const endYaw = ENTRY_YAW + 62.67 * DEG;

@@ -160,11 +160,11 @@ export type SteppingTurnPlanInput = {
   legScale: number;
   /**
    * Walk-start rest toe separation, world metres (`captureRestStance`'s `sepXz`).
-   * When valid (> 0), the LAST step's swing lands at its absolute rest offset
-   * in the end body frame (anatomical-side lateral ±sep/2 plus the measured
-   * rest fore offset — see `stepping-turn-rest-toe-landing-mod.ts` for the
-   * measured cause). Null/invalid keeps the mirror on every step, exactly as
-   * before.
+   * When valid (> 0), EVERY step's swing lands at its rest offset in that
+   * step's end frame (anatomical-side lateral ±sep/2 plus the measured rest
+   * fore offset — see `stepping-turn-rest-toe-landing-mod.ts` for the measured
+   * cause; rotations compose, so every swung foot ends on its rest position).
+   * Null/invalid keeps the mirror on every step, exactly as before.
    */
   restSepM?: number | null;
   /**
@@ -218,17 +218,19 @@ export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan
     // start-relative goal goes stale by the arc displacement. The stance stays
     // exactly where it stands; only the swing travels.
     const slotEnd = rotateAbout(slotPred, stanceXz, yaw);
-    // Last step with a valid rest separation: land the swing at its absolute
-    // rest offset in the end body frame — see
-    // `stepping-turn-rest-toe-landing-mod.ts`. Earlier steps keep the mirror:
-    // their landings are the next step's stance anchors, so the slot path is
-    // unchanged.
+    // Rest landing on every step (same flag gate as before): each swing lands
+    // at its rest offset in this step's end frame. Rotations compose across
+    // steps, so a foot placed here is still at rest in the final frame — the
+    // close pins one foot and converges the other toward rest, and both are
+    // already there. Without a valid rest separation, the mirror holds the
+    // pair centered exactly under the pelvis on every landing.
+    const stepEndYaw = yawStart + yaw;
     const restSepM = input.restSepM ?? null;
     const swingToXz =
-      index === stepCount - 1 && restSepM !== null && restSepM > 0
+      restSepM !== null && restSepM > 0
         ? restToeLanding({
           slotEndXz: slotEnd,
-          endYawRadians: targetHeadingRadians,
+          endYawRadians: stepEndYaw,
           swingFoot,
           restSepM,
           restForeM: input.restForeM ?? null,

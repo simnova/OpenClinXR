@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   planSteppingTurn,
   restToeLanding,
+  steppingTurnAt,
   STEPPING_TURN_REST_FORE_OFFSET_M,
 } from "./stepping-turn.js";
 
@@ -77,6 +78,57 @@ describe("the per-toe rest landing", () => {
     const body = toBody({ x: 0, z: 0 }, ENTRY_YAW, landing);
     expect(body.fore).toBeCloseTo(0, 9);
     expect(body.fore).not.toBeCloseTo(FORE_M, 1);
+  });
+
+  it("lands both feet on rest through a real SC-05 entry (telescoping)", () => {
+    // Capture-derived entry (rest-before-131 run0 frame 45): the walk-exit
+    // stagger the plan must absorb. Both swung feet must end at absolute rest
+    // with a non-lunging first step.
+    const entryYaw = 2.0471;
+    const plan = planSteppingTurn({
+      residualYawRadians: 62.67 * DEG,
+      entryYawRadians: entryYaw,
+      targetHeadingRadians: entryYaw + 62.67 * DEG,
+      leftToeXz: { x: -0.8364, z: 1.0436 },
+      rightToeXz: { x: -0.7828, z: 1.2118 },
+      leftToeY: 0.016,
+      rightToeY: 0.016,
+      stanceBaselineY: 0.016,
+      entrySlotXz: { x: -0.78, z: 1.14 },
+      legScale: 1,
+      restSepM: 0.3364,
+    });
+    expect(plan.steps.length).toBe(2);
+    const [first, last] = plan.steps;
+    if (!first || !last) throw new Error("expected 2 steps");
+    // Reach: the first step absorbs the walk-exit stagger without lunging.
+    const reach0 = Math.hypot(
+      first.swingToXz.x - first.swingFromXz.x,
+      first.swingToXz.z - first.swingFromXz.z,
+    );
+    expect(reach0).toBeLessThan(0.35);
+    // Final pair in the end frame: both feet at absolute rest.
+    const endYaw = entryYaw + 62.67 * DEG;
+    let slot = { x: -0.78, z: 1.14 };
+    for (const step of plan.steps) {
+      const dx = slot.x - step.stanceXz.x;
+      const dz = slot.z - step.stanceXz.z;
+      const c = Math.cos(step.yawRadians);
+      const s = Math.sin(step.yawRadians);
+      slot = {
+        x: step.stanceXz.x + dx * c + dz * s,
+        z: step.stanceXz.z - dx * s + dz * c,
+      };
+    }
+    const end = steppingTurnAt(plan, plan.totalS);
+    const leftWorld = last.swingFoot === "left" ? end.swingToe : end.stanceToe;
+    const rightWorld = last.swingFoot === "right" ? end.swingToe : end.stanceToe;
+    const leftB = toBody(slot, endYaw, leftWorld);
+    const rightB = toBody(slot, endYaw, rightWorld);
+    expect(leftB.lat).toBeCloseTo(0.1682, 3);
+    expect(leftB.fore).toBeCloseTo(0.1166, 3);
+    expect(rightB.lat).toBeCloseTo(-0.1682, 3);
+    expect(rightB.fore).toBeCloseTo(0.1166, 3);
   });
 
   it("lands the plan final swing at its rest offset on the SC-05 residual", () => {
