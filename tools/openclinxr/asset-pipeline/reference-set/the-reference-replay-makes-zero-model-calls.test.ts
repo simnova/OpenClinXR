@@ -21,6 +21,7 @@ import {
 
 const DIR = path.dirname(new URL(import.meta.url).pathname);
 const FIX = path.join(DIR, "fixtures");
+const MANIFEST_PATH = path.join(DIR, "manifest.json");
 
 function fixtureManifest(): { manifest: Manifest; storeRoot: string } {
   const storeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "refset-"));
@@ -148,5 +149,38 @@ describe("the reference replay makes zero model calls", () => {
     expect(r2).toHaveProperty("tone_assessment", "unassessed");
     expect(r2).toHaveProperty("reason");
     expect(r2).not.toHaveProperty("flagged");
+  });
+
+  it("manifest.json contains no 'flagged' key and no fitted bar text", () => {
+    const manifestText = fs.readFileSync(MANIFEST_PATH, "utf8");
+    const manifest = JSON.parse(manifestText);
+    
+    // Recursively check for 'flagged' key
+    function checkForFlagged(obj: unknown, currentPath = ""): string[] {
+      const violations: string[] = [];
+      if (obj && typeof obj === "object") {
+        if (Array.isArray(obj)) {
+          obj.forEach((v, i) => {
+            violations.push(...checkForFlagged(v, `${currentPath}[${i}]`));
+          });
+        } else {
+          for (const [key, value] of Object.entries(obj)) {
+            if (key === "flagged") {
+              violations.push(`${currentPath}.${key}`);
+            }
+            violations.push(...checkForFlagged(value, `${currentPath}.${key}`));
+          }
+        }
+      }
+      return violations;
+    }
+    
+    const flaggedViolations = checkForFlagged(manifest);
+    expect(flaggedViolations).toEqual([]);
+    
+    // Check for fitted bar text (e.g., "bar 10.7")
+    expect(manifestText).not.toMatch(/bar\s+\d/);
+    expect(manifestText).not.toMatch(/threshold_dLab.*10\.7/);
+    expect(manifestText).not.toMatch(/S\/skins\/pick\.py/);
   });
 });

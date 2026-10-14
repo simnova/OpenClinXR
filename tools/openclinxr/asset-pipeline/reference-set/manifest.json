@@ -35,15 +35,22 @@
        9.05,
        16.01
       ],
-      "token_lab": [
+      "own_token_lab": [
        68.24,
        11.51,
        19.09
       ],
-      "distance_dLab": 10.63,
-      "threshold_dLab": 10.7,
-      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
-      "flagged": false
+      "own_distance_dLab": 10.63,
+      "nearest_token": "default",
+      "nearest_token_lab": [
+       59.41,
+       11.34,
+       17.94
+      ],
+      "nearest_distance_dLab": 3.17,
+      "margin_dLab": 7.46,
+      "tone_assessment": "unassessed",
+      "reason": "goal is a lit image and tokens are albedo; no reference exists yet that separates lighting from tone. A valid check needs a render of the subject head with a flat token-coloured albedo under the same rig, compared to the goal in the same face-core region"
      }
     },
     "goal_yaw": {
@@ -78,15 +85,22 @@
        9.74,
        17.6
       ],
-      "token_lab": [
+      "own_token_lab": [
        68.24,
        11.51,
        19.09
       ],
-      "distance_dLab": 11.4,
-      "threshold_dLab": 10.7,
-      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
-      "flagged": true
+      "own_distance_dLab": 11.4,
+      "nearest_token": "default",
+      "nearest_token_lab": [
+       59.41,
+       11.34,
+       17.94
+      ],
+      "nearest_distance_dLab": 2.85,
+      "margin_dLab": 8.55,
+      "tone_assessment": "unassessed",
+      "reason": "goal is a lit image and tokens are albedo; no reference exists yet that separates lighting from tone. A valid check needs a render of the subject head with a flat token-coloured albedo under the same rig, compared to the goal in the same face-core region"
      }
     },
     "face_tile": {
@@ -323,15 +337,22 @@
        13.89,
        19.44
       ],
-      "token_lab": [
+      "own_token_lab": [
        56.71,
        12.27,
        19.96
       ],
-      "distance_dLab": 7.64,
-      "threshold_dLab": 10.7,
-      "threshold_source": "dLab 10.63 = accepted Aisha goal-front face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7",
-      "flagged": false
+      "own_distance_dLab": 7.64,
+      "nearest_token": "medium_warm",
+      "nearest_token_lab": [
+       50.32,
+       11.2,
+       16.8
+      ],
+      "nearest_distance_dLab": 3.92,
+      "margin_dLab": 3.72,
+      "tone_assessment": "unassessed",
+      "reason": "goal is a lit image and tokens are albedo; no reference exists yet that separates lighting from tone. A valid check needs a render of the subject head with a flat token-coloured albedo under the same rig, compared to the goal in the same face-core region"
      }
     },
     "face_tile": {
@@ -417,8 +438,8 @@
   }
  },
  "tone_flag": {
-  "threshold_dLab": 10.7,
-  "source": "dLab 10.63 = accepted Aisha goal-front (S/project/edit-v9/edit-0.png) face-core box mean Lab vs warm_light token Lab (D65 sRGB, S/skins/pick.py:12); bar 10.7. Aisha goal-yaw records 11.4 (flagged, accepted: yaw framing shifts the box mean); body2 goal-front records 7.64 (not flagged). Flag is advisory, never blocking."
+  "threshold_dLab": null,
+  "source": "nearest-token test; no numeric bar. goal is lit render; tokens are albedo; lighting offset not token-neutral. A valid check needs a flat-albedo render under same rig."
  },
  "store": {
   "root_env": "REFERENCE_SET_STORE_ROOT",
