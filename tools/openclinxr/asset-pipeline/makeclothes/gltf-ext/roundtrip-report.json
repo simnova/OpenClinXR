@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "openclinxr.gltf-ext.roundtrip.v1",
+  "description": "Verifies that KHR_materials_unlit survives teeth-rest-clearance.ts and tongue-forward-place.ts post-steps",
+  "tested": [
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+    "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts"
+  ],
+  "motivation": "materialize_mpfb_humanoid_candidate.py:3150-3176 writes KHR_materials_unlit to eyeshell materials. Both post-steps previously constructed NodeIO() without extension registry, stripping the extension on rewrite.",
+  "fix": "Both files now use NodeIO().registerExtensions(ALL_EXTENSIONS) to preserve KHR_materials_unlit on read/write round-trips.",
+  "verification": "Round-trip test passes: KHR_materials_unlit survives both steps on in-memory fixture.",
+  "gate": "KHR_materials_unlit still present after both steps [src:materialize_mpfb_humanoid_candidate.py:3176]"
+}

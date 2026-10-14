@@ -22,6 +22,7 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 
 const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 const TEETH_RE = /teeth/i;
@@ -41,7 +42,7 @@ async function main(): Promise<void> {
   const dry = args.includes("--dry");
   const probe = args.includes("--probe");
 
-  const io = new NodeIO();
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(glb);
   const meshes = doc.getRoot().listMeshes();
   const teethMeshes = meshes.filter((m) => TEETH_RE.test(m.getName()));
