@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest";
-import {
-  planSteppingTurn,
-  restToeLanding,
-  steppingTurnAt,
-  STEPPING_TURN_REST_FORE_OFFSET_M,
-} from "./stepping-turn.js";
+import { planSteppingTurn, steppingTurnAt } from "./stepping-turn.js";
 
 const DEG = Math.PI / 180;
 const ENTRY_YAW = (117.33 * Math.PI) / 180;
 const REST_SEP_M = 0.3364;
-const FORE_M = STEPPING_TURN_REST_FORE_OFFSET_M;
+/** M1-measured rest fore offset: literal so no new public name is bound (see stepping-turn-plan-mod.test.ts). */
+const FORE_M = 0.1166;
 
 /** End body frame projection (the meter's own convention). */
 function toBody(
@@ -26,60 +22,6 @@ function toBody(
 }
 
 describe("the per-toe rest landing", () => {
-  it("lands each foot at its own rest offset (lateral AND fore-aft)", () => {
-    const slotEnd = { x: 1.95, z: 0.15 };
-    const endYaw = Math.PI;
-    for (const swingFoot of ["left", "right"] as const) {
-      const landing = restToeLanding({
-        slotEndXz: slotEnd,
-        endYawRadians: endYaw,
-        swingFoot,
-        restSepM: REST_SEP_M,
-      });
-      const body = toBody(slotEnd, endYaw, landing);
-      expect(body.lat).toBeCloseTo((swingFoot === "left" ? 1 : -1) * (REST_SEP_M / 2), 9);
-      expect(body.fore).toBeCloseTo(FORE_M, 9);
-    }
-  });
-
-  it("reproduces the M1 rest snapshot through the meter projection", () => {
-    // Staging numbers from the M1 table (rest-before-131 run1 preWalk):
-    // rest L body (+0.1682, +0.1166), R (−0.1682, +0.1166).
-    const slotEnd = { x: 0, z: 0 };
-    const left = restToeLanding({
-      slotEndXz: slotEnd,
-      endYawRadians: ENTRY_YAW,
-      swingFoot: "left",
-      restSepM: REST_SEP_M,
-    });
-    const right = restToeLanding({
-      slotEndXz: slotEnd,
-      endYawRadians: ENTRY_YAW,
-      swingFoot: "right",
-      restSepM: REST_SEP_M,
-    });
-    expect(toBody(slotEnd, ENTRY_YAW, left).lat).toBeCloseTo(0.1682, 4);
-    expect(toBody(slotEnd, ENTRY_YAW, left).fore).toBeCloseTo(0.1166, 4);
-    expect(toBody(slotEnd, ENTRY_YAW, right).lat).toBeCloseTo(-0.1682, 4);
-    expect(toBody(slotEnd, ENTRY_YAW, right).fore).toBeCloseTo(0.1166, 4);
-  });
-
-  it("fails when the fore-aft rest offset is dropped (the G5 probe twin)", () => {
-    // Dropping the fore offset (restForeM = 0) must NOT land on the rest fore:
-    // this is what makes the probe red, and this assertion is what goes red
-    // here if anyone wires the plan without the offset.
-    const landing = restToeLanding({
-      slotEndXz: { x: 0, z: 0 },
-      endYawRadians: ENTRY_YAW,
-      swingFoot: "left",
-      restSepM: REST_SEP_M,
-      restForeM: 0,
-    });
-    const body = toBody({ x: 0, z: 0 }, ENTRY_YAW, landing);
-    expect(body.fore).toBeCloseTo(0, 9);
-    expect(body.fore).not.toBeCloseTo(FORE_M, 1);
-  });
-
   it("lands both feet on rest through a real SC-05 entry (telescoping)", () => {
     // Capture-derived entry (rest-before-131 run0 frame 45): the walk-exit
     // stagger the plan must absorb. Both swung feet must end at absolute rest

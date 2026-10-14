@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { afterEach, describe, expect, it } from "vitest";
-import { beginSteppingTurn, STEPPING_TURN_REST_FORE_OFFSET_M } from "./stepping-turn.js";
+import { beginSteppingTurn } from "./stepping-turn.js";
+
+/** M1-measured rest fore offset (see stepping-turn-plan-mod.test.ts): literal so no new public name is bound. */
+const REST_FORE_M = 0.1166;
 
 const DEG = Math.PI / 180;
 
@@ -78,6 +81,6 @@ describe("stepping-turn execution rest gate", () => {
     });
     const swingB = body(only.swingToXz);
     expect(swingB.lat).toBeCloseTo(-0.22 / 2, 9);
-    expect(swingB.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
+    expect(swingB.fore).toBeCloseTo(REST_FORE_M, 9);
   });
 });
