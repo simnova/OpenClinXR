@@ -85,18 +85,14 @@ export function applyCaseOwnedArrivedLock(approach: CaseOwnedBedsideApproach): b
     approach.actorSlot.updateMatrixWorld(true);
   }
   // Every arrived frame (arrived-foot-snap): the close runs first and owns
-  // toe placement; the correction trims residual penetration after it. While
-  // the close runs it is gated to the close's plant foot: the swing foot is
-  // mid-glide (tens of mm/frame by design, near-full leg extension) and
-  // bending its leg to lift it mid-glide fights the close. After the close
-  // yields both feet are settled and the lower one is corrected.
+  // toe placement; the correction trims residual penetration after it,
+  // including while the close runs, so no singular end-state accumulates.
   applySettledPostureCorrection({
     actorSlot: approach.actorSlot,
     leftToe: approach.leftToe,
     rightToe: approach.rightToe,
     floorOriginY: approach.floorOriginY,
     contactBandMeters: approach.contactBandMeters,
-    ...(closeActive ? { onlyFoot: approach.closeState.plantFoot } : {}),
   });
   return true;
 }

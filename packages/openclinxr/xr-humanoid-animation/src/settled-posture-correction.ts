@@ -35,14 +35,6 @@ export function applySettledPostureCorrection(input: {
   floorOriginY: number;
   /** Height under which a toe counts as planted. */
   contactBandMeters: number;
-  /**
-   * Arrived-foot-snap: while the arrival close runs, only its plant foot may
-   * be corrected. The close is gliding the swing foot to rest (tens of mm per
-   * frame by design); bending the swing leg to lift it mid-glide fights the
-   * close and re-teleports from near-full extension. Omitted (null) once the
-   * close yields: both feet are settled and the lower one is corrected.
-   */
-  onlyFoot?: StanceFoot | null;
 }): { corrected: boolean; stanceFoot: StanceFoot | null; toeHeightMeters: { left: number; right: number } } {
   const { actorSlot, leftToe, rightToe, floorOriginY, contactBandMeters } = input;
   actorSlot.updateMatrixWorld(true);
@@ -74,10 +66,6 @@ export function applySettledPostureCorrection(input: {
 
   if (stanceFoot === null) {
     return { corrected: false, stanceFoot: null, toeHeightMeters };
-  }
-
-  if (input.onlyFoot !== undefined && input.onlyFoot !== null && stanceFoot !== input.onlyFoot) {
-    return { corrected: false, stanceFoot, toeHeightMeters };
   }
 
   // Find the stance leg chain
