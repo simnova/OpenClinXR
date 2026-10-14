@@ -7689,11 +7689,17 @@ def main():
         print("BODY_SUBDIV_SKIPPED --no-body-subdiv")
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
-    # Parent path only: MPFB's subdiv bake swaps body mesh data via
+    # Every subject: MPFB's subdiv bake swaps body mesh data via
     # data.copy(), which keeps a `.001` suffix on assignment. Re-claim the
     # exact body name after the swap so the export matches /_body$/.
-    if mesh_prefix_for_subject(subject_id, args.eye_colour_reference) == "mpfb_parent_tara_johnson_v1":
-        claim_mesh_data_name(human, "mpfb_parent_tara_johnson_v1_body")
+    # The prefix re-derives with the same rule as the creation claim above
+    # (reference path keys off --reference, default-macro path off
+    # mesh_prefix_for_subject) — never a per-subject literal.
+    if reference is not None:
+        _post_subdiv_prefix = f"mpfb_{args.reference}"
+    else:
+        _post_subdiv_prefix = mesh_prefix_for_subject(subject_id, args.eye_colour_reference)
+    claim_mesh_data_name(human, f"{_post_subdiv_prefix}_body")
     bpy.ops.object.shade_smooth()
     print("BODY_SHADE_SMOOTH True")
     if skin_material_name not in [m.name for m in human.data.materials]:
