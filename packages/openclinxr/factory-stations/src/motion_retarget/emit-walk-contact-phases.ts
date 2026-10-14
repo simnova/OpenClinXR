@@ -19,7 +19,7 @@ import {
   MPFB_WALK_JOINTS,
   sampleWalkClip,
 } from "./walk_symmetry_gate.js";
-import { walkContactPhases } from "./walk_contact_phases.js";
+import { footBaseRowsFor, walkContactPhases } from "./walk_contact_phases.js";
 
 const PHYSICIAN_GLB = "../../../apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
 const CLIP = "openclinxr_retarget_walk_source";
@@ -70,6 +70,28 @@ async function main(): Promise<void> {
     stepFractionLeftToRight: phases.stepFractionLeftToRight,
     stepFractionRightToLeft: phases.stepFractionRightToLeft,
     contactWindows: phases.contactWindows,
+    footBase: {
+      schema: "openclinxr.walk-foot-base-rows.v1",
+      expressions: {
+        rows: "41 rows per foot at phase k/40 past this foot's plant; the toe in the contemporary clip-root frame projected onto the liftoff-to-next-plant segment (the plant-to-plant segment is degenerate: the shipped clip is in-place and cyclic, so consecutive plants coincide)",
+        along01: "fraction along the segment: 0 at liftoff, 1 at touchdown; stance rows read 1 -> 0 (unused for stance XZ, the stance foot pins to its foothold)",
+        lateralM: "signed metres off the segment, left-normal side positive",
+        heightM: "toe Y minus this stance's plant toe Y",
+        yawRad: "toe yaw minus segment yaw, wrapped to [-pi, pi]; recorded, not actuated",
+      },
+      left: footBaseRowsFor(sample, MPFB_WALK_JOINTS, {
+        plantS: phases.left.plantS,
+        liftS: phases.left.liftS,
+        cycleS: phases.cycleS,
+        foot: "left",
+      }),
+      right: footBaseRowsFor(sample, MPFB_WALK_JOINTS, {
+        plantS: phases.right.plantS,
+        liftS: phases.right.liftS,
+        cycleS: phases.cycleS,
+        foot: "right",
+      }),
+    },
   };
   const out = join(here, "physician-walk-contact-phases.json");
   writeFileSync(out, `${JSON.stringify(doc, null, 2)}\n`);

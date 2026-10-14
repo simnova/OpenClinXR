@@ -6,6 +6,8 @@ import {
   sampleWalkClip,
 } from "../index.js";
 import {
+  FOOT_BASE_ROW_COUNT,
+  footBaseRowsFor,
   walkContactPhases,
   type WalkContactPhases,
 } from "./walk_contact_phases.js";
@@ -80,5 +82,54 @@ describe("bound physician walk contact phases (S1 O3)", () => {
         `L plant=${fresh.left.plantPhase.toFixed(4)} lift=${fresh.left.liftPhase.toFixed(4)} step=${fresh.left.stepLengthM.toFixed(4)}m stance=${fresh.left.stanceDurationS.toFixed(4)}s ` +
         `R plant=${fresh.right.plantPhase.toFixed(4)} lift=${fresh.right.liftPhase.toFixed(4)} step=${fresh.right.stepLengthM.toFixed(4)}m stance=${fresh.right.stanceDurationS.toFixed(4)}s\n`,
     );
+  });
+
+  it("foot-base rows match a fresh reduction and span liftoff (0) to touchdown (1)", async () => {
+    const { sample } = await sampleWalkClip({
+      glbPath: PHYSICIAN_GLB,
+      clipName: CLIP,
+      joints: MPFB_WALK_JOINTS,
+    });
+    const fresh = walkContactPhases(sample, MPFB_WALK_JOINTS);
+    const doc = JSON.parse(readFileSync(JSON_PATH, "utf8")) as WalkContactPhases & {
+      footBase: {
+        schema: string;
+        left: Array<{ phase: number; along01: number; lateralM: number; heightM: number; yawRad: number }>;
+        right: Array<{ phase: number; along01: number; lateralM: number; heightM: number; yawRad: number }>;
+      };
+    };
+    expect(doc.footBase.schema).toBe("openclinxr.walk-foot-base-rows.v1");
+    for (const side of ["left", "right"] as const) {
+      const rows = doc.footBase[side];
+      expect(rows.length).toBe(FOOT_BASE_ROW_COUNT);
+      const recomputed = footBaseRowsFor(sample, MPFB_WALK_JOINTS, {
+        plantS: fresh[side].plantS,
+        liftS: fresh[side].liftS,
+        cycleS: fresh.cycleS,
+        foot: side,
+      });
+      expect(recomputed.length).toBe(FOOT_BASE_ROW_COUNT);
+      rows.forEach((row, k) => {
+        expect(row.phase).toBeCloseTo(k / (FOOT_BASE_ROW_COUNT - 1), 12);
+        close(row.along01, recomputed[k]!.along01);
+        close(row.lateralM, recomputed[k]!.lateralM);
+        close(row.heightM, recomputed[k]!.heightM);
+        close(row.yawRad, recomputed[k]!.yawRad);
+      });
+      // Cyclic closure: plant (row 0) and next plant (row 40) coincide.
+      expect(Math.abs(rows[0]!.along01 - 1)).toBeLessThan(0.001);
+      expect(Math.abs(rows[40]!.along01 - 1)).toBeLessThan(0.001);
+      expect(Math.abs(rows[0]!.heightM)).toBeLessThan(0.001);
+      // The liftoff row (phase nearest stanceDuration/cycle) reads along01 ~0.
+      const liftPhase = (((fresh[side].liftS - fresh[side].plantS) % fresh.cycleS) + fresh.cycleS) % fresh.cycleS
+        / fresh.cycleS;
+      const liftRow = rows.reduce((a, b) => (Math.abs(b.phase - liftPhase) < Math.abs(a.phase - liftPhase) ? b : a));
+      expect(Math.abs(liftRow.along01)).toBeLessThan(0.05);
+      // The swing lifts the toe clear of the stance sink.
+      const swingMax = Math.max(...rows.map((r) => r.heightM));
+      expect(swingMax).toBeGreaterThan(0.05);
+      const stanceRows = rows.filter((r) => r.phase < liftPhase);
+      for (const r of stanceRows) expect(Math.abs(r.heightM)).toBeLessThan(0.06);
+    }
   });
 });
