@@ -18,6 +18,10 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Browser, BrowserContext, Page } from "../lib/slotted-playwright.js";
+import {
+  LIVE_POSE_PROBE_SOURCE,
+  type LiveActorPose,
+} from "./live-pose-probe.js";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
@@ -115,6 +119,8 @@ type FrameProbe = {
   kneeFlexionDeg: { left: number | null; right: number | null } | null;
   /** Walk-start rest toe separation (world m); null on old builds / before the walk. */
   restStanceSepXzM: number | null;
+  /** M2 rest-stance slice: live-scene poses per actor root (empty before spawn). */
+  liveActors: LiveActorPose[];
 };
 
 /**
@@ -228,7 +234,9 @@ const LABELS_SOURCE = `
 `;
 
 async function probe(page: Page): Promise<FrameProbe> {
-  return (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
+  const tail = (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
+  const liveActors = (await page.evaluate(LIVE_POSE_PROBE_SOURCE)) as LiveActorPose[];
+  return { ...tail, liveActors: Array.isArray(liveActors) ? liveActors : [] };
 }
 
 type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
@@ -298,20 +306,34 @@ async function runOnce(
       right: boolean[];
     } | null;
 
-    // Fine steps: record every frame until 1 s arrived.
+    // M2 rest-stance slice: keep the first walking probe. The loop above drops
+    // it (exit condition), but its live skeleton still holds idle while the
+    // drive already reports walking — and the sample tail skips it (lock
+    // unarmed) — so it is the only record of the rest pose. Analysis joins
+    // the physician's live entry by physicianActorId retrospectively.
+    preWalk.push({ ...p, preStep: preSteps });
+
+    // Fine steps: record every frame until the arrival close is observable
+    // done. The close reports done at or before its 120th arrived frame
+    // (ARRIVAL_CLOSE_FRAME_CAP, arrival-stance-close-mod.ts), so 120 arrived
+    // frames observe the whole close; stoppedSeconds is wall-clock state, not
+    // the close, and is no longer the stop rule.
+    const ARRIVED_FRAME_CAP = 120;
     const frames: Array<FrameProbe & { step: number }> = [];
     let step = 0;
+    let arrivedFrames = 0;
     for (;;) {
       await page.clock.fastForward(STEP_SECONDS * 1000);
       const f = await probe(page);
       frames.push({ ...f, step });
       step += 1;
+      if (f.phase === "arrived") arrivedFrames += 1;
       if (step % 60 === 0) {
         process.stdout.write(
-          `[${tag}] step ${step}: phase=${f.phase} clipTime=${f.clipTime?.toFixed(3) ?? "?"} stance=${f.stanceFoot} stopped=${f.stoppedSeconds.toFixed(2)}s\n`,
+          `[${tag}] step ${step}: phase=${f.phase} clipTime=${f.clipTime?.toFixed(3) ?? "?"} stance=${f.stanceFoot} stopped=${f.stoppedSeconds.toFixed(2)}s arrivedFrames=${arrivedFrames}\n`,
         );
       }
-      if (f.phase === "arrived" && (f.stoppedSeconds ?? 0) >= 1) break;
+      if (arrivedFrames >= ARRIVED_FRAME_CAP) break;
       if (step >= STEP_CAP) throw new Error(`still not arrived after ${step} steps (phase=${f.phase})`);
     }
     const first = frames[0];
