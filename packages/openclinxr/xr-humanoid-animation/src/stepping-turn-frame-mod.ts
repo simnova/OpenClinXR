@@ -1,4 +1,5 @@
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
+import { readFootstepTargetShiftM } from "./footstep-probe-target-shift-mod.js";
 import {
   advanceSteppingTurn,
   beginSteppingTurn,
@@ -25,6 +26,15 @@ export function enterSteppingTurn(approach: CaseOwnedBedsideApproach): void {
   // this world — not the walk-frozen entry pose.
   const rest = approach.restStance;
   const baseline = rest !== null ? Math.min(rest.heightLeft, rest.heightRight) : null;
+  // Probe hook (turn-backward G4): shift the footfall anchor along the route axis inside
+  // the planner only; `?footstepProbeTargetShiftM=<m>` adds <m> metres along start->target.
+  // The walk, the slot path and `targetWorld` are untouched — only the turn's footfalls move.
+  const probeShift = readFootstepTargetShiftM();
+  const shiftDx = approach.target.x - approach.start.x;
+  const shiftDz = approach.target.z - approach.start.z;
+  const shiftLen = Math.hypot(shiftDx, shiftDz);
+  const shiftX = probeShift === 0 || shiftLen <= 0 ? 0 : (probeShift * shiftDx) / shiftLen;
+  const shiftZ = probeShift === 0 || shiftLen <= 0 ? 0 : (probeShift * shiftDz) / shiftLen;
   approach.steppingTurn = beginSteppingTurn({
     actorSlot: approach.actorSlot,
     leftToe: approach.leftToe,
@@ -34,7 +44,7 @@ export function enterSteppingTurn(approach: CaseOwnedBedsideApproach): void {
     baselineYOverride: baseline,
     restSepXzM: rest?.sepXz ?? null,
     // Backward footfalls anchor on the stand target (`targetWorld` XZ).
-    turnTargetXz: { x: approach.target.x, z: approach.target.z },
+    turnTargetXz: { x: approach.target.x + shiftX, z: approach.target.z + shiftZ },
   });
 }
 
