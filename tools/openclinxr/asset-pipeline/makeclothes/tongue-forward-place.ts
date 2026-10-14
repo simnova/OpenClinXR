@@ -17,6 +17,7 @@
  */
 import { pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 
 const TONGUE_RE = /tongue/i;
 
@@ -28,7 +29,7 @@ async function main(): Promise<void> {
   const delta = di >= 0 ? Number(args[di + 1]) : 0.004;
   const dry = args.includes("--dry");
 
-  const io = new NodeIO();
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(glb);
   const meshes = doc.getRoot().listMeshes();
   const tongueMeshes = meshes.filter((m) => TONGUE_RE.test(m.getName()));
