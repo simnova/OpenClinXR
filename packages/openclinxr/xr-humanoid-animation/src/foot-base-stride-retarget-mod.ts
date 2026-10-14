@@ -9,12 +9,10 @@ import { readFootBaseEnabled } from "./foot-base-query-flag-mod.js";
 import {
   FOOT_BASE_PLANT_PHASE,
   FOOT_BASE_ROWS,
+  FOOT_BASE_STANCE_FRAC,
   type FootBasePathRow,
 } from "./foot-base-path-data-mod.js";
-import {
-  stanceAtTime,
-  type LocomotionStanceLabels,
-} from "./locomotion-stance-labels.js";
+import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
@@ -38,7 +36,9 @@ import {
  * + lateral * side + height * up, each leg solved with `solveSteppingLegHinge`
  * (NOT solveTwoBoneIK, NOT CCD — both measured worse on this rig) from a
  * yaw-stable heel target. Pelvis keeps the clip pose: nothing above the hips
- * is written.
+ * is written. Stance comes from the rows' own band windows (not the runtime
+ * speed labels, which flap at the wrap): handover always lands on a liftoff
+ * row, so targets stay continuous across it.
  *
  * Default OFF behind `?footBase=1`, and this slice's route only (1.31 m):
  * any other route length falls back to the legacy blend + closed loop, so no
@@ -107,6 +107,30 @@ export function clearFootBaseState(approach: object): void {
 export function footBaseStepIsActive(routeLengthMeters: number): boolean {
   return readFootBaseEnabled()
     && Math.abs(routeLengthMeters - FOOT_BASE_ROUTE_LENGTH_M) <= FOOT_BASE_ROUTE_TOLERANCE_M;
+}
+
+/** Plant-relative phase of one foot at this loop phase. */
+export function footBaseRelPhase(side: FootBaseSide, phase01: number): number {
+  const rel = (phase01 - FOOT_BASE_PLANT_PHASE[side]) % 1;
+  return ((rel % 1) + 1) % 1;
+}
+
+/**
+ * Rows-driven stance per foot at this loop phase: inside the foot's band
+ * contact window (plant-relative phase under its stance fraction).
+ *
+ * The runtime speed-based labels flap L→R→L across two frames at the wrap
+ * (measured both runs) and disagree with the band windows by ~0.8 s on this
+ * clip; driving stance off them plants footholds mid-swing and hands the
+ * flip counter flicker that exits the walk at sub 54. The rows and the
+ * stance call then share one datum, so a handover always lands on a liftoff
+ * row (along01 ~0, continuous) and a swing always starts from one.
+ */
+export function footBaseRowsStance(phase01: number): { left: boolean; right: boolean } {
+  return {
+    left: footBaseRelPhase("left", phase01) < FOOT_BASE_STANCE_FRAC.left,
+    right: footBaseRelPhase("right", phase01) < FOOT_BASE_STANCE_FRAC.right,
+  };
 }
 
 /** Interpolated toe-path row for one foot at its plant-relative phase. */
@@ -237,12 +261,17 @@ export function applyFootBaseStep(input: {
 
   const cycleS = clip.labels.cycleSeconds;
   const actionTimeS = clip.actionTimeSeconds;
+  const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
+  // Rows-driven stance (see footBaseRowsStance): single support crowns the
+  // foot inside its window; overlap keeps the incumbent (the closed-loop
+  // crown discipline). The two windows cover the full cycle, so the lower-toe
+  // tiebreak below only fires on the init frame inside double support.
+  const rowsStance = footBaseRowsStance(phase01);
   let state = states.get(approach);
   if (!state) {
-    const labelled = stanceAtTime(clip.labels, actionTimeS);
-    const initial: FootBaseSide = labelled.left && !labelled.right
+    const initial: FootBaseSide = rowsStance.left && !rowsStance.right
       ? "left"
-      : labelled.right && !labelled.left
+      : rowsStance.right && !rowsStance.left
         ? "right"
         : leftToeW.y <= rightToeW.y ? "left" : "right";
     state = createState(initial);
@@ -254,10 +283,9 @@ export function applyFootBaseStep(input: {
   state.lastActionTimeS = actionTimeS;
   const unwrappedS = actionTimeS + state.wraps * cycleS;
 
-  const labelled = stanceAtTime(clip.labels, actionTimeS);
-  const stance: FootBaseSide = labelled.left && !labelled.right
+  const stance: FootBaseSide = rowsStance.left && !rowsStance.right
     ? "left"
-    : labelled.right && !labelled.left
+    : rowsStance.right && !rowsStance.left
       ? "right"
       : state.stance;
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
@@ -283,9 +311,8 @@ export function applyFootBaseStep(input: {
     state.stance = stance;
   }
 
-  const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
-  const stanceRow = footBaseRowAt(stance, phase01 - FOOT_BASE_PLANT_PHASE[stance]);
-  const swingRow = footBaseRowAt(swing, phase01 - FOOT_BASE_PLANT_PHASE[swing]);
+  const stanceRow = footBaseRowAt(stance, footBaseRelPhase(stance, phase01));
+  const swingRow = footBaseRowAt(swing, footBaseRelPhase(swing, phase01));
 
   const halfIndex = footBaseHalfIndex(unwrappedS, cycleS);
   const scale = approach.footstep?.scale ?? FOOT_BASE_DEFAULT_SCALE;

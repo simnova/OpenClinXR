@@ -3,8 +3,11 @@
  *
  * Source: packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json
  * (footBase section, schema openclinxr.walk-foot-base-rows.v1).
- * Provenance: apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb clip openclinxr_retarget_walk_source sha256 6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4 cycleS 1.7083333730697632.
+ * Provenance: apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb clip openclinxr_retarget_walk_source sha256 6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b cycleS 1.7083333730697632.
  * A runtime sync test pins this literal against the JSON; regenerate both together.
+ * FOOT_BASE_STANCE_FRAC copies the JSON's existing left/right.contactFraction
+ * fields (pinned by the emitter test and the sync test); everything else is
+ * generator output.
  * Deliberately NOT re-exported from ./footstep-plan (no new public symbol).
  */
 
@@ -24,6 +27,18 @@ export const FOOT_BASE_CYCLE_S = 1.7083333730697632;
 export const FOOT_BASE_PLANT_PHASE = {
   left: 0.9267100504367475,
   right: 0.4380801606057965,
+} as const;
+
+/**
+ * Stance fraction per foot (contactFraction from the same JSON: stance
+ * duration / cycle). The stance foot is whichever foot's plant-relative
+ * phase is inside its stance window; overlap keeps the incumbent. Copied
+ * from the JSON's existing left/right.contactFraction fields (pinned by the
+ * emitter test); the sync test below pins these copies too.
+ */
+export const FOOT_BASE_STANCE_FRAC = {
+  left: 0.6403164246610666,
+  right: 0.53605251487726,
 } as const;
 
 /** 41 toe-path rows per foot at phase k/40 past that foot's plant. */

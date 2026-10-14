@@ -6,6 +6,7 @@ import {
   clearFootBaseState,
   footBaseHalfIndex,
   footBaseRowAt,
+  footBaseRowsStance,
   readFootBaseState,
 } from "./foot-base-stride-retarget-mod.js";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
@@ -164,5 +165,14 @@ describe("foot-base stride retarget", () => {
     expect(footBaseHalfIndex(0.55, FOOT_BASE_CYCLE_S)).toBe(1);
     expect(footBaseHalfIndex(1.38, FOOT_BASE_CYCLE_S)).toBe(2);
     expect(footBaseHalfIndex(0.55 + FOOT_BASE_CYCLE_S, FOOT_BASE_CYCLE_S)).toBe(3);
+  });
+
+  it("rows-driven stance crowns single support and overlaps double", () => {
+    // Loop phase 0: left early-stance, right late-swing.
+    expect(footBaseRowsStance(0)).toEqual({ left: true, right: false });
+    // Loop phase 0.5: both inside their band windows (double support).
+    expect(footBaseRowsStance(0.5)).toEqual({ left: true, right: true });
+    // Loop phase 0.8: left late-swing, right mid-stance.
+    expect(footBaseRowsStance(0.8)).toEqual({ left: false, right: true });
   });
 });
