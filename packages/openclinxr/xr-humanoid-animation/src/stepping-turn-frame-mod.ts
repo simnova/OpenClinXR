@@ -33,6 +33,8 @@ export function enterSteppingTurn(approach: CaseOwnedBedsideApproach): void {
     floorOriginY: approach.floorOriginY,
     baselineYOverride: baseline,
     restSepXzM: rest?.sepXz ?? null,
+    // Backward footfalls anchor on the stand target (`targetWorld` XZ).
+    turnTargetXz: { x: approach.target.x, z: approach.target.z },
   });
 }
 

@@ -15,6 +15,7 @@ import {
   steppingTurnLegScale,
 } from "./stepping-turn-plan-mod.js";
 import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { maybeOverridePlanWithBackwardFootfalls } from "./stepping-turn-backward-footfalls-mod.js";
 import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   pivotSlotXzForSteppingFrame,
@@ -127,6 +128,12 @@ export function beginSteppingTurn(input: {
   baselineYOverride?: number | null;
   /** Walk-start rest toe separation (world m) for the rig leg scale; null = 1.0. */
   restSepXzM?: number | null;
+  /**
+   * Turn-target world XZ (the approach `target`, normally `targetWorld`). Set by
+   * `enterSteppingTurn`; read here so the backward footfalls anchor on the target instead
+   * of the walk-exit slot. Never touched with the plan flag absent.
+   */
+  turnTargetXz?: { x: number; z: number } | null;
 }): SteppingTurnExecState | null {
   const { actorSlot, leftToe, rightToe } = input;
   if (leftToe === null || rightToe === null) return null;
@@ -155,7 +162,17 @@ export function beginSteppingTurn(input: {
   // Center the final pair under the pelvis (two-step turns): the yaw split steers the
   // pivot-arc composition, so optimize it against the closed-form slot path. Falls back
   // to even (or untouched for N != 2) with no gain.
-  const plan = planSteppingTurn(planInput);
+  const planned = planSteppingTurn(planInput);
+  // Turn-backward slice (plan flag only): consume the backward footfall list instead of
+  // the entry-derived landing; step 0 keeps the live entry stance. Flag absent: untouched.
+  const plan = maybeOverridePlanWithBackwardFootfalls({
+    planned,
+    entryToes: { leftToeXz: planInput.leftToeXz, rightToeXz: planInput.rightToeXz },
+    targetXz: input.turnTargetXz ?? null,
+    targetHeadingRadians: input.targetHeadingRadians,
+    restSepM: planInput.restSepM ?? null,
+    planEnabled: readFootstepPlanEnabled(),
+  });
   return {
     plan,
     elapsedS: 0,
