@@ -62,7 +62,7 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
 export type FootBaseApproachState = Pick<
   CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "footstep" | "execution"
+  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "footstep" | "execution" | "lockArmed" | "start"
 >;
 
 export type FootBaseClipRead = {
@@ -148,6 +148,21 @@ export function footBaseHalfTravelM(halfIndex: number, scale: number): number {
   return halfIndex % 2 === 1 ? c.aEndR * scale + c.bEndR : c.aEndL * scale + c.bEndL;
 }
 
+/**
+ * Action-time bounds of one passing-to-passing half: half 1 opens at the
+ * walk-start passing; every half opens where the previous one ended.
+ */
+export function footBaseHalfBounds(halfIndex: number, cycleS: number): { start: number; end: number } {
+  const endOf = (half: number): number =>
+    half % 2 === 1
+      ? FOOTSTEP_R_PASSING_S + ((half - 1) / 2) * cycleS
+      : FOOTSTEP_START_PHASE_S + (half / 2) * cycleS;
+  return {
+    start: halfIndex <= 1 ? FOOTSTEP_START_PHASE_S : endOf(halfIndex - 1),
+    end: endOf(Math.max(halfIndex, 1)),
+  };
+}
+
 function toeWorldNow(toe: Object3D | null): { x: number; y: number; z: number } | null {
   if (toe === null) return null;
   toe.updateWorldMatrix(true, false);
@@ -188,11 +203,14 @@ function createState(stance: FootBaseSide): FootBaseState {
  * is on, the route is this slice's, the phase is walking, and a clip read is
  * supplied: every other case runs the legacy path untouched.
  *
- * The slot advance IS the stance pin: after solving the stance leg, the slot
- * is translated XZ so the stance toe coincides with its foothold exactly, and
- * the swing leg is solved after the pin — so the swing lands on its rebuilt
- * target while the stance stays exact. The executor's own travelled/arrival
- * bookkeeping is untouched, so exit and arrival behave as before.
+ * The slot advance follows the foothold polyline: the body travels completed
+ * halves plus the current half's share by action time (SET, not incremented —
+ * the executor prescribed its own advance pre-lock). After solving the stance
+ * leg, the slot is translated XZ so the stance toe coincides with its
+ * foothold exactly, and the swing leg is solved after the pin — so the swing
+ * lands on its rebuilt target while the stance stays exact. The executor's
+ * own travelled/arrival bookkeeping is untouched, so exit and arrival behave
+ * as before.
  */
 export function applyFootBaseStep(input: {
   approach: FootBaseApproachState;
@@ -204,6 +222,10 @@ export function applyFootBaseStep(input: {
   const { approach, routeLength } = input;
   if (!footBaseStepIsActive(routeLength)) return null;
   if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
+  // The first walking frame still holds the idle pose (the lock skips it and
+  // anchors on the next one): recording footholds off it would plant them up
+  // to half a metre from the clip's own feet.
+  if (!approach.lockArmed) return null;
   const clip = input.clip;
   if (clip === null || !(clip.labels.cycleSeconds > 0) || !Number.isFinite(clip.actionTimeSeconds)) return null;
   const leftToeW = toeWorldNow(approach.leftToe);
@@ -264,6 +286,25 @@ export function applyFootBaseStep(input: {
   const unitX = input.routeDx / routeLen;
   const unitZ = input.routeDz / routeLen;
   const floorY = approach.floorOriginY;
+
+  // THE SLOT ADVANCE (measured fix 2026-10-14: pinning the stance toe to a
+  // fixed foothold while the executor prescribes its own advance cancels the
+  // whole stride and the walk thrashes in place — root 1.39 m for 0.28 m of
+  // travel). The body travels the foothold polyline: completed halves plus
+  // the current half's share by action time. The stance pin below is then a
+  // millimetre correction, not a fight; the executor's travelled/arrival
+  // bookkeeping is untouched, so exit and arrival behave as before.
+  let bodyTravelM = 0;
+  for (let h = 1; h < halfIndex; h += 1) bodyTravelM += footBaseHalfTravelM(h, scale);
+  const bounds = footBaseHalfBounds(halfIndex, cycleS);
+  const halfSpan = bounds.end - bounds.start;
+  const halfFrac = halfSpan > 0
+    ? Math.min(Math.max((unwrappedS - bounds.start) / halfSpan, 0), 1)
+    : 0;
+  bodyTravelM += halfTravel * halfFrac;
+  slot.position.x = approach.start.x + unitX * bodyTravelM;
+  slot.position.z = approach.start.z + unitZ * bodyTravelM;
+  slot.updateMatrixWorld(true);
 
   const stanceFoothold = state.foothold[stance];
   const stanceTarget = {

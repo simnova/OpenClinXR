@@ -30,7 +30,7 @@ function buildLeggedRig(): {
     const x = side === "L" ? 0.09 : -0.09;
     const hip = new THREE.Object3D();
     hip.name = `upperleg01.${side}`;
-    hip.position.set(x, 0.9, 0);
+    hip.position.set(x, 0.78, 0);
     slot.add(hip);
     const upperMid = new THREE.Object3D();
     upperMid.name = `upperleg02.${side}`;
@@ -96,6 +96,8 @@ describe("foot-base stride retarget", () => {
       floorOriginY: 0,
       footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
       execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
     };
     const labels = stanceLabels();
     for (let frame = 0; frame < 140; frame += 1) {
