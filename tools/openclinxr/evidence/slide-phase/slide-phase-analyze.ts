@@ -1,6 +1,10 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
+import {
+  computeArrivedToeTravel,
+  type ArrivedToeTravel,
+} from "./arrived-toe-travel.js";
 
 /**
  * Slide-phase meter (2026-10-13 slice): per-phase foot-slide baseline for the
@@ -85,6 +89,13 @@ export type SlidePhaseFrame = {
   travelHeading?: number | null;
   startWorld?: Vec3 | null;
   targetWorld?: Vec3 | null;
+  /** M2 rest-stance slice: live-scene poses (absent on records predating it). */
+  liveActors?: Array<{
+    actorId: string;
+    slot: Slot | null;
+    toeL: Vec3 | null;
+    toeR: Vec3 | null;
+  }>;
 };
 
 export type SlidePhaseRunFile = {
@@ -173,6 +184,12 @@ export type SlidePhaseMetrics = {
     /** Min toe world height over both toes over all arrived frames (floor check). */
     minToeYM: number | null;
   };
+  /**
+   * M2 rest-stance slice: per-toe horizontal travel during arrived, from the
+   * first arrived frame (see arrived-toe-travel.ts: maxM is the visible glide,
+   * sumM the path diagnostic).
+   */
+  arrivedToeTravel: ArrivedToeTravel;
   /** Sub-quantities that could not be computed, with the missing column named. */
   missing: string[];
 };
@@ -550,6 +567,7 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
       maxAbsForeM: arrivedMaxAbsForeM,
       minToeYM: arrivedMinToeYM,
     },
+    arrivedToeTravel: computeArrivedToeTravel(frames),
     missing,
   };
 }
@@ -658,9 +676,22 @@ async function main(): Promise<void> {
   show("endStance.yawErrorDeg", "deg", metrics.map((m) => m.endStance.yawErrorDeg), 2);
   show("arrivedStance.lateralM", "m", metrics.map((m) => m.arrivedStance.lateralM));
   show("arrivedStance.foreAftM", "m", metrics.map((m) => m.arrivedStance.foreAftM));
+  show("arrivedToeTravel.leftMaxM", "m", metrics.map((m) => m.arrivedToeTravel.leftMaxM));
+  show("arrivedToeTravel.rightMaxM", "m", metrics.map((m) => m.arrivedToeTravel.rightMaxM));
+  show("arrivedToeTravel.leftSumM", "m", metrics.map((m) => m.arrivedToeTravel.leftSumM));
+  show("arrivedToeTravel.rightSumM", "m", metrics.map((m) => m.arrivedToeTravel.rightSumM));
   show("arrivedStance.maxAbsForeM", "m", metrics.map((m) => m.arrivedStance.maxAbsForeM));
   show("arrivedStance.minToeYM", "m", metrics.map((m) => m.arrivedStance.minToeYM));
   lines.push("");
+  for (const m of metrics) {
+    const t = m.arrivedToeTravel;
+    lines.push(
+      `- ${m.tag}: arrivedToeTravel(close-active) start=${t.startFrame ?? "n/a"} frames=${t.frames} ` +
+        `leftMax=${fmt(t.leftMaxM)} leftSum=${fmt(t.leftSumM)} ` +
+        `rightMax=${fmt(t.rightMaxM)} rightSum=${fmt(t.rightSumM)} ` +
+        `fullFrames=${t.fullFrames} leftFullMax=${fmt(t.leftFullMaxM)} rightFullMax=${fmt(t.rightFullMaxM)}`,
+    );
+  }
   for (const m of metrics) {
     lines.push(
       `- ${m.tag}: walkWindows=[${m.walking.windows.map((w) => `${w.foot}${w.startFrame}-${w.endFrame}:${w.travelM.toFixed(4)}`).join(" ")}] ` +
