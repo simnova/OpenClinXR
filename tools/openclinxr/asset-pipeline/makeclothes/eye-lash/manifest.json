@@ -1,0 +1,49 @@
+{
+  "name": "eye-lash-blink-follow",
+  "treatment": "T2+A3",
+  "schemaVersion": "openclinxr.eye-lash-blink-follow.v1",
+  "settledIn": "realism-95 .openclinxr/realism-spike/lash/RESULT.md",
+  "settledVerdict": {
+    "T1": "FAILED: rigid alpha-card alignment rides 17mm into brow; recorded as failed treatment",
+    "T2": "WORKED: thin strand mesh, drop faces with any vert y<1.546",
+    "A3": "WORKED: lid-morph transfer, nearest SAME-SIDE MOVING body vert, |d|>0.05mm, nn 2.0mm",
+    "G2": "closure lash centroid 5.9/6.0mm vs lid margin 2.4/2.4mm, renders attached"
+  },
+  "tool": "lash_blink_follow.py",
+  "input": {
+    "glb": "aisha-hp-cornea.glb",
+    "sha256Prefix": "2587a367",
+    "lashes": "openclinxr_fitted_eyelash_mindfront_eyelashes_01",
+    "bodyMorphs": "47 shipped on mpfb_ob_patient_aisha_body",
+    "lashMorphs": 0
+  },
+  "constants": {
+    "threshY": 1.546,
+    "morphs": [
+      "eye-left-closure",
+      "eye-left-slit",
+      "eye-left-opened-up",
+      "eye-right-closure",
+      "eye-right-slit",
+      "eye-right-opened-up"
+    ],
+    "moveEpsilonM": 0.00005,
+    "nnBatch": 256
+  },
+  "licence": {
+    "component": "Mindfront eyelashes01",
+    "rights": "cc0",
+    "header": "Copyright Data Collection AB; eyelashes01.mhclo released CC0 September 2020. No texture; strands opaque near-black.",
+    "licenceRecordPath": "docs/openclinxr/asset-licence-records/row-10-makehuman-eyelashes01-pack-page-archive-eyelashes01cc0-zip.json",
+    "requiredRecordPhrases": ["CC0 1.0"],
+    "redistributable": true,
+    "publicRenderCleared": true
+  },
+  "gates": {
+    "failClosed": "exactly one /eyelash/i mesh or throw; known-bad input GLB (0 lash targets measured) fails RED",
+    "blinkFollow": "eye-*-closure morph moves lash lid-margin verts count>0, same direction, >=80% lid travel",
+    "coverage": "transfer reports per-side nn distance and moving-pool size"
+  },
+  "notEvidenceFor": ["clinical_validity", "production_asset_readiness"],
+  "outOfScope": ["brow gates", "catalog-mod.ts / materialize.py edits", "corner-assets blocking", "gaze +-25deg (compat-eyes)"]
+}
