@@ -94,6 +94,7 @@ describe("foot-base stride retarget", () => {
       leftToe,
       rightToe,
       floorOriginY: 0,
+      contactBandMeters: 0.06,
       footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
       execution: { phase: "walking", walkSimSubsteps: 0 },
       lockArmed: true,
@@ -113,7 +114,7 @@ describe("foot-base stride retarget", () => {
       expect(summary).not.toBeNull();
       const state = readFootBaseState(approach);
       expect(state).not.toBeNull();
-      // The dwell hands over once right persists: pin holds whichever foot is stance.
+      // Pin holds whichever foot is stance; handover is immediate.
       if (state!.stance === "right") sawRight = true;
       if (frame < 100) expect(state!.stance).toBe("left");
       slot.updateMatrixWorld(true);
@@ -138,6 +139,7 @@ describe("foot-base stride retarget", () => {
       leftToe,
       rightToe,
       floorOriginY: 0,
+      contactBandMeters: 0.06,
       footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
       execution: { phase: "walking", walkSimSubsteps: 0 },
     };

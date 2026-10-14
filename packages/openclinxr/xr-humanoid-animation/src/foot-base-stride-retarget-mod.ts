@@ -32,11 +32,13 @@ import {
  * toe target = its foothold (XZ pinned by an exact slot translate), swing =
  * liftoff + along01 * step + lateral * side + height * up, each leg solved
  * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
- * the clip pose. Stance follows the clip labels with a 6-substep handover
- * dwell (labels flap up to 4 substeps at the wrap; the metric reads the same
- * lock labels, so pin and metric stance coincide). Feet freeze
- * yaw-compensated beside the offset, else ankle articulation invalidates it
- * by centimetres. Handovers anchor to the solved foot (zero travel).
+ * the clip pose. Stance follows the clip labels (the metric reads the same
+ * lock labels, so pin stance and metric stance coincide); handovers plant
+ * the physical foot with anchor heights capped at the contact band, since
+ * label flaps can fire mid-swing and an unclamped plant would float the
+ * whole stance. Feet freeze yaw-compensated beside the offset, else ankle
+ * articulation invalidates it by centimetres. Handovers anchor to the
+ * solved foot (zero travel).
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
@@ -61,7 +63,7 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
 export type FootBaseApproachState = Pick<
   CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "footstep" | "execution" | "lockArmed" | "start"
+  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start"
 >;
 
 export type FootBaseClipRead = {
@@ -75,14 +77,14 @@ export type FootBaseState = {
   placed: Record<FootBaseSide, boolean>;
   /**
    * Takeoff reference per foot, captured on role change (init/handover):
-   * physical position, absolute rebuild there, row height there. Targets
-   * follow rebuild DELTAS from the physical takeoff, so role changes are
-   * continuous even when rows and labels disagree; the constant offset
-   * re-anchors every handover and never accumulates.
+   * physical position, absolute rebuild there. Targets follow rebuild
+   * DELTAS from the physical takeoff, so role changes are continuous even
+   * when rows and labels disagree; the constant offset re-anchors every
+   * handover and never accumulates.
    */
   takeoff: Record<
     FootBaseSide,
-    { origin: { x: number; y: number; z: number }; absBase: { x: number; y: number; z: number }; baseH: number } | null
+    { origin: { x: number; y: number; z: number }; absBase: { x: number; y: number; z: number } } | null
   >;
   offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
   /** Entry foot world orientation per foot (yaw-compensated freeze, stepping-turn discipline). */
@@ -292,6 +294,11 @@ export function applyFootBaseStep(input: {
   const unitX = input.routeDx / routeLen;
   const unitZ = input.routeDz / routeLen;
   const floorY = approach.floorOriginY;
+  // Contact cap: a stance anchor above the contact band is unphysical (stance
+  // feet are on the ground by definition) — it happens only on label-flap
+  // handovers mid-swing and would otherwise float the whole stance. Healthy
+  // touchdown anchors sit below the cap, so this is bit-identical off-flap.
+  const capY = (y: number): number => Math.min(y, floorY + approach.contactBandMeters);
 
   const slot = approach.actorSlot;
   const segX = unitX * halfTravel;
@@ -313,16 +320,17 @@ export function applyFootBaseStep(input: {
   const snapTakeoff = (foot: FootBaseSide, row: FootBasePathRow): void => {
     const physical = foot === "left" ? leftToeW : rightToeW;
     const solved = state.lastSolved[foot] ?? physical;
+    const origin = { ...solved };
+    origin.y = capY(origin.y);
     state.takeoff[foot] = {
-      origin: { ...solved },
+      origin,
       absBase: rebuildAbsolute(foot, row),
-      baseH: row.heightM,
     };
   };
 
   if (!state.placed.left || !state.placed.right) {
-    state.foothold.left = { ...leftToeW };
-    state.foothold.right = { ...rightToeW };
+    state.foothold.left = { ...leftToeW, y: capY(leftToeW.y) };
+    state.foothold.right = { ...rightToeW, y: capY(rightToeW.y) };
     state.placed.left = true;
     state.placed.right = true;
     state.stance = stance;
@@ -334,7 +342,7 @@ export function applyFootBaseStep(input: {
     // measured 16-26 mm window steps). Both feet re-snap takeoff refs, so
     // targets stay continuous across the role change (see below).
     const planted = state.lastSolved[stance] ?? (stance === "left" ? leftToeW : rightToeW);
-    state.foothold[stance] = { ...planted };
+    state.foothold[stance] = { ...planted, y: capY(planted.y) };
     state.stance = stance;
     snapTakeoff(stance, stanceRow);
     snapTakeoff(swing, swingRow);
@@ -359,13 +367,13 @@ export function applyFootBaseStep(input: {
 
   // Takeoff-relative targets: absolute rebuild DELTAS from the handover
   // value on the physical takeoff (constant offset per swing, re-anchored
-  // next handover). Stance XZ is an absolute pin; stance Y rides the row
-  // height delta from the handover height.
-  const stanceTakeoff = state.takeoff[stance];
+  // next handover). Stance XZ is an absolute pin; stance Y is the brief's
+  // floor + heightM, which self-corrects anchor height (a mid-air plant
+  // still targets the ground, never the air it was recorded in).
   const swingTakeoff = state.takeoff[swing];
   const stanceTarget = {
     x: stanceFoothold.x,
-    y: stanceFoothold.y + (stanceRow.heightM - (stanceTakeoff?.baseH ?? stanceRow.heightM)),
+    y: floorY + stanceRow.heightM,
     z: stanceFoothold.z,
   };
   const swingAbsolute = rebuildAbsolute(swing, swingRow);
