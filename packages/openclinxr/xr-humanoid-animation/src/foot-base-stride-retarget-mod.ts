@@ -1,4 +1,5 @@
 import type { Object3D } from "three";
+import { Quaternion, Vector3 } from "three";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import {
   FOOTSTEP_R_PASSING_S,
@@ -9,10 +10,12 @@ import { readFootBaseEnabled } from "./foot-base-query-flag-mod.js";
 import {
   FOOT_BASE_PLANT_PHASE,
   FOOT_BASE_ROWS,
-  FOOT_BASE_STANCE_FRAC,
   type FootBasePathRow,
 } from "./foot-base-path-data-mod.js";
-import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import {
+  stanceAtTime,
+  type LocomotionStanceLabels,
+} from "./locomotion-stance-labels.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
@@ -36,9 +39,12 @@ import {
  * + lateral * side + height * up, each leg solved with `solveSteppingLegHinge`
  * (NOT solveTwoBoneIK, NOT CCD — both measured worse on this rig) from a
  * yaw-stable heel target. Pelvis keeps the clip pose: nothing above the hips
- * is written. Stance comes from the rows' own band windows (not the runtime
- * speed labels, which flap at the wrap): handover always lands on a liftoff
- * row, so targets stay continuous across it.
+ * is written. Stance follows the clip labels with a 6-substep handover dwell
+ * (the labels flap up to 4 substeps at the wrap; the metric's stance windows
+ * read the same lock labels, so pin stance and metric stance coincide). The
+ * foot's world orientation is frozen yaw-compensated beside the offset, or
+ * the mixer's ankle articulation invalidates the entry offset by centimetres.
+ * Handovers anchor to the solved foot, so handover travel is zero.
  *
  * Default OFF behind `?footBase=1`, and this slice's route only (1.31 m):
  * any other route length falls back to the legacy blend + closed loop, so no
@@ -47,6 +53,9 @@ import {
  */
 
 export type FootBaseSide = "left" | "right";
+
+/** World up axis for the yaw-compensated foot freeze. */
+const Y_AXIS = new Vector3(0, 1, 0);
 
 /** This slice's route length in metres: the foot-base path runs here only. */
 export const FOOT_BASE_ROUTE_LENGTH_M = 1.31;
@@ -72,9 +81,13 @@ export type FootBaseClipRead = {
 
 export type FootBaseState = {
   stance: FootBaseSide;
+  /** Handover dwell: candidate stance plus consecutive substeps seen (null when settled). */
+  pending: { side: FootBaseSide; count: number } | null;
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
+  /** Entry foot world orientation per foot (yaw-compensated freeze, stepping-turn discipline). */
+  footQuat: Record<FootBaseSide, { q: { x: number; y: number; z: number; w: number }; yaw: number } | null>;
   hingeNormal: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
   wraps: number;
   lastActionTimeS: number | null;
@@ -82,6 +95,15 @@ export type FootBaseState = {
   /** Post-solve toe worlds from the previous substep, per foot. */
   lastSolved: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
 };
+
+/**
+ * Handover dwell in consecutive substeps. The runtime labels flap for up to
+ * 4 substeps at the wrap (measured 2-frame blips, both runs); a real stance
+ * persists 15+. Six filters the flap with margin while delaying real
+ * handovers by ~100 ms, inside weight-transfer time (same scale as the
+ * closed loop's HANDOVER_DWELL_FRAMES).
+ */
+export const FOOT_BASE_HANDOVER_DWELL_SUBSTEPS = 6;
 
 export type FootBaseStepSummary = {
   stanceFoot: FootBaseSide;
@@ -113,24 +135,6 @@ export function footBaseStepIsActive(routeLengthMeters: number): boolean {
 export function footBaseRelPhase(side: FootBaseSide, phase01: number): number {
   const rel = (phase01 - FOOT_BASE_PLANT_PHASE[side]) % 1;
   return ((rel % 1) + 1) % 1;
-}
-
-/**
- * Rows-driven stance per foot at this loop phase: inside the foot's band
- * contact window (plant-relative phase under its stance fraction).
- *
- * The runtime speed-based labels flap L→R→L across two frames at the wrap
- * (measured both runs) and disagree with the band windows by ~0.8 s on this
- * clip; driving stance off them plants footholds mid-swing and hands the
- * flip counter flicker that exits the walk at sub 54. The rows and the
- * stance call then share one datum, so a handover always lands on a liftoff
- * row (along01 ~0, continuous) and a swing always starts from one.
- */
-export function footBaseRowsStance(phase01: number): { left: boolean; right: boolean } {
-  return {
-    left: footBaseRelPhase("left", phase01) < FOOT_BASE_STANCE_FRAC.left,
-    right: footBaseRelPhase("right", phase01) < FOOT_BASE_STANCE_FRAC.right,
-  };
 }
 
 /** Interpolated toe-path row for one foot at its plant-relative phase. */
@@ -214,9 +218,11 @@ function createState(stance: FootBaseSide): FootBaseState {
   const zero = { x: 0, y: 0, z: 0 };
   return {
     stance,
+    pending: null,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
     offsetEntry: { left: null, right: null },
+    footQuat: { left: null, right: null },
     hingeNormal: { left: null, right: null },
     wraps: 0,
     lastActionTimeS: null,
@@ -262,18 +268,20 @@ export function applyFootBaseStep(input: {
   const cycleS = clip.labels.cycleSeconds;
   const actionTimeS = clip.actionTimeSeconds;
   const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
-  // Rows-driven stance (see footBaseRowsStance): single support crowns the
-  // foot inside its window; overlap keeps the incumbent (the closed-loop
-  // crown discipline). The two windows cover the full cycle, so the lower-toe
-  // tiebreak below only fires on the init frame inside double support.
-  const rowsStance = footBaseRowsStance(phase01);
+  // Labels-driven stance with handover dwell: single support crowns
+  // immediately; a challenger must persist FOOT_BASE_HANDOVER_DWELL_SUBSTEPS
+  // consecutive substeps (flaps last 4, real stance 15+). The metric's
+  // stance windows read the same lock labels, so pin stance and metric
+  // stance coincide by construction.
+  const labelled = stanceAtTime(clip.labels, actionTimeS);
+  const single: FootBaseSide | null = labelled.left && !labelled.right
+    ? "left"
+    : labelled.right && !labelled.left
+      ? "right"
+      : null;
   let state = states.get(approach);
   if (!state) {
-    const initial: FootBaseSide = rowsStance.left && !rowsStance.right
-      ? "left"
-      : rowsStance.right && !rowsStance.left
-        ? "right"
-        : leftToeW.y <= rightToeW.y ? "left" : "right";
+    const initial: FootBaseSide = single ?? (leftToeW.y <= rightToeW.y ? "left" : "right");
     state = createState(initial);
     states.set(approach, state);
   }
@@ -283,11 +291,25 @@ export function applyFootBaseStep(input: {
   state.lastActionTimeS = actionTimeS;
   const unwrappedS = actionTimeS + state.wraps * cycleS;
 
-  const stance: FootBaseSide = rowsStance.left && !rowsStance.right
-    ? "left"
-    : rowsStance.right && !rowsStance.left
-      ? "right"
-      : state.stance;
+  const stance: FootBaseSide = (() => {
+    const st = state;
+    if (single === null || single === st.stance) {
+      st.pending = null;
+      return st.stance;
+    }
+    const pending = st.pending;
+    if (pending !== null && pending.side === single) {
+      const count = pending.count + 1;
+      if (count >= FOOT_BASE_HANDOVER_DWELL_SUBSTEPS) {
+        st.pending = null;
+        return single;
+      }
+      st.pending = { side: single, count };
+      return st.stance;
+    }
+    st.pending = { side: single, count: 1 };
+    return st.stance;
+  })();
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
 
   const slot = approach.actorSlot;
@@ -382,6 +404,23 @@ export function applyFootBaseStep(input: {
       };
       state.offsetEntry[side] = captured;
     }
+    if (state.footQuat[side] === null) {
+      // Freeze the foot's WORLD orientation beside the offset (stepping-turn
+      // discipline): re-reading the live offset every frame feeds solved
+      // orientations back in, and the mixer's own ankle articulation otherwise
+      // invalidates the entry offset by centimetres (measured ~5 cm stance
+      // misses). Rotates with slot yaw only, never with the solved leg.
+      const parentQ = new Quaternion();
+      if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
+      else parentQ.identity();
+      parentQ.normalize();
+      const localQ = chain.heel.quaternion;
+      const worldQ = parentQ.clone().multiply(localQ).normalize();
+      state.footQuat[side] = {
+        q: { x: worldQ.x, y: worldQ.y, z: worldQ.z, w: worldQ.w },
+        yaw: yawNow,
+      };
+    }
     const toeTarget = side === stance ? stanceTarget : swingTarget;
     const heelTarget = heelTargetForToeTargetStable({
       toeTargetWorld: toeTarget,
@@ -397,6 +436,19 @@ export function applyFootBaseStep(input: {
       previousBendNormal: state.hingeNormal[side],
     });
     if (solved.bendNormal !== null) state.hingeNormal[side] = solved.bendNormal;
+    const frozen = state.footQuat[side];
+    if (frozen !== null) {
+      const parentQ = new Quaternion();
+      if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
+      else parentQ.identity();
+      parentQ.normalize();
+      const yawDelta = new Quaternion().setFromAxisAngle(Y_AXIS, yawNow - frozen.yaw);
+      const wantWorld = yawDelta.multiply(
+        new Quaternion(frozen.q.x, frozen.q.y, frozen.q.z, frozen.q.w),
+      ).normalize();
+      chain.heel.quaternion.copy(parentQ.invert().multiply(wantWorld)).normalize();
+      chain.heel.updateMatrixWorld(true);
+    }
     if (side === stance) {
       stanceMissM = solved.missM;
       // THE SLOT ADVANCE: exact rigid translate of the stance toe onto its

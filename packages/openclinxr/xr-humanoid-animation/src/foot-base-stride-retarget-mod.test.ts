@@ -6,7 +6,6 @@ import {
   clearFootBaseState,
   footBaseHalfIndex,
   footBaseRowAt,
-  footBaseRowsStance,
   readFootBaseState,
 } from "./foot-base-stride-retarget-mod.js";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
@@ -61,7 +60,7 @@ function buildLeggedRig(): {
   return { slot, leftToe, rightToe };
 }
 
-/** Clip labels with a long left single-support window, then double support. */
+/** Clip labels: left single support, double support, then right single support. */
 function stanceLabels(): LocomotionStanceLabels {
   const count = 41;
   const atMs: number[] = [];
@@ -70,8 +69,8 @@ function stanceLabels(): LocomotionStanceLabels {
   for (let i = 0; i < count; i += 1) {
     const t = (i / (count - 1)) * FOOT_BASE_CYCLE_S;
     atMs.push(t * 1000);
-    left.push(t < 1.0);
-    right.push(t >= 0.8);
+    left.push(t < 0.55);
+    right.push(t >= 0.45);
   }
   return {
     clipName: "fixture",
@@ -101,6 +100,7 @@ describe("foot-base stride retarget", () => {
       start: { x: 0, y: 0, z: 0 },
     };
     const labels = stanceLabels();
+    let sawRight = false;
     for (let frame = 0; frame < 140; frame += 1) {
       (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
       const summary = applyFootBaseStep({
@@ -111,14 +111,20 @@ describe("foot-base stride retarget", () => {
         clip: { labels, actionTimeSeconds: frame * 0.005 },
       });
       expect(summary).not.toBeNull();
-      expect(summary?.stanceFoot).toBe("left");
-      slot.updateMatrixWorld(true);
-      const e = leftToe.matrixWorld.elements;
       const state = readFootBaseState(approach);
       expect(state).not.toBeNull();
-      const fh = state!.foothold.left;
+      // The dwell hands over once right persists: pin holds whichever foot is stance.
+      if (state!.stance === "right") sawRight = true;
+      if (frame < 100) expect(state!.stance).toBe("left");
+      slot.updateMatrixWorld(true);
+      const toe = state!.stance === "left" ? leftToe : rightToe;
+      const e = toe.matrixWorld.elements;
+      const fh = state!.foothold[state!.stance];
       expect(Math.hypot((e[12] ?? 0) - fh.x, (e[14] ?? 0) - fh.z)).toBeLessThan(0.001);
     }
+    // Right single support starts at action 0.55 (frame 110) plus 6 dwell calls.
+    expect(readFootBaseState(approach)?.stance).toBe("right");
+    expect(sawRight).toBe(true);
     const worst = readFootBaseState(approach)?.worst ?? null;
     expect(worst).not.toBeNull();
     expect(Number.isFinite(worst?.missM ?? Number.NaN)).toBe(true);
@@ -165,14 +171,5 @@ describe("foot-base stride retarget", () => {
     expect(footBaseHalfIndex(0.55, FOOT_BASE_CYCLE_S)).toBe(1);
     expect(footBaseHalfIndex(1.38, FOOT_BASE_CYCLE_S)).toBe(2);
     expect(footBaseHalfIndex(0.55 + FOOT_BASE_CYCLE_S, FOOT_BASE_CYCLE_S)).toBe(3);
-  });
-
-  it("rows-driven stance crowns single support and overlaps double", () => {
-    // Loop phase 0: left early-stance, right late-swing.
-    expect(footBaseRowsStance(0)).toEqual({ left: true, right: false });
-    // Loop phase 0.5: both inside their band windows (double support).
-    expect(footBaseRowsStance(0.5)).toEqual({ left: true, right: true });
-    // Loop phase 0.8: left late-swing, right mid-stance.
-    expect(footBaseRowsStance(0.8)).toEqual({ left: false, right: true });
   });
 });
