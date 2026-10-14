@@ -122,7 +122,7 @@ describe("foot-base stride retarget", () => {
       const fh = state!.foothold[state!.stance];
       expect(Math.hypot((e[12] ?? 0) - fh.x, (e[14] ?? 0) - fh.z)).toBeLessThan(0.001);
     }
-    // Right single support starts at action 0.55 (frame 110) plus 6 dwell calls.
+    // Right single support starts at action 0.55 (frame ~110); handover is immediate.
     expect(readFootBaseState(approach)?.stance).toBe("right");
     expect(sawRight).toBe(true);
     const worst = readFootBaseState(approach)?.worst ?? null;

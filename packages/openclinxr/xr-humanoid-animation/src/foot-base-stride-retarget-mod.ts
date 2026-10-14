@@ -71,8 +71,6 @@ export type FootBaseClipRead = {
 
 export type FootBaseState = {
   stance: FootBaseSide;
-  /** Handover dwell: candidate stance plus consecutive substeps seen (null when settled). */
-  pending: { side: FootBaseSide; count: number } | null;
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
@@ -96,12 +94,6 @@ export type FootBaseState = {
   /** Post-solve toe worlds from the previous substep, per foot. */
   lastSolved: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
 };
-
-/**
- * Handover dwell in consecutive substeps. Runtime labels flap up to 4
- * substeps at the wrap (measured 2-frame blips); real stance persists 15+.
- */
-export const FOOT_BASE_HANDOVER_DWELL_SUBSTEPS = 6;
 
 export type FootBaseStepSummary = {
   stanceFoot: FootBaseSide;
@@ -216,7 +208,6 @@ function createState(stance: FootBaseSide): FootBaseState {
   const zero = { x: 0, y: 0, z: 0 };
   return {
     stance,
-    pending: null,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
     takeoff: { left: null, right: null },
@@ -267,11 +258,11 @@ export function applyFootBaseStep(input: {
   const cycleS = clip.labels.cycleSeconds;
   const actionTimeS = clip.actionTimeSeconds;
   const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
-  // Labels-driven stance with handover dwell: single support crowns
-  // immediately; a challenger must persist FOOT_BASE_HANDOVER_DWELL_SUBSTEPS
-  // consecutive substeps (flaps last 4, real stance 15+). The metric's
-  // stance windows read the same lock labels, so pin stance and metric
-  // stance coincide by construction.
+  // Labels-driven stance: single support crowns immediately, overlap keeps
+  // the incumbent. The metric's stance windows read the same lock labels,
+  // so pin stance and metric stance coincide by construction. Label flaps
+  // hand over and straight back; both anchor to the physical foot with
+  // re-snapped takeoff refs, so they are continuous non-events.
   const labelled = stanceAtTime(clip.labels, actionTimeS);
   const single: FootBaseSide | null = labelled.left && !labelled.right
     ? "left"
@@ -290,25 +281,7 @@ export function applyFootBaseStep(input: {
   state.lastActionTimeS = actionTimeS;
   const unwrappedS = actionTimeS + state.wraps * cycleS;
 
-  const stance: FootBaseSide = (() => {
-    const st = state;
-    if (single === null || single === st.stance) {
-      st.pending = null;
-      return st.stance;
-    }
-    const pending = st.pending;
-    if (pending !== null && pending.side === single) {
-      const count = pending.count + 1;
-      if (count >= FOOT_BASE_HANDOVER_DWELL_SUBSTEPS) {
-        st.pending = null;
-        return single;
-      }
-      st.pending = { side: single, count };
-      return st.stance;
-    }
-    st.pending = { side: single, count: 1 };
-    return st.stance;
-  })();
+  const stance: FootBaseSide = single ?? state.stance;
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
 
   const halfIndex = footBaseHalfIndex(unwrappedS, cycleS);
