@@ -126,19 +126,27 @@ describe("the reference replay makes zero model calls", () => {
       path.join(FIX, "out-ok.png"))).toEqual({ width: 96, height: 48 });
   });
 
-  it("nearest-token test: own token pass, other token flag", () => {
-    // warm_medium goal at its own token's Lab -> NOT flagged (own is nearest)
+  it("nearest-token measurements exist; no boolean verdict emitted", () => {
+    // warm_medium goal at its own token's Lab
     const ownLab = [56.71, 12.27, 19.96]; // warm_medium token Lab (approx)
     const r1 = toneFlag("warm_medium", ownLab);
-    expect(r1.flagged).toBe(false);
-    expect(r1.nearest_token).not.toBe("warm_medium");
-    expect(r1.own_distance_dLab).toBeLessThan(r1.nearest_distance_dLab);
+    expect(r1).toHaveProperty("own_distance_dLab");
+    expect(r1).toHaveProperty("nearest_token");
+    expect(r1).toHaveProperty("nearest_distance_dLab");
+    expect(r1).toHaveProperty("margin_dLab");
+    expect(r1).toHaveProperty("tone_assessment", "unassessed");
+    expect(r1).toHaveProperty("reason");
+    expect(r1).not.toHaveProperty("flagged");
     
-    // warm_medium goal at warm_light token's Lab -> flagged (warm_light is nearer)
+    // warm_medium goal at warm_light token's Lab
     const lightLab = [68.24, 11.51, 19.09]; // warm_light token Lab (approx)
     const r2 = toneFlag("warm_medium", lightLab);
-    expect(r2.flagged).toBe(true);
-    expect(r2.nearest_token).toBe("warm_light");
-    expect(r2.own_distance_dLab).toBeGreaterThan(r2.nearest_distance_dLab);
+    expect(r2).toHaveProperty("own_distance_dLab");
+    expect(r2).toHaveProperty("nearest_token");
+    expect(r2).toHaveProperty("nearest_distance_dLab");
+    expect(r2).toHaveProperty("margin_dLab");
+    expect(r2).toHaveProperty("tone_assessment", "unassessed");
+    expect(r2).toHaveProperty("reason");
+    expect(r2).not.toHaveProperty("flagged");
   });
 });

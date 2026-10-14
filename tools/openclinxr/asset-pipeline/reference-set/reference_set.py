@@ -96,12 +96,12 @@ def _token_lab(srgb: tuple[float, float, float]) -> list[float]:
 
 
 def tone_check(image_path: Path, token: str) -> dict:
-    """Nearest-token test: flag when goal face-core Lab is closer to a
-    DIFFERENT token than to its own. No numeric bar.
+    """Nearest-token measurement: compute own-token distance, nearest other token + distance, margin.
+    No boolean verdict. goal is a lit render; tokens are albedo; lighting offset not token-neutral.
     
     Returns: phenotype_tone, goal_facecore_lab, own_token_lab,
              nearest_token, nearest_token_lab, own_distance, nearest_distance,
-             margin (own - nearest), flagged (own > nearest).
+             margin (own - nearest), tone_assessment ("unassessed"), reason.
     """
     if token not in TONE_TOKENS:
         raise Refuse(f"REFUSE_SCHEMA unknown phenotype tone {token!r}: "
@@ -128,7 +128,6 @@ def tone_check(image_path: Path, token: str) -> dict:
             nearest_lab = lab
     
     margin = round(own_dist - nearest_dist, 2)
-    flagged = own_dist > nearest_dist
     
     return {
         "phenotype_tone": token,
@@ -139,10 +138,8 @@ def tone_check(image_path: Path, token: str) -> dict:
         "nearest_token_lab": [round(v, 2) for v in nearest_lab],
         "nearest_distance_dLab": round(nearest_dist, 2),
         "margin_dLab": margin,
-        "flagged": flagged,
-        "note": ("confound: goal is a lit render-like image; token is an albedo "
-                 "colour; absolute distances carry a lighting offset; "
-                 "nearest-token test is relative across tokens under the same offset")
+        "tone_assessment": "unassessed",
+        "reason": "goal is a lit image and tokens are albedo; no reference exists yet that separates lighting from tone. A valid check needs a render of the subject head with a flat token-coloured albedo under the same rig, compared to the goal in the same face-core region"
     }
 
 

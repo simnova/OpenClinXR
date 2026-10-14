@@ -63,8 +63,8 @@ export type ToneReport = {
   nearest_token_lab: [number, number, number];
   nearest_distance_dLab: number;
   margin_dLab: number;
-  flagged: boolean;
-  note: string;
+  tone_assessment: "unassessed";
+  reason: string;
 };
 
 export function loadManifest(manifestPath: string): Manifest {
@@ -265,8 +265,9 @@ function srgbToLab01(r: number, g: number, b: number): [number, number, number] 
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 }
 
-/** Nearest-token test: flag when goal Lab is closer to a DIFFERENT token
- * than to its own. No numeric bar. */
+/** Nearest-token measurement: compute own-token distance, nearest other token + distance, margin.
+ * No boolean verdict. goal is a lit render; tokens are albedo; lighting offset not token-neutral.
+ */
 export function toneFlag(toneName: string,
   goalLab: [number, number, number]): ToneReport {
   const tok = TONE_TOKENS[toneName];
@@ -297,7 +298,6 @@ export function toneFlag(toneName: string,
   const ownDistR = Math.round(ownDist * 100) / 100;
   const nearestDistR = Math.round(nearestDist * 100) / 100;
   const margin = Math.round((ownDist - nearestDist) * 100) / 100;
-  const flagged = ownDist > nearestDist;
   
   return {
     phenotype_tone: toneName,
@@ -316,7 +316,7 @@ export function toneFlag(toneName: string,
     ],
     nearest_distance_dLab: nearestDistR,
     margin_dLab: margin,
-    flagged,
-    note: "confound: goal is a lit render-like image; token is an albedo colour; absolute distances carry a lighting offset; nearest-token test is relative across tokens under the same offset"
+    tone_assessment: "unassessed",
+    reason: "goal is a lit image and tokens are albedo; no reference exists yet that separates lighting from tone. A valid check needs a render of the subject head with a flat token-coloured albedo under the same rig, compared to the goal in the same face-core region"
   };
 }
