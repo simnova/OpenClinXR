@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   planSteppingTurn,
+  STEPPING_TURN_REST_FORE_OFFSET_M,
   STEPPING_TURN_STEP_DURATION_S,
   steppingTurnAt,
 } from "./stepping-turn.js";
@@ -186,7 +187,7 @@ describe("the stepping-turn plan", () => {
     expect(planFor(30).steps.length).toBe(1);
   });
 
-  it("lands the final step beside the stance with the rest separation (not mirrored)", () => {
+  it("lands the final step at its absolute rest offset (not mirrored, not beside)", () => {
     const restSepM = 0.22;
     const plan = planSteppingTurn({
       residualYawRadians: 62.67 * DEG,
@@ -213,7 +214,8 @@ describe("the stepping-turn plan", () => {
     };
     expect(first.swingToXz.x).toBeCloseTo(2 * slotEnd0.x - first.stanceXz.x, 9);
     expect(first.swingToXz.z).toBeCloseTo(2 * slotEnd0.z - first.stanceXz.z, 9);
-    // Final landing in the end frame: same fore-aft as the stance, rest lateral apart.
+    // Final landing in the end frame: anatomical-side lateral ±sep/2 and the
+    // measured rest fore offset (positive residual ends swinging left).
     const endYaw = ENTRY_YAW + 62.67 * DEG;
     const cos = Math.cos(endYaw);
     const sin = Math.sin(endYaw);
@@ -232,10 +234,10 @@ describe("the stepping-turn plan", () => {
       lat: (p.x - slot.x) * cos - (p.z - slot.z) * sin,
       fore: (p.x - slot.x) * sin + (p.z - slot.z) * cos,
     });
-    const stanceB = body(last.stanceXz);
+    expect(last.swingFoot).toBe("left");
     const swingB = body(last.swingToXz);
-    expect(swingB.fore).toBeCloseTo(stanceB.fore, 9);
-    expect(Math.abs(swingB.lat - stanceB.lat)).toBeCloseTo(restSepM, 9);
+    expect(swingB.lat).toBeCloseTo(restSepM / 2, 9);
+    expect(swingB.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
   });
 
   it("keeps the mirror on the final step for an invalid rest separation", () => {
@@ -267,7 +269,7 @@ describe("the stepping-turn plan", () => {
     }
   });
 
-  it("lands a single-step turn beside the stance too (the one step is the final step)", () => {
+  it("lands a single-step turn at its rest offset too (the one step is the final step)", () => {
     const restSepM = 0.22;
     const plan = planSteppingTurn({
       residualYawRadians: 30 * DEG,
@@ -285,6 +287,8 @@ describe("the stepping-turn plan", () => {
     expect(plan.steps.length).toBe(1);
     const only = plan.steps[0];
     if (!only) throw new Error("expected 1 step");
+    // Positive residual: the single step swings right.
+    expect(only.swingFoot).toBe("right");
     const endYaw = ENTRY_YAW + 30 * DEG;
     const cos = Math.cos(endYaw);
     const sin = Math.sin(endYaw);
@@ -298,9 +302,8 @@ describe("the stepping-turn plan", () => {
       lat: (p.x - slot.x) * cos - (p.z - slot.z) * sin,
       fore: (p.x - slot.x) * sin + (p.z - slot.z) * cos,
     });
-    const stanceB = body(only.stanceXz);
     const swingB = body(only.swingToXz);
-    expect(swingB.fore).toBeCloseTo(stanceB.fore, 9);
-    expect(Math.abs(swingB.lat - stanceB.lat)).toBeCloseTo(restSepM, 9);
+    expect(swingB.lat).toBeCloseTo(-restSepM / 2, 9);
+    expect(swingB.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
   });
 });

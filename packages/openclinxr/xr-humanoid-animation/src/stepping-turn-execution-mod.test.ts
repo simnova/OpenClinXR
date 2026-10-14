@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { afterEach, describe, expect, it } from "vitest";
-import { beginSteppingTurn } from "./stepping-turn.js";
+import { beginSteppingTurn, STEPPING_TURN_REST_FORE_OFFSET_M } from "./stepping-turn.js";
 
 const DEG = Math.PI / 180;
 
@@ -57,10 +57,12 @@ describe("stepping-turn execution rest gate", () => {
     expect(only.swingToXz.z).toBeCloseTo(2 * slotEnd.z - only.stanceXz.z, 9);
   });
 
-  it("lands the rest separation with ?footstepPlan=1", () => {
+  it("lands each foot at its rest offset with ?footstepPlan=1", () => {
     const plan = beginWithFlag("?footstepPlan=1");
     const only = plan.steps[0];
     if (!only) throw new Error("expected 1 step");
+    // Positive residual: the single step swings right.
+    expect(only.swingFoot).toBe("right");
     const endYaw = 30 * DEG;
     const cos = Math.cos(endYaw);
     const sin = Math.sin(endYaw);
@@ -74,9 +76,8 @@ describe("stepping-turn execution rest gate", () => {
       lat: (p.x - slot.x) * cos - (p.z - slot.z) * sin,
       fore: (p.x - slot.x) * sin + (p.z - slot.z) * cos,
     });
-    const stanceB = body(only.stanceXz);
     const swingB = body(only.swingToXz);
-    expect(swingB.fore).toBeCloseTo(stanceB.fore, 9);
-    expect(Math.abs(swingB.lat - stanceB.lat)).toBeCloseTo(0.22, 9);
+    expect(swingB.lat).toBeCloseTo(-0.22 / 2, 9);
+    expect(swingB.fore).toBeCloseTo(STEPPING_TURN_REST_FORE_OFFSET_M, 9);
   });
 });

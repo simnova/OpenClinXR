@@ -28,7 +28,7 @@
  * few cm, body yaw following the feet, pair centered under the pelvis on every landing.
  */
 
-import { restBesideStanceLanding } from "./stepping-turn-rest-landing-mod.js";
+import { restToeLanding } from "./stepping-turn-rest-toe-landing-mod.js";
 
 export type StepFoot = "left" | "right";
 
@@ -160,12 +160,18 @@ export type SteppingTurnPlanInput = {
   legScale: number;
   /**
    * Walk-start rest toe separation, world metres (`captureRestStance`'s `sepXz`).
-   * When valid (> 0), the LAST step's swing lands beside the stance with this
-   * lateral separation instead of mirrored across the slot end (see
-   * `stepping-turn-rest-landing-mod.ts` for the measured cause). Null/invalid
-   * keeps the mirror on every step, exactly as before.
+   * When valid (> 0), the LAST step's swing lands at its absolute rest offset
+   * in the end body frame (anatomical-side lateral ±sep/2 plus the measured
+   * rest fore offset — see `stepping-turn-rest-toe-landing-mod.ts` for the
+   * measured cause). Null/invalid keeps the mirror on every step, exactly as
+   * before.
    */
   restSepM?: number | null;
+  /**
+   * Rest fore offset override, body frame (M3 G5 probe twin). Null/undefined
+   * keeps the measured idle anatomy (`STEPPING_TURN_REST_FORE_OFFSET_M`).
+   */
+  restForeM?: number | null;
 };
 
 /** Plan N alternating lift-and-place steps covering the residual yaw. */
@@ -212,20 +218,20 @@ export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan
     // start-relative goal goes stale by the arc displacement. The stance stays
     // exactly where it stands; only the swing travels.
     const slotEnd = rotateAbout(slotPred, stanceXz, yaw);
-    // Last step with a valid rest separation: land beside the stance (same fore-aft,
-    // rest lateral separation) instead of mirrored — see
-    // `stepping-turn-rest-landing-mod.ts`. Earlier steps keep the mirror: their
-    // landings are the next step's stance anchors, so the slot path is unchanged.
+    // Last step with a valid rest separation: land the swing at its absolute
+    // rest offset in the end body frame — see
+    // `stepping-turn-rest-toe-landing-mod.ts`. Earlier steps keep the mirror:
+    // their landings are the next step's stance anchors, so the slot path is
+    // unchanged.
     const restSepM = input.restSepM ?? null;
     const swingToXz =
       index === stepCount - 1 && restSepM !== null && restSepM > 0
-        ? restBesideStanceLanding({
-          stanceXz,
+        ? restToeLanding({
           slotEndXz: slotEnd,
           endYawRadians: targetHeadingRadians,
           swingFoot,
-          swingFromXz,
           restSepM,
+          restForeM: input.restForeM ?? null,
         })
         : {
           x: 2 * slotEnd.x - stanceXz.x,

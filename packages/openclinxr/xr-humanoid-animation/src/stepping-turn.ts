@@ -18,6 +18,10 @@ export {
   STEPPING_TURN_STEP_DURATION_S,
 } from "./stepping-turn-plan-mod.js";
 export {
+  restToeLanding,
+  STEPPING_TURN_REST_FORE_OFFSET_M,
+} from "./stepping-turn-rest-toe-landing-mod.js";
+export {
   pivotSlotXzForSteppingFrame,
   STEPPING_PIVOT_CAPTURE_HEIGHT_M,
   steppingPivotWindowKey,

@@ -67,6 +67,7 @@
     "src/stepping-turn-execution-mod.test.ts",
     "src/stepping-turn-leg-quat-norm.test.ts",
     "src/stepping-turn-plan-mod.test.ts",
+    "src/stepping-turn-rest-toe-landing-mod.test.ts",
     "src/stepping-turn-slot-pivot-mod.test.ts",
     "src/the-arrived-stance-closes.test.ts",
     "src/the-ccd-stance-lock-switches-solvers.test.ts",
