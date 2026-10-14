@@ -2356,6 +2356,17 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--eye-cornea",
+        action="store_true",
+        help=(
+            "Eyemesh: split the fitted high-poly eye into globe + cornea "
+            "meshes (port of the S/eyetex split_cornea.py spike). Only valid "
+            "with --eye-asset high-poly; the low-poly eye is a single exact "
+            "sphere with no shell layer. Default off keeps every other bake "
+            "byte-stable."
+        ),
+    )
+    parser.add_argument(
         "--eye-occlusion-shell",
         action="store_true",
         help=(
@@ -2551,6 +2562,8 @@ EYE_DIAMETER_TARGET_MM = {
     "eyeshell-final": 24.0,
     # eyetex: same adult-female body as eyegeo-final (new output name).
     "eyetex-final": 24.0,
+    # eyemesh: same adult-female body as eyetex-final (new output name).
+    "aisha-hp-cornea": 24.0,
 }
 
 
@@ -3192,6 +3205,205 @@ def patch_glb_eye_occlusion(path, blend):
     with open(path, "wb") as f:
         f.write(out)
     print(f"GLB_EYESHELL_UNLIT {path} materials {','.join(sorted(patched))}")
+
+
+EYEMESH_CORNEA_CTX = {}
+
+
+def _eyemesh_split_cornea_glb(path, subject_id):
+    """Port of the S/eyetex split_cornea.py spike into the generator.
+
+    The high-poly eye exports as ONE mesh (both eyes x both layers): an inner
+    globe (iris/sclera UVs) plus an outer shell 3% larger whose UVs pinch to
+    an alpha-0 texel BY DESIGN (brown.mhmat transparent True). Drawn opaque
+    the shell renders white, so the split runs POST-EXPORT on the GLB bytes:
+    per-eye via bind-x sign, per-vert UV classification in the swatch corner
+    box (u>0.8, v>0.85) cross-checked by best-fit sphere radius (shell larger
+    than globe), zero bridging faces, weights inherited, 0 weightless. The
+    globe keeps the stock material slot; the cornea gets alphaMode BLEND,
+    baseColor alpha 0.08, roughness 0.05. Returns (globe_name, cornea_name).
+    """
+    import collections as _collections
+
+    with open(path, "rb") as f:
+        raw = f.read()
+    if raw[:4] != b"glTF":
+        raise RuntimeError(f"EYEMESH: not a GLB: {path}")
+    json_len = struct.unpack("<I", raw[12:16])[0]
+    json_end = 20 + json_len
+    g = json.loads(raw[20:json_end])
+    blob = bytearray(raw[json_end + 8:])
+    _CT = {5120: "i1", 5121: "u1", 5123: "u2", 5125: "u4", 5126: "f4"}
+    _CTINV = {"i1": 5120, "u1": 5121, "u2": 5123, "u4": 5125, "f4": 5126}
+    _NC = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}
+    _SZ = {"i1": 1, "u1": 1, "u2": 2, "u4": 4, "f4": 4}
+
+    def acc(i):
+        ac = g["accessors"][i]
+        bv = g["bufferViews"][ac["bufferView"]]
+        base = bv.get("byteOffset", 0) + ac.get("byteOffset", 0)
+        n, nc = ac["count"], _NC[ac["type"]]
+        dt = np.dtype(_CT[ac["componentType"]])
+        sz = _SZ[_CT[ac["componentType"]]]
+        st = bv.get("byteStride")
+        if st and st != nc * sz:
+            s = np.frombuffer(
+                blob, dtype=np.uint8, count=n * st, offset=base).reshape(n, st)
+            return np.stack(
+                [s[:, k * sz:(k + 1) * sz].reshape(n, -1).view(dt).reshape(n)
+                 for k in range(nc)], 1)
+        return np.frombuffer(
+            blob, dtype=dt, count=n * nc, offset=base).reshape(n, nc)
+
+    mi = [i for i, m in enumerate(g["meshes"])
+          if m["name"] == EYEMESH_CORNEA_CTX.get("eye_mesh")]
+    if not mi:
+        mi = [i for i, m in enumerate(g["meshes"]) if "high_poly" in m["name"]]
+    assert len(mi) == 1, [g["meshes"][i]["name"] for i in mi]
+    mi = mi[0]
+    prims = g["meshes"][mi]["primitives"]
+    assert len(prims) == 1
+    prim = prims[0]
+    P = acc(prim["attributes"]["POSITION"]).astype(float)
+    UV = acc(prim["attributes"]["TEXCOORD_0"]).astype(float)
+    IDX = acc(prim["indices"]).reshape(-1).astype(int)
+    TRIS = IDX.reshape(-1, 3)
+    ATTR = dict(prim["attributes"])
+    report = {}
+    side_of = np.where(P[:, 0] < 0.0, "L", "R")
+    # Per-vert UV classification in GLB space (the exporter duplicated 12
+    # verts vs OBJ space, fragmenting index-space connectivity, so the
+    # obj-space probes do not transfer). Shell UVs sit in the swatch corner
+    # box (u>0.8, v>0.85); globe UVs never exceed u 0.58 (spike-measured).
+    is_shell = (UV[:, 0] > 0.8) & (UV[:, 1] > 0.85)
+    globe_idx, shell_idx = [], []
+    for side in ("L", "R"):
+        vside = set(np.where(side_of == side)[0].tolist())
+        gm = sorted(v for v in vside if not is_shell[v])
+        sm = sorted(v for v in vside if is_shell[v])
+        assert gm and sm, (side, len(gm), len(sm))
+        for tag, members in (("globe", gm), ("shell", sm)):
+            Q = P[members]
+            A = np.c_[2 * Q, np.ones(len(Q))]
+            b = (Q ** 2).sum(1)
+            sol, _, _, _ = np.linalg.lstsq(A, b, rcond=None)
+            r = float(np.sqrt(sol[3] + (sol[:3] ** 2).sum()))
+            (globe_idx if tag == "globe" else shell_idx).extend(members)
+            report.setdefault(side, {})[tag + "_n"] = len(members)
+            report[side][tag + "_r"] = round(r, 4)
+        assert report[side]["shell_r"] > report[side]["globe_r"], report[side]
+    assert len(globe_idx) + len(shell_idx) == P.shape[0]
+    SSET, GSET = set(shell_idx), set(globe_idx)
+    nbridge = sum(1 for t in TRIS
+                  if not (all(v in SSET for v in t) or all(v in GSET for v in t)))
+    assert nbridge == 0, nbridge
+    JN = None
+    for n in g["nodes"]:
+        if n.get("mesh") == mi and "skin" in n:
+            JN = [g["nodes"][j].get("name")
+                  for j in g["skins"][n["skin"]]["joints"]]
+    J = acc(ATTR["JOINTS_0"]).astype(int)
+    W = acc(ATTR["WEIGHTS_0"]).astype(float)
+    Wm = np.where(J >= len(JN), 0, W)
+    wl_tot = 0
+    for tag, idx in (("globe", globe_idx), ("shell", shell_idx)):
+        dom = _collections.Counter(
+            JN[J[i][int(np.argmax(Wm[i]))]] for i in idx if Wm[i].sum() > 0)
+        wl = sum(1 for i in idx if Wm[i].sum() == 0)
+        wl_tot += wl
+        print(tag, "n=%d weightless=%d" % (len(idx), wl),
+              dict(dom.most_common(4)))
+    assert wl_tot == 0, f"EYEMESH: {wl_tot} weightless eye verts after split"
+
+    def build(idx_list):
+        idx = np.array(sorted(idx_list), dtype=np.int64)
+        rem = np.full(P.shape[0], -1, dtype=np.int64)
+        rem[idx] = np.arange(len(idx))
+        inset = set(idx.tolist())
+        keep = np.array([all(v in inset for v in t) for t in TRIS])
+        assert keep.sum() > 0
+        tri = rem[TRIS[keep]].astype(np.uint32)
+        new_attrs = {}
+        accessors = g["accessors"]
+        for name, ai in ATTR.items():
+            src = acc(ai)
+            arr = src[idx]
+            ctype = _CT[accessors[ai]["componentType"]]
+            comp = accessors[ai]["type"]
+            off = len(blob)
+            blob.extend(arr.astype(np.dtype(ctype)).tobytes())
+            g["bufferViews"].append(
+                {"buffer": 0, "byteOffset": off,
+                 "byteLength": len(arr.tobytes())})
+            accessors.append(
+                {"bufferView": len(g["bufferViews"]) - 1,
+                 "componentType": _CTINV[ctype], "count": len(arr),
+                 "type": comp})
+            new_attrs[name] = len(accessors) - 1
+        off = len(blob)
+        blob.extend(tri.tobytes())
+        g["bufferViews"].append(
+            {"buffer": 0, "byteOffset": off, "byteLength": len(tri.tobytes())})
+        g["accessors"].append(
+            {"bufferView": len(g["bufferViews"]) - 1, "componentType": 5125,
+             "count": int(tri.size), "type": "SCALAR"})
+        return new_attrs, len(g["accessors"]) - 1
+
+    subj = f"mpfb_{subject_id}"
+    g_attrs, g_idx = build(globe_idx)
+    # Per-side cornea meshes: card names openclinxr_eye_cornea_high_poly_<side>.
+    shell_by_side = {
+        "left": [v for v in shell_idx if side_of[v] == "L"],
+        "right": [v for v in shell_idx if side_of[v] == "R"],
+    }
+    assert shell_by_side["left"] and shell_by_side["right"], (
+        len(shell_by_side["left"]), len(shell_by_side["right"]))
+    globe_name = f"makeclothes_library_eyes_high_poly_globe_{subj}_mesh"
+    shell_names = {
+        side: f"openclinxr_eye_cornea_high_poly_{side}_{subj}_mesh"
+        for side in ("left", "right")
+    }
+    g["meshes"].append({"name": globe_name, "primitives": [
+        {"attributes": g_attrs, "indices": g_idx,
+         "material": prim.get("material")}]})
+    globe_mi = len(g["meshes"]) - 1
+    cornea_mat = {"name": "openclinxr_eye_cornea_mat",
+                  "pbrMetallicRoughness": {
+                      "baseColorFactor": [0.9, 0.95, 1.0, 0.08],
+                      "metallicFactor": 0.0, "roughnessFactor": 0.05},
+                  "alphaMode": "BLEND"}
+    g["materials"].append(cornea_mat)
+    cornea_mi = len(g["materials"]) - 1
+    shell_mis = {}
+    for side in ("left", "right"):
+        s_attrs, s_idx = build(shell_by_side[side])
+        g["meshes"].append({"name": shell_names[side], "primitives": [
+            {"attributes": s_attrs, "indices": s_idx,
+             "material": cornea_mi}]})
+        shell_mis[side] = len(g["meshes"]) - 1
+    for n in g["nodes"]:
+        if n.get("mesh") == mi:
+            n["mesh"] = globe_mi
+            for side in ("left", "right"):
+                clone = {k: (list(v) if isinstance(v, list) else v)
+                         for k, v in n.items()}
+                clone["name"] = shell_names[side]
+                clone["mesh"] = shell_mis[side]
+                g["nodes"].append(clone)
+            print("node", n.get("name"), "-> globe;",
+                  ",".join(shell_names[s] for s in ("left", "right")))
+            break
+    g["buffers"][0]["byteLength"] = len(blob)
+    new_json = json.dumps(g, separators=(",", ":")).encode()
+    total = 12 + 8 + len(new_json) + 8 + len(blob)
+    hdr = b"glTF" + struct.pack("<II", 2, total)
+    with open(path, "wb") as f:
+        f.write(hdr + struct.pack("<I", len(new_json)) + b"JSON" + new_json
+                + struct.pack("<I", len(blob)) + b"BIN\x00" + bytes(blob))
+    print(
+        f"EYEMESH_CORNEA_SPLIT {json.dumps(report)} "
+        f"globe={globe_name} shells={shell_names['left']},{shell_names['right']}")
+    return globe_name, (shell_names["left"], shell_names["right"])
 
 
 def _parse_obj_vertices(path):
@@ -5232,6 +5444,25 @@ def main():
     # Eyeshell (B1/B2/B3): lid shadow on the globe without touching eye albedo.
     # All three options default OFF. Runs here, on the FINAL eye geometry after
     # the anatomical resize and the eye-material assignment, before hair.
+    # Eyemesh --eye-cornea: POST-EXPORT GLB-space split (the exporter must see
+    # the unsplit high-poly mesh; OBJ-space probes cannot reproduce the spike's
+    # GLB-space UV-box classification). Records the CTX here; the split runs
+    # after export beside the eyeshell patch. All three options default OFF.
+    if getattr(args, "eye_cornea", False):
+        if getattr(args, "eye_asset", "low-poly") != "high-poly":
+            raise RuntimeError(
+                "EYEMESH: --eye-cornea is only valid with --eye-asset high-poly "
+                "(the low-poly eye is a single exact sphere with no shell layer)")
+        if getattr(args, "eye_subdivide", 0):
+            raise RuntimeError(
+                "EYEMESH: --eye-cornea refuses --eye-subdivide (subdivide "
+                "rebuilds the unsplit mesh; the split keeps the fitted weights)")
+        if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
+            raise RuntimeError(
+                "EYEMESH: --eye-cornea refuses the eyeshell B2/B3 passes "
+                "(they consume the unsplit eyes_asset)")
+        EYEMESH_CORNEA_CTX["eye_mesh"] = eyes_asset.data.name
+        EYEMESH_CORNEA_CTX["subject_id"] = subject_id
     if getattr(args, "eye_subdivide", 0):
         _eyshell_subdivide_eye(eyes_asset, int(args.eye_subdivide))
     if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
@@ -7840,6 +8071,13 @@ def main():
     # before the census so the measurements below read the FINAL bytes.
     if EYESHELL_UNLIT_BLEND:
         patch_glb_eye_occlusion(str(output), EYESHELL_UNLIT_BLEND)
+
+    # Eyemesh: split the unsplit high-poly eye POST-EXPORT (GLB-space UV-box
+    # classification the spike proved; the 5.1 exporter may drop alphaMode on
+    # the node-tree material, so the split authors the cornea material itself).
+    if EYEMESH_CORNEA_CTX.get("eye_mesh"):
+        globe_name, shell_names = _eyemesh_split_cornea_glb(
+            str(output), EYEMESH_CORNEA_CTX["subject_id"])
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and
