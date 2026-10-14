@@ -686,9 +686,10 @@ async function main(): Promise<void> {
   for (const m of metrics) {
     const t = m.arrivedToeTravel;
     lines.push(
-      `- ${m.tag}: arrivedToeTravel start=${t.startFrame ?? "n/a"} frames=${t.frames} ` +
+      `- ${m.tag}: arrivedToeTravel(close-active) start=${t.startFrame ?? "n/a"} frames=${t.frames} ` +
         `leftMax=${fmt(t.leftMaxM)} leftSum=${fmt(t.leftSumM)} ` +
-        `rightMax=${fmt(t.rightMaxM)} rightSum=${fmt(t.rightSumM)}`,
+        `rightMax=${fmt(t.rightMaxM)} rightSum=${fmt(t.rightSumM)} ` +
+        `fullFrames=${t.fullFrames} leftFullMax=${fmt(t.leftFullMaxM)} rightFullMax=${fmt(t.rightFullMaxM)}`,
     );
   }
   for (const m of metrics) {
