@@ -1,6 +1,10 @@
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import { applyClosedLoopWalkStep } from "./closed-loop-root-advance-mod.js";
 import {
+  applyFootBaseStep,
+  footBaseStepIsActive,
+} from "./foot-base-stride-retarget-mod.js";
+import {
   applyFootstepPlanStep,
   pushFootstepTapRecord,
   snapshotFootstepTapStage,
@@ -74,7 +78,23 @@ export function applyWalkingPhaseLocks(
         rightToe: approach.rightToe,
       })
     : null;
-  applyFootstepPlanStep({ approach, routeDx, routeDz, routeLength });
+  // FOOT-BASE (default OFF, `?footBase=1` on the 1.31 m route only): stride
+  // retargeting replaces BOTH the amplitude blend and the closed-loop advance
+  // below; any other route or a missing flag keeps the legacy path.
+  const footBaseActive = footBaseStepIsActive(routeLength);
+  if (footBaseActive) {
+    applyFootBaseStep({
+      approach,
+      routeDx,
+      routeDz,
+      routeLength,
+      clip: clipStance
+        ? { labels: clipStance.labels, actionTimeSeconds: clipStance.actionTimeSeconds }
+        : null,
+    });
+  } else {
+    applyFootstepPlanStep({ approach, routeDx, routeDz, routeLength });
+  }
   const tapBlend = footstepTapOn
     ? snapshotFootstepTapStage({
         actorSlot: approach.actorSlot,
@@ -83,7 +103,10 @@ export function applyWalkingPhaseLocks(
       })
     : null;
   // FOOTSTEP-PLAN S1 (default OFF): opt-in closed-loop root advance; no flag, no effect.
-  const closedSummary = applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
+  // Skipped under foot-base: the stride retarget above owns the slot advance.
+  const closedSummary = footBaseActive
+    ? null
+    : applyClosedLoopWalkStep({ approach, routeDx, routeDz, routeLength, deltaSeconds });
   if (footstepTapOn && tapMixer !== null && tapBlend !== null) {
     pushFootstepTapRecord({
       sub: approach.execution.walkSimSubsteps ?? -1,
