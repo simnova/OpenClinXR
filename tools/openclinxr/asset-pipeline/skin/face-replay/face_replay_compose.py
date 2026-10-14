@@ -788,6 +788,10 @@ def _record_inputs(args: argparse.Namespace) -> dict:
     if args.side_map:
         inputs["side_map"] = {"name": Path(args.side_map).name,
                               "sha256": sha256_file(Path(args.side_map))}
+    if args.scalp_source:
+        inputs["scalp_source"] = {"name": Path(args.scalp_source).name,
+                                  "sha256": sha256_file(Path(args.scalp_source)),
+                                  "expected_sha256": args.scalp_source_sha}
     return inputs
 
 
@@ -867,6 +871,16 @@ def compose(args: argparse.Namespace) -> dict:
     # Feather scale follows the input texels: the island mapping is a
     # rotation (texels unchanged), fixture crops are proportionally scaled.
     scale = max(h, w) / REF_SIZE
+
+    # Validate scalp source if provided
+    scalp_source_sha = None
+    if args.scalp_source:
+        scalp_source_path = Path(args.scalp_source)
+        scalp_source_sha = sha256_file(scalp_source_path)
+        if args.scalp_source_sha and scalp_source_sha != args.scalp_source_sha:
+            raise RuntimeError("SCALP_SOURCE_SHA_MISMATCH "
+                               f"actual {scalp_source_sha[:16]} != expected "
+                               f"{args.scalp_source_sha[:16]}: refuse")
     if args.glb:
         masks = derive_masks_from_glb(Path(args.glb), max(h, w))
         glb_side = masks.pop("side", None)
@@ -952,6 +966,22 @@ def compose(args: argparse.Namespace) -> dict:
         interiors = zero_interiors(regions, scale, args.feather_texels)
         report["exact_zero"] = exact_zero_report(before_lab, out_up,
                                                  regions, interiors)
+        
+        # Crown step bound check (B1): refuse when crown_step > bound and no scalp source
+        crown_step = report["region_table"]["crown_step"]
+        if crown_step.get("max") is not None and crown_step["max"] > crown_step["bound"]:
+            if not scalp_source_sha:
+                raise RuntimeError("CROWN_STEP_OVER_BOUND "
+                                   f"crown_step max {crown_step['max']:.3f} > bound {crown_step['bound']} "
+                                   "and no scalp source provided: refuse")
+            report["boundary_flags"] = report.get("boundary_flags", {})
+            report["boundary_flags"]["compose_crown_step"] = {
+                "bound": crown_step["bound"],
+                "max": crown_step["max"],
+                "note": "subject has scalp source; crown_step logged as flag but run continues",
+                "p999": crown_step.get("p999"),
+                "status": "has_scalp_source"
+            }
     else:
         before_lab = lab_of(working).astype(np.float64)
         out, scalp_info = scalp_apply(working, locked, masks, scale,
@@ -963,6 +993,22 @@ def compose(args: argparse.Namespace) -> dict:
         interiors = zero_interiors(regions, scale, args.feather_texels)
         report["exact_zero"] = exact_zero_report(before_lab, out, regions,
                                                  interiors)
+        
+        # Crown step bound check (B1): refuse when crown_step > bound and no scalp source
+        crown_step = report["region_table"]["crown_step"]
+        if crown_step.get("max") is not None and crown_step["max"] > crown_step["bound"]:
+            if not scalp_source_sha:
+                raise RuntimeError("CROWN_STEP_OVER_BOUND "
+                                   f"crown_step max {crown_step['max']:.3f} > bound {crown_step['bound']} "
+                                   "and no scalp source provided: refuse")
+            report["boundary_flags"] = report.get("boundary_flags", {})
+            report["boundary_flags"]["compose_crown_step"] = {
+                "bound": crown_step["bound"],
+                "max": crown_step["max"],
+                "note": "subject has scalp source; crown_step logged as flag but run continues",
+                "p999": crown_step.get("p999"),
+                "status": "has_scalp_source"
+            }
     report["scalp"] = scalp_info
     save_rgb(Path(args.out), out)
     with open(args.report, "w") as f:
@@ -1059,6 +1105,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--island-box", nargs=4, default=None)
     ap.add_argument("--feather-texels", type=float, default=96.0)
     ap.add_argument("--skip-join", action="store_true")
+    ap.add_argument("--scalp-source", default=None,
+                    help="Path to recorded per-subject scalp image (sha256 validated)")
+    ap.add_argument("--scalp-source-sha", default=None,
+                    help="Expected sha256 of the scalp source image")
     return ap
 
 

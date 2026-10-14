@@ -34,14 +34,21 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image as PILImage
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import face_replay_compose as C
 
+# Re-export for tests
+load_rgb = C.load_rgb
+load_mask = C.load_mask
+
 METHOD_VERSION = "global-lab6-v2"
+REGIONAL_VERSION = "regional-v1"
 MIN_MASK_TEXELS = 64
 MIN_HALF_TEXELS = 500
+# Regional tone field parameters
+REGIONAL_FEATHER_TEXELS = 32.0  # feathering at 4096 reference size
 
 
 def face_stats(rgb: np.ndarray, mask: np.ndarray) -> tuple[list, list, int]:
@@ -86,9 +93,9 @@ def apply_transfer(rgb: np.ndarray, src_mean: list, src_sd: list,
 
 def cheek_delta_l(rgb: np.ndarray, face: np.ndarray, side_path: Path,
                   size: tuple[int, int]) -> tuple[float | None, int, int]:
-    img = Image.open(side_path).convert("L")
+    img = PILImage.open(side_path).convert("L")
     if img.size != (size[0], size[1]):
-        img = img.resize((size[0], size[1]), Image.NEAREST)
+        img = img.resize((size[0], size[1]), PILImage.NEAREST)
     arr = np.array(img)
     left = (arr > 200) & (face > 0.5)
     right = (arr < 55) & (face > 0.5)
@@ -244,11 +251,28 @@ def cmd_replay(args: argparse.Namespace) -> dict:
                 mask = cheek_mask if len(fys) > 0 else np.zeros_like(fc, dtype=bool)
             elif name == "nose":
                 # Use facecore center region as proxy for nose
-                mask = regions["facecore"] & (np.arange(h)[:, None] >= fy0 + int(0.2 * fhh)) & (np.arange(h)[:, None] < fy0 + int(0.6 * fhh)) & (np.abs(np.arange(w)[None, :] - (fx0 + fx1) // 2) < int(0.15 * fww)) if len(fys) > 0 else np.zeros_like(fc, dtype=bool)
+                if len(fys) > 0:
+                    row_idx = np.arange(h)[:, None]
+                    col_idx = np.arange(w)[None, :]
+                    cx = (fx0 + fx1) // 2
+                    mask = (regions["facecore"] & 
+                            (row_idx >= fy0 + int(0.2 * fhh)) & 
+                            (row_idx < fy0 + int(0.6 * fhh)) & 
+                            (np.abs(col_idx - cx) < int(0.15 * fww)))
+                else:
+                    mask = np.zeros_like(fc, dtype=bool)
             elif name == "chin":
-                mask = regions["facecore"] & (np.arange(h)[:, None] >= fy0 + int(0.7 * fhh)) if len(fys) > 0 else np.zeros_like(fc, dtype=bool)
+                if len(fys) > 0:
+                    row_idx = np.arange(h)[:, None]
+                    mask = regions["facecore"] & (row_idx >= fy0 + int(0.7 * fhh))
+                else:
+                    mask = np.zeros_like(fc, dtype=bool)
             elif name == "upper_lip":
-                mask = regions["facecore"] & (np.arange(h)[:, None] >= fy0 + int(0.55 * fhh)) & (np.arange(h)[:, None] < fy0 + int(0.7 * fhh)) if len(fys) > 0 else np.zeros_like(fc, dtype=bool)
+                if len(fys) > 0:
+                    row_idx = np.arange(h)[:, None]
+                    mask = regions["facecore"] & (row_idx >= fy0 + int(0.55 * fhh)) & (row_idx < fy0 + int(0.7 * fhh))
+                else:
+                    mask = np.zeros_like(fc, dtype=bool)
             
             if int(mask.sum()) >= 64:
                 before_m = before_lab[mask].mean(axis=0)
@@ -287,12 +311,420 @@ def check() -> None:
     print("FACE_REPLAY_COLOUR_CHECK ok")
 
 
+def derive_regional_masks(masks: dict[str, np.ndarray],
+                          face_bbox: np.ndarray) -> dict[str, np.ndarray]:
+    """Derive regional masks for tone field: cheeks, forehead-below-brow, chin.
+    
+    Uses the same landmark-derived approach as the below-brow mask:
+    - face_bbox from facecore: [fx0, fy0, fx1, fy1]
+    - forehead-below-brow: derived from eye/brow rows (eye-60 = brow row)
+    - cheeks: lower facecore, split by side map
+    - chin: bottom of facecore
+    """
+    h, w = next(iter(masks.values())).shape
+    fx0, fy0, fx1, fy1 = face_bbox
+    fhh = fy1 - fy0
+    fww = fx1 - fx0
+    
+    fc = masks.get("facecore", np.zeros((h, w), dtype=bool))
+    # Ensure boolean
+    fc = fc > 0.5
+    side = masks.get("side", None)
+    
+    regions = {}
+    
+    row_idx = np.arange(h)[:, None]
+    
+    # Forehead-below-brow: from brow row (fy0 + ~0.15*fhh) to ~0.35*fhh
+    # This is the region between brow and eyes
+    brow_row = fy0 + int(0.15 * fhh)
+    forehead_bottom = fy0 + int(0.35 * fhh)
+    forehead_mask = fc & (row_idx >= brow_row) & (row_idx < forehead_bottom)
+    regions["forehead_below_brow"] = forehead_mask
+    
+    # Cheeks: lower facecore (below ~0.35*fhh), split by side map
+    cheek_top = fy0 + int(0.35 * fhh)
+    cheek_mask = fc & (row_idx >= cheek_top)
+    if side is not None:
+        pos = side > 0.78
+        neg = side < 0.22
+        regions["cheek_L"] = cheek_mask & pos
+        regions["cheek_R"] = cheek_mask & neg
+    else:
+        # Fallback: split by image center
+        cx = (fx0 + fx1) // 2
+        col_idx = np.arange(w)[None, :]
+        left_mask = cheek_mask & (col_idx < cx)
+        right_mask = cheek_mask & (col_idx >= cx)
+        regions["cheek_L"] = left_mask
+        regions["cheek_R"] = right_mask
+    
+    # Chin: bottom of facecore (below ~0.7*fhh)
+    chin_mask = fc & (row_idx >= fy0 + int(0.7 * fhh))
+    regions["chin"] = chin_mask
+    
+    return regions
+
+
+def feather_mask(mask: np.ndarray, feather_texels: float,
+                 scale: float, ref_size: float = 4096.0) -> np.ndarray:
+    """Feather a binary mask using gaussian blur."""
+    if feather_texels <= 0:
+        return mask.astype(np.float64)
+    from scipy import ndimage
+    sigma = feather_texels / 3.0 * scale / ref_size * max(mask.shape)
+    f = mask.astype(np.float64)
+    if f.sum() > 0:
+        f = ndimage.gaussian_filter(f, sigma, truncate=3.0, mode="reflect")
+        if f.max() > 0:
+            f /= f.max()
+    return f
+
+
+def solve_regional(rgb: np.ndarray, pre_render: np.ndarray, goal_render: np.ndarray,
+                   regional_masks: dict[str, np.ndarray],
+                   pre_masks: dict[str, np.ndarray],
+                   goal_masks: dict[str, np.ndarray],
+                   scale: float) -> dict:
+    """Solve regional tone field: per-region Lab affine (6 numbers per region).
+    
+    For each region:
+    - Measure source albedo mean/std under regional mask
+    - Measure pre-render mean/std under pre_mask
+    - Measure goal-render mean/std under goal_mask
+    - Compute 6 numbers (mean + std affine) per region, like global solve but per region
+    - Store parameters for replay
+    """
+    from scipy import ndimage
+    
+    # Get source albedo stats per region
+    src_stats = {}
+    for name, mask in regional_masks.items():
+        px = C.lab_of(rgb)[mask > 0.5]
+        n = int(px.shape[0])
+        if n < MIN_MASK_TEXELS:
+            raise RuntimeError(f"REGIONAL_MASK_TOO_SMALL {name} n={n}: refuse")
+        src_stats[name] = {
+            "mean": [float(v) for v in px.mean(axis=0)],
+            "std": [float(v) + 1e-6 for v in px.std(axis=0)],
+            "n": n
+        }
+    
+    # Get pre-render stats per region
+    pre_stats = {}
+    for name, mask in pre_masks.items():
+        px = C.lab_of(pre_render)[mask > 0.5]
+        n = int(px.shape[0])
+        if n < MIN_MASK_TEXELS:
+            raise RuntimeError(f"REGIONAL_PRE_MASK_TOO_SMALL {name} n={n}: refuse")
+        pre_stats[name] = {
+            "mean": [float(v) for v in px.mean(axis=0)],
+            "std": [float(v) + 1e-6 for v in px.std(axis=0)],
+            "n": n
+        }
+    
+    # Get goal-render stats per region
+    goal_stats = {}
+    for name, mask in goal_masks.items():
+        px = C.lab_of(goal_render)[mask > 0.5]
+        n = int(px.shape[0])
+        if n < MIN_MASK_TEXELS:
+            raise RuntimeError(f"REGIONAL_GOAL_MASK_TOO_SMALL {name} n={n}: refuse")
+        goal_stats[name] = {
+            "mean": [float(v) for v in px.mean(axis=0)],
+            "std": [float(v) + 1e-6 for v in px.std(axis=0)],
+            "n": n
+        }
+    
+    # Compute 6 numbers per region
+    regional_params = {}
+    for name in regional_masks.keys():
+        if name not in pre_stats or name not in goal_stats:
+            continue
+        tex_m = src_stats[name]["mean"]
+        tex_sd = src_stats[name]["std"]
+        pre_m = pre_stats[name]["mean"]
+        pre_sd = pre_stats[name]["std"]
+        goal_m = goal_stats[name]["mean"]
+        goal_sd = goal_stats[name]["std"]
+        
+        # Same computation as global solve but per region
+        offset = [float(a - b) for a, b in zip(pre_m, tex_m)]
+        tgt_mean = [float(g - d) for g, d in zip(goal_m, offset)]
+        gain = [float(g / max(p, 1e-6)) for g, p in zip(goal_sd, pre_sd)]
+        tgt_sd = [float(tex_sd[i] * gain[i]) for i in range(3)]
+        six = tgt_mean + tgt_sd
+        
+        regional_params[name] = {
+            "six": six,
+            "offset_D_render_minus_albedo": offset,
+            "gain_albedo_std": gain,
+            "source_albedo": {"mean": tex_m, "std": tex_sd, "n": src_stats[name]["n"]},
+            "pre_render": {"mean": pre_m, "std": pre_sd, "n": pre_stats[name]["n"]},
+            "goal_render": {"mean": goal_m, "std": goal_sd, "n": goal_stats[name]["n"]},
+        }
+    
+    return regional_params
+
+
+def apply_regional_transfer(rgb: np.ndarray, regional_masks: dict[str, np.ndarray],
+                            regional_params: dict, feather: float, scale: float) -> np.ndarray:
+    """Apply regional tone transfer with feathering.
+    
+    For each region, apply its Lab affine, then blend with feathering at boundaries.
+    """
+    h, w = rgb.shape[:2]
+    lab = C.lab_of(rgb).astype(np.float64)
+    out_lab = lab.copy()
+    
+    # For each region, compute the transfer
+    region_transfers = {}
+    for name, mask in regional_masks.items():
+        if name not in regional_params:
+            continue
+        params = regional_params[name]
+        src_mean = np.array(params["source_albedo"]["mean"], dtype=np.float64)
+        src_sd = np.array(params["source_albedo"]["std"], dtype=np.float64)
+        tgt_mean = np.array(params["six"][:3], dtype=np.float64)
+        tgt_sd = np.array(params["six"][3:], dtype=np.float64)
+        
+        # Apply transfer to masked pixels
+        region_lab = lab[mask > 0.5]
+        transferred = (region_lab - src_mean) / np.maximum(src_sd, 1e-6) * tgt_sd + tgt_mean
+        transferred[..., 0] = np.clip(transferred[..., 0], 0.0, 100.0)
+        region_transfers[name] = (mask, transferred)
+    
+    # Blend transfers with feathering
+    # Build weight maps for each region
+    weight_maps = {}
+    for name, mask in regional_masks.items():
+        weight_maps[name] = feather_mask(mask, feather, scale)
+    
+    # Normalize weights so they sum to <= 1
+    total_weight = np.zeros((h, w), dtype=np.float64)
+    for wm in weight_maps.values():
+        total_weight += wm
+    total_weight = np.maximum(total_weight, 1e-6)
+    
+    # Apply blended transfers
+    for name, (mask, transferred) in region_transfers.items():
+        wm = weight_maps[name] / total_weight
+        if wm.sum() > 0:
+            out_lab[mask > 0.5] = (1 - wm[mask > 0.5][:, None]) * lab[mask > 0.5] + \
+                                   wm[mask > 0.5][:, None] * transferred
+    
+    return C.rgb_of(out_lab)
+
+
+def cmd_solve_regional(args: argparse.Namespace) -> dict:
+    """Solve regional tone field and write parameters."""
+    albedo = C.load_rgb(Path(args.input_albedo))
+    h, w = albedo.shape[:2]
+    scale = max(h, w) / 4096.0
+    
+    # Load facecore mask for bbox
+    face_mask = C.load_mask(Path(args.albedo_mask), (w, h))
+    fys, fxs = np.where(face_mask > 0.5)
+    if len(fys) == 0:
+        raise RuntimeError("empty facecore mask: refuse")
+    face_bbox = np.array([int(fxs.min()), int(fys.min()), int(fxs.max()), int(fys.max())])
+    
+    # Load all masks at input resolution
+    masks = {}
+    masks_dir = Path(args.albedo_mask).parent
+    for role in C.MASK_ROLES:
+        cand = masks_dir / f"mask-{role}.png"
+        if cand.is_file():
+            masks[role] = C.load_mask(cand, (w, h))
+    
+    # Derive regional masks
+    regional_masks = derive_regional_masks(masks, face_bbox)
+    
+    # Load pre-render and goal-render
+    pre_render = C.load_rgb(Path(args.pre_render))
+    goal_render = C.load_rgb(Path(args.goal_render))
+    
+    # Load pre-masks and goal-masks (below-brow style)
+    pre_mask = C.load_mask(Path(args.pre_mask), pre_render.shape[1::-1])
+    goal_mask = C.load_mask(Path(args.goal_mask), goal_render.shape[1::-1])
+    
+    # For regional, we use the same below-brow mask for all regions (pre/goal)
+    # but split into sub-regions using the regional masks
+    pre_masks = {}
+    goal_masks = {}
+    for name, mask in regional_masks.items():
+        # Resize regional mask to pre/goal render size if needed
+        if mask.shape != pre_render.shape[:2]:
+            img = PILImage.fromarray((mask * 255).astype(np.uint8))
+            img = img.resize((pre_render.shape[1], pre_render.shape[0]), PILImage.NEAREST)
+            pre_masks[name] = np.array(img) > 127
+        else:
+            pre_masks[name] = mask
+        
+        if mask.shape != goal_render.shape[:2]:
+            img = PILImage.fromarray((mask * 255).astype(np.uint8))
+            img = img.resize((goal_render.shape[1], goal_render.shape[0]), PILImage.NEAREST)
+            goal_masks[name] = np.array(img) > 127
+        else:
+            goal_masks[name] = mask
+    
+    # Solve regional parameters
+    regional_params = solve_regional(albedo, pre_render, goal_render,
+                                      regional_masks, pre_masks, goal_masks, scale)
+    
+    # Also compute global solve for reference
+    face = _mask_or_refuse(Path(args.albedo_mask), (w, h))
+    pre = C.load_rgb(Path(args.pre_render))
+    goal = C.load_rgb(Path(args.goal_render))
+    pw, ph = pre.shape[1], pre.shape[0]
+    gw, gh = goal.shape[1], goal.shape[0]
+    pre_mask_full = _mask_or_refuse(Path(args.pre_mask), (pw, ph))
+    goal_mask_full = _mask_or_refuse(Path(args.goal_mask), (gw, gh))
+    tex_mean, tex_sd, tex_n = face_stats(albedo, face)
+    pre_mean, pre_sd, pre_n = face_stats(pre, pre_mask_full)
+    goal_mean, goal_sd, goal_n = face_stats(goal, goal_mask_full)
+    six, offset, gain = solve_compute(tex_mean, tex_sd, pre_mean, pre_sd, goal_mean, goal_sd)
+    
+    params = {
+        "subject": args.subject,
+        "method": REGIONAL_VERSION,
+        "global_six": six,
+        "global_offset_D_render_minus_albedo": offset,
+        "global_gain_albedo_std": gain,
+        "source_albedo": {"mean": tex_mean, "std": tex_sd, "n": tex_n},
+        "pre_render": {"mean": pre_mean, "std": pre_sd, "n": pre_n},
+        "goal_render": {"mean": goal_mean, "std": goal_sd, "n": goal_n},
+        "regional": regional_params,
+        "regional_feather_texels": REGIONAL_FEATHER_TEXELS,
+        "shas": {
+            "input_albedo": C.sha256_file(Path(args.input_albedo)),
+            "albedo_mask": C.sha256_file(Path(args.albedo_mask)),
+            "pre_render": C.sha256_file(Path(args.pre_render)),
+            "pre_mask": C.sha256_file(Path(args.pre_mask)),
+            "goal_render": C.sha256_file(Path(args.goal_render)),
+            "goal_mask": C.sha256_file(Path(args.goal_mask)),
+        },
+        "files": {
+            "input_albedo": Path(args.input_albedo).name,
+            "albedo_mask": Path(args.albedo_mask).name,
+            "pre_render": Path(args.pre_render).name,
+            "pre_mask": Path(args.pre_mask).name,
+            "goal_render": Path(args.goal_render).name,
+            "goal_mask": Path(args.goal_mask).name,
+        },
+        "albedo_size": [w, h],
+    }
+    
+    out = Path(args.out_params)
+    out.write_text(json.dumps(params, indent=1) + "\n", encoding="utf8")
+    return params
+
+
+def cmd_replay_regional(args: argparse.Namespace) -> dict:
+    """Replay regional tone field from stored parameters (0 renders)."""
+    params = json.loads(Path(args.params).read_text(encoding="utf8"))
+    if params.get("method") != REGIONAL_VERSION:
+        raise RuntimeError(f"REGIONAL_METHOD_MISMATCH "
+                           f"{params.get('method')}: refuse")
+    
+    albedo_path = Path(args.input_albedo)
+    mask_path = Path(args.albedo_mask)
+    actual_albedo = C.sha256_file(albedo_path)
+    if actual_albedo != params["shas"]["input_albedo"]:
+        raise RuntimeError("REGIONAL_INPUT_SHA_MISMATCH "
+                           f"actual {actual_albedo[:16]} != expected "
+                           f"{params['shas']['input_albedo'][:16]}: refuse")
+    actual_mask = C.sha256_file(mask_path)
+    if actual_mask != params["shas"]["albedo_mask"]:
+        raise RuntimeError("REGIONAL_MASK_SHA_MISMATCH "
+                           f"actual {actual_mask[:16]} != expected "
+                           f"{params['shas']['albedo_mask'][:16]}: refuse")
+    
+    rgb = C.load_rgb(albedo_path)
+    h, w = rgb.shape[:2]
+    scale = max(h, w) / 4096.0
+    feather = params.get("regional_feather_texels", REGIONAL_FEATHER_TEXELS)
+    
+    # Load masks to derive regional masks
+    masks = {}
+    masks_dir = mask_path.parent
+    for role in C.MASK_ROLES:
+        cand = masks_dir / f"mask-{role}.png"
+        if cand.is_file():
+            masks[role] = C.load_mask(cand, (w, h))
+    
+    face_mask = C.load_mask(mask_path, (w, h))
+    fys, fxs = np.where(face_mask > 0.5)
+    if len(fys) == 0:
+        raise RuntimeError("empty facecore mask: refuse")
+    face_bbox = np.array([int(fxs.min()), int(fys.min()), int(fxs.max()), int(fys.max())])
+    
+    regional_masks = derive_regional_masks(masks, face_bbox)
+    regional_params = params.get("regional", {})
+    
+    # Apply regional transfer
+    out = apply_regional_transfer(rgb, regional_masks, regional_params, feather, scale)
+    
+    # Save output
+    C.save_rgb(Path(args.out), out)
+    
+    # Build report with per-region before/after
+    if "goal_render" in params:
+        goal_mean = params["goal_render"]["mean"]
+        before_lab = C.lab_of(rgb).astype(np.float64)
+        after_lab = C.lab_of(out).astype(np.float64)
+        
+        region_table = {}
+        for name in regional_masks.keys():
+            mask = regional_masks[name]
+            if int(mask.sum()) >= 64 and name in regional_params:
+                before_m = before_lab[mask].mean(axis=0)
+                after_m = after_lab[mask].mean(axis=0)
+                region_table[name] = {
+                    "before_Lab": [float(before_m[0]), float(before_m[1]), float(before_m[2])],
+                    "after_Lab": [float(after_m[0]), float(after_m[1]), float(after_m[2])],
+                    "goal_Lab": goal_mean,
+                    "params": regional_params[name],
+                }
+        
+        report = {
+            "mode": "regional-replay",
+            "subject": params.get("subject"),
+            "method": params.get("method"),
+            "global_six": params.get("global_six"),
+            "regional_feather_texels": feather,
+            "region_table": region_table,
+            "output_sha256": C.sha256_file(Path(args.out)),
+        }
+        
+        if args.report:
+            Path(args.report).write_text(json.dumps(report, indent=1) + "\n", encoding="utf8")
+        return report
+    
+    return {"mode": "regional-replay", "output_sha256": C.sha256_file(Path(args.out))}
+
+
+def check_regional() -> None:
+    """Self-test for regional solve/replay."""
+    # Simple round-trip test
+    rng = np.random.default_rng(0)
+    probe = rng.integers(0, 256, size=(64, 64, 3)).astype(np.uint8)
+    lab = C.lab_of(probe)
+    rt = C.rgb_of(lab).astype(int)
+    if np.abs(rt - probe.astype(int)).max() > 3:
+        raise SystemExit("Lab round-trip drift too large")
+    print("FACE_REPLAY_REGIONAL_CHECK ok")
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        description="Replayable global colour solve")
+        description="Replayable global and regional colour solve")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--check-regional", action="store_true")
     ap.add_argument("--solve", action="store_true")
     ap.add_argument("--replay", action="store_true")
+    ap.add_argument("--solve-regional", action="store_true")
+    ap.add_argument("--replay-regional", action="store_true")
     ap.add_argument("--input-albedo", default=None)
     ap.add_argument("--albedo-mask", default=None)
     ap.add_argument("--pre-render", default=None)
@@ -313,6 +745,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.check:
         check()
         return
+    if args.check_regional:
+        check_regional()
+        return
     if args.solve:
         if not args.input_albedo or not args.albedo_mask \
                 or not args.pre_render or not args.pre_mask \
@@ -330,7 +765,24 @@ def main(argv: list[str] | None = None) -> None:
                              "--params --out")
         cmd_replay(args)
         return
-    raise SystemExit("need --check, --solve or --replay")
+    if args.solve_regional:
+        if not args.input_albedo or not args.albedo_mask \
+                or not args.pre_render or not args.pre_mask \
+                or not args.goal_render or not args.goal_mask \
+                or not args.subject or not args.out_params:
+            raise SystemExit("solve-regional needs --input-albedo --albedo-mask "
+                             "--pre-render --pre-mask --goal-render "
+                             "--goal-mask --subject --out-params")
+        cmd_solve_regional(args)
+        return
+    if args.replay_regional:
+        if not args.input_albedo or not args.albedo_mask \
+                or not args.params or not args.out:
+            raise SystemExit("replay-regional needs --input-albedo --albedo-mask "
+                             "--params --out")
+        cmd_replay_regional(args)
+        return
+    raise SystemExit("need --check, --check-regional, --solve, --replay, --solve-regional, or --replay-regional")
 
 
 if __name__ == "__main__":

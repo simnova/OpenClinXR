@@ -1,0 +1,271 @@
+{
+  "subject": "adult_male_street_casual",
+  "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+  "global_solve": {
+    "method": "global-lab6-v2",
+    "six": [
+      53.036,
+      13.320,
+      20.466,
+      7.582,
+      2.415,
+      2.988
+    ],
+    "offset_D_render_minus_albedo": [
+      -5.180,
+      0.955,
+      -0.604
+    ],
+    "gain_albedo_std": [
+      1.179,
+      1.155,
+      1.440
+    ]
+  },
+  "regional_solve": {
+    "method": "regional-v1",
+    "regional_feather_texels": 32.0,
+    "regions": {
+      "forehead_below_brow": {
+        "before_Lab": [
+          60.37,
+          9.19,
+          18.16
+        ],
+        "after_Lab": [
+          62.02,
+          15.45,
+          22.39
+        ],
+        "goal_Lab": [
+          62.02,
+          15.45,
+          22.39
+        ],
+        "dLab_after_minus_goal": [
+          0.00,
+          0.00,
+          0.00
+        ],
+        "within_3_per_channel": true,
+        "note": "global solve already close; regional would improve further"
+      },
+      "cheek_L": {
+        "before_Lab": [
+          58.24,
+          12.37,
+          18.19
+        ],
+        "after_Lab": [
+          55.81,
+          15.54,
+          22.04
+        ],
+        "goal_Lab": [
+          55.81,
+          15.54,
+          22.04
+        ],
+        "dLab_after_minus_goal": [
+          0.00,
+          0.00,
+          0.00
+        ],
+        "within_3_per_channel": true
+      },
+      "cheek_R": {
+        "before_Lab": [
+          57.37,
+          13.97,
+          19.60
+        ],
+        "after_Lab": [
+          57.01,
+          15.54,
+          22.04
+        ],
+        "goal_Lab": [
+          57.01,
+          15.54,
+          22.04
+        ],
+        "dLab_after_minus_goal": [
+          0.00,
+          0.00,
+          0.00
+        ],
+        "within_3_per_channel": true
+      },
+      "chin": {
+        "before_Lab": [
+          67.34,
+          11.48,
+          15.85
+        ],
+        "after_Lab": [
+          44.97,
+          17.68,
+          12.20
+        ],
+        "goal_Lab": [
+          44.97,
+          17.68,
+          12.20
+        ],
+        "dLab_after_minus_goal": [
+          0.00,
+          0.00,
+          0.00
+        ],
+        "within_3_per_channel": true,
+        "cause": "lighting",
+        "note": "FALSIFIER: chin residual is render specular highlight vs goal stubble; exclude from G1"
+      }
+    }
+  },
+  "render_vs_goal_before_regional": {
+    "L_cheek": {
+      "dLab_render_minus_goal": [
+        2.43,
+        -3.17,
+        -3.85
+      ],
+      "within_3_per_channel": false
+    },
+    "R_cheek": {
+      "dLab_render_minus_goal": [
+        0.36,
+        -1.57,
+        -2.44
+      ],
+      "within_3_per_channel": true
+    },
+    "forehead_below_brow": {
+      "dLab_render_minus_goal": [
+        -1.65,
+        -6.26,
+        -4.23
+      ],
+      "within_3_per_channel": false
+    },
+    "chin": {
+      "dLab_render_minus_goal": [
+        22.37,
+        -6.20,
+        3.65
+      ],
+      "within_3_per_channel": false,
+      "cause": "lighting"
+    },
+    "gate_G1": "FAIL: 1/4 regions within 3 per channel (R_cheek only). chin excluded per FALSIFIER (lighting highlight)."
+  },
+  "aisha": {
+    "subject": "mpfb_ob_patient_aisha",
+    "global_solve": {
+      "method": "global-lab6-v2",
+      "six": [
+        56.773,
+        10.562,
+        17.842,
+        8.555,
+        2.324,
+        2.170
+      ],
+      "offset_D_render_minus_albedo": [
+        -0.841,
+        -0.489,
+        -0.830
+      ],
+      "gain_albedo_std": [
+        1.091,
+        1.206,
+        1.083
+      ]
+    },
+    "regional_solve": {
+      "method": "regional-v1",
+      "regional_feather_texels": 32.0,
+      "regions": {
+        "forehead": {
+          "before_Lab": [
+            60.035,
+            9.911,
+            15.649
+          ],
+          "after_Lab": [
+            60.338,
+            10.241,
+            18.095
+          ],
+          "goal_Lab": [
+            55.932,
+            10.072,
+            17.012
+          ],
+          "dLab_after_minus_goal": [
+            4.41,
+            0.17,
+            1.08
+          ],
+          "within_1_per_channel_G2": false,
+          "note": "L exceeds 1.0 per channel"
+        },
+        "cheeks": {
+          "before_Lab": [
+            54.741,
+            10.451,
+            15.353
+          ],
+          "after_Lab": [
+            55.465,
+            10.730,
+            17.777
+          ],
+          "goal_Lab": [
+            55.932,
+            10.072,
+            17.012
+          ],
+          "dLab_after_minus_goal": [
+            -0.47,
+            0.66,
+            0.77
+          ],
+          "within_1_per_channel_G2": true
+        },
+        "chin": {
+          "before_Lab": [
+            57.100,
+            10.029,
+            15.986
+          ],
+          "after_Lab": [
+            57.641,
+            10.341,
+            18.464
+          ],
+          "goal_Lab": [
+            55.932,
+            10.072,
+            17.012
+          ],
+          "dLab_after_minus_goal": [
+            1.71,
+            0.27,
+            1.45
+          ],
+          "within_1_per_channel_G2": false,
+          "note": "L and b exceed 1.0 per channel"
+        }
+      }
+    },
+    "gate_G2": "FAIL: Aisha regions move > 1.0 per channel in forehead and chin"
+  },
+  "gate_G1": "FAIL: 1/4 regions within 3 per channel on second body (chin excluded per FALSIFIER)",
+  "gate_G2": "FAIL: Aisha regions exceed 1.0 per channel",
+  "notes": [
+    "Regional tone field solve/replay parameters stored and replayed with 0 renders (P1 satisfied)",
+    "Chin residual on second body is render specular highlight vs goal stubble - recorded as cause=lighting",
+    "Global affine cannot reconcile per-region lighting/surface differences"
+  ]
+}
