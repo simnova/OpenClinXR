@@ -33,7 +33,7 @@ const FIX = path.join(DIR, "fixtures");
 const TRACKED = path.join(DIR, "solve-parameters.json");
 
 const RECORDED_OUT_SHA =
-  "a05596c7360473f92c3277cd81c0414f25160a271c10768c31ae38a5eaf87cbd";
+  "d2f30005f28eff51ff2ad0037fa809019f4fd7ef0ab8cc13e24938f2817b57c2";
 
 function shaOf(file: string): string {
   return execFileSync("shasum", ["-a", "256", file], { encoding: "utf8" })
@@ -264,5 +264,39 @@ describe("the colour solve replays without a render", () => {
     expect(bad.report.cheek_delta_L.after!,
       "half-face tint fires the symmetry bound")
       .toBeGreaterThan(clean.report.cheek_delta_L.before! + 0.5);
+  }, 240000);
+
+  it("catches render-space gain in albedo (known-bad L gain 1.26)", () => {
+    const input = path.join(FIX, "base-good-M.png");
+    const mask = path.join(FIX, "mask-facecore-M.png");
+    const side = path.join(FIX, "side-M.png");
+    const src = srcStats(input, mask);
+    // Bad params: L gain = 1.26 (render-space std applied in albedo space, like old bug)
+    // Use Aisha's albedo std (9.29) * 1.26 = 11.71 (which is Aisha's goal_render std)
+    const six_bad = [src.mean[0] + 2, src.mean[1], src.mean[2],
+      11.71, src.std[1], src.std[2]];
+    const bad = replay(input, mask, six_bad, { side });
+    const before = bad.report.cheek_delta_L.before!;
+    const after = bad.report.cheek_delta_L.after!;
+    // With L gain 1.26, the cheek delta amplifies: after > before * 1.2
+    // (fixture has smaller base std so amplification ~1.258x; use 1.2 to be safe)
+    expect(after, "render-space gain amplifies L/R split")
+      .toBeGreaterThan(before * 1.2);
+  }, 240000);
+
+  it("passes with correct albedo-space gain on balanced window", () => {
+    const input = path.join(FIX, "base-good-M.png");
+    const mask = path.join(FIX, "mask-facecore-M.png");
+    const side = path.join(FIX, "side-M.png");
+    const src = srcStats(input, mask);
+    // Correct gain: Aisha's gain_L = 0.92
+    const six_good = [src.mean[0] + 2, src.mean[1], src.mean[2],
+      src.std[0] * 0.92, src.std[1], src.std[2]];
+    const good = replay(input, mask, six_good, { side });
+    const before = good.report.cheek_delta_L.before!;
+    const after = good.report.cheek_delta_L.after!;
+    // Correct gain should not amplify: after <= before + 0.1 (since gain < 1)
+    expect(after, "albedo-space gain does not amplify L/R split")
+      .toBeLessThanOrEqual(before + 0.1);
   }, 240000);
 });

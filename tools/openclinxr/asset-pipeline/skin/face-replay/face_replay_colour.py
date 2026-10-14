@@ -39,7 +39,7 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import face_replay_compose as C
 
-METHOD_VERSION = "global-lab6-v1"
+METHOD_VERSION = "global-lab6-v2"
 MIN_MASK_TEXELS = 64
 MIN_HALF_TEXELS = 500
 
@@ -55,12 +55,21 @@ def face_stats(rgb: np.ndarray, mask: np.ndarray) -> tuple[list, list, int]:
 
 
 def solve_compute(tex_mean: list, tex_sd: list, pre_mean: list,
-                  goal_mean: list, goal_sd: list) -> tuple[list, list]:
+                  pre_sd: list, goal_mean: list, goal_sd: list) -> tuple[list, list, list]:
+    """Compute six numbers with render-space gain for std.
+    
+    The mean target in albedo space = goal_render_mean - D (where D = pre_render_mean - albedo_mean).
+    The std target in albedo space = albedo_std * gain, where gain_c = goal_render_std_c / pre_render_std_c.
+    This avoids baking lighting contrast (which increases render std) into the albedo texture.
+    """
     offset = [float(a - b) for a, b in zip(pre_mean, tex_mean)]
-    six = [float(g - d) for g, d in zip(goal_mean, offset)]
-    six += [float(v) for v in goal_sd]
-    _ = tex_sd
-    return six, offset
+    # Mean target: goal render mean minus the render→albedo offset
+    tgt_mean = [float(g - d) for g, d in zip(goal_mean, offset)]
+    # Std target: albedo std scaled by render-space gain (goal_render / pre_render)
+    gain = [float(g / max(p, 1e-6)) for g, p in zip(goal_sd, pre_sd)]
+    tgt_sd = [float(tex_sd[i] * gain[i]) for i in range(3)]
+    six = tgt_mean + tgt_sd
+    return six, offset, gain
 
 
 def apply_transfer(rgb: np.ndarray, src_mean: list, src_sd: list,
@@ -110,13 +119,13 @@ def cmd_solve(args: argparse.Namespace) -> dict:
     tex_mean, tex_sd, tex_n = face_stats(albedo, face)
     pre_mean, pre_sd, pre_n = face_stats(pre, pre_mask)
     goal_mean, goal_sd, goal_n = face_stats(goal, goal_mask)
-    six, offset = solve_compute(tex_mean, tex_sd, pre_mean, goal_mean,
-                                goal_sd)
+    six, offset, gain = solve_compute(tex_mean, tex_sd, pre_mean, pre_sd, goal_mean, goal_sd)
     params = {
         "subject": args.subject,
         "method": METHOD_VERSION,
         "six": six,
         "offset_D_render_minus_albedo": offset,
+        "gain_albedo_std": gain,
         "source_albedo": {"mean": tex_mean, "std": tex_sd, "n": tex_n},
         "pre_render": {"mean": pre_mean, "std": pre_sd, "n": pre_n},
         "goal_render": {"mean": goal_mean, "std": goal_sd, "n": goal_n},
@@ -145,7 +154,7 @@ def cmd_solve(args: argparse.Namespace) -> dict:
 
 def cmd_replay(args: argparse.Namespace) -> dict:
     params = json.loads(Path(args.params).read_text(encoding="utf8"))
-    if params.get("method") != METHOD_VERSION:
+    if params.get("method") not in ("global-lab6-v1", "global-lab6-v2"):
         raise RuntimeError(f"COLOUR_METHOD_MISMATCH "
                            f"{params.get('method')}: refuse")
     albedo_path = Path(args.input_albedo)
@@ -249,11 +258,6 @@ def cmd_replay(args: argparse.Namespace) -> dict:
                     "after_Lab": [float(after_m[0]), float(after_m[1]), float(after_m[2])],
                     "goal_Lab": goal_mean,
                 }
-        
-        region_table["cheek_delta_L"] = {
-            "before": dL_before,
-            "after": dL_after,
-        }
     
     report = {
         "mode": "colour-replay",
