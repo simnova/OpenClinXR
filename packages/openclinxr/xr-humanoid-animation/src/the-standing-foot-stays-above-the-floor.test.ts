@@ -563,3 +563,76 @@ describe("solveTwoBoneIK reusability for settled posture", () => {
     expect(result!.kneeQuat).toBeInstanceOf(THREE.Quaternion);
   });
 });
+
+describe("the settled solve applies the difference, not the absolute pose (arrived-foot-snap)", () => {
+  it("a twisted crouch moves strictly less than the absolute re-pose and converges", () => {
+    // Crouch with the knee bent out of the sagittal plane (the arrival close's
+    // converged pose). Absolute application re-aims the leg into the target
+    // plane: 0.34 m of horizontal travel for ~0.06 m of lift, slot frozen.
+    const build = (): { actorSlot: THREE.Group; leftToe: THREE.Object3D; rightToe: THREE.Object3D } => {
+      const actorSlot = new THREE.Group();
+      const hip = new THREE.Object3D();
+      hip.name = "upperleg01L";
+      hip.position.set(0, 0.9, 0);
+      actorSlot.add(hip);
+      const knee = new THREE.Object3D();
+      knee.name = "lowerleg01L";
+      knee.position.set(0.1, -0.42, 0.07);
+      hip.add(knee);
+      const heel = new THREE.Object3D();
+      heel.name = "footL";
+      heel.position.set(-0.06, -0.36, -0.03);
+      knee.add(heel);
+      const toe = new THREE.Object3D();
+      toe.name = "toe1-1L";
+      toe.position.set(0.02, -0.14, 0.01); // 2 cm below the floor
+      heel.add(toe);
+      const rightToe = new THREE.Object3D();
+      rightToe.name = "toe1-1R";
+      rightToe.position.set(0.1, 0.25, 0);
+      actorSlot.add(rightToe);
+      actorSlot.updateMatrixWorld(true);
+      return { actorSlot, leftToe: toe, rightToe };
+    };
+    const floorOriginY = 0;
+    const contactBandMeters = 0.06;
+    const xzOf = (toe: THREE.Object3D): { x: number; z: number } => {
+      toe.updateMatrixWorld(true);
+      return { x: toe.matrixWorld.elements[12] ?? Number.NaN, z: toe.matrixWorld.elements[14] ?? Number.NaN };
+    };
+    // Absolute path, one call: the snap magnitude on this rig.
+    const absRig = build();
+    const absBefore = xzOf(absRig.leftToe);
+    const absHip = absRig.actorSlot.getObjectByName("upperleg01L")!;
+    const absKnee = absRig.actorSlot.getObjectByName("lowerleg01L")!;
+    const absHeel = absRig.actorSlot.getObjectByName("footL")!;
+    const absHeelW = new THREE.Vector3().setFromMatrixPosition(absHeel.matrixWorld);
+    const absToeW = new THREE.Vector3().setFromMatrixPosition(absRig.leftToe.matrixWorld);
+    const absHipW = new THREE.Vector3().setFromMatrixPosition(absHip.matrixWorld);
+    const absKneeW = new THREE.Vector3().setFromMatrixPosition(absKnee.matrixWorld);
+    const raw = solveTwoBoneIK(absHip, absKnee, absHeel,
+      { x: absHeelW.x, y: floorOriginY - (absToeW.y - absHeelW.y), z: absHeelW.z },
+      absHipW.distanceTo(absKneeW) + absKneeW.distanceTo(absHeelW), 0.005, absRig.actorSlot)!;
+    absHip.quaternion.multiplyQuaternions(absHip.quaternion, raw.hipDelta);
+    absKnee.quaternion.copy(raw.kneeQuat);
+    absHip.updateMatrixWorld(true);
+    const absAfter = xzOf(absRig.leftToe);
+    const absSwing = Math.hypot(absAfter.x - absBefore.x, absAfter.z - absBefore.z);
+    expect(absSwing).toBeGreaterThan(0.02);
+    // Differential path, one call: strictly less travel for the same target.
+    const { actorSlot, leftToe, rightToe } = build();
+    const before = xzOf(leftToe);
+    expect(applySettledPostureCorrection({ actorSlot, leftToe, rightToe, floorOriginY, contactBandMeters }).corrected).toBe(true);
+    const after = xzOf(leftToe);
+    expect(Math.hypot(after.x - before.x, after.z - before.z)).toBeLessThan(absSwing);
+    // Repeated calls (one per frame, as the arrived lock does) converge depth.
+    for (let frame = 0; frame < 60; frame += 1) {
+      applySettledPostureCorrection({ actorSlot, leftToe, rightToe, floorOriginY, contactBandMeters });
+      leftToe.updateMatrixWorld(true);
+      if (floorOriginY - (leftToe.matrixWorld.elements[13] ?? Number.NaN) <= 0.005 + 1e-6) break;
+    }
+    leftToe.updateMatrixWorld(true);
+    expect(floorOriginY - (leftToe.matrixWorld.elements[13] ?? Number.NaN)).toBeLessThanOrEqual(0.005 + 1e-6);
+    expect(actorSlot.position.y).toBeCloseTo(0, 6);
+  });
+});
