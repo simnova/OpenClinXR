@@ -1,0 +1,1 @@
+{"declared_on":"ActorPhenotypeSchema","fields":{"face_targets":{"kind":"name-to-weight map","optional":true},"lip_tone":{"kind":"string","optional":true},"reference_portrait":{"carries":["licence","path","sha256"],"kind":"object","optional":true},"skin_asset_id":{"kind":"string","optional":true}},"source":"packages/openclinxr/shared-schemas/src/schemas.ts"}

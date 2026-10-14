@@ -58,6 +58,7 @@
   ],
   "tests": [
     "src/actor-turn-plan-forbids-dialogue-pain.test.ts",
+    "src/face-phenotype/the-face-phenotype-fields-are-declared.test.ts",
     "src/schemas.test.ts",
     "src/the-actor-card-schema-authors-placement.test.ts",
     "src/the-factory-station-schemas-validate.test.ts"
