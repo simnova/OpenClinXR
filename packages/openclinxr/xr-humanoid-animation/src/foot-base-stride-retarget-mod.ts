@@ -1,5 +1,4 @@
 import type { Object3D } from "three";
-import { Quaternion, Vector3 } from "three";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import {
   FOOTSTEP_R_PASSING_S,
@@ -32,18 +31,16 @@ import {
  * the clip pose. Stance follows the observe-only stance lock from earlier
  * in the same frame (also the published stanceFoot column, so pin stance
  * and metric stance coincide by construction). Handovers plant the physical
- * foot with anchor heights capped at the contact band; feet freeze
- * yaw-compensated beside the offset, else ankle articulation invalidates it
- * by centimetres. Handovers anchor to the solved foot (zero travel).
+ * foot with anchor heights capped at the contact band. The heel offset is
+ * re-read from the mixer-fresh leg every substep (exogenous clip truth, so
+ * no feedback); a once-captured entry offset goes stale with ankle
+ * articulation and injects handover-scale errors.
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
  */
 
 export type FootBaseSide = "left" | "right";
-
-/** World up axis for the yaw-compensated foot freeze. */
-const Y_AXIS = new Vector3(0, 1, 0);
 
 /** This slice's route length in metres: the foot-base path runs here only. */
 export const FOOT_BASE_ROUTE_LENGTH_M = 1.31;
@@ -83,8 +80,6 @@ export type FootBaseState = {
     { origin: { x: number; y: number; z: number }; absBase: { x: number; y: number; z: number } } | null
   >;
   offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
-  /** Entry foot world orientation per foot (yaw-compensated freeze, stepping-turn discipline). */
-  footQuat: Record<FootBaseSide, { q: { x: number; y: number; z: number; w: number }; yaw: number } | null>;
   hingeNormal: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
   wraps: number;
   lastActionTimeS: number | null;
@@ -210,7 +205,6 @@ function createState(stance: FootBaseSide): FootBaseState {
     placed: { left: false, right: false },
     takeoff: { left: null, right: null },
     offsetEntry: { left: null, right: null },
-    footQuat: { left: null, right: null },
     hingeNormal: { left: null, right: null },
     wraps: 0,
     lastActionTimeS: null,
@@ -387,34 +381,25 @@ export function applyFootBaseStep(input: {
   for (const side of [stance, swing] as const) {
     const chain = findSteppingLegChain(slot, side);
     if (chain === null) continue;
-    let captured = state.offsetEntry[side];
-    if (captured === null) {
-      const ends = heelWorldNow(chain);
-      captured = {
-        offset: {
-          x: ends.toe.x - ends.heel.x,
-          y: ends.toe.y - ends.heel.y,
-          z: ends.toe.z - ends.heel.z,
-        },
-        yaw: yawNow,
-      };
-      state.offsetEntry[side] = captured;
-    }
-    if (state.footQuat[side] === null) {
-      // Freeze the foot's WORLD orientation beside the offset (stepping-turn
-      // discipline): the mixer's ankle articulation otherwise invalidates
-      // the entry offset by centimetres (measured ~5 cm stance misses).
-      const parentQ = new Quaternion();
-      if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
-      else parentQ.identity();
-      parentQ.normalize();
-      const localQ = chain.heel.quaternion;
-      const worldQ = parentQ.clone().multiply(localQ).normalize();
-      state.footQuat[side] = {
-        q: { x: worldQ.x, y: worldQ.y, z: worldQ.z, w: worldQ.w },
-        yaw: yawNow,
-      };
-    }
+    // Fresh offset EVERY substep from the mixer-posed leg (pre-solve): the
+    // mixer overwrites local rotations each substep regardless of our
+    // writes, so this read is exogenous clip truth — no feedback loop is
+    // possible (contrast the stepping-turn warning, which re-read from the
+    // solved leg). A once-captured entry offset goes stale as the ankle
+    // articulates through the walk and was measured injecting ~15 cm swing
+    // errors at handovers; the frozen-foot workaround for it levers the toe
+    // on heel rotation by a similar amount. Live offset needs no freeze:
+    // the hinge leaves heel orientation mixer-true, so toe lands on target.
+    const ends = heelWorldNow(chain);
+    const captured = {
+      offset: {
+        x: ends.toe.x - ends.heel.x,
+        y: ends.toe.y - ends.heel.y,
+        z: ends.toe.z - ends.heel.z,
+      },
+      yaw: yawNow,
+    };
+    state.offsetEntry[side] = captured;
     const toeTarget = side === stance ? stanceTarget : swingTarget;
     const heelTarget = heelTargetForToeTargetStable({
       toeTargetWorld: toeTarget,
@@ -430,19 +415,6 @@ export function applyFootBaseStep(input: {
       previousBendNormal: state.hingeNormal[side],
     });
     if (solved.bendNormal !== null) state.hingeNormal[side] = solved.bendNormal;
-    const frozen = state.footQuat[side];
-    if (frozen !== null) {
-      const parentQ = new Quaternion();
-      if (chain.heel.parent) chain.heel.parent.getWorldQuaternion(parentQ);
-      else parentQ.identity();
-      parentQ.normalize();
-      const yawDelta = new Quaternion().setFromAxisAngle(Y_AXIS, yawNow - frozen.yaw);
-      const wantWorld = yawDelta.multiply(
-        new Quaternion(frozen.q.x, frozen.q.y, frozen.q.z, frozen.q.w),
-      ).normalize();
-      chain.heel.quaternion.copy(parentQ.invert().multiply(wantWorld)).normalize();
-      chain.heel.updateMatrixWorld(true);
-    }
     if (side === stance) {
       stanceMissM = solved.missM;
       // THE SLOT ADVANCE: exact rigid translate of the stance toe onto its
