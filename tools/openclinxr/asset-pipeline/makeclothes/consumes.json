@@ -44,6 +44,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/station-mouth-registry",
     "entrypoint": ".",
     "names": [
