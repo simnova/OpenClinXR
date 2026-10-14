@@ -79,6 +79,8 @@ export type FootBaseState = {
   wraps: number;
   lastActionTimeS: number | null;
   worst: { missM: number; side: FootBaseSide; sub: number } | null;
+  /** Post-solve toe worlds from the previous substep, per foot. */
+  lastSolved: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
 };
 
 export type FootBaseStepSummary = {
@@ -195,6 +197,7 @@ function createState(stance: FootBaseSide): FootBaseState {
     wraps: 0,
     lastActionTimeS: null,
     worst: null,
+    lastSolved: { left: null, right: null },
   };
 }
 
@@ -267,9 +270,15 @@ export function applyFootBaseStep(input: {
     state.placed.right = true;
     state.stance = stance;
   } else if (stance !== state.stance) {
-    // Handover: the new stance foot plants where it stands; the other foot's
-    // foothold is its liftoff point (a pinned foot lifts from where it stood).
-    const planted = stance === "left" ? leftToeW : rightToeW;
+    // Handover: the new stance foot plants where it PHYSICALLY stands (last
+    // substep's solved position), not where the mixer clip poses it this
+    // frame — the clip runs at scale 1 while the rebuild runs at plan scale,
+    // so the mixer touchdown reads centimetres off the rebuilt one and
+    // adopting it shows up as a one-window slide step (measured 16-26 mm).
+    // Planting where the foot is makes handover travel exactly zero; the
+    // other foot's foothold is its liftoff point (a pinned foot lifts from
+    // where it stood).
+    const planted = state.lastSolved[stance] ?? (stance === "left" ? leftToeW : rightToeW);
     state.foothold[stance] = { ...planted };
     state.stance = stance;
   }
@@ -379,5 +388,10 @@ export function applyFootBaseStep(input: {
       state.worst = { missM: solved.missM, side, sub };
     }
   }
+  slot.updateMatrixWorld(true);
+  const solvedLeft = toeWorldNow(approach.leftToe);
+  const solvedRight = toeWorldNow(approach.rightToe);
+  if (solvedLeft !== null) state.lastSolved.left = solvedLeft;
+  if (solvedRight !== null) state.lastSolved.right = solvedRight;
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
 }
