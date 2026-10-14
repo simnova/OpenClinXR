@@ -142,7 +142,15 @@ function runWalk(seconds: number): {
       closing: false,
     },
     restStance: null,
-    closeState: { anchorXz: null, done: false, framesRun: 0, plantFoot: null },
+    closeState: {
+      leftAnchorXz: null,
+      rightAnchorXz: null,
+      done: false,
+      framesRun: 0,
+      plantFoot: null,
+      swingSegmentFoot: null,
+      swingSegmentStartDistance: 0,
+    },
     // TRAVEL_UNIT is {x:0, z:1}; start/target give applyCaseOwnedStanceLock the same route.
     start: { x: 0, y: 0, z: 0 },
     target: { x: 0, y: 0, z: 1 },

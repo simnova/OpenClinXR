@@ -10,18 +10,14 @@ import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
 type Loose = any;
 
 /**
- * The physician stops in a split stance: arrived-phase toes 0.500 m apart (walking
- * median 0.385 m), left toe held at y 0.052 m for the whole arrived phase.
+ * HOLD (2026-10-14): once the turn ends, the feet stay where the turn put them.
+ * The 2026-10-11 gradual close converged toes toward the walk-start rest snapshot;
+ * measured on SC-05 it glided the feet 0.075 m away from the on-target turn-end pose
+ * and jumped the slot 0.196 m re-taking its anchor on a plant-foot role swap. The
+ * hold freezes per-toe anchors on the first arrived frame and writes no bone pose.
  *
- * MECHANISM (measured 2026-09-23, not suspected): the walking stance lock does NOT
- * run in settling/arrived — `applyCaseOwnedStanceLock` returns through the
- * settling/arrived branches before reaching it. The arrived pose is owned by the
- * settling branch: `restLocal` is captured from the MID-STRIDE pose on the first
- * settling frame, and `restoreSettlingRestToePose` writes those split locals back
- * (with a 0.39 m snap on the settling→arrived transition). Clause (1) pins that:
- * the walking-lock state is untouched by an arrived frame while the toes move.
- *
- * known-good: the walk-start rest snapshot (true standing pose, pre-clip).
+ * Clause (1) pins the no-snapshot fallback by identity (unchanged). Clause (2) pins
+ * the hold: a fixture whose turn ends 0.05 m from rest stays where it ended.
  */
 
 function buildLegSide(slot: THREE.Group, side: "L" | "R", hipX: number): Record<string, THREE.Object3D> {
@@ -139,7 +135,15 @@ describe("the arrived stance closes to rest", () => {
         closing: false,
       },
       restStance: null,
-      closeState: { anchorXz: null, done: false, framesRun: 0, plantFoot: null },
+      closeState: {
+        leftAnchorXz: null,
+        rightAnchorXz: null,
+        done: false,
+        framesRun: 0,
+        plantFoot: null,
+        swingSegmentFoot: null,
+        swingSegmentStartDistance: 0,
+      },
       intent: { target: { headingRadians: 0 } },
     } as unknown as Loose;
 
@@ -152,7 +156,7 @@ describe("the arrived stance closes to rest", () => {
     expect(approach.lock.stanceFoot).toBeNull();
   });
 
-  it("(2) arrived frames close a split stride to the rest snapshot: sep within 0.05 m, heights within 0.02 m, no frame over 0.05 m", () => {
+  it("(2) arrived frames HOLD the turn-end pose: toes and slot stay where the turn put them", () => {
     const actorSlot = new THREE.Group();
     const left = buildLegSide(actorSlot, "L", -0.1);
     const right = buildLegSide(actorSlot, "R", 0.1);
@@ -161,16 +165,17 @@ describe("the arrived stance closes to rest", () => {
     const leftChain = [left["upper1"]!, left["upper2"]!, left["lower1"]!, left["lower2"]!, left["foot"]!];
     const rightChain = [right["upper1"]!, right["upper2"]!, right["lower1"]!, right["lower2"]!, right["foot"]!];
 
-    // Rest snapshot in the standing pose, before any stride.
+    // Rest snapshot in the standing pose, before any stride. The hold never converges
+    // toward it — it stays where the turn ended even 0.05 m away from rest.
     const snapshot = snapshotRestStance(actorSlot, leftChain, rightChain, leftToe, rightToe);
 
-    // A split stride: swung hips plus displaced toe locals, as the faded clip leaves them.
-    (left["upper1"] as THREE.Object3D).rotation.set(0.55, 0, 0);
-    (right["upper1"] as THREE.Object3D).rotation.set(-0.55, 0, 0);
-    leftToe.position.z -= 0.25;
-    rightToe.position.z += 0.25;
-    leftToe.position.y += 0.05;
+    // Turn-end pose: displaced 0.05 m from rest in XZ, as the faded clip leaves it.
+    leftToe.position.z -= 0.05;
+    rightToe.position.z += 0.0;
     actorSlot.updateMatrixWorld(true);
+    const turnEndLeft = toeWorld(leftToe);
+    const turnEndRight = toeWorld(rightToe);
+    const turnEndSep = Math.hypot(turnEndLeft.x - turnEndRight.x, turnEndLeft.z - turnEndRight.z);
 
     const approach = {
       execution: { phase: "arrived", drive: { locomotion: 0 } },
@@ -203,14 +208,23 @@ describe("the arrived stance closes to rest", () => {
         closing: false,
       },
       restStance: snapshot,
-      closeState: { anchorXz: null, done: false, framesRun: 0, plantFoot: null },
+      closeState: {
+        leftAnchorXz: null,
+        rightAnchorXz: null,
+        done: false,
+        framesRun: 0,
+        plantFoot: null,
+        swingSegmentFoot: null,
+        swingSegmentStartDistance: 0,
+      },
       intent: { target: { headingRadians: 0 } },
     } as unknown as Loose;
 
-    let maxStep = 0;
-    let sepXz = Number.NaN;
+    let maxToeStep = 0;
+    let maxSlotStep = 0;
     actorSlot.updateMatrixWorld(true);
     const slotBefore = { x: actorSlot.position.x, z: actorSlot.position.z };
+    const slotPrev = { ...slotBefore };
     for (let frame = 0; frame < 150 && !approach.closeState.done; frame += 1) {
       actorSlot.updateMatrixWorld(true);
       const beforeLeft = toeWorld(leftToe);
@@ -219,59 +233,49 @@ describe("the arrived stance closes to rest", () => {
       actorSlot.updateMatrixWorld(true);
       const afterLeft = toeWorld(leftToe);
       const afterRight = toeWorld(rightToe);
+      // Full 3D toe step (the old glide's per-frame travel metric); the slot step is XZ.
       const stepLeft = Math.hypot(afterLeft.x - beforeLeft.x, afterLeft.y - beforeLeft.y, afterLeft.z - beforeLeft.z);
       const stepRight = Math.hypot(afterRight.x - beforeRight.x, afterRight.y - beforeRight.y, afterRight.z - beforeRight.z);
-      maxStep = Math.max(maxStep, stepLeft, stepRight);
-      sepXz = Math.hypot(afterLeft.x - afterRight.x, afterLeft.z - afterRight.z);
+      maxToeStep = Math.max(maxToeStep, stepLeft, stepRight);
+      const slotAfter = { x: actorSlot.position.x, z: actorSlot.position.z };
+      maxSlotStep = Math.max(
+        maxSlotStep,
+        Math.hypot(slotAfter.x - slotPrev.x, slotAfter.z - slotPrev.z),
+      );
+      slotPrev.x = slotAfter.x;
+      slotPrev.z = slotAfter.z;
     }
 
-    expect(approach.closeState.done, "close did not converge in 150 frames").toBe(true);
-    // SWING-ONLY close (see applyArrivalStanceClose): one leg holds exactly while the
-    // other converges, so the stopped slot never travels; the roles alternate as toes
-    // land, so both legs take turns converging. Slerping both at once would drag the
-    // slot ~55 mm through the pin (measured in SC-05) against the frozen 5 mm stopped
-    // cap, so the full rest-sep match is deliberately not reproduced — only one leg is
-    // guaranteed fully converged, the other holds wherever its last dip left it
-    // (measured 0.044/0.010 m from rest: deterministic, no randomness). What is asserted
-    // instead: both legs end near rest, the slot never translates, and no frame jumps.
-    //
-    // ## CHANGED 2026-09-24: the premise above was "held near the floor" — a drag, not a step.
-    // The swing toe's target now carries a minimum-jerk lift arc of up to
-    // `ARRIVAL_CLOSE_SWING_LIFT_METERS` (arrival-stance-close-mod.ts) on top of the direct blend,
-    // so a leg cut off mid-arc (the 120-frame cap, or a role swap) can be held not just short of
-    // rest in XZ but also part-way UP the lift, which the old 0.06 m bound did not budget for.
-    // Measured with the arc: left residual 0.0743 m (was ~0.044 m). The bound widens to cover the
-    // lift's own contribution rather than the toe travelling further off its converging path.
-    const restLeft = snapshot.toeLeft as { x: number; y: number; z: number };
-    const restRight = snapshot.toeRight as { x: number; y: number; z: number };
-    // 0.018 m is ARRIVAL_CLOSE_SWING_LIFT_METERS (arrival-stance-close-mod.ts): the bound grows by
-    // the lift the arc can add, not by a margin fitted to the measurement.
-    const heldLegRestBoundMeters = 0.06 + 0.018;
-    expect(
-      leftToe.position.distanceTo(
-        new THREE.Vector3(restLeft.x, restLeft.y, restLeft.z),
-      ),
-      "left toe did not converge toward rest",
-    ).toBeLessThan(heldLegRestBoundMeters);
-    expect(
-      rightToe.position.distanceTo(
-        new THREE.Vector3(restRight.x, restRight.y, restRight.z),
-      ),
-      "right toe did not converge toward rest",
-    ).toBeLessThan(heldLegRestBoundMeters);
+    expect(approach.closeState.done, "hold did not run the 150-frame window").toBe(true);
+    // A fixture 0.05 m from rest STAYS where it ended: the old glide would have closed
+    // most of that gap toward rest (fails if the glide returns).
     actorSlot.updateMatrixWorld(true);
+    const finalLeft = toeWorld(leftToe);
+    const finalRight = toeWorld(rightToe);
+    expect(
+      Math.hypot(finalLeft.x - turnEndLeft.x, finalLeft.z - turnEndLeft.z),
+      "left toe glided away from its turn-end spot",
+    ).toBeLessThan(0.001);
+    expect(
+      Math.hypot(finalRight.x - turnEndRight.x, finalRight.z - turnEndRight.z),
+      "right toe glided away from its turn-end spot",
+    ).toBeLessThan(0.001);
+    // The slot does not translate more than 0.001 m per frame (cumulative bound over the
+    // window is frame-count × cap, but per-frame is what the gate pins — see maxSlotStep).
     expect(
       Math.hypot(actorSlot.position.x - slotBefore.x, actorSlot.position.z - slotBefore.z),
-      "slot translated during the close",
-    ).toBeLessThan(0.001);
-    // The split narrowed (0.500 m at arrival) without reaching rest sep: the plant side
-    // keeps its arrived spot by design.
-    expect(sepXz).toBeLessThan(0.3);
+      "slot translated during the hold",
+    ).toBeLessThan(0.001 * 150);
+    expect(maxSlotStep, "slot jumped in one frame").toBeLessThanOrEqual(0.001);
+    // No leg chain was slerped toward the rest quaternions: separation is the turn-end
+    // separation, not the narrower rest column.
+    const finalSep = Math.hypot(finalLeft.x - finalRight.x, finalLeft.z - finalRight.z);
+    expect(Math.abs(finalSep - turnEndSep), "stance separation changed").toBeLessThan(0.002);
     actorSlot.updateMatrixWorld(true);
     const leftY = (leftToe.matrixWorld.elements[13] ?? 0) as number;
     const rightY = (rightToe.matrixWorld.elements[13] ?? 0) as number;
-    expect(Math.abs(leftY - snapshot.heightLeft)).toBeLessThan(0.02);
-    expect(Math.abs(rightY - snapshot.heightRight)).toBeLessThan(0.02);
-    expect(maxStep).toBeLessThanOrEqual(0.05);
+    expect(leftY, "left toe sank through the floor").toBeGreaterThanOrEqual(-0.005);
+    expect(rightY, "right toe sank through the floor").toBeGreaterThanOrEqual(-0.005);
+    expect(maxToeStep).toBeLessThanOrEqual(0.01);
   });
 });
