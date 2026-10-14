@@ -5,6 +5,7 @@ import {
 } from "@openclinxr/asset-registry/actor-posture";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
 import { publishClipForwardDiagnostic } from "./bedside-approach-clip-forward-diagnostic.js";
+import { BEDSIDE_APPROACH_NOT_EVIDENCE_FOR } from "./bedside-approach-evidence-scope-mod.js";
 import { geometryRevisionDigest, resolveBedsideApproachIntent } from "@openclinxr/asset-registry/case-approach-intent";
 import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import type { Object3D } from "three";
@@ -347,19 +348,13 @@ export type BedsideApproachRuntimeEvidence = {
   standoffMeters: number | null;
   arrivedAtMs: number | null;
   stoppedSeconds: number;
+  /** Walk-start standing toe separation (`captureRestStance`'s `sepXz`), world m; null before the walk. */
+  restStanceSepXzM: number | null;
   notEvidenceFor: string[];
 };
 
 /** How many frames of the ring are kept. 20 s at 60 Hz, which covers walk, turn and stop. */
 export const BEDSIDE_APPROACH_EVIDENCE_SAMPLE_LIMIT = 1200;
-
-const NOT_EVIDENCE_FOR = [
-  "clinical_validity",
-  "worn_headset_readiness",
-  "public_deployment",
-  "gait_realism",
-  "scoring_validity",
-] as const;
 
 /** Knee flexion in degrees: the angle between `hip->knee` and `knee->heel`, world space. A
  * straight leg (thigh/shin collinear) reads ~0; a bent knee reads larger. */
@@ -481,7 +476,8 @@ export function publishBedsideApproachRuntimeEvidence(
     standoffMeters: approach?.intent.standoffMeters ?? null,
     arrivedAtMs: frame?.phase === "arrived" ? (previous?.arrivedAtMs ?? Date.now()) : null,
     stoppedSeconds: frame?.stoppedSeconds ?? 0,
-    notEvidenceFor: [...NOT_EVIDENCE_FOR],
+    restStanceSepXzM: approach?.restStance?.sepXz ?? null,
+    notEvidenceFor: [...BEDSIDE_APPROACH_NOT_EVIDENCE_FOR],
   } satisfies BedsideApproachRuntimeEvidence;
 }
 

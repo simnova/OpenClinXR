@@ -28,6 +28,8 @@
  * few cm, body yaw following the feet, pair centered under the pelvis on every landing.
  */
 
+import { restBesideStanceLanding } from "./stepping-turn-rest-landing-mod.js";
+
 export type StepFoot = "left" | "right";
 
 export type Xz = { x: number; z: number };
@@ -156,6 +158,14 @@ export type SteppingTurnPlanInput = {
   entrySlotXz: Xz;
   /** Rig leg-length spatial scale (1 = physician): scales widths and dip. */
   legScale: number;
+  /**
+   * Walk-start rest toe separation, world metres (`captureRestStance`'s `sepXz`).
+   * When valid (> 0), the LAST step's swing lands beside the stance with this
+   * lateral separation instead of mirrored across the slot end (see
+   * `stepping-turn-rest-landing-mod.ts` for the measured cause). Null/invalid
+   * keeps the mirror on every step, exactly as before.
+   */
+  restSepM?: number | null;
 };
 
 /** Plan N alternating lift-and-place steps covering the residual yaw. */
@@ -202,10 +212,25 @@ export function planSteppingTurn(input: SteppingTurnPlanInput): SteppingTurnPlan
     // start-relative goal goes stale by the arc displacement. The stance stays
     // exactly where it stands; only the swing travels.
     const slotEnd = rotateAbout(slotPred, stanceXz, yaw);
-    const swingToXz = {
-      x: 2 * slotEnd.x - stanceXz.x,
-      z: 2 * slotEnd.z - stanceXz.z,
-    };
+    // Last step with a valid rest separation: land beside the stance (same fore-aft,
+    // rest lateral separation) instead of mirrored — see
+    // `stepping-turn-rest-landing-mod.ts`. Earlier steps keep the mirror: their
+    // landings are the next step's stance anchors, so the slot path is unchanged.
+    const restSepM = input.restSepM ?? null;
+    const swingToXz =
+      index === stepCount - 1 && restSepM !== null && restSepM > 0
+        ? restBesideStanceLanding({
+          stanceXz,
+          slotEndXz: slotEnd,
+          endYawRadians: targetHeadingRadians,
+          swingFoot,
+          swingFromXz,
+          restSepM,
+        })
+        : {
+          x: 2 * slotEnd.x - stanceXz.x,
+          z: 2 * slotEnd.z - stanceXz.z,
+        };
     // Step 0 keeps live heights (no snap); later steps continue from the hand-off:
     // stance holds what the foot landed at (baseline), swing leaves what its hold left.
     const stanceY = index === 0 ? footY[stanceFoot] : stanceBaselineY;

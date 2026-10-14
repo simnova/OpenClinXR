@@ -1,4 +1,4 @@
-/** Public subpath entry: keep-only re-exports for the stepping-turn assay seam. Implementation: ./stance-lock-ik.js, ./stepping-turn-leg-ik-mod.js, ./stepping-turn-plan-mod.js. */
+/** Public subpath entry: keep-only re-exports for the stepping-turn assay seam. Implementation: ./stance-lock-ik.js, ./stepping-turn-leg-ik-mod.js, ./stepping-turn-plan-mod.js, ./stepping-turn-execution-mod.js. */
 
 export {
   findStanceChain,
@@ -22,3 +22,6 @@ export {
   STEPPING_PIVOT_CAPTURE_HEIGHT_M,
   steppingPivotWindowKey,
 } from "./stepping-turn-slot-pivot-mod.js";
+export {
+  beginSteppingTurn,
+} from "./stepping-turn-execution-mod.js";

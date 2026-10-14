@@ -35096,6 +35096,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-begin-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stepping-turn begin admission: admits the beginSteppingTurn execution entry the stepping-turn-execution-mod.test.ts rest gate cases pin through the ./stepping-turn subpath."
     }
   ]
 }

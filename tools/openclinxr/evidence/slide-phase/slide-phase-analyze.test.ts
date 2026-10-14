@@ -128,6 +128,30 @@ describe("slide-phase validation (a): planted 0.05 m slide", () => {
   });
 });
 
+describe("slide-phase handback T1: arrived-phase stance", () => {
+  it("reads the last recorded frame and the arrived excursion, not the settling end", () => {
+    const run = syntheticRun();
+    // Feet move after settling: frame 20 drifts right and below the floor.
+    run.frames[20]!.leftToe = toe(0, 0.01, 0);
+    run.frames[20]!.rightToe = toe(0.25, -0.01, 0.1);
+    const m = computeSlidePhase("synthetic-arrived-drift-run0", run);
+
+    // Settling end unchanged: frame 17, the frozen pair.
+    expect(m.endStance.frame).toBe(17);
+    expect(m.endStance.lateralM).toBeCloseTo(0.45, 9);
+    expect(m.endStance.foreAftM).toBeCloseTo(0, 9);
+
+    // Arrived stance reads the LAST frame (yaw 0: lat = dx, fore = dz).
+    expect(m.arrivedStance.frame).toBe(20);
+    expect(m.arrivedStance.lateralM).toBeCloseTo(0.25, 9);
+    expect(m.arrivedStance.foreAftM).toBeCloseTo(0.1, 9);
+    // Excursion over arrived frames 18-20: fore is 0.1 throughout, min toe -0.01.
+    expect(m.arrivedStance.maxAbsForeM).toBeCloseTo(0.1, 9);
+    expect(m.arrivedStance.minToeYM).toBeCloseTo(-0.01, 9);
+    expect(m.missing).toEqual([]);
+  });
+});
+
 describe("slide-phase deep gate (S1 M3): in-band roll above 0.02 m", () => {
   it("band variant reports the travel while the deep variant reads 0", () => {
     const run = syntheticRun();
