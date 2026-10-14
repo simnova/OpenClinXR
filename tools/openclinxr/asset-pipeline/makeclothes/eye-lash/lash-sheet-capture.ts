@@ -25,7 +25,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
-import { chromium } from "../../../evidence/lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
+import { chromium, type Page } from "../../../evidence/lib/slotted-playwright.js";
+
+type HeadlessBrowser = {
+  newPage(options?: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
+};
 
 const REPO = process.cwd();
 const SIZE = 1280;
@@ -225,9 +230,14 @@ window.__done = true;
 
 async function main(): Promise<void> {
   const { server, port } = await startStatic();
-  const browser = await chromium.launch({ headless: true, args: ["--enable-unsafe-swiftshader"] });
   try {
-    const page = await browser.newPage({ viewport: { width: SIZE, height: SIZE }, deviceScaleFactor: 1 });
+  await createLocalComputeServices({
+    browserLaunch: chromium.launch.bind(chromium, {
+      headless: true,
+      args: ["--enable-unsafe-swiftshader"],
+    }),
+  }).sceneCapture.withBrowser("lashcards:lash-sheet", async (launched) => {
+    const page = await (launched as HeadlessBrowser).newPage({ viewport: { width: SIZE, height: SIZE }, deviceScaleFactor: 1 });
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 300)); });
@@ -273,8 +283,8 @@ async function main(): Promise<void> {
       closedBand: report.closedBand,
       renderer: report.renderer,
     }, null, 2));
+  });
   } finally {
-    await browser.close().catch(() => undefined);
     server.close();
   }
 }
