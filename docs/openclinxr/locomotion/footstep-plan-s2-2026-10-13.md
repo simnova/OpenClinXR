@@ -193,3 +193,55 @@ STILL: G1 on 2.0/6.0 m is settle-owned — both SC-05 settles open +0.0 to
 differs by entry foot, and the loco close converges only partially by S1.
 Next mechanism (separate slice): settling-turn entry-foot behavior and
 arrival-close convergence.
+
+## Settle by entry foot (2026-10-13, commit b43b80653)
+
+M1 per-frame traces (walk exit to arrived, `?footstepPlan=1&fixedClock=1`,
+body frame = meter projection, run0; raw in
+`.openclinxr/evidence/footstep-plan/settle-m1-*/`, RESULT in
+`settle-result/RESULT.json`):
+
+| route | entry planted | exit fore/lat (m) | exit heights L/R (m) | first pivot | step0 footfall (world XZ) | first \|fore\|>0.03 | settling end |
+|---|---|---|---|---|---|---|---|
+| 1.31 sc05 | right | −0.0295/−0.1741 | 0.0622/0.0455 | left (≠ planted) | swing R (−0.783,1.212)→(−0.640,1.149), stance L (−0.836,1.044) | step 93, arrived (arrival-close) | +0.0122 |
+| 2.0 sc05 | left | +0.0098/−0.1697 | 0.0488/0.0791 | left (= planted) | swing R (−0.791,1.232)→(−0.666,1.095), stance L (−0.878,1.086) | step 68, settling (stepping-turn) | +0.1019 |
+| 3.7 sc05 | right | −0.0211/−0.1723 | 0.0744/0.0474 | left (≠ planted) | swing R (−0.795,1.220)→(−0.640,1.120), stance L (−0.855,1.057) | step 120, settling (stepping-turn) | +0.0570 |
+
+World-frame verdict: recomputed plans predict the measured ends to <1 mm
+(0.0119/0.0122, 0.1021/0.1019, 0.0575/0.0570), pair midpoint == slot at every
+landing, both feet travel 0.11–0.18 m through the turn. The execution is
+faithful; the plan's mirror goal is the cause: it centers each landing under
+the pelvis, so the end split is twice the final stance foot's fore-aft offset
+from the slot axis — an offset set by the exit pose. Pivot choice refuted
+(2.0 m pivots planted yet splits worst; 1.31/3.7 m share the entry foot yet
+differ). D2: first divergence at walk frame 0 (capture-start jitter,
+substep 7v8, slot 1.5 cm), washed out by exit; the STATE 0.007 sd did not
+reproduce (this batch sd 0.0001).
+
+M2 (one mechanism change): the last turn step's swing lands beside the stance
+— same end-frame fore-aft, lateral separation = the walk-start rest snapshot
+(`captureRestStance`, live value 0.3364 m on all routes) — via new module
+`stepping-turn-rest-landing-mod.ts`; earlier steps keep the mirror so stance
+anchors and the slot path are unchanged (arrival identical pre/post). No
+snapshot falls back to the byte-identical mirror (unit-pinned). Evidence
+publishes `restStanceSepXzM` for the lateral grade (claim-scope const moved
+out of `station-bedside-approach-mod.ts` to hold its 500-line budget).
+
+Gates (n=3 per route, `footstepPlan=1&fixedClock=1`):
+
+| route | end fore (sd) | end lat vs rest 0.3364 | arrival (was) | slide/m (cap) | G1/G2/G3 |
+|---|---|---|---|---|---|
+| 1.31 sc05 | +0.0000 (0.0000) | −0.3365 | 0.0327 (0.0327) | 0.0824 (0.084) | PASS/PASS/PASS |
+| 2.0 sc05 | −0.0000 (0.0000) | −0.3363 | 0.0218 (0.0218) | 0.0348 (0.040) | PASS/PASS/PASS |
+| 3.7 sc05 | +0.0000 (0.0000) | −0.3364 | 0.0327 (0.0327) | 0.0279 (0.034) | PASS/PASS/PASS |
+| 6.0 loco | −0.0000 (0.0000) | −0.3363 | 0.0335 (0.034) | 0.0196 (0.025) | PASS/PASS/PASS |
+
+G4: fix absent (`settle-m1-*`, f6fc52b23) 2.0 m +0.1020 / 3.7 m +0.0570 RED;
+fix present all four routes 0.0000 GREEN. G5: flags-off slide 0.3253 in
+[0.3208, 0.3266]; anim 143/143, runtime 113/113, architecture 291 green.
+DONE = G1∧G2∧G3 on all four routes.
+
+STILL: the arrived-phase close diverges after a good turn end (slot static:
+1.31/3.7 m open to +0.078…+0.126, 2.0 m overshoots to −0.054 — single-leg
+convergence against a non-rest plant). Out of gate scope and arrival latches
+are forbidden; separate slice with its own measurement.

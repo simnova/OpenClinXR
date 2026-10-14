@@ -113,6 +113,8 @@ type FrameProbe = {
   walkSimSubsteps: number | null;
   /** S2: knee flexion degrees per side, for the amplitude counterweight; null on old builds. */
   kneeFlexionDeg: { left: number | null; right: number | null } | null;
+  /** Walk-start rest toe separation (world m); null on old builds / before the walk. */
+  restStanceSepXzM: number | null;
 };
 
 /**
@@ -205,6 +207,7 @@ const PROBE_SOURCE = `
     targetWorld: ev ? ev.targetWorld : null,
     walkSimSubsteps: tail && tail.walkSimSubsteps !== undefined ? tail.walkSimSubsteps : null,
     kneeFlexionDeg: tail && tail.kneeFlexionDeg !== undefined ? tail.kneeFlexionDeg : null,
+    restStanceSepXzM: ev ? (ev.restStanceSepXzM ?? null) : null,
   };
 })()
 `;

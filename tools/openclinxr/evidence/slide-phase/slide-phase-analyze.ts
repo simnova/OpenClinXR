@@ -159,6 +159,20 @@ export type SlidePhaseMetrics = {
     yawErrorDeg: number | null;
     bothInBand: boolean | null;
   };
+  /**
+   * T2-handback: the pose at the LAST RECORDED frame (phase arrived) plus the
+   * arrived-phase excursion that got there. The gate grades the pose a viewer
+   * is left looking at — not just the last settling frame.
+   */
+  arrivedStance: {
+    frame: number | null;
+    lateralM: number | null;
+    foreAftM: number | null;
+    /** Max |fore-aft split| over all arrived frames (excursion-then-return check). */
+    maxAbsForeM: number | null;
+    /** Min toe world height over both toes over all arrived frames (floor check). */
+    minToeYM: number | null;
+  };
   /** Sub-quantities that could not be computed, with the missing column named. */
   missing: string[];
 };
@@ -433,6 +447,54 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
     }
   }
 
+  // (5b) arrived stance at E2 = last recorded frame + arrived-phase extremes.
+  let arrivedFrame: number | null = null;
+  let arrivedLateralM: number | null = null;
+  let arrivedForeAftM: number | null = null;
+  let arrivedMaxAbsForeM: number | null = null;
+  let arrivedMinToeYM: number | null = null;
+  const arrivedIdx: number[] = [];
+  for (let i = 0; i < frames.length; i += 1) {
+    if (frames[i]!.phase === "arrived") arrivedIdx.push(i);
+  }
+  if (arrivedIdx.length === 0) {
+    missing.push("arrivedStance: no frame with phase=arrived (phase column)");
+  } else {
+    const e2 = arrivedIdx[arrivedIdx.length - 1]!;
+    const f = frames[e2]!;
+    arrivedFrame = e2;
+    if (f.leftToe !== null && f.rightToe !== null && f.slot !== null) {
+      const dx = f.rightToe.x - f.leftToe.x;
+      const dz = f.rightToe.z - f.leftToe.z;
+      const yaw = f.slot.yaw;
+      arrivedLateralM = dx * Math.cos(yaw) + dz * -Math.sin(yaw);
+      arrivedForeAftM = dx * Math.sin(yaw) + dz * Math.cos(yaw);
+    } else {
+      missing.push("arrivedStance: last frame lacks leftToe/rightToe/slot (record columns)");
+    }
+    let maxAbsFore = 0;
+    let minToeY = Number.POSITIVE_INFINITY;
+    let extremesOk = true;
+    for (const i of arrivedIdx) {
+      const g = frames[i]!;
+      if (g.leftToe === null || g.rightToe === null || g.slot === null) {
+        extremesOk = false;
+        break;
+      }
+      const dx = g.rightToe.x - g.leftToe.x;
+      const dz = g.rightToe.z - g.leftToe.z;
+      const fore = dx * Math.sin(g.slot.yaw) + dz * Math.cos(g.slot.yaw);
+      maxAbsFore = Math.max(maxAbsFore, Math.abs(fore));
+      minToeY = Math.min(minToeY, g.leftToe.y, g.rightToe.y);
+    }
+    if (extremesOk) {
+      arrivedMaxAbsForeM = maxAbsFore;
+      arrivedMinToeYM = minToeY;
+    } else {
+      missing.push("arrivedStance: an arrived frame lacks leftToe/rightToe/slot (record columns)");
+    }
+  }
+
   return {
     tag,
     nFrames: frames.length,
@@ -480,6 +542,13 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
       yawErrorRad,
       yawErrorDeg: yawErrorRad === null ? null : (yawErrorRad * 180) / Math.PI,
       bothInBand,
+    },
+    arrivedStance: {
+      frame: arrivedFrame,
+      lateralM: arrivedLateralM,
+      foreAftM: arrivedForeAftM,
+      maxAbsForeM: arrivedMaxAbsForeM,
+      minToeYM: arrivedMinToeYM,
     },
     missing,
   };
@@ -545,8 +614,8 @@ async function main(): Promise<void> {
 
   const lines: string[] = [];
   lines.push(`# slide-phase: ${dir} vehicle=${vehicle} (${metrics.length} runs)`);
-  lines.push("| run | startL | startR | 1stStep | walkWin | walkSum | deepWin | deepSum | rootM | slide/m | deep/m | settleL | settleR | turnMax | pivot | lat | foreAft | yawErrDeg | band |");
-  lines.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  lines.push("| run | startL | startR | 1stStep | walkWin | walkSum | deepWin | deepSum | rootM | slide/m | deep/m | settleL | settleR | turnMax | pivot | lat | foreAft | yawErrDeg | band | arrLat | arrFore | arrMaxFore | arrMinToeY |");
+  lines.push("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const m of metrics) {
     lines.push(
       `| ${m.tag} | ${fmt(m.startTransient.leftTravelM)} | ${fmt(m.startTransient.rightTravelM)} | ` +
@@ -556,7 +625,9 @@ async function main(): Promise<void> {
         `${fmt(m.settle.leftTravelM)} | ` +
         `${fmt(m.settle.rightTravelM)} | ${fmt(m.turn.maxM)} | ${m.turn.pivotFoot ?? "n/a"} | ` +
         `${fmt(m.endStance.lateralM)} | ${fmt(m.endStance.foreAftM)} | ${fmt(m.endStance.yawErrorDeg, 2)} | ` +
-        `${m.endStance.bothInBand === null ? "n/a" : m.endStance.bothInBand ? "yes" : "NO"} |`,
+        `${m.endStance.bothInBand === null ? "n/a" : m.endStance.bothInBand ? "yes" : "NO"} | ` +
+        `${fmt(m.arrivedStance.lateralM)} | ${fmt(m.arrivedStance.foreAftM)} | ` +
+        `${fmt(m.arrivedStance.maxAbsForeM)} | ${fmt(m.arrivedStance.minToeYM)} |`,
     );
   }
   lines.push("");
@@ -585,6 +656,10 @@ async function main(): Promise<void> {
   show("endStance.lateralM", "m", metrics.map((m) => m.endStance.lateralM));
   show("endStance.foreAftM", "m", metrics.map((m) => m.endStance.foreAftM));
   show("endStance.yawErrorDeg", "deg", metrics.map((m) => m.endStance.yawErrorDeg), 2);
+  show("arrivedStance.lateralM", "m", metrics.map((m) => m.arrivedStance.lateralM));
+  show("arrivedStance.foreAftM", "m", metrics.map((m) => m.arrivedStance.foreAftM));
+  show("arrivedStance.maxAbsForeM", "m", metrics.map((m) => m.arrivedStance.maxAbsForeM));
+  show("arrivedStance.minToeYM", "m", metrics.map((m) => m.arrivedStance.minToeYM));
   lines.push("");
   for (const m of metrics) {
     lines.push(

@@ -76,6 +76,7 @@
     "./stepping-turn": [
       "STEPPING_PIVOT_CAPTURE_HEIGHT_M",
       "STEPPING_TURN_STEP_DURATION_S",
+      "beginSteppingTurn",
       "findStanceChain",
       "findSteppingLegChain",
       "heelTargetForToeTarget",
