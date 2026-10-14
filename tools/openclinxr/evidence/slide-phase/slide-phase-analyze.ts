@@ -114,6 +114,69 @@ export type StanceWindow = {
   travelM: number;
 };
 
+/**
+ * Toe-midpoint arrival (feet-target slice, M1 meter): distance in world XZ
+ * from the toe midpoint ((L+R)/2) to the record's targetWorld, at two
+ * instants the brief names: the last settling frame (turn complete, close
+ * not yet run) and the last recorded frame (everything applied). Slot
+ * arrival at the same instants rides beside it; both columns are kept.
+ */
+export type ToeMidArrival = {
+  /** Last settling frame index, null when the record carries no settling frame. */
+  settleFrame: number | null;
+  /** Last recorded frame index (always frames.length - 1 on a non-empty record). */
+  lastFrame: number | null;
+  /** Toe-midpoint XZ distance to targetWorld at the last settling frame. */
+  settleToeMidM: number | null;
+  /** Slot XZ distance to targetWorld at the last settling frame. */
+  settleSlotM: number | null;
+  /** Toe-midpoint XZ distance to targetWorld at the last recorded frame. */
+  lastToeMidM: number | null;
+  /** Slot XZ distance to targetWorld at the last recorded frame. */
+  lastSlotM: number | null;
+};
+
+function toeMidOf(f: SlidePhaseFrame): { x: number; z: number } | null {
+  if (f.leftToe === null || f.rightToe === null) return null;
+  return { x: (f.leftToe.x + f.rightToe.x) / 2, z: (f.leftToe.z + f.rightToe.z) / 2 };
+}
+
+export function computeToeMidArrival(frames: SlidePhaseFrame[]): ToeMidArrival {
+  const empty: ToeMidArrival = {
+    settleFrame: null,
+    lastFrame: null,
+    settleToeMidM: null,
+    settleSlotM: null,
+    lastToeMidM: null,
+    lastSlotM: null,
+  };
+  if (frames.length === 0) return empty;
+  const last = frames.length - 1;
+  const settleIdx: number[] = [];
+  for (let i = 0; i < frames.length; i += 1) {
+    if (frames[i]!.phase === "settling") settleIdx.push(i);
+  }
+  const out: ToeMidArrival = { ...empty, lastFrame: last };
+  const lastF = frames[last]!;
+  const lastMid = toeMidOf(lastF);
+  const lastTarget = lastF.targetWorld ?? null;
+  if (lastMid !== null && lastF.slot !== null && lastTarget !== null) {
+    out.lastToeMidM = Math.hypot(lastMid.x - lastTarget.x, lastMid.z - lastTarget.z);
+    out.lastSlotM = Math.hypot(lastF.slot.x - lastTarget.x, lastF.slot.z - lastTarget.z);
+  }
+  if (settleIdx.length === 0) return out;
+  const s = settleIdx[settleIdx.length - 1]!;
+  const sf = frames[s]!;
+  const sMid = toeMidOf(sf);
+  out.settleFrame = s;
+  const sTarget = sf.targetWorld ?? null;
+  if (sMid !== null && sf.slot !== null && sTarget !== null) {
+    out.settleToeMidM = Math.hypot(sMid.x - sTarget.x, sMid.z - sTarget.z);
+    out.settleSlotM = Math.hypot(sf.slot.x - sTarget.x, sf.slot.z - sTarget.z);
+  }
+  return out;
+}
+
 export type SlidePhaseMetrics = {
   tag: string;
   nFrames: number;
@@ -190,6 +253,11 @@ export type SlidePhaseMetrics = {
    * sumM the path diagnostic).
    */
   arrivedToeTravel: ArrivedToeTravel;
+  /**
+   * Feet-target slice (M1): toe-midpoint arrival at the last settling and
+   * last recorded frames, beside the slot arrival at the same instants.
+   */
+  toeMidArrival: ToeMidArrival;
   /** Sub-quantities that could not be computed, with the missing column named. */
   missing: string[];
 };
@@ -568,6 +636,7 @@ export function computeSlidePhase(tag: string, run: SlidePhaseRunFile): SlidePha
       minToeYM: arrivedMinToeYM,
     },
     arrivedToeTravel: computeArrivedToeTravel(frames),
+    toeMidArrival: computeToeMidArrival(frames),
     missing,
   };
 }
@@ -678,11 +747,23 @@ async function main(): Promise<void> {
   show("arrivedStance.foreAftM", "m", metrics.map((m) => m.arrivedStance.foreAftM));
   show("arrivedToeTravel.leftMaxM", "m", metrics.map((m) => m.arrivedToeTravel.leftMaxM));
   show("arrivedToeTravel.rightMaxM", "m", metrics.map((m) => m.arrivedToeTravel.rightMaxM));
+  show("toeMidArrival.settleToeMidM", "m", metrics.map((m) => m.toeMidArrival.settleToeMidM));
+  show("toeMidArrival.settleSlotM", "m", metrics.map((m) => m.toeMidArrival.settleSlotM));
+  show("toeMidArrival.lastToeMidM", "m", metrics.map((m) => m.toeMidArrival.lastToeMidM));
+  show("toeMidArrival.lastSlotM", "m", metrics.map((m) => m.toeMidArrival.lastSlotM));
   show("arrivedToeTravel.leftSumM", "m", metrics.map((m) => m.arrivedToeTravel.leftSumM));
   show("arrivedToeTravel.rightSumM", "m", metrics.map((m) => m.arrivedToeTravel.rightSumM));
   show("arrivedStance.maxAbsForeM", "m", metrics.map((m) => m.arrivedStance.maxAbsForeM));
   show("arrivedStance.minToeYM", "m", metrics.map((m) => m.arrivedStance.minToeYM));
   lines.push("");
+  for (const m of metrics) {
+    const a = m.toeMidArrival;
+    lines.push(
+      `- ${m.tag}: toeMidArrival settleFrame=${a.settleFrame ?? "n/a"} settleToeMid=${fmt(a.settleToeMidM)} ` +
+        `settleSlot=${fmt(a.settleSlotM)} lastFrame=${a.lastFrame ?? "n/a"} lastToeMid=${fmt(a.lastToeMidM)} ` +
+        `lastSlot=${fmt(a.lastSlotM)}`,
+    );
+  }
   for (const m of metrics) {
     const t = m.arrivedToeTravel;
     lines.push(

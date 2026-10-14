@@ -181,6 +181,29 @@ describe("slide-phase deep gate (S1 M3): in-band roll above 0.02 m", () => {
     const m = computeSlidePhase("synthetic-single-run0", run);
     expect(m.walking.deepWindows).toHaveLength(1);
     expect(m.walking.deepSingleFrameRuns).toBe(1);
+    expect(m.walking.deepSingleFrameRuns).toBe(1);
     expect(m.walking.deepSumM).toBeCloseTo(0, 9);
+  });
+});
+
+describe("feet-target M1: toe-midpoint arrival", () => {
+  it("reports toe-mid and slot arrival at last settling and last recorded frames", () => {
+    const run = syntheticRun();
+    // Give every frame a targetWorld: settling end frame 17 has toes
+    // L=(0.05,0), R=(0.5,0) -> mid (0.275,0); slot (0.55,0).
+    // Arrived frame 20 has toes L=(0,0.01,0), R=(0.25,-0.01,0.1) -> mid (0.125,0.05).
+    for (const f of run.frames) f.targetWorld = { x: 0.275, y: 0, z: 0 };
+    run.frames[20]!.leftToe = toe(0, 0.01, 0);
+    run.frames[20]!.rightToe = toe(0.25, -0.01, 0.1);
+    const m = computeSlidePhase("synthetic-toemid-run0", run);
+    // Settle end: toe mid exactly on target, slot 0.275 away.
+    expect(m.toeMidArrival.settleFrame).toBe(17);
+    expect(m.toeMidArrival.settleToeMidM).toBeCloseTo(0, 9);
+    expect(m.toeMidArrival.settleSlotM).toBeCloseTo(0.275, 9);
+    // Last frame: mid (0.125,0.05) vs target (0.275,0) -> hypot(0.15,0.05).
+    expect(m.toeMidArrival.lastFrame).toBe(20);
+    expect(m.toeMidArrival.lastToeMidM).toBeCloseTo(Math.hypot(0.15, 0.05), 9);
+    expect(m.toeMidArrival.lastSlotM).toBeCloseTo(0.275, 9);
+    expect(m.missing).toEqual([]);
   });
 });
