@@ -166,6 +166,41 @@ describe("foot-base stride retarget", () => {
     clearFootBaseState(approach);
   });
 
+  it("records post-solve toe Y per foot for the band-hold signal", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildLeggedRig();
+    const approach = {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+    const labels = stanceLabels();
+    expect(readFootBaseState(approach)).toBeNull();
+    applyFootBaseStep({
+      approach: approach as never,
+      routeDx: 0,
+      routeDz: 1.31,
+      routeLength: 1.31,
+      clip: { labels, actionTimeSeconds: 0.3 },
+    });
+    const state = readFootBaseState(approach);
+    expect(state).not.toBeNull();
+    // The band-hold hold/release decision next substep consumes these; they
+    // must track the solved toes, not stay at their null init.
+    for (const [toe, side] of [[leftToe, "left"], [rightToe, "right"]] as const) {
+      toe.updateWorldMatrix(true, false);
+      expect(state!.lastToeY[side]).toBeCloseTo(toe.matrixWorld.elements[13] ?? 0, 6);
+    }
+    clearFootBaseState(approach);
+  });
+
   it("no-ops with the flag off and off the 1.31 m route", () => {
     const { slot, leftToe, rightToe } = buildLeggedRig();
     const approach = {

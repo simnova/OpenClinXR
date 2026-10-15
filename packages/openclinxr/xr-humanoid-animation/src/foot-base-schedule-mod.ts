@@ -46,6 +46,42 @@ export const FOOT_BASE_STANCE_FRACTION = {
 } as const;
 
 /**
+ * Band-hold release backstop, in plant-relative phase (footbase-6): a foot
+ * past its schedule lift stays pinned while its last solved toe sits inside
+ * the contact band (toe roll), but never more than this far past lift, so a
+ * dragging foot cannot hold the slot. 0.10 ≈ 3 walking frames; measured lifts
+ * clear the 0.06 band one frame past lift (row height jumps ~16 mm), so the
+ * backstop never binds in practice.
+ */
+export const FOOT_BASE_BAND_HOLD_REL = 0.10;
+
+/**
+ * Feet the band-hold keeps pinned past their schedule lift (footbase-6, pure).
+ * A foot inside its own contact interval is never named here (the schedule
+ * owns it); a foot past lift within the backstop whose last solved toe world
+ * Y sits at or under floorY + bandM is held, so its first swing motion
+ * happens out of band and no stance window spans liftoff motion. Null last
+ * toe (before the first solve) never holds: release only once above the band.
+ */
+export function footBaseBandHoldSides(input: {
+  phase01: number;
+  lastToeY: Record<FootBaseSide, number | null>;
+  floorY: number;
+  bandM: number;
+}): FootBaseSide[] {
+  const held: FootBaseSide[] = [];
+  for (const side of ["left", "right"] as const) {
+    if (footBaseRelPhase(side, input.phase01) < FOOT_BASE_STANCE_FRACTION[side]) continue;
+    const pastLift = footBaseRelPhase(side, input.phase01) - FOOT_BASE_STANCE_FRACTION[side];
+    if (!(pastLift > 0 && pastLift <= FOOT_BASE_BAND_HOLD_REL)) continue;
+    const lastY = input.lastToeY[side];
+    if (lastY === null || !Number.isFinite(lastY)) continue;
+    if (lastY <= input.floorY + input.bandM) held.push(side);
+  }
+  return held;
+}
+
+/**
  * Plant-toe height datum per foot, in metres (footbase-5): the row table's
  * heightM is documented (emit-walk-contact-phases.ts) as "toe Y minus this
  * stance's plant toe Y" — relative to the heel-strike toe-up pose, NOT the

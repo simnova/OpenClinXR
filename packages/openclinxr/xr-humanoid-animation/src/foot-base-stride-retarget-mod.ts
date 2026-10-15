@@ -8,6 +8,7 @@ import {
   FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
+  footBaseBandHoldSides,
   footBaseHalfBounds,
   footBaseHalfIndex,
   footBaseHalfTravelM,
@@ -100,7 +101,7 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
 export type FootBaseApproachState = Pick<
   CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
+  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
 >;
 
 export type FootBaseClipRead = {
@@ -129,6 +130,8 @@ export type FootBaseState = {
    * the feet by centimetres from substep one. Null until the first step.
    */
   entryUnwrappedS: number | null;
+  /** Post-solve toe world Y per foot, previous substep (footbase-6 band-hold signal). Null until the first solve. */
+  lastToeY: Record<FootBaseSide, number | null>;
   worst: { missM: number; side: FootBaseSide; sub: number } | null;
 };
 
@@ -191,6 +194,7 @@ function createState(stance: FootBaseSide): FootBaseState {
     wraps: 0,
     lastActionTimeS: null,
     entryUnwrappedS: null,
+    lastToeY: { left: null, right: null },
     worst: null,
   };
 }
@@ -327,10 +331,20 @@ export function applyFootBaseStep(input: {
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
   const leftIn = footBaseRelPhase("left", phase01) < FOOT_BASE_STANCE_FRACTION.left;
   const rightIn = footBaseRelPhase("right", phase01) < FOOT_BASE_STANCE_FRACTION.right;
-  const pinned: FootBaseSide[] =
+  const scheduledPin: FootBaseSide[] =
     leftIn || rightIn
       ? (["left", "right"] as const).filter((side) => (side === "left" ? leftIn : rightIn))
       : [stance];
+  // BAND-HOLD (footbase-6): a foot past its schedule lift stays pinned
+  // while its last solved toe sits inside the contact band, so the first
+  // swing motion happens out of band and no window spans liftoff motion.
+  const held = footBaseBandHoldSides({
+    phase01,
+    lastToeY: state.lastToeY,
+    floorY,
+    bandM: approach.contactBandMeters,
+  }).filter((side) => !scheduledPin.includes(side));
+  const pinned: FootBaseSide[] = [...scheduledPin, ...held];
   const ordered: FootBaseSide[] = [
     ...pinned.filter((side) => side === stance),
     ...pinned.filter((side) => side !== stance),
@@ -369,19 +383,30 @@ export function applyFootBaseStep(input: {
     + (stanceFoothold.z - approach.start.z) * unitZ;
   const swingRel = footBaseRelPhase(swing, phase01);
   const swingLiftRel = FOOT_BASE_STANCE_FRACTION[swing];
-  // Swing-phase progress with zero end velocities (raised-cosine ease): the
-  // foot rolls off the toe at liftoff and settles onto the heel at
-  // touchdown instead of launching/stomping at full segment speed (a linear
-  // sweep moves ~7 cm on its first frame, which reads as a kick and trips
-  // the slide meter's stance-window boundary). Endpoints are exact either
-  // way: liftoff continuity and touchdown/handover coincidence hold.
+  // Swing-phase progress with zero end velocities (raised-cosine ease,
+  // footbase-5): the foot rolls off the toe at liftoff and settles onto the
+  // heel at touchdown instead of launching/stomping at full segment speed (a
+  // linear sweep moves ~7 cm on its first frame, which reads as a kick and
+  // trips the slide meter's stance-window boundary). Endpoints are exact
+  // either way: liftoff continuity and touchdown/handover coincidence hold.
+  // (Footbase-6 tried progress off the row's own along01, which carries the
+  // clip's toe-off dwell — but the clip fraction spans the cruise stride
+  // while ours spans the truncated short-stride segment: row-timed exit left
+  // L 0.26 m behind R (arrival 0.137 m off ref vs 0.059 m on the ease). The
+  // ease stays.)
   const swingLinear = Math.min(Math.max((swingRel - swingLiftRel) / (1 - swingLiftRel), 0), 1);
   const swingProgress = 0.5 - 0.5 * Math.cos(Math.PI * swingLinear);
   const liftoffAlong = (state.foothold[swing].x - approach.start.x) * unitX
     + (state.foothold[swing].z - approach.start.z) * unitZ;
   const touchdownHalf = footBaseHalfIndex(planShiftedS + (1 - swingRel) * cycleS, cycleS);
   const touchdownAlong = stanceAlong + footBaseHalfTravelM(touchdownHalf, scale);
-  const swingAlong = liftoffAlong + swingProgress * (touchdownAlong - liftoffAlong);
+  // FOOTBASE-6 (with the phase-target exit): the final swing's touchdown
+  // half lies past the planned walk, so the raw projection aims at a ghost
+  // plant past the route end (L toe 0.32 m past target at exit). Footholds
+  // never pass the route end; neither does the swing target. Only the final
+  // half reaches this cap, so mid-walk swings are byte-identical.
+  const swingTouchdownAlong = Math.min(touchdownAlong, routeLength);
+  const swingAlong = liftoffAlong + swingProgress * (swingTouchdownAlong - liftoffAlong);
   const swingTarget = {
     x: approach.start.x + unitX * swingAlong
       + sideX * (state.sideHome[swing] + swingRow.lateralM),
@@ -455,6 +480,11 @@ export function applyFootBaseStep(input: {
     if (worst === null || solved.missM > worst.missM) {
       state.worst = { missM: solved.missM, side, sub };
     }
+  }
+  // Band-hold signal for the next substep (consumed one frame later).
+  for (const side of ["left", "right"] as const) {
+    const toe = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
+    state.lastToeY[side] = toe?.y ?? null;
   }
   slot.updateMatrixWorld(true);
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
