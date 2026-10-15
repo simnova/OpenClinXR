@@ -3,11 +3,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "../index.js";
-import { repoRoot } from "../repo-root.js";
-import { stationRunners } from "../station-runners.js";
-import { planFaceRealism } from "./plan.js";
-import { faceRealismModelCallCount, planFaceRealismStation, runFaceRealism } from "./run.js";
+import {
+  faceRealismModelCallCount,
+  faceRealismRunner,
+  factoryStationSchemas,
+  planFaceRealism,
+  planFaceRealismStation,
+  PRODUCTION_STATION_IDS,
+  repoRoot,
+  runFaceRealism,
+} from "../index.js";
 
 /**
  * OBSERVABLE: no face station exists. The skin chain, eye texture, shell,
@@ -25,7 +30,8 @@ const STORE = "/Volumes/files/openclinxr-assets/store";
 describe("the face station replays a stored record", () => {
   it("(1) face_realism is registered with its runner", () => {
     expect(PRODUCTION_STATION_IDS).toContain("face_realism");
-    expect(stationRunners.face_realism.stationId).toBe("face_realism");
+    expect(factoryStationSchemas.face_realism.stationId).toBe("face_realism");
+    expect(faceRealismRunner.stationId).toBe("face_realism");
   });
 
   it("(2) catalog accepts VALID and rejects an unknown key", () => {
