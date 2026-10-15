@@ -1,0 +1,187 @@
+{
+ "card": "tsk_59ea9f9a3aea8cfa",
+ "commits": [
+  "24bc5e9da"
+ ],
+ "falsifier": "exam leaves primary gaze (eyetex-yaw renders at 0/+-25; this card grades +-40): NOT triggered, proceeding recorded",
+ "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-parallax.ts",
+ "moduleSha256": "8d8e88d20004b26e2dc765cb93212050d3736803fedecd30f89d9756dccb65f2",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/eyeshader",
+ "red": {
+  "after": "onBeforeCompile plane-hit parallax + limbus + pupil-scale, no transmission pass (G1 max 0.87px, G2 max-abs-err 0)",
+  "before": "landed eye = iris texture on globe + clear alpha shell; grep parallax|limbus|pupil|onBeforeCompile over packages/openclinxr/xr-scene/src + tools/openclinxr/asset-pipeline/eyes = no hits; Cycles probe of landed mesh (aisha-eyetex.glb, shell R-fit 12.24mm): refractive-shell vs hidden-shell pupil centres IDENTICAL to 0.01px at all 5 yaws (0.00px refractive shift)",
+  "beforeCentres": {
+   "refract": {
+    "0": [
+     634.92,
+     652.46
+    ],
+    "25": [
+     790.02,
+     652.05
+    ],
+    "-25": [
+     480.37,
+     651.82
+    ],
+    "40": [
+     871.96,
+     651.18
+    ],
+    "-40": [
+     399.59,
+     651.17
+    ]
+   },
+   "shellHiddenIdentical": true
+  }
+ },
+ "cyclesRef": {
+  "centres": {
+   "0": [
+    640.52,
+    640.52
+   ],
+   "25": [
+    651.86,
+    640.54
+   ],
+   "-25": [
+    629.1,
+    640.53
+   ],
+   "40": [
+    659.88,
+    640.56
+   ],
+   "-40": [
+    620.82,
+    640.54
+   ]
+  },
+  "detectCropSha256": "1d91bf1333663547b7e6c0e162b785656af82c6817ad97eba8f170e8459bb317",
+  "files": [
+   "detect-refract_yaw0.png",
+   "detect-refract_yaw25.png",
+   "detect-refract_yaw-25.png",
+   "detect-refract_yaw40.png",
+   "detect-refract_yaw-40.png"
+  ],
+  "ior": 1.376,
+  "iorSource": "Gullstrand exact schematic eye cornea n=1.376 (AAO 'Optical Properties of the Eye' n~1.3765; PMC3972707 'Assuming a refractive index of 1.376 ... Gullstrand eye model')",
+  "irisCropSha256": "863b546c6ca3fbb16726e6a4c91a2083b03f89c1477e5e2c778c92396a2c2e31",
+  "irisSourceSha256": "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695",
+  "method": "Blender 5.1.1 Cycles close-up ortho 1280 (30mm plate, 42.667px/mm), anatomical schematic eye: Gullstrand anterior R 7.7mm single-surface cap (smooth-shaded bmesh), chamber 3.0mm, iris = 270px crop of landed iris-centred-c.png centred disk B, globe R 11.9mm; eye rotates in place about iris centre; uniform white world beauty / black-world emissive-detection; 128spp beauty, 64spp detection; script eyeshader/build_anatomical_eye.py",
+  "posteriorOmitted": "single-surface reference (like HDRP plane-hit + landed single shell); recorded ~10pc systematic on gain only, cancels in approx-vs-ref gate",
+  "procedure": "measure_detect.py: threshold = half image maximum (per image), largest bright component, intensity-weighted centroid px at 1280; SAME script both sets"
+ },
+ "parallax": {
+  "approxCentres": {
+   "0": [
+    640.44,
+    640.45
+   ],
+   "25": [
+    651.28,
+    640.46
+   ],
+   "-25": [
+    629.49,
+    640.47
+   ],
+   "40": [
+    659.02,
+    640.46
+   ],
+   "-40": [
+    621.45,
+    640.45
+   ]
+  },
+  "approxFiles": [
+   "detect-approx_yaw0.png",
+   "detect-approx_yaw25.png",
+   "detect-approx_yaw-25.png",
+   "detect-approx_yaw40.png",
+   "detect-approx_yaw-40.png"
+  ],
+  "gate": "max 0.87px <= 2px at 1280: PASS",
+  "model": "virtual-cornea plane-hit (Snell + iris-plane intersect), constants = recorded anatomy, ZERO fitted params, Unity 0.02 offset NOT used anywhere",
+  "perViewErrPx2D": {
+   "0": 0.11,
+   "25": 0.59,
+   "-25": 0.39,
+   "40": 0.87,
+   "-40": 0.64
+  },
+  "rejected": "Jimenez linear uv-=k*Vtan single gain: 5.2px at +-40 (measured); closed air-backed meniscus: TIR-traps in volumeless Cycles (measured veil+glow)",
+  "tsPredictionPx": {
+   "0": 0.0,
+   "25": 10.93,
+   "-25": -10.93,
+   "40": 18.77,
+   "-40": -18.77
+  },
+  "tsVsCyclesErrPx": {
+   "25": 0.41,
+   "-25": 0.49,
+   "40": 0.59,
+   "-40": 0.93
+  }
+ },
+ "pupilIdentity": {
+  "glsl": "uPupilScale == 1.0 exact bypass in eyeParallaxGlsl()",
+  "image": "warp shift-0 reproduces crop byte-identically (warp_iris.py asserts array_equal): max abs err 0",
+  "ts": "applyPupilScale(rel,1) early-returns input: max abs err 0 on sampled grid (test recomputes live)",
+  "gate": "PASS"
+ },
+ "limbus": {
+  "formula": "smoothstep smooth mask, width 30/1024 UV (measured 120->150px profile), strength 0.4, tint (0.35,0.22,0.16); centre mask 0, edge 1, monotone (test checks)"
+ },
+ "noTransmission": "material.transmission untouched (stays 0); snippet has no transmission/emissive (test asserts); catch-light stays on shell (CW honored)",
+ "noUnity002": "no 0.02 iris-plane literal in module (test greps source); geometry from recorded anatomy",
+ "wiring": "STOP-AND-REPORT: product wiring needs a change outside the write root: packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts applyMaterialOverrides (line 279) is the anchor where a future slice must call applyEyeShader() on eye materials post-load. NOT edited here.",
+ "stillNeeds": "V-convention: landed iris-centred-c.png is V-flipped vs the three.js sampler (disks land on-globe only under Blender-native sampling; measured front-vert median file-UV R (0.705,0.699)/L (0.294,0.298) vs art disks). Follow-up must V-flip the texture (or flipY=true the eye load); module numerals assume the flipped state and are cross-checked.",
+ "storePrefix": "assets:eye-shader/",
+ "pushed": true,
+ "storeShas": {
+  "beauty-approx_yaw-25.png": "5f712deebaf9cb09c57e08c01bfc75a0a7539bd3e04e14ac861e3c9409d9c9b1",
+  "beauty-approx_yaw-40.png": "cdb5b4515c92929c7ff2d121f1a2eeea24fa49890a73edaf538cbbea06e2eb1e",
+  "beauty-approx_yaw0.png": "3aae693f1e42d0733ef66f05325e8fa4e0d114942703d19ae2a5de102c1dc3ee",
+  "beauty-approx_yaw25.png": "8adb3837e011393c1b7f025d6151084e9459188aab9c32b77e5c59284c64a6f6",
+  "beauty-approx_yaw40.png": "833b4976fa799bb5a3e986fab546f40e83610e95b704646c36ab196035a3d4e3",
+  "beauty-refract_yaw-25.png": "8852b732ba863091d84caa5a6452c0569dce4281d72b8342f6ba0964fe6fb578",
+  "beauty-refract_yaw-40.png": "7522988738160cebc81780cac1d4b8fc778f12d77aea0ef5128f1cc12f32cfe8",
+  "beauty-refract_yaw0.png": "7506f40ee8335cedca18c896f74fe3a0268b567e4a9b107892daadd4926d0f8f",
+  "beauty-refract_yaw25.png": "c0e958020d7fee4f9d094090093d617ca4be43c992269a35ec78a8837f179b32",
+  "beauty-refract_yaw40.png": "839127e2ed8de738a371256e2d362161a8e8e3272989e5fd4a4948f36e7c4b71",
+  "detect-approx_yaw-25.png": "1c2f48796f15399d717c0daa791f5e33e3756b1265adb121f99b975d0618359b",
+  "detect-approx_yaw-40.png": "8dfe9d21601ba7bd1176eb95955467e82e06b3f68e359bf6637b818c7b845cb2",
+  "detect-approx_yaw0.png": "902ea26112f30284f7049b1f9a3dd8e3f26bc03e6505acf308a2277fa7d49da0",
+  "detect-approx_yaw25.png": "6efa32b677cda12f0ce67176b468ec3ae40d4c6732d6a580cf1f144b844c60e1",
+  "detect-approx_yaw40.png": "a059b9ed99e994e777de48d23c55aef065b55b746c81e425fade4dabc13b1700",
+  "detect-refract_yaw-25.png": "0d3733f0010bef0b6d3a40f69f6ddb072cbcce8d80ff9262969876090d66af14",
+  "detect-refract_yaw-40.png": "623e895457a0c821bca1ddb8e7dba73ff080461dce10c156b1b27bbb224c513b",
+  "detect-refract_yaw0.png": "4409a0b3cd395a93ac26d4d00e7ed88716da22b2bd2293c9ae3e9e0e1e5d1119",
+  "detect-refract_yaw25.png": "ad7afebe78fb9fea71d430fd6437aae43d7e19da49cd4b97a4d414f18f65c21c",
+  "detect-refract_yaw40.png": "b5811b23e9b7811554f316e1219539a94e75efca00db3ce2653ce0c6d90fff64",
+  "red-landed-nopara_yaw-25.png": "bea3dfb2fd91c011de8292f7c199258fe22f4dc8a3bfe9e494ead32a7d187ec2",
+  "red-landed-nopara_yaw-40.png": "96ea3c3cc20fce2da0916d5242c62381984c9d08341c2b97d56f59d004e2725b",
+  "red-landed-nopara_yaw0.png": "37ee5bf7a5cf42592f252b573773321531d2200d78dbe37d5df56a8dfae62499",
+  "red-landed-nopara_yaw25.png": "14c0a5260567ed68e2651fb1efa21c9e2ddf08ea9be05aed1d1cbfbb9b5e3bf6",
+  "red-landed-nopara_yaw40.png": "9152b48b11496ffcddc326c3b7cbc037e40ef0c93ae2eebf9bdcdeb01363ab8c",
+  "red-landed-refract_yaw-25.png": "6b8607030be1d925c62116b512b7ac26bcb9da6b20f203816c41ff0c2c85ddaa",
+  "red-landed-refract_yaw-40.png": "5c3981851a01821f5829c51b48f36f9137545e4b468621573741e3bc82ef5047",
+  "red-landed-refract_yaw0.png": "aef3df1a8292dfee236121c36e514ede3b1dd2fe4485aee60a240222306d30af",
+  "red-landed-refract_yaw25.png": "1a2cc4991948315c52bfb8c4d479ed54f82baa947945216344c94cc1ca37c167",
+  "red-landed-refract_yaw40.png": "a91cc4c08923c4995126249cb92d8b798be410fbf19dd6f14b840ae64207eb06",
+  "sheet-refract-vs-approx.png": "ed159987d143f7dbd4bf7fda478ce19b589a35bd70bd644ef06f1b121e1583a4"
+ },
+ "scripts": {
+  "build_anatomical_eye.py": "8fb79e6cb78da65520dbbbaebeec753af815f5213dd9689c1f22fc09d9538dd7",
+  "measure_detect.py": "07d922ca0c12026c127ced01e94b337cd3e4ddeeca7573e84061b12f7a9c7f90",
+  "measure_iris_centre.py": "42f2a83498391dddc7db00a72127fe62cb7c50222ba0f44f37903a71ad5e665c",
+  "warp_iris.py": "0d9012272b28676001bf16b6e6fda73c73e6c53e532645bfdcaa44edb364935d",
+  "render_eye_reference.py": "e7859c1bb957dc0a550c8dd311b98641a43f3e44163a85abff1cc5330c2b7c72"
+ }
+}
