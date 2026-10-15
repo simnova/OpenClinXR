@@ -30,11 +30,13 @@ import {
  * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
  * the clip pose. Stance follows the observe-only stance lock from earlier
  * in the same frame (also the published stanceFoot column, so pin stance
- * and metric stance coincide by construction). Handovers plant the physical
- * foot with anchor heights capped at the contact band. The heel offset is
- * re-read from the mixer-fresh leg every substep (exogenous clip truth, so
- * no feedback); a once-captured entry offset goes stale with ankle
- * articulation and injects handover-scale errors.
+ * and metric stance coincide by construction). Handovers plant the incoming
+ * foot under the plan body (single plan datum, anchored to walking entry:
+ * physical re-anchoring ratcheted the feet 0.35 m behind plan by walk end
+ * while the slot followed plan, over-extending the stance leg). The heel
+ * offset is re-read from the mixer-fresh leg every substep (exogenous clip
+ * truth, so no feedback); a once-captured entry offset goes stale with
+ * ankle articulation and injects handover-scale errors.
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
@@ -69,11 +71,13 @@ export type FootBaseState = {
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
-   * Takeoff reference per foot, captured on role change (init/handover):
-   * physical position, absolute rebuild there. Targets follow rebuild
-   * DELTAS from the physical takeoff, so role changes are continuous even
-   * when rows and labels disagree; the constant offset re-anchors every
-   * handover and never accumulates.
+   * Takeoff reference per foot. At init both feet snap to the physical pose
+   * (anchoring the datum to reality). At handover the OUTGOING foot re-snaps
+   * physical (continuity in its own datum until it converts), while the
+   * INCOMING foot is re-planned to the plan datum (origin == absBase ==
+   * plan position) so its swing continues with pure plan deltas. Targets
+   * follow rebuild DELTAS from the takeoff, so role changes are continuous
+   * even when rows and labels disagree.
    */
   takeoff: Record<
     FootBaseSide,
@@ -83,6 +87,14 @@ export type FootBaseState = {
   hingeNormal: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
   wraps: number;
   lastActionTimeS: number | null;
+  /**
+   * Walking-entry anchor for the plan datum (unwrapped action seconds at the
+   * first active substep). Halves, body travel and handover footholds measure
+   * route progress since entry, not clip absolute time: the first captured
+   * walking frame already carries played action, and absolute-time travel led
+   * the feet by centimetres from substep one. Null until the first step.
+   */
+  entryUnwrappedS: number | null;
   worst: { missM: number; side: FootBaseSide; sub: number } | null;
   /** Post-solve toe worlds from the previous substep, per foot. */
   lastSolved: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
@@ -208,6 +220,7 @@ function createState(stance: FootBaseSide): FootBaseState {
     hingeNormal: { left: null, right: null },
     wraps: 0,
     lastActionTimeS: null,
+    entryUnwrappedS: null,
     worst: null,
     lastSolved: { left: null, right: null },
   };
@@ -268,7 +281,14 @@ export function applyFootBaseStep(input: {
   state.lastActionTimeS = actionTimeS;
   const unwrappedS = actionTimeS + state.wraps * cycleS;
 
-  const halfIndex = footBaseHalfIndex(unwrappedS, cycleS);
+  // Plan datum, anchored to walking entry. Halves and body travel measure
+  // route progress since the walk started: planS = 0 at entry maps onto the
+  // plan's walk-start passing (FOOTSTEP_START_PHASE_S), so bodyTravelM opens
+  // at 0 under the physical feet instead of ~9 cm ahead of them. Clip phase
+  // (phase01/rows above) keeps absolute action time: rows follow the clip.
+  if (state.entryUnwrappedS === null) state.entryUnwrappedS = unwrappedS;
+  const planShiftedS = unwrappedS - state.entryUnwrappedS + FOOTSTEP_START_PHASE_S;
+  const halfIndex = footBaseHalfIndex(planShiftedS, cycleS);
   const scale = approach.footstep?.scale ?? FOOT_BASE_DEFAULT_SCALE;
   const halfTravel = footBaseHalfTravelM(halfIndex, scale);
   const routeLen = Math.hypot(input.routeDx, input.routeDz);
@@ -283,6 +303,19 @@ export function applyFootBaseStep(input: {
   const segLen = Math.abs(halfTravel);
   const sideX = segLen > 1e-9 ? -segZ / segLen : 0;
   const sideZ = segLen > 1e-9 ? segX / segLen : 0;
+
+  // THE SLOT ADVANCE: the body travels the foothold polyline (completed
+  // halves plus the current half's share). Pinning against the executor's
+  // own advance cancels the stride and the walk thrashes (measured root
+  // 1.39 m for 0.28 m travel); the pin below is then a mm correction.
+  let bodyTravelM = 0;
+  for (let h = 1; h < halfIndex; h += 1) bodyTravelM += footBaseHalfTravelM(h, scale);
+  const bounds = footBaseHalfBounds(halfIndex, cycleS);
+  const halfSpan = bounds.end - bounds.start;
+  const halfFrac = halfSpan > 0
+    ? Math.min(Math.max((planShiftedS - bounds.start) / halfSpan, 0), 1)
+    : 0;
+  bodyTravelM += halfTravel * halfFrac;
 
   const rebuildAbsolute = (foot: FootBaseSide, row: FootBasePathRow): { x: number; y: number; z: number } => {
     const from = state.foothold[foot];
@@ -311,20 +344,31 @@ export function applyFootBaseStep(input: {
     snapTakeoff("left", rowNow("left"));
     snapTakeoff("right", rowNow("right"));
   } else if (single !== null && single !== state.stance) {
-    // Handover, immediate: plant where the foot PHYSICALLY stands (last
-    // solved pos), not the mixer pose (clip scale 1 vs rebuild plan scale
-    // reads cm off; measured 16-26 mm window steps with stale offsets).
-    // Both feet re-snap takeoff refs, so targets stay continuous across the
-    // role change; a flap plants mid-swing and hands straight back, pinning
-    // each run exactly where it stands (zero window travel by construction).
-    // A dwell was tried and removed: freezing the challenger while the slot
-    // advances drives its target out of hinge reach (~2 mm/frame shortfall),
-    // worse than planting at touchdown speed.
-    const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
-    state.foothold[single] = { ...planted };
+    // Handover, immediate, PLAN datum: the incoming stance foot plants under
+    // the plan body (along-route), keeping its physical lateral offset. The
+    // physical plant re-anchored the chain to lagging solved feet and baked
+    // each half's IK-miss shortfall into the footholds (feet 0.35 m behind
+    // plan at walk end, pin fighting the SET +-10 cm/substep); the miss no
+    // longer feeds back. A flap plants at plan body too and hands straight
+    // back, pinning each run where the plan stands.
+    const physNow = single === "left" ? leftToeW : rightToeW;
+    const relPX = physNow.x - approach.start.x;
+    const relPZ = physNow.z - approach.start.z;
+    const alongPhys = relPX * unitX + relPZ * unitZ;
+    state.foothold[single] = {
+      x: approach.start.x + unitX * bodyTravelM + (relPX - alongPhys * unitX),
+      y: physNow.y,
+      z: approach.start.z + unitZ * bodyTravelM + (relPZ - alongPhys * unitZ),
+    };
     state.stance = single;
-    snapTakeoff(single, rowNow(single));
-    snapTakeoff(single === "left" ? "right" : "left", rowNow(single === "left" ? "right" : "left"));
+    // The incoming foot continues from the plan datum (origin == absBase ==
+    // plan position: no jump, pure plan deltas after). The outgoing foot
+    // keeps its physical takeoff and converts at its own handover, so both
+    // feet stay continuous across the role change.
+    const planPos = rebuildAbsolute(single, rowNow(single));
+    state.takeoff[single] = { origin: { ...planPos }, absBase: { ...planPos } };
+    const other = single === "left" ? "right" : "left";
+    snapTakeoff(other, rowNow(other));
   }
 
   // Roles derive from post-handover state.
@@ -334,18 +378,8 @@ export function applyFootBaseStep(input: {
   const swingRow = rowNow(swing);
 
   const stanceFoothold = state.foothold[stance];
-  // THE SLOT ADVANCE: the body travels the foothold polyline (completed
-  // halves plus the current half's share). Pinning against the executor's
-  // own advance cancels the stride and the walk thrashes (measured root
-  // 1.39 m for 0.28 m travel); the pin below is then a mm correction.
-  let bodyTravelM = 0;
-  for (let h = 1; h < halfIndex; h += 1) bodyTravelM += footBaseHalfTravelM(h, scale);
-  const bounds = footBaseHalfBounds(halfIndex, cycleS);
-  const halfSpan = bounds.end - bounds.start;
-  const halfFrac = halfSpan > 0
-    ? Math.min(Math.max((unwrappedS - bounds.start) / halfSpan, 0), 1)
-    : 0;
-  bodyTravelM += halfTravel * halfFrac;
+  // The slot advance (bodyTravelM) is computed above, before the handover,
+  // so the incoming foothold plants under the plan body.
   slot.position.x = approach.start.x + unitX * bodyTravelM;
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);

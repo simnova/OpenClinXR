@@ -168,7 +168,7 @@ function runWalk(seconds: number): {
     leftToe.position.set(0.09, left.y, left.z);
     rightToe.position.set(-0.09, right.y, right.z);
     actorSlot.updateMatrixWorld(true);
-    applyCaseOwnedStanceLock(approach);
+    applyCaseOwnedStanceLock(approach, 1 / 30);
     actorSlot.updateMatrixWorld(true);
     frames.push({
       slotZ: actorSlot.position.z,

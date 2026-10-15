@@ -108,7 +108,7 @@ describe("the clip labels its own stance", () => {
       // biome-ignore lint/suspicious/noExplicitAny: fixture shape, not the tested predicate
     } as any;
 
-    applyCaseOwnedStanceLock(approach);
+    applyCaseOwnedStanceLock(approach, 1 / 30);
 
     // The band alone would crown the lower left toe; the labels crown the planting right.
     expect(approach.lock.stanceFoot).toBe("right");

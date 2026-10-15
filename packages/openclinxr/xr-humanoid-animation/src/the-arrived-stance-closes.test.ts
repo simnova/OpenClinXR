@@ -147,7 +147,7 @@ describe("the arrived stance closes to rest", () => {
       intent: { target: { headingRadians: 0 } },
     } as unknown as Loose;
 
-    applyCaseOwnedStanceLock(approach);
+    applyCaseOwnedStanceLock(approach, 1 / 30);
 
     // The walking lock never ran: no anchor taken, no correction written.
     expect(approach.lock).toBe(lockBefore);
@@ -229,7 +229,7 @@ describe("the arrived stance closes to rest", () => {
       actorSlot.updateMatrixWorld(true);
       const beforeLeft = toeWorld(leftToe);
       const beforeRight = toeWorld(rightToe);
-      applyCaseOwnedStanceLock(approach);
+      applyCaseOwnedStanceLock(approach, 1 / 30);
       actorSlot.updateMatrixWorld(true);
       const afterLeft = toeWorld(leftToe);
       const afterRight = toeWorld(rightToe);
