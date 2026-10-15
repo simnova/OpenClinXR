@@ -1,0 +1,142 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "foot-base-v1",
+  "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "406fe1123e76745bf1858c2516bee8fb6a388247c573864fb89bee200ddc4a96",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "FOOT_BASE_CYCLE_S",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "FOOT_BASE_LIFT_PHASE",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "FOOT_BASE_PLANT_PHASE",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "FOOT_BASE_ROWS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "FOOT_BASE_STANCE_FRACTION",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "footBaseHalfIndex",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "footBaseRowAt",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base schedule constant/function consumed by the schedule-roles and path-data tests. Consumer: foot-base-stride-retarget-mod.test.ts, foot-base-path-data-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "footBaseScheduleStance",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Schedule-only stance role (roles from footholds, not the lock). Consumer: foot-base-stride-retarget-mod.test.ts schedule-roles RED.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "parseFootBaseEnabled",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "footBase=1 query flag parser, default off. Consumer: foot-base-query-flag-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "applyFootBaseStep",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Foot-base stride retarget step driven by the walking tail under footBase=1. Consumer: foot-base-stride-retarget-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "clearFootBaseState",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Resets per-actor foot-base state. Consumer: foot-base-stride-retarget-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "readFootBaseState",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Reads per-actor foot-base state for assertions. Consumer: foot-base-stride-retarget-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": "./foot-base",
+      "symbol": "LocomotionStanceLabels",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "foot-base-worker",
+      "rationale": "Stance-label input type of applyFootBaseStep; tests fabricate it. Consumer: foot-base-stride-retarget-mod.test.ts.",
+      "reviewedBy": "claude-orchestrator independent review of foot-base-v1 at ade5cb58f, 2026-10-14"
+    }
+  ]
+}

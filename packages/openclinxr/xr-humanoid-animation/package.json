@@ -32,6 +32,10 @@
       "types": "./dist/footstep-plan.d.ts",
       "default": "./dist/footstep-plan.js"
     },
+    "./foot-base": {
+      "types": "./dist/foot-base.d.ts",
+      "default": "./dist/foot-base.js"
+    },
     "./locomotion-clip-playback": {
       "types": "./dist/locomotion-clip-playback.d.ts",
       "default": "./dist/locomotion-clip-playback.js"

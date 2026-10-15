@@ -35110,6 +35110,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Turn-backward admission: admits the backward footfall planner, consumer, residual, and probe-flag reads the slice tests pin through ./stepping-turn and ./footstep-plan."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base."
     }
   ]
 }

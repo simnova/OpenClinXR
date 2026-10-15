@@ -155,7 +155,10 @@ describe("compiler-resolved surface meter", () => {
     // ./footstep-plan subpath so the footstep-plan tests pin the plan, blend,
     // capture, and flag-parser reads without relative src reaches (138 -> 139).
     // The branch changes no other package.json `exports` map, so the delta is this one key.
-    expect(report.totals.entrypoints).toBe(139);
+    // 2026-10-14 foot-base seam: xr-humanoid-animation adds one reviewed ./foot-base
+    // subpath (foot-base-v1 admission) so the foot-base tests pin the schedule and
+    // stride-retarget reads without relative src reaches (139 -> 140).
+    expect(report.totals.entrypoints).toBe(140);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

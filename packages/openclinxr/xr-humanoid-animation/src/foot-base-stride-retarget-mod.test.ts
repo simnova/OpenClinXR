@@ -15,7 +15,7 @@ import {
   footBaseScheduleStance,
   type LocomotionStanceLabels,
   readFootBaseState,
-} from "./index.js";
+} from "./foot-base.js";
 
 function setSearch(search: string | null): void {
   const host = globalThis as unknown as { window?: unknown };

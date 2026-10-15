@@ -6,7 +6,7 @@ import {
   FOOT_BASE_CYCLE_S,
   FOOT_BASE_PLANT_PHASE,
   FOOT_BASE_ROWS,
-} from "./index.js";
+} from "./foot-base.js";
 
 /**
  * The runtime foot-base literal tracks the factory-stations emitter JSON.
