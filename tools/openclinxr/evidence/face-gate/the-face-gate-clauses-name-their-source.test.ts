@@ -3,11 +3,11 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * OBSERVABLE: every face-gate clause names its source, and no gate is tracked
- * without one. Spike clauses C2-C6 were unlabeled starting values
- * (S/STATION-DESIGN.md:88-92); C2-C6 are re-derived here from the recorded
- * flat-versus-lit sweep in this directory, G10/G11 are inverted guards, and
- * G7 stays unbuilt.
+ * OBSERVABLE: every face-gate clause names an honest source. Spike C2-C6 were
+ * unlabeled starting values (S/STATION-DESIGN.md:88-92); brief floors and the
+ * 1.5x / 0.5 multipliers are unsourced, so every enforced C2-C6 threshold here
+ * is a midpoint between one recorded known-good and one recorded known-bad on
+ * the same metric. G10/G11 are inverted guards; G7 stays unbuilt.
  *
  * S = .openclinxr/realism-spike in worktree realism-95 (gitignored scratch).
  * Every number below cites its file; the sweep record lives beside this test.
@@ -25,13 +25,28 @@ const EXPECTED_CLAUSES = [
   "G7", "G8", "G9", "G10", "G11", "P5",
 ];
 
-function sourcesJson(): {
-  clauses: { clause: string; threshold?: string; source: string; status: string }[];
-} {
-  return JSON.parse(readFileSync(SOURCES, "utf8"));
+type Row = {
+  clause: string;
+  threshold?: string;
+  thresholds?: Record<string, number>;
+  source: string;
+  status: string;
+  expression: string;
+  known_good: { value: number | string; file: string } | null;
+  known_bad: { value: number | string; file: string } | null;
+  noise: { value: number | string; file: string } | null;
+  margin: Record<string, number> | null;
+};
+
+function rows(): Row[] {
+  return (JSON.parse(readFileSync(SOURCES, "utf8")) as { clauses: Row[] }).clauses;
 }
 
-describe("the face-gate clauses name their source", () => {
+function enforced(): Row[] {
+  return rows().filter((c) => c.status === "enforced" || c.status.startsWith("enforced "));
+}
+
+describe("the face-gate clauses name their source (h1: midpoints, no brief floors)", () => {
   it("(1) the moved gate files live in this directory", () => {
     const files = readdirSync(DIR);
     for (const f of ["face_gate.py", "face_gate_v2.py", "clause-sources.json", "flat-vs-lit-sweep.json"]) {
@@ -43,99 +58,102 @@ describe("the face-gate clauses name their source", () => {
   });
 
   it("(2) clause-sources.json has one row per clause and no empty source", () => {
-    const { clauses } = sourcesJson();
-    const ids = clauses.map((c) => c.clause).sort();
+    const ids = rows().map((c) => c.clause).sort();
     expect(
       ids,
-      `clause set drifted to [${ids}]. Restoration: exactly [${[...EXPECTED_CLAUSES].sort()}] — one row per clause, no tint-patch, no lid-coverage, no decimation rows.`,
+      `clause set drifted to [${ids}]. Restoration: exactly [${[...EXPECTED_CLAUSES].sort()}] — no tint-patch, no lid-coverage, no decimation rows.`,
     ).toEqual([...EXPECTED_CLAUSES].sort());
-    const empty = clauses.filter((c) => !c.source || !c.source.trim());
+    const empty = rows().filter((c) => !c.source || !c.source.trim() || !c.expression || !c.expression.trim());
     expect(
       empty.map((c) => c.clause),
-      "empty source is a fail. Restoration: give the clause a recorded source or mark it underived/report-only.",
+      "empty source or expression is a fail. Restoration: record the source, or mark the row underived/report-only.",
     ).toEqual([]);
   });
 
-  it("(3) C2-C6 thresholds are re-derived from the recorded sweep, not brief starts", () => {
-    const { clauses } = sourcesJson();
-    for (const id of ["C2", "C3", "C4", "C5", "C6"]) {
-      const row = clauses.find((c) => c.clause === id)!;
+  it("(3) every enforced row carries a good/bad-anchored expression, never a brief floor", () => {
+    for (const r of enforced()) {
       expect(
-        /1\.5\*|chain_input|external/i.test(row.source),
-        `${id} source names no independent reference. Restoration: write the expression as max(brief_floor, 1.5*noise) from flat-vs-lit-sweep.json or frac*chain_input.`,
+        /good|bad|external/i.test(r.expression),
+        `${r.clause} expression names no known-good/known-bad or cited external floor. Restoration: derive it as a midpoint separation (a) or cite the external floor (b).`,
+      ).toBe(true);
+      if (r.known_good !== null && r.known_bad !== null) {
+        for (const anchor of [r.known_good.value, r.known_bad.value]) {
+          for (const num of String(anchor).split("/").map((s) => s.trim())) {
+            expect(
+              r.expression.includes(num),
+              `${r.clause} expression omits recorded anchor ${num}. Restoration: write the exact formula with the recorded good and bad numbers.`,
+            ).toBe(true);
+          }
+        }
+      }
+      const text = `${r.source} ${r.expression} ${r.threshold ?? ""} ${r.status}`;
+      expect(
+        text.includes("brief_floor") || /STARTING/i.test(text),
+        `${r.clause} still cites an unsourced brief floor or STARTING value. Restoration: replace with a good/bad midpoint or mark underived/report-only.`,
+      ).toBe(false);
+      expect(
+        r.margin !== null,
+        `${r.clause} has no margins. Restoration: record threshold-known_good and known_bad-threshold.`,
       ).toBe(true);
     }
+  });
+
+  it("(4) face_gate.py enforces exactly the sourced numbers, nothing unsourced", () => {
     const v1 = readFileSync(V1, "utf8");
-    expect(
-      v1.includes("STARTING value from brief"),
-      "face_gate.py still carries unlabeled STARTING values. Restoration: re-derive C2-C6 in THRESHOLDS from flat-vs-lit-sweep.json and cite the expression.",
-    ).toBe(false);
-    expect(
-      v1.includes('"C2b_abstol": {"value": 6.24'),
-      "face_gate.py C2b is not the re-derived 6.24 = max(5.0, 1.5*4.16). Restoration: apply the sweep derivation (flat L-spread noise 4.16).",
-    ).toBe(true);
-    const sweep = JSON.parse(readFileSync(SWEEP, "utf8"));
-    expect(sweep.rows.length).toBeGreaterThan(0);
+    expect(v1.includes("brief_floor") || v1.includes("STARTING value from brief")).toBe(false);
+    const want: Record<string, string> = {
+      C1_de2000: "8.0", C2a_abstol: "0.895", C2b_abstol: "7.69", C3a_abstol: "5.16",
+      C3b_abstol: "1.085", C3ratio_abstol: "0.0595", C4_abstol: "3.085",
+      C5_abstol: "2.53", C6_frac: "0.42",
+    };
+    for (const [key, value] of Object.entries(want)) {
+      const m = new RegExp(`"${key}":\\s*\\{"value":\\s*([\\d.]+)`).exec(v1);
+      expect(
+        m?.[1],
+        `face_gate.py THRESHOLDS[${key}] missing. Restoration: re-add it with the clause-sources.json number.`,
+      ).toBe(String(value));
+    }
   });
 
-  it("(4) G10 inverted guard: vacuous as specified, report-only, code kept", () => {
-    const { clauses } = sourcesJson();
-    const g10 = clauses.find((c) => c.clause === "G10")!;
-    expect(
-      /report-only|inverted/i.test(g10.status),
-      "G10 is not demoted. Restoration: re-demote G10 to report-only (inverted guard) per S/gate/RESULT-v2.md:9 — target sclera rims pass every render.",
-    ).toBe(true);
-    expect(
-      /restoration|re-demote|promote only/i.test(g10.source),
-      "G10 source names no restoration. Restoration: state the promotion bar (no-makeup eye reference or absolute rim cap).",
-    ).toBe(true);
-    expect(
-      readFileSync(V2, "utf8").includes("def g10_verdict"),
-      "G10 implementation deleted. Restoration: restore g10_verdict in face_gate_v2.py — demote, never delete.",
-    ).toBe(true);
-    expect(
-      readFileSync(SELFTEST_V2, "utf8").includes("vacuous"),
-      "G10 vacuous selftest deleted. Restoration: restore the G10 vacuous-as-specified record in selftest_v2.py.",
-    ).toBe(true);
+  it("(5) report-only rows are not enforced by face_gate", () => {
+    const v1 = readFileSync(V1, "utf8");
+    for (const r of rows().filter((c) => c.status !== "enforced" && !c.status.startsWith("enforced "))) {
+      expect(
+        new RegExp(`"${r.clause}[_"]`).test(v1),
+        `${r.clause} is ${r.status} but face_gate.py THRESHOLDS still enforces it. Restoration: remove it from THRESHOLDS and keep it as a displayed number only.`,
+      ).toBe(false);
+    }
   });
 
-  it("(5) G11 inverted guard: fails its own source, report-only, code kept", () => {
-    const { clauses } = sourcesJson();
-    const g11 = clauses.find((c) => c.clause === "G11")!;
-    expect(
-      /report-only|inverted/i.test(g11.status),
-      "G11 is not demoted. Restoration: re-demote G11 to report-only (inverted guard) per S/gate/RESULT-v2.md:10 — source 0.62 < thr 0.78.",
-    ).toBe(true);
-    expect(
-      /0\.62.*0\.78|fails its own source|re-demote/i.test(g11.source),
-      "G11 source does not record the self-failure. Restoration: record source 0.62 < thr 0.78 and the re-demotion rule.",
-    ).toBe(true);
-    expect(
-      readFileSync(V2, "utf8").includes("def g11_compare"),
-      "G11 implementation deleted. Restoration: restore g11_compare in face_gate_v2.py — demote, never delete.",
-    ).toBe(true);
+  it("(6) G10 inverted guard: vacuous as specified, report-only, code kept", () => {
+    const g10 = rows().find((c) => c.clause === "G10")!;
+    const g10text = `${g10.source} ${g10.expression}`;
+    expect(/report-only|inverted/i.test(g10.status)).toBe(true);
+    expect(/restoration|re-demote|promote only/i.test(g10text)).toBe(true);
+    expect(readFileSync(V2, "utf8").includes("def g10_verdict")).toBe(true);
+    expect(readFileSync(SELFTEST_V2, "utf8").includes("vacuous")).toBe(true);
   });
 
-  it("(6) G7 stays unbuilt and says so", () => {
-    const { clauses } = sourcesJson();
-    const g7 = clauses.find((c) => c.clause === "G7")!;
-    expect(
-      /unbuilt/i.test(g7.status),
-      "G7 claims a build. Restoration: mark G7 unbuilt — it needs lip vertex ids + camera (S/gate/RESULT-v2.md:8).",
-    ).toBe(true);
-    const v2 = readFileSync(V2, "utf8");
-    expect(
-      /def g7|G7 implemented/i.test(v2),
-      "G7 must stay unbuilt in this slice. Restoration: remove the G7 implementation or move it behind its own card.",
-    ).toBe(false);
+  it("(7) G11 inverted guard: fails its own source, report-only, code kept", () => {
+    const g11 = rows().find((c) => c.clause === "G11")!;
+    const g11text = `${g11.source} ${g11.expression}`;
+    expect(/report-only|inverted/i.test(g11.status)).toBe(true);
+    expect(/0\.62.*0\.78|fails its own source|re-demote/i.test(g11text)).toBe(true);
+    expect(readFileSync(V2, "utf8").includes("def g11_compare")).toBe(true);
   });
 
-  it("(7) COUNTERWEIGHT: this file still tests G10 and G11 (a deleted guard is a fail)", () => {
+  it("(8) G7 stays unbuilt and says so", () => {
+    const g7 = rows().find((c) => c.clause === "G7")!;
+    expect(/unbuilt/i.test(g7.status)).toBe(true);
+    expect(/def g7|G7 implemented/i.test(readFileSync(V2, "utf8"))).toBe(false);
+  });
+
+  it("(9) COUNTERWEIGHT: this file still tests G10 and G11 (a deleted guard is a fail)", () => {
     const self = readFileSync(join(DIR, "the-face-gate-clauses-name-their-source.test.ts"), "utf8");
     for (const g of ["G10", "G11"]) {
       expect(
-        self.includes(`"${g} inverted guard"`) || self.includes(`(${g === "G10" ? "4" : "5"})`),
-        `${g} guard test deleted from this file. Restoration: restore the ${g} inverted-guard case — an absent guard reads green having measured nothing.`,
+        self.includes(`"${g} inverted guard"`) || self.includes(g === "G10" ? "(6)" : "(7)"),
+        `${g} guard test deleted from this file. Restoration: restore the ${g} inverted-guard case.`,
       ).toBe(true);
     }
   });

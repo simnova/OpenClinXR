@@ -81,42 +81,37 @@ REGION_COLORS = {  # BGR for cv2 overlay
 }
 
 THRESHOLDS = {
-    "C1_de2000": {"value": 8.0, "source": "CALIBRATED by self-test: same-person "
-                  "flat-light noise floor reached dE 7.13 on the lit cheek, "
-                  "so 6 was too tight; 8 keeps every true render failing "
-                  "(min true maxdE 6.78 still fails skin via C2/C3)"},
-    "C2a_abstol": {"value": 2.5, "source": "DERIVED max(2.5_brief_floor, "
-                   "1.5*0.581_noise)=2.5: flat-vs-lit a-spread noise 0.581 "
-                   "(flat-vs-lit-sweep.json) so 1.5*noise=0.87, brief floor "
-                   "2.5 applies; flat 0.58 + good 0.80 pass, bad 2.70 fails"},
-    "C2b_abstol": {"value": 6.24, "source": "DERIVED max(5.0_brief_floor, "
-                   "1.5*4.16_noise)=6.24: flat-vs-lit L-spread noise 4.16 "
-                   "(flat-vs-lit-sweep.json) so 1.5*noise=6.24 wins over the "
-                   "brief floor; flat 4.16 + good 0.76 pass, bad 14.6 fails"},
-    "C3a_abstol": {"value": 5.0, "source": "DERIVED max(5.0_brief_floor, "
-                   "1.5*0.154_noise)=5.0: flat-vs-lit da noise 0.154 "
-                   "(flat-vs-lit-sweep.json) so 1.5*noise=0.23, brief floor "
-                   "5.0 applies; good 4.06 passes, bad 7.4/10.82 fail"},
-    "C3b_abstol": {"value": 5.0, "source": "DERIVED max(5.0_brief_floor, "
-                   "1.5*0.224_noise)=5.0: flat-vs-lit db noise 0.224 "
-                   "(flat-vs-lit-sweep.json) so 1.5*noise=0.34, brief floor "
-                   "5.0 applies; good 0.31 passes, bad 15.33 fails"},
-    "C3ratio_abstol": {"value": 0.08, "source": "DERIVED max(0.08_brief_floor, "
-                       "1.5*0.010_noise)=0.08: flat-vs-lit ratio noise 0.010 "
-                       "(flat-vs-lit-sweep.json) so 1.5*noise=0.015, brief "
-                       "floor 0.08 applies; good 0.037 passes, bad 0.29 fails"},
-    "C4_abstol": {"value": 3.0, "source": "DERIVED max(3.0_brief_floor, "
-                  "1.5*1.539_noise)=3.0: flat-vs-lit eyelid noise 1.539 "
-                  "(flat-vs-lit-sweep.json) so 1.5*noise=2.31, brief floor "
-                  "3.0 applies; good 2.00 passes, bad 17.28 fails"},
-    "C5_abstol": {"value": 4.0, "source": "DERIVED max(4.0_brief_floor, "
-                  "1.5*0.164_noise)=4.0: flat-vs-lit philtrum noise 0.164 "
-                  "(flat-vs-lit-sweep.json) so 1.5*noise=0.25, brief floor "
-                  "4.0 applies; good 0.07 passes, bad 6.37 fails"},
-    "C6_frac": {"value": 0.5, "source": "DERIVED 0.5_external_frac * "
-                "v_target(chain_input): target cheek shading 0.235 "
-                "(flat-vs-lit-sweep.json) gives thr 0.117; flat 0.066 fails, "
-                "good 0.231 passes; LIGHTING clause, albedo cannot fix it"},
+    "C1_de2000": {"value": 8.0, "source": "CALIBRATED: flat-vs-lit noise 7.13 "
+                  "(flat-vs-lit-sweep.json); good final-front 1.48 passes, "
+                  "bad p0-shipped-front 30.68 fails; min true maxdE 6.78 "
+                  "still fails skin via C2/C3"},
+    "C2a_abstol": {"value": 0.895, "source": "MIDPOINT (0.80_good + 0.99_bad)/2 "
+                   "= 0.895: good final-front a-spread 0.80 "
+                   "(S/gate/out-v2/front/table.md), bad p1-graded-front 0.99 "
+                   "(S/gate/out/table.md); noise 0.581 below both margins"},
+    "C2b_abstol": {"value": 7.69, "source": "MIDPOINT (0.76 + 14.62)/2 = 7.69: "
+                   "good final-front L-spread 0.76, bad aisha-fine-b 14.62; "
+                   "flat noise 4.16 passes with margin 3.53"},
+    "C3a_abstol": {"value": 5.16, "source": "MIDPOINT (4.06 + 6.26)/2 = 5.16: "
+                   "good final-front lip-da 4.06, bad p1-graded-front 6.26; "
+                   "noise 0.154"},
+    "C3b_abstol": {"value": 1.085, "source": "MIDPOINT (0.31 + 1.86)/2 = 1.085: "
+                   "good final-front lip-db 0.31, bad s4-v10-projected-front "
+                   "1.86; noise 0.224"},
+    "C3ratio_abstol": {"value": 0.0595, "source": "MIDPOINT (0.037 + 0.082)/2 "
+                       "= 0.0595: good final-front L-ratio 0.037, bad "
+                       "aisha-detail-still 0.082; noise 0.010"},
+    "C4_abstol": {"value": 3.085, "source": "MIDPOINT (2.00 + 4.17)/2 = 3.085: "
+                  "good final-front eyelid 2.00, bad p0-shipped-front 4.17; "
+                  "noise 1.539"},
+    "C5_abstol": {"value": 2.53, "source": "MIDPOINT (0.07 + 4.99)/2 = 2.53: "
+                  "good final-front philtrum 0.07, bad p1-graded-front 4.99; "
+                  "noise 0.164"},
+    "C6_frac": {"value": 0.42, "source": "MIDPOINT/v_t: abs thr "
+                "(0.231_good + -0.034_bad)/2 = 0.0985, frac 0.0985/0.235 = "
+                "0.42: good final-front shading 0.231, bad p0-shipped-front "
+                "-0.034, chain input v_t 0.235; flat 0.066 still fails; "
+                "LIGHTING clause, albedo cannot fix it"},
 }
 
 DETECT_FAIL_NOTE = ("no face detected by FaceLandmarker; "
