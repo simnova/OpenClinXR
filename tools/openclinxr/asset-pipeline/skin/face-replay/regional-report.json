@@ -1,0 +1,302 @@
+{
+ "subject": "second body (adult_male_street_casual)",
+ "method": "per-chart UV chromaticity field, cap 6 Lab/channel, feather 32 texels; AFTER=v2 render",
+ "renders": {
+  "before": "248e63fd27be2eb5219a287cfde673da7629b503d6058cbcb1de5f1820640d68",
+  "goal": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+  "after_v1": "f99578a56fe79f5befb491c198afd0335197e8bb0c0a8f5ac034c01b0d7e7616",
+  "after_v2": "15983593a36978585601bdb243347b2663dcdac414c3854bdde1a77eb8bc8617"
+ },
+ "after": {
+  "render": "after_v2",
+  "render_sha": "15983593a36978585601bdb243347b2663dcdac414c3854bdde1a77eb8bc8617"
+ },
+ "regions": {
+  "L_cheek": {
+   "goal": [
+    55.81,
+    15.54,
+    22.04
+   ],
+   "before": {
+    "Lab": [
+     58.24,
+     12.37,
+     18.19
+    ],
+    "dLab_vs_goal": [
+     2.43,
+     -3.17,
+     -3.85
+    ],
+    "pass": false
+   },
+   "after_v1": {
+    "Lab": [
+     49.71,
+     17.14,
+     19.63
+    ],
+    "dLab_vs_goal": [
+     -6.1,
+     1.6,
+     -2.41
+    ],
+    "pass": false
+   },
+   "after_v2": {
+    "Lab": [
+     51.58,
+     17.16,
+     22.24
+    ],
+    "dLab_vs_goal": [
+     -4.23,
+     1.62,
+     0.2
+    ],
+    "pass": false
+   }
+  },
+  "R_cheek": {
+   "goal": [
+    57.01,
+    15.54,
+    22.04
+   ],
+   "before": {
+    "Lab": [
+     57.37,
+     13.97,
+     19.6
+    ],
+    "dLab_vs_goal": [
+     0.36,
+     -1.57,
+     -2.44
+    ],
+    "pass": true
+   },
+   "after_v1": {
+    "Lab": [
+     50.34,
+     17.8,
+     21.13
+    ],
+    "dLab_vs_goal": [
+     -6.67,
+     2.26,
+     -0.91
+    ],
+    "pass": false
+   },
+   "after_v2": {
+    "Lab": [
+     53.43,
+     17.59,
+     23.37
+    ],
+    "dLab_vs_goal": [
+     -3.58,
+     2.05,
+     1.33
+    ],
+    "pass": false
+   }
+  },
+  "forehead": {
+   "goal": [
+    62.02,
+    15.45,
+    22.39
+   ],
+   "before": {
+    "Lab": [
+     60.37,
+     9.19,
+     18.16
+    ],
+    "dLab_vs_goal": [
+     -1.65,
+     -6.26,
+     -4.23
+    ],
+    "pass": false
+   },
+   "after_v1": {
+    "Lab": [
+     59.69,
+     12.08,
+     22.62
+    ],
+    "dLab_vs_goal": [
+     -2.33,
+     -3.37,
+     0.23
+    ],
+    "pass": false
+   },
+   "after_v2": {
+    "Lab": [
+     62.62,
+     10.58,
+     25.64
+    ],
+    "dLab_vs_goal": [
+     0.6,
+     -4.87,
+     3.25
+    ],
+    "pass": false
+   }
+  },
+  "chin": {
+   "goal": [
+    44.97,
+    17.68,
+    12.2
+   ],
+   "before": {
+    "Lab": [
+     67.34,
+     11.48,
+     15.85
+    ],
+    "dLab_vs_goal": [
+     22.37,
+     -6.2,
+     3.65
+    ],
+    "pass": false
+   },
+   "after_v1": {
+    "Lab": [
+     62.88,
+     14.8,
+     18.99
+    ],
+    "dLab_vs_goal": [
+     17.91,
+     -2.88,
+     6.79
+    ],
+    "pass": false
+   },
+   "after_v2": {
+    "Lab": [
+     65.55,
+     13.05,
+     21.16
+    ],
+    "dLab_vs_goal": [
+     20.58,
+     -4.63,
+     8.96
+    ],
+    "pass": false
+   }
+  }
+ },
+ "g1": {
+  "bound_Lab_per_channel": 3,
+  "per_region": {
+   "L_cheek": false,
+   "R_cheek": false,
+   "forehead": false,
+   "chin": false
+  },
+  "verdict": "FAIL",
+  "passes": 0,
+  "of": 4
+ },
+ "masks": {
+  "body2": {
+   "keep_n": 208933,
+   "regions": {
+    "L_cheek": [
+     1600,
+     58.24
+    ],
+    "R_cheek": [
+     1600,
+     57.37
+    ],
+    "forehead": [
+     1600,
+     60.37
+    ],
+    "chin": [
+     1600,
+     67.34
+    ]
+   }
+  },
+  "goal": {
+   "keep_n": 156502,
+   "regions": {
+    "L_cheek": [
+     1583,
+     55.81
+    ],
+    "R_cheek": [
+     1600,
+     57.01
+    ],
+    "forehead": [
+     1600,
+     62.02
+    ],
+    "chin": [
+     708,
+     44.97
+    ]
+   }
+  }
+ },
+ "compose": {
+  "bound": 8.0,
+  "good_A": {
+   "max": 1.848,
+   "result": "EXIT0"
+  },
+  "bad_A": {
+   "max": 16.9,
+   "result": "REFUSE",
+   "side": "input",
+   "reason": "crown_step_over_bound"
+  }
+ },
+ "scalpneck_push": {
+  "shift": [
+   1.65,
+   6.0,
+   4.23
+  ],
+  "scalp_vs_forehead": {
+   "before": [
+    -21.12,
+    -2.54,
+    -3.7
+   ],
+   "after": [
+    -20.39,
+    0.1,
+    -1.83
+   ]
+  },
+  "neck_vs_forehead": {
+   "before": [
+    -2.19,
+    -7.85,
+    -5.5
+   ],
+   "after": [
+    -1.47,
+    -5.21,
+    -3.63
+   ]
+  },
+  "no_imagine": true,
+  "no_render": true
+ }
+}

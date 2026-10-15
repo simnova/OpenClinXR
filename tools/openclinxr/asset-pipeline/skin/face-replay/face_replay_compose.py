@@ -964,6 +964,44 @@ def compose(args: argparse.Namespace) -> dict:
         report["exact_zero"] = exact_zero_report(before_lab, out, regions,
                                                  interiors)
     report["scalp"] = scalp_info
+    # Input-side refusal: a painted scalp arrives in the BASE skin, and the
+    # join+scalp treatment smooths it away (bad-A input 16.9 -> output 1.8),
+    # so the output-side check alone never fires. Measure crown_step on the
+    # pre-treatment working image in the same space the output table uses.
+    in_table = region_table(
+        before_lab, regions, sides_up if island_box is not None else sides,
+        scale)
+    report["input_region_table"] = {"crown_step": in_table["crown_step"]}
+    in_step = in_table["crown_step"]
+    if in_step["max"] is not None and in_step["max"] > in_step["bound"]:
+        report["refusal"] = {
+            "reason": "crown_step_over_bound",
+            "side": "input",
+            "max": in_step["max"],
+            "bound": in_step["bound"],
+            "scalp_source": None,
+        }
+        with open(args.report, "w") as f:
+            json.dump(report, f, indent=1)
+        raise RuntimeError(
+            "CROWN_STEP_OVER_BOUND "
+            f"max {in_step['max']:.3f} > bound {in_step['bound']:.3f}: "
+            "record names no scalp source; refuse")
+    step = report["region_table"]["crown_step"]
+    if step["max"] is not None and step["max"] > step["bound"]:
+        report["refusal"] = {
+            "reason": "crown_step_over_bound",
+            "side": "output",
+            "max": step["max"],
+            "bound": step["bound"],
+            "scalp_source": None,
+        }
+        with open(args.report, "w") as f:
+            json.dump(report, f, indent=1)
+        raise RuntimeError(
+            "CROWN_STEP_OVER_BOUND "
+            f"max {step['max']:.3f} > bound {step['bound']:.3f}: "
+            "record names no scalp source; refuse")
     save_rgb(Path(args.out), out)
     with open(args.report, "w") as f:
         json.dump(report, f, indent=1)
