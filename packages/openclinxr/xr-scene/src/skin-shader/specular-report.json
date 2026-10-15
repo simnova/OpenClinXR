@@ -1,0 +1,93 @@
+{
+  "card": "tsk_8bbeb141d792bdcb",
+  "handback": "h1 (replay clean albedo; fixes the h0 division seam blowup)",
+  "objective": "cavity/AO darkens specular and raises roughness; albedo WITHOUT the AO multiply",
+  "h0 superseded": "h0 clean (shipped / AO^0.9 quotient, sha 2a6ba3d0) REJECTED by orchestrator grade: white band on the mouth seam + cyan nostril fringe where AO->0 blew the quotient up. G1/G2 could not see the 2-4px seam. This report re-runs everything on the replayed clean.",
+  "replay": {
+    "switch": "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py:187-191 (--skip-stages arg) + :218-224 (skip in loop, inputs pass through, logged SKIP)",
+    "with": "skinspec/chain-with (all 7 stages; subject aisha; glb regen3/aisha-ref3.glb sha 6a572bf1; albedo chain-input-2048.png sha f5e0551c = detail/albedo-4096.png LANCZOS 2048; derive_out seeded from skinfamilies/a1/derive + --skip-ao)",
+    "without": "skinspec/chain-without (same, --skip-stages occlusion; Stage 1 logged SKIPPED)",
+    "servedClean": "skinspec/chain-input-2048.png (the pre-apply_occ file itself; G3)",
+    "servedBakedControl": "skinspec/chain-with/albedo_occ.png (input + AO multiply only; tightest A/B: differs from clean ONLY by the occlusion stage)"
+  },
+  "inputs": {
+    "curvature": { "store": "assets:skin-maps/aisha-curvature-1024.png", "sha256": "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a" },
+    "cavity": { "store": "assets:skin-maps/aisha-cavity-1024.png", "sha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf", "polarity": "white=concave, same as build_roughness.py:66 C=1-AO" },
+    "combinedRG": { "path": "skinspec/aisha-curv-cav-1024.png", "sha256": "6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8c4e41a764efcb29a96c2d", "note": "R=curvature G=cavity byte-exact; served via existing skinShadeCurvatureUrl; no plumbing edits" },
+    "cc0": { "sha256": "9e2fa4ab993dd938ba896bb98848bd65346500c4c0a07d8789d2f1e14bb3dd7f" }
+  },
+  "shader": {
+    "file": "packages/openclinxr/xr-scene/src/skin-shader/skin-shade.ts",
+    "sample": "skin-shade.ts:268 skinCavTex = texture2D(uSkinCurvMap, skinUv).g",
+    "roughness": "skin-shade.ts:282 += 0.08*C (source build_roughness.py:114), clip [0.3,0.8]",
+    "specular": "skin-shade.ts:293-297 after lights_fragment_end (:396-397): direct+indirect *= (1-uSkinSpecOccl*C), default 1",
+    "albedoUntouched": "no diffuseColor assign in the file (scatter lift only reads it, :310)",
+    "cacheKey": "openclinxr-skin-shade:...:s<strength> suffix; t1: prefix preserved"
+  },
+  "g1": {
+    "script": "packages/openclinxr/xr-scene/src/skin-shader/g1_light_follow.py (leak_check.py unedited; S15 cache 8bc57f72 + fresh S45 bake ea6b58c0, 30 deg apart)",
+    "rows": {
+      "clean-h1": { "r15": 0.1307, "r45": 0.3018, "maxAbs": 0.3018 },
+      "baked-occ-only-h1": { "r15": 0.0241, "r45": 0.3691, "maxAbs": 0.3691 },
+      "cc0-untouched": { "r15": -0.0225, "r45": 0.4749, "maxAbs": 0.4749 }
+    },
+    "gate": "PASS: clean max|r| 0.3018 <= cc0 max|r| 0.4749 (same script, n=114052); removing AO drops max|r| 0.3691 -> 0.3018"
+  },
+  "g2": {
+    "script": "skinspec/g4_h1.py (regions mirror face_replay_colour.py:192-256; skimage Lab)",
+    "bound": 3.0,
+    "renders": "h1-exam-baked vs h1-exam-spec (ob_triage_room_v1, portrait 1280, identical head box)",
+    "worst": 2.29,
+    "worstRegions": "chin L +2.29 (underlip AO 0.916 removed) and upperlip L +2.29; all channels all regions within 3.0",
+    "gate": "PASS",
+    "vsShippedContext": 17.21,
+    "vsShippedNote": "shipped MPFB albedo (tone 68 vs replay 161) cannot be the A/B baseline; reported as context only"
+  },
+  "g3": {
+    "served": "skinspec/chain-input-2048.png",
+    "served_sha256": "f5e0551ceeb8fad061a6887bbd854bfa44ab46bbb43a2652800d7947124f2224",
+    "pre_occ_sha256": "f5e0551ceeb8fad061a6887bbd854bfa44ab46bbb43a2652800d7947124f2224",
+    "max_abs_error": 0,
+    "gate": "PASS: served clean == chain pre-apply_occ output, max abs error 0 (byte compare; served file IS the replay --albedo input)",
+    "note": "no division, no resampling touches the served albedo (the h0 failure mode)"
+  },
+  "g4": {
+    "script": "skinspec/g4_h1.py",
+    "expression": "mouth = rows[seam-3,seam+3] x cols[lipL.x,lipR.x], seam = argmin row-mean-lum rows 880-970 cols 560-720 (seam_row=930; lip corners (537,932)/(739,932) = screen instances of lip-corner-L/R landmarks); nose = dilate3(lum<=p8 in rows 680-820 cols 560-720) about detected nostrils (580,809)/(698,812) = instances of nostril-L/R. A UV->screen similarity was tried and rejected (misses held-out lip-mid-lower by 88px: lip line runs along V in UV, X on screen). Primary locus = seam rows +-1.",
+    "seam": { "mouth_seam1": { "baked_over": 0, "spec_over": 0 }, "nose": { "baked_over": 0, "spec_over": 0 }, "gate": "PASS: zero over-cheek-p99 pixels on both seam loci in both builds" },
+    "dilatedContext": { "mouth_dil3": { "baked_over": 43, "spec_over": 50 }, "shape": "p999 221.9/221.9 max 222.7/222.7 identical; the 7 extra px are lower-lip tissue brightened by honest AO removal (no clipping, max far from 255); per-build cheek p99 identical 171.7/171.7" },
+    "hue": { "mouth_seam1_dHue_ab": [13.46, 5.09], "nose_dHue_ab": [0.85, 1.07], "note": "seam redder without AO darkening (lips AO .986-.988); no cyan fringe (b shift small, no clipping)" }
+  },
+  "cw1": {
+    "verdict": "PASS: no AO multiply into baseColor in the shipped portrait path",
+    "evidence": [
+      "spec variants serve chain-input-2048.png (replay input bytes, never multiplied) + combined-RG; no aoMapUrl in any h1 variant/record JSON (grep 0 hits)",
+      "skin-shade.ts: no diffuseColor assign (only pre-existing scatter read :310)",
+      "capture tool unedited (only baseColorUrl/skinShadeCurvatureUrl :588,636)",
+      "the replay WITH-occlusion output (albedo_occ) is a TEST control, not shipped; the only AO-into-albedo code is offline apply_occ.py:42-45"
+    ]
+  },
+  "cw2": {
+    "verdict": "PASS under the skin-shade CW1 noise standard",
+    "witness": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+    "witnessPath": "store/skin-shade/h1/skinshade-off2-front.png (= shader-report.json cw1.originMainSha256)",
+    "rerender": "store/skin-specular/spk-off2-front.png (identical off spec)",
+    "diff": "16/1638400 px bottom-silhouette (max abs 30), 0 in cheek/lip/nostril crops; h1 same-tree noise 19px same signature; same three r184 + GLB; flag-off code path untouched (git diff: skin-shader + replay switch + arch-index regen only)"
+  },
+  "sheet": {
+    "dir": "/Volumes/files/openclinxr-assets/store/skin-specular/h1/",
+    "cells": ["h1-baked-key0-front.png", "h1-baked-key30-front.png", "h1-spec-key0-front.png", "h1-spec-key30-front.png"],
+    "rig": "studio final-b numbers (leak-baselines.json row a rig), keyAzimuth 0 vs 30, portrait 1280, three r184",
+    "crops": { "cheek": [700, 690, 880, 840], "nasolabial": [660, 740, 800, 880], "eyecorner": [760, 590, 900, 710], "mouthseam": [537, 927, 740, 934], "nostrilseam": [559, 771, 719, 823] },
+    "readback": "all spec renders skinShade:true skinShadeCurvature:true; baked controls read False (no flag)",
+    "note": "no gloss number stated (card rule)"
+  },
+  "falsifier": {
+    "examLightMoves": false,
+    "examLightEvidence": "ob_triage_room_v1.rig.json: 7 fixed lights, 0 animation keys",
+    "aoInAlbedoWinsG2": false,
+    "verdict": "not triggered (spec holds G2 within 2.29); no keep_baked"
+  },
+  "harm": "flag-off untouched (CW2); flag-on distinct cache key; no GLB/public writes; /__spike/ serving only; ceilings held",
+  "archNotes": "gate tests import zero reachable modules (png-crop only + builtins): testInternalImports 10; zero entrypoint changes (33)"
+}

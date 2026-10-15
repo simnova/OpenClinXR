@@ -55,7 +55,7 @@ function stubShader(): {
     vertexShader: "#include <common>\nvoid main() {}\n#include <fog_vertex>",
     fragmentShader:
       "#include <common>\nvoid main() {}\n#include <map_fragment>\n" +
-      "#include <roughnessmap_fragment>\n#include <normal_fragment_maps>\n#include <emissivemap_fragment>",
+      "#include <roughnessmap_fragment>\n#include <normal_fragment_maps>\n#include <lights_fragment_end>\n#include <emissivemap_fragment>",
   };
 }
 
@@ -166,8 +166,37 @@ describe("the skin shader flag is read back", () => {
     await withCurvatureTexture(async () => {
       await expect(portraitMaterialWithFlag({ tZoneStrength: Number.NaN })).rejects.toThrow();
       await expect(portraitMaterialWithFlag({ tZoneStrength: -1 })).rejects.toThrow();
+      // tsk_8bbeb141d792bdcb: the specular-occlusion strength is fail-closed too.
+      await expect(portraitMaterialWithFlag({ specularOcclusion: Number.NaN })).rejects.toThrow();
+      await expect(portraitMaterialWithFlag({ specularOcclusion: -1 })).rejects.toThrow();
     });
     await expect(portraitMaterialWithFlag(true, null)).rejects.toThrow(/skinShadeCurvatureUrl/);
+  });
+
+  it("G-cavity: the flag path occludes specular and lifts roughness, never the albedo", async () => {
+    await withCurvatureTexture(async () => {
+      const { mat } = await portraitMaterialWithFlag(true);
+      const shader = stubShader();
+      mat.onBeforeCompile(shader as never, {} as never);
+      // Default strength 1 (recorded constant, mirrors aoMap intensity-1).
+      expect(shader.uniforms["uSkinSpecOccl"]?.value).toBe(1);
+      // Cavity field rides the combined texture's G channel (R = curvature).
+      expect(shader.fragmentShader).toMatch(/texture2D\(uSkinCurvMap, skinUv\)\.g/);
+      // +0.08*C: build_roughness.py:114, baked into the roughness chunk.
+      expect(shader.fragmentShader).toMatch(/roughnessFactor \+ 0\.08 \* skinCavTex/);
+      // Specular-only occlusion after lights_fragment_end (diffuse untouched).
+      expect(shader.fragmentShader).toMatch(
+        /reflectedLight\.directSpecular \*= \(1\.0 - uSkinSpecOccl \* skinCavTex\)/,
+      );
+      expect(shader.fragmentShader).toMatch(
+        /reflectedLight\.indirectSpecular \*= \(1\.0 - uSkinSpecOccl \* skinCavTex\)/,
+      );
+      // CW1 at hook level: diffuseColor is never assigned (the scatter lift
+      // only READS it into totalEmissiveRadiance).
+      expect(shader.fragmentShader).not.toMatch(/diffuseColor\s*(\.rgb)?\s*[*+\-]?=/);
+      expect(shader.fragmentShader).not.toMatch(/fwidth|dFdx|dFdy/);
+      expect(mat.customProgramCacheKey?.()).toMatch(/:s1$/);
+    });
   });
 
   it(storeExists ? "F1: no seams — on edge energy within noise of off in every crop" : "store absent — F1 skipped", () => {

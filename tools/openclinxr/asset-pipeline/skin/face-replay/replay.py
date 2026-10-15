@@ -182,6 +182,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--glb", type=Path, required=True)
     ap.add_argument("--albedo", type=Path, required=True)
     ap.add_argument("--skip-ao", action="store_true", help="Skip AO bake (use existing)")
+    ap.add_argument("--skip-stages", type=str, default="",
+                    help="Comma-separated stage names to pass through unchanged "
+                         "(e.g. occlusion: clean albedo = pre-apply_occ output). "
+                         "Inputs flow to the next stage untouched; logged as SKIP.")
     args = ap.parse_args(argv)
 
     manifest = json.loads(args.manifest.read_text())
@@ -210,6 +214,12 @@ def main(argv: list[str] | None = None) -> int:
         # Skip AO bake stage (human-run)
         if stage["name"] == "derive" and args.skip_ao:
             stage["parameters"]["no_ao"] = True
+
+        skipped = {s.strip() for s in args.skip_stages.split(",") if s.strip()}
+        if stage["name"] in skipped:
+            print(f"\n=== Stage {i}: {stage['name']} SKIPPED (--skip-stages): "
+                  f"inputs pass through unchanged ===", flush=True)
+            continue
 
         inputs = run_stage(stage, args.subject, store_dir, inputs, overrides, i)
 

@@ -28,12 +28,15 @@
  *   (c) roughness T-zone: 0.62 - Tc*T clipped [0.3,0.8], the exact formula
  *       of the face-replay bake (tools/openclinxr/asset-pipeline/skin/
  *       face-replay/build_roughness.py: "0.62 - Tc*T + 0.08*C + 0.05*H
- *       clipped [0.3, 0.8]"). DEVIATION RECORDED: the +0.08*C (cavity/AO)
- *       and +0.05*H (albedo high-frequency) terms are omitted — neither the
- *       AO nor a frequency field is sampled in the portrait path — and the
- *       clip applies to the blended result. T is an analytic UV mask whose
- *       centres/radii mirror the bake: disks at nose-tip / chin / forehead
- *       (forehead = brow-end-inner mid pushed past the brows by
+ *       clipped [0.3, 0.8]"). DEVIATION RECORDED: the +0.05*H (albedo
+ *       high-frequency) term is omitted — no frequency field is sampled in
+ *       the portrait path — and the clip applies to the blended result.
+ *       The +0.08*C (cavity/AO) term is RESTORED (tsk_8bbeb141d792bdcb):
+ *       C is the G channel of the combined curvature+cavity texture served
+ *       through the existing skinShadeCurvatureUrl (R = curvature bake,
+ *       G = cavity concave mask, same MakeHuman UV). T is an analytic UV
+ *       mask whose centres/radii mirror the bake: disks at nose-tip / chin
+ *       / forehead (forehead = brow-end-inner mid pushed past the brows by
  *       FOREHEAD_PUSH 0.5), radii R_NOSE 0.035 / R_CHIN 0.030 / R_FOREHEAD
  *       0.055 of map size, same-file softening spirit (dilate-5/blur-12).
  *       Landmark UVs are Aisha-derived (realism-95 derive/A/landmarks-uv.json,
@@ -44,11 +47,26 @@
  *   (e) nostrils: small emissive-side scatter lift from the cavity field
  *       plus the nostril disks (lift, not paint — albedo-modulated, no
  *       colour shift).
+ *   (f) cavity specular occlusion + roughness (tsk_8bbeb141d792bdcb): the
+ *       cavity field (G channel, white = concave, same polarity as the
+ *       bake's C = 1 - AO in build_roughness.py:66) scales the specular
+ *       terms (direct + indirect) by (1 - specularOcclusion * C) and raises
+ *       roughness by +0.08*C (build_roughness.py:114). The albedo
+ *       (diffuseColor) is NEVER multiplied by cavity here: the AO-in-albedo
+ *       bake (apply_occ.py:42-45, p=0.9 k=2) stays out of the portrait path
+ *       by feeding a pre-occlusion albedo through the existing baseColorUrl
+ *       override. No diffuse term references the cavity field (grep
+ *       diffuseColor in this file = the pre-existing scatter lift only).
  *
  * The curvature map arrives through the portrait path's existing texture
  * loading (TextureLoader in applyMaterialOverrides, served to the page by
  * the capture tool's /__spike/ route like every other override texture):
- * MaterialOverride.skinShadeCurvatureUrl. A skinShade flag WITHOUT that URL
+ * MaterialOverride.skinShadeCurvatureUrl. The cavity field rides in the SAME
+ * file's G channel (a combined RG PNG merged once in scratch: R = the
+ * curvature bake, G = the cavity concave mask, same UV and size), so
+ * neither isolated-subject-material-variants.ts nor
+ * runtime-portrait-capture.ts needed a new key (WRITE_ROOTS: skin-shader
+ * only). A skinShade flag WITHOUT that URL
  * REFUSES (fail closed at the spec level); the hook itself tolerates a null
  * texture only so the node unit test (no image decoder) can prove
  * installation through the flag path with a DataTexture stand-in.
@@ -106,6 +124,16 @@ export const SKIN_FEATHER_UV = 0.004;
 
 /** Curvature map channel: the bake is grayscale EMIT (R=G=B). */
 export const SKIN_CURVATURE_CHANNEL = "r";
+/**
+ * Cavity channel of the combined texture served via skinShadeCurvatureUrl:
+ * R = curvature bake, G = cavity concave mask (white = concave, the same
+ * polarity as the roughness bake's C = 1 - AO, build_roughness.py:66).
+ * Grayscale curvature PNGs (R=G=B) read their own value here; production
+ * variants serve the merged RG file recorded in specular-report.json.
+ */
+export const SKIN_CAVITY_CHANNEL = "g";
+/** Cavity roughness coefficient: build_roughness.py:114 "+0.08*C". */
+export const SKIN_CAVITY_ROUGHNESS = 0.08;
 /** Flat-skin curvature: bake ramp maps pointiness 0.5 -> 0.5 (median 0.51 measured). */
 export const SKIN_CURVATURE_FLAT = 0.5;
 
@@ -129,6 +157,13 @@ export type SkinShadeOptions = {
   scatterCavity?: number;
   scatterNostril?: number;
   scatterLip?: number;
+  /**
+   * Specular occlusion strength: specular terms scale by
+   * (1 - specularOcclusion * C). 1 = full cavity occlusion of specular
+   * (mirrors three.js aoMap intensity-1 semantics onto direct + indirect
+   * specular instead of indirect diffuse). Recorded constant.
+   */
+  specularOcclusion?: number;
   /** Baked curvature texture (production always binds it; null only for the node unit test). */
   curvatureMap?: Texture | null;
 };
@@ -140,6 +175,7 @@ export const SKIN_SHADE_DEFAULTS = {
   scatterCavity: 0.1,
   scatterNostril: 0.04,
   scatterLip: 0.02,
+  specularOcclusion: 1,
 };
 
 export type ResolvedSkinShadeOptions = {
@@ -149,6 +185,7 @@ export type ResolvedSkinShadeOptions = {
   scatterCavity: number;
   scatterNostril: number;
   scatterLip: number;
+  specularOcclusion: number;
   curvatureMap: Texture | null;
 };
 
@@ -168,6 +205,11 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
     scatterCavity: num(options.scatterCavity, "scatterCavity", SKIN_SHADE_DEFAULTS.scatterCavity),
     scatterNostril: num(options.scatterNostril, "scatterNostril", SKIN_SHADE_DEFAULTS.scatterNostril),
     scatterLip: num(options.scatterLip, "scatterLip", SKIN_SHADE_DEFAULTS.scatterLip),
+    specularOcclusion: num(
+      options.specularOcclusion,
+      "specularOcclusion",
+      SKIN_SHADE_DEFAULTS.specularOcclusion,
+    ),
     curvatureMap: options.curvatureMap ?? null,
   };
 }
@@ -187,6 +229,7 @@ uniform float uSkinScatterCvx;
 uniform float uSkinScatterCav;
 uniform float uSkinScatterNos;
 uniform float uSkinScatterLip;
+uniform float uSkinSpecOccl;
 uniform sampler2D uSkinCurvMap;
 uniform vec2 uSkinNoseUv;
 uniform vec2 uSkinChinUv;
@@ -222,6 +265,7 @@ float skinNos = max(
 float skinCurv = texture2D(uSkinCurvMap, skinUv).${SKIN_CURVATURE_CHANNEL};
 float skinConvex = clamp((skinCurv - ${SKIN_CURVATURE_FLAT}) * 2.0, 0.0, 1.0);
 float skinCav = clamp((${SKIN_CURVATURE_FLAT} - skinCurv) * 2.0, 0.0, 1.0);
+float skinCavTex = texture2D(uSkinCurvMap, skinUv).${SKIN_CAVITY_CHANNEL};
 `;
 }
 
@@ -235,7 +279,21 @@ export function skinShadeRoughnessGlsl(): string {
     skinTarget = mix(skinTarget, ${SKIN_LIP_ROUGHNESS}, clamp(skinLip / max(skinZoneW, 1e-4), 0.0, 1.0));
     roughnessFactor = clamp(mix(roughnessFactor, skinTarget, skinZoneW), ${SKIN_ROUGH_MIN}, ${SKIN_ROUGH_MAX});
   }
+  roughnessFactor = clamp(roughnessFactor + ${SKIN_CAVITY_ROUGHNESS} * skinCavTex, ${SKIN_ROUGH_MIN}, ${SKIN_ROUGH_MAX});
 }
+`;
+}
+
+/**
+ * Cavity specular occlusion (injected after `#include
+ * <lights_fragment_end>`): the cavity field scales direct + indirect
+ * specular only. Diffuse (direct + indirect) is untouched — the albedo
+ * stays clean by construction (CW1).
+ */
+export function skinShadeSpecularGlsl(): string {
+  return /* glsl */ `
+reflectedLight.directSpecular *= (1.0 - uSkinSpecOccl * skinCavTex);
+reflectedLight.indirectSpecular *= (1.0 - uSkinSpecOccl * skinCavTex);
 `;
 }
 
@@ -276,14 +334,18 @@ export function skinShadeCurvature(material: object): Texture | null {
 export function skinShadeCacheKey(resolved: ResolvedSkinShadeOptions): string {
   return (
     `openclinxr-skin-shade:t${resolved.tZoneStrength}:b${resolved.blurMix}` +
-    `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}`
+    `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}` +
+    `:s${resolved.specularOcclusion}`
   );
 }
 
 /**
  * Hook a portrait skin material. Chains with any existing onBeforeCompile.
- * Never touches transmission, environment, or emissive colour — only adds a
- * small albedo-modulated scatter lift. Flag OFF path never calls this, so the
+ * Never touches transmission, environment, or emissive colour — the hook
+ * adds an albedo-modulated scatter lift, a T-zone/lip/cavity roughness
+ * treatment, a specular-only cavity occlusion, and a normal blur.
+ * It never multiplies the albedo (diffuseColor) by cavity (CW1).
+ * Flag OFF path never calls this, so the
  * default program is byte-identical to origin/main (CW1).
  */
 export function applySkinShade(
@@ -305,6 +367,7 @@ export function applySkinShade(
     shader.uniforms["uSkinScatterCav"] = { value: resolved.scatterCavity };
     shader.uniforms["uSkinScatterNos"] = { value: resolved.scatterNostril };
     shader.uniforms["uSkinScatterLip"] = { value: resolved.scatterLip };
+    shader.uniforms["uSkinSpecOccl"] = { value: resolved.specularOcclusion };
     shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
     shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
     shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
@@ -328,6 +391,10 @@ export function applySkinShade(
       .replace(
         "#include <normal_fragment_maps>",
         `#include <normal_fragment_maps>\n${skinShadeNormalGlsl()}`,
+      )
+      .replace(
+        "#include <lights_fragment_end>",
+        `#include <lights_fragment_end>\n${skinShadeSpecularGlsl()}`,
       )
       .replace(
         "#include <emissivemap_fragment>",
