@@ -66,11 +66,6 @@ export type FootBaseClipRead = {
 
 export type FootBaseState = {
   stance: FootBaseSide;
-  /**
-   * Dwell-pending challenger: label flipped but not yet planted. The foot
-   * freezes at its dwell-start pose until the dwell fires or the flap ends.
-   */
-  pending: { side: FootBaseSide; count: number; fromX: number; fromY: number; fromZ: number } | null;
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
@@ -112,9 +107,6 @@ export function readFootBaseState(approach: object): FootBaseState | null {
 export function clearFootBaseState(approach: object): void {
   states.delete(approach);
 }
-
-/** Handover dwell: challenger persists this many substeps before planting (flaps last <=4). */
-export const FOOT_BASE_HANDOVER_DWELL = 6;
 
 /** Gate twin: flag on and this slice's route length only. */
 export function footBaseStepIsActive(routeLengthMeters: number): boolean {
@@ -209,7 +201,6 @@ function createState(stance: FootBaseSide): FootBaseState {
   const zero = { x: 0, y: 0, z: 0 };
   return {
     stance,
-    pending: null,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
     takeoff: { left: null, right: null },
@@ -320,43 +311,23 @@ export function applyFootBaseStep(input: {
     snapTakeoff("left", rowNow("left"));
     snapTakeoff("right", rowNow("right"));
   } else if (single !== null && single !== state.stance) {
-    // Handover dwell: the challenger freezes at its dwell-start pose and
-    // plants only after persisting FOOT_BASE_HANDOVER_DWELL substeps. A
-    // 1-substep label blip would otherwise re-plant the foothold mid-window
-    // (measured 26-33 mm handover steps); real stances run 15+ substeps, so
-    // healthy paths plant at the same touchdown either way.
-    const pend = state.pending;
-    if (pend !== null && pend.side === single) {
-      const count = pend.count + 1;
-      if (count >= FOOT_BASE_HANDOVER_DWELL) {
-        const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
-        state.foothold[single] = { ...planted };
-        state.stance = single;
-        state.pending = null;
-        const newSwing: FootBaseSide = single === "left" ? "right" : "left";
-        snapTakeoff(single, rowNow(single));
-        snapTakeoff(newSwing, rowNow(newSwing));
-      } else {
-        state.pending = { side: single, count, fromX: pend.fromX, fromY: pend.fromY, fromZ: pend.fromZ };
-      }
-    } else {
-      const physical = single === "left" ? leftToeW : rightToeW;
-      const solved = state.lastSolved[single] ?? physical;
-      state.pending = { side: single, count: 1, fromX: solved.x, fromY: solved.y, fromZ: solved.z };
-    }
-  } else if (state.pending !== null) {
-    // Flap-back: the challenger vanished before the dwell fired — clear the
-    // pending plant and re-snap its takeoff so swing resumes continuously
-    // from the physical foot, not a stale pre-dwell reference.
-    const flapBack = state.pending.side;
-    state.pending = null;
-    snapTakeoff(flapBack, rowNow(flapBack));
+    // Handover, immediate: plant where the foot PHYSICALLY stands (last
+    // solved pos), not the mixer pose (clip scale 1 vs rebuild plan scale
+    // reads cm off; measured 16-26 mm window steps with stale offsets).
+    // Both feet re-snap takeoff refs, so targets stay continuous across the
+    // role change; a flap plants mid-swing and hands straight back, pinning
+    // each run exactly where it stands (zero window travel by construction).
+    // A dwell was tried and removed: freezing the challenger while the slot
+    // advances drives its target out of hinge reach (~2 mm/frame shortfall),
+    // worse than planting at touchdown speed.
+    const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
+    state.foothold[single] = { ...planted };
+    state.stance = single;
+    snapTakeoff(single, rowNow(single));
+    snapTakeoff(single === "left" ? "right" : "left", rowNow(single === "left" ? "right" : "left"));
   }
 
-  // Roles derive from post-dwell state: during dwell the incumbent stays
-  // stance (pinned), the challenger provisional-frozen; only a fired dwell
-  // flips roles. Reading raw labels here would solve+pin the challenger
-  // while the test/metric still reads the incumbent.
+  // Roles derive from post-handover state.
   const stance: FootBaseSide = state.stance;
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
   const stanceRow = rowNow(stance);
@@ -391,15 +362,9 @@ export function applyFootBaseStep(input: {
     z: stanceFoothold.z,
   };
   const swingAbsolute = rebuildAbsolute(swing, swingRow);
-  // Dwell-pending challenger holds its dwell-start pose (zero window
-  // pollution either way: touchdown freezes a few cm early, flap-backs
-  // never planted at all).
-  const pendNow = state.pending;
-  const swingTarget = pendNow !== null && pendNow.side === swing
-    ? { x: pendNow.fromX, y: pendNow.fromY, z: pendNow.fromZ }
-    : swingTakeoff === null
-      ? swingAbsolute
-      : {
+  const swingTarget = swingTakeoff === null
+    ? swingAbsolute
+    : {
         x: swingTakeoff.origin.x + (swingAbsolute.x - swingTakeoff.absBase.x),
         y: swingTakeoff.origin.y + (swingAbsolute.y - swingTakeoff.absBase.y),
         z: swingTakeoff.origin.z + (swingAbsolute.z - swingTakeoff.absBase.z),
