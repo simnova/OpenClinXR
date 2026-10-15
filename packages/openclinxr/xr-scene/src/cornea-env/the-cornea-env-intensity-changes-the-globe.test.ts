@@ -233,8 +233,14 @@ describe("h1: the catch-light is a specular spot over the iris disc", () => {
     const eyeSrc = readFileSync(join(here, "../eye-shader/eye-parallax.ts"), "utf8");
     const rigSrc = readFileSync(modulePath, "utf8");
     for (const lit of ["299.55 / 1024", "300.0 / 1024", "724.65 / 1024", "721.28 / 1024", "135 / 1024", "30 / 1024"]) {
-      expect(eyeSrc, `eye-parallax cites ${lit}`).toContain(lit);
       expect(rigSrc, `rig module cites ${lit}`).toContain(lit);
+    }
+    // eye-shader-wire h1 (a010da05f) re-stated eye-parallax's centres in pixels
+    // from the image top (A 724.00, B 302.72). The rig module keeps the opposite
+    // v origin, so the two must be mirrors: 1024 - 300.0 = 724.0 and
+    // 1024 - 721.28 = 302.72. Pin that relation, not shared literals.
+    for (const lit of ["299.55 / 1024", "724.0 / 1024", "724.65 / 1024", "302.72 / 1024", "135 / 1024", "30 / 1024"]) {
+      expect(eyeSrc, `eye-parallax cites ${lit}`).toContain(lit);
     }
     expect(report.h1.CW2.h1EyeRoughnessScalar, "globe scalar still 0.5 (sclera untouched)").toBe(0.5);
     const disc = report.h1.CW2.h106GlobeEnvMap.roughnessDisc;
