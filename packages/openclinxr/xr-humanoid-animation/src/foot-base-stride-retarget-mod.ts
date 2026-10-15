@@ -30,13 +30,14 @@ import {
  * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
  * the clip pose. Stance follows the observe-only stance lock from earlier
  * in the same frame (also the published stanceFoot column, so pin stance
- * and metric stance coincide by construction). Handovers plant the incoming
- * foot under the plan body (single plan datum, anchored to walking entry:
- * physical re-anchoring ratcheted the feet 0.35 m behind plan by walk end
- * while the slot followed plan, over-extending the stance leg). The heel
- * offset is re-read from the mixer-fresh leg every substep (exogenous clip
- * truth, so no feedback); a once-captured entry offset goes stale with
- * ankle articulation and injects handover-scale errors.
+ * and metric stance coincide by construction). The plan datum is anchored
+ * to walking entry (halves/body travel count route progress since the first
+ * active substep, not clip absolute time: absolute time put the slot ~8 cm
+ * behind the legacy advance from substep one). Handovers plant the physical
+ * foot with anchor heights capped at the contact band. The heel offset is
+ * re-read from the mixer-fresh leg every substep (exogenous clip truth, so
+ * no feedback); a once-captured entry offset goes stale with ankle
+ * articulation and injects handover-scale errors.
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
@@ -71,13 +72,12 @@ export type FootBaseState = {
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
-   * Takeoff reference per foot. At init both feet snap to the physical pose
-   * (anchoring the datum to reality). At handover the OUTGOING foot re-snaps
-   * physical (continuity in its own datum until it converts), while the
-   * INCOMING foot is re-planned to the plan datum (origin == absBase ==
-   * plan position) so its swing continues with pure plan deltas. Targets
-   * follow rebuild DELTAS from the takeoff, so role changes are continuous
-   * even when rows and labels disagree.
+   * Takeoff reference per foot, captured on role change (init/handover):
+   * physical position, absolute rebuild there. Targets follow rebuild
+   * DELTAS from the physical takeoff, so role changes are continuous even
+   * when rows and labels disagree (the origin-absBase difference also
+   * cancels the row table's plant bias); the constant offset re-anchors
+   * every handover and never accumulates.
    */
   takeoff: Record<
     FootBaseSide,
@@ -344,31 +344,23 @@ export function applyFootBaseStep(input: {
     snapTakeoff("left", rowNow("left"));
     snapTakeoff("right", rowNow("right"));
   } else if (single !== null && single !== state.stance) {
-    // Handover, immediate, PLAN datum: the incoming stance foot plants under
-    // the plan body (along-route), keeping its physical lateral offset. The
-    // physical plant re-anchored the chain to lagging solved feet and baked
-    // each half's IK-miss shortfall into the footholds (feet 0.35 m behind
-    // plan at walk end, pin fighting the SET +-10 cm/substep); the miss no
-    // longer feeds back. A flap plants at plan body too and hands straight
-    // back, pinning each run where the plan stands.
-    const physNow = single === "left" ? leftToeW : rightToeW;
-    const relPX = physNow.x - approach.start.x;
-    const relPZ = physNow.z - approach.start.z;
-    const alongPhys = relPX * unitX + relPZ * unitZ;
-    state.foothold[single] = {
-      x: approach.start.x + unitX * bodyTravelM + (relPX - alongPhys * unitX),
-      y: physNow.y,
-      z: approach.start.z + unitZ * bodyTravelM + (relPZ - alongPhys * unitZ),
-    };
+    // Handover, immediate: plant where the foot PHYSICALLY stands (last
+    // solved pos), not the mixer pose (clip scale 1 vs rebuild plan scale
+    // reads cm off; measured 16-26 mm window steps with stale offsets).
+    // Planting at the plan body was measured teleporting the stance target
+    // ~10 cm ahead of the mid-swing foot (6 cm solve miss, slot whiplash,
+    // walk exit 35 frames early). Both feet re-snap takeoff refs, so targets
+    // stay continuous across the role change; a flap plants mid-swing and
+    // hands straight back, pinning each run exactly where it stands (zero
+    // window travel by construction).
+    // A dwell was tried and removed: freezing the challenger while the slot
+    // advances drives its target out of hinge reach (~2 mm/frame shortfall),
+    // worse than planting at touchdown speed.
+    const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
+    state.foothold[single] = { ...planted };
     state.stance = single;
-    // The incoming foot continues from the plan datum (origin == absBase ==
-    // plan position: no jump, pure plan deltas after). The outgoing foot
-    // keeps its physical takeoff and converts at its own handover, so both
-    // feet stay continuous across the role change.
-    const planPos = rebuildAbsolute(single, rowNow(single));
-    state.takeoff[single] = { origin: { ...planPos }, absBase: { ...planPos } };
-    const other = single === "left" ? "right" : "left";
-    snapTakeoff(other, rowNow(other));
+    snapTakeoff(single, rowNow(single));
+    snapTakeoff(single === "left" ? "right" : "left", rowNow(single === "left" ? "right" : "left"));
   }
 
   // Roles derive from post-handover state.
@@ -378,8 +370,8 @@ export function applyFootBaseStep(input: {
   const swingRow = rowNow(swing);
 
   const stanceFoothold = state.foothold[stance];
-  // The slot advance (bodyTravelM) is computed above, before the handover,
-  // so the incoming foothold plants under the plan body.
+  // The slot advance follows the entry-anchored foothold polyline
+  // (bodyTravelM above); the pin below is then a mm correction.
   slot.position.x = approach.start.x + unitX * bodyTravelM;
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);
@@ -420,8 +412,9 @@ export function applyFootBaseStep(input: {
     // solved leg). A once-captured entry offset goes stale as the ankle
     // articulates through the walk and was measured injecting ~15 cm swing
     // errors at handovers; the frozen-foot workaround for it levers the toe
-    // on heel rotation by a similar amount. Live offset needs no freeze:
-    // the hinge leaves heel orientation mixer-true, so toe lands on target.
+    // on heel rotation by a similar amount. (A solve-twice re-read was
+    // tried: the second pass does not converge the 3-5 cm swing miss, so it
+    // was removed — one solve, miss from that solve.)
     const ends = heelWorldNow(chain);
     const captured = {
       offset: {
