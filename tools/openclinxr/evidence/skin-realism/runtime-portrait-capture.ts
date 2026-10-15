@@ -441,6 +441,13 @@ export function assertVariantLanded(variant: VariantDef, record: Record<string, 
             fail(`${String(ov.match)} skinShade readback is not true (shader did not install)`);
           }
         }
+        // tsk_4ca1eb82092e11bd: the eye-shade flag lands the same way (hook
+        // readback, not JSON). Minimal extension, disclosed in wiring-report.
+        if (ov.eyeShade !== undefined && ov.eyeShade !== false) {
+          if (rb.eyeShade !== true) {
+            fail(`${String(ov.match)} eyeShade readback is not true (shader did not install)`);
+          }
+        }
         const phys = ov.physical as Record<string, unknown> | undefined;
         if (phys) {
           if (rb.type !== "MeshPhysicalMaterial") fail(`${String(ov.match)} type ${String(rb.type)} is not MeshPhysicalMaterial`);

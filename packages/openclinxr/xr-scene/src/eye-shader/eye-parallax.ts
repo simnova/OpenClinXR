@@ -33,15 +33,17 @@
  * centres were measured in landed iris-centred-c.png (1024): disk A px-top
  * (299.55, 724.00), disk B px-top (724.65, 302.72), radius 135px, pupil dark core
  * to ~35px. The texture as landed is V-flipped relative to the runtime sampler
- * (disks land on-globe only under Blender-native sampling); the follow-up wiring
- * slice must V-flip the texture (or flipY=true the eye load). Defaults below are
- * for the FIXED (flipped) texture and cross-checked against mesh front-vert
+ * (disks land on-globe only under Blender-native sampling); the wiring flips
+ * it at the UV level (map repeat/offset into vMapUv — texture.flipY is dead
+ * for GLB ImageBitmap sources in three r184). Defaults below are
+ * for the flipped sampling and cross-checked against mesh front-vert
  * median file-UVs anat-R (0.705, 0.699), anat-L (0.294, 0.298). Eye selection:
  * fragment u<0.5 -> anat-L.
  */
 
 import type {
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from "three";
@@ -276,6 +278,52 @@ export const EYE_SHADER_DEFAULTS = {
   limbusTint: [0.35, 0.22, 0.16] as [number, number, number],
 };
 
+export type ResolvedEyeShaderOptions = {
+  pupilScale: number;
+  limbusStrength: number;
+  limbusTint: [number, number, number];
+};
+
+/**
+ * Fail-closed option resolution (tsk_4ca1eb82092e11bd wiring): non-finite or
+ * non-positive pupil scales and non-finite/negative limbus strengths refuse
+ * before any hook installs. Pupil scale 0 would divide in applyPupilScale
+ * and in the GLSL pupil term, so the floor is strictly positive.
+ */
+export function resolveEyeShaderOptions(options: EyeShaderOptions = {}): ResolvedEyeShaderOptions {
+  const pupilScale = options.pupilScale ?? EYE_SHADER_DEFAULTS.pupilScale;
+  if (typeof pupilScale !== "number" || !Number.isFinite(pupilScale) || pupilScale <= 0) {
+    throw new Error(`eyeShade.pupilScale must be a finite number > 0, got ${JSON.stringify(pupilScale)}`);
+  }
+  const limbusStrength = options.limbusStrength ?? EYE_SHADER_DEFAULTS.limbusStrength;
+  if (typeof limbusStrength !== "number" || !Number.isFinite(limbusStrength) || limbusStrength < 0) {
+    throw new Error(`eyeShade.limbusStrength must be a finite number >= 0, got ${JSON.stringify(limbusStrength)}`);
+  }
+  const limbusTint = options.limbusTint ?? EYE_SHADER_DEFAULTS.limbusTint;
+  if (
+    !Array.isArray(limbusTint) ||
+    limbusTint.length !== 3 ||
+    limbusTint.some((c) => typeof c !== "number" || !Number.isFinite(c))
+  ) {
+    throw new Error(`eyeShade.limbusTint must be a triple of finite numbers, got ${JSON.stringify(limbusTint)}`);
+  }
+  return {
+    pupilScale,
+    limbusStrength,
+    limbusTint: [limbusTint[0]!, limbusTint[1]!, limbusTint[2]!],
+  };
+}
+
+const eyeInstalled = new WeakSet<object>();
+
+/**
+ * True when applyEyeShader has hooked this material (drives the
+ * applyMaterialOverrides eyeShade readback, not a JSON field).
+ */
+export function eyeShaderInstalled(material: object): boolean {
+  return eyeInstalled.has(material);
+}
+
 /**
  * GLSL injected AFTER `#include <map_fragment>` on the globe (iris) material
  * (guarded by USE_MAP: the globe always carries the iris map). No transmission
@@ -342,16 +390,18 @@ export function eyeParallaxVertexGlsl(): string {
 /**
  * Hook a globe (iris) material. Chains with any existing onBeforeCompile.
  * Never touches transmission (stays 0: no extra pass on Quest) and never
- * adds emissive (catch-light stays on the shell).
+ * adds emissive (catch-light stays on the shell). V-flips the iris map on
+ * install via the map transform (repeat/offset, honoured for every texture
+ * kind): the landed iris-centred-c texture is V-flipped relative to the
+ * three.js sampler (eye-shader-report.json stillNeeds), while every iris
+ * centre numeral above assumes the flipped state.
  */
 export function applyEyeShader(
-  material: MeshPhysicalMaterial,
+  material: MeshStandardMaterial | MeshPhysicalMaterial,
   options: EyeShaderOptions = {},
-): MeshPhysicalMaterial {
-  const pupilScale = options.pupilScale ?? EYE_SHADER_DEFAULTS.pupilScale;
-  const limbusStrength =
-    options.limbusStrength ?? EYE_SHADER_DEFAULTS.limbusStrength;
-  const limbusTint = options.limbusTint ?? EYE_SHADER_DEFAULTS.limbusTint;
+): MeshStandardMaterial | MeshPhysicalMaterial {
+  const resolved = resolveEyeShaderOptions(options);
+  const { pupilScale, limbusStrength, limbusTint } = resolved;
   const prev = material.onBeforeCompile?.bind(material);
   material.onBeforeCompile = (
     shader: WebGLProgramParametersWithUniforms,
@@ -395,5 +445,20 @@ export function applyEyeShader(
   material.customProgramCacheKey = () =>
     `openclinxr-eye-shader:p${pupilScale}:l${limbusStrength}`;
   material.needsUpdate = true;
+  eyeInstalled.add(material);
+  const irisMap = (material as MeshStandardMaterial).map;
+  if (irisMap) {
+    // V-flip the landed texture at the UV level (tsk_4ca1eb82092e11bd): the
+    // iris-centred-c bake is V-flipped relative to the sampler, so mesh file
+    // UVs land on background without this (measured: front-vert medians sit
+    // ~200px from the true pupils unflipped, ~5px flipped).
+    // texture.flipY is NOT used: three r184 skips UNPACK_FLIP_Y for
+    // ImageBitmap sources (WebGLTextures.js uploadTexture: the flipY
+    // pixelStore sits inside the `isImageBitmap === false` branch), and GLB
+    // textures always decode to ImageBitmap — flipY is silently dead there.
+    // repeat/offset ride the map transform into vMapUv on every texture kind.
+    irisMap.repeat.set(1, -1);
+    irisMap.offset.set(0, 1);
+  }
   return material;
 }

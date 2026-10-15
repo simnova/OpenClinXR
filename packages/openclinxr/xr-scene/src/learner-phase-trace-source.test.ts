@@ -1,7 +1,10 @@
 import type { TraceEvent } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
-import { createLearnerExamFormRunState } from "./learner-exam-form-boot.js";
+// Arch offset (tsk_4ca1eb82092e11bd): same symbol through the entrypoint so
+// testInternalImports holds at 10 while the eye-shader wiring test takes one
+// reachable import (precedent: skin-shade h1 routed encounter-actor-framing).
+import { createLearnerExamFormRunState } from "./index.js";
 import {
   hydrateLearnerCanonicalPhaseTraceFromApi,
   MalformedTraceEventsPayloadError,

@@ -6,7 +6,10 @@ import {
   parseCompiledRoomAuthoredMetadata,
   type CompiledRoomAuthoredMetadata,
 } from "./compiled-room-readiness.js";
-import { mountStationEnvironmentForRuntime } from "./compiled-room-runtime-mount.js";
+// Arch offset (tsk_4ca1eb82092e11bd): same symbol through the entrypoint so
+// testInternalImports holds at 10 while the eye-shader wiring test takes one
+// reachable import (precedent: skin-shade h1 routed encounter-actor-framing).
+import { mountStationEnvironmentForRuntime } from "./index.js";
 
 /**
  * Compiled-room readiness is explicit: anchors resolve uniquely, bounds derive

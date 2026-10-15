@@ -1,0 +1,163 @@
+{
+ "archOffset": {
+  "after": "testInternalImports 10/10, rootEntrypointExports 33/33, zero violations (measured via architecture-rules checks on the tree)",
+  "before": "wiring makes eye-parallax.ts entrypoint-reachable (+1 old eye test) and the new runtime test takes one reachable import (+1)",
+  "files": [
+   "packages/openclinxr/xr-scene/src/compiled-room-readiness.test.ts",
+   "packages/openclinxr/xr-scene/src/learner-phase-trace-source.test.ts"
+  ],
+  "precedent": "skin-shade h1 (21bca0184) routed encounter-actor-framing through ./index.js to offset",
+  "reroutes": [
+   "compiled-room-runtime-mount import -> ./index.js (same symbol, exported)",
+   "learner-exam-form-boot import -> ./index.js (same symbol, exported)"
+  ]
+ },
+ "captureToolExtension": "runtime-portrait-capture.ts assertVariantLanded now fails closed on eyeShade readback (mirrors skinShade; 6 lines)",
+ "card": "tsk_4ca1eb82092e11bd",
+ "commits": [],
+ "cornea": {
+  "_runtimeInventory": "ew-off.json materialInventory (16 slots; eye-material slot 1, cornea 0)",
+  "fileMat": "openclinxr_eye_cornea_mat (BLEND, baseColorFactor [0.9,0.95,1,0.08], roughness 0.05, no map; L mesh 256 verts/1470 idx, R mesh 268 verts/1470 idx)",
+  "fileNodes": "LEFT/RIGHT cornea nodes exist but are ORPHANS: 148/150 nodes scene-reachable; the 2 cornea nodes are the only orphans (probe: scene walk over aisha-realism.glb)",
+  "renders": false,
+  "runtimeSlots": 0,
+  "runtimeSlotsTotal": 16
+ },
+ "cw1": {
+  "baseline": "realism-95/.openclinxr/realism-spike/runtime/aisha-runtime-front.png (shipped control, view front, focus head, 1280)",
+  "render": "ew-cw1-front.png (shipped control, no overrides, no portrait; variant ew-cw1)",
+  "sha256": "c20a1540d77a869a3c31dede7f13a36740298ff8b5ff2e54334c69fe125168cf",
+  "verdict": "PASS: flag-OFF render byte-identical to the earlier-tree baseline"
+ },
+ "cw2": {
+  "record": "ew-on.json materialOverridesApplied[0].readback[0].eyeShade",
+  "verdict": "PASS: readback eyeShade True on mpfb_ob_patient_aisha_body_meshhigh-poly|mat_makeclothes_library_eyes_ob_patient_aisha (MeshStandardMaterial, hasBaseColorMap)",
+  "verdictUnit": "new vitest asserts install/readback/uniforms/cacheKey/chaining through applyMaterialOverrides (7/8 green pre-report)"
+ },
+ "determinism": {
+  "offFrontRun1vsRun2Px": 1,
+  "offFrontRun1vsRun2max": 18,
+  "wiredG3Run1vsRun2Px": 0
+ },
+ "eyeMaterial": {
+  "fileMat": "mat_makeclothes_library_eyes_ob_patient_aisha (OPAQUE, white, roughness 0.5, double-sided, 1024x1024 iris-centred-c map, 594900 bytes)",
+  "fileMeshes": [
+   "makeclothes_library_eyes_high_poly_mpfb_ob_patient_aisha_mesh (1076 verts, ORPHAN: no node references it)",
+   "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh (552 verts, node mpfb_ob_patient_aisha_body_mesh.high-poly, identity transform, skinned)"
+  ],
+  "runtimeSlot": "mpfb_ob_patient_aisha_body_meshhigh-poly|mat_makeclothes_library_eyes_ob_patient_aisha (the GLOBE mesh; 1 slot)"
+ },
+ "falsifier": {
+  "reason": "inverse of the trigger: NEITHER renders as predicted unwired (cornea 0 slots; iris pole faces away \u2014 visible globe samples background ~200px from true pupils, neutral dark slits, no brown iris / white sclera in any almond at front/25/40)",
+  "triggered": false
+ },
+ "flip": {
+  "chosen": "map repeat.y=-1 / offset.y=1 (rides the map transform into vMapUv on every texture kind)",
+  "effectPx": "fliponly-vs-unwired front 6340 px, max 401 (TEMP hook-disabled control build, scratch only)",
+  "flipYdead": "three r184 skips UNPACK_FLIP_Y_WEBGL for ImageBitmap sources (WebGLTextures.js uploadTexture: flipY pixelStore sits inside the `isImageBitmap === false` branch); GLB textures always decode to ImageBitmap, so texture.flipY=true is silently dead \u2014 measured 0 px for flipY+needsUpdate in-page and in-file",
+  "reportDirection": "eye-shader-report.json stillNeeds (mesh file-UV medians land on pupils only under flipped sampling: 5px vs ~200px unflipped)"
+ },
+ "g1": {
+  "analytic": "PASS in-test: predictApparentPx vs Cycles within 2px (old eye test); new test cites tsPredictionPx 0/10.93/18.77 (eye-shader-report.json parallax.tsPredictionPx)",
+  "renderShift": "no iris feature exists to track (see reason)",
+  "runtime": "BLOCKED (geometry, out of scope): no iris presents at front/yaw25/yaw40 \u2014 visible globe samples background texels (slit UVs (0.710,0.490)/(0.478,0.729), ~190-200px from true pupils B(0.708,0.296)/A(0.293,0.707)); eye almonds show neutral dark slits, no brown iris, no white sclera (row scans ew-off-front/yaw40 cited)"
+ },
+ "g2": {
+  "chartSides": "tint run: image-left eye samples u>0.5 chart (mean 0.64), image-right eye u<0.5 (mean 0.43) \u2014 no lateral swap in either run",
+  "feature": "eye-slit background texels: unflipped rows L(727,502) rgb(165,166,160) / R(490,747) rgb(170,171,165); flipped rows L(727,522) rgb(164,163,158) / R(490,277) rgb(162,159,152) (GLB-embedded 1024 texture)",
+  "openNote": "unwired slit pixels render (12,12,12) vs their texel (165,166,160) \u2014 ratio inconsistent with the wired lit ratio 0.88; mechanism unresolved; gate-irrelevant, recorded",
+  "renderPositions": "slits front (499,705)/(781,705) symmetric about x=640 in both runs; wired field == fliponly field at slits (140,147,140)==(140,147,140)",
+  "verdict": "PASS (reduced \u2014 iris absent so the check runs on the visible background features): wired samples the flipped texels (mesh-UV contract: 5px flipped vs ~200px unflipped); unwired was upside-down"
+ },
+ "g3": {
+  "analytic": "pupilScale-1 exact bypass in TS (early return) and GLSL (uPupilScale == 1.0 branch), both unit-tested; tsPredictionPx[0]==0.0 cited",
+  "determinism": "wired-g3 run1-vs-run2 0 px; unwired run1-vs-run2 1 px (max 18, silhouette noise)",
+  "flipVsUnwiredPx": 6340,
+  "parallaxHeadOnPx": 1233,
+  "parallaxHeadOnWhy": "off-iris fragments reconstruct a bogus sphere centre (uv<->metres uniformity assumed at the iris), so head-on offsets are small-but-nonzero on background (max 25 LSB on smooth gradients); zero holds only near the iris centre",
+  "verdict": " FAILS byte-identical literally (flip alone 6340 px; head-on parallax on background 1233 px, max 25); HOLDS in spirit (determinism 0 px, pupil-1 exact, limbus ~0: wired-default vs wired-g3 663 px max 17 at disk-edge-adjacent bg)"
+ },
+ "glb": {
+  "path": "realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb",
+  "sha256": "9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975 (census.json + file probe)"
+ },
+ "predicted": {
+  "0": 0.0,
+  "25": 10.93,
+  "40": 18.77
+ },
+ "renders": {
+  "ew-cw1-front.png": {
+   "sha256": "c20a1540d77a869a3c31dede7f13a36740298ff8b5ff2e54334c69fe125168cf",
+   "spec": "shipped control, no overrides, no portrait, yaw 0"
+  },
+  "ew-g3-front.png": {
+   "sha256": "2c82f4a394e31fad2ceea7564652590b9ac471968d0ae72fd6a20a06dfaf3f18",
+   "spec": "realism GLB, eyeShade {pupilScale 1, limbusStrength 0}, portrait, yaw 0"
+  },
+  "ew-off-front.png": {
+   "sha256": "32ccc11158f30bec25a8aef56ee89dfb68133a4efc0af5f5823f2f8343d61801",
+   "spec": "realism GLB, no overrides, portrait, yaw 0"
+  },
+  "ew-off-yaw25.png": {
+   "sha256": "213f0669010f306bf0a1f616dadf94506fe20a298200ab8769473246006f0ce7",
+   "spec": "realism GLB, no overrides, portrait, yaw 25"
+  },
+  "ew-off-yaw40.png": {
+   "sha256": "a24c0c0d37ac207f8aa65611b9de08b581136dc6f26bb5c0afe118fd5ed7fdad",
+   "spec": "realism GLB, no overrides, portrait, yaw 40"
+  },
+  "ew-on-front.png": {
+   "sha256": "883f1ce1a7c1c8a90659803e19cf86dc2ad026da81e487fce2f55dea1e7594ca",
+   "spec": "realism GLB, eyeShade true (pupil 1, limbus 0.4), portrait, yaw 0"
+  },
+  "ew-on-yaw25.png": {
+   "sha256": "96a3592d32d890a498be2387e8ae3631962e37954326cfed882cc24d89d18b54",
+   "spec": "realism GLB, eyeShade true, portrait, yaw 25"
+  },
+  "ew-on-yaw40.png": {
+   "sha256": "773dc76574d6630d085a84a013eb990ceff8a5fca0c4b83073506615988b1d1d",
+   "spec": "realism GLB, eyeShade true, portrait, yaw 40"
+  }
+ },
+ "sheet": "assets:eye-shader-wire/ eye-wire-{off,on}-{front,yaw25,yaw40}-{L,R}.png (12 native 220px crops; centres from unwired slit centroids per view)",
+ "store": "/Volumes/files/openclinxr-assets/store/eye-shader-wire/ (22 files: 8 full + 12 crops + ew-off.json + ew-on.json)",
+ "storeShas": {
+  "ew-cw1-front.png": "c20a1540d77a869a3c31dede7f13a36740298ff8b5ff2e54334c69fe125168cf",
+  "ew-g3-front.png": "2c82f4a394e31fad2ceea7564652590b9ac471968d0ae72fd6a20a06dfaf3f18",
+  "ew-off-front.png": "32ccc11158f30bec25a8aef56ee89dfb68133a4efc0af5f5823f2f8343d61801",
+  "ew-off-yaw25.png": "213f0669010f306bf0a1f616dadf94506fe20a298200ab8769473246006f0ce7",
+  "ew-off-yaw40.png": "a24c0c0d37ac207f8aa65611b9de08b581136dc6f26bb5c0afe118fd5ed7fdad",
+  "ew-off.json": "64cb7f1af3bb2cbaa0256e10ab6ba738f6e9bb76582221de927c5d0a1f3c4932",
+  "ew-on-front.png": "883f1ce1a7c1c8a90659803e19cf86dc2ad026da81e487fce2f55dea1e7594ca",
+  "ew-on-yaw25.png": "96a3592d32d890a498be2387e8ae3631962e37954326cfed882cc24d89d18b54",
+  "ew-on-yaw40.png": "773dc76574d6630d085a84a013eb990ceff8a5fca0c4b83073506615988b1d1d",
+  "ew-on.json": "2c0c4fbf7b5517830dae8aaf5c45992ec82a74bf7444e8d5779f1d5491740f2d",
+  "eye-wire-off-front-L.png": "839f2a052d224d9209aaebe756708543a05542551860ca54877b1180aa62fe3b",
+  "eye-wire-off-front-R.png": "3aa6a8c0644495f71c778bb2c0a9f4bfab1fa1e8dfdeb85be30e72f796e8a32f",
+  "eye-wire-off-yaw25-L.png": "f8979015233238d94856157c7b0f6da4e675c5fbc96f6e967e530c33e6595e32",
+  "eye-wire-off-yaw25-R.png": "ad91c2e567c1be8403e3f56f645d1162c05b762c3cd46388dc31323168f1e806",
+  "eye-wire-off-yaw40-L.png": "1301823388ea91c22c52796beef8973ed8f6c7c7c48ef78b2d276c893f001ce0",
+  "eye-wire-off-yaw40-R.png": "d74a2ff593788803ea8025b1a394acfe1c3ddf7ee865ab5b9863134432594bdd",
+  "eye-wire-on-front-L.png": "59b08d60ff2bb7473b81b3a10d060e0a92be907cb74feecfc9f795229fbcc57f",
+  "eye-wire-on-front-R.png": "6fa949bbe34ff53f1b6536c7ce0d87d8d7c9b326b8ec4b593b1f66196f1d2bf2",
+  "eye-wire-on-yaw25-L.png": "dd306c9d71af7f013634f85c9d4e90ae69849350b7c8c2c222686cc186547f03",
+  "eye-wire-on-yaw25-R.png": "9e07b0cd1a5a7e61809b7d6675fc45d0942bd782ebfc49db0aeacfdd8ef65ea8",
+  "eye-wire-on-yaw40-L.png": "ba27b4df763cd25d4f49b591d48e53bb262aeca3fe19fc8c4b097fc3b409c543",
+  "eye-wire-on-yaw40-R.png": "42aefb440ee7c9f24a83fe5f19e61daaf859e01c674422c132aaa96b61227f43"
+ },
+ "texture": {
+  "darkCentroidsPxTop": "L(299.0,724.4) R(724.4,303.5) (measured in extracted GLB texture; report: A(299.55,724.00) B(724.65,302.72))",
+  "disks": "A px-top (299.55,724.00), B px-top (724.65,302.72), radius 135px, pupil core ~35px (eye-parallax.ts header + report)",
+  "size": "1024x1024 RGB (extracted from GLB baseColorTexture, 594900 bytes)"
+ },
+ "wiredVsUnwired": {
+  "frontMax": 402,
+  "frontPx": 6339,
+  "yaw25Max": 434,
+  "yaw25Px": 5146,
+  "yaw40Max": 437,
+  "yaw40Px": 3801
+ },
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/eyewire (branch wt/eyewire)"
+}

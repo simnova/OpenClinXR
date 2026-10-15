@@ -18,6 +18,12 @@ import {
 } from "three";
 import { isFittedHairMeshName } from "./head-box-from-geometry.js";
 import {
+  applyEyeShader,
+  eyeShaderInstalled,
+  resolveEyeShaderOptions,
+  type EyeShaderOptions,
+} from "./eye-shader/eye-parallax.js";
+import {
   applySkinShade,
   resolveSkinShadeOptions,
   skinShadeCurvature,
@@ -196,6 +202,15 @@ export type MaterialOverride = {
   skinShade?: boolean | SkinShadeOptions;
   /** Baked curvature map for the skin-shade flag (data texture, like aoMap). */
   skinShadeCurvatureUrl?: string;
+  /**
+   * Portrait eye-shade flag (tsk_4ca1eb82092e11bd): true installs the
+   * onBeforeCompile iris-parallax shader at defaults (pupil scale 1, limbus
+   * 0.4); an object sets pupil/limbus. Absent/false installs nothing (CW1:
+   * the default program is byte-identical to origin/main). Targets the
+   * realism eye globe material (mat_makeclothes_library_eyes_ob_patient_aisha);
+   * the clear cornea shell is never touched (catch-light stays on the shell).
+   */
+  eyeShade?: boolean | EyeShaderOptions;
   emissive?: string;
   emissiveIntensity?: number;
   hide?: boolean;
@@ -228,6 +243,7 @@ export type MaterialOverrideReadback = {
   hidden: boolean;
   skinShade: boolean;
   skinShadeCurvature: boolean;
+  eyeShade: boolean;
   clearcoat: number | null;
   clearcoatRoughness: number | null;
   ior: number | null;
@@ -283,6 +299,7 @@ function readbackMaterial(mesh: Mesh, m: MeshStandardMaterial | MeshPhysicalMate
     hidden: mesh.visible !== true,
     skinShade: skinShadeInstalled(m),
     skinShadeCurvature: skinShadeCurvature(m) != null,
+    eyeShade: eyeShaderInstalled(m),
     clearcoat: typeof phys.clearcoat === "number" ? phys.clearcoat : null,
     clearcoatRoughness: typeof phys.clearcoatRoughness === "number" ? phys.clearcoatRoughness : null,
     ior: typeof phys.ior === "number" ? phys.ior : null,
@@ -389,6 +406,13 @@ export async function applyMaterialOverrides(
         curvTex.colorSpace = NoColorSpace;
         curvTex.flipY = false;
         applySkinShade(m, { ...flagOpts, curvatureMap: curvTex });
+      }
+      if (ov.eyeShade !== undefined && ov.eyeShade !== false) {
+        const eyeOpts: EyeShaderOptions =
+          ov.eyeShade === true ? {} : (ov.eyeShade as EyeShaderOptions);
+        // Fail-closed resolution first: garbage strengths throw before install.
+        resolveEyeShaderOptions(eyeOpts);
+        if (!eyeShaderInstalled(m)) applyEyeShader(m, eyeOpts);
       }
       if (emissive) m.emissive.copy(emissive);
       if (ov.emissiveIntensity !== undefined) m.emissiveIntensity = ov.emissiveIntensity;

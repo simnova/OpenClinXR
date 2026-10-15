@@ -5,7 +5,7 @@
  ],
  "falsifier": "exam leaves primary gaze (eyetex-yaw renders at 0/+-25; this card grades +-40): NOT triggered, proceeding recorded",
  "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-parallax.ts",
- "moduleSha256": "8d8e88d20004b26e2dc765cb93212050d3736803fedecd30f89d9756dccb65f2",
+ "moduleSha256": "16dc8333740ad88229c68f0a4912bc15e95866e4f938bf935c06e3d798cb29df",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/eyeshader",
  "red": {
   "after": "onBeforeCompile plane-hit parallax + limbus + pupil-scale, no transmission pass (G1 max 0.87px, G2 max-abs-err 0)",
@@ -140,8 +140,8 @@
  },
  "noTransmission": "material.transmission untouched (stays 0); snippet has no transmission/emissive (test asserts); catch-light stays on shell (CW honored)",
  "noUnity002": "no 0.02 iris-plane literal in module (test greps source); geometry from recorded anatomy",
- "wiring": "STOP-AND-REPORT: product wiring needs a change outside the write root: packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts applyMaterialOverrides (line 279) is the anchor where a future slice must call applyEyeShader() on eye materials post-load. NOT edited here.",
- "stillNeeds": "V-convention: landed iris-centred-c.png is V-flipped vs the three.js sampler (disks land on-globe only under Blender-native sampling; measured front-vert median file-UV R (0.705,0.699)/L (0.294,0.298) vs art disks). Follow-up must V-flip the texture (or flipY=true the eye load); module numerals assume the flipped state and are cross-checked.",
+ "wiring": "WIRED by tsk_4ca1eb82092e11bd: MaterialOverride.eyeShade flag beside skinShade in isolated-subject-material-variants.ts calls applyEyeShader() on matched eye materials post-load (install via onBeforeCompile, readback from the install set); see eye-shader/wiring-report.json for runtime evidence. V-flip implemented at the UV level (map repeat/offset — texture.flipY is dead for GLB ImageBitmap sources in three r184).",
+ "stillNeeds": "V-convention: landed iris-centred-c.png is V-flipped vs the three.js sampler (disks land on-globe only under Blender-native sampling; measured front-vert median file-UV R (0.705,0.699)/L (0.294,0.298) vs art disks). WIRED by tsk_4ca1eb82092e11bd at the UV level (map repeat/offset — texture.flipY is dead for GLB ImageBitmap sources in three r184); module numerals assume the flipped state and are cross-checked.",
  "storePrefix": "assets:eye-shader/",
  "pushed": false,
  "storeShas": {
