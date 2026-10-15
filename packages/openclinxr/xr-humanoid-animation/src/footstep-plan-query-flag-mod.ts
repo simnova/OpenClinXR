@@ -20,6 +20,15 @@ export function readFootstepPlanEnabled(): boolean {
 }
 
 /**
+ * Shared route-length bounds for the footstep plan, in metres. ONE constant:
+ * both the `footstepRouteM` parser below and the foot-base route gate
+ * (`./foot-base-route-gate-mod.js`, deep import, NOT re-exported from
+ * `./footstep-plan`) read this object, so the [0.8, 6.0] range cannot drift
+ * into two literals.
+ */
+export const FOOTSTEP_ROUTE_RANGE_M = { min: 0.8, max: 6 } as const;
+
+/**
  * Second-route length for the plan, in metres. Any number in [0.8, 6.0]
  * is honored (the M2 exit-phase cell exercises 2.0; the orchestrator's
  * unseen route lands in this range); absent or anything else reads null
@@ -29,7 +38,7 @@ export function parseFootstepRouteMeters(search: string): number | null {
   const raw = new URLSearchParams(search).get("footstepRouteM");
   if (raw === null) return null;
   const value = Number(raw);
-  return Number.isFinite(value) && value >= 0.8 && value <= 6 ? value : null;
+  return Number.isFinite(value) && value >= FOOTSTEP_ROUTE_RANGE_M.min && value <= FOOTSTEP_ROUTE_RANGE_M.max ? value : null;
 }
 
 /** Browser entry read; null anywhere without a location search (node, tools). */

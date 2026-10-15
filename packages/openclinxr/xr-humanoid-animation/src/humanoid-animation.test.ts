@@ -10,7 +10,7 @@ import {
   startHumanoidEmotionTransition,
   visemeOpenness,
 } from "./face-rig.js";
-import { humanoidDialogueDurationMs, isGeneratedRuntimeDrive } from "./gaze-evidence.js";
+import { humanoidDialogueDurationMs, isGeneratedRuntimeDrive } from "./index.js";
 import { pediatricAsthmaActingOverlayForSlot } from "./animation-loop.js";
 
 function emptyCtx() {

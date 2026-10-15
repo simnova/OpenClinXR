@@ -17,6 +17,7 @@ import {
   type LocomotionStanceLabels,
   readFootBaseState,
 } from "./foot-base.js";
+import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
 
 function setSearch(search: string | null): void {
   const host = globalThis as unknown as { window?: unknown };
@@ -211,6 +212,13 @@ describe("foot-base stride retarget", () => {
       contactBandMeters: 0.06,
       footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
       execution: { phase: "walking", walkSimSubsteps: 0 },
+      // lockArmed set so the refused-route cases below reach the route gate:
+      // without it the step returns null on the lock check and the gate is
+      // never exercised (vacuous pass under the old plan-only gate, which
+      // accepted 0.5 m and 10 m).
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
     };
     const labels = stanceLabels();
     setSearch("?footstepPlan=1&fixedClock=1");
@@ -237,6 +245,24 @@ describe("foot-base stride retarget", () => {
       ).toBeNull();
     }
     expect(readFootBaseState(approach)).toBeNull();
+  });
+
+  it("route gate: flag on AND route in [0.8, 6.0] AND plan accepts", () => {
+    // The planner alone accepts 0.5 m (s=0.891) and 10 m and refuses 0.8 m,
+    // so the gate must enforce the shared [0.8, 6.0] bounds on top of it.
+    setSearch("?footBase=1");
+    expect(footBaseStepIsActive(0.5)).toBe(false);
+    expect(footBaseStepIsActive(0.79)).toBe(false);
+    expect(footBaseStepIsActive(0.8)).toBe(false);
+    expect(footBaseStepIsActive(1.31)).toBe(true);
+    expect(footBaseStepIsActive(6.0)).toBe(true);
+    expect(footBaseStepIsActive(6.01)).toBe(false);
+    expect(footBaseStepIsActive(10)).toBe(false);
+    // Flag off kills even a plan-accepted in-range route.
+    setSearch("?footstepPlan=1&fixedClock=1");
+    expect(footBaseStepIsActive(1.31)).toBe(false);
+    setSearch(null);
+    expect(footBaseStepIsActive(1.31)).toBe(false);
   });
 
   it("stays active on every plan-accepted route (2.0 m plants past the gate)", () => {
