@@ -1,0 +1,1345 @@
+{
+  "candidates": [
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-bones-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-bones-incr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-inner-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-inner-incr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-volume-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "l-cheek-volume-incr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-bones-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-bones-incr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-inner-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-inner-incr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-volume-decr"
+    },
+    {
+      "sub": "cheek",
+      "stem": "r-cheek-volume-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-bones-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-bones-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-cleft-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-cleft-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-height-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-height-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-prognathism-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-prognathism-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-prominent-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-prominent-incr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-triangle"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-width-decr"
+    },
+    {
+      "sub": "chin",
+      "stem": "chin-width-incr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-nubian-decr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-nubian-incr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-scale-vert-decr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-scale-vert-incr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-temple-decr"
+    },
+    {
+      "sub": "forehead",
+      "stem": "forehead-temple-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-back-scale-depth-decr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-back-scale-depth-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-diamond"
+    },
+    {
+      "sub": "head",
+      "stem": "head-fat-decr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-fat-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-invertedtriangular"
+    },
+    {
+      "sub": "head",
+      "stem": "head-oval"
+    },
+    {
+      "sub": "head",
+      "stem": "head-rectangular"
+    },
+    {
+      "sub": "head",
+      "stem": "head-round"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-depth-decr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-depth-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-horiz-decr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-horiz-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-vert-decr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-scale-vert-incr"
+    },
+    {
+      "sub": "head",
+      "stem": "head-square"
+    },
+    {
+      "sub": "head",
+      "stem": "head-triangular"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-cupidsbow-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-cupidsbow-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-cupidsbow-width-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-cupidsbow-width-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-dimples-in"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-dimples-out"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-ext-down"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-ext-up"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-height-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-height-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-middle-down"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-middle-up"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-volume-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-volume-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-width-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-lowerlip-width-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-philtrum-volume-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-philtrum-volume-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-depth-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-depth-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-horiz-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-horiz-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-vert-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-scale-vert-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-ext-down"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-ext-up"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-height-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-height-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-middle-down"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-middle-up"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-volume-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-volume-incr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-width-decr"
+    },
+    {
+      "sub": "mouth",
+      "stem": "mouth-upperlip-width-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-base-down"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-base-up"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-curve-concave"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-curve-convex"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-flaring-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-flaring-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-greek-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-greek-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-hump-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-hump-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-nostrils-angle-down"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-nostrils-angle-up"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-nostrils-width-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-nostrils-width-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-point-down"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-point-up"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-point-width-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-point-width-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-depth-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-depth-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-horiz-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-horiz-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-vert-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-scale-vert-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-septumangle-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-septumangle-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-volume-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-volume-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width1-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width1-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width2-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width2-incr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width3-decr"
+    },
+    {
+      "sub": "nose",
+      "stem": "nose-width3-incr"
+    }
+  ],
+  "params": [
+    {
+      "id": "cheek-bones",
+      "group": "cheek-tied",
+      "kind": "pair-tied",
+      "pos": [
+        "l-cheek-bones-incr",
+        "r-cheek-bones-incr"
+      ],
+      "neg": [
+        "l-cheek-bones-decr",
+        "r-cheek-bones-decr"
+      ],
+      "files": [
+        "l-cheek-bones-decr",
+        "l-cheek-bones-incr",
+        "r-cheek-bones-decr",
+        "r-cheek-bones-incr"
+      ]
+    },
+    {
+      "id": "cheek-inner",
+      "group": "cheek-tied",
+      "kind": "pair-tied",
+      "pos": [
+        "l-cheek-inner-incr",
+        "r-cheek-inner-incr"
+      ],
+      "neg": [
+        "l-cheek-inner-decr",
+        "r-cheek-inner-decr"
+      ],
+      "files": [
+        "l-cheek-inner-decr",
+        "l-cheek-inner-incr",
+        "r-cheek-inner-decr",
+        "r-cheek-inner-incr"
+      ]
+    },
+    {
+      "id": "cheek-volume",
+      "group": "cheek-tied",
+      "kind": "pair-tied",
+      "pos": [
+        "l-cheek-volume-incr",
+        "r-cheek-volume-incr"
+      ],
+      "neg": [
+        "l-cheek-volume-decr",
+        "r-cheek-volume-decr"
+      ],
+      "files": [
+        "l-cheek-volume-decr",
+        "l-cheek-volume-incr",
+        "r-cheek-volume-decr",
+        "r-cheek-volume-incr"
+      ]
+    },
+    {
+      "id": "chin-bones",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-bones-incr"
+      ],
+      "neg": [
+        "chin-bones-decr"
+      ],
+      "files": [
+        "chin-bones-incr",
+        "chin-bones-decr"
+      ]
+    },
+    {
+      "id": "chin-cleft",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-cleft-incr"
+      ],
+      "neg": [
+        "chin-cleft-decr"
+      ],
+      "files": [
+        "chin-cleft-incr",
+        "chin-cleft-decr"
+      ]
+    },
+    {
+      "id": "chin-height",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-height-incr"
+      ],
+      "neg": [
+        "chin-height-decr"
+      ],
+      "files": [
+        "chin-height-incr",
+        "chin-height-decr"
+      ]
+    },
+    {
+      "id": "chin-prognathism",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-prognathism-incr"
+      ],
+      "neg": [
+        "chin-prognathism-decr"
+      ],
+      "files": [
+        "chin-prognathism-incr",
+        "chin-prognathism-decr"
+      ]
+    },
+    {
+      "id": "chin-prominent",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-prominent-incr"
+      ],
+      "neg": [
+        "chin-prominent-decr"
+      ],
+      "files": [
+        "chin-prominent-incr",
+        "chin-prominent-decr"
+      ]
+    },
+    {
+      "id": "chin-triangle",
+      "group": "chin",
+      "kind": "single",
+      "pos": [
+        "chin-triangle"
+      ],
+      "neg": [],
+      "files": [
+        "chin-triangle"
+      ]
+    },
+    {
+      "id": "chin-width",
+      "group": "chin",
+      "kind": "pair",
+      "pos": [
+        "chin-width-incr"
+      ],
+      "neg": [
+        "chin-width-decr"
+      ],
+      "files": [
+        "chin-width-incr",
+        "chin-width-decr"
+      ]
+    },
+    {
+      "id": "forehead-nubian",
+      "group": "forehead",
+      "kind": "pair",
+      "pos": [
+        "forehead-nubian-incr"
+      ],
+      "neg": [
+        "forehead-nubian-decr"
+      ],
+      "files": [
+        "forehead-nubian-incr",
+        "forehead-nubian-decr"
+      ]
+    },
+    {
+      "id": "forehead-scale-vert",
+      "group": "forehead",
+      "kind": "pair",
+      "pos": [
+        "forehead-scale-vert-incr"
+      ],
+      "neg": [
+        "forehead-scale-vert-decr"
+      ],
+      "files": [
+        "forehead-scale-vert-incr",
+        "forehead-scale-vert-decr"
+      ]
+    },
+    {
+      "id": "forehead-temple",
+      "group": "forehead",
+      "kind": "pair",
+      "pos": [
+        "forehead-temple-incr"
+      ],
+      "neg": [
+        "forehead-temple-decr"
+      ],
+      "files": [
+        "forehead-temple-incr",
+        "forehead-temple-decr"
+      ]
+    },
+    {
+      "id": "head-back-scale-depth",
+      "group": "head",
+      "kind": "pair",
+      "pos": [
+        "head-back-scale-depth-incr"
+      ],
+      "neg": [
+        "head-back-scale-depth-decr"
+      ],
+      "files": [
+        "head-back-scale-depth-incr",
+        "head-back-scale-depth-decr"
+      ]
+    },
+    {
+      "id": "head-diamond",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-diamond"
+      ],
+      "neg": [],
+      "files": [
+        "head-diamond"
+      ]
+    },
+    {
+      "id": "head-fat",
+      "group": "head",
+      "kind": "pair",
+      "pos": [
+        "head-fat-incr"
+      ],
+      "neg": [
+        "head-fat-decr"
+      ],
+      "files": [
+        "head-fat-incr",
+        "head-fat-decr"
+      ]
+    },
+    {
+      "id": "head-invertedtriangular",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-invertedtriangular"
+      ],
+      "neg": [],
+      "files": [
+        "head-invertedtriangular"
+      ]
+    },
+    {
+      "id": "head-oval",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-oval"
+      ],
+      "neg": [],
+      "files": [
+        "head-oval"
+      ]
+    },
+    {
+      "id": "head-rectangular",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-rectangular"
+      ],
+      "neg": [],
+      "files": [
+        "head-rectangular"
+      ]
+    },
+    {
+      "id": "head-round",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-round"
+      ],
+      "neg": [],
+      "files": [
+        "head-round"
+      ]
+    },
+    {
+      "id": "head-scale-depth",
+      "group": "head",
+      "kind": "pair",
+      "pos": [
+        "head-scale-depth-incr"
+      ],
+      "neg": [
+        "head-scale-depth-decr"
+      ],
+      "files": [
+        "head-scale-depth-incr",
+        "head-scale-depth-decr"
+      ]
+    },
+    {
+      "id": "head-scale-horiz",
+      "group": "head",
+      "kind": "pair",
+      "pos": [
+        "head-scale-horiz-incr"
+      ],
+      "neg": [
+        "head-scale-horiz-decr"
+      ],
+      "files": [
+        "head-scale-horiz-incr",
+        "head-scale-horiz-decr"
+      ]
+    },
+    {
+      "id": "head-scale-vert",
+      "group": "head",
+      "kind": "pair",
+      "pos": [
+        "head-scale-vert-incr"
+      ],
+      "neg": [
+        "head-scale-vert-decr"
+      ],
+      "files": [
+        "head-scale-vert-incr",
+        "head-scale-vert-decr"
+      ]
+    },
+    {
+      "id": "head-square",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-square"
+      ],
+      "neg": [],
+      "files": [
+        "head-square"
+      ]
+    },
+    {
+      "id": "head-triangular",
+      "group": "head",
+      "kind": "single",
+      "pos": [
+        "head-triangular"
+      ],
+      "neg": [],
+      "files": [
+        "head-triangular"
+      ]
+    },
+    {
+      "id": "mouth-cupidsbow",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-cupidsbow-incr"
+      ],
+      "neg": [
+        "mouth-cupidsbow-decr"
+      ],
+      "files": [
+        "mouth-cupidsbow-incr",
+        "mouth-cupidsbow-decr"
+      ]
+    },
+    {
+      "id": "mouth-cupidsbow-width",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-cupidsbow-width-incr"
+      ],
+      "neg": [
+        "mouth-cupidsbow-width-decr"
+      ],
+      "files": [
+        "mouth-cupidsbow-width-incr",
+        "mouth-cupidsbow-width-decr"
+      ]
+    },
+    {
+      "id": "mouth-dimples",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-dimples-out"
+      ],
+      "neg": [
+        "mouth-dimples-in"
+      ],
+      "files": [
+        "mouth-dimples-out",
+        "mouth-dimples-in"
+      ]
+    },
+    {
+      "id": "mouth-lowerlip-ext",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-lowerlip-ext-up"
+      ],
+      "neg": [
+        "mouth-lowerlip-ext-down"
+      ],
+      "files": [
+        "mouth-lowerlip-ext-up",
+        "mouth-lowerlip-ext-down"
+      ]
+    },
+    {
+      "id": "mouth-lowerlip-height",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-lowerlip-height-incr"
+      ],
+      "neg": [
+        "mouth-lowerlip-height-decr"
+      ],
+      "files": [
+        "mouth-lowerlip-height-incr",
+        "mouth-lowerlip-height-decr"
+      ]
+    },
+    {
+      "id": "mouth-lowerlip-middle",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-lowerlip-middle-up"
+      ],
+      "neg": [
+        "mouth-lowerlip-middle-down"
+      ],
+      "files": [
+        "mouth-lowerlip-middle-up",
+        "mouth-lowerlip-middle-down"
+      ]
+    },
+    {
+      "id": "mouth-lowerlip-volume",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-lowerlip-volume-incr"
+      ],
+      "neg": [
+        "mouth-lowerlip-volume-decr"
+      ],
+      "files": [
+        "mouth-lowerlip-volume-incr",
+        "mouth-lowerlip-volume-decr"
+      ]
+    },
+    {
+      "id": "mouth-lowerlip-width",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-lowerlip-width-incr"
+      ],
+      "neg": [
+        "mouth-lowerlip-width-decr"
+      ],
+      "files": [
+        "mouth-lowerlip-width-incr",
+        "mouth-lowerlip-width-decr"
+      ]
+    },
+    {
+      "id": "mouth-philtrum-volume",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-philtrum-volume-incr"
+      ],
+      "neg": [
+        "mouth-philtrum-volume-decr"
+      ],
+      "files": [
+        "mouth-philtrum-volume-incr",
+        "mouth-philtrum-volume-decr"
+      ]
+    },
+    {
+      "id": "mouth-scale-depth",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-scale-depth-incr"
+      ],
+      "neg": [
+        "mouth-scale-depth-decr"
+      ],
+      "files": [
+        "mouth-scale-depth-incr",
+        "mouth-scale-depth-decr"
+      ]
+    },
+    {
+      "id": "mouth-scale-horiz",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-scale-horiz-incr"
+      ],
+      "neg": [
+        "mouth-scale-horiz-decr"
+      ],
+      "files": [
+        "mouth-scale-horiz-incr",
+        "mouth-scale-horiz-decr"
+      ]
+    },
+    {
+      "id": "mouth-scale-vert",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-scale-vert-incr"
+      ],
+      "neg": [
+        "mouth-scale-vert-decr"
+      ],
+      "files": [
+        "mouth-scale-vert-incr",
+        "mouth-scale-vert-decr"
+      ]
+    },
+    {
+      "id": "mouth-upperlip-ext",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-upperlip-ext-up"
+      ],
+      "neg": [
+        "mouth-upperlip-ext-down"
+      ],
+      "files": [
+        "mouth-upperlip-ext-up",
+        "mouth-upperlip-ext-down"
+      ]
+    },
+    {
+      "id": "mouth-upperlip-height",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-upperlip-height-incr"
+      ],
+      "neg": [
+        "mouth-upperlip-height-decr"
+      ],
+      "files": [
+        "mouth-upperlip-height-incr",
+        "mouth-upperlip-height-decr"
+      ]
+    },
+    {
+      "id": "mouth-upperlip-middle",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-upperlip-middle-up"
+      ],
+      "neg": [
+        "mouth-upperlip-middle-down"
+      ],
+      "files": [
+        "mouth-upperlip-middle-up",
+        "mouth-upperlip-middle-down"
+      ]
+    },
+    {
+      "id": "mouth-upperlip-volume",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-upperlip-volume-incr"
+      ],
+      "neg": [
+        "mouth-upperlip-volume-decr"
+      ],
+      "files": [
+        "mouth-upperlip-volume-incr",
+        "mouth-upperlip-volume-decr"
+      ]
+    },
+    {
+      "id": "mouth-upperlip-width",
+      "group": "mouth",
+      "kind": "pair",
+      "pos": [
+        "mouth-upperlip-width-incr"
+      ],
+      "neg": [
+        "mouth-upperlip-width-decr"
+      ],
+      "files": [
+        "mouth-upperlip-width-incr",
+        "mouth-upperlip-width-decr"
+      ]
+    },
+    {
+      "id": "nose-base",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-base-up"
+      ],
+      "neg": [
+        "nose-base-down"
+      ],
+      "files": [
+        "nose-base-up",
+        "nose-base-down"
+      ]
+    },
+    {
+      "id": "nose-curve",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-curve-convex"
+      ],
+      "neg": [
+        "nose-curve-concave"
+      ],
+      "files": [
+        "nose-curve-convex",
+        "nose-curve-concave"
+      ]
+    },
+    {
+      "id": "nose-flaring",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-flaring-incr"
+      ],
+      "neg": [
+        "nose-flaring-decr"
+      ],
+      "files": [
+        "nose-flaring-incr",
+        "nose-flaring-decr"
+      ]
+    },
+    {
+      "id": "nose-greek",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-greek-incr"
+      ],
+      "neg": [
+        "nose-greek-decr"
+      ],
+      "files": [
+        "nose-greek-incr",
+        "nose-greek-decr"
+      ]
+    },
+    {
+      "id": "nose-hump",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-hump-incr"
+      ],
+      "neg": [
+        "nose-hump-decr"
+      ],
+      "files": [
+        "nose-hump-incr",
+        "nose-hump-decr"
+      ]
+    },
+    {
+      "id": "nose-nostrils-angle",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-nostrils-angle-up"
+      ],
+      "neg": [
+        "nose-nostrils-angle-down"
+      ],
+      "files": [
+        "nose-nostrils-angle-up",
+        "nose-nostrils-angle-down"
+      ]
+    },
+    {
+      "id": "nose-nostrils-width",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-nostrils-width-incr"
+      ],
+      "neg": [
+        "nose-nostrils-width-decr"
+      ],
+      "files": [
+        "nose-nostrils-width-incr",
+        "nose-nostrils-width-decr"
+      ]
+    },
+    {
+      "id": "nose-point",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-point-up"
+      ],
+      "neg": [
+        "nose-point-down"
+      ],
+      "files": [
+        "nose-point-up",
+        "nose-point-down"
+      ]
+    },
+    {
+      "id": "nose-point-width",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-point-width-incr"
+      ],
+      "neg": [
+        "nose-point-width-decr"
+      ],
+      "files": [
+        "nose-point-width-incr",
+        "nose-point-width-decr"
+      ]
+    },
+    {
+      "id": "nose-scale-depth",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-scale-depth-incr"
+      ],
+      "neg": [
+        "nose-scale-depth-decr"
+      ],
+      "files": [
+        "nose-scale-depth-incr",
+        "nose-scale-depth-decr"
+      ]
+    },
+    {
+      "id": "nose-scale-horiz",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-scale-horiz-incr"
+      ],
+      "neg": [
+        "nose-scale-horiz-decr"
+      ],
+      "files": [
+        "nose-scale-horiz-incr",
+        "nose-scale-horiz-decr"
+      ]
+    },
+    {
+      "id": "nose-scale-vert",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-scale-vert-incr"
+      ],
+      "neg": [
+        "nose-scale-vert-decr"
+      ],
+      "files": [
+        "nose-scale-vert-incr",
+        "nose-scale-vert-decr"
+      ]
+    },
+    {
+      "id": "nose-septumangle",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-septumangle-incr"
+      ],
+      "neg": [
+        "nose-septumangle-decr"
+      ],
+      "files": [
+        "nose-septumangle-incr",
+        "nose-septumangle-decr"
+      ]
+    },
+    {
+      "id": "nose-volume",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-volume-incr"
+      ],
+      "neg": [
+        "nose-volume-decr"
+      ],
+      "files": [
+        "nose-volume-incr",
+        "nose-volume-decr"
+      ]
+    },
+    {
+      "id": "nose-width1",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-width1-incr"
+      ],
+      "neg": [
+        "nose-width1-decr"
+      ],
+      "files": [
+        "nose-width1-incr",
+        "nose-width1-decr"
+      ]
+    },
+    {
+      "id": "nose-width2",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-width2-incr"
+      ],
+      "neg": [
+        "nose-width2-decr"
+      ],
+      "files": [
+        "nose-width2-incr",
+        "nose-width2-decr"
+      ]
+    },
+    {
+      "id": "nose-width3",
+      "group": "nose",
+      "kind": "pair",
+      "pos": [
+        "nose-width3-incr"
+      ],
+      "neg": [
+        "nose-width3-decr"
+      ],
+      "files": [
+        "nose-width3-incr",
+        "nose-width3-decr"
+      ]
+    }
+  ],
+  "nParams": 59,
+  "nFiles": 116
+}

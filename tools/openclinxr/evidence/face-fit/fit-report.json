@@ -1,0 +1,224 @@
+{
+ "card": "tsk_3cff39ffc572d85d",
+ "mpfb": {
+  "targetData": "2.0.18",
+  "targetManifest": "version = \"2.0.18\"",
+  "runtimeAddon": "(2, 0, 15)",
+  "blender": "5.1.1",
+  "asymN": 62,
+  "macroN": 6,
+  "macroStems": [
+   "universal-male-young-averagemuscle-averageweight",
+   "universal-female-young-averagemuscle-averageweight",
+   "universal-male-young-averagemuscle-maxweight",
+   "universal-male-young-averagemuscle-minweight",
+   "universal-female-young-averagemuscle-maxweight",
+   "universal-female-young-averagemuscle-minweight"
+  ],
+  "basisMeta": "tools/openclinxr/evidence/face-fit/basis_meta.json"
+ },
+ "detector": {
+  "model": "MediaPipe Face Landmarker (Apache-2.0)",
+  "taskFile": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
+  "nPoints": 478,
+  "goalFront": "/Volumes/files/openclinxr-assets/store/face-fit/target-front.png",
+  "goal3q": "/Volumes/files/openclinxr-assets/store/face-fit/target-3q-left.png",
+  "selfRender": "/Volumes/files/openclinxr-assets/store/face-fit/base-front.png"
+ },
+ "embedding": {
+  "n": 40,
+  "trackN": 35,
+  "contourExcluded": [
+   58,
+   172,
+   234,
+   288,
+   454
+  ],
+  "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+  "kind": "barycentric triples on neutral hm08 (CC0); objective+gate on 35 trackable",
+  "fallbacks": 0,
+  "corrMeanPx": 0.0,
+  "corrMaxPx": 0.0,
+  "mmPerPix": 0.537109375
+ },
+ "camera": {
+  "front": "ortho 0.55 res 1024 px=(0.5+(x-cx)/s)*R py=(0.5+(cz-z)/s)*R cx=0 cz=1.4994 (correspond.json; Blender Z vertical, Y depth)",
+  "yawScan": {
+   "0.0": 11.49,
+   "10.0": 18.06,
+   "-10.0": 13.82,
+   "20.0": 27.48,
+   "-20.0": 22.52,
+   "30.0": 37.26,
+   "-30.0": 32.69,
+   "40.0": 46.74,
+   "-40.0": 43.01,
+   "50.0": 55.66,
+   "-50.0": 53.01,
+   "60.0": 63.88,
+   "-60.0": 62.46
+  },
+  "yawDeg": 0.0,
+  "use3q": false,
+  "frontPrePx": 2.5,
+  "yawWeight": 0.0,
+  "faceCentre": [
+   0.0,
+   -0.0932,
+   1.4994
+  ]
+ },
+ "solve": {
+  "nVars": 178,
+  "nRows": 70,
+  "lambda": 1.0,
+  "knee": 5,
+  "lcurve": [
+   {
+    "lambda": 1e-05,
+    "res": 6.2618,
+    "norm": 6.2202,
+    "rms": 0.7484
+   },
+   {
+    "lambda": 0.0001,
+    "res": 6.2617,
+    "norm": 6.0986,
+    "rms": 0.7484
+   },
+   {
+    "lambda": 0.001,
+    "res": 6.2619,
+    "norm": 5.8925,
+    "rms": 0.7484
+   },
+   {
+    "lambda": 0.01,
+    "res": 6.2646,
+    "norm": 5.1991,
+    "rms": 0.7488
+   },
+   {
+    "lambda": 0.1,
+    "res": 6.3119,
+    "norm": 3.7408,
+    "rms": 0.7544
+   },
+   {
+    "lambda": 1.0,
+    "res": 6.5406,
+    "norm": 2.3494,
+    "rms": 0.7818
+   },
+   {
+    "lambda": 10.0,
+    "res": 7.5296,
+    "norm": 1.1294,
+    "rms": 0.9
+   }
+  ],
+  "expression": "neutral (no expression/ weights)"
+ },
+ "selfCheck": {
+  "detectorRmsMm": 1.086,
+  "detectorMeanPx": 2.02,
+  "detectorMaxPx": 7.52,
+  "fitDriftMm": 0.0,
+  "wMax": 0.0,
+  "pass": true,
+  "gate": "fit-to-self drift <= detector error on unfitted render"
+ },
+ "sweep": {
+  "file": "tools/openclinxr/evidence/face-fit/silhouette-sweep-baseline.json",
+  "rmsAfterMm70": 1.102,
+  "rmsBeforeMm70": 1.688,
+  "onTrackMm": 1.225
+ },
+ "aisha": {
+  "rmsBeforeMm": 1.345,
+  "rmsAfterMm": 0.782,
+  "onTrackMm": 0.782,
+  "beatsSweep": true,
+  "featBefore": {
+   "lips": 0.753,
+   "nose": 1.552,
+   "jaw": 2.122,
+   "eyes": 1.345
+  },
+  "featAfter": {
+   "lips": 0.189,
+   "nose": 0.747,
+   "jaw": 0.019,
+   "eyes": 1.015
+  },
+  "top": [
+   [
+    "nose-greek-incr",
+    1.0
+   ],
+   [
+    "head-scale-depth-incr",
+    0.9989
+   ],
+   [
+    "asym-brown-1-l",
+    0.5904
+   ],
+   [
+    "head-oval",
+    0.5515
+   ],
+   [
+    "nose-curve-convex",
+    0.4763
+   ],
+   [
+    "mouth-lowerlip-middle-up",
+    0.4629
+   ],
+   [
+    "asym-nose-1-r",
+    0.4509
+   ],
+   [
+    "mouth-scale-vert-decr",
+    0.4478
+   ],
+   [
+    "asym-eye-2-r",
+    0.4399
+   ],
+   [
+    "asym-eye-2-l",
+    0.4348
+   ]
+  ],
+  "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights.json"
+ },
+ "controls": {
+  "synthErrNz": 0.702,
+  "synthErrZero": 0.06
+ },
+ "falsifier": {
+  "tripped": false,
+  "reason": "sweep has no measured render re-detect; analytic sweep 1.102mm (70-set, goal fit) is not the card-1 render bound, so the bound cannot already be met; card GATE expects the new fit to beat the sweep"
+ },
+ "inputs": {
+  "refSha256": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+  "qSha256": "f5e719a7d4575a043ea6e1d5f1cbc44f28d8140186b219925bfb8c05af13b624",
+  "baseHash": "bc7ccab5f09fe5dafe5f47ac1e5e0cc4d2bfe5c0885228989cfcc7c9b4af38a0"
+ },
+ "checkRender": {
+  "png": "/Volumes/files/openclinxr-assets/store/face-fit/fitted-front.png",
+  "pts": "tools/openclinxr/evidence/face-fit/pts_fitted_front.npy",
+  "redetectMm": 1.571,
+  "analyticMm": 0.782,
+  "detectorFloorMm": 1.086,
+  "pass": true,
+  "gate": "redetect <= analytic + detector floor (render confirms fit)",
+  "sha256": "b221f3651d178a7ae2a66f67e16643e6ecfe63985c9d3446d43a38e7aaf122d0"
+ },
+ "notTested": "profile-only cases"
+}
