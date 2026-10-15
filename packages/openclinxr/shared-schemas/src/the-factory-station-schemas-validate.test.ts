@@ -46,6 +46,10 @@ const VALID: Record<ProductionStationId, Record<string, unknown>> = {
     targetReadJson: '{"length_class":"jaw","curl_class":"wave","color_name":"dark_brown","volume_class":"natural","density_class":"normal"}',
     round: 0,
   },
+  face_realism: {
+    actorId: "actor_aisha",
+    recordPath: "tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+  },
 };
 
 describe("the factory station schemas validate", () => {
