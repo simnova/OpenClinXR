@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseFootBaseEnabled } from "./foot-base-query-flag-mod.js";
+import { parseFootBaseEnabled } from "./index.js";
 
 describe("foot-base query flag", () => {
   it("opts in only on exactly footBase=1", () => {

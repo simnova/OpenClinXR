@@ -174,6 +174,11 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "applyFootBaseStep",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "applyHumanoidMorphTargetCue",
         "kind": "runtime",
         "via": "own-test"
@@ -184,7 +189,52 @@
         "via": "own-test"
       },
       {
+        "name": "clearFootBaseState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "createHumanoidEmotionExpressionState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FOOT_BASE_CYCLE_S",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FOOT_BASE_LIFT_PHASE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FOOT_BASE_PLANT_PHASE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FOOT_BASE_ROWS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FOOT_BASE_STANCE_FRACTION",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "footBaseHalfIndex",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "footBaseRowAt",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "footBaseScheduleStance",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -204,6 +254,21 @@
       {
         "name": "HumanoidAnimationRuntimeContext",
         "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "LocomotionStanceLabels",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "parseFootBaseEnabled",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "readFootBaseState",
+        "kind": "runtime",
         "via": "own-test"
       },
       {

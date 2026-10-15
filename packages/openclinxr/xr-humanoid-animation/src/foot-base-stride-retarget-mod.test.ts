@@ -3,18 +3,19 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { FOOT_BASE_CYCLE_S, FOOT_BASE_PLANT_PHASE } from "./foot-base-path-data-mod.js";
 import {
   applyFootBaseStep,
   clearFootBaseState,
+  FOOT_BASE_CYCLE_S,
   FOOT_BASE_LIFT_PHASE,
+  FOOT_BASE_PLANT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
   footBaseHalfIndex,
   footBaseRowAt,
   footBaseScheduleStance,
+  type LocomotionStanceLabels,
   readFootBaseState,
-} from "./foot-base-stride-retarget-mod.js";
-import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+} from "./index.js";
 
 function setSearch(search: string | null): void {
   const host = globalThis as unknown as { window?: unknown };

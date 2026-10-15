@@ -28,6 +28,35 @@ export type {
   RuntimeHumanoidActingCueEvidenceRecord,
 } from "./speech-evidence.js";
 /**
+ * Foot-base stride-retarget slice (SC-05, `?footBase=1`, 1.31 m route only):
+ * path-data literals, the opt-in parser, schedule/role math, and the stateful
+ * walking substep. The foot-base tests drive these through this entrypoint so
+ * the package's test-import ceiling holds.
+ */
+export {
+  FOOT_BASE_CYCLE_S,
+  FOOT_BASE_PLANT_PHASE,
+  FOOT_BASE_ROWS,
+} from "./foot-base-path-data-mod.js";
+export {
+  parseFootBaseEnabled,
+} from "./foot-base-query-flag-mod.js";
+export {
+  FOOT_BASE_LIFT_PHASE,
+  FOOT_BASE_STANCE_FRACTION,
+  footBaseHalfIndex,
+  footBaseRowAt,
+  footBaseScheduleStance,
+} from "./foot-base-schedule-mod.js";
+export {
+  applyFootBaseStep,
+  clearFootBaseState,
+  readFootBaseState,
+} from "./foot-base-stride-retarget-mod.js";
+export type {
+  LocomotionStanceLabels,
+} from "./locomotion-stance-labels.js";
+/**
  * Distance-indexed stop-take playback: start the root-removed take at the entry clip time
  * (distance-driven, never mixer-integrated), morph the walk/stop weights across the entry
  * crossfade, and manage stopping entry, crossfade, exits, and the settle-blend.
