@@ -42,15 +42,6 @@ export {
   runEquipmentGenerate,
 } from "./equipment_generate/run.js";
 export {
-  planFaceRealism,
-} from "./face_realism/plan.js";
-export {
-  faceRealismModelCallCount,
-  faceRealismRunner,
-  planFaceRealismStation,
-  runFaceRealism,
-} from "./face_realism/run.js";
-export {
   findEquipmentSubject,
 } from "./equipment_generate/subjects.js";
 export {
@@ -80,7 +71,6 @@ export {
   ROOM_OCCLUSION_REL,
   runRoomGenerate,
 } from "./room_generate/run.js";
-export { repoRoot } from "./repo-root.js";
 export {
   runStaging,
 } from "./staging/run.js";

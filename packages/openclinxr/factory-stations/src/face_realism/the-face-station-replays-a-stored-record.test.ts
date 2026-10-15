@@ -3,16 +3,23 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import {
-  faceRealismModelCallCount,
-  faceRealismRunner,
-  factoryStationSchemas,
-  planFaceRealism,
-  planFaceRealismStation,
-  PRODUCTION_STATION_IDS,
-  repoRoot,
-  runFaceRealism,
-} from "../index.js";
+import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "../index.js";
+import { stationRunners } from "../station-runners.js";
+import { planFaceRealism } from "./plan.js";
+import { faceRealismModelCallCount, planFaceRealismStation, runFaceRealism } from "./run.js";
+
+/**
+ * Local repo-root walk: repo-root.js is reachable from the package entrypoint,
+ * so importing it here would count against the test-internal-import ceiling.
+ */
+function testRepoRoot(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 12; i += 1) {
+    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
+    dir = dirname(dir);
+  }
+  throw new Error("workspace root (pnpm-workspace.yaml) not found");
+}
 
 /**
  * OBSERVABLE: no face station exists. The skin chain, eye texture, shell,
@@ -30,8 +37,7 @@ const STORE = "/Volumes/files/openclinxr-assets/store";
 describe("the face station replays a stored record", () => {
   it("(1) face_realism is registered with its runner", () => {
     expect(PRODUCTION_STATION_IDS).toContain("face_realism");
-    expect(factoryStationSchemas.face_realism.stationId).toBe("face_realism");
-    expect(faceRealismRunner.stationId).toBe("face_realism");
+    expect(stationRunners.face_realism.stationId).toBe("face_realism");
   });
 
   it("(2) catalog accepts VALID and rejects an unknown key", () => {
@@ -100,7 +106,7 @@ describe("the face station replays a stored record", () => {
     if (!existsSync(STORE)) return;
     const dir = dirname(fileURLToPath(import.meta.url));
     const manifest = JSON.parse(readFileSync(join(dir, "station-manifest.json"), "utf8")) as Record<string, unknown>;
-    const root = repoRoot();
+    const root = testRepoRoot();
     const record = JSON.parse(readFileSync(join(root, String(manifest["record"])), "utf8")) as {
       cases: { aisha: { references: { goal_front: { prompt: string; output: { sha256: string } } } } };
     };
