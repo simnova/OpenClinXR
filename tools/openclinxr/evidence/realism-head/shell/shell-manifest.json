@@ -87,8 +87,9 @@
     "metric": "max horizontal luminance step, wedge-silhouette band x745..762 rows660..750 yaw+25, same-GLB noshell vs fixed 1280 renders"
   },
   "sheet": {
-    "src": "shadow-yaw-sheet.png",
+    "src": "assets:shell-rebind/shadow-yaw-sheet.png",
     "sha256": "1d73f51d6ba1b5b5bdbf21149a11a0fae7e85c6426ec80509d83813a989466a6",
     "renderSize": 1280
-  }
+  },
+  "visualFinding": "Orchestrator grade 2026-10-15 (/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/shellrebind2/orchestrator-milky-eyes.png, crop of the store sheet front view): with --eye-occlusion-shell the eyes render milky pink with a blue reflection and the iris is barely visible; the shell is not shippable as-is. The sclera edge at yaw +25 is the body's own lid/socket skin showing past the globe silhouette (EDGE_OWNER), so the fix is globe size/depth in the socket, not the shell."
 }

@@ -41,7 +41,9 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../../..");
 const MANIFEST = join(HERE, "shell-manifest.json");
-const SHEET = join(HERE, "shadow-yaw-sheet.png");
+// The yaw sheet (2.7 MB) lives in the asset store, not git: the manifest
+// cites it as assets:shell-rebind/shadow-yaw-sheet.png.
+const STORE_ROOT = "/Volumes/files/openclinxr-assets/";
 const MATERIALIZE = join(
   REPO_ROOT,
   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
@@ -87,6 +89,7 @@ type ShellManifest = {
     fixedMaxBrightStep: number;
   };
   sheet: { src: string; sha256: string; renderSize: number };
+  visualFinding: string;
 };
 
 function readManifest(): ShellManifest {
@@ -98,6 +101,14 @@ function readManifest(): ShellManifest {
 
 function readSource(): string {
   return readFileSync(MATERIALIZE, "utf8");
+}
+
+/** Resolve the manifest sheet src (assets:<rel> under the store) to disk. */
+function storeSheetPath(m: ShellManifest): string {
+  const rel = m.sheet.src.startsWith("assets:")
+    ? m.sheet.src.slice("assets:".length)
+    : m.sheet.src;
+  return join(STORE_ROOT, rel);
 }
 
 /** Fail-closed validator shared by the manifest clause and the known-bad fixture. */
@@ -133,6 +144,8 @@ describe("the shell and tearline are lid-bound", () => {
     expect(m.producerSourceSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(m.argv.join(" ")).toMatch(/--eye-occlusion-shell/);
     expect(m.argv.join(" ")).toMatch(/--eye-tearline/);
+    expect(m.sheet.src, "sheet cites the asset store").toMatch(/^assets:/);
+    expect(m.visualFinding.length, "orchestrator visual grade recorded").toBeGreaterThan(0);
   });
 
   it("(2) RED: shell groups are not the eye groups", () => {
@@ -193,7 +206,7 @@ describe("the shell and tearline are lid-bound", () => {
     validateBind(m);
   });
 
-  it("(7) RED: the yaw pair softens the sclera edge and the sheet matches bytes", () => {
+  it("(7) RED: the yaw pair softens the sclera edge", () => {
     const m = readManifest();
     expect(m.coverageGate.views).toEqual(
       expect.arrayContaining([25, -25]),
@@ -207,17 +220,28 @@ describe("the shell and tearline are lid-bound", () => {
       "fixed (lid-bound shell) strictly softens the edge",
     ).toBeLessThan(m.coverageGate.baselineMaxBrightStep);
     expect(m.falsifier.verdict).toMatch(/^(premise_live|premise_clean)$/);
-    expect(existsSync(SHEET), `shadow yaw sheet exists: ${SHEET}`).toBe(
-      true,
-    );
-    const bytes = readFileSync(SHEET);
-    expect(bytes.length, "sheet is a real PNG, not a stub").toBeGreaterThan(
-      10000,
-    );
-    const sha = createHash("sha256").update(bytes).digest("hex");
-    expect(sha, "sheet bytes match the manifest").toBe(m.sheet.sha256);
     expect(m.sheet.renderSize).toBe(1280);
   });
+
+  // Sheet bytes live in the asset store (2.7 MB PNG, not git): verify the
+  // sha when the store exists, else skip under a 'store absent' name.
+  const _storeProbe = readManifest();
+  const _storeSheet = storeSheetPath(_storeProbe);
+  if (existsSync(_storeSheet)) {
+    it("(7b) store sheet bytes match the manifest sha", () => {
+      const m = readManifest();
+      const bytes = readFileSync(storeSheetPath(m));
+      expect(bytes.length, "sheet is a real PNG, not a stub").toBeGreaterThan(
+        10000,
+      );
+      const sha = createHash("sha256").update(bytes).digest("hex");
+      expect(sha, "store sheet bytes match the manifest").toBe(
+        m.sheet.sha256,
+      );
+    });
+  } else {
+    it.skip("(7b) store absent — store sheet sha unverified", () => {});
+  }
 
   it("(8) known-bad: a shell still on eye groups is rejected", () => {
     const m = readManifest();
