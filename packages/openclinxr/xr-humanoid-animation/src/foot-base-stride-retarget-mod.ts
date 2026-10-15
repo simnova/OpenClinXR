@@ -1,8 +1,14 @@
-import type { Object3D } from "three";
-import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import { FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
+import { budgetSwingTarget } from "./foot-base-knee-budget-mod.js";
 import type { FootBasePathRow } from "./foot-base-path-data-mod.js";
-import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
+import {
+  getOrCreateFootBaseState,
+  heelWorldNow,
+  toeWorldNow,
+  type FootBaseApproachState,
+  type FootBaseClipRead,
+  type FootBaseStepSummary,
+} from "./foot-base-state-mod.js";
 import {
   FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
@@ -100,108 +106,16 @@ export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
  */
 export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
-export type FootBaseApproachState = Pick<
-  CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
->;
-
-export type FootBaseClipRead = {
-  labels: LocomotionStanceLabels;
-  actionTimeSeconds: number;
-};
-
-export type FootBaseState = {
-  stance: FootBaseSide;
-  foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
-  placed: Record<FootBaseSide, boolean>;
-  /**
-   * Home side coordinate per foot (side-unit projection at entry), so a
-   * plan-built plant lands on the planting foot's own side of the route.
-   */
-  sideHome: Record<FootBaseSide, number>;
-  offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
-  hingeNormal: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
-  wraps: number;
-  lastActionTimeS: number | null;
-  /**
-   * Walking-entry anchor for the plan datum (unwrapped action seconds at the
-   * first active substep). Halves, body travel and handover footholds measure
-   * route progress since entry, not clip absolute time: the first captured
-   * walking frame already carries played action, and absolute-time travel led
-   * the feet by centimetres from substep one. Null until the first step.
-   */
-  entryUnwrappedS: number | null;
-  /** Post-solve toe world Y per foot, previous substep (footbase-6 band-hold signal). Null until the first solve. */
-  lastToeY: Record<FootBaseSide, number | null>;
-  worst: { missM: number; side: FootBaseSide; sub: number } | null;
-};
-
-export type FootBaseStepSummary = {
-  stanceFoot: FootBaseSide;
-  phase01: number;
-  halfIndex: number;
-  stanceMissM: number | null;
-  swingMissM: number | null;
-};
-
-const states = new WeakMap<object, FootBaseState>();
-
-/** Read this approach's foot-base state (tests); null before the first step. */
-export function readFootBaseState(approach: object): FootBaseState | null {
-  return states.get(approach) ?? null;
-}
-
-/** Drop this approach's foot-base state (tests). */
-export function clearFootBaseState(approach: object): void {
-  states.delete(approach);
-}
-
-/** Route gate lives in `./foot-base-route-gate-mod.js` (split out for the
- * 500-line zone budget); re-exported here so existing deep importers keep
+/** State lives in `./foot-base-state-mod.js` and the route gate in
+ * `./foot-base-route-gate-mod.js` (both split out for the 500-line zone
+ * budget); the gate is re-exported here so existing deep importers keep
  * working. Behaviour is unchanged. */
 import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
 export { footBaseStepIsActive };
 
-function toeWorldNow(toe: Object3D | null): { x: number; y: number; z: number } | null {
-  if (toe === null) return null;
-  toe.updateWorldMatrix(true, false);
-  const e = toe.matrixWorld.elements;
-  return { x: e[12] ?? 0, y: e[13] ?? 0, z: e[14] ?? 0 };
-}
-
-function heelWorldNow(chain: { heel: Object3D; toe: Object3D }): {
-  heel: { x: number; y: number; z: number };
-  toe: { x: number; y: number; z: number };
-} {
-  chain.heel.updateMatrixWorld(true);
-  chain.toe.updateMatrixWorld(true);
-  const he = chain.heel.matrixWorld.elements;
-  const te = chain.toe.matrixWorld.elements;
-  return {
-    heel: { x: he[12] ?? 0, y: he[13] ?? 0, z: he[14] ?? 0 },
-    toe: { x: te[12] ?? 0, y: te[13] ?? 0, z: te[14] ?? 0 },
-  };
-}
-
-function createState(stance: FootBaseSide): FootBaseState {
-  const zero = { x: 0, y: 0, z: 0 };
-  return {
-    stance,
-    foothold: { left: { ...zero }, right: { ...zero } },
-    placed: { left: false, right: false },
-    sideHome: { left: 0, right: 0 },
-    offsetEntry: { left: null, right: null },
-    hingeNormal: { left: null, right: null },
-    wraps: 0,
-    lastActionTimeS: null,
-    entryUnwrappedS: null,
-    lastToeY: { left: null, right: null },
-    worst: null,
-  };
-}
-
 /**
- * One walking substep of foot-base stride retargeting. Null unless the flag
+ * One walking substep of foot-base stride retargeting (swing-knee budget in
+ * `./foot-base-knee-budget-mod.js`, called for the swing side only). Null unless the flag
  * is on, the route is this slice's, the phase is walking, and a clip read is
  * supplied: every other case runs the legacy path untouched.
  *
@@ -243,11 +157,7 @@ export function applyFootBaseStep(input: {
   // on (~8 cm of row progress lost per flap). footBaseScheduleStance is a pure
   // function of clip phase: one role change per plant boundary, none between.
   const scheduled: FootBaseSide = footBaseScheduleStance(phase01);
-  let state = states.get(approach);
-  if (!state) {
-    state = createState(scheduled);
-    states.set(approach, state);
-  }
+  const state = getOrCreateFootBaseState(approach, scheduled);
   // LoopRepeat wraps the action time at the clip duration; unwrap for the
   // half index so mid-walk wraps keep counting halves forward.
   if (state.lastActionTimeS !== null && actionTimeS < state.lastActionTimeS - cycleS / 2) state.wraps += 1;
@@ -344,7 +254,12 @@ export function applyFootBaseStep(input: {
     lastToeY: state.lastToeY,
     floorY,
     bandM: approach.contactBandMeters,
-  }).filter((side) => !scheduledPin.includes(side));
+  })
+    .filter((side) => !scheduledPin.includes(side))
+    // Knee-budget hold exemption (see `prevClamped`): a foot the budget
+    // held low last substep is flying, not rolling — pinning it would both
+    // freeze budgeted motion and drag the stance pin off its foothold.
+    .filter((side) => !state.prevClamped[side]);
   const pinned: FootBaseSide[] = [...scheduledPin, ...held];
   const ordered: FootBaseSide[] = [
     ...pinned.filter((side) => side === stance),
@@ -419,6 +334,9 @@ export function applyFootBaseStep(input: {
   const sub = (approach.execution as { walkSimSubsteps?: number | null }).walkSimSubsteps ?? -1;
   let stanceMissM: number | null = null;
   let swingMissM: number | null = null;
+  // Knee-budget hold exemption resets here (it is read above, before the
+  // loop, so last substep's values are consumed before this overwrite).
+  state.prevClamped = { left: false, right: false };
   const yawNow = slot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
 
@@ -446,7 +364,25 @@ export function applyFootBaseStep(input: {
     };
     state.offsetEntry[side] = captured;
     const isPin = pinned.includes(side);
-    const toeTarget = isPin ? pinTargetFor(side) : swingTarget;
+    let toeTarget = isPin ? pinTargetFor(side) : swingTarget;
+    if (!isPin) {
+      // SWING-KNEE BUDGET: cap this substep's swing flexion at K_max(v);
+      // stance legs and pinned feet are never touched.
+      const budgeted = budgetSwingTarget({
+        chain,
+        toeTargetWorld: toeTarget,
+        slotYawRadians: yawNow,
+        offsetEntry: captured.offset,
+        offsetYawRadians: captured.yaw,
+        floorY,
+        heightDatumM: FOOT_BASE_HEIGHT_DATUM[side],
+        walkSpeedMpsRaw: (approach as { walkSpeedMetersPerSecond?: unknown }).walkSpeedMetersPerSecond,
+        prevRecord: state.kneeBudget,
+      });
+      toeTarget = budgeted.target;
+      state.kneeBudget = budgeted.record;
+      if (budgeted.clamped) state.prevClamped[side] = true;
+    }
     const heelTarget = heelTargetForToeTargetStable({
       toeTargetWorld: toeTarget,
       slotYawRadians: yawNow,

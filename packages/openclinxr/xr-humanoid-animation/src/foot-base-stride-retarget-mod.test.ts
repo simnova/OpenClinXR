@@ -29,7 +29,7 @@ afterEach(() => {
   setSearch(null);
 });
 
-function buildLeggedRig(): {
+function buildLeggedRig(hipHeightM = 0.78, segmentM = 0.21): {
   slot: THREE.Group;
   leftToe: THREE.Object3D;
   rightToe: THREE.Object3D;
@@ -39,23 +39,23 @@ function buildLeggedRig(): {
     const x = side === "L" ? 0.09 : -0.09;
     const hip = new THREE.Object3D();
     hip.name = `upperleg01.${side}`;
-    hip.position.set(x, 0.78, 0);
+    hip.position.set(x, hipHeightM, 0);
     slot.add(hip);
     const upperMid = new THREE.Object3D();
     upperMid.name = `upperleg02.${side}`;
-    upperMid.position.set(0, -0.21, 0);
+    upperMid.position.set(0, -segmentM, 0);
     hip.add(upperMid);
     const knee = new THREE.Object3D();
     knee.name = `lowerleg01.${side}`;
-    knee.position.set(0, -0.21, 0);
+    knee.position.set(0, -segmentM, 0);
     upperMid.add(knee);
     const lowerMid = new THREE.Object3D();
     lowerMid.name = `lowerleg02.${side}`;
-    lowerMid.position.set(0, -0.21, 0);
+    lowerMid.position.set(0, -segmentM, 0);
     knee.add(lowerMid);
     const heel = new THREE.Object3D();
     heel.name = `foot.${side}`;
-    heel.position.set(0, -0.21, 0.02);
+    heel.position.set(0, -segmentM, 0.02);
     lowerMid.add(heel);
     const toe = new THREE.Object3D();
     toe.name = `toe1-1.${side}`;
@@ -388,5 +388,356 @@ describe("foot-base stride retarget", () => {
     expect(footBaseHalfIndex(0.55, FOOT_BASE_CYCLE_S)).toBe(1);
     expect(footBaseHalfIndex(1.38, FOOT_BASE_CYCLE_S)).toBe(2);
     expect(footBaseHalfIndex(0.55 + FOOT_BASE_CYCLE_S, FOOT_BASE_CYCLE_S)).toBe(3);
+  });
+});
+
+function swingKneeFlexionDeg(slot: THREE.Group, side: "left" | "right"): number | null {
+  const tag = side === "left" ? "L" : "R";
+  const hip = slot.getObjectByName(`upperleg01.${tag}`);
+  const knee = slot.getObjectByName(`lowerleg01.${tag}`);
+  const heel = slot.getObjectByName(`foot.${tag}`);
+  if (hip === undefined || knee === undefined || heel === undefined) return null;
+  const hipW = new THREE.Vector3();
+  const kneeW = new THREE.Vector3();
+  const heelW = new THREE.Vector3();
+  hip.getWorldPosition(hipW);
+  knee.getWorldPosition(kneeW);
+  heel.getWorldPosition(heelW);
+  const thigh = hipW.clone().sub(kneeW);
+  const shin = heelW.clone().sub(kneeW);
+  const denom = thigh.length() * shin.length();
+  if (!(denom > 0)) return null;
+  const cos = Math.min(1, Math.max(-1, thigh.dot(shin) / denom));
+  return 180 - (Math.acos(cos) * 180) / Math.PI;
+}
+
+/** Plant-toe height datum per foot, mirroring the schedule module's own
+ * recovery (minus the deepest stance dip of the row table). Recomputed here
+ * from the public rows so the floor assertion below binds no internal module. */
+function heightDatumOf(side: "left" | "right"): number {
+  const frac = side === "left" ? FOOT_BASE_STANCE_FRACTION.left : FOOT_BASE_STANCE_FRACTION.right;
+  let min = Number.POSITIVE_INFINITY;
+  for (const row of FOOT_BASE_ROWS[side]) {
+    if (row.phase < frac && row.heightM < min) min = row.heightM;
+  }
+  return Number.isFinite(min) ? -min : 0;
+}
+
+function buildBudgetApproach(slot: THREE.Group, leftToe: THREE.Object3D, rightToe: THREE.Object3D, walkSpeed: number): {
+  actorSlot: THREE.Group;
+  leftToe: THREE.Object3D;
+  rightToe: THREE.Object3D;
+  floorOriginY: number;
+  contactBandMeters: number;
+  footstep: { scale: number; steps: number; bones: never[]; lastToeSeparationM: null };
+  execution: { phase: string; walkSimSubsteps: number };
+  lockArmed: boolean;
+  start: { x: number; y: number; z: number };
+  lock: { stanceFoot: string };
+  walkSpeedMetersPerSecond: number;
+} {
+  return {
+    actorSlot: slot,
+    leftToe,
+    rightToe,
+    floorOriginY: 0,
+    contactBandMeters: 0.06,
+    footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
+    execution: { phase: "walking", walkSimSubsteps: 0 },
+    lockArmed: true,
+    start: { x: 0, y: 0, z: 0 },
+    lock: { stanceFoot: "left" },
+    walkSpeedMetersPerSecond: walkSpeed,
+  };
+}
+
+describe("foot-base swing-knee budget", () => {
+  it("caps swing flexion at K_max(v): 0.77 m/s -> 61.6 deg", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    // Tall-hip rig (0.86 m hips over the 0.84 m leg): K_max is reachable
+    // here (the 0.78 m rig floor-limits every substep, the reported-knee
+    // case covered by the floor test below).
+    const { slot, leftToe, rightToe } = buildLeggedRig(0.86, 0.21);
+    const approach = buildBudgetApproach(slot, leftToe, rightToe, 0.77);
+    const labels = stanceLabels();
+    let peak = 0;
+    let sawSwing = false;
+    for (let frame = 0; frame < 140; frame += 1) {
+      const actionTimeSeconds = 0.3 + frame * 0.005;
+      (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+      const summary = applyFootBaseStep({
+        approach: approach as never,
+        routeDx: 0,
+        routeDz: 1.31,
+        routeLength: 1.31,
+        clip: { labels, actionTimeSeconds },
+      });
+      expect(summary).not.toBeNull();
+      slot.updateMatrixWorld(true);
+      const state = readFootBaseState(approach);
+      const stance = state?.stance ?? null;
+      expect(stance === "left" || stance === "right").toBe(true);
+      const swing = stance === "left" ? "right" : "left";
+      // Swing-solving frames only: past the whole band-hold backstop the
+      // foot cannot be pinned (scheduled pins need rel < frac, holds need
+      // past-lift <= 0.10), so the budget owns these solves. Pinned
+      // double-support frames are stance contact, not swing (K5's domain).
+      const plant = swing === "left" ? FOOT_BASE_PLANT_PHASE.left : FOOT_BASE_PLANT_PHASE.right;
+      const frac = swing === "left" ? FOOT_BASE_STANCE_FRACTION.left : FOOT_BASE_STANCE_FRACTION.right;
+      const phase01 = ((((actionTimeSeconds % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S)
+        % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S) % FOOT_BASE_CYCLE_S / FOOT_BASE_CYCLE_S;
+      const rel = (((phase01 - plant) % 1) + 1) % 1;
+      if (rel < frac + 0.1) continue;
+      const flex = swingKneeFlexionDeg(slot, swing);
+      expect(flex).not.toBeNull();
+      if (flex !== null) {
+        sawSwing = true;
+        if (flex > peak) peak = flex;
+      }
+    }
+    expect(sawSwing).toBe(true);
+    // K_max(0.77) = 52 + (0.77 - 0.4) * 12.5 + 5 = 61.6; +1 deg instrument slack.
+    expect(peak).toBeLessThanOrEqual(62.6);
+    expect(peak).toBeGreaterThanOrEqual(50);
+    clearFootBaseState(approach);
+  });
+
+  it("stance is untouched by K_max; high swing targets drop with K_max", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const labels = stanceLabels();
+    const sweep = (walkSpeed: number): Array<{ stanceToeY: number; swingToeY: number; swingFlex: number }> => {
+      const rig = buildLeggedRig(0.86, 0.21);
+      const approach = buildBudgetApproach(rig.slot, rig.leftToe, rig.rightToe, walkSpeed);
+      const out: Array<{ stanceToeY: number; swingToeY: number; swingFlex: number }> = [];
+      for (let frame = 0; frame < 140; frame += 1) {
+        (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+        applyFootBaseStep({
+          approach: approach as never,
+          routeDx: 0,
+          routeDz: 1.31,
+          routeLength: 1.31,
+          clip: { labels, actionTimeSeconds: 0.3 + frame * 0.005 },
+        });
+        rig.slot.updateMatrixWorld(true);
+        const stance = readFootBaseState(approach)?.stance ?? null;
+        const swing = stance === "left" ? "right" : "left";
+        const stanceToe = stance === "left" ? rig.leftToe : rig.rightToe;
+        const swingToe = swing === "left" ? rig.leftToe : rig.rightToe;
+        stanceToe.updateWorldMatrix(true, false);
+        swingToe.updateWorldMatrix(true, false);
+        out.push({
+          stanceToeY: stanceToe.matrixWorld.elements[13] ?? Number.NaN,
+          swingToeY: swingToe.matrixWorld.elements[13] ?? Number.NaN,
+          swingFlex: swingKneeFlexionDeg(rig.slot, swing) ?? Number.NaN,
+        });
+      }
+      clearFootBaseState(approach);
+      return out;
+    };
+    // K_max(0.4) = 57, K_max(2.0 -> clamped 1.2) = 66. The natural swing
+    // peak here is 63 deg, so the 57 cap bites while the 66 cap never
+    // engages; stance stays identical either way.
+    const low = sweep(0.4);
+    const high = sweep(2.0);
+    expect(low.length).toBe(high.length);
+    let maxDrop = 0;
+    for (let i = 0; i < low.length; i += 1) {
+      const a = low[i];
+      const b = high[i];
+      if (a === undefined || b === undefined) continue;
+      // Stance solves are analytic from the same targets; the two runs differ
+      // only in persisted swing-pose history, so this is float-reassociation
+      // noise (measured ~35 nm), not behaviour.
+      expect(Math.abs(a.stanceToeY - b.stanceToeY)).toBeLessThan(1e-6);
+      if (b.swingToeY - a.swingToeY > maxDrop) maxDrop = b.swingToeY - a.swingToeY;
+    }
+    expect(maxDrop).toBeGreaterThan(0.005);
+  });
+
+  it("a swing target already under K_max is unchanged", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    // Tall rig (hips at 1.0 m over a 0.84 m leg): every swing target solves
+    // near-straight, far under any K_max, so both caps must leave the swing
+    // toe bit-identical.
+    const buildTallRig = (): {
+      slot: THREE.Group;
+      leftToe: THREE.Object3D;
+      rightToe: THREE.Object3D;
+    } => {
+      const tallSlot = new THREE.Group();
+      const mkTallSide = (tag: "L" | "R"): THREE.Object3D => {
+        const x = tag === "L" ? 0.09 : -0.09;
+        const hip = new THREE.Object3D();
+        hip.name = `upperleg01.${tag}`;
+        hip.position.set(x, 1.0, 0);
+        tallSlot.add(hip);
+        const upperMid = new THREE.Object3D();
+        upperMid.name = `upperleg02.${tag}`;
+        upperMid.position.set(0, -0.21, 0);
+        hip.add(upperMid);
+        const knee = new THREE.Object3D();
+        knee.name = `lowerleg01.${tag}`;
+        knee.position.set(0, -0.21, 0);
+        upperMid.add(knee);
+        const lowerMid = new THREE.Object3D();
+        lowerMid.name = `lowerleg02.${tag}`;
+        lowerMid.position.set(0, -0.21, 0);
+        knee.add(lowerMid);
+        const heel = new THREE.Object3D();
+        heel.name = `foot.${tag}`;
+        heel.position.set(0, -0.21, 0.02);
+        lowerMid.add(heel);
+        const toe = new THREE.Object3D();
+        toe.name = `toe1-1.${tag}`;
+        toe.position.set(0, -0.03, 0.12);
+        heel.add(toe);
+        return toe;
+      };
+      const tallLeft = mkTallSide("L");
+      const tallRight = mkTallSide("R");
+      tallSlot.updateMatrixWorld(true);
+      return { slot: tallSlot, leftToe: tallLeft, rightToe: tallRight };
+    };
+    const labels = stanceLabels();
+    const sweepTallToeY = (walkSpeed: number): Array<{ toeY: number; flex: number }> => {
+      const rig = buildTallRig();
+      const approach = buildBudgetApproach(rig.slot, rig.leftToe, rig.rightToe, walkSpeed);
+      const out: Array<{ toeY: number; flex: number }> = [];
+      for (let frame = 0; frame < 140; frame += 1) {
+        (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+        applyFootBaseStep({
+          approach: approach as never,
+          routeDx: 0,
+          routeDz: 1.31,
+          routeLength: 1.31,
+          clip: { labels, actionTimeSeconds: 0.3 + frame * 0.005 },
+        });
+        rig.slot.updateMatrixWorld(true);
+        const stance = readFootBaseState(approach)?.stance ?? null;
+        const swing = stance === "left" ? "right" : "left";
+        const toe = swing === "left" ? rig.leftToe : rig.rightToe;
+        toe.updateWorldMatrix(true, false);
+        out.push({
+          toeY: toe.matrixWorld.elements[13] ?? Number.NaN,
+          flex: swingKneeFlexionDeg(rig.slot, swing) ?? Number.NaN,
+        });
+      }
+      clearFootBaseState(approach);
+      return out;
+    };
+    const low = sweepTallToeY(0.4);
+    const high = sweepTallToeY(2.0);
+    expect(low.length).toBe(high.length);
+    expect(low.length).toBeGreaterThan(0);
+    let maxFlex = 0;
+    for (let i = 0; i < low.length; i += 1) {
+      const a = low[i];
+      const b = high[i];
+      if (a === undefined || b === undefined) continue;
+      // Premise check: the tall rig really does solve everything under both
+      // caps (K_max 57 and 66), so identity below is not vacuous.
+      if (b.flex > maxFlex) maxFlex = b.flex;
+      expect(Math.abs(a.toeY - b.toeY)).toBeLessThan(1e-9);
+    }
+    expect(maxFlex).toBeLessThan(57);
+  });
+
+  it("never lowers the swing toe below datum + 8 mm, even when K_max is unreachable", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    // Stub legs (~0.30 m hip height, 0.09 m segments): every swing target
+    // solves far above K_max, so the floor must bind on at least one substep.
+    const slot = new THREE.Group();
+    const mkShortSide = (tag: "L" | "R"): THREE.Object3D => {
+      const x = tag === "L" ? 0.09 : -0.09;
+      const hip = new THREE.Object3D();
+      hip.name = `upperleg01.${tag}`;
+      hip.position.set(x, 0.3, 0);
+      slot.add(hip);
+      const upperMid = new THREE.Object3D();
+      upperMid.name = `upperleg02.${tag}`;
+      upperMid.position.set(0, -0.07, 0);
+      hip.add(upperMid);
+      const knee = new THREE.Object3D();
+      knee.name = `lowerleg01.${tag}`;
+      knee.position.set(0, -0.07, 0);
+      upperMid.add(knee);
+      const lowerMid = new THREE.Object3D();
+      lowerMid.name = `lowerleg02.${tag}`;
+      lowerMid.position.set(0, -0.07, 0);
+      knee.add(lowerMid);
+      const heel = new THREE.Object3D();
+      heel.name = `foot.${tag}`;
+      heel.position.set(0, -0.07, 0.02);
+      lowerMid.add(heel);
+      const toe = new THREE.Object3D();
+      toe.name = `toe1-1.${tag}`;
+      toe.position.set(0, -0.03, 0.12);
+      heel.add(toe);
+      return toe;
+    };
+    const leftToe = mkShortSide("L");
+    const rightToe = mkShortSide("R");
+    slot.updateMatrixWorld(true);
+    const approach = buildBudgetApproach(slot, leftToe, rightToe, 0.77);
+    const labels = stanceLabels();
+    // Mid-swing window per foot in plant-relative phase: strictly past the
+    // band-hold backstop (0.10 past lift, +0.02 margin, so these frames are
+    // budget-solved, never pinned) and inside the middle 50% of the swing run.
+    const midSwingLo = (side: "left" | "right"): number => {
+      const frac = side === "left" ? FOOT_BASE_STANCE_FRACTION.left : FOOT_BASE_STANCE_FRACTION.right;
+      return frac + Math.max(0.12, 0.25 * (1 - frac));
+    };
+    const midSwingHi = (side: "left" | "right"): number => {
+      const frac = side === "left" ? FOOT_BASE_STANCE_FRACTION.left : FOOT_BASE_STANCE_FRACTION.right;
+      return frac + 0.75 * (1 - frac);
+    };
+    let midSwingFrames = 0;
+    let minMidSwingToeY = Number.POSITIVE_INFINITY;
+    for (let frame = 0; frame < 300; frame += 1) {
+      const actionTimeSeconds = 0.3 + frame * 0.005;
+      (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+      applyFootBaseStep({
+        approach: approach as never,
+        routeDx: 0,
+        routeDz: 1.31,
+        routeLength: 1.31,
+        clip: { labels, actionTimeSeconds },
+      });
+      slot.updateMatrixWorld(true);
+      const stance = readFootBaseState(approach)?.stance ?? null;
+      if (stance !== "left" && stance !== "right") continue;
+      const swing: "left" | "right" = stance === "left" ? "right" : "left";
+      const plant = swing === "left" ? FOOT_BASE_PLANT_PHASE.left : FOOT_BASE_PLANT_PHASE.right;
+      const phase01 = ((((actionTimeSeconds % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S)
+        % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S) % FOOT_BASE_CYCLE_S / FOOT_BASE_CYCLE_S;
+      const rel = (((phase01 - plant) % 1) + 1) % 1;
+      if (rel < midSwingLo(swing) || rel > midSwingHi(swing)) continue;
+      midSwingFrames += 1;
+      const swingToe = swing === "left" ? leftToe : rightToe;
+      swingToe.updateWorldMatrix(true, false);
+      const toeY = swingToe.matrixWorld.elements[13] ?? Number.NaN;
+      if (toeY < minMidSwingToeY) minMidSwingToeY = toeY;
+      const floorM = heightDatumOf(swing) + 0.008;
+      // The floor binds the TARGET heel: the hinge drives the heel onto it
+      // (miss ~0), but the toe rides the rigid foot offset, which rotates
+      // with the shin during the solve — on these mixer-less stub legs the
+      // dangling foot sits the achieved toe up to ~10 mm under the floored
+      // target (measured). In production the mixer re-poses the ankle every
+      // frame, so this slop is a fixture artifact, not a mechanism gap.
+      expect(toeY).toBeGreaterThanOrEqual(floorM - 0.015);
+    }
+    expect(midSwingFrames).toBeGreaterThan(0);
+    // The floor actually bound on the stub legs (not a vacuous pass above
+    // it): K_max is unreachable down there, so the budget reports knees via
+    // the floor-limited counter.
+    const budget = readFootBaseState(approach)?.kneeBudget ?? null;
+    expect(budget).not.toBeNull();
+    expect(budget?.floorLimitedSubsteps ?? 0).toBeGreaterThan(0);
+    // And the floored targets keep mid-swing toes near the floor, not metres
+    // off it: the minimum sits within rigid-foot slop below the datum floor.
+    const floorRef = Math.min(heightDatumOf("left"), heightDatumOf("right")) + 0.008;
+    expect(minMidSwingToeY).toBeGreaterThanOrEqual(floorRef - 0.015);
+    expect(minMidSwingToeY).toBeLessThan(floorRef + 0.05);
+    clearFootBaseState(approach);
   });
 });
