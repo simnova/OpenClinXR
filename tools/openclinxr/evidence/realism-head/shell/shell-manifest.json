@@ -1,0 +1,94 @@
+{
+  "name": "eye-occlusion-shell-lid-bind",
+  "producerSourceSha256": "d8c130e64e0066b3fb27029724be75309c60519b3b9fa91193e42d001acb6b39",
+  "argv": [
+    "--output",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/shellrebind2/aisha-shell-b2b3.glb",
+    "--eye-colour-reference",
+    "ob_patient_aisha",
+    "--eye-asset",
+    "high-poly",
+    "--eye-texture",
+    "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+    "--eye-occlusion-shell",
+    "--eye-tearline"
+  ],
+  "shell": {
+    "mesh": "openclinxr_eye_occlusion_shell_mesh",
+    "parent": "mpfb_ob_patient_aisha_standard_rig",
+    "groups": [
+      "head"
+    ],
+    "eyeGroups": [],
+    "lidKeys": [
+      "eye-left-closure",
+      "eye-left-slit",
+      "eye-left-opened-up",
+      "eye-right-closure",
+      "eye-right-slit",
+      "eye-right-opened-up"
+    ],
+    "lidKeyMaxDeltaMm": {
+      "eye-left-closure": 5.7894,
+      "eye-left-slit": 2.7723,
+      "eye-left-opened-up": 2.2804,
+      "eye-right-closure": 5.7895,
+      "eye-right-slit": 2.7726,
+      "eye-right-opened-up": 2.2801
+    }
+  },
+  "tearline": {
+    "mesh": "openclinxr_eye_tearline_mesh",
+    "parent": "mpfb_ob_patient_aisha_standard_rig",
+    "groups": [
+      "head"
+    ],
+    "lidKeys": [
+      "eye-left-closure",
+      "eye-left-slit",
+      "eye-left-opened-up",
+      "eye-right-closure",
+      "eye-right-slit",
+      "eye-right-opened-up"
+    ],
+    "lidKeyMaxDeltaMm": {
+      "eye-left-closure": 5.0583,
+      "eye-left-slit": 2.3621,
+      "eye-left-opened-up": 2.3166,
+      "eye-right-closure": 5.0584,
+      "eye-right-slit": 2.3624,
+      "eye-right-opened-up": 2.3166
+    }
+  },
+  "caruncle": {
+    "present": false,
+    "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"
+  },
+  "unlit": {
+    "openclinxr_eye_occlusion_shell": {
+      "alphaMode": "BLEND",
+      "unlit": true
+    },
+    "openclinxr_eye_tearline": {
+      "alphaMode": "OPAQUE",
+      "unlit": true
+    }
+  },
+  "falsifier": {
+    "verdict": "premise_live"
+  },
+  "coverageGate": {
+    "views": [
+      25,
+      -25
+    ],
+    "baselineMaxBrightStep": 170,
+    "fixedMaxBrightStep": 101,
+    "metric": "max horizontal luminance step, wedge-silhouette band x745..762 rows660..750 yaw+25, same-GLB noshell vs fixed 1280 renders"
+  },
+  "sheet": {
+    "src": "shadow-yaw-sheet.png",
+    "sha256": "1d73f51d6ba1b5b5bdbf21149a11a0fae7e85c6426ec80509d83813a989466a6",
+    "renderSize": 1280
+  }
+}
