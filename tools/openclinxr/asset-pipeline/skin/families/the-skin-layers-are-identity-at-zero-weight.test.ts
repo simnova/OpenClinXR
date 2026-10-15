@@ -25,7 +25,30 @@ const REPORT = JSON.parse(readFileSync(path.join(HERE, "layers-report.json"), "u
   family: string;
   family_assets: string;
   family_sha256: string;
-  freckles: { seed: number; count: number; radius_px: number };
+  freckles: {
+    seed: number;
+    texels_per_mm: { value: number; expression: string; measured_over: string };
+    known_good: string;
+    med: {
+      count: number;
+      nose_centers: number;
+      cheek_side1: number;
+      cheek_side2: number;
+      diam_mm_min: number;
+      diam_mm_max: number;
+      peak_halfmm_bin_share: number;
+      blobs: Array<{
+        y: number;
+        x: number;
+        diam_mm: number;
+        r_tex: number;
+        axis_q: number;
+        theta_deg: number;
+        site: string;
+      }>;
+    };
+    sweep: Record<string, { count: number; assets: string; sha256: string }>;
+  };
   weight_rule: string;
   cases: Record<
     string,
@@ -53,6 +76,23 @@ const REPORT = JSON.parse(readFileSync(path.join(HERE, "layers-report.json"), "u
   sheet?: {
     renders: Array<{ weights: Record<string, number>; png: string; sha256: string }>;
     crops: Array<{ png: string; sha256: string }>;
+  };
+  h1?: {
+    skin_rule: string;
+    skinmask_assets: string;
+    skinmask_sha256: string;
+    renders: Array<{ id: string; png: string; sha256: string }>;
+    crops: Array<{ png: string; sha256: string; size_px: number[] }>;
+    p1: { before: number; after: number };
+    p2: {
+      center_col: number;
+      floor: number;
+      before: { max_step: number; max_step_row0: number; pass: boolean };
+      after: { max_step: number; pass: boolean };
+      series_rows: number[];
+      series_dL: number[];
+    };
+    p3: { patches: Record<string, { before: number; after: number }> };
   };
   not_tested: string;
 };
@@ -258,6 +298,164 @@ describe("the skin layers are identity at zero weight", () => {
     expect(REPORT.sheet!.crops.length).toBeGreaterThan(0);
     for (const c of REPORT.sheet!.crops) {
       expect(sha256File(path.join(STORE, c.png))).toBe(c.sha256);
+    }
+    const raw = JSON.stringify(REPORT);
+    expect(raw).not.toMatch(/apps\/ui-xr\/public/);
+  });
+
+  it.skipIf(!storePresent)("H1 P1: pallor covers whole skin in the render (>= 0.95)", () => {
+    expect(REPORT.h1, "h1").toBeTruthy();
+    const h1 = REPORT.h1!;
+    const skinAbs = path.join(STORE, h1.skinmask_assets);
+    expect(sha256File(skinAbs)).toBe(h1.skinmask_sha256);
+    const skinPx = decodePngRgb(skinAbs);
+    const zero = decodePngRgb(path.join(STORE, "skin-layers/skinlay-zero-front.png"));
+    expect(skinPx.w).toBe(zero.w);
+    const pal = decodePngRgb(path.join(STORE, "skin-layers/h1/h1-pallor06-front.png"));
+    const cheek = decodePngRgb(path.join(STORE, "skin-layers/skinlay-cheek06-front.png"));
+    const freck = decodePngRgb(path.join(STORE, "skin-layers/h1/h1-freck-med-front.png"));
+    const n = zero.w * zero.h;
+    // Re-derive the skin set: lit background-excluded pixels responding in any
+    // non-lip layer render; must match the stored mask.
+    let maskMatch = 0;
+    let skinN = 0;
+    let changed = 0;
+    let litN = 0;
+    for (let k = 0; k < n; k += 1) {
+      const bg =
+        Math.abs(zero.rgb[k * 3]! - 0x18) +
+          Math.abs(zero.rgb[k * 3 + 1]! - 0x21) +
+          Math.abs(zero.rgb[k * 3 + 2]! - 0x1d) <=
+        36;
+      if (bg) {
+        expect(skinPx.rgb[k * 3]).toBe(0);
+        continue;
+      }
+      litN += 1;
+      const dl = (img: Uint8Array): number =>
+        srgbToLab(img[k * 3]!, img[k * 3 + 1]!, img[k * 3 + 2]!)[0] -
+        srgbToLab(zero.rgb[k * 3]!, zero.rgb[k * 3 + 1]!, zero.rgb[k * 3 + 2]!)[0];
+      const isSkin =
+        Math.abs(dl(pal.rgb)) > 0.5 || Math.abs(dl(cheek.rgb)) > 0.5 || Math.abs(dl(freck.rgb)) > 0.5;
+      if (skinPx.rgb[k * 3]! > 127 === isSkin) maskMatch += 1;
+      if (isSkin) {
+        skinN += 1;
+        if (Math.abs(dl(pal.rgb)) > 1) changed += 1;
+      }
+    }
+    expect(maskMatch, "skinmask agreement").toBe(litN);
+    const frac = changed / Math.max(skinN, 1);
+    expect(skinN).toBeGreaterThan(100000);
+    expect(frac, "P1").toBeGreaterThanOrEqual(0.95);
+    expect(Math.abs(frac - h1.p1.after), "P1 matches report").toBeLessThan(0.01);
+  }, 300_000);
+
+  it.skipIf(!storePresent)("H1 P2: no seam on the centre line (before fails, after passes)", () => {
+    const h1 = REPORT.h1!;
+    const zero = decodePngRgb(path.join(STORE, "skin-layers/skinlay-zero-front.png"));
+    const palBefore = decodePngRgb(path.join(STORE, "skin-layers/skinlay-pallor06-front.png"));
+    const palAfter = decodePngRgb(path.join(STORE, "skin-layers/h1/h1-pallor06-front.png"));
+    const rows = h1.p2.series_rows;
+    const col = h1.p2.center_col;
+    const dlAt = (img: Uint8Array, r: number): number => {
+      const acc: number[] = [];
+      for (let c = col - 8; c <= col + 8; c += 1) {
+        const k = r * zero.w + c;
+        acc.push(
+          srgbToLab(img[k * 3]!, img[k * 3 + 1]!, img[k * 3 + 2]!)[0] -
+            srgbToLab(zero.rgb[k * 3]!, zero.rgb[k * 3 + 1]!, zero.rgb[k * 3 + 2]!)[0],
+        );
+      }
+      acc.sort((a, b) => a - b);
+      return acc[8]!;
+    };
+    for (const [img, rep, wantPass, spot] of [
+      [palBefore.rgb, h1.p2.before, false, false],
+      [palAfter.rgb, h1.p2.after, true, true],
+    ] as const) {
+      const vals = rows.map((r) => dlAt(img, r));
+      // Spot-check the stored (after) series, then gate the re-derived changes.
+      if (spot) {
+        for (const i of [0, Math.floor(rows.length / 2), rows.length - 1]) {
+          expect(vals[i]!, `series[${i}]`).toBeCloseTo(h1.p2.series_dL[i]!, 2);
+        }
+      }
+      const ch = vals.slice(1).map((v, i) => Math.abs(v - vals[i]!));
+      const sorted = [...ch].sort((a, b) => a - b);
+      const med = sorted[Math.floor(sorted.length / 2)]!;
+      const mx = Math.max(...ch);
+      const thr = Math.max(2 * med, h1.p2.floor);
+      expect(mx <= thr, `P2 mx=${mx.toFixed(3)} thr=${thr.toFixed(3)}`).toBe(wantPass);
+      expect(rep.pass).toBe(wantPass);
+    }
+    // The before failure sits on the old forehead seam (full-render rows ~439-451).
+    expect(h1.p2.before.max_step_row0).toBeGreaterThanOrEqual(435);
+    expect(h1.p2.before.max_step_row0).toBeLessThanOrEqual(455);
+  }, 300_000);
+
+  it.skipIf(!storePresent)("H1 P3: cheek strength not weakened (after >= before)", () => {
+    for (const p of Object.values(REPORT.h1!.p3.patches)) {
+      expect(p.after, "P3").toBeGreaterThanOrEqual(p.before);
+    }
+  });
+
+  it.skipIf(!storePresent)("H1 F1/F2: seeded freckles on nose+cheeks, 1-4mm span, no dominant size", () => {
+    const f = REPORT.freckles;
+    expect(f.seed).toBe(7);
+    expect(f.known_good).toMatch(/no known-good/);
+    expect(f.texels_per_mm.value).toBeCloseTo(2.269, 3);
+    expect(f.texels_per_mm.expression).toMatch(/sqrt\(50766\.1\/9864\.2\)/);
+    const blobs = f.med.blobs;
+    expect(blobs.length).toBe(f.med.count);
+    const nose = blobs.filter((b) => b.site === "nose");
+    const s1 = blobs.filter((b) => b.site === "cheek" && b.y < 1058.5);
+    const s2 = blobs.filter((b) => b.site === "cheek" && b.y >= 1058.5);
+    expect(nose.length, "F1 nose").toBeGreaterThanOrEqual(10);
+    expect(nose.length).toBe(f.med.nose_centers);
+    expect(s1.length).toBeGreaterThanOrEqual(10);
+    expect(s2.length).toBeGreaterThanOrEqual(10);
+    const diams = blobs.map((b) => b.diam_mm);
+    expect(Math.min(...diams), "F2 min").toBeLessThanOrEqual(1.5);
+    expect(Math.max(...diams), "F2 max").toBeGreaterThanOrEqual(4.0);
+    const bins = new Map<number, number>();
+    for (const d of diams) {
+      const bin = Math.floor(d * 2) / 2;
+      bins.set(bin, (bins.get(bin) ?? 0) + 1);
+    }
+    const peak = Math.max(...bins.values()) / blobs.length;
+    expect(peak, "F2 no dominant size").toBeLessThanOrEqual(0.4);
+    expect(f.med.peak_halfmm_bin_share).toBeCloseTo(peak, 3);
+    // r_tex follows diam_mm * texels_per_mm / 2 up to the noise perturbation.
+    for (const b of blobs) {
+      const want = (b.diam_mm * f.texels_per_mm.value) / 2;
+      expect(Math.abs(b.r_tex - want) / want, `r_tex ${b.x},${b.y}`).toBeLessThan(0.6);
+      expect(b.axis_q).toBeGreaterThanOrEqual(0.65);
+      expect(b.axis_q).toBeLessThanOrEqual(1.0);
+    }
+    // Spot-check: blob centres actually darken the med atlas PNG.
+    const fam = decodePngRgb(path.join(STORE, REPORT.family_assets));
+    const med = decodePngRgb(path.join(STORE, REPORT.layers.freckles.assets));
+    const check = [...nose.slice(0, 5), ...s1.slice(0, 5)];
+    for (const b of check) {
+      const k = b.y * fam.w + b.x;
+      const dL =
+        srgbToLab(med.rgb[k * 3]!, med.rgb[k * 3 + 1]!, med.rgb[k * 3 + 2]!)[0] -
+        srgbToLab(fam.rgb[k * 3]!, fam.rgb[k * 3 + 1]!, fam.rgb[k * 3 + 2]!)[0];
+      expect(dL, `blob darkening ${b.x},${b.y}`).toBeLessThan(-2);
+    }
+  }, 300_000);
+
+  it.skipIf(!storePresent)("H1 sweep renders land side by side (no winner picked)", () => {
+    expect(REPORT.h1!.renders.length).toBe(4);
+    for (const r of REPORT.h1!.renders) {
+      expect(sha256File(path.join(STORE, r.png))).toBe(r.sha256);
+    }
+    for (const c of REPORT.h1!.crops) {
+      expect(sha256File(path.join(STORE, c.png))).toBe(c.sha256);
+    }
+    expect(Object.keys(REPORT.freckles.sweep).sort()).toEqual(["high", "low", "med"].sort());
+    for (const s of Object.values(REPORT.freckles.sweep)) {
+      expect(sha256File(path.join(STORE, s.assets))).toBe(s.sha256);
     }
     const raw = JSON.stringify(REPORT);
     expect(raw).not.toMatch(/apps\/ui-xr\/public/);

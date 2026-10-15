@@ -44,8 +44,23 @@ FAMILY_REL = "skin-families/young/young-family-v3.png"
 OUT_DIR = STORE / "skin-layers"
 
 FRECKLE_SEED = 7
-FRECKLE_COUNT = 140
-FRECKLE_RADIUS_PX = 2
+# H1: real ephelides are ~1-5 mm across. texels_per_mm measured on the face
+# from the mesh: over 2262 cheek-island faces of body.001 in
+# regen3/aisha-ref3.glb, texels_per_mm = sqrt(sum(UV area in texels^2 at 2048)
+# / sum(3D area in mm^2)) = sqrt(50766.1/9864.2) = 2.269. Blob diameter in
+# texels = diam_mm * TEXELS_PER_MM; radius additionally perturbed per blob.
+TEXELS_PER_MM = 2.269
+FRECKLE_DIAM_MM = (1.0, 5.0)  # clip range of the seeded lognormal
+FRECKLE_LOGNORMAL = (0.7, 0.45)  # (mu, sigma) of ln(diam_mm)
+FRECKLE_DENSITIES = {"low": 60, "med": 140, "high": 260}  # nested: first-N of one seeded stream
+# Density mixture (seeded): 45% nose bridge, 27.5% malar side1, 27.5% malar
+# side2; gaussian falloff thins the density outward. (col, row) texel coords.
+FRECKLE_MIXTURE = [
+    (0.45, 1773.0, 1058.0, 25.0, 35.0),  # nose bridge
+    (0.275, 1760.0, 940.0, 55.0, 55.0),  # malar side1 (upper cheek)
+    (0.275, 1760.0, 1177.0, 55.0, 55.0),  # malar side2 (upper cheek)
+]
+FRECKLE_EDGE_Q = (0.65, 1.0)  # seeded per-blob minor/major axis ratio (not discs)
 FEATHER_SIGMA_PX = 6.0
 
 # Cheek/nose derivation from derive landmarks (uv_texel = [col=u*S, row=v*S]):
@@ -114,27 +129,68 @@ def build_masks() -> dict[str, np.ndarray]:
     lip = (((lips > 0.5) & (occ > 0.5))).astype(np.float64)
     ear = (((ears > 0.5) & (occ > 0.5))).astype(np.float64)
     freckle_zone = ((((cheek > 0.5) | (nose > 0.5))) & (skin > 0.5)).astype(np.float64)
-    return {"cheek": cheek, "nose": nose, "lip": lip, "ear": ear, "pallor": skin, "freckle_zone": freckle_zone}
+    # H1: pallor is systemic: every skin texel of the atlas (face, scalp,
+    # ears, neck, body islands via occupancy) minus lips/eyes/brows. There is
+    # no nail mask in derive.py, so nails are not separately excluded.
+    whole_skin = (((occ > 0.5) & (feat <= 0.5))).astype(np.float64)
+    return {"cheek": cheek, "nose": nose, "lip": lip, "ear": ear, "pallor": whole_skin,
+            "freckle_zone": freckle_zone, "face_skin": skin}
 
 
-def freckle_dots(zone: np.ndarray) -> list[tuple[int, int]]:
+def freckle_blobs(zone: np.ndarray, masks: dict[str, np.ndarray]) -> list[dict]:
+    """Seeded freckle blobs: mixture positions clustered on the nose bridge +
+    upper cheeks, diameters from a lognormal clipped to 1-5 mm, per-blob
+    noise-perturbed radius + elliptical soft edge (never hard discs). Returns
+    the full high-density stream; densities take first-N (same seed rule)."""
+    S = zone.shape[0]
     rng = np.random.default_rng(FRECKLE_SEED)
-    ys, xs = np.where(zone > 0.5)
-    lo_x, hi_x, lo_y, hi_y = xs.min(), xs.max(), ys.min(), ys.max()
-    dots: list[tuple[int, int]] = []
+    n_max = max(FRECKLE_DENSITIES.values())
+    blobs: list[dict] = []
     guard = 0
-    while len(dots) < FRECKLE_COUNT and guard < 200000:
+    cum = np.cumsum([p for p, _, _, _, _ in FRECKLE_MIXTURE])
+    while len(blobs) < n_max and guard < 2000000:
         guard += 1
-        x = int(rng.integers(lo_x, hi_x + 1))
-        y = int(rng.integers(lo_y, hi_y + 1))
-        if zone[y, x] > 0.5:
-            dots.append((y, x))
-    assert len(dots) == FRECKLE_COUNT, "freckle sampling failed: %d/%d" % (len(dots), FRECKLE_COUNT)
-    return dots
+        u = rng.random()
+        mi = int(np.searchsorted(cum, u))
+        _, mcx, mcy, msx, msy = FRECKLE_MIXTURE[mi]
+        x, y = int(rng.normal(mcx, msx)), int(rng.normal(mcy, msy))
+        if not (0 <= x < S and 0 <= y < S and zone[y, x] > 0.5):
+            continue
+        diam_mm = float(np.clip(rng.lognormal(*FRECKLE_LOGNORMAL), *FRECKLE_DIAM_MM))
+        r_tex = diam_mm * TEXELS_PER_MM / 2.0 * float(np.exp(0.15 * rng.standard_normal()))
+        q = float(rng.uniform(*FRECKLE_EDGE_Q))
+        theta = float(rng.uniform(0, 180))
+        site = ("nose" if masks["nose"][y, x] > 0.5 else
+                ("cheek" if masks["cheek"][y, x] > 0.5 else "other"))
+        blobs.append({"y": y, "x": x, "diam_mm": round(diam_mm, 3),
+                      "r_tex": round(r_tex, 3), "axis_q": round(q, 3),
+                      "theta_deg": round(theta, 1), "site": site})
+    assert len(blobs) == n_max, "freckle sampling failed: %d/%d" % (len(blobs), n_max)
+    return blobs
+
+
+def freckle_alpha(shape: tuple[int, int], blobs: list[dict]) -> np.ndarray:
+    """Soft-edged blob weight map (max-accumulated gaussian falloff, cut at 0.02)."""
+    alpha = np.zeros(shape, dtype=np.float64)
+    for b in blobs:
+        r = max(float(b["r_tex"]), 0.6)
+        q = float(b["axis_q"])
+        th = np.deg2rad(float(b["theta_deg"]))
+        ext = int(np.ceil(1.6 * r)) + 1
+        y0, y1 = max(0, b["y"] - ext), min(shape[0], b["y"] + ext + 1)
+        x0, x1 = max(0, b["x"] - ext), min(shape[1], b["x"] + ext + 1)
+        yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float64)
+        dx, dy = xx - b["x"], yy - b["y"]
+        dxr = dx * np.cos(th) + dy * np.sin(th)
+        dyr = -dx * np.sin(th) + dy * np.cos(th)
+        a = np.exp(-2.2 * ((dxr / r) ** 2 + (dyr / (r * q)) ** 2))
+        a[a < 0.02] = 0.0
+        np.maximum(alpha[y0:y1, x0:x1], a, out=alpha[y0:y1, x0:x1])
+    return alpha
 
 
 def apply_layers(src_u8: np.ndarray, masks: dict[str, np.ndarray],
-                 dots: list[tuple[int, int]], weights: dict[str, float]) -> np.ndarray:
+                 freck_alpha: np.ndarray | None, weights: dict[str, float]) -> np.ndarray:
     """Blend the six layers over src (uint8 RGB). Outside each layer's hard
     mask the source bytes are restored bit-exactly."""
     if all(float(weights.get(k, 0.0)) == 0.0 for k in LAYER_ORDER):
@@ -173,18 +229,11 @@ def apply_layers(src_u8: np.ndarray, masks: dict[str, np.ndarray],
         out = (1 - soft["pallor"])[..., None] * out + soft["pallor"][..., None] * adj
     w = float(weights.get("freckles", 0.0))
     if w:
-        r = FRECKLE_RADIUS_PX
-        dy, dx = np.mgrid[-r : r + 1, -r : r + 1]
-        disc = (dx**2 + dy**2) <= r**2
-        for y, x in dots:
-            y0, y1, x0, x1 = y - r, y + r + 1, x - r, x + r + 1
-            if y0 < 0 or x0 < 0 or y1 > out.shape[0] or x1 > out.shape[1]:
-                continue
-            patch = out[y0:y1, x0:x1]
-            m = disc & (masks["freckle_zone"][y0:y1, x0:x1] > 0.5)
-            patch[m, 0] -= 20.0 * w
-            patch[m, 1] += 3.0 * w
-            patch[m, 2] += 7.0 * w
+        assert freck_alpha is not None, "freckle weight needs an alpha map"
+        a = (freck_alpha * (masks["freckle_zone"] > 0.5))[..., None]
+        out[..., 0] -= 20.0 * w * a[..., 0]
+        out[..., 1] += 3.0 * w * a[..., 0]
+        out[..., 2] += 7.0 * w * a[..., 0]
 
     out[..., 0] = np.clip(out[..., 0], 0, 100)
     rgb = lab_to_rgb(out)
@@ -214,23 +263,24 @@ def outside_dlab(src_u8: np.ndarray, out_u8: np.ndarray, hard: np.ndarray) -> fl
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    (OUT_DIR / "h1").mkdir(parents=True, exist_ok=True)
     fam_path = STORE / FAMILY_REL
     src_u8 = np.asarray(Image.open(fam_path).convert("RGB"))
     assert src_u8.shape == (2048, 2048, 3), src_u8.shape
     masks = build_masks()
     for k, m in masks.items():
         assert int((m > 0.5).sum()) > 1000, (k, int((m > 0.5).sum()))
-    dots = freckle_dots(masks["freckle_zone"])
-    # Determinism: resample + re-apply, shapes must match.
-    assert freckle_dots(masks["freckle_zone"]) == dots, "freckle RNG not deterministic"
+    blobs = freckle_blobs(masks["freckle_zone"], masks)
+    assert freckle_blobs(masks["freckle_zone"], masks) == blobs, "freckle stream not deterministic"
+    alphas = {d: freckle_alpha(src_u8.shape[:2], blobs[:n]) for d, n in FRECKLE_DENSITIES.items()}
 
-    zero = apply_layers(src_u8, masks, dots, {})
+    zero = apply_layers(src_u8, masks, None, {})
     identity_err = max_abs_error(zero, src_u8)
     assert identity_err == 0, identity_err
 
     layer_key = {"freckles": "freckle_zone", "cheek_redness": "cheek", "nose_redness": "nose",
                  "lip": "lip", "ear": "ear", "pallor": "pallor"}
-    layer_files = {"freckles": "young-layers-freckles-06.png", "cheek_redness": "young-layers-cheekred-06.png",
+    layer_files = {"freckles": "h1/freck-med-06.png", "cheek_redness": "young-layers-cheekred-06.png",
                    "nose_redness": "young-layers-noserred-06.png", "lip": "young-layers-lip-06.png",
                    "ear": "young-layers-ear-06.png", "pallor": "young-layers-pallor-06.png"}
     zero_rel = "skin-layers/young-family-layers-zero.png"
@@ -238,11 +288,14 @@ def main() -> None:
 
     layers: dict = {}
     for layer in LAYER_ORDER:
-        out = apply_layers(src_u8, masks, dots, {layer: 0.6})
+        fa = alphas["med"] if layer == "freckles" else None
+        out = apply_layers(src_u8, masks, fa, {layer: 0.6})
         rel = "skin-layers/" + layer_files[layer]
         Image.fromarray(out).save(STORE / rel)
         # Determinism re-run for the seeded layer.
-        out2 = apply_layers(src_u8, masks, freckle_dots(masks["freckle_zone"]), {layer: 0.6})
+        fa2 = freckle_alpha(src_u8.shape[:2], freckle_blobs(masks["freckle_zone"], masks)[:FRECKLE_DENSITIES["med"]]) \
+            if layer == "freckles" else None
+        out2 = apply_layers(src_u8, masks, fa2, {layer: 0.6})
         assert (out2 == out).all(), "non-deterministic layer %s" % layer
         hard = masks[layer_key[layer]]
         layers[layer] = {
@@ -255,6 +308,58 @@ def main() -> None:
         }
         assert layers[layer]["outside_max_abs_dLab"] == 0.0, (layer, layers[layer]["outside_max_abs_dLab"])
         assert layers[layer]["inside_changed_px"] > 100, (layer, layers[layer]["inside_changed_px"])
+
+    # H1 density sweep (same seed rule, nested first-N), weight 0.6.
+    sweep: dict = {}
+    for d, n in FRECKLE_DENSITIES.items():
+        sub = blobs[:n]
+        if d == "med":
+            rel = "skin-layers/" + layer_files["freckles"]
+        else:
+            out = apply_layers(src_u8, masks, alphas[d], {"freckles": 0.6})
+            rel = "skin-layers/h1/freck-%s-06.png" % d
+            Image.fromarray(out).save(STORE / rel)
+        sweep[d] = {
+            "count": n,
+            "assets": rel,
+            "sha256": sha256_file(STORE / rel),
+            "nose_centers": sum(1 for b in sub if b["site"] == "nose"),
+            "cheek_centers": sum(1 for b in sub if b["site"] == "cheek"),
+            "diam_mm_min": round(min(b["diam_mm"] for b in sub), 3),
+            "diam_mm_max": round(max(b["diam_mm"] for b in sub), 3),
+        }
+    med = blobs[:FRECKLE_DENSITIES["med"]]
+    diam = np.array([b["diam_mm"] for b in med])
+    bins = np.floor(diam * 2) / 2
+    _, counts = np.unique(bins, return_counts=True)
+    freck_info = {
+        "seed": FRECKLE_SEED,
+        "seed_rule": "one default_rng(7) stream of %d blobs; low/med/high take first-N (nested)" % max(FRECKLE_DENSITIES.values()),
+        "texels_per_mm": {"value": TEXELS_PER_MM,
+                          "expression": "sqrt(sum(UV area in texels^2 at 2048) / sum(3D area in mm^2)) = sqrt(50766.1/9864.2)",
+                          "measured_over": "2262 cheek-island faces of body.001 in regen3/aisha-ref3.glb"},
+        "diam_mm": {"distribution": "lognormal(mu=%.2g, sigma=%.2g) clipped to [%.1f, %.1f]" % (*FRECKLE_LOGNORMAL, *FRECKLE_DIAM_MM)},
+        "mixture": ["%.3f nose-bridge gauss(col %.0f, row %.0f, sCol %.0f, sRow %.0f)" % FRECKLE_MIXTURE[0],
+                    "%.3f malar-side1 gauss(col %.0f, row %.0f, s %.0f)" % (FRECKLE_MIXTURE[1][0], *FRECKLE_MIXTURE[1][1:4]),
+                    "%.3f malar-side2 gauss(col %.0f, row %.0f, s %.0f)" % (FRECKLE_MIXTURE[2][0], *FRECKLE_MIXTURE[2][1:4])],
+        "edge": "soft gaussian falloff exp(-2.2*((dx/r)^2+(dy/(r*q))^2)) cut at 0.02; per-blob r_tex = diam_mm*TPM/2*exp(0.15*randn), axis_q in [0.65, 1.0], theta in [0, 180)",
+        "zone": "cheek+nose intersect facecore-minus-features",
+        "stored_as": "seeded weights, not baked into the family PNG",
+        "known_good": "no known-good freckle asset in the tree (H1 finding)",
+        "med": {"count": len(med),
+                "nose_centers": sum(1 for b in med if b["site"] == "nose"),
+                "cheek_side1": sum(1 for b in med if b["site"] == "cheek" and b["y"] < NOSE_TIP[1]),
+                "cheek_side2": sum(1 for b in med if b["site"] == "cheek" and b["y"] >= NOSE_TIP[1]),
+                "diam_mm_min": round(float(diam.min()), 3),
+                "diam_mm_max": round(float(diam.max()), 3),
+                "peak_halfmm_bin_share": round(float(counts.max() / len(med)), 3),
+                "blobs": med},
+        "sweep": sweep,
+    }
+    assert freck_info["med"]["nose_centers"] >= 10, freck_info["med"]
+    assert freck_info["med"]["cheek_side1"] >= 10 and freck_info["med"]["cheek_side2"] >= 10, freck_info["med"]
+    assert freck_info["med"]["diam_mm_min"] <= 1.5 and freck_info["med"]["diam_mm_max"] >= 4.0, freck_info["med"]
+    assert freck_info["med"]["peak_halfmm_bin_share"] <= 0.40, freck_info["med"]
 
     mask_files = {"cheek": "skin-layers/mask-cheek.png", "nose": "skin-layers/mask-nose.png",
                   "lip": "skin-layers/mask-lip.png", "ear": "skin-layers/mask-ear.png",
@@ -313,15 +418,14 @@ def main() -> None:
             "nose_radius_px": NOSE_RADIUS_PX,
             "feather": "gaussian sigma %.1f clipped to the hard mask (inward-only); texels outside the hard mask restored bit-exact" % FEATHER_SIGMA_PX,
             "files": mask_shas,
+            "pallor_mask": "H1 whole-skin: occupancy>0.5 minus lips/eyes/brows>0.5 (face, scalp, ears, neck, body islands); no nail mask exists in derive.py",
         },
-        "freckles": {"seed": FRECKLE_SEED, "count": FRECKLE_COUNT, "radius_px": FRECKLE_RADIUS_PX,
-                     "zone": "cheek+nose intersect facecore-minus-features",
-                     "stored_as": "seeded weights, not baked into the family PNG"},
+        "freckles": freck_info,
         "layer_ops_Lab": {
-            "freckles": "L-=20w, a+=3w, b+=7w in r=2 discs",
+            "freckles": "L-=20w*alpha, a+=3w*alpha, b+=7w*alpha (soft blob alpha map, clipped to freckle zone)",
             "cheek_redness": "a+=7w", "nose_redness": "a+=7w",
             "lip": "chroma x(1+0.35w)", "ear": "a+=6w",
-            "pallor": "L+=5w, a/b x(1-0.45w) on facecore-minus-features",
+            "pallor": "L+=5w, a/b x(1-0.45w) on whole-skin minus features",
         },
         "weight_rule": "cheek=nose=lip=ear=flush; freckles=0 (no authored field); pallor=0",
         "cases": cases,
@@ -333,9 +437,10 @@ def main() -> None:
     }
     prev = HERE / "layers-report.json"
     if prev.exists():
-        old_sheet = json.loads(prev.read_text()).get("sheet")
-        if old_sheet:
-            report["sheet"] = old_sheet  # renders/crops survive a re-run; PNGs are deterministic
+        old = json.loads(prev.read_text())
+        for k in ("sheet", "h1"):
+            if old.get(k):
+                report[k] = old[k]  # renders/crops survive a re-run; PNGs are deterministic
     (HERE / "layers-report.json").write_text(json.dumps(report, indent=1) + "\n")
     print("identity max_abs_error=%d; layers=%s; young flush=%s"
           % (identity_err, {k: (v["inside_changed_px"], v["outside_max_abs_dLab"]) for k, v in layers.items()}, young_flush))
