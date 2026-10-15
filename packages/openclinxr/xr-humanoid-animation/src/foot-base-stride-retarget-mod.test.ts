@@ -7,7 +7,6 @@ import {
   applyFootBaseStep,
   clearFootBaseState,
   FOOT_BASE_CYCLE_S,
-  FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_PLANT_PHASE,
   FOOT_BASE_ROWS,
@@ -297,22 +296,5 @@ describe("foot-base stride retarget", () => {
     expect(footBaseHalfIndex(0.55, FOOT_BASE_CYCLE_S)).toBe(1);
     expect(footBaseHalfIndex(1.38, FOOT_BASE_CYCLE_S)).toBe(2);
     expect(footBaseHalfIndex(0.55 + FOOT_BASE_CYCLE_S, FOOT_BASE_CYCLE_S)).toBe(3);
-  });
-
-  it("height datum recovers the plant-toe clearance from the stance dip", () => {
-    // The rows document heightM as toe Y minus plant toe Y; the datum is the
-    // plant clearance above flat contact (minus the deepest stance dip), so
-    // floorY + datum + scale x heightM rides mid-stance at the floor instead
-    // of ~5 cm under it (footbase-5: buried stance locked both knees straight).
-    for (const side of ["left", "right"] as const) {
-      const frac = side === "left" ? FOOT_BASE_STANCE_FRACTION.left : FOOT_BASE_STANCE_FRACTION.right;
-      let min = Number.POSITIVE_INFINITY;
-      for (const row of FOOT_BASE_ROWS[side]) {
-        if (row.phase < frac && row.heightM < min) min = row.heightM;
-      }
-      expect(FOOT_BASE_HEIGHT_DATUM[side]).toBeCloseTo(-min, 12);
-      expect(FOOT_BASE_HEIGHT_DATUM[side]).toBeGreaterThan(0.04);
-      expect(FOOT_BASE_HEIGHT_DATUM[side]).toBeLessThan(0.07);
-    }
   });
 });

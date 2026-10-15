@@ -28,7 +28,6 @@ import {
  * importers keep working. Behaviour is unchanged.
  */
 export {
-  FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
   footBaseHalfBounds,
