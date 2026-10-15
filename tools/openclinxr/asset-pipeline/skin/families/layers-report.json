@@ -1,0 +1,313 @@
+{
+ "version": 1,
+ "instrument": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+ "family": "young",
+ "family_assets": "skin-families/young/young-family-v3.png",
+ "family_sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+ "masks": {
+  "derive_dir": "skinfamilies/a1/derive (facecore/lips/eyes-L|R/brows-L|R/ears-L|R max/occupancy/landmarks-uv.json)",
+  "cheek_cols": [
+   1690,
+   1930
+  ],
+  "cheek_rows_side1": [
+   850,
+   985
+  ],
+  "cheek_rows_side2": [
+   1131,
+   1281
+  ],
+  "nose_tip_col_row": [
+   1773.1,
+   1058.5
+  ],
+  "nose_radius_px": 45.0,
+  "feather": "gaussian sigma 6.0 clipped to the hard mask (inward-only); texels outside the hard mask restored bit-exact",
+  "files": {
+   "cheek": {
+    "assets": "skin-layers/mask-cheek.png",
+    "sha256": "ece6da69c425823ee40d169f8a220107336efe6aa427eb5b8fe84711d6111ef3"
+   },
+   "nose": {
+    "assets": "skin-layers/mask-nose.png",
+    "sha256": "0a50bfe0110b803c83184a103b2cbea38e48e70ac80d5e9e724c37438a3334a2"
+   },
+   "lip": {
+    "assets": "skin-layers/mask-lip.png",
+    "sha256": "f9a8a077c0732e62f7ef17ae1a915e8d223920056fec86f482e34bafd860f338"
+   },
+   "ear": {
+    "assets": "skin-layers/mask-ear.png",
+    "sha256": "d4f635c354ac113e3e6365113c6a72e54762d4458f81fe43e90e30bc955968c4"
+   },
+   "pallor": {
+    "assets": "skin-layers/mask-pallor.png",
+    "sha256": "9fbc5ca157061eedf8276891dfaace0a8cf078c5e40b072dc92b00629e216fdd"
+   },
+   "freckle_zone": {
+    "assets": "skin-layers/mask-freckle-zone.png",
+    "sha256": "e17d33f55f636eafd36c679257cf5a68d6a01524c6048334bff5180d213fd514"
+   }
+  }
+ },
+ "freckles": {
+  "seed": 7,
+  "count": 140,
+  "radius_px": 2,
+  "zone": "cheek+nose intersect facecore-minus-features",
+  "stored_as": "seeded weights, not baked into the family PNG"
+ },
+ "layer_ops_Lab": {
+  "freckles": "L-=20w, a+=3w, b+=7w in r=2 discs",
+  "cheek_redness": "a+=7w",
+  "nose_redness": "a+=7w",
+  "lip": "chroma x(1+0.35w)",
+  "ear": "a+=6w",
+  "pallor": "L+=5w, a/b x(1-0.45w) on facecore-minus-features"
+ },
+ "weight_rule": "cheek=nose=lip=ear=flush; freckles=0 (no authored field); pallor=0",
+ "cases": {
+  "ed_chest_pain_priority_v1/patient_robert_hayes_v1": {
+   "skin_tone": "warm_medium",
+   "family": "young",
+   "flush": 0.15,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.15,
+    "nose_redness": 0.15,
+    "lip": 0.15,
+    "ear": 0.15,
+    "pallor": 0.0
+   }
+  },
+  "peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1": {
+   "skin_tone": "warm_light_child",
+   "family": "young",
+   "flush": 0.05,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.05,
+    "nose_redness": 0.05,
+    "lip": 0.05,
+    "ear": 0.05,
+    "pallor": 0.0
+   }
+  },
+  "peds_asthma_parent_anxiety_v1/parent_tara_johnson_v1": {
+   "skin_tone": "warm_light",
+   "family": "young",
+   "flush": 0.28,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.28,
+    "nose_redness": 0.28,
+    "lip": 0.28,
+    "ear": 0.28,
+    "pallor": 0.0
+   }
+  },
+  "peds_asthma_parent_anxiety_v1/nurse_kevin_lee_v1": {
+   "skin_tone": "warm_medium",
+   "family": "young",
+   "flush": 0.02,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.02,
+    "nose_redness": 0.02,
+    "lip": 0.02,
+    "ear": 0.02,
+    "pallor": 0.0
+   }
+  },
+  "ward_delirium_med_rec_v1/senior_resident_ward_v1": {
+   "skin_tone": "warm_medium",
+   "family": "young",
+   "flush": 0.05,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.05,
+    "nose_redness": 0.05,
+    "lip": 0.05,
+    "ear": 0.05,
+    "pallor": 0.0
+   }
+  },
+  "ed_chest_pain_priority_v2/patient_robert_hayes_v1": {
+   "skin_tone": "warm_medium",
+   "family": "young",
+   "flush": 0.15,
+   "weights": {
+    "freckles": 0.0,
+    "cheek_redness": 0.15,
+    "nose_redness": 0.15,
+    "lip": 0.15,
+    "ear": 0.15,
+    "pallor": 0.0
+   }
+  }
+ },
+ "falsifier": {
+  "young_family_flush_values": [
+   0.02,
+   0.05,
+   0.15,
+   0.28
+  ],
+  "decision": "proceed_layers",
+  "detail": "flush varies within the young family, so redness weights vary per case; no fixture authors freckles/moles (freckle weight 0 everywhere, positions still seeded+recorded)"
+ },
+ "identity": {
+  "zero_assets": "skin-layers/young-family-layers-zero.png",
+  "zero_sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+  "max_abs_error_at_weight_0": 0
+ },
+ "layers": {
+  "freckles": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-freckles-06.png",
+   "sha256": "c30384548707debbe195af6fa2ab35c882da7126e1959df5764fb2fba22932b0",
+   "mask_px": 56837,
+   "inside_changed_px": 1757,
+   "outside_max_abs_dLab": 0.0
+  },
+  "cheek_redness": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-cheekred-06.png",
+   "sha256": "93a7e55452be11c3fe0c25d6e82b048896f91e9ee6e07dcc1a51978ae8197d42",
+   "mask_px": 50479,
+   "inside_changed_px": 50479,
+   "outside_max_abs_dLab": 0.0
+  },
+  "nose_redness": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-noserred-06.png",
+   "sha256": "37d3bc061fcfd2e4a45c04705cd3de8b4c7d50ea7ddb4d583148b8d61609b1d2",
+   "mask_px": 6358,
+   "inside_changed_px": 6358,
+   "outside_max_abs_dLab": 0.0
+  },
+  "lip": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-lip-06.png",
+   "sha256": "e8d3c87d16cf1c6525025daee74b8c185de44c32d2bcd4418a53b76b22ea5f1d",
+   "mask_px": 4413,
+   "inside_changed_px": 4413,
+   "outside_max_abs_dLab": 0.0
+  },
+  "ear": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-ear-06.png",
+   "sha256": "6ab587b4a3ce9f30eb81f98927535a511e400af212fed908dd920e946ca60a62",
+   "mask_px": 5635,
+   "inside_changed_px": 5635,
+   "outside_max_abs_dLab": 0.0
+  },
+  "pallor": {
+   "weight": 0.6,
+   "assets": "skin-layers/young-layers-pallor-06.png",
+   "sha256": "6ae7401846e82e0579505274a5c913772af0c8aded7bd2cd544a3ae78c125d89",
+   "mask_px": 114052,
+   "inside_changed_px": 114052,
+   "outside_max_abs_dLab": 0.0
+  }
+ },
+ "not_tested": "animated blush",
+ "sheet": {
+  "glb": "regen3/aisha-ref3.glb (same GLB + studio rig as family G2; skinOverride baseColorUrl only)",
+  "renders": [
+   {
+    "id": "skinlay-zero",
+    "weights": {},
+    "png": "skin-layers/skinlay-zero-front.png",
+    "sha256": "418782202b42329135b3087a499a26a0de626c20661f7e98f8dc8c7e333ac866",
+    "headHeightPx": 798.7230604018137
+   },
+   {
+    "id": "skinlay-freck06",
+    "weights": {
+     "freckles": 0.6
+    },
+    "png": "skin-layers/skinlay-freck06-front.png",
+    "sha256": "47355bf7987a31299fb6157ee00161f5fbd61b4e98438fd40154320fd475e290",
+    "headHeightPx": 798.7230604018137
+   },
+   {
+    "id": "skinlay-cheek06",
+    "weights": {
+     "cheek_redness": 0.6
+    },
+    "png": "skin-layers/skinlay-cheek06-front.png",
+    "sha256": "a8750b5652bf0b0492fbaf89f12a2707b6e62db6213ac29b9baa14ac3500839c",
+    "headHeightPx": 798.7230604018137
+   },
+   {
+    "id": "skinlay-pallor06",
+    "weights": {
+     "pallor": 0.6
+    },
+    "png": "skin-layers/skinlay-pallor06-front.png",
+    "sha256": "f080dafe84e3fa396c98f30e57bb3d1bc3c39d2ae10f974b7bbd76a050ccc74c",
+    "headHeightPx": 798.7230604018137
+   }
+  ],
+  "crops": [
+   {
+    "png": "skin-layers/skinlay-zero-front-crop.png",
+    "sha256": "92304afc31fc03515e44ebd797afc36ecc04a5c4c3db37a1249d33c025da6e73",
+    "size_px": [
+     751,
+     879
+    ],
+    "box": {
+     "x0": 176.1911819716167,
+     "y0": 112.63846979909323,
+     "x1": 847.8088180283833,
+     "y1": 911.3615302009068
+    }
+   },
+   {
+    "png": "skin-layers/skinlay-freck06-front-crop.png",
+    "sha256": "b4aa20326bc34a0c555abbd20c0cec5b6d481d7f3cbd8e1898280028defd1347",
+    "size_px": [
+     751,
+     879
+    ],
+    "box": {
+     "x0": 176.1911819716167,
+     "y0": 112.63846979909323,
+     "x1": 847.8088180283833,
+     "y1": 911.3615302009068
+    }
+   },
+   {
+    "png": "skin-layers/skinlay-cheek06-front-crop.png",
+    "sha256": "f14de133af62a9ac52a073d0c953cbae8431cac9677d1e0d1fc7f0772d6ee77b",
+    "size_px": [
+     751,
+     879
+    ],
+    "box": {
+     "x0": 176.1911819716167,
+     "y0": 112.63846979909323,
+     "x1": 847.8088180283833,
+     "y1": 911.3615302009068
+    }
+   },
+   {
+    "png": "skin-layers/skinlay-pallor06-front-crop.png",
+    "sha256": "89a1632db67cfae9ab780466bd0b466fdbcbc3472d21d3505c0b11ca541543a9",
+    "size_px": [
+     751,
+     879
+    ],
+    "box": {
+     "x0": 176.1911819716167,
+     "y0": 112.63846979909323,
+     "x1": 847.8088180283833,
+     "y1": 911.3615302009068
+    }
+   }
+  ]
+ }
+}
