@@ -78,9 +78,9 @@ export function applyWalkingPhaseLocks(
         rightToe: approach.rightToe,
       })
     : null;
-  // FOOT-BASE (default OFF, `?footBase=1` on the 1.31 m route only): stride
+  // FOOT-BASE (default OFF, `?footBase=1` on any plan-accepted route): stride
   // retargeting replaces BOTH the amplitude blend and the closed-loop advance
-  // below; any other route or a missing flag keeps the legacy path.
+  // below; a refused route or a missing flag keeps the legacy path.
   const footBaseActive = footBaseStepIsActive(routeLength);
   if (footBaseActive) {
     applyFootBaseStep({

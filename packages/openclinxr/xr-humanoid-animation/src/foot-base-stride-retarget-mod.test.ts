@@ -201,7 +201,7 @@ describe("foot-base stride retarget", () => {
     clearFootBaseState(approach);
   });
 
-  it("no-ops with the flag off and off the 1.31 m route", () => {
+  it("no-ops with the flag off and off a plan-accepted route", () => {
     const { slot, leftToe, rightToe } = buildLeggedRig();
     const approach = {
       actorSlot: slot,
@@ -224,16 +224,47 @@ describe("foot-base stride retarget", () => {
       }),
     ).toBeNull();
     setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
-    expect(
-      applyFootBaseStep({
-        approach: approach as never,
-        routeDx: 0,
-        routeDz: 2,
-        routeLength: 2,
-        clip: { labels, actionTimeSeconds: 0.1 },
-      }),
-    ).toBeNull();
+    // The plan refuses 0.5 m (out of [0.8, 6.0]) and 10 m: legacy path, null.
+    for (const refused of [0.5, 10]) {
+      expect(
+        applyFootBaseStep({
+          approach: approach as never,
+          routeDx: 0,
+          routeDz: refused,
+          routeLength: refused,
+          clip: { labels, actionTimeSeconds: 0.1 },
+        }),
+      ).toBeNull();
+    }
     expect(readFootBaseState(approach)).toBeNull();
+  });
+
+  it("stays active on every plan-accepted route (2.0 m plants past the gate)", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildLeggedRig();
+    const approach = {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.8369, steps: 4, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+    const labels = stanceLabels();
+    const summary = applyFootBaseStep({
+      approach: approach as never,
+      routeDx: 0,
+      routeDz: 2,
+      routeLength: 2,
+      clip: { labels, actionTimeSeconds: 0.3 },
+    });
+    expect(summary).not.toBeNull();
+    expect(readFootBaseState(approach)).not.toBeNull();
+    clearFootBaseState(approach);
   });
 
   it("schedule roles: one change per plant boundary, none between, lock flapping ignored", () => {

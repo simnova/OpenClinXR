@@ -1,7 +1,6 @@
 import type { Object3D } from "three";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import { FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
-import { readFootBaseEnabled } from "./foot-base-query-flag-mod.js";
 import type { FootBasePathRow } from "./foot-base-path-data-mod.js";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import {
@@ -83,14 +82,16 @@ export {
  * before its solve (exogenous clip truth, no feedback, no solve-twice: the
  * second pass was measured not converging the 3-5 cm swing miss).
  *
- * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
- * `./footstep-plan` (no new public symbol, deep import from the tail).
+ * Default OFF behind `?footBase=1`, on every route the footstep plan
+ * accepts (planFootsteps refuses nothing here that it accepts there); not
+ * re-exported from `./footstep-plan` (no new public symbol, deep import
+ * from the tail).
  */
 
-/** This slice's route length in metres: the foot-base path runs here only. */
+/** This slice's original route length in metres (kept for the 1.31 m record). */
 export const FOOT_BASE_ROUTE_LENGTH_M = 1.31;
 
-/** Route match tolerance in metres (exact scene route is 1.31). */
+/** Legacy route match tolerance in metres (kept; the gate no longer uses it). */
 export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
 
 /**
@@ -155,11 +156,11 @@ export function clearFootBaseState(approach: object): void {
   states.delete(approach);
 }
 
-/** Gate twin: flag on and this slice's route length only. */
-export function footBaseStepIsActive(routeLengthMeters: number): boolean {
-  return readFootBaseEnabled()
-    && Math.abs(routeLengthMeters - FOOT_BASE_ROUTE_LENGTH_M) <= FOOT_BASE_ROUTE_TOLERANCE_M;
-}
+/** Route gate lives in `./foot-base-route-gate-mod.js` (split out for the
+ * 500-line zone budget); re-exported here so existing deep importers keep
+ * working. Behaviour is unchanged. */
+import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
+export { footBaseStepIsActive };
 
 function toeWorldNow(toe: Object3D | null): { x: number; y: number; z: number } | null {
   if (toe === null) return null;
