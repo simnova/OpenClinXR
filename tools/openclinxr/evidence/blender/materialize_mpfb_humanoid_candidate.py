@@ -8402,7 +8402,17 @@ def main():
         _lidconform_record = _conform_lids(
             human, eyes_asset,
             offset_mm=float(_lidconform_cfg["offsetMm"]),
-            weights=tuple(_lidconform_cfg["weights"]))
+            weights=tuple(_lidconform_cfg["weights"]),
+            target_width_mm=float(_lidconform_cfg.get(
+                "targetWidthMm") or 0.0) or None,
+            patch_k=int(_lidconform_cfg.get("patchK", 6)),
+            patch_m=int(_lidconform_cfg.get("patchM", 8)),
+            patch_d=int(_lidconform_cfg.get("patchD", 2)),
+            seat_ceiling_mm=float(_lidconform_cfg.get(
+                "seatCeilingMm", 1.5)),
+            seat_floor_mm=float(_lidconform_cfg.get("seatFloorMm", 0.5)),
+            lash_follow_mm=float(_lidconform_cfg.get(
+                "lashFollowMm", 4.0)))
         print("LIDCONFORM_BAKED " + json.dumps(_lidconform_record))
     bpy.context.view_layer.objects.active = human
     human.select_set(True)

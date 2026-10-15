@@ -1,10 +1,20 @@
 {
  "name": "lid-ring-conform",
  "card": "tsk_83147b9cfdf9ab03",
- "verdict": "rim_seated_wall_remains: the margin ring sits on the globe mesh +0.5mm every vertex (G1), blink seals (G4), globe untouched (C1), no flips (C3); the yaw socket-wall wedge is unchanged (G2 ties at yaw, +5px rim floor at front), the reshaped aperture exposes sub-percent more globe at yaw (G3 +0.2-0.6%), and seating entails a -2.0mm narrower / +1.3mm taller fissure (C2): G1 and C2-width cannot both hold on this anatomy (corner rays are mostly lateral, so the mandatory >=1.7mm inward seating moves each canthus >0.5mm medially). The remaining wall wedge is the socket_geometry the eyeglobe grid proved no globe scale/seat fixes -- out of scope for a lid card.",
+ "round": "h1-widen-then-seat",
+ "verdict": "fissure reaches near-anatomy (27.01 vs 27.7 goal) with the globe-spanning margin seated (G1 core 0.5); the canthal flesh stands off-globe by sphere-cap necessity (max gap 3.37 at |x|=13.5: |x-cx|<=ray-dist forbids gap<=1.0 there, so G1-strict and C2-target cannot both hold); the wider aperture exposes more socket wall (G2 ~2x) and more globe at yaw (G3 +25-30% vs the 1% bar) -- both entailed by a wider hole over a fixed globe+wall (no feasible point satisfies C2>=26.7 and G3<=1% jointly: h0 21.95/+0.5% to h1 27.01/+30% is monotone). Height 11.067 is 0.067 over the 8-11 band (sub-render-pixel, uniform 0.5 offset kept).",
+ "target": {
+  "widthMm": 27.7,
+  "source": "case face-fit fitted result: tools/openclinxr/evidence/face-fit/pts_fitted_front.npy MediaPipe 33-133 (L 28.09) / 362-263 (R 27.30) x 0.537109375 mm/px (correspond.json + embedding.json agree; ortho camera, no foreshortening); report 'aisha' key, beats sweep. Baked Aisha (default macro, fit weights unapplied) sits at 23.96 -- the goal is case-grounded, not yet embodied.",
+  "bakeParamWidthMm": 26.8,
+  "bakeParamNote": "seating pulls widened canthi back ~0.2; param 26.8 lands ~27.0 (prototype 27.01); 27.0 vs lash span 26.3 keeps the margin under the lashes within 0.35/side.",
+  "heightBandMm": [
+   8.0,
+   11.0
+  ]
+ },
  "bake": {
   "argv": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
-  "eyeResize": "EYES_ANATOMICAL targetDiameterMm 24.0 perEye L/R before 29.159 scale 0.8231 seat 2.58 (bake-lidconform.log:38)",
   "lidconformRecord": {
    "offsetMm": 0.5,
    "weights": [
@@ -13,28 +23,61 @@
    ],
    "ringSource": "base-glb-topological",
    "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
-   "displacedVerts": 112,
+   "h1": {
+    "targetWidthMm": 26.8,
+    "patchK": 6,
+    "patchM": 8,
+    "patchD": 2,
+    "seatCeilingMm": 1.5,
+    "seatFloorMm": 0.5,
+    "lashFollowMm": 4.0
+   },
+   "displacedVerts": 624,
    "perSide": {
     "L": {
      "baseRing1": 56,
      "matchedRing1": 56,
      "matchMedMm": 0.0018,
      "matchMaxMm": 0.002,
+     "preWidenWidthMm": 23.723,
+     "widenNeedMm": 3.077,
+     "patchSizes": [
+      149,
+      149
+     ],
      "ring2": 112,
      "ring3": 112,
-     "movedVerts": 56,
-     "maxDispMm": 1.863
+     "seatedVerts": 27,
+     "fleshVerts": 29,
+     "movedVerts": 27,
+     "maxSeatMm": 1.863,
+     "maxWidenMm": 1.5384
     },
     "R": {
      "baseRing1": 56,
      "matchedRing1": 56,
      "matchMedMm": 0.0017,
      "matchMaxMm": 0.0017,
+     "preWidenWidthMm": 23.723,
+     "widenNeedMm": 3.077,
+     "patchSizes": [
+      149,
+      149
+     ],
      "ring2": 112,
      "ring3": 112,
-     "movedVerts": 56,
-     "maxDispMm": 1.863
+     "seatedVerts": 27,
+     "fleshVerts": 29,
+     "movedVerts": 27,
+     "maxSeatMm": 1.863,
+     "maxWidenMm": 1.5384
     }
+   },
+   "lashFollow": {
+    "found": true,
+    "movedVerts": 11088,
+    "maxFollowMm": 1.8625799335066673,
+    "keyBlocks": 0
    },
    "keyBlocksCarried": [
     "Basis",
@@ -93,20 +136,16 @@
   },
   "newGlb": {
    "path": "assets:lid-conform/aisha-lidconform.glb",
-   "sha256": "f71f3f8033228aa43a39524021d452b80f51c22e7f34697dcb7031af65b76b54"
+   "sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
   }
  },
  "globeVsAnatomy": {
   "diameterMm": {
    "L": 24.05,
-   "R": 24.037,
-   "source": "lidcurve.json m1 (Kasa fit rms 0.66)"
+   "R": 24.037
   },
-  "diameterTarget": "24.0 adult axial length (Rauscher 2021 via materialize; 24.19 Nature srep12437)",
-  "cornealBulge": "present: high-poly eye, apex +1.925mm proud of the fitted sclera sphere r=11.904mm (prototype measurement on base GLB)",
-  "corneaAnatomy": "radius 7.8mm anterior / 6.5 posterior, sclera 11.5mm (Duane's/Adler's); corneal dia 11.7Hx10.6V; card's 2-3mm proud UNSOURCED as textbook figure (sourced radii give ~1.1mm by sagitta arithmetic; closest sourced depth is ACD 3.1-3.6mm emmetropia, a different measure)",
-  "fissureAnatomy": "~30Hx10V adult (Wikipedia palpebral fissure; Turkish n=500: 31-32.6Hx10.3-10.4; Nigerian: 32.6-32.8Hx10.6; Australian PFH mean 8.7)",
-  "verdict": "globe is anatomical (dia + bulge present) -- proceed with lid work, no stop"
+  "cornealBulgeProudMm": 1.925,
+  "verdict": "globe anatomical -- lid work proceeds (h0 evidence)"
  },
  "gates": {
   "g1": {
@@ -114,68 +153,69 @@
     "L.ring1": {
      "n": 56,
      "min": 0.5,
-     "med": 0.5,
-     "max": 0.5
+     "med": 1.813,
+     "max": 3.368
     },
     "L.ring2": {
      "n": 56,
      "min": -0.724,
-     "med": 1.138,
-     "max": 2.353
+     "med": 2.098,
+     "max": 3.832
     },
     "L.ring3": {
      "n": 56,
      "min": 0.566,
-     "med": 1.969,
-     "max": 2.965
+     "med": 2.672,
+     "max": 4.446
     },
     "R.ring1": {
      "n": 56,
      "min": 0.5,
-     "med": 0.5,
-     "max": 0.5
+     "med": 1.813,
+     "max": 3.368
     },
     "R.ring2": {
      "n": 56,
      "min": -0.723,
-     "med": 1.138,
-     "max": 2.353
+     "med": 2.098,
+     "max": 3.831
     },
     "R.ring3": {
      "n": 56,
      "min": 0.566,
-     "med": 1.969,
-     "max": 2.965
+     "med": 2.672,
+     "max": 4.446
     }
    },
-   "pass": true,
-   "method": "ray from globe centre through each ring1 vert vs globe MESH (honours corneal bulge); lid_conform_core.signed_gap_to_mesh"
+   "pass": false,
+   "note": "seated span lands exactly 0.5; canthal flesh 1.8-3.4 by the sphere-cap proof (|x-cx|<=ray-dist); strict [0.3,1.0] holds the span, not the flesh"
   },
   "g2": {
    "edgePx": {
     "front": {
      "base": 211,
-     "new": 216
+     "new": 494
     },
     "yaw25": {
      "base": 379,
-     "new": 379
+     "new": 792
     },
     "yaw-25": {
      "base": 446,
-     "new": 446
+     "new": 883
     },
     "yaw40": {
      "base": 509,
-     "new": 509
+     "new": 770
     },
     "yaw-40": {
      "base": 586,
-     "new": 586
+     "new": 1008
     }
    },
    "pass": false,
-   "method": "neon_count.py probe_aperture port (same predicates) on lid-capture.ts neon portraits (blue body/cyan lash/magenta eye, 1280px, camera orbit)"
+   "gate": "report-only per H1 (no threshold)",
+   "note": "wider hole over fixed wall shows more wall"
   },
   "g3": {
    "cw1Base": {
@@ -200,25 +240,26 @@
    "cw1New": {
     "cw1": {
      "front": 0,
-     "yaw25": 916,
-     "yaw-25": 915,
-     "yaw40": 2969,
-     "yaw-40": 2980,
-     "blink0.5": 367
+     "yaw25": 1187,
+     "yaw-25": 1140,
+     "yaw40": 3415,
+     "yaw-40": 3378,
+     "blink0.5": 328
     },
-    "cw3maxMm": 1.852,
+    "cw3maxMm": 1.854,
     "closed10FrontGlobePx": 0,
     "edge": {
-     "front": 32112,
-     "yaw25": 26595,
-     "yaw-25": 26702,
-     "yaw40": 22606,
-     "yaw-40": 22653
+     "front": 32157,
+     "yaw25": 26802,
+     "yaw-25": 26858,
+     "yaw40": 23272,
+     "yaw-40": 23826
     }
    },
+   "allowance": "base*1.01 per view",
    "pass": false,
    "resMm": 0.12,
-   "method": "cw1-protrusion.py --base-glb base (frozen base ring indices, re-derived positions); base reproduces the published grid exactly (0/914/912/2958/2963/386)"
+   "note": "forward flesh parallaxes the frozen ring open at yaw; base reproduces the published grid exactly"
   },
   "g4": {
    "closed10FrontGlobePx": 0,
@@ -230,7 +271,7 @@
    },
    "darkNew": {
     "darkPx": 0,
-    "skinMedian": 157.31,
+    "skinMedian": 157.11,
     "bandPx": 85504
    },
    "darkPass": true,
@@ -263,7 +304,7 @@
       "heightMm": 9.761630954608336
      },
      "new": {
-      "widthMm": 21.945820517437063,
+      "widthMm": 27.009168776297912,
       "heightMm": 11.067208228044137
      }
     },
@@ -273,168 +314,180 @@
       "heightMm": 9.76181169540996
      },
      "new": {
-      "widthMm": 21.945860153048425,
+      "widthMm": 27.009159344315727,
       "heightMm": 11.06738882530567
      }
     }
    },
-   "within1mmOfBase": false,
-   "withinAnatomicalRange": false
+   "targetWidthMm": 27.7,
+   "pass": false
   },
   "c3": {
    "flips": 0,
-   "bandFaces": 672,
+   "bandFaces": 5550,
+   "pass": true
+  },
+  "c4": {
+   "bandVerts": 2762,
+   "bandRadiusMm": 8.0,
+   "bodyVerts": 37699,
+   "outsideMovedVerts": 0,
+   "lash": {
+    "n": 11088,
+    "baseSha256": "e785f07b8c1b109160b079c53e83176f8010c662efd4b91b1de9a339128a04f8",
+    "maxMoveMm": 1.863,
+    "medMoveMm": 1.072
+   },
    "pass": true
   }
  },
  "falsifier": {
   "triggered": false,
-  "note": "C3 flips 0/672 on the card-literal profile [1.0, 0.0]; the smooth profile [1.0, 0.5, 0.0] also scored 0 flips in the GLB-side prototype but was not baked (it moves more lid for no gate benefit: G3/C2 worsen with wider seating). No face-flip impasse occurred."
+  "checks": {
+   "flips": "C3 0/5550 spatial-band faces",
+   "canthusNotch": "margin loop turning-angle profile base==new (max 176.6 vs 177.0); front eye-band dark 1290->1294px (+4 noise), yaw40 9196->9179; no hole possible (topology preserved, C3 0)"
+  }
  },
  "sheets": {
-  "neon/neon-base-front-full.png": {
-   "sha256": "1e8da95b645d3e07b62c75fb3c8c9c23050fc51089a912e40f33ca53fc06ebd5",
-   "bytes": 397151
-  },
-  "neon/neon-base-yaw-25-full.png": {
-   "sha256": "5998b9356a3a92683a845bd43787c3e7cece46cdbc87fd1934d4cc34839c73b2",
-   "bytes": 384927
-  },
-  "neon/neon-base-yaw-40-full.png": {
-   "sha256": "d64a59dc5a92b686a770954d5aaa9dec227ef3ada8f691692af426ef3c8d7d4f",
-   "bytes": 365639
-  },
-  "neon/neon-base-yaw25-full.png": {
-   "sha256": "183d705cd3344dfef2093a44435dac36aa79a62acb18e45d8d73dd9a17a29c2f",
-   "bytes": 362114
-  },
-  "neon/neon-base-yaw40-full.png": {
-   "sha256": "e7aa9a1daddb094663aa4b9b1c28196847450ac367286be5c06d5fb506a3554c",
-   "bytes": 327454
-  },
-  "neon/neon-new-front-full.png": {
-   "sha256": "ff74bb94aff5245789e8b3b8833f99e85c6c412a7fba31e73308629e4823cadd",
-   "bytes": 397261
-  },
-  "neon/neon-new-yaw-25-full.png": {
-   "sha256": "e7c626027fe9d5cd95926d6eb46fe678ee459ac2de909b61cc793b271d53f3bd",
-   "bytes": 385209
-  },
-  "neon/neon-new-yaw-40-full.png": {
-   "sha256": "849f76bd3d2cbdab5f6abb439ca39be3db44ebeb59d0526c8794a2ef32a0f752",
-   "bytes": 365729
-  },
-  "neon/neon-new-yaw25-full.png": {
-   "sha256": "fa5ebaef449923331378e135b528403e71b44cc077e77384d365f0c7a2aa3c87",
-   "bytes": 362153
-  },
-  "neon/neon-new-yaw40-full.png": {
-   "sha256": "15e2ee21ed39eb36ed63caca48c276a1ab98f8d4b11ac3b34a576bf307d0b532",
-   "bytes": 327550
-  },
-  "natural/natural-base-blink-eyeL-full.png": {
+  "h1/natural-base-blink-eyeL-full.png": {
    "sha256": "efe6044f1dcd01351b0134dc23c7bca7d653c78b0161176645b88f98b3ff2e6f",
    "bytes": 1266302
   },
-  "natural/natural-base-blink-eyeR-full.png": {
+  "h1/natural-base-blink-eyeR-full.png": {
    "sha256": "1bd32cfb91fd6adaeff048574dafbb3dcdf7ec1ddacafe6d9c48d204b972fcfd",
    "bytes": 1246872
   },
-  "natural/natural-base-blink-full.png": {
+  "h1/natural-base-blink-full.png": {
    "sha256": "a409ddd9f53192a506e3764cc273d2620d35195e51451d1902dfd93a6e92f1da",
    "bytes": 864385
   },
-  "natural/natural-base-front-eyeL-full.png": {
+  "h1/natural-base-front-eyeL-full.png": {
    "sha256": "37caeb371f137efc0241f4cd3624747020822e15f9f7d5ba2d7f4c4cbf4dcbb6",
    "bytes": 1394947
   },
-  "natural/natural-base-front-eyeR-full.png": {
+  "h1/natural-base-front-eyeR-full.png": {
    "sha256": "ecc031f247172b3d8db1cdb4b6c346409ead627cea30cf83e24c9d00289d5c59",
    "bytes": 1374627
   },
-  "natural/natural-base-front-full.png": {
+  "h1/natural-base-front-full.png": {
    "sha256": "c6dd74c1a0a07b8941a657d6dca0974c2e35a7e82c937ddc45e1054142e495a2",
    "bytes": 871555
   },
-  "natural/natural-base-yaw25-eyeL-full.png": {
-   "sha256": "af0cba7ce20202bc801d3aa7831b7c9637dfdb07b68aebe4294dd943793e9e5d",
-   "bytes": 1433841
+  "h1/natural-base-yaw25-eyeL-full.png": {
+   "sha256": "fb89f81bfd4e5e5cac1c7b62cba2d5b9a55cabd0d35378383d7c2aef916f7f7c",
+   "bytes": 1483885
   },
-  "natural/natural-base-yaw25-eyeR-full.png": {
-   "sha256": "3958dee3658dc468dea8f824d8ad414468916291e4b6f6f866ebcb4d7920802c",
-   "bytes": 1239281
+  "h1/natural-base-yaw25-eyeR-full.png": {
+   "sha256": "ece7e5b9bdb71ea6c793809a9bed3eee67e07cf21b0efe07894d375b69623871",
+   "bytes": 1237414
   },
-  "natural/natural-base-yaw25-full.png": {
+  "h1/natural-base-yaw25-full.png": {
    "sha256": "73d09b3391b7ef1c1fa6b5509766f42ffc9d4a1ebb4ba0d2439658ea8acb4129",
    "bytes": 902165
   },
-  "natural/natural-base-yaw40-eyeL-full.png": {
-   "sha256": "22f13c05ff2bb5db0101e88a9e06b2b43b93a99e1d670459519764e5c4fc3458",
-   "bytes": 1384838
+  "h1/natural-base-yaw40-eyeL-full.png": {
+   "sha256": "141ebae690027f3fcdfae11c0f07f776d7ee0093152219e474e806c30656cf30",
+   "bytes": 1443475
   },
-  "natural/natural-base-yaw40-eyeR-full.png": {
-   "sha256": "3a6cbd4090a7fb43361b8a38bc5bc207177c05c932a2f25748a49f570456b10d",
-   "bytes": 1041419
+  "h1/natural-base-yaw40-eyeR-full.png": {
+   "sha256": "759f6f6a164b405a9761a84380609c29e757509010a371ad0de1be1feb5ea1e2",
+   "bytes": 967693
   },
-  "natural/natural-base-yaw40-full.png": {
+  "h1/natural-base-yaw40-full.png": {
    "sha256": "1a292f1d11b4e765d233164a553e5182344946fa66ad99ab003d3653a49fc161",
    "bytes": 912876
   },
-  "natural/natural-new-blink-eyeL-full.png": {
-   "sha256": "922fcd42a293813ced31961f62bf6fd26b81d30294c2740a464051a962244110",
-   "bytes": 1266219
+  "h1/natural-new-blink-eyeL-full.png": {
+   "sha256": "2c6e017d9c5ffaefd1e8681a75aa367bdf80fda6edc454c4827f4d5a8efe8057",
+   "bytes": 1290138
   },
-  "natural/natural-new-blink-eyeR-full.png": {
-   "sha256": "488c6a61233cc6dd7a8348306d887f730e9c120ed10fd3b995a71541a1063ef6",
-   "bytes": 1246295
+  "h1/natural-new-blink-eyeR-full.png": {
+   "sha256": "c845e09cf9df1afc7b8fe44c0722c6dff9fb77b3718b2065621de6beeb3c1abd",
+   "bytes": 1273071
   },
-  "natural/natural-new-blink-full.png": {
-   "sha256": "02f0d81138e2070301b6d5d2c374f56cfc670bdfaa764d2300e92db31d2b226e",
-   "bytes": 864528
+  "h1/natural-new-blink-full.png": {
+   "sha256": "5b976fd86e2fbc6a71b8e51f613bae577bac3e413c082d68ec66b941ee873c3b",
+   "bytes": 865568
   },
-  "natural/natural-new-front-eyeL-full.png": {
-   "sha256": "48f68d7d8acbaf63bfd79f7c036274c18caae565cf335ff1402295ed035929fe",
-   "bytes": 1397942
+  "h1/natural-new-front-eyeL-full.png": {
+   "sha256": "b5c4c52aa268db9d9008266c2c78a637d8d0f8ced2a8d0d8b0812e254937bb65",
+   "bytes": 1409434
   },
-  "natural/natural-new-front-eyeR-full.png": {
-   "sha256": "77e85006ab6441984294720039ddf0d71e94730309bd0484d9b14de5e89e2c93",
-   "bytes": 1376730
+  "h1/natural-new-front-eyeR-full.png": {
+   "sha256": "2e922c82fac72f72ea3b80460bdedf01bb4f3200c1c1030c1fdba0c229f0a102",
+   "bytes": 1391329
   },
-  "natural/natural-new-front-full.png": {
-   "sha256": "79ff8a8fdde5c69bef51bdce11d83812fc2526437dac906ef714193f5ebbad19",
-   "bytes": 871645
+  "h1/natural-new-front-full.png": {
+   "sha256": "3d89f5d35a3a50bf6bb9f46c33428c0038b31d59866fe5584f730feae773d656",
+   "bytes": 872314
   },
-  "natural/natural-new-yaw25-eyeL-full.png": {
-   "sha256": "12cf9d2cccf976db6971b1d36440d7e97c3aa5967e848aee751a4bbe0b43a2d1",
-   "bytes": 1434577
+  "h1/natural-new-yaw25-eyeL-full.png": {
+   "sha256": "2cf029cce3d1d2685971e7d671a39e5e59df5b783566d116bfd074dbe7923985",
+   "bytes": 1514635
   },
-  "natural/natural-new-yaw25-eyeR-full.png": {
-   "sha256": "78e7fef58e4230d625e460cf8fe1e6f898a767c107f823c0175e91cadf667e9b",
-   "bytes": 1240574
+  "h1/natural-new-yaw25-eyeR-full.png": {
+   "sha256": "0a4b1c3f001b5ef5a4a5daa92213c6620f92d38a5b42ec5e09fbbac6804a3dc4",
+   "bytes": 1263819
   },
-  "natural/natural-new-yaw25-full.png": {
-   "sha256": "f386e078574270cdd632b7f498934147ee4210a72eaa9e084b15b25e1bef7425",
-   "bytes": 902018
+  "h1/natural-new-yaw25-full.png": {
+   "sha256": "919fc60c8d5f4fecd4fb6cbecc6c86869006538f8fb4d87d9278401ed079e5c9",
+   "bytes": 903229
   },
-  "natural/natural-new-yaw40-eyeL-full.png": {
-   "sha256": "c72dc02878f935045994e0ea63ef1efb0ae0fa777b940fd7e9fa9c36c87fc338",
-   "bytes": 1385615
+  "h1/natural-new-yaw40-eyeL-full.png": {
+   "sha256": "f4ef2a56925983486ca77b8fe4987cd3c0a1ab900503ed06014c83ae7da064c1",
+   "bytes": 1472532
   },
-  "natural/natural-new-yaw40-eyeR-full.png": {
-   "sha256": "1d9389d5e12ec422600e1c1756da2659ce06b466518fbcecdd2865d873d09f0e",
-   "bytes": 1041700
+  "h1/natural-new-yaw40-eyeR-full.png": {
+   "sha256": "7910d9a292ecb1344f88ee94b2f64f6729a8a8a6c81a0795927d649e8b6b00e0",
+   "bytes": 987469
   },
-  "natural/natural-new-yaw40-full.png": {
-   "sha256": "bc168a97998172948aba97ea628435b2505f1770eddc02fcda5e6bb5b167d1b3",
-   "bytes": 913150
+  "h1/natural-new-yaw40-full.png": {
+   "sha256": "664b1e653f08dd8078487a47100bf628033d669133c991cdcc6e9cde0d1f42df",
+   "bytes": 914139
+  },
+  "h1/neon-base-front-full.png": {
+   "sha256": "1e8da95b645d3e07b62c75fb3c8c9c23050fc51089a912e40f33ca53fc06ebd5",
+   "bytes": 397151
+  },
+  "h1/neon-base-yaw-25-full.png": {
+   "sha256": "5998b9356a3a92683a845bd43787c3e7cece46cdbc87fd1934d4cc34839c73b2",
+   "bytes": 384927
+  },
+  "h1/neon-base-yaw-40-full.png": {
+   "sha256": "d64a59dc5a92b686a770954d5aaa9dec227ef3ada8f691692af426ef3c8d7d4f",
+   "bytes": 365639
+  },
+  "h1/neon-base-yaw25-full.png": {
+   "sha256": "183d705cd3344dfef2093a44435dac36aa79a62acb18e45d8d73dd9a17a29c2f",
+   "bytes": 362114
+  },
+  "h1/neon-base-yaw40-full.png": {
+   "sha256": "e7aa9a1daddb094663aa4b9b1c28196847450ac367286be5c06d5fb506a3554c",
+   "bytes": 327454
+  },
+  "h1/neon-new-front-full.png": {
+   "sha256": "e6a5de7a3b409ef17b0aa5972ca0bdf31ad6d7c42dff3761aafefc2d2f8c9f55",
+   "bytes": 397795
+  },
+  "h1/neon-new-yaw-25-full.png": {
+   "sha256": "fe3385b1beb3a059ac39ecdb7744750146f2762cafdccc5b07b8178d919bc337",
+   "bytes": 386045
+  },
+  "h1/neon-new-yaw-40-full.png": {
+   "sha256": "ed107cd4a39b3a29dc65456d01466c0e8ef6fdd0e8865a75ac36cf436ad4031c",
+   "bytes": 366975
+  },
+  "h1/neon-new-yaw25-full.png": {
+   "sha256": "1b9d77f4fbd7f14e5839e4b5b5ea7d32ab82a2d333bd4c5d941dc6e9847641c4",
+   "bytes": 363027
+  },
+  "h1/neon-new-yaw40-full.png": {
+   "sha256": "ce1ff30b5f7eca67419f7900c7d0ee1f32913a1a991f8c2c5c169e8b90175f2b",
+   "bytes": 328593
   }
  },
- "captureMethod": "lid-capture-tmp.ts (repo-root scratch, deleted before commit): three.js r184 sRGB NoToneMapping, variant rig lights, portrait head-height 0.78, camera orbit per view, hair hidden (eyeglobe precedent), blink = closure+slit 1.0 with read-back; eye zooms framed on eye.L/eye.R bones, 0.115m eyelid distance (~780px eye width)",
+ "captureMethod": "lid-capture-tmp.ts (repo-root scratch, deleted before commit): three.js r184 sRGB NoToneMapping, variant rig lights, portrait 0.78, camera orbit, hair hidden, blink closure+slit 1.0 read-back; eye zooms on eye.L/eye.R bones at 0.115m (~780px eye width)",
  "notTested": [
-  "gaze rotation (compat-eyes NT, same as eyeglobe grid)"
- ],
- "outOfScope": [
-  "socket-wall fill (socket_geometry stands)",
-  "lash re-fit to the seated margin"
+  "gaze rotation (compat-eyes NT)"
  ]
 }

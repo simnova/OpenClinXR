@@ -53,9 +53,17 @@ BASE_GLB_PATH = ("/Volumes/files/openclinxr-assets/store/lid-conform/"
                  "aisha-eyeglobe-base.glb")
 
 # Per-output-stem lid-conform config. Absent stem = no-op (byte-stable).
-# weights: [ring1, ring2] multipliers on the surface-seating displacement.
+# H1 (widen-then-seat): rigid canthus patches widen the margin loop to
+# targetWidthMm along the lid surface first (K/M/D patch geometry, no
+# hand-placed vertices); then each ring1 vert seats toward the globe
+# surface +offsetMm with a gap-adaptive weight (1 inside seatFloorMm,
+# falling to 0 at seatCeilingMm -- flesh canthi stay in flesh). ring2
+# stays the zero anchor. Lash roots follow the lid field (lashFollowMm).
 LID_CONFORM_BY_OUTPUT_STEM = {
-    "aisha-lidconform": {"offsetMm": 0.5, "weights": [1.0, 0.0]},
+    "aisha-lidconform": {"offsetMm": 0.5, "weights": [1.0, 0.0],
+                         "targetWidthMm": 26.8, "patchK": 6, "patchM": 8,
+                         "patchD": 2, "seatCeilingMm": 1.5,
+                         "seatFloorMm": 0.5, "lashFollowMm": 4.0},
 }
 
 TEAR_OFFSET_DEFAULT_MM = 0.5
@@ -94,7 +102,9 @@ def _gltf_to_blender(pts):
 
 
 def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
-                 weights=(1.0, 0.0)):
+                 weights=(1.0, 0.0), target_width_mm=None, patch_k=6,
+                 patch_m=8, patch_d=2, seat_ceiling_mm=1.5,
+                 seat_floor_mm=0.5, lash_follow_mm=4.0):
     """Seat the lid rings on the globe mesh. Returns the LIDCONFORM record."""
     import bpy  # noqa: E402
     from mathutils import Vector  # noqa: E402
@@ -186,6 +196,86 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
                 f"{float(best_d.max()):.3f}mm exceeds refuse "
                 f"{MATCH_REFUSE_MM}mm on side {side} -- refusing")
         ring1 = np.array([int(v) for v in best])
+        # Order ring1 along the loop; canthus tips = PCA extremes.
+        _rset = set(int(v) for v in ring1)
+        _start = int(ring1[0])
+        _order = [_start]
+        _prev, _cur = None, _start
+        while True:
+            _nxts = [w for w in adj.get(_cur, ()) if w in _rset
+                     and w != _prev]
+            if not _nxts:
+                break
+            _nxt = _nxts[0]
+            if _nxt == _start:
+                break
+            _order.append(_nxt)
+            _prev, _cur = _cur, _nxt
+            if len(_order) > len(_rset) + 2:
+                raise RuntimeError(
+                    f"LIDCONFORM: margin loop walk failed on side {side} "
+                    f"-- refusing")
+        if len(_order) != len(_rset):
+            raise RuntimeError(
+                f"LIDCONFORM: margin loop walk covers {len(_order)}/"
+                f"{len(_rset)} on side {side} -- refusing")
+        _P = body_world[np.array(_order)]
+        _cc = _P - _P.mean(axis=0)
+        _u, _sv, _vt = np.linalg.svd(_cc, full_matrices=False)
+        _ax = _vt[0]
+        if abs(float(_ax[0])) < 0.5:
+            raise RuntimeError(
+                f"LIDCONFORM: margin long axis not lateral on side "
+                f"{side} -- refusing")
+        _t = _cc @ _ax
+        _n = len(_order)
+        _i_min, _i_max = int(np.argmin(_t)), int(np.argmax(_t))
+        _cx = float(_P.mean(axis=0)[0])
+        _cur_w = float(_P[:, 0].max() - _P[:, 0].min())
+
+        # H1 WIDEN: rigid canthus patches (tip +-K loop steps + BFS
+        # depth<=D, SAME lateral vector per patch) + cosine blend over
+        # the next M loop steps + deeper BFS (flat lid absorbs shear).
+        _need = None
+        _patch_sizes = []
+        if target_width_mm is not None:
+            from collections import deque as _deque
+            _need = target_width_mm / 1000.0 - _cur_w
+            for _tip in (_i_min, _i_max):
+                _core = set()
+                for _k in range(-patch_k, patch_k + 1):
+                    _core.add(_order[(_tip + _k) % _n])
+                _depth = {v: 0 for v in _core}
+                _q = _deque(_core)
+                while _q:
+                    _v = _q.popleft()
+                    if _depth[_v] >= patch_d + 2:
+                        continue
+                    for _w in adj.get(_v, ()):
+                        if _w not in _depth:
+                            _depth[_w] = _depth[_v] + 1
+                            _q.append(_w)
+                _allv = np.array(list(_depth.keys()))
+                _dd = ((body_world[_allv][:, None, :]
+                       - body_world[np.array(_order)][None, :, :]) ** 2
+                       ).sum(axis=2)
+                _aoi = _dd.argmin(axis=1)
+                _arcd = np.zeros(len(_allv))
+                for _j, _a in enumerate(_aoi):
+                    _arcd[_j] = min((_a - _tip) % _n, (_tip - _a) % _n)
+                _wloop = np.cos(np.clip((_arcd - patch_k) / patch_m, 0, 1)
+                                * np.pi / 2.0) ** 2
+                _wloop = np.where(_arcd <= patch_k, 1.0, _wloop)
+                _dep = np.array([_depth[v] for v in _allv])
+                _wdep = np.where(_dep <= patch_d, 1.0,
+                                 np.where(_dep == patch_d + 1, 0.5, 0.15))
+                _wtot = _wloop * _wdep
+                _lat = 1.0 if body_world[_order[_tip]][0] > _cx else -1.0
+                _dv = np.zeros((len(_allv), 3))
+                _dv[:, 0] = _lat * (_need / 2.0) * _wtot
+                disp_world[_allv] += _dv
+                _patch_sizes.append(int(len(_allv)))
+
         # BFS outward rings on the Blender adjacency (record/anchor only).
         seen = set(int(v) for v in ring1)
         outer = []
@@ -200,40 +290,111 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
             outer.append(np.array(sorted(nxt)))
             frontier = nxt
         ring2, ring3 = outer[0], outer[1]
-        weighted = [(ring1, weights[0]), (ring2, weights[1])]
+        # H1 SEAT (gap-adaptive): full seating toward surface+offset for
+        # near-globe verts, falling to 0 at seat_ceiling_mm (flesh stays).
+        # Ring2 keeps weight 0 (anchor).
         moved = 0
         maxd = 0.0
-        for verts, w in weighted:
-            if w == 0.0 or len(verts) == 0:
+        seated = 0
+        flesh = 0
+        widen_max = 0.0
+        for vi in (int(v) for v in ring1):
+            widen_max = max(widen_max,
+                            float(np.linalg.norm(disp_world[vi])) * 1000.0)
+        for vi in (int(v) for v in ring1):
+            p = body_world[vi] + disp_world[vi]
+            dv = p - gc
+            ln = float(np.linalg.norm(dv))
+            if ln < 1e-12:
                 continue
-            for vi in (int(v) for v in verts):
-                p = body_world[vi]
-                dv = p - gc
-                ln = float(np.linalg.norm(dv))
-                if ln < 1e-12:
-                    continue
-                direction = Vector(tuple(dv / ln))
-                hit = tree.ray_cast(Vector(tuple(gc)), direction)
-                if hit[0] is None:
-                    raise RuntimeError(
-                        f"LIDCONFORM: ray from globe centre misses the eye "
-                        f"mesh (side {side} vert {vi}) -- refusing")
-                target = np.array(tuple(hit[0]), dtype=float) \
-                    + (dv / ln) * (offset_mm / 1000.0)
-                d = w * (target - p)
-                disp_world[vi] += d
-                moved += 1
-                maxd = max(maxd, float(np.linalg.norm(d)) * 1000.0)
+            direction = Vector(tuple(dv / ln))
+            hit = tree.ray_cast(Vector(tuple(gc)), direction)
+            if hit[0] is None:
+                flesh += 1
+                continue
+            t_hit = float((np.array(tuple(hit[0])) - gc) @ (dv / ln))
+            gap_mm = (ln - t_hit) * 1000.0
+            gw = min(max((seat_ceiling_mm - gap_mm)
+                         / (seat_ceiling_mm - seat_floor_mm),
+                         0.0), 1.0) * weights[0]
+            if gw <= 0.0:
+                flesh += 1
+                continue
+            target = np.array(tuple(hit[0]), dtype=float) \
+                + (dv / ln) * (offset_mm / 1000.0)
+            d = gw * (target - p)
+            disp_world[vi] += d
+            moved += 1
+            seated += 1
+            maxd = max(maxd, float(np.linalg.norm(d)) * 1000.0)
+        if weights[1] != 0.0:
+            raise RuntimeError("LIDCONFORM: ring2 weight must be 0")
         per_side[side] = {
             "baseRing1": int(len(brings["ring1"])),
             "matchedRing1": int(len(ring1)),
             "matchMedMm": round(float(np.median(best_d)), 4),
             "matchMaxMm": round(float(best_d.max()), 4),
+            "preWidenWidthMm": round(_cur_w * 1000.0, 3),
+            "widenNeedMm": round((_need * 1000.0 if _need is not None
+                                  else 0.0), 3),
+            "patchSizes": _patch_sizes,
             "ring2": int(len(ring2)),
             "ring3": int(len(ring3)),
+            "seatedVerts": seated,
+            "fleshVerts": flesh,
             "movedVerts": moved,
-            "maxDispMm": round(maxd, 4),
+            "maxSeatMm": round(maxd, 4),
+            "maxWidenMm": round(widen_max, 4),
         }
+
+    # C4 lash follow (the card's permitted exception): lash verts take the
+    # lid-field displacement of their nearest moved body vert, falling to
+    # 0 at lash_follow_mm (roots follow the margin, tips stay).
+    lash_obj = next(
+        (o for o in bpy.context.scene.objects
+         if o.type == "MESH" and "eyelash" in (o.name or "").lower()),
+        None,
+    )
+    lash_info = {"found": lash_obj is not None, "movedVerts": 0,
+                 "maxFollowMm": 0.0,
+                 "keyBlocks": 0}
+    if lash_obj is not None and float(lash_follow_mm) > 0.0:
+        _lmw = lash_obj.matrix_world
+        _lmw_inv3 = _lmw.inverted().to_3x3()
+        _moved_idx = np.nonzero(
+            np.linalg.norm(disp_world, axis=1) > 1e-12)[0]
+        _moved_pos = body_world[_moved_idx] + disp_world[_moved_idx]
+        _moved_d = disp_world[_moved_idx]
+        _lash_disp = np.zeros((len(lash_obj.data.vertices), 3))
+        for _li, _lv in enumerate(lash_obj.data.vertices):
+            _lp = np.array(tuple(_lmw @ _lv.co))
+            _dd = np.linalg.norm(_moved_pos - _lp, axis=1)
+            _j = int(np.argmin(_dd))
+            _dist = float(_dd[_j])
+            if _dist < float(lash_follow_mm):
+                _lash_disp[_li] = _moved_d[_j] * (
+                    1.0 - _dist / float(lash_follow_mm))
+                lash_info["movedVerts"] += 1
+                lash_info["maxFollowMm"] = max(
+                    lash_info["maxFollowMm"],
+                    float(np.linalg.norm(_lash_disp[_li])) * 1000.0)
+        _ld = np.array([tuple(_lmw_inv3 @ Vector(tuple(d)))
+                        for d in _lash_disp])
+        _lnz = np.linalg.norm(_lash_disp, axis=1) > 1e-12
+        _lkb = list(lash_obj.data.shape_keys.key_blocks) \
+            if lash_obj.data.shape_keys else []
+        lash_info["keyBlocks"] = len(_lkb)
+        if not _lkb:
+            for _i in np.nonzero(_lnz)[0]:
+                _v = lash_obj.data.vertices[int(_i)]
+                _v.co = _v.co + Vector(tuple(_ld[int(_i)]))
+        else:
+            for _kb in _lkb:
+                for _i in np.nonzero(_lnz)[0]:
+                    _ii = int(_i)
+                    _kb.data[_ii].co = _kb.data[_ii].co + Vector(
+                        tuple(_ld[_ii]))
+        lash_obj.data.update()
 
     # Apply the same local displacement to Basis and EVERY key block so
     # lid blink deltas are carried unchanged.
@@ -258,7 +419,13 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
     record = {"offsetMm": offset_mm, "weights": list(weights),
               "ringSource": "base-glb-topological",
               "baseGlb": BASE_GLB_PATH,
+              "h1": {"targetWidthMm": target_width_mm, "patchK": patch_k,
+                     "patchM": patch_m, "patchD": patch_d,
+                     "seatCeilingMm": seat_ceiling_mm,
+                     "seatFloorMm": seat_floor_mm,
+                     "lashFollowMm": lash_follow_mm},
               "displacedVerts": int(nz.sum()), "perSide": per_side,
+              "lashFollow": lash_info,
               "keyBlocksCarried": [kb.name for kb in key_blocks]}
     print("LIDCONFORM " + json.dumps(record))
     return record
