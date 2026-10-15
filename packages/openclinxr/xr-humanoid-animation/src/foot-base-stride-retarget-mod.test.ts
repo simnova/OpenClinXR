@@ -131,10 +131,19 @@ describe("foot-base stride retarget", () => {
       expect(state!.stance).toBe(footBaseScheduleStance(phase01));
       if (state!.stance === "right") sawRight = true;
       slot.updateMatrixWorld(true);
-      const toe = state!.stance === "left" ? leftToe : rightToe;
-      const e = toe.matrixWorld.elements;
-      const fh = state!.foothold[state!.stance];
-      expect(Math.hypot((e[12] ?? 0) - fh.x, (e[14] ?? 0) - fh.z)).toBeLessThan(0.001);
+      // Every foot inside its own contact interval is pinned to its foothold
+      // (both in double support); the crown check above names the summary.
+      for (const side of ["left", "right"] as const) {
+        const rel = ((((phase01 - FOOT_BASE_PLANT_PHASE[side]) % 1) + 1) % 1 + 1) % 1;
+        const frac = side === "left"
+          ? FOOT_BASE_STANCE_FRACTION.left
+          : FOOT_BASE_STANCE_FRACTION.right;
+        if (rel >= frac) continue;
+        const toe = side === "left" ? leftToe : rightToe;
+        const e = toe.matrixWorld.elements;
+        const fh = state!.foothold[side];
+        expect(Math.hypot((e[12] ?? 0) - fh.x, (e[14] ?? 0) - fh.z)).toBeLessThan(0.001);
+      }
     }
     // The sweep crosses the right plant (phase 0.438) but not the left plant
     // (0.927): stance ends right, having handed over mid-sweep.

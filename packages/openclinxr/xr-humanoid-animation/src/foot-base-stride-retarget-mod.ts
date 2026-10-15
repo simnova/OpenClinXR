@@ -35,11 +35,14 @@ import {
  * stance lock (the lock flaps every 2-4 frames early in the walk; each flap
  * used to freeze the swing foot via the stance pin while the rows marched on,
  * losing ~8 cm of row progress per flap). Each foot's plant-relative phase at
- * the clip time selects stance over exactly its contact interval
- * (plant-to-lift from physician-walk-contact-phases.json); in double support
- * the most-recently-planted foot takes the stance pin (a pure function of
- * phase, so exactly one role change per plant boundary and none between, no
- * hysteresis, no dwell). Footholds are fixed when the plan is built: the
+ * the clip time pins it to its foothold over exactly its contact interval
+ * (plant-to-lift from physician-walk-contact-phases.json) and lets it follow
+ * the swing path otherwise — so in double support BOTH feet pin (each over
+ * its own interval; pinning only the most-recent plant dragged the still
+ * planted co-stance foot backward ~15 cm per double support). The single
+ * crown (most-recent plant, a pure function of phase: one crown change per
+ * plant boundary, none between, no hysteresis, no dwell) names the summary
+ * stance and orders the slot pin. Footholds are fixed when the plan is built: the
  * entry pair from the physical feet, every later plant one plan step ahead of
  * the other foothold on the planting foot's home side — never re-snapped to
  * the physical landing foot, so swing-IK miss cannot bake into the next
@@ -386,10 +389,24 @@ export function applyFootBaseStep(input: {
     state.stance = scheduled;
   }
 
-  // Roles derive from post-handover state.
+  // Roles derive from post-handover state. The crown (most-recent plant)
+  // names the summary stance; the PIN SET is every foot inside its own
+  // contact interval — in double support both feet pin, each to its own
+  // foothold. The empty set (absent from the shipped clip) falls back to the
+  // crown so one foot always stays grounded.
   const stance: FootBaseSide = state.stance;
   const swing: FootBaseSide = stance === "left" ? "right" : "left";
-  const stanceRow = rowNow(stance);
+  const leftIn = footBaseRelPhase("left", phase01) < FOOT_BASE_STANCE_FRACTION.left;
+  const rightIn = footBaseRelPhase("right", phase01) < FOOT_BASE_STANCE_FRACTION.right;
+  const pinned: FootBaseSide[] =
+    leftIn || rightIn
+      ? (["left", "right"] as const).filter((side) => (side === "left" ? leftIn : rightIn))
+      : [stance];
+  const ordered: FootBaseSide[] = [
+    ...pinned.filter((side) => side === stance),
+    ...pinned.filter((side) => side !== stance),
+    ...((["left", "right"] as const).filter((side) => !pinned.includes(side))),
+  ];
   const swingRow = rowNow(swing);
 
   const stanceFoothold = state.foothold[stance];
@@ -399,17 +416,17 @@ export function applyFootBaseStep(input: {
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);
 
-  // Absolute targets. Stance XZ is a pin to its foothold; stance Y is the
-  // row height off the floor. The swing path hangs off the STANCE foothold:
+  // Absolute targets. A pinned foot targets its foothold XZ and the row
+  // height off the floor. The swing path hangs off the crown foothold:
   // (along01 * 2 - 1) plan steps fore-aft — liftoff one step behind the
   // stance foot, touchdown one step ahead (which is exactly the next
   // plan-built plant, so touchdown and handover coincide with no snap) — on
   // the swing foot's home side plus the row's measured lateral deviation.
-  const stanceTarget = {
-    x: stanceFoothold.x,
-    y: floorY + stanceRow.heightM,
-    z: stanceFoothold.z,
-  };
+  const pinTargetFor = (side: FootBaseSide): { x: number; y: number; z: number } => ({
+    x: state.foothold[side].x,
+    y: floorY + rowNow(side).heightM,
+    z: state.foothold[side].z,
+  });
   const stanceAlong = (stanceFoothold.x - approach.start.x) * unitX
     + (stanceFoothold.z - approach.start.z) * unitZ;
   const swingReach = swingRow.along01 * 2 - 1;
@@ -427,7 +444,7 @@ export function applyFootBaseStep(input: {
   const yawNow = slot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
 
-  for (const side of [stance, swing] as const) {
+  for (const side of ordered) {
     const chain = findSteppingLegChain(slot, side);
     if (chain === null) continue;
     // Fresh offset EVERY substep from the mixer-posed leg (pre-solve): the
@@ -450,7 +467,8 @@ export function applyFootBaseStep(input: {
       yaw: yawNow,
     };
     state.offsetEntry[side] = captured;
-    const toeTarget = side === stance ? stanceTarget : swingTarget;
+    const isPin = pinned.includes(side);
+    const toeTarget = isPin ? pinTargetFor(side) : swingTarget;
     const heelTarget = heelTargetForToeTargetStable({
       toeTargetWorld: toeTarget,
       slotYawRadians: yawNow,
@@ -465,14 +483,17 @@ export function applyFootBaseStep(input: {
       previousBendNormal: state.hingeNormal[side],
     });
     if (solved.bendNormal !== null) state.hingeNormal[side] = solved.bendNormal;
-    if (side === stance) {
-      stanceMissM = solved.missM;
-      // THE SLOT ADVANCE: exact rigid translate of the stance toe onto its
-      // foothold (stance-lock discipline). The swing is solved after this pin.
+    if (isPin) {
+      if (side === stance) stanceMissM = solved.missM;
+      // THE SLOT PIN: exact rigid translate of the pinned toe onto its
+      // foothold. The swing (if any) is solved after the pins. In double
+      // support each pin is a mm correction by construction, so ordering is
+      // immaterial; the crown goes first.
       const toeNow = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
+      const anchor = state.foothold[side];
       if (toeNow !== null) {
-        slot.position.x += stanceFoothold.x - toeNow.x;
-        slot.position.z += stanceFoothold.z - toeNow.z;
+        slot.position.x += anchor.x - toeNow.x;
+        slot.position.z += anchor.z - toeNow.z;
         slot.updateMatrixWorld(true);
       }
     } else {
