@@ -157,6 +157,9 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "eyegeo-final": FEMALE_COVERING_LOWER,
     # compat-mouth (tsk_667587349a455eec): same adult-female civilian lower as Aisha.
     "aisha-realism": FEMALE_COVERING_LOWER,
+    # eyeglobe (tsk_55d4f55390439822): same adult-female civilian lower as Aisha.
+    "aisha-eyeglobe-base": FEMALE_COVERING_LOWER,
+    "aisha-eyeglobe-fit": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2583,6 +2586,40 @@ EYE_DIAMETER_TARGET_MM = {
     # compat-mouth (tsk_667587349a455eec): same adult-female body as
     # mpfb-ob-patient-aisha (realism head bake under the card stem).
     "aisha-realism": 24.0,
+    # eyeglobe (tsk_55d4f55390439822): same adult-female body as
+    # mpfb-ob-patient-aisha (neon baseline + globe-fit bakes under card stems).
+    "aisha-eyeglobe-base": 24.0,
+    "aisha-eyeglobe-fit": 24.0,
+}
+
+# ---------------------------------------------------------------------------
+# Eyeglobe (tsk_55d4f55390439822): fit the globe to the socket so lid skin
+# never shows past it.
+#
+# The anatomical resize above leaves a 24.0 mm globe in a socket the lids
+# wrap loosely: neon probe on the -base bake (body skin blue, globe magenta,
+# lashes cyan, 1280px portraits) counts body-blue texels inside the 2D lid
+# aperture (row lash-span x column lash-span intersection): yaw 0 = 432 (the
+# lid-margin rim floor, present frontally), yaw +25 = 641, -25 = 779,
+# +40 = 667, -40 = 918. The yaw excess (+209..+486 over the frontal floor on
+# the SAME bake) is socket skin past the globe silhouette (shell-rebind
+# 7a14d7afc proved the owner: body lid/socket skin, not shell/cornea).
+#
+# The fit is a similarity about each eye's own fitted centre (uniform scale)
+# plus a forward seat, applied AFTER the anatomical resize, moving the eye.L
+# / eye.R bones with their globe so the gaze pivot follows. Keyed by output
+# GLB stem like EYE_DIAMETER_TARGET_MM; absent stem = identity (1.0, 0.0)
+# so every other bake stays byte-stable. Only valid with --eye-asset
+# high-poly (the low-poly eye is a single exact sphere with no socket-fill
+# role); a row on any other asset refuses loudly.
+# ---------------------------------------------------------------------------
+EYE_GLOBE_FIT_BY_OUTPUT_STEM = {
+    # +10% diameter (23.8 -> 26.2 mm, still inside the 29.2 mm fitted socket
+    # envelope: no poke-through) + 2.5 mm forward seat. v1 (1.04, 1.2) cut the
+    # yaw excess -45% (+209..+486 -> +98..+265 over the frontal floor); v2
+    # (1.08, 2.0) cut it to +34..+109 (front floor 135, yaw-40 244); v3 closes
+    # the remainder. Natural renders at each step show no lid poke-through.
+    "aisha-eyeglobe-fit": (1.10, 2.5),
 }
 
 
@@ -2602,13 +2639,19 @@ def _fit_eye_sphere(pts):
     return c, r
 
 
-def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None):
+def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None,
+                           extra_scale=1.0, extra_forward_mm=0.0):
     """Shrink each eye to its anatomical diameter and re-seat it forward.
 
     Scaling about the eye's own fitted centre keeps the globe spherical; translating
     the centre forward by (1-s)*r keeps the corneal pole where it sits today (the
     load-bearing counterweight that refuses the hollow-eyed naive shrink). Returns
     [(side, before_diameter_mm, scale, seat_shift_forward_mm), ...] for the report.
+
+    Eyeglobe fit (tsk_55d4f55390439822): extra_scale / extra_forward_mm apply a
+    similarity about each eye's post-resize centre plus a further forward seat
+    (bones follow), so the globe fills the lid aperture laterally. Defaults
+    (1.0, 0.0) are identity: every bake without a fit row is byte-stable.
     """
     from mathutils import Vector
 
@@ -2664,13 +2707,17 @@ def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None):
         s = target_r / r
         shift = (1.0 - s) * r
         new_world = c + s * (pts - c) + np.array([0.0, -1.0, 0.0]) * shift
+        # Eyeglobe fit: similarity about the post-resize centre + extra seat.
+        c2 = c + np.array([0.0, -1.0, 0.0]) * shift
+        extra_shift = extra_forward_mm / 1000.0
+        new_world = c2 + extra_scale * (new_world - c2) + np.array([0.0, -1.0, 0.0]) * extra_shift
         for k, i in enumerate(idx):
             new_local[i] = iw @ Vector(tuple(new_world[k]))
         rows.append((side, r * 2000.0, s, shift * 1000.0))
         if _edit_bones is not None:
             bone = _edit_bones.get(f"eye.{side}")
             if bone is not None:
-                delta_world = Vector((0.0, -1.0, 0.0)) * shift
+                delta_world = Vector((0.0, -1.0, 0.0)) * (shift + extra_shift)
                 delta_local = armature.matrix_world.inverted().to_3x3() @ delta_world
                 bone.head = bone.head + delta_local
                 bone.tail = bone.tail + delta_local
@@ -5495,7 +5542,28 @@ def main():
             f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
         )
     _eye_armature = next((o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None)
-    _eye_resize_rows = resize_eyes_to_anatomy(eyes_asset, _eye_target_mm, _eye_armature)
+    # Eyeglobe fit (tsk_55d4f55390439822): per-stem globe scale + forward seat
+    # behind --eye-asset high-poly; absent stem = identity (byte-stable).
+    _fit_scale, _fit_forward_mm = EYE_GLOBE_FIT_BY_OUTPUT_STEM.get(
+        pathlib.Path(args.output).stem, (1.0, 0.0))
+    if (_fit_scale, _fit_forward_mm) != (1.0, 0.0) and getattr(
+            args, "eye_asset", "low-poly") != "high-poly":
+        raise RuntimeError(
+            "EYEGLOBE: globe fit is only valid with --eye-asset high-poly "
+            f"(stem {pathlib.Path(args.output).stem!r} has a fit row)")
+    _eye_resize_rows = resize_eyes_to_anatomy(
+        eyes_asset, _eye_target_mm, _eye_armature,
+        extra_scale=_fit_scale, extra_forward_mm=_fit_forward_mm)
+    print(
+        "EYEGLOBE_FIT "
+        + json.dumps(
+            {
+                "stem": pathlib.Path(args.output).stem,
+                "fitScale": _fit_scale,
+                "fitForwardMm": _fit_forward_mm,
+            }
+        )
+    )
     print(
         "EYES_ANATOMICAL "
         + json.dumps(
