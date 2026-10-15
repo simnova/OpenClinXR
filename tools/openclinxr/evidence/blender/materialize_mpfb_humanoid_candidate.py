@@ -155,6 +155,8 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "aisha-ref3": FEMALE_COVERING_LOWER,
     # eyegeo: same adult-female values as ref3 (identical bake, new output name).
     "eyegeo-final": FEMALE_COVERING_LOWER,
+    # compat-mouth (tsk_667587349a455eec): same adult-female civilian lower as Aisha.
+    "aisha-realism": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2578,6 +2580,9 @@ EYE_DIAMETER_TARGET_MM = {
     # shellrebind2 (tsk_fc93bdfcb41dad07): same adult-female body as
     # eyetex-final (B2 occlusion shell + B3 tearline bake, no cornea split).
     "aisha-shell-b2b3": 24.0,
+    # compat-mouth (tsk_667587349a455eec): same adult-female body as
+    # mpfb-ob-patient-aisha (realism head bake under the card stem).
+    "aisha-realism": 24.0,
 }
 
 

@@ -1,0 +1,181 @@
+{
+  "schema": "openclinxr.mouth-census.v1",
+  "control": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "realismNote": "scratch bake, not git-tracked; sha recorded here",
+  "rows": [
+    {
+      "label": "realism",
+      "sha256": "c26cabb6c25838b41dd8ac1acf4530b16faf7b92c22bf22adc09259a4ca47c98",
+      "visemes": [
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U",
+        "viseme_aa",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_sil"
+      ],
+      "visemesExpected": [
+        "viseme_aa",
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_sil",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U"
+      ],
+      "visemesMatch": true,
+      "facs": {
+        "eyebrows-left-inner-up": true,
+        "eyebrows-right-inner-up": true,
+        "eyebrows-left-down": true,
+        "eyebrows-right-down": true,
+        "eye-left-slit": true,
+        "eye-right-slit": true,
+        "nose-compression-uncompress": true,
+        "mouth-open": true,
+        "mouth-corner-puller": true
+      },
+      "browCarrierMeshes": [
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+      ],
+      "fittedBrowMeshes": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+      ],
+      "fittedBrowMorphs": {
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh": [
+          "eyebrows-left-down",
+          "eyebrows-left-extern-up",
+          "eyebrows-left-inner-up",
+          "eyebrows-left-up",
+          "eyebrows-right-down",
+          "eyebrows-right-extern-up",
+          "eyebrows-right-inner-up",
+          "eyebrows-right-up"
+        ]
+      },
+      "jawJoints": [
+        "jaw"
+      ],
+      "lipBonesTotal": 22,
+      "lipBonesUnderJaw": 6,
+      "jawToOris01LeverM": 0.13790071010593002,
+      "teeth": [
+        {
+          "mesh": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 7120,
+          "skinned": true,
+          "maxZ": 0.1382177621126175
+        }
+      ],
+      "tongue": [
+        {
+          "mesh": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448,
+          "skinned": true,
+          "maxZ": 0.1401052325963974
+        }
+      ],
+      "morphMeshCount": 2
+    },
+    {
+      "label": "control",
+      "sha256": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+      "visemes": [
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U",
+        "viseme_aa",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_sil"
+      ],
+      "visemesExpected": [
+        "viseme_aa",
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_sil",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U"
+      ],
+      "visemesMatch": true,
+      "facs": {
+        "eyebrows-left-inner-up": true,
+        "eyebrows-right-inner-up": true,
+        "eyebrows-left-down": true,
+        "eyebrows-right-down": true,
+        "eye-left-slit": true,
+        "eye-right-slit": true,
+        "nose-compression-uncompress": true,
+        "mouth-open": true,
+        "mouth-corner-puller": true
+      },
+      "browCarrierMeshes": [
+        "mpfb_ob_patient_aisha_v1_body"
+      ],
+      "fittedBrowMeshes": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mesh"
+      ],
+      "fittedBrowMorphs": {
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mesh": []
+      },
+      "jawJoints": [
+        "jaw"
+      ],
+      "lipBonesTotal": 22,
+      "lipBonesUnderJaw": 6,
+      "jawToOris01LeverM": 0.13790071010593002,
+      "teeth": [
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh",
+          "tris": 192,
+          "skinned": true,
+          "maxZ": 0.13757997751235962
+        }
+      ],
+      "tongue": [
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
+          "tris": 448,
+          "skinned": true,
+          "maxZ": 0.13537999987602234
+        }
+      ],
+      "morphMeshCount": 1
+    }
+  ]
+}

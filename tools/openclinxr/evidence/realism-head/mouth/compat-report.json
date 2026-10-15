@@ -1,0 +1,102 @@
+{
+  "name": "mouth-viseme-jaw-teeth-emotion-compat",
+  "card": "tsk_667587349a455eec",
+  "producerSourceLineageSha256": "d8c130e64e0066b3fb27029724be75309c60519b3b9fa91193e42d001acb6b39",
+  "producerSourceLineageNote": "shell-manifest.json producerSourceSha256 (tools/openclinxr/evidence/realism-head/shell/shell-manifest.json:3); same sha rule as compat-eyes. Bake-time script adds two stem rows (aisha-realism eye 24.0 + lower garment), so the bake-time sha below differs in those rows only.",
+  "producerSourceSha256": "4c35ea1cf717c4b0dae7ed9a2ef9f6d7df89bc0a58552fe194c57c8fc4eea497",
+  "producerSourcePath": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "roundtripReportSha256": "7a086bae80756aded12c9f5e733e7dfd73485b31ac47c7e10429365538611949",
+  "roundtripReportPath": "tools/openclinxr/asset-pipeline/makeclothes/gltf-ext/roundtrip-report.json",
+  "bakeArgv": [
+    "--eye-colour-reference",
+    "ob_patient_aisha",
+    "--actor-role",
+    "patient",
+    "--bake-device",
+    "metal",
+    "--eye-asset",
+    "high-poly",
+    "--eye-cornea",
+    "--eye-texture",
+    "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+    "--output",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/compatmouth/aisha-realism.glb"
+  ],
+  "bakeRepairs": "fresh bake wrote a JSON chunk of 253754 bytes (not 4-aligned); NodeIO refused it (Uint32Array RangeError). Padded 2 trailing spaces and updated chunk+total lengths; content bytes otherwise untouched.",
+  "postSteps": [
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts (delta 0.003)",
+    "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts (delta 0.004)"
+  ],
+  "rows": [
+    {
+      "label": "realism",
+      "glb": "assets:aisha-realism.glb",
+      "sha256": "c26cabb6c25838b41dd8ac1acf4530b16faf7b92c22bf22adc09259a4ca47c98",
+      "verdict": "control_clean",
+      "visemes": ["viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP", "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"],
+      "jawJoints": ["jaw"],
+      "jawLeverM": 0.13790071010593002,
+      "jawAaRadians": 0.150861,
+      "jawAaDropM": 0.020725016205360543,
+      "jawThresholdM": 0.020725011825561523,
+      "lipBonesUnderJaw": "6/22",
+      "teethMesh": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+      "teethTris": 7120,
+      "teethMaxZ": 0.1382177621126175,
+      "teethMarginAtCapM": 0.0034995287656784113,
+      "teethMarginAtRestM": 0.0060264915227890015,
+      "teethSkinned": true,
+      "tongueMesh": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+      "tongueMaxZ": 0.1401052325963974,
+      "teethMinusTongueM": -0.0018874704837799072,
+      "facsPresent": ["eyebrows-left-inner-up", "eyebrows-right-inner-up", "eyebrows-left-down", "eyebrows-right-down", "eye-left-slit", "eye-right-slit", "nose-compression-uncompress", "mouth-open", "mouth-corner-puller"],
+      "browMovers": ["mpfb_ob_patient_aisha_body", "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"]
+    },
+    {
+      "label": "control",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "sha256": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+      "verdict": "control_clean",
+      "visemes": ["viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP", "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"],
+      "jawJoints": ["jaw"],
+      "jawLeverM": 0.13790071010593002,
+      "jawAaRadians": 0.150861,
+      "jawAaDropM": 0.020725016205360543,
+      "jawThresholdM": 0.020725011825561523,
+      "lipBonesUnderJaw": "6/22",
+      "teethMesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh",
+      "teethTris": 192,
+      "teethMaxZ": 0.13757997751235962,
+      "teethMarginAtCapM": 0.0004600018262863048,
+      "teethMarginAtRestM": 0.0038399994373321533,
+      "teethSkinned": true,
+      "tongueMesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
+      "tongueMaxZ": 0.13537999987602234,
+      "teethMinusTongueM": 0.0021999776363372803,
+      "facsPresent": ["eyebrows-left-inner-up", "eyebrows-right-inner-up", "eyebrows-left-down", "eyebrows-right-down", "eye-left-slit", "eye-right-slit", "nose-compression-uncompress", "mouth-open", "mouth-corner-puller"],
+      "browMovers": ["mpfb_ob_patient_aisha_v1_body"]
+    }
+  ],
+  "falsifier": {
+    "visemesAndJaw": "both rows drive the 15 visemes and the jaw (identical census, shipped driver set per D11) -> both rows verdict control_clean; no driver rebuild pursued",
+    "brow": "on the realism head BOTH the skin body and the fitted brow mesh carry eyebrows morphs and move; on the control only the skin body moves (fitted brow mesh carries zero morphs). Per OOS no texture-vs-mesh decision is made."
+  },
+  "counterweightFinding": "after the card-ordered post steps the realism teeth sit 1.9 mm BEHIND the tongue (teeth 0.13822 vs tongue 0.14011) while both stay behind the lips (margins +3.5 mm / +1.6 mm vs skin median at MOUTH_OPEN_CAP 0.3). The KG teeth-vs-tongue ordering (teeth in front) does not survive the +4 mm tongue step on the fitted pair; recorded, not hidden.",
+  "sheet": {
+    "src": "assets:viseme-emotion-sheet.png",
+    "sha256": "00c5663e875f845111ce4bbd9c8b7e8f23fcccd1e99ce1a5f4dd5b65695b039b",
+    "renderSize": 1280,
+    "views": ["viseme_aa", "viseme_PP", "viseme_sil", "reassured", "brow concern"],
+    "mouthBand": "x .30-.70 y .60-.82 of the 1280 frame",
+    "browBand": "x .30-.70 y .40-.54 of the 1280 frame",
+    "grade": "orchestrator D12"
+  },
+  "gates": {
+    "all15VisemesPresent": true,
+    "jawOpensOnPositiveLocalX": true,
+    "teethAndTongueBehindLipsAtAa": true,
+    "emotionTargetsMove": true
+  },
+  "notTested": "validator does not re-bake; pixel grade is the orchestrator's (D12); Clip ClinicalExpressionMicroTransition already named, no clip card",
+  "census": "tools/openclinxr/evidence/realism-head/mouth/census.json (machine-read NodeIO populations)"
+}
