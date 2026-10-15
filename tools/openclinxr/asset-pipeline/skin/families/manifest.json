@@ -569,9 +569,9 @@
     "source_mean_a": 8.792
    },
    "leak": {
-    "label": "v2",
-    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v2.png",
-    "atlas_sha256": "96af67c850e426b3aed04d654654f84e3310357c13e357e0b6047288e4692f6a",
+    "label": "v3",
+    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v3.png",
+    "atlas_sha256": "69a0f1a85dec192bf45931e27eed38c9df52ccef830e47d725884334ca437fcc",
     "atlas_resized_to_2048": false,
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
@@ -602,11 +602,11 @@
     "skin_set": "facecore>0.5 minus lips/eyes/brows>0.5 (eyes proxy caruncle) inside occupancy>0.5",
     "n_skin_texels": 114052,
     "n_mirror_pairs": 8235,
-    "r_S": 0.0384,
-    "r_normal_y": 0.0268,
+    "r_S": 0.0461,
+    "r_normal_y": 0.0272,
     "mirror_signed_L": 0.0156,
-    "mirror_abs_L": 1.4314,
-    "wall_s": 1.0
+    "mirror_abs_L": 1.4305,
+    "wall_s": 0.9
    },
    "g2": {
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
@@ -638,11 +638,22 @@
      {
       "file": "middle-family-key30-yaw40.png",
       "sha256": "703ba6a3bc217e123f222364f68269b4c4e1d157ca77792926b10378f999b55f"
+     },
+     {
+      "file": "middle-family-v3-front.png",
+      "sha256": "60611690fb915336f62263ebe0d2cb3fbb1674301865b746b0aa0b505a0b608d"
+     },
+     {
+      "file": "middle-family-v3-yaw40.png",
+      "sha256": "41d67d6c00f546e624579339dccfde2f0fd4a0524a29641476f0c188cb5c93d7"
      }
     ],
     "sheet": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-g2-sheet.png",
     "sheet_sha256": "a82de339df3bc79a3d76f1610b08852f805098be468ec0c9c2dfbb7071959cc6",
-    "lip_crop": "middle-v2-lip-crop.png (276x227 native, v1|v2) sha 0bc741aa14688e529921ca64864a02965cef08d6f4cb4245eefbda8ff2fba5e9"
+    "lip_crop": "middle-v2-lip-crop.png (276x227 native, v1|v2) sha 0bc741aa14688e529921ca64864a02965cef08d6f4cb4245eefbda8ff2fba5e9",
+    "sheet_v3": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-g2-sheet-v3.png",
+    "sheet_v3_sha256": "3af6277fa59f151d83933ab4ed8c2fec1d9ff27e2eb5f2b0d267122bfb20c575",
+    "face_crop": "middle-v3-face-crop.png (1024x512 native, source|v3 front) sha f05c0081e50576b9511940380d967c3b2788d36d73d7acf6de473c50be4f3984"
    },
    "lips_fix": {
     "why": "middle lips get their own Imagine crop + tight mask (young A3c lesson); keeps edit shape change contained, no pink corner box",
@@ -683,6 +694,66 @@
      "method": "crease detail + chroma mottle crush (a* std 2.76->1.2) inside lip-colour intersect mask (4103px of 4724; 621 corner px reverted), inward-only 8px feather, outer rim ab to skin lowband, L block-mean to v1 + dither to v1 lowband",
      "outside_hardmask_changed_px": 0
     }
+   },
+   "family_v3_path": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v3.png",
+   "family_v3_sha256": "69a0f1a85dec192bf45931e27eed38c9df52ccef830e47d725884334ca437fcc",
+   "h1_v3": {
+    "why": "orchestrator grade of v2 sheet: cracks/orange creases, lip dots+mauve, philtrum halo+pink blob, orange mottling",
+    "detail_scale": 0.13,
+    "lip_L_detail_scale": 0.5,
+    "amplitudes_highband_std": {
+     "cheek": {
+      "source": 0.614,
+      "v2": 1.423,
+      "v3": 0.728,
+      "aisha_known_good": 0.763
+     },
+     "undereye_L": {
+      "source": 1.569,
+      "v2": 3.222,
+      "v3": 1.761,
+      "aisha_known_good": 1.901
+     },
+     "undereye_R": {
+      "source": 1.571,
+      "v2": 3.058,
+      "v3": 1.759,
+      "aisha_known_good": 1.911
+     }
+    },
+    "crease_ab_dev_vs_local_mean": {
+     "before": [
+      1.97,
+      1.71
+     ],
+     "after": 0
+    },
+    "lips": {
+     "hue_v3_Lab": [
+      168.9,
+      146.5,
+      150.4
+     ],
+     "hue_src_Lab": [
+      168.6,
+      146.6,
+      150.4
+     ],
+     "specks_over_mean_plus_3sd": 0,
+     "corner_blob_dab_over_6_px": 0
+    },
+    "halo_philtrum_dL": {
+     "v2": 1.59,
+     "v3": 0.28
+    },
+    "cheek_spread_std": {
+     "v3_a": 1.104,
+     "v3_b": 1.14,
+     "src_a": 1.057,
+     "src_b": 1.1,
+     "cap": "src+1"
+    },
+    "gate_method": "float-LAB lowband match + targeted error-diffusion dither (K + outside-island untouched) + guarded micro-flips"
    }
   }
  ]

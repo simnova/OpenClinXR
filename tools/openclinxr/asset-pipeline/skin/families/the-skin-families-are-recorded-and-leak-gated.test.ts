@@ -151,6 +151,9 @@ describe("the skin families are recorded and leak-gated", () => {
     };
     expect(middle.status).toBe("rewritten");
     expect(middle.family_v2_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(
+      (middle as unknown as { family_v3_sha256?: unknown }).family_v3_sha256,
+    ).toMatch(/^[0-9a-f]{64}$/);
     expect(middle.crops?.length).toBeGreaterThan(0);
     for (const crop of middle.crops ?? []) {
       expect(crop.edit_sha256).toMatch(/^[0-9a-f]{64}$/);
