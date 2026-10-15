@@ -121,6 +121,46 @@
    "mirror_signed_L": 0.0014,
    "mirror_abs_L": 0.4331,
    "wall_s": 1.1
+  },
+  "middle-cc0": {
+   "label": "cc0-middle",
+   "atlas": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/skins/sources/makehuman-system-skins/extracted/skins/middleage_asian_female/middleage_lightskinned_female_diffuse2.png",
+   "atlas_sha256": "39c505ca224387bef0b20cd2bf513c3997c27c7e7434447228c9991b87cb8d01",
+   "atlas_resized_to_2048": false,
+   "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
+   "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+   "derive_dir": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfamilies/a1/derive",
+   "s_cache": "/Volumes/files/openclinxr-assets/store/skin-families/s-aisha-ref3-finalb.png",
+   "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
+   "rig": {
+    "keyAzimuthDeg": 15,
+    "keyElevationDeg": 20,
+    "keyIntensity": 2.7,
+    "fillIntensity": 1.3,
+    "hemisphereIntensity": 0.3,
+    "rimIntensity": 0.5,
+    "exposure": 0.3762,
+    "environmentIntensity": 0.9,
+    "keyColor": "#fff1e0",
+    "fillColor": "#dfe8ff",
+    "hemiSky": "#ffffff",
+    "hemiGround": "#8a8a8a",
+    "rimColor": "#ffffff",
+    "provenance": "structure: packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts applyRigOverride studio branch; numbers: realism-spike/sym/final-b.variant.json rigOverride.studio (the rig grading sym/out-albedo.png)"
+   },
+   "world_strength": 0.639,
+   "bake": "Cycles CPU 128 samples seed 0, DIFFUSE direct+indirect no-colour margin 8, white-roughness-1 override, AO off (no AO node present)",
+   "lowband": "Lab L (cv2 RGB2LAB) downsampled to 64x64 (INTER_AREA) then upsampled (INTER_LINEAR)",
+   "normal_y": "analytic world-space vertex normals splatted to UV + gaussian sigma 8 (no Blender bake: exact, same-texel)",
+   "mirror": "fix_sym.py construction: reflect x about mesh centre-x, cKDTree nearest vertex; vertex-weighted by core*(1-feat)",
+   "skin_set": "facecore>0.5 minus lips/eyes/brows>0.5 (eyes proxy caruncle) inside occupancy>0.5",
+   "n_skin_texels": 114052,
+   "n_mirror_pairs": 8235,
+   "r_S": 0.0461,
+   "r_normal_y": 0.0272,
+   "mirror_signed_L": 0.0156,
+   "mirror_abs_L": 1.4299,
+   "wall_s": 0.6
   }
  }
 }

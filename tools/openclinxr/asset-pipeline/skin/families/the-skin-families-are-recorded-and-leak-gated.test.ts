@@ -128,4 +128,54 @@ describe("the skin families are recorded and leak-gated", () => {
     }
     expect(young.g2?.sheet_sha256).toMatch(/^[0-9a-f]{64}$/);
   });
+
+  it("the rewritten middle family carries locks, its own CC0 gate and evidence", () => {
+    const middle = MANIFEST.families.find(
+      (row) => (row as { family?: unknown }).family === "middle",
+    ) as unknown as {
+      status?: unknown;
+      family_v2_sha256?: unknown;
+      crops?: Array<{
+        name?: unknown;
+        role?: unknown;
+        edit_sha256?: unknown;
+        lock?: {
+          disp_p95_px?: unknown;
+          passed?: unknown;
+          reasons?: unknown;
+        } | null;
+      }>;
+      leak?: Record<string, unknown>;
+      redness?: { family_mean_a?: unknown; source_mean_a?: unknown };
+      g2?: { renders?: Array<{ sha256?: unknown }>; sheet_sha256?: unknown };
+    };
+    expect(middle.status).toBe("rewritten");
+    expect(middle.family_v2_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(middle.crops?.length).toBeGreaterThan(0);
+    for (const crop of middle.crops ?? []) {
+      expect(crop.edit_sha256).toMatch(/^[0-9a-f]{64}$/);
+      // Every detail-mosaic crop is geometrically UV-locked (residual <= 4px);
+      // any crop that is not a clean pass names its reason and role.
+      if (String(crop.role).startsWith("detail-mosaic")) {
+        expect(typeof crop.lock?.disp_p95_px).toBe("number");
+        expect(crop.lock?.disp_p95_px as number).toBeLessThanOrEqual(4);
+      }
+      if (crop.lock?.passed !== true) {
+        expect(Array.isArray(crop.lock?.reasons)).toBe(true);
+        expect(typeof crop.role).toBe("string");
+      }
+    }
+    // The rewritten family passes the strict gate set by its own CC0 source row.
+    const cc0 = BASELINES.rows["middle-cc0"];
+    expect(cc0, "baseline row middle-cc0").toBeTruthy();
+    for (const f of LEAK_FIELDS) expect(typeof cc0[f], `middle-cc0.${f}`).toBe("number");
+    expect(passesLeakGate(middle.leak as Record<string, unknown>, cc0)).toBe(true);
+    expect(typeof middle.redness?.family_mean_a).toBe("number");
+    expect(typeof middle.redness?.source_mean_a).toBe("number");
+    expect(middle.g2?.renders?.length).toBeGreaterThan(0);
+    for (const render of middle.g2?.renders ?? []) {
+      expect(render.sha256).toMatch(/^[0-9a-f]{64}$/);
+    }
+    expect(middle.g2?.sheet_sha256).toMatch(/^[0-9a-f]{64}$/);
+  });
 });
