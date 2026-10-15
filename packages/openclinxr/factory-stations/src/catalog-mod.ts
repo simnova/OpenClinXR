@@ -18,6 +18,7 @@ export const PRODUCTION_STATION_IDS = [
   "dialogue_runtime",
   "lighting_design",
   "hair_editor",
+  "face_realism",
 ] as const;
 
 export type ProductionStationId = (typeof PRODUCTION_STATION_IDS)[number];
@@ -281,6 +282,12 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     hairAsset: { type: "string", required: true },
     targetReadJson: { type: "string", required: true },
     round: { type: "number", required: true },
+  }),
+  face_realism: defineStation("face_realism", {
+    actorId: { type: "string", required: true },
+    recordPath: { type: "string", required: true, description: "stored case-reference record (reference-set manifest); missing record is refused, never generated" },
+    chainManifestPath: { type: "string", required: false, description: "skin chain manifest; absent = repo-default face-replay chain-manifest.json" },
+    outDir: { type: "string", required: false, description: "replay output dir; absent = temp dir" },
   }),
 };
 

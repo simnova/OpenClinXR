@@ -5,6 +5,7 @@ import { clothingConsumeRunner } from "./clothing_consume/run.js";
 import { clothingGenerateRunner } from "./clothing_generate/run.js";
 import { dialogueRuntimeRunner } from "./dialogue_runtime/run.js";
 import { equipmentGenerateRunner } from "./equipment_generate/run.js";
+import { faceRealismRunner } from "./face_realism/run.js";
 import { lightingDesignRunner } from "./lighting_design/run.js";
 import { hairEditorRunner } from "./hair_editor/run.js";
 import { lipSyncRunner } from "./lip_sync/run.js";
@@ -24,4 +25,5 @@ export const stationRunners: Record<ProductionStationId, StationRunner> = {
   dialogue_runtime: dialogueRuntimeRunner,
   lighting_design: lightingDesignRunner,
   hair_editor: hairEditorRunner,
+  face_realism: faceRealismRunner,
 };
