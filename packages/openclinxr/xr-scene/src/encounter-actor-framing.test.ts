@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Group } from "three";
-import { applyCleanEncounterVisualReviewActorFraming } from "./encounter-actor-framing.js";
+import { applyCleanEncounterVisualReviewActorFraming } from "./index.js";
 
 /**
  * OBSERVABLE: when the visual-review framing pass overrides a placement another source resolved,

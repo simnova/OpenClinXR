@@ -1,17 +1,19 @@
 {
   "card": "tsk_2f1eca863f8134f6",
+  "handback": "h1",
   "verdict": "premise_red",
   "knownGood": "none in tree (no onBeforeCompile skin shader exists)",
   "falsifier": {
     "probe": "grep onBeforeCompile over packages/openclinxr/xr-scene/src = eye-shader only (eye-parallax.ts + eye test); isolated-subject-material-variants.ts had no hook; no skin-shader dir existed",
     "result": "not triggered: no flag existed, so nothing already changed cheek/lip shading; premise_clean NOT written, changed: rule stands"
   },
-  "curvatureSource": "screen derivatives (fwidth of the view normal, gain uSkinCurvGain=24). The baked aisha-curvature-1024.png exists (store skin-maps, status baked_unwired per maps-manifest.json after 3953dd73b) but has no portrait texture plumbing; wiring it would add async texture loads to the portrait path, so the flag stays texture-free.",
+  "curvatureSource": "BAKED MAP (h1 fix for D1 faceting): store skin-maps/aisha-curvature-1024.png (sha 803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a per the live variant input record), Blender Geometry Pointiness remapped 0.35->0 (concave) .. 0.65->1 (convex), 0.5 = flat (map median 131/255 = 0.51, range 0..182, smooth EMIT bake). Sampled as uSkinCurvMap in the portrait UV space (shared MakeHuman UV). h0's fwidth(view-normal) curvature was rejected on sight: piecewise-constant per triangle, bright seams at every edge. No derivative remains in the shader.",
   "flag": {
-    "field": "MaterialOverride.skinShade (true | { tZoneStrength }) in packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts, beside envMapIntensity",
+    "field": "MaterialOverride.skinShade (true | { tZoneStrength }) + required MaterialOverride.skinShadeCurvatureUrl in packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts, beside envMapIntensity",
     "module": "packages/openclinxr/xr-scene/src/skin-shader/skin-shade.ts",
-    "cacheKey": "openclinxr-skin-shade:t<strength>:...",
-    "readback": "MaterialOverrideReadback.skinShade from the install WeakSet (hook-installed, never a JSON field); live portrait readback skinShade:true on mpfb_ob_patient_aisha_v1_body|mpfb_skin_ob_patient_aisha_v1 (skinshade-on.json), the only matched slot"
+    "plumbing": "portrait path's existing TextureLoader (NoColorSpace, flipY=false, albedo UV channel preserved); served to the page by the capture tool's /__spike/ route — tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts material-override texture loop generalized from baseColorUrl-only to [baseColorUrl, skinShadeCurvatureUrl] plus the absolute-URL rewrite (declared WRITE_ROOTS exception: the only way to serve a local file without writing apps/ui-xr/public/**). A skinShade flag WITHOUT the URL REFUSES (fail closed); the hook tolerates a null texture only for the node unit test.",
+    "cacheKey": "openclinxr-skin-shade:t<strength>:b<blur>:c<cvx,cav,nos,lip>",
+    "readback": "MaterialOverrideReadback.skinShade from the install WeakSet + skinShadeCurvature from the bound-texture WeakMap (hook-installed, never JSON fields); live portrait readback skinShade:true skinShadeCurvature:true on mpfb_ob_patient_aisha_v1_body|mpfb_skin_ob_patient_aisha_v1 (h1/skinshade-on.json), the only matched slot; the capture tool's assertVariantLanded now fails a skinShade override whose readback is not true"
   },
   "masks": {
     "source": "realism-95 derive/A/landmarks-uv.json (size 4096, row v*S; Aisha-derived: roles carry mpfb_ob_patient_aisha meshes; MakeHuman UV shared as-is per skin-maps manifest)",
@@ -28,28 +30,30 @@
   },
   "roughness": {
     "formula": "0.62 - Tc*T blended inside zone masks, lips toward 0.45, clip [0.3, 0.8] (build_roughness.py)",
-    "deviation": "+0.08*C (cavity/AO) and +0.05*H (albedo high-frequency) omitted: neither field is sampled in the portrait path; clip applies to the blended result",
+    "deviation": "+0.08*C (cavity/AO) and +0.05*H (albedo high-frequency) omitted: neither field is sampled in the portrait path; clip applies to the blended result. The cavity lift (e) now comes from the baked curvature field instead.",
     "tcoefDefault": 0.08
   },
   "deviations": [
     "single-normal pipeline: the blur feeds diffuse AND specular (three.js shares one normal); graded effect is the diffuse softening in the cheek crop",
-    "scatter terms (curvature 0.10, nostril 0.06, lip 0.02) and blur mix 0.4 / curvature gain 24 are recorded implementation constants, sweep-graded by the human"
+    "scatter terms (convex 0.06, cavity 0.10, nostril 0.04, lip 0.02) and blur mix 0.4 are recorded implementation constants, sweep-graded by the human"
   ],
   "sweep": {
-    "method": "runtime-portrait-capture.ts variant mode, RENDER_SIZE 1280, front, portrait:true, shipped Aisha GLB (apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb); materialOverrides match mpfb_skin",
+    "method": "runtime-portrait-capture.ts variant mode, RENDER_SIZE 1280, front, portrait:true, shipped Aisha GLB (apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb); materialOverrides match mpfb_skin; outputs in store/skin-shade/h1/",
     "variants": {
       "off": { "tZoneStrength": null, "tcoef": 0, "spec": "no materialOverrides (default path)" },
-      "on": { "tZoneStrength": 1, "tcoef": 0.08, "spec": "skinShade:true" },
-      "t04": { "tZoneStrength": 0.5, "tcoef": 0.04, "spec": "skinShade:{tZoneStrength:0.5}" },
-      "t20": { "tZoneStrength": 2, "tcoef": 0.16, "spec": "skinShade:{tZoneStrength:2}" }
+      "off2": { "tZoneStrength": null, "tcoef": 0, "spec": "identical off spec re-rendered (run-to-run noise witness)" },
+      "on": { "tZoneStrength": 1, "tcoef": 0.08, "spec": "skinShade:true + curvature map" },
+      "t04": { "tZoneStrength": 0.5, "tcoef": 0.04, "spec": "skinShade:{tZoneStrength:0.5} + curvature map" },
+      "t20": { "tZoneStrength": 2, "tcoef": 0.16, "spec": "skinShade:{tZoneStrength:2} + curvature map" }
     }
   },
   "tcoef": { "on": 0.08, "t04": 0.04, "t20": 0.16 },
   "renders": {
-    "off": { "png": "skinshade-off-front.png", "sha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2" },
-    "on": { "png": "skinshade-on-front.png", "sha256": "2c6d9d08b544ec0c0324a4e2013d75aa93f3cd27f29f2bfb13a07994306f03a0" },
-    "t04": { "png": "skinshade-t04-front.png", "sha256": "679321f516561068a45e003f86048cf8221e8023d69b23122cb952713f48a232" },
-    "t20": { "png": "skinshade-t20-front.png", "sha256": "4c68632452ff57ca072d9d45b6ea6dedd2adfd6d3218fac08c022499e8ea00bc" }
+    "off": { "png": "h1/skinshade-off-front.png", "sha256": "bfcef8a2f42a1a65166761260039b84871c232e44c0f38980f3f79f03b12b421" },
+    "off2": { "png": "h1/skinshade-off2-front.png", "sha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2" },
+    "on": { "png": "h1/skinshade-on-front.png", "sha256": "96f9d022b949ec7e34fd5d1a92ecf965d1ff1a2bea3d8659dbd643e192b483f0" },
+    "t04": { "png": "h1/skinshade-t04-front.png", "sha256": "940c01a41f16b2dd54582d248c2ead4ebb08394b63bfdcedef62dd8752ccb889" },
+    "t20": { "png": "h1/skinshade-t20-front.png", "sha256": "387093da7d36d4c234e2fc564188c8941ff3774b04b5e4541cce3feff33c92df" }
   },
   "crops": {
     "cheek": { "x0": 700, "y0": 690, "x1": 880, "y1": 840 },
@@ -57,40 +61,53 @@
     "nostril": { "x0": 555, "y0": 730, "x1": 725, "y1": 850 }
   },
   "changedPx": {
-    "onVsOff": { "cheek": 26999, "lip": 28717, "nostril": 20400 },
-    "t04VsOn": { "cheek": 5043, "lip": 2028, "nostril": 7840 },
-    "t20VsOn": { "cheek": 8296, "lip": 3800, "nostril": 11895 }
+    "onVsOff": { "cheek": 21514, "lip": 25467, "nostril": 18629 },
+    "t04VsOn": { "cheek": 5185, "lip": 2001, "nostril": 8038 },
+    "t20VsOn": { "cheek": 8402, "lip": 3886, "nostril": 12217 },
+    "offVsOff2": { "cheek": 0, "lip": 0, "nostril": 0 }
   },
-  "changedPxMethod": "any-channel abs diff > 0 per native crop rect, counted by the gate test's own decoder (verified byte-exact vs PIL on skinshade-off-front.png, 4915200/4915200 bytes; the scratch PIL script undercounted via L-quantization and is superseded)",
+  "changedPxMethod": "any-channel abs diff > 0 per native crop rect, counted by the gate test's own decoder (verified byte-exact vs PIL on the h0 off front, 4915200/4915200 bytes)",
+  "f1": {
+    "off": { "cheek": 240526.31280000214, "lip": 514206.53999998665, "nostril": 266252.3503999962 },
+    "on": { "cheek": 242923.71120000267, "lip": 521762.18759998394, "nostril": 268359.3711999964 },
+    "off2": { "cheek": 240526.31280000214, "lip": 514206.53999998665, "nostril": 266252.3503999962 },
+    "ratioOnOverOff": { "cheek": 1.00997, "lip": 1.01469, "nostril": 1.00792 },
+    "noiseRatio": 1.0,
+    "noiseMethod": "off vs off2 (same spec, separate invocations): crop edge energies EXACTLY equal, 0 changed px in all face crops; full frames differ by 19/1638400 px (bbox x2-1275 y663-1276, silhouette raster noise, max abs 30) — SwiftShader thread-rasterization noise, face pixels deterministic",
+    "factor": 1.05
+  },
   "cw1": {
     "originMainSha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+    "witness": "h1/skinshade-off2-front.png (a flag-off render, byte-identical to the h0 clean-origin/main-tree render)",
     "identical": true,
-    "method": "clean worktree at origin/main (/tmp/cw1-main, removed after), same off-variant spec, same machine/browser; flag-off tree render == origin/main render byte-for-byte"
+    "method": "h0 measured the origin/main-tree render at /tmp/cw1-main (worktree removed after); h1 off2 reproduces that sha exactly. h1 off (first run) differs from off2 by the 19px silhouette noise above with 0 face-crop px — run-to-run noise, not a path change (the flag-off code path is untouched: no hook, no uniforms, same program)."
   },
   "storeShas": {
-    "skinshade-off-cheek.png": "6da826a77969a40e48bab7275f244773ea0958aeebd97d0914e7c43917c5dcfc",
-    "skinshade-off-front.png": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
-    "skinshade-off-lip.png": "4199bc5a31e8bd55f3693aba9587d9bf7843d8b70389b985c9cbf365bf9fba39",
-    "skinshade-off-nostril.png": "0b6469faf122e3fadf4860fc1548395ddeb2ced598343ec3c47956fb0cb27fad",
-    "skinshade-off.json": "5431b09af637c178af246876df7cf7ea3608961720ef13127a913e708863e907",
-    "skinshade-on-cheek.png": "70fa0dd6f5ef96ea302f84fe7c6460bc735ed7111f08c090de88c5590c961e33",
-    "skinshade-on-front.png": "2c6d9d08b544ec0c0324a4e2013d75aa93f3cd27f29f2bfb13a07994306f03a0",
-    "skinshade-on-lip.png": "af003bd5bdc9333daddb01591e2a58ae5876bdc7943323800209fc9033e52c87",
-    "skinshade-on-nostril.png": "93cd7c78292857b94ab0f7e6450df179b280464b4cc9be386e1393dcf0213a55",
-    "skinshade-on.json": "57b59f899d674695ef86263f91f84f638e77fa3fa08aeda8bd0c77d145320e0a",
-    "skinshade-t04-cheek.png": "a8441e44d50a82a4af3f9b89c2cf851f391336b9b347b4650fc3bd9a7f3801d8",
-    "skinshade-t04-front.png": "679321f516561068a45e003f86048cf8221e8023d69b23122cb952713f48a232",
-    "skinshade-t04-lip.png": "81e74afc73765078a54ed497835f9d0d7062b3afc71f249c304774df85668644",
-    "skinshade-t04-nostril.png": "1687a60c08f4e80a71ff3049f6a7d52eb7a0e9db091f68d7946ffa451a5debc9",
-    "skinshade-t04.json": "86c6ea55dd05ed50291e32a9f37f778b6bf84eb1c6af8a30879c6006003f47ab",
-    "skinshade-t20-cheek.png": "e50c8c3afa94e6198c181d0721dc77be4c9965b5a809788871199c9d6c82dcdb",
-    "skinshade-t20-front.png": "4c68632452ff57ca072d9d45b6ea6dedd2adfd6d3218fac08c022499e8ea00bc",
-    "skinshade-t20-lip.png": "ee14d84092e30d7cf02209f201a94e666aca517fb30479f7be438ce749d991ca",
-    "skinshade-t20-nostril.png": "ced0d9216f4b9711cdc8866855bb1287cbaa22e4b29e87e891dee20f86577a9d",
-    "skinshade-t20.json": "4b5a59cd995777f5c1dd5e5809bd429a05e1cc1256af44c5f8797be8ab1cfd59"
+    "h1/skinshade-off-cheek.png": "24d734384bc83e7ff18b4af120544b491c18130b679c3b46aa17ba7234e1bd7c",
+    "h1/skinshade-off-front.png": "bfcef8a2f42a1a65166761260039b84871c232e44c0f38980f3f79f03b12b421",
+    "h1/skinshade-off-lip.png": "a578abc0c930ecf90bf52b44eaf974ee09853b928b35594f483b62479e60567b",
+    "h1/skinshade-off-nostril.png": "d0fc190ce0f5f68f2078f966d4871b108f39ab36a73f7fecb67d8b27dd1c8806",
+    "h1/skinshade-off.json": "c543bc1f01ce0c5d96725c1de0314619767d03cfedb0f707c3186754709f0cc4",
+    "h1/skinshade-off2-front.png": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+    "h1/skinshade-off2.json": "f1be5084ccfe435fe7d9c305f07cde8887e7d692fe9c4bed90a81adcb6b65b57",
+    "h1/skinshade-on-cheek.png": "075b7e4db136947d3718d79f82a5f1dcc937a9ce58a21eb7cad29584177c1b6d",
+    "h1/skinshade-on-front.png": "96f9d022b949ec7e34fd5d1a92ecf965d1ff1a2bea3d8659dbd643e192b483f0",
+    "h1/skinshade-on-lip.png": "0824f010767ebc147f3e771cdb6bbd68694f3e2252f635ba31ff3270f0abfa3c",
+    "h1/skinshade-on-nostril.png": "8a50282aa530b7e55ce93e134cb1b78a832c424097e3dde0bf39f0cd10230a48",
+    "h1/skinshade-on.json": "4e29171532cdf950823b7cda4c2c75a4fe2851af8e40430535da78ceb6a389cc",
+    "h1/skinshade-t04-cheek.png": "7e84175cadfbceb46f503406b6c0d0f95066c060ca211a86588a5388f25a1ffd",
+    "h1/skinshade-t04-front.png": "940c01a41f16b2dd54582d248c2ead4ebb08394b63bfdcedef62dd8752ccb889",
+    "h1/skinshade-t04-lip.png": "1e4bee541977cf9171ab900f86fd5412587adab5e3f5ecfa94e3c38ba7389a31",
+    "h1/skinshade-t04-nostril.png": "e28f4dca3dda8a3eb7d55f2428bd62d39943d165d18597cd4f4f208ed9f4ce84",
+    "h1/skinshade-t04.json": "4f285f27cdf4c6370ee182d93d3d78a7243c575d9e6d983b86f375b8ed95d683",
+    "h1/skinshade-t20-cheek.png": "ded65154252591153b74aec02a50cd17378f0d1250c496ee4c62bc7b6a5e3c82",
+    "h1/skinshade-t20-front.png": "387093da7d36d4c234e2fc564188c8941ff3774b04b5e4541cce3feff33c92df",
+    "h1/skinshade-t20-lip.png": "9e1d0bc76878352e12debee4e970f6ce3a70fed65bb848c3b690fef779322177",
+    "h1/skinshade-t20-nostril.png": "fd364b32ca473ca3abe0a965d71d9dbdd49b77bed5c82cafc264cd3482244eb2",
+    "h1/skinshade-t20.json": "11a23c46e91e21a69961e9b69234e482e8e478a3ca675e26aee9df22ce67bb80"
   },
-  "moduleSha256": "453203c4dc272cd1a9cf012e450eb9d5510a45373e168a9bb5b05956e17598df",
-  "archNotes": "no entrypoint export added (freeze holds: routing the test through the entrypoint would force ~12 new public exports). G1/CW2 must exercise the flag through applyMaterialOverrides, which is entrypoint-reachable by design, so test internal imports rose 10->12; ceiling regenerated with the sanctioned pnpm arch:ceilings (precedent: 5->10 raise in history) plus pnpm arch:index. rootEntrypointExports 38->33 is pre-existing drift (cd05d2cb8 unpublished names without regenerating), now exact.",
-  "stillNeeds": "human grade of the sweep crops; follow-up may restore the +0.08*C/+0.05*H terms if a portrait-path AO/frequency source lands, and revisit lip-mid-upper as a seam-side landmark",
-  "harm": "none measured: flag-off path byte-identical (CW1); flag-on program is a distinct cache key so no material cross-talk; no transmission pass, no environment change, no GLB write"
+  "moduleSha256": "3528ab5c08034bf0de127518e58f9a1994e8fe3e6b33dccbe3321e43826afe35",
+  "archNotes": "h1 keeps testInternalImports at 10 with ZERO new public exports: the gate test imports exactly one entrypoint-reachable module (the flag path it must exercise) plus unreachable png-crop.ts, and the pre-existing encounter-actor-framing test was routed from ./encounter-actor-framing.js to ./index.js (same symbol, public path) in the same commit to offset it. An entrypoint export of the applier was tried and reverted: it trips the public-surface admission freeze (frozen ADMISSION_GROUPS pins, operator-approved moves only) with no external binder. Test-only TS mirrors were deleted from skin-shade.ts; shipped GLSL numerals are pinned through the installed hook instead. The 38->33 change: on main the committed ceiling was already 38 while the measured surface was 33 (cd05d2cb8 unpublished 43 names without regenerating; the export gate only refuses unlisted names, so main stayed green with a stale ceiling) — regen made it exact.",
+  "stillNeeds": "human grade of the h1 sweep crops; follow-up may restore the +0.08*C/+0.05*H terms if a portrait-path AO/frequency source lands, and revisit lip-mid-upper as a seam-side landmark",
+  "harm": "none measured: flag-off path byte-identical (CW1 witness off2); flag-on program is a distinct cache key so no material cross-talk; no transmission pass, no environment change, no GLB write; capture-tool edit only generalizes the local-file serving loop (existing /__spike/ mechanism, no new route)"
 }

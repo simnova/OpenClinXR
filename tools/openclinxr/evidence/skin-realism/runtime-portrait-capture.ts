@@ -436,6 +436,11 @@ export function assertVariantLanded(variant: VariantDef, record: Record<string, 
         if (ov.emissive !== undefined) eq("emissive", ov.emissive);
         if (ov.emissiveIntensity !== undefined) eq("emissiveIntensity", ov.emissiveIntensity);
         if (ov.hide === true) eq("hidden", true);
+        if (ov.skinShade !== undefined && ov.skinShade !== false) {
+          if (rb.skinShade !== true) {
+            fail(`${String(ov.match)} skinShade readback is not true (shader did not install)`);
+          }
+        }
         const phys = ov.physical as Record<string, unknown> | undefined;
         if (phys) {
           if (rb.type !== "MeshPhysicalMaterial") fail(`${String(ov.match)} type ${String(rb.type)} is not MeshPhysicalMaterial`);
@@ -579,17 +584,20 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
   if (!Array.isArray(rawMatOvs)) throw new Error(`variant ${variant.id}: materialOverrides must be a list`);
   const matOvs = rawMatOvs.map((o) => ({ ...(o as Record<string, unknown>) }));
   for (const ov of matOvs) {
-    const rel = ov.baseColorUrl;
-    if (rel == null) continue;
-    if (typeof rel !== "string") throw new Error(`variant ${variant.id}: materialOverrides[].baseColorUrl must be a path string`);
-    const abs = path.isAbsolute(rel) ? rel : path.join(cwd, rel);
-    const bytes = readFileSync(abs);
-    const ext = path.extname(abs).toLowerCase() || ".png";
-    const servedPath = `/__spike/tex${texIndex}${ext}`;
-    texIndex += 1;
-    spikeFiles.set(servedPath, { bytes, contentType: contentTypeFor(abs) });
-    inputShas[`${String(ov.match)}:${rel}`] = { sha256: createHash("sha256").update(bytes).digest("hex"), servedUrl: servedPath };
-    ov.baseColorUrl = servedPath;
+    // Local texture files served to the page (skin-shade curvature map rides here).
+    for (const key of ["baseColorUrl", "skinShadeCurvatureUrl"] as const) {
+      const rel = ov[key];
+      if (rel == null) continue;
+      if (typeof rel !== "string") throw new Error(`variant ${variant.id}: materialOverrides[].${key} must be a path string`);
+      const abs = path.isAbsolute(rel) ? rel : path.join(cwd, rel);
+      const bytes = readFileSync(abs);
+      const ext = path.extname(abs).toLowerCase() || ".png";
+      const servedPath = `/__spike/tex${texIndex}${ext}`;
+      texIndex += 1;
+      spikeFiles.set(servedPath, { bytes, contentType: contentTypeFor(abs) });
+      inputShas[`${String(ov.match)}:${rel}`] = { sha256: createHash("sha256").update(bytes).digest("hex"), servedUrl: servedPath };
+      ov[key] = servedPath;
+    }
   }
 
   let server = null as Awaited<ReturnType<typeof spawnPortlessDevServer>> | null;
@@ -625,8 +633,10 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
         }
       }
       for (const ov of matOvs) {
-        if (typeof ov.baseColorUrl === "string" && (ov.baseColorUrl as string).startsWith("/__spike/")) {
-          ov.baseColorUrl = `${ui.url.replace(/\/$/, "")}${ov.baseColorUrl as string}`;
+        for (const key of ["baseColorUrl", "skinShadeCurvatureUrl"] as const) {
+          if (typeof ov[key] === "string" && (ov[key] as string).startsWith("/__spike/")) {
+            ov[key] = `${ui.url.replace(/\/$/, "")}${ov[key] as string}`;
+          }
         }
       }
       for (const rel of Object.keys(inputShas)) {

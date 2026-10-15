@@ -20,6 +20,7 @@ import { isFittedHairMeshName } from "./head-box-from-geometry.js";
 import {
   applySkinShade,
   resolveSkinShadeOptions,
+  skinShadeCurvature,
   skinShadeInstalled,
   type SkinShadeOptions,
 } from "./skin-shader/skin-shade.js";
@@ -188,9 +189,13 @@ export type MaterialOverride = {
    * Portrait skin-shade flag (tsk_2f1eca863f8134f6): true installs the
    * onBeforeCompile skin shader at default strength; an object sets the
    * T-zone sweep strength. Absent/false installs nothing (CW1: the default
-   * program is byte-identical to origin/main).
+   * program is byte-identical to origin/main). A flag WITHOUT
+   * skinShadeCurvatureUrl REFUSES: the shader samples the baked curvature
+   * map (aisha-curvature-1024.png), so an unbound sampler is a failure.
    */
   skinShade?: boolean | SkinShadeOptions;
+  /** Baked curvature map for the skin-shade flag (data texture, like aoMap). */
+  skinShadeCurvatureUrl?: string;
   emissive?: string;
   emissiveIntensity?: number;
   hide?: boolean;
@@ -222,6 +227,7 @@ export type MaterialOverrideReadback = {
   emissiveIntensity: number | null;
   hidden: boolean;
   skinShade: boolean;
+  skinShadeCurvature: boolean;
   clearcoat: number | null;
   clearcoatRoughness: number | null;
   ior: number | null;
@@ -276,6 +282,7 @@ function readbackMaterial(mesh: Mesh, m: MeshStandardMaterial | MeshPhysicalMate
     emissiveIntensity: typeof m.emissiveIntensity === "number" ? m.emissiveIntensity : null,
     hidden: mesh.visible !== true,
     skinShade: skinShadeInstalled(m),
+    skinShadeCurvature: skinShadeCurvature(m) != null,
     clearcoat: typeof phys.clearcoat === "number" ? phys.clearcoat : null,
     clearcoatRoughness: typeof phys.clearcoatRoughness === "number" ? phys.clearcoatRoughness : null,
     ior: typeof phys.ior === "number" ? phys.ior : null,
@@ -369,11 +376,19 @@ export async function applyMaterialOverrides(
       if (ov.metalness !== undefined) m.metalness = ov.metalness;
       if (ov.envMapIntensity !== undefined) m.envMapIntensity = ov.envMapIntensity;
       if (ov.skinShade !== undefined && ov.skinShade !== false) {
+        if (typeof ov.skinShadeCurvatureUrl !== "string" || !ov.skinShadeCurvatureUrl) {
+          throw new Error(
+            `materialOverride /${ov.match}/i sets skinShade without skinShadeCurvatureUrl — refusing rather than binding an unbound curvature sampler`,
+          );
+        }
         const flagOpts: SkinShadeOptions =
           ov.skinShade === true ? {} : (ov.skinShade as SkinShadeOptions);
         // Fail-closed resolution first: garbage strengths throw before install.
         resolveSkinShadeOptions(flagOpts);
-        applySkinShade(m, flagOpts);
+        const curvTex = await loader.loadAsync(ov.skinShadeCurvatureUrl);
+        curvTex.colorSpace = NoColorSpace;
+        curvTex.flipY = false;
+        applySkinShade(m, { ...flagOpts, curvatureMap: curvTex });
       }
       if (emissive) m.emissive.copy(emissive);
       if (ov.emissiveIntensity !== undefined) m.emissiveIntensity = ov.emissiveIntensity;

@@ -1,5 +1,5 @@
 /**
- * Portrait skin-shade flag (tsk_2f1eca863f8134f6).
+ * Portrait skin-shade flag (tsk_2f1eca863f8134f6, h1 rework).
  *
  * No onBeforeCompile skin shader existed in the tree (grep: onBeforeCompile
  * over packages/openclinxr/xr-scene/src = eye-shader only) — this module is
@@ -8,16 +8,22 @@
  * fragment-only skin treatment on the portrait skin material:
  *
  *   (a) pre-integrated-style diffuse approximation: curvature-indexed wrap /
- *       scatter lift. Curvature comes from SCREEN-SPACE DERIVATIVES
- *       (fwidth of the view normal), NOT the baked curvature map: the
- *       skin-maps slice (3953dd73b) landed aisha-curvature-1024.png as
- *       baked_unwired with no texture plumbing in the portrait path, and this
- *       card forbids new bakes while allowing no new portrait texture loads.
+ *       scatter lift. Curvature comes from the BAKED CURVATURE MAP that the
+ *       skin-maps slice landed (aisha-curvature-1024.png, store skin-maps,
+ *       maps-manifest.json): Blender Geometry Pointiness remapped
+ *       0.35 -> 0 (concave) .. 0.65 -> 1 (convex), so 0.5 is flat
+ *       (measured map median 131/255 = 0.51). h0 used screen-space
+ *       derivatives (fwidth of the view normal); the orchestrator rejected
+ *       that on sight (D1 FACETING: fwidth is piecewise constant per
+ *       triangle, so the curvature index and the scatter jumped at every
+ *       mesh edge). No derivative remains in the shader (grep fwidth =
+ *       no hits outside this comment).
  *   (b) blurred normal: the lighting normal is mixed toward the smooth
- *       interpolated vertex normal. DEVIATION RECORDED: three.js
+ *       interpolated vertex normal (vSkinSmoothN = transformedNormal — a
+ *       smoothed source, never a derivative). DEVIATION RECORDED: three.js
  *       MeshStandardMaterial feeds ONE normal to both diffuse and specular,
  *       so the blur softens both terms; the graded effect is the diffuse
- *       softening in the cheek crop (G2), the specular softening is the
+ *       softening in the cheek crop (F2), the specular softening is the
  *       accepted side effect.
  *   (c) roughness T-zone: 0.62 - Tc*T clipped [0.3,0.8], the exact formula
  *       of the face-replay bake (tools/openclinxr/asset-pipeline/skin/
@@ -35,16 +41,25 @@
  *       manifest, so the UVs transfer to the shipped Aisha GLB).
  *   (d) lips: roughness mixed toward 0.45 by the lip disk (same file:
  *       "lips 0.45"), so the mouth is not uniformly glossy.
- *   (e) nostrils: small emissive-side scatter lift masked at the nostril
- *       disks (lift, not paint — albedo-modulated, no colour shift).
+ *   (e) nostrils: small emissive-side scatter lift from the cavity field
+ *       plus the nostril disks (lift, not paint — albedo-modulated, no
+ *       colour shift).
  *
- * No new textures, no scene.environment touch, no transmission term.
+ * The curvature map arrives through the portrait path's existing texture
+ * loading (TextureLoader in applyMaterialOverrides, served to the page by
+ * the capture tool's /__spike/ route like every other override texture):
+ * MaterialOverride.skinShadeCurvatureUrl. A skinShade flag WITHOUT that URL
+ * REFUSES (fail closed at the spec level); the hook itself tolerates a null
+ * texture only so the node unit test (no image decoder) can prove
+ * installation through the flag path with a DataTexture stand-in.
+ * No scene.environment touch, no transmission term.
  * Flag OFF installs nothing: onBeforeCompile/customProgramCacheKey untouched.
  */
 
 import type {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Texture,
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from "three";
@@ -89,6 +104,11 @@ export const SKIN_R_NOSTRIL = 0.012;
 /** Mask feather in UV: blur-12 at 4096 ~= 0.0029 (build_roughness.py). */
 export const SKIN_FEATHER_UV = 0.004;
 
+/** Curvature map channel: the bake is grayscale EMIT (R=G=B). */
+export const SKIN_CURVATURE_CHANNEL = "r";
+/** Flat-skin curvature: bake ramp maps pointiness 0.5 -> 0.5 (median 0.51 measured). */
+export const SKIN_CURVATURE_FLAT = 0.5;
+
 /** Forehead centre, mirroring build_roughness.py (brow-end-inner mid pushed past brows). */
 export function skinForeheadUv(): readonly [number, number] {
   const midU = (SKIN_BROW_INNER_L_UV[0] + SKIN_BROW_INNER_R_UV[0]) / 2;
@@ -99,92 +119,37 @@ export function skinForeheadUv(): readonly [number, number] {
   ];
 }
 
-const smoothstep = (e0: number, e1: number, x: number): number => {
-  const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1);
-  return t * t * (3 - 2 * t);
-};
-
-/** Soft disk mask (1 inside, feathered edge), mirroring the GLSL below. */
-export function skinDisk(
-  uv: readonly [number, number],
-  centre: readonly [number, number],
-  radius: number,
-): number {
-  const d = Math.hypot(uv[0] - centre[0], uv[1] - centre[1]);
-  return 1 - smoothstep(radius - SKIN_FEATHER_UV, radius + SKIN_FEATHER_UV, d);
-}
-
-/** T-zone mask: max of nose / chin / forehead disks. */
-export function skinTZoneMask(uv: readonly [number, number]): number {
-  return Math.max(
-    skinDisk(uv, SKIN_NOSE_UV, SKIN_R_NOSE),
-    skinDisk(uv, SKIN_CHIN_UV, SKIN_R_CHIN),
-    skinDisk(uv, skinForeheadUv(), SKIN_R_FOREHEAD),
-  );
-}
-
-/** Lip mask. */
-export function skinLipMask(uv: readonly [number, number]): number {
-  return skinDisk(uv, SKIN_LIP_UV, SKIN_R_LIP);
-}
-
-/** Nostril mask: max of the two nostril disks. */
-export function skinNostrilMask(uv: readonly [number, number]): number {
-  return Math.max(
-    skinDisk(uv, SKIN_NOSTRIL_L_UV, SKIN_R_NOSTRIL),
-    skinDisk(uv, SKIN_NOSTRIL_R_UV, SKIN_R_NOSTRIL),
-  );
-}
-
-/**
- * Bake-formula roughness blend, mirroring the GLSL exactly (C/H terms
- * omitted — see header): inside the zone masks the material roughness blends
- * toward 0.62 - Tc*T with lips pulled to 0.45; outside the masks the base
- * roughness passes through untouched.
- */
-export function skinBlendedRoughness(
-  base: number,
-  tZone: number,
-  lip: number,
-  tcoef: number,
-): number {
-  const zoneW = Math.min(Math.max(tZone + lip, 0), 1);
-  if (zoneW <= 0) return base;
-  let target = SKIN_ROUGH_BASE - tcoef * tZone;
-  target = target + (SKIN_LIP_ROUGHNESS - target) * Math.min(Math.max(lip / Math.max(zoneW, 1e-4), 0), 1);
-  const blended = base + (target - base) * zoneW;
-  return Math.min(Math.max(blended, SKIN_ROUGH_MIN), SKIN_ROUGH_MAX);
-}
-
 export type SkinShadeOptions = {
   /** Multiplier on SKIN_TCOEF_DEFAULT (1 = bake-faithful 0.08). Must be finite and >= 0. */
   tZoneStrength?: number;
   /** Normal mix toward the smooth vertex normal (default 0.4, recorded constant). */
   blurMix?: number;
   /** Scatter gains (recorded constants, sweep-graded). */
-  scatterCurvature?: number;
+  scatterConvex?: number;
+  scatterCavity?: number;
   scatterNostril?: number;
   scatterLip?: number;
-  /** Screen-derivative curvature gain (recorded constant). */
-  curvatureGain?: number;
+  /** Baked curvature texture (production always binds it; null only for the node unit test). */
+  curvatureMap?: Texture | null;
 };
 
 export const SKIN_SHADE_DEFAULTS = {
   tZoneStrength: 1,
   blurMix: 0.4,
-  scatterCurvature: 0.1,
-  scatterNostril: 0.06,
+  scatterConvex: 0.06,
+  scatterCavity: 0.1,
+  scatterNostril: 0.04,
   scatterLip: 0.02,
-  curvatureGain: 24,
 };
 
 export type ResolvedSkinShadeOptions = {
   tZoneStrength: number;
   blurMix: number;
-  scatterCurvature: number;
+  scatterConvex: number;
+  scatterCavity: number;
   scatterNostril: number;
   scatterLip: number;
-  curvatureGain: number;
+  curvatureMap: Texture | null;
 };
 
 /** Fail-closed option resolution: non-finite or negative strengths refuse. */
@@ -199,10 +164,11 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
   return {
     tZoneStrength: num(options.tZoneStrength, "tZoneStrength", SKIN_SHADE_DEFAULTS.tZoneStrength),
     blurMix: num(options.blurMix, "blurMix", SKIN_SHADE_DEFAULTS.blurMix),
-    scatterCurvature: num(options.scatterCurvature, "scatterCurvature", SKIN_SHADE_DEFAULTS.scatterCurvature),
+    scatterConvex: num(options.scatterConvex, "scatterConvex", SKIN_SHADE_DEFAULTS.scatterConvex),
+    scatterCavity: num(options.scatterCavity, "scatterCavity", SKIN_SHADE_DEFAULTS.scatterCavity),
     scatterNostril: num(options.scatterNostril, "scatterNostril", SKIN_SHADE_DEFAULTS.scatterNostril),
     scatterLip: num(options.scatterLip, "scatterLip", SKIN_SHADE_DEFAULTS.scatterLip),
-    curvatureGain: num(options.curvatureGain, "curvatureGain", SKIN_SHADE_DEFAULTS.curvatureGain),
+    curvatureMap: options.curvatureMap ?? null,
   };
 }
 
@@ -217,10 +183,11 @@ export function skinShadeParsGlsl(): string {
 varying vec3 vSkinSmoothN;
 uniform float uSkinTCoef;
 uniform float uSkinBlurMix;
-uniform float uSkinScatterCurv;
+uniform float uSkinScatterCvx;
+uniform float uSkinScatterCav;
 uniform float uSkinScatterNos;
 uniform float uSkinScatterLip;
-uniform float uSkinCurvGain;
+uniform sampler2D uSkinCurvMap;
 uniform vec2 uSkinNoseUv;
 uniform vec2 uSkinChinUv;
 uniform vec2 uSkinForeheadUv;
@@ -252,8 +219,9 @@ float skinLip = skinShadeDisk(skinUv, uSkinLipUv, ${SKIN_R_LIP});
 float skinNos = max(
   skinShadeDisk(skinUv, uSkinNosLUv, ${SKIN_R_NOSTRIL}),
   skinShadeDisk(skinUv, uSkinNosRUv, ${SKIN_R_NOSTRIL}));
-vec3 skinVNorm = normalize(vNormal);
-float skinCurv = clamp(length(fwidth(skinVNorm)) * uSkinCurvGain, 0.0, 1.0);
+float skinCurv = texture2D(uSkinCurvMap, skinUv).${SKIN_CURVATURE_CHANNEL};
+float skinConvex = clamp((skinCurv - ${SKIN_CURVATURE_FLAT}) * 2.0, 0.0, 1.0);
+float skinCav = clamp((${SKIN_CURVATURE_FLAT} - skinCurv) * 2.0, 0.0, 1.0);
 `;
 }
 
@@ -281,7 +249,7 @@ normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
 /** Curvature-indexed scatter + nostril/lip lift (after `#include <emissivemap_fragment>`). */
 export function skinShadeScatterGlsl(): string {
   return /* glsl */ `
-totalEmissiveRadiance += diffuseColor.rgb * (skinCurv * uSkinScatterCurv + skinNos * uSkinScatterNos + skinLip * uSkinScatterLip);
+totalEmissiveRadiance += diffuseColor.rgb * (skinConvex * uSkinScatterCvx + skinCav * uSkinScatterCav + skinNos * uSkinScatterNos + skinLip * uSkinScatterLip);
 `;
 }
 
@@ -293,16 +261,22 @@ vSkinSmoothN = normalize(transformedNormal);
 }
 
 const installed = new WeakSet<object>();
+const curvatureOf = new WeakMap<object, Texture | null>();
 
 /** True when applySkinShade has hooked this material (drives the readback, not JSON). */
 export function skinShadeInstalled(material: object): boolean {
   return installed.has(material);
 }
 
+/** Curvature texture bound by applySkinShade (null = unit-test stand-in path). */
+export function skinShadeCurvature(material: object): Texture | null {
+  return curvatureOf.get(material) ?? null;
+}
+
 export function skinShadeCacheKey(resolved: ResolvedSkinShadeOptions): string {
   return (
     `openclinxr-skin-shade:t${resolved.tZoneStrength}:b${resolved.blurMix}` +
-    `:c${resolved.scatterCurvature},${resolved.scatterNostril},${resolved.scatterLip}:g${resolved.curvatureGain}`
+    `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}`
   );
 }
 
@@ -327,10 +301,11 @@ export function applySkinShade(
     prev?.(shader, renderer);
     shader.uniforms["uSkinTCoef"] = { value: tcoef };
     shader.uniforms["uSkinBlurMix"] = { value: resolved.blurMix };
-    shader.uniforms["uSkinScatterCurv"] = { value: resolved.scatterCurvature };
+    shader.uniforms["uSkinScatterCvx"] = { value: resolved.scatterConvex };
+    shader.uniforms["uSkinScatterCav"] = { value: resolved.scatterCavity };
     shader.uniforms["uSkinScatterNos"] = { value: resolved.scatterNostril };
     shader.uniforms["uSkinScatterLip"] = { value: resolved.scatterLip };
-    shader.uniforms["uSkinCurvGain"] = { value: resolved.curvatureGain };
+    shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
     shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
     shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
     shader.uniforms["uSkinForeheadUv"] = { value: [forehead[0], forehead[1]] };
@@ -362,5 +337,6 @@ export function applySkinShade(
   material.customProgramCacheKey = () => skinShadeCacheKey(resolved);
   material.needsUpdate = true;
   installed.add(material);
+  curvatureOf.set(material, resolved.curvatureMap);
   return material;
 }

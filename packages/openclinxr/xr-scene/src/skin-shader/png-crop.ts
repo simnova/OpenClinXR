@@ -88,3 +88,29 @@ export function countChangedPx(a: DecodedPng, b: DecodedPng, rect: CropRect, tol
   }
   return n;
 }
+
+/**
+ * Edge energy inside a rect: sum of |Sobel_x| + |Sobel_y| on luminance
+ * (0.2126/0.7152/0.0722, same weights as the portrait lit-span measure).
+ * A shader that adds triangle seams raises this; a blur lowers it.
+ */
+export function sobelEnergy(png: DecodedPng, rect: CropRect): number {
+  const { w, chans, data } = png;
+  const lum = (x: number, y: number): number => {
+    const i = (y * w + x) * chans;
+    return 0.2126 * data[i]! + 0.7152 * data[i + 1]! + 0.0722 * data[i + 2]!;
+  };
+  let sum = 0;
+  for (let y = Math.max(rect.y0 + 1, 1); y < Math.min(rect.y1 - 1, png.h - 1); y += 1) {
+    for (let x = Math.max(rect.x0 + 1, 1); x < Math.min(rect.x1 - 1, w - 1); x += 1) {
+      const gx =
+        -lum(x - 1, y - 1) - 2 * lum(x - 1, y) - lum(x - 1, y + 1) +
+        lum(x + 1, y - 1) + 2 * lum(x + 1, y) + lum(x + 1, y + 1);
+      const gy =
+        -lum(x - 1, y - 1) - 2 * lum(x, y - 1) - lum(x + 1, y - 1) +
+        lum(x - 1, y + 1) + 2 * lum(x, y + 1) + lum(x + 1, y + 1);
+      sum += Math.abs(gx) + Math.abs(gy);
+    }
+  }
+  return sum;
+}
