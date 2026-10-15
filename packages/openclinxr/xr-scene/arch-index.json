@@ -86,6 +86,7 @@
     "src/learner-phase-trace-source.test.ts",
     "src/learner-scenario-body-provenance.test.ts",
     "src/skin-shader/the-cavity-darkens-specular-not-albedo.test.ts",
+    "src/skin-shader/the-skin-lut-is-identity-on-flat-skin.test.ts",
     "src/skin-shader/the-skin-shader-flag-is-read-back.test.ts",
     "src/station-layout-view.test.ts",
     "src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts"

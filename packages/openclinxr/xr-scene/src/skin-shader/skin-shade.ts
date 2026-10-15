@@ -81,6 +81,16 @@ import type {
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from "three";
+import {
+  type ResolvedSkinLutOptions,
+  type SkinLutOptions,
+  SKIN_CURVATURE_FLAT,
+  SKIN_LUT_DEFAULTS,
+  resolveSkinLutOptions,
+  skinLutTexture,
+  skinShadeLutParsGlsl,
+  skinShadeLutScatterGlsl,
+} from "./skin-lut.js";
 
 /** Default T-zone coefficient: build_roughness.py --tcoef default 0.08. */
 export const SKIN_TCOEF_DEFAULT = 0.08;
@@ -134,8 +144,6 @@ export const SKIN_CURVATURE_CHANNEL = "r";
 export const SKIN_CAVITY_CHANNEL = "g";
 /** Cavity roughness coefficient: build_roughness.py:114 "+0.08*C". */
 export const SKIN_CAVITY_ROUGHNESS = 0.08;
-/** Flat-skin curvature: bake ramp maps pointiness 0.5 -> 0.5 (median 0.51 measured). */
-export const SKIN_CURVATURE_FLAT = 0.5;
 
 /** Forehead centre, mirroring build_roughness.py (brow-end-inner mid pushed past brows). */
 export function skinForeheadUv(): readonly [number, number] {
@@ -147,7 +155,7 @@ export function skinForeheadUv(): readonly [number, number] {
   ];
 }
 
-export type SkinShadeOptions = {
+export interface SkinShadeOptions extends SkinLutOptions {
   /** Multiplier on SKIN_TCOEF_DEFAULT (1 = bake-faithful 0.08). Must be finite and >= 0. */
   tZoneStrength?: number;
   /** Normal mix toward the smooth vertex normal (default 0.4, recorded constant). */
@@ -166,7 +174,7 @@ export type SkinShadeOptions = {
   specularOcclusion?: number;
   /** Baked curvature texture (production always binds it; null only for the node unit test). */
   curvatureMap?: Texture | null;
-};
+}
 
 export const SKIN_SHADE_DEFAULTS = {
   tZoneStrength: 1,
@@ -176,9 +184,10 @@ export const SKIN_SHADE_DEFAULTS = {
   scatterNostril: 0.04,
   scatterLip: 0.02,
   specularOcclusion: 1,
+  ...SKIN_LUT_DEFAULTS,
 };
 
-export type ResolvedSkinShadeOptions = {
+export interface ResolvedSkinShadeOptions extends ResolvedSkinLutOptions {
   tZoneStrength: number;
   blurMix: number;
   scatterConvex: number;
@@ -187,7 +196,7 @@ export type ResolvedSkinShadeOptions = {
   scatterLip: number;
   specularOcclusion: number;
   curvatureMap: Texture | null;
-};
+}
 
 /** Fail-closed option resolution: non-finite or negative strengths refuse. */
 export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): ResolvedSkinShadeOptions {
@@ -199,6 +208,7 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
     return v;
   };
   return {
+    ...resolveSkinLutOptions(options),
     tZoneStrength: num(options.tZoneStrength, "tZoneStrength", SKIN_SHADE_DEFAULTS.tZoneStrength),
     blurMix: num(options.blurMix, "blurMix", SKIN_SHADE_DEFAULTS.blurMix),
     scatterConvex: num(options.scatterConvex, "scatterConvex", SKIN_SHADE_DEFAULTS.scatterConvex),
@@ -289,6 +299,15 @@ export function skinShadeRoughnessGlsl(): string {
  * <lights_fragment_end>`): the cavity field scales direct + indirect
  * specular only. Diffuse (direct + indirect) is untouched — the albedo
  * stays clean by construction (CW1).
+ *   (g) Penner & Borshukov pre-integrated LUT (tsk_44e25e12108c307e,
+ *       sub-flag skinShade.lut, default off): replaces the wrap term (a)
+ *       with a LUT sample indexed by (key-light NdotL, curvature
+ *       deviation), added as (LUT - Lambert) so flat surfaces are exactly
+ *       untouched. LUT bytes are embedded (skin-lut-data.ts, 128x16 R8
+ *       from build_skin_lut.py): no new texture URL, no plumbing edits.
+ *       DEVIATION RECORDED: Penner & Borshukov replace direct diffuse per
+ *       light; here the key-light difference rides the existing
+ *       albedo-modulated emissive lift (see skinShadeLutScatterGlsl).
  */
 export function skinShadeSpecularGlsl(): string {
   return /* glsl */ `
@@ -335,7 +354,7 @@ export function skinShadeCacheKey(resolved: ResolvedSkinShadeOptions): string {
   return (
     `openclinxr-skin-shade:t${resolved.tZoneStrength}:b${resolved.blurMix}` +
     `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}` +
-    `:s${resolved.specularOcclusion}`
+    `:s${resolved.specularOcclusion}:l${resolved.lut ? resolved.lutStrength : 0}`
   );
 }
 
@@ -355,6 +374,7 @@ export function applySkinShade(
   const resolved = resolveSkinShadeOptions(options);
   const tcoef = skinEffectiveTCoef(resolved);
   const forehead = skinForeheadUv();
+  const lutTex = resolved.lut ? (resolved.lutMap ?? skinLutTexture()) : null;
   const prev = material.onBeforeCompile?.bind(material);
   material.onBeforeCompile = (
     shader: WebGLProgramParametersWithUniforms,
@@ -375,6 +395,13 @@ export function applySkinShade(
     shader.uniforms["uSkinLipUv"] = { value: [SKIN_LIP_UV[0], SKIN_LIP_UV[1]] };
     shader.uniforms["uSkinNosLUv"] = { value: [SKIN_NOSTRIL_L_UV[0], SKIN_NOSTRIL_L_UV[1]] };
     shader.uniforms["uSkinNosRUv"] = { value: [SKIN_NOSTRIL_R_UV[0], SKIN_NOSTRIL_R_UV[1]] };
+    if (resolved.lut) {
+      shader.uniforms["uSkinLutMap"] = { value: lutTex };
+      shader.uniforms["uSkinKeyDirWorld"] = {
+        value: [resolved.lutKeyDir[0], resolved.lutKeyDir[1], resolved.lutKeyDir[2]],
+      };
+      shader.uniforms["uSkinLutStrength"] = { value: resolved.lutStrength };
+    }
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
@@ -382,7 +409,10 @@ export function applySkinShade(
       )
       .replace("#include <fog_vertex>", `#include <fog_vertex>\n${skinShadeVertexGlsl()}`);
     shader.fragmentShader = shader.fragmentShader
-      .replace("#include <common>", `#include <common>\n${skinShadeParsGlsl()}`)
+      .replace(
+        "#include <common>",
+        `#include <common>\n${skinShadeParsGlsl()}${resolved.lut ? skinShadeLutParsGlsl() : ""}`,
+      )
       .replace("#include <map_fragment>", `#include <map_fragment>\n${skinShadeSampleGlsl()}`)
       .replace(
         "#include <roughnessmap_fragment>",
@@ -398,7 +428,7 @@ export function applySkinShade(
       )
       .replace(
         "#include <emissivemap_fragment>",
-        `#include <emissivemap_fragment>\n${skinShadeScatterGlsl()}`,
+        `#include <emissivemap_fragment>\n${resolved.lut ? skinShadeLutScatterGlsl() : skinShadeScatterGlsl()}`,
       );
   };
   material.customProgramCacheKey = () => skinShadeCacheKey(resolved);

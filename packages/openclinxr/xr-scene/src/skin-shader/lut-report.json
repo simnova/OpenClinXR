@@ -1,0 +1,156 @@
+{
+ "card": "tsk_44e25e12108c307e",
+ "status": "done_falsifier",
+ "curvatureSource": "baked map (skin-shade.ts SKIN_CURVATURE_FLAT 0.5; map median 131/255 = 0.51)",
+ "flag": "MaterialOverride.skinShade.lut (default false) + lutStrength/lutKeyDir; LUT bytes embedded in skin-lut-data.ts (128x16 R8, png 306 bytes < 150 KB store rule); no new capture/variant key, no plumbing edits",
+ "lut": {
+  "width": 128,
+  "height": 16,
+  "sha256": "0f47166a30cefa7e344663f38e9ae770275ae8c29d87eb96c9f73f140cf2e3c7",
+  "bytes": 306,
+  "axes": "u = NdotL [-1,1] -> [0,1] (128); v = |curv-0.5|*2 [0,1] (16); file row 0 (top) = v 0 = flat identity; flipY=false",
+  "model": "1D circle cross-section radius r(c) = R_MIN/c, R_MIN = 4mm (recorded constant); B = Integral K(r*p) saturate(cos(tL-p)) r dp",
+  "profile": "sum-of-Gaussians skin fit, luminance-collapsed (Rec.709) renormalized: w = [0.42181, 0.2864, 0.1667, 0.02954, 0.07897, 0.01658], v = [0.0064, 0.0484, 0.187, 0.567, 1.99, 7.41] mm^2; source: Jimenez et al. 2009 separable-SSS skin fit (Donner & Jensen 2005 multipole) via the d'Eon & Luebke GPU Gems 3 ch.14 section 14.4.7 method",
+  "generator": "packages/openclinxr/xr-scene/src/skin-shader/build_skin_lut.py (`mise exec -- python3`); kernel energy 1.0000, zero clamped texels",
+  "deviation": "Penner & Borshukov replace direct diffuse per light; here the key-light (LUT - Lambert) rides the existing albedo-modulated emissive lift, so the diffuse pipeline and the wrap render are untouched"
+ },
+ "g1": {
+  "epsilon": 0.00392156862745098,
+  "epsilonWhy": "8-bit LUT quantisation 1/255",
+  "flatRowMaxAbs255": 0,
+  "gate": "PASS: committed LUT row 0 == quantized saturate(NdotL); shader adds (LUT - Lambert) so flat lift is exactly zero"
+ },
+ "g2": {
+  "threshold": 12.679,
+  "thresholdSource": "tools/openclinxr/asset-pipeline/skin/maps/maps-manifest.json threshold.valueMeanAbsDiff255 (stock-CC0-atlas vs Aisha render gap); rule: S/consult47/r4.answer.md card 10 line 48 (regional score must move by >= the stock-vs-Aisha gap)",
+  "regions": {
+   "ear": {
+    "lutVsWrap": 0.512,
+    "lutVsOff": 0.2497,
+    "wrapVsOff": 0.4929
+   },
+   "nose": {
+    "lutVsWrap": 0.4173,
+    "lutVsOff": 0.9882,
+    "wrapVsOff": 1.1512
+   },
+   "cheek": {
+    "lutVsWrap": 0.2885,
+    "lutVsOff": 0.8462,
+    "wrapVsOff": 0.9543
+   }
+  },
+  "gap": 0.512,
+  "gapNote": "max(ear, nose lutVsWrap); cheek is the control, not the gap",
+  "verdict": "not_shipped_quest",
+  "gate": "FALSIFIER TRIGGERED: 0.512 < 12.679; LUT stays behind the default-off sub-flag"
+ },
+ "cw1": {
+  "originMainSha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+  "faceCropsChangedPx": {
+   "cheek": 0,
+   "lip": 0,
+   "nostril": 0
+  },
+  "fullFrameChangedPx": 16,
+  "fullFrameMaxAbs": 30,
+  "faceBoxChangedPx": 0,
+  "gate": "PASS: 0 changed px in cheek/lip/nostril crops; full-frame residue within the h1 silhouette-noise signature"
+ },
+ "cw2": {
+  "baseline": "lut-wrap-base-front.png (origin/main tree render, same spec; sha recorded in renders)",
+  "h1OnContext": "h1 skinshade-on-front is pre-specular-card, not the baseline (cheek meanAbs 1.36 vs wrap; same GLB/curvature/framing)",
+  "hookProof": "dump-wrap-shader.ts: wrap-path vertexSha 11bda921d1966b61d3f4da2dcebdf08a4a8658fc0840d98fc50ca407d406eacb + fragmentSha 9db7b9d57cb9e1a856ff13ca9846397cda38f85987e0f9ac006da35e6d5fdef8 identical stashed vs unstashed; uniforms identical (no uSkinLut* when off)",
+  "faceCropsChangedPx": {
+   "cheek": 0,
+   "lip": 0,
+   "nostril": 0
+  },
+  "fullFrameChangedPx": 0,
+  "wrapMatchesH1OnFaceCrops": true,
+  "gate": "PASS"
+ },
+ "renders": {
+  "off-front": {
+   "png": "lut-off-front.png",
+   "sha256": "f9a8d6a4830d6825949e7eebd61ed2e4fd0e14a9bc41e2b9103b0e08194f3f07"
+  },
+  "off-yaw40": {
+   "png": "lut-off-yaw40.png",
+   "sha256": "000a2fd40a0cff3a99f841162640aa40471a997400e6249b0cc793fb4b6f5ce2"
+  },
+  "wrap-front": {
+   "png": "lut-wrap-front.png",
+   "sha256": "e4376620e9943b8ad8b5d6ff90fe53c23542b595c4bf151266c75c6aaed6e0f7"
+  },
+  "wrap-yaw40": {
+   "png": "lut-wrap-yaw40.png",
+   "sha256": "0b3389ff75f36fd30331c44771f2c3d39d72ff94480b860842a4be47be506ec1"
+  },
+  "on-front": {
+   "png": "lut-on-front.png",
+   "sha256": "ef72fccdd235fced59f2b0c5d1dac131c7f7db5dff0369e742693aaa308a9578"
+  },
+  "on-yaw40": {
+   "png": "lut-on-yaw40.png",
+   "sha256": "b046bdac523ae1d3e4bea852bae945a230747f7c6b03846956ce288d113e8e12"
+  },
+  "wrap-base-front": {
+   "png": "lut-wrap-base-front.png",
+   "sha256": "e4376620e9943b8ad8b5d6ff90fe53c23542b595c4bf151266c75c6aaed6e0f7"
+  },
+  "wrap-base-yaw40": {
+   "png": "lut-wrap-base-yaw40.png",
+   "sha256": "a9c13853e8fa6d08bb07f191c9e614c77a23e0e0c02091af7e73a7b54138284c"
+  }
+ },
+ "crops": {
+  "ear": {
+   "x0": 856,
+   "y0": 624,
+   "x1": 952,
+   "y1": 808
+  },
+  "nose": {
+   "x0": 560,
+   "y0": 620,
+   "x1": 730,
+   "y1": 860
+  },
+  "cheek": {
+   "x0": 700,
+   "y0": 690,
+   "x1": 880,
+   "y1": 840
+  }
+ },
+ "cropView": {
+  "ear": "yaw40",
+  "nose": "front",
+  "cheek": "front"
+ },
+ "cropMethod": "native-pixel rects placed from ASCII luminance maps of the renders (ear: yaw40 helix blob x856-952 y624-808; nose: front bridge+tip+base; cheek: h1 rect reused)",
+ "sheet": {
+  "dir": "/Volumes/files/openclinxr-assets/store/skin-lut",
+  "cells": [
+   "lut-off-front.png",
+   "lut-off-yaw40.png",
+   "lut-wrap-front.png",
+   "lut-wrap-yaw40.png",
+   "lut-on-front.png",
+   "lut-on-yaw40.png",
+   "lut-wrap-base-front.png",
+   "lut-wrap-base-yaw40.png",
+   "lut-off-ear.png",
+   "lut-wrap-ear.png",
+   "lut-on-ear.png",
+   "lut-off-nose.png",
+   "lut-wrap-nose.png",
+   "lut-on-nose.png",
+   "lut-off-cheek.png",
+   "lut-wrap-cheek.png",
+   "lut-on-cheek.png"
+  ]
+ },
+ "harm": "flag-off path untouched (CW1); wrap program byte-identical when lut off (CW2); LUT path is a distinct cache key (:l1); no GLB/public writes; /__spike/ serving only; no Imagine; peds_nurse_kevin never opened"
+}

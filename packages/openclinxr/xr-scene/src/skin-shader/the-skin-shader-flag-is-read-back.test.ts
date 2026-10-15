@@ -195,7 +195,9 @@ describe("the skin shader flag is read back", () => {
       // only READS it into totalEmissiveRadiance).
       expect(shader.fragmentShader).not.toMatch(/diffuseColor\s*(\.rgb)?\s*[*+\-]?=/);
       expect(shader.fragmentShader).not.toMatch(/fwidth|dFdx|dFdy/);
-      expect(mat.customProgramCacheKey?.()).toMatch(/:s1$/);
+      // tsk_44e25e12108c307e: the key gains a :l<lutStrength|0> suffix
+      // (l0 = wrap path, unchanged program); the :s1 anchor moves inside.
+      expect(mat.customProgramCacheKey?.()).toMatch(/:s1:l0$/);
     });
   });
 
