@@ -1,0 +1,96 @@
+{
+  "card": "tsk_2f1eca863f8134f6",
+  "verdict": "premise_red",
+  "knownGood": "none in tree (no onBeforeCompile skin shader exists)",
+  "falsifier": {
+    "probe": "grep onBeforeCompile over packages/openclinxr/xr-scene/src = eye-shader only (eye-parallax.ts + eye test); isolated-subject-material-variants.ts had no hook; no skin-shader dir existed",
+    "result": "not triggered: no flag existed, so nothing already changed cheek/lip shading; premise_clean NOT written, changed: rule stands"
+  },
+  "curvatureSource": "screen derivatives (fwidth of the view normal, gain uSkinCurvGain=24). The baked aisha-curvature-1024.png exists (store skin-maps, status baked_unwired per maps-manifest.json after 3953dd73b) but has no portrait texture plumbing; wiring it would add async texture loads to the portrait path, so the flag stays texture-free.",
+  "flag": {
+    "field": "MaterialOverride.skinShade (true | { tZoneStrength }) in packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts, beside envMapIntensity",
+    "module": "packages/openclinxr/xr-scene/src/skin-shader/skin-shade.ts",
+    "cacheKey": "openclinxr-skin-shade:t<strength>:...",
+    "readback": "MaterialOverrideReadback.skinShade from the install WeakSet (hook-installed, never a JSON field); live portrait readback skinShade:true on mpfb_ob_patient_aisha_v1_body|mpfb_skin_ob_patient_aisha_v1 (skinshade-on.json), the only matched slot"
+  },
+  "masks": {
+    "source": "realism-95 derive/A/landmarks-uv.json (size 4096, row v*S; Aisha-derived: roles carry mpfb_ob_patient_aisha meshes; MakeHuman UV shared as-is per skin-maps manifest)",
+    "noseUv": [0.86579, 0.51683],
+    "chinUv": [0.95968, 0.51683],
+    "foreheadUv": [0.80619, 0.51678],
+    "foreheadMethod": "build_roughness.py mirror: brow-end-inner mid (0.82606, 0.5168) pushed past brows by FOREHEAD_PUSH 0.5",
+    "lipUv": [0.90992, 0.51677],
+    "lipMethod": "lip-corner midpoint; lip-mid-upper (0.92046, 0.9082) excluded as a seam-side outlier (v jumps 0.39 off the corner line)",
+    "nostrilLUv": [0.87877, 0.49666],
+    "nostrilRUv": [0.87877, 0.53701],
+    "radii": { "nose": 0.035, "chin": 0.03, "forehead": 0.055, "lip": 0.02, "nostril": 0.012, "featherUv": 0.004 },
+    "radiiSource": "nose/chin/forehead + FOREHEAD_PUSH from build_roughness.py; lip/nostril/feather are recorded implementation constants"
+  },
+  "roughness": {
+    "formula": "0.62 - Tc*T blended inside zone masks, lips toward 0.45, clip [0.3, 0.8] (build_roughness.py)",
+    "deviation": "+0.08*C (cavity/AO) and +0.05*H (albedo high-frequency) omitted: neither field is sampled in the portrait path; clip applies to the blended result",
+    "tcoefDefault": 0.08
+  },
+  "deviations": [
+    "single-normal pipeline: the blur feeds diffuse AND specular (three.js shares one normal); graded effect is the diffuse softening in the cheek crop",
+    "scatter terms (curvature 0.10, nostril 0.06, lip 0.02) and blur mix 0.4 / curvature gain 24 are recorded implementation constants, sweep-graded by the human"
+  ],
+  "sweep": {
+    "method": "runtime-portrait-capture.ts variant mode, RENDER_SIZE 1280, front, portrait:true, shipped Aisha GLB (apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb); materialOverrides match mpfb_skin",
+    "variants": {
+      "off": { "tZoneStrength": null, "tcoef": 0, "spec": "no materialOverrides (default path)" },
+      "on": { "tZoneStrength": 1, "tcoef": 0.08, "spec": "skinShade:true" },
+      "t04": { "tZoneStrength": 0.5, "tcoef": 0.04, "spec": "skinShade:{tZoneStrength:0.5}" },
+      "t20": { "tZoneStrength": 2, "tcoef": 0.16, "spec": "skinShade:{tZoneStrength:2}" }
+    }
+  },
+  "tcoef": { "on": 0.08, "t04": 0.04, "t20": 0.16 },
+  "renders": {
+    "off": { "png": "skinshade-off-front.png", "sha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2" },
+    "on": { "png": "skinshade-on-front.png", "sha256": "2c6d9d08b544ec0c0324a4e2013d75aa93f3cd27f29f2bfb13a07994306f03a0" },
+    "t04": { "png": "skinshade-t04-front.png", "sha256": "679321f516561068a45e003f86048cf8221e8023d69b23122cb952713f48a232" },
+    "t20": { "png": "skinshade-t20-front.png", "sha256": "4c68632452ff57ca072d9d45b6ea6dedd2adfd6d3218fac08c022499e8ea00bc" }
+  },
+  "crops": {
+    "cheek": { "x0": 700, "y0": 690, "x1": 880, "y1": 840 },
+    "lip": { "x0": 520, "y0": 860, "x1": 760, "y1": 980 },
+    "nostril": { "x0": 555, "y0": 730, "x1": 725, "y1": 850 }
+  },
+  "changedPx": {
+    "onVsOff": { "cheek": 26999, "lip": 28717, "nostril": 20400 },
+    "t04VsOn": { "cheek": 5043, "lip": 2028, "nostril": 7840 },
+    "t20VsOn": { "cheek": 8296, "lip": 3800, "nostril": 11895 }
+  },
+  "changedPxMethod": "any-channel abs diff > 0 per native crop rect, counted by the gate test's own decoder (verified byte-exact vs PIL on skinshade-off-front.png, 4915200/4915200 bytes; the scratch PIL script undercounted via L-quantization and is superseded)",
+  "cw1": {
+    "originMainSha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+    "identical": true,
+    "method": "clean worktree at origin/main (/tmp/cw1-main, removed after), same off-variant spec, same machine/browser; flag-off tree render == origin/main render byte-for-byte"
+  },
+  "storeShas": {
+    "skinshade-off-cheek.png": "6da826a77969a40e48bab7275f244773ea0958aeebd97d0914e7c43917c5dcfc",
+    "skinshade-off-front.png": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2",
+    "skinshade-off-lip.png": "4199bc5a31e8bd55f3693aba9587d9bf7843d8b70389b985c9cbf365bf9fba39",
+    "skinshade-off-nostril.png": "0b6469faf122e3fadf4860fc1548395ddeb2ced598343ec3c47956fb0cb27fad",
+    "skinshade-off.json": "5431b09af637c178af246876df7cf7ea3608961720ef13127a913e708863e907",
+    "skinshade-on-cheek.png": "70fa0dd6f5ef96ea302f84fe7c6460bc735ed7111f08c090de88c5590c961e33",
+    "skinshade-on-front.png": "2c6d9d08b544ec0c0324a4e2013d75aa93f3cd27f29f2bfb13a07994306f03a0",
+    "skinshade-on-lip.png": "af003bd5bdc9333daddb01591e2a58ae5876bdc7943323800209fc9033e52c87",
+    "skinshade-on-nostril.png": "93cd7c78292857b94ab0f7e6450df179b280464b4cc9be386e1393dcf0213a55",
+    "skinshade-on.json": "57b59f899d674695ef86263f91f84f638e77fa3fa08aeda8bd0c77d145320e0a",
+    "skinshade-t04-cheek.png": "a8441e44d50a82a4af3f9b89c2cf851f391336b9b347b4650fc3bd9a7f3801d8",
+    "skinshade-t04-front.png": "679321f516561068a45e003f86048cf8221e8023d69b23122cb952713f48a232",
+    "skinshade-t04-lip.png": "81e74afc73765078a54ed497835f9d0d7062b3afc71f249c304774df85668644",
+    "skinshade-t04-nostril.png": "1687a60c08f4e80a71ff3049f6a7d52eb7a0e9db091f68d7946ffa451a5debc9",
+    "skinshade-t04.json": "86c6ea55dd05ed50291e32a9f37f778b6bf84eb1c6af8a30879c6006003f47ab",
+    "skinshade-t20-cheek.png": "e50c8c3afa94e6198c181d0721dc77be4c9965b5a809788871199c9d6c82dcdb",
+    "skinshade-t20-front.png": "4c68632452ff57ca072d9d45b6ea6dedd2adfd6d3218fac08c022499e8ea00bc",
+    "skinshade-t20-lip.png": "ee14d84092e30d7cf02209f201a94e666aca517fb30479f7be438ce749d991ca",
+    "skinshade-t20-nostril.png": "ced0d9216f4b9711cdc8866855bb1287cbaa22e4b29e87e891dee20f86577a9d",
+    "skinshade-t20.json": "4b5a59cd995777f5c1dd5e5809bd429a05e1cc1256af44c5f8797be8ab1cfd59"
+  },
+  "moduleSha256": "453203c4dc272cd1a9cf012e450eb9d5510a45373e168a9bb5b05956e17598df",
+  "archNotes": "no entrypoint export added (freeze holds: routing the test through the entrypoint would force ~12 new public exports). G1/CW2 must exercise the flag through applyMaterialOverrides, which is entrypoint-reachable by design, so test internal imports rose 10->12; ceiling regenerated with the sanctioned pnpm arch:ceilings (precedent: 5->10 raise in history) plus pnpm arch:index. rootEntrypointExports 38->33 is pre-existing drift (cd05d2cb8 unpublished names without regenerating), now exact.",
+  "stillNeeds": "human grade of the sweep crops; follow-up may restore the +0.08*C/+0.05*H terms if a portrait-path AO/frequency source lands, and revisit lip-mid-upper as a seam-side landmark",
+  "harm": "none measured: flag-off path byte-identical (CW1); flag-on program is a distinct cache key so no material cross-talk; no transmission pass, no environment change, no GLB write"
+}

@@ -17,6 +17,12 @@ import {
   TextureLoader,
 } from "three";
 import { isFittedHairMeshName } from "./head-box-from-geometry.js";
+import {
+  applySkinShade,
+  resolveSkinShadeOptions,
+  skinShadeInstalled,
+  type SkinShadeOptions,
+} from "./skin-shader/skin-shade.js";
 
 /**
  * Variant evaluator skin override (data-driven, deterministic).
@@ -178,6 +184,13 @@ export type MaterialOverride = {
   roughness?: number;
   metalness?: number;
   envMapIntensity?: number;
+  /**
+   * Portrait skin-shade flag (tsk_2f1eca863f8134f6): true installs the
+   * onBeforeCompile skin shader at default strength; an object sets the
+   * T-zone sweep strength. Absent/false installs nothing (CW1: the default
+   * program is byte-identical to origin/main).
+   */
+  skinShade?: boolean | SkinShadeOptions;
   emissive?: string;
   emissiveIntensity?: number;
   hide?: boolean;
@@ -208,6 +221,7 @@ export type MaterialOverrideReadback = {
   emissive: string;
   emissiveIntensity: number | null;
   hidden: boolean;
+  skinShade: boolean;
   clearcoat: number | null;
   clearcoatRoughness: number | null;
   ior: number | null;
@@ -261,6 +275,7 @@ function readbackMaterial(mesh: Mesh, m: MeshStandardMaterial | MeshPhysicalMate
     emissive: `#${m.emissive.getHexString()}`,
     emissiveIntensity: typeof m.emissiveIntensity === "number" ? m.emissiveIntensity : null,
     hidden: mesh.visible !== true,
+    skinShade: skinShadeInstalled(m),
     clearcoat: typeof phys.clearcoat === "number" ? phys.clearcoat : null,
     clearcoatRoughness: typeof phys.clearcoatRoughness === "number" ? phys.clearcoatRoughness : null,
     ior: typeof phys.ior === "number" ? phys.ior : null,
@@ -353,6 +368,13 @@ export async function applyMaterialOverrides(
       if (ov.roughness !== undefined) m.roughness = ov.roughness;
       if (ov.metalness !== undefined) m.metalness = ov.metalness;
       if (ov.envMapIntensity !== undefined) m.envMapIntensity = ov.envMapIntensity;
+      if (ov.skinShade !== undefined && ov.skinShade !== false) {
+        const flagOpts: SkinShadeOptions =
+          ov.skinShade === true ? {} : (ov.skinShade as SkinShadeOptions);
+        // Fail-closed resolution first: garbage strengths throw before install.
+        resolveSkinShadeOptions(flagOpts);
+        applySkinShade(m, flagOpts);
+      }
       if (emissive) m.emissive.copy(emissive);
       if (ov.emissiveIntensity !== undefined) m.emissiveIntensity = ov.emissiveIntensity;
       if (ov.hide === true) hit.mesh.visible = false;

@@ -83,6 +83,7 @@
     "src/learner-exam-scenario-source.test.ts",
     "src/learner-phase-trace-source.test.ts",
     "src/learner-scenario-body-provenance.test.ts",
+    "src/skin-shader/the-skin-shader-flag-is-read-back.test.ts",
     "src/station-layout-view.test.ts",
     "src/the-framing-guard-keeps-seated-and-supine-anchors.test.ts"
   ],
@@ -93,7 +94,7 @@
     "lint": "pnpm --filter @openclinxr/xr-scene lint"
   },
   "ceilings": {
-    "testInternalImports": 10,
-    "rootEntrypointExports": 38
+    "testInternalImports": 12,
+    "rootEntrypointExports": 33
   }
 }
