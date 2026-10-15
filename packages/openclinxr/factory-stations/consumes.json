@@ -61,6 +61,16 @@
         "via": "own-test"
       },
       {
+        "name": "faceRealismModelCallCount",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "faceRealismRunner",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "GATE_BARS",
         "kind": "runtime",
         "via": "own-test"
@@ -86,6 +96,16 @@
         "via": "own-test"
       },
       {
+        "name": "planFaceRealism",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planFaceRealismStation",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "planMotionRetarget",
         "kind": "runtime",
         "via": "own-test"
@@ -107,6 +127,16 @@
       },
       {
         "name": "productionStationIds",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "repoRoot",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runFaceRealism",
         "kind": "runtime",
         "via": "own-test"
       },

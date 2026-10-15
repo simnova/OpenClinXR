@@ -9,6 +9,9 @@ import { FACE_REALISM_DEFAULT_CHAIN_REL, planFaceRealism, type FaceRealismInput 
 /** Replay-wide model-call counter. The replay path never records a call. */
 let faceRealismModelCalls = 0;
 
+/**
+ * Reads the replay-wide model-call counter, which the replay path never increments.
+ */
 export function faceRealismModelCallCount(): number {
   return faceRealismModelCalls;
 }
@@ -19,6 +22,10 @@ export function recordFaceRealismModelCall(): number {
   return faceRealismModelCalls;
 }
 
+/**
+ * Validates the catalog payload and attaches the dry-run face-realism replay plan.
+ * Never executes a model call or a chain stage.
+ */
 export function planFaceRealismStation(input: unknown): StationPlanResult {
   const checked = factoryStationSchemas.face_realism["~standard"].validate(input);
   if (checked.issues !== undefined) return checked;
@@ -41,6 +48,10 @@ export function planFaceRealismStation(input: unknown): StationPlanResult {
   };
 }
 
+/**
+ * Replays the stored face record locally, reporting the unchanged model-call counter.
+ * A missing record is refused with stop set instead of generating anything.
+ */
 export function runFaceRealism(input: unknown): Record<string, unknown> {
   const planned = planFaceRealismStation(input);
   if (planned.issues !== undefined) {
@@ -59,6 +70,9 @@ export function runFaceRealism(input: unknown): Record<string, unknown> {
   };
 }
 
+/**
+ * The face_realism station runner, reachable by station id through the runner registry.
+ */
 export const faceRealismRunner: StationRunner = {
   stationId: "face_realism",
   validate: (value) => factoryStationSchemas.face_realism["~standard"].validate(value),

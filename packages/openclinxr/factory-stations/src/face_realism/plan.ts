@@ -64,6 +64,11 @@ function resolveChainPath(chainManifestPath: string | undefined): string {
   return path.join(repoRoot(), FACE_REALISM_DEFAULT_CHAIN_REL);
 }
 
+/**
+ * Plans a face-realism replay from the stored case-reference record and chain manifest.
+ * Refuses a missing or malformed record instead of generating anything, and records
+ * zero model calls because replay reads stored bytes only.
+ */
 export function planFaceRealism(input: FaceRealismInput): FaceRealismPlanResult {
   const recordFile = resolveRecordPath(input.recordPath);
   if (!existsSync(recordFile)) {
