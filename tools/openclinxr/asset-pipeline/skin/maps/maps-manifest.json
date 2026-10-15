@@ -1,0 +1,81 @@
+{
+  "subject": "Aisha (morphed mesh from aisha-eyetex.glb, realism eyes)",
+  "inputGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyetexcard/aisha-eyetex.glb",
+  "inputGlbSha256": "5de22e66329c3813ac1c15bee7215ccfbcbaa3d9950df036db46a9a6d6c70105",
+  "inputMesh": {
+    "object": "mpfb_ob_patient_aisha_body (all body primitives merged on glTF import)",
+    "verts": 58775,
+    "faces": 107024,
+    "meshSha256RoundedPositions": "ad5c6097686434612a17202fcedfdd5549bd9f6c4d5ca084915249f188cb9e7c",
+    "note": "NOT the hm08 base (13380 verts): curvature/cavity/wrinkles follow this morphed mesh per CW"
+  },
+  "uv": "shared MakeHuman UV kept as-is (UVMap, no re-unwrap)",
+  "threshold": {
+    "valueMeanAbsDiff255": 12.679,
+    "method": "runtime-portrait-capture.ts variant mode, 1280 portrait front, same GLB/rig, skinOverride.baseColorUrl stock-CC0-atlas vs sym/out-albedo.png",
+    "stockAtlas": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyetexcard/aisha-eyetex.skin-baked.png",
+    "stockAtlasSha256": "94ec9dc79e7a610e93487b72cda47ad8e5ead54775791eff29e292ff640e88bb",
+    "aishaAlbedo": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/sym/out-albedo.png",
+    "aishaAlbedoSha256": "9a1d37f16744a2c333d330cd93ea37405a8d698df9bf4f449d60c9dcf8fcd163",
+    "renders": "skinmaps/threshold/thr-stock-front.png vs thr-aisha-front.png (luma 158.2 vs 128.4)",
+    "renderRepeatabilitySelfDiff": 0.0
+  },
+  "bakeCommand": "blender --background --factory-startup --python tools/openclinxr/asset-pipeline/skin/maps/bake_skin_maps.py -- --glb /Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyetexcard/aisha-eyetex.glb --out /Volumes/files/openclinxr-assets/store/skin-maps",
+  "bakeScript": "tools/openclinxr/asset-pipeline/skin/maps/bake_skin_maps.py",
+  "maps": [
+    {
+      "kind": "wrinkle-normal",
+      "file": "aisha-wrinkle-normal-2048.png",
+      "size": [2048, 2048],
+      "store": "assets:skin-maps/aisha-wrinkle-normal-2048.png",
+      "sha256": "ad1bf9a40da001058bb55dd5c832205292857c803c54132c11d7a3573e61cb0a",
+      "space": "tangent",
+      "source": "procedural age grooves (forehead/crow's-feet/nasolabial/neck, -0.95mm max) from eye-globe landmarks on the morphed mesh, subdiv-2 duplicate, selected-to-active bake",
+      "g1OnVsOff1280": 0.368,
+      "g1QuestDownsample256": 0.365,
+      "g2": "tangent-space PNG (B>200 frac 0.995); loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-wrinkle-on.json)",
+      "questVerdict": "DROP (0.368 < 12.679)"
+    },
+    {
+      "kind": "curvature",
+      "file": "aisha-curvature-1024.png",
+      "size": [1024, 1024],
+      "store": "assets:skin-maps/aisha-curvature-1024.png",
+      "sha256": "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a",
+      "space": "linear grayscale EMIT bake",
+      "source": "Geometry Pointiness 0.35..0.65 ramp on the morphed mesh (skin-LUT input, card 10)",
+      "g1OnVsOff1280": null,
+      "g1Note": "no existing variant field: SkinOverride has no curvature slot; needs shader change at packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts:26-35 (type) / :65 (applySkinOverride). NOT edited per OOS.",
+      "g2": "n/a (not a normalTexture; LUT input)",
+      "questVerdict": "UNWIRED (see g1Note)"
+    },
+    {
+      "kind": "cavity",
+      "file": "aisha-cavity-1024.png",
+      "size": [1024, 1024],
+      "store": "assets:skin-maps/aisha-cavity-1024.png",
+      "sha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf",
+      "space": "linear grayscale EMIT bake",
+      "source": "concave mask (pointiness<=0.35) on the morphed mesh; ray-traced AO rejected (mean 20.7/255: merged coplanar hidden shells occlude everything)",
+      "g1OnVsOff1280": null,
+      "g1Note": "same as curvature: no existing variant field (card 8 onBeforeCompile owns cavity->roughness); change would land at isolated-subject-material-variants.ts:26-35. NOT edited per OOS.",
+      "g2": "n/a (not a normalTexture; roughness/specular-occlusion input)",
+      "questVerdict": "UNWIRED (see g1Note)"
+    },
+    {
+      "kind": "pore-normal-tile",
+      "file": "pore-tile-normal-512.png",
+      "size": [512, 512],
+      "store": "assets:skin-maps/pore-tile-normal-512.png",
+      "sha256": "e3b75d2f2ccab320e72bf0a93457677f991c7af4df2e7ed520ec7faefdd6e1c6",
+      "space": "tangent",
+      "source": "MPFB enhanced-skin Voronoi bump idea (CC0; baked in Blender, no MPFB code): Voronoi F1 scale 150 / detail 2.0 / bump strength 0.3 per https://static.makehumancommunity.org/mpfb/docs/materials/skinv1.html, modulo-wrapped UV (6 repeats) for exact tiling + make_pore_tileable.py 8px edge crossfade; seam step 8.97/8.47 vs interior 8.79 (seamless)",
+      "g1OnVsOff1280": 0.632,
+      "g1QuestDownsample256": 0.605,
+      "g2": "tangent-space PNG (B>200 frac 1.0); loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-pore-on.json)",
+      "questVerdict": "DROP (0.632 < 12.679)"
+    }
+  ],
+  "redBeforeAfter": "RED was 'no normal/curvature/cavity'; AFTER: all four baked per morphed mesh, but G1 keeps none for Quest (normals move 0.37/0.63 vs 12.68 gap; curvature/cavity unwired). Note: aisha-eyetex.glb already ships a 1024 normal (hasNormalMap true with no override) outside factory skin output.",
+  "notTested": "Quest frame cost"
+}
