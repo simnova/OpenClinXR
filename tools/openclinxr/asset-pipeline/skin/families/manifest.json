@@ -7,7 +7,7 @@
    "source_path": "makehuman-skins01/extracted/skins/bobby_03_young_female_hairless/Young_Female_Hairless.png",
    "source_sha256": "9e2fa4ab993dd938ba896bb98848bd65346500c4c0a07d8789d2f1e14bb3dd7f",
    "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v2.png",
-   "family_sha256": "4e7f6f0f4a28d042164cd679b7066ae556dcd465e0e2a566aaa2b73e2b721ae2",
+   "family_sha256": "892c3c665d626a048e819344d22efeb0249cceb88166eb9069863c7b87f65647",
    "island_box_atlas": [
     1228,
     307,
@@ -197,7 +197,7 @@
    "leak": {
     "label": "v2",
     "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v2.png",
-    "atlas_sha256": "4e7f6f0f4a28d042164cd679b7066ae556dcd465e0e2a566aaa2b73e2b721ae2",
+    "atlas_sha256": "892c3c665d626a048e819344d22efeb0249cceb88166eb9069863c7b87f65647",
     "atlas_resized_to_2048": false,
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
@@ -228,11 +228,11 @@
     "skin_set": "facecore>0.5 minus lips/eyes/brows>0.5 (eyes proxy caruncle) inside occupancy>0.5",
     "n_skin_texels": 114052,
     "n_mirror_pairs": 8235,
-    "r_S": -0.0146,
-    "r_normal_y": 0.2052,
-    "mirror_signed_L": -0.0001,
-    "mirror_abs_L": 0.4604,
-    "wall_s": 0.7
+    "r_S": -0.0202,
+    "r_normal_y": 0.206,
+    "mirror_signed_L": 0.001,
+    "mirror_abs_L": 0.4622,
+    "wall_s": 1.2
    },
    "g2": {
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
@@ -267,22 +267,22 @@
      },
      {
       "file": "young-family-v2-front.png",
-      "sha256": "446a4f6e17d7530d543a93fa82209fb76abad90cda8f03cb0e847b4dc113dc17"
+      "sha256": "c155c9052dea336b4e89845e8e21ea845913bc1fdb6beb3e55bed6cfb219239d"
      },
      {
       "file": "young-family-v2-yaw40.png",
-      "sha256": "8d2e02f4404006a1bd77afa094f429131f060d0302610f1c955c5d2b01d6febe"
+      "sha256": "0d7b42ce6d3438aa6c9f4ff34978705efd80424989280e27dacad7c54395f07a"
      }
     ],
     "sheet": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-g2-sheet.png",
     "sheet_sha256": "364c433d3305fb3d2a9c1635093dc5f74f681202f7e3df9790db3616bf666743",
     "sheet_v2": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-g2-sheet-v2.png",
-    "sheet_v2_sha256": "7810c0879d4e77d326d003f3f31fd02d22c958894da3e57516af607c0e8512fb"
+    "sheet_v2_sha256": "18c71859c404b8a30306affe9c4cbd19e24457d93a63cd1aac3fa43557941cd4"
    },
    "family_v1_path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family.png",
    "family_v1_sha256": "5232964b22c93e6e9fb146568797e055ffdafafe7a7e557132ab83671ddd8292",
    "lips_fix_a3c": {
-    "why": "orchestrator grade: v1 keeps source painted open mouth bit-exact in keep-mask, lower lip red blotches in every view",
+    "why": "orchestrator grade: v1 keeps source painted open mouth bit-exact in keep-mask, lower lip red blotches in every view; R1 highband-only judged unchanged in render",
     "crop": {
      "box_full_px": [
       1784,
@@ -291,7 +291,7 @@
       1173
      ],
      "margin_px": 48,
-     "mask": "dilate(derive mask-lips.png,r=2) union mouth ellipse (28x22 @1860,1058) = 5793 px",
+     "mask_px": 5793,
      "crop_png": "skinfam-a3c/lip-crop.png",
      "mask_png": "skinfam-a3c/lip-mouth-mask-full.png"
     },
@@ -311,10 +311,10 @@
      "skin_lowfreq_ncc": 0.91
     },
     "composite": {
-     "method": "sigma-12 highband detail from locked edit onto v1 lowband, inward-only 8px feather inside hard lip mask",
+     "method": "R2: Imagine crease detail + chroma mottle crush (a* std 5.3->1.2) inside hard lip mask, inward-only 8px feather; L-lowband block-mean corrected to v1 (max 0.85)",
      "outside_hardmask_changed_px": 0,
      "inside_changed_px": 5785,
-     "cheek_box_unchanged": true
+     "render_lip_R-G_std": "13.9->7.5"
     }
    }
   }
