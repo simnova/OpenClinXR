@@ -14,6 +14,7 @@ import {
   DirectionalLight,
   HemisphereLight,
   type Light,
+  Mesh,
   NeutralToneMapping,
   NoToneMapping,
   PMREMGenerator,
@@ -99,6 +100,12 @@ export type ProductRigApplied = {
   castThree: [number, number, number];
   /** Rigid translation applied to the overlay rig: framed head centre minus cast. */
   translationDelta: [number, number, number];
+  /**
+   * Cornea catch-light readback: globe (eye) materials that received the
+   * scoped env map, and whether any did. The variant JSON records this, so
+   * CW2 (globe envMap non-null) is proved by readback, not by source.
+   */
+  globeEnvMap: { matched: string[]; envMapSet: boolean };
 };
 
 /** Variant evaluator light-rig override. Positions are absolute unless relativeToHead. */
@@ -222,6 +229,18 @@ export function applyRigOverride(
 }
 
 /**
+ * Globe (eye) material filter for the scoped product-path env map. Mirrors
+ * the lab eye-channel regex (isolated-subject-focus.ts EYE_MESH_RE) but on
+ * MATERIAL names: the shipped MPFB eye node is renamed by GLTFLoader to
+ * `mpfb_*_body_mesh.low-poly`, so the mesh name never matches — the
+ * materialize script names the globe material `mat_makeclothes_library_eyes_*`
+ * on every MPFB actor. Eyelash/eyebrow materials (`..._eyelashes_...`,
+ * `..._eyebrow_...`) contain no `eyes|iris|cornea|sclera` substring and are
+ * never matched.
+ */
+const GLOBE_MATERIAL_RE = /eyes|iris|cornea|sclera/i;
+
+/**
  * Product rig lighting (variant evaluator): ACES + base + overlay through the
  * PRODUCT functions, then a rigid re-anchor of the OVERLAY rig so the
  * patient locus sits on the framed head centre. Base hemisphere/key stay
@@ -256,6 +275,33 @@ export async function applyProductRig(
   if (!applied.rigApplied) {
     throw new Error(`product rig ${environmentId} did not apply — refusing rather than grading a fallback`);
   }
+  // Cornea catch-light: scope the product-path environment to the GLOBE
+  // material (material.envMap), not scene.environment. Two measured reasons:
+  // (1) three r184 refreshes the envMapIntensity shader uniform only when
+  // material.envMap is set (WebGLMaterials refreshUniformsStandard), so a
+  // scene.environment alone leaves the globe intensity stuck at 1.0 and
+  // 0.6-vs-0.0 renders bit-identical; (2) scene.environment lights every PBR
+  // material (600k px moved on the Aisha product portrait, cheek mean +~20
+  // levels), while the scoped map leaves skin pixel-identical. Same
+  // PMREM-of-a-RoomEnvironment source the studio path uses above (same
+  // sigma); no iris-texture change. Recorded on the return for CW2 readback.
+  const pmrem = new PMREMGenerator(renderer);
+  const globeEnv = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+  const globeMatched: string[] = [];
+  scene.traverse((o) => {
+    if (!(o instanceof Mesh)) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (!m) continue;
+      const std = m as unknown as { envMapIntensity?: unknown; envMap?: unknown };
+      if (typeof std.envMapIntensity !== "number") continue;
+      if (!GLOBE_MATERIAL_RE.test(m.name)) continue;
+      std.envMap = globeEnv;
+      globeMatched.push(`${o.name}|${m.name}`);
+    }
+  });
+  if (globeMatched.length === 0) globeEnv.dispose();
   const cast = await loadProductRigCastFromUrl(fns.resolveLightingRigPublicPath(environmentId));
   const patient = cast?.find((c) => c.actorId === "patient");
   if (!patient) {
@@ -279,5 +325,6 @@ export async function applyProductRig(
     castRaw: [...patient.position] as [number, number, number],
     castThree: [castThree.x, castThree.y, castThree.z],
     translationDelta: [delta.x, delta.y, delta.z],
+    globeEnvMap: { matched: globeMatched, envMapSet: globeMatched.length > 0 },
   };
 }

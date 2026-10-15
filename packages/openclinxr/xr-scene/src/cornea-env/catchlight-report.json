@@ -1,0 +1,172 @@
+{
+ "card": "tsk_e248d339fd18da20",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
+ "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+ "moduleSha256": "7a1715aaa1779f469e8cde40c503a15ac218c494acc802a00fab78d4e5271e2a",
+ "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/",
+ "subject": {
+  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "productEnvironmentId": "ob_triage_room_v1",
+  "view": "front",
+  "portrait": true,
+  "renderSize": 1280,
+  "eyeMatch": "library_eyes",
+  "eyeMaterial": "mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+ },
+ "envSource": "PMREM of three RoomEnvironment (same mechanism + sigma 0.04 as the studio path), scoped to the globe via material.envMap (no scene.environment)",
+ "envSourceWhy": "three r184 refreshes the envMapIntensity shader uniform only when material.envMap is set (WebGLMaterials.js refreshUniformsStandard + Lambert/Phong refreshers); scene.environment alone leaves globe intensity stuck at 1.0. scene.environment would also light all skin (measured optA).",
+ "renders": {
+  "pre00": {
+   "png": "pre-catch-eye00-front.png",
+   "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
+  },
+  "pre06": {
+   "png": "pre-catch-eye06-front.png",
+   "sha256": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
+  },
+  "post00": {
+   "png": "catch-eye00-front.png",
+   "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
+  },
+  "post06": {
+   "png": "catch-eye06-front.png",
+   "sha256": "212467d921cede3c822d8c53b82211325d75768353fd4d3073b644ce483cc9db"
+  },
+  "optA00": {
+   "png": "optA-unscoped/catch-eye00-front.png",
+   "sha256": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+  }
+ },
+ "crops": {
+  "Leye": [
+   415,
+   558,
+   615,
+   758
+  ],
+  "Reye": [
+   675,
+   550,
+   875,
+   750
+  ],
+  "cheek": [
+   450,
+   800,
+   550,
+   880
+  ],
+  "forehead": [
+   560,
+   380,
+   720,
+   500
+  ]
+ },
+ "faceCrop": [
+  326,
+  220,
+  953,
+  1059
+ ],
+ "faceP99": 231.48,
+ "G1": {
+  "L": {
+   "changedPx": 2358,
+   "meanDL": 1.377
+  },
+  "R": {
+   "changedPx": 2246,
+   "meanDL": 1.424
+  }
+ },
+ "G2": {
+  "L": {
+   "silPx": 6683,
+   "silBbox": [
+    441,
+    614,
+    582,
+    693
+   ],
+   "seed": [
+    515,
+    658
+   ],
+   "threshold": 200,
+   "dilation": 8,
+   "blobCount": 57,
+   "blobCentroid": [
+    494.6,
+    638.9
+   ],
+   "blobMeanL00": 221.5,
+   "blobMeanL06": 233.7
+  },
+  "R": {
+   "silPx": 6746,
+   "silBbox": [
+    697,
+    614,
+    838,
+    692
+   ],
+   "seed": [
+    775,
+    650
+   ],
+   "threshold": 200,
+   "dilation": 8,
+   "blobCount": 14,
+   "blobCentroid": [
+    778.6,
+    638.1
+   ],
+   "blobMeanL00": 219.8,
+   "blobMeanL06": 232.8
+  }
+ },
+ "CW1": {
+  "cheek": {
+   "post00Changed": 0,
+   "post00MeanDL": 0.0,
+   "post06Changed": 0,
+   "post06MeanDL": 0.0,
+   "optAChanged": 8000,
+   "optAMeanDL": 19.434
+  },
+  "forehead": {
+   "post00Changed": 0,
+   "post00MeanDL": 0.0,
+   "post06Changed": 0,
+   "post06MeanDL": 0.0,
+   "optAChanged": 19200,
+   "optAMeanDL": 13.74
+  }
+ },
+ "CW2": {
+  "post06GlobeEnvMap": {
+   "matched": [
+    "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+   ],
+   "envMapSet": true
+  },
+  "post06EyeEnvMapIntensity": 0.6,
+  "post00EyeEnvMapIntensity": 0,
+  "post06EnvironmentMap": false,
+  "post00EnvironmentMap": false,
+  "preEnvironmentMap": false
+ },
+ "falsifier": {
+  "pre00vsPre06ChangedTotal": 16,
+  "pre00vsPre06EyeBandChanged": 0,
+  "verdict": "premise_holds"
+ },
+ "storeShas": {
+  "pre00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+  "pre06": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3",
+  "post00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+  "post06": "212467d921cede3c822d8c53b82211325d75768353fd4d3073b644ce483cc9db",
+  "optA00": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+ }
+}
