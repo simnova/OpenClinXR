@@ -1,0 +1,131 @@
+{
+  "name": "gaze-blink-compat",
+  "card": "tsk_e4befac3ff1b06da",
+  "producerSourceSha256": "4c35ea1cf717c4b0dae7ed9a2ef9f6d7df89bc0a58552fe194c57c8fc4eea497",
+  "producerSourcePath": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "bakeArgv": [
+    "--eye-colour-reference",
+    "ob_patient_aisha",
+    "--actor-role",
+    "patient",
+    "--bake-device",
+    "metal",
+    "--eye-asset",
+    "high-poly",
+    "--eye-cornea",
+    "--eye-texture",
+    "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+    "--output",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb"
+  ],
+  "bakeRepairs": "fresh bake wrote a JSON chunk of 255733 bytes (not 4-aligned); the lash T2+A3 writer preserves the defect; NodeIO refused it (Uint32Array RangeError). Padded 3 trailing spaces and updated chunk+total lengths; content bytes otherwise untouched.",
+  "postSteps": [
+    "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py (T2 thin 13752/16632 tris kept, verts 11088->9168; A3 6 lid morphs, nn mean 2.04/2.08mm max 5.931/5.754mm, moving pool 935/side)"
+  ],
+  "manifests": {
+    "shell": {
+      "path": "tools/openclinxr/evidence/realism-head/shell/shell-manifest.json",
+      "sha256": "18492f72f5e1a24cc57bb615cd41268531a75ddf3f50f1b7790dcc698d5cd9ce",
+      "note": "graded not shippable (milky eyes), kept OFF: this bake carries no --eye-occlusion-shell flag, so no shell/tearline mesh exists to yaw; lid-bound by design (lidKeys eye-*-closure/slit/opened-up, shell-manifest.json:23-38)"
+    },
+    "eyeMesh": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/mesh-decision.json",
+      "sha256": "2940d27d16595c10e67e12686a614478881cabc28aa1b1e2acfcf5b89545f343",
+      "note": "eyes/mesh-manifest.json does not exist; only eyes/mesh-decision.json exists (outcome highpoly_cornea, globe 552v r11.9mm, cornea L256/R268v BLEND alpha 0.08). See BRIEF_MISSING."
+    },
+    "eyeTexture": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
+      "sha256": "74167d306d414215a42cdf5840854467f16568fc084d8b0bbdc48da85322caf0",
+      "chosen": "iris-centred-c.png sha256 76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695"
+    },
+    "eyeCorner": {
+      "path": "tools/openclinxr/asset-pipeline/makeclothes/eye-corner/manifest.json",
+      "sha256": "8bba4edd5b00a3c24464d5f15358bd238f87e18b709832e158e31b819fa88831",
+      "status": "not_found: no licensable conjunctiva/caruncle .mhclo; nothing fitted, nothing to yaw"
+    },
+    "eyeLash": {
+      "path": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/manifest.json",
+      "sha256": "cbbee2cdb8bb7a3d168e6d611b5073ffa4b5da30f38a800d2c4edaad83e729b0",
+      "toolSha256": "33e7952047e8fce15d6c4b512d3dd4d5a89e7a4776d840b7d11cabc0bf9d6e4a"
+    }
+  },
+  "rows": [
+    {
+      "label": "realism",
+      "glb": "assets:aisha-realism.glb",
+      "sha256": "9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975",
+      "verdict": "gaze_blink_green_edge_recorded",
+      "globeMesh": "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh",
+      "corneaMeshes": [
+        "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh"
+      ],
+      "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_thinned_mpfb_ob_patient_aisha_mesh",
+      "lashMorphs": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
+      "eyeJoints": ["eye.L", "eye.R"],
+      "eyeFacsPresent": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
+      "irisTextureBytes": 594900,
+      "gaze": {
+        "bonesTouched": ["eyeL", "eyeR"],
+        "yawRad": 0.43633,
+        "mechanism": "rotateOnWorldAxis(worldUp) per gaze-drives-eyes.ts:54-66",
+        "pixelDeltaL": {"plus25": [-10.5, -1.9], "minus25": [8.5, -2.1]},
+        "pixelDeltaR": {"plus25": [-11.1, -2.3], "minus25": [14.0, -1.6]},
+        "lateralToVertical": "about 5:1, clears the 2:1 threshold (gaze-moves-the-iris-sideways-at-runtime.test.ts:105; KG measured 5.6:1 good vs 0.65:1 legacy)",
+        "method": "dark-centroid (r<80 g<70 b<70) per eye half of the 1280 eye-band crop, front vs yaw takes"
+      },
+      "blink": {
+        "closurePlusSlitMeshWrites": 18,
+        "weights": "eye-*-closure 1.0 + eye-*-slit 1.0 (public-loop pair, blink-drives-slit)",
+        "lashFollow": "lash carries all 6 lid morphs (A3); closed render shows a single lash band on the lid line, no pass-through (orchestrator D12 grade)",
+        "sealKg": "aisha aperture 7.63 -> -1.92mm at closure 1.0 (actors-blink-with-their-eyelids.test.ts:26-35)"
+      }
+    },
+    {
+      "label": "control",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "sha256": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+      "verdict": "control_clean",
+      "globeMesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_v1_mesh (172 tris, skinned)",
+      "corneaMeshes": [],
+      "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh",
+      "lashMorphs": [],
+      "eyeJoints": ["eye.L", "eye.R"],
+      "eyeFacsPresent": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
+      "irisTextureBytes": 610817,
+      "gaze": {
+        "bonesTouched": ["eyeL", "eyeR"],
+        "yawRad": 0.43633,
+        "mechanism": "rotateOnWorldAxis(worldUp) per gaze-drives-eyes.ts:54-66",
+        "kg": "shipped mechanism lateral 0.95 vs vertical 0.17 (5.6:1), legacy control 0.53 vs 0.81 (gaze-moves-the-iris-sideways-at-runtime.test.ts:86-91)"
+      },
+      "blink": {
+        "closurePlusSlitMeshWrites": 16,
+        "weights": "eye-*-closure 1.0 + eye-*-slit 1.0 (public-loop pair, blink-drives-slit)",
+        "sealKg": "aisha aperture 7.63 -> -1.92mm at closure 1.0 (actors-blink-with-their-eyelids.test.ts:26-35)"
+      }
+    }
+  ],
+  "falsifier": {
+    "edgeAtYaw": "NOT established as absent on both rows, so no control_clean shortcut: the card records a KNOWN open defect owned by eye-globe-fit (body-skin edge inside the lid opening at yaw +-25) and this proof does not fix it. Shell/tearline/corner cannot edge: shell OFF (no mesh), corner not_found (no mesh); the lid-bound shell design (lidKeys) does not yaw with the globe by construction.",
+    "d1RegionNote": "RGB skin-heuristic runs inside the lid opening appear at front rest too (caruncle/inner-corner tissue + lid-margin shading), so the heuristic cannot name a globe-fit wedge; the honest D1 pixel grade is the orchestrator's (D12) and the defect stays open under eye-globe-fit."
+  },
+  "sheet": {
+    "src": "assets:gaze-blink-sheet.png",
+    "sha256": "b54521768e1df2740ee0073d71d5967224a7f2c5019fe454c3118349914aed74",
+    "renderSize": 1280,
+    "views": ["front", "yaw-plus-25", "yaw-minus-25", "blink"],
+    "subjects": ["realism", "control"],
+    "eyeBand": "x .30-.70 y .47-.60 of the 1280 frame",
+    "grade": "orchestrator D12"
+  },
+  "gates": {
+    "gazeLateralDominance": true,
+    "blinkSealsWithLashFollow": true,
+    "shellTearlineCornerDoNotYawWithGlobe": true,
+    "d1NoEdgeInsideLidOpening": "open: recorded under eye-globe-fit, not fixed here"
+  },
+  "briefMissing": "eyes/mesh-manifest.json does not exist; only eyes/mesh-decision.json exists (sha 2940d27d). Corner-assets manifest is terminal not_found. Realism GLB is gitignored (55MB class); sha recorded in report + census.",
+  "notTested": "validator does not re-bake; pixel grade is the orchestrator's (D12); saccade proxy nodes stay a non-card on epic-eyes; control-row D1 edge not separately measured",
+  "census": "tools/openclinxr/evidence/realism-head/eyes/census.json (machine-read NodeIO populations)"
+}
