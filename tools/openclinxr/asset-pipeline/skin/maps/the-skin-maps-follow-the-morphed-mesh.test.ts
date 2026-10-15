@@ -102,6 +102,33 @@ function decodePngSimple(file: string): { w: number; h: number; rgb: Uint8Array 
   return { w, h, rgb: px };
 }
 
+const STATUSES = ["baked_unwired", "shipped", "dropped", "blocked"] as const;
+
+/** Per-map manifest rules: status closed set; shipped needs a crop sheet;
+ *  anything but blocked needs store bytes. Returns error lines (empty = ok). */
+function validateMap(e: SkinMap): string[] {
+  const errs: string[] = [];
+  const kind = String((e as { kind?: unknown }).kind ?? "?");
+  const status = (e as { status?: unknown }).status;
+  if (!STATUSES.includes(status as (typeof STATUSES)[number])) {
+    errs.push(`${kind}: status ${String(status)} not in ${STATUSES.join(",")}`);
+  }
+  if (status === "shipped" && !(e as { gradeSheet?: unknown }).gradeSheet) {
+    errs.push(`${kind}: status shipped with no crop sheet path`);
+  }
+  if (status !== "blocked") {
+    if (!/^assets:skin-maps\//.test(String((e as { store?: unknown }).store ?? ""))) {
+      errs.push(`${kind}: store path missing`);
+    }
+    if (!/^[0-9a-f]{64}$/.test(String((e as { sha256?: unknown }).sha256 ?? ""))) {
+      errs.push(`${kind}: sha256 missing`);
+    }
+    const size = (e as { size?: unknown }).size as number[] | null;
+    if (!Array.isArray(size) || size.length !== 2) errs.push(`${kind}: size missing`);
+  }
+  return errs;
+}
+
 describe("maps-manifest contract", () => {
   it("names the morphed mesh, the bake command and four maps", () => {
     const m = readManifest();
@@ -112,12 +139,16 @@ describe("maps-manifest contract", () => {
     expect(m.inputMesh?.meshSha256RoundedPositions).toMatch(/^[0-9a-f]{64}$/);
     expect(Array.isArray(m.maps)).toBe(true);
     expect((m.maps as SkinMap[]).map((e) => e.kind)).toEqual(
-      ["curvature", "cavity", "pore-normal-tile"]);
+      ["curvature", "cavity", "pore-normal-tile", "wrinkle-normal"]);
     for (const e of m.maps as SkinMap[]) {
-      expect(e.store).toMatch(/^assets:skin-maps\//);
-      expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
-      expect(Array.isArray(e.size) && (e.size as number[]).length).toBe(2);
+      expect(validateMap(e)).toEqual([]);
     }
+  });
+
+  it("known-bad: shipped with no crop sheet is rejected", () => {
+    const errs = validateMap({ kind: "knows-bad", status: "shipped" } as SkinMap);
+    expect(errs.length).toBeGreaterThan(0);
+    expect(errs.join(" ")).toContain("no crop sheet path");
   });
 
   it("withheld wrinkle map is recorded with evidence, not shipped silently", () => {
@@ -133,7 +164,10 @@ describe("maps-manifest contract", () => {
     const threshold = m.threshold?.valueMeanAbsDiff255 as number;
     expect(threshold).toBe(12.679);
     for (const e of m.maps as SkinMap[]) {
-      if (typeof e.g1OnVsOff1280 === "number") {
+      const status = (e as { status?: unknown }).status;
+      if (status === "blocked") {
+        expect(e.questVerdict).toMatch(/WITHDRAWN/);
+      } else if (typeof e.g1OnVsOff1280 === "number") {
         expect(e.questVerdict).toEqual(
           (e.g1OnVsOff1280 as number) >= threshold
             ? expect.stringContaining("KEEP")
@@ -150,6 +184,7 @@ if (fs.existsSync(STORE)) {
   describe("store/skin-maps bytes", () => {
     const m = readManifest();
     for (const e of m.maps as SkinMap[]) {
+      if (!e.file) continue; // blocked maps ship no bytes
       const file = e.file as string;
       it(`${file}: sha matches manifest`, () => {
         expect(shaOf(path.join(STORE, file))).toBe(e.sha256);

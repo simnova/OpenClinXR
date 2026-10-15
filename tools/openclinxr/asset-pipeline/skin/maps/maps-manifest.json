@@ -33,6 +33,8 @@
   "maps": [
     {
       "kind": "curvature",
+      "status": "baked_unwired",
+      "verdict": "input for skin-specular tsk_8bbeb141d792bdcb and skin-lut tsk_44e25e12108c307e; graded there",
       "file": "aisha-curvature-1024.png",
       "size": [1024, 1024],
       "store": "assets:skin-maps/aisha-curvature-1024.png",
@@ -46,6 +48,8 @@
     },
     {
       "kind": "cavity",
+      "status": "baked_unwired",
+      "verdict": "input for skin-specular tsk_8bbeb141d792bdcb and skin-lut tsk_44e25e12108c307e; graded there",
       "file": "aisha-cavity-1024.png",
       "size": [1024, 1024],
       "store": "assets:skin-maps/aisha-cavity-1024.png",
@@ -59,6 +63,12 @@
     },
     {
       "kind": "pore-normal-tile",
+      "status": "dropped",
+      "verdict": "two failed treatments: v1 dirt blotches (900 cells/tile aliasing); v2 shifts skin grey-green and adds dark cheek/jaw blotches beside the mouth corner (orchestrator grade skinmaps/orchestrator-grade-pore-v2.png: native crop x330-760 y780-1150 of g1/crop-sheet-pore.png, off|on). Suspected cause UNMEASURED: normal application (tangent space, green channel, or normalScale) rather than tile frequency",
+      "failedTreatments": [
+        "v1 (scale 150): 900 cells/tile at 0.57px/cell aliased into low-frequency dirt blotches; blob eq-diam 13.1px vs 11.7 off",
+        "v2 (sha 9119fe6c, scale 24, 103 cycles/tile-UV): shifts skin grey-green and adds dark cheek/jaw blotches beside the mouth corner per orchestrator-grade-pore-v2.png; suspected cause UNMEASURED (tangent space, green channel, or normalScale)"
+      ],
       "file": "pore-tile-normal-512.png",
       "size": [512, 512],
       "store": "assets:skin-maps/pore-tile-normal-512.png",
@@ -71,7 +81,19 @@
       "gradeSheet": "skinmaps/g1/crop-sheet-pore.png (native pixels: full-front off|on + forehead-eyes x420-860 y520-760 off|on)",
       "renderBlotchPx": "sigma8-blob eq-diam v2 11.6px == off 11.7px (v1 dirt 13.1px): no new low-frequency artifacts",
       "g2": "tangent-space PNG; loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-pore-on.json)",
-      "questVerdict": "DROP by whole-image gate (0.263 < 12.679); re-grade submitted on the crop sheet: no artifacts, detail contribution minimal, orchestrator grade pending"
+      "questVerdict": "DROP (status dropped; orchestrator grade failed v2 on grey-green shift + mouth-corner blotches)"
+    },
+    {
+      "kind": "wrinkle-normal",
+      "status": "blocked",
+      "verdict": "NOT SHIPPED, no procedural fallback: macro age targets carry 0 vertex deltas; micro age targets (head-age-incr 3195 verts, l/r-eye-bag-incr 40 verts) are indexed in hm08 base order but the merged GLB body UV layout diverges (nearest-UV dist median 0.0012, p99 0.086, max 0.114 on 39221 skin verts); 3D transfer needs the phenotype fit owned by HELD lane #576",
+      "file": null,
+      "size": null,
+      "store": null,
+      "sha256": null,
+      "g1OnVsOff1280": null,
+      "g1Note": "no map baked; procedural renders superseded (forehead band + torn lower-lid patch, withdrawn)",
+      "questVerdict": "WITHDRAWN (blocked)"
     }
   ],
   "redBeforeAfter": "RED was 'no normal/curvature/cavity'; AFTER: curvature + cavity + pore tile baked per morphed mesh, wrinkle map withdrawn (blocker recorded, no procedural shipped). Note: aisha-eyetex.glb already ships a 1024 normal (hasNormalMap true with no override) outside factory skin output.",
