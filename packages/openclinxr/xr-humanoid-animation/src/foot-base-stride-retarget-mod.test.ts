@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { afterEach, describe, expect, it } from "vitest";
-import { FOOT_BASE_CYCLE_S } from "./foot-base-path-data-mod.js";
+import { FOOT_BASE_CYCLE_S, FOOT_BASE_PLANT_PHASE } from "./foot-base-path-data-mod.js";
 import {
   applyFootBaseStep,
   clearFootBaseState,
@@ -172,8 +172,64 @@ describe("foot-base stride retarget", () => {
     expect(readFootBaseState(approach)).toBeNull();
   });
 
-  it("row lookup spans liftoff to touchdown and halves count passings", () => {
-    const lift = footBaseRowAt("left", 0.64);
+  it("schedule roles: one change per plant boundary, none between, lock flapping ignored", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildLeggedRig();
+    const approach = {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+    const labels = stanceLabels();
+    const dt = 0.005;
+    const cycle = FOOT_BASE_CYCLE_S;
+    const frames = Math.ceil((2 * cycle) / dt);
+    const phase01At = (t: number): number => ((((t % cycle) + cycle) % cycle) + cycle) % cycle / cycle;
+    const plants = [FOOT_BASE_PLANT_PHASE.left, FOOT_BASE_PLANT_PHASE.right];
+    const crossedPlant = (a: number, b: number): boolean =>
+      plants.some((p) => (a < p && b >= p) || (b < a && (p >= a || p < b)));
+    let expectedCrossings = 0;
+    for (let f = 1; f < frames; f += 1) {
+      if (crossedPlant(phase01At((f - 1) * dt), phase01At(f * dt))) expectedCrossings += 1;
+    }
+    const transitions: number[] = [];
+    let prev: string | null = null;
+    for (let frame = 0; frame < frames; frame += 1) {
+      (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
+      // Observe-only lock flaps every 2 frames; schedule roles must not follow it.
+      (approach as unknown as { lock: { stanceFoot: string } }).lock = {
+        stanceFoot: Math.floor(frame / 2) % 2 === 0 ? "left" : "right",
+      };
+      const summary = applyFootBaseStep({
+        approach: approach as never,
+        routeDx: 0,
+        routeDz: 1.31,
+        routeLength: 1.31,
+        clip: { labels, actionTimeSeconds: frame * dt },
+      });
+      expect(summary).not.toBeNull();
+      const stance = readFootBaseState(approach)?.stance ?? null;
+      expect(stance === "left" || stance === "right").toBe(true);
+      if (prev !== null && stance !== prev) transitions.push(frame);
+      prev = stance;
+    }
+    // Lock flapped ~frames/2 times; schedule plants fire exactly expectedCrossings.
+    expect(transitions.length).toBeGreaterThan(0);
+    expect(transitions.length).toBeLessThanOrEqual(expectedCrossings + 1);
+    for (const f of transitions) {
+      expect(crossedPlant(phase01At((f - 1) * dt), phase01At(f * dt))).toBe(true);
+    }
+    clearFootBaseState(approach);
+  });
+
+  it("row lookup spans liftoff to touchdown and halves count passings", () => {    const lift = footBaseRowAt("left", 0.64);
     expect(Math.abs(lift.along01)).toBeLessThan(0.05);
     expect(footBaseHalfIndex(0.55, FOOT_BASE_CYCLE_S)).toBe(1);
     expect(footBaseHalfIndex(1.38, FOOT_BASE_CYCLE_S)).toBe(2);
