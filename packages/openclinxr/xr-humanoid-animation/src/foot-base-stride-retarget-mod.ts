@@ -26,18 +26,30 @@ import {
  * rebuilt between new footholds as the IK target; stance fixed at foothold.
  * Replaces the amplitude blend plus closed-loop advance per substep: stance
  * toe target = its foothold (XZ pinned by an exact slot translate), swing =
- * liftoff + along01 * step + lateral * side + height * up, each leg solved
- * with `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps
- * the clip pose. Stance follows the observe-only stance lock from earlier
- * in the same frame (also the published stanceFoot column, so pin stance
- * and metric stance coincide by construction). The plan datum is anchored
- * to walking entry (halves/body travel count route progress since the first
- * active substep, not clip absolute time: absolute time put the slot ~8 cm
- * behind the legacy advance from substep one). Handovers plant the physical
- * foot with anchor heights capped at the contact band. The heel offset is
- * re-read from the mixer-fresh leg every substep (exogenous clip truth, so
- * no feedback); a once-captured entry offset goes stale with ankle
- * articulation and injects handover-scale errors.
+ * stance-foothold-relative path ((along01 * 2 - 1) steps fore-aft from the
+ * stance foothold on the swing foot's home side, plus the row lateral and
+ * height), each leg solved with `solveSteppingLegHinge` from a yaw-stable
+ * heel target. Pelvis keeps the clip pose.
+ *
+ * ROLES COME ONLY FROM THE FOOTHOLD SCHEDULE, never from the observe-only
+ * stance lock (the lock flaps every 2-4 frames early in the walk; each flap
+ * used to freeze the swing foot via the stance pin while the rows marched on,
+ * losing ~8 cm of row progress per flap). Each foot's plant-relative phase at
+ * the clip time selects stance over exactly its contact interval
+ * (plant-to-lift from physician-walk-contact-phases.json); in double support
+ * the most-recently-planted foot takes the stance pin (a pure function of
+ * phase, so exactly one role change per plant boundary and none between, no
+ * hysteresis, no dwell). Footholds are fixed when the plan is built: the
+ * entry pair from the physical feet, every later plant one plan step ahead of
+ * the other foothold on the planting foot's home side — never re-snapped to
+ * the physical landing foot, so swing-IK miss cannot bake into the next
+ * foothold. Targets are absolute rebuilds (no takeoff-relative deltas).
+ *
+ * The plan datum is anchored to walking entry (halves/body travel count route
+ * progress since the first active substep, not clip absolute time). The heel
+ * offset is re-read from the pre-solve leg every substep, once per foot
+ * before its solve (exogenous clip truth, no feedback, no solve-twice: the
+ * second pass was measured not converging the 3-5 cm swing miss).
  *
  * Default OFF behind `?footBase=1`, 1.31 m route only; not re-exported from
  * `./footstep-plan` (no new public symbol, deep import from the tail).
@@ -72,17 +84,10 @@ export type FootBaseState = {
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
-   * Takeoff reference per foot, captured on role change (init/handover):
-   * physical position, absolute rebuild there. Targets follow rebuild
-   * DELTAS from the physical takeoff, so role changes are continuous even
-   * when rows and labels disagree (the origin-absBase difference also
-   * cancels the row table's plant bias); the constant offset re-anchors
-   * every handover and never accumulates.
+   * Home side coordinate per foot (side-unit projection at entry), so a
+   * plan-built plant lands on the planting foot's own side of the route.
    */
-  takeoff: Record<
-    FootBaseSide,
-    { origin: { x: number; y: number; z: number }; absBase: { x: number; y: number; z: number } } | null
-  >;
+  sideHome: Record<FootBaseSide, number>;
   offsetEntry: Record<FootBaseSide, { offset: { x: number; y: number; z: number }; yaw: number } | null>;
   hingeNormal: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
   wraps: number;
@@ -96,8 +101,6 @@ export type FootBaseState = {
    */
   entryUnwrappedS: number | null;
   worst: { missM: number; side: FootBaseSide; sub: number } | null;
-  /** Post-solve toe worlds from the previous substep, per foot. */
-  lastSolved: Record<FootBaseSide, { x: number; y: number; z: number } | null>;
 };
 
 export type FootBaseStepSummary = {
@@ -130,6 +133,41 @@ export function footBaseStepIsActive(routeLengthMeters: number): boolean {
 export function footBaseRelPhase(side: FootBaseSide, phase01: number): number {
   const rel = (phase01 - FOOT_BASE_PLANT_PHASE[side]) % 1;
   return ((rel % 1) + 1) % 1;
+}
+
+/**
+ * Lift phase per foot (fraction of the loop period): the row-table datum's
+ * stance interval for this foot is plantPhase..liftPhase (mod 1).
+ * Tracks physician-walk-contact-phases.json left/right liftPhase; pinned by
+ * the stride-retarget test against that JSON.
+ */
+export const FOOT_BASE_LIFT_PHASE = {
+  left: 0.5670264750978142,
+  right: 0.9741326754830563,
+} as const;
+
+/** Stance fraction per foot ((lift - plant) mod 1): left 0.6403, right 0.5361. */
+export const FOOT_BASE_STANCE_FRACTION = {
+  left: 0.6403164246610666,
+  right: 0.53605251487726,
+} as const;
+
+/**
+ * Schedule-only stance foot at this loop phase: each foot is stance over
+ * exactly its plant-to-lift contact interval. Double support goes to the
+ * most-recently-planted foot; the empty case (absent from the shipped clip,
+ * kept total for alternating test schedules) does the same. Pure function of
+ * phase: exactly one role change per plant boundary, none between, no lock
+ * read, no hysteresis, no dwell.
+ */
+export function footBaseScheduleStance(phase01: number): FootBaseSide {
+  const wrapped = (((phase01 % 1) + 1) % 1 + 1) % 1;
+  const leftStance = footBaseRelPhase("left", wrapped) < FOOT_BASE_STANCE_FRACTION.left;
+  const rightStance = footBaseRelPhase("right", wrapped) < FOOT_BASE_STANCE_FRACTION.right;
+  if (leftStance && !rightStance) return "left";
+  if (rightStance && !leftStance) return "right";
+  const behind = (plant: number): number => (((wrapped - plant) % 1) + 1) % 1;
+  return behind(FOOT_BASE_PLANT_PHASE.left) < behind(FOOT_BASE_PLANT_PHASE.right) ? "left" : "right";
 }
 
 /** Interpolated toe-path row for one foot at its plant-relative phase. */
@@ -215,14 +253,13 @@ function createState(stance: FootBaseSide): FootBaseState {
     stance,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
-    takeoff: { left: null, right: null },
+    sideHome: { left: 0, right: 0 },
     offsetEntry: { left: null, right: null },
     hingeNormal: { left: null, right: null },
     wraps: 0,
     lastActionTimeS: null,
     entryUnwrappedS: null,
     worst: null,
-    lastSolved: { left: null, right: null },
   };
 }
 
@@ -263,16 +300,15 @@ export function applyFootBaseStep(input: {
   const cycleS = clip.labels.cycleSeconds;
   const actionTimeS = clip.actionTimeSeconds;
   const phase01 = ((((actionTimeS % cycleS) + cycleS) % cycleS) + cycleS) % cycleS / cycleS;
-  // Stance follows the observe-only stance lock computed earlier this same
-  // frame (its stanceFoot is also what the capture publishes, so pin stance
-  // and metric stance coincide BY CONSTRUCTION — no clock/pose skew can put
-  // a swing frame inside a stance window). Overlap/null keeps the incumbent.
-  const lockStance = approach.lock.stanceFoot;
-  const single: FootBaseSide | null = lockStance === "left" || lockStance === "right" ? lockStance : null;
+  // ROLES FROM THE SCHEDULE ONLY. The observe-only stance lock is not read
+  // here at all: it flaps every 2-4 frames early in the walk, and each flap
+  // used to freeze the swing foot via the stance pin while the rows marched
+  // on (~8 cm of row progress lost per flap). footBaseScheduleStance is a pure
+  // function of clip phase: one role change per plant boundary, none between.
+  const scheduled: FootBaseSide = footBaseScheduleStance(phase01);
   let state = states.get(approach);
   if (!state) {
-    const initial: FootBaseSide = single ?? (leftToeW.y <= rightToeW.y ? "left" : "right");
-    state = createState(initial);
+    state = createState(scheduled);
     states.set(approach, state);
   }
   // LoopRepeat wraps the action time at the clip duration; unwrap for the
@@ -317,50 +353,37 @@ export function applyFootBaseStep(input: {
     : 0;
   bodyTravelM += halfTravel * halfFrac;
 
-  const rebuildAbsolute = (foot: FootBaseSide, row: FootBasePathRow): { x: number; y: number; z: number } => {
-    const from = state.foothold[foot];
-    return {
-      x: from.x + row.along01 * segX + row.lateralM * sideX,
-      y: floorY + row.heightM,
-      z: from.z + row.along01 * segZ + row.lateralM * sideZ,
-    };
-  };
-  const snapTakeoff = (foot: FootBaseSide, row: FootBasePathRow): void => {
-    const physical = foot === "left" ? leftToeW : rightToeW;
-    const solved = state.lastSolved[foot] ?? physical;
-    state.takeoff[foot] = {
-      origin: { ...solved },
-      absBase: rebuildAbsolute(foot, row),
-    };
-  };
   const rowNow = (foot: FootBaseSide): FootBasePathRow =>
     footBaseRowAt(foot, footBaseRelPhase(foot, phase01));
+  const sideCoord = (p: { x: number; z: number }): number =>
+    (p.x - approach.start.x) * sideX + (p.z - approach.start.z) * sideZ;
 
   if (!state.placed.left || !state.placed.right) {
+    // Plan build: the entry pair comes from the physical feet (the only
+    // physical read footholds ever take); every later plant is plan geometry.
     state.foothold.left = { ...leftToeW };
     state.foothold.right = { ...rightToeW };
+    state.sideHome.left = sideCoord(leftToeW);
+    state.sideHome.right = sideCoord(rightToeW);
     state.placed.left = true;
     state.placed.right = true;
-    snapTakeoff("left", rowNow("left"));
-    snapTakeoff("right", rowNow("right"));
-  } else if (single !== null && single !== state.stance) {
-    // Handover, immediate: plant where the foot PHYSICALLY stands (last
-    // solved pos), not the mixer pose (clip scale 1 vs rebuild plan scale
-    // reads cm off; measured 16-26 mm window steps with stale offsets).
-    // Planting at the plan body was measured teleporting the stance target
-    // ~10 cm ahead of the mid-swing foot (6 cm solve miss, slot whiplash,
-    // walk exit 35 frames early). Both feet re-snap takeoff refs, so targets
-    // stay continuous across the role change; a flap plants mid-swing and
-    // hands straight back, pinning each run exactly where it stands (zero
-    // window travel by construction).
-    // A dwell was tried and removed: freezing the challenger while the slot
-    // advances drives its target out of hinge reach (~2 mm/frame shortfall),
-    // worse than planting at touchdown speed.
-    const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
-    state.foothold[single] = { ...planted };
-    state.stance = single;
-    snapTakeoff(single, rowNow(single));
-    snapTakeoff(single === "left" ? "right" : "left", rowNow(single === "left" ? "right" : "left"));
+    state.stance = scheduled;
+  } else if (scheduled !== state.stance) {
+    // Schedule handover, immediate, plan-built: the planting foot lands one
+    // plan step ahead of the other foothold on its own home side. No
+    // physical re-snap (landing error used to bake into the next foothold),
+    // no dwell, no hysteresis: the handover fires exactly at the schedule's
+    // plant boundary whatever the lock says.
+    const other: FootBaseSide = scheduled === "left" ? "right" : "left";
+    const otherAlong = (state.foothold[other].x - approach.start.x) * unitX
+      + (state.foothold[other].z - approach.start.z) * unitZ;
+    const plantAlong = otherAlong + halfTravel;
+    state.foothold[scheduled] = {
+      x: approach.start.x + unitX * plantAlong + sideX * state.sideHome[scheduled],
+      y: floorY,
+      z: approach.start.z + unitZ * plantAlong + sideZ * state.sideHome[scheduled],
+    };
+    state.stance = scheduled;
   }
 
   // Roles derive from post-handover state.
@@ -376,25 +399,27 @@ export function applyFootBaseStep(input: {
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);
 
-  // Takeoff-relative targets: absolute rebuild DELTAS from the handover
-  // value on the physical takeoff (constant offset per swing, re-anchored
-  // next handover). Stance XZ is an absolute pin; stance Y is the brief's
-  // floor + heightM, which self-corrects anchor height (a mid-air plant
-  // still targets the ground, never the air it was recorded in).
-  const swingTakeoff = state.takeoff[swing];
+  // Absolute targets. Stance XZ is a pin to its foothold; stance Y is the
+  // row height off the floor. The swing path hangs off the STANCE foothold:
+  // (along01 * 2 - 1) plan steps fore-aft — liftoff one step behind the
+  // stance foot, touchdown one step ahead (which is exactly the next
+  // plan-built plant, so touchdown and handover coincide with no snap) — on
+  // the swing foot's home side plus the row's measured lateral deviation.
   const stanceTarget = {
     x: stanceFoothold.x,
     y: floorY + stanceRow.heightM,
     z: stanceFoothold.z,
   };
-  const swingAbsolute = rebuildAbsolute(swing, swingRow);
-  const swingTarget = swingTakeoff === null
-    ? swingAbsolute
-    : {
-        x: swingTakeoff.origin.x + (swingAbsolute.x - swingTakeoff.absBase.x),
-        y: swingTakeoff.origin.y + (swingAbsolute.y - swingTakeoff.absBase.y),
-        z: swingTakeoff.origin.z + (swingAbsolute.z - swingTakeoff.absBase.z),
-      };
+  const stanceAlong = (stanceFoothold.x - approach.start.x) * unitX
+    + (stanceFoothold.z - approach.start.z) * unitZ;
+  const swingReach = swingRow.along01 * 2 - 1;
+  const swingTarget = {
+    x: approach.start.x + unitX * (stanceAlong + swingReach * halfTravel)
+      + sideX * (state.sideHome[swing] + swingRow.lateralM),
+    y: floorY + swingRow.heightM,
+    z: approach.start.z + unitZ * (stanceAlong + swingReach * halfTravel)
+      + sideZ * (state.sideHome[swing] + swingRow.lateralM),
+  };
 
   const sub = (approach.execution as { walkSimSubsteps?: number | null }).walkSimSubsteps ?? -1;
   let stanceMissM: number | null = null;
@@ -459,9 +484,5 @@ export function applyFootBaseStep(input: {
     }
   }
   slot.updateMatrixWorld(true);
-  const solvedLeft = toeWorldNow(approach.leftToe);
-  const solvedRight = toeWorldNow(approach.rightToe);
-  if (solvedLeft !== null) state.lastSolved.left = solvedLeft;
-  if (solvedRight !== null) state.lastSolved.right = solvedRight;
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
 }

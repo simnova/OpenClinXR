@@ -1,11 +1,17 @@
 import * as THREE from "three";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { FOOT_BASE_CYCLE_S, FOOT_BASE_PLANT_PHASE } from "./foot-base-path-data-mod.js";
 import {
   applyFootBaseStep,
   clearFootBaseState,
+  FOOT_BASE_LIFT_PHASE,
+  FOOT_BASE_STANCE_FRACTION,
   footBaseHalfIndex,
   footBaseRowAt,
+  footBaseScheduleStance,
   readFootBaseState,
 } from "./foot-base-stride-retarget-mod.js";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
@@ -102,33 +108,36 @@ describe("foot-base stride retarget", () => {
       lock: { stanceFoot: "left" },
     };
     const labels = stanceLabels();
+    // Roles come from the schedule, not the lock: the lock stays constant
+    // while the clip phase crosses the right plant (0.438), so the stance
+    // must still hand left -> right there and the pin must hold it.
     let sawRight = false;
     for (let frame = 0; frame < 140; frame += 1) {
       (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = frame;
-      // The step follows the lock's stance (same source as the metric), not the label clock.
-      (approach as unknown as { lock: { stanceFoot: string | null } }).lock = {
-        stanceFoot: frame < 110 ? "left" : "right",
-      };
+      const actionTimeSeconds = 0.3 + frame * 0.005;
+      const phase01 = ((((actionTimeSeconds % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S)
+        % FOOT_BASE_CYCLE_S) + FOOT_BASE_CYCLE_S) % FOOT_BASE_CYCLE_S / FOOT_BASE_CYCLE_S;
       const summary = applyFootBaseStep({
         approach: approach as never,
         routeDx: 0,
         routeDz: 1.31,
         routeLength: 1.31,
-        clip: { labels, actionTimeSeconds: frame * 0.005 },
+        clip: { labels, actionTimeSeconds },
       });
       expect(summary).not.toBeNull();
       const state = readFootBaseState(approach);
       expect(state).not.toBeNull();
-      // Pin holds whichever foot is stance; handover is immediate.
+      // Pin holds whichever foot the schedule names; handover is immediate.
+      expect(state!.stance).toBe(footBaseScheduleStance(phase01));
       if (state!.stance === "right") sawRight = true;
-      if (frame < 100) expect(state!.stance).toBe("left");
       slot.updateMatrixWorld(true);
       const toe = state!.stance === "left" ? leftToe : rightToe;
       const e = toe.matrixWorld.elements;
       const fh = state!.foothold[state!.stance];
       expect(Math.hypot((e[12] ?? 0) - fh.x, (e[14] ?? 0) - fh.z)).toBeLessThan(0.001);
     }
-    // Right single support starts at action 0.55 (frame ~110); handover is immediate.
+    // The sweep crosses the right plant (phase 0.438) but not the left plant
+    // (0.927): stance ends right, having handed over mid-sweep.
     expect(readFootBaseState(approach)?.stance).toBe("right");
     expect(sawRight).toBe(true);
     const worst = readFootBaseState(approach)?.worst ?? null;
@@ -227,6 +236,39 @@ describe("foot-base stride retarget", () => {
       expect(crossedPlant(phase01At((f - 1) * dt), phase01At(f * dt))).toBe(true);
     }
     clearFootBaseState(approach);
+  });
+
+  it("schedule stance datum tracks physician-walk-contact-phases.json", () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const jsonPath = join(
+      here,
+      "..",
+      "..",
+      "factory-stations",
+      "src",
+      "motion_retarget",
+      "physician-walk-contact-phases.json",
+    );
+    const doc = JSON.parse(readFileSync(jsonPath, "utf8")) as {
+      left: { liftPhase: number };
+      right: { liftPhase: number };
+      stepFractionLeftToRight: number;
+      stepFractionRightToLeft: number;
+    };
+    expect(FOOT_BASE_LIFT_PHASE.left).toBe(doc.left.liftPhase);
+    expect(FOOT_BASE_LIFT_PHASE.right).toBe(doc.right.liftPhase);
+    expect(FOOT_BASE_STANCE_FRACTION.left).toBeCloseTo(
+      (((doc.left.liftPhase - FOOT_BASE_PLANT_PHASE.left) % 1) + 1) % 1, 12,
+    );
+    expect(FOOT_BASE_STANCE_FRACTION.right).toBeCloseTo(
+      (((doc.right.liftPhase - FOOT_BASE_PLANT_PHASE.right) % 1) + 1) % 1, 12,
+    );
+    // Spot-check the pure schedule: single-support phases name their foot,
+    // double support names the most-recently-planted foot.
+    expect(footBaseScheduleStance(0.1)).toBe("left");
+    expect(footBaseScheduleStance(0.7)).toBe("right");
+    expect(footBaseScheduleStance(0.5)).toBe("right");
+    expect(footBaseScheduleStance(0.95)).toBe("left");
   });
 
   it("row lookup spans liftoff to touchdown and halves count passings", () => {    const lift = footBaseRowAt("left", 0.64);
