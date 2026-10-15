@@ -1,0 +1,172 @@
+{
+ "version": 1,
+ "instrument": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+ "masks": "skinfamilies/a1/derive (facecore/lips/ears-L|R max/occupancy); forehead=top30pc facecore rows",
+ "falsifier": {
+  "case_skin_tones": [
+   "warm_light",
+   "warm_light_child",
+   "warm_medium",
+   "medium_warm"
+  ],
+  "sources": [
+   "packages/openclinxr/scenario-fixtures/src/ward-delirium.ts:118",
+   "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts:141",
+   "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts:81,138,185",
+   "tools/openclinxr/asset-pipeline/reference-set/manifest.json:32,334"
+  ],
+  "decision": "multi_tone",
+  "detail": "warm_light(+child) and warm_medium(medium_warm) are 2 distinct tones; not single_tone, proceed"
+ },
+ "tone_anchors_Lab": {
+  "warm_light": [
+   58.37,
+   9.05,
+   16.01
+  ],
+  "warm_medium": [
+   49.26,
+   13.89,
+   19.44
+  ],
+  "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json aisha goal_front facecore + body2 goal_front facecore"
+ },
+ "families": {
+  "young": {
+   "assets": "skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "forehead": [
+    60.48,
+    10.12,
+    16.58
+   ],
+   "lip": [
+    54.03,
+    13.27,
+    14.37
+   ],
+   "ear": [
+    52.62,
+    18.59,
+    16.93
+   ]
+  },
+  "middle": {
+   "assets": "skin-families/middle/middle-family-v4.png",
+   "sha256": "0878773f205c555aba469a448291b9d6a4a8e47ec762fca4e285620e3ec7c8f4",
+   "forehead": [
+    75.38,
+    11.52,
+    21.36
+   ],
+   "lip": [
+    66.78,
+    18.08,
+    22.4
+   ],
+   "ear": [
+    66.19,
+    17.8,
+    24.1
+   ]
+  },
+  "old": {
+   "assets": "skin-families/old/old-family-v2.png",
+   "sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
+   "forehead": [
+    68.03,
+    16.93,
+    27.65
+   ],
+   "lip": [
+    57.02,
+    23.77,
+    27.06
+   ],
+   "ear": [
+    56.31,
+    24.3,
+    28.85
+   ]
+  }
+ },
+ "lightness_order_dark_to_light_forehead_L": [
+  "dark-33",
+  "young-60",
+  "old-68",
+  "middle-75"
+ ],
+ "nearest": {
+  "warm_light": "young",
+  "warm_light_child": "young",
+  "warm_medium": "young",
+  "method": "min dLab anchor vs family forehead mean; both anchors nearest the darkest light family"
+ },
+ "cap_rule": "per-chart Lab residual capped at the next family's forehead mean; a residual uncapped past the next family's mean is a fail",
+ "multiply": {
+  "light": {
+   "id": "middle",
+   "assets": "skin-families/middle/middle-family-v4.png",
+   "sha256": "0878773f205c555aba469a448291b9d6a4a8e47ec762fca4e285620e3ec7c8f4"
+  },
+  "dark": {
+   "id": "middleage_african_female",
+   "sha256": "c3c9ab972ad46fbda64cedfd1d0a626c2a8e739fd345c4c349102eaacc947699"
+  },
+  "forehead_rgb_scale_light_to_dark": [
+   0.4748,
+   0.3262,
+   0.2674
+  ],
+  "lip_lab": {
+   "untouched_light": [
+    66.78,
+    18.08,
+    22.4
+   ],
+   "untouched_dark": [
+    25.82,
+    18.08,
+    16.63
+   ],
+   "multiplied_light": [
+    26.42,
+    20.6,
+    20.0
+   ]
+  },
+  "ear_lab": {
+   "untouched_light": [
+    66.19,
+    17.8,
+    24.1
+   ],
+   "untouched_dark": [
+    25.94,
+    19.9,
+    19.94
+   ],
+   "multiplied_light": [
+    26.19,
+    20.55,
+    20.47
+   ]
+  },
+  "ciede2000_threshold_untouched_pair": {
+   "lip": 39.73,
+   "ear": 38.9
+  },
+  "ciede2000_multiplied_vs_dark": {
+   "lip": 2.04,
+   "ear": 0.42
+  },
+  "structure_lip_minus_forehead_b_sep": {
+   "untouched_dark": -3.73,
+   "multiplied_light": -0.36
+  }
+ },
+ "known_bad": "face-replay/face_replay_colour.py global Lab6: second-body-report.json render_vs_goal 1/4 regions within_3_per_channel (R_cheek only)",
+ "decision": "add_family",
+ "shipped_multiply": false,
+ "not_tested": "dynamic blush/pallor (layer weights)"
+}
