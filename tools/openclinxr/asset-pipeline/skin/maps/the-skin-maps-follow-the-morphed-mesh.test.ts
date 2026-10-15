@@ -112,12 +112,20 @@ describe("maps-manifest contract", () => {
     expect(m.inputMesh?.meshSha256RoundedPositions).toMatch(/^[0-9a-f]{64}$/);
     expect(Array.isArray(m.maps)).toBe(true);
     expect((m.maps as SkinMap[]).map((e) => e.kind)).toEqual(
-      ["wrinkle-normal", "curvature", "cavity", "pore-normal-tile"]);
+      ["curvature", "cavity", "pore-normal-tile"]);
     for (const e of m.maps as SkinMap[]) {
       expect(e.store).toMatch(/^assets:skin-maps\//);
       expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
       expect(Array.isArray(e.size) && (e.size as number[]).length).toBe(2);
     }
+  });
+
+  it("withheld wrinkle map is recorded with evidence, not shipped silently", () => {
+    const m = readManifest();
+    const blocked = (m as { blocked?: { kind?: unknown; status?: unknown; evidence?: unknown } }).blocked;
+    expect(blocked?.kind).toBe("wrinkle-normal");
+    expect(blocked?.status).toContain("NOT SHIPPED");
+    expect(blocked?.evidence).toContain("UV layout diverges");
   });
 
   it("gate verdicts follow the measured gaps", () => {
@@ -164,9 +172,7 @@ if (fs.existsSync(STORE)) {
         for (let i = ch; i < px.length; i += 3) s += (px[i]! - mu) ** 2;
         return Math.sqrt(s / n);
       };
-      const wr = decodePngSimple(path.join(STORE, "aisha-wrinkle-normal-2048.png"));
       const po = decodePngSimple(path.join(STORE, "pore-tile-normal-512.png"));
-      expect(mean(wr.rgb, 2)).toBeGreaterThan(200);
       expect(mean(po.rgb, 2)).toBeGreaterThan(200);
       for (const f of ["aisha-curvature-1024.png", "aisha-cavity-1024.png"]) {
         const d = decodePngSimple(path.join(STORE, f));
