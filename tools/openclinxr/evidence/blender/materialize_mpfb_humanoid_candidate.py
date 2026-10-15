@@ -179,6 +179,8 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "eg-104-m1": FEMALE_COVERING_LOWER,
     "eg-104-m2": FEMALE_COVERING_LOWER,
     "eg-104-m3": FEMALE_COVERING_LOWER,
+    # lidconform (tsk_83147b9cfdf9ab03): same adult-female civilian lower.
+    "aisha-lidconform": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2628,6 +2630,9 @@ EYE_DIAMETER_TARGET_MM = {
     "eg-104-m1": 24.0,
     "eg-104-m2": 24.0,
     "eg-104-m3": 24.0,
+    # lidconform (tsk_83147b9cfdf9ab03): same adult-female body as
+    # mpfb-ob-patient-aisha (lid-ring seating bake under the card stem).
+    "aisha-lidconform": 24.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -8368,6 +8373,37 @@ def main():
         )
     else:
         print("BODY_SUBDIV_SKIPPED --no-body-subdiv")
+    # Lid-conform (tsk_83147b9cfdf9ab03): seat the inner lid ring on the
+    # globe mesh +0.5 mm tear-film offset. Runs HERE, on the FINAL
+    # subdivided body after the helper strip + subdiv bake above: both
+    # stages rebuild Basis data (strip reapply_all_details, subdiv
+    # copy-bake-apply-delta), so a pre-strip Basis edit does not reach
+    # the export (measured: zero-vert diff on the first bake). The eye
+    # resize is long final, so the globe the rays hit is the exported
+    # one; nothing downstream re-derives lid verts except the export
+    # split/smooth, which preserve positions. Absent stem = no-op, so
+    # every other bake stays byte-stable.
+    import sys as _sys_lidconform
+
+    _lidconform_dir = (
+        REPO_ROOT / "tools/openclinxr/asset-pipeline/realism-head/lid-conform"
+    )
+    if str(_lidconform_dir) not in _sys_lidconform.path:
+        _sys_lidconform.path.insert(0, str(_lidconform_dir))
+    from lid_conform import (  # noqa: E402
+        LID_CONFORM_BY_OUTPUT_STEM as _LID_CONFORM_TABLE,
+    )
+
+    _lidconform_cfg = _LID_CONFORM_TABLE.get(
+        pathlib.Path(args.output).stem)
+    if _lidconform_cfg is not None:
+        from lid_conform import conform_lids as _conform_lids  # noqa: E402
+
+        _lidconform_record = _conform_lids(
+            human, eyes_asset,
+            offset_mm=float(_lidconform_cfg["offsetMm"]),
+            weights=tuple(_lidconform_cfg["weights"]))
+        print("LIDCONFORM_BAKED " + json.dumps(_lidconform_record))
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
     # Every subject: MPFB's subdiv bake swaps body mesh data via

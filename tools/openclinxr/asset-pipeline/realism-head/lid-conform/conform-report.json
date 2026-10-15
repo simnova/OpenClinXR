@@ -1,0 +1,440 @@
+{
+ "name": "lid-ring-conform",
+ "card": "tsk_83147b9cfdf9ab03",
+ "verdict": "rim_seated_wall_remains: the margin ring sits on the globe mesh +0.5mm every vertex (G1), blink seals (G4), globe untouched (C1), no flips (C3); the yaw socket-wall wedge is unchanged (G2 ties at yaw, +5px rim floor at front), the reshaped aperture exposes sub-percent more globe at yaw (G3 +0.2-0.6%), and seating entails a -2.0mm narrower / +1.3mm taller fissure (C2): G1 and C2-width cannot both hold on this anatomy (corner rays are mostly lateral, so the mandatory >=1.7mm inward seating moves each canthus >0.5mm medially). The remaining wall wedge is the socket_geometry the eyeglobe grid proved no globe scale/seat fixes -- out of scope for a lid card.",
+ "bake": {
+  "argv": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "eyeResize": "EYES_ANATOMICAL targetDiameterMm 24.0 perEye L/R before 29.159 scale 0.8231 seat 2.58 (bake-lidconform.log:38)",
+  "lidconformRecord": {
+   "offsetMm": 0.5,
+   "weights": [
+    1.0,
+    0.0
+   ],
+   "ringSource": "base-glb-topological",
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+   "displacedVerts": 112,
+   "perSide": {
+    "L": {
+     "baseRing1": 56,
+     "matchedRing1": 56,
+     "matchMedMm": 0.0018,
+     "matchMaxMm": 0.002,
+     "ring2": 112,
+     "ring3": 112,
+     "movedVerts": 56,
+     "maxDispMm": 1.863
+    },
+    "R": {
+     "baseRing1": 56,
+     "matchedRing1": 56,
+     "matchMedMm": 0.0017,
+     "matchMaxMm": 0.0017,
+     "ring2": 112,
+     "ring3": 112,
+     "movedVerts": 56,
+     "maxDispMm": 1.863
+    }
+   },
+   "keyBlocksCarried": [
+    "Basis",
+    "eye-left-closure",
+    "eye-left-opened-up",
+    "eye-left-slit",
+    "eye-right-closure",
+    "eye-right-opened-up",
+    "eye-right-slit",
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up",
+    "mouth-compression",
+    "mouth-corner-puller",
+    "mouth-depression-retraction",
+    "mouth-depression-retraction.001",
+    "mouth-elevation",
+    "mouth-eversion",
+    "mouth-open",
+    "mouth-parling",
+    "mouth-part-later",
+    "mouth-protusion",
+    "mouth-pursing",
+    "mouth-retraction",
+    "mouth-upward-retraction",
+    "neck-platysma",
+    "nose-compression-uncompress",
+    "nose-depression",
+    "nose-left-dilatation",
+    "nose-left-elevation",
+    "viseme_aa",
+    "viseme_CH",
+    "viseme_DD",
+    "viseme_E",
+    "viseme_FF",
+    "viseme_I",
+    "viseme_kk",
+    "viseme_nn",
+    "viseme_O",
+    "viseme_PP",
+    "viseme_RR",
+    "viseme_sil",
+    "viseme_SS",
+    "viseme_TH",
+    "viseme_U"
+   ]
+  },
+  "baseGlb": {
+   "path": "assets:lid-conform/aisha-eyeglobe-base.glb",
+   "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec"
+  },
+  "newGlb": {
+   "path": "assets:lid-conform/aisha-lidconform.glb",
+   "sha256": "f71f3f8033228aa43a39524021d452b80f51c22e7f34697dcb7031af65b76b54"
+  }
+ },
+ "globeVsAnatomy": {
+  "diameterMm": {
+   "L": 24.05,
+   "R": 24.037,
+   "source": "lidcurve.json m1 (Kasa fit rms 0.66)"
+  },
+  "diameterTarget": "24.0 adult axial length (Rauscher 2021 via materialize; 24.19 Nature srep12437)",
+  "cornealBulge": "present: high-poly eye, apex +1.925mm proud of the fitted sclera sphere r=11.904mm (prototype measurement on base GLB)",
+  "corneaAnatomy": "radius 7.8mm anterior / 6.5 posterior, sclera 11.5mm (Duane's/Adler's); corneal dia 11.7Hx10.6V; card's 2-3mm proud UNSOURCED as textbook figure (sourced radii give ~1.1mm by sagitta arithmetic; closest sourced depth is ACD 3.1-3.6mm emmetropia, a different measure)",
+  "fissureAnatomy": "~30Hx10V adult (Wikipedia palpebral fissure; Turkish n=500: 31-32.6Hx10.3-10.4; Nigerian: 32.6-32.8Hx10.6; Australian PFH mean 8.7)",
+  "verdict": "globe is anatomical (dia + bulge present) -- proceed with lid work, no stop"
+ },
+ "gates": {
+  "g1": {
+   "gapsMm": {
+    "L.ring1": {
+     "n": 56,
+     "min": 0.5,
+     "med": 0.5,
+     "max": 0.5
+    },
+    "L.ring2": {
+     "n": 56,
+     "min": -0.724,
+     "med": 1.138,
+     "max": 2.353
+    },
+    "L.ring3": {
+     "n": 56,
+     "min": 0.566,
+     "med": 1.969,
+     "max": 2.965
+    },
+    "R.ring1": {
+     "n": 56,
+     "min": 0.5,
+     "med": 0.5,
+     "max": 0.5
+    },
+    "R.ring2": {
+     "n": 56,
+     "min": -0.723,
+     "med": 1.138,
+     "max": 2.353
+    },
+    "R.ring3": {
+     "n": 56,
+     "min": 0.566,
+     "med": 1.969,
+     "max": 2.965
+    }
+   },
+   "pass": true,
+   "method": "ray from globe centre through each ring1 vert vs globe MESH (honours corneal bulge); lid_conform_core.signed_gap_to_mesh"
+  },
+  "g2": {
+   "edgePx": {
+    "front": {
+     "base": 211,
+     "new": 216
+    },
+    "yaw25": {
+     "base": 379,
+     "new": 379
+    },
+    "yaw-25": {
+     "base": 446,
+     "new": 446
+    },
+    "yaw40": {
+     "base": 509,
+     "new": 509
+    },
+    "yaw-40": {
+     "base": 586,
+     "new": 586
+    }
+   },
+   "pass": false,
+   "method": "neon_count.py probe_aperture port (same predicates) on lid-capture.ts neon portraits (blue body/cyan lash/magenta eye, 1280px, camera orbit)"
+  },
+  "g3": {
+   "cw1Base": {
+    "cw1": {
+     "front": 0,
+     "yaw25": 914,
+     "yaw-25": 912,
+     "yaw40": 2958,
+     "yaw-40": 2963,
+     "blink0.5": 386
+    },
+    "cw3maxMm": 1.878,
+    "closed10FrontGlobePx": 0,
+    "edge": {
+     "front": 31814,
+     "yaw25": 26329,
+     "yaw-25": 26444,
+     "yaw40": 22504,
+     "yaw-40": 22553
+    }
+   },
+   "cw1New": {
+    "cw1": {
+     "front": 0,
+     "yaw25": 916,
+     "yaw-25": 915,
+     "yaw40": 2969,
+     "yaw-40": 2980,
+     "blink0.5": 367
+    },
+    "cw3maxMm": 1.852,
+    "closed10FrontGlobePx": 0,
+    "edge": {
+     "front": 32112,
+     "yaw25": 26595,
+     "yaw-25": 26702,
+     "yaw40": 22606,
+     "yaw-40": 22653
+    }
+   },
+   "pass": false,
+   "resMm": 0.12,
+   "method": "cw1-protrusion.py --base-glb base (frozen base ring indices, re-derived positions); base reproduces the published grid exactly (0/914/912/2958/2963/386)"
+  },
+  "g4": {
+   "closed10FrontGlobePx": 0,
+   "geometricPass": true,
+   "darkBase": {
+    "darkPx": 0,
+    "skinMedian": 157.3,
+    "bandPx": 85504
+   },
+   "darkNew": {
+    "darkPx": 0,
+    "skinMedian": 157.31,
+    "bandPx": 85504
+   },
+   "darkPass": true,
+   "pass": true
+  }
+ },
+ "counterweights": {
+  "c1": {
+   "positionSha256": {
+    "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh": {
+     "base": "176a3d94a05c219da7a6798ceeff6cfae1432f95ac1df8e74399a97c335ab2d1",
+     "new": "176a3d94a05c219da7a6798ceeff6cfae1432f95ac1df8e74399a97c335ab2d1"
+    },
+    "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh": {
+     "base": "4415a2e91fc0f12e76588376fd9802db24beaa173a0c86918244f4418695f86c",
+     "new": "4415a2e91fc0f12e76588376fd9802db24beaa173a0c86918244f4418695f86c"
+    },
+    "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh": {
+     "base": "0e4100bb938030b6b1c7d1d6ca9a05b031828ab56075046ab155b8a85f797481",
+     "new": "0e4100bb938030b6b1c7d1d6ca9a05b031828ab56075046ab155b8a85f797481"
+    }
+   },
+   "pass": true
+  },
+  "c2": {
+   "fissureMm": {
+    "L": {
+     "base": {
+      "widthMm": 23.957776103219214,
+      "heightMm": 9.761630954608336
+     },
+     "new": {
+      "widthMm": 21.945820517437063,
+      "heightMm": 11.067208228044137
+     }
+    },
+    "R": {
+     "base": {
+      "widthMm": 23.95777613593141,
+      "heightMm": 9.76181169540996
+     },
+     "new": {
+      "widthMm": 21.945860153048425,
+      "heightMm": 11.06738882530567
+     }
+    }
+   },
+   "within1mmOfBase": false,
+   "withinAnatomicalRange": false
+  },
+  "c3": {
+   "flips": 0,
+   "bandFaces": 672,
+   "pass": true
+  }
+ },
+ "falsifier": {
+  "triggered": false,
+  "note": "C3 flips 0/672 on the card-literal profile [1.0, 0.0]; the smooth profile [1.0, 0.5, 0.0] also scored 0 flips in the GLB-side prototype but was not baked (it moves more lid for no gate benefit: G3/C2 worsen with wider seating). No face-flip impasse occurred."
+ },
+ "sheets": {
+  "neon/neon-base-front-full.png": {
+   "sha256": "1e8da95b645d3e07b62c75fb3c8c9c23050fc51089a912e40f33ca53fc06ebd5",
+   "bytes": 397151
+  },
+  "neon/neon-base-yaw-25-full.png": {
+   "sha256": "5998b9356a3a92683a845bd43787c3e7cece46cdbc87fd1934d4cc34839c73b2",
+   "bytes": 384927
+  },
+  "neon/neon-base-yaw-40-full.png": {
+   "sha256": "d64a59dc5a92b686a770954d5aaa9dec227ef3ada8f691692af426ef3c8d7d4f",
+   "bytes": 365639
+  },
+  "neon/neon-base-yaw25-full.png": {
+   "sha256": "183d705cd3344dfef2093a44435dac36aa79a62acb18e45d8d73dd9a17a29c2f",
+   "bytes": 362114
+  },
+  "neon/neon-base-yaw40-full.png": {
+   "sha256": "e7aa9a1daddb094663aa4b9b1c28196847450ac367286be5c06d5fb506a3554c",
+   "bytes": 327454
+  },
+  "neon/neon-new-front-full.png": {
+   "sha256": "ff74bb94aff5245789e8b3b8833f99e85c6c412a7fba31e73308629e4823cadd",
+   "bytes": 397261
+  },
+  "neon/neon-new-yaw-25-full.png": {
+   "sha256": "e7c626027fe9d5cd95926d6eb46fe678ee459ac2de909b61cc793b271d53f3bd",
+   "bytes": 385209
+  },
+  "neon/neon-new-yaw-40-full.png": {
+   "sha256": "849f76bd3d2cbdab5f6abb439ca39be3db44ebeb59d0526c8794a2ef32a0f752",
+   "bytes": 365729
+  },
+  "neon/neon-new-yaw25-full.png": {
+   "sha256": "fa5ebaef449923331378e135b528403e71b44cc077e77384d365f0c7a2aa3c87",
+   "bytes": 362153
+  },
+  "neon/neon-new-yaw40-full.png": {
+   "sha256": "15e2ee21ed39eb36ed63caca48c276a1ab98f8d4b11ac3b34a576bf307d0b532",
+   "bytes": 327550
+  },
+  "natural/natural-base-blink-eyeL-full.png": {
+   "sha256": "efe6044f1dcd01351b0134dc23c7bca7d653c78b0161176645b88f98b3ff2e6f",
+   "bytes": 1266302
+  },
+  "natural/natural-base-blink-eyeR-full.png": {
+   "sha256": "1bd32cfb91fd6adaeff048574dafbb3dcdf7ec1ddacafe6d9c48d204b972fcfd",
+   "bytes": 1246872
+  },
+  "natural/natural-base-blink-full.png": {
+   "sha256": "a409ddd9f53192a506e3764cc273d2620d35195e51451d1902dfd93a6e92f1da",
+   "bytes": 864385
+  },
+  "natural/natural-base-front-eyeL-full.png": {
+   "sha256": "37caeb371f137efc0241f4cd3624747020822e15f9f7d5ba2d7f4c4cbf4dcbb6",
+   "bytes": 1394947
+  },
+  "natural/natural-base-front-eyeR-full.png": {
+   "sha256": "ecc031f247172b3d8db1cdb4b6c346409ead627cea30cf83e24c9d00289d5c59",
+   "bytes": 1374627
+  },
+  "natural/natural-base-front-full.png": {
+   "sha256": "c6dd74c1a0a07b8941a657d6dca0974c2e35a7e82c937ddc45e1054142e495a2",
+   "bytes": 871555
+  },
+  "natural/natural-base-yaw25-eyeL-full.png": {
+   "sha256": "af0cba7ce20202bc801d3aa7831b7c9637dfdb07b68aebe4294dd943793e9e5d",
+   "bytes": 1433841
+  },
+  "natural/natural-base-yaw25-eyeR-full.png": {
+   "sha256": "3958dee3658dc468dea8f824d8ad414468916291e4b6f6f866ebcb4d7920802c",
+   "bytes": 1239281
+  },
+  "natural/natural-base-yaw25-full.png": {
+   "sha256": "73d09b3391b7ef1c1fa6b5509766f42ffc9d4a1ebb4ba0d2439658ea8acb4129",
+   "bytes": 902165
+  },
+  "natural/natural-base-yaw40-eyeL-full.png": {
+   "sha256": "22f13c05ff2bb5db0101e88a9e06b2b43b93a99e1d670459519764e5c4fc3458",
+   "bytes": 1384838
+  },
+  "natural/natural-base-yaw40-eyeR-full.png": {
+   "sha256": "3a6cbd4090a7fb43361b8a38bc5bc207177c05c932a2f25748a49f570456b10d",
+   "bytes": 1041419
+  },
+  "natural/natural-base-yaw40-full.png": {
+   "sha256": "1a292f1d11b4e765d233164a553e5182344946fa66ad99ab003d3653a49fc161",
+   "bytes": 912876
+  },
+  "natural/natural-new-blink-eyeL-full.png": {
+   "sha256": "922fcd42a293813ced31961f62bf6fd26b81d30294c2740a464051a962244110",
+   "bytes": 1266219
+  },
+  "natural/natural-new-blink-eyeR-full.png": {
+   "sha256": "488c6a61233cc6dd7a8348306d887f730e9c120ed10fd3b995a71541a1063ef6",
+   "bytes": 1246295
+  },
+  "natural/natural-new-blink-full.png": {
+   "sha256": "02f0d81138e2070301b6d5d2c374f56cfc670bdfaa764d2300e92db31d2b226e",
+   "bytes": 864528
+  },
+  "natural/natural-new-front-eyeL-full.png": {
+   "sha256": "48f68d7d8acbaf63bfd79f7c036274c18caae565cf335ff1402295ed035929fe",
+   "bytes": 1397942
+  },
+  "natural/natural-new-front-eyeR-full.png": {
+   "sha256": "77e85006ab6441984294720039ddf0d71e94730309bd0484d9b14de5e89e2c93",
+   "bytes": 1376730
+  },
+  "natural/natural-new-front-full.png": {
+   "sha256": "79ff8a8fdde5c69bef51bdce11d83812fc2526437dac906ef714193f5ebbad19",
+   "bytes": 871645
+  },
+  "natural/natural-new-yaw25-eyeL-full.png": {
+   "sha256": "12cf9d2cccf976db6971b1d36440d7e97c3aa5967e848aee751a4bbe0b43a2d1",
+   "bytes": 1434577
+  },
+  "natural/natural-new-yaw25-eyeR-full.png": {
+   "sha256": "78e7fef58e4230d625e460cf8fe1e6f898a767c107f823c0175e91cadf667e9b",
+   "bytes": 1240574
+  },
+  "natural/natural-new-yaw25-full.png": {
+   "sha256": "f386e078574270cdd632b7f498934147ee4210a72eaa9e084b15b25e1bef7425",
+   "bytes": 902018
+  },
+  "natural/natural-new-yaw40-eyeL-full.png": {
+   "sha256": "c72dc02878f935045994e0ea63ef1efb0ae0fa777b940fd7e9fa9c36c87fc338",
+   "bytes": 1385615
+  },
+  "natural/natural-new-yaw40-eyeR-full.png": {
+   "sha256": "1d9389d5e12ec422600e1c1756da2659ce06b466518fbcecdd2865d873d09f0e",
+   "bytes": 1041700
+  },
+  "natural/natural-new-yaw40-full.png": {
+   "sha256": "bc168a97998172948aba97ea628435b2505f1770eddc02fcda5e6bb5b167d1b3",
+   "bytes": 913150
+  }
+ },
+ "captureMethod": "lid-capture-tmp.ts (repo-root scratch, deleted before commit): three.js r184 sRGB NoToneMapping, variant rig lights, portrait head-height 0.78, camera orbit per view, hair hidden (eyeglobe precedent), blink = closure+slit 1.0 with read-back; eye zooms framed on eye.L/eye.R bones, 0.115m eyelid distance (~780px eye width)",
+ "notTested": [
+  "gaze rotation (compat-eyes NT, same as eyeglobe grid)"
+ ],
+ "outOfScope": [
+  "socket-wall fill (socket_geometry stands)",
+  "lash re-fit to the seated margin"
+ ]
+}
