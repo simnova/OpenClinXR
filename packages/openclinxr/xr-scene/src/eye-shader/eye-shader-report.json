@@ -1,7 +1,7 @@
 {
  "card": "tsk_59ea9f9a3aea8cfa",
  "commits": [
-  "24bc5e9da"
+  "f30db4e30"
  ],
  "falsifier": "exam leaves primary gaze (eyetex-yaw renders at 0/+-25; this card grades +-40): NOT triggered, proceeding recorded",
  "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-parallax.ts",
@@ -143,7 +143,7 @@
  "wiring": "STOP-AND-REPORT: product wiring needs a change outside the write root: packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts applyMaterialOverrides (line 279) is the anchor where a future slice must call applyEyeShader() on eye materials post-load. NOT edited here.",
  "stillNeeds": "V-convention: landed iris-centred-c.png is V-flipped vs the three.js sampler (disks land on-globe only under Blender-native sampling; measured front-vert median file-UV R (0.705,0.699)/L (0.294,0.298) vs art disks). Follow-up must V-flip the texture (or flipY=true the eye load); module numerals assume the flipped state and are cross-checked.",
  "storePrefix": "assets:eye-shader/",
- "pushed": true,
+ "pushed": false,
  "storeShas": {
   "beauty-approx_yaw-25.png": "5f712deebaf9cb09c57e08c01bfc75a0a7539bd3e04e14ac861e3c9409d9c9b1",
   "beauty-approx_yaw-40.png": "cdb5b4515c92929c7ff2d121f1a2eeea24fa49890a73edaf538cbbea06e2eb1e",
