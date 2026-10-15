@@ -182,13 +182,20 @@ def lid_loop(body, centre, radius):
     outer wall keeps brow/cheek skin out of the opening boundary). Callers
     sort the band angularly around the projected eye centre per view and fill
     that ring: the ring follows the margin instead of chording the canthi.
+
+    H2 CORRECTNESS NOTE: the band must be selected ONCE on the base bake and
+    frozen as vertex indices for every candidate. Selecting per candidate
+    adapts the ring to the defect (a forward-seated globe drags its own band
+    outward and the spill reads "inside"): that made CW1 blind at front
+    (base 0, (1.04,+4mm) 0 despite visible sclera-over-lash). Bodies are
+    bit-identical across bakes, so base indices transfer exactly.
     """
     d = np.linalg.norm(body - centre, axis=1) - radius
     m = (d >= 0.0005) & (d <= 0.003) & (np.abs(body[:, 0] - centre[0]) < 0.025)
     pts = body[m]
     if len(pts) < 12:
         raise RuntimeError("CW1: no lid-margin loop found — refusing")
-    return pts, int(m.sum())
+    return pts, np.nonzero(m)[0].astype(np.int64)
 
 
 def rasterize(tris, res_mm, origin_uv, size_px, depth_buf, id_buf, eye_id):
@@ -261,6 +268,10 @@ def project(pts, u, w, v, centre):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glb", required=True)
+    ap.add_argument("--base-glb", default=None,
+                    help="Bake the lid ring is frozen from (default: --glb). "
+                         "H2: always pass the base bake so per-candidate rings "
+                         "cannot adapt to the defect.")
     ap.add_argument("--out", required=True)
     ap.add_argument("--res-mm", type=float, default=0.12)
     ap.add_argument("--box-mm", type=float, default=130.0)
@@ -318,11 +329,7 @@ def main():
     views = {"front": 0.0, "yaw25": 25.0, "yaw-25": -25.0,
              "yaw40": 40.0, "yaw-40": -40.0}
 
-    def frame(body_pts, morph_label):
-        loops = {}
-        for tag in ("L", "R"):
-            loop, nband = lid_loop(body_pts, centres[tag], radii[tag])
-            loops[tag] = (loop, nband)
+    def frame(body_pts, rings):
         out = {}
         # GLB world: +Y up, face toward +Z (eyes anterior to the head joint).
         # Front view looks along -Z; yaw orbits the camera about head height.
@@ -356,7 +363,7 @@ def main():
                 return fill_polygon(poly, res, origin, (W, H))
 
             for tag in ("L", "R"):
-                mask = ring_mask(loops[tag][0])
+                mask = ring_mask(rings[tag])
                 per[tag] = {
                     "openingPx": int(mask.sum()),
                     "cw1Px": 0,  # filled below per-side
@@ -371,35 +378,102 @@ def main():
                 side = np.where(np.abs(xu - cLu) < np.abs(xu - cRu), "L", "R")
                 # rebuild per-side opening masks for the outside test
                 for tag in ("L", "R"):
-                    m = ring_mask(loops[tag][0])
+                    m = ring_mask(rings[tag])
                     sel = side == tag
                     per[tag]["cw1Px"] = int(
                         (~m[ys[sel], xss[sel]]).sum())
             out[vname] = per
-        return out, {t: {"loopBandVerts": int(loops[t][1]),
-                         "ringPts": int(len(loops[t][0]))}
-                     for t in ("L", "R")}
+        return out
 
-    frames, loopinfo = frame(body, "neutral")
+    # H2: the lid ring is frozen from the BASE bake (vertex indices transfer
+    # exactly: bodies are bit-identical across bakes). Per-candidate rings
+    # adapt to the defect and blind the instrument (see lid_loop note).
+    base_path = args.base_glb or args.glb
+    bjs, bblob = load_glb(base_path)
+    bworlds = node_worlds(bjs)
+    with open(base_path, "rb") as f:
+        base_sha = hashlib.sha256(f.read()).hexdigest()
+    bbody, _ = skin_mesh(bjs, bblob, bworlds, body_name)
+    beyes = [skin_mesh(bjs, bblob, bworlds, n) for n in eye_names]
+    bcornea = {m: pts for m, (pts, _) in zip(eye_names[1:], beyes[1:])}
+    bcen = {m: pts.mean(axis=0) for m, pts in bcornea.items()}
+    bleft = min(bcen, key=lambda m: bcen[m][0])
+    bglobe = beyes[0][0]
+    bd = {m: np.linalg.norm(bglobe - bcen[m], axis=1) for m in bcen}
+    bsides = {}
+    for m in bcen:
+        o = [k for k in bcen if k != m][0]
+        bsides["L" if m == bleft else "R"] = np.concatenate(
+            [bcornea[m], bglobe[bd[m] < bd[o]]])
+    try:
+        bni = {n.get("name"): k for k, n in enumerate(bjs["nodes"])}
+        if not (float(bworlds[bni["eye.L"]][:3, 3][0])
+                < float(bworlds[bni["eye.R"]][:3, 3][0])):
+            bsides = {"L": bsides["R"], "R": bsides["L"]}
+    except KeyError:
+        pass
+    bring_idx = {}
+    for tag, pts in bsides.items():
+        c, r = fit_sphere(pts)
+        _, idx = lid_loop(bbody, c, r)
+        bring_idx[tag] = idx
+
+    rings_neutral = {tag: body[bring_idx[tag]] for tag in ("L", "R")}
+    frames = frame(body, rings_neutral)
+    loopinfo = {t: {"loopBandVerts": int(len(bring_idx[t])),
+                    "baseGlbSha256": base_sha[:16]}
+                for t in ("L", "R")}
     morph = {"eye-left-closure": 0.5, "eye-right-closure": 0.5}
     body_blink, _ = skin_mesh(js, blob, worlds, body_name, morph_weights=morph)
-    blink, blinkloops = frame(body_blink, "blink0.5")
+    rings_blink = {tag: body_blink[bring_idx[tag]] for tag in ("L", "R")}
+    blink = frame(body_blink, rings_blink)
+
+    # CW3 (h2): cornea apex past the closed-lid plane, geometric, no
+    # rasterization. Lid plane = mean world Z of the closure-morph moving
+    # pool (verts moved by eye-left/right-closure at weight 1.0, union),
+    # after morph-then-skin like the runtime. Apex = max world Z per eye.
+    # Precedent (shipped-blink-closure scratch/measure.py, mesh-local Z):
+    # shipped +0.57 mm, realism +1.98 mm. Ours is world Z (rig-correct);
+    # threshold = base bake in THIS script.
+    closed = {"eye-left-closure": 1.0, "eye-right-closure": 1.0}
+    body_closed, _ = skin_mesh(js, blob, worlds, body_name, morph_weights=closed)
+    mesh = next(m for m in js["meshes"] if m.get("name") == body_name)
+    names = mesh.get("extras", {}).get("targetNames", [])
+    prim = mesh["primitives"][0]
+    pool = np.zeros(len(body), dtype=bool)
+    for tname in closed:
+        if tname in names:
+            tgt = prim["targets"][names.index(tname)]
+            dd = accessor(js, blob, tgt["POSITION"]).astype(float)
+            pool |= np.abs(dd).max(axis=1) > 1e-9
+    lid_plane_z = float(body_closed[pool][:, 2].mean())
+    apex = {tag: float(sides[tag][:, 2].max()) for tag in ("L", "R")}
+    cw3 = {
+        "lidPlaneClosedZ": round(lid_plane_z, 6),
+        "apexZ": {tag: round(apex[tag], 6) for tag in ("L", "R")},
+        "pastPlaneMm": {tag: round((apex[tag] - lid_plane_z) * 1000.0, 3)
+                        for tag in ("L", "R")},
+    }
+    cw3["pastPlaneMmMax"] = max(cw3["pastPlaneMm"].values())
 
     report = {
         "tool": "tools/openclinxr/evidence/realism-head/globe/cw1-protrusion.py",
         "glbSha256": sha,
+        "baseRingFrom": base_sha,
         "resMm": res,
         "eyeCentresM": {t: [round(float(v), 6) for v in centres[t]] for t in ("L", "R")},
         "eyeRadiiMm": {t: round(radii[t] * 1000.0, 3) for t in ("L", "R")},
         "loops": loopinfo,
         "frames": {"neutral": frames, "blink0.5": blink},
+        "cw3": cw3,
     }
     with open(args.out, "w") as f:
         json.dump(report, f, indent=1)
     tot = {v: sum(frames[v][t]["cw1Px"] for t in ("L", "R")) for v in views}
     totb = sum(blink["front"][t]["cw1Px"] for t in ("L", "R")) if "front" in blink else 0
     print(f"CW1 {args.glb.split('/')[-1]} " + json.dumps(
-        {"neutral": tot, "blink0.5front": totb}))
+        {"neutral": tot, "blink0.5front": totb,
+         "cw3maxMm": cw3["pastPlaneMmMax"]}))
 
 
 if __name__ == "__main__":

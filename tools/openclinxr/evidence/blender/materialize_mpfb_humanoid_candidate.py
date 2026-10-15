@@ -169,6 +169,16 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "eg-104-0": FEMALE_COVERING_LOWER,
     "eg-104-2": FEMALE_COVERING_LOWER,
     "eg-104-4": FEMALE_COVERING_LOWER,
+    # eyeglobe h2 recess arm: same body.
+    "eg-100-m1": FEMALE_COVERING_LOWER,
+    "eg-100-m2": FEMALE_COVERING_LOWER,
+    "eg-100-m3": FEMALE_COVERING_LOWER,
+    "eg-102-m1": FEMALE_COVERING_LOWER,
+    "eg-102-m2": FEMALE_COVERING_LOWER,
+    "eg-102-m3": FEMALE_COVERING_LOWER,
+    "eg-104-m1": FEMALE_COVERING_LOWER,
+    "eg-104-m2": FEMALE_COVERING_LOWER,
+    "eg-104-m3": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2608,6 +2618,16 @@ EYE_DIAMETER_TARGET_MM = {
     "eg-104-0": 24.0,
     "eg-104-2": 24.0,
     "eg-104-4": 24.0,
+    # eyeglobe h2 recess arm: same adult-female body.
+    "eg-100-m1": 24.0,
+    "eg-100-m2": 24.0,
+    "eg-100-m3": 24.0,
+    "eg-102-m1": 24.0,
+    "eg-102-m2": 24.0,
+    "eg-102-m3": 24.0,
+    "eg-104-m1": 24.0,
+    "eg-104-m2": 24.0,
+    "eg-104-m3": 24.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -2632,18 +2652,20 @@ EYE_DIAMETER_TARGET_MM = {
 # role); a row on any other asset refuses loudly.
 # ---------------------------------------------------------------------------
 EYE_GLOBE_FIT_BY_OUTPUT_STEM = {
-    # eyeglobe h1 (orchestrator counterweight search): v3 (1.10, 2.5) was
-    # REJECTED on the natural grade (sclera over the lower lashes, bulging).
-    # Grid verdict: seat does the work (recessed globe -> parallax wedge),
-    # scale only widens the silhouette into the lids. Chosen: (1.04, 4.0) —
-    # least edge on every yaw view subject to CW1 <= base on every view
-    # (front, +-25, +-40, blink 0.5); globe 24.8 mm stays inside human
-    # variation and the 29.2 mm socket envelope.
-    "aisha-eyeglobe-fit": (1.04, 4.0),
+    # eyeglobe h2 verdict socket_geometry (orchestrator h2): no scale/seat
+    # point beats base on the edge while holding CW1+CW3 — the opening is
+    # wider than any plausibly-seated globe (lid inner surface sets the edge;
+    # separate card, not a bigger globe). Default stays identity: no fit.
+    "aisha-eyeglobe-fit": (1.00, 0.0),
     # eyeglobe h1 grid (orchestrator counterweight search): scale x seat,
     # including the seat-only arm (1.00 x 0-4 mm) h0 never tried. Each point
     # is judged by edge (neon aperture, lower wins) subject to CW1
     # (globe-over-lid projection, must not exceed the base bake per view).
+    # H2 CORRECTION: forward seat (+mm) moves the globe ANTERIOR, out of the
+    # socket — it covers the socket edge from in front (cheapest pass, h2
+    # rejected the bulge). The h1 "seat does the work" reading was backwards.
+    # H2 recess arm below tests seating the globe DEEPER; scale may still
+    # fill the opening laterally without anterior spill.
     "eg-100-2": (1.00, 2.0),
     "eg-100-4": (1.00, 4.0),
     "eg-102-0": (1.02, 0.0),
@@ -2652,6 +2674,16 @@ EYE_GLOBE_FIT_BY_OUTPUT_STEM = {
     "eg-104-0": (1.04, 0.0),
     "eg-104-2": (1.04, 2.0),
     "eg-104-4": (1.04, 4.0),
+    # eyeglobe h2 recess arm: seat backward (into the socket) x scale.
+    "eg-100-m1": (1.00, -1.0),
+    "eg-100-m2": (1.00, -2.0),
+    "eg-100-m3": (1.00, -3.0),
+    "eg-102-m1": (1.02, -1.0),
+    "eg-102-m2": (1.02, -2.0),
+    "eg-102-m3": (1.02, -3.0),
+    "eg-104-m1": (1.04, -1.0),
+    "eg-104-m2": (1.04, -2.0),
+    "eg-104-m3": (1.04, -3.0),
 }
 
 

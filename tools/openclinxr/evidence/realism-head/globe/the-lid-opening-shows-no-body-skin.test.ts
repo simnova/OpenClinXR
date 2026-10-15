@@ -8,37 +8,30 @@ import { describe, expect, it } from "vitest";
  * The fitted 24 mm globe swims in the 29 mm socket the lids wrap: at yaw the
  * lid/socket skin shows past the globe silhouette (shell-rebind 7a14d7afc
  * proved the owner is body skin; the occlusion shell hides it but milks the
- * eyes). The fix scales + seats the high-poly globe+cornea forward about
- * each eye's own centre (EYE_GLOBE_FIT_BY_OUTPUT_STEM, bones follow) so the
- * globe fills the lid aperture laterally.
+ * eyes). Handover h2 verdict: socket_geometry — no scale/seat point beats
+ * base on the edge while holding CW1+CW3, so the opening is wider than any
+ * plausibly-seated globe and the generator default stays identity (1.00,
+ * 0.0). The lid inner surface sets the edge: separate card, not a globe.
  *
  * Evidence chain (no live bake in-test): materialize.py source markers +
- * globe-fit-report.json (composed from the bake EYEGLOBE_FIT / anatomical /
- * cornea-split log lines plus the neon yaw-set counts) + globe-fit-sheet.png
- * (native 1280 crops: natural yaw40, neon yaw-40, natural front, base|fit).
- * Neon method: body skin pure blue, lashes cyan, globe+cornea magenta;
- * aperture per eye = row lash-span x column lash-span intersection; count =
- * body-blue texels strictly inside (deterministic renders, exact counts).
+ * globe-fit-report.json (grid verdicts computed from the primary
+ * measurements: neon yaw-set edge counts, cw1-protrusion.py CW1+CW3) +
+ * store sheets (native 1280 crops).
  *
- * Coverage honesty: the frontal floor is the lid-margin rim (base 432, fixed
- * 63), which a grazing view always shows more of (rim view-dependence), so
- * the literal yaw<=front floor is unmeetable by any globe size and the gate
- * asserts STRICT SOFTENING of the yaw excess over the same-bake front
- * (fixed excess << base excess on all four yaw views) with a live premise
- * (base excess >= 100 everywhere). The named defect (vertical edge in the
- * eye white) is gone on the natural renders (sheet row 1).
+ * Counterweight CW1 (h1, fixed h2): eye-surface pixels projecting OUTSIDE
+ * the mesh-derived lid-margin ring must not exceed the base bake at the
+ * same view (front, +-25, +-40, blink 0.5). H2 probe: the per-candidate
+ * ring was blind at front (base 0 AND (1.04,+4mm) 0 despite visible
+ * sclera-over-lash); the base-frozen ring bites ((1.04,+4mm) front 5201).
+ * CW3 (h2, geometric, rasterization-free): cornea apex past the closed-lid
+ * plane must not exceed base (+1.979 mm; reproduces the blinkgap precedent
+ * +1.98 mm). Forward seat covers the wedge only by anterior spill (CW1 +
+ * CW3 fail + visible bulge); recess deepens the wedge and grows yaw
+ * parallax spill; scale-only grows the apex past the lid plane first.
  *
- * Counterweight CW1 (handover h1: the 1.10x globe bulged through the lids):
- * eye-surface pixels projecting OUTSIDE the mesh-derived lid-margin ring
- * (cw1-protrusion.py) must not exceed the base bake at the same view —
- * front, +-25, +-40 and blink closure 0.5. The rejected (1.10, 2.5) point
- * violates CW1 on every yaw view, proving the counterweight bites; the
- * chosen (1.04, 4.0) holds it everywhere.
- *
- * claimScope: globe-to-socket fit on the high-poly cornea-split path.
+ * claimScope: the globe-fit search and its socket_geometry verdict.
  * notEvidenceFor: clinical_validity, production_asset_readiness, gaze
- *   rotation (compat-eyes NT); the pixel grade lives in globe-fit-sheet.png
- *   and is the orchestrator's (D12).
+ *   rotation (compat-eyes NT).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -49,71 +42,54 @@ const MATERIALIZE = join(
   REPO_ROOT,
   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
 );
+const CW1_TOOL = join(HERE, "cw1-protrusion.py");
 const IRIS_MANIFEST = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
 );
 
-const VIEWS = ["yaw25", "yaw-25", "yaw40", "yaw-40"] as const;
+const YAWS = ["yaw25", "yaw-25", "yaw40", "yaw-40"] as const;
 const CW1_VIEWS = ["front", "yaw25", "yaw-25", "yaw40", "yaw-40", "blink0.5"] as const;
+
+type GridPoint = {
+  edge: Record<string, number>;
+  cw1: Record<string, number>;
+  cw3maxMm: number;
+};
 
 type FitReport = {
   name: string;
+  verdict: string;
+  verdictReason: string;
+  defaultRow: { table: string; value: [number, number]; meaning: string };
   producerSourceSha256: string;
-  argvBase: string[];
-  argvFit: string[];
-  fit: {
-    table: string;
-    fitScale: number;
-    fitForwardMm: number;
-    globeRadiusMm: { base: number; fixed: number };
-  };
-  neonCounts: {
-    base: Record<string, number>;
-    fixed: Record<string, number>;
-  };
-  coverageGate: {
-    views: number[];
-    frontFloor: { base: number; fixed: number };
-    excessOverFront: {
-      base: Record<string, number>;
-      fixed: Record<string, number>;
-    };
-    literalYawLeFront: boolean;
-    strictSoftening: boolean;
+  argv: string[];
+  grid: Record<string, GridPoint>;
+  gridVerdicts: Record<
+    string,
+    { edgePass: boolean; cw1Pass: boolean; cw3Pass: boolean; passAll: boolean }
+  >;
+  thresholds: { edge: string; cw1: string; cw3Mm: number };
+  probe: {
+    instrumentBefore: string;
+    before: { baseFront: number; fit1044Front: number; finding: string };
+    instrumentAfter: string;
+    after: { baseFront: number; fit1044Front: number; finding: string };
   };
   counterweightCW1: {
     method: string;
     views: string[];
     thresholdBase: Record<string, number>;
-    blinkView: string;
   };
-  grid: Record<
-    string,
-    { edge: Record<string, number>; cw1: Record<string, number> }
-  >;
-  chosen: {
-    point: string;
-    edge: Record<string, number>;
-    cw1: Record<string, number>;
-    reason: string;
-  };
-  handoverH1: {
-    rejected: string;
-    rejectionCW1: Record<string, number>;
-  };
-  falsifier: {
-    scaleDeltaTested: string;
-    "yaw-40countAcrossFits": number[];
-    verdict: string;
-  };
+  counterweightCW3: { method: string; thresholdBaseMm: number };
   irisGate: {
     manifest: string;
     pupilShiftTexels: [number, number];
     fitBakeTextureOverride: string;
     uvUntouchedBySimilarity: boolean;
   };
-  sheet: { src: string; sha256: string; renderSize: number };
+  sheets: Record<string, { src: string; sha256: string; note?: string }>;
+  defaultGlb: { stem: string; fit: [number, number]; sha256: string };
   visualFinding: string;
 };
 
@@ -130,127 +106,109 @@ function storePath(src: string): string {
   return join(STORE_ROOT, src.startsWith("assets:") ? src.slice(7) : src);
 }
 
-/** Fail-closed validator: excess math + softening, shared by clauses. */
-function validateSoftening(r: FitReport): void {
-  for (const v of VIEWS) {
-    const baseExcess = r.neonCounts.base[v]! - r.neonCounts.base["front"]!;
-    const fixedExcess = r.neonCounts.fixed[v]! - r.neonCounts.fixed["front"]!;
-    expect(baseExcess, `base ${v} excess over front (premise)`).toBeGreaterThanOrEqual(
-      100,
+/** Recompute the verdict from the grid: exactly what build_report.py did. */
+function recomputeVerdicts(r: FitReport): void {
+  const base = r.grid["base"]!;
+  for (const [stem, g] of Object.entries(r.grid)) {
+    if (stem === "base") continue;
+    const edgeOk = (["front", ...YAWS] as const).every(
+      (v) => g.edge[v]! < base.edge[v]!,
     );
-    expect(
-      fixedExcess,
-      `fixed ${v} excess strictly below base excess`,
-    ).toBeLessThan(baseExcess);
-    expect(
-      r.coverageGate.excessOverFront.base[v],
-      `reported base excess matches counts (${v})`,
-    ).toBe(baseExcess);
-    expect(
-      r.coverageGate.excessOverFront.fixed[v],
-      `reported fixed excess matches counts (${v})`,
-    ).toBe(fixedExcess);
+    const cw1Ok = CW1_VIEWS.every(
+      (v) => g.cw1[v]! <= base.cw1[v]!,
+    );
+    const cw3Ok = g.cw3maxMm <= base.cw3maxMm;
+    const claimed = r.gridVerdicts[stem]!;
+    expect(claimed.edgePass, `${stem} edge leg`).toBe(edgeOk);
+    expect(claimed.cw1Pass, `${stem} cw1 leg`).toBe(cw1Ok);
+    expect(claimed.cw3Pass, `${stem} cw3 leg`).toBe(cw3Ok);
+    expect(claimed.passAll, `${stem} conjunction`).toBe(edgeOk && cw1Ok && cw3Ok);
   }
-  expect(r.coverageGate.frontFloor.base).toBe(r.neonCounts.base["front"]);
-  expect(r.coverageGate.frontFloor.fixed).toBe(r.neonCounts.fixed["front"]);
-}
-
-/** Fail-closed validator shared by the CW1 clause and the known-bad fixture. */
-function validateCW1(r: FitReport): void {
-  for (const v of CW1_VIEWS) {
-    expect(
-      r.chosen.cw1[v],
-      `chosen-point CW1 ${v} holds the base threshold`,
-    ).toBeLessThanOrEqual(r.counterweightCW1.thresholdBase[v]!);
-  }
-  const rejectedOver = (["yaw25", "yaw-25", "yaw40", "yaw-40"] as const).filter(
-    (v) => r.handoverH1.rejectionCW1[v]! > r.counterweightCW1.thresholdBase[v]!,
-  );
-  expect(
-    rejectedOver.length,
-    "the rejected 1.10x point violates CW1 on yaw views (counterweight bites)",
-  ).toBeGreaterThan(0);
 }
 
 describe("the lid opening shows no body skin", () => {
-  it("(1) report records the producer source sha and both bake argvs", () => {
+  it("(1) report records the verdict, the identity default and the bake argv", () => {
     const r = readReport();
     expect(r.name).toBe("eye-globe-lid-aperture-fit");
+    expect(r.verdict).toBe("socket_geometry");
+    expect(r.verdictReason.length).toBeGreaterThan(0);
+    expect(r.defaultRow.value).toEqual([1.0, 0.0]);
     expect(r.producerSourceSha256).toMatch(/^[0-9a-f]{64}$/);
-    expect(r.argvFit.join(" ")).toMatch(/--eye-asset high-poly/);
-    expect(r.argvFit.join(" ")).toMatch(/--eye-cornea/);
-    expect(r.argvFit.join(" ")).toMatch(/iris-centred-c\.png/);
-    expect(r.sheet.src, "sheet cites the asset store").toMatch(/^assets:/);
-    expect(r.visualFinding.length, "orchestrator visual grade recorded").toBeGreaterThan(0);
+    expect(r.argv.join(" ")).toMatch(/--eye-asset high-poly/);
+    expect(r.argv.join(" ")).toMatch(/--eye-cornea/);
+    expect(r.visualFinding.length).toBeGreaterThan(0);
   });
 
   it("(2) RED: the base bake shows socket skin past the silhouette at every yaw", () => {
     const r = readReport();
-    validateSoftening(r);
-  });
-
-  it("(3) RED: the fit lives behind --eye-asset high-poly with a loud refusal", () => {
-    const r = readReport();
-    expect(r.fit.fitScale).toBeGreaterThan(1);
-    expect(r.fit.fitForwardMm).toBeGreaterThan(0);
-    expect(r.fit.globeRadiusMm.fixed).toBeGreaterThan(r.fit.globeRadiusMm.base);
-    const src = readSource();
-    expect(src, "per-stem fit table exists").toContain("EYE_GLOBE_FIT_BY_OUTPUT_STEM");
-    expect(src, "fit row for the card stem").toContain('"aisha-eyeglobe-fit"');
-    expect(src, "fit log line emitted").toContain("EYEGLOBE_FIT ");
-    expect(src, "similarity params on the resize").toContain("extra_forward_mm");
-    expect(src, "non-high-poly fit refuses loudly").toContain(
-      "globe fit is only valid with --eye-asset high-poly",
-    );
-  });
-
-  it("(4) GREEN: the fixed bake strictly softens the yaw excess on all four views", () => {
-    const r = readReport();
-    validateSoftening(r);
-    expect(r.coverageGate.strictSoftening).toBe(true);
-    expect(r.coverageGate.views).toEqual(expect.arrayContaining([25, -25, 40, -40]));
-  });
-
-  it("(5) HONESTY: the literal floor is recorded unmet with its measured reason", () => {
-    const r = readReport();
-    expect(r.coverageGate.literalYawLeFront).toBe(false);
-    const above = VIEWS.filter(
-      (v) => r.neonCounts.fixed[v]! > r.neonCounts.fixed["front"]!,
-    );
-    expect(
-      above.length,
-      "most yaw views still sit above the same-bake front (grazing rim, not wedge)",
-    ).toBeGreaterThan(0);
-  });
-
-  it("(5b) COUNTERWEIGHT: the chosen point holds the base CW1 at every view", () => {
-    const r = readReport();
-    validateCW1(r);
-    expect(r.counterweightCW1.views).toEqual(
-      expect.arrayContaining(["front", "yaw25", "blink0.5front"]),
-    );
-    expect(r.chosen.point).toMatch(/1\.04.*4\.0/);
-    // The grid loser that scales without seating violates CW1 (scale-only
-    // widens the silhouette into the lids): eg-104-0 exceeds base at yaw.
-    expect(
-      r.grid["eg-104-0"]!.cw1["yaw40"]!,
-      "scale-only eg-104-0 violates CW1 at yaw40",
-    ).toBeGreaterThan(r.counterweightCW1.thresholdBase["yaw40"]!);
-    // The seat-only arm the first pass never tried holds CW1 with margin.
-    for (const v of CW1_VIEWS) {
+    for (const v of YAWS) {
       expect(
-        r.grid["eg-100-4"]!.cw1[v]!,
-        `seat-only eg-100-4 holds CW1 at ${v}`,
-      ).toBeLessThanOrEqual(r.counterweightCW1.thresholdBase[v]!);
+        r.grid["base"]!.edge[v]! - r.grid["base"]!.edge["front"]!,
+        `base ${v} excess over front (premise live)`,
+      ).toBeGreaterThanOrEqual(100);
     }
   });
 
-  it("(6) iris centre still within 2 px: the similarity never touches UVs", () => {
+  it("(3) the fit lives behind --eye-asset high-poly and the default is identity", () => {
     const r = readReport();
+    const src = readSource();
+    expect(src, "per-stem fit table exists").toContain("EYE_GLOBE_FIT_BY_OUTPUT_STEM");
+    expect(src, "default row is identity").toContain('"aisha-eyeglobe-fit": (1.00, 0.0)');
+    expect(src, "socket_geometry verdict recorded in source").toContain("socket_geometry");
+    expect(src, "fit log line emitted").toContain("EYEGLOBE_FIT ");
+    expect(src, "non-high-poly fit refuses loudly").toContain(
+      "globe fit is only valid with --eye-asset high-poly",
+    );
+    expect(existsSync(CW1_TOOL), `cw1 tool exists: ${CW1_TOOL}`).toBe(true);
+    const tool = readFileSync(CW1_TOOL, "utf8");
+    expect(tool, "tool freezes the ring from the base bake").toContain("--base-glb");
+    expect(tool, "tool measures the closed-lid apex").toContain("pastPlaneMmMax");
+  });
+
+  it("(4) PROBE: the frozen ring bites where the per-bake ring was blind", () => {
+    const r = readReport();
+    expect(r.probe.before.baseFront).toBe(0);
+    expect(r.probe.before.fit1044Front).toBe(0);
+    expect(r.probe.after.baseFront).toBe(0);
     expect(
-      existsSync(IRIS_MANIFEST),
-      `eye-tex manifest exists: ${IRIS_MANIFEST}`,
-    ).toBe(true);
+      r.probe.after.fit1044Front,
+      "frozen ring: (1.04,+4mm) fails front loudly",
+    ).toBeGreaterThan(1000);
+  });
+
+  it("(5) VERDICT: no grid point passes edge+CW1+CW3 together", () => {
+    const r = readReport();
+    recomputeVerdicts(r);
+    const passing = Object.entries(r.gridVerdicts)
+      .filter(([, v]) => v.passAll)
+      .map(([s]) => s);
+    expect(passing, "no passing point (socket_geometry)").toEqual([]);
+    // Legs discriminate in opposite directions: forward passes edge only,
+    // recess passes CW3 only — the conjunction is empty by measurement.
+    expect(r.gridVerdicts["eg-104-4"]!.edgePass).toBe(true);
+    expect(r.gridVerdicts["eg-104-4"]!.cw1Pass).toBe(false);
+    expect(r.gridVerdicts["eg-100-m3"]!.cw3Pass).toBe(true);
+    expect(r.gridVerdicts["eg-100-m3"]!.edgePass).toBe(false);
+  });
+
+  it("(6) CW3: apex past the closed lid never exceeds base except forward", () => {
+    const r = readReport();
+    expect(r.counterweightCW3.thresholdBaseMm).toBeCloseTo(1.979, 3);
+    expect(
+      r.grid["eg-104-4"]!.cw3maxMm,
+      "forward (1.04,+4mm) apex far past the lid plane",
+    ).toBeGreaterThan(6);
+    for (const s of ["eg-100-m2", "eg-100-m3", "eg-102-m3", "eg-104-m3"]) {
+      expect(
+        r.grid[s]!.cw3maxMm,
+        `recess ${s} apex at or behind the base plane allowance`,
+      ).toBeLessThanOrEqual(r.counterweightCW3.thresholdBaseMm);
+    }
+  });
+
+  it("(7) iris centre still within 2 px on the kept default", () => {
+    const r = readReport();
+    expect(existsSync(IRIS_MANIFEST)).toBe(true);
     const m = JSON.parse(readFileSync(IRIS_MANIFEST, "utf8")) as {
       textures: { pupil_shift_texels: [number, number] }[];
     };
@@ -258,56 +216,44 @@ describe("the lid opening shows no body skin", () => {
     expect(shifts[0]).toBeLessThanOrEqual(2);
     expect(shifts[1]).toBeLessThanOrEqual(2);
     expect(r.irisGate.pupilShiftTexels).toEqual(shifts);
-    expect(r.irisGate.uvUntouchedBySimilarity).toBe(true);
     expect(r.irisGate.fitBakeTextureOverride).toMatch(/iris-centred-c\.png/);
   });
 
-  it("(7) falsifier: a 4% scale moved the count, so the mechanism is live", () => {
-    const r = readReport();
-    const series = r.falsifier["yaw-40countAcrossFits"];
-    expect(series.length).toBeGreaterThanOrEqual(2);
-    expect(series[1]!).toBeLessThan(series[0]!);
-    expect(r.falsifier.verdict).toMatch(/mechanism_live/);
-  });
-
-  // Sheet bytes live in the asset store (395 KB PNG, not git): verify the
-  // sha when the store exists, else skip under a 'store absent' name.
   const _probe = readReport();
-  const _sheet = storePath(_probe.sheet.src);
-  if (existsSync(_sheet)) {
-    it("(7b) store sheet bytes match the report sha", () => {
+  const _h2 = storePath(_probe.sheets.h2.src);
+  if (existsSync(_h2)) {
+    it("(7b) h2 sheet bytes match the report sha", () => {
       const r = readReport();
-      const bytes = readFileSync(storePath(r.sheet.src));
-      expect(bytes.length, "sheet is a real PNG, not a stub").toBeGreaterThan(10000);
-      const sha = createHash("sha256").update(bytes).digest("hex");
-      expect(sha, "store sheet bytes match the report").toBe(r.sheet.sha256);
-      expect(r.sheet.renderSize).toBe(1280);
+      const bytes = readFileSync(storePath(r.sheets.h2.src));
+      expect(bytes.length).toBeGreaterThan(10000);
+      expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+        r.sheets.h2.sha256,
+      );
     });
   } else {
-    it.skip("(7b) store absent — store sheet sha unverified", () => {});
+    it.skip("(7b) store absent — h2 sheet sha unverified", () => {});
   }
 
-  it("(8) known-bad: an unsoftened yaw excess is rejected", () => {
+  it("(8) known-bad: a point passing everything is rejected", () => {
     const r = readReport();
+    const good: GridPoint = {
+      edge: { front: 1, yaw25: 1, "yaw-25": 1, yaw40: 1, "yaw-40": 1 },
+      cw1: {
+        front: 0, yaw25: 0, "yaw-25": 0, yaw40: 0, "yaw-40": 0, "blink0.5": 0,
+      },
+      cw3maxMm: -5,
+    };
     const bad = {
       ...r,
-      neonCounts: {
-        base: { ...r.neonCounts.base },
-        fixed: { ...r.neonCounts.fixed, "yaw40": r.neonCounts.base["yaw40"] },
+      grid: { ...r.grid, "eg-fake": good },
+      gridVerdicts: {
+        ...r.gridVerdicts,
+        "eg-fake": { edgePass: true, cw1Pass: true, cw3Pass: true, passAll: true },
       },
     } as FitReport;
-    expect(() => validateSoftening(bad)).toThrow();
-  });
-
-  it("(8b) known-bad: a CW1-violating point is rejected", () => {
-    const r = readReport();
-    const bad = {
-      ...r,
-      chosen: {
-        ...r.chosen,
-        cw1: { ...r.chosen.cw1, yaw40: r.handoverH1.rejectionCW1["yaw40"] },
-      },
-    } as FitReport;
-    expect(() => validateCW1(bad)).toThrow();
+    const passing = Object.entries(bad.gridVerdicts)
+      .filter(([, v]) => v.passAll)
+      .map(([s]) => s);
+    expect(passing, "injected passing point detected").toEqual(["eg-fake"]);
   });
 });

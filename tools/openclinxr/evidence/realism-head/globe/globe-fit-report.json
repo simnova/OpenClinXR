@@ -1,68 +1,491 @@
 {
- "argvBase": [
-  "--eye-colour-reference",
-  "ob_patient_aisha",
-  "--actor-role",
-  "patient",
-  "--bake-device",
-  "metal",
-  "--eye-asset",
-  "high-poly",
-  "--eye-cornea",
-  "--eye-texture",
-  "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
-  "--output",
-  "<scratch>/aisha-eyeglobe-base.glb"
- ],
- "argvFit": [
-  "--eye-colour-reference",
-  "ob_patient_aisha",
-  "--actor-role",
-  "patient",
-  "--bake-device",
-  "metal",
-  "--eye-asset",
-  "high-poly",
-  "--eye-cornea",
-  "--eye-texture",
-  "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
-  "--output",
-  "<scratch>/aisha-eyeglobe-fit.glb"
- ],
- "caruncle": {
-  "present": false,
-  "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"
+ "name": "eye-globe-lid-aperture-fit",
+ "verdict": "socket_geometry",
+ "verdictReason": "no scale/seat point beats base on the edge while holding CW1+CW3: forward seat covers the wedge only by anterior spill (CW1-front/CW3 fail + visible bulge); recess deepens the wedge (edge worse) and grows yaw parallax spill (CW1-yaw fail); scale-only grows the apex past the lid plane (CW3 fail) before closing the lateral wedge. The opening is wider than any plausibly-seated globe: the lid inner surface sets the edge.",
+ "defaultRow": {
+  "table": "EYE_GLOBE_FIT_BY_OUTPUT_STEM['aisha-eyeglobe-fit']",
+  "value": [
+   1.0,
+   0.0
+  ],
+  "meaning": "identity, no fit"
  },
- "chosen": {
+ "producerSourceSha256": "d80c3ba6b40745a2071e73ad82dd541c76de2d2dfa75a244990e0d97d99597cd",
+ "argv": [
+  "--eye-colour-reference",
+  "ob_patient_aisha",
+  "--actor-role",
+  "patient",
+  "--bake-device",
+  "metal",
+  "--eye-asset",
+  "high-poly",
+  "--eye-cornea",
+  "--eye-texture",
+  "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png"
+ ],
+ "grid": {
+  "base": {
+   "edge": {
+    "front": 432,
+    "yaw25": 641,
+    "yaw-25": 779,
+    "yaw40": 667,
+    "yaw-40": 918
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 914,
+    "yaw-25": 912,
+    "yaw40": 2958,
+    "yaw-40": 2963,
+    "blink0.5": 386
+   },
+   "cw3maxMm": 1.979
+  },
+  "eg-100-2": {
+   "edge": {
+    "front": 351,
+    "yaw25": 457,
+    "yaw-25": 517,
+    "yaw40": 439,
+    "yaw-40": 582
+   },
+   "cw1": {
+    "front": 51,
+    "yaw25": 320,
+    "yaw-25": 289,
+    "yaw40": 1910,
+    "yaw-40": 1878,
+    "blink0.5": 464
+   },
+   "cw3maxMm": 3.979
+  },
+  "eg-100-4": {
+   "edge": {
+    "front": 97,
+    "yaw25": 154,
+    "yaw-25": 141,
+    "yaw40": 111,
+    "yaw-40": 164
+   },
+   "cw1": {
+    "front": 3180,
+    "yaw25": 4301,
+    "yaw-25": 4203,
+    "yaw40": 6668,
+    "yaw-40": 6692,
+    "blink0.5": 4068
+   },
+   "cw3maxMm": 5.979
+  },
+  "eg-102-0": {
+   "edge": {
+    "front": 420,
+    "yaw25": 625,
+    "yaw-25": 746,
+    "yaw40": 642,
+    "yaw-40": 880
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1127,
+    "yaw-25": 1123,
+    "yaw40": 3203,
+    "yaw-40": 3204,
+    "blink0.5": 370
+   },
+   "cw3maxMm": 2.245
+  },
+  "eg-102-2": {
+   "edge": {
+    "front": 309,
+    "yaw25": 383,
+    "yaw-25": 435,
+    "yaw40": 344,
+    "yaw-40": 483
+   },
+   "cw1": {
+    "front": 240,
+    "yaw25": 788,
+    "yaw-25": 739,
+    "yaw40": 2698,
+    "yaw-40": 2662,
+    "blink0.5": 664
+   },
+   "cw3maxMm": 4.245
+  },
+  "eg-102-4": {
+   "edge": {
+    "front": 78,
+    "yaw25": 133,
+    "yaw-25": 120,
+    "yaw40": 83,
+    "yaw-40": 121
+   },
+   "cw1": {
+    "front": 4132,
+    "yaw25": 5617,
+    "yaw-25": 5484,
+    "yaw40": 8343,
+    "yaw-40": 8408,
+    "blink0.5": 5099
+   },
+   "cw3maxMm": 6.245
+  },
+  "eg-104-0": {
+   "edge": {
+    "front": 417,
+    "yaw25": 602,
+    "yaw-25": 716,
+    "yaw40": 615,
+    "yaw-40": 841
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1342,
+    "yaw-25": 1340,
+    "yaw40": 3455,
+    "yaw-40": 3455,
+    "blink0.5": 369
+   },
+   "cw3maxMm": 2.51
+  },
+  "eg-104-2": {
+   "edge": {
+    "front": 242,
+    "yaw25": 293,
+    "yaw-25": 319,
+    "yaw40": 256,
+    "yaw-40": 364
+   },
+   "cw1": {
+    "front": 594,
+    "yaw25": 1421,
+    "yaw-25": 1364,
+    "yaw40": 3696,
+    "yaw-40": 3655,
+    "blink0.5": 1065
+   },
+   "cw3maxMm": 4.51
+  },
+  "eg-104-4": {
+   "edge": {
+    "front": 63,
+    "yaw25": 103,
+    "yaw-25": 94,
+    "yaw40": 57,
+    "yaw-40": 84
+   },
+   "cw1": {
+    "front": 5201,
+    "yaw25": 7076,
+    "yaw-25": 6913,
+    "yaw40": 10116,
+    "yaw-40": 10214,
+    "blink0.5": 6334
+   },
+   "cw3maxMm": 6.51
+  },
+  "eg-100-m1": {
+   "edge": {
+    "front": 439,
+    "yaw25": 679,
+    "yaw-25": 825,
+    "yaw40": 721,
+    "yaw-40": 1016
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1310,
+    "yaw-25": 1313,
+    "yaw40": 3732,
+    "yaw-40": 3649,
+    "blink0.5": 387
+   },
+   "cw3maxMm": 0.979
+  },
+  "eg-100-m2": {
+   "edge": {
+    "front": 440,
+    "yaw25": 715,
+    "yaw-25": 880,
+    "yaw40": 776,
+    "yaw-40": 1116
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1912,
+    "yaw-25": 1846,
+    "yaw40": 4798,
+    "yaw-40": 4738,
+    "blink0.5": 386
+   },
+   "cw3maxMm": -0.021
+  },
+  "eg-100-m3": {
+   "edge": {
+    "front": 444,
+    "yaw25": 742,
+    "yaw-25": 937,
+    "yaw40": 841,
+    "yaw-40": 1218
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 2428,
+    "yaw-25": 2346,
+    "yaw40": 5866,
+    "yaw-40": 5771,
+    "blink0.5": 393
+   },
+   "cw3maxMm": -1.021
+  },
+  "eg-102-m1": {
+   "edge": {
+    "front": 432,
+    "yaw25": 663,
+    "yaw-25": 805,
+    "yaw40": 702,
+    "yaw-40": 986
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1536,
+    "yaw-25": 1539,
+    "yaw40": 4035,
+    "yaw-40": 3935,
+    "blink0.5": 370
+   },
+   "cw3maxMm": 1.245
+  },
+  "eg-102-m2": {
+   "edge": {
+    "front": 435,
+    "yaw25": 696,
+    "yaw-25": 853,
+    "yaw40": 758,
+    "yaw-40": 1078
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 2155,
+    "yaw-25": 2088,
+    "yaw40": 5111,
+    "yaw-40": 5047,
+    "blink0.5": 370
+   },
+   "cw3maxMm": 0.245
+  },
+  "eg-102-m3": {
+   "edge": {
+    "front": 437,
+    "yaw25": 730,
+    "yaw-25": 905,
+    "yaw40": 812,
+    "yaw-40": 1182
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 2696,
+    "yaw-25": 2604,
+    "yaw40": 6194,
+    "yaw-40": 6096,
+    "blink0.5": 380
+   },
+   "cw3maxMm": -0.755
+  },
+  "eg-104-m1": {
+   "edge": {
+    "front": 431,
+    "yaw25": 650,
+    "yaw-25": 785,
+    "yaw40": 687,
+    "yaw-40": 954
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 1770,
+    "yaw-25": 1771,
+    "yaw40": 4343,
+    "yaw-40": 4233,
+    "blink0.5": 369
+   },
+   "cw3maxMm": 1.51
+  },
+  "eg-104-m2": {
+   "edge": {
+    "front": 432,
+    "yaw25": 680,
+    "yaw-25": 826,
+    "yaw40": 734,
+    "yaw-40": 1044
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 2408,
+    "yaw-25": 2339,
+    "yaw40": 5428,
+    "yaw-40": 5364,
+    "blink0.5": 372
+   },
+   "cw3maxMm": 0.51
+  },
+  "eg-104-m3": {
+   "edge": {
+    "front": 432,
+    "yaw25": 713,
+    "yaw-25": 878,
+    "yaw40": 792,
+    "yaw-40": 1143
+   },
+   "cw1": {
+    "front": 0,
+    "yaw25": 2968,
+    "yaw-25": 2872,
+    "yaw40": 6523,
+    "yaw-40": 6427,
+    "blink0.5": 383
+   },
+   "cw3maxMm": -0.49
+  }
+ },
+ "gridVerdicts": {
+  "eg-100-2": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-100-4": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-102-0": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-102-2": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-102-4": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-104-0": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-104-2": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-104-4": {
+   "edgePass": true,
+   "cw1Pass": false,
+   "cw3Pass": false,
+   "passAll": false
+  },
+  "eg-100-m1": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-100-m2": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-100-m3": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-102-m1": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-102-m2": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-102-m3": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-104-m1": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-104-m2": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  },
+  "eg-104-m3": {
+   "edgePass": false,
+   "cw1Pass": false,
+   "cw3Pass": true,
+   "passAll": false
+  }
+ },
+ "thresholds": {
+  "edge": "base same view (strict <)",
+  "cw1": "base same view (<=)",
+  "cw3Mm": 1.979
+ },
+ "probe": {
+  "instrumentBefore": "lid ring reselected per candidate bake",
+  "before": {
+   "baseFront": 0,
+   "fit1044Front": 0,
+   "finding": "blind: passes a visibly bulging globe"
+  },
+  "instrumentAfter": "lid ring frozen from the base bake (vertex indices transfer exactly; bodies bit-identical)",
+  "after": {
+   "baseFront": 0,
+   "fit1044Front": 5201,
+   "finding": "bites: (1.04,+4mm) fails front loudly"
+  }
+ },
+ "perbake1044": {
   "cw1": {
-   "blink0.5": 0,
    "front": 0,
-   "yaw-25": 120,
-   "yaw-40": 2025,
    "yaw25": 119,
-   "yaw40": 2008
+   "yaw-25": 120,
+   "yaw40": 2008,
+   "yaw-40": 2025,
+   "blink0.5": 0
   },
-  "edge": {
-   "front": 63,
-   "yaw-25": 94,
-   "yaw-40": 84,
-   "yaw25": 103,
-   "yaw40": 57
-  },
-  "point": "eg-104-4 == aisha-eyeglobe-fit (1.04, 4.0)",
-  "reason": "least edge on every yaw view of all CW1-passing points; globe 24.8 mm inside human variation and the 29.2 mm socket envelope; natural grade clean (CW2)"
+  "file": "scratch cw1-perbake-eg-104-4.json (old instrument record)"
  },
  "counterweightCW1": {
-  "blinkView": "blink0.5front",
-  "method": "tools/.../globe/cw1-protrusion.py: GLB-space skinning+morphs, fixed orthographic z-buffer (0.12 mm/px), lid-margin ring = skin verts in 0.5-3.0 mm radial band off each fitted globe sorted angularly per view and filled; lash mesh never rasterized (hidden by construction); count = visible eye-surface px outside the ring. Threshold = base bake same view (bodies bit-identical across bakes, Delta 0.000 mm, so deltas are pure eye geometry).",
-  "thresholdBase": {
-   "blink0.5": 383,
-   "front": 0,
-   "yaw-25": 912,
-   "yaw-40": 2963,
-   "yaw25": 914,
-   "yaw40": 2958
-  },
+  "method": "tools/.../globe/cw1-protrusion.py --base-glb <base>: GLB-space skinning+morphs, fixed orthographic z-buffer (0.12 mm/px), lid-margin ring = base-bake skin verts in 0.5-3.0 mm radial band off each fitted globe, angularly sorted per view and filled; lash mesh never rasterized (hidden by construction); count = visible eye-surface px outside the ring.",
   "views": [
    "front",
    "yaw25",
@@ -70,279 +493,66 @@
    "yaw40",
    "yaw-40",
    "blink0.5front"
-  ]
- },
- "coverageGate": {
-  "excessOverFront": {
-   "base": {
-    "yaw25": 209,
-    "yaw-25": 347,
-    "yaw40": 235,
-    "yaw-40": 486
-   },
-   "fixed": {
-    "yaw25": 40,
-    "yaw-25": 31,
-    "yaw40": -6,
-    "yaw-40": 21
-   }
-  },
-  "frontFloor": {
-   "base": 432,
-   "fixed": 63
-  },
-  "literalYawLeFront": false,
-  "strictSoftening": true,
-  "views": [
-   0,
-   25,
-   -25,
-   40,
-   -40
-  ]
- },
- "cw2Sheet": {
-  "rows": "natural-front base|fit, natural-yaw25 base|fit (native 1280 crops)",
-  "sha256": "a9832e5488a25a7b99ba0fb809f31c8f61168f28616f1b0065927514cb750488",
-  "src": "assets:eye-globe-fit/globe-cw2-sheet.png"
- },
- "falsifier": {
-  "scaleDeltaTested": "1.04 then 1.08 then 1.10 (4/8/10% diameter)",
-  "verdict": "mechanism_live_direction_true_magnitude_capped",
-  "yaw-40countAcrossFits": [
-   918,
-   630,
-   244,
-   134
-  ]
- },
- "fit": {
-  "fitForwardMm": 4.0,
-  "fitScale": 1.04,
-  "globeRadiusMm": {
-   "base": 11.9,
-   "fixed": 12.4
-  },
-  "table": "EYE_GLOBE_FIT_BY_OUTPUT_STEM['aisha-eyeglobe-fit']"
- },
- "glbs": {
-  "base": {
-   "bytes": 49645450,
-   "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
-   "stem": "aisha-eyeglobe-base"
-  },
-  "fixed": {
-   "bytes": 49653270,
-   "sha256": "c3bf8ebde4f7f3bfe96a3abf0f677844c2d69a70d7ab1c074c2ce51d131f7be9",
-   "stem": "aisha-eyeglobe-fit"
-  }
- },
- "grid": {
-  "base": {
-   "cw1": {
-    "blink0.5": 383,
-    "front": 0,
-    "yaw-25": 912,
-    "yaw-40": 2963,
-    "yaw25": 914,
-    "yaw40": 2958
-   },
-   "edge": {
-    "front": 432,
-    "yaw-25": 779,
-    "yaw-40": 918,
-    "yaw25": 641,
-    "yaw40": 667
-   }
-  },
-  "eg-100-2": {
-   "cw1": {
-    "blink0.5": 4,
-    "front": 0,
-    "yaw-25": 184,
-    "yaw-40": 1619,
-    "yaw25": 213,
-    "yaw40": 1655
-   },
-   "edge": {
-    "front": 351,
-    "yaw-25": 517,
-    "yaw-40": 582,
-    "yaw25": 457,
-    "yaw40": 439
-   }
-  },
-  "eg-100-4": {
-   "cw1": {
-    "blink0.5": 0,
-    "front": 0,
-    "yaw-25": 7,
-    "yaw-40": 978,
-    "yaw25": 3,
-    "yaw40": 955
-   },
-   "edge": {
-    "front": 97,
-    "yaw-25": 141,
-    "yaw-40": 164,
-    "yaw25": 154,
-    "yaw40": 111
-   }
-  },
-  "eg-102-0": {
-   "cw1": {
-    "blink0.5": 377,
-    "front": 0,
-    "yaw-25": 1066,
-    "yaw-40": 3144,
-    "yaw25": 1076,
-    "yaw40": 3158
-   },
-   "edge": {
-    "front": 420,
-    "yaw-25": 746,
-    "yaw-40": 880,
-    "yaw25": 625,
-    "yaw40": 642
-   }
-  },
-  "eg-102-2": {
-   "cw1": {
-    "blink0.5": 9,
-    "front": 0,
-    "yaw-25": 304,
-    "yaw-40": 1921,
-    "yaw25": 347,
-    "yaw40": 1979
-   },
-   "edge": {
-    "front": 309,
-    "yaw-25": 435,
-    "yaw-40": 483,
-    "yaw25": 383,
-    "yaw40": 344
-   }
-  },
-  "eg-102-4": {
-   "cw1": {
-    "blink0.5": 0,
-    "front": 0,
-    "yaw-25": 35,
-    "yaw-40": 1459,
-    "yaw25": 29,
-    "yaw40": 1409
-   },
-   "edge": {
-    "front": 78,
-    "yaw-25": 120,
-    "yaw-40": 121,
-    "yaw25": 133,
-    "yaw40": 83
-   }
-  },
-  "eg-104-0": {
-   "cw1": {
-    "blink0.5": 403,
-    "front": 0,
-    "yaw-25": 1212,
-    "yaw-40": 3352,
-    "yaw25": 1217,
-    "yaw40": 3337
-   },
-   "edge": {
-    "front": 417,
-    "yaw-25": 716,
-    "yaw-40": 841,
-    "yaw25": 602,
-    "yaw40": 615
-   }
-  },
-  "eg-104-2": {
-   "cw1": {
-    "blink0.5": 5,
-    "front": 0,
-    "yaw-25": 458,
-    "yaw-40": 2260,
-    "yaw25": 496,
-    "yaw40": 2343
-   },
-   "edge": {
-    "front": 242,
-    "yaw-25": 319,
-    "yaw-40": 364,
-    "yaw25": 293,
-    "yaw40": 256
-   }
-  },
-  "eg-104-4": {
-   "cw1": {
-    "blink0.5": 0,
-    "front": 0,
-    "yaw-25": 120,
-    "yaw-40": 2025,
-    "yaw25": 119,
-    "yaw40": 2008
-   },
-   "edge": {
-    "front": 63,
-    "yaw-25": 94,
-    "yaw-40": 84,
-    "yaw25": 103,
-    "yaw40": 57
-   }
-  }
- },
- "handoverH1": {
-  "rejected": "aisha-eyeglobe-fit (1.10, 2.5): sclera over lower lashes, bulging (orchestrator natural grade yaw+25)",
-  "rejectionCW1": {
-   "blink0.5": 0,
+  ],
+  "thresholdBase": {
    "front": 0,
-   "yaw-25": 1324,
-   "yaw-40": 4240,
-   "yaw25": 1394,
-   "yaw40": 4388
+   "yaw25": 914,
+   "yaw-25": 912,
+   "yaw40": 2958,
+   "yaw-40": 2963,
+   "blink0.5": 386
   }
+ },
+ "counterweightCW3": {
+  "method": "same script: cornea apex (max world Z per eye, neutral) past the closed-lid plane (mean world Z of the eye-closure morph moving pool at weight 1.0, morph-then-skin). Precedent shipped-blink-closure scratch/measure.py (mesh-local Z): shipped +0.57 mm, realism +1.98 mm; ours reproduces +1.979 mm on base in world Z.",
+  "thresholdBaseMm": 1.979
+ },
+ "neonMethod": "body skin pure blue incl. lid/socket, lashes cyan, globe+cornea magenta; 1280px portraits yaw 0/+25/-25/+40/-40; aperture per eye = row lash-span x column lash-span intersection; count = body-blue texels strictly inside.",
+ "handoverH1": {
+  "rejected110": "aisha-eyeglobe-fit (1.10, 2.5): sclera over lower lashes, bulging (orchestrator natural grade yaw+25)",
+  "rejected104": "(1.04, 4.0): sclera over upper AND lower lashes, below lid margin, upper lid hidden, ball-on-face (orchestrator h2 grade, native-px zoom)"
  },
  "irisGate": {
-  "fitBakeTextureOverride": "TEXTURE_OVERRIDE mat_makeclothes_library_eyes_ob_patient_aisha: brown_eye.png -> iris-centred-c.png (bake-fit.log)",
   "manifest": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
   "pupilShiftTexels": [
    0.77,
    0.63
   ],
+  "fitBakeTextureOverride": "TEXTURE_OVERRIDE mat_makeclothes_library_eyes_ob_patient_aisha: brown_eye.png -> iris-centred-c.png (bake-fit.log)",
   "uvUntouchedBySimilarity": true
  },
- "name": "eye-globe-lid-aperture-fit",
- "neonCounts": {
-  "base": {
-   "front": 432,
-   "yaw-25": 779,
-   "yaw-40": 918,
-   "yaw25": 641,
-   "yaw40": 667
+ "sheets": {
+  "fit": {
+   "src": "assets:eye-globe-fit/globe-fit-sheet.png",
+   "sha256": "5973164f1407173b46cd4e1c515a5587576d1ef2d7e1b3b8863cb88f91a727bc",
+   "note": "superseded search artifact (1.04,4.0 chosen then rejected h2)"
   },
-  "fixed": {
-   "front": 63,
-   "yaw-25": 94,
-   "yaw-40": 84,
-   "yaw25": 103,
-   "yaw40": 57
+  "cw2": {
+   "src": "assets:eye-globe-fit/globe-cw2-sheet.png",
+   "sha256": "a9832e5488a25a7b99ba0fb809f31c8f61168f28616f1b0065927514cb750488",
+   "note": "superseded search artifact"
+  },
+  "h2": {
+   "src": "assets:eye-globe-fit/h2/base-front-yaw25.png",
+   "sha256": "ef55b5ae059a6cd0ac20c4837115619bbfc45269d7622e40303c93b16c497519",
+   "note": "stop branch: kept default (base) natural front+yaw25, native pixels"
   }
  },
- "neonMethod": "body skin pure blue (#0000ff emissive 0.6) incl. lid/socket, lashes cyan (#00ffff), globe+cornea magenta (#ff00ff); 1280px portraits at yaw 0/+25/-25/+40/-40 via runtime-portrait-capture.ts; aperture per eye = row lash-span x column lash-span intersection (neon_count.py probe_aperture); count = body-blue texels strictly inside; renders deterministic (same seed), counts exact",
+ "defaultGlb": {
+  "stem": "aisha-eyeglobe-fit",
+  "fit": [
+   1.0,
+   0.0
+  ],
+  "sha256": "416751d7310e303dcd14199126964418a932afd29dff1b717f848f23210ce83a",
+  "bytes": 49645440
+ },
+ "visualFinding": "h2: (1.04,4.0) natural zoom shows sclera over upper+lower lashes and below the lid margin with the upper lid hidden (ball on face). Kept default = base identity: lids normal.",
  "notTested": [
   "gaze rotation (compat-eyes)"
  ],
  "outOfScope": [
   "no occlusion shell as the fix",
   "no new eye mesh"
- ],
- "producerSourceSha256": "576cc4f5c7ba57c4ffb55f460b9bd61beacdc52b76678fdc2f2c3956297186a0",
- "sheet": {
-  "renderSize": 1280,
-  "rows": "natural-yaw40 | neon-yaw-40 | natural-front",
-  "sha256": "5973164f1407173b46cd4e1c515a5587576d1ef2d7e1b3b8863cb88f91a727bc",
-  "src": "assets:eye-globe-fit/globe-fit-sheet.png"
- },
- "visualFinding": "natural yaw-40: base shows grey socket wedge at the inner canthus past the globe silhouette; fit (1.04, 4.0) shows clean sclera to the corner, no vertical edge, no lid poke-through, no stare; natural front/yaw25 (CW2): lids rest normally, iris unchanged"
+ ]
 }
