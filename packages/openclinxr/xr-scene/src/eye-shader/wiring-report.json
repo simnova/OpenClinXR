@@ -14,7 +14,9 @@
  },
  "captureToolExtension": "runtime-portrait-capture.ts assertVariantLanded now fails closed on eyeShade readback (mirrors skinShade; 6 lines)",
  "card": "tsk_4ca1eb82092e11bd",
- "commits": [],
+ "commits": [
+  "e2e0ede2c"
+ ],
  "cornea": {
   "_runtimeInventory": "ew-off.json materialInventory (16 slots; eye-material slot 1, cornea 0)",
   "fileMat": "openclinxr_eye_cornea_mat (BLEND, baseColorFactor [0.9,0.95,1,0.08], roughness 0.05, no map; L mesh 256 verts/1470 idx, R mesh 268 verts/1470 idx)",

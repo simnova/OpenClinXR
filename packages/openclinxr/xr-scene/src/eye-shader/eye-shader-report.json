@@ -1,7 +1,8 @@
 {
  "card": "tsk_59ea9f9a3aea8cfa",
  "commits": [
-  "f30db4e30"
+  "f30db4e30",
+  "e2e0ede2c"
  ],
  "falsifier": "exam leaves primary gaze (eyetex-yaw renders at 0/+-25; this card grades +-40): NOT triggered, proceeding recorded",
  "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-parallax.ts",
