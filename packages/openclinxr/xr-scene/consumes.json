@@ -248,6 +248,10 @@
         "via": "own-test"
       },
       {
+        "name": "createLearnerExamFormRunState",
+        "kind": "runtime"
+      },
+      {
         "name": "deriveInteriorPreviewCamera",
         "kind": "runtime",
         "via": "own-test"
@@ -256,6 +260,10 @@
         "name": "installStationLayoutView",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "mountStationEnvironmentForRuntime",
+        "kind": "runtime"
       }
     ]
   },
