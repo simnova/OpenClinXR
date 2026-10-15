@@ -1,0 +1,894 @@
+{
+  "id": "browform-opt1-hybrid",
+  "variant": {
+    "id": "browform-opt1-hybrid",
+    "views": [
+      0
+    ],
+    "renderSize": 1280,
+    "skinOverride": {
+      "baseColorUrl": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/brow/alb-t1brow.png",
+      "normalScale": 0.5,
+      "normalUrl": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.skin-normal.png",
+      "roughness": 1,
+      "roughnessMapUrl": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/shade/rough-t008.png"
+    },
+    "materialOverrides": [
+      {
+        "color": "#4a3f3a",
+        "match": "teeth"
+      },
+      {
+        "baseColorUrl": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyelip/eye-lidshadow4.png",
+        "envMapIntensity": 0.6,
+        "match": "makeclothes_library_eyes",
+        "physical": {
+          "clearcoat": 0.2,
+          "clearcoatRoughness": 0.2
+        },
+        "roughness": 0.35
+      },
+      {
+        "color": "#2e2620",
+        "match": "eyebrow",
+        "roughness": 1
+      }
+    ],
+    "rigOverride": {
+      "removeDefaultLights": true,
+      "studio": {
+        "environmentIntensity": 0.9,
+        "exposure": 0.3762,
+        "fillIntensity": 1.05,
+        "hemisphereIntensity": 0.3,
+        "keyAzimuthDeg": 38,
+        "keyElevationDeg": 20,
+        "keyIntensity": 3,
+        "rimIntensity": 0.5
+      }
+    },
+    "productEnvironmentId": null,
+    "portrait": true
+  },
+  "glb": {
+    "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
+    "sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2"
+  },
+  "rig": null,
+  "inputs": {
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/brow/alb-t1brow.png": {
+      "sha256": "b3b92248c9167d5652ee855a2a9f2656fe399c539f36e1379dd92dbd9d2f25e6",
+      "servedUrl": "http://127.0.0.1:63738/__spike/tex0.png"
+    },
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.skin-normal.png": {
+      "sha256": "7994d40a3f66dc13bea237550f793f0f22c381e681dd9b84c167320d80af9aaf",
+      "servedUrl": "http://127.0.0.1:63738/__spike/tex1.png"
+    },
+    "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/shade/rough-t008.png": {
+      "sha256": "9c189bf6e816e38802072468012dbc0bf2e8ed5a5af2e35b89201ade90c2edd5",
+      "servedUrl": "http://127.0.0.1:63738/__spike/tex2.png"
+    },
+    "makeclothes_library_eyes:/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyelip/eye-lidshadow4.png": {
+      "sha256": "f90d4db78bc4335e439fd529aefb656cebbce15aaa826e697618023fe50aa335",
+      "servedUrl": "http://127.0.0.1:63738/__spike/tex3.png"
+    }
+  },
+  "viewport": {
+    "width": 1280,
+    "height": 1280
+  },
+  "headWidthMethod": "image: widest lit row span within the top 35% of lit rows (background #18211d threshold; shoulders excluded)",
+  "views": [
+    {
+      "yaw": 0,
+      "png": "tools/openclinxr/evidence/brow-form/renders/browform-opt1-hybrid-front.png",
+      "sha256": "c894aedd851db7f1d214b0d51c91ab8759dd260d69dc383df3c324e1334a7d88",
+      "headWidthPx": 609,
+      "headHeightPx": 998.403825502267,
+      "headBoxPx": {
+        "x0": 220.23897746452087,
+        "y0": 140.79808724886652,
+        "x1": 1059.761022535479,
+        "y1": 1139.2019127511335
+      },
+      "frameSpanFraction": null
+    }
+  ],
+  "hairHidden": true,
+  "renderer": {
+    "threeRevision": "184",
+    "toneMapping": 4,
+    "toneMappingExposure": 0.3762,
+    "outputColorSpace": "srgb"
+  },
+  "lights": [
+    {
+      "type": "HemisphereLight",
+      "color": "#ffffff",
+      "intensity": 0.3,
+      "position": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "groundColor": "#8a8a8a"
+    },
+    {
+      "type": "DirectionalLight",
+      "color": "#fff1e0",
+      "intensity": 3,
+      "position": {
+        "x": 1.1570650905313733,
+        "y": 2.245164432635987,
+        "z": 1.5453805810626071
+      }
+    },
+    {
+      "type": "DirectionalLight",
+      "color": "#dfe8ff",
+      "intensity": 1.05,
+      "position": {
+        "x": -1.2126163882632848,
+        "y": 1.9084205013185103,
+        "z": 1.6164829997520336
+      }
+    },
+    {
+      "type": "DirectionalLight",
+      "color": "#ffffff",
+      "intensity": 0.5,
+      "position": {
+        "x": 1.8762677505405462e-16,
+        "y": 2.846699365357728,
+        "z": -1.4676840857037077
+      }
+    }
+  ],
+  "environmentMap": true,
+  "environmentIntensity": 0.9,
+  "skinMaterial": {
+    "name": "mpfb_skin_ob_patient_aisha",
+    "type": "MeshStandardMaterial",
+    "roughness": 1,
+    "metalness": 0,
+    "hasNormalMap": true,
+    "baseColorTextureSize": [
+      4096,
+      4096
+    ]
+  },
+  "skinOverrideApplied": {
+    "pattern": "mpfb_skin",
+    "matchedMaterials": [
+      "mpfb_skin_ob_patient_aisha"
+    ],
+    "baseColor": {
+      "url": "http://127.0.0.1:63738/__spike/tex0.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    "normal": {
+      "url": "http://127.0.0.1:63738/__spike/tex1.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "scale": 0.5
+    },
+    "roughness": 1,
+    "roughnessMap": {
+      "url": "http://127.0.0.1:63738/__spike/tex2.png",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    "ao": null
+  },
+  "materialInventory": [
+    {
+      "mesh": "makeclothes_library_female_tight_jeans_pants",
+      "material": "mat_makeclothes_library_female_tight_jeans_pants",
+      "type": "MeshStandardMaterial",
+      "color": "#ffffff",
+      "roughness": 0.7799999713897705,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        2048,
+        2048
+      ],
+      "vertexCount": 8432
+    },
+    {
+      "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha",
+      "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+      "type": "MeshStandardMaterial",
+      "color": "#ffffff",
+      "roughness": 0.7799999713897705,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        2048,
+        2048
+      ],
+      "vertexCount": 2008
+    },
+    {
+      "mesh": "makeclothes_library_toigo_t_shirt",
+      "material": "mat_makeclothes_library_toigo_t_shirt",
+      "type": "MeshStandardMaterial",
+      "color": "#9eb19e",
+      "roughness": 0.7799999713897705,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        2048,
+        2048
+      ],
+      "vertexCount": 5400
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001",
+      "material": "mpfb_skin_ob_patient_aisha",
+      "type": "MeshStandardMaterial",
+      "color": "#ffffff",
+      "roughness": 1,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        4096,
+        4096
+      ],
+      "vertexCount": 37621
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_1",
+      "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 5935
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_2",
+      "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 5530
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_3",
+      "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 6680
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_4",
+      "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 110
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_5",
+      "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 566
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_6",
+      "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 1744
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body001_7",
+      "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#000000",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 268
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body_meshlow-poly",
+      "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+      "type": "MeshPhysicalMaterial",
+      "color": "#ffffff",
+      "roughness": 0.35,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        1024,
+        1024
+      ],
+      "vertexCount": 96
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body_meshteeth_base",
+      "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#4a3f3a",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        2048,
+        2048
+      ],
+      "vertexCount": 4494
+    },
+    {
+      "mesh": "mpfb_ob_patient_aisha_body_meshtongue01",
+      "material": "mat_openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+      "type": "MeshStandardMaterial",
+      "color": "#ffffff",
+      "roughness": 0.5,
+      "metalness": 0,
+      "hasBaseColorMap": true,
+      "baseColorMapSize": [
+        1024,
+        1024
+      ],
+      "vertexCount": 253
+    },
+    {
+      "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+      "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+      "type": "MeshStandardMaterial",
+      "color": "#2e2620",
+      "roughness": 1,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 21468
+    },
+    {
+      "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+      "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+      "type": "MeshStandardMaterial",
+      "color": "#272727",
+      "roughness": 0.8999999761581421,
+      "metalness": 0,
+      "hasBaseColorMap": false,
+      "baseColorMapSize": null,
+      "vertexCount": 11088
+    }
+  ],
+  "materialOverridesApplied": [
+    {
+      "match": "teeth",
+      "matched": [
+        "mpfb_ob_patient_aisha_body_meshteeth_base|mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh"
+      ],
+      "readback": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_meshteeth_base",
+          "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+          "type": "MeshStandardMaterial",
+          "color": "#4a3f3a",
+          "roughness": 0.5,
+          "metalness": 0,
+          "envMapIntensity": 1,
+          "emissive": "#000000",
+          "emissiveIntensity": 1,
+          "hidden": false,
+          "skinShade": false,
+          "skinShadeCurvature": false,
+          "eyeShade": false,
+          "clearcoat": null,
+          "clearcoatRoughness": null,
+          "ior": null,
+          "hasBaseColorMap": true
+        }
+      ]
+    },
+    {
+      "match": "makeclothes_library_eyes",
+      "matched": [
+        "mpfb_ob_patient_aisha_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha"
+      ],
+      "readback": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_meshlow-poly",
+          "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+          "type": "MeshPhysicalMaterial",
+          "color": "#ffffff",
+          "roughness": 0.35,
+          "metalness": 0,
+          "envMapIntensity": 0.6,
+          "emissive": "#000000",
+          "emissiveIntensity": 1,
+          "hidden": false,
+          "skinShade": false,
+          "skinShadeCurvature": false,
+          "eyeShade": false,
+          "clearcoat": 0.2,
+          "clearcoatRoughness": 0.2,
+          "ior": 1.5,
+          "hasBaseColorMap": true
+        }
+      ]
+    },
+    {
+      "match": "eyebrow",
+      "matched": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat"
+      ],
+      "readback": [
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+          "type": "MeshStandardMaterial",
+          "color": "#2e2620",
+          "roughness": 1,
+          "metalness": 0,
+          "envMapIntensity": 1,
+          "emissive": "#000000",
+          "emissiveIntensity": 1,
+          "hidden": false,
+          "skinShade": false,
+          "skinShadeCurvature": false,
+          "eyeShade": false,
+          "clearcoat": null,
+          "clearcoatRoughness": null,
+          "ior": null,
+          "hasBaseColorMap": false
+        }
+      ]
+    }
+  ],
+  "productRig": null,
+  "portrait": {
+    "fovDeg": 24,
+    "fillTarget": 0.78,
+    "distanceM": 0.7305976112975388,
+    "headHeightPx": 998.403825502267,
+    "headBoxPx": {
+      "x0": 220.23897746452087,
+      "y0": 140.79808724886652,
+      "x1": 1059.761022535479,
+      "y1": 1139.2019127511335
+    },
+    "yawDegrees": 0
+  },
+  "runtimeDebug": {
+    "threeRevision": "184",
+    "toneMapping": 4,
+    "toneMappingExposure": 0.3762,
+    "outputColorSpace": "srgb",
+    "environmentMap": true,
+    "environmentIntensity": 0.9,
+    "lights": [
+      {
+        "type": "HemisphereLight",
+        "color": "#ffffff",
+        "intensity": 0.3,
+        "position": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "groundColor": "#8a8a8a"
+      },
+      {
+        "type": "DirectionalLight",
+        "color": "#fff1e0",
+        "intensity": 3,
+        "position": {
+          "x": 1.1570650905313733,
+          "y": 2.245164432635987,
+          "z": 1.5453805810626071
+        }
+      },
+      {
+        "type": "DirectionalLight",
+        "color": "#dfe8ff",
+        "intensity": 1.05,
+        "position": {
+          "x": -1.2126163882632848,
+          "y": 1.9084205013185103,
+          "z": 1.6164829997520336
+        }
+      },
+      {
+        "type": "DirectionalLight",
+        "color": "#ffffff",
+        "intensity": 0.5,
+        "position": {
+          "x": 1.8762677505405462e-16,
+          "y": 2.846699365357728,
+          "z": -1.4676840857037077
+        }
+      }
+    ],
+    "skinMaterial": {
+      "name": "mpfb_skin_ob_patient_aisha",
+      "type": "MeshStandardMaterial",
+      "roughness": 1,
+      "metalness": 0,
+      "hasNormalMap": true,
+      "baseColorTextureSize": [
+        4096,
+        4096
+      ]
+    },
+    "skinOverrideApplied": {
+      "pattern": "mpfb_skin",
+      "matchedMaterials": [
+        "mpfb_skin_ob_patient_aisha"
+      ],
+      "baseColor": {
+        "url": "http://127.0.0.1:63738/__spike/tex0.png",
+        "size": [
+          4096,
+          4096
+        ]
+      },
+      "normal": {
+        "url": "http://127.0.0.1:63738/__spike/tex1.png",
+        "size": [
+          1024,
+          1024
+        ],
+        "scale": 0.5
+      },
+      "roughness": 1,
+      "roughnessMap": {
+        "url": "http://127.0.0.1:63738/__spike/tex2.png",
+        "size": [
+          4096,
+          4096
+        ]
+      },
+      "ao": null
+    },
+    "materialInventory": [
+      {
+        "mesh": "makeclothes_library_female_tight_jeans_pants",
+        "material": "mat_makeclothes_library_female_tight_jeans_pants",
+        "type": "MeshStandardMaterial",
+        "color": "#ffffff",
+        "roughness": 0.7799999713897705,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          2048,
+          2048
+        ],
+        "vertexCount": 8432
+      },
+      {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "type": "MeshStandardMaterial",
+        "color": "#ffffff",
+        "roughness": 0.7799999713897705,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          2048,
+          2048
+        ],
+        "vertexCount": 2008
+      },
+      {
+        "mesh": "makeclothes_library_toigo_t_shirt",
+        "material": "mat_makeclothes_library_toigo_t_shirt",
+        "type": "MeshStandardMaterial",
+        "color": "#9eb19e",
+        "roughness": 0.7799999713897705,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          2048,
+          2048
+        ],
+        "vertexCount": 5400
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001",
+        "material": "mpfb_skin_ob_patient_aisha",
+        "type": "MeshStandardMaterial",
+        "color": "#ffffff",
+        "roughness": 1,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          4096,
+          4096
+        ],
+        "vertexCount": 37621
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_1",
+        "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 5935
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_2",
+        "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 5530
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_3",
+        "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 6680
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_4",
+        "material": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 110
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_5",
+        "material": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 566
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_6",
+        "material": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 1744
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body001_7",
+        "material": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#000000",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 268
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body_meshlow-poly",
+        "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "type": "MeshPhysicalMaterial",
+        "color": "#ffffff",
+        "roughness": 0.35,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          1024,
+          1024
+        ],
+        "vertexCount": 96
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body_meshteeth_base",
+        "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#4a3f3a",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          2048,
+          2048
+        ],
+        "vertexCount": 4494
+      },
+      {
+        "mesh": "mpfb_ob_patient_aisha_body_meshtongue01",
+        "material": "mat_openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+        "type": "MeshStandardMaterial",
+        "color": "#ffffff",
+        "roughness": 0.5,
+        "metalness": 0,
+        "hasBaseColorMap": true,
+        "baseColorMapSize": [
+          1024,
+          1024
+        ],
+        "vertexCount": 253
+      },
+      {
+        "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "type": "MeshStandardMaterial",
+        "color": "#2e2620",
+        "roughness": 1,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 21468
+      },
+      {
+        "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+        "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
+        "type": "MeshStandardMaterial",
+        "color": "#272727",
+        "roughness": 0.8999999761581421,
+        "metalness": 0,
+        "hasBaseColorMap": false,
+        "baseColorMapSize": null,
+        "vertexCount": 11088
+      }
+    ],
+    "materialOverridesApplied": [
+      {
+        "match": "teeth",
+        "matched": [
+          "mpfb_ob_patient_aisha_body_meshteeth_base|mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh"
+        ],
+        "readback": [
+          {
+            "mesh": "mpfb_ob_patient_aisha_body_meshteeth_base",
+            "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+            "type": "MeshStandardMaterial",
+            "color": "#4a3f3a",
+            "roughness": 0.5,
+            "metalness": 0,
+            "envMapIntensity": 1,
+            "emissive": "#000000",
+            "emissiveIntensity": 1,
+            "hidden": false,
+            "skinShade": false,
+            "skinShadeCurvature": false,
+            "eyeShade": false,
+            "clearcoat": null,
+            "clearcoatRoughness": null,
+            "ior": null,
+            "hasBaseColorMap": true
+          }
+        ]
+      },
+      {
+        "match": "makeclothes_library_eyes",
+        "matched": [
+          "mpfb_ob_patient_aisha_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha"
+        ],
+        "readback": [
+          {
+            "mesh": "mpfb_ob_patient_aisha_body_meshlow-poly",
+            "material": "mat_makeclothes_library_eyes_ob_patient_aisha",
+            "type": "MeshPhysicalMaterial",
+            "color": "#ffffff",
+            "roughness": 0.35,
+            "metalness": 0,
+            "envMapIntensity": 0.6,
+            "emissive": "#000000",
+            "emissiveIntensity": 1,
+            "hidden": false,
+            "skinShade": false,
+            "skinShadeCurvature": false,
+            "eyeShade": false,
+            "clearcoat": 0.2,
+            "clearcoatRoughness": 0.2,
+            "ior": 1.5,
+            "hasBaseColorMap": true
+          }
+        ]
+      },
+      {
+        "match": "eyebrow",
+        "matched": [
+          "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat"
+        ],
+        "readback": [
+          {
+            "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+            "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+            "type": "MeshStandardMaterial",
+            "color": "#2e2620",
+            "roughness": 1,
+            "metalness": 0,
+            "envMapIntensity": 1,
+            "emissive": "#000000",
+            "emissiveIntensity": 1,
+            "hidden": false,
+            "skinShade": false,
+            "skinShadeCurvature": false,
+            "eyeShade": false,
+            "clearcoat": null,
+            "clearcoatRoughness": null,
+            "ior": null,
+            "hasBaseColorMap": false
+          }
+        ]
+      }
+    ],
+    "productRig": null,
+    "portrait": {
+      "fovDeg": 24,
+      "fillTarget": 0.78,
+      "distanceM": 0.7305976112975388,
+      "headHeightPx": 998.403825502267,
+      "headBoxPx": {
+        "x0": 220.23897746452087,
+        "y0": 140.79808724886652,
+        "x1": 1059.761022535479,
+        "y1": 1139.2019127511335
+      },
+      "yawDegrees": 0
+    },
+    "hairHidden": true,
+    "hiddenHairMeshes": [
+      "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh"
+    ]
+  },
+  "command": "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant tools/openclinxr/evidence/brow-form/browform-opt1-hybrid.variant.json --out tools/openclinxr/evidence/brow-form/renders",
+  "landedChecks": [
+    "roughness readback=1 want=1",
+    "hasNormalMap=true",
+    "normalScale applied=0.5",
+    "matOverride[teeth] matched=mpfb_ob_patient_aisha_body_meshteeth_base|mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+    "matOverride[teeth] readback ok x1",
+    "matOverride[makeclothes_library_eyes] matched=mpfb_ob_patient_aisha_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha",
+    "matOverride[makeclothes_library_eyes] readback ok x1",
+    "matOverride[eyebrow] matched=openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+    "matOverride[eyebrow] readback ok x1",
+    "studioLights=DirectionalLight,DirectionalLight,DirectionalLight,HemisphereLight",
+    "toneMapping=4 want=4 (ACESFilmic)",
+    "exposure=0.3762 want=0.3762",
+    "environmentMap=true"
+  ]
+}
