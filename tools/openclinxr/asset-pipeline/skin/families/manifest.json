@@ -569,9 +569,9 @@
     "source_mean_a": 8.792
    },
    "leak": {
-    "label": "v3",
-    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v3.png",
-    "atlas_sha256": "69a0f1a85dec192bf45931e27eed38c9df52ccef830e47d725884334ca437fcc",
+    "label": "v4",
+    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v4.png",
+    "atlas_sha256": "0878773f205c555aba469a448291b9d6a4a8e47ec762fca4e285620e3ec7c8f4",
     "atlas_resized_to_2048": false,
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
@@ -602,11 +602,11 @@
     "skin_set": "facecore>0.5 minus lips/eyes/brows>0.5 (eyes proxy caruncle) inside occupancy>0.5",
     "n_skin_texels": 114052,
     "n_mirror_pairs": 8235,
-    "r_S": 0.0461,
-    "r_normal_y": 0.0272,
+    "r_S": 0.0448,
+    "r_normal_y": 0.0279,
     "mirror_signed_L": 0.0156,
-    "mirror_abs_L": 1.4305,
-    "wall_s": 0.9
+    "mirror_abs_L": 1.4289,
+    "wall_s": 1.4
    },
    "g2": {
     "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
@@ -646,6 +646,14 @@
      {
       "file": "middle-family-v3-yaw40.png",
       "sha256": "41d67d6c00f546e624579339dccfde2f0fd4a0524a29641476f0c188cb5c93d7"
+     },
+     {
+      "file": "middle-family-v4-front.png",
+      "sha256": "b06ba0db9f3895aa24953c94daaaf014d25a83726520a493f0f00012638aa9fb"
+     },
+     {
+      "file": "middle-family-v4-yaw40.png",
+      "sha256": "07932413d8f75cc8153049976c0b54501612a3dd6791f0f68eb169faff8a2642"
      }
     ],
     "sheet": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-g2-sheet.png",
@@ -653,7 +661,11 @@
     "lip_crop": "middle-v2-lip-crop.png (276x227 native, v1|v2) sha 0bc741aa14688e529921ca64864a02965cef08d6f4cb4245eefbda8ff2fba5e9",
     "sheet_v3": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-g2-sheet-v3.png",
     "sheet_v3_sha256": "3af6277fa59f151d83933ab4ed8c2fec1d9ff27e2eb5f2b0d267122bfb20c575",
-    "face_crop": "middle-v3-face-crop.png (1024x512 native, source|v3 front) sha f05c0081e50576b9511940380d967c3b2788d36d73d7acf6de473c50be4f3984"
+    "face_crop": "middle-v3-face-crop.png (1024x512 native, source|v3 front) sha f05c0081e50576b9511940380d967c3b2788d36d73d7acf6de473c50be4f3984",
+    "sheet_v4": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-g2-sheet-v4.png",
+    "sheet_v4_sha256": "4519eceaf8e05317eced2ccce213efdcc2f6ce6fe39cc3e1fe313524a7a0f0b5",
+    "face_crop_v4": "middle-v4-face-crop.png (1536x512 native, source|v2|v4 front) sha 7ddc0f52a5ede7a4c102349a581d585b9c726152ef5943bf08eaebe3d44f1ff1",
+    "lip_crop_v4": "middle-v4-lip-crop.png (792x200 native lower-lip, source|v2|v4) sha 759e31741d3113ef2124b3b8f3d58e5efdd942653c53eedbf0d00ed85060f8ab"
    },
    "lips_fix": {
     "why": "middle lips get their own Imagine crop + tight mask (young A3c lesson); keeps edit shape change contained, no pink corner box",
@@ -754,6 +766,94 @@
      "cap": "src+1"
     },
     "gate_method": "float-LAB lowband match + targeted error-diffusion dither (K + outside-island untouched) + guarded micro-flips"
+   },
+   "family_v4_path": "/Volumes/files/openclinxr-assets/store/skin-families/middle/middle-family-v4.png",
+   "family_v4_sha256": "0878773f205c555aba469a448291b9d6a4a8e47ec762fca4e285620e3ec7c8f4",
+   "h2_v4": {
+    "why": "v3 met wrong numbers (amplitude cap forced v3 back to source) + render-side lip dots missed by atlas count",
+    "edits": "6 crops + lip crop re-run from SOURCE (b4 refs), 7 ok / 0 refused; prompt: young prompt (layout sentences verbatim, no blush) + middle-aged skin with soft, subtle fine lines and natural texture; lines are gentle shading, never dark cracks; no orange or brown tint in creases; even skin colour + flat shadowless lighting",
+    "locks": {
+     "q-upper-left": {
+      "transl_px": [
+       2.09,
+       -1.24
+      ],
+      "disp_p95_px": 6.73,
+      "passed": false,
+      "reasons": [
+       "disp_p95 6.73>4"
+      ]
+     },
+     "q-upper-right": {
+      "transl_px": [
+       0.0,
+       0.0
+      ],
+      "disp_p95_px": 15.23,
+      "passed": false,
+      "reasons": [
+       "reframe: edit matches island +48y (score 0.355) not its box (0.066); excluded",
+       "disp_p95 15.23>4"
+      ]
+     },
+     "q-lower-left": {
+      "transl_px": [
+       -0.74,
+       -0.7
+      ],
+      "disp_p95_px": 0.56,
+      "passed": true,
+      "reasons": []
+     },
+     "q-lower-right": {
+      "transl_px": [
+       0.34,
+       -1.17
+      ],
+      "disp_p95_px": 0.78,
+      "passed": true,
+      "reasons": []
+     },
+     "strip-upper": {
+      "transl_px": [
+       0.27,
+       -5.49
+      ],
+      "disp_p95_px": 7.41,
+      "passed": false,
+      "reasons": [
+       "reframe: edit matches island -48y (score 0.649) not its box (0.189); excluded",
+       "disp_p95 7.41>4"
+      ]
+     },
+     "strip-lower": {
+      "transl_px": [
+       0.13,
+       -1.4
+      ],
+      "disp_p95_px": 0.79,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    "composite": "highband-only agreement-gated (qLL/qLR sigma8 pass; qUL p95 6.73 + qUR/strip-upper reframe gated/excluded); eye-hole keep; tight lip mask + philtrum feather; full detail, no amplitude cap",
+    "lip_dots_render_side": {
+     "v2_render": 19,
+     "v4_render": 0,
+     "neon_probe": "not needed (fresh edit eliminated dots at source; instrument validated by v2 positive control)"
+    },
+    "cheek_spread_std": {
+     "v4_a": 1.222,
+     "v4_b": 1.249,
+     "src_a": 1.057,
+     "src_b": 1.1,
+     "cap": "src+1"
+    },
+    "crease_ab_dev_vs_local_mean": [
+     0.94,
+     0.97
+    ],
+    "gate_method": "targeted error-diffusion dither (K + outside-island untouched) + guarded micro-flips"
    }
   }
  ]
