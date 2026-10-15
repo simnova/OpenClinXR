@@ -1,0 +1,22 @@
+{
+ "families": [
+  {
+   "family": "young",
+   "status": "picked",
+   "source_id": "bobby_03_young_female_hairless",
+   "source_path": "makehuman-skins01/extracted/skins/bobby_03_young_female_hairless/Young_Female_Hairless.png",
+   "source_sha256": "9e2fa4ab993dd938ba896bb98848bd65346500c4c0a07d8789d2f1e14bb3dd7f",
+   "reason": "YOUNG pick from skins/catalogue.json: age_band young + female; makeup=false (lip_chroma_excess 1.53<=10); scalp_L_minus_forehead_L -3.2, nearest 0 of all young candidates (next -22.91); CC0 via MORE-PERMISSIVE ruling. Coincides with baseline row-a atlas. No rewrite yet.",
+   "leak": {
+    "r_S": -0.0225,
+    "r_normal_y": 0.1716,
+    "mirror_signed_L": 0.0014,
+    "mirror_abs_L": 0.4331,
+    "n_skin_texels": 114052,
+    "n_mirror_pairs": 8235,
+    "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2"
+   }
+  }
+ ]
+}
