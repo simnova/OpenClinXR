@@ -1,5 +1,5 @@
 {
- "card": "tsk_3cff39ffc572d85d",
+ "card": "tsk_3cff39ffc572d85d+tsk_96256abb59a7b6c7",
  "mpfb": {
   "targetData": "2.0.18",
   "targetManifest": "version = \"2.0.18\"",
@@ -22,8 +22,7 @@
   "taskFile": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
   "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
   "nPoints": 478,
-  "goalFront": "/Volumes/files/openclinxr-assets/store/face-fit/target-front.png",
-  "goal3q": "/Volumes/files/openclinxr-assets/store/face-fit/target-3q-left.png",
+  "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json (per-case, by --case id)",
   "selfRender": "/Volumes/files/openclinxr-assets/store/face-fit/base-front.png"
  },
  "embedding": {
@@ -136,67 +135,6 @@
   "rmsBeforeMm70": 1.688,
   "onTrackMm": 1.225
  },
- "aisha": {
-  "rmsBeforeMm": 1.345,
-  "rmsAfterMm": 0.782,
-  "onTrackMm": 0.782,
-  "beatsSweep": true,
-  "featBefore": {
-   "lips": 0.753,
-   "nose": 1.552,
-   "jaw": 2.122,
-   "eyes": 1.345
-  },
-  "featAfter": {
-   "lips": 0.189,
-   "nose": 0.747,
-   "jaw": 0.019,
-   "eyes": 1.015
-  },
-  "top": [
-   [
-    "nose-greek-incr",
-    1.0
-   ],
-   [
-    "head-scale-depth-incr",
-    0.9989
-   ],
-   [
-    "asym-brown-1-l",
-    0.5904
-   ],
-   [
-    "head-oval",
-    0.5515
-   ],
-   [
-    "nose-curve-convex",
-    0.4763
-   ],
-   [
-    "mouth-lowerlip-middle-up",
-    0.4629
-   ],
-   [
-    "asym-nose-1-r",
-    0.4509
-   ],
-   [
-    "mouth-scale-vert-decr",
-    0.4478
-   ],
-   [
-    "asym-eye-2-r",
-    0.4399
-   ],
-   [
-    "asym-eye-2-l",
-    0.4348
-   ]
-  ],
-  "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights.json"
- },
  "controls": {
   "synthErrNz": 0.702,
   "synthErrZero": 0.06
@@ -220,5 +158,177 @@
   "gate": "redetect <= analytic + detector floor (render confirms fit)",
   "sha256": "b221f3651d178a7ae2a66f67e16643e6ecfe63985c9d3446d43a38e7aaf122d0"
  },
- "notTested": "profile-only cases"
+ "notTested": "profile-only cases",
+ "cases": {
+  "aisha": {
+   "rmsBeforeMm": 1.345,
+   "rmsAfterMm": 0.782,
+   "onTrackMm": 0.782,
+   "beatsSweep": true,
+   "featBefore": {
+    "lips": 0.753,
+    "nose": 1.552,
+    "jaw": 2.122,
+    "eyes": 1.345
+   },
+   "featAfter": {
+    "lips": 0.189,
+    "nose": 0.747,
+    "jaw": 0.019,
+    "eyes": 1.015
+   },
+   "top": [
+    [
+     "nose-greek-incr",
+     1.0
+    ],
+    [
+     "head-scale-depth-incr",
+     0.9989
+    ],
+    [
+     "asym-brown-1-l",
+     0.5904
+    ],
+    [
+     "head-oval",
+     0.5515
+    ],
+    [
+     "nose-curve-convex",
+     0.4763
+    ],
+    [
+     "mouth-lowerlip-middle-up",
+     0.4629
+    ],
+    [
+     "asym-nose-1-r",
+     0.4509
+    ],
+    [
+     "mouth-scale-vert-decr",
+     0.4478
+    ],
+    [
+     "asym-eye-2-r",
+     0.4399
+    ],
+    [
+     "asym-eye-2-l",
+     0.4348
+    ]
+   ],
+   "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json",
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_aisha_front.npy",
+   "targetSha256": "e7e7cd86ca1e8a282ad306e290ab76ad3980c9852a9a9d253430d987395fc68b",
+   "sourceSha256": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+   "source3qSha256": "f5e719a7d4575a043ea6e1d5f1cbc44f28d8140186b219925bfb8c05af13b624",
+   "camera": {
+    "yawScan": {
+     "0.0": 11.49,
+     "10.0": 18.06,
+     "-10.0": 13.82,
+     "20.0": 27.48,
+     "-20.0": 22.52,
+     "30.0": 37.26,
+     "-30.0": 32.69,
+     "40.0": 46.74,
+     "-40.0": 43.01,
+     "50.0": 55.66,
+     "-50.0": 53.01,
+     "60.0": 63.88,
+     "-60.0": 62.46
+    },
+    "yawDeg": 0.0,
+    "use3q": false,
+    "frontPrePx": 2.5,
+    "yawWeight": 0.0
+   },
+   "solve": {
+    "nVars": 178,
+    "nRows": 70,
+    "lambda": 1.0,
+    "knee": 5
+   }
+  },
+  "body2": {
+   "rmsBeforeMm": 2.919,
+   "rmsAfterMm": 1.278,
+   "onTrackMm": 1.278,
+   "beatsSweep": true,
+   "featBefore": {
+    "lips": 4.529,
+    "nose": 2.515,
+    "jaw": 5.859,
+    "eyes": 1.308
+   },
+   "featAfter": {
+    "lips": 0.687,
+    "nose": 1.679,
+    "jaw": 0.002,
+    "eyes": 1.183
+   },
+   "top": [
+    [
+     "head-back-scale-depth-decr",
+     1.0
+    ],
+    [
+     "head-scale-depth-incr",
+     1.0
+    ],
+    [
+     "mouth-lowerlip-middle-up",
+     1.0
+    ],
+    [
+     "mouth-lowerlip-height-incr",
+     0.8548
+    ],
+    [
+     "mouth-upperlip-height-decr",
+     0.8377
+    ],
+    [
+     "mouth-scale-vert-decr",
+     0.7234
+    ],
+    [
+     "nose-greek-incr",
+     0.7176
+    ],
+    [
+     "asym-mouth-2-l",
+     0.6647
+    ],
+    [
+     "head-round",
+     0.635
+    ],
+    [
+     "asym-brown-1-r",
+     0.539
+    ]
+   ],
+   "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json",
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_body2_front.npy",
+   "targetSha256": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834",
+   "sourceSha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+   "source3qSha256": null,
+   "camera": {
+    "yawScan": {},
+    "yawDeg": 0.0,
+    "use3q": false,
+    "frontPrePx": 5.44,
+    "yawWeight": 0.0
+   },
+   "solve": {
+    "nVars": 178,
+    "nRows": 70,
+    "lambda": 1.0,
+    "knee": 5
+   }
+  }
+ }
 }

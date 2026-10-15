@@ -49,7 +49,7 @@ type FitReport = {
   solve: { nVars: number; expression: string };
   selfCheck: { detectorRmsMm: number; fitDriftMm: number; wMax: number; pass: boolean };
   sweep: { rmsAfterMm70: number; onTrackMm: number };
-  aisha: { rmsAfterMm: number; onTrackMm: number; beatsSweep: boolean };
+  cases: { aisha: { rmsAfterMm: number; onTrackMm: number; beatsSweep: boolean } };
   falsifier: { tripped: boolean; reason: string };
   checkRender: {
     redetectMm: number;
@@ -125,8 +125,8 @@ describe("the-face-fit-beats-the-silhouette-sweep", () => {
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as FitReport;
     expect(r.falsifier.tripped).toBe(false);
     expect(r.falsifier.reason.length).toBeGreaterThan(0);
-    expect(r.aisha.onTrackMm).toBeLessThan(r.sweep.onTrackMm);
-    expect(r.aisha.beatsSweep).toBe(true);
+    expect(r.cases.aisha.onTrackMm).toBeLessThan(r.sweep.onTrackMm);
+    expect(r.cases.aisha.beatsSweep).toBe(true);
   });
 
   it("confirms the fit on a re-render (check, not objective)", () => {

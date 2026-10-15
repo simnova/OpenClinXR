@@ -1,0 +1,119 @@
+{
+ "card": "tsk_96256abb59a7b6c7",
+ "detector": {
+  "model": "MediaPipe Face Landmarker (Apache-2.0)",
+  "taskFile": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "taskSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+  "runningMode": "IMAGE",
+  "numFaces": 1,
+  "nPoints": 478,
+  "codeRef": "fit_facefit2.py:detect_points verbatim copy (same options; no swap, no hand landmarks)"
+ },
+ "g1": {
+  "runs": 3,
+  "maxAbsDiffPx": 0.0,
+  "byteIdentical": true,
+  "legacyFile": "tools/openclinxr/evidence/face-fit/pts_target_front.npy",
+  "legacySha256": "e7e7cd86ca1e8a282ad306e290ab76ad3980c9852a9a9d253430d987395fc68b"
+ },
+ "cases": {
+  "aisha": {
+   "source": "face-fit store target-front.png (detector input of record)",
+   "sourceSha256": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+   "imageSize": [
+    1024,
+    1024
+   ],
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_aisha_front.npy",
+   "targetSha256": "e7e7cd86ca1e8a282ad306e290ab76ad3980c9852a9a9d253430d987395fc68b",
+   "nPoints": 478,
+   "allInsideImage": false,
+   "outsideCount": 5,
+   "eyeCorners": {
+    "33": [
+     255.985,
+     242.986
+    ],
+    "133": [
+     408.024,
+     261.028
+    ],
+    "362": [
+     628.43,
+     261.586
+    ],
+    "263": [
+     779.928,
+     242.151
+    ]
+   },
+   "embedding": {
+    "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+    "sha256": "2473e825cde0a3e848f89519add47d7e0d6a3c6b61a3262a7c9698e7215ca889",
+    "n": 40,
+    "trackN": 35,
+    "contourExcluded": [
+     58,
+     172,
+     234,
+     288,
+     454
+    ],
+    "fallbacks": 0,
+    "note": "shared neutral-mesh barycentric triples (base-derived, subject-independent)"
+   },
+   "source3q": "face-fit store target-3q-left.png",
+   "source3qSha256": "f5e719a7d4575a043ea6e1d5f1cbc44f28d8140186b219925bfb8c05af13b624",
+   "target3qNpy": "tools/openclinxr/evidence/face-fit/pts_target_3q.npy",
+   "target3qSha256": "6e1aaaee6564785aeb4ac188efb90869461d2f318dd34e309f96c390d0d35df5"
+  },
+  "body2": {
+   "source": "reference-set body2/goal-front.png (manifest.json)",
+   "sourceSha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+   "imageSize": [
+    1024,
+    1024
+   ],
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_body2_front.npy",
+   "targetSha256": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834",
+   "nPoints": 478,
+   "allInsideImage": true,
+   "outsideCount": 0,
+   "eyeCorners": {
+    "33": [
+     354.229,
+     453.26
+    ],
+    "133": [
+     454.691,
+     460.749
+    ],
+    "362": [
+     584.22,
+     462.052
+    ],
+    "263": [
+     684.398,
+     455.065
+    ]
+   },
+   "embedding": {
+    "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+    "sha256": "2473e825cde0a3e848f89519add47d7e0d6a3c6b61a3262a7c9698e7215ca889",
+    "n": 40,
+    "trackN": 35,
+    "contourExcluded": [
+     58,
+     172,
+     234,
+     288,
+     454
+    ],
+    "fallbacks": 0,
+    "note": "shared neutral-mesh barycentric triples (base-derived, subject-independent)"
+   },
+   "source3q": null,
+   "note": "no reference-set goal_yaw for body2; front-only fit (same 2x yaw-scan exclusion rule)"
+  }
+ }
+}

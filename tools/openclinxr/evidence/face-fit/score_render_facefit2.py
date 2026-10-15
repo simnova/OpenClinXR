@@ -13,7 +13,8 @@ import os
 import numpy as np
 from PIL import Image
 
-D = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
+HERE = os.path.dirname(os.path.abspath(__file__))
+D = HERE
 STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
                        "/Volumes/files/openclinxr-assets/store/face-fit")
 
@@ -85,7 +86,9 @@ def main():
 
     d = np.array([fit_al[lm] - tgt_al[lm] for lm in landmarks]) * mmpp
     redetect = float(np.sqrt((d ** 2).mean()))
-    analytic = report["aisha"]["onTrackMm"]
+    cases = report.get("cases") or {}
+    legacy = report.get("aisha") or {}
+    analytic = (cases.get("aisha") or legacy).get("onTrackMm")
     floor = report["selfCheck"]["detectorRmsMm"]
     ok = bool(redetect <= analytic + floor)
     print("FF2_REDETECT redetect=%.3f analytic=%.3f floor=%.3f pass=%s" % (

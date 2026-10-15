@@ -1,18 +1,21 @@
 """facefit2 fit (mise python, foreground): barycentric embedding + LS fit.
 
-Card tsk_3cff39ffc572d85d. Method per S/consult47/r2.answer.md P5:
+Card tsk_3cff39ffc572d85d + tsk_96256abb59a7b6c7. Method per S/consult47/r2.answer.md P5:
   ~40 MediaPipe indices as barycentric triples on neutral hm08 mesh,
   project with exam/ortho camera, least-squares macros + targets +
   MPFB 2.0.18 asym targets vs goal landmarks (front + three-quarter,
   expression neutral). Re-detect on a render is the CHECK, not the fit.
 
-Objective uses GOAL detections (target-front.png, target-3q-left.png).
-Render detections are never the objective (CW).
+Objective uses GOAL detections from any-subject-targets.json (per-case
+target, keyed by --case id; produced by make_any_subject_targets.py with
+the SAME detector below). Render detections are never the objective (CW).
 
-Writes: embedding.json, pts_*.npy, fit_weights.json, fit-report.json
-        (phase 1; checkRender filled by score_render.py after Blender).
+Writes: embedding.json, pts_base_front.npy, fit_weights_<case>.json,
+        fit_file_weights_<case>.json, fit-report.json (cases[case] merged;
+        top-level legacy gates preserved, never overwritten per-case).
 """
 
+import argparse
 import hashlib
 import json
 import os
@@ -20,7 +23,8 @@ import os
 import numpy as np
 from PIL import Image
 
-D = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
+HERE = os.path.dirname(os.path.abspath(__file__))
+D = HERE
 # Large binaries live in the local asset store (store-manifest.json), never in
 # git. Override with OPENCLINXR_ASSET_STORE for relocation tests.
 STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
@@ -135,7 +139,18 @@ def build_var_scheme(cands):
     return var_names, var_offsets
 
 
-def main():
+def main(case_id=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--case", required=True,
+                    help="reference-set case id (key in any-subject-targets.json)")
+    args = ap.parse_args() if case_id is None else argparse.Namespace(case=case_id)
+    case_id = args.case
+    targets_doc = json.load(open(os.path.join(D, "any-subject-targets.json")))
+    if case_id not in targets_doc["cases"]:
+        raise SystemExit("face-fit refuse: unknown case %r (want one of %s)"
+                         % (case_id, sorted(targets_doc["cases"])))
+    case_rec = targets_doc["cases"][case_id]
+    print("FF2_CASE id=%s src=%s" % (case_id, case_rec["source"]))
     cams = json.load(open(os.path.join(D, "cameras.json")))
     base = np.load(asset("base_verts.npy"))
     faces = np.load(asset("faces.npy"))
@@ -178,15 +193,27 @@ def main():
         dx = d[0] * co - d[1] * si
         return dx * 1000.0, -d[2] * 1000.0
 
-    # --- detections (goal images are the OBJECTIVE; render = check only)
+    # --- detections: base render re-detected (neutral, subject-independent);
+    # goal targets come from any-subject-targets.json by case id (the
+    # OBJECTIVE; render = check only). No per-subject literals here.
     pts_base = detect_points(asset("base-front.png"))
-    pts_tgt = detect_points(asset("target-front.png"))
-    pts_3q = detect_points(asset("target-3q-left.png"))
-    assert pts_base is not None and pts_tgt is not None and pts_3q is not None
+    assert pts_base is not None and pts_base.shape == (478, 2)
     np.save(os.path.join(D, "pts_base_front.npy"), pts_base)
-    np.save(os.path.join(D, "pts_target_front.npy"), pts_tgt)
-    np.save(os.path.join(D, "pts_target_3q.npy"), pts_3q)
-    print("FF2_DETECT ok base/tgt/3q faces=1/1/1 npts=478")
+    tgt_rel = case_rec["targetNpy"].split(
+        "tools/openclinxr/evidence/face-fit/")[-1]
+    pts_tgt = np.load(os.path.join(D, tgt_rel))
+    assert pts_tgt.shape == (478, 2), (case_id, pts_tgt.shape)
+    if hashlib.sha256(open(os.path.join(D, tgt_rel), "rb").read()
+                      ).hexdigest() != case_rec["targetSha256"]:
+        raise SystemExit("face-fit refuse: target npy sha drift for %r" % case_id)
+    pts_3q = None
+    if case_rec.get("target3qNpy"):
+        q_rel = case_rec["target3qNpy"].split(
+            "tools/openclinxr/evidence/face-fit/")[-1]
+        pts_3q = np.load(os.path.join(D, q_rel))
+        assert pts_3q.shape == (478, 2)
+    print("FF2_DETECT ok case=%s base/goal/3q faces=1/1/%s npts=478" % (
+        case_id, "1" if pts_3q is not None else "0"))
 
     # --- barycentric embedding on neutral mesh (screen-space, front view)
     tri_xy = np.stack([px[faces].mean(1), py[faces].mean(1)], 1)
@@ -259,24 +286,35 @@ def main():
     res_pre = {}
     al3q = {}
     yaw_cands = {}
-    for deg in (0.0, 10.0, -10.0, 20.0, -20.0, 30.0, -30.0, 40.0, -40.0, 50.0, -50.0, 60.0, -60.0):
-        qx, qy, _ = yaw_project(sup3d, deg)
+    if pts_3q is not None:
+        for deg in (0.0, 10.0, -10.0, 20.0, -20.0, 30.0, -30.0, 40.0, -40.0, 50.0, -50.0, 60.0, -60.0):
+            qx, qy, _ = yaw_project(sup3d, deg)
+            pyaw = np.stack([qx, qy], 1)
+            yaw_cands[deg] = pyaw
+            sq, rq, tq = umeyama_similarity(np.array([pts_3q[i] for i in STABLE]),
+                                            np.array([pyaw[i] for i in sidx]))
+            a3 = sq * (pts_3q @ rq.T) + tq
+            al3q[deg] = (a3, (sq, rq, tq))
+            _pyt = np.array([pyaw[LANDMARKS.index(lm)] for lm in TRACK])
+            d = np.array([a3[lm] - _pyt[TRACK.index(lm)] for lm in TRACK])
+            res_pre[deg] = float(np.sqrt((d ** 2).mean()))
+    if res_pre:
+        order = sorted(res_pre, key=res_pre.get)
+        print("FF2_YAWSCAN " + json.dumps([[deg, round(res_pre[deg], 2)] for deg in order[:5]]))
+        yaw_deg = order[0]
+        use_3q = bool(res_pre[yaw_deg] <= 2.0 * front_pre)
+        print("FF2_YAW choose=%.0f pre=%.2f use3q=%s" % (yaw_deg, res_pre[yaw_deg], use_3q))
+        tgt3_al, _sim3 = al3q[yaw_deg]
+        pyaw = yaw_cands[yaw_deg]
+    else:
+        # No three-quarter view for this case (e.g. no reference-set
+        # goal_yaw): front-only with the same exclusion rule recorded.
+        yaw_deg = 0.0
+        use_3q = False
+        tgt3_al = None
+        qx, qy, _ = yaw_project(sup3d, yaw_deg)
         pyaw = np.stack([qx, qy], 1)
-        yaw_cands[deg] = pyaw
-        sq, rq, tq = umeyama_similarity(np.array([pts_3q[i] for i in STABLE]),
-                                        np.array([pyaw[i] for i in sidx]))
-        a3 = sq * (pts_3q @ rq.T) + tq
-        al3q[deg] = (a3, (sq, rq, tq))
-        _pyt = np.array([pyaw[LANDMARKS.index(lm)] for lm in TRACK])
-        d = np.array([a3[lm] - _pyt[TRACK.index(lm)] for lm in TRACK])
-        res_pre[deg] = float(np.sqrt((d ** 2).mean()))
-    order = sorted(res_pre, key=res_pre.get)
-    print("FF2_YAWSCAN " + json.dumps([[deg, round(res_pre[deg], 2)] for deg in order[:5]]))
-    yaw_deg = order[0]
-    use_3q = bool(res_pre[yaw_deg] <= 2.0 * front_pre)
-    print("FF2_YAW choose=%.0f pre=%.2f use3q=%s" % (yaw_deg, res_pre[yaw_deg], use_3q))
-    tgt3_al, _sim3 = al3q[yaw_deg]
-    pyaw = yaw_cands[yaw_deg]
+        print("FF2_YAW choose=0 pre=n/a use3q=False (no 3q view for case)")
 
     # --- variable scheme: 110 sweep vars + 62 asym + 6 macro
     var_names, var_offsets = build_var_scheme(cands)
@@ -323,10 +361,12 @@ def main():
         b_front[2 * r] = (tgt_al[lm, 0] - _pr[0]) * mmpp
         b_front[2 * r + 1] = (tgt_al[lm, 1] - _pr[1]) * mmpp
     b_yaw = np.zeros(2 * l)
-    for r, lm in enumerate(TRACK):
-        _py = pyaw[LANDMARKS.index(lm)]
-        b_yaw[2 * r] = (tgt3_al[lm, 0] - _py[0]) * mmpp
-        b_yaw[2 * r + 1] = (tgt3_al[lm, 1] - _py[1]) * mmpp
+    if use_3q:
+        assert tgt3_al is not None
+        for r, lm in enumerate(TRACK):
+            _py = pyaw[LANDMARKS.index(lm)]
+            b_yaw[2 * r] = (tgt3_al[lm, 0] - _py[0]) * mmpp
+            b_yaw[2 * r + 1] = (tgt3_al[lm, 1] - _py[1]) * mmpp
     if use_3q:
         a_joint = np.vstack([a_front, 0.5 * a_yaw])
         b_joint = np.concatenate([b_front, 0.5 * b_yaw])
@@ -423,71 +463,114 @@ def main():
     err_z = float(np.max(np.abs(rec[m0])))
     print("FF2_SYNTH errNz=%.3f errZero=%.3f" % (err_nz, err_z))
 
-    ref_sha = hashlib.sha256(open(asset("target-front.png"), "rb").read()).hexdigest()
-    q_sha = hashlib.sha256(open(asset("target-3q-left.png"), "rb").read()).hexdigest()
+    ref_sha = case_rec["sourceSha256"]
+    q_sha = case_rec.get("source3qSha256")
     base_hash = hashlib.sha256(base.tobytes()).hexdigest()
 
-    report = {
-        "card": "tsk_3cff39ffc572d85d",
-        "mpfb": {"targetData": "2.0.18",
-                 "targetManifest": meta["mpfb_target_manifest"],
-                 "runtimeAddon": meta["mpfb_runtime_version"],
-                 "blender": meta["blender"],
-                 "asymN": len(asym_names), "macroN": len(macro_names),
-                 "macroStems": macro_names,
-                 "basisMeta": "tools/openclinxr/evidence/face-fit/basis_meta.json"},
-        "detector": {"model": "MediaPipe Face Landmarker (Apache-2.0)",
-                     "taskFile": os.path.join(STORE, "face_landmarker.task"),
-                     "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
-                     "nPoints": 478,
-                     "goalFront": os.path.join(STORE, "target-front.png"),
-                     "goal3q": os.path.join(STORE, "target-3q-left.png"),
-                     "selfRender": os.path.join(STORE, "base-front.png")},
-        "embedding": {"n": len(embed), "trackN": len(TRACK),
-                      "contourExcluded": CONTOUR,
-                      "file": "tools/openclinxr/evidence/face-fit/embedding.json",
-                      "kind": "barycentric triples on neutral hm08 (CC0); objective+gate on 35 trackable",
-                      "fallbacks": fallbacks,
-                      "corrMeanPx": round(corr_mean, 2), "corrMaxPx": round(corr_max, 2),
-                      "mmPerPix": mmpp},
-        "camera": {"front": "ortho 0.55 res 1024 px=(0.5+(x-cx)/s)*R py=(0.5+(cz-z)/s)*R cx=0 cz=1.4994 (correspond.json; Blender Z vertical, Y depth)",
-                   "yawScan": {str(k): round(v, 2) for k, v in res_pre.items()},
+    case_entry = {
+        "rmsBeforeMm": round(rms_before, 3), "rmsAfterMm": round(rms_after, 3),
+        "onTrackMm": round(ours40, 3),
+        "beatsSweep": bool(ours40 < sweep40),
+        "featBefore": feat_before, "featAfter": feat_after,
+        "top": [[var_names[i], round(float(v), 4)] for i, v in top],
+        "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_%s.json" % case_id,
+        "targetNpy": case_rec["targetNpy"],
+        "targetSha256": case_rec["targetSha256"],
+        "sourceSha256": ref_sha,
+        "source3qSha256": q_sha,
+        "camera": {"yawScan": {str(k): round(v, 2) for k, v in res_pre.items()},
                    "yawDeg": yaw_deg, "use3q": bool(use_3q),
                    "frontPrePx": round(front_pre, 2),
-                   "yawWeight": 0.25 if use_3q else 0.0,
-                   "faceCentre": [round(float(x), 4) for x in c]},
+                   "yawWeight": 0.25 if use_3q else 0.0},
         "solve": {"nVars": nv, "nRows": int(a_joint.shape[0]),
-                  "lambda": lam_star, "knee": knee, "lcurve": curve,
-                  "expression": "neutral (no expression/ weights)"},
-        "selfCheck": {"detectorRmsMm": round(det_rms, 4),
-                      "detectorMeanPx": round(det_px, 2),
-                      "detectorMaxPx": round(det_max_px, 2),
-                      "fitDriftMm": round(self_drift, 4),
-                      "wMax": round(self_wmax, 4),
-                      "pass": bool(self_drift <= det_rms and self_wmax == 0.0),
-                      "gate": "fit-to-self drift <= detector error on unfitted render"},
-        "sweep": {"file": "tools/openclinxr/evidence/face-fit/silhouette-sweep-baseline.json",
-                  "rmsAfterMm70": sweep["rmsAfterMm"], "rmsBeforeMm70": sweep["rmsBeforeMm"],
-                  "onTrackMm": round(sweep40, 3)},
-        "aisha": {"rmsBeforeMm": round(rms_before, 3), "rmsAfterMm": round(rms_after, 3),
-                  "onTrackMm": round(ours40, 3),
-                  "beatsSweep": bool(ours40 < sweep40),
-                  "featBefore": feat_before, "featAfter": feat_after,
-                  "top": [[var_names[i], round(float(v), 4)] for i, v in top],
-                  "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights.json"},
-        "controls": {"synthErrNz": round(err_nz, 3), "synthErrZero": round(err_z, 3)},
-        "falsifier": {"tripped": False,
-                      "reason": "sweep has no measured render re-detect; analytic sweep "
-                                "1.102mm (70-set, goal fit) is not the card-1 render bound, "
-                                "so the bound cannot already be met; card GATE expects the "
-                                "new fit to beat the sweep"},
-        "inputs": {"refSha256": ref_sha, "qSha256": q_sha, "baseHash": base_hash},
-        "checkRender": None,
-        "notTested": "profile-only cases",
+                  "lambda": lam_star, "knee": knee},
     }
+
+    prev = None
+    prev_path = os.path.join(D, "fit-report.json")
+    if os.path.isfile(prev_path):
+        try:
+            prev = json.load(open(prev_path))
+        except Exception:
+            prev = None
+    if isinstance(prev, dict) and isinstance(prev.get("cases"), dict):
+        cases = dict(prev["cases"])
+        report = dict(prev)
+    else:
+        cases = {}
+        report = {
+            "card": "tsk_3cff39ffc572d85d+tsk_96256abb59a7b6c7",
+            "mpfb": {"targetData": "2.0.18",
+                     "targetManifest": meta["mpfb_target_manifest"],
+                     "runtimeAddon": meta["mpfb_runtime_version"],
+                     "blender": meta["blender"],
+                     "asymN": len(asym_names), "macroN": len(macro_names),
+                     "macroStems": macro_names,
+                     "basisMeta": "tools/openclinxr/evidence/face-fit/basis_meta.json"},
+            "detector": {"model": "MediaPipe Face Landmarker (Apache-2.0)",
+                         "taskFile": os.path.join(STORE, "face_landmarker.task"),
+                         "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
+                         "nPoints": 478,
+                         "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json (per-case, by --case id)",
+                         "selfRender": os.path.join(STORE, "base-front.png")},
+            "embedding": {"n": len(embed), "trackN": len(TRACK),
+                          "contourExcluded": CONTOUR,
+                          "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+                          "kind": "barycentric triples on neutral hm08 (CC0); objective+gate on 35 trackable",
+                          "fallbacks": fallbacks,
+                          "corrMeanPx": round(corr_mean, 2), "corrMaxPx": round(corr_max, 2),
+                          "mmPerPix": mmpp},
+            "camera": {"front": "ortho 0.55 res 1024 px=(0.5+(x-cx)/s)*R py=(0.5+(cz-z)/s)*R cx=0 cz=1.4994 (correspond.json; Blender Z vertical, Y depth)",
+                       "yawScan": {str(k): round(v, 2) for k, v in res_pre.items()},
+                       "yawDeg": yaw_deg, "use3q": bool(use_3q),
+                       "frontPrePx": round(front_pre, 2),
+                       "yawWeight": 0.25 if use_3q else 0.0,
+                       "faceCentre": [round(float(x), 4) for x in c]},
+            "solve": {"nVars": nv, "nRows": int(a_joint.shape[0]),
+                      "lambda": lam_star, "knee": knee, "lcurve": curve,
+                      "expression": "neutral (no expression/ weights)"},
+            "selfCheck": {"detectorRmsMm": round(det_rms, 4),
+                          "detectorMeanPx": round(det_px, 2),
+                          "detectorMaxPx": round(det_max_px, 2),
+                          "fitDriftMm": round(self_drift, 4),
+                          "wMax": round(self_wmax, 4),
+                          "pass": bool(self_drift <= det_rms and self_wmax == 0.0),
+                          "gate": "fit-to-self drift <= detector error on unfitted render"},
+            "sweep": {"file": "tools/openclinxr/evidence/face-fit/silhouette-sweep-baseline.json",
+                      "rmsAfterMm70": sweep["rmsAfterMm"], "rmsBeforeMm70": sweep["rmsBeforeMm"],
+                      "onTrackMm": round(sweep40, 3)},
+            "controls": {"synthErrNz": round(err_nz, 3), "synthErrZero": round(err_z, 3)},
+            "falsifier": {"tripped": False,
+                          "reason": "sweep has no measured render re-detect; analytic sweep "
+                                    "1.102mm (70-set, goal fit) is not the card-1 render bound, "
+                                    "so the bound cannot already be met; card GATE expects the "
+                                    "new fit to beat the sweep"},
+            "inputs": {"refSha256": ref_sha, "qSha256": q_sha, "baseHash": base_hash},
+            "checkRender": None,
+            "notTested": "profile-only cases",
+        }
+    cases[case_id] = case_entry
+    report["cases"] = cases
+    # First migration from the pre-case report shape: preserve the Blender
+    # re-render check and any legacy per-subject result dicts (migrated by
+    # shape -- dicts carrying rmsAfterMm -- never by subject name).
+    if not isinstance(prev, dict) or not isinstance(prev.get("cases"), dict):
+        if isinstance(prev, dict):
+            if prev.get("checkRender") is not None:
+                report["checkRender"] = prev["checkRender"]
+            for legacy_key, legacy_val in prev.items():
+                if (legacy_key not in report and legacy_key not in cases
+                        and isinstance(legacy_val, dict)
+                        and "rmsAfterMm" in legacy_val
+                        and "weightsFile" in legacy_val
+                        and legacy_key != case_id):
+                    cases[legacy_key] = legacy_val
+            report["cases"] = cases
+    # Legacy top-level gates stay untouched on later per-case runs (first
+    # run's values persist); per-case camera/solve live in cases[case_id].
     json.dump(report, open(os.path.join(D, "fit-report.json"), "w"), indent=1)
     json.dump({"varNames": var_names, "weights": [float(x) for x in w]},
-              open(os.path.join(D, "fit_weights.json"), "w"))
+              open(os.path.join(D, "fit_weights_%s.json" % case_id), "w"))
     # per-FILE weights for the Blender re-render check (decompose tied vars)
     file_w = {}
     for vn, val in zip(var_names, w):
@@ -502,8 +585,10 @@ def main():
     for stem in macro_names:
         sub_of[stem] = "macrodetails"
     json.dump({"fileWeights": file_w, "subOf": sub_of},
-              open(os.path.join(D, "fit_file_weights.json"), "w"))
-    print("FF2_REPORT done beatsSweep=%s selfPass=%s" % (ours40 < sweep40, self_drift <= det_rms))
+              open(os.path.join(D, "fit_file_weights_%s.json" % case_id), "w"))
+    print("FF2_REPORT case=%s done beatsSweep=%s selfPass=%s" % (
+        case_id, ours40 < sweep40, self_drift <= det_rms))
 
 
-main()
+if __name__ == "__main__":
+    main()
