@@ -855,6 +855,361 @@
     ],
     "gate_method": "targeted error-diffusion dither (K + outside-island untouched) + guarded micro-flips"
    }
+  },
+  {
+   "family": "old",
+   "status": "rewritten",
+   "source_id": "old_asian_female",
+   "source_path": "makehuman-system-skins/extracted/skins/old_asian_female/old_lightskinned_female_diffuse2.png",
+   "source_sha256": "e0c6317c2354ee54c16ad5f871293121e4eee697d16423536bb1db3641d56bc9",
+   "source_licence": "CC0-1.0 explicit per-file header (2020 Data Collection AB release) + pack page CC0",
+   "pick_note": "CC0, female, old, makeup=false (no makeup tags); scalp delta -20.51 nearest 0 (ghosts_old_eurasian -22.47, old_caucasian -24.28); same old_lightskinned_female_diffuse2 series as the middle pick, pairs young bobby_03 light female",
+   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/old/old-family.png",
+   "family_sha256": "3c7efd9a9371f8214cdbcf9e9a34726073093ee0f00efecba4348a9614d86c97",
+   "island_box_atlas": [
+    1228,
+    307,
+    2027,
+    1843
+   ],
+   "edit_prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Make the skin photorealistic: fine pores, natural subtle colour variation, no blush, no rosy cheeks, natural matte lips with fine vertical creases. Completely even, flat lighting. Skin tone: light old asian female skin, keep its own hue. Lips: natural muted pink. Older skin with soft, subtle fine lines and natural texture; lines are gentle shading, never dark cracks; no orange or brown tint in creases; even skin colour. Lighting must be perfectly flat and shadowless; no darkening near the nose, eye sockets or jaw; no highlight on forehead, nose or cheeks.",
+   "edit_refs": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfam-c/refs.json",
+   "crops": [
+    {
+     "name": "q-upper-left",
+     "role": "excluded (reframe -64y + p95 13.44>2; region keeps source detail)",
+     "box_upright_px": [
+      430,
+      330,
+      370,
+      240
+     ],
+     "edit_sha256": "3fd943220f80b531e9389a14b05a235ce5e44472c157ce68aeb8645e0b44ff09",
+     "lock": {
+      "transl_px": [
+       -0.35,
+       -0.71
+      ],
+      "ecc_cc": 0.413,
+      "disp_med_px": 0.69,
+      "disp_p95_px": 13.44,
+      "skin_corr_masked": 0.1662,
+      "ghost_masked": 0.9042,
+      "eye_rim": 0.0379,
+      "reframe_dy": -64,
+      "passed": false,
+      "reasons": [
+       "reframe: edit matches island -64y (score 0.611) not its box (0.434); excluded",
+       "disp_p95 13.44>2.0"
+      ]
+     }
+    },
+    {
+     "name": "q-upper-right",
+     "role": "detail-mosaic (sigma-4 highband, agreement-gated)",
+     "box_upright_px": [
+      770,
+      330,
+      370,
+      240
+     ],
+     "edit_sha256": "7b2ef484f69e7c9f99e2a0b7b53cffbb4e7d9cc2152ca14dff7ac0bb39b5d409",
+     "lock": {
+      "transl_px": [
+       -0.34,
+       -0.49
+      ],
+      "ecc_cc": 0.9508,
+      "disp_med_px": 0.39,
+      "disp_p95_px": 0.99,
+      "skin_corr_masked": 0.9829,
+      "ghost_masked": 0.9823,
+      "eye_rim": 0.8427,
+      "reframe_dy": 0,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "q-lower-left",
+     "role": "detail-mosaic (sigma-8 highband, agreement-gated)",
+     "box_upright_px": [
+      430,
+      500,
+      370,
+      260
+     ],
+     "edit_sha256": "2e9c23205c6107d84071427afebc3be86d4af55629eafe23e4fbaafae0865f72",
+     "lock": {
+      "transl_px": [
+       -0.36,
+       -0.48
+      ],
+      "ecc_cc": 0.9069,
+      "disp_med_px": 0.26,
+      "disp_p95_px": 0.55,
+      "skin_corr_masked": 0.9862,
+      "ghost_masked": 0.9528,
+      "eye_rim": 0.9578,
+      "reframe_dy": 0,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "q-lower-right",
+     "role": "detail-mosaic (sigma-8 highband, agreement-gated)",
+     "box_upright_px": [
+      770,
+      500,
+      370,
+      260
+     ],
+     "edit_sha256": "fab37be01eee110488f74f8775d406569e24dde6125a8b466d64656eed75d1b6",
+     "lock": {
+      "transl_px": [
+       -0.27,
+       -0.64
+      ],
+      "ecc_cc": 0.942,
+      "disp_med_px": 0.29,
+      "disp_p95_px": 0.77,
+      "skin_corr_masked": 0.9909,
+      "ghost_masked": 0.9985,
+      "eye_rim": 0.934,
+      "reframe_dy": 0,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "strip-upper",
+     "role": "excluded (p95 10.62>2; region covered by quadrants)",
+     "box_upright_px": [
+      520,
+      340,
+      530,
+      260
+     ],
+     "edit_sha256": "b937cf1592b9dd062041f25500ceb1b28965e6c1292955d3696bd301b24fddf1",
+     "lock": {
+      "transl_px": [
+       -0.25,
+       -1.5
+      ],
+      "ecc_cc": 0.5412,
+      "disp_med_px": 1.44,
+      "disp_p95_px": 10.62,
+      "skin_corr_masked": 0.3496,
+      "ghost_masked": 0.8967,
+      "eye_rim": -0.2619,
+      "reframe_dy": 0,
+      "passed": false,
+      "reasons": [
+       "disp_p95 10.62>2.0"
+      ]
+     }
+    },
+    {
+     "name": "strip-lower",
+     "role": "high-band only (sigma-4, NCC-agreement gated)",
+     "box_upright_px": [
+      560,
+      500,
+      450,
+      260
+     ],
+     "edit_sha256": "34086ebec1f2e1c3762fb8a517c8a804f03d6ab51b8a6cc34b1a8efcea8142e7",
+     "lock": {
+      "transl_px": [
+       0.27,
+       -1.59
+      ],
+      "ecc_cc": 0.7993,
+      "disp_med_px": 0.74,
+      "disp_p95_px": 1.71,
+      "skin_corr_masked": 0.7483,
+      "ghost_masked": 0.7469,
+      "eye_rim": 0.6541,
+      "reframe_dy": 0,
+      "passed": true,
+      "reasons": []
+     }
+    }
+   ],
+   "composite": {
+    "method": "included crops highband-only agreement-gated (qLL/qLR sigma8, qUR/strip-lower sigma4); source owns all tone, Imagine owns sub-8px pore/crease detail, full detail no amplitude cap; q-upper-left (reframe+p95) and strip-upper (p95) excluded per p95>2 gate. Source Lab lowband restored (float space, 12-pass), then error-diffusion dither (K + outside-island untouched) to the gate's lowband.",
+    "mean_field_shifts_Lab_removed_not_applied": {
+     "q-lower-left": [
+      -12.782,
+      -3.878,
+      -4.354
+     ],
+     "q-lower-right": [
+      -18.94,
+      -2.76,
+      -4.687
+     ],
+     "q-upper-right": [
+      -18.546,
+      -1.855,
+      -3.239
+     ],
+     "strip-lower": [
+      -13.008,
+      -7.034,
+      -8.084
+     ]
+    },
+    "highband_mean_gate_weights": {
+     "q-lower-left": 0.359,
+     "q-lower-right": 0.306,
+     "q-upper-right": 0.174,
+     "strip-lower": 0.1714
+    },
+    "keep_source_mask_px": {
+     "eyes_d_px": 4117,
+     "lips_d_px": 6348,
+     "mouth_px": 2417,
+     "K_px": 10465,
+     "eyeball_diff_inside_K": 77,
+     "mouth_diff_inside_K": 105,
+     "inside_keepmask_bit_exact_vs_source": true,
+     "changed_outside_island_px": 0
+    }
+   },
+   "redness": {
+    "cheek_box_upright": [
+     880,
+     520,
+     1010,
+     640
+    ],
+    "family_mean_a": 17.207,
+    "source_mean_a": 17.555
+   },
+   "leak": {
+    "label": "v1",
+    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/old/old-family.png",
+    "atlas_sha256": "3c7efd9a9371f8214cdbcf9e9a34726073093ee0f00efecba4348a9614d86c97",
+    "atlas_resized_to_2048": false,
+    "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "derive_dir": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfamilies/a1/derive",
+    "s_cache": "/Volumes/files/openclinxr-assets/store/skin-families/s-aisha-ref3-finalb.png",
+    "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
+    "rig": {
+     "keyAzimuthDeg": 15,
+     "keyElevationDeg": 20,
+     "keyIntensity": 2.7,
+     "fillIntensity": 1.3,
+     "hemisphereIntensity": 0.3,
+     "rimIntensity": 0.5,
+     "exposure": 0.3762,
+     "environmentIntensity": 0.9,
+     "keyColor": "#fff1e0",
+     "fillColor": "#dfe8ff",
+     "hemiSky": "#ffffff",
+     "hemiGround": "#8a8a8a",
+     "rimColor": "#ffffff",
+     "provenance": "structure: packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts applyRigOverride studio branch; numbers: realism-spike/sym/final-b.variant.json rigOverride.studio (the rig grading sym/out-albedo.png)"
+    },
+    "world_strength": 0.639,
+    "bake": "Cycles CPU 128 samples seed 0, DIFFUSE direct+indirect no-colour margin 8, white-roughness-1 override, AO off (no AO node present)",
+    "lowband": "Lab L (cv2 RGB2LAB) downsampled to 64x64 (INTER_AREA) then upsampled (INTER_LINEAR)",
+    "normal_y": "analytic world-space vertex normals splatted to UV + gaussian sigma 8 (no Blender bake: exact, same-texel)",
+    "mirror": "fix_sym.py construction: reflect x about mesh centre-x, cKDTree nearest vertex; vertex-weighted by core*(1-feat)",
+    "skin_set": "facecore>0.5 minus lips/eyes/brows>0.5 (eyes proxy caruncle) inside occupancy>0.5",
+    "n_skin_texels": 114052,
+    "n_mirror_pairs": 8235,
+    "r_S": -0.0151,
+    "r_normal_y": 0.0223,
+    "mirror_signed_L": 0.0112,
+    "mirror_abs_L": 1.8604,
+    "wall_s": 0.5
+   },
+   "g2": {
+    "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "rig": "final-b studio; key30 variant keyAzimuthDeg 45",
+    "render_size": 1024,
+    "portrait": true,
+    "renders": [
+     {
+      "file": "old-source-front.png",
+      "sha256": "99ddaad349c1bd697a430509be6026c44c3aa450f7ee9d1c5d3b275876c9da5b"
+     },
+     {
+      "file": "old-source-yaw40.png",
+      "sha256": "909b99d825a38eb97d0bce17614d0b9d95ab9eec5952731aa532926ce40b90c8"
+     },
+     {
+      "file": "old-family-front.png",
+      "sha256": "b1fef0693657feb0793ce2cfc162bf74a672933171b5d6119ed1c82f3f4cf2c5"
+     },
+     {
+      "file": "old-family-yaw40.png",
+      "sha256": "2ec1527f4d367eabdb8c3f05958f757665f3dbe99f47d635f0b2e575f922bfe6"
+     },
+     {
+      "file": "old-family-key30-front.png",
+      "sha256": "5f25e3719e318ac7edf8b1901520b830fd1cc4c6d9b485532e0c8e09c9855507"
+     },
+     {
+      "file": "old-family-key30-yaw40.png",
+      "sha256": "6afaa616e7aeb529d3f51fad39671a7c398a63245e71837e1e612f4923f3a7af"
+     }
+    ],
+    "sheet": "/Volumes/files/openclinxr-assets/store/skin-families/old/old-g2-sheet.png",
+    "sheet_sha256": "33a7eb84dd530c12994c550da4944ad1434ac8c0b3e7b921344a82ed7166a9fb",
+    "face_crop": "old-face-crop.png (2048x1024 native, source|family front) sha 9a42ebc47e57ff0042c8806d33f05d8c39a6c7fd5bbac29cfa01b8efa644c60c",
+    "lip_crop": "old-lip-crop.png (430x160 native lower-lip, source|family) sha 7411a5696fffdb2eae3a344b746fc19601510929625ca6eeac9740356aee33d9"
+   },
+   "lips_fix": {
+    "why": "old lips get their own Imagine crop + tight mask (young A3c lesson); shape redraw contained, philtrum feathered, lowband matched",
+    "crop": {
+     "box_full_px": [
+      1791,
+      946,
+      1929,
+      1173
+     ],
+     "mask_px": 6348,
+     "crop_png": "skinfam-c/lip-crop.png",
+     "mask_png": "skinfam-c/lip-mouth-mask-full.png"
+    },
+    "edit_prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Repaint only the lips: natural closed, relaxed old lips with fine vertical creases and a soft muted dusty-pink colour, matte, no gloss, no teeth, no gums, no red patches. Keep the exact lip outline and position. Flat, shadowless lighting.",
+    "edit_refs": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfam-c/lip-refs.json",
+    "edit_sha256": "29ac721bbfdf77a41ac3a791316e7b228d4a01c25bb2b7e7a0f7d3cd752e9e75",
+    "edit_size_px": [
+     864,
+     1200
+    ],
+    "aspect_mismatch": 0.006153846153846243,
+    "lock": {
+     "trans_px": [
+      7.88,
+      -1.92
+     ],
+     "flow_med_px": 3.48,
+     "flow_p95_px": 7.77,
+     "skin_lowfreq_ncc": 0.86,
+     "tight_mask_px": 7142,
+     "note": "edit redraws lip shape (trans 7.9px, flow p95 7.8); contained by tight lip-colour mask + philtrum feather; lowband L matched + dithered",
+     "passed": true,
+     "reasons": [
+      "lip-shape redraw contained by tight lip-colour mask; lowband L matched to base + dithered"
+     ]
+    },
+    "composite": {
+     "method": "crease detail + chroma mottle crush (a*/b* std ->1.2) inside lip-colour intersect mask (7142px), inward-only 8px feather, philtrum ab feather to skin lowband, outer rim ab to skin lowband, L block-mean + dither",
+     "outside_hardmask_changed_px": 0
+    },
+    "render_lip_specks_over_mean_plus_3sd": {
+     "source": 0,
+     "family": 0
+    }
+   }
   }
  ]
 }
