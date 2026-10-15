@@ -1,0 +1,14 @@
+{
+  "m3-shipped-blink-baseline-full.png": {
+    "left": 2558,
+    "right": 2024,
+    "total": 4582,
+    "skinMedian": 128.7
+  },
+  "m3-shipped-blink-recomputed-normals-full.png": {
+    "left": 842,
+    "right": 117,
+    "total": 959,
+    "skinMedian": 129.7
+  }
+}

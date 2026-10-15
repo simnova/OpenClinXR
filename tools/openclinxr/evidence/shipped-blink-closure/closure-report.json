@@ -1,1 +1,115 @@
-{"brief":"tsk_fad7908c3fc42ef3: why the shipped cast does not fully close its eyes on blink. Shipped GLB read-only; no driver rebuild; no shipped-GLB writes.","cause":"unknown","darkDef":"luminance < 0.35 * skinMedian(same frame band) AND local5x5std < 6.0 (solid unlit cavity counts; high-frequency lash stripes excluded)","driver":{"file":"packages/openclinxr/xr-dialogue/src/blink-runtime-wire.ts","finding":"no clamp below 1.0: clamped = identity on [0,1] (line 46), written verbatim to closure influences (lines 61,66); slit path takes max(existing, clamped) (packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:305); KG test blink-drives-slit.test.ts:83-85 asserts closure and slit both exceed 0.9 at full blink","movesGap":false,"writtenAt1":1.0},"falsifier":{"note":"Capture drive equals the runtime drive: eye-sheet-capture.ts blink take writes eye-*-closure 1.0 + eye-*-slit 1.0 (lines 222-227), the public-loop pair from blink-drives-slit that applyHumanoidFaceRigControls calls every frame (face-rig.ts:477-478). No separate runtime pixel capture in this slice (NOT TESTED).","triggered":false},"fix":{"exactFile":"tools/openclinxr/evidence/realism-head/eyes/eye-sheet-capture.ts","nextSlice":"add a globe-hidden blink take (closure 1.0 + slit 1.0, eye meshes toggled off) beside the existing blink take; if the cavity persists the occluder is lid skin (morph-extent family), if it vanishes the occluder is the globe. No shipped-GLB write; candidate assets only.","why":"all three listed candidates measured non-causal, so the honest fix is the discriminating render, not a blind morph or driver edit"},"gapPx":{"realism":{"left":0,"right":9,"total":9},"shipped":{"left":2558,"right":2024,"total":4582}},"globePosition":{"finding":"both globes sit just in front of the closed lid plane, but the realism globe protrudes MORE (+1.98mm) than shipped (+0.57mm) and still seals in pixels; protrusion does not move the gap","movesGap":false,"realismProtrusionMm":1.979,"shippedProtrusionMm":0.568},"lashCorrelate":{"note":"structural difference in bytes, not a listed candidate: shipped lash mesh carries 0 morph targets so lashes park at the open position (visible in shipped-left-eye-native.png); realism lash carries all 6 lid morphs (A3 follow). Lashes alone cannot explain a 4582px cavity; recorded, not named as cause.","realismLashTargets":6,"shippedLashTargets":0},"lidRegionDef":"geometric halves of the vertex-spanning eye band x.30-.70 y.47-.60 of the 1280 frame (tools/openclinxr/evidence/realism-head/eyes/eye-sheet-capture.ts:249); lid-margin vertices (morph moving pool) define the band height via the morph-extent measurement, not colour","morphExtent":{"finding":"shipped upper-lid travel 10.20mm spans its 9.83mm moving-pool aperture (ratio 1.04, 17 verts, upper-only); realism travel 9.54mm is SMALLER than its 12.97mm pool (ratio 0.74, 534 verts) yet seals in pixels. Extent does not move the gap.","movesGap":false,"realismApertureMm":12.975,"realismTravelMm":9.543,"shippedApertureMm":9.83,"shippedTravelMm":10.2},"renders":{"controlBlink":"assets:eyes-control-blink-full.png (1280x1280, compateyes/sheet/)","eyeBand":"x .30-.70 y .47-.60 (eye-sheet-capture.ts:249-250)","realismBlink":"assets:eyes-realism-blink-full.png (1280x1280, compateyes/sheet/)"},"sheet":["/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-left-eye-native.png","/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-right-eye-native.png","/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-left-eye-native.png","/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-right-eye-native.png","/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-eyeband-native.png","/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-eyeband-native.png"],"sources":{"controlSha256":"88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091","controlSheet":"/Volumes/files/openclinxr-assets/store/compat-eyes/gaze-blink-sheet.png","driverTest":"packages/openclinxr/xr-humanoid-animation/src/blink-drives-slit.test.ts","measureScript":"tools/openclinxr/evidence/shipped-blink-closure/scratch/measure.py","realismGlb":"/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb","realismSha256":"9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975","shippedGlb":"apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb (READ ONLY)"}}
+{
+ "brief": "tsk_fad7908c3fc42ef3 h1: test the 17-vertex stretched-lid lead (M1 globe-hidden, M2 per-face, M3 recomputed normals). Shipped GLB read-only; no driver rebuild.",
+ "cause": "stale-morphed-normals-on-17-vertex-lid-pool",
+ "darkDef": "luminance < 0.35 * skinMedian(same frame band) AND local5x5std < 6.0 (solid unlit cavity counts; high-frequency lash stripes excluded)",
+ "driver": {
+  "file": "packages/openclinxr/xr-dialogue/src/blink-runtime-wire.ts",
+  "finding": "no clamp below 1.0: clamped = identity on [0,1] (line 46), written verbatim to closure influences (lines 61,66); slit path takes max(existing, clamped) (packages/openclinxr/xr-humanoid-animation/src/face-rig.ts:305); KG test blink-drives-slit.test.ts:83-85 asserts closure and slit both exceed 0.9 at full blink",
+  "movesGap": false,
+  "writtenAt1": 1.0
+ },
+ "falsifier": {
+  "note": "Capture drive equals the runtime drive: eye-sheet-capture.ts blink take writes eye-*-closure 1.0 + eye-*-slit 1.0 (lines 222-227), the public-loop pair from blink-drives-slit that applyHumanoidFaceRigControls calls every frame (face-rig.ts:477-478). No separate runtime pixel capture in this slice (NOT TESTED).",
+  "triggered": false
+ },
+ "fix": {
+  "exactFile": "packages/openclinxr/factory-stations/src/body_param/mpfb_body.py",
+  "function": "load_mpfb_face_shape_keys (line 66): loads native MPFB lid targets (positions + authored NORMAL deltas) into the body; the materialize export carries them into the GLB. DO NOT EDIT in this slice.",
+  "nextSlice": "in mpfb_body.load_mpfb_face_shape_keys (or the materialize export it feeds): recompute or drop the authored NORMAL deltas for the six lid keys so descended lid skin lights from morphed geometry; re-bake a CANDIDATE beside the shipped GLB, never overwrite it.",
+  "why": "M3 moved the gap 4582 -> 959 px (79%, > half) by replacing morphed normals with geometry normals; geometry already closes (h0 travel spans aperture, M1 globe contributes 0 px)."
+ },
+ "gapPx": {
+  "realism": {
+   "left": 0,
+   "right": 9,
+   "total": 9
+  },
+  "shipped": {
+   "left": 2558,
+   "right": 2024,
+   "total": 4582
+  }
+ },
+ "globePosition": {
+  "finding": "both globes sit just in front of the closed lid plane, but the realism globe protrudes MORE (+1.98mm) than shipped (+0.57mm) and still seals in pixels; protrusion does not move the gap",
+  "movesGap": false,
+  "realismProtrusionMm": 1.979,
+  "shippedProtrusionMm": 0.568
+ },
+ "lashCorrelate": {
+  "note": "structural difference in bytes, not a listed candidate: shipped lash mesh carries 0 morph targets so lashes park at the open position (visible in shipped-left-eye-native.png); realism lash carries all 6 lid morphs (A3 follow). Lashes alone cannot explain a 4582px cavity; recorded, not named as cause.",
+  "realismLashTargets": 6,
+  "shippedLashTargets": 0
+ },
+ "lidRegionDef": "geometric halves of the vertex-spanning eye band x.30-.70 y.47-.60 of the 1280 frame (tools/openclinxr/evidence/realism-head/eyes/eye-sheet-capture.ts:249); lid-margin vertices (morph moving pool) define the band height via the morph-extent measurement, not colour",
+ "morphExtent": {
+  "finding": "shipped upper-lid travel 10.20mm spans its 9.83mm moving-pool aperture (ratio 1.04, 17 verts, upper-only); realism travel 9.54mm is SMALLER than its 12.97mm pool (ratio 0.74, 534 verts) yet seals in pixels. Extent does not move the gap.",
+  "movesGap": false,
+  "realismApertureMm": 12.975,
+  "realismTravelMm": 9.543,
+  "shippedApertureMm": 9.83,
+  "shippedTravelMm": 10.2
+ },
+ "renders": {
+  "controlBlink": "assets:eyes-control-blink-full.png (1280x1280, compateyes/sheet/)",
+  "eyeBand": "x .30-.70 y .47-.60 (eye-sheet-capture.ts:249-250)",
+  "realismBlink": "assets:eyes-realism-blink-full.png (1280x1280, compateyes/sheet/)"
+ },
+ "sheet": [
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-left-eye-native.png",
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-right-eye-native.png",
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-left-eye-native.png",
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-right-eye-native.png",
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/shipped-eyeband-native.png",
+  "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/realism-eyeband-native.png"
+ ],
+ "sources": {
+  "controlSha256": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+  "controlSheet": "/Volumes/files/openclinxr-assets/store/compat-eyes/gaze-blink-sheet.png",
+  "driverTest": "packages/openclinxr/xr-humanoid-animation/src/blink-drives-slit.test.ts",
+  "measureScript": "tools/openclinxr/evidence/shipped-blink-closure/scratch/measure.py",
+  "realismGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb",
+  "realismSha256": "9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975",
+  "shippedGlb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb (READ ONLY)"
+ },
+ "h1": {
+  "m1": {
+   "shippedShown": 4582,
+   "shippedHidden": 4582,
+   "realismShown": 9,
+   "realismHidden": 9,
+   "finding": "gap persists with globe hidden; hidden-vs-shown frames pixel-identical, so the globe contributes 0 px to the closed-eye view. Occluder is lid skin.",
+   "takes": "closure 1.0 + slit 1.0, globe meshes off (shipped meshlow-poly, realism meshhigh-poly); realism cornea nodes 148/149 are scene orphans, never rendered.",
+   "script": "tools/openclinxr/evidence/shipped-blink-closure/scratch/m1-globe-hidden-capture.ts"
+  },
+  "m2": {
+   "realismMaxStretchThr": 9.969,
+   "shippedMaxStretch": 10.12,
+   "shippedBandFaces": 98,
+   "shippedFlagged": 37,
+   "darkOnFlagged": 0,
+   "darkOnUnflaggedBand": 4474,
+   "flaggedScreenPx": 93,
+   "shadingNormalsAway": {
+    "shipped": "9/30 band verts",
+    "realism": "324/1068 band verts"
+   },
+   "finding": "stretch distributions match (p99 7.2 vs 7.5); 0/4582 dark px fall on flagged faces. Geometric stretch/backfacing does not discriminate; dark sits on front-facing lid skin, which under shadowless N.L implicates the normal channel (.Margin projection overlay validates the camera).",
+   "scripts": [
+    "tools/openclinxr/evidence/shipped-blink-closure/scratch/m2-faces.py",
+    "tools/openclinxr/evidence/shipped-blink-closure/scratch/m2-raster.py",
+    "tools/openclinxr/evidence/shipped-blink-closure/scratch/m2-normals.py"
+   ]
+  },
+  "m3": {
+   "baseline": 4582,
+   "recomputed": 959,
+   "reductionFrac": 0.791,
+   "residualLeft": 842,
+   "residualRight": 117,
+   "finding": "CPU-baked closure+slit positions + computeVertexNormals (8 body meshes, evidence-only, no GLB write) renders skin-colored closed lids; gap drops 79%. Residual left-eye 842 px NOT TESTED further.",
+   "script": "tools/openclinxr/evidence/shipped-blink-closure/scratch/m3-recomputed-normals-capture.ts"
+  }
+ },
+ "sheetH1": "/Volumes/files/openclinxr-assets/store/shipped-blink-closure/h1/ (m1 shown/hidden L/R natives shipped+realism, m3 baseline/recomputed L/R natives, m2 margin-projection overlay)"
+}

@@ -1,0 +1,30 @@
+{
+  "m1-shipped-blink-globe-shown-full.png": {
+    "left": 2558,
+    "right": 2024,
+    "total": 4582,
+    "skinMedian": 128.7,
+    "darkThr": 45.0
+  },
+  "m1-shipped-blink-globe-hidden-full.png": {
+    "left": 2558,
+    "right": 2024,
+    "total": 4582,
+    "skinMedian": 128.7,
+    "darkThr": 45.0
+  },
+  "m1-realism-blink-globe-shown-full.png": {
+    "left": 0,
+    "right": 9,
+    "total": 9,
+    "skinMedian": 137.3,
+    "darkThr": 48.1
+  },
+  "m1-realism-blink-globe-hidden-full.png": {
+    "left": 0,
+    "right": 9,
+    "total": 9,
+    "skinMedian": 137.3,
+    "darkThr": 48.1
+  }
+}

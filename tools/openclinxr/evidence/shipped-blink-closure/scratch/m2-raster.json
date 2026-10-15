@@ -1,0 +1,9 @@
+{
+  "thrRealismMaxStretch": 9.969,
+  "nband": 98,
+  "nflagged": 37,
+  "darkTotal": 4582,
+  "darkOnFlagged": 0,
+  "darkOnUnflaggedBand": 4474,
+  "flaggedScreenPx": 93
+}

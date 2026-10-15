@@ -8,8 +8,9 @@
  * morph-target extent (GLB bytes), eye-mesh position (bind-local Z, both
  * meshes skinned to the same skeleton under identity nodes), and the runtime
  * weight clamp (executed here through the real applier, not read off the
- * source). All three measure non-causal, so the report names unknown with
- * the per-cause records — unknown is the allowed answer on this card.
+ * source). h0 left cause=unknown; h1 follows the 17-vertex lead: M1
+ * globe-hidden (occluder is lid skin), M2 per-face stretch/normals, M3
+ * recomputed normals, which moves the gap 79% and names the cause.
  *
  * claimScope: gap pixel counts + per-candidate GLB/driver measurements on
  * these two bytes. notEvidenceFor: which occluder (lid skin vs globe) owns
@@ -29,6 +30,12 @@ const REPORT = JSON.parse(readFileSync(join(HERE, "closure-report.json"), "utf8"
   driver: { writtenAt1: number };
   lashCorrelate: { shippedLashTargets: number; realismLashTargets: number };
   cause: string;
+  h1: {
+    m1: { shippedShown: number; shippedHidden: number; realismShown: number; realismHidden: number };
+    m2: { realismMaxStretchThr: number; shippedMaxStretch: number; darkOnFlagged: number; darkOnUnflaggedBand: number };
+    m3: { baseline: number; recomputed: number; reductionFrac: number };
+  };
+  fix: { exactFile: string };
 };
 
 /** Duck-typed MorphRootLike carrying the shipped dictionary shape. */
@@ -82,8 +89,30 @@ describe("the shipped blink gap has a measured cause", () => {
   });
 
   it("cause is unknown with every candidate recorded, lash difference noted", () => {
-    expect(REPORT.cause).toBe("unknown");
+    expect(["unknown", "stale-morphed-normals-on-17-vertex-lid-pool"]).toContain(REPORT.cause);
     expect(REPORT.lashCorrelate.shippedLashTargets).toBe(0);
     expect(REPORT.lashCorrelate.realismLashTargets).toBe(6);
+  });
+
+  it("h1/M1: gap persists with the globe hidden (occluder is lid skin)", () => {
+    expect(REPORT.h1.m1.shippedHidden).toBe(REPORT.h1.m1.shippedShown);
+    expect(REPORT.h1.m1.shippedHidden).toBeGreaterThan(1000);
+    expect(REPORT.h1.m1.realismHidden).toBeLessThanOrEqual(100);
+  });
+
+  it("h1/M2: no dark pixel falls on a flagged lid-band face", () => {
+    expect(REPORT.h1.m2.shippedMaxStretch).toBeGreaterThanOrEqual(REPORT.h1.m2.realismMaxStretchThr - 0.5);
+    expect(REPORT.h1.m2.darkOnFlagged).toBe(0);
+    expect(REPORT.h1.m2.darkOnUnflaggedBand).toBeGreaterThan(1000);
+  });
+
+  it("h1/M3: recomputed normals move the gap by more than half, fix file named", () => {
+    expect(REPORT.h1.m3.baseline).toBeGreaterThan(1000);
+    const reduction = 1 - REPORT.h1.m3.recomputed / REPORT.h1.m3.baseline;
+    expect(reduction).toBeGreaterThan(0.5);
+    expect(REPORT.h1.m3.reductionFrac).toBeGreaterThan(0.5);
+    expect(REPORT.fix.exactFile).toBe(
+      "packages/openclinxr/factory-stations/src/body_param/mpfb_body.py",
+    );
   });
 });

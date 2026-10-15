@@ -1,0 +1,16 @@
+{
+  "shipped": {
+    "nband": 30,
+    "bandCamAway": 9,
+    "bandKeyDotMean": -0.032,
+    "bandKeyDotNeg": 13,
+    "allCamAwayFrac": 0.4422
+  },
+  "realism": {
+    "nband": 1068,
+    "bandCamAway": 324,
+    "bandKeyDotMean": -0.013,
+    "bandKeyDotNeg": 489,
+    "allCamAwayFrac": 0.3924
+  }
+}

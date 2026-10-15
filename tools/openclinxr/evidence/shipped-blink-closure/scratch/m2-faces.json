@@ -1,0 +1,13 @@
+{
+  "thrRealismMaxStretch": 9.968535301254574,
+  "shipped": {
+    "nband": 98,
+    "maxStretch": 10.120487192899851,
+    "nBack": 36
+  },
+  "realism": {
+    "nband": 2288,
+    "maxStretch": 9.968535301254574,
+    "nBack": 688
+  }
+}
