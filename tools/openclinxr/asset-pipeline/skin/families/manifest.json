@@ -2,20 +2,243 @@
  "families": [
   {
    "family": "young",
-   "status": "picked",
+   "status": "rewritten",
    "source_id": "bobby_03_young_female_hairless",
    "source_path": "makehuman-skins01/extracted/skins/bobby_03_young_female_hairless/Young_Female_Hairless.png",
    "source_sha256": "9e2fa4ab993dd938ba896bb98848bd65346500c4c0a07d8789d2f1e14bb3dd7f",
-   "reason": "YOUNG pick from skins/catalogue.json: age_band young + female; makeup=false (lip_chroma_excess 1.53<=10); scalp_L_minus_forehead_L -3.2, nearest 0 of all young candidates (next -22.91); CC0 via MORE-PERMISSIVE ruling. Coincides with baseline row-a atlas. No rewrite yet.",
+   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family.png",
+   "family_sha256": "5232964b22c93e6e9fb146568797e055ffdafafe7a7e557132ab83671ddd8292",
+   "island_box_atlas": [
+    1228,
+    307,
+    2027,
+    1843
+   ],
+   "edit_prompt": "This image is a flattened texture map for a 3D head (an unwrapped face texture), not a photograph of a person. Keep the exact same layout: every feature stays at exactly the same position, size and shape, pixel for pixel. Do not turn it into a normal portrait. Do not add shadows, highlights, perspective, hair, eyelashes, background or any new feature. Make the skin photorealistic: fine pores, natural subtle colour variation, slightly rosier cheeks and nose, natural matte lips with fine vertical creases. Completely even, flat lighting. Skin tone: light young female skin, keep its own hue. Lips: natural muted pink. Lighting must be perfectly flat and shadowless; no darkening near the nose, eye sockets or jaw; no highlight on forehead, nose or cheeks.",
+   "edit_refs": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfam-a3a/refs.json",
+   "crops": [
+    {
+     "name": "q-upper-left",
+     "role": "mosaic",
+     "box_upright_px": [
+      430,
+      330,
+      370,
+      240
+     ],
+     "edit_sha256": "408fb2a4aa0659712fb4cdbd8c4567e1f715aaf6ac6b0f43667c6cde8cb7a71e",
+     "lock": {
+      "disp_med_px": 0.41,
+      "disp_p95_px": 0.83,
+      "skin_corr_masked": 0.9923,
+      "ghost_masked": 0.1997,
+      "eye_rim": 0.987012987012987,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "q-upper-right",
+     "role": "mosaic",
+     "box_upright_px": [
+      770,
+      330,
+      370,
+      240
+     ],
+     "edit_sha256": "6f1393b124e75c72e48a346d3af963b0d8d464641ddd14dd54e6a573d9e1cbd0",
+     "lock": {
+      "disp_med_px": 0.66,
+      "disp_p95_px": 1.52,
+      "skin_corr_masked": 0.9153,
+      "ghost_masked": 0.1967,
+      "eye_rim": 0.8409090909090909,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "q-lower-left",
+     "role": "mosaic",
+     "box_upright_px": [
+      430,
+      500,
+      370,
+      260
+     ],
+     "edit_sha256": "de4be6982ad089fa53bd33ee1bc4efb7e0e01a2f4b4c43485445b6a344e532ba",
+     "lock": {
+      "disp_med_px": 0.75,
+      "disp_p95_px": 1.56,
+      "skin_corr_masked": 0.9347,
+      "ghost_masked": 0.2863,
+      "eye_rim": null,
+      "passed": true,
+      "reasons": []
+     }
+    },
+    {
+     "name": "q-lower-right",
+     "role": "mosaic",
+     "box_upright_px": [
+      770,
+      500,
+      370,
+      260
+     ],
+     "edit_sha256": "13afda3b3b74150e79452aef2f3b4f3661bced19be355c1aac73a8cd9cc27154",
+     "lock": {
+      "disp_med_px": 0.62,
+      "disp_p95_px": 1.17,
+      "skin_corr_masked": 0.7014,
+      "ghost_masked": 0.1283,
+      "eye_rim": null,
+      "passed": false,
+      "reasons": [
+       "skin_corr 0.701<0.80"
+      ]
+     }
+    },
+    {
+     "name": "strip-upper",
+     "role": "excluded (reframe +64y, quadrants cover its region)",
+     "box_upright_px": null,
+     "edit_sha256": "41682bc51e001114fd78bb4f33d6c689104fa6bd3a0aee4d7849049a935d811a",
+     "lock": {
+      "disp_med_px": 0.0,
+      "disp_p95_px": 0.0,
+      "skin_corr_masked": null,
+      "ghost_masked": null,
+      "eye_rim": null,
+      "passed": false,
+      "reasons": [
+       "reframe: edit matches island +64y (score 0.916) not its box (0.09); excluded, quadrants cover its region"
+      ]
+     }
+    },
+    {
+     "name": "strip-lower",
+     "role": "high-band only (sigma-4, NCC-agreement gated)",
+     "box_upright_px": [
+      560,
+      500,
+      450,
+      260
+     ],
+     "edit_sha256": "06288df6abcaeb036a0ff982c19916a12957497ddace0e59750642bba7618d1f",
+     "lock": {
+      "disp_med_px": 0.76,
+      "disp_p95_px": 1.46,
+      "skin_corr_masked": 0.7735,
+      "ghost_masked": 0.5428,
+      "eye_rim": 0.7142857142857143,
+      "passed": false,
+      "reasons": [
+       "skin_corr 0.773<0.80",
+       "ghost 0.543>0.30"
+      ]
+     }
+    }
+   ],
+   "composite": {
+    "method": "quadrant mosaic (8px feather) + smooth tone-field match sigma24 norm-conv on skin (removes non-uniform Imagine relight incl. cheek blush); strip-lower sigma-4 high band only, agreement-gated; strip-upper excluded",
+    "mean_field_shifts_Lab": {
+     "q-upper-left": [
+      0.392,
+      -0.35,
+      0.586
+     ],
+     "q-upper-right": [
+      1.048,
+      -0.929,
+      0.812
+     ],
+     "q-lower-left": [
+      0.531,
+      -0.172,
+      0.706
+     ],
+     "q-lower-right": [
+      -3.654,
+      0.051,
+      1.318
+     ]
+    },
+    "strip_mean_gate_weight": 0.4168,
+    "keep_source_mask_px": {
+     "eyes_d_px": 3369,
+     "lips_d_px": 5569,
+     "mouth_px": 1950,
+     "K_px": 9183,
+     "eyeball_inside_eyes_d": false,
+     "eyeball_big_px": 442,
+     "mouth_big_px": 1950,
+     "mouth_inside_K": true
+    },
+    "inside_keepmask_bit_exact_vs_source": true,
+    "changed_outside_island_px": 0,
+    "lowband_delta_on_safe_L": {
+     "mean": 0.127,
+     "max": 2.48,
+     "p999": 1.99,
+     "n_over_2L": 113
+    }
+   },
+   "redness": {
+    "cheek_box_upright": [
+     880,
+     520,
+     1010,
+     640
+    ],
+    "family_mean_a": 9.548,
+    "source_mean_a": 9.232
+   },
    "leak": {
-    "r_S": -0.0225,
-    "r_normal_y": 0.1716,
-    "mirror_signed_L": 0.0014,
-    "mirror_abs_L": 0.4331,
+    "r_S": -0.0204,
+    "r_normal_y": 0.2062,
+    "mirror_signed_L": 0.001,
+    "mirror_abs_L": 0.462,
     "n_skin_texels": 114052,
     "n_mirror_pairs": 8235,
     "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
-    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2"
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "baseline": "a"
+   },
+   "g2": {
+    "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/regen3/aisha-ref3.glb",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "rig": "final-b studio; key30 variant keyAzimuthDeg 45",
+    "render_size": 1024,
+    "portrait": true,
+    "renders": [
+     {
+      "file": "young-source-front.png",
+      "sha256": "a388e35af635e5406df1464184e33c134272012492de605e0338bc29377ca7e1"
+     },
+     {
+      "file": "young-source-yaw40.png",
+      "sha256": "08adf0e5852f59a126c168b30ed3c8998583456fa76deb1c530b38da8e143021"
+     },
+     {
+      "file": "young-family-front.png",
+      "sha256": "668d5d05afe6919ba5eb535b6f26f0dfcd14907bb56823d4ad309c7f6d227cfd"
+     },
+     {
+      "file": "young-family-yaw40.png",
+      "sha256": "503c0ed1c275dc93f44487c97e7ebb78b1e32b95b5cfaa054537787e7f414236"
+     },
+     {
+      "file": "young-family-key30-front.png",
+      "sha256": "e204b2df801b74fd5cadb911344fb84266408f61c42a2dfdc42158c29b126165"
+     },
+     {
+      "file": "young-family-key30-yaw40.png",
+      "sha256": "a61ad55095043ceb8e479f390ceb1887e6f95eaeb51c1ac87bfac7d176b82cbf"
+     }
+    ],
+    "sheet": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-g2-sheet.png",
+    "sheet_sha256": "364c433d3305fb3d2a9c1635093dc5f74f681202f7e3df9790db3616bf666743"
    }
   }
  ]

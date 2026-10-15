@@ -81,4 +81,51 @@ describe("the skin families are recorded and leak-gated", () => {
     expect(passesLeakGate(c, a)).toBe(true);
     expect(passesLeakGate(b, a)).toBe(false);
   });
+
+  it("the rewritten young family carries locks, G1 and evidence", () => {
+    const young = MANIFEST.families.find(
+      (row) => (row as { family?: unknown }).family === "young",
+    ) as unknown as {
+      status?: unknown;
+      family_sha256?: unknown;
+      crops?: Array<{
+        name?: unknown;
+        role?: unknown;
+        edit_sha256?: unknown;
+        lock?: {
+          disp_p95_px?: unknown;
+          passed?: unknown;
+          reasons?: unknown;
+        } | null;
+      }>;
+      leak?: Record<string, unknown>;
+      redness?: { family_mean_a?: unknown; source_mean_a?: unknown };
+      g2?: { renders?: Array<{ sha256?: unknown }>; sheet_sha256?: unknown };
+    };
+    expect(young.status).toBe("rewritten");
+    expect(young.family_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(young.crops?.length).toBeGreaterThan(0);
+    for (const crop of young.crops ?? []) {
+      expect(crop.edit_sha256).toMatch(/^[0-9a-f]{64}$/);
+      // Every mosaic crop is geometrically UV-locked (residual <= 4px);
+      // any crop that is not a clean pass names its reason and role.
+      if (String(crop.role).startsWith("mosaic")) {
+        expect(typeof crop.lock?.disp_p95_px).toBe("number");
+        expect(crop.lock?.disp_p95_px as number).toBeLessThanOrEqual(4);
+      }
+      if (crop.lock?.passed !== true) {
+        expect(Array.isArray(crop.lock?.reasons)).toBe(true);
+        expect(typeof crop.role).toBe("string");
+      }
+    }
+    // The rewritten family passes the same strict gate set by baseline (a).
+    expect(passesLeakGate(young.leak as Record<string, unknown>, BASELINES.rows.a)).toBe(true);
+    expect(typeof young.redness?.family_mean_a).toBe("number");
+    expect(typeof young.redness?.source_mean_a).toBe("number");
+    expect(young.g2?.renders?.length).toBeGreaterThan(0);
+    for (const render of young.g2?.renders ?? []) {
+      expect(render.sha256).toMatch(/^[0-9a-f]{64}$/);
+    }
+    expect(young.g2?.sheet_sha256).toMatch(/^[0-9a-f]{64}$/);
+  });
 });
