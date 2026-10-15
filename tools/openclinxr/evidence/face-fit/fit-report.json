@@ -19,11 +19,12 @@
  },
  "detector": {
   "model": "MediaPipe Face Landmarker (Apache-2.0)",
-  "taskFile": "tools/openclinxr/evidence/face-fit/face_landmarker.task",
+  "taskFile": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
   "nPoints": 478,
-  "goalFront": "tools/openclinxr/evidence/face-fit/target-front.png",
-  "goal3q": "tools/openclinxr/evidence/face-fit/target-3q-left.png",
-  "selfRender": "tools/openclinxr/evidence/face-fit/base-front.png"
+  "goalFront": "/Volumes/files/openclinxr-assets/store/face-fit/target-front.png",
+  "goal3q": "/Volumes/files/openclinxr-assets/store/face-fit/target-3q-left.png",
+  "selfRender": "/Volumes/files/openclinxr-assets/store/face-fit/base-front.png"
  },
  "embedding": {
   "n": 40,
@@ -210,14 +211,14 @@
   "baseHash": "bc7ccab5f09fe5dafe5f47ac1e5e0cc4d2bfe5c0885228989cfcc7c9b4af38a0"
  },
  "checkRender": {
-  "png": "tools/openclinxr/evidence/face-fit/fitted-front.png",
+  "png": "/Volumes/files/openclinxr-assets/store/face-fit/fitted-front.png",
   "pts": "tools/openclinxr/evidence/face-fit/pts_fitted_front.npy",
   "redetectMm": 1.571,
   "analyticMm": 0.782,
   "detectorFloorMm": 1.086,
   "pass": true,
   "gate": "redetect <= analytic + detector floor (render confirms fit)",
-  "sha256": "4e784cdc6549e985fe80bb657f5ff00c6a90aafefa2bc567f63bed09f078bbe8"
+  "sha256": "b221f3651d178a7ae2a66f67e16643e6ecfe63985c9d3446d43a38e7aaf122d0"
  },
  "notTested": "profile-only cases"
 }

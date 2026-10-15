@@ -19,6 +19,8 @@ import numpy as np
 from mathutils import Vector
 
 OUT = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
+STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
+                       "/Volumes/files/openclinxr-assets/store/face-fit")
 MPFB_218 = "/Users/patrick/Library/Application Support/Blender/5.2/extensions/user_default/mpfb/data/targets"
 MPFB_51 = "/Users/patrick/Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/targets"
 RES = 1024
@@ -100,7 +102,8 @@ def main():
     d = Vector((cx, cy, cz)) - ob.location
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     scene.camera = ob
-    scene.render.filepath = os.path.join(OUT, "fitted-front.png")
+    os.makedirs(STORE, exist_ok=True)
+    scene.render.filepath = os.path.join(STORE, "fitted-front.png")
     bpy.ops.render.render(write_still=True)
     print("FF2_RENDERED fitted-front.png")
 

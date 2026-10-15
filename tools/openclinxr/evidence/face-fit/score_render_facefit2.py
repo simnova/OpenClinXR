@@ -14,7 +14,18 @@ import numpy as np
 from PIL import Image
 
 D = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
-MODEL = os.path.join(D, "face_landmarker.task")
+STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
+                       "/Volumes/files/openclinxr-assets/store/face-fit")
+
+
+def asset(name):
+    pth = os.path.join(STORE, name)
+    if not os.path.isfile(pth):
+        raise SystemExit("face-fit asset store absent: missing %s (STORE=%s)" % (name, STORE))
+    return pth
+
+
+MODEL = asset("face_landmarker.task")
 STABLE = [33, 133, 362, 263, 168, 6]
 
 
@@ -61,7 +72,7 @@ def main():
     print("FF2_SCORE track=%d" % len(landmarks))
     pts_base = np.load(os.path.join(D, "pts_base_front.npy"))
     pts_tgt = np.load(os.path.join(D, "pts_target_front.npy"))
-    pts_fit = detect_points(os.path.join(D, "fitted-front.png"))
+    pts_fit = detect_points(asset("fitted-front.png"))
     np.save(os.path.join(D, "pts_fitted_front.npy"), pts_fit)
 
     # same alignments as the fit: goal->base and fitted-render->base on STABLE
@@ -80,7 +91,7 @@ def main():
     print("FF2_REDETECT redetect=%.3f analytic=%.3f floor=%.3f pass=%s" % (
         redetect, analytic, floor, ok))
     report["checkRender"] = {
-        "png": "tools/openclinxr/evidence/face-fit/fitted-front.png",
+        "png": os.path.join(STORE, "fitted-front.png"),
         "pts": "tools/openclinxr/evidence/face-fit/pts_fitted_front.npy",
         "redetectMm": round(redetect, 3),
         "analyticMm": analytic,
@@ -88,7 +99,7 @@ def main():
         "pass": ok,
         "gate": "redetect <= analytic + detector floor (render confirms fit)",
         "sha256": hashlib.sha256(
-            open(os.path.join(D, "fitted-front.png"), "rb").read()).hexdigest(),
+            open(asset("fitted-front.png"), "rb").read()).hexdigest(),
     }
     json.dump(report, open(os.path.join(D, "fit-report.json"), "w"), indent=1)
 

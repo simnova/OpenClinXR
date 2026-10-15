@@ -25,6 +25,8 @@ import bpy
 import numpy as np
 
 OUT = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
+STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
+                       "/Volumes/files/openclinxr-assets/store/face-fit")
 MPFB_218 = "/Users/patrick/Library/Application Support/Blender/5.2/extensions/user_default/mpfb/data/targets"
 MPFB_215_INIT = "/Users/patrick/Library/Application Support/Blender/5.1/extensions/user_default/mpfb/__init__.py"
 MPFB_218_INIT = "/Users/patrick/Library/Application Support/Blender/5.2/extensions/user_default/mpfb/__init__.py"
@@ -66,7 +68,8 @@ def main():
     mesh.calc_loop_triangles()
     faces = np.array([tuple(t.vertices) for t in mesh.loop_triangles], dtype=np.int64)
     print("FF2_FACES %d" % faces.shape[0])
-    np.save(os.path.join(OUT, "faces.npy"), faces)
+    os.makedirs(STORE, exist_ok=True)
+    np.save(os.path.join(STORE, "faces.npy"), faces)
 
     asym_files = sorted(glob.glob(os.path.join(MPFB_218, "asym", "*.target.gz")))
     asym_stems = [os.path.basename(p)[:-len(".target.gz")] for p in asym_files]
@@ -119,7 +122,7 @@ def main():
             except Exception as e:  # noqa: BLE001
                 print("FF2_RMFAIL %s %s" % (path, e))
         bpy.context.view_layer.update()
-    np.savez_compressed(os.path.join(OUT, "offsets_asym_macro.npz"), **out)
+    np.savez_compressed(os.path.join(STORE, "offsets_asym_macro.npz"), **out)
 
     meta = {
         "blender": "5.1.1",

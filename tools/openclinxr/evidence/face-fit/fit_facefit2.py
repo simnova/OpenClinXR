@@ -21,7 +21,20 @@ import numpy as np
 from PIL import Image
 
 D = "/Users/patrick/.grok/worktrees/src-openclinxr/facefit2/tools/openclinxr/evidence/face-fit"
-MODEL = os.path.join(D, "face_landmarker.task")
+# Large binaries live in the local asset store (store-manifest.json), never in
+# git. Override with OPENCLINXR_ASSET_STORE for relocation tests.
+STORE = os.environ.get("OPENCLINXR_ASSET_STORE",
+                       "/Volumes/files/openclinxr-assets/store/face-fit")
+
+
+def asset(name):
+    pth = os.path.join(STORE, name)
+    if not os.path.isfile(pth):
+        raise SystemExit("face-fit asset store absent: missing %s (STORE=%s)" % (name, STORE))
+    return pth
+
+
+MODEL = asset("face_landmarker.task")
 
 # ~40 shape indices: brows 6, lids 8, nose 12, lips-outer 8, jaw 6
 LANDMARKS = [
@@ -88,7 +101,7 @@ def umeyama_similarity(src, dst):
 
 def build_var_scheme(cands):
     """Reproduce prior 110-var scheme (fit.py) so sweep weights map by name."""
-    z = np.load(os.path.join(D, "offsets_sk.npz"))
+    z = np.load(asset("offsets_sk.npz"))
     stem_data = {c["stem"]: (z[c["stem"] + "__idx"], z[c["stem"]]) for c in cands["candidates"]}
     var_names = []
     var_offsets = []
@@ -124,8 +137,8 @@ def build_var_scheme(cands):
 
 def main():
     cams = json.load(open(os.path.join(D, "cameras.json")))
-    base = np.load(os.path.join(D, "base_verts.npy"))
-    faces = np.load(os.path.join(D, "faces.npy"))
+    base = np.load(asset("base_verts.npy"))
+    faces = np.load(asset("faces.npy"))
     cands = json.load(open(os.path.join(D, "candidates.json")))
     meta = json.load(open(os.path.join(D, "basis_meta.json")))
     sweep = json.load(open(os.path.join(D, "silhouette-sweep-baseline.json")))
@@ -166,9 +179,9 @@ def main():
         return dx * 1000.0, -d[2] * 1000.0
 
     # --- detections (goal images are the OBJECTIVE; render = check only)
-    pts_base = detect_points(os.path.join(D, "base-front.png"))
-    pts_tgt = detect_points(os.path.join(D, "target-front.png"))
-    pts_3q = detect_points(os.path.join(D, "target-3q-left.png"))
+    pts_base = detect_points(asset("base-front.png"))
+    pts_tgt = detect_points(asset("target-front.png"))
+    pts_3q = detect_points(asset("target-3q-left.png"))
     assert pts_base is not None and pts_tgt is not None and pts_3q is not None
     np.save(os.path.join(D, "pts_base_front.npy"), pts_base)
     np.save(os.path.join(D, "pts_target_front.npy"), pts_tgt)
@@ -268,7 +281,7 @@ def main():
     # --- variable scheme: 110 sweep vars + 62 asym + 6 macro
     var_names, var_offsets = build_var_scheme(cands)
     assert var_names == sweep["varNames"], "var order drift vs sweep baseline"
-    zam = np.load(os.path.join(D, "offsets_asym_macro.npz"))
+    zam = np.load(asset("offsets_asym_macro.npz"))
     asym_names = list(meta["asymStems"])
     macro_names = list(meta["macroStems"])
     for stem in asym_names + macro_names:
@@ -410,8 +423,8 @@ def main():
     err_z = float(np.max(np.abs(rec[m0])))
     print("FF2_SYNTH errNz=%.3f errZero=%.3f" % (err_nz, err_z))
 
-    ref_sha = hashlib.sha256(open(os.path.join(D, "target-front.png"), "rb").read()).hexdigest()
-    q_sha = hashlib.sha256(open(os.path.join(D, "target-3q-left.png"), "rb").read()).hexdigest()
+    ref_sha = hashlib.sha256(open(asset("target-front.png"), "rb").read()).hexdigest()
+    q_sha = hashlib.sha256(open(asset("target-3q-left.png"), "rb").read()).hexdigest()
     base_hash = hashlib.sha256(base.tobytes()).hexdigest()
 
     report = {
@@ -424,11 +437,12 @@ def main():
                  "macroStems": macro_names,
                  "basisMeta": "tools/openclinxr/evidence/face-fit/basis_meta.json"},
         "detector": {"model": "MediaPipe Face Landmarker (Apache-2.0)",
-                     "taskFile": "tools/openclinxr/evidence/face-fit/face_landmarker.task",
+                     "taskFile": os.path.join(STORE, "face_landmarker.task"),
+                     "taskProvenance": "store-manifest.json (source URL + sha256 + licence)",
                      "nPoints": 478,
-                     "goalFront": "tools/openclinxr/evidence/face-fit/target-front.png",
-                     "goal3q": "tools/openclinxr/evidence/face-fit/target-3q-left.png",
-                     "selfRender": "tools/openclinxr/evidence/face-fit/base-front.png"},
+                     "goalFront": os.path.join(STORE, "target-front.png"),
+                     "goal3q": os.path.join(STORE, "target-3q-left.png"),
+                     "selfRender": os.path.join(STORE, "base-front.png")},
         "embedding": {"n": len(embed), "trackN": len(TRACK),
                       "contourExcluded": CONTOUR,
                       "file": "tools/openclinxr/evidence/face-fit/embedding.json",
