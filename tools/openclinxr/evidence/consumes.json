@@ -807,6 +807,28 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./foot-base",
+    "names": [
+      {
+        "name": "FOOT_BASE_LIFT_PHASE",
+        "kind": "runtime"
+      },
+      {
+        "name": "FOOT_BASE_ROWS",
+        "kind": "runtime"
+      },
+      {
+        "name": "FOOT_BASE_STANCE_FRACTION",
+        "kind": "runtime"
+      },
+      {
+        "name": "footBaseRowAt",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./stepping-turn",
     "names": [
       {

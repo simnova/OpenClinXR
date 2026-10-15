@@ -207,6 +207,16 @@
         "via": "own-test"
       },
       {
+        "name": "humanoidDialogueDurationMs",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "isGeneratedRuntimeDrive",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "startHumanoidEmotionTransition",
         "kind": "runtime",
         "via": "own-test"
