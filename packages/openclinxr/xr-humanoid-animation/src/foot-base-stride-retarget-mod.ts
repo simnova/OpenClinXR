@@ -56,7 +56,7 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
 export type FootBaseApproachState = Pick<
   CaseOwnedBedsideApproach,
-  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "contactBandMeters" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
+  "actorSlot" | "leftToe" | "rightToe" | "floorOriginY" | "footstep" | "execution" | "lockArmed" | "start" | "lock"
 >;
 
 export type FootBaseClipRead = {
@@ -66,6 +66,11 @@ export type FootBaseClipRead = {
 
 export type FootBaseState = {
   stance: FootBaseSide;
+  /**
+   * Dwell-pending challenger: label flipped but not yet planted. The foot
+   * freezes at its dwell-start pose until the dwell fires or the flap ends.
+   */
+  pending: { side: FootBaseSide; count: number; fromX: number; fromY: number; fromZ: number } | null;
   foothold: Record<FootBaseSide, { x: number; y: number; z: number }>;
   placed: Record<FootBaseSide, boolean>;
   /**
@@ -107,6 +112,9 @@ export function readFootBaseState(approach: object): FootBaseState | null {
 export function clearFootBaseState(approach: object): void {
   states.delete(approach);
 }
+
+/** Handover dwell: challenger persists this many substeps before planting (flaps last <=4). */
+export const FOOT_BASE_HANDOVER_DWELL = 6;
 
 /** Gate twin: flag on and this slice's route length only. */
 export function footBaseStepIsActive(routeLengthMeters: number): boolean {
@@ -201,6 +209,7 @@ function createState(stance: FootBaseSide): FootBaseState {
   const zero = { x: 0, y: 0, z: 0 };
   return {
     stance,
+    pending: null,
     foothold: { left: { ...zero }, right: { ...zero } },
     placed: { left: false, right: false },
     takeoff: { left: null, right: null },
@@ -254,8 +263,6 @@ export function applyFootBaseStep(input: {
   // frame (its stanceFoot is also what the capture publishes, so pin stance
   // and metric stance coincide BY CONSTRUCTION — no clock/pose skew can put
   // a swing frame inside a stance window). Overlap/null keeps the incumbent.
-  // Label flaps hand over and straight back; anchors are contact-clamped
-  // with re-snapped takeoff refs, so they are continuous non-events.
   const lockStance = approach.lock.stanceFoot;
   const single: FootBaseSide | null = lockStance === "left" || lockStance === "right" ? lockStance : null;
   let state = states.get(approach);
@@ -270,9 +277,6 @@ export function applyFootBaseStep(input: {
   state.lastActionTimeS = actionTimeS;
   const unwrappedS = actionTimeS + state.wraps * cycleS;
 
-  const stance: FootBaseSide = single ?? state.stance;
-  const swing: FootBaseSide = stance === "left" ? "right" : "left";
-
   const halfIndex = footBaseHalfIndex(unwrappedS, cycleS);
   const scale = approach.footstep?.scale ?? FOOT_BASE_DEFAULT_SCALE;
   const halfTravel = footBaseHalfTravelM(halfIndex, scale);
@@ -281,11 +285,6 @@ export function applyFootBaseStep(input: {
   const unitX = input.routeDx / routeLen;
   const unitZ = input.routeDz / routeLen;
   const floorY = approach.floorOriginY;
-  // Contact cap: a stance anchor above the contact band is unphysical (stance
-  // feet are on the ground by definition) — it happens only on label-flap
-  // handovers mid-swing and would otherwise float the whole stance. Healthy
-  // touchdown anchors sit below the cap, so this is bit-identical off-flap.
-  const capY = (y: number): number => Math.min(y, floorY + approach.contactBandMeters);
 
   const slot = approach.actorSlot;
   const segX = unitX * halfTravel;
@@ -302,38 +301,66 @@ export function applyFootBaseStep(input: {
       z: from.z + row.along01 * segZ + row.lateralM * sideZ,
     };
   };
-  const stanceRow = footBaseRowAt(stance, footBaseRelPhase(stance, phase01));
-  const swingRow = footBaseRowAt(swing, footBaseRelPhase(swing, phase01));
   const snapTakeoff = (foot: FootBaseSide, row: FootBasePathRow): void => {
     const physical = foot === "left" ? leftToeW : rightToeW;
     const solved = state.lastSolved[foot] ?? physical;
-    const origin = { ...solved };
-    origin.y = capY(origin.y);
     state.takeoff[foot] = {
-      origin,
+      origin: { ...solved },
       absBase: rebuildAbsolute(foot, row),
     };
   };
+  const rowNow = (foot: FootBaseSide): FootBasePathRow =>
+    footBaseRowAt(foot, footBaseRelPhase(foot, phase01));
 
   if (!state.placed.left || !state.placed.right) {
-    state.foothold.left = { ...leftToeW, y: capY(leftToeW.y) };
-    state.foothold.right = { ...rightToeW, y: capY(rightToeW.y) };
+    state.foothold.left = { ...leftToeW };
+    state.foothold.right = { ...rightToeW };
     state.placed.left = true;
     state.placed.right = true;
-    state.stance = stance;
-    snapTakeoff("left", footBaseRowAt("left", footBaseRelPhase("left", phase01)));
-    snapTakeoff("right", footBaseRowAt("right", footBaseRelPhase("right", phase01)));
-  } else if (stance !== state.stance) {
-    // Handover: plant where the foot PHYSICALLY stands (last solved pos),
-    // not the mixer pose (clip scale 1 vs rebuild plan scale reads cm off;
-    // measured 16-26 mm window steps). Both feet re-snap takeoff refs, so
-    // targets stay continuous across the role change (see below).
-    const planted = state.lastSolved[stance] ?? (stance === "left" ? leftToeW : rightToeW);
-    state.foothold[stance] = { ...planted, y: capY(planted.y) };
-    state.stance = stance;
-    snapTakeoff(stance, stanceRow);
-    snapTakeoff(swing, swingRow);
+    snapTakeoff("left", rowNow("left"));
+    snapTakeoff("right", rowNow("right"));
+  } else if (single !== null && single !== state.stance) {
+    // Handover dwell: the challenger freezes at its dwell-start pose and
+    // plants only after persisting FOOT_BASE_HANDOVER_DWELL substeps. A
+    // 1-substep label blip would otherwise re-plant the foothold mid-window
+    // (measured 26-33 mm handover steps); real stances run 15+ substeps, so
+    // healthy paths plant at the same touchdown either way.
+    const pend = state.pending;
+    if (pend !== null && pend.side === single) {
+      const count = pend.count + 1;
+      if (count >= FOOT_BASE_HANDOVER_DWELL) {
+        const planted = state.lastSolved[single] ?? (single === "left" ? leftToeW : rightToeW);
+        state.foothold[single] = { ...planted };
+        state.stance = single;
+        state.pending = null;
+        const newSwing: FootBaseSide = single === "left" ? "right" : "left";
+        snapTakeoff(single, rowNow(single));
+        snapTakeoff(newSwing, rowNow(newSwing));
+      } else {
+        state.pending = { side: single, count, fromX: pend.fromX, fromY: pend.fromY, fromZ: pend.fromZ };
+      }
+    } else {
+      const physical = single === "left" ? leftToeW : rightToeW;
+      const solved = state.lastSolved[single] ?? physical;
+      state.pending = { side: single, count: 1, fromX: solved.x, fromY: solved.y, fromZ: solved.z };
+    }
+  } else if (state.pending !== null) {
+    // Flap-back: the challenger vanished before the dwell fired — clear the
+    // pending plant and re-snap its takeoff so swing resumes continuously
+    // from the physical foot, not a stale pre-dwell reference.
+    const flapBack = state.pending.side;
+    state.pending = null;
+    snapTakeoff(flapBack, rowNow(flapBack));
   }
+
+  // Roles derive from post-dwell state: during dwell the incumbent stays
+  // stance (pinned), the challenger provisional-frozen; only a fired dwell
+  // flips roles. Reading raw labels here would solve+pin the challenger
+  // while the test/metric still reads the incumbent.
+  const stance: FootBaseSide = state.stance;
+  const swing: FootBaseSide = stance === "left" ? "right" : "left";
+  const stanceRow = rowNow(stance);
+  const swingRow = rowNow(swing);
 
   const stanceFoothold = state.foothold[stance];
   // THE SLOT ADVANCE: the body travels the foothold polyline (completed
@@ -364,9 +391,15 @@ export function applyFootBaseStep(input: {
     z: stanceFoothold.z,
   };
   const swingAbsolute = rebuildAbsolute(swing, swingRow);
-  const swingTarget = swingTakeoff === null
-    ? swingAbsolute
-    : {
+  // Dwell-pending challenger holds its dwell-start pose (zero window
+  // pollution either way: touchdown freezes a few cm early, flap-backs
+  // never planted at all).
+  const pendNow = state.pending;
+  const swingTarget = pendNow !== null && pendNow.side === swing
+    ? { x: pendNow.fromX, y: pendNow.fromY, z: pendNow.fromZ }
+    : swingTakeoff === null
+      ? swingAbsolute
+      : {
         x: swingTakeoff.origin.x + (swingAbsolute.x - swingTakeoff.absBase.x),
         y: swingTakeoff.origin.y + (swingAbsolute.y - swingTakeoff.absBase.y),
         z: swingTakeoff.origin.z + (swingAbsolute.z - swingTakeoff.absBase.z),
