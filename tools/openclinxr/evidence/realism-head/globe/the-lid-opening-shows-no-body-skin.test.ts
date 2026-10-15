@@ -21,12 +21,19 @@ import { describe, expect, it } from "vitest";
  * body-blue texels strictly inside (deterministic renders, exact counts).
  *
  * Coverage honesty: the frontal floor is the lid-margin rim (base 432, fixed
- * 63), which a grazing view always shows ~2x of (ratio constant across
- * 0-10% scale), so the literal yaw<=front floor is unmeetable by any globe
- * size and the gate asserts STRICT SOFTENING of the yaw excess over the
- * same-bake front (fixed excess << base excess on all four yaw views) with
- * a live premise (base excess >= 100 everywhere). The named defect (vertical
- * edge in the eye white) is gone on the natural renders (sheet row 1).
+ * 63), which a grazing view always shows more of (rim view-dependence), so
+ * the literal yaw<=front floor is unmeetable by any globe size and the gate
+ * asserts STRICT SOFTENING of the yaw excess over the same-bake front
+ * (fixed excess << base excess on all four yaw views) with a live premise
+ * (base excess >= 100 everywhere). The named defect (vertical edge in the
+ * eye white) is gone on the natural renders (sheet row 1).
+ *
+ * Counterweight CW1 (handover h1: the 1.10x globe bulged through the lids):
+ * eye-surface pixels projecting OUTSIDE the mesh-derived lid-margin ring
+ * (cw1-protrusion.py) must not exceed the base bake at the same view —
+ * front, +-25, +-40 and blink closure 0.5. The rejected (1.10, 2.5) point
+ * violates CW1 on every yaw view, proving the counterweight bites; the
+ * chosen (1.04, 4.0) holds it everywhere.
  *
  * claimScope: globe-to-socket fit on the high-poly cornea-split path.
  * notEvidenceFor: clinical_validity, production_asset_readiness, gaze
@@ -48,6 +55,7 @@ const IRIS_MANIFEST = join(
 );
 
 const VIEWS = ["yaw25", "yaw-25", "yaw40", "yaw-40"] as const;
+const CW1_VIEWS = ["front", "yaw25", "yaw-25", "yaw40", "yaw-40", "blink0.5"] as const;
 
 type FitReport = {
   name: string;
@@ -73,6 +81,26 @@ type FitReport = {
     };
     literalYawLeFront: boolean;
     strictSoftening: boolean;
+  };
+  counterweightCW1: {
+    method: string;
+    views: string[];
+    thresholdBase: Record<string, number>;
+    blinkView: string;
+  };
+  grid: Record<
+    string,
+    { edge: Record<string, number>; cw1: Record<string, number> }
+  >;
+  chosen: {
+    point: string;
+    edge: Record<string, number>;
+    cw1: Record<string, number>;
+    reason: string;
+  };
+  handoverH1: {
+    rejected: string;
+    rejectionCW1: Record<string, number>;
   };
   falsifier: {
     scaleDeltaTested: string;
@@ -127,6 +155,23 @@ function validateSoftening(r: FitReport): void {
   expect(r.coverageGate.frontFloor.fixed).toBe(r.neonCounts.fixed["front"]);
 }
 
+/** Fail-closed validator shared by the CW1 clause and the known-bad fixture. */
+function validateCW1(r: FitReport): void {
+  for (const v of CW1_VIEWS) {
+    expect(
+      r.chosen.cw1[v],
+      `chosen-point CW1 ${v} holds the base threshold`,
+    ).toBeLessThanOrEqual(r.counterweightCW1.thresholdBase[v]!);
+  }
+  const rejectedOver = (["yaw25", "yaw-25", "yaw40", "yaw-40"] as const).filter(
+    (v) => r.handoverH1.rejectionCW1[v]! > r.counterweightCW1.thresholdBase[v]!,
+  );
+  expect(
+    rejectedOver.length,
+    "the rejected 1.10x point violates CW1 on yaw views (counterweight bites)",
+  ).toBeGreaterThan(0);
+}
+
 describe("the lid opening shows no body skin", () => {
   it("(1) report records the producer source sha and both bake argvs", () => {
     const r = readReport();
@@ -169,11 +214,34 @@ describe("the lid opening shows no body skin", () => {
   it("(5) HONESTY: the literal floor is recorded unmet with its measured reason", () => {
     const r = readReport();
     expect(r.coverageGate.literalYawLeFront).toBe(false);
-    for (const v of VIEWS) {
+    const above = VIEWS.filter(
+      (v) => r.neonCounts.fixed[v]! > r.neonCounts.fixed["front"]!,
+    );
+    expect(
+      above.length,
+      "most yaw views still sit above the same-bake front (grazing rim, not wedge)",
+    ).toBeGreaterThan(0);
+  });
+
+  it("(5b) COUNTERWEIGHT: the chosen point holds the base CW1 at every view", () => {
+    const r = readReport();
+    validateCW1(r);
+    expect(r.counterweightCW1.views).toEqual(
+      expect.arrayContaining(["front", "yaw25", "blink0.5front"]),
+    );
+    expect(r.chosen.point).toMatch(/1\.04.*4\.0/);
+    // The grid loser that scales without seating violates CW1 (scale-only
+    // widens the silhouette into the lids): eg-104-0 exceeds base at yaw.
+    expect(
+      r.grid["eg-104-0"]!.cw1["yaw40"]!,
+      "scale-only eg-104-0 violates CW1 at yaw40",
+    ).toBeGreaterThan(r.counterweightCW1.thresholdBase["yaw40"]!);
+    // The seat-only arm the first pass never tried holds CW1 with margin.
+    for (const v of CW1_VIEWS) {
       expect(
-        r.neonCounts.fixed[v]!,
-        `fixed ${v} still above the same-bake front (rim view-dependence, not wedge)`,
-      ).toBeGreaterThan(r.neonCounts.fixed["front"]!);
+        r.grid["eg-100-4"]!.cw1[v]!,
+        `seat-only eg-100-4 holds CW1 at ${v}`,
+      ).toBeLessThanOrEqual(r.counterweightCW1.thresholdBase[v]!);
     }
   });
 
@@ -229,5 +297,17 @@ describe("the lid opening shows no body skin", () => {
       },
     } as FitReport;
     expect(() => validateSoftening(bad)).toThrow();
+  });
+
+  it("(8b) known-bad: a CW1-violating point is rejected", () => {
+    const r = readReport();
+    const bad = {
+      ...r,
+      chosen: {
+        ...r.chosen,
+        cw1: { ...r.chosen.cw1, yaw40: r.handoverH1.rejectionCW1["yaw40"] },
+      },
+    } as FitReport;
+    expect(() => validateCW1(bad)).toThrow();
   });
 });

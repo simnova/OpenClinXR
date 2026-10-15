@@ -160,6 +160,15 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     # eyeglobe (tsk_55d4f55390439822): same adult-female civilian lower as Aisha.
     "aisha-eyeglobe-base": FEMALE_COVERING_LOWER,
     "aisha-eyeglobe-fit": FEMALE_COVERING_LOWER,
+    # eyeglobe h1 grid (orchestrator counterweight search): same body.
+    "eg-100-2": FEMALE_COVERING_LOWER,
+    "eg-100-4": FEMALE_COVERING_LOWER,
+    "eg-102-0": FEMALE_COVERING_LOWER,
+    "eg-102-2": FEMALE_COVERING_LOWER,
+    "eg-102-4": FEMALE_COVERING_LOWER,
+    "eg-104-0": FEMALE_COVERING_LOWER,
+    "eg-104-2": FEMALE_COVERING_LOWER,
+    "eg-104-4": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2590,6 +2599,15 @@ EYE_DIAMETER_TARGET_MM = {
     # mpfb-ob-patient-aisha (neon baseline + globe-fit bakes under card stems).
     "aisha-eyeglobe-base": 24.0,
     "aisha-eyeglobe-fit": 24.0,
+    # eyeglobe h1 grid: same adult-female body (scale x seat search).
+    "eg-100-2": 24.0,
+    "eg-100-4": 24.0,
+    "eg-102-0": 24.0,
+    "eg-102-2": 24.0,
+    "eg-102-4": 24.0,
+    "eg-104-0": 24.0,
+    "eg-104-2": 24.0,
+    "eg-104-4": 24.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -2614,12 +2632,26 @@ EYE_DIAMETER_TARGET_MM = {
 # role); a row on any other asset refuses loudly.
 # ---------------------------------------------------------------------------
 EYE_GLOBE_FIT_BY_OUTPUT_STEM = {
-    # +10% diameter (23.8 -> 26.2 mm, still inside the 29.2 mm fitted socket
-    # envelope: no poke-through) + 2.5 mm forward seat. v1 (1.04, 1.2) cut the
-    # yaw excess -45% (+209..+486 -> +98..+265 over the frontal floor); v2
-    # (1.08, 2.0) cut it to +34..+109 (front floor 135, yaw-40 244); v3 closes
-    # the remainder. Natural renders at each step show no lid poke-through.
-    "aisha-eyeglobe-fit": (1.10, 2.5),
+    # eyeglobe h1 (orchestrator counterweight search): v3 (1.10, 2.5) was
+    # REJECTED on the natural grade (sclera over the lower lashes, bulging).
+    # Grid verdict: seat does the work (recessed globe -> parallax wedge),
+    # scale only widens the silhouette into the lids. Chosen: (1.04, 4.0) —
+    # least edge on every yaw view subject to CW1 <= base on every view
+    # (front, +-25, +-40, blink 0.5); globe 24.8 mm stays inside human
+    # variation and the 29.2 mm socket envelope.
+    "aisha-eyeglobe-fit": (1.04, 4.0),
+    # eyeglobe h1 grid (orchestrator counterweight search): scale x seat,
+    # including the seat-only arm (1.00 x 0-4 mm) h0 never tried. Each point
+    # is judged by edge (neon aperture, lower wins) subject to CW1
+    # (globe-over-lid projection, must not exceed the base bake per view).
+    "eg-100-2": (1.00, 2.0),
+    "eg-100-4": (1.00, 4.0),
+    "eg-102-0": (1.02, 0.0),
+    "eg-102-2": (1.02, 2.0),
+    "eg-102-4": (1.02, 4.0),
+    "eg-104-0": (1.04, 0.0),
+    "eg-104-2": (1.04, 2.0),
+    "eg-104-4": (1.04, 4.0),
 }
 
 

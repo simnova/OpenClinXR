@@ -1,1 +1,348 @@
-{"argvBase": ["--eye-colour-reference", "ob_patient_aisha", "--actor-role", "patient", "--bake-device", "metal", "--eye-asset", "high-poly", "--eye-cornea", "--eye-texture", "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png", "--output", "<scratch>/aisha-eyeglobe-base.glb"], "argvFit": ["--eye-colour-reference", "ob_patient_aisha", "--actor-role", "patient", "--bake-device", "metal", "--eye-asset", "high-poly", "--eye-cornea", "--eye-texture", "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png", "--output", "<scratch>/aisha-eyeglobe-fit.glb"], "caruncle": {"present": false, "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"}, "coverageGate": {"excessOverFront": {"base": {"yaw25": 209, "yaw-25": 347, "yaw40": 235, "yaw-40": 486}, "fixed": {"yaw25": 64, "yaw-25": 41, "yaw40": 30, "yaw-40": 71}}, "frontFloor": {"base": 432, "fixed": 63}, "literalYawLeFront": false, "strictSoftening": true, "views": [0, 25, -25, 40, -40]}, "falsifier": {"scaleDeltaTested": "1.04 then 1.08 then 1.10 (4/8/10% diameter)", "verdict": "mechanism_live_direction_true_magnitude_capped", "yaw-40countAcrossFits": [918, 630, 244, 134]}, "fit": {"fitForwardMm": 2.5, "fitScale": 1.1, "globeRadiusMm": {"base": 11.9, "fixed": 13.1}, "table": "EYE_GLOBE_FIT_BY_OUTPUT_STEM['aisha-eyeglobe-fit']"}, "glbs": {"base": {"bytes": 49645450, "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec", "stem": "aisha-eyeglobe-base"}, "fixed": {"bytes": 49654680, "sha256": "f874749d53c8cb2c1a64e4d4375f284406c70013f618f96a05efbc725da23f58", "stem": "aisha-eyeglobe-fit"}}, "irisGate": {"fitBakeTextureOverride": "TEXTURE_OVERRIDE mat_makeclothes_library_eyes_ob_patient_aisha: brown_eye.png -> iris-centred-c.png (bake-fit.log:44)", "manifest": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json", "pupilShiftTexels": [0.77, 0.63], "uvUntouchedBySimilarity": true}, "name": "eye-globe-lid-aperture-fit", "neonCounts": {"base": {"front": 432, "yaw-25": 779, "yaw-40": 918, "yaw25": 641, "yaw40": 667}, "fixed": {"front": 63, "yaw-25": 104, "yaw-40": 134, "yaw25": 127, "yaw40": 93}}, "neonMethod": "body skin pure blue (#0000ff emissive 0.6) incl. lid/socket, lashes cyan (#00ffff), globe+cornea magenta (#ff00ff); 1280px portraits at yaw 0/+25/-25/+40/-40 via runtime-portrait-capture.ts; aperture per eye = row lash-span x column lash-span intersection (neon_count.py probe_aperture); count = body-blue texels strictly inside; renders deterministic (same seed), counts exact", "notTested": ["gaze rotation (compat-eyes)"], "outOfScope": ["no occlusion shell as the fix", "no new eye mesh"], "producerSourceSha256": "849435cf5ecc4ef9bc422e604b876a84d80168fa84b01ce18da9ac05b5339ee1", "sheet": {"renderSize": 1280, "rows": "natural-yaw40 | neon-yaw-40 | natural-front", "sha256": "a6477828425ee2078acb61862ccbed0ccc4fbc0e2031be3051ae12978be4275b", "src": "assets:eye-globe-fit/globe-fit-sheet.png"}, "visualFinding": "natural yaw-40: base shows grey socket wedge at the inner canthus past the globe silhouette; fit shows clean sclera to the corner, no vertical edge, no lid poke-through, no proptosis stare; iris texture unchanged (same file, UVs untouched by the similarity)"}
+{
+ "argvBase": [
+  "--eye-colour-reference",
+  "ob_patient_aisha",
+  "--actor-role",
+  "patient",
+  "--bake-device",
+  "metal",
+  "--eye-asset",
+  "high-poly",
+  "--eye-cornea",
+  "--eye-texture",
+  "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "--output",
+  "<scratch>/aisha-eyeglobe-base.glb"
+ ],
+ "argvFit": [
+  "--eye-colour-reference",
+  "ob_patient_aisha",
+  "--actor-role",
+  "patient",
+  "--bake-device",
+  "metal",
+  "--eye-asset",
+  "high-poly",
+  "--eye-cornea",
+  "--eye-texture",
+  "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "--output",
+  "<scratch>/aisha-eyeglobe-fit.glb"
+ ],
+ "caruncle": {
+  "present": false,
+  "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"
+ },
+ "chosen": {
+  "cw1": {
+   "blink0.5": 0,
+   "front": 0,
+   "yaw-25": 120,
+   "yaw-40": 2025,
+   "yaw25": 119,
+   "yaw40": 2008
+  },
+  "edge": {
+   "front": 63,
+   "yaw-25": 94,
+   "yaw-40": 84,
+   "yaw25": 103,
+   "yaw40": 57
+  },
+  "point": "eg-104-4 == aisha-eyeglobe-fit (1.04, 4.0)",
+  "reason": "least edge on every yaw view of all CW1-passing points; globe 24.8 mm inside human variation and the 29.2 mm socket envelope; natural grade clean (CW2)"
+ },
+ "counterweightCW1": {
+  "blinkView": "blink0.5front",
+  "method": "tools/.../globe/cw1-protrusion.py: GLB-space skinning+morphs, fixed orthographic z-buffer (0.12 mm/px), lid-margin ring = skin verts in 0.5-3.0 mm radial band off each fitted globe sorted angularly per view and filled; lash mesh never rasterized (hidden by construction); count = visible eye-surface px outside the ring. Threshold = base bake same view (bodies bit-identical across bakes, Delta 0.000 mm, so deltas are pure eye geometry).",
+  "thresholdBase": {
+   "blink0.5": 383,
+   "front": 0,
+   "yaw-25": 912,
+   "yaw-40": 2963,
+   "yaw25": 914,
+   "yaw40": 2958
+  },
+  "views": [
+   "front",
+   "yaw25",
+   "yaw-25",
+   "yaw40",
+   "yaw-40",
+   "blink0.5front"
+  ]
+ },
+ "coverageGate": {
+  "excessOverFront": {
+   "base": {
+    "yaw25": 209,
+    "yaw-25": 347,
+    "yaw40": 235,
+    "yaw-40": 486
+   },
+   "fixed": {
+    "yaw25": 40,
+    "yaw-25": 31,
+    "yaw40": -6,
+    "yaw-40": 21
+   }
+  },
+  "frontFloor": {
+   "base": 432,
+   "fixed": 63
+  },
+  "literalYawLeFront": false,
+  "strictSoftening": true,
+  "views": [
+   0,
+   25,
+   -25,
+   40,
+   -40
+  ]
+ },
+ "cw2Sheet": {
+  "rows": "natural-front base|fit, natural-yaw25 base|fit (native 1280 crops)",
+  "sha256": "a9832e5488a25a7b99ba0fb809f31c8f61168f28616f1b0065927514cb750488",
+  "src": "assets:eye-globe-fit/globe-cw2-sheet.png"
+ },
+ "falsifier": {
+  "scaleDeltaTested": "1.04 then 1.08 then 1.10 (4/8/10% diameter)",
+  "verdict": "mechanism_live_direction_true_magnitude_capped",
+  "yaw-40countAcrossFits": [
+   918,
+   630,
+   244,
+   134
+  ]
+ },
+ "fit": {
+  "fitForwardMm": 4.0,
+  "fitScale": 1.04,
+  "globeRadiusMm": {
+   "base": 11.9,
+   "fixed": 12.4
+  },
+  "table": "EYE_GLOBE_FIT_BY_OUTPUT_STEM['aisha-eyeglobe-fit']"
+ },
+ "glbs": {
+  "base": {
+   "bytes": 49645450,
+   "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+   "stem": "aisha-eyeglobe-base"
+  },
+  "fixed": {
+   "bytes": 49653270,
+   "sha256": "c3bf8ebde4f7f3bfe96a3abf0f677844c2d69a70d7ab1c074c2ce51d131f7be9",
+   "stem": "aisha-eyeglobe-fit"
+  }
+ },
+ "grid": {
+  "base": {
+   "cw1": {
+    "blink0.5": 383,
+    "front": 0,
+    "yaw-25": 912,
+    "yaw-40": 2963,
+    "yaw25": 914,
+    "yaw40": 2958
+   },
+   "edge": {
+    "front": 432,
+    "yaw-25": 779,
+    "yaw-40": 918,
+    "yaw25": 641,
+    "yaw40": 667
+   }
+  },
+  "eg-100-2": {
+   "cw1": {
+    "blink0.5": 4,
+    "front": 0,
+    "yaw-25": 184,
+    "yaw-40": 1619,
+    "yaw25": 213,
+    "yaw40": 1655
+   },
+   "edge": {
+    "front": 351,
+    "yaw-25": 517,
+    "yaw-40": 582,
+    "yaw25": 457,
+    "yaw40": 439
+   }
+  },
+  "eg-100-4": {
+   "cw1": {
+    "blink0.5": 0,
+    "front": 0,
+    "yaw-25": 7,
+    "yaw-40": 978,
+    "yaw25": 3,
+    "yaw40": 955
+   },
+   "edge": {
+    "front": 97,
+    "yaw-25": 141,
+    "yaw-40": 164,
+    "yaw25": 154,
+    "yaw40": 111
+   }
+  },
+  "eg-102-0": {
+   "cw1": {
+    "blink0.5": 377,
+    "front": 0,
+    "yaw-25": 1066,
+    "yaw-40": 3144,
+    "yaw25": 1076,
+    "yaw40": 3158
+   },
+   "edge": {
+    "front": 420,
+    "yaw-25": 746,
+    "yaw-40": 880,
+    "yaw25": 625,
+    "yaw40": 642
+   }
+  },
+  "eg-102-2": {
+   "cw1": {
+    "blink0.5": 9,
+    "front": 0,
+    "yaw-25": 304,
+    "yaw-40": 1921,
+    "yaw25": 347,
+    "yaw40": 1979
+   },
+   "edge": {
+    "front": 309,
+    "yaw-25": 435,
+    "yaw-40": 483,
+    "yaw25": 383,
+    "yaw40": 344
+   }
+  },
+  "eg-102-4": {
+   "cw1": {
+    "blink0.5": 0,
+    "front": 0,
+    "yaw-25": 35,
+    "yaw-40": 1459,
+    "yaw25": 29,
+    "yaw40": 1409
+   },
+   "edge": {
+    "front": 78,
+    "yaw-25": 120,
+    "yaw-40": 121,
+    "yaw25": 133,
+    "yaw40": 83
+   }
+  },
+  "eg-104-0": {
+   "cw1": {
+    "blink0.5": 403,
+    "front": 0,
+    "yaw-25": 1212,
+    "yaw-40": 3352,
+    "yaw25": 1217,
+    "yaw40": 3337
+   },
+   "edge": {
+    "front": 417,
+    "yaw-25": 716,
+    "yaw-40": 841,
+    "yaw25": 602,
+    "yaw40": 615
+   }
+  },
+  "eg-104-2": {
+   "cw1": {
+    "blink0.5": 5,
+    "front": 0,
+    "yaw-25": 458,
+    "yaw-40": 2260,
+    "yaw25": 496,
+    "yaw40": 2343
+   },
+   "edge": {
+    "front": 242,
+    "yaw-25": 319,
+    "yaw-40": 364,
+    "yaw25": 293,
+    "yaw40": 256
+   }
+  },
+  "eg-104-4": {
+   "cw1": {
+    "blink0.5": 0,
+    "front": 0,
+    "yaw-25": 120,
+    "yaw-40": 2025,
+    "yaw25": 119,
+    "yaw40": 2008
+   },
+   "edge": {
+    "front": 63,
+    "yaw-25": 94,
+    "yaw-40": 84,
+    "yaw25": 103,
+    "yaw40": 57
+   }
+  }
+ },
+ "handoverH1": {
+  "rejected": "aisha-eyeglobe-fit (1.10, 2.5): sclera over lower lashes, bulging (orchestrator natural grade yaw+25)",
+  "rejectionCW1": {
+   "blink0.5": 0,
+   "front": 0,
+   "yaw-25": 1324,
+   "yaw-40": 4240,
+   "yaw25": 1394,
+   "yaw40": 4388
+  }
+ },
+ "irisGate": {
+  "fitBakeTextureOverride": "TEXTURE_OVERRIDE mat_makeclothes_library_eyes_ob_patient_aisha: brown_eye.png -> iris-centred-c.png (bake-fit.log)",
+  "manifest": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
+  "pupilShiftTexels": [
+   0.77,
+   0.63
+  ],
+  "uvUntouchedBySimilarity": true
+ },
+ "name": "eye-globe-lid-aperture-fit",
+ "neonCounts": {
+  "base": {
+   "front": 432,
+   "yaw-25": 779,
+   "yaw-40": 918,
+   "yaw25": 641,
+   "yaw40": 667
+  },
+  "fixed": {
+   "front": 63,
+   "yaw-25": 94,
+   "yaw-40": 84,
+   "yaw25": 103,
+   "yaw40": 57
+  }
+ },
+ "neonMethod": "body skin pure blue (#0000ff emissive 0.6) incl. lid/socket, lashes cyan (#00ffff), globe+cornea magenta (#ff00ff); 1280px portraits at yaw 0/+25/-25/+40/-40 via runtime-portrait-capture.ts; aperture per eye = row lash-span x column lash-span intersection (neon_count.py probe_aperture); count = body-blue texels strictly inside; renders deterministic (same seed), counts exact",
+ "notTested": [
+  "gaze rotation (compat-eyes)"
+ ],
+ "outOfScope": [
+  "no occlusion shell as the fix",
+  "no new eye mesh"
+ ],
+ "producerSourceSha256": "576cc4f5c7ba57c4ffb55f460b9bd61beacdc52b76678fdc2f2c3956297186a0",
+ "sheet": {
+  "renderSize": 1280,
+  "rows": "natural-yaw40 | neon-yaw-40 | natural-front",
+  "sha256": "5973164f1407173b46cd4e1c515a5587576d1ef2d7e1b3b8863cb88f91a727bc",
+  "src": "assets:eye-globe-fit/globe-fit-sheet.png"
+ },
+ "visualFinding": "natural yaw-40: base shows grey socket wedge at the inner canthus past the globe silhouette; fit (1.04, 4.0) shows clean sclera to the corner, no vertical edge, no lid poke-through, no stare; natural front/yaw25 (CW2): lids rest normally, iris unchanged"
+}
