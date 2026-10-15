@@ -21,7 +21,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
-import { chromium } from "../../lib/slotted-playwright.js";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
+import { chromium, type Page } from "../../lib/slotted-playwright.js";
+
+type HeadlessBrowser = {
+  newPage(options?: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
+};
 
 const REPO = process.cwd();
 const SIZE = 1280;
@@ -275,12 +280,19 @@ type Shot = { name: string; dataUrl: string };
 
 async function main(): Promise<void> {
   const { server, port } = await startStatic();
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
-  });
   try {
-    const page = await browser.newPage({ viewport: { width: SIZE, height: SIZE }, deviceScaleFactor: 1 });
+    // Browser launch goes through the compute-services facade
+    // (sceneCapture.withBrowser), never a direct chromium.launch: the
+    // direct-compute-launch freeze counts direct sites. browserLaunch
+    // injection keeps the exact launch flags, so the render stays
+    // bit-identical; the launch itself runs inside the facade.
+    await createLocalComputeServices({
+      browserLaunch: chromium.launch.bind(chromium, {
+        headless: true,
+        args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+      }),
+    }).sceneCapture.withBrowser("realism-head:shell-sheet", async (launched) => {
+      const page = await (launched as HeadlessBrowser).newPage({ viewport: { width: SIZE, height: SIZE }, deviceScaleFactor: 1 });
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 300)); });
@@ -344,8 +356,8 @@ async function main(): Promise<void> {
       bodyClosedWrites: report.bodyClosedWrites,
       renderer: report.renderer,
     }, null, 2));
+    });
   } finally {
-    await browser.close().catch(() => undefined);
     server.close();
   }
 }
