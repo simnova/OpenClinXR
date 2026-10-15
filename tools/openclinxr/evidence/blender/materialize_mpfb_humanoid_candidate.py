@@ -2575,6 +2575,9 @@ EYE_DIAMETER_TARGET_MM = {
     "aisha-eyetex": 24.0,
     # eyemesh: same adult-female body as eyetex-final (new output name).
     "aisha-hp-cornea": 24.0,
+    # shellrebind2 (tsk_fc93bdfcb41dad07): same adult-female body as
+    # eyetex-final (B2 occlusion shell + B3 tearline bake, no cornea split).
+    "aisha-shell-b2b3": 24.0,
 }
 
 
@@ -2690,6 +2693,60 @@ def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None):
 # because the Blender 5.1 exporter omits both alphaMode and the extension.
 # ---------------------------------------------------------------------------
 EYESHELL_UNLIT_BLEND = {}
+
+# Shell-rebind (tsk_fc93bdfcb41dad07): the six lid keys the runtime blink
+# drive already resolves on the body. The shell/tearline must NOT copy the
+# eye's vertex groups (that yaws the lid shadow with gaze); both bind 100%
+# to the head bone and carry the six keys with GLB-space deltas (see
+# _eyshell_transfer_lid_keys — Blender-side key transfer measured every
+# delta as exactly 0.0, so the transfer runs post-export on the GLB bytes,
+# the lash_blink_follow.py A3 method: nearest same-side moving body vert,
+# |d|>0.05mm, nn cap 2.0mm).
+EYESHELL_LID_KEYS = (
+    "eye-left-closure",
+    "eye-left-slit",
+    "eye-left-opened-up",
+    "eye-right-closure",
+    "eye-right-slit",
+    "eye-right-opened-up",
+)
+
+# Bake-time bind record consumed by the SHELL_REBIND_RECORD log line (the
+# worker composes tools/.../realism-head/shell/shell-manifest.json from it).
+EYESHELL_BIND_RECORD = {}
+
+
+def _eyshell_bind_to_head(obj, arm):
+    """Weight every vert 100% to the head bone + single armature modifier +
+    parent to the armature, preserving the object's world transform.
+
+    Any non-head group (in particular a copied eye.L/eye.R group) is removed,
+    so the lid shadow cannot yaw with the globe. Refuses when the armature
+    has no head bone.
+    """
+    head = next(
+        (b.name for b in arm.data.bones if b.name == "head"), None)
+    if head is None:
+        raise RuntimeError(
+            "EYESHELL: armature has no head bone "
+            f"(have {[b.name for b in arm.data.bones][:12]})")
+    for vg in list(obj.vertex_groups):
+        if vg.name != head:
+            obj.vertex_groups.remove(vg)
+    vg = obj.vertex_groups.get(head)
+    if vg is None:
+        vg = obj.vertex_groups.new(name=head)
+    vg.add(list(range(len(obj.data.vertices))), 1.0, "REPLACE")
+    for mod in [m for m in obj.modifiers if m.type == "ARMATURE"]:
+        obj.modifiers.remove(mod)
+    mod = obj.modifiers.new("openclinxr_eyshell_armature", "ARMATURE")
+    mod.object = arm
+    mod.use_vertex_groups = True
+    mod.use_bone_envelopes = False
+    bpy.context.view_layer.update()
+    obj.parent = arm
+    obj.matrix_parent_inverse = arm.matrix_world.inverted() @ obj.matrix_world
+    return head
 
 
 def _eyshell_srgb_to_linear(rgb):
@@ -2959,6 +3016,26 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         cosang = np.clip((sp - c) / r @ ((pts - c) / r).T, -1.0, 1.0)
         return r * np.arccos(cosang).min(axis=1)
 
+    # Lid-bind armature shared by the shell (above) and the tearline
+    # (below): the eye's own armature, else the eye's armature parent, else
+    # the scene armature. Resolved once so a tearline-only bake also binds.
+    arm = next(
+        (m.object for m in eyes_asset.modifiers
+         if m.type == "ARMATURE" and m.object is not None),
+        None,
+    )
+    if arm is None:
+        arm = eyes_asset.parent if (
+            eyes_asset.parent is not None
+            and eyes_asset.parent.type == "ARMATURE") else None
+    if arm is None:
+        arm = next(
+            (o for o in bpy.context.scene.objects if o.type == "ARMATURE"),
+            None,
+        )
+    if arm is None:
+        raise RuntimeError("EYESHELL: no armature for the lid bind")
+
     # ---- B2: duplicate the cap, offset outward, per-vertex alpha ----
     # NOTE frames: Blender is z-up, so height is [:, 2] and the frontal
     # (viewer-facing) plane is [:, [0, 2]] — the GLB prototype used y-up.
@@ -2980,16 +3057,11 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
             c, r = spheres[side]
             n = (w - c) / float(np.linalg.norm(w - c))
             shell_obj.data.vertices[i].co = IW @ _V(tuple(w + n * 0.0003))
-        shell_groups = {}
-        for v in eyes_asset.data.vertices:
-            shell_groups[v.index] = [(eyes_asset.vertex_groups[vg.group].name, float(vg.weight))
-                                     for vg in v.groups if vg.weight > 0.0]
-        for gname in {nm for groups in shell_groups.values() for nm, _ in groups}:
-            if shell_obj.vertex_groups.get(gname) is None:
-                shell_obj.vertex_groups.new(name=gname)
-        for i, groups in shell_groups.items():
-            for nm, w in groups:
-                shell_obj.vertex_groups[nm].add([i], w, "REPLACE")
+        # Lid-bind (tsk_fc93bdfcb41dad07): the shell must NOT copy the eye's
+        # vertex groups (eye.L/eye.R would yaw the shadow with gaze). It binds
+        # 100% to the head bone on the eye's own armature; lid motion arrives
+        # post-export via _eyshell_transfer_lid_keys.
+        _eyshell_bind_to_head(shell_obj, arm)
         alpha = np.zeros(len(shell_obj.data.vertices))
         for side, idx in sides.items():
             c, r = spheres[side]
@@ -3060,15 +3132,8 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         shell_obj.data.materials.append(shell_mat)
         for p in shell_obj.data.polygons:
             p.use_smooth = True
-        for mod in eyes_asset.modifiers:
-            if mod.type == "ARMATURE":
-                nm = shell_obj.modifiers.new(mod.name, "ARMATURE")
-                nm.object = mod.object
-        shell_obj.parent = eyes_asset.parent
-        try:
-            shell_obj.matrix_world = eyes_asset.matrix_world.copy()
-        except Exception:
-            pass
+        # Parent/modifier via the lid bind (head-weighted above preserves the
+        # eye transform; the bind sets parent + inverse itself).
         coll.objects.link(shell_obj)
         shell_mat_name = shell_mat.name
         print(f"EYESHELL_SHELL verts={len(shell_obj.data.vertices)} "
@@ -3161,6 +3226,10 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
             p.material_index = 0
         tear_obj = bpy.data.objects.new("openclinxr_eye_tearline", tear_mesh)
         coll.objects.link(tear_obj)
+        # Lid-bind (tsk_fc93bdfcb41dad07): the tearline ships parented to the
+        # armature at 100% head (never unparented/weightless); lid motion
+        # arrives post-export via _eyshell_transfer_lid_keys.
+        _eyshell_bind_to_head(tear_obj, arm)
         tear_name = tear_mat.name
         print(f"EYESHELL_TEARLINE verts={len(TP)} tris={len(TF)}")
     if shell_mat_name is not None:
@@ -3216,6 +3285,233 @@ def patch_glb_eye_occlusion(path, blend):
     with open(path, "wb") as f:
         f.write(out)
     print(f"GLB_EYESHELL_UNLIT {path} materials {','.join(sorted(patched))}")
+
+
+def _eyshell_transfer_lid_keys(path):
+    """GLB-space lid bind for the shell/tearline (port of the landed
+    lash_blink_follow.py A3 method — NOT a Blender shape-key transfer).
+
+    A Blender-side transfer measured every delta as exactly 0.0 (refused as
+    a vacuous slot), so the six EYESHELL_LID_KEYS are written post-export
+    into the GLB bytes: per target vert, the delta of the nearest SAME-SIDE
+    body vert with union |d| > 0.05 mm over the six keys (eye-band donors,
+    |x| < 0.06, y in 1.50..1.60, GLB meters). Side is measured from bytes
+    (motion mass per bind-x side), never from target names. A vert whose
+    nearest moving donor is beyond 2.0 mm keeps a zero delta (rigid on the
+    head bind) and is counted, never invented. Refuses when the body lacks
+    a key, when a side's moving pool is < 100, or when a target mesh already
+    carries morph targets. Binds openclinxr_eye_occlusion_shell*,
+    openclinxr_eye_tearline* and openclinxr_caruncle* if present. Prints
+    SHELL_REBIND_RECORD (per-mesh per-key maxDeltaMm + closure travel %).
+    """
+    import re as _re
+
+    with open(path, "rb") as f:
+        raw = f.read()
+    if raw[:4] != b"glTF":
+        raise RuntimeError(f"EYESHELL: not a GLB: {path}")
+    json_len = struct.unpack("<I", raw[12:16])[0]
+    json_end = 20 + json_len
+    g = json.loads(raw[20:json_end])
+    blob = bytearray(raw[json_end + 8:])
+    _CT = {5120: "i1", 5121: "u1", 5123: "u2", 5125: "u4", 5126: "f4"}
+    _CTINV = {"i1": 5120, "u1": 5121, "u2": 5123, "u4": 5125, "f4": 5126}
+    _NC = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}
+    _SZ = {"i1": 1, "u1": 1, "u2": 2, "u4": 4, "f4": 4}
+
+    def acc(i):
+        ac = g["accessors"][i]
+        if "bufferView" not in ac:
+            # Sparse morph deltas (body lid keys export sparse): scatter into
+            # a dense zero array (lash_blink_follow.py rd port).
+            sp = ac.get("sparse")
+            if not sp:
+                return np.zeros((ac["count"], _NC[ac["type"]]))
+            ibv = g["bufferViews"][sp["indices"]["bufferView"]]
+            ibase = ibv.get("byteOffset", 0) + sp["indices"].get("byteOffset", 0)
+            idx = np.frombuffer(
+                blob, dtype=np.dtype(_CT[sp["indices"]["componentType"]]),
+                count=sp["count"], offset=ibase).astype(int)
+            vbv = g["bufferViews"][sp["values"]["bufferView"]]
+            vbase = vbv.get("byteOffset", 0) + sp["values"].get("byteOffset", 0)
+            val = np.frombuffer(
+                blob, dtype=np.dtype(_CT[ac["componentType"]]),
+                count=sp["count"] * _NC[ac["type"]], offset=vbase).reshape(
+                    -1, _NC[ac["type"]])
+            out = np.zeros((ac["count"], _NC[ac["type"]]))
+            out[idx] = val
+            return out
+        bv = g["bufferViews"][ac["bufferView"]]
+        base = bv.get("byteOffset", 0) + ac.get("byteOffset", 0)
+        n, nc = ac["count"], _NC[ac["type"]]
+        dt = np.dtype(_CT[ac["componentType"]])
+        sz = _SZ[_CT[ac["componentType"]]]
+        st = bv.get("byteStride")
+        if st and st != nc * sz:
+            s = np.frombuffer(
+                blob, dtype=np.uint8, count=n * st, offset=base).reshape(n, st)
+            return np.stack(
+                [s[:, k * sz:(k + 1) * sz].reshape(n, -1).view(dt).reshape(n)
+                 for k in range(nc)], 1)
+        return np.frombuffer(
+            blob, dtype=dt, count=n * nc, offset=base).reshape(n, nc)
+
+    def append(arr):
+        arr = np.ascontiguousarray(arr, dtype=np.float32)
+        while len(blob) % 4:
+            blob.append(0)
+        off = len(blob)
+        blob.extend(arr.tobytes())
+        g["bufferViews"].append(
+            {"buffer": 0, "byteOffset": off, "byteLength": len(arr.tobytes())})
+        g["accessors"].append(
+            {"bufferView": len(g["bufferViews"]) - 1,
+             "componentType": 5126, "count": len(arr), "type": "VEC3"})
+        return len(g["accessors"]) - 1
+
+    # Donor side map measured from body bytes (body prim target order swaps
+    # left/right vs extras targetNames — lash-measured).
+    remap = {}
+    for mi, m in enumerate(g["meshes"]):
+        if not _re.search(r"body", m["name"], _re.I):
+            continue
+        names = (m.get("extras", {}) or {}).get("targetNames", [])
+        for pi, p in enumerate(m["primitives"]):
+            tg = p.get("targets", [])
+            if not tg:
+                continue
+            Bp = acc(p["attributes"]["POSITION"]).astype(float)
+            for kind in ("closure", "slit", "opened-up"):
+                cands = [i for i, nm in enumerate(names[:len(tg)])
+                         if kind in nm and ("left" in nm or "right" in nm)]
+                scored = []
+                for i in cands:
+                    D = acc(tg[i]["POSITION"]).astype(float)
+                    n = np.linalg.norm(D, axis=1)
+                    scored.append(
+                        (i, n[Bp[:, 0] < 0].sum(), n[Bp[:, 0] >= 0].sum()))
+                if not scored:
+                    continue
+                remap.setdefault((mi, pi), {})[
+                    f"eye-left-{kind}"] = max(scored, key=lambda s: s[1])[0]
+                remap[(mi, pi)][f"eye-right-{kind}"] = max(
+                    scored, key=lambda s: s[2])[0]
+    missing = [k for k in EYESHELL_LID_KEYS
+               if not any(k in mp for mp in remap.values())]
+    if missing:
+        raise RuntimeError(
+            f"EYESHELL: body GLB morphs miss lid keys {missing} — refusing")
+    MOVE_EPS = 0.00005  # 0.05 mm donor moving mask (lash-measured razor edge)
+    NN_CAP = 0.002  # 2.0 mm: beyond this a vert stays rigid, counted not faked
+    donors = {}
+    for side in ("L", "R"):
+        Pside, Dall = [], []
+        for (bmi, bpi), mp in remap.items():
+            if len(mp) < 6:
+                continue
+            bp = g["meshes"][bmi]["primitives"][bpi]
+            Bp = acc(bp["attributes"]["POSITION"]).astype(float)
+            Dp = [acc(bp["targets"][mp[t]]["POSITION"]).astype(float)
+                  for t in EYESHELL_LID_KEYS]
+            eye = (np.abs(Bp[:, 0]) < 0.06) & (Bp[:, 1] > 1.50) & (Bp[:, 1] < 1.60)
+            ssel = (Bp[:, 0] < 0) if side == "L" else (Bp[:, 0] >= 0)
+            Pside.append(Bp[eye & ssel])
+            Dall.append([d[eye & ssel] for d in Dp])
+        Pside = np.concatenate(Pside) if Pside else np.zeros((0, 3))
+        Dall = [np.concatenate([d[t] for d in Dall]) if Dall
+                else np.zeros((0, 3)) for t in range(6)]
+        move = np.zeros(len(Pside), bool)
+        for D in Dall:
+            move |= np.linalg.norm(D, axis=1) > MOVE_EPS
+        if int(move.sum()) < 100:
+            raise RuntimeError(
+                f"EYESHELL: {side} moving donor pool too small "
+                f"({int(move.sum())} < 100) — refusing")
+        donors[side] = (Pside, Dall, move)
+
+    targets = [(i, m) for i, m in enumerate(g["meshes"]) if _re.search(
+        r"openclinxr_eye_occlusion_shell|openclinxr_eye_tearline|openclinxr_caruncle",
+        m["name"], _re.I)]
+    if not targets:
+        raise RuntimeError("EYESHELL: no shell/tearline/caruncle mesh — refusing")
+    record = {"shell": None, "tearline": None, "caruncle": {"present": False,
+              "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"}}
+    for mi, m in targets:
+        prim = m["primitives"][0]
+        if prim.get("targets"):
+            raise RuntimeError(
+                f"EYESHELL: {m['name']} already carries morph targets — refusing")
+        Sp = acc(prim["attributes"]["POSITION"]).astype(float)
+        full = [np.zeros((len(Sp), 3)) for _ in EYESHELL_LID_KEYS]
+        nn_max, rigid = 0.0, 0
+        for side, sel in (("L", Sp[:, 0] < 0), ("R", Sp[:, 0] >= 0)):
+            sidx = np.where(sel)[0]
+            if not len(sidx):
+                continue
+            gi = [EYESHELL_LID_KEYS.index(t) for t in EYESHELL_LID_KEYS
+                  if ("left" if side == "L" else "right") in t]
+            Pside, Dall, mv = donors[side]
+            Pm, Dm = Pside[mv], [Dall[t][mv] for t in gi]
+            Sv = Sp[sidx]
+            out = [np.zeros_like(Sv) for _ in gi]
+            far = np.zeros(len(Sv), bool)
+            for c0 in range(0, len(Sv), 256):
+                C = Sv[c0:c0 + 256]
+                d2 = ((C[:, None, :] - Pm[None, :, :]) ** 2).sum(2)
+                bnn = d2.argmin(1)
+                best = np.sqrt(d2.min(1))
+                nn_max = max(nn_max, float(best.max()))
+                ok = best <= NN_CAP
+                far[c0:c0 + 256] = ~ok
+                for j in range(len(gi)):
+                    got = np.zeros_like(C)
+                    got[ok] = Dm[j][bnn[ok]]
+                    out[j][c0:c0 + 256] = got
+            rigid += int(far.sum())
+            for j, t in enumerate(gi):
+                full[t][sidx] = out[j]
+        prim["targets"] = []
+        maxd = {}
+        for t, name in enumerate(EYESHELL_LID_KEYS):
+            maxd[name] = round(float(np.abs(full[t]).max() * 1000), 4)
+            prim["targets"].append({"POSITION": append(full[t])})
+        m["extras"] = {"targetNames": list(EYESHELL_LID_KEYS)}
+        moved = np.linalg.norm(full[0], axis=1) > 0
+        travel = None
+        if moved.sum():
+            dys = []
+            for (bmi, bpi), mp in remap.items():
+                if len(mp) < 6:
+                    continue
+                bp = g["meshes"][bmi]["primitives"][bpi]
+                Bd = acc(bp["targets"][mp["eye-left-closure"]][
+                    "POSITION"]).astype(float)
+                dys.append(float(np.abs(Bd).max() * 1000))
+            travel = round(
+                float(np.abs(full[0][moved]).max() * 1000) / max(dys) * 100, 1
+            ) if dys and max(dys) else 0.0
+        row = {"mesh": m["name"], "lidKeyMaxDeltaMm": maxd,
+               "nnMaxMm": round(nn_max * 1000, 3), "rigidVerts": rigid,
+               "closureTravelPct": travel}
+        if "occlusion_shell" in m["name"]:
+            record["shell"] = row
+        elif "tearline" in m["name"]:
+            record["tearline"] = row
+        else:
+            record["caruncle"] = {"present": True,
+                                  "reason": f"bound {m['name']} like shell/tearline",
+                                  **row}
+        print(f"EYESHELL_BOUND {m['name']} maxd={maxd} nnMaxMm={row['nnMaxMm']} "
+              f"rigid={rigid} travelPct={travel}")
+    g["buffers"][0]["byteLength"] = len(blob)
+    new_json = json.dumps(g, separators=(",", ":")).encode()
+    total = 12 + 8 + len(new_json) + 8 + len(blob)
+    with open(path, "wb") as f:
+        f.write(b"glTF" + struct.pack("<II", 2, total)
+                + struct.pack("<I", len(new_json)) + b"JSON" + new_json
+                + struct.pack("<I", len(blob)) + b"BIN\x00" + bytes(blob))
+    EYESHELL_BIND_RECORD.update(record)
+    print(f"SHELL_REBIND_RECORD {json.dumps(record)}")
 
 
 EYEMESH_CORNEA_CTX = {}
@@ -8088,6 +8384,14 @@ def main():
     # before the census so the measurements below read the FINAL bytes.
     if EYESHELL_UNLIT_BLEND:
         patch_glb_eye_occlusion(str(output), EYESHELL_UNLIT_BLEND)
+
+    # Shell-rebind (tsk_fc93bdfcb41dad07): GLB-space lid bind for the
+    # shell/tearline (lash A3 method — nearest same-side moving body vert).
+    # Runs after the unlit patch on the final bytes; refuses loudly on a
+    # vacuous transfer. Mutually exclusive with --eye-cornea (which refuses
+    # the shell/tearline flags above), so ordering vs the split is moot.
+    if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
+        _eyshell_transfer_lid_keys(str(output))
 
     # Eyemesh: split the unsplit high-poly eye POST-EXPORT (GLB-space UV-box
     # classification the spike proved; the 5.1 exporter may drop alphaMode on
