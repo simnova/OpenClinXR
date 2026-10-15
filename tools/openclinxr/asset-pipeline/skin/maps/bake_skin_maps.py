@@ -8,10 +8,12 @@ Pore recipe: MPFB enhanced-skin Voronoi bump, CC0 idea baked in Blender --
   pore scale 150 / detail 2.0 / strength 0.3 (decimeter-scale numbers from
   https://static.makehumancommunity.org/mpfb/docs/materials/skinv1.html
   "Make the skin coarser, more rough"). No MPFB code is shipped or imported.
-Wrinkles: procedural age grooves (forehead / crow's feet / nasolabial / neck
-  rings) placed from eye-globe landmarks measured on THIS morphed mesh,
-  displaced into a subdivided duplicate, baked selected-to-active tangent
-  normal. No vector displacement map is produced.
+Wrinkles: CC0 MakeHuman 1.x age targets (head-age-incr + l/r-eye-bag-incr
+  vertex deltas on the hm08 basemesh) transferred onto the morphed mesh through
+  the shared UV layout (shape-independent correspondence) with a Umeyama
+  base->morphed similarity; displaced low vs smooth undisplaced high baked
+  selected-to-active tangent normal. If the transfer checks fail, NO wrinkle
+  map is baked and the blocker is recorded. No vector displacement map.
 Curvature: Geometry Pointiness -> ramp -> Emission, EMIT bake (skin-LUT input).
 Cavity  : AO bake (feeds roughness/specular-occlusion, never albedo).
 
@@ -134,49 +136,167 @@ h_up = hrel @ UP
 h_right = hrel @ RIGHT
 
 
-def groove(dist, width, depth):
-    return -depth * np.exp(-((dist / width) ** 2))
+# ------------------------------------------------- high duplicate ------------
+bpy.ops.object.select_all(action="DESELECT")
+body.select_set(True)
+bpy.context.view_layer.objects.active = body
+bpy.ops.object.duplicate()
+high = bpy.context.view_layer.objects.active
+high.name = "AISHA_BODY_HIGH"
+if high.data.shape_keys:
+    high.shape_key_clear()  # keep basis morphed shape, drop morph keys for subdiv
+
+# -------------------------------------------- age targets -> morphed mesh ----
+# CC0 MakeHuman 1.x age targets are vertex deltas on the hm08 basemesh
+# (base.obj, 19158 verts, decimeters). They reach the merged GLB body through
+# the SHARED UV layout -- a shape-independent correspondence in the same
+# family as face-replay's mesh/UV sampling -- with the base->morphed
+# similarity (s, R) solved by Umeyama over head-vert pairs. No procedural
+# wrinkle field: if the similarity check fails the wrinkle map is NOT baked
+# and the blocker is recorded instead.
+MH_DATA = "/private/tmp/mh-skins-ls/mh1/makehuman/data"
+AGE_TARGETS = [
+    MH_DATA + "/targets/head/head-age-incr.target",
+    MH_DATA + "/targets/eyes/l-eye-bag-incr.target",
+    MH_DATA + "/targets/eyes/r-eye-bag-incr.target",
+]
+WRINKLE_BLOCKED = ""
 
 
-disp = np.zeros(len(hpos))
-front = 1.0 / (1.0 + np.exp(-(h_fwd - 0.005) / 0.004))  # front-of-head mask
-# forehead: 4 horizontal grooves above the eyes
-for i, (off, dep, wid) in enumerate([(0.032, 0.0009, 0.0032), (0.046, 0.0010, 0.0034),
-                                     (0.060, 0.0009, 0.0036), (0.074, 0.0007, 0.0038)]):
-    band = np.exp(-(((h_up - off) / 0.004) ** 2)) * np.exp(-(((np.abs(h_right)) / 0.052) ** 2))
-    disp += groove(h_up - off, wid, dep) * band * front
-# crow's feet: outer eye corners, 3 short grooves fanning
-for sx, ex in ((-1.0, eye_r), (1.0, eye_l)):
-    corner = ex + RIGHT * sx * 0.030
-    corner[2] += 0.002
-    d_corner = np.linalg.norm(hpos - corner, axis=1)
-    fan = np.exp(-((d_corner / 0.016) ** 2))
-    for k, tilt in enumerate((-0.006, 0.0, 0.006)):
-        line = (hrel @ UP) - ((hrel @ RIGHT) - sx * 0.030) * 0.35 - tilt
-        disp += groove(line, 0.0022, 0.0007) * fan * front
-# nasolabial: nose tip = front-most point below eyes, centre band
-cand = (c_up < -0.008) & (c_up > -0.055) & (np.abs(c_right) < 0.020) & (c_fwd > 0.0)
-nose_tip = vpos[np.argmax(np.where(cand, c_fwd, -1e9))]
-mouth_y = nose_tip - UP * 0.030
-for s in (-1.0, 1.0):
-    a = nose_tip + RIGHT * s * 0.011 - UP * 0.004
-    b = mouth_y + RIGHT * s * 0.024
-    ab = b - a
-    t = np.clip((hpos - a) @ ab / (ab @ ab), 0.0, 1.0)
-    d_line = np.linalg.norm(hpos - (a + t[:, None] * ab), axis=1)
-    seg = np.exp(-((t - 0.5) / 0.45) ** 2)
-    disp += groove(d_line, 0.0028, 0.0012) * seg * front
-# neck rings: 3 grooves across front of neck below chin
-for off, dep in ((-0.118, 0.0008), (-0.130, 0.0009), (-0.142, 0.0007)):
-    ring = np.exp(-(((h_up - off) / 0.0035) ** 2)) * np.exp(-(((np.abs(h_right)) / 0.034) ** 2))
-    disp += groove(h_up - off, 0.0030, dep) * ring * front
+def parse_base_obj(path):
+    pos, uv_first, nverts = [], {}, 0
+    uv_bank = []
+    for line in open(path):
+        if line.startswith("v "):
+            pos.append(list(map(float, line.split()[1:4])))
+            nverts += 1
+        elif line.startswith("vt "):
+            uv_bank.append(list(map(float, line.split()[1:3])))
+    loop_vv, loop_vt = [], []
+    for line in open(path):
+        if line.startswith("f "):
+            for tok in line.split()[1:]:
+                vi, vti = tok.split("/")[:2]
+                loop_vv.append(int(vi) - 1)
+                loop_vt.append(int(vti) - 1)
+    uv_arr = np.zeros((nverts, 2))
+    seen = np.zeros(nverts, bool)
+    for vv, vti in zip(loop_vv, loop_vt):
+        if not seen[vv]:
+            uv_arr[vv] = uv_bank[vti]
+            seen[vv] = True
+    return np.array(pos), uv_arr
 
-hpos2 = hpos + hnor * disp[:, None]
-hpos2_fl = hpos2.reshape(-1).tolist()
-hv.foreach_set("co", hpos2_fl)
-high.data.update()
-print(f"HIGH verts={len(hpos)} disp min={disp.min()*1000:.3f}mm max={disp.max()*1000:.3f}mm "
-      f"nose_tip={nose_tip}")
+
+def parse_mh_target(path):
+    d = {}
+    for line in open(path):
+        if line.startswith("#") or not line.strip():
+            continue
+        s = line.split()
+        d[int(s[0])] = [float(s[1]), float(s[2]), float(s[3])]
+    return d
+
+
+def umeyama_similarity(src, dst):
+    mu_s, mu_d = src.mean(0), dst.mean(0)
+    sc, dc = src - mu_s, dst - mu_d
+    var = (sc ** 2).sum() / len(src)
+    H = (dc.T @ sc) / len(src)
+    U, S, Vt = np.linalg.svd(H)
+    R = (U @ Vt)
+    if np.linalg.det(R) < 0:
+        Vt[-1] *= -1
+        R = U @ Vt
+    s = S.sum() / var
+    return s, R
+
+
+def low_vert_uv(obj):
+    me = obj.data
+    uv = me.uv_layers["UVMap"].data
+    narr = np.empty(len(uv) * 2)
+    uv.foreach_get("uv", narr)
+    narr = narr.reshape(-1, 2)
+    lv = np.empty(len(me.loops), dtype=np.int32)
+    me.loops.foreach_get("vertex_index", lv)
+    out = np.zeros((len(me.vertices), 2))
+    seen = np.zeros(len(me.vertices), bool)
+    for li, vv in enumerate(lv):
+        if not seen[vv]:
+            out[vv] = narr[li]
+            seen[vv] = True
+    return out
+
+
+try:
+    base_pos, base_uv = parse_base_obj(MH_DATA + "/3dobjs/base.obj")
+    assert len(base_pos) == 19158, f"hm08 base vert count {len(base_pos)}"
+    base_delta = np.zeros_like(base_pos)
+    for tp in AGE_TARGETS:
+        for idx, dv in parse_mh_target(tp).items():
+            base_delta[idx] += dv
+    assert np.abs(base_delta).max() > 0, "age targets carry no deltas"
+    low_uv = low_vert_uv(body)
+    assert low_uv.min() >= -0.001 and low_uv.max() <= 1.001, \
+        f"GLB UV outside shared layout: {low_uv.min():.3f}..{low_uv.max():.3f}"
+    from mathutils.kdtree import KDTree
+    kd = KDTree(len(base_pos))
+    for i, co in enumerate(base_uv):
+        kd.insert((float(co[0]), float(co[1]), 0.0), i)
+    kd.balance()
+    match = np.empty(len(vpos), dtype=np.int64)
+    mdist = np.empty(len(vpos))
+    for i, co in enumerate(low_uv):
+        _, idx, dist = kd.find((float(co[0]), float(co[1]), 0.0))
+        match[i], mdist[i] = idx, dist
+    print(f"UV correspondence: median dist={np.median(mdist):.6f} max={mdist.max():.6f}")
+    skin_idx = next(i for i, m in enumerate(body.data.materials)
+                    if m and "skin" in m.name.lower())
+    ploop = np.empty(len(mesh.polygons), dtype=np.int32)
+    mesh.polygons.foreach_get("material_index", ploop)
+    is_skin_vert = np.zeros(len(vpos), bool)
+    pvert = np.empty(len(mesh.loops), dtype=np.int32)
+    mesh.loops.foreach_get("vertex_index", pvert)
+    start = 0
+    for pi, mi in enumerate(ploop):
+        n = mesh.polygons[pi].loop_total
+        if mi == skin_idx:
+            is_skin_vert[pvert[start:start + n]] = True
+        start += n
+    smd = mdist[is_skin_vert]
+    print(f"UV correspondence (skin verts {is_skin_vert.sum()}): "
+          f"median={np.median(smd):.6f} max={smd.max():.6f}")
+    assert np.median(smd) < 2e-3 and smd.max() < 0.02, \
+        "UV layouts diverge on skin verts"
+    head = is_skin_vert & (vpos[:, 2] > (eye_mid[2] - 0.15))
+    assert head.sum() > 5000, "head region too small for similarity fit"
+    s_uv, R_uv = umeyama_similarity(base_pos[match[head]], vpos[head])
+    print(f"Umeyama base->morphed: scale={s_uv:.4f} (expect ~0.1 dm->m)")
+    assert 0.08 < s_uv < 0.12, f"similarity scale {s_uv:.4f} outside dm->m band"
+    low_disp = (R_uv @ base_delta[match].T).T * s_uv
+    low_disp[mdist > 0.005] = 0.0  # re-wrapped hidden shells keep no age delta
+    mag = np.linalg.norm(low_disp, axis=1)
+    print(f"transferred age field: verts={len(mag)} mean={mag.mean()*1000:.4f}mm "
+          f"max={mag.max()*1000:.4f}mm n8262+={int((mag > 1e-6).sum())}")
+    disp_co = (vpos + low_disp).reshape(-1).tolist()
+    mesh.vertices.foreach_set("co", disp_co)
+    mesh.update()
+    body.update_tag()
+except AssertionError as e:
+    WRINKLE_BLOCKED = str(e)
+    print(f"WRINKLE_BLOCKED: {WRINKLE_BLOCKED}")
+
+sub = high.modifiers.new("SUBDIV", "SUBSURF")
+sub.levels = 2
+sub.render_levels = 2
+# apply subdiv (needs active + object mode)
+bpy.ops.object.modifier_apply(modifier=sub.name)
+hv = high.data.vertices
+hpos = np.empty(len(hv) * 3)
+hv.foreach_get("co", hpos)
+hpos = hpos.reshape(-1, 3)
+print(f"HIGH verts={len(hpos)} (subdiv of undisplaced low; bake reads low-minus-high = age delta)")
 
 
 def new_bake_image(name, w, h):
@@ -210,21 +330,28 @@ assert skin_slot, "no skin material slot on low body"
 print(f"skin slot: {skin_slot[1].name}")
 
 # ------------------------------------------------- 1. wrinkle normal 2048 ----
-wrinkle_img = new_bake_image("AISHA_WRINKLE_NORMAL", 2048, 2048)
-ensure_image_node(skin_slot[1], wrinkle_img)
-bpy.ops.object.select_all(action="DESELECT")
-high.select_set(True)
-body.select_set(True)
-bpy.context.view_layer.objects.active = body
-scene.render.bake.use_selected_to_active = True
-scene.render.bake.cage_extrusion = 0.0
-scene.render.bake.max_ray_distance = 0.004
-bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", use_clear=True, margin=8)
+# Skipped entirely when the age-target transfer is blocked (D2: no
+# procedural fallback is shipped).
 wrinkle_path = os.path.join(args.out, "aisha-wrinkle-normal-2048.png")
-wrinkle_img.filepath_raw = wrinkle_path
-wrinkle_img.file_format = "PNG"
-wrinkle_img.save()
-print(f"wrote {wrinkle_path}")
+if not WRINKLE_BLOCKED:
+    wrinkle_img = new_bake_image("AISHA_WRINKLE_NORMAL", 2048, 2048)
+    ensure_image_node(skin_slot[1], wrinkle_img)
+    bpy.ops.object.select_all(action="DESELECT")
+    high.select_set(True)
+    body.select_set(True)
+    bpy.context.view_layer.objects.active = body
+    scene.render.bake.use_selected_to_active = True
+    scene.render.bake.cage_extrusion = 0.0
+    scene.render.bake.max_ray_distance = 0.004
+    bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", use_clear=True, margin=8)
+    wrinkle_img.filepath_raw = wrinkle_path
+    wrinkle_img.file_format = "PNG"
+    wrinkle_img.save()
+    print(f"wrote {wrinkle_path}")
+else:
+    if os.path.exists(wrinkle_path):
+        os.remove(wrinkle_path)
+    print(f"wrinkle map NOT baked: {WRINKLE_BLOCKED}")
 
 # ------------------------------------------------- 2/3. curvature + cavity --
 orig_mats = list(body.data.materials)
@@ -331,12 +458,15 @@ mody.inputs[1].default_value = 1.0
 comb = pnt.nodes.new("ShaderNodeCombineXYZ")
 voro = pnt.nodes.new("ShaderNodeTexVoronoi")
 voro.feature = "F1"
-voro.inputs["Scale"].default_value = 150.0   # MPFB doc decimeter pore scale
+voro.inputs["Scale"].default_value = 24.0    # ~144 cells/tile: 512/144 ~= 3.6px per
+                                             # pore (was 150: 900 cells/tile, 0.57px/cell,
+                                             # aliased into low-frequency blotches -- D1)
 voro.inputs["Detail"].default_value = 2.0    # MPFB doc pore detail
 voro.inputs["Roughness"].default_value = 0.6
 bump = pnt.nodes.new("ShaderNodeBump")
 bump.inputs["Strength"].default_value = 0.3  # MPFB doc pore strength
-bump.inputs["Distance"].default_value = 0.15
+bump.inputs["Distance"].default_value = 0.0018  # calibrated: R/G std ~3.5 (interp 0.0003->0.75, 0.007->13.4)
+                                             # (0.15 -> std 11 dirt; 0.0003 -> std 0.75 flat)
 pnt.links.new(tcoord.outputs["UV"], mapping.inputs[0])
 pnt.links.new(mapping.outputs[0], sep.inputs[0])
 pnt.links.new(sep.outputs[0], modx.inputs[0])
@@ -369,8 +499,10 @@ summary = {
     "glb": args.glb,
     "low_body": {"name": body.name, "verts": len(mesh.vertices),
                  "faces": len(mesh.polygons), "mesh_sha": mesh_sha},
+    "wrinkle_blocked": WRINKLE_BLOCKED,
     "maps": [
-        {"file": os.path.basename(wrinkle_path), "sha256": sha(wrinkle_path)},
+        *([] if WRINKLE_BLOCKED else
+          [{"file": os.path.basename(wrinkle_path), "sha256": sha(wrinkle_path)}]),
         {"file": os.path.basename(curv_path), "sha256": sha(curv_path)},
         {"file": os.path.basename(cav_path), "sha256": sha(cav_path)},
         {"file": os.path.basename(pore_path), "sha256": sha(pore_path)},

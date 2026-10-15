@@ -7,7 +7,7 @@
     "verts": 58775,
     "faces": 107024,
     "meshSha256RoundedPositions": "ad5c6097686434612a17202fcedfdd5549bd9f6c4d5ca084915249f188cb9e7c",
-    "note": "NOT the hm08 base (13380 verts): curvature/cavity/wrinkles follow this morphed mesh per CW"
+    "note": "NOT the hm08 base (13380 verts): curvature/cavity/pore follow this morphed mesh per CW"
   },
   "uv": "shared MakeHuman UV kept as-is (UVMap, no re-unwrap)",
   "threshold": {
@@ -18,24 +18,19 @@
     "aishaAlbedo": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/sym/out-albedo.png",
     "aishaAlbedoSha256": "9a1d37f16744a2c333d330cd93ea37405a8d698df9bf4f449d60c9dcf8fcd163",
     "renders": "skinmaps/threshold/thr-stock-front.png vs thr-aisha-front.png (luma 158.2 vs 128.4)",
-    "renderRepeatabilitySelfDiff": 0.0
+    "renderRepeatabilitySelfDiff": 0.0,
+    "note": "kept as recorded context (h1-D3); local-detail maps are graded on the native-pixel crop sheet, not this whole-image number"
   },
   "bakeCommand": "blender --background --factory-startup --python tools/openclinxr/asset-pipeline/skin/maps/bake_skin_maps.py -- --glb /Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/eyetexcard/aisha-eyetex.glb --out /Volumes/files/openclinxr-assets/store/skin-maps",
+  "postCommand": "mise exec -- python3 tools/openclinxr/asset-pipeline/skin/maps/make_pore_tileable.py /Volumes/files/openclinxr-assets/store/skin-maps/pore-tile-normal-512.png",
   "bakeScript": "tools/openclinxr/asset-pipeline/skin/maps/bake_skin_maps.py",
+  "blocked": {
+    "kind": "wrinkle-normal",
+    "status": "NOT SHIPPED (h1-D2): no procedural fallback shipped",
+    "evidence": "macro age targets (universal-*-old/young) carry 0 vertex deltas; micro age targets exist (head-age-incr 3195 verts, l/r-eye-bag-incr 40 verts, CC0, maxidx 15127 < 19158) but their index space is the hm08 base order and the merged GLB body UV layout diverges (nearest-UV dist median 0.0012, p99 0.086, max 0.114 on 39221 skin verts), so UV transfer is anatomically unsafe; 3D transfer needs the phenotype fit owned by HELD lane #576. Bake script records WRINKLE_BLOCKED and writes no wrinkle file.",
+    "supersededRenders": "skinmaps/g1/g1-wrinkle-on/off-front.png (procedural map: forehead band + torn lower-lid patch, withdrawn)"
+  },
   "maps": [
-    {
-      "kind": "wrinkle-normal",
-      "file": "aisha-wrinkle-normal-2048.png",
-      "size": [2048, 2048],
-      "store": "assets:skin-maps/aisha-wrinkle-normal-2048.png",
-      "sha256": "ad1bf9a40da001058bb55dd5c832205292857c803c54132c11d7a3573e61cb0a",
-      "space": "tangent",
-      "source": "procedural age grooves (forehead/crow's-feet/nasolabial/neck, -0.95mm max) from eye-globe landmarks on the morphed mesh, subdiv-2 duplicate, selected-to-active bake",
-      "g1OnVsOff1280": 0.368,
-      "g1QuestDownsample256": 0.365,
-      "g2": "tangent-space PNG (B>200 frac 0.995); loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-wrinkle-on.json)",
-      "questVerdict": "DROP (0.368 < 12.679)"
-    },
     {
       "kind": "curvature",
       "file": "aisha-curvature-1024.png",
@@ -67,15 +62,18 @@
       "file": "pore-tile-normal-512.png",
       "size": [512, 512],
       "store": "assets:skin-maps/pore-tile-normal-512.png",
-      "sha256": "e3b75d2f2ccab320e72bf0a93457677f991c7af4df2e7ed520ec7faefdd6e1c6",
+      "sha256": "9119fe6cd8376772ff611304af2c19df48b3ccec13cc16968d079431b9c2a43f",
       "space": "tangent",
-      "source": "MPFB enhanced-skin Voronoi bump idea (CC0; baked in Blender, no MPFB code): Voronoi F1 scale 150 / detail 2.0 / bump strength 0.3 per https://static.makehumancommunity.org/mpfb/docs/materials/skinv1.html, modulo-wrapped UV (6 repeats) for exact tiling + make_pore_tileable.py 8px edge crossfade; seam step 8.97/8.47 vs interior 8.79 (seamless)",
-      "g1OnVsOff1280": 0.632,
-      "g1QuestDownsample256": 0.605,
-      "g2": "tangent-space PNG (B>200 frac 1.0); loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-pore-on.json)",
-      "questVerdict": "DROP (0.632 < 12.679)"
+      "source": "MPFB enhanced-skin Voronoi bump idea (CC0; baked in Blender, no MPFB code): Voronoi F1 scale 24 / detail 2.0 / strength 0.3 per https://static.makehumancommunity.org/mpfb/docs/materials/skinv1.html, modulo-wrapped UV (6 repeats) + make_pore_tileable.py 8px crossfade. v1 (scale 150) was 900 cells/tile at 0.57px/cell and aliased into dirt blotches (blob eq-diam 13.1px vs 11.7 off). v2 Bump Distance calibrated 0.15 (dirt) -> 0.045 (std 23.8) -> 0.007 (std 13.4) -> 0.0018 -> 0.0003 (std 0.75 flat); final 0.0018 gives R/G std 4.5.",
+      "frequency": "dominant spatial frequency 103 cycles per tile-UV unit (radial FFT peak of tile height, DC..3 nulled); 5.0 px per cell; seam step 3.2..3.7 vs interior 3.2 (seamless)",
+      "g1OnVsOff1280": 0.263,
+      "g1QuestDownsample256": 0.259,
+      "gradeSheet": "skinmaps/g1/crop-sheet-pore.png (native pixels: full-front off|on + forehead-eyes x420-860 y520-760 off|on)",
+      "renderBlotchPx": "sigma8-blob eq-diam v2 11.6px == off 11.7px (v1 dirt 13.1px): no new low-frequency artifacts",
+      "g2": "tangent-space PNG; loads as normalTexture via skinOverride.normalUrl, readback normalScale 1 (g1-pore-on.json)",
+      "questVerdict": "DROP by whole-image gate (0.263 < 12.679); re-grade submitted on the crop sheet: no artifacts, detail contribution minimal, orchestrator grade pending"
     }
   ],
-  "redBeforeAfter": "RED was 'no normal/curvature/cavity'; AFTER: all four baked per morphed mesh, but G1 keeps none for Quest (normals move 0.37/0.63 vs 12.68 gap; curvature/cavity unwired). Note: aisha-eyetex.glb already ships a 1024 normal (hasNormalMap true with no override) outside factory skin output.",
+  "redBeforeAfter": "RED was 'no normal/curvature/cavity'; AFTER: curvature + cavity + pore tile baked per morphed mesh, wrinkle map withdrawn (blocker recorded, no procedural shipped). Note: aisha-eyetex.glb already ships a 1024 normal (hasNormalMap true with no override) outside factory skin output.",
   "notTested": "Quest frame cost"
 }
