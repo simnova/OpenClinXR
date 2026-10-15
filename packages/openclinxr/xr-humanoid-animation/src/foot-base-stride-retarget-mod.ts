@@ -370,7 +370,14 @@ export function applyFootBaseStep(input: {
     + (stanceFoothold.z - approach.start.z) * unitZ;
   const swingRel = footBaseRelPhase(swing, phase01);
   const swingLiftRel = FOOT_BASE_STANCE_FRACTION[swing];
-  const swingProgress = Math.min(Math.max((swingRel - swingLiftRel) / (1 - swingLiftRel), 0), 1);
+  // Swing-phase progress with zero end velocities (raised-cosine ease): the
+  // foot rolls off the toe at liftoff and settles onto the heel at
+  // touchdown instead of launching/stomping at full segment speed (a linear
+  // sweep moves ~7 cm on its first frame, which reads as a kick and trips
+  // the slide meter's stance-window boundary). Endpoints are exact either
+  // way: liftoff continuity and touchdown/handover coincidence hold.
+  const swingLinear = Math.min(Math.max((swingRel - swingLiftRel) / (1 - swingLiftRel), 0), 1);
+  const swingProgress = 0.5 - 0.5 * Math.cos(Math.PI * swingLinear);
   const liftoffAlong = (state.foothold[swing].x - approach.start.x) * unitX
     + (state.foothold[swing].z - approach.start.z) * unitZ;
   const touchdownHalf = footBaseHalfIndex(planShiftedS + (1 - swingRel) * cycleS, cycleS);
