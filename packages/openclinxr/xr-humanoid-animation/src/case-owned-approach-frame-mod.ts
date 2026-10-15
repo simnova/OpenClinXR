@@ -37,6 +37,7 @@ import {
   updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
 import { readWalkExitWindowEnabled } from "./walk-exit-window-query-flag-mod.js";
+import { footBaseStepIsActive } from "./foot-base-stride-retarget-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
@@ -111,6 +112,15 @@ export function advanceCaseOwnedBedsideApproach(
   // cross as data — this module owns the clip constants, so no package
   // boundary is crossed. The coefficients stay TRUE model (the G6 probe
   // seeds only the plan, never the correction).
+  // FOOTBASE-6: suppress the M2 toe-crossing exit while the foot-base
+  // retarget owns the slot. Its foothold-planned swing toes flip the R-L
+  // separation ~3 substeps before the clip's k-th passing (after5: flip3 at
+  // unw 2.96 vs target 3.088, 42 vs 45 frames); plan-only's flip and target
+  // coincide. The phase target stays the single terminator, and the
+  // flag-absent path never reads this branch (false without `?footBase=1`).
+  const routeDxExit = approach.target.x - approach.start.x;
+  const routeDzExit = approach.target.z - approach.start.z;
+  const footBaseExitActive = footBaseStepIsActive(Math.hypot(routeDxExit, routeDzExit));
   const footstepExit =
     clipStanceForExit === undefined || !readFootstepPlanEnabled() || approach.footstep === null
       ? null
@@ -125,7 +135,8 @@ export function advanceCaseOwnedBedsideApproach(
           aEndL: FOOTSTEP_TRAVEL_COEFFS.aEndL,
           bEndL: FOOTSTEP_TRAVEL_COEFFS.bEndL,
           planScale: approach.footstep.scale,
-          toeCrossed: readFootstepToeCrossed(approach),
+          // Separation read still runs (owns the stored datum); only the signal is gated.
+          toeCrossed: readFootstepToeCrossed(approach) && !footBaseExitActive,
           exitDelaySubsteps: readFootstepExitDelaySubsteps(),
         };
   const execution = stepBedsideApproachExecution({
