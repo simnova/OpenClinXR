@@ -85,13 +85,13 @@ THRESHOLDS = {
                   "(flat-vs-lit-sweep.json); good final-front 1.48 passes, "
                   "bad p0-shipped-front 30.68 fails; min true maxdE 6.78 "
                   "still fails skin via C2/C3"},
-    "C2a_abstol": {"value": 0.895, "source": "MIDPOINT (0.80_good + 0.99_bad)/2 "
-                   "= 0.895: good final-front a-spread 0.80 "
-                   "(S/gate/out-v2/front/table.md), bad p1-graded-front 0.99 "
-                   "(S/gate/out/table.md); noise 0.581 below both margins"},
+    "C2a_abstol": {"value": 0.895, "source": "REPORT-ONLY midpoint "
+                   "(0.80_good + 0.99_bad)/2 = 0.895: margin 0.095 < noise "
+                   "0.581 (ratio 0.16 < 1), so it cannot tell good from bad; "
+                   "displayed number only, not enforced"},
     "C2b_abstol": {"value": 7.69, "source": "MIDPOINT (0.76 + 14.62)/2 = 7.69: "
                    "good final-front L-spread 0.76, bad aisha-fine-b 14.62; "
-                   "flat noise 4.16 passes with margin 3.53"},
+                   "margin 6.93 > noise 4.16 (ratio 1.67), enforced"},
     "C3a_abstol": {"value": 5.16, "source": "MIDPOINT (4.06 + 6.26)/2 = 5.16: "
                    "good final-front lip-da 4.06, bad p1-graded-front 6.26; "
                    "noise 0.154"},
@@ -101,18 +101,25 @@ THRESHOLDS = {
     "C3ratio_abstol": {"value": 0.0595, "source": "MIDPOINT (0.037 + 0.082)/2 "
                        "= 0.0595: good final-front L-ratio 0.037, bad "
                        "aisha-detail-still 0.082; noise 0.010"},
-    "C4_abstol": {"value": 3.085, "source": "MIDPOINT (2.00 + 4.17)/2 = 3.085: "
-                  "good final-front eyelid 2.00, bad p0-shipped-front 4.17; "
-                  "noise 1.539"},
+    "C4_abstol": {"value": 3.085, "source": "REPORT-ONLY midpoint "
+                  "(2.00 + 4.17)/2 = 3.085: margin 1.085 < noise 1.539 "
+                  "(ratio 0.70 < 1), so it cannot tell good from bad; "
+                  "displayed number only, not enforced"},
     "C5_abstol": {"value": 2.53, "source": "MIDPOINT (0.07 + 4.99)/2 = 2.53: "
                   "good final-front philtrum 0.07, bad p1-graded-front 4.99; "
                   "noise 0.164"},
     "C6_frac": {"value": 0.42, "source": "MIDPOINT/v_t: abs thr "
                 "(0.231_good + -0.034_bad)/2 = 0.0985, frac 0.0985/0.235 = "
-                "0.42: good final-front shading 0.231, bad p0-shipped-front "
-                "-0.034, chain input v_t 0.235; flat 0.066 still fails; "
-                "LIGHTING clause, albedo cannot fix it"},
+                "0.42: run-to-run noise 0.0 (3 repeat detections, "
+                "flat-vs-lit-sweep.json), margin 0.132 clears it; flat 0.066 "
+                "still fails; LIGHTING clause, albedo cannot fix it"},
 }
+
+# Sub-clauses whose noise_margin_ratio (min margin / run-to-run noise) is
+# below 1 cannot tell good from bad: their numbers stay displayed but are
+# gated OUT of every verdict below. C6 is not listed: its measured run
+# noise is 0.0, so its 0.132 margin clears.
+REPORT_ONLY = frozenset({"C2a_abstol", "C4_abstol"})
 
 DETECT_FAIL_NOTE = ("no face detected by FaceLandmarker; "
                     "no hand estimate substituted")
@@ -416,8 +423,10 @@ def evaluate_clauses(stats_t, stats_r):
            "pass": bool(d_L <= THRESHOLDS["C2b_abstol"]["value"]),
            "margin": d_L - THRESHOLDS["C2b_abstol"]["value"],
            "source": THRESHOLDS["C2b_abstol"]["source"]}
+    c2a["report_only"] = True  # ratio 0.16 < 1: displayed, never gating
     cl["C2"] = {"a_spread": c2a, "L_spread": c2b,
-                "pass": bool(c2a["pass"] and c2b["pass"])}
+                "pass": bool(c2b["pass"])}
+    cl["C2"]["report_only_arms"] = ["a_spread"]
 
     # C3: lips vs cheek.
     da = abs((R["lips"]["a"] - cheek_mean_a(R))
@@ -454,7 +463,7 @@ def evaluate_clauses(stats_t, stats_r):
           "pass": bool(d_e <= THRESHOLDS["C4_abstol"]["value"]),
           "margin": d_e - THRESHOLDS["C4_abstol"]["value"],
           "source": THRESHOLDS["C4_abstol"]["source"]}
-    cl["C4"] = {**c4, "pass": bool(c4["pass"])}
+    cl["C4"] = {**c4, "pass": bool(c4["pass"]), "report_only": True}
 
     # C5: upper-lip skin vs forehead (L).
     d_u = abs((R["upperlip_skin"]["L"] - R["forehead"]["L"])
@@ -479,7 +488,8 @@ def evaluate_clauses(stats_t, stats_r):
                 * v_t, "lit_side": lit,
                 "source": THRESHOLDS["C6_frac"]["source"]}
 
-    skin = all(cl[k]["pass"] for k in ["C1", "C2", "C3", "C4", "C5"])
+    # C4 is report-only (ratio 0.70 < 1) and stays out of the verdict.
+    skin = all(cl[k]["pass"] for k in ["C1", "C2", "C3", "C5"])
     cl["skinPass"] = bool(skin)
     cl["lightingPass"] = bool(cl["C6"]["pass"])
     return cl
@@ -590,6 +600,7 @@ def round_clauses(clauses):
                                   for rk, rv in v["regions"].items()}}
         elif k == "C2":
             out[k] = {"pass": v["pass"],
+                      "report_only_arms": v.get("report_only_arms", []),
                       "a_spread": {kk: (r3(vv) if kk in ("value", "margin")
                                         else vv) for kk, vv in
                                    v["a_spread"].items()},
