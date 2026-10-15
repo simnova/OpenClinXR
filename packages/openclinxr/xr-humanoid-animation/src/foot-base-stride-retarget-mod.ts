@@ -5,6 +5,7 @@ import { readFootBaseEnabled } from "./foot-base-query-flag-mod.js";
 import type { FootBasePathRow } from "./foot-base-path-data-mod.js";
 import type { LocomotionStanceLabels } from "./locomotion-stance-labels.js";
 import {
+  FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
   footBaseHalfBounds,
@@ -27,6 +28,7 @@ import {
  * importers keep working. Behaviour is unchanged.
  */
 export {
+  FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
   footBaseHalfBounds,
@@ -45,11 +47,18 @@ export {
  * each foot's toe path stored relative to its foothold segment offline,
  * rebuilt between new footholds as the IK target; stance fixed at foothold.
  * Replaces the amplitude blend plus closed-loop advance per substep: stance
- * toe target = its foothold (XZ pinned by an exact slot translate), swing =
- * stance-foothold-relative path ((along01 * 2 - 1) steps fore-aft from the
- * stance foothold on the swing foot's home side, plus the row lateral and
- * height), each leg solved with `solveSteppingLegHinge` from a yaw-stable
- * heel target. Pelvis keeps the clip pose.
+ * toe target = its foothold (XZ pinned by an exact slot translate, height
+ * = floor + the plant-toe datum + the stride-scaled row excursion — the
+ * rows are plant-relative, not floor-absolute); swing = the foot's own
+ * liftoff-to-touchdown segment swept by swing-phase progress (along01 is
+ * the documented 0-at-liftoff/1-at-touchdown fraction, heights likewise
+ * datum-anchored and stride-scaled), each leg solved with
+ * `solveSteppingLegHinge` from a yaw-stable heel target. Pelvis keeps the
+ * clip pose. Raw cruise-shape rows applied floor-absolute and
+ * stance-relative put targets outside the short-stride reachable envelope
+ * (footbase-5: buried stance ~5 cm deep, swing drag 0.6 m behind the hip
+ * vs a 0.735 m leg), and the analytic hinge takes the straightest reaching
+ * shape — both knees locked straight and the body yanked ahead of the feet.
  *
  * ROLES COME ONLY FROM THE FOOTHOLD SCHEDULE, never from the observe-only
  * stance lock (the lock flaps every 2-4 frames early in the walk; each flap
@@ -337,25 +346,41 @@ export function applyFootBaseStep(input: {
   slot.position.z = approach.start.z + unitZ * bodyTravelM;
   slot.updateMatrixWorld(true);
 
-  // Absolute targets. A pinned foot targets its foothold XZ and the row
-  // height off the floor. The swing path hangs off the crown foothold:
-  // (along01 * 2 - 1) plan steps fore-aft — liftoff one step behind the
-  // stance foot, touchdown one step ahead (which is exactly the next
-  // plan-built plant, so touchdown and handover coincide with no snap) — on
-  // the swing foot's home side plus the row's measured lateral deviation.
+  // Absolute targets, rebuilt per the rows' documented contract (footbase-5).
+  // Heights are plant-relative ("toe Y minus this stance's plant toe Y"), so
+  // the absolute target is floorY + the plant-toe datum + the stride-scaled
+  // excursion: reading heightM raw above the floor buried stance ~5 cm deep
+  // and arced the swing at full cruise height, both outside the short-stride
+  // reachable envelope (analytic hinge = straightest reaching shape).
+  // Fore-aft, along01 is the documented liftoff-to-touchdown fraction (0 at
+  // liftoff, 1 at touchdown), so the swing runs from the foot's own liftoff
+  // foothold to its touchdown plant by swing-phase progress — never as
+  // (along01 x 2 - 1) about the stance foothold, which both jumped ~9 cm at
+  // liftoff when consecutive halves travel differently and replayed the
+  // cruise toe-off drag 0.6 m behind the hip (unreachable: leg 0.735 m).
+  // Touchdown uses the half travel of the half containing the plant (exact
+  // coincidence with the handover plant even when the half index advances
+  // mid-swing), so touchdown and handover still coincide with no snap.
   const pinTargetFor = (side: FootBaseSide): { x: number; y: number; z: number } => ({
     x: state.foothold[side].x,
-    y: floorY + rowNow(side).heightM,
+    y: floorY + FOOT_BASE_HEIGHT_DATUM[side] + scale * rowNow(side).heightM,
     z: state.foothold[side].z,
   });
   const stanceAlong = (stanceFoothold.x - approach.start.x) * unitX
     + (stanceFoothold.z - approach.start.z) * unitZ;
-  const swingReach = swingRow.along01 * 2 - 1;
+  const swingRel = footBaseRelPhase(swing, phase01);
+  const swingLiftRel = FOOT_BASE_STANCE_FRACTION[swing];
+  const swingProgress = Math.min(Math.max((swingRel - swingLiftRel) / (1 - swingLiftRel), 0), 1);
+  const liftoffAlong = (state.foothold[swing].x - approach.start.x) * unitX
+    + (state.foothold[swing].z - approach.start.z) * unitZ;
+  const touchdownHalf = footBaseHalfIndex(planShiftedS + (1 - swingRel) * cycleS, cycleS);
+  const touchdownAlong = stanceAlong + footBaseHalfTravelM(touchdownHalf, scale);
+  const swingAlong = liftoffAlong + swingProgress * (touchdownAlong - liftoffAlong);
   const swingTarget = {
-    x: approach.start.x + unitX * (stanceAlong + swingReach * halfTravel)
+    x: approach.start.x + unitX * swingAlong
       + sideX * (state.sideHome[swing] + swingRow.lateralM),
-    y: floorY + swingRow.heightM,
-    z: approach.start.z + unitZ * (stanceAlong + swingReach * halfTravel)
+    y: floorY + FOOT_BASE_HEIGHT_DATUM[swing] + scale * swingRow.heightM,
+    z: approach.start.z + unitZ * swingAlong
       + sideZ * (state.sideHome[swing] + swingRow.lateralM),
   };
 

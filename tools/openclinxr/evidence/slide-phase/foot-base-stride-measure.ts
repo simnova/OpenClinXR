@@ -29,11 +29,37 @@ type Frame = {
   leftToe: Vec3 | null;
   rightToe: Vec3 | null;
   stanceFoot: string | null;
+  clipTime?: number | null;
   legWorlds: Record<string, Vec3 | null> | null;
   startWorld?: Vec3 | null;
   targetWorld?: Vec3 | null;
 };
-type RunFile = { urlQuery?: string; frames: Frame[] };
+type RunFile = {
+  urlQuery?: string;
+  frames: Frame[];
+  labels?: { cycleSeconds?: number } | null;
+};
+
+/** Mirror of FOOT_BASE_PLANT_PHASE / FOOT_BASE_STANCE_FRACTION (schedule-mod). */
+const PLANT = { left: 0.9267100504367475, right: 0.4380801606057965 } as const;
+const STANCE_FRac = { left: 0.6403164246610666, right: 0.53605251487726 } as const;
+const CYCLE_FALLBACK_S = 1.7083333730697632;
+
+function relPhase(side: "left" | "right", phase01: number): number {
+  const rel = (phase01 - PLANT[side]) % 1;
+  return ((rel % 1) + 1) % 1;
+}
+
+/** Mirror of footBaseScheduleStance (schedule-mod): the plant crown, not the lock label. */
+function scheduleCrown(phase01: number): "left" | "right" {
+  const wrapped = (((phase01 % 1) + 1) % 1 + 1) % 1;
+  const leftStance = relPhase("left", wrapped) < STANCE_FRac.left;
+  const rightStance = relPhase("right", wrapped) < STANCE_FRac.right;
+  if (leftStance && !rightStance) return "left";
+  if (rightStance && !leftStance) return "right";
+  const behind = (plant: number): number => (((wrapped - plant) % 1) + 1) % 1;
+  return behind(PLANT.left) < behind(PLANT.right) ? "left" : "right";
+}
 
 function arg(name: string): string {
   const flag = process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -78,24 +104,58 @@ function measureRun(file: string, run: RunFile): RunMeasure {
   const along = (p: { x: number; z: number }): number =>
     (p.x - startX) * ux + (p.z - startZ) * uz;
 
-  // (a) plants: first walking frame + walking frames where stanceFoot changes.
+  // (a) plants: schedule-crown changes over walking frames with a clip
+  // time (the plant crown, a pure function of clip phase: one change per
+  // plant boundary). The record's stanceFoot is the observe-only lock label
+  // (flaps mid-swing, emits None) and must NOT drive plant detection.
+  // Foothold at a plant = the planting foot's toe XZ that frame (the slot
+  // pin puts it exactly on the foothold); the entry pair (first walking
+  // frame, both toes) bases the first step.
+  const cycleS = run.labels?.cycleSeconds && run.labels.cycleSeconds > 0
+    ? run.labels.cycleSeconds
+    : CYCLE_FALLBACK_S;
+  const phase01Of = (clipTime: number | null | undefined): number | null => {
+    if (typeof clipTime !== "number" || !Number.isFinite(clipTime)) return null;
+    return (((((clipTime % cycleS) + cycleS) % cycleS) + cycleS) % cycleS) / cycleS;
+  };
   const plants: Array<{ frame: number; side: string; alongM: number }> = [];
-  let prevStance: string | null = null;
+  const firstWalking = walking[0];
+  if (firstWalking) {
+    const lToe = firstWalking.f.leftToe;
+    const rToe = firstWalking.f.rightToe;
+    if (lToe) plants.push({ frame: firstWalking.i, side: "left-entry", alongM: along(lToe) });
+    if (rToe) plants.push({ frame: firstWalking.i, side: "right-entry", alongM: along(rToe) });
+  }
+  let prevCrown: string | null = null;
   for (const { f, i } of walking) {
-    const s = f.stanceFoot;
-    if (s !== "left" && s !== "right") {
-      prevStance = s;
+    const phase01 = phase01Of(f.clipTime);
+    if (phase01 === null) {
+      prevCrown = null;
       continue;
     }
-    if (prevStance === null || s !== prevStance) {
-      const toe = s === "left" ? f.leftToe : f.rightToe;
-      if (toe) plants.push({ frame: i, side: s, alongM: along(toe) });
+    const crown = scheduleCrown(phase01);
+    if (prevCrown === null || crown !== prevCrown) {
+      const toe = crown === "left" ? f.leftToe : f.rightToe;
+      if (toe) plants.push({ frame: i, side: crown, alongM: along(toe) });
     }
-    prevStance = s;
+    prevCrown = crown;
+  }
+  plants.sort((a, b) => a.frame - b.frame || (a.side.endsWith("entry") ? -1 : 1));
+  // Consecutive footholds must alternate feet; drop same-side repeats from
+  // same-frame entries (entry pair) keeping the alternating chain.
+  const chain: typeof plants = [];
+  for (const p of plants) {
+    const foot = p.side.startsWith("left") ? "left" : "right";
+    const prevFoot = chain.length ? (chain[chain.length - 1]!.side.startsWith("left") ? "left" : "right") : null;
+    if (prevFoot === foot) continue;
+    chain.push(p);
   }
   const stepLengthsM: number[] = [];
-  for (let k = 1; k < plants.length; k += 1) {
-    stepLengthsM.push(Math.abs(plants[k]!.alongM - plants[k - 1]!.alongM));
+  for (let k = 1; k < chain.length; k += 1) {
+    // Skip the entry-pair separation (both footholds same frame): the first
+    // real step runs from the other foot's entry foothold to the first plant.
+    if (k === 1 && chain[0]!.side.endsWith("entry") && chain[1]!.side.endsWith("entry")) continue;
+    stepLengthsM.push(Math.abs(chain[k]!.alongM - chain[k - 1]!.alongM));
   }
   const meanStepM = stepLengthsM.length
     ? stepLengthsM.reduce((a, b) => a + b, 0) / stepLengthsM.length

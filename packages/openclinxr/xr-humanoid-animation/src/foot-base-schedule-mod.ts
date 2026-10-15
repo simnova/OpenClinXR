@@ -46,7 +46,33 @@ export const FOOT_BASE_STANCE_FRACTION = {
 } as const;
 
 /**
- * Schedule-only stance foot at this loop phase: each foot is stance over
+ * Plant-toe height datum per foot, in metres (footbase-5): the row table's
+ * heightM is documented (emit-walk-contact-phases.ts) as "toe Y minus this
+ * stance's plant toe Y" — relative to the heel-strike toe-up pose, NOT the
+ * floor. The absolute target is floorY + datum + scale x heightM, where the
+ * datum is the plant toe clearance above flat contact, recovered from the
+ * rows themselves as minus the deepest stance dip (mid-stance foot-flat
+ * rides at the floor): left 0.0503, right 0.0547. Reading heightM raw above
+ * the floor buried every stance target ~5 cm under the ground at the 1.31 m
+ * stride (hip 0.78-0.83 m vs 0.735 m leg): the analytic hinge takes the
+ * straightest reaching shape, so both knees locked at ~5-6 degrees flexion
+ * for the whole walk while plan-only cycles 10-55 degrees, and the slot pin
+  * yanked the body 0.41 m ahead of the feet.
+  */
+export const FOOT_BASE_HEIGHT_DATUM: Record<FootBaseSide, number> = (() => {
+  const datum = {} as Record<FootBaseSide, number>;
+  for (const side of ["left", "right"] as const) {
+    let min = Number.POSITIVE_INFINITY;
+    for (const row of FOOT_BASE_ROWS[side]) {
+      if (row.phase < FOOT_BASE_STANCE_FRACTION[side] && row.heightM < min) min = row.heightM;
+    }
+    datum[side] = Number.isFinite(min) ? -min : 0;
+  }
+  return datum;
+})();
+
+/**
+  * Schedule-only stance foot at this loop phase: each foot is stance over
  * exactly its plant-to-lift contact interval. Double support goes to the
  * most-recently-planted foot; the empty case (absent from the shipped clip,
  * kept total for alternating test schedules) does the same. Pure function of

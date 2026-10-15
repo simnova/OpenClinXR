@@ -3,6 +3,7 @@
 export { FOOT_BASE_CYCLE_S, FOOT_BASE_PLANT_PHASE, FOOT_BASE_ROWS } from "./foot-base-path-data-mod.js";
 export { parseFootBaseEnabled } from "./foot-base-query-flag-mod.js";
 export {
+  FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
   footBaseHalfIndex,
