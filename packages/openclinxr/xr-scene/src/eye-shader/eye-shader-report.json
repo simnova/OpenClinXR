@@ -6,7 +6,7 @@
  ],
  "falsifier": "exam leaves primary gaze (eyetex-yaw renders at 0/+-25; this card grades +-40): NOT triggered, proceeding recorded",
  "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-parallax.ts",
- "moduleSha256": "16dc8333740ad88229c68f0a4912bc15e95866e4f938bf935c06e3d798cb29df",
+ "moduleSha256": "a9cc5e2dcef939a69ac809ab48e47c297e2fd8d86ab10c14be74914407f4e392",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/eyeshader",
  "red": {
   "after": "onBeforeCompile plane-hit parallax + limbus + pupil-scale, no transmission pass (G1 max 0.87px, G2 max-abs-err 0)",

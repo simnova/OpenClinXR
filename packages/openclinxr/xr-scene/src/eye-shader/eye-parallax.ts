@@ -24,21 +24,14 @@
  * Zero shape parameters are fitted: the validation below is pure prediction
  * (<=0.93px vs Cycles at +-25/+-40, 1280px plate).
  *
- * Frames: object space is the mesh local frame (landed eye: z-up, forward -Y;
- * verified by mesh census). Texture +u aligns world +X (corr 0.992) and +v aligns
- * world +Z (corr 0.991), measured on front-iris loops (report cites script), so
- * the tangent frame T=cross(up,N) -> +u, B=cross(N,T) -> +v needs no mirror.
+ * Frames (h1, derived from this mesh — never assumed): globe-object space is
+ * Y-up, iris faces +Z (pupil-vert normals ≈ +Z both eyes); +u maps +X (corr
+ * 0.992). The tangent frame comes from the per-eye uniforms below.
  *
- * UV convention: three.js sampling (flipY=false, v=0 at image top). Iris disk
- * centres were measured in landed iris-centred-c.png (1024): disk A px-top
- * (299.55, 724.00), disk B px-top (724.65, 302.72), radius 135px, pupil dark core
- * to ~35px. The texture as landed is V-flipped relative to the runtime sampler
- * (disks land on-globe only under Blender-native sampling); the wiring flips
- * it at the UV level (map repeat/offset into vMapUv — texture.flipY is dead
- * for GLB ImageBitmap sources in three r184). Defaults below are
- * for the flipped sampling and cross-checked against mesh front-vert
- * median file-UVs anat-R (0.705, 0.699), anat-L (0.294, 0.298). Eye selection:
- * fragment u<0.5 -> anat-L.
+ * UV convention: three.js sampling (flipY=false, v=0 at image top). Disk
+ * centres in landed iris-centred-c.png (1024): A px-top (299.55, 724.00),
+ * B px-top (724.65, 302.72), radius 135px, pupil core ~35px. Landed
+ * orientation presents the iris unwired (h1 grade top row); no UV flip.
  */
 
 import type {
@@ -68,16 +61,39 @@ export const EYE_PUPIL_RADIUS_UV = 35 / 1024;
 export const EYE_UV_PER_METRE = (2 * EYE_IRIS_RADIUS_UV) / EYE_IRIS_DIAM_M;
 
 /**
- * Iris disk centres in three-sampling UV numerals (v=0 at image top) for the
- * FIXED (V-flipped) texture: anat-L (0.2925, 0.2929), anat-R (0.7077, 0.7043).
- * Cross-checked against mesh front-vert median file-UVs (report).
+ * Iris disk centres in file-UV numerals (three sampling, v=0 at image top,
+ * no flip): anat-L (0.2925, 0.7070), anat-R (0.7077, 0.2956) — the landed
+ * px-top pupils A (299.55, 724.00) and B (724.65, 302.72) over 1024.
+ * The landed orientation presents the iris unwired (h1 grade top row).
  */
 export const EYE_IRIS_CENTER_L_UV: readonly [number, number] = [
-  299.55 / 1024, 300.0 / 1024,
+  299.55 / 1024, 724.0 / 1024,
 ];
 export const EYE_IRIS_CENTER_R_UV: readonly [number, number] = [
-  724.65 / 1024, 721.28 / 1024,
+  724.65 / 1024, 302.72 / 1024,
 ];
+
+/**
+ * Iris axes in globe-object space, h1-derived from this mesh (never assumed,
+ * never fitted): mean outward normals of the 31 verts per chart whose file-UV
+ * falls inside the pupil disc (aisha-realism.glb 9135b4a4). Falsifier: ~91deg
+ * off the old forward -Y — proceed. (~1.6deg off the old up +Z, but +Z-as-up
+ * was the degeneracy itself: cross(+Z, N≈+Z) collapses the frame. The forward
+ * axis is what the model used; that is 90deg off.)
+ */
+export const EYE_IRIS_AXIS_L: readonly [number, number, number] = [
+  0.013213, 0.023112, 0.999646,
+];
+export const EYE_IRIS_AXIS_R: readonly [number, number, number] = [
+  -0.013361, -0.028234, 0.999512,
+];
+
+/**
+ * Frame reference per eye (h1): the bake is Y-up in globe-object space, so +Y
+ * anchors the frame. Mesh-derived like the axis: yields T≈+X per the fit.
+ */
+export const EYE_IRIS_UP_L: readonly [number, number, number] = [0, 1, 0];
+export const EYE_IRIS_UP_R: readonly [number, number, number] = [0, 1, 0];
 
 export type EyeSide = "L" | "R";
 
@@ -90,8 +106,23 @@ export function irisCenterUv(side: EyeSide): readonly [number, number] {
   return side === "L" ? EYE_IRIS_CENTER_L_UV : EYE_IRIS_CENTER_R_UV;
 }
 
+/** Per-eye iris axis (object space): u<0.5 -> anat-L. */
+export function irisAxis(side: EyeSide): readonly [number, number, number] {
+  return side === "L" ? EYE_IRIS_AXIS_L : EYE_IRIS_AXIS_R;
+}
+
+/** Per-eye frame reference (object space): u<0.5 -> anat-L. */
+export function irisUp(side: EyeSide): readonly [number, number, number] {
+  return side === "L" ? EYE_IRIS_UP_L : EYE_IRIS_UP_R;
+}
+
 export type V3 = readonly [number, number, number];
 const dot = (a: V3, b: V3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a: V3, b: V3): V3 => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
 const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const mul = (a: V3, s: number): V3 => [a[0] * s, a[1] * s, a[2] * s];
@@ -108,20 +139,18 @@ export function snellRefract(I: V3, N: V3, eta: number): V3 | null {
   return vnorm(add(mul(I, eta), mul(N, eta * cosi - Math.sqrt(k))));
 }
 
-/** Lateral/up tangent frame: T -> texture +u, B -> texture +v (measured). */
-export function frameOf(N: V3): { T: V3; B: V3 } {
-  const up: V3 = [0, 0, 1];
-  const T = vnorm([
-    up[1] * N[2] - up[2] * N[1],
-    up[2] * N[0] - up[0] * N[2],
-    up[0] * N[1] - up[1] * N[0],
-  ]);
-  const B: V3 = vnorm([
-    N[1] * T[2] - N[2] * T[1],
-    N[2] * T[0] - N[0] * T[2],
-    N[0] * T[1] - N[1] * T[0],
-  ]);
-  return { T, B };
+/**
+ * Per-eye tangent frame from the derived uniforms (h1): T along texture +u, B
+ * along texture +v. NOTE the mirrored B order: the bake's V runs toward -Y
+ * (position-vs-UV fit within ~7deg on both charts), so B = TxA, not AxT.
+ * Replaces the old fixed +Z up, which collapses where this mesh faces +Z.
+ */
+export function eyeFrame(side: EyeSide): { T: V3; B: V3; A: V3 } {
+  const A = vnorm(irisAxis(side));
+  const U = irisUp(side);
+  const T = vnorm(cross(U, A));
+  const B = vnorm(cross(T, A));
+  return { T, B, A };
 }
 
 export type PlaneHit = {
@@ -133,11 +162,11 @@ export type PlaneHit = {
 
 /**
  * Virtual-cornea plane-hit for one fragment. P = fragment (object metres),
- * V = surface->camera (unit), N = outward normal (unit), C = virtual corneal
- * sphere centre (object metres; ONE sphere per eye, fixed). Returns null on
- * TIR/miss. This is the exact math the GLSL below evaluates per fragment.
+ * V = surface->camera (unit), A = iris axis (unit, per-eye uniform), C =
+ * sphere centre (object metres, one per eye). Null on TIR/miss. Mirrors GLSL;
+ * the iris plane is perpendicular to A.
  */
-export function corneaPlaneHit(P: V3, V: V3, N: V3, C: V3): PlaneHit | null {
+export function corneaPlaneHit(P: V3, V: V3, A: V3, C: V3): PlaneHit | null {
   const R = EYE_CORNEA_R_M;
   const oc = sub(P, C);
   const b = dot(oc, V);
@@ -150,47 +179,47 @@ export function corneaPlaneHit(P: V3, V: V3, N: V3, C: V3): PlaneHit | null {
   const Ns = vnorm(sub(S, C));
   const Rr = snellRefract(mul(V, -1), Ns, 1 / EYE_CORNEA_IOR);
   if (!Rr) return null;
-  const den = dot(Rr, N);
+  const den = dot(Rr, A);
   if (Math.abs(den) < 1e-9) return null;
-  const s2 = dot(sub(P, S), N) / den;
+  const s2 = dot(sub(P, S), A) / den;
   const H = add(S, mul(Rr, s2));
   return { rel: sub(H, P), surface: S };
 }
 
 /**
- * Reconstruct the fixed per-eye sphere centre from a fragment: the fragment's
- * own UV gives its tangent offset from the iris centre (the uv<->metres map is
- * locally uniform at the iris, measured). Mirrors the GLSL reconstruction.
+ * Reconstruct the fixed per-eye sphere centre from a fragment's own UV (its
+ * tangent offset from the iris centre; uv<->metres locally uniform at the
+ * iris). Frame and axis are per-eye uniforms (derived, never fixed). Mirrors
+ * the GLSL reconstruction.
  */
 export function eyeSphereCenter(
   P: V3,
-  N: V3,
   uv: readonly [number, number],
-  irisC: readonly [number, number],
-): { C: V3; T: V3; B: V3 } {
-  const { T, B } = frameOf(N);
+  side: EyeSide,
+): { C: V3; T: V3; B: V3; A: V3 } {
+  const irisC = irisCenterUv(side);
+  const { T, B, A } = eyeFrame(side);
   const du = uv[0] - irisC[0];
   const dv = uv[1] - irisC[1];
   const C: V3 = add(
     sub(sub(P, mul(T, du / EYE_UV_PER_METRE)), mul(B, dv / EYE_UV_PER_METRE)),
-    mul(N, EYE_CHAMBER_M - EYE_CORNEA_R_M),
+    mul(A, EYE_CHAMBER_M - EYE_CORNEA_R_M),
   );
-  return { C, T, B };
+  return { C, T, B, A };
 }
 
 /**
- * UV-space sample offset for a fragment: exact trace through the reconstructed
- * per-eye sphere, projected into the measured tangent frame. Mirrors the GLSL.
+ * UV-space sample offset for a fragment through the reconstructed per-eye
+ * sphere, projected into the measured tangent frame. Mirrors the GLSL.
  */
 export function sampleOffsetUv(
   P: V3,
   V: V3,
-  N: V3,
   uv: readonly [number, number],
-  irisC: readonly [number, number],
+  side: EyeSide,
 ): [number, number] | null {
-  const { C, T, B } = eyeSphereCenter(P, N, uv, irisC);
-  const h = corneaPlaneHit(P, V, N, C);
+  const { C, T, B, A } = eyeSphereCenter(P, uv, side);
+  const h = corneaPlaneHit(P, V, A, C);
   if (!h) return null;
   return [dot(h.rel, T) * EYE_UV_PER_METRE, dot(h.rel, B) * EYE_UV_PER_METRE];
 }
@@ -229,6 +258,7 @@ export function limbusMask(
  * fixed. Solves sample==pupil for the apparent fragment (bisection on the
  * eye-frame x of corneaPlaneHit rel). Validated: <=0.93px vs the Cycles
  * single-surface reference at +-25/+-40 (1280px plate), ZERO fitted parameters.
+ * Eye-frame-internal: the h1 axis fix keeps these numerals (rotation-invariant).
  */
 export function predictApparentMm(yawDeg: number): number {
   const th = (yawDeg * Math.PI) / 180;
@@ -335,16 +365,18 @@ export function eyeParallaxGlsl(): string {
   #ifdef USE_MAP
   {
     vec2 irisC = vMapUv.x < 0.5 ? uIrisCenterL : uIrisCenterR;
-    vec3 eyeN = normalize(vEyeNormalOS);
+    vec3 irisA = normalize(vMapUv.x < 0.5 ? uIrisAxisL : uIrisAxisR);
+    vec3 irisU = vMapUv.x < 0.5 ? uIrisUpL : uIrisUpR;
     vec3 eyeV = normalize(vEyeViewDirOS);
-    vec3 Tup = vec3(0.0, 0.0, 1.0);
-    vec3 T = normalize(cross(Tup, eyeN) + vec3(1e-6, 0.0, 0.0));
-    vec3 B = cross(eyeN, T);
-    // Fixed per-eye sphere, reconstructed from the fragment's own UV (its
-    // tangent offset from the iris centre; uv<->metres locally uniform).
+    // Per-eye frame from the derived uniforms (h1): T along +u, B along +v.
+    // Mirrored B order (bake V runs -Y; AxT would mirror v). Replaces the old
+    // fixed +Z up, which collapses where this mesh faces +Z.
+    vec3 T = normalize(cross(irisU, irisA));
+    vec3 B = cross(T, irisA);
+    // Sphere centre lies on the iris AXIS (uniform), not a fixed normal.
     vec2 duv = vMapUv - irisC;
     vec3 C = vEyePosOS - T * (duv.x / uUvPerMetre) - B * (duv.y / uUvPerMetre)
-           + eyeN * (uChamberM - uCorneaRM);
+           + irisA * (uChamberM - uCorneaRM);
     vec3 oc = vEyePosOS - C;
     float b = dot(oc, eyeV);
     float c = dot(oc, oc) - uCorneaRM * uCorneaRM;
@@ -354,9 +386,9 @@ export function eyeParallaxGlsl(): string {
       vec3 S = vEyePosOS + eyeV * s;
       vec3 Ns = normalize(S - C);
       vec3 Rr = refract(-eyeV, Ns, 1.0 / uCorneaIOR);
-      float den = dot(Rr, eyeN);
+      float den = dot(Rr, irisA);
       if (abs(den) > 1e-6) {
-        float s2 = dot(vEyePosOS - S, eyeN) / den;
+        float s2 = dot(vEyePosOS - S, irisA) / den;
         vec3 rel = (S + Rr * s2) - vEyePosOS;
         vec2 off = vec2(dot(rel, T), dot(rel, B)) * uUvPerMetre;
         vec2 suv = vMapUv + off;
@@ -377,24 +409,19 @@ export function eyeParallaxGlsl(): string {
   `;
 }
 
-/** Vertex-stage GLSL: object-space position/normal/view varyings. */
+/** Vertex-stage GLSL: object-space position/view varyings (the eye block uses the per-eye axis, not the fragment normal). */
 export function eyeParallaxVertexGlsl(): string {
   return /* glsl */ `
   vEyePosOS = position;
-  vEyeNormalOS = objectNormal;
   vec3 objCam = (inverse(modelMatrix) * vec4(cameraPosition, 1.0)).xyz;
   vEyeViewDirOS = objCam - position;
   `;
 }
 
 /**
- * Hook a globe (iris) material. Chains with any existing onBeforeCompile.
- * Never touches transmission (stays 0: no extra pass on Quest) and never
- * adds emissive (catch-light stays on the shell). V-flips the iris map on
- * install via the map transform (repeat/offset, honoured for every texture
- * kind): the landed iris-centred-c texture is V-flipped relative to the
- * three.js sampler (eye-shader-report.json stillNeeds), while every iris
- * centre numeral above assumes the flipped state.
+ * Hook a globe (iris) material. Chains with any existing onBeforeCompile. No
+ * transmission pass, no emissive (catch-light stays on the shell). No UV flip
+ * (landed orientation presents the iris); the iris axis is a per-eye uniform.
  */
 export function applyEyeShader(
   material: MeshStandardMaterial | MeshPhysicalMaterial,
@@ -414,6 +441,18 @@ export function applyEyeShader(
     shader.uniforms["uIrisCenterR"] = {
       value: [EYE_IRIS_CENTER_R_UV[0], EYE_IRIS_CENTER_R_UV[1]],
     };
+    shader.uniforms["uIrisAxisL"] = {
+      value: [EYE_IRIS_AXIS_L[0], EYE_IRIS_AXIS_L[1], EYE_IRIS_AXIS_L[2]],
+    };
+    shader.uniforms["uIrisAxisR"] = {
+      value: [EYE_IRIS_AXIS_R[0], EYE_IRIS_AXIS_R[1], EYE_IRIS_AXIS_R[2]],
+    };
+    shader.uniforms["uIrisUpL"] = {
+      value: [EYE_IRIS_UP_L[0], EYE_IRIS_UP_L[1], EYE_IRIS_UP_L[2]],
+    };
+    shader.uniforms["uIrisUpR"] = {
+      value: [EYE_IRIS_UP_R[0], EYE_IRIS_UP_R[1], EYE_IRIS_UP_R[2]],
+    };
     shader.uniforms["uIrisRadiusU"] = { value: EYE_IRIS_RADIUS_UV };
     shader.uniforms["uLimbusWidthU"] = { value: EYE_LIMBUS_WIDTH_UV };
     shader.uniforms["uPupilScale"] = { value: pupilScale };
@@ -426,7 +465,7 @@ export function applyEyeShader(
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vEyePosOS;\nvarying vec3 vEyeNormalOS;\nvarying vec3 vEyeViewDirOS;",
+        "#include <common>\nvarying vec3 vEyePosOS;\nvarying vec3 vEyeViewDirOS;",
       )
       .replace(
         "#include <fog_vertex>",
@@ -435,7 +474,7 @@ export function applyEyeShader(
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vEyePosOS;\nvarying vec3 vEyeNormalOS;\nvarying vec3 vEyeViewDirOS;\nuniform vec2 uIrisCenterL;\nuniform vec2 uIrisCenterR;\nuniform float uIrisRadiusU;\nuniform float uLimbusWidthU;\nuniform float uPupilScale;\nuniform float uLimbusStrength;\nuniform vec3 uLimbusTint;\nuniform float uCorneaIOR;\nuniform float uCorneaRM;\nuniform float uChamberM;\nuniform float uUvPerMetre;",
+        "#include <common>\nvarying vec3 vEyePosOS;\nvarying vec3 vEyeViewDirOS;\nuniform vec2 uIrisCenterL;\nuniform vec2 uIrisCenterR;\nuniform vec3 uIrisAxisL;\nuniform vec3 uIrisAxisR;\nuniform vec3 uIrisUpL;\nuniform vec3 uIrisUpR;\nuniform float uIrisRadiusU;\nuniform float uLimbusWidthU;\nuniform float uPupilScale;\nuniform float uLimbusStrength;\nuniform vec3 uLimbusTint;\nuniform float uCorneaIOR;\nuniform float uCorneaRM;\nuniform float uChamberM;\nuniform float uUvPerMetre;",
       )
       .replace(
         "#include <map_fragment>",
@@ -446,19 +485,5 @@ export function applyEyeShader(
     `openclinxr-eye-shader:p${pupilScale}:l${limbusStrength}`;
   material.needsUpdate = true;
   eyeInstalled.add(material);
-  const irisMap = (material as MeshStandardMaterial).map;
-  if (irisMap) {
-    // V-flip the landed texture at the UV level (tsk_4ca1eb82092e11bd): the
-    // iris-centred-c bake is V-flipped relative to the sampler, so mesh file
-    // UVs land on background without this (measured: front-vert medians sit
-    // ~200px from the true pupils unflipped, ~5px flipped).
-    // texture.flipY is NOT used: three r184 skips UNPACK_FLIP_Y for
-    // ImageBitmap sources (WebGLTextures.js uploadTexture: the flipY
-    // pixelStore sits inside the `isImageBitmap === false` branch), and GLB
-    // textures always decode to ImageBitmap — flipY is silently dead there.
-    // repeat/offset ride the map transform into vMapUv on every texture kind.
-    irisMap.repeat.set(1, -1);
-    irisMap.offset.set(0, 1);
-  }
   return material;
 }

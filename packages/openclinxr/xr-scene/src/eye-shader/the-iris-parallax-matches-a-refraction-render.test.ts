@@ -96,7 +96,10 @@ describe("the iris parallax matches a refraction render", () => {
     expect(glsl).not.toMatch(/emissive/i);
     expect(glsl).toMatch(/uPupilScale == 1\.0/);
     const src = readFileSync(modulePath, "utf8");
-    expect(src, "Unity 0.02 iris-plane offset must not appear").not.toMatch(/0\.02/);
+    // Bare 0.02 only: the h1 mesh-derived axis numerals contain 0.023112 /
+    // 0.028234 (measured normals, not the Unity HDRP iris-plane offset), so a
+    // trailing-digit lookahead keeps the guard exact without false-tripping.
+    expect(src, "Unity 0.02 iris-plane offset must not appear").not.toMatch(/0\.02(?![0-9])/);
     expect(EYE_CORNEA_IOR).toBe(1.376);
   });
 

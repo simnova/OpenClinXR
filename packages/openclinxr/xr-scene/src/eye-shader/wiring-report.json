@@ -83,6 +83,17 @@
   "path": "realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb",
   "sha256": "9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975 (census.json + file probe)"
  },
+ "h1": {
+  "axis": "derived A_L [0.013213, 0.023112, 0.999646], A_R [-0.013361, -0.028234, 0.999512] (pupil-disc vert normals, 31 verts/chart, aisha-realism.glb 9135b4a4); U +Y both (Y-up bake); T_fit within 7.6deg of +X, B_fit within 7.3deg of -Y (mirrored B order in shader)",
+  "axisAngles": "derived vs old forward -Y: ~91deg -> PROCEED; vs old up +Z: ~1.6deg (that half WAS the degeneracy: cross(+Z,N~+Z)~0 collapses the frame; forward is what the model used)",
+  "falsifier": "NOT triggered (91deg >> 5deg on the model forward axis)",
+  "flip": "REVERTED h0 repeat-flip (grade top row proves unwired orientation correct); texture.flipY dead for GLB bitmaps in r184 (kept out)",
+  "g1": "PASS 6/6 (thr40 core centroids, wired-unwired dx vs scaled prediction, camera-orbit sign): front L -0.02/0.00/R +0.01/0.00; yaw25 L -0.22/-1.01/R -0.16/-1.01; yaw40 L -0.78/-1.74/R -0.67/-1.74; max |diff| 1.07 <= 2. Scale 0.176 (rendered dark 44px / texture dark 250px); expected = report pred * 270/512 * scale. Magnitudes ~1/3 of model (smooth-core insensitivity); sign+ordering correct.",
+  "g2": "PASS: iris+pupil px (luma<150) wired/unwired per crop = 1.000-1.011 all 6 crops (>= 0.9); pupils present wired at all views (front (499,707)/(781,707), yaw25 (378,705)/(625,708), yaw40 (333,704)/(530,706))",
+  "g3": "PASS: yaw0 wired-unwired centroid dist L 0.09 / R 0.13 px (<= 1)",
+  "renders": "h1/ew-on + h1/ew-off (front/yaw25/yaw40, portrait 1280, realism GLB, eyeShade true/defaults); h1/ew-cw1-front.png c20a1540 byte-identical to baseline (CW1 kept); readback eyeShade True (CW2 kept)",
+  "sheet": "store/eye-shader-wire/h1/eye-wire-{off,on}-{front,yaw25,yaw40}-{L,R}.png (12 native 220px crops)"
+ },
  "predicted": {
   "0": 0.0,
   "25": 10.93,
@@ -146,7 +157,19 @@
   "eye-wire-on-yaw25-L.png": "dd306c9d71af7f013634f85c9d4e90ae69849350b7c8c2c222686cc186547f03",
   "eye-wire-on-yaw25-R.png": "9e07b0cd1a5a7e61809b7d6675fc45d0942bd782ebfc49db0aeacfdd8ef65ea8",
   "eye-wire-on-yaw40-L.png": "ba27b4df763cd25d4f49b591d48e53bb262aeca3fe19fc8c4b097fc3b409c543",
-  "eye-wire-on-yaw40-R.png": "42aefb440ee7c9f24a83fe5f19e61daaf859e01c674422c132aaa96b61227f43"
+  "eye-wire-on-yaw40-R.png": "42aefb440ee7c9f24a83fe5f19e61daaf859e01c674422c132aaa96b61227f43",
+  "h1/eye-wire-off-front-L.png": "81c76759d4e1f85efc352144476606ea9b88caf927d804705c72335d2ad013f9",
+  "h1/eye-wire-off-front-R.png": "c3d85d81199fb114fb76e825e48acdd93d5d632925bec7aa61f885323a98fb71",
+  "h1/eye-wire-off-yaw25-L.png": "f8979015233238d94856157c7b0f6da4e675c5fbc96f6e967e530c33e6595e32",
+  "h1/eye-wire-off-yaw25-R.png": "ad91c2e567c1be8403e3f56f645d1162c05b762c3cd46388dc31323168f1e806",
+  "h1/eye-wire-off-yaw40-L.png": "1301823388ea91c22c52796beef8973ed8f6c7c7c48ef78b2d276c893f001ce0",
+  "h1/eye-wire-off-yaw40-R.png": "d74a2ff593788803ea8025b1a394acfe1c3ddf7ee865ab5b9863134432594bdd",
+  "h1/eye-wire-on-front-L.png": "23d541a675a655dcc30fc581357abdf5327798c72a5f4a793fbcb25b70eef9b3",
+  "h1/eye-wire-on-front-R.png": "338c6189c5e34e536fa87ecc0050debf93b657d8e85f09c84cbff3b00cc6f537",
+  "h1/eye-wire-on-yaw25-L.png": "fd07c44af2a9837b845f4f2da4cb568e61f33fc400301144192990b8ac0b1da9",
+  "h1/eye-wire-on-yaw25-R.png": "1bd3fb25e13ba4208fb36ed07686f0b4721ef3ace54049cb463e0edcf0696d72",
+  "h1/eye-wire-on-yaw40-L.png": "b59d3a78f47226c3767de611215cc51f585455fa874d85a5a38033b2ce3b53ad",
+  "h1/eye-wire-on-yaw40-R.png": "8f152588da357b11e9a613e8ac45d75fd74695db52164f9893315937ba0ae5ac"
  },
  "texture": {
   "darkCentroidsPxTop": "L(299.0,724.4) R(724.4,303.5) (measured in extracted GLB texture; report: A(299.55,724.00) B(724.65,302.72))",

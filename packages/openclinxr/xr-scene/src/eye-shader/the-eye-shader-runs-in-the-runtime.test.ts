@@ -81,8 +81,8 @@ describe("the eye shader runs in the runtime", () => {
     const applied = await applyMaterialOverrides(root, [{ match: "makeclothes_library_eyes", eyeShade: true }]);
     const readback = applied[0]?.readback[0] as Record<string, unknown> | undefined;
     expect(readback?.eyeShade, "readback eyeShade must be true (hook-installed, not a JSON field)").toBe(true);
-    expect(tex.repeat.y, "landed iris texture is V-flipped at the UV level (flipY is dead for GLB bitmaps in r184)").toBe(-1);
-    expect(tex.offset.y).toBe(1);
+    expect(tex.repeat.y, "landed orientation presents the iris unwired: no UV flip").toBe(1);
+    expect(tex.offset.y).toBe(0);
     let chained = false;
     const prevHook = mat.onBeforeCompile;
     mat.onBeforeCompile = ((...args: never[]) => {
@@ -101,6 +101,10 @@ describe("the eye shader runs in the runtime", () => {
     for (const u of [
       "uIrisCenterL",
       "uIrisCenterR",
+      "uIrisAxisL",
+      "uIrisAxisR",
+      "uIrisUpL",
+      "uIrisUpR",
       "uIrisRadiusU",
       "uLimbusWidthU",
       "uLimbusStrength",
@@ -111,8 +115,13 @@ describe("the eye shader runs in the runtime", () => {
     ]) {
       expect(shader.uniforms[u], `uniform ${u} set`).toBeDefined();
     }
-    expect(shader.uniforms["uIrisCenterL"]?.value).toEqual([299.55 / 1024, 300.0 / 1024]);
-    expect(shader.uniforms["uIrisCenterR"]?.value).toEqual([724.65 / 1024, 721.28 / 1024]);
+    expect(shader.uniforms["uIrisCenterL"]?.value).toEqual([299.55 / 1024, 724.0 / 1024]);
+    expect(shader.uniforms["uIrisCenterR"]?.value).toEqual([724.65 / 1024, 302.72 / 1024]);
+    // h1: mesh-derived iris axes (outward normals at the pupil verts), not assumed.
+    expect((shader.uniforms["uIrisAxisL"]?.value as number[])[2]).toBeCloseTo(1, 3);
+    expect((shader.uniforms["uIrisAxisR"]?.value as number[])[2]).toBeCloseTo(1, 3);
+    expect(shader.uniforms["uIrisUpL"]?.value).toEqual([0, 1, 0]);
+    expect(shader.uniforms["uIrisUpR"]?.value).toEqual([0, 1, 0]);
     expect(shader.vertexShader).toMatch(/vEyePosOS/);
     expect(shader.fragmentShader).toMatch(/refract\(/);
     expect(shader.fragmentShader).not.toMatch(/transmission/i);
