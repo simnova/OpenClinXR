@@ -83,7 +83,12 @@ type Vec3 = [number, number, number];
 type Quat = [number, number, number, number];
 
 function arg(name: string, fallback: string): string {
-  const flag = process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+  // Callers pass "--source-glb" style (see Usage); strip the dashes before
+  // building the `--key=` prefix, else no flag ever matches and every path
+  // silently falls back to its default (found when --footbase/--out were
+  // ignored on a rerun).
+  const key = name.startsWith("--") ? name.slice(2) : name;
+  const flag = process.argv.find((a) => a.startsWith(`--${key}=`))?.slice(key.length + 3);
   return flag ?? fallback;
 }
 
