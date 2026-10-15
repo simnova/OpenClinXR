@@ -1,6 +1,8 @@
 {
   "name": "eye-lash-blink-follow",
-  "treatment": "T2+A3",
+  "treatment": "T2b-selective-detach-drop+A3 (lash-tick tsk_0a4a6ccf5ebb0da0; supersedes the T2 blanket lower-drop, which hid all lower lashes)",
+  "t2bRule": "drop a lower-lash card iff tipDrop (lid-margin-loop y at card x minus card tip y) > med+2.0*MAD or card length > med+2.5*MAD per side; loop = body eye-opening boundary, per-side 3mm x-bins, min-y vert per bin",
+  "lashTickReport": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash-tick-report.json",
   "schemaVersion": "openclinxr.eye-lash-blink-follow.v1",
   "settledIn": "realism-95 .openclinxr/realism-spike/lash/RESULT.md",
   "settledVerdict": {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""lash_blink_follow.py — T2+A3 lash blink-follow as a tracked post-step tool.
+"""lash_blink_follow.py — T2b+A3 lash blink-follow as a tracked post-step tool.
 
 Settled in realism-95 `.openclinxr/realism-spike/lash/RESULT.md`:
 T1 rigid alpha-card alignment FAILED (17mm card rides into brow; recorded as
@@ -7,6 +7,18 @@ a failed treatment, not picked). T2 thinned strand mesh (drop faces with any
 vert y<1.546) + A3 lid-morph transfer (nearest SAME-SIDE MOVING body vert,
 |d|>0.05mm, nn 2.0mm) WORKED: G2 closure lash centroid 5.9/6.0mm vs lid
 margin 2.4/2.4mm, renders attached.
+
+T2b (lash-tick tsk_0a4a6ccf5ebb0da0) REPLACES the T2 blanket lower-drop: T2
+hid every lower lash (L 4560/5640 kept, R 4608/5448 kept), which the lash-tick
+card forbids (G2: card count per eye within 5% of base; hiding all lower
+lashes is a fail). T2b drops only the detached lower-lash cards: each lower
+card (12-vert connected component) is scored against the LOWER LID-MARGIN
+LOOP — the body eye-opening boundary (topology-derived: edges used by exactly
+one face, eye-region filtered, per-side 3mm x-bins, min-y vert per bin) —
+by tipDrop (loop y at card x minus card tip y) and card length, and dropped
+when tipDrop > med+2*MAD or length > med+2.5*MAD per side (population-derived
+bars; k-sweep in lash-tick-report.json). No hand-placed geometry, no vertex
+index constants.
 
 Licence: Mindfront eyelashes01, CC0 (Data Collection AB; eyelashes01.mhclo
 released CC0 September 2020; strands opaque near-black, no texture).
@@ -39,6 +51,15 @@ MORPH6 = ['eye-left-closure', 'eye-left-slit', 'eye-left-opened-up',
 THRESH_Y = 1.546  # gap between lower (<=1.545) and upper (>=1.547) lash clusters
 MOVE_EPS = 0.00005  # 0.05mm donor moving mask
 NN_BATCH = 256
+LID_BIN = 0.003  # 3mm x-bins for the lid-margin loop (eye fissure ~30mm: 10 bins)
+K_TIPDROP = 2.0  # tipDrop outlier bar in MAD multiples (lash-tick k-sweep)
+K_LEN = 2.5  # card-length outlier bar in MAD multiples (lash-tick k-sweep)
+# Eye-region selectors (boxes, not vertex indices): donor eye band (settled),
+# lid-boundary window around the lid aperture (measured lid y-extent 1.53-1.56,
+# forward skin z>0.10 excludes the socket interior; x>5mm excludes the mirror
+# seam duplicates at x=0).
+EYE_BOX = {'x': 0.06, 'y0': 1.50, 'y1': 1.60}
+LID_WIN = {'x0': 0.005, 'x1': 0.06, 'y0': 1.535, 'y1': 1.558, 'zmin': 0.10}
 
 try:
     import numpy as np
@@ -129,6 +150,122 @@ def lash_mesh_idx(g):
 def head_joint(g):
     jn = [g['nodes'][j].get('name') for j in g['skins'][0]['joints']]
     return jn.index('head')
+
+
+def mad(a):
+    a = np.asarray(a, dtype=float)
+    med = float(np.median(a))
+    return med, float(np.median(np.abs(a - med)))
+
+
+def body_eye_prim(g, blob):
+    """Body prim holding the eye band (most verts in the settled eye box)."""
+    import re
+    best = None
+    for mi, m in enumerate(g['meshes']):
+        if not re.search(r'body', m['name'], re.I):
+            continue
+        for pi, p in enumerate(m['primitives']):
+            Bp = rd(g, blob, p['attributes']['POSITION']).astype(float)
+            n = int(((np.abs(Bp[:, 0]) < EYE_BOX['x'])
+                     & (Bp[:, 1] > EYE_BOX['y0']) & (Bp[:, 1] < EYE_BOX['y1'])).sum())
+            if best is None or n > best[0]:
+                best = (n, mi, pi)
+    if best is None or best[0] < 100:
+        raise SystemExit('refusing: no body prim holds the eye band')
+    return best[1], best[2]
+
+
+def lid_margin_lower_loops(g, blob):
+    """Lower lid-margin loop per side, derived from mesh topology.
+
+    The eye opening is a hole in the body mesh: its boundary is the set of
+    edges used by exactly one face. Eye-window-filtered, coordinate-deduped,
+    per-side 3mm x-bins, min-y vert per bin. Returns {side: (K,2) xy loop}
+    plus a debug record. Fail-closed when a side yields <3 loop points.
+    """
+    bmi, bpi = body_eye_prim(g, blob)
+    pr = g['meshes'][bmi]['primitives'][bpi]
+    Bp = rd(g, blob, pr['attributes']['POSITION']).astype(float)
+    tri = rd(g, blob, pr['indices']).reshape(-1).astype(int).reshape(-1, 3)
+    counts = {}
+    for t in tri:
+        for a, b in ((int(t[0]), int(t[1])), (int(t[1]), int(t[2])), (int(t[2]), int(t[0]))):
+            e = (a, b) if a < b else (b, a)
+            counts[e] = counts.get(e, 0) + 1
+    bverts = set()
+    for e, c in counts.items():
+        if c == 1:
+            bverts.add(e[0])
+            bverts.add(e[1])
+    bverts = sorted(bverts)
+    Pb = Bp[bverts]
+    keep = ((np.abs(Pb[:, 0]) > LID_WIN['x0']) & (np.abs(Pb[:, 0]) < LID_WIN['x1'])
+            & (Pb[:, 1] > LID_WIN['y0']) & (Pb[:, 1] < LID_WIN['y1'])
+            & (Pb[:, 2] > LID_WIN['zmin']))
+    cand = [bverts[i] for i in np.where(keep)[0]]
+    seen = {}
+    uniq = []
+    for v in cand:
+        k = (round(float(Bp[v, 0]), 4), round(float(Bp[v, 1]), 5), round(float(Bp[v, 2]), 4))
+        if k not in seen:
+            seen[k] = True
+            uniq.append(v)
+    loops, dbg = {}, {'bodyPrim': [bmi, bpi], 'boundaryEyeVerts': len(uniq)}
+    for side, pred in (('L', lambda x: x < 0), ('R', lambda x: x >= 0)):
+        pts = np.array([[Bp[v, 0], Bp[v, 1]] for v in uniq if pred(Bp[v, 0])])
+        if len(pts) == 0:
+            raise SystemExit(f'refusing: no lid boundary verts on {side}')
+        lo = []
+        b0 = 0.015
+        while b0 < 0.045:
+            m = (np.abs(pts[:, 0]) >= b0) & (np.abs(pts[:, 0]) < b0 + LID_BIN)
+            q = pts[m]
+            if len(q):
+                j = int(np.argmin(q[:, 1]))
+                lo.append((float(np.mean(q[:, 0])), float(q[j, 1])))
+            b0 += LID_BIN
+        lo = np.array(sorted(lo))
+        if len(lo) < 3:
+            raise SystemExit(f'refusing: lower lid-margin loop too short on {side} ({len(lo)} pts)')
+        loops[side] = lo
+        dbg[side] = {'loopPts': len(lo), 'loopYRange': [round(float(lo[:, 1].min()), 5),
+                                                        round(float(lo[:, 1].max()), 5)]}
+    return loops, dbg
+
+
+def lash_card_table(P, tri):
+    """Connected-component cards of the lash mesh (each tuft: 12 verts here).
+
+    Deterministic union-find in index order. Returns a list of dicts with
+    side (centroid x sign), lower flag (every vert y < THRESH_Y), root/tip.
+    """
+    parent = list(range(len(P)))
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+    for t in tri:
+        a, b, c = int(t[0]), int(t[1]), int(t[2])
+        ra, rb, rc = find(a), find(b), find(c)
+        parent[rb] = ra
+        parent[rc] = ra
+    comp = {}
+    for v in range(len(P)):
+        comp.setdefault(find(v), []).append(v)
+    cards = []
+    for vs in comp.values():
+        vs = np.array(sorted(vs))
+        ys = P[vs, 1]
+        cards.append({'verts': vs,
+                      'side': 'L' if float(P[vs, 0].mean()) < 0 else 'R',
+                      'lower': bool(np.all(ys < THRESH_Y)),
+                      'cx': float(P[vs, 0].mean()),
+                      'rootY': float(ys.max()),
+                      'tipY': float(ys.min()),
+                      'length': float(ys.max() - ys.min())})
+    return cards
 
 
 def measured_side_map(g, blob):
@@ -260,16 +397,61 @@ def main():
         if int(mv.sum()) < 100:
             raise SystemExit(f'refusing: {side} moving donor pool too small ({int(mv.sum())} < 100)')
 
-    # T2 thin: keep tris whose every vert has y >= THRESH_Y
+    # T2b selective detach-drop (lash-tick): keep every card EXCEPT lower
+    # cards detached from the lower lid-margin loop. Scores per lower card:
+    # tipDrop = loop y at card x minus card tip y (how far the tuft hangs
+    # below its own lid margin), and card length; drop when tipDrop >
+    # med+K_TIPDROP*MAD or length > med+K_LEN*MAD per side. Upper cards and
+    # attached lower cards are kept (G2: within 5% of base per eye).
     P = rd(g, blob, prim['attributes']['POSITION']).astype(float)
     I = rd(g, blob, prim['indices']).reshape(-1).astype(int)
     tri = I.reshape(-1, 3)
-    keep = np.all(P[tri][:, :, 1] >= THRESH_Y, axis=1)
+    loops, loop_dbg = lid_margin_lower_loops(g, blob)
+    cards = lash_card_table(P, tri)
+    drop_verts = np.zeros(len(P), bool)
+    t2b_sides = {}
+    for side in ('L', 'R'):
+        loop = loops[side]
+        low = [c for c in cards if c['lower'] and c['side'] == side]
+        td = np.array([float(np.interp(c['cx'], loop[:, 0], loop[:, 1])) - c['tipY']
+                       for c in low]) * 1000.0
+        ln = np.array([c['length'] for c in low]) * 1000.0
+        med_td, mad_td = mad(td)
+        med_ln, mad_ln = mad(ln)
+        thr_td = med_td + K_TIPDROP * mad_td if mad_td > 0 else float('inf')
+        thr_ln = med_ln + K_LEN * mad_ln if mad_ln > 0 else float('inf')
+        flags = [(a > thr_td or b > thr_ln) for a, b in zip(td, ln)]
+        dropped = [c for c, f in zip(low, flags) if f]
+        for c in dropped:
+            drop_verts[c['verts']] = True
+        base_cards = [c for c in cards if c['side'] == side]
+        kept_td = [float(a) for a, f in zip(td, flags) if not f]
+        kept_ln = [float(b) for b, f in zip(ln, flags) if not f]
+        t2b_sides[side] = {'cardsBase': len(base_cards),
+                           'cardsDrop': len(dropped),
+                           'cardsKeep': len(base_cards) - len(dropped),
+                           'lowerBase': len(low),
+                           'tipDropMedMm': round(med_td, 3),
+                           'tipDropMadMm': round(mad_td, 3),
+                           'tipDropThrMm': round(thr_td, 3),
+                           'lenMedMm': round(med_ln, 3),
+                           'lenMadMm': round(mad_ln, 3),
+                           'lenThrMm': round(thr_ln, 3),
+                           'maxKeptTipDropMm': round(max(kept_td), 3) if kept_td else 0.0,
+                           'maxKeptLenMm': round(max(kept_ln), 3) if kept_ln else 0.0,
+                           'droppedCx': sorted(round(c['cx'], 4) for c in dropped)}
+    keep = ~np.any(drop_verts[tri], axis=1)
     kept_tris = tri[keep]
     used = np.unique(kept_tris)
     rmp = np.full(len(P), -1, dtype=int)
     rmp[used] = np.arange(len(used))
     new_tris = rmp[kept_tris]
+    report['t2b'] = {'treatment': 'T2b-selective-detach-drop+A3',
+                     'trisTotal': int(len(tri)), 'trisKeep': int(keep.sum()),
+                     'vertsBefore': int(len(P)), 'vertsAfter': int(len(used)),
+                     'lidMarginLoop': loop_dbg, 'sides': t2b_sides,
+                     'threshY': THRESH_Y, 'kTipDrop': K_TIPDROP, 'kLen': K_LEN}
+    # Back-compat alias: the settled T2 report key with the same shape.
     report['t2'] = {'trisTotal': int(len(tri)), 'trisKeep': int(keep.sum()),
                     'vertsBefore': int(len(P)), 'vertsAfter': int(len(used))}
     carry = {}
@@ -341,7 +523,7 @@ def main():
     prim['attributes']['WEIGHTS_0'] = append(g, blob,
                                             np.tile([1.0, 0.0, 0.0, 0.0], (n, 1)), 'f4', 'VEC4')
     report['a3'] = nn
-    report['action'] = f't2+a3 -> {a.out}'
+    report['action'] = f't2b-selective+A3 -> {a.out}'
     save(g, blob, a.out)
     print(json.dumps(report, indent=2))
 
