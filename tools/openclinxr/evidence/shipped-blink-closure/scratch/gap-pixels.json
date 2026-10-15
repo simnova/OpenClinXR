@@ -1,0 +1,36 @@
+{
+  "shipped": {
+    "left": 2558,
+    "right": 2024,
+    "skinMedian": 128.66666666666666,
+    "darkExpr": "luminance < 0.35 * skinMedian AND local5x5std < 6.0 (solid cavity; lash stripes excluded)",
+    "darkThr": 45.033333333333324,
+    "bandPx": [
+      384,
+      601,
+      896,
+      768
+    ]
+  },
+  "realism": {
+    "left": 0,
+    "right": 9,
+    "skinMedian": 137.33333333333334,
+    "darkExpr": "luminance < 0.35 * skinMedian AND local5x5std < 6.0 (solid cavity; lash stripes excluded)",
+    "darkThr": 48.06666666666667,
+    "bandPx": [
+      384,
+      601,
+      896,
+      768
+    ]
+  },
+  "eyeBand": {
+    "x0": 0.3,
+    "x1": 0.7,
+    "y0": 0.47,
+    "y1": 0.6
+  },
+  "darkDef": "luminance < 0.35 * skinMedian(same frame band) AND local5x5std < 6.0 (solid cavity; lash stripes excluded)",
+  "lidRegionDef": "geometric halves of the vertex-spanning eye band x.30-.70 y.47-.60 (eye-sheet-capture.ts:249); lid-margin vertices define the band height via morph-extent overlap measurement, not colour"
+}

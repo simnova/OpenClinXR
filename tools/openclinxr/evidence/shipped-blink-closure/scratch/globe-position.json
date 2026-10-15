@@ -1,0 +1,18 @@
+{
+  "shipped": {
+    "mesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_v1_mesh",
+    "count": 96,
+    "frontZ": 0.13925695419311523,
+    "centerZ": 0.1327134296298027,
+    "protrusionPastClosedLid_m": 0.0005675712052513604,
+    "protrusionPastClosedLid_mm": 0.5675712052513604
+  },
+  "realism": {
+    "mesh": "makeclothes_library_eyes_high_poly_mpfb_ob_patient_aisha_mesh",
+    "count": 1076,
+    "frontZ": 0.140266552567482,
+    "centerZ": 0.13349367831885592,
+    "protrusionPastClosedLid_m": 0.001979373311728566,
+    "protrusionPastClosedLid_mm": 1.9793733117285661
+  }
+}

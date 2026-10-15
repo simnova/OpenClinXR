@@ -1,0 +1,19 @@
+{
+  "shipped": {
+    "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh",
+    "nTargets": 0,
+    "targetNames": null
+  },
+  "realism": {
+    "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_thinned_mpfb_ob_patient_aisha_mesh",
+    "nTargets": 6,
+    "targetNames": [
+      "eye-left-closure",
+      "eye-left-slit",
+      "eye-left-opened-up",
+      "eye-right-closure",
+      "eye-right-slit",
+      "eye-right-opened-up"
+    ]
+  }
+}
