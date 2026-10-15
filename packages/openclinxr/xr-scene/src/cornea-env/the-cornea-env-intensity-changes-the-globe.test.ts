@@ -12,15 +12,23 @@ import { describe, expect, it } from "vitest";
 // text instead of by import.
 import {
   centroid,
+  connectedWhere,
   countChangedPx,
   decodePngFile,
+  diffSpot,
+  dilatePixels,
+  darkCoreCircle,
   globeSilhouette,
   highlightBlob,
   largestCluster,
+  luminanceLStar,
   luminanceQuantile,
   meanAbsLumaDiff,
+  meanLStarOf,
+  medianLStarOf,
   rectFromArray,
   type CropRect,
+  type DecodedPng,
 } from "./catchlight-png.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -46,6 +54,27 @@ const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
   };
   falsifier: { pre00vsPre06ChangedTotal: number; pre00vsPre06EyeBandChanged: number; verdict: string };
   storeShas: Record<string, string>;
+  h1: {
+    renders: Record<string, { png: string; sha256: string }>;
+    store: string;
+    G2: Record<string, {
+      spotPx: number; spotCentroid: [number, number]; spotMaxL: number;
+      irisCircle: { cx: number; cy: number; r: number };
+      centroidInDisc: boolean; spotFracOfDisc: number;
+      scleraPx: number; scleraMedianL00: number; scleraMeanL00: number; scleraMeanL06: number; scleraDelta: number;
+      eyeCropChanged: number;
+    }>;
+    CW1: Record<string, { h100vsPreChanged: number; h100vsPreMeanDL: number }>;
+    CW2: {
+      h106GlobeEnvMap: { matched: string[]; envMapSet: boolean; roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null };
+      h106EyeEnvMapIntensity: number;
+      h100EyeEnvMapIntensity: number;
+      h1EyeRoughnessScalar: number;
+    };
+    storeShas: Record<string, string>;
+    spotThresholdDeltaLStar: number;
+    irisCoreThresholdLStar: number;
+  };
 };
 const sha256File = (p: string): string =>
   createHash("sha256").update(readFileSync(p)).digest("hex");
@@ -72,7 +101,11 @@ describe("the cornea env intensity changes the globe", () => {
     const body = src.slice(fnIdx);
     expect(body, "PMREM RoomEnvironment source reused").toMatch(/new RoomEnvironment\(\)/);
     expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
-    expect(body, "globe readback returned").toMatch(/globeEnvMap: \{ matched: globeMatched/);
+    expect(body, "h1 iris-disc roughnessMap present").toMatch(/roughnessMap = roughDisc/);
+    expect(body, "disc texel pinned").toMatch(/ROUGH_DISC_INNER/);
+    expect(src, "iris UV numerals duplicated by design (no eye-parallax import)").toMatch(/Duplicated here, NOT imported from \.\/eye-shader\/eye-parallax\.js/);
+    expect(src, "no eye-parallax import (ceiling 10)").not.toMatch(/from "\.\/eye-shader\/eye-parallax\.js"/);
+    expect(body, "globe readback returned").toMatch(/globeEnvMap: \{/);
     expect(body, "product path must not set scene.environment").not.toMatch(/scene\.environment =/);
   });
 
@@ -177,6 +210,129 @@ describe("the cornea env intensity changes the globe", () => {
       const p = join(STORE, report.renders[key]!.png);
       expect(existsSync(p), `store file present: ${report.renders[key]!.png}`).toBe(true);
       expect(sha256File(p), `sha of ${report.renders[key]!.png}`).toBe(want);
+    }
+  });
+});
+
+const H1STORE = report.h1.store;
+const h1Exists = existsSync(H1STORE);
+const h1Png = (key: "h100" | "h106"): string => join(H1STORE, report.h1.renders[key]!.png);
+
+function h1Sclera(opening: DecodedPng, rect: CropRect, seed: [number, number]): { x: number; y: number }[] {
+  // Sclera = the dilated eye opening restricted to bright globe (00-L*>=70):
+  // iris/pupil/lash fall out, lid skin never enters (only globe pixels move).
+  const core = connectedWhere(rect, seed[0], seed[1], (x, y) => luminanceLStar(opening, x, y) < 60);
+  return dilatePixels(core, rect, 12).filter((p) => luminanceLStar(opening, p.x, p.y) >= 70);
+}
+
+describe("h1: the catch-light is a specular spot over the iris disc", () => {
+  it("cause: scalar roughness unchanged, disc effective roughness lowered by map", () => {
+    // Iris numerals are duplicated (not imported) in the rig module to keep
+    // eye-parallax entrypoint-unreachable (ceiling 10): pin the literals in
+    // both files by text so a drift fails here, not silently in a render.
+    const eyeSrc = readFileSync(join(here, "../eye-shader/eye-parallax.ts"), "utf8");
+    const rigSrc = readFileSync(modulePath, "utf8");
+    for (const lit of ["299.55 / 1024", "300.0 / 1024", "724.65 / 1024", "721.28 / 1024", "135 / 1024", "30 / 1024"]) {
+      expect(eyeSrc, `eye-parallax cites ${lit}`).toContain(lit);
+      expect(rigSrc, `rig module cites ${lit}`).toContain(lit);
+    }
+    expect(report.h1.CW2.h1EyeRoughnessScalar, "globe scalar still 0.5 (sclera untouched)").toBe(0.5);
+    const disc = report.h1.CW2.h106GlobeEnvMap.roughnessDisc;
+    expect(disc, "procedural disc read back").not.toBeNull();
+    expect(disc!.inner).toBe(0.12);
+    expect(disc!.outer).toBe(1);
+    expect(disc!.radiusUv).toBeCloseTo(135 / 1024, 8);
+    expect(disc!.featherUv).toBeCloseTo(30 / 1024, 8);
+    expect(report.h1.CW2.h106GlobeEnvMap.envMapSet).toBe(true);
+    expect(report.h1.CW2.h106EyeEnvMapIntensity).toBe(0.6);
+    expect(report.h1.CW2.h100EyeEnvMapIntensity).toBe(0);
+  });
+
+  it(h1Exists ? "G2a: a connected D>=25 L* spot sits in each eye crop" : "h1 store absent — G2a skipped", () => {
+    if (!h1Exists) return;
+    expect(sha256File(h1Png("h100"))).toBe(report.h1.renders["h100"]!.sha256);
+    expect(sha256File(h1Png("h106"))).toBe(report.h1.renders["h106"]!.sha256);
+    const off = decodePngFile(h1Png("h100"));
+    const on = decodePngFile(h1Png("h106"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h1.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const { spot, maxDelta } = diffSpot(on, off, rect, report.h1.spotThresholdDeltaLStar);
+      expect(maxDelta, `${eye} max lift clears 25 L*`).toBeGreaterThanOrEqual(25);
+      expect(spot.length, `${eye} spot area px`).toBe(g.spotPx);
+      expect(spot.length, `${eye} spot present`).toBeGreaterThan(0);
+      const c = centroid(spot);
+      expect(c.x).toBeCloseTo(g.spotCentroid[0], 1);
+      expect(c.y).toBeCloseTo(g.spotCentroid[1], 1);
+      let mx = -Infinity;
+      for (const p of spot) mx = Math.max(mx, luminanceLStar(on, p.x, p.y));
+      expect(mx).toBeCloseTo(g.spotMaxL, 1);
+      expect(countChangedPx(off, on, rect), `${eye} crop changed`).toBe(g.eyeCropChanged);
+    }
+  });
+
+  it(h1Exists ? "G2b: each spot centroid lies inside the projected iris circle" : "h1 store absent — G2b skipped", () => {
+    if (!h1Exists) return;
+    const off = decodePngFile(h1Png("h100"));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h1.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h1.irisCoreThresholdLStar);
+      expect(circle.cx).toBeCloseTo(g.irisCircle.cx, 0);
+      expect(circle.cy).toBeCloseTo(g.irisCircle.cy, 0);
+      expect(circle.r).toBeCloseTo(g.irisCircle.r, 0);
+      const d = Math.hypot(g.spotCentroid[0] - circle.cx, g.spotCentroid[1] - circle.cy);
+      expect(d, `${eye} centroid inside disc`).toBeLessThan(circle.r);
+      expect(g.centroidInDisc).toBe(true);
+    }
+  });
+
+  it(h1Exists ? "G2c+G2d+CW3: spot is near-white, small, and the sclera is not glazed" : "h1 store absent — skipped", () => {
+    if (!h1Exists) return;
+    const off = decodePngFile(h1Png("h100"));
+    const on = decodePngFile(h1Png("h106"));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h1.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const { spot } = diffSpot(on, off, rect, report.h1.spotThresholdDeltaLStar);
+      let mx = -Infinity;
+      for (const p of spot) mx = Math.max(mx, luminanceLStar(on, p.x, p.y));
+      const scl = h1Sclera(off, rect, seeds[eye]!);
+      expect(scl.length, `${eye} sclera px`).toBe(g.scleraPx);
+      const med = medianLStarOf(off, scl);
+      expect(med).toBeCloseTo(g.scleraMedianL00, 0);
+      expect(mx, `${eye} G2c spot max L* >= sclera median`).toBeGreaterThanOrEqual(med);
+      expect(mx).toBeCloseTo(g.spotMaxL, 1);
+      const discArea = Math.PI * g.irisCircle.r * g.irisCircle.r;
+      expect(spot.length / discArea, `${eye} G2d spot <= 15% of disc`).toBeLessThanOrEqual(0.15);
+      expect(spot.length / discArea).toBeCloseTo(g.spotFracOfDisc, 2);
+      const dMean = meanLStarOf(on, scl) - meanLStarOf(off, scl);
+      expect(dMean, `${eye} CW3 sclera drift <= 2 L*`).toBeLessThanOrEqual(2);
+      expect(dMean).toBeCloseTo(g.scleraDelta, 1);
+    }
+  });
+
+  it(h1Exists ? "CW1: cheek and forehead still pixel-identical" : "h1 store absent — CW1 skipped", () => {
+    if (!h1Exists) return;
+    const pre = decodePngFile(join(STORE, "pre-catch-eye00-front.png"));
+    const off = decodePngFile(h1Png("h100"));
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(report.crops[key]);
+      const c = report.h1.CW1[key]!;
+      expect(countChangedPx(pre, off, rect), `${key} unchanged`).toBe(c.h100vsPreChanged);
+      expect(c.h100vsPreChanged, `${key} skin must be pixel-identical`).toBe(0);
+      expect(meanAbsLumaDiff(pre, off, rect)).toBe(c.h100vsPreMeanDL);
+    }
+  });
+
+  it(h1Exists ? "h1 store shas verify" : "h1 store absent — sha verification skipped", () => {
+    if (!h1Exists) return;
+    for (const [key, want] of Object.entries(report.h1.storeShas)) {
+      const p = join(H1STORE, report.h1.renders[key]!.png);
+      expect(existsSync(p), `h1 store file present`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
     }
   });
 });

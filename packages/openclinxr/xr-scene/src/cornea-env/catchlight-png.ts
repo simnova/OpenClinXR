@@ -84,6 +84,56 @@ export function luminance(png: DecodedPng, x: number, y: number): number {
   return 0.2126 * png.data[i]! + 0.7152 * png.data[i + 1]! + 0.0722 * png.data[i + 2]!;
 }
 
+/**
+ * CIELAB L* (0-100, D65) of an sRGB pixel. h1 grades in L* — perceptual
+ * units, so a "25-step lift" means the same everywhere unlike 0-255 levels.
+ */
+export function labLStar(r: number, g: number, b: number): number {
+  const lin = (c: number): number => {
+    const v = c / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const R = lin(r);
+  const G = lin(g);
+  const B = lin(b);
+  const y = (0.2126 * R + 0.7152 * G + 0.0722 * B) / 1.0;
+  const f = (t: number): number =>
+    t > (6 / 29) ** 3 ? t ** (1 / 3) : t / (3 * (6 / 29) ** 2) + 4 / 29;
+  return 116 * f(y) - 16;
+}
+
+/** L* of a decoded pixel. */
+export function luminanceLStar(png: DecodedPng, x: number, y: number): number {
+  const i = (y * png.w + x) * png.chans;
+  return labLStar(png.data[i]!, png.data[i + 1]!, png.data[i + 2]!);
+}
+
+/** Mean L* over a rect. */
+export function meanLStar(png: DecodedPng, rect: CropRect): number {
+  let sum = 0;
+  let n = 0;
+  for (let y = rect.y0; y < rect.y1; y += 1) {
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      sum += luminanceLStar(png, x, y);
+      n += 1;
+    }
+  }
+  return sum / Math.max(n, 1);
+}
+
+/** Mean L* over an explicit pixel set. */
+export function meanLStarOf(png: DecodedPng, pts: Pixel[]): number {
+  let sum = 0;
+  for (const p of pts) sum += luminanceLStar(png, p.x, p.y);
+  return sum / Math.max(pts.length, 1);
+}
+
+/** Median L* over an explicit pixel set. */
+export function medianLStarOf(png: DecodedPng, pts: Pixel[]): number {
+  const vals = pts.map((p) => luminanceLStar(png, p.x, p.y)).sort((m, n) => m - n);
+  return vals[Math.floor(vals.length / 2)]!;
+}
+
 /** Pixels in rect whose per-channel abs diff exceeds tol on any of RGB. */
 export function countChangedPx(a: DecodedPng, b: DecodedPng, rect: CropRect, tol = 0): number {
   if (a.w !== b.w || a.h !== b.h) throw new Error("crop diff dimension mismatch");
@@ -129,6 +179,78 @@ export function luminanceQuantile(png: DecodedPng, rect: CropRect, q: number): n
 export type Pixel = { x: number; y: number };
 
 /**
+ * Generic 4-connected component containing the seed: every in-rect pixel
+ * where `inside(x, y)` holds, reached from the seed. Throws when the seed
+ * itself is outside (eye mislocated — fail closed, never a silent empty).
+ */
+export function connectedWhere(
+  rect: CropRect,
+  seedX: number,
+  seedY: number,
+  inside: (x: number, y: number) => boolean,
+): Pixel[] {
+  const W = rect.x1 - rect.x0;
+  const H = rect.y1 - rect.y0;
+  if (!inside(seedX, seedY)) {
+    throw new Error(`seed (${seedX},${seedY}) is outside the region — eye mislocated`);
+  }
+  const key = (x: number, y: number): string => `${x},${y}`;
+  const seen = new Set<string>([key(seedX, seedY)]);
+  const comp: Pixel[] = [];
+  const stack: Pixel[] = [{ x: seedX, y: seedY }];
+  while (stack.length > 0) {
+    const a = stack.pop()!;
+    comp.push(a);
+    for (const nb of [
+      { x: a.x + 1, y: a.y },
+      { x: a.x - 1, y: a.y },
+      { x: a.x, y: a.y + 1 },
+      { x: a.x, y: a.y - 1 },
+    ]) {
+      if (nb.x < rect.x0 || nb.x >= rect.x1 || nb.y < rect.y0 || nb.y >= rect.y1) continue;
+      const k = key(nb.x, nb.y);
+      if (seen.has(k) || !inside(nb.x, nb.y)) continue;
+      seen.add(k);
+      stack.push(nb);
+    }
+  }
+  return comp;
+}
+
+/** BFS-dilate a pixel set by D px, clipped to rect. */
+export function dilatePixels(pts: Pixel[], rect: CropRect, D: number): Pixel[] {
+  const key = (x: number, y: number): string => `${x},${y}`;
+  const dist = new Map<string, number>();
+  const queue: Pixel[] = [];
+  for (const p of pts) {
+    const k = key(p.x, p.y);
+    if (dist.has(k)) continue;
+    dist.set(k, 0);
+    queue.push(p);
+  }
+  while (queue.length > 0) {
+    const a = queue.shift()!;
+    const d = dist.get(key(a.x, a.y))!;
+    if (d >= D) continue;
+    for (const nb of [
+      { x: a.x + 1, y: a.y },
+      { x: a.x - 1, y: a.y },
+      { x: a.x, y: a.y + 1 },
+      { x: a.x, y: a.y - 1 },
+    ]) {
+      if (nb.x < rect.x0 || nb.x >= rect.x1 || nb.y < rect.y0 || nb.y >= rect.y1) continue;
+      const k = key(nb.x, nb.y);
+      if (dist.has(k)) continue;
+      dist.set(k, d + 1);
+      queue.push(nb);
+    }
+  }
+  return [...dist.keys()].map((k) => {
+    const [x, y] = k.split(",").map(Number) as [number, number];
+    return { x, y };
+  });
+}
+/**
  * Globe silhouette: the connected luminance<threshold component containing
  * the iris seed (the eye opening: iris + pupil + lash-bounded dark zone),
  * BFS-dilated by `dilation` px to include the scleral rim where the
@@ -143,51 +265,78 @@ export function globeSilhouette(
   threshold: number,
   dilation: number,
 ): Pixel[] {
-  const W = rect.x1 - rect.x0;
-  const H = rect.y1 - rect.y0;
-  const inside = new Uint8Array(W * H);
+  const core = connectedWhere(rect, seedX, seedY, (x, y) => luminance(png, x, y) < threshold);
+  if (core.length === 0) throw new Error(`globe seed (${seedX},${seedY}) is not dark — eye mislocated`);
+  return dilatePixels(core, rect, dilation);
+}
+
+/**
+ * h1 diff spot: the connected L*-delta >= minDelta component containing the
+ * max-delta pixel in the crop (D = lit − unlit per pixel). A catch-light is
+ * one contiguous specular spot, not scattered glaze.
+ */
+export function diffSpot(
+  lit: DecodedPng,
+  unlit: DecodedPng,
+  rect: CropRect,
+  minDelta: number,
+): { spot: Pixel[]; maxDelta: number; maxPixel: Pixel } {
+  if (lit.w !== unlit.w || lit.h !== unlit.h) throw new Error("spot diff dimension mismatch");
+  const delta = new Map<string, number>();
+  let maxDelta = -Infinity;
+  let maxPixel: Pixel = { x: rect.x0, y: rect.y0 };
   for (let y = rect.y0; y < rect.y1; y += 1) {
-    for (let x = rect.x0; x < rect.x0 + W; x += 1) {
-      if (luminance(png, x, y) < threshold) inside[(y - rect.y0) * W + (x - rect.x0)] = 1;
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      const d = luminanceLStar(lit, x, y) - luminanceLStar(unlit, x, y);
+      delta.set(`${x},${y}`, d);
+      if (d > maxDelta) {
+        maxDelta = d;
+        maxPixel = { x, y };
+      }
     }
   }
-  const seedIdx = (seedY - rect.y0) * W + (seedX - rect.x0);
-  if (!inside[seedIdx]) throw new Error(`globe seed (${seedX},${seedY}) is not dark — eye mislocated`);
-  const seen = new Uint8Array(W * H);
-  const comp: Array<[number, number]> = [];
-  const stack: Array<[number, number]> = [[seedX - rect.x0, seedY - rect.y0]];
-  seen[seedIdx] = 1;
-  while (stack.length > 0) {
-    const [ax, ay] = stack.pop()!;
-    comp.push([ax, ay]);
-    for (const [nx, ny] of [[ax + 1, ay], [ax - 1, ay], [ax, ay + 1], [ax, ay - 1]] as const) {
-      if (nx < 0 || nx >= W || ny < 0 || ny >= H) continue;
-      if (!inside[ny * W + nx] || seen[ny * W + nx]) continue;
-      seen[ny * W + nx] = 1;
-      stack.push([nx, ny]);
-    }
-  }
-  const dist = new Map<string, number>();
-  const queue: Array<[number, number]> = [...comp];
-  for (const [ax, ay] of comp) dist.set(`${ax},${ay}`, 0);
-  const dilated = new Set<string>(dist.keys());
+  const seen = new Set<string>();
+  const spot: Pixel[] = [];
+  const queue: Pixel[] = [maxPixel];
+  seen.add(`${maxPixel.x},${maxPixel.y}`);
   while (queue.length > 0) {
-    const [ax, ay] = queue.shift()!;
-    const d = dist.get(`${ax},${ay}`)!;
-    if (d >= dilation) continue;
-    for (const [nx, ny] of [[ax + 1, ay], [ax - 1, ay], [ax, ay + 1], [ax, ay - 1]] as const) {
-      if (nx < 0 || nx >= W || ny < 0 || ny >= H) continue;
-      const k = `${nx},${ny}`;
-      if (dist.has(k)) continue;
-      dist.set(k, d + 1);
-      dilated.add(k);
-      queue.push([nx, ny]);
+    const a = queue.pop()!;
+    if ((delta.get(`${a.x},${a.y}`) ?? -Infinity) < minDelta) continue;
+    spot.push(a);
+    for (const nb of [
+      { x: a.x + 1, y: a.y },
+      { x: a.x - 1, y: a.y },
+      { x: a.x, y: a.y + 1 },
+      { x: a.x, y: a.y - 1 },
+    ]) {
+      const k = `${nb.x},${nb.y}`;
+      if (nb.x < rect.x0 || nb.x >= rect.x1 || nb.y < rect.y0 || nb.y >= rect.y1 || seen.has(k)) continue;
+      seen.add(k);
+      queue.push(nb);
     }
   }
-  return [...dilated].map((k) => {
-    const [ax, ay] = k.split(",").map(Number) as [number, number];
-    return { x: ax + rect.x0, y: ay + rect.y0 };
-  });
+  return { spot, maxDelta, maxPixel };
+}
+
+/**
+ * h1 dark-core circle: connected L* < threshold component containing the
+ * seed (pupil + dark inner iris), with centroid + mean radial distance x
+ * 1.15 as the projected iris circle. A conservative inner bound of the
+ * brown iris disc (which extends ~1.6x wider); centroid-inside and
+ * area-fraction bars only get easier on the full disc.
+ */
+export function darkCoreCircle(
+  png: DecodedPng,
+  rect: CropRect,
+  seedX: number,
+  seedY: number,
+  threshold: number,
+): { cx: number; cy: number; r: number; px: number } {
+  const comp = connectedWhere(rect, seedX, seedY, (x, y) => luminanceLStar(png, x, y) < threshold);
+  const c = centroid(comp);
+  let rr = 0;
+  for (const p of comp) rr += Math.hypot(p.x - c.x, p.y - c.y);
+  return { cx: c.x, cy: c.y, r: (rr / Math.max(comp.length, 1)) * 1.15, px: comp.length };
 }
 
 /**
