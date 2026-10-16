@@ -3283,18 +3283,49 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         nl = np.linalg.norm(svn, axis=1, keepdims=True)
         nl[nl == 0] = 1.0
         svn /= nl
+        # tsk_4d922e10e2eb7ff1: the B3 strip used to bridge the FULL lid
+        # stand-off (skin margin <-> globe r+0.15mm) as flat quads. Below the
+        # lower margin the cheek falls away from the globe, so the quads
+        # floated up to ~5mm proud of skin and rendered as an opaque unlit
+        # grey wedge (final.glb prim0 tri94 verts 79/110/80, 2.4mm below the
+        # lid-margin loop; fan runaways to ~8mm below at the canthi). The
+        # fans were NOT built against a pre-widening margin (lid-conform is
+        # stem-gated and never ran on the eyeshell-final bake). Deterministic
+        # fix, all in this builder: (1) narrow every strip quad to a 1.0mm
+        # wet-film band at the margin; (2) clamp canthus fans to the lid band
+        # (<= 2.0mm past the loop end, snapped); (3) drop strip tris whose
+        # centroid falls outside the lid band (> 2.0mm from the margin loop).
+        TEAR_FILM_M = 0.0010
+        TEAR_BAND_M = 0.0020
+        # tsk_4d922e10e2eb7ff1: the sphere-distance margin (skin 0.5-4mm off
+        # the globe) admits socket-hollow skin up to ~9mm below the true lid
+        # margin (and past the canthi ends), and the strip followed it down.
+        # The tearline rebuilds its margin from the equatorial band only:
+        # candidate skin whose direction from the globe centre stays within
+        # TEAR_EL_MAX of the horizontal plane (Blender z-up). The lid margins
+        # ride at +/-23 deg (7.9mm opening over r=10mm); socket-hollow skin
+        # sits at -50 deg or steeper. Shell (B2) keeps the unfiltered loops;
+        # only the tearline uses the band margin.
+        TEAR_EL_MAX = 0.45
+        drop_total, drop_fan, narrow_max = 0, 0, 0.0
         TP, TF = [], []
         for side, idx in sides.items():
             c, r = spheres[side]
-            vic = skin_world[np.abs(skin_world[:, 0] - c[0]) < 0.025]
-            vic_n = svn[np.abs(skin_world[:, 0] - c[0]) < 0.025]
+            dc = skin_world - c
+            dc_n = np.linalg.norm(dc, axis=1)
+            dc_n[dc_n == 0] = 1.0
+            band = (np.abs(dc_n - r) >= 0.0005) & (np.abs(dc_n - r) <= 0.004) \
+                & (np.abs(skin_world[:, 0] - c[0]) < 0.025) \
+                & (np.abs(dc[:, 2] / dc_n) <= TEAR_EL_MAX)
+            vic_t = skin_world[band]
+            vic_t_n = svn[band]
 
             def snap_proud(p):
-                dd = np.linalg.norm(vic - p, axis=1)
+                dd = np.linalg.norm(vic_t - p, axis=1)
                 k = int(np.argmin(dd))
                 if dd[k] > tear_snap_m:
                     return None
-                return vic[k] + vic_n[k] * 0.0002
+                return vic_t[k] + vic_t_n[k] * 0.0002
 
             def extend(loop):
                 # Fans past each loop end, WALKING the skin: each step re-aims
@@ -3302,7 +3333,14 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                 # crease around the corner instead of firing a straight tangent
                 # into air. Truncates at the first step with no skin inside the
                 # snap radius (never floats). Recipe steps 1.5/3/4.5mm.
+                # tsk_4d922e10e2eb7ff1: additionally clamp every fan point to
+                # the lid band (<= TEAR_BAND_M past the loop end, post-snap):
+                # unclamped fans ran ~8mm down the cheek and rendered grey.
+                # Fan points that dive in height (Blender z-up) hang below the
+                # margin as rigid verts and peek out at blink closure, so a
+                # fan step that leaves loop-end height by > 1.5mm ends the fan.
                 out = []
+                clamped = 0
                 for end, nxt in ((0, 1), (-1, -2)):
                     t = loop[end] - loop[nxt]
                     t /= float(np.linalg.norm(t)) or 1.0
@@ -3311,27 +3349,102 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                         q = snap_proud(cur + t * s)
                         if q is None:
                             break
+                        if float(np.linalg.norm(q - loop[end])) > TEAR_BAND_M:
+                            clamped += 1
+                            break
+                        if abs(float(q[2] - loop[end][2])) > 0.0015:
+                            clamped += 1
+                            break
                         ext.append(q)
                         t = q - prev
                         t /= float(np.linalg.norm(t)) or 1.0
                         prev, cur = cur, q
                     out.append(ext)
-                return np.array(out[0][::-1] + [row for row in loop] + out[1])
+                return np.array(out[0][::-1] + [row for row in loop] + out[1]), clamped
 
+            tloops = {}
+            for ttag, sel in (("up", vic_t[:, 2] > c[2]),
+                              ("lo", vic_t[:, 2] <= c[2])):
+                pts = vic_t[sel]
+                if len(pts) < 4:
+                    tloops[ttag] = np.empty((0, 3))
+                    continue
+                o = pts[np.argsort(pts[:, 0])]
+                xs = np.linspace(float(o[:, 0].min()), float(o[:, 0].max()), 25)
+                tloops[ttag] = np.stack(
+                    [xs, np.interp(xs, o[:, 0], o[:, 1]),
+                     np.interp(xs, o[:, 0], o[:, 2])], axis=1)
             for tag in ("up", "lo"):
                 loop = loops[side][tag]
                 if len(loop) < 2:
                     continue
-                outer_line = extend(loop)
+                # Band margin for the tearline (gapless by construction: the
+                # resample bridges lid-on-globe spans at margin height).
+                # Falls back to the shell loop if the band keeps < 2 points.
+                tloop = tloops[tag]
+                if len(tloop) < 2:
+                    tloop = loop
+                outer_line, n_clamped = extend(tloop)
+                drop_fan += n_clamped
                 dd = (outer_line - c) / np.linalg.norm(outer_line - c, axis=1, keepdims=True)
                 inner = c + dd * (r + 0.00015)
+                # tsk_4d922e10e2eb7ff1: narrow each strip quad to a TEAR_FILM_M
+                # wet-film band at the margin (pull inner verts toward their
+                # paired outer vert). Untouched where the lid already sits
+                # within the film width; only the floating stand-off patch
+                # shrinks.
+                vec = inner - outer_line
+                ln = np.linalg.norm(vec, axis=1, keepdims=True)
+                ln[ln == 0] = 1.0
+                red = np.minimum(1.0, TEAR_FILM_M / ln)
+                narrow_max = max(narrow_max, float((1.0 - red).max()))
+                inner = outer_line + vec * red
                 n = len(outer_line)
                 base = len(TP)
                 TP.extend([tuple(p) for p in outer_line])
                 TP.extend([tuple(p) for p in inner])
+                kept = 0
+                # Vertical lid band (true margin height at the same x): canthus
+                # fan remnants that hang below the lower margin (or above the
+                # upper) survive the radial band test but peek out at blink
+                # closure as rigid verts. Margin film rides within ~0.5mm of
+                # the margin, so a 1.0mm vertical band keeps the film and
+                # drops the dangles. tloop is x-ascending (linspace).
+                tlx, tly = tloop[:, 0], tloop[:, 1]
+                if tag == "lo":
+                    def in_vband(cen):
+                        my = float(np.interp(float(cen[0]), tlx, tly))
+                        return float(cen[1]) >= my - 0.0010
+                else:
+                    def in_vband(cen):
+                        my = float(np.interp(float(cen[0]), tlx, tly))
+                        return float(cen[1]) <= my + 0.0010
                 for i in range(n - 1):
-                    TF.append((base + i, base + n + i, base + i + 1))
-                    TF.append((base + i + 1, base + n + i, base + n + i + 1))
+                    # tsk_4d922e10e2eb7ff1: drop strip tris whose centroid
+                    # falls outside the lid band (> TEAR_BAND_M from the
+                    # margin loop) instead of rendering them as grey floaters.
+                    # Zero-area tris (lid already on the globe, narrowing
+                    # pulled inner onto outer) are never emitted either.
+                    c0 = (outer_line[i] + inner[i] + outer_line[i + 1]) / 3.0
+                    c1 = (outer_line[i + 1] + inner[i] + inner[i + 1]) / 3.0
+                    a0 = float(np.linalg.norm(np.cross(
+                        inner[i] - outer_line[i],
+                        outer_line[i + 1] - outer_line[i]))) / 2.0
+                    a1 = float(np.linalg.norm(np.cross(
+                        inner[i] - outer_line[i + 1],
+                        inner[i + 1] - outer_line[i + 1]))) / 2.0
+                    if a0 > 1e-12 and in_vband(c0) and float(np.linalg.norm(tloop - c0, axis=1).min()) <= TEAR_BAND_M:
+                        TF.append((base + i, base + n + i, base + i + 1))
+                        kept += 1
+                    else:
+                        drop_total += 1
+                    if a1 > 1e-12 and in_vband(c1) and float(np.linalg.norm(tloop - c1, axis=1).min()) <= TEAR_BAND_M:
+                        TF.append((base + i + 1, base + n + i, base + n + i + 1))
+                        kept += 1
+                    else:
+                        drop_total += 1
+                print(f"EYESHELL_TEARSTRIP {side}/{tag} n={n} kept={kept} "
+                      f"dropped={2 * (n - 1) - kept}")
         tear_mesh = bpy.data.meshes.new("openclinxr_eye_tearline_mesh")
         tear_mesh.from_pydata(TP, [], TF)
         tear_mesh.update()
@@ -3352,7 +3465,9 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         # arrives post-export via _eyshell_transfer_lid_keys.
         _eyshell_bind_to_head(tear_obj, arm)
         tear_name = tear_mat.name
-        print(f"EYESHELL_TEARLINE verts={len(TP)} tris={len(TF)}")
+        print(f"EYESHELL_TEARLINE verts={len(TP)} tris={len(TF)} "
+              f"film={TEAR_FILM_M * 1000.0:.1f}mm band={TEAR_BAND_M * 1000.0:.1f}mm "
+              f"dropped_tris={drop_total} clamped_fans={drop_fan} narrow_max={narrow_max:.2f}")
     if shell_mat_name is not None:
         EYESHELL_UNLIT_BLEND[shell_mat_name] = (True, list(shell_color))
     if tear_name is not None:
