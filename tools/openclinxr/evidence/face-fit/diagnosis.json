@@ -1,0 +1,68 @@
+{
+ "card": "tsk_2c547dda8753bba0",
+ "verdict": "D1 CONFIRMED; D2 CONFIRMED; D3 CONFIRMED; D4 CONFIRMED (re-measured, same band); D5 CONFIRMED",
+ "D1": {
+  "verdict": "confirmed",
+  "claim": "the fit never reaches the bake",
+  "evidence": [
+   "grep fit_weights_ / fit_file_weights_ across tools/ packages/ apps/ (*.ts,*.py) hits only tools/openclinxr/evidence/face-fit/fit_facefit2.py:13,476,573 (writer) and packages/openclinxr/factory-stations/src/face_realism/stages-b.ts:256 + the-seven-stages test (stage-6 copy, never passed as --face-targets)",
+   "pre-fix stage-4 argv carries no --face-targets: store/face-station-cases/body2/run1/stage-records.json stage 4 argv = [--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --output .../body2-lidconform.glb]",
+   "grep -c FACE_TARGETS_APPLY = 0 in store/face-station-cases/body2/run1/stage4-blender.log and store/face-station-cases/aisha/run1/stage4-blender.log",
+   "loader capability (not edited): materialize_mpfb_humanoid_candidate.py:2356 (--face-targets flag), :5596-5622 (fold into Basis + FACE_TARGETS_APPLY, unknown names refuse loudly)"
+  ]
+ },
+ "D2": {
+  "verdict": "confirmed",
+  "claim": "1.278 mm is the fitter's own model, never measured on the shipped GLB or a render",
+  "evidence": [
+   "tools/openclinxr/evidence/face-fit/fit_facefit2.py:44-60 LANDMARKS 40 minus CONTOUR 5 = TRACK 35; :340-376 design matrix is the front-ortho projection Jacobian of neutral hm08 base_verts.npy (19158 verts, :155-169) plus linear offsets, scored vs goal detections",
+   "tools/openclinxr/evidence/face-fit/fit-report.json cases.body2: rmsAfterMm 1.278, solve nVars 178 nRows 70, featAfter.jaw 0.002",
+   "no GLB or render path anywhere in fit_facefit2.py (renders are a separate CHECK script: render_fitted_facefit2.py)"
+  ]
+ },
+ "D3": {
+  "verdict": "confirmed",
+  "claim": "the fit basis has no race or age term",
+  "evidence": [
+   "tools/openclinxr/evidence/face-fit/fit-report.json mpfb.macroStems = 6 universal-{male,female}-young-* weight stems; fit_weights_body2.json last 6 weights all ~6e-6 (unfitted)",
+   "bake macro from derive_macro_dict: tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:4046-4071 race fixed asian/caucasian/african 0.33 each, age 0.6 unless head-height fraction >= 0.14",
+   "store/face-station-cases/body2/run1/stage4-blender.log:8 MACRO_BASE {gender 1.0, age 0.6, race 0.33/0.33/0.33, ...}"
+  ]
+ },
+ "D4": {
+  "verdict": "confirmed (re-measured 2026-10-16, same band as the orchestrator probe)",
+  "claim": "landmark-shape distance on TEXTURED renders is skin-sensitive, so the gate must not read a textured render",
+  "method": "MediaPipe FaceLandmarker (store/face-fit/face_landmarker.task) 478-pt detect; umeyama similarity render-TRACK -> goal-TRACK; residual RMS / 1024 over 35 TRACK (fit_facefit2.py:44-60)",
+  "measured": {
+   "aisha_ss_vs_aisha_goal": 0.0062,
+   "aisha_ss_vs_body2_goal": 0.0044,
+   "body2r2_vs_body2_goal": 0.0038,
+   "body2r2_vs_aisha_goal": 0.0082,
+   "same_mesh_skin_stage_span_b2s": [0.004, 0.0047],
+   "rescale08_redetect_noise": 0.0004
+  },
+  "orchestratorProbe": {
+   "aisha_vs_aisha": 0.0039,
+   "aisha_vs_body2goal": 0.0066,
+   "body2r2_vs_body2goal": 0.0063,
+   "b2s_span": [0.0061, 0.0072],
+   "noise": [0.0004, 0.0009]
+  },
+  "reading": "same-mesh skin-stage span (0.0040-0.0047) sits inside the identity-comparison band (0.0038-0.0082); cross-subject aisha-vs-body2 (0.0044) even beats same-subject aisha-vs-aisha (0.0062). A textured-render gate cannot separate skin from identity. M2 therefore reads FLAT-ALBEDO renders only (flat_render_identity.py, EEVEE, uniform grey Principled, no skin texture).",
+  "files": [
+   "render: /Volumes/files/openclinxr-assets/store/second-subject/sheet-aisha-r2/ss-aisha-front.png",
+   "render: /Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/port5/render/body2-bb-front.png",
+   "stages: /Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s*-front.png",
+   "goals: tools/openclinxr/evidence/face-fit/pts_target_aisha_front.npy + pts_target_body2_front.npy (fresh redetect of the goal PNGs matches tracked npys to 0.0000)"
+  ]
+ },
+ "D5": {
+  "verdict": "confirmed",
+  "claim": "the aisha goal is an edit of an aisha render, so the aisha pair is close partly by construction",
+  "evidence": [
+   "tools/openclinxr/asset-pipeline/reference-set/manifest.json:7 prompt keeps the render EXACTLY in place pixel for pixel and only changes the surface; :17 output store_relpath project/edit-v9/edit-0.png sha 534c0468; reference_input project/views-v9/view-0.png (an aisha render)",
+   "caveat repeated beside every known-good use of the aisha pair in identity-report.json"
+  ]
+ },
+ "NOT_TESTED": ["skin tone", "age texture", "race/age macros"]
+}

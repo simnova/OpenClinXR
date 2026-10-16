@@ -141,6 +141,16 @@ describe("the face station runs seven stages from a case", () => {
         continue;
       }
       const stage = report.cases[entry.case]!.runs[entry.run]!.stages[3]!;
+      // Card tsk_2c547dda8753bba0: a stage-4 bake with the fit folded in
+      // (extra.faceFit) moves the bytes AND the body POSITION by design, so
+      // the pre-fix position fallback cannot pass. The move is gated instead
+      // by the bake log proving the fit was baked (G4 of
+      // the-station-bakes-the-fitted-face.test.ts).
+      const faceFit = (stage.extra as { faceFit?: { applied?: unknown[]; logVerified?: boolean } } | undefined)?.faceFit;
+      if (faceFit !== undefined && Array.isArray(faceFit.applied) && faceFit.applied.length > 0) {
+        expect(faceFit.logVerified, `${entry.case} ${entry.run} stage 4 fit-baked run proves FACE_TARGETS_APPLY`).toBe(true);
+        continue;
+      }
       const fallback = stage.extra?.positionFallback;
       expect(fallback, `${entry.case} ${entry.run} stage 4 records the position fallback`).toBeDefined();
       expect(fallback!.byteMatch).toBe(false);

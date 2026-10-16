@@ -1,0 +1,2508 @@
+{
+ "card": "tsk_2c547dda8753bba0",
+ "generatedBy": "tools/openclinxr/evidence/face-fit/build_identity_report.py",
+ "d5caveat": "the aisha goal (S/project/edit-v9/edit-0.png) is an edit of an aisha render (reference-set manifest.json:7 keeps the render pixel-for-pixel, only the surface changes), so the aisha pair is close partly by construction",
+ "cases": {
+  "body2": {
+   "fit": {
+    "rmsBeforeMm": 2.919,
+    "rmsAfterMm": 1.278,
+    "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.body2"
+   },
+   "prefix": {
+    "run1": {
+     "case": "body2",
+     "goalCase": "body2",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
+      "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-prefix-flat-front.png",
+      "sha256": "01df68226a58915509c19a25c83383cbe613fef2535e617dcb88219aec510c73"
+     },
+     "m1Mm": 19.9799,
+     "m1MappingMaxMm": 198.4378,
+     "m1MappingMeanMm": 38.2712,
+     "m1BodyMesh": "mpfb_adult_male_street_casual_body",
+     "m1BodyVerts": 38995,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00401,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:body2"
+      }
+     }
+    },
+    "run2": {
+     "case": "body2",
+     "goalCase": "body2",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+      "sha256": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-prefix-run2-flat-front.png",
+      "sha256": "23d9559900794092b711a6bfac00212989cd3994fc948affbbb61b68a5e2b561"
+     },
+     "m1Mm": 19.9799,
+     "m1MappingMaxMm": 198.4378,
+     "m1MappingMeanMm": 38.2712,
+     "m1BodyMesh": "mpfb_adult_male_street_casual_body",
+     "m1BodyVerts": 38995,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00401,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:body2"
+      }
+     }
+    }
+   },
+   "postfix": {
+    "run1": {
+     "case": "body2",
+     "goalCase": "body2",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+      "sha256": "803ab3667cb93011937718f45515ed486c25af5a5a22fc7c99aca6d8bfdedd58"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-postfix-run1-flat-front.png",
+      "sha256": "e058704efeb18d536d3355d486e94ec6851ca622ee938bc2fd256b8ac0ab6aed"
+     },
+     "m1Mm": 19.2285,
+     "m1MappingMaxMm": 198.4378,
+     "m1MappingMeanMm": 39.0463,
+     "m1BodyMesh": "mpfb_adult_male_street_casual_body",
+     "m1BodyVerts": 38784,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00496,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:body2"
+      }
+     }
+    },
+    "run2": {
+     "case": "body2",
+     "goalCase": "body2",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run4/body2-lidconform.glb",
+      "sha256": "96824ef39b3c2c2b8a350a97564d8afb3108919e725ee6b97969ce6f0704f2ef"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-postfix-run2-flat-front.png",
+      "sha256": "ff8ddb6de1355d36cb2844c4bbc121d4e2239b4d88adae9562e40aa2cb4bd2fd"
+     },
+     "m1Mm": 19.2285,
+     "m1MappingMaxMm": 198.4378,
+     "m1MappingMeanMm": 39.0463,
+     "m1BodyMesh": "mpfb_adult_male_street_casual_body",
+     "m1BodyVerts": 38784,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00496,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:body2"
+      }
+     }
+    }
+   },
+   "storeRuns": {
+    "prefix": [
+     "run1",
+     "run2"
+    ],
+    "postfix": [
+     "run3",
+     "run4"
+    ]
+   },
+   "applied": [
+    {
+     "name": "chin-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-cleft-decr",
+     "weight": 0.0035
+    },
+    {
+     "name": "chin-cleft-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-height-decr",
+     "weight": 0.004
+    },
+    {
+     "name": "chin-height-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prognathism-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prognathism-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prominent-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prominent-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-triangle",
+     "weight": 0.2848
+    },
+    {
+     "name": "chin-width-decr",
+     "weight": 0.0027
+    },
+    {
+     "name": "chin-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-nubian-decr",
+     "weight": 0.3839
+    },
+    {
+     "name": "forehead-nubian-incr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-scale-vert-decr",
+     "weight": 0.1403
+    },
+    {
+     "name": "forehead-scale-vert-incr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-temple-decr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-temple-incr",
+     "weight": 0.4772
+    },
+    {
+     "name": "l-cheek-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-inner-decr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-inner-incr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-volume-decr",
+     "weight": 0.0113
+    },
+    {
+     "name": "l-cheek-volume-incr",
+     "weight": 0.0175
+    },
+    {
+     "name": "mouth-cupidsbow-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-cupidsbow-incr",
+     "weight": 0.2333
+    },
+    {
+     "name": "mouth-cupidsbow-width-decr",
+     "weight": 0.0462
+    },
+    {
+     "name": "mouth-cupidsbow-width-incr",
+     "weight": 0.0388
+    },
+    {
+     "name": "mouth-dimples-in",
+     "weight": 0
+    },
+    {
+     "name": "mouth-dimples-out",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-ext-down",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-ext-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-height-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-height-incr",
+     "weight": 0.8548
+    },
+    {
+     "name": "mouth-lowerlip-middle-down",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-middle-up",
+     "weight": 1
+    },
+    {
+     "name": "mouth-lowerlip-volume-decr",
+     "weight": 0.1135
+    },
+    {
+     "name": "mouth-lowerlip-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-width-decr",
+     "weight": 0.1136
+    },
+    {
+     "name": "mouth-lowerlip-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-philtrum-volume-decr",
+     "weight": 0.0163
+    },
+    {
+     "name": "mouth-philtrum-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-depth-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-depth-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-horiz-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-horiz-incr",
+     "weight": 0.3615
+    },
+    {
+     "name": "mouth-scale-vert-decr",
+     "weight": 0.7234
+    },
+    {
+     "name": "mouth-scale-vert-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-ext-down",
+     "weight": 0.1481
+    },
+    {
+     "name": "mouth-upperlip-ext-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-height-decr",
+     "weight": 0.8377
+    },
+    {
+     "name": "mouth-upperlip-height-incr",
+     "weight": 0.1885
+    },
+    {
+     "name": "mouth-upperlip-middle-down",
+     "weight": 0.1236
+    },
+    {
+     "name": "mouth-upperlip-middle-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-volume-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-width-decr",
+     "weight": 0.0539
+    },
+    {
+     "name": "mouth-upperlip-width-incr",
+     "weight": 0.3553
+    },
+    {
+     "name": "nose-base-down",
+     "weight": 0
+    },
+    {
+     "name": "nose-base-up",
+     "weight": 0.1186
+    },
+    {
+     "name": "nose-curve-concave",
+     "weight": 0
+    },
+    {
+     "name": "nose-curve-convex",
+     "weight": 0.1719
+    },
+    {
+     "name": "nose-flaring-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-flaring-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-greek-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-greek-incr",
+     "weight": 0.7176
+    },
+    {
+     "name": "nose-hump-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-hump-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-angle-down",
+     "weight": 0.0232
+    },
+    {
+     "name": "nose-nostrils-angle-up",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-width-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-width-incr",
+     "weight": 0.0025
+    },
+    {
+     "name": "nose-point-down",
+     "weight": 0.1306
+    },
+    {
+     "name": "nose-point-up",
+     "weight": 0
+    },
+    {
+     "name": "nose-point-width-decr",
+     "weight": 0.0759
+    },
+    {
+     "name": "nose-point-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-depth-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-depth-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-horiz-decr",
+     "weight": 0.2668
+    },
+    {
+     "name": "nose-scale-horiz-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-vert-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-vert-incr",
+     "weight": 0.4078
+    },
+    {
+     "name": "nose-septumangle-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-septumangle-incr",
+     "weight": 0.1175
+    },
+    {
+     "name": "nose-volume-decr",
+     "weight": 0.0043
+    },
+    {
+     "name": "nose-volume-incr",
+     "weight": 0.0844
+    },
+    {
+     "name": "nose-width1-decr",
+     "weight": 0.0148
+    },
+    {
+     "name": "nose-width1-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width2-decr",
+     "weight": 0.3185
+    },
+    {
+     "name": "nose-width2-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width3-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width3-incr",
+     "weight": 0.0664
+    },
+    {
+     "name": "r-cheek-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-inner-decr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-inner-incr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-volume-decr",
+     "weight": 0.0113
+    },
+    {
+     "name": "r-cheek-volume-incr",
+     "weight": 0.0175
+    }
+   ],
+   "unapplied": [
+    {
+     "name": "asym-brown-1-l",
+     "weight": 0.3648,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-1-r",
+     "weight": 0.539,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-2-r",
+     "weight": 0.3532,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-3-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-4-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-4-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-1-l",
+     "weight": 0.1425,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-3-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-4-l",
+     "weight": 0.0721,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-4-r",
+     "weight": 0.414,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-5-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-5-r",
+     "weight": 0.1068,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-6-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-6-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-7-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-7-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-8-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-8-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-3-l",
+     "weight": 0.1649,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-1-r",
+     "weight": 0.1728,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-2-l",
+     "weight": 0.6647,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-1-r",
+     "weight": 0.233,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-2-r",
+     "weight": 0.0137,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-3-l",
+     "weight": 0.0396,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-4-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-4-r",
+     "weight": 0.2676,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-1-r",
+     "weight": 0.0985,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-2-r",
+     "weight": 0.0874,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-breast-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-breast-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-trunk-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-trunk-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-back-scale-depth-decr",
+     "weight": 1,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-back-scale-depth-incr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-diamond",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-fat-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-fat-incr",
+     "weight": 0.0343,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-invertedtriangular",
+     "weight": 0.4604,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-oval",
+     "weight": 0.0373,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-rectangular",
+     "weight": 0.3848,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-round",
+     "weight": 0.635,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-depth-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-depth-incr",
+     "weight": 1,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-horiz-decr",
+     "weight": 0.375,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-horiz-incr",
+     "weight": 0.4561,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-vert-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-vert-incr",
+     "weight": 0.3022,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-square",
+     "weight": 0.4606,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-triangular",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-averageweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-maxweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-minweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-averageweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-maxweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-minweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    }
+   ],
+   "bigDetail": "28/51 weights with |w|>=0.05 applied",
+   "thresholds": {
+    "m1": {
+     "knownGood": {
+      "value": 1.278,
+      "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.body2.rmsAfterMm (the fitter's own number)"
+     },
+     "knownBad": {
+      "value": 19.9799,
+      "source": "M1 on the pre-fix bake (store/face-station-cases/body2/run1 GLB, no face targets)"
+     },
+     "threshold": 10.6289,
+     "margin": 18.7019,
+     "noise": 0.0,
+     "noiseSource": "|M1 postfix run1 - postfix run2|",
+     "enforced": true
+    },
+    "m2": {
+     "knownGood": {
+      "value": 0.00498,
+      "source": "aisha post-fix flat render vs aisha goal (M2_audit: D5 caveat applies \u2014 goal is an edit of an aisha render)"
+     },
+     "knownBad": {
+      "value": 0.00404,
+      "source": "min(aisha post-fix flat vs body2 goal)"
+     },
+     "threshold": 0.00451,
+     "margin": 0.00094,
+     "noise": 3e-05,
+     "noiseSource": "max(0.8x-rescale redetection 3e-05, |postfix run1 - run2| 0.0)",
+     "enforced": true
+    }
+   },
+   "means": {
+    "preM1": 19.9799,
+    "postM1": 19.2285,
+    "preM2": 0.00401,
+    "postM2": 0.00496
+   },
+   "verdicts": {
+    "g1": {
+     "pass": false,
+     "detail": "postM1 19.2285 vs preM1 19.9799, threshold 10.6289 (enforced)",
+     "falsifier": {
+      "m1BeforeMm": 19.9799,
+      "m1AfterMm": 19.2285,
+      "unapplied": [
+       {
+        "name": "asym-brown-1-l",
+        "weight": 0.3648,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-brown-1-r",
+        "weight": 0.539,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-brown-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-brown-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-cheek-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-cheek-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-cheek-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-cheek-2-r",
+        "weight": 0.3532,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-3-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-3-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-4-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-ear-4-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-1-l",
+        "weight": 0.1425,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-3-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-3-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-4-l",
+        "weight": 0.0721,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-4-r",
+        "weight": 0.414,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-5-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-5-r",
+        "weight": 0.1068,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-6-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-6-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-7-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-7-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-8-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-eye-8-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-3-l",
+        "weight": 0.1649,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-jaw-3-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-mouth-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-mouth-1-r",
+        "weight": 0.1728,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-mouth-2-l",
+        "weight": 0.6647,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-mouth-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-1-r",
+        "weight": 0.233,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-2-r",
+        "weight": 0.0137,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-3-l",
+        "weight": 0.0396,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-3-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-4-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-nose-4-r",
+        "weight": 0.2676,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-temple-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-temple-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-temple-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-temple-2-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-top-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-top-1-r",
+        "weight": 0.0985,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-top-2-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asym-top-2-r",
+        "weight": 0.0874,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asymm-breast-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asymm-breast-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asymm-trunk-1-l",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "asymm-trunk-1-r",
+        "weight": 0,
+        "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-back-scale-depth-decr",
+        "weight": 1,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-back-scale-depth-incr",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-diamond",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-fat-decr",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-fat-incr",
+        "weight": 0.0343,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-invertedtriangular",
+        "weight": 0.4604,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-oval",
+        "weight": 0.0373,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-rectangular",
+        "weight": 0.3848,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-round",
+        "weight": 0.635,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-depth-decr",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-depth-incr",
+        "weight": 1,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-horiz-decr",
+        "weight": 0.375,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-horiz-incr",
+        "weight": 0.4561,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-vert-decr",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-scale-vert-incr",
+        "weight": 0.3022,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-square",
+        "weight": 0.4606,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "head-triangular",
+        "weight": 0,
+        "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+       },
+       {
+        "name": "universal-female-young-averagemuscle-averageweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       },
+       {
+        "name": "universal-female-young-averagemuscle-maxweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       },
+       {
+        "name": "universal-female-young-averagemuscle-minweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       },
+       {
+        "name": "universal-male-young-averagemuscle-averageweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       },
+       {
+        "name": "universal-male-young-averagemuscle-maxweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       },
+       {
+        "name": "universal-male-young-averagemuscle-minweight",
+        "weight": 0,
+        "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+       }
+      ],
+      "macroGap": "fit basis has no race/age term (D3): 6 universal-young macro stems unfitted (~6e-6); bake race fixed 0.33/0.33/0.33 + age 0.6 (derive_macro_dict), and the two weight-1.0 head-* terms plus all asym-*/macro stems cannot load in the materializer's loader (mpfb_body.py:102) so they stay unapplied",
+      "mappingMaxMm": 198.4378
+     }
+    },
+    "g2": {
+     "pass": false,
+     "detail": "postM2 0.00496 vs preM2 0.00401",
+     "thresholdVerdict": "postM2 0.00496 vs threshold 0.00451: FAIL (enforced)"
+    }
+   }
+  },
+  "aisha": {
+   "fit": {
+    "rmsBeforeMm": 1.345,
+    "rmsAfterMm": 0.782,
+    "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.aisha"
+   },
+   "prefix": {
+    "run1": {
+     "case": "aisha",
+     "goalCase": "aisha",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
+      "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-prefix-flat-front.png",
+      "sha256": "95267be68d338cd71095b99506c776e29c03d84c161dd7502f26601cde688609"
+     },
+     "m1Mm": 3.9525,
+     "m1MappingMaxMm": 381.3676,
+     "m1MappingMeanMm": 33.8229,
+     "m1BodyMesh": "mpfb_ob_patient_aisha_body",
+     "m1BodyVerts": 37699,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00588,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:aisha"
+      }
+     }
+    },
+    "run2": {
+     "case": "aisha",
+     "goalCase": "aisha",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+      "sha256": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-prefix-run2-flat-front.png",
+      "sha256": "f93279b529c8e75496287ee979bd6152f7556527ebdee8d34ac879804800636e"
+     },
+     "m1Mm": 3.9525,
+     "m1MappingMaxMm": 381.3676,
+     "m1MappingMeanMm": 33.8229,
+     "m1BodyMesh": "mpfb_ob_patient_aisha_body",
+     "m1BodyVerts": 37699,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00588,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:aisha"
+      }
+     }
+    }
+   },
+   "postfix": {
+    "run1": {
+     "case": "aisha",
+     "goalCase": "aisha",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run3/aisha-lidconform.glb",
+      "sha256": "46eee7564522a45d18ac8394f6f11baaf3b7c7e851ba5ee29fb16d9390f51ef6"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-postfix-run1-flat-front.png",
+      "sha256": "5078c209205bb328b1a41e833378754661af70e843851a4286150fe7faea11bc"
+     },
+     "m1Mm": 4.0259,
+     "m1MappingMaxMm": 381.3676,
+     "m1MappingMeanMm": 33.8765,
+     "m1BodyMesh": "mpfb_ob_patient_aisha_body",
+     "m1BodyVerts": 37671,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00498,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:aisha"
+      }
+     }
+    },
+    "run2": {
+     "case": "aisha",
+     "goalCase": "aisha",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run4/aisha-lidconform.glb",
+      "sha256": "969c24c00dae9fccbffd5250dbccdbcbf929a7cd59775bacd9f937dff0fe7b60"
+     },
+     "flatRender": {
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-postfix-run2-flat-front.png",
+      "sha256": "ab71d9a4fcf407d0528b65f77fe7a5a2ad80daa0668bd6090b71bb86576a526f"
+     },
+     "m1Mm": 4.0259,
+     "m1MappingMaxMm": 381.3676,
+     "m1MappingMeanMm": 33.8765,
+     "m1BodyMesh": "mpfb_ob_patient_aisha_body",
+     "m1BodyVerts": 37671,
+     "m1Hm08Verts": 19158,
+     "m2": 0.00498,
+     "method": {
+      "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
+      "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
+      "sources": {
+       "embedding": "tools/openclinxr/evidence/face-fit/embedding.json",
+       "camera": "tools/openclinxr/evidence/face-fit/cameras.json:front",
+       "centre": "tools/openclinxr/evidence/face-fit/correspond.json:cx,cz,mmPerPix",
+       "targets": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:aisha"
+      }
+     }
+    }
+   },
+   "storeRuns": {
+    "prefix": [
+     "run1",
+     "run2"
+    ],
+    "postfix": [
+     "run3",
+     "run4"
+    ]
+   },
+   "applied": [
+    {
+     "name": "chin-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-cleft-decr",
+     "weight": 0.0033
+    },
+    {
+     "name": "chin-cleft-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-height-decr",
+     "weight": 0.1847
+    },
+    {
+     "name": "chin-height-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prognathism-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prognathism-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prominent-decr",
+     "weight": 0
+    },
+    {
+     "name": "chin-prominent-incr",
+     "weight": 0
+    },
+    {
+     "name": "chin-triangle",
+     "weight": 0
+    },
+    {
+     "name": "chin-width-decr",
+     "weight": 0.0088
+    },
+    {
+     "name": "chin-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-nubian-decr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-nubian-incr",
+     "weight": 0.0084
+    },
+    {
+     "name": "forehead-scale-vert-decr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-scale-vert-incr",
+     "weight": 0.0329
+    },
+    {
+     "name": "forehead-temple-decr",
+     "weight": 0
+    },
+    {
+     "name": "forehead-temple-incr",
+     "weight": 0.0746
+    },
+    {
+     "name": "l-cheek-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-inner-decr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-inner-incr",
+     "weight": 0
+    },
+    {
+     "name": "l-cheek-volume-decr",
+     "weight": 0.0059
+    },
+    {
+     "name": "l-cheek-volume-incr",
+     "weight": 0.0062
+    },
+    {
+     "name": "mouth-cupidsbow-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-cupidsbow-incr",
+     "weight": 0.0785
+    },
+    {
+     "name": "mouth-cupidsbow-width-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-cupidsbow-width-incr",
+     "weight": 0.0411
+    },
+    {
+     "name": "mouth-dimples-in",
+     "weight": 0
+    },
+    {
+     "name": "mouth-dimples-out",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-ext-down",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-ext-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-height-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-height-incr",
+     "weight": 0.3988
+    },
+    {
+     "name": "mouth-lowerlip-middle-down",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-middle-up",
+     "weight": 0.4629
+    },
+    {
+     "name": "mouth-lowerlip-volume-decr",
+     "weight": 0.0495
+    },
+    {
+     "name": "mouth-lowerlip-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-lowerlip-width-decr",
+     "weight": 0.0265
+    },
+    {
+     "name": "mouth-lowerlip-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-philtrum-volume-decr",
+     "weight": 0.0323
+    },
+    {
+     "name": "mouth-philtrum-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-depth-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-depth-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-horiz-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-scale-horiz-incr",
+     "weight": 0.1023
+    },
+    {
+     "name": "mouth-scale-vert-decr",
+     "weight": 0.4478
+    },
+    {
+     "name": "mouth-scale-vert-incr",
+     "weight": 0.1267
+    },
+    {
+     "name": "mouth-upperlip-ext-down",
+     "weight": 0.1294
+    },
+    {
+     "name": "mouth-upperlip-ext-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-height-decr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-height-incr",
+     "weight": 0.1002
+    },
+    {
+     "name": "mouth-upperlip-middle-down",
+     "weight": 0.2775
+    },
+    {
+     "name": "mouth-upperlip-middle-up",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-volume-decr",
+     "weight": 0.0097
+    },
+    {
+     "name": "mouth-upperlip-volume-incr",
+     "weight": 0
+    },
+    {
+     "name": "mouth-upperlip-width-decr",
+     "weight": 0.0722
+    },
+    {
+     "name": "mouth-upperlip-width-incr",
+     "weight": 0.0769
+    },
+    {
+     "name": "nose-base-down",
+     "weight": 0
+    },
+    {
+     "name": "nose-base-up",
+     "weight": 0.3107
+    },
+    {
+     "name": "nose-curve-concave",
+     "weight": 0
+    },
+    {
+     "name": "nose-curve-convex",
+     "weight": 0.4763
+    },
+    {
+     "name": "nose-flaring-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-flaring-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-greek-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-greek-incr",
+     "weight": 1
+    },
+    {
+     "name": "nose-hump-decr",
+     "weight": 0.0029
+    },
+    {
+     "name": "nose-hump-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-angle-down",
+     "weight": 0.0087
+    },
+    {
+     "name": "nose-nostrils-angle-up",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-width-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-nostrils-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-point-down",
+     "weight": 0.1595
+    },
+    {
+     "name": "nose-point-up",
+     "weight": 0.167
+    },
+    {
+     "name": "nose-point-width-decr",
+     "weight": 0.0627
+    },
+    {
+     "name": "nose-point-width-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-depth-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-depth-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-horiz-decr",
+     "weight": 0.3246
+    },
+    {
+     "name": "nose-scale-horiz-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-scale-vert-decr",
+     "weight": 0.1351
+    },
+    {
+     "name": "nose-scale-vert-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-septumangle-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-septumangle-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-volume-decr",
+     "weight": 0.0067
+    },
+    {
+     "name": "nose-volume-incr",
+     "weight": 0.3875
+    },
+    {
+     "name": "nose-width1-decr",
+     "weight": 0.0422
+    },
+    {
+     "name": "nose-width1-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width2-decr",
+     "weight": 0.4004
+    },
+    {
+     "name": "nose-width2-incr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width3-decr",
+     "weight": 0
+    },
+    {
+     "name": "nose-width3-incr",
+     "weight": 0.0361
+    },
+    {
+     "name": "r-cheek-bones-decr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-bones-incr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-inner-decr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-inner-incr",
+     "weight": 0
+    },
+    {
+     "name": "r-cheek-volume-decr",
+     "weight": 0.0059
+    },
+    {
+     "name": "r-cheek-volume-incr",
+     "weight": 0.0062
+    }
+   ],
+   "unapplied": [
+    {
+     "name": "asym-brown-1-l",
+     "weight": 0.5904,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-brown-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-cheek-2-r",
+     "weight": 0.1705,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-3-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-4-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-ear-4-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-1-l",
+     "weight": 0.1673,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-2-l",
+     "weight": 0.4348,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-2-r",
+     "weight": 0.4399,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-3-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-4-l",
+     "weight": 0.0293,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-4-r",
+     "weight": 0.1304,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-5-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-5-r",
+     "weight": 0.0359,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-6-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-6-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-7-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-7-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-8-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-eye-8-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-3-l",
+     "weight": 0.1653,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-jaw-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-1-l",
+     "weight": 0.0079,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-1-r",
+     "weight": 0.016,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-2-l",
+     "weight": 0.2657,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-mouth-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-1-r",
+     "weight": 0.4509,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-2-r",
+     "weight": 0.0055,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-3-l",
+     "weight": 0.016,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-3-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-4-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-nose-4-r",
+     "weight": 0.3413,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-2-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-temple-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-1-l",
+     "weight": 0.1588,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-2-l",
+     "weight": 0.0016,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asym-top-2-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-breast-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-breast-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-trunk-1-l",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "asymm-trunk-1-r",
+     "weight": 0,
+     "reason": "family subdir 'asym' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-back-scale-depth-decr",
+     "weight": 0.2927,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-back-scale-depth-incr",
+     "weight": 0.0805,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-diamond",
+     "weight": 0.0863,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-fat-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-fat-incr",
+     "weight": 0.0123,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-invertedtriangular",
+     "weight": 0.1422,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-oval",
+     "weight": 0.5515,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-rectangular",
+     "weight": 0.408,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-round",
+     "weight": 0.2747,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-depth-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-depth-incr",
+     "weight": 0.9989,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-horiz-decr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-horiz-incr",
+     "weight": 0.0741,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-vert-decr",
+     "weight": 0.0622,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-scale-vert-incr",
+     "weight": 0,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-square",
+     "weight": 0.0858,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "head-triangular",
+     "weight": 0.0414,
+     "reason": "family subdir 'head' is not scanned by load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102); the loader's required_names lookup misses it and the materializer refuses unknown names loudly (materialize_mpfb_humanoid_candidate.py:5601-5606)"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-averageweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-maxweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-female-young-averagemuscle-minweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-averageweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-maxweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    },
+    {
+     "name": "universal-male-young-averagemuscle-minweight",
+     "weight": 0,
+     "reason": "macro stem: no .target file exists; macros bake via derive_macro_dict (materialize_mpfb_humanoid_candidate.py:4046-4071), not --face-targets"
+    }
+   ],
+   "bigDetail": "23/45 weights with |w|>=0.05 applied",
+   "thresholds": {
+    "m1": {
+     "knownGood": {
+      "value": 0.782,
+      "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.aisha.rmsAfterMm (the fitter's own number)"
+     },
+     "knownBad": {
+      "value": 3.9525,
+      "source": "M1 on the pre-fix bake (store/face-station-cases/aisha/run1 GLB, no face targets)"
+     },
+     "threshold": 2.3673,
+     "margin": 3.1705,
+     "noise": 0.0,
+     "noiseSource": "|M1 postfix run1 - postfix run2|",
+     "enforced": true
+    },
+    "m2": {
+     "knownGood": {
+      "value": 0.00498,
+      "source": "aisha post-fix flat render vs aisha goal (M2_audit: D5 caveat applies \u2014 goal is an edit of an aisha render)"
+     },
+     "knownBad": {
+      "value": 0.00404,
+      "source": "min(aisha post-fix flat vs body2 goal)"
+     },
+     "threshold": 0.00451,
+     "margin": 0.00094,
+     "noise": 0.00017,
+     "noiseSource": "max(0.8x-rescale redetection 0.00017, |postfix run1 - run2| 0.0)",
+     "enforced": true
+    }
+   },
+   "means": {
+    "preM1": 3.9525,
+    "postM1": 4.0259,
+    "preM2": 0.00588,
+    "postM2": 0.00498
+   },
+   "verdicts": {
+    "g1": {
+     "pass": true,
+     "detail": "aisha G1 not gated (fit never applied to aisha either; G3 covers her)"
+    },
+    "g2": {
+     "pass": true,
+     "detail": "aisha G2 not gated (G3 covers her)"
+    },
+    "g3": {
+     "pass": false,
+     "detail": "dM1 +0.0734 (noise 0.0000), dM2 -0.00090 (noise 0.00017)"
+    }
+   }
+  }
+ },
+ "sheets": [
+  {
+   "case": "body2",
+   "sheet": "/Volumes/files/openclinxr-assets/store/identity/sheet-body2.png",
+   "sha256": "2f38809f55306c2a87d0df998b4eaab8b9f774053069403741799599a888afdf",
+   "panels": {
+    "flatPrefix": "/Volumes/files/openclinxr-assets/store/identity/body2-prefix-flat-front.png",
+    "flatPostfix": "/Volumes/files/openclinxr-assets/store/identity/body2-postfix-flat-front.png",
+    "goal": "/Volumes/files/openclinxr-assets/store/face-fit-any/body2-goal-front.png",
+    "runtimePostfix": "/Volumes/files/openclinxr-assets/store/identity/body2-postfix-runtime-front.png"
+   },
+   "panelSha256": {
+    "flatPrefix": "01df68226a58915509c19a25c83383cbe613fef2535e617dcb88219aec510c73",
+    "flatPostfix": "e058704efeb18d536d3355d486e94ec6851ca622ee938bc2fd256b8ac0ab6aed",
+    "goal": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+    "runtimePostfix": "82a59964a497f6914d0b7e7a7a5424af78e8f63d56d07cc620f8b4c75558ba3a"
+   }
+  },
+  {
+   "case": "aisha",
+   "sheet": "/Volumes/files/openclinxr-assets/store/identity/sheet-aisha.png",
+   "sha256": "fe29fcc4d47468de0a5c29313035604a73c51147b483909aec5d879a8b375eec",
+   "panels": {
+    "flatPrefix": "/Volumes/files/openclinxr-assets/store/identity/aisha-prefix-flat-front.png",
+    "flatPostfix": "/Volumes/files/openclinxr-assets/store/identity/aisha-postfix-flat-front.png",
+    "goal": "/Volumes/files/openclinxr-assets/store/face-fit/target-front.png",
+    "runtimePostfix": "/Volumes/files/openclinxr-assets/store/identity/aisha-postfix-runtime-front.png"
+   },
+   "panelSha256": {
+    "flatPrefix": "95267be68d338cd71095b99506c776e29c03d84c161dd7502f26601cde688609",
+    "flatPostfix": "5078c209205bb328b1a41e833378754661af70e843851a4286150fe7faea11bc",
+    "goal": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+    "runtimePostfix": "551a08e8671a8677bfb1918d16b9b492940b0858e69674515b600e9e1063c0dc"
+   }
+  }
+ ],
+ "NOT_TESTED": [
+  "skin tone",
+  "age texture",
+  "race/age macros"
+ ]
+}
