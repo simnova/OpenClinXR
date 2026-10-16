@@ -2,7 +2,7 @@
  "card": "tsk_e248d339fd18da20",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
  "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
- "moduleSha256": "92b82b2453ae6d648967ac9eb04eb6f2f069828255d56b9c8ab6075c6c744733",
+ "moduleSha256": "bf571dede3a0d759fe7e936e890e5e5316e6b9b32f6853021c6ba27772d35c7d",
  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/",
  "subject": {
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
@@ -259,6 +259,5 @@
    "h100": "f188dffb3a66eca404496b0b702b5d5ad8748f705576572ea9742edb6a123a3c",
    "h106": "bb42e0ba4db9a479f8895223004b3ef8f312141593161957b9cf822347bb2077"
   }
- },
- "successor": "tsk_fd7dedb8dc543758: product-path globe map is now built from the rig lights (rig-key-globe-env.ts); this report pins the pre-successor source only via its renders/shas"
+ }
 }

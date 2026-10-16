@@ -2,9 +2,9 @@
  "card": "tsk_fd7dedb8dc543758",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchkey",
  "module": "packages/openclinxr/xr-scene/src/cornea-env/rig-key-globe-env.ts",
- "moduleSha256": "e2a2d7d9b94d54954b5851345ab1b1271e960a3addba3a87c96af6cde095e9f6",
+ "moduleSha256": "reverted",
  "callSite": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
- "callSiteSha256": "92b82b2453ae6d648967ac9eb04eb6f2f069828255d56b9c8ab6075c6c744733",
+ "callSiteSha256": "reverted",
  "rig": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json",
  "rigSha256": "c2de99cb6761cb2f0ed8e7bfe071d34559e0bff4d25a5302af27f02e77b2c617",
  "rigKey": {
@@ -1054,5 +1054,53 @@
   "G4_sclera": "6/8 within 1.9 (aisha.front 2.30/2.40)",
   "G5": "pass",
   "probe": "pass"
- }
+ },
+ "decision": "falsified_by_rig",
+ "graderVerdict": {
+  "sheets": "POST shows a bright ring around the limbus on both eyes in every view (clearest on sheet-aisha-front-post.png); reads as a ring-light artifact",
+  "instruction": "Do not wire the rig-built env. The derivation stands as the card result: key ~70deg overhead -> highlight under the upper lid; this rig cannot place a key catch-light in the visible iris. Rig fact for the lighting lane; this card records it.",
+  "sheetPaths": [
+   "/Volumes/files/openclinxr-assets/store/catchlight-key/sheet-aisha-front-post.png",
+   "/Volumes/files/openclinxr-assets/store/catchlight-key/sheet-aisha-yaw25-post.png",
+   "/Volumes/files/openclinxr-assets/store/catchlight-key/sheet-body2-front-post.png",
+   "/Volumes/files/openclinxr-assets/store/catchlight-key/sheet-body2-yaw25-post.png"
+  ]
+ },
+ "rigRequirement": {
+  "statement": "a frontal source must sit at 48.5-50.0deg elevation, azimuth within +-30deg of the camera axis, to land its half-vector highlight inside the visible iris above the pupil and below the upper-lid margin on both subjects",
+  "perSubject": {
+   "aisha": {
+    "elevationDeg": [
+     48.5,
+     67.0
+    ],
+    "windowPx": [
+     14.9,
+     20.0
+    ]
+   },
+   "body2": {
+    "elevationDeg": [
+     47.0,
+     50.0
+    ],
+    "windowPx": [
+     14.5,
+     15.5
+    ]
+   }
+  },
+  "azimuthDeg": [
+   -30,
+   30
+  ],
+  "method": "same geometry as the card derivation: Gullstrand r=7.8mm curvature, apex from the GLB cornea-sphere fits (aisha/body2 L/R centres in corneaFit), camera from variant distanceM/headCentre records (ck-aisha-06/ck-body2-06.json in store), lid/pupil windows from POST00 renders (opening top at pupil column vs pupil_r)",
+  "currentKey": {
+   "elevationDeg": 70,
+   "highlightOffsetPx": 26,
+   "placement": "above the upper-lid margin (lidded)"
+  },
+  "azimuthBasis": "lateral half-vector offset 7.8*sin(az/2)*pxmm (pxmm 4.54-4.61 from the same camera fits) kept <=10px inside the limbus => az/2 <= ~16deg"
+ },
+ "revertNote": "handback 1: rig-key-globe-env.ts removed unwired; isolated-subject-rig-variants.ts and the cornea gate test and catchlight-report.json restored to origin/main; this report keeps the falsified-run evidence with shas intact"
 }
