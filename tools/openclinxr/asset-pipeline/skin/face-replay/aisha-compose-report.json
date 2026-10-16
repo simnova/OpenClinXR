@@ -1,0 +1,28 @@
+{
+  "doc": "Aisha full-atlas compose record: the pre-refusal (33300119f) output vs the post-fix output must be byte-identical with no post refusal; the store copy sha recomputes when present. Pre inputs verified sha-by-sha against compose-report.json; pre outputs live in S/aishacomp/pre (scratch).",
+  "inputs": {
+    "base_skin": "join/out-albedo.png",
+    "locked_island": "scalp/locked-pick.png",
+    "island_box": [2456, 614, 4054, 3686],
+    "skip_join": true
+  },
+  "pre": {
+    "compositor": "33300119f",
+    "out_sha256": "e5b1ac1ecf9ebc808f525021677f05cb723ae82606645d4756317488732d818e",
+    "crown_step_max": 7.187494998588733,
+    "crown_step_bound": 8.0,
+    "tone_shift_Lab": [-2.420184685334732, 0.769732257205975, 0.8300746782866391],
+    "treat_frac": 0.9252813575563203
+  },
+  "post": {
+    "out_sha256": "e5b1ac1ecf9ebc808f525021677f05cb723ae82606645d4756317488732d818e",
+    "crown_step_max": 7.187494998588733,
+    "crown_step_bound": 8.0,
+    "input_crown_step_max": 43.40706676811223,
+    "refusal": null,
+    "scalp_source": "locked_island",
+    "registered": true,
+    "store_path": "/Volumes/files/openclinxr-assets/store/aisha-compose/aisha-compose.png",
+    "store_sha256": "e5b1ac1ecf9ebc808f525021677f05cb723ae82606645d4756317488732d818e"
+  }
+}

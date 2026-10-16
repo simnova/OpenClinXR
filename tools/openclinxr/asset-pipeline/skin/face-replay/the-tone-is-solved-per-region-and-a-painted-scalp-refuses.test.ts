@@ -122,6 +122,31 @@ function runCompose(win: string, base: string, lockedWin: string): string {
   { encoding: "utf8" });
 }
 
+type ComposeReport = {
+  refusal?: unknown;
+  region_table: { crown_step: { max: number; bound: number } };
+  scalp?: { scalp_source?: string };
+};
+
+function runComposeReport(win: string, base: string,
+  lockedWin: string): { stdout: string; report: ComposeReport } {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `tonerep-${win}-`));
+  const locked = path.join(FIX, `locked-${lockedWin}.png`);
+  const reportPath = path.join(tmp, "report.json");
+  const stdout = execFileSync("python3", [MODULE,
+    "--base-skin", path.join(FIX, base),
+    "--locked-island", locked, "--locked-sha", shaOf(locked),
+    "--masks", masksDir(win), "--side-map", sideOf(win, tmp),
+    "--input-space", "island-upright", "--skip-join",
+    "--out", path.join(tmp, "out.png"),
+    "--report", reportPath],
+  { encoding: "utf8" });
+  return {
+    stdout,
+    report: JSON.parse(fs.readFileSync(reportPath, "utf8")),
+  };
+}
+
 function red(label: string, bad: RegionalReport): void {
   try {
     validateRegional(bad);
@@ -146,9 +171,23 @@ describe("tone solved per region, painted scalp refuses", () => {
     expect(out).not.toMatch(/CROWN_STEP_OVER_BOUND/);
   }, 240000);
 
-  it("a painted scalp refuses: crown_step over bound, no scalp source", () => {
-    expect(() => runCompose("A", "base-bad-A.png", "A"))
-      .toThrow(/CROWN_STEP_OVER_BOUND/);
+  it("SUPERSEDED a painted scalp refuses: a registered locked donor composes", () => {
+    // SUPERSEDED, not deleted (this it( stays): b3167aa35 scoped the
+    // input-side crown_step refusal to runs where "the subject names no
+    // scalp source", but at that commit no run could name one, so it fired
+    // on every stubbled base. Donors now record report.scalp.scalp_source:
+    // a registered locked donor IS a named scalp source, so the input-side
+    // refusal lifts for scalp_source locked_island while the output-side
+    // refusal stays for every run. If registration is ever removed (no
+    // scalp_source recorded), restore the toThrow CROWN_STEP_OVER_BOUND
+    // assertion this clause used to carry.
+    const { report } = runComposeReport("A", "base-bad-A.png", "A");
+    expect(report.refusal ?? null, "no refusal with registered donor")
+      .toBeNull();
+    expect(report.region_table.crown_step.max, "output crown_step in bound")
+      .toBeLessThanOrEqual(report.region_table.crown_step.bound);
+    expect(report.scalp?.scalp_source, "registered scalp source")
+      .toBe("locked_island");
   }, 240000);
 
   it("known-bad (a): over-bound scalp must not pass compose", () => {

@@ -1106,21 +1106,25 @@ def compose(args: argparse.Namespace) -> dict:
             report["exact_zero"] = exact_zero_report(before_lab, out, regions,
                                                      interiors)
     report["scalp"] = scalp_info
-    # Input-side refusal: a painted scalp arrives in the BASE skin, and the
-    # join+scalp treatment smooths it away (bad-A input 16.9 -> output 1.8),
-    # so the output-side check alone never fires. Measure crown_step on the
-    # pre-treatment working image in the same space the output table uses.
+    # Input-side refusal: a painted scalp arrives in the BASE skin. A
+    # registered locked donor replaces the stubbled cap the paint sits
+    # under, so an over-bound input is expected there and must not refuse:
+    # the donor is a NAMED scalp source (b3167aa35 fired on every stubbled
+    # base only because at that commit no run could name one). The refusal
+    # fires only when scalp_source is not locked_island: unregistered runs
+    # treat the subject's own base, so a painted or seamed base still
+    # refuses on the input side. Measure crown_step on the pre-treatment
+    # working image in the same space the output table uses.
     in_table = region_table(
         before_lab, regions, sides_up if island_box is not None else sides,
         scale)
     report["input_region_table"] = {"crown_step": in_table["crown_step"]}
-    # Both refusals apply to every run: the unregistered output is the
-    # treated base, so a painted or seamed base still refuses (input side
-    # when the base arrives painted, output side when treatment leaves a
-    # step). Only a clean treated base returns, with its scalp source
-    # recorded above.
+    # The output-side refusal below stays for every run: whatever the scalp
+    # source, a composite that leaves a step refuses. Only a clean treated
+    # base returns, with its scalp source recorded above.
     in_step = in_table["crown_step"]
-    if in_step["max"] is not None and in_step["max"] > in_step["bound"]:
+    if (in_step["max"] is not None and in_step["max"] > in_step["bound"]
+            and scalp_info.get("scalp_source") != "locked_island"):
         report["refusal"] = {
             "reason": "crown_step_over_bound",
             "side": "input",
@@ -1133,7 +1137,7 @@ def compose(args: argparse.Namespace) -> dict:
         raise RuntimeError(
             "CROWN_STEP_OVER_BOUND "
             f"max {in_step['max']:.3f} > bound {in_step['bound']:.3f}: "
-            "record names no scalp source; refuse")
+            "no registered scalp source; refuse")
     step = report["region_table"]["crown_step"]
     if step["max"] is not None and step["max"] > step["bound"]:
         report["refusal"] = {
