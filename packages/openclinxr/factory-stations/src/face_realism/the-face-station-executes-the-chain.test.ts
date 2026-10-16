@@ -1,11 +1,16 @@
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { assertNoModelStage, runFaceRealism, sanitizedFaceRealismEnv } from "./run.js";
+import {
+  assertNoModelStage,
+  prepareFixtureReplayDir,
+  runFaceRealism,
+  runReplayChain,
+  sanitizedFaceRealismEnv,
+} from "./run.js";
 
 /**
  * The face station executes the stored skin chain from its stored record.
@@ -37,61 +42,10 @@ function shaFile(file: string): string {
   return createHash("sha256").update(readFileSync(file)).digest("hex");
 }
 
-function writeSyntheticGlb(glbPath: string): void {
-  const genPath = join(dirname(glbPath), "gen_glb.py");
-  writeFileSync(
-    genPath,
-    [
-      "import numpy as np, trimesh",
-      "from trimesh.creation import icosphere",
-      `OUT=${JSON.stringify(glbPath)}`,
-      "XMIN,XMAX,YMIN,YMAX=-0.030,0.030,-0.160,0.100",
-      "HX,HY,HW,HH=0.0,-0.100,0.020,0.008",
-      "xs=np.linspace(XMIN,XMAX,61)",
-      "ys=np.linspace(YMIN,YMAX,261)",
-      "xv,yv=np.meshgrid(xs,ys)",
-      "hole=(np.abs(xv-HX)<HW)&(np.abs(yv-HY)<HH)",
-      "keep=~hole",
-      "idx=np.full(xv.shape,-1,int)",
-      "idx[keep]=np.arange(int(keep.sum()))",
-      "v=np.column_stack([xv[keep],yv[keep],np.zeros(int(keep.sum()))])",
-      "faces=[]",
-      "for j in range(len(ys)-1):",
-      " for i in range(len(xs)-1):",
-      "  q=idx[j:j+2,i:i+2]",
-      "  if (q>=0).all():",
-      "   a,b,c,d=q[0,0],q[0,1],q[1,0],q[1,1]",
-      "   faces+=[[a,b,c],[b,d,c]]",
-      "faces=np.array(faces)",
-      "uv=np.column_stack([(v[:,0]-XMIN)/(XMAX-XMIN),(v[:,1]-YMIN)/(YMAX-YMIN)])",
-      "skin=trimesh.Trimesh(vertices=v,faces=faces,process=False)",
-      "skin.visual=trimesh.visual.TextureVisuals(uv=uv.copy())",
-      "parts={'fixture_body.001_skin':skin}",
-      "eye_xy=[(1.0,'L'),(-1.0,'R')]",
-      "for sx,side in eye_xy:",
-      " e=icosphere(subdivisions=2,radius=0.012)",
-      " e.apply_translation([sx*0.015,0.0,-0.010])",
-      " eu=np.column_stack([(e.vertices[:,0]-e.vertices[:,0].min())/0.024,(e.vertices[:,1]-e.vertices[:,1].min())/0.024])",
-      " e.visual=trimesh.visual.TextureVisuals(uv=eu)",
-      " parts['fixture_eyes_low_poly_'+side]=e",
-      " b=icosphere(subdivisions=1,radius=0.008)",
-      " b.apply_scale([1.5,0.6,0.4])",
-      " b.apply_translation([sx*0.015,0.014,0.002])",
-      " bu=np.column_stack([(b.vertices[:,0]-b.vertices[:,0].min())/0.024,(b.vertices[:,1]-b.vertices[:,1].min())/0.010])",
-      " b.visual=trimesh.visual.TextureVisuals(uv=bu)",
-      " parts['fixture_eyebrow_'+side]=b",
-      "trimesh.Scene(parts).export(OUT)",
-    ].join("\n"),
-  );
-  execFileSync("python3", [genPath], { encoding: "utf8" });
-}
-
 function stageOutDir(): { outDir: string; manifest512: string } {
   const root = testRepoRoot();
   const outDir = join(os.tmpdir(), `face-station-exec-${process.pid}-${Math.round(Math.random() * 1e9)}`);
   mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "input-albedo.png"), readFileSync(join(root, FIXTURE_ALBEDO)));
-  writeSyntheticGlb(join(outDir, "subject.glb"));
   const chain = JSON.parse(readFileSync(join(root, CHAIN), "utf8")) as {
     stages: Array<{ name: string; parameters: Record<string, unknown> }>;
   };
@@ -99,6 +53,23 @@ function stageOutDir(): { outDir: string; manifest512: string } {
   const manifest512 = join(outDir, "man512.json");
   writeFileSync(manifest512, JSON.stringify(chain));
   return { outDir, manifest512 };
+}
+
+function runChainOnce(outDir: string, manifest: string): {
+  finalSha256: string | null;
+  stageShas: Record<string, string>;
+  executedChainStages: string[];
+} {
+  const staged = prepareFixtureReplayDir(outDir, FIXTURE_ALBEDO, 512);
+  return runReplayChain({
+    subject: "aisha",
+    manifestFile: manifest,
+    glbFile: staged.glbFile,
+    albedoFile: staged.albedoFile,
+    storeDir: outDir,
+    skipAo: true,
+    skipStages: [],
+  });
 }
 
 describe("the face station executes the chain", () => {
@@ -110,18 +81,9 @@ describe("the face station executes the chain", () => {
     const first = stageOutDir();
     const second = stageOutDir();
     writeFileSync(second.manifest512, readFileSync(first.manifest512));
-    const runOne = (outDir: string, manifest: string): Record<string, unknown> =>
-      runFaceRealism({
-        actorId: "actor_aisha",
-        recordPath: RECORD,
-        chainManifestPath: manifest,
-        outDir,
-      });
-    const resultA = runOne(first.outDir, first.manifest512);
-    const resultB = runOne(second.outDir, first.manifest512);
-    expect(resultA["status"]).toBe("replayed");
-    expect(resultB["status"]).toBe("replayed");
-    expect(resultA["executedStages"]).toEqual([
+    const resultA = runChainOnce(first.outDir, first.manifest512);
+    const resultB = runChainOnce(second.outDir, first.manifest512);
+    expect(resultA.executedChainStages).toEqual([
       "derive",
       "occlusion",
       "roughness",
@@ -130,9 +92,9 @@ describe("the face station executes the chain", () => {
       "symmetrise",
       "socket",
     ]);
-    expect(resultA["executedStages"]).toEqual(report.executedStages);
-    expect(resultA["finalSha256"]).toBe(report.finalAlbedo.sha256);
-    expect(resultB["finalSha256"]).toBe(report.finalAlbedo.sha256);
+    expect(resultA.executedChainStages).toEqual(report.executedStages);
+    expect(resultA.finalSha256).toBe(report.finalAlbedo.sha256);
+    expect(resultB.finalSha256).toBe(report.finalAlbedo.sha256);
     const finalFile = join(first.outDir, "albedo_socket.png");
     expect(existsSync(finalFile)).toBe(true);
     expect(shaFile(finalFile)).toBe(report.finalAlbedo.sha256);
@@ -142,15 +104,8 @@ describe("the face station executes the chain", () => {
     const first = stageOutDir();
     const second = stageOutDir();
     writeFileSync(second.manifest512, readFileSync(first.manifest512));
-    const runOne = (outDir: string): Record<string, unknown> =>
-      runFaceRealism({
-        actorId: "actor_aisha",
-        recordPath: RECORD,
-        chainManifestPath: first.manifest512,
-        outDir,
-      });
-    const resultA = runOne(first.outDir) as { stageShas: Record<string, string> };
-    const resultB = runOne(second.outDir) as { stageShas: Record<string, string> };
+    const resultA = runChainOnce(first.outDir, first.manifest512);
+    const resultB = runChainOnce(second.outDir, first.manifest512);
     const names = Object.keys(resultA.stageShas).sort();
     expect(names.length).toBeGreaterThanOrEqual(5);
     const diffs = names
@@ -174,7 +129,7 @@ describe("the face station executes the chain", () => {
     writeFileSync(badManifest, JSON.stringify(chain));
     expect(() =>
       runFaceRealism({
-        actorId: "actor_aisha",
+        actorId: "aisha",
         recordPath: RECORD,
         chainManifestPath: badManifest,
         outDir: join(os.tmpdir(), `face-station-bad-out-${process.pid}`),
@@ -202,7 +157,7 @@ describe("the face station executes the chain", () => {
 
   it("(G3) a missing record still refuses", () => {
     const result = runFaceRealism({
-      actorId: "actor_aisha",
+      actorId: "aisha",
       recordPath: "tools/openclinxr/asset-pipeline/reference-set/no-such-record.json",
     });
     expect(result["stop"]).toBe(true);

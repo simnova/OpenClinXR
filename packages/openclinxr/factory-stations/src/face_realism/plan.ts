@@ -2,6 +2,8 @@
 // No Blender, no network, no Imagine. Replay inputs only:
 //   - case-reference record: tools/openclinxr/asset-pipeline/reference-set/manifest.json
 //   - skin chain: tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json
+//   - per-case inputs: packages/openclinxr/factory-stations/src/face_realism/case-inputs.json
+//     (the actor id must be a key there; otherwise the plan refuses)
 //   - eye flags in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py
 //     (--eye-asset high-poly --eye-cornea --eye-texture, default None keeps the
 //     case-driven brown_eye.png selector path untouched)
@@ -23,6 +25,8 @@ export const FACE_REALISM_DEFAULT_CHAIN_REL =
   "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json";
 export const FACE_REALISM_LASH_STEP_REL =
   "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py";
+export const FACE_REALISM_CASE_INPUTS_REL =
+  "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json";
 
 export type FaceRealismInput = {
   actorId: string;
@@ -66,10 +70,33 @@ function resolveChainPath(chainManifestPath: string | undefined): string {
 
 /**
  * Plans a face-realism replay from the stored case-reference record and chain manifest.
- * Refuses a missing or malformed record instead of generating anything, and records
- * zero model calls because replay reads stored bytes only.
+ * The actor id is the case id: it must be a key of case-inputs.json and of the
+ * record's cases, otherwise the plan refuses instead of substituting another case.
+ * Records zero model calls because replay reads stored bytes only.
  */
 export function planFaceRealism(input: FaceRealismInput): FaceRealismPlanResult {
+  const inputsFile = path.join(repoRoot(), FACE_REALISM_CASE_INPUTS_REL);
+  if (!existsSync(inputsFile)) {
+    return { status: "issues", issues: [`missing case inputs: refused (${FACE_REALISM_CASE_INPUTS_REL})`] };
+  }
+  let inputsDoc: { cases?: Record<string, unknown> };
+  try {
+    inputsDoc = JSON.parse(readFileSync(inputsFile, "utf8")) as typeof inputsDoc;
+  } catch {
+    return { status: "issues", issues: ["case inputs are not valid JSON: refused"] };
+  }
+  const knownCases = Object.keys(inputsDoc.cases ?? {});
+  const actorId = (input as { actorId?: unknown }).actorId;
+  if (typeof actorId !== "string" || actorId.length === 0) {
+    return { status: "issues", issues: ["missing actor id: refused"] };
+  }
+  if (!knownCases.includes(actorId)) {
+    return {
+      status: "issues",
+      issues: [`unknown case "${actorId}": refused (absent from ${FACE_REALISM_CASE_INPUTS_REL})`],
+    };
+  }
+  const caseId = actorId;
   const recordFile = resolveRecordPath(input.recordPath);
   if (!existsSync(recordFile)) {
     return { status: "issues", issues: [`missing record: refused (${input.recordPath})`] };
@@ -84,7 +111,9 @@ export function planFaceRealism(input: FaceRealismInput): FaceRealismPlanResult 
   if (caseIds.length === 0) {
     return { status: "issues", issues: ["record holds no cases: refused"] };
   }
-  const caseId = caseIds.includes("aisha") ? "aisha" : caseIds[0]!;
+  if (!caseIds.includes(caseId)) {
+    return { status: "issues", issues: [`record has no case ${caseId}: refused`] };
+  }
   const goalFront = record.cases?.[caseId]?.references?.["goal_front"];
   if (typeof goalFront?.prompt !== "string" || typeof goalFront?.output?.sha256 !== "string") {
     return { status: "issues", issues: [`record case ${caseId} has no goal_front prompt/output sha: refused`] };

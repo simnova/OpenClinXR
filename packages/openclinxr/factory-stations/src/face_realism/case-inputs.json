@@ -1,0 +1,311 @@
+{
+ "cases": {
+  "aisha": {
+   "catchlight_render": {
+    "path": {
+     "source": "no landed aisha render is named by any record (second-subject-r2-report.json stage 7 names only the body2 render)",
+     "value": null
+    }
+   },
+   "chain_manifest": {
+    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key chainManifest",
+    "value": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json"
+   },
+   "chain_subject": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects key (line 210)",
+    "value": "aisha"
+   },
+   "derive_size": {
+    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key deriveSizeOverride.to (fixture-scale; full 4096 needs Blender/human-run per chain ao_bake note)",
+    "value": 512
+   },
+   "eye_flags": {
+    "asset": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv token --eye-asset (line 17)",
+     "value": "high-poly"
+    },
+    "cornea": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv token --eye-cornea (line 17)",
+     "value": true
+    },
+    "shell": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv carries no --eye-occlusion-shell/--eye-tearline; both default off per tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2412,2427",
+     "value": false
+    },
+    "texture": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv token --eye-texture (line 17)",
+     "value": "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png"
+    }
+   },
+   "family": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:nearest.warm_light",
+    "value": "young"
+   },
+   "family_png": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.assets",
+     "value": "skin-families/young/young-family-v3.png"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.sha256",
+     "value": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   },
+   "fit_case": {
+    "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases key",
+    "value": "aisha"
+   },
+   "layer_weights": {
+    "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.aisha keys are references + phenotype_tone only (no flush/freckle/pallor field)",
+    "value": {
+     "cheek_redness": 0.0,
+     "ear": 0.0,
+     "freckles": 0.0,
+     "lip": 0.0,
+     "nose_redness": 0.0,
+     "pallor": 0.0
+    }
+   },
+   "lid_ring_source": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.baseGlb.path",
+     "value": "lid-conform/aisha-eyeglobe-base.glb"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.baseGlb.sha256",
+     "value": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec"
+    }
+   },
+   "materializer_argv": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv (line 17); --output is appended per run; --eye-texture resolved to the tracked file",
+    "value": [
+     "--eye-colour-reference",
+     "ob_patient_aisha",
+     "--actor-role",
+     "patient",
+     "--bake-device",
+     "metal",
+     "--eye-asset",
+     "high-poly",
+     "--eye-cornea",
+     "--eye-texture",
+     "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png"
+    ]
+   },
+   "materializer_eye_colour_reference": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv token --eye-colour-reference (line 17)",
+    "value": "ob_patient_aisha"
+   },
+   "materializer_reference": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv carries no --reference (default-macro body; subject declared via --eye-colour-reference)",
+    "value": null
+   },
+   "phenotype_tone": {
+    "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.aisha.phenotype_tone (line 301)",
+    "value": "warm_light"
+   },
+   "stage3_albedo": {
+    "file": {
+     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.albedo.file",
+     "value": "tools/openclinxr/asset-pipeline/skin/face-replay/fixtures/base-good-A.png"
+    },
+    "sha256": {
+     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.albedo.sha256",
+     "value": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+    }
+   },
+   "stage3_ao": {
+    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.ao.method (flat 230 grey staged by the station; Blender bake is human-run per chain ao_bake note)",
+    "value": "flat-230-skip-ao"
+   },
+   "stage3_glb": {
+    "method": {
+     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.glb.method (deterministic synthetic trimesh fixture: plane + eye/brow blobs)",
+     "value": "synthetic-trimesh-fixture"
+    },
+    "sha256": {
+     "source": "none: generated per run; the gated known-good is the stage-3 final albedo",
+     "value": null
+    }
+   },
+   "stage3_skip_stages": {
+    "source": "none for aisha (r2 named --skip-stages apply_occ for body2 only)",
+    "value": []
+   },
+   "tone_anchor_lab": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_light",
+    "value": [
+     58.37,
+     9.05,
+     16.01
+    ]
+   },
+   "stage4_known_good": {
+    "assets": {
+     "value": "lid-conform/aisha-lidconform.glb",
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.path"
+    },
+    "sha256": {
+     "value": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256"
+    }
+   }
+  },
+  "body2": {
+   "catchlight_render": {
+    "path": {
+     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.7_checks.gate.catchlight_spot (S/port5/render/body2-bb-front.png)",
+     "value": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/port5/render/body2-bb-front.png"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.7_checks.gate.catchlight_spot (sha 248e63fd)",
+     "value": "248e63fd27be2eb5219a287cfde673da7629b503d6058cbcb1de5f1820640d68"
+    }
+   },
+   "chain_manifest": {
+    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key chainManifest (same chain both cases)",
+    "value": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json"
+   },
+   "chain_subject": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects key (line 217)",
+    "value": "adult_male_street_casual"
+   },
+   "derive_size": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[derive].parameters.size (full scale; r2 re-ran derive fresh)",
+    "value": 4096
+   },
+   "eye_flags": {
+    "asset": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv token --eye-asset (line 3)",
+     "value": "high-poly"
+    },
+    "cornea": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv token --eye-cornea (line 3)",
+     "value": true
+    },
+    "shell": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv carries no --eye-occlusion-shell/--eye-tearline; both default off per tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2412,2427",
+     "value": false
+    },
+    "texture": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv carries no --eye-texture; default None keeps the case-driven brown_eye.png selector per tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2437",
+     "value": null
+    }
+   },
+   "family": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:nearest.warm_medium",
+    "value": "young"
+   },
+   "family_png": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.assets",
+     "value": "skin-families/young/young-family-v3.png"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.sha256",
+     "value": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   },
+   "fit_case": {
+    "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases key",
+    "value": "body2"
+   },
+   "layer_weights": {
+    "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.body2 keys are references + phenotype_tone only (no flush/freckle/pallor field)",
+    "value": {
+     "cheek_redness": 0.0,
+     "ear": 0.0,
+     "freckles": 0.0,
+     "lip": 0.0,
+     "nose_redness": 0.0,
+     "pallor": 0.0
+    }
+   },
+   "lid_ring_source": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.baseGlb.path",
+     "value": "lid-conform-any/body2-eyeglobe-base.glb"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.baseGlb.sha256",
+     "value": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
+    }
+   },
+   "materializer_argv": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv (line 3) minus the [--no-lid-conform] base-bake flag; --output is appended per run",
+    "value": [
+     "--reference",
+     "adult_male_street_casual",
+     "--actor-role",
+     "patient",
+     "--bake-device",
+     "metal",
+     "--eye-asset",
+     "high-poly",
+     "--eye-cornea"
+    ]
+   },
+   "materializer_eye_colour_reference": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv carries no --eye-colour-reference (subject declared via --reference)",
+    "value": null
+   },
+   "materializer_reference": {
+    "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.argv token --reference (line 3)",
+    "value": "adult_male_street_casual"
+   },
+   "phenotype_tone": {
+    "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.body2.phenotype_tone (line 437)",
+    "value": "warm_medium"
+   },
+   "stage3_albedo": {
+    "assets": {
+     "source": "copied from S/port5/solved-albedo-bb.png (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.albedo",
+     "value": "face-station-cases/body2/solved-albedo-bb.png"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.albedo (sha 33855ce9)",
+     "value": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa"
+    }
+   },
+   "stage3_ao": {
+    "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.rerun (derive recomputed fresh by replay.py; Blender AO inside derive.py)",
+    "value": "derive-recomputed"
+   },
+   "stage3_glb": {
+    "assets": {
+     "source": "copied from S/body2/final.glb (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256 and tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.adult_male_street_casual.glb_sha256",
+     "value": "face-station-cases/body2/final.glb"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256",
+     "value": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+    }
+   },
+   "stage3_skip_stages": {
+    "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.skip_stages (matches no chain stage name, so occlusion RAN)",
+    "value": [
+     "apply_occ"
+    ]
+   },
+   "tone_anchor_lab": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_medium",
+    "value": [
+     49.26,
+     13.89,
+     19.44
+    ]
+   },
+   "stage4_known_good": {
+    "assets": {
+     "value": "lid-conform-any/body2-lidconform.glb",
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path"
+    },
+    "sha256": {
+     "value": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256"
+    }
+   }
+  }
+ },
+ "version": 1
+}

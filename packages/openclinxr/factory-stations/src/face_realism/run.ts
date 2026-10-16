@@ -1,19 +1,50 @@
-// Face-realism station runner: executes the stored chain-manifest stages
-// in order through their tracked scripts as subprocesses.
+// Face-realism station runner: executes the 7 case-driven stages in order,
+// each through its landed stage script as a subprocess.
+//
 // Pattern follows hair_editor/run.ts:16-37 (validate -> plan -> run record).
 //
 // Guard (throws, never counts): a stage whose manifest kind is imagine or
 // llm is refused before any subprocess starts, and every subprocess runs
 // with model credentials stripped from the env so a model call would fail
 // loudly. The replay path itself records no model calls.
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
+//
+// Case data lives only in case-inputs.json next to this file. This module
+// names no case: every per-case value (chain subject key, bake argv,
+// weights, input paths) is read from that record at runtime.
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { factoryStationSchemas } from "../catalog-mod.js";
 import { repoRoot } from "../repo-root.js";
 import type { StationPlanResult, StationRunner } from "../runner.js";
+import {
+  assertNoModelStage,
+  prepareFixtureReplayDir,
+  runReplayChain,
+  stageSyntheticFixtureGlb,
+} from "./chain.js";
 import { FACE_REALISM_DEFAULT_CHAIN_REL, planFaceRealism, type FaceRealismInput } from "./plan.js";
+import {
+  type ChainStage,
+  caseValue,
+  emptyStageRecord,
+  loadCaseRecord,
+  readJsonFile,
+  sanitizedFaceRealismEnv,
+  type StageIO,
+  type StageRecord,
+} from "./shared.js";
+import { runStage1, runStage2, runStage3 } from "./stages-a.js";
+import { runStage4, runStage5, runStage6, runStage7 } from "./stages-b.js";
+
+export {
+  assertNoModelStage,
+  prepareFixtureReplayDir,
+  runReplayChain,
+  stageSyntheticFixtureGlb,
+};
+export { sanitizedFaceRealismEnv };
+export type { StageGate, StageIO, StageRecord } from "./shared.js";
+export { FACE_REALISM_FIXTURE_ALBEDO_REL, FACE_REALISM_REPLAY_REL } from "./chain.js";
 
 /** Replay-wide model-call counter (legacy; the guard throws, it never gates). */
 let faceRealismModelCalls = 0;
@@ -29,91 +60,6 @@ export function faceRealismModelCallCount(): number {
 export function recordFaceRealismModelCall(): number {
   faceRealismModelCalls += 1;
   return faceRealismModelCalls;
-}
-
-/** Tracked replay driver for the hand-steps chain (verifies input shas). */
-export const FACE_REALISM_REPLAY_REL =
-  "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py";
-
-/** Stored fixture albedo used when the caller stages no input (test/fixture scale). */
-export const FACE_REALISM_FIXTURE_ALBEDO_REL =
-  "tools/openclinxr/asset-pipeline/skin/face-replay/fixtures/base-good-A.png";
-
-/** Manifest kinds that would invoke a model: refused by throwing, never counted. */
-const REFUSED_MODEL_KINDS = new Set(["imagine", "llm", "model"]);
-
-type ChainStage = {
-  name?: unknown;
-  script?: unknown;
-  kind?: unknown;
-  type?: unknown;
-  parameters?: unknown;
-};
-
-/**
- * Subprocess env with model credentials stripped so a model call fails
- * loudly instead of silently succeeding off stored keys.
- */
-export function sanitizedFaceRealismEnv(): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [key, value] of Object.entries(process.env)) {
-    if (value === undefined) continue;
-    const low = key.toLowerCase();
-    if (
-      low.includes("openai") ||
-      low.includes("anthropic") ||
-      low.includes("xai") ||
-      low.includes("grok") ||
-      low.includes("imagine") ||
-      low.includes("replicate") ||
-      low.includes("hugging") ||
-      low.includes("together") ||
-      low.includes("cohere") ||
-      low.includes("gemini") ||
-      low.includes("bedrock")
-    ) {
-      continue;
-    }
-    out[key] = value;
-  }
-  return out;
-}
-
-/**
- * Refuses (by throwing) any chain stage that would invoke a model, and any
- * stage that records no parameters (mirrors the replay driver refusal).
- */
-export function assertNoModelStage(chain: { stages?: ChainStage[] }): void {
-  const stages = chain.stages ?? [];
-  for (const stage of stages) {
-    const name = String(stage.name ?? "unnamed");
-    const kind = String(stage.kind ?? stage.type ?? "").toLowerCase();
-    const script = String(stage.script ?? "").toLowerCase();
-    if (REFUSED_MODEL_KINDS.has(kind) || script.includes("imagine")) {
-      throw new Error(`refused model stage: ${name} (kind=${kind || "none"})`);
-    }
-    if (
-      stage.parameters === undefined ||
-      stage.parameters === null ||
-      typeof stage.parameters !== "object" ||
-      Object.keys(stage.parameters as Record<string, unknown>).length === 0
-    ) {
-      throw new Error(`refused stage with no parameters: ${name}`);
-    }
-  }
-}
-
-function resolveChainFile(chainManifestPath: string | undefined): string {
-  if (chainManifestPath !== undefined && chainManifestPath.length > 0) {
-    return path.isAbsolute(chainManifestPath)
-      ? chainManifestPath
-      : path.join(repoRoot(), chainManifestPath);
-  }
-  return path.join(repoRoot(), FACE_REALISM_DEFAULT_CHAIN_REL);
-}
-
-function sha256Bytes(raw: Buffer): string {
-  return createHash("sha256").update(raw).digest("hex");
 }
 
 /**
@@ -143,50 +89,38 @@ export function planFaceRealismStation(input: unknown): StationPlanResult {
 }
 
 /**
- * Executes the stored chain-manifest stages in order through their tracked
- * scripts as subprocesses (via the tracked replay driver, which runs every
- * stage script as a subprocess), from the stored record only, writing
- * outputs to the caller-given out dir.
+ * Executes the 7 case-driven stages (family/tone, skin layers, skin chain,
+ * lid-conform bake, eye flags, face fit, checks) in order, each through its
+ * landed stage script as a subprocess, writing outputs to the caller-given
+ * out dir and returning a per-stage record.
  *
  * Without a caller-given out dir it returns the legacy dry-run replayed
- * record. A missing record is refused with stop set instead of generating
- * anything. A stage that would call a model is refused by throwing.
+ * record. A missing record, an unknown case, or a model-marked chain stage
+ * is refused with stop set instead of generating anything.
  */
 export function runFaceRealism(input: unknown): Record<string, unknown> {
   const planned = planFaceRealismStation(input);
   if (planned.issues !== undefined) {
-    return { stationId: "face_realism", status: "issues", stop: true, issues: planned.issues, plan: null };
+    const first = planned.issues[0]?.message ?? "refused";
+    return {
+      stationId: "face_realism",
+      status: "refused",
+      stop: true,
+      stop_reason: first,
+      plan: null,
+    };
   }
   const plan = planned.plan as Record<string, unknown> & { caseId?: unknown };
   if (typeof plan["caseId"] !== "string") {
-    return { stationId: "face_realism", status: "refused", stop: true, stop_reason: "missing record", plan: null };
-  }
-  const raw = (input ?? {}) as { chainManifestPath?: unknown; outDir?: unknown };
-  const chainFile = resolveChainFile(
-    typeof raw.chainManifestPath === "string" ? raw.chainManifestPath : undefined,
-  );
-  let chain: { stages?: ChainStage[]; subjects?: Record<string, unknown> };
-  try {
-    chain = JSON.parse(readFileSync(chainFile, "utf8")) as typeof chain;
-  } catch {
     return {
       stationId: "face_realism",
       status: "refused",
       stop: true,
-      stop_reason: "missing chain manifest",
+      stop_reason: "missing record",
       plan: null,
     };
   }
-  if (!Array.isArray(chain.stages) || chain.stages.length === 0) {
-    return {
-      stationId: "face_realism",
-      status: "refused",
-      stop: true,
-      stop_reason: "chain manifest holds no stages",
-      plan: null,
-    };
-  }
-  assertNoModelStage(chain);
+  const raw = (input ?? {}) as { chainManifestPath?: unknown; outDir?: unknown; recordPath?: unknown };
   const outRaw = typeof raw.outDir === "string" && raw.outDir.length > 0 ? raw.outDir : null;
   if (outRaw === null) {
     return {
@@ -197,93 +131,81 @@ export function runFaceRealism(input: unknown): Record<string, unknown> {
       modelCalls: faceRealismModelCallCount(),
     };
   }
+  const caseId = plan["caseId"] as string;
+  const caseRec = loadCaseRecord(caseId);
+  const recordChainManifest =
+    typeof raw.chainManifestPath === "string" && raw.chainManifestPath.length > 0
+      ? raw.chainManifestPath
+      : undefined;
+  const guardChainFile =
+    recordChainManifest ?? caseValue<string>(caseRec, "chain_manifest");
+  const guardChainAbs = path.isAbsolute(guardChainFile)
+    ? guardChainFile
+    : path.join(repoRoot(), guardChainFile);
+  assertNoModelStage(
+    readJsonFile(guardChainAbs) as { stages?: ChainStage[] },
+  );
+  const recordPath =
+    typeof raw.recordPath === "string" && raw.recordPath.length > 0
+      ? raw.recordPath
+      : "tools/openclinxr/asset-pipeline/reference-set/manifest.json";
   const outDir = path.isAbsolute(outRaw) ? outRaw : path.join(repoRoot(), outRaw);
   mkdirSync(outDir, { recursive: true });
-  const albedoDst = path.join(outDir, "input-albedo.png");
-  if (!existsSync(albedoDst)) {
-    copyFileSync(path.join(repoRoot(), FACE_REALISM_FIXTURE_ALBEDO_REL), albedoDst);
+  const stages: StageRecord[] = [];
+  const runStage = (fn: () => StageRecord): StageRecord => {
+    try {
+      return fn();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const partial = emptyStageRecord(stages.length + 1, `stage_${stages.length + 1}`);
+      partial.ran = false;
+      partial.blocked = true;
+      partial.blockReason = message.slice(0, 500);
+      partial.gate = { pass: false, detail: `threw before completing: ${message.slice(0, 200)}` };
+      return partial;
+    }
+  };
+  stages.push(runStage(() => runStage1(caseId, caseRec, recordPath, outDir)));
+  stages.push(runStage(() => runStage2(caseRec, outDir)));
+  stages.push(runStage(() => runStage3(caseRec, recordChainManifest, outDir).record));
+  stages.push(runStage(() => runStage4(caseRec, outDir)));
+  stages.push(runStage(() => runStage5(caseRec, outDir)));
+  stages.push(runStage(() => runStage6(caseRec, outDir)));
+  const stage4 = stages.find((stage) => stage.stage === 4);
+  if (stage4 === undefined) {
+    throw new Error("stage 4 record missing: refusing to run checks without it");
   }
-  const glbDst = path.join(outDir, "subject.glb");
-  if (!existsSync(glbDst)) {
-    return {
-      stationId: "face_realism",
-      status: "refused",
-      stop: true,
-      stop_reason: "missing staged subject.glb in out dir",
-      plan: planned.plan,
-      outDir,
-    };
+  stages.push(runStage(() => runStage7(caseRec, stage4, outDir)));
+  const seen = new Set<string>();
+  const unchainedInputs: Array<{ path: string; sha256: string; prevStageOutputs: StageIO[] }> = [];
+  const prevOutputs: StageIO[] = [];
+  for (const stage of stages) {
+    for (const entry of stage.inputs) {
+      if (!seen.has(entry.sha256)) {
+        stage.unchainedInputs.push({ path: entry.path, sha256: entry.sha256, prevStageOutputs: [...prevOutputs] });
+        unchainedInputs.push({
+          path: entry.path,
+          sha256: entry.sha256,
+          prevStageOutputs: [...prevOutputs],
+        });
+      }
+    }
+    for (const entry of stage.outputs) {
+      seen.add(entry.sha256);
+      prevOutputs.push(entry);
+    }
   }
-  const caseId = plan["caseId"] as string;
-  const replayScript = path.join(repoRoot(), FACE_REALISM_REPLAY_REL);
-  const python = process.env["PYTHON"] ?? "python3";
-  const deriveStage = (chain.stages as ChainStage[]).find((stage) => String(stage.name) === "derive");
-  const deriveParams = (deriveStage?.parameters ?? {}) as Record<string, unknown>;
-  const deriveSize = typeof deriveParams["size"] === "number" ? Math.round(deriveParams["size"] as number) : 512;
-  const aoPath = path.join(outDir, "derive_out", "ao.png");
-  if (!existsSync(aoPath)) {
-    mkdirSync(path.join(outDir, "derive_out"), { recursive: true });
-    execFileSync(
-      python,
-      [
-        "-c",
-        `from PIL import Image; Image.new('L', (${deriveSize}, ${deriveSize}), 230).save(${JSON.stringify(aoPath)})`,
-      ],
-      { cwd: repoRoot(), env: sanitizedFaceRealismEnv(), timeout: 60_000 },
-    );
-  }
-  let stdout = "";
-  try {
-    const rawOut = execFileSync(
-      python,
-      [
-        replayScript,
-        "--manifest",
-        chainFile,
-        "--subject",
-        caseId,
-        "--store",
-        outDir,
-        "--glb",
-        glbDst,
-        "--albedo",
-        albedoDst,
-        "--skip-ao",
-      ],
-      { cwd: repoRoot(), env: sanitizedFaceRealismEnv(), timeout: 280_000 },
-    );
-    stdout = String(rawOut);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      stationId: "face_realism",
-      status: "failed",
-      stop: true,
-      stop_reason: message.slice(0, 500),
-      plan: planned.plan,
-      outDir,
-    };
-  }
-  const stageShas: Record<string, string> = {};
-  for (const entry of readdirSync(outDir)) {
-    if (!entry.endsWith(".png")) continue;
-    stageShas[entry] = sha256Bytes(readFileSync(path.join(outDir, entry)));
-  }
-  const finalName = existsSync(path.join(outDir, "albedo_socket.png"))
-    ? "albedo_socket.png"
-    : Object.keys(stageShas).sort().at(-1) ?? "";
-  void stdout;
+  const failed = stages.filter((stage) => stage.blocked || !stage.gate.pass);
   return {
     stationId: "face_realism",
-    status: "replayed",
+    status: failed.length === 0 ? "completed" : "partial",
     stop: true,
     plan: planned.plan,
     modelCalls: faceRealismModelCallCount(),
     outDir,
-    finalName,
-    finalSha256: finalName.length > 0 ? stageShas[finalName] : null,
-    stageShas,
-    executedStages: (chain.stages as ChainStage[]).map((stage) => String(stage.name)),
+    stages,
+    unchainedInputs,
+    wallSeconds: stages.reduce((sum, stage) => sum + stage.wallSeconds, 0),
   };
 }
 

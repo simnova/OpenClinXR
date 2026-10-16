@@ -1,0 +1,4674 @@
+{
+ "version": 1,
+ "store": "/Volumes/files/openclinxr-assets/store/face-station-cases",
+ "cases": {
+  "aisha": {
+   "runs": {
+    "run1": {
+     "status": "completed",
+     "wallSeconds": 460.147,
+     "stages": [
+      {
+       "stage": 1,
+       "name": "family_tone",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+       "argv": [],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+         "prevStageOutputs": []
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+         "prevStageOutputs": []
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_light] young"
+       },
+       "wallSeconds": 2.411
+      },
+      {
+       "stage": 2,
+       "name": "skin_layers",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+       "argv": [
+        "--families-dir",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families",
+        "--family",
+        "skin-families/young/young-family-v3.png",
+        "--weights",
+        "{\"cheek_redness\":0,\"ear\":0,\"freckles\":0,\"lip\":0,\"nose_redness\":0,\"pallor\":0}",
+        "--out",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "all-zero weights are a byte copy of the picked family PNG"
+       },
+       "wallSeconds": 0.485,
+       "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
+      },
+      {
+       "stage": 3,
+       "name": "skin_chain",
+       "script": "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py",
+       "argv": [
+        "--manifest",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage3-manifest-size.json",
+        "--subject",
+        "aisha",
+        "--store",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1",
+        "--glb",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/subject.glb",
+        "--albedo",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+        "--skip-ao"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/subject.glb",
+         "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage3-manifest-size.json",
+         "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/derive_out/ao.png",
+         "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/subject.glb",
+         "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage3-manifest-size.json",
+         "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/derive_out/ao.png",
+         "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "final albedo_socket.png matches the pinned known-good",
+        "knownGood": {
+         "name": "albedo_socket.png",
+         "expected": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+         "expectedSource": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key finalAlbedo.sha256",
+         "actual": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        }
+       },
+       "wallSeconds": 4.341,
+       "extra": {
+        "executedChainStages": [
+         "derive",
+         "occlusion",
+         "roughness",
+         "lips",
+         "eye_corners",
+         "symmetrise",
+         "socket"
+        ],
+        "manifestSha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29"
+       }
+      },
+      {
+       "stage": 4,
+       "name": "lid_conform_bake",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-colour-reference",
+        "ob_patient_aisha",
+        "--actor-role",
+        "patient",
+        "--bake-device",
+        "metal",
+        "--eye-asset",
+        "high-poly",
+        "--eye-cornea",
+        "--eye-texture",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+        "--output",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
+         "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+           "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+           "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+           "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+           "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+           "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+           "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "bytes differ; body POSITION identical (0 meshes differ: recorded, not a stop)",
+        "knownGood": {
+         "name": "aisha-lidconform.glb",
+         "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
+         "actual": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+        }
+       },
+       "wallSeconds": 449.4,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage4-blender.log",
+         "sha256": "cc70d1f66090bf78ed4316ac3694857df87ed2ea85e3fde45c06e516ef36e16c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.skin-baked.png",
+         "sha256": "85a512295debf06aec745adf6ac18a70b487b029b7bcdcb4c8780ca126b91a26"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.skin-normal.png",
+         "sha256": "f02bec76b116a19ceeea1c7e95967a8dc639f1add16f59db28b02fcdc7f7013a"
+        }
+       ],
+       "extra": {
+        "lidconformRecord": {
+         "offsetMm": 0.5,
+         "weights": [
+          1,
+          0
+         ],
+         "ringSource": "own-pre-conform-bake-topological",
+         "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "h1": {
+          "targetWidthMm": 26.8,
+          "patchK": 6,
+          "patchM": 8,
+          "patchD": 2,
+          "seatCeilingMm": 1.5,
+          "seatFloorMm": 0.5,
+          "lashFollowMm": 4
+         },
+         "displacedVerts": 624,
+         "perSide": {
+          "L": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0018,
+           "matchMaxMm": 0.002,
+           "preWidenWidthMm": 23.723,
+           "widenNeedMm": 3.077,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 27,
+           "fleshVerts": 29,
+           "movedVerts": 27,
+           "maxSeatMm": 1.863,
+           "maxWidenMm": 1.5384
+          },
+          "R": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0017,
+           "matchMaxMm": 0.0017,
+           "preWidenWidthMm": 23.723,
+           "widenNeedMm": 3.077,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 27,
+           "fleshVerts": 29,
+           "movedVerts": 27,
+           "maxSeatMm": 1.863,
+           "maxWidenMm": 1.5384
+          }
+         },
+         "lashFollow": {
+          "found": true,
+          "movedVerts": 11088,
+          "maxFollowMm": 1.8625799335066673,
+          "keyBlocks": 0
+         },
+         "keyBlocksCarried": [
+          "Basis",
+          "eye-left-closure",
+          "eye-left-opened-up",
+          "eye-left-slit",
+          "eye-right-closure",
+          "eye-right-opened-up",
+          "eye-right-slit",
+          "eyebrows-left-down",
+          "eyebrows-left-extern-up",
+          "eyebrows-left-inner-up",
+          "eyebrows-left-up",
+          "eyebrows-right-down",
+          "eyebrows-right-extern-up",
+          "eyebrows-right-inner-up",
+          "eyebrows-right-up",
+          "mouth-compression",
+          "mouth-corner-puller",
+          "mouth-depression-retraction",
+          "mouth-depression-retraction.001",
+          "mouth-elevation",
+          "mouth-eversion",
+          "mouth-open",
+          "mouth-parling",
+          "mouth-part-later",
+          "mouth-protusion",
+          "mouth-pursing",
+          "mouth-retraction",
+          "mouth-upward-retraction",
+          "neck-platysma",
+          "nose-compression-uncompress",
+          "nose-depression",
+          "nose-left-dilatation",
+          "nose-left-elevation",
+          "viseme_aa",
+          "viseme_CH",
+          "viseme_DD",
+          "viseme_E",
+          "viseme_FF",
+          "viseme_I",
+          "viseme_kk",
+          "viseme_nn",
+          "viseme_O",
+          "viseme_PP",
+          "viseme_RR",
+          "viseme_sil",
+          "viseme_SS",
+          "viseme_TH",
+          "viseme_U"
+         ]
+        },
+        "positionFallback": {
+         "byteMatch": false,
+         "positionMatch": true,
+         "oursBody": "mpfb_ob_patient_aisha_body",
+         "knownBody": "mpfb_ob_patient_aisha_body",
+         "differingMeshes": []
+        }
+       }
+      },
+      {
+       "stage": 5,
+       "name": "eye_flags",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-colour-reference",
+        "--eye-asset",
+        "--eye-cornea",
+        "--eye-texture",
+        "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
+         "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "eye flag record matches the case inputs (shell off)"
+       },
+       "wallSeconds": 0.001,
+       "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
+      },
+      {
+       "stage": 6,
+       "name": "face_fit",
+       "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+       "argv": [
+        "--case",
+        "aisha"
+       ],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage6-fit-weights.json",
+         "sha256": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage6-fit-file-weights.json",
+         "sha256": "110962904e88635c23f8a85e5298da0e127eb9c25ff4196dcb575c79c1c5940b"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+           "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+           "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+           "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+           "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+           "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+           "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
+           "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
+           "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "fit weights match the tracked file (342bd1ee70bf); beatsSweep=true; tracked files restored=true",
+        "knownGood": {
+         "name": "fit_weights_aisha.json",
+         "expected": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+         "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json (tracked, read live)",
+         "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
+        }
+       },
+       "wallSeconds": 2.879,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage6-fit.log",
+         "sha256": "9aa069750d925165d97683a89bd4b6a530e9c301bb27260503112e72da25183b"
+        }
+       ],
+       "extra": {
+        "caseEntry": {
+         "rmsBeforeMm": 1.345,
+         "rmsAfterMm": 0.782,
+         "onTrackMm": 0.782,
+         "beatsSweep": true,
+         "featBefore": {
+          "lips": 0.753,
+          "nose": 1.552,
+          "jaw": 2.122,
+          "eyes": 1.345
+         },
+         "featAfter": {
+          "lips": 0.189,
+          "nose": 0.747,
+          "jaw": 0.019,
+          "eyes": 1.015
+         },
+         "top": [
+          [
+           "nose-greek-incr",
+           1
+          ],
+          [
+           "head-scale-depth-incr",
+           0.9989
+          ],
+          [
+           "asym-brown-1-l",
+           0.5904
+          ],
+          [
+           "head-oval",
+           0.5515
+          ],
+          [
+           "nose-curve-convex",
+           0.4763
+          ],
+          [
+           "mouth-lowerlip-middle-up",
+           0.4629
+          ],
+          [
+           "asym-nose-1-r",
+           0.4509
+          ],
+          [
+           "mouth-scale-vert-decr",
+           0.4478
+          ],
+          [
+           "asym-eye-2-r",
+           0.4399
+          ],
+          [
+           "asym-eye-2-l",
+           0.4348
+          ]
+         ],
+         "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json",
+         "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_aisha_front.npy",
+         "targetSha256": "e7e7cd86ca1e8a282ad306e290ab76ad3980c9852a9a9d253430d987395fc68b",
+         "sourceSha256": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+         "source3qSha256": "f5e719a7d4575a043ea6e1d5f1cbc44f28d8140186b219925bfb8c05af13b624",
+         "camera": {
+          "yawScan": {
+           "0.0": 11.49,
+           "10.0": 18.06,
+           "-10.0": 13.82,
+           "20.0": 27.48,
+           "-20.0": 22.52,
+           "30.0": 37.26,
+           "-30.0": 32.69,
+           "40.0": 46.74,
+           "-40.0": 43.01,
+           "50.0": 55.66,
+           "-50.0": 53.01,
+           "60.0": 63.88,
+           "-60.0": 62.46
+          },
+          "yawDeg": 0,
+          "use3q": false,
+          "frontPrePx": 2.5,
+          "yawWeight": 0
+         },
+         "solve": {
+          "nVars": 178,
+          "nRows": 70,
+          "lambda": 1,
+          "knee": 5
+         }
+        },
+        "restored": true,
+        "note": "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir"
+       }
+      },
+      {
+       "stage": 7,
+       "name": "checks",
+       "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+       "argv": [
+        "--verify"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage7-shape-verify.json",
+         "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
+       },
+       "wallSeconds": 0.628,
+       "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
+       "extra": {
+        "checks": {
+         "face_gate": {
+          "blocked": true,
+          "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+          "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+         },
+         "shape_clauses": {
+          "ran": true,
+          "rc": 0,
+          "pass": true
+         },
+         "lid_g1": {
+          "ran": true,
+          "pass": true,
+          "oursBody": "mpfb_ob_patient_aisha_body",
+          "knownBody": "mpfb_ob_patient_aisha_body",
+          "detail": "rebake body POSITION identical to the pinned store GLB"
+         },
+         "lid_g4": {
+          "blocked": true,
+          "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+          "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+         },
+         "catchlight": {
+          "blocked": true,
+          "reason": "no landed render is named for the case",
+          "wanted": "a lit front render path for the case"
+         }
+        }
+       }
+      }
+     ],
+     "unchainedInputs": [
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+       "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+       "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+       "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/subject.glb",
+       "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+       "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage3-manifest-size.json",
+       "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/derive_out/ao.png",
+       "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+       "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+       "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
+         "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
+         "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+        }
+       ]
+      }
+     ]
+    },
+    "run2": {
+     "status": "completed",
+     "wallSeconds": 431.51,
+     "stages": [
+      {
+       "stage": 1,
+       "name": "family_tone",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+       "argv": [],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+         "prevStageOutputs": []
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+         "prevStageOutputs": []
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_light] young"
+       },
+       "wallSeconds": 2.469
+      },
+      {
+       "stage": 2,
+       "name": "skin_layers",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+       "argv": [
+        "--families-dir",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families",
+        "--family",
+        "skin-families/young/young-family-v3.png",
+        "--weights",
+        "{\"cheek_redness\":0,\"ear\":0,\"freckles\":0,\"lip\":0,\"nose_redness\":0,\"pallor\":0}",
+        "--out",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "all-zero weights are a byte copy of the picked family PNG"
+       },
+       "wallSeconds": 0.485,
+       "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
+      },
+      {
+       "stage": 3,
+       "name": "skin_chain",
+       "script": "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py",
+       "argv": [
+        "--manifest",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage3-manifest-size.json",
+        "--subject",
+        "aisha",
+        "--store",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2",
+        "--glb",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/subject.glb",
+        "--albedo",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+        "--skip-ao"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/subject.glb",
+         "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage3-manifest-size.json",
+         "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/derive_out/ao.png",
+         "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/subject.glb",
+         "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage3-manifest-size.json",
+         "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/derive_out/ao.png",
+         "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "final albedo_socket.png matches the pinned known-good",
+        "knownGood": {
+         "name": "albedo_socket.png",
+         "expected": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+         "expectedSource": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key finalAlbedo.sha256",
+         "actual": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        }
+       },
+       "wallSeconds": 5.015,
+       "extra": {
+        "executedChainStages": [
+         "derive",
+         "occlusion",
+         "roughness",
+         "lips",
+         "eye_corners",
+         "symmetrise",
+         "socket"
+        ],
+        "manifestSha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29"
+       }
+      },
+      {
+       "stage": 4,
+       "name": "lid_conform_bake",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-colour-reference",
+        "ob_patient_aisha",
+        "--actor-role",
+        "patient",
+        "--bake-device",
+        "metal",
+        "--eye-asset",
+        "high-poly",
+        "--eye-cornea",
+        "--eye-texture",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+        "--output",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+         "sha256": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+           "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+           "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+           "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+           "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+           "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+           "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "bytes differ; body POSITION identical (0 meshes differ: recorded, not a stop)",
+        "knownGood": {
+         "name": "aisha-lidconform.glb",
+         "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
+         "actual": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+        }
+       },
+       "wallSeconds": 420.948,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage4-blender.log",
+         "sha256": "ff56706fa208024d5644113278897dc1654fd636a63f8e98255432fc289773ff"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.skin-baked.png",
+         "sha256": "86e595eafeb9c6ccf1a426d9d918a923b8f6e7071d15859852e6bbc1c85afc36"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.skin-normal.png",
+         "sha256": "95928d85b22b9bea08f26220274dab6a1f17791bcacfff4ea1b1d4fcd146d934"
+        }
+       ],
+       "extra": {
+        "lidconformRecord": {
+         "offsetMm": 0.5,
+         "weights": [
+          1,
+          0
+         ],
+         "ringSource": "own-pre-conform-bake-topological",
+         "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+         "h1": {
+          "targetWidthMm": 26.8,
+          "patchK": 6,
+          "patchM": 8,
+          "patchD": 2,
+          "seatCeilingMm": 1.5,
+          "seatFloorMm": 0.5,
+          "lashFollowMm": 4
+         },
+         "displacedVerts": 624,
+         "perSide": {
+          "L": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0018,
+           "matchMaxMm": 0.002,
+           "preWidenWidthMm": 23.723,
+           "widenNeedMm": 3.077,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 27,
+           "fleshVerts": 29,
+           "movedVerts": 27,
+           "maxSeatMm": 1.863,
+           "maxWidenMm": 1.5384
+          },
+          "R": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0017,
+           "matchMaxMm": 0.0017,
+           "preWidenWidthMm": 23.723,
+           "widenNeedMm": 3.077,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 27,
+           "fleshVerts": 29,
+           "movedVerts": 27,
+           "maxSeatMm": 1.863,
+           "maxWidenMm": 1.5384
+          }
+         },
+         "lashFollow": {
+          "found": true,
+          "movedVerts": 11088,
+          "maxFollowMm": 1.8625799335066673,
+          "keyBlocks": 0
+         },
+         "keyBlocksCarried": [
+          "Basis",
+          "eye-left-closure",
+          "eye-left-opened-up",
+          "eye-left-slit",
+          "eye-right-closure",
+          "eye-right-opened-up",
+          "eye-right-slit",
+          "eyebrows-left-down",
+          "eyebrows-left-extern-up",
+          "eyebrows-left-inner-up",
+          "eyebrows-left-up",
+          "eyebrows-right-down",
+          "eyebrows-right-extern-up",
+          "eyebrows-right-inner-up",
+          "eyebrows-right-up",
+          "mouth-compression",
+          "mouth-corner-puller",
+          "mouth-depression-retraction",
+          "mouth-depression-retraction.001",
+          "mouth-elevation",
+          "mouth-eversion",
+          "mouth-open",
+          "mouth-parling",
+          "mouth-part-later",
+          "mouth-protusion",
+          "mouth-pursing",
+          "mouth-retraction",
+          "mouth-upward-retraction",
+          "neck-platysma",
+          "nose-compression-uncompress",
+          "nose-depression",
+          "nose-left-dilatation",
+          "nose-left-elevation",
+          "viseme_aa",
+          "viseme_CH",
+          "viseme_DD",
+          "viseme_E",
+          "viseme_FF",
+          "viseme_I",
+          "viseme_kk",
+          "viseme_nn",
+          "viseme_O",
+          "viseme_PP",
+          "viseme_RR",
+          "viseme_sil",
+          "viseme_SS",
+          "viseme_TH",
+          "viseme_U"
+         ]
+        },
+        "positionFallback": {
+         "byteMatch": false,
+         "positionMatch": true,
+         "oursBody": "mpfb_ob_patient_aisha_body",
+         "knownBody": "mpfb_ob_patient_aisha_body",
+         "differingMeshes": []
+        }
+       }
+      },
+      {
+       "stage": 5,
+       "name": "eye_flags",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-colour-reference",
+        "--eye-asset",
+        "--eye-cornea",
+        "--eye-texture",
+        "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
+         "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "eye flag record matches the case inputs (shell off)"
+       },
+       "wallSeconds": 0.001,
+       "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
+      },
+      {
+       "stage": 6,
+       "name": "face_fit",
+       "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+       "argv": [
+        "--case",
+        "aisha"
+       ],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage6-fit-weights.json",
+         "sha256": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage6-fit-file-weights.json",
+         "sha256": "110962904e88635c23f8a85e5298da0e127eb9c25ff4196dcb575c79c1c5940b"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+           "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+           "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+           "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+           "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+           "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+           "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+           "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+           "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+           "sha256": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
+           "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "fit weights match the tracked file (342bd1ee70bf); beatsSweep=true; tracked files restored=true",
+        "knownGood": {
+         "name": "fit_weights_aisha.json",
+         "expected": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+         "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json (tracked, read live)",
+         "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
+        }
+       },
+       "wallSeconds": 1.967,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage6-fit.log",
+         "sha256": "9aa069750d925165d97683a89bd4b6a530e9c301bb27260503112e72da25183b"
+        }
+       ],
+       "extra": {
+        "caseEntry": {
+         "rmsBeforeMm": 1.345,
+         "rmsAfterMm": 0.782,
+         "onTrackMm": 0.782,
+         "beatsSweep": true,
+         "featBefore": {
+          "lips": 0.753,
+          "nose": 1.552,
+          "jaw": 2.122,
+          "eyes": 1.345
+         },
+         "featAfter": {
+          "lips": 0.189,
+          "nose": 0.747,
+          "jaw": 0.019,
+          "eyes": 1.015
+         },
+         "top": [
+          [
+           "nose-greek-incr",
+           1
+          ],
+          [
+           "head-scale-depth-incr",
+           0.9989
+          ],
+          [
+           "asym-brown-1-l",
+           0.5904
+          ],
+          [
+           "head-oval",
+           0.5515
+          ],
+          [
+           "nose-curve-convex",
+           0.4763
+          ],
+          [
+           "mouth-lowerlip-middle-up",
+           0.4629
+          ],
+          [
+           "asym-nose-1-r",
+           0.4509
+          ],
+          [
+           "mouth-scale-vert-decr",
+           0.4478
+          ],
+          [
+           "asym-eye-2-r",
+           0.4399
+          ],
+          [
+           "asym-eye-2-l",
+           0.4348
+          ]
+         ],
+         "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json",
+         "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_aisha_front.npy",
+         "targetSha256": "e7e7cd86ca1e8a282ad306e290ab76ad3980c9852a9a9d253430d987395fc68b",
+         "sourceSha256": "b2f47587069b1ec08b55ce9a0401f4cd36d76ce8009ab83996d8ca4e2cd287be",
+         "source3qSha256": "f5e719a7d4575a043ea6e1d5f1cbc44f28d8140186b219925bfb8c05af13b624",
+         "camera": {
+          "yawScan": {
+           "0.0": 11.49,
+           "10.0": 18.06,
+           "-10.0": 13.82,
+           "20.0": 27.48,
+           "-20.0": 22.52,
+           "30.0": 37.26,
+           "-30.0": 32.69,
+           "40.0": 46.74,
+           "-40.0": 43.01,
+           "50.0": 55.66,
+           "-50.0": 53.01,
+           "60.0": 63.88,
+           "-60.0": 62.46
+          },
+          "yawDeg": 0,
+          "use3q": false,
+          "frontPrePx": 2.5,
+          "yawWeight": 0
+         },
+         "solve": {
+          "nVars": 178,
+          "nRows": 70,
+          "lambda": 1,
+          "knee": 5
+         }
+        },
+        "restored": true,
+        "note": "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir"
+       }
+      },
+      {
+       "stage": 7,
+       "name": "checks",
+       "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+       "argv": [
+        "--verify"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage7-shape-verify.json",
+         "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
+       },
+       "wallSeconds": 0.622,
+       "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
+       "extra": {
+        "checks": {
+         "face_gate": {
+          "blocked": true,
+          "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+          "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+         },
+         "shape_clauses": {
+          "ran": true,
+          "rc": 0,
+          "pass": true
+         },
+         "lid_g1": {
+          "ran": true,
+          "pass": true,
+          "oursBody": "mpfb_ob_patient_aisha_body",
+          "knownBody": "mpfb_ob_patient_aisha_body",
+          "detail": "rebake body POSITION identical to the pinned store GLB"
+         },
+         "lid_g4": {
+          "blocked": true,
+          "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+          "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+         },
+         "catchlight": {
+          "blocked": true,
+          "reason": "no landed render is named for the case",
+          "wanted": "a lit front render path for the case"
+         }
+        }
+       }
+      }
+     ],
+     "unchainedInputs": [
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+       "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+       "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+       "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/subject.glb",
+       "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+       "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage3-manifest-size.json",
+       "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/derive_out/ao.png",
+       "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+       "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+       "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+         "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+         "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+         "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+         "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+         "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+         "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+         "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+         "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+         "sha256": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
+         "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "body2": {
+   "runs": {
+    "run1": {
+     "status": "completed",
+     "wallSeconds": 695.425,
+     "stages": [
+      {
+       "stage": 1,
+       "name": "family_tone",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+       "argv": [],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+         "prevStageOutputs": []
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+         "prevStageOutputs": []
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_medium] young"
+       },
+       "wallSeconds": 2.414
+      },
+      {
+       "stage": 2,
+       "name": "skin_layers",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+       "argv": [
+        "--families-dir",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families",
+        "--family",
+        "skin-families/young/young-family-v3.png",
+        "--weights",
+        "{\"cheek_redness\":0,\"ear\":0,\"freckles\":0,\"lip\":0,\"nose_redness\":0,\"pallor\":0}",
+        "--out",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "all-zero weights are a byte copy of the picked family PNG"
+       },
+       "wallSeconds": 0.501,
+       "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
+      },
+      {
+       "stage": 3,
+       "name": "skin_chain",
+       "script": "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py",
+       "argv": [
+        "--manifest",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+        "--subject",
+        "adult_male_street_casual",
+        "--store",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1",
+        "--glb",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+        "--albedo",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+        "--skip-stages",
+        "apply_occ"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+         "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+         "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+         "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+         "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+         "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+         "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "final albedo_socket.png matches the pinned known-good",
+        "knownGood": {
+         "name": "albedo_socket.png",
+         "expected": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+         "expectedSource": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json key stages.3_replay_albedo.outputs_run1.albedo_socket.png",
+         "actual": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        }
+       },
+       "wallSeconds": 132.87,
+       "extra": {
+        "executedChainStages": [
+         "derive",
+         "occlusion",
+         "roughness",
+         "lips",
+         "eye_corners",
+         "symmetrise",
+         "socket"
+        ],
+        "manifestSha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae"
+       }
+      },
+      {
+       "stage": 4,
+       "name": "lid_conform_bake",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--reference",
+        "adult_male_street_casual",
+        "--actor-role",
+        "patient",
+        "--bake-device",
+        "metal",
+        "--eye-asset",
+        "high-poly",
+        "--eye-cornea",
+        "--output",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
+         "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+           "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+           "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+           "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+           "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+           "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+           "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "bytes differ; body POSITION identical (0 meshes differ: recorded, not a stop)",
+        "knownGood": {
+         "name": "body2-lidconform.glb",
+         "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
+         "actual": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+        }
+       },
+       "wallSeconds": 557.072,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage4-blender.log",
+         "sha256": "db6ede87252c9a8a7b1c0b7bcff123bd9eae519978f4d3ca32d09762694f8eac"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.skin-baked.png",
+         "sha256": "5a8c9f44e07d7ae05eab6fe6fe6f7317ffdd969dfaedb83acbf59fdb73417118"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.skin-normal.png",
+         "sha256": "9a0b097fdc2310c29ab2f49e36950f3be09f9259c79650b790818557d3efd756"
+        }
+       ],
+       "extra": {
+        "lidconformRecord": {
+         "offsetMm": 0.5,
+         "weights": [
+          1,
+          0
+         ],
+         "ringSource": "own-pre-conform-bake-topological",
+         "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "h1": {
+          "targetWidthMm": 25,
+          "patchK": 6,
+          "patchM": 8,
+          "patchD": 2,
+          "seatCeilingMm": 1.5,
+          "seatFloorMm": 0.5,
+          "lashFollowMm": 4
+         },
+         "displacedVerts": 624,
+         "perSide": {
+          "L": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0043,
+           "matchMaxMm": 0.0044,
+           "preWidenWidthMm": 22.809,
+           "widenNeedMm": 2.191,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 39,
+           "fleshVerts": 17,
+           "movedVerts": 39,
+           "maxSeatMm": 2.7749,
+           "maxWidenMm": 1.0953
+          },
+          "R": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0043,
+           "matchMaxMm": 0.0044,
+           "preWidenWidthMm": 22.809,
+           "widenNeedMm": 2.191,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 39,
+           "fleshVerts": 17,
+           "movedVerts": 39,
+           "maxSeatMm": 2.775,
+           "maxWidenMm": 1.0953
+          }
+         },
+         "lashFollow": {
+          "found": true,
+          "movedVerts": 11088,
+          "maxFollowMm": 2.7739815861013035,
+          "keyBlocks": 0
+         },
+         "keyBlocksCarried": [
+          "Basis",
+          "eye-left-closure",
+          "eye-left-opened-up",
+          "eye-left-slit",
+          "eye-right-closure",
+          "eye-right-opened-up",
+          "eye-right-slit",
+          "eyebrows-left-down",
+          "eyebrows-left-extern-up",
+          "eyebrows-left-inner-up",
+          "eyebrows-left-up",
+          "eyebrows-right-down",
+          "eyebrows-right-extern-up",
+          "eyebrows-right-inner-up",
+          "eyebrows-right-up",
+          "mouth-compression",
+          "mouth-corner-puller",
+          "mouth-depression-retraction",
+          "mouth-depression-retraction.001",
+          "mouth-elevation",
+          "mouth-eversion",
+          "mouth-open",
+          "mouth-parling",
+          "mouth-part-later",
+          "mouth-protusion",
+          "mouth-pursing",
+          "mouth-retraction",
+          "mouth-upward-retraction",
+          "neck-platysma",
+          "nose-compression-uncompress",
+          "nose-depression",
+          "nose-left-dilatation",
+          "nose-left-elevation",
+          "viseme_aa",
+          "viseme_CH",
+          "viseme_DD",
+          "viseme_E",
+          "viseme_FF",
+          "viseme_I",
+          "viseme_kk",
+          "viseme_nn",
+          "viseme_O",
+          "viseme_PP",
+          "viseme_RR",
+          "viseme_sil",
+          "viseme_SS",
+          "viseme_TH",
+          "viseme_U"
+         ]
+        },
+        "positionFallback": {
+         "byteMatch": false,
+         "positionMatch": true,
+         "oursBody": "mpfb_adult_male_street_casual_body",
+         "knownBody": "mpfb_adult_male_street_casual_body",
+         "differingMeshes": []
+        }
+       }
+      },
+      {
+       "stage": 5,
+       "name": "eye_flags",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-asset",
+        "--eye-cornea"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "eye flag record matches the case inputs (shell off)"
+       },
+       "wallSeconds": 0.001,
+       "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
+      },
+      {
+       "stage": 6,
+       "name": "face_fit",
+       "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+       "argv": [
+        "--case",
+        "body2"
+       ],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage6-fit-weights.json",
+         "sha256": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage6-fit-file-weights.json",
+         "sha256": "01e3ffd4b83de3bf6b56e91db6728d3f58490dae4a1b3db64b9df4a0807e8216"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+           "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+           "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+           "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+           "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+           "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+           "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
+           "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
+           "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "fit weights match the tracked file (ce7913e11d0e); beatsSweep=true; tracked files restored=true",
+        "knownGood": {
+         "name": "fit_weights_body2.json",
+         "expected": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+         "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json (tracked, read live)",
+         "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
+        }
+       },
+       "wallSeconds": 1.913,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage6-fit.log",
+         "sha256": "184b755fccb35583c01c9d3cee12a58630dbb129fc618fcc144150104b14358d"
+        }
+       ],
+       "extra": {
+        "caseEntry": {
+         "rmsBeforeMm": 2.919,
+         "rmsAfterMm": 1.278,
+         "onTrackMm": 1.278,
+         "beatsSweep": true,
+         "featBefore": {
+          "lips": 4.529,
+          "nose": 2.515,
+          "jaw": 5.859,
+          "eyes": 1.308
+         },
+         "featAfter": {
+          "lips": 0.687,
+          "nose": 1.679,
+          "jaw": 0.002,
+          "eyes": 1.183
+         },
+         "top": [
+          [
+           "head-back-scale-depth-decr",
+           1
+          ],
+          [
+           "head-scale-depth-incr",
+           1
+          ],
+          [
+           "mouth-lowerlip-middle-up",
+           1
+          ],
+          [
+           "mouth-lowerlip-height-incr",
+           0.8548
+          ],
+          [
+           "mouth-upperlip-height-decr",
+           0.8377
+          ],
+          [
+           "mouth-scale-vert-decr",
+           0.7234
+          ],
+          [
+           "nose-greek-incr",
+           0.7176
+          ],
+          [
+           "asym-mouth-2-l",
+           0.6647
+          ],
+          [
+           "head-round",
+           0.635
+          ],
+          [
+           "asym-brown-1-r",
+           0.539
+          ]
+         ],
+         "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json",
+         "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_body2_front.npy",
+         "targetSha256": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834",
+         "sourceSha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+         "source3qSha256": null,
+         "camera": {
+          "yawScan": {},
+          "yawDeg": 0,
+          "use3q": false,
+          "frontPrePx": 5.44,
+          "yawWeight": 0
+         },
+         "solve": {
+          "nVars": 178,
+          "nRows": 70,
+          "lambda": 1,
+          "knee": 5
+         }
+        },
+        "restored": true,
+        "note": "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir"
+       }
+      },
+      {
+       "stage": 7,
+       "name": "checks",
+       "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+       "argv": [
+        "--verify"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage7-shape-verify.json",
+         "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
+       },
+       "wallSeconds": 0.652,
+       "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
+       "extra": {
+        "checks": {
+         "face_gate": {
+          "blocked": true,
+          "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+          "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+         },
+         "shape_clauses": {
+          "ran": true,
+          "rc": 0,
+          "pass": true
+         },
+         "lid_g1": {
+          "ran": true,
+          "pass": true,
+          "oursBody": "mpfb_adult_male_street_casual_body",
+          "knownBody": "mpfb_adult_male_street_casual_body",
+          "detail": "rebake body POSITION identical to the pinned store GLB"
+         },
+         "lid_g4": {
+          "blocked": true,
+          "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+          "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+         },
+         "catchlight": {
+          "ran": true,
+          "reportOnly": true,
+          "render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/port5/render/body2-bb-front.png",
+          "renderShaVerified": true,
+          "note": "eye-band max5x5 has no landed measurement script; the hand-measured value lives in the r2 report; no numeric gate"
+         }
+        }
+       }
+      }
+     ],
+     "unchainedInputs": [
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+       "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+       "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+       "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+       "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+       "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+       "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+       "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+       "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
+         "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ]
+      }
+     ]
+    },
+    "run2": {
+     "status": "completed",
+     "wallSeconds": 722.912,
+     "stages": [
+      {
+       "stage": 1,
+       "name": "family_tone",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+       "argv": [],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+         "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+         "prevStageOutputs": []
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+         "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+         "prevStageOutputs": []
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_medium] young"
+       },
+       "wallSeconds": 2.395
+      },
+      {
+       "stage": 2,
+       "name": "skin_layers",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+       "argv": [
+        "--families-dir",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families",
+        "--family",
+        "skin-families/young/young-family-v3.png",
+        "--weights",
+        "{\"cheek_redness\":0,\"ear\":0,\"freckles\":0,\"lip\":0,\"nose_redness\":0,\"pallor\":0}",
+        "--out",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "all-zero weights are a byte copy of the picked family PNG"
+       },
+       "wallSeconds": 0.459,
+       "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
+      },
+      {
+       "stage": 3,
+       "name": "skin_chain",
+       "script": "tools/openclinxr/asset-pipeline/skin/face-replay/replay.py",
+       "argv": [
+        "--manifest",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+        "--subject",
+        "adult_male_street_casual",
+        "--store",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2",
+        "--glb",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+        "--albedo",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+        "--skip-stages",
+        "apply_occ"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+         "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+         "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa"
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+         "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+         "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+         "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        },
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+         "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "final albedo_socket.png matches the pinned known-good",
+        "knownGood": {
+         "name": "albedo_socket.png",
+         "expected": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+         "expectedSource": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json key stages.3_replay_albedo.outputs_run1.albedo_socket.png",
+         "actual": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        }
+       },
+       "wallSeconds": 151.139,
+       "extra": {
+        "executedChainStages": [
+         "derive",
+         "occlusion",
+         "roughness",
+         "lips",
+         "eye_corners",
+         "symmetrise",
+         "socket"
+        ],
+        "manifestSha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae"
+       }
+      },
+      {
+       "stage": 4,
+       "name": "lid_conform_bake",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--reference",
+        "adult_male_street_casual",
+        "--actor-role",
+        "patient",
+        "--bake-device",
+        "metal",
+        "--eye-asset",
+        "high-poly",
+        "--eye-cornea",
+        "--output",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+         "sha256": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+           "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+           "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+           "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+           "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+           "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+           "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "bytes differ; body POSITION identical (0 meshes differ: recorded, not a stop)",
+        "knownGood": {
+         "name": "body2-lidconform.glb",
+         "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
+         "actual": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+        }
+       },
+       "wallSeconds": 566.409,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage4-blender.log",
+         "sha256": "913708b8e51571e6f5966ad3ed6d9ff86bb607e1fa4c91697468d0c2d938f4d8"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.skin-baked.png",
+         "sha256": "c2beb2e352dbdd9a1de9b53da7c0ddddb97317e3962df8dcbdf1338d14987479"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.skin-normal.png",
+         "sha256": "772f800a78bdf81ada53dd2f0f1ecdff2087d14e9a0068b604de90de2d98e1f5"
+        }
+       ],
+       "extra": {
+        "lidconformRecord": {
+         "offsetMm": 0.5,
+         "weights": [
+          1,
+          0
+         ],
+         "ringSource": "own-pre-conform-bake-topological",
+         "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+         "h1": {
+          "targetWidthMm": 25,
+          "patchK": 6,
+          "patchM": 8,
+          "patchD": 2,
+          "seatCeilingMm": 1.5,
+          "seatFloorMm": 0.5,
+          "lashFollowMm": 4
+         },
+         "displacedVerts": 624,
+         "perSide": {
+          "L": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0043,
+           "matchMaxMm": 0.0044,
+           "preWidenWidthMm": 22.809,
+           "widenNeedMm": 2.191,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 39,
+           "fleshVerts": 17,
+           "movedVerts": 39,
+           "maxSeatMm": 2.7749,
+           "maxWidenMm": 1.0953
+          },
+          "R": {
+           "baseRing1": 56,
+           "matchedRing1": 56,
+           "matchMedMm": 0.0043,
+           "matchMaxMm": 0.0044,
+           "preWidenWidthMm": 22.809,
+           "widenNeedMm": 2.191,
+           "patchSizes": [
+            149,
+            149
+           ],
+           "ring2": 112,
+           "ring3": 112,
+           "seatedVerts": 39,
+           "fleshVerts": 17,
+           "movedVerts": 39,
+           "maxSeatMm": 2.775,
+           "maxWidenMm": 1.0953
+          }
+         },
+         "lashFollow": {
+          "found": true,
+          "movedVerts": 11088,
+          "maxFollowMm": 2.7739815861013035,
+          "keyBlocks": 0
+         },
+         "keyBlocksCarried": [
+          "Basis",
+          "eye-left-closure",
+          "eye-left-opened-up",
+          "eye-left-slit",
+          "eye-right-closure",
+          "eye-right-opened-up",
+          "eye-right-slit",
+          "eyebrows-left-down",
+          "eyebrows-left-extern-up",
+          "eyebrows-left-inner-up",
+          "eyebrows-left-up",
+          "eyebrows-right-down",
+          "eyebrows-right-extern-up",
+          "eyebrows-right-inner-up",
+          "eyebrows-right-up",
+          "mouth-compression",
+          "mouth-corner-puller",
+          "mouth-depression-retraction",
+          "mouth-depression-retraction.001",
+          "mouth-elevation",
+          "mouth-eversion",
+          "mouth-open",
+          "mouth-parling",
+          "mouth-part-later",
+          "mouth-protusion",
+          "mouth-pursing",
+          "mouth-retraction",
+          "mouth-upward-retraction",
+          "neck-platysma",
+          "nose-compression-uncompress",
+          "nose-depression",
+          "nose-left-dilatation",
+          "nose-left-elevation",
+          "viseme_aa",
+          "viseme_CH",
+          "viseme_DD",
+          "viseme_E",
+          "viseme_FF",
+          "viseme_I",
+          "viseme_kk",
+          "viseme_nn",
+          "viseme_O",
+          "viseme_PP",
+          "viseme_RR",
+          "viseme_sil",
+          "viseme_SS",
+          "viseme_TH",
+          "viseme_U"
+         ]
+        },
+        "positionFallback": {
+         "byteMatch": false,
+         "positionMatch": true,
+         "oursBody": "mpfb_adult_male_street_casual_body",
+         "knownBody": "mpfb_adult_male_street_casual_body",
+         "differingMeshes": []
+        }
+       }
+      },
+      {
+       "stage": 5,
+       "name": "eye_flags",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-asset",
+        "--eye-cornea"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "eye flag record matches the case inputs (shell off)"
+       },
+       "wallSeconds": 0.001,
+       "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
+      },
+      {
+       "stage": 6,
+       "name": "face_fit",
+       "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+       "argv": [
+        "--case",
+        "body2"
+       ],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage6-fit-weights.json",
+         "sha256": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage6-fit-file-weights.json",
+         "sha256": "01e3ffd4b83de3bf6b56e91db6728d3f58490dae4a1b3db64b9df4a0807e8216"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+           "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+           "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+           "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+           "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+           "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+           "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+           "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+           "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+           "sha256": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
+           "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "fit weights match the tracked file (ce7913e11d0e); beatsSweep=true; tracked files restored=true",
+        "knownGood": {
+         "name": "fit_weights_body2.json",
+         "expected": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+         "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json (tracked, read live)",
+         "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
+        }
+       },
+       "wallSeconds": 1.889,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage6-fit.log",
+         "sha256": "184b755fccb35583c01c9d3cee12a58630dbb129fc618fcc144150104b14358d"
+        }
+       ],
+       "extra": {
+        "caseEntry": {
+         "rmsBeforeMm": 2.919,
+         "rmsAfterMm": 1.278,
+         "onTrackMm": 1.278,
+         "beatsSweep": true,
+         "featBefore": {
+          "lips": 4.529,
+          "nose": 2.515,
+          "jaw": 5.859,
+          "eyes": 1.308
+         },
+         "featAfter": {
+          "lips": 0.687,
+          "nose": 1.679,
+          "jaw": 0.002,
+          "eyes": 1.183
+         },
+         "top": [
+          [
+           "head-back-scale-depth-decr",
+           1
+          ],
+          [
+           "head-scale-depth-incr",
+           1
+          ],
+          [
+           "mouth-lowerlip-middle-up",
+           1
+          ],
+          [
+           "mouth-lowerlip-height-incr",
+           0.8548
+          ],
+          [
+           "mouth-upperlip-height-decr",
+           0.8377
+          ],
+          [
+           "mouth-scale-vert-decr",
+           0.7234
+          ],
+          [
+           "nose-greek-incr",
+           0.7176
+          ],
+          [
+           "asym-mouth-2-l",
+           0.6647
+          ],
+          [
+           "head-round",
+           0.635
+          ],
+          [
+           "asym-brown-1-r",
+           0.539
+          ]
+         ],
+         "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json",
+         "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_body2_front.npy",
+         "targetSha256": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834",
+         "sourceSha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+         "source3qSha256": null,
+         "camera": {
+          "yawScan": {},
+          "yawDeg": 0,
+          "use3q": false,
+          "frontPrePx": 5.44,
+          "yawWeight": 0
+         },
+         "solve": {
+          "nVars": 178,
+          "nRows": 70,
+          "lambda": 1,
+          "knee": 5
+         }
+        },
+        "restored": true,
+        "note": "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir"
+       }
+      },
+      {
+       "stage": 7,
+       "name": "checks",
+       "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+       "argv": [
+        "--verify"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage7-shape-verify.json",
+         "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
+       },
+       "wallSeconds": 0.618,
+       "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
+       "extra": {
+        "checks": {
+         "face_gate": {
+          "blocked": true,
+          "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+          "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+         },
+         "shape_clauses": {
+          "ran": true,
+          "rc": 0,
+          "pass": true
+         },
+         "lid_g1": {
+          "ran": true,
+          "pass": true,
+          "oursBody": "mpfb_adult_male_street_casual_body",
+          "knownBody": "mpfb_adult_male_street_casual_body",
+          "detail": "rebake body POSITION identical to the pinned store GLB"
+         },
+         "lid_g4": {
+          "blocked": true,
+          "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+          "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+         },
+         "catchlight": {
+          "ran": true,
+          "reportOnly": true,
+          "render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/port5/render/body2-bb-front.png",
+          "renderShaVerified": true,
+          "note": "eye-band max5x5 has no landed measurement script; the hand-measured value lives in the r2 report; no numeric gate"
+         }
+        }
+       }
+      }
+     ],
+     "unchainedInputs": [
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+       "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+       "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+       "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+       "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+       "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+       "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ]
+      },
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+       "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        }
+       ]
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+       "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+         "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+         "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+         "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+         "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+         "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+         "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+         "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+         "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+         "sha256": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  }
+ },
+ "knownGood": [
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 3,
+   "name": "albedo_socket.png",
+   "expected": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+   "expectedSource": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key finalAlbedo.sha256",
+   "actual": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+   "match": true
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 4,
+   "name": "aisha-lidconform.glb",
+   "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
+   "actual": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358",
+   "match": false
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 6,
+   "name": "fit_weights_aisha.json",
+   "expected": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+   "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json (tracked, read live)",
+   "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+   "match": true
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 3,
+   "name": "albedo_socket.png",
+   "expected": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+   "expectedSource": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key finalAlbedo.sha256",
+   "actual": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312",
+   "match": true
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 4,
+   "name": "aisha-lidconform.glb",
+   "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
+   "actual": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832",
+   "match": false
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 6,
+   "name": "fit_weights_aisha.json",
+   "expected": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+   "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_aisha.json (tracked, read live)",
+   "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 3,
+   "name": "albedo_socket.png",
+   "expected": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+   "expectedSource": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json key stages.3_replay_albedo.outputs_run1.albedo_socket.png",
+   "actual": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 4,
+   "name": "body2-lidconform.glb",
+   "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
+   "actual": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973",
+   "match": false
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 6,
+   "name": "fit_weights_body2.json",
+   "expected": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+   "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json (tracked, read live)",
+   "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 3,
+   "name": "albedo_socket.png",
+   "expected": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+   "expectedSource": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json key stages.3_replay_albedo.outputs_run1.albedo_socket.png",
+   "actual": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 4,
+   "name": "body2-lidconform.glb",
+   "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
+   "actual": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8",
+   "match": false
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 6,
+   "name": "fit_weights_body2.json",
+   "expected": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+   "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json (tracked, read live)",
+   "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+   "match": true
+  }
+ ],
+ "blockedChecks": [
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 7,
+   "check": "face_gate",
+   "blocked": true,
+   "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+   "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 7,
+   "check": "lid_g4",
+   "blocked": true,
+   "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+   "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "stage": 7,
+   "check": "catchlight",
+   "blocked": true,
+   "reason": "no landed render is named for the case",
+   "wanted": "a lit front render path for the case"
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 7,
+   "check": "face_gate",
+   "blocked": true,
+   "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+   "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 7,
+   "check": "lid_g4",
+   "blocked": true,
+   "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+   "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "stage": 7,
+   "check": "catchlight",
+   "blocked": true,
+   "reason": "no landed render is named for the case",
+   "wanted": "a lit front render path for the case"
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 7,
+   "check": "face_gate",
+   "blocked": true,
+   "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+   "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 7,
+   "check": "lid_g4",
+   "blocked": true,
+   "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+   "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 7,
+   "check": "face_gate",
+   "blocked": true,
+   "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+   "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 7,
+   "check": "lid_g4",
+   "blocked": true,
+   "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+   "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  }
+ ],
+ "unchainedInputs": [
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+   "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+   "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/subject.glb",
+   "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+   "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage3-manifest-size.json",
+   "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/derive_out/ao.png",
+   "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+   "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+     "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+     "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+     "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+     "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+     "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+     "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+   "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_corners.png",
+     "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_lips.png",
+     "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_occ.png",
+     "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_socket.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/albedo_sym.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/eye-mask-union.png",
+     "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/input-albedo.png",
+     "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/roughness.png",
+     "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
+     "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
+     "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+   "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+   "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/subject.glb",
+   "sha256": "7042766bcc18c15a4f6eccaaef188b23a4b6e87dc60272836210967147cc92fb",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+   "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage3-manifest-size.json",
+   "sha256": "9f6dd882075962791560e19a3f334a4278f063bf76cad9d93267dceee4b49a29",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/derive_out/ao.png",
+   "sha256": "7dfb6b1fb3e070660ea45c732a98b64d24c59dfb6f9fc8dd566ce2312ed0fc13",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-eyeglobe-base.glb",
+   "sha256": "320e73d5f093e88697c1c358d201946ffc057d9fbc2cdbe8596bb3c3d6cdb0ec",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+     "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+     "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+     "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+     "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+     "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+     "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "aisha",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+   "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage1-tone-pick.json",
+     "sha256": "47b7e14b0cee5079befad4bc8916acaad6ef9eb4152e27752f98358ff8c8d140"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_corners.png",
+     "sha256": "804b1d6413f1a2768d991fe5366d8c2757b4e63103aa67218e907d0f3bf885c4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_lips.png",
+     "sha256": "fe59328831f4bcae7a57807b4100c2d5ed9167d45066413c51d02e8423140214"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_occ.png",
+     "sha256": "3798dc0dde8c74daf9df53fb9d5ad94ffcdd75cc561a7dede7e9e01e7e9dd76a"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_socket.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_sym.png",
+     "sha256": "9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/eye-mask-union.png",
+     "sha256": "65795a5b91030a2a433dae510d1edf494082a9cfa1153cd94f3797759f68f257"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/input-albedo.png",
+     "sha256": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+     "sha256": "cffbcffb7d95377cae1f010154baaafbafad4fa1e9b4f837840e42e677c32e0b"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+     "sha256": "30bb2add1806150318128a7d0a2e6f5c877859aa648f2a67a2abe504f4807832"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
+     "sha256": "6af5c08cc7ffb4673b5d1d4a72b8d7dae001cfea41c726faf19cc32097bdfe75"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+   "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+   "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+   "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+   "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+   "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+   "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+     "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+     "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+     "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+     "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+     "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+     "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+   "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_corners.png",
+     "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_lips.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_occ.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_socket.png",
+     "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/albedo_sym.png",
+     "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/eye-mask-union.png",
+     "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/roughness.png",
+     "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/derive_out/ao.png",
+     "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
+     "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
+     "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+   "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+   "sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+   "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/solved-albedo-bb.png",
+   "sha256": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+   "sha256": "8c1e901a0f501233ac3b7b5aafb572a2c093650389765ea1a0dcca2093f99cae",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+   "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+     "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+     "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+     "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+     "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+     "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+     "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+    }
+   ]
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/station-runner/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+   "sha256": "b8220ef899eb8532627fb618fe366c0d5d110b1cbb76dea4b79092d1a0d1f86c",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage1-tone-pick.json",
+     "sha256": "7f7bcbfcd012534c46ce1e33de2538a69e678745a3403e5c61dff9193b5f3212"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_corners.png",
+     "sha256": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_lips.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_occ.png",
+     "sha256": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_socket.png",
+     "sha256": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_sym.png",
+     "sha256": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/eye-mask-union.png",
+     "sha256": "21788284b571dd9ef5d1c2860186322b275840aa6187f2358b368307171b1e9c"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+     "sha256": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/derive_out/ao.png",
+     "sha256": "c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+     "sha256": "bb615df398e01e98586e5ea02880cdcbd0465a16f33c864f5718681b1d112ce8"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
+     "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+    }
+   ]
+  }
+ ]
+}

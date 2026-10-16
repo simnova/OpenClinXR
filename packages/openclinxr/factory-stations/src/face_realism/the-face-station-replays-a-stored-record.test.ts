@@ -27,10 +27,9 @@ function testRepoRoot(): string {
  */
 
 const RECORD = "tools/openclinxr/asset-pipeline/reference-set/manifest.json";
-const CHAIN = "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json";
 
-const VALID = { actorId: "actor_aisha", recordPath: RECORD };
-const MISSING = { actorId: "actor_aisha", recordPath: "tools/openclinxr/asset-pipeline/reference-set/no-such-record.json" };
+const VALID = { actorId: "aisha", recordPath: RECORD };
+const MISSING = { actorId: "aisha", recordPath: "tools/openclinxr/asset-pipeline/reference-set/no-such-record.json" };
 
 const STORE = "/Volumes/files/openclinxr-assets/store";
 
