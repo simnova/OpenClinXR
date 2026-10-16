@@ -414,11 +414,19 @@ def main(argv=None):
     ap.add_argument("--view-yaw", type=float, default=0.0)
     ap.add_argument("--ref", default=None)
     ap.add_argument("--ref-stems", nargs="*", default=None)
+    ap.add_argument("--model", default=None,
+                    help="landmark model file; must match the pinned sha256 "
+                    "(landmark-model.json) or the run refuses.")
     args = ap.parse_args(argv)
     render_paths = [p for group in args.render for p in group]
 
     os.makedirs(args.out, exist_ok=True)
-    landmarker = v1.create_landmarker()
+    try:
+        resolved_model = v1.resolve_model_path(args.model)
+    except v1.ModelRefused as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    landmarker = v1.create_landmarker(resolved_model)
     try:
         target_rgb = v1.load_rgb(args.target)
         flat_rgb = v1.load_rgb(args.targetflat)
@@ -472,6 +480,8 @@ def main(argv=None):
 
     report = {"target": args.target, "targetflat": args.targetflat,
               "view_yaw": args.view_yaw, "ref": args.ref,
+              "model": {"path": resolved_model,
+                        "sha256": v1.sha256_of(resolved_model)},
               "clauses_C1_C6": "imported unchanged from face_gate.py",
               "renders": {}}
     table_rows = []

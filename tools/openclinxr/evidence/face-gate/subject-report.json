@@ -1,0 +1,155 @@
+{
+  "card": "tsk_5275fadbe0e064aa",
+  "subjects": {
+    "aisha": {
+      "alignment": {
+        "rotation_deg": 0.0642,
+        "scale": 0.7291,
+        "tx": 44.1271,
+        "ty": -4.7317,
+        "upscaled": false
+      },
+      "clauses": [
+        {
+          "clause": "C1",
+          "pass": false,
+          "threshold": 8.0,
+          "value": 27.164
+        },
+        {
+          "clause": "C2b_L_spread",
+          "pass": false,
+          "threshold": 7.69,
+          "value": 12.518
+        },
+        {
+          "clause": "C3a",
+          "pass": true,
+          "threshold": 5.16,
+          "value": 0.308
+        },
+        {
+          "clause": "C3b",
+          "pass": false,
+          "threshold": 1.085,
+          "value": 6.883
+        },
+        {
+          "clause": "C3ratio",
+          "pass": false,
+          "threshold": 0.0595,
+          "value": 0.287
+        },
+        {
+          "clause": "C4_report_only",
+          "pass": false,
+          "threshold": 3.085,
+          "value": 6.672
+        },
+        {
+          "clause": "C5",
+          "pass": false,
+          "threshold": 2.53,
+          "value": 8.757
+        },
+        {
+          "clause": "C6_lighting",
+          "pass": false,
+          "threshold": 0.016,
+          "value": -0.036
+        }
+      ],
+      "detected": true,
+      "lightingPass": false,
+      "model": {
+        "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+      },
+      "render": {
+        "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-aisha-r2/ss-aisha-front.png",
+        "sha256": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d"
+      },
+      "skinPass": false,
+      "target": {
+        "note": "reference-set manifest aisha goal_front output (store_relpath project/edit-v9/edit-0.png, sha 534c0468 matches manifest)",
+        "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+        "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf"
+      }
+    },
+    "body2": {
+      "alignment": {
+        "rotation_deg": 0.2953,
+        "scale": 0.8441,
+        "tx": -22.1571,
+        "ty": -132.2273,
+        "upscaled": false
+      },
+      "clauses": [
+        {
+          "clause": "C1",
+          "pass": false,
+          "threshold": 8.0,
+          "value": 26.061
+        },
+        {
+          "clause": "C2b_L_spread",
+          "pass": false,
+          "threshold": 7.69,
+          "value": 17.97
+        },
+        {
+          "clause": "C3a",
+          "pass": false,
+          "threshold": 5.16,
+          "value": 13.019
+        },
+        {
+          "clause": "C3b",
+          "pass": false,
+          "threshold": 1.085,
+          "value": 11.575
+        },
+        {
+          "clause": "C3ratio",
+          "pass": true,
+          "threshold": 0.0595,
+          "value": 0.018
+        },
+        {
+          "clause": "C4_report_only",
+          "pass": false,
+          "threshold": 3.085,
+          "value": 7.295
+        },
+        {
+          "clause": "C5",
+          "pass": false,
+          "threshold": 2.53,
+          "value": 17.049
+        },
+        {
+          "clause": "C6_lighting",
+          "pass": false,
+          "threshold": 0.034,
+          "value": -0.063
+        }
+      ],
+      "detected": true,
+      "lightingPass": false,
+      "model": {
+        "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+      },
+      "render": {
+        "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-r2/ss-body2-front.png",
+        "sha256": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9"
+      },
+      "skinPass": false,
+      "target": {
+        "note": "card-named target; sha b42f8105 matches reference-set manifest body2 goal_front output sha",
+        "path": "/Volumes/files/openclinxr-assets/store/face-fit-any/body2-goal-front.png",
+        "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97"
+      }
+    }
+  }
+}

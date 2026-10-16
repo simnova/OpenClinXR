@@ -1,0 +1,1 @@
+{"note":"Pinned identity of the MediaPipe FaceLandmarker task file the face gate loads. Any resolved model whose sha256 differs is refused; see face_gate.py resolve_model_path.","sha256":"64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff","source":"/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task"}

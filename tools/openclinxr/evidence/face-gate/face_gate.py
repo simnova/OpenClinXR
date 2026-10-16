@@ -16,6 +16,7 @@ numbering). If no face is detected the image is recorded verbatim as
 detected:false and skipped (no hand estimates).
 """
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -28,6 +29,67 @@ from PIL import Image
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "landmarks",
                                            "models", "face_landmarker.task"))
+MODEL_PIN_FILE = os.path.join(SCRIPT_DIR, "landmark-model.json")
+MODEL_ENV_VAR = "OPENCLINXR_FACE_LANDMARKER"
+MODEL_STORE_PATH = ("/Volumes/files/openclinxr-assets/store/face-fit/"
+                    "face_landmarker.task")
+
+
+class ModelRefused(Exception):
+    """Raised when no usable landmark model resolves (missing or sha mismatch)."""
+
+
+def sha256_of(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def pinned_model_sha():
+    with open(MODEL_PIN_FILE) as f:
+        return json.load(f)["sha256"]
+
+
+def model_candidates(explicit=None):
+    """Ordered (origin, path) candidates: --model > env > tree > store copy."""
+    cands = []
+    if explicit:
+        cands.append(("cli --model", explicit))
+    env = os.environ.get(MODEL_ENV_VAR)
+    if env:
+        cands.append(("env " + MODEL_ENV_VAR, env))
+    cands.append(("tree", MODEL_PATH))
+    cands.append(("store", MODEL_STORE_PATH))
+    return cands
+
+
+def resolve_model_path(explicit=None):
+    """Return a model path whose sha256 matches the pinned value.
+
+    An explicit --model is authoritative: when given, only it is checked
+    (a missing or wrong-sha explicit file refuses, no fallback). Otherwise
+    the first existing candidate with the pinned sha wins. Refusal raises
+    ModelRefused naming every path tried, the pinned sha, and the pin file.
+    """
+    pin = pinned_model_sha()
+    cands = model_candidates(explicit)
+    only = cands[:1] if explicit else cands
+    tried = ["%s=%s" % (o, p) for o, p in cands]
+    for origin, path in only:
+        if not (path and os.path.isfile(path)):
+            continue
+        actual = sha256_of(path)
+        if actual != pin:
+            raise ModelRefused(
+                "face landmark model refused: %s sha256 %s != pinned %s "
+                "(%s); tried %s" % (path, actual, pin, MODEL_PIN_FILE,
+                                    "; ".join(tried)))
+        return path
+    raise ModelRefused(
+        "face landmark model not found: none exists with pinned sha256 %s "
+        "(%s); tried %s" % (pin, MODEL_PIN_FILE, "; ".join(tried)))
 
 # --------------------------------------------------------------------------
 # Landmark index sets (Face Mesh canonical numbering, 478-point FaceLandmarker
@@ -128,11 +190,12 @@ DETECT_FAIL_NOTE = ("no face detected by FaceLandmarker; "
 # --------------------------------------------------------------------------
 # Detection (copied from ../landmarks/landmarks.py)
 # --------------------------------------------------------------------------
-def create_landmarker():
+def create_landmarker(model_path=None):
     import mediapipe as mp  # noqa: F401
     from mediapipe.tasks.python import BaseOptions, vision
+    resolved = resolve_model_path(model_path)
     options = vision.FaceLandmarkerOptions(
-        base_options=BaseOptions(model_asset_path=MODEL_PATH),
+        base_options=BaseOptions(model_asset_path=resolved),
         running_mode=vision.RunningMode.IMAGE,
         num_faces=1,
     )
@@ -661,6 +724,11 @@ def main(argv=None):
     ap.add_argument("--target", required=True)
     ap.add_argument("--render", nargs="+", action="append", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--model", default=None,
+                    help="landmark model file; overrides env %s, the tree "
+                    "path, and the store copy. Must match the pinned sha256 "
+                    "(landmark-model.json) or the run refuses." %
+                    MODEL_ENV_VAR)
     args = ap.parse_args(argv)
     # Flatten: --render a b --render c -> [a, b, c]. (Without action="append"
     # argparse kept only the LAST --render group.)
@@ -675,7 +743,12 @@ def main(argv=None):
     for sub in ("aligned", "sbs", "regions"):
         os.makedirs(os.path.join(args.out, sub), exist_ok=True)
 
-    landmarker = create_landmarker()
+    try:
+        resolved_model = resolve_model_path(args.model)
+    except ModelRefused as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    landmarker = create_landmarker(resolved_model)
     try:
         target_rgb = load_rgb(args.target)
     except (FileNotFoundError, OSError):
@@ -688,6 +761,8 @@ def main(argv=None):
         return 2
 
     report = {"target": args.target,
+              "model": {"path": resolved_model,
+                        "sha256": sha256_of(resolved_model)},
               "indices": INDICES,
               "thresholds": THRESHOLDS,
               "region_construction": {

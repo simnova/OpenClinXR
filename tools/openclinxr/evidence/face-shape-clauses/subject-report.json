@@ -1,0 +1,238 @@
+{
+  "card": "tsk_5275fadbe0e064aa",
+  "known_good_reproduction": {
+    "lid_bad": {
+      "box": [
+        326,
+        520,
+        481,
+        614
+      ],
+      "crop_byte_equal_fixture": true,
+      "cutoff": 0.1613,
+      "diff": -3.54838709692995e-07,
+      "fixture": "fixtures/lid-known-bad.png",
+      "pass": false,
+      "recorded": 0.322581,
+      "src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/polish/ref4-polish-front.png",
+      "value": 0.3225806451612903
+    },
+    "lid_good": {
+      "box": [
+        343,
+        473,
+        486,
+        562
+      ],
+      "crop_byte_equal_fixture": true,
+      "cutoff": 0.1613,
+      "diff": 0.0,
+      "fixture": "fixtures/lid-known-good.png",
+      "pass": true,
+      "recorded": 0.0,
+      "src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/named/view-0.png",
+      "value": 0.0
+    },
+    "tint_bad": {
+      "box": [
+        450,
+        550,
+        650,
+        750
+      ],
+      "cutoff": 0.326,
+      "diff": 5.4977092878161216e-08,
+      "pass": false,
+      "post_crop_byte_equal_fixture": true,
+      "post_fixture": "fixtures/tint-known-bad.png",
+      "post_src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/solve3/final/final-front.png",
+      "pre_crop_byte_equal_fixture": true,
+      "pre_fixture": "fixtures/tint-pre.png",
+      "pre_src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/solve3/s3start-front.png",
+      "recorded": 0.559168,
+      "value": 0.5591680549770929
+    },
+    "tint_good": {
+      "box": [
+        450,
+        550,
+        650,
+        750
+      ],
+      "cutoff": 0.326,
+      "diff": -3.248646397724375e-08,
+      "pass": true,
+      "post_crop_byte_equal_fixture": true,
+      "post_fixture": "fixtures/tint-known-good.png",
+      "post_src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/solve3/iter3/s3f3-front.png",
+      "pre_crop_byte_equal_fixture": true,
+      "pre_fixture": "fixtures/tint-pre.png",
+      "pre_src": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/solve3/s3start-front.png",
+      "recorded": 0.092878,
+      "value": 0.09287796751353602
+    }
+  },
+  "subjects": {
+    "aisha": {
+      "LID": {
+        "box": [
+          417,
+          654,
+          594,
+          763
+        ],
+        "cutoff": 0.1613,
+        "eye": "A",
+        "pass": false,
+        "source": "shape-report.json LID cutoff (read, not restated)",
+        "value": 1.0
+      },
+      "LID_eyeB_observation": {
+        "box": [
+          688,
+          656,
+          868,
+          765
+        ],
+        "cutoff": 0.1613,
+        "eye": "B",
+        "pass": false,
+        "value": 1.0
+      },
+      "TINT": null,
+      "detected": true,
+      "eye_boxes": {
+        "A": [
+          417,
+          654,
+          594,
+          763
+        ],
+        "B": [
+          688,
+          656,
+          868,
+          765
+        ]
+      },
+      "model": {
+        "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+      },
+      "render": {
+        "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-aisha-r2/ss-aisha-front.png",
+        "sha256": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d",
+        "size": [
+          1280,
+          1280
+        ]
+      },
+      "rule": {
+        "lid": "eye-contour landmark box +30 px per eye, landmarks detected on this render (sweep-lid.json fixture rule)",
+        "tint": "cheek relative box of sweep-tint.json x450-650 y550-750 @1024 (same-rig pre/post)"
+      },
+      "tint_note": "no pre/post pair for aisha on this card: LID only"
+    },
+    "body2": {
+      "LID": {
+        "box": [
+          414,
+          638,
+          595,
+          735
+        ],
+        "cutoff": 0.1613,
+        "eye": "A",
+        "pass": false,
+        "source": "shape-report.json LID cutoff (read, not restated)",
+        "value": 0.2541436464088398
+      },
+      "LID_eyeB_observation": {
+        "box": [
+          691,
+          637,
+          871,
+          736
+        ],
+        "cutoff": 0.1613,
+        "eye": "B",
+        "pass": false,
+        "value": 0.25555555555555554
+      },
+      "TINT": {
+        "box": [
+          562,
+          688,
+          812,
+          938
+        ],
+        "cutoff": 0.326,
+        "kept_px": 1341,
+        "kept_regions": 1,
+        "pass": true,
+        "post": {
+          "path": "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png",
+          "sha256": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+          "size": [
+            1280,
+            1280
+          ]
+        },
+        "pre": {
+          "path": "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png",
+          "sha256": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
+          "size": [
+            1280,
+            1280
+          ]
+        },
+        "source": "shape-report.json TINT cutoff (read, not restated)",
+        "value": 0.022159428911362283
+      },
+      "detected": true,
+      "eye_boxes": {
+        "A": [
+          414,
+          638,
+          595,
+          735
+        ],
+        "B": [
+          691,
+          637,
+          871,
+          736
+        ]
+      },
+      "model": {
+        "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+      },
+      "render": {
+        "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-r2/ss-body2-front.png",
+        "sha256": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+        "size": [
+          1280,
+          1280
+        ]
+      },
+      "rule": {
+        "lid": "eye-contour landmark box +30 px per eye, landmarks detected on this render (sweep-lid.json fixture rule)",
+        "tint": "cheek relative box of sweep-tint.json x450-650 y550-750 @1024 (same-rig pre/post)"
+      },
+      "tint_lid_on_post_observation": {
+        "box": [
+          414,
+          638,
+          595,
+          735
+        ],
+        "cutoff": 0.1613,
+        "eye": "A",
+        "pass": false,
+        "source": "shape-report.json LID cutoff (read, not restated)",
+        "value": 0.2541436464088398
+      }
+    }
+  }
+}
