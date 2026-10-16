@@ -121,7 +121,7 @@ def _eval_patch_rects(mask_json: dict, half: float = 20.0) -> list:
     script: PATCH_R=20) as normalised rects (nx0, ny0, nx1, ny1)."""
     a = _norm_anchors(mask_json)
     rects = []
-    for name in ("L_cheek", "R_cheek", "forehead_below_brow", "chin"):
+    for name in ("L_cheek", "R_cheek", "forehead", "chin"):
         cxp, cyp = mask_json["regions"][name]["center"]
         xs = np.array([cxp - half, cxp + half])
         ys = np.array([cyp - half, cyp + half])

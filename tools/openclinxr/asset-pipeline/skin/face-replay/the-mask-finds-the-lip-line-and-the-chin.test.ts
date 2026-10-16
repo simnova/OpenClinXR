@@ -43,12 +43,15 @@ const IMAGES = {
   },
 } as const;
 
-type Region = { center: [number, number]; n: number; gatefrac: number; Lab: [number, number, number] | null };
+type Region = { center: [number, number]; n: number; gatefrac: number; Lab: [number, number, number] | null; poly_n?: number };
 type MaskJson = {
-  cx: number; eye_row: number; ied: number; brow_row: number; brow_row: number;
+  cx: number; eye_row: number; ied: number; brow_row: number;
   mouth_centroid: [number, number]; mouth_bottom: number;
   parting_row?: number;
-  regions: Record<"L_cheek" | "R_cheek" | "forehead_below_brow" | "chin", Region>;
+  regions: Record<"L_cheek" | "R_cheek" | "forehead" | "chin" | "upperlip_skin", Region>;
+  legacy_boxes: Record<"L_cheek" | "R_cheek" | "forehead_below_brow" | "chin", Region>;
+  landmarks: { spread_px: number; model_path: string; model_sha256: string; cheek_mapping: Record<string, string> };
+  lip_agreement_rows: { p13_upper: number; p14_lower: number; parting_row: number };
 };
 
 function runInstrument(input: string): MaskJson {
@@ -92,7 +95,7 @@ describe("the mask finds the lip line and the chin", () => {
     for (const name of ["render", "goal"] as const) {
       const spec = IMAGES[name];
       const m = runInstrument(spec.input);
-      const chin = m.regions.chin;
+      const chin = m.legacy_boxes.chin;
       const [lo, hi] = spec.chinRows;
       console.log(`G2 ${name}: chin center=${chin.center} ` +
         `gatefrac=${chin.gatefrac} rows=[${chin.center[1] - 20},${chin.center[1] + 19}]`);
@@ -111,27 +114,78 @@ describe("the mask finds the lip line and the chin", () => {
     for (const name of ["render", "goal"] as const) {
       const spec = IMAGES[name];
       const m = runInstrument(spec.input);
-      const ref = JSON.parse(fs.readFileSync(spec.reference, "utf8")) as MaskJson;
+      const ref = JSON.parse(fs.readFileSync(spec.reference, "utf8")) as {
+        regions: Record<"L_cheek" | "R_cheek" | "forehead_below_brow", Region>;
+      };
       for (const r of ["L_cheek", "R_cheek"] as const) {
-        expect(m.regions[r].center, `${name} ${r} centre`).toEqual(ref.regions[r].center);
-        expect(m.regions[r].Lab, `${name} ${r} Lab`).toEqual(ref.regions[r].Lab);
+        expect(m.legacy_boxes[r].center, `${name} ${r} box centre`).toEqual(ref.regions[r].center);
+        expect(m.legacy_boxes[r].Lab, `${name} ${r} box Lab`).toEqual(ref.regions[r].Lab);
       }
       if (name === "goal") {
-        expect(m.regions.forehead_below_brow.center, "goal forehead centre")
+        expect(m.legacy_boxes.forehead_below_brow.center, "goal forehead box centre")
           .toEqual(ref.regions.forehead_below_brow.center);
-        expect(m.regions.forehead_below_brow.Lab, "goal forehead Lab")
+        expect(m.legacy_boxes.forehead_below_brow.Lab, "goal forehead box Lab")
           .toEqual(ref.regions.forehead_below_brow.Lab);
       } else {
         expect(m.brow_row, "render brow_row ied-scaled").toBe(476);
-        expect(m.regions.forehead_below_brow.center, "render forehead anatomy")
+        expect(m.legacy_boxes.forehead_below_brow.center, "render forehead box anatomy")
           .toEqual([511, 498]);
-        expect(m.regions.forehead_below_brow.gatefrac, "render forehead gatefrac")
+        expect(m.legacy_boxes.forehead_below_brow.gatefrac, "render forehead box gatefrac")
           .toBe(1.0);
-        expect(m.regions.forehead_below_brow.Lab, "render forehead Lab recorded")
+        expect(m.legacy_boxes.forehead_below_brow.Lab, "render forehead box Lab recorded")
           .toEqual(rep.render_forehead.Lab);
       }
     }
   });
+
+  gate("polygons come from face_gate and clear the n floor", () => {
+    const fgCheck = execFileSync("mise",
+      ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
+        "python3", "-c",
+        "import sys; sys.path.insert(0, '/Users/patrick/.grok/worktrees/src-openclinxr/mouthlm/tools/openclinxr/asset-pipeline/skin/face-replay');" +
+        "import face_landmark_regions as F;" +
+        "print(F.FACE_GATE_MODULE + ' ' + F._FG.region_polygons.__module__)"],
+      { encoding: "utf8", timeout: 120000 }).trim();
+    expect(fgCheck, "polygons wired to face_gate.region_polygons")
+      .toBe("face_gate face_gate");
+    for (const name of ["render", "goal"] as const) {
+      const m = runInstrument(IMAGES[name].input);
+      expect(m.landmarks.spread_px, `${name} landmark run-to-run spread`)
+        .toBe(0);
+      expect(m.landmarks.cheek_mapping, `${name} cheek mapping by image x`)
+        .toEqual({ cheek_side_a: "L_cheek", cheek_side_b: "R_cheek" });
+      expect(fs.existsSync(m.landmarks.model_path),
+        `${name} pinned model present`).toBe(true);
+      const lip = m.lip_agreement_rows;
+      for (const k of ["p13_upper", "p14_lower"] as const) {
+        expect(Math.abs(lip[k] - lip.parting_row),
+          `${name} FaceLandmarker lip ${k} agrees with parting`)
+          .toBeLessThanOrEqual(12);
+      }
+      for (const r of ["forehead", "L_cheek", "R_cheek", "chin", "upperlip_skin"] as const) {
+        expect(m.regions[r].n, `${name} polygon ${r} n >= 300`).toBeGreaterThanOrEqual(300);
+        expect(m.regions[r].Lab, `${name} polygon ${r} Lab measured`).not.toBeNull();
+      }
+      const fgCentroid = execFileSync("mise",
+        ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
+          "python3", "-c",
+          "import sys; sys.path.insert(0, '/Users/patrick/.grok/worktrees/src-openclinxr/mouthlm/tools/openclinxr/evidence/face-gate');" +
+          "import face_gate as F;" +
+          `F.MODEL_PATH='${m.landmarks.model_path}';` +
+          "from PIL import Image;" +
+          `pts=F.detect_points(F.create_landmarker(),Image.open('${IMAGES[name].input}').convert('RGB'));` +
+          "import numpy as np;" +
+          "mp=F.region_polygons(pts)['forehead'];" +
+          "print(round(float(mp[:,0].mean()),1), round(float(mp[:,1].mean()),1))"],
+        { encoding: "utf8", timeout: 120000 }).trim().split(" ").map(Number);
+      const got = m.regions.forehead.center;
+      const dx = Math.abs((fgCentroid[0] ?? 0) - got[0]);
+      const dy = Math.abs((fgCentroid[1] ?? 0) - got[1]);
+      console.log(`${name} forehead polygon centroid instrument=${got} face_gate=${fgCentroid}`);
+      expect(Math.hypot(dx, dy),
+        `${name} instrument forehead matches face_gate polygon`).toBeLessThanOrEqual(2);
+    }
+  }, 240000);
 
   it("mouth-landmark-report.json records G4 numbers and overlay shas", () => {
     expect(fs.existsSync(REPORT),
@@ -152,19 +206,19 @@ describe("the mask finds the lip line and the chin", () => {
       "overlays"] as const) {
       expect(rep[k], `report has ${k}`).toBeDefined();
     }
-    // Falsifier record (card tsk_80caf274c12851ed): with corrected
-    // on-skin patches the field re-run reaches 2/4 (cheeks pass;
-    // forehead misses by 0.12 in a*, chin is structurally blocked on L
-    // by stubble darkening the a*/b*-only field cannot move). Pinned,
-    // not bent: any silent change to the numbers breaks it.
-    expect(rep.g4_within3_count, "G4 within-3 count recomputes to 2")
-      .toBe(2);
+    // Falsifier record (handback 2, polygon regions): the setting-G
+    // field re-run reaches 1/4 (chin passes; cheeks fail on L +3.5-3.9,
+    // forehead on a* -4.2; the field is a*/b*-only and the six already
+    // match). Pinned, not bent: any silent change to the numbers
+    // breaks it.
+    expect(rep.g4_within3_count, "G4 within-3 count recomputes to 1")
+      .toBe(1);
     const flags = Object.fromEntries(Object.entries(rep.g4_regions)
       .map(([n, d]) => [n, (d as [number, number, number])
         .every((x) => Math.abs(x) <= 3)]));
-    expect(flags, "L/R cheek pass, forehead + chin fail").toEqual({
-      L_cheek: true, R_cheek: true, forehead_below_brow: false,
-      chin: false,
+    expect(flags, "chin passes; cheeks + forehead fail").toEqual({
+      L_cheek: false, R_cheek: false, forehead: false,
+      chin: true,
     });
     expect(rep.g4_blocks.length, "blocker statement recorded").toBeGreaterThanOrEqual(1);
     const rchr = JSON.parse(fs.readFileSync(
@@ -184,7 +238,24 @@ describe("the mask finds the lip line and the chin", () => {
       expect(mouthlm.regions[n]!.dLab_render_minus_goal,
         `report key dLab matches for ${n}`).toEqual(d);
     }
-    expect(mouthlm.g1_count, "report key G1 count matches").toBe(2);
+    expect(mouthlm.g1_count, "report key G1 count matches").toBe(1);
+    const scratchCap = "/Users/patrick/.grok/worktrees/src-openclinxr/" +
+      "realism-95/.openclinxr/realism-spike/mouthlm/sweepG3/cap/final-mask.json";
+    const scratchGoal = "/Users/patrick/.grok/worktrees/src-openclinxr/" +
+      "realism-95/.openclinxr/realism-spike/mouthlm/goal-bb-mask.json";
+    if (fs.existsSync(scratchCap) && fs.existsSync(scratchGoal)) {
+      const fin = JSON.parse(fs.readFileSync(scratchCap, "utf8")) as MaskJson;
+      const go = JSON.parse(fs.readFileSync(scratchGoal, "utf8")) as MaskJson;
+      for (const n of ["L_cheek", "R_cheek", "forehead", "chin"] as const) {
+        const d = [0, 1, 2].map((c) =>
+          Math.round((fin.regions[n].Lab![c]! - go.regions[n].Lab![c]!) * 100) / 100);
+        expect(d, `G4 dLab recomputes from stored masks for ${n}`)
+          .toEqual(rep.g4_regions[n]);
+      }
+      console.log("report G4 numbers recomputed from stored masks");
+    } else {
+      console.log("SKIP G4 recompute (stored sweep masks absent)");
+    }
     let checked = 0;
     for (const o of rep.overlays) {
       if (!fs.existsSync(o.file)) {

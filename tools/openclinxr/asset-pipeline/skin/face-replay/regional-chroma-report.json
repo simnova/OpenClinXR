@@ -1608,6 +1608,525 @@
   "blocks": [
    "chin L +9.6: a*/b*-only field cannot move L; goal chin stubble (47.10) vs clean render chin (56.70).",
    "chin b* +4.04 and forehead a* -3.15: open-loop albedo field under-corrects where render response < 1; chin eval cells notch-spared (landed G3 finding). Best forehead-a* across A-H is F -3.14."
+  ],
+  "superseded_by": "mouthlm_r3 (FaceLandmarker polygon regions; r2 numbers untouched)"
+ },
+ "mouthlm_r3": {
+  "card": "tsk_80caf274c12851ed handback 2",
+  "instrument": "FaceLandmarker polygon regions (face_landmark_regions.py wiring face_gate.region_polygons/raster_masks; model store face_landmarker.task sha 64184e22; detection spread 0.0 both images); regions intersected with eroded skin gate (brow band empties the anatomical forehead on both images, stated); cheek_side_a->L (image-left) both images; lip rows agree (render p13 815.6/p14 822.5 vs parting 816; goal 734.0/733.3 vs 733)",
+  "setting": "G (8x6, sigma 0.7 cells, mirror, notch 0.20,0.32,0.70;0.26,0.80,1.00)",
+  "inputs_same_as_landed": "same as mouthlm key",
+  "solve": {
+   "six": [
+    53.3014,
+    13.1898,
+    20.3927,
+    7.4761,
+    2.4015,
+    2.9194
+   ],
+   "fit_cells": 38,
+   "eval_cells": 8,
+   "unfit_cells": 2,
+   "eval_cell_list": [
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     3,
+     5
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     7,
+     2
+    ],
+    [
+     7,
+     3
+    ]
+   ],
+   "g2_note": "fit cells disjoint from 40x40 eval-patch rects at polygon centroids (rect machinery unchanged)"
+  },
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     52.78,
+     14.49,
+     20.7
+    ],
+    "render_center": [
+     370,
+     702
+    ],
+    "render_n": 14964,
+    "goal_Lab": [
+     48.93,
+     16.03,
+     22.83
+    ],
+    "goal_center": [
+     368,
+     608
+    ],
+    "goal_n": 15456,
+    "dLab_render_minus_goal": [
+     3.85,
+     -1.54,
+     -2.13
+    ],
+    "within_3_per_channel": false
+   },
+   "R_cheek": {
+    "render_Lab": [
+     55.18,
+     15.24,
+     23.21
+    ],
+    "render_center": [
+     656,
+     703
+    ],
+    "render_n": 15337,
+    "goal_Lab": [
+     51.64,
+     16.0,
+     22.93
+    ],
+    "goal_center": [
+     672,
+     612
+    ],
+    "goal_n": 16002,
+    "dLab_render_minus_goal": [
+     3.54,
+     -0.76,
+     0.28
+    ],
+    "within_3_per_channel": false
+   },
+   "forehead": {
+    "render_Lab": [
+     68.61,
+     9.54,
+     17.93
+    ],
+    "render_center": [
+     515,
+     439
+    ],
+    "render_n": 7176,
+    "goal_Lab": [
+     69.41,
+     13.72,
+     20.27
+    ],
+    "goal_center": [
+     521,
+     334
+    ],
+    "goal_n": 8346,
+    "dLab_render_minus_goal": [
+     -0.8,
+     -4.18,
+     -2.34
+    ],
+    "within_3_per_channel": false
+   },
+   "chin": {
+    "render_Lab": [
+     40.93,
+     12.93,
+     18.21
+    ],
+    "render_center": [
+     517,
+     923
+    ],
+    "render_n": 16581,
+    "goal_Lab": [
+     42.32,
+     12.63,
+     17.48
+    ],
+    "goal_center": [
+     525,
+     835
+    ],
+    "goal_n": 9288,
+    "dLab_render_minus_goal": [
+     -1.39,
+     0.3,
+     0.73
+    ],
+    "within_3_per_channel": true
+   },
+   "upperlip_skin": {
+    "render_Lab": [
+     65.15,
+     12.01,
+     17.82
+    ],
+    "render_center": [
+     513,
+     768
+    ],
+    "render_n": 3486,
+    "goal_Lab": [
+     52.34,
+     10.9,
+     15.07
+    ],
+    "goal_center": [
+     519,
+     676
+    ],
+    "goal_n": 3925,
+    "dLab_render_minus_goal": [
+     12.81,
+     1.11,
+     2.75
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "g1_count": 1,
+  "g1_note": "chin only; cheeks fail on L (+3.5-3.9: render albedo too light on anatomical cheeks); forehead fails on a* (-4.18); upperlip_skin recorded (+12.81 L, beard card) not counted",
+  "all_settings_corrected_polygon_instrument": {
+   "sweepA": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.92,
+      -2.05,
+      -3.04
+     ],
+     "R_cheek": [
+      3.54,
+      -1.17,
+      -0.3
+     ],
+     "forehead": [
+      -0.81,
+      -4.58,
+      -2.47
+     ],
+     "chin": [
+      -1.25,
+      0.02,
+      0.37
+     ],
+     "upperlip_skin": [
+      12.88,
+      0.55,
+      1.57
+     ]
+    },
+    "asymmetry": [
+     4.4207,
+     1.5861,
+     3.3268
+    ],
+    "front_sha256": "972cc1393b1a9ba7",
+    "g2_disjoint": true
+   },
+   "sweepB": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.85,
+      -1.69,
+      -2.43
+     ],
+     "R_cheek": [
+      3.54,
+      -0.91,
+      -0.02
+     ],
+     "forehead": [
+      -0.8,
+      -4.3,
+      -2.31
+     ],
+     "chin": [
+      -1.26,
+      -0.13,
+      0.2
+     ],
+     "upperlip_skin": [
+      12.89,
+      0.29,
+      1.12
+     ]
+    },
+    "asymmetry": [
+     4.4132,
+     1.4626,
+     2.8435
+    ],
+    "front_sha256": "2a0f8e0717dc8c52",
+    "g2_disjoint": true
+   },
+   "sweepC": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.83,
+      -1.94,
+      -3.09
+     ],
+     "R_cheek": [
+      3.51,
+      -1.17,
+      -0.68
+     ],
+     "forehead": [
+      -0.83,
+      -4.74,
+      -2.86
+     ],
+     "chin": [
+      -1.21,
+      0.04,
+      0.65
+     ],
+     "upperlip_skin": [
+      12.75,
+      1.0,
+      1.95
+     ]
+    },
+    "asymmetry": [
+     4.417,
+     1.4495,
+     2.8404
+    ],
+    "front_sha256": "258a13f782c67a7c",
+    "g2_disjoint": true
+   },
+   "sweepD": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.83,
+      -1.91,
+      -3.41
+     ],
+     "R_cheek": [
+      3.52,
+      -1.14,
+      -1.0
+     ],
+     "forehead": [
+      -0.88,
+      -5.07,
+      -2.91
+     ],
+     "chin": [
+      -1.23,
+      0.05,
+      0.51
+     ],
+     "upperlip_skin": [
+      12.84,
+      1.01,
+      1.75
+     ]
+    },
+    "asymmetry": [
+     4.4138,
+     1.4488,
+     2.8423
+    ],
+    "front_sha256": "6ca45c7b5d7cc911",
+    "g2_disjoint": true
+   },
+   "sweepE": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.9,
+      -2.04,
+      -2.61
+     ],
+     "R_cheek": [
+      3.59,
+      -1.28,
+      -0.19
+     ],
+     "forehead": [
+      -0.76,
+      -4.5,
+      -2.45
+     ],
+     "chin": [
+      -1.23,
+      -0.05,
+      0.52
+     ],
+     "upperlip_skin": [
+      12.91,
+      0.36,
+      1.04
+     ]
+    },
+    "asymmetry": [
+     4.4138,
+     1.4577,
+     2.8415
+    ],
+    "front_sha256": "2ae60be81c598da6",
+    "g2_disjoint": true
+   },
+   "sweepF": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.86,
+      -1.57,
+      -2.18
+     ],
+     "R_cheek": [
+      3.54,
+      -0.79,
+      0.24
+     ],
+     "forehead": [
+      -0.79,
+      -4.19,
+      -2.35
+     ],
+     "chin": [
+      -1.34,
+      -0.06,
+      0.49
+     ],
+     "upperlip_skin": [
+      12.93,
+      0.22,
+      0.46
+     ]
+    },
+    "asymmetry": [
+     4.4107,
+     1.4677,
+     2.8385
+    ],
+    "front_sha256": "ceaa7ac4b9435a29",
+    "g2_disjoint": true
+   },
+   "sweepH": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.85,
+      -1.54,
+      -2.13
+     ],
+     "R_cheek": [
+      3.54,
+      -0.76,
+      0.28
+     ],
+     "forehead": [
+      -0.8,
+      -4.18,
+      -2.34
+     ],
+     "chin": [
+      -1.38,
+      0.55,
+      1.3
+     ],
+     "upperlip_skin": [
+      12.81,
+      1.11,
+      2.75
+     ]
+    },
+    "asymmetry": [
+     4.4115,
+     1.4637,
+     2.8415
+    ],
+    "front_sha256": "c8900ac9561d89d3",
+    "g2_disjoint": true
+   },
+   "sweepG": {
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.85,
+      -1.54,
+      -2.13
+     ],
+     "R_cheek": [
+      3.54,
+      -0.76,
+      0.28
+     ],
+     "forehead": [
+      -0.8,
+      -4.18,
+      -2.34
+     ],
+     "chin": [
+      -1.39,
+      0.3,
+      0.73
+     ],
+     "upperlip_skin": [
+      12.81,
+      1.11,
+      2.75
+     ]
+    },
+    "asymmetry": [
+     4.4127,
+     1.4617,
+     2.843
+    ],
+    "front_sha256": "b88eff647333a081",
+    "g2_disjoint": true,
+    "note": "sweepG3 dir (same procedure as resweep harness)"
+   }
+  },
+  "all_settings_note": "A-H reswept with the polygon instrument (same procedure; G via sweepG3): every setting 1/4, G2 disjoint holds everywhere. No setting reaches 3/4: no field change (would be fitted).",
+  "asymmetry": [
+   4.4127,
+   1.4617,
+   2.843
+  ],
+  "asymmetry_bound_pre_fix": [
+   4.4016,
+   1.4431,
+   2.8791
+  ],
+  "renders": {
+   "front": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-g3-front.png",
+   "front_sha256": "b88eff647333a0814f69b8a68ea0351b1cf988e84a362a1880ee63898a586d7a"
+  },
+  "field_change": "none (see all-settings note)",
+  "blocks": [
+   "cheek L +3.5-3.9: render albedo too light on the anatomical cheek quads; only the global six own L and they already match on facecore means. Local L correction is outside the a*/b* field family.",
+   "forehead a* -4.2: rendered response shortfall at the anatomical forehead (applied field under-corrects; best across A-H is F/H -4.18).",
+   "upperlip_skin L +12.8: render philtrum far lighter than goal (beard-card territory), recorded not gated."
   ]
  }
 }

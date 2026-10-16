@@ -23,10 +23,14 @@ sub-labial crease dip where chin skin resumes). No enclosed-hole
 requirement, so closed lips (which pass the skin gate) no longer fall
 through to the nostril. mouth_bottom anchors the chin patch.
 
-Regions (40x40 boxes, Lab over gate&below-brow pixels if n>=300,
-gatefrac noted): L/R cheek at (cx-+115, eye_row+95);
+Regions (Lab over polygon pixels intersected with the eroded skin
+gate, n>=300 floor; gatefrac = kept/poly): forehead, L/R cheek, chin
+from FaceLandmarker polygons (face_landmark_regions.py wiring
+face-gate/face_gate.py, read-only), plus measured-but-ungated
+upperlip_skin. The 40x40 legacy boxes survive under "legacy_boxes" for
+comparison (L/R cheek at (cx-+115, eye_row+95);
 forehead-below-brow at (cx, eye_row-FH_IED*ied); chin at
-(cx, mouth_bottom+CHIN_MARGIN*ied).
+(cx, mouth_bottom+CHIN_MARGIN*ied)).
 
 Outputs: <out-png> mask (255 = keep), <out-json> with method, rows,
 per-region Lab, and the hole shortlist. Refuses (non-zero exit) if no
@@ -226,12 +230,17 @@ def build(png_in, png_out, json_out):
     skin_resume, crease_dip = mouth_bottom_row(L, parting_row, ied, cx, w, h)
     chin_cy = skin_resume + int(round(CHIN_MARGIN * ied))
     keep = ((me > 0) & (np.arange(h)[:, None] > brow_row)).astype(np.uint8)
-    regions = {
+    legacy_boxes = {
         "L_cheek": patch_lab(lab, keep, cx - 115, int(round(eye_row + 95))),
         "R_cheek": patch_lab(lab, keep, cx + 115, int(round(eye_row + 95))),
         "forehead_below_brow": patch_lab(lab, keep, cx, fh_cy),
         "chin": patch_lab(lab, keep, cx, chin_cy),
     }
+    import face_landmark_regions as _flr
+    regions, lm_info, _polys = _flr.polygon_regions(
+        lab, (me > 0).astype(np.uint8), pil,
+        _flr.create_landmarker())
+    lip_agree = dict(lm_info["lip_rows"], parting_row=parting_row)
     Image.fromarray(keep * 255).save(png_out)
     ys, xs = np.where(keep > 0)
     info = {"input": png_in,
@@ -244,6 +253,12 @@ def build(png_in, png_out, json_out):
             "crease_dip_row": crease_dip,
             "mouth_bottom": skin_resume,
             "chin_margin_ied": CHIN_MARGIN,
+            "legacy_boxes": legacy_boxes,
+            "landmarks": {"spread_px": lm_info["spread_px"],
+                          "model_path": lm_info["model_path"],
+                          "model_sha256": lm_info["model_sha256"],
+                          "cheek_mapping": lm_info["cheek_mapping"]},
+            "lip_agreement_rows": lip_agree,
             "n": int((keep > 0).sum()),
             "bbox_xywh": [int(xs.min()), int(ys.min()),
                           int(xs.max() - xs.min()),
