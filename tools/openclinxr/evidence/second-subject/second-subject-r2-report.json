@@ -1,0 +1,190 @@
+{
+ "card": "tsk_efec6e3fcfc8887c",
+ "coverage_gaps": [
+  "deep tones: all families nearest young per tone-report.json (warm_medium dLab 12.18 to young forehead; middle/old families are LIGHTER than both anchors, tone-report.json:35-99)",
+  "socket fill cheek_lab [45, 12.7, 14.0] is Aisha-adjacent-skin measured (chain-manifest.json:199-204); ran unchanged on body2",
+  "face-gate landmark model file absent from tree (face_gate.py:29-30 path); gate unrunnable anywhere, not just body2"
+ ],
+ "phenotype_tone": "warm_medium",
+ "resolved_since_r1": [
+  {
+   "landed": "1266d136b face-fit-any-subject",
+   "r1_entry": "stage 6 body2 detections + embedding (fit_facefit2.py:183)"
+  },
+  {
+   "landed": "72a6d4813 lid-conform-any-subject (LID_CONFORM_BY_CASE_ID body2 targetWidthMm 25.0 + role resolution + own-bake ring source)",
+   "r1_entry": "stage 4 stem row (lid_conform.py:62-67)"
+  },
+  {
+   "landed": "72a6d4813 resolve_body_mesh_name/resolve_globe_mesh_name/resolve_cornea_mesh_names",
+   "r1_entry": "stage 4 mesh-name literals (lid_conform_core.py:25-28)"
+  },
+  {
+   "landed": "72a6d4813 base_glb_for_case (store/lid-conform-any/body2-eyeglobe-base.glb 71fc3a11)",
+   "r1_entry": "stage 4 base GLB (lid_conform.py:52-53)"
+  }
+ ],
+ "sheet": {
+  "aisha_glb": "store/lid-conform/aisha-lidconform.glb (current conformed build)",
+  "fallback_used": false,
+  "files": {
+   "sheet-aisha-r2/ss-aisha-front.png": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d",
+   "sheet-aisha-r2/ss-aisha-yaw25.png": "223b2cb50275e6a126ce3ac4045ddd4608e429ffe1c78d38c29cfcd94819dd4e",
+   "sheet-aisha-r2/ss-aisha-yaw40.png": "85514dfe773c9fd6c80f6a86e79fc4b410cf07a303c894c2add93b0eaaa8ecde",
+   "sheet-r2/ss-body2-front.png": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+   "sheet-r2/ss-body2-yaw25.png": "95755a9ad8812f2f81210ae48ca6b3e5e5b2dadb925ab4da229ee04417c64ce2",
+   "sheet-r2/ss-body2-yaw40.png": "5efc610684f624441c4559ae1c10ad2f752a57cec8a3823efc1aa8562c8a7919"
+  },
+  "method": "three.js runtime-portrait-capture.ts RENDER_SIZE 1280 (ss-body2.variant.json skinOverride run1 chain albedo_socket+roughness; ss-aisha.variant.json null override), first attempt succeeded",
+  "root": "/Volumes/files/openclinxr-assets/store/second-subject/",
+  "status": "done"
+ },
+ "stages": {
+  "1_family_tone": {
+   "blocked": false,
+   "gate": "pick == tone-report nearest[warm_medium] (young, dLab 12.18 vs middle 26.30 old 20.71): PASS",
+   "inputs": {
+    "manifest": "tools/openclinxr/asset-pipeline/reference-set/manifest.json body2 goal_front tone Lab [49.26, 13.89, 19.44]",
+    "method": "tone-report min dLab anchor vs family forehead mean (tone-check.py:160-165)"
+   },
+   "outputs_run1": {
+    "stage1-tone-pick.json": "3093cd15e13d1781c4ac2ba76dd417967e3fce6a9319ad82b0d790e33b6eeb6e"
+   },
+   "outputs_run2": {
+    "stage1-tone-pick.json": "3093cd15e13d1781c4ac2ba76dd417967e3fce6a9319ad82b0d790e33b6eeb6e"
+   },
+   "ran": true,
+   "sha_match": true
+  },
+  "2_skin_layers": {
+   "blocked": false,
+   "gate": "all-zero is byte copy of young-family-v3.png (87aafbcf...): PASS",
+   "inputs": {
+    "code": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py apply_layers",
+    "weights": "all 0.0 (body2 case names no flush/freckle/pallor field; manifest.json body2 has phenotype_tone only)"
+   },
+   "outputs_run1": {
+    "stage2-layers-zero.png": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+   },
+   "outputs_run2": {
+    "stage2-layers-zero.png": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+   },
+   "ran": true,
+   "sha_match": true
+  },
+  "3_replay_albedo": {
+   "blocked": false,
+   "gate": "chain completes with manifest body2 overrides; fresh run1/run2 re-verified byte-identical to r1 store shas; prior render_vs_goal gate 1/4 regions within_3 (second-body-report.json:99-221, FAIL, unchanged code): recorded",
+   "inputs": {
+    "albedo": "S/port5/solved-albedo-bb.png sha 33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa",
+    "ao_png": "S/port5/chain-bb/derive_out/ao.png sha c2ec8e6eed7acc083e85adc64a75efae9a1af8f11b76896211bcc91f257edab4",
+    "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+    "skin_shader_flags": "skin-shade.ts: +0.08*C cavity term restored (line 34); cavity specular occlusion + roughness (line 50); diffuseColor NEVER multiplied by cavity",
+    "skip_stages": "apply_occ (matches NO stage name in chain-manifest stages derive/occlusion/roughness/lips/eye_corners/symmetrise/socket, so occlusion RAN)"
+   },
+   "outputs_run1": {
+    "albedo_corners.png": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1",
+    "albedo_lips.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa",
+    "albedo_occ.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa",
+    "albedo_socket.png": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+    "albedo_sym.png": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb",
+    "roughness.png": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+   },
+   "outputs_run2": {
+    "albedo_corners.png": "65477fb3db05d6a8867c52cb361108b571476a6474d384382eb47111748e4fc1",
+    "albedo_lips.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa",
+    "albedo_occ.png": "76f59c7712c1b15b6ee1ce1a6453407f59c5e72bddf2b01648663a9110716daa",
+    "albedo_socket.png": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
+    "albedo_sym.png": "c3b6453713d1ba21b62a93ecb1ab590488791520d2c6a61b806ede0e6f8164fb",
+    "roughness.png": "ac150f34167112377fb88a468b6510e0f7a51b369d8cde077b241bdc01a375e7"
+   },
+   "ran": true,
+   "rerun": "fresh replay.py run1+run2 into /tmp/second2_r2 (derive recomputed) match each other and r1 store shas exactly",
+   "sha_match": true
+  },
+  "4_lid_conform": {
+   "blocked": false,
+   "fissure_source": "OWN: body2 eye-corner landmarks (any-subject-targets.json body2 eyeCorners L100.74/R100.42px mean) via temple ruler to 25.9mm goal minus 0.9 seat-pullback = 25.0 bake param (any-subject-report.json:168-185); NOT the sourced adult mean",
+   "gate": {
+    "G1_rebake": "PASS (any-subject-report.json g1: rebakeBodyPositionSha == storeBodyPositionSha 770a7eb3)",
+    "G2_conform": "FAIL recorded: ring1 max gap 2.524mm outside [0.3,1.0] (canthal flesh; sphere-cap necessity, same proof as aisha conform-report.json) + 12 flipped canthus-sliver faces; fissure 25.798 within 1mm of 25.9 PASS; globe+corneas byte-identical PASS; match max 0.0044mm PASS",
+    "G4_blink": "PASS (closed10FrontGlobePx 0)"
+   },
+   "inputs": {
+    "case_config": "lid_conform.py LID_CONFORM_BY_CASE_ID body2 targetWidthMm 25.0 (landed 72a6d4813)",
+    "role_meshes": "resolved by role (lid_conform_core.py): mpfb_adult_male_street_casual_body / high-poly globe / 2 corneas / lash (verified this run)",
+    "target": "body2 OWN fissure target 25.0mm bake param"
+   },
+   "outputs_run1": {
+    "body2-eyeglobe-base.glb": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+    "body2-lidconform.glb": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a"
+   },
+   "outputs_run2": {
+    "body2-eyeglobe-base.glb": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7",
+    "body2-lidconform.glb": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a"
+   },
+   "ran": true,
+   "sha_match": true,
+   "sha_match_note": "GLB bytes are the landed any-subject bake (72a6d4813); role-resolution + target derivation re-ran deterministically this run; byte-reproducibility proven by that card's G1 rebake equality"
+  },
+  "5_eye_flags": {
+   "blocked": false,
+   "gate": "flags resolved from landed code with no per-subject value: PASS",
+   "inputs": {
+    "code": "packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts eyeShade field; product env ob_triage_room_v1"
+   },
+   "outputs_run1": {
+    "stage5-eyesflags.json": "816b24f66a2911c4915309738d1073af1adef2dd2bc7a9eb31d13fafb787480f"
+   },
+   "outputs_run2": {
+    "stage5-eyesflags.json": "816b24f66a2911c4915309738d1073af1adef2dd2bc7a9eb31d13fafb787480f"
+   },
+   "ran": true,
+   "sha_match": true
+  },
+  "6_face_fit": {
+   "blocked": false,
+   "gate": "PASS: re-ran fit_facefit2.py --case body2 this run: 2.919->1.278mm, beatsSweep true, selfPass true; no 3q view for body2 (front-only, same exclusion rule)",
+   "inputs": {
+    "case": "--case body2 (fit_facefit2.py:142-152, target from any-subject-targets.json body2 sha 05832330)",
+    "prior": "fit-report.json cases.body2 (landed 1266d136b)"
+   },
+   "outputs_run1": {
+    "fit-report.json": "4f130801346dd744740cd061958e134a7cf6907455d3fd5d72f4ba4683c33f27",
+    "fit_file_weights_body2.json": "01e3ffd4b83de3bf6b56e91db6728d3f58490dae4a1b3db64b9df4a0807e8216",
+    "fit_weights_body2.json": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+    "pts_target_body2_front.npy": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834"
+   },
+   "outputs_run2": {
+    "fit-report.json": "4f130801346dd744740cd061958e134a7cf6907455d3fd5d72f4ba4683c33f27",
+    "fit_file_weights_body2.json": "01e3ffd4b83de3bf6b56e91db6728d3f58490dae4a1b3db64b9df4a0807e8216",
+    "fit_weights_body2.json": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
+    "pts_target_body2_front.npy": "058323303a1a0957528395590a3c716e001f6c936a17cf35969b2114ddda3834"
+   },
+   "ran": true,
+   "rerun": "re-ran fit_facefit2.py --case body2 this session: tracked files rewritten byte-identical (git status clean)",
+   "sha_match": true
+  },
+  "7_checks": {
+   "blocked": "partial",
+   "gate": {
+    "catchlight_spot": "report-only: eye-band max5x5 lum 171.0 on S/port5/render/body2-bb-front.png (sha 248e63fd re-verified); no numeric runtime-spot bar in stage code",
+    "face_gate": "BLOCKED: landmark model tools/openclinxr/evidence/landmarks/models/face_landmarker.task absent (MODEL_PATH face_gate.py:29-30); store copy exists but stage code path is fixed",
+    "lid_G1_G4": "G1 PASS (rebake equality) + G4 PASS (0 globe px) per any-subject-report.json; G2 ring-gap FAIL recorded above",
+    "shape_clauses": "shape_clauses.py --verify rc=0, thresholds bite fixtures unchanged"
+   },
+   "inputs": {},
+   "outputs_run1": {
+    "any-subject-report.json": "cc94c477ad01380d013da1292077e3493cfa32a88c667d62c6cd0b8d06c01a1a"
+   },
+   "outputs_run2": "same files (read-only probes, deterministic)",
+   "ran": true,
+   "sha_match": true
+  }
+ },
+ "subject": "body2",
+ "subject_glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+ "tuned_for_subject": [],
+ "verdict": "repeatable_with_0_tunings",
+ "verdict_note": "all 7 stages ran on body2 with zero per-subject edits and unchanged thresholds; 2 quality gates FAIL as recorded results (render_vs_goal 1/4 regions, lid G2 ring-gap+flips) - that failure pattern is the remaining Aisha-specificity measure"
+}
