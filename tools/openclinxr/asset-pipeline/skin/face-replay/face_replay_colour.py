@@ -116,6 +116,25 @@ def _render_nxny(xs: np.ndarray, ys: np.ndarray, a: dict) -> tuple[np.ndarray, n
     return nx, ny
 
 
+def _forehead_top(mask_json: dict) -> tuple:
+    """Forehead-polygon bbox top as (row, ny), or (None, None).
+
+    The anatomical forehead sits above brow_row (ny < 0); its top is the
+    FaceLandmarker forehead-polygon bbox top (brow points pulled 55%
+    toward landmark 10, so this is the polygon-top reading of the
+    landmark-10 extent) in render rows, normalised with the same
+    anchors as the field. Missing polygon info -> (None, None) and the
+    caller keeps the legacy ny0 == 0.0 grid.
+    """
+    try:
+        top = float(mask_json["regions"]["forehead"]["poly_bbox_xywh"][1])
+    except (KeyError, TypeError, IndexError):
+        return None, None
+    a = _norm_anchors(mask_json)
+    ny = (top - a["brow_row"]) / (a["mouth_bottom"] - a["brow_row"])
+    return top, ny
+
+
 def _eval_patch_rects(mask_json: dict, half: float = 20.0) -> list:
     """40x40 evaluation patches (same centres/half-size as the mask
     script: PATCH_R=20) as normalised rects (nx0, ny0, nx1, ny1)."""
@@ -234,7 +253,9 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                           mirror: bool = False,
                           notch: bool = False,
                           notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00",
-                          luminance: bool = False) -> dict:
+                          luminance: bool = False,
+                          pre_skin: np.ndarray | None = None,
+                          goal_skin: np.ndarray | None = None) -> dict:
     """Fit the stored regional chroma field.
 
     Per cell: goal-minus-pre mean a*/b* over the below-brow band in
@@ -253,9 +274,51 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     demean/smooth/notch): the global six keep the face mean while the
     field carries local lightness (HB3: matched-anatomy cheeks/forehead
     miss on L, which no a*/b* field can move).
+
+    With pre_skin/goal_skin (eroded-skin masks at render size) the grid
+    additionally reaches above the brow up to the forehead-polygon top
+    (fhfield: the anatomical forehead has ny < 0 and previously had no
+    fit cells, so the L channel extrapolated into it). Above-brow fit
+    pixels are skin-gated rows [forehead top, brow] within the nx
+    range, OR-ed onto the below-brow keep; the forehead evaluation box
+    (central 40x40 at the polygon centroid) stays excluded, so the
+    forehead split is central-eval vs upper/lateral-fit. Without the
+    skin masks the grid starts at ny0 == 0.0 and the solve below is
+    exactly the legacy one (same anchors, same normalisation, same
+    numbers); the replay path is untouched either way, so stored
+    params without the extent replay byte-identically.
     """
     a_pre = _norm_anchors(pre_json)
     a_goal = _norm_anchors(goal_json)
+    # Forehead extent: grid ny0 = the lower (more negative) of the two
+    # forehead-polygon tops, no margin. Legacy ny0 == 0.0 unless the
+    # skin masks opt in (keeps old solves reproducible bit-for-bit).
+    pre_top, pre_top_ny = _forehead_top(pre_json)
+    goal_top, goal_top_ny = _forehead_top(goal_json)
+    if pre_skin is not None and goal_skin is not None \
+            and pre_top is not None and goal_top is not None:
+        ny0 = float(min(pre_top_ny, goal_top_ny))
+    else:
+        ny0 = 0.0
+
+    def _widen(keep: np.ndarray, skin: np.ndarray | None,
+               a: dict, top_row: float | None) -> np.ndarray:
+        if skin is None or top_row is None or ny0 >= 0.0:
+            return keep
+        h, w = keep.shape
+        ys = np.arange(h)[:, None]
+        xs = np.arange(w)[None, :]
+        anx, _ = _render_nxny(xs.astype(np.float64),
+                              np.zeros_like(xs, dtype=np.float64), a)
+        extra = (np.asarray(skin) > 0.5) \
+            & (ys >= int(round(float(top_row)))) \
+            & (ys <= a["brow_row"]) \
+            & (anx >= CHROMA_NX_RANGE[0]) \
+            & (anx <= CHROMA_NX_RANGE[1])
+        return keep | extra
+
+    pre_keep = _widen(pre_keep, pre_skin, a_pre, pre_top)
+    goal_keep = _widen(goal_keep, goal_skin, a_goal, goal_top)
     # Patch half-size shared literally with the mask script (same 40x40
     # evaluation boxes the report measures); lazy import so the replay
     # path never pays for cv2/skimage.
@@ -263,7 +326,7 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     patch_half = float(_mbm.PATCH_R)
     ny1 = 1.0 + 0.25 * a_pre["ied"] / (a_pre["mouth_bottom"] - a_pre["brow_row"])
     nx_edges = np.linspace(CHROMA_NX_RANGE[0], CHROMA_NX_RANGE[1], nx_cells + 1)
-    ny_edges = np.linspace(0.0, ny1, ny_cells + 1)
+    ny_edges = np.linspace(ny0, ny1, ny_cells + 1)
 
     def coords(rgb, keep, a):
         h, w = keep.shape
@@ -280,14 +343,27 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                                     nx_edges, ny_edges)
     covered = (~np.isnan(pre_m[..., 0])) & (~np.isnan(goal_m[..., 0]))
     eval_cells: set = set()
+    fh_rects: list = []
     for js in (pre_json, goal_json):
         for rect in _eval_patch_rects(js, half=patch_half):
             eval_cells |= _cells_overlapping(nx_edges, ny_edges, rect)
+            if rect[0] == "forehead":
+                fh_rects.append(rect)
     fit = covered & np.array(
         [[(ix, iy) not in eval_cells
           for ix in range(nx_cells)] for iy in range(ny_cells)])
     if int(fit.sum()) < 4:
         raise RuntimeError(f"CHROMA_TOO_FEW_FIT_CELLS n={int(fit.sum())}: refuse")
+    # Forehead split (G2 for the new band): the central forehead box is
+    # evaluated, never fitted; fit cells above the brow (cell-centre
+    # ny < 0) are its upper/lateral neighbours.
+    fh_eval: set = set()
+    for rect in fh_rects:
+        fh_eval |= _cells_overlapping(nx_edges, ny_edges, rect)
+    ccy = (ny_edges[:-1] + ny_edges[1:]) / 2
+    fh_fit_above = sorted([[ix, iy] for iy in range(ny_cells)
+                           for ix in range(nx_cells)
+                           if fit[iy, ix] and float(ccy[iy]) < 0.0])
 
     raw = np.where(covered[..., None],
                    goal_m - pre_m, np.nan)
@@ -405,7 +481,31 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
         "notch": notch_desc,
         "grid": {"nx": nx_cells, "ny": ny_cells,
                  "nx_range": list(CHROMA_NX_RANGE),
-                 "ny_range": [0.0, float(ny1)]},
+                 "ny_range": [float(ny0), float(ny1)]},
+        "forehead_extent": {
+            "ny0": float(ny0),
+            "fh_top_pre_row": pre_top,
+            "fh_top_goal_row": goal_top,
+            "source": "FaceLandmarker forehead-polygon bbox top from the "
+                      "pre/goal mask JSON (brow points pulled 55% toward "
+                      "landmark 10), ny=(top-brow)/(mouth-brow), grid ny0 "
+                      "= min of both images, no margin; above-brow fit "
+                      "pixels are eroded-skin-gated rows [top, brow] "
+                      "within the nx range, OR-ed onto the below-brow "
+                      "keep (ny0 == 0.0 and no extra pixels without the "
+                      "skin masks: the legacy solve)",
+        },
+        "forehead_split": {
+            "eval_rect_nxny_pre": [float(v) for v in fh_rects[0][1:]]
+            if len(fh_rects) > 0 else None,
+            "eval_rect_nxny_goal": [float(v) for v in fh_rects[1][1:]]
+            if len(fh_rects) > 1 else None,
+            "eval_cells": sorted([list(c) for c in fh_eval]),
+            "fit_cells_above_brow": fh_fit_above,
+            "why": "central 40x40 forehead-polygon-centroid box is "
+                   "evaluated, never fitted; fit cells above the brow "
+                   "(cell-centre ny < 0) are its upper/lateral neighbours",
+        },
         "render_anchors": {"pre": a_pre, "goal": a_goal},
         "uv_anchors": {
             # uv_texel = [u*S, v*S]; u runs down the face, v across it:
@@ -578,6 +678,10 @@ def cmd_solve(args: argparse.Namespace) -> dict:
         mouth_t = float(_mx.mean()) * float(landmarks.get("size", 4096)) / float(w)
         pre_keep = (C.load_mask(Path(args.pre_mask), (pw, ph)) > 0.5)
         goal_keep = (C.load_mask(Path(args.goal_mask), (gw, gh)) > 0.5)
+        pre_skin = (C.load_mask(Path(args.chroma_pre_skin), (pw, ph)) > 0.5) \
+            if args.chroma_pre_skin else None
+        goal_skin = (C.load_mask(Path(args.chroma_goal_skin), (gw, gh)) > 0.5) \
+            if args.chroma_goal_skin else None
         field = solve_regional_chroma(pre, pre_keep, pre_json, goal, goal_keep,
                                       goal_json, landmarks, mouth_t,
                                       nx_cells, ny_cells,
@@ -585,7 +689,9 @@ def cmd_solve(args: argparse.Namespace) -> dict:
                                       mirror=bool(args.chroma_mirror),
                                       notch=bool(args.chroma_notch),
                                       notch_cores=args.chroma_notch_cores,
-                                      luminance=bool(args.chroma_luminance))
+                                      luminance=bool(args.chroma_luminance),
+                                      pre_skin=pre_skin,
+                                      goal_skin=goal_skin)
         field["files"] = {
             "pre_mask_json": Path(args.chroma_pre_json).name,
             "goal_mask_json": Path(args.chroma_goal_json).name,
@@ -598,6 +704,12 @@ def cmd_solve(args: argparse.Namespace) -> dict:
             "landmarks_uv": C.sha256_file(Path(args.landmarks_uv)),
             "mouth_mask": C.sha256_file(Path(args.mouth_mask)),
         }
+        if args.chroma_pre_skin:
+            field["files"]["pre_skin"] = Path(args.chroma_pre_skin).name
+            field["shas"]["pre_skin"] = C.sha256_file(Path(args.chroma_pre_skin))
+        if args.chroma_goal_skin:
+            field["files"]["goal_skin"] = Path(args.chroma_goal_skin).name
+            field["shas"]["goal_skin"] = C.sha256_file(Path(args.chroma_goal_skin))
         params["regional_chroma"] = field
     out = Path(args.out_params)
     out.write_text(json.dumps(params, indent=1) + "\n", encoding="utf8")
@@ -793,6 +905,14 @@ def build_parser() -> argparse.ArgumentParser:
                     help="add an optional low-frequency L channel to the "
                          "stored field (same grid/smoothing/fit-eval split; "
                          "fields without it replay exactly as before)")
+    ap.add_argument("--chroma-pre-skin", default=None,
+                    help="eroded-skin mask PNG for --pre-render: opts the "
+                         "field into the above-brow extent (forehead-"
+                         "polygon top); without both skin masks the grid "
+                         "starts at ny0 == 0.0 exactly as before")
+    ap.add_argument("--chroma-goal-skin", default=None,
+                    help="eroded-skin mask PNG for --goal-render (see "
+                         "--chroma-pre-skin)")
     return ap
 
 

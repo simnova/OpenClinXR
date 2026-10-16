@@ -2565,5 +2565,13 @@
    "forehead a* -5.38 / b* -3.45 (E): open-loop albedo field under-corrects where render response < 1; L over-moves first (+2.64), chroma lags.",
    "upperlip_skin L +8.6: philtrum far lighter than goal; beard-card territory, recorded not gated."
   ]
+ },
+ "forehead_field": {
+  "card": "tsk_364338d60bdf29ff",
+  "verdict": "FALSIFIER: no swept setting reaches G1 (>=3/4) with the forehead among the passes; closest sweepF (no L) misses only forehead a* by 0.57 losing both cheeks on L; every +L setting 3/4 cheeks+chin missing forehead a* 4.63-4.76 / b* 3.39-3.43. Nothing lands in the stored field.",
+  "extent_ny0": -0.1628498727735369,
+  "mechanism": "field fits goal-pre (~0 on forehead a*) while the six overshoots it by -5.10; forehead render transfer ~0.2 vs ~0.8 below brow",
+  "field_change": "none",
+  "full_record": "tools/openclinxr/asset-pipeline/skin/face-replay/forehead-field-report.json"
  }
 }
