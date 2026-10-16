@@ -44,8 +44,10 @@ type StageRecord = {
   ran: boolean;
   blocked: boolean;
   blockReason?: string;
+  blocked_by?: string;
   gate: { pass: boolean; detail: string; knownGood?: unknown };
   wallSeconds: number;
+  extra?: { knownGoodRows?: Array<Record<string, unknown>>; checks?: Record<string, unknown> };
 };
 
 export function rebuildCaseRunReport(): Record<string, unknown> {
@@ -103,6 +105,9 @@ export function rebuildCaseRunReport(): Record<string, unknown> {
             match: kg.expected === kg.actual,
           });
         }
+        for (const row of stage.extra?.knownGoodRows ?? []) {
+          knownGood.push({ case: caseId, run: runName, stage: stage.stage, ...(row as Record<string, unknown>) });
+        }
         if (stage.blocked) {
           blockedChecks.push({
             case: caseId,
@@ -111,13 +116,19 @@ export function rebuildCaseRunReport(): Record<string, unknown> {
             reason: (stage as { blockReason?: string }).blockReason ?? "",
           });
         }
+        if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
+          blockedChecks.push({ case: caseId, run: runName, stage: stage.stage, blocked_by: stage.blocked_by });
+        }
         const extra = (stage as { extra?: { checks?: Record<string, unknown> } }).extra;
         if (extra?.checks !== undefined) {
           for (const [check, result] of Object.entries(extra.checks)) {
-            if (
-              result !== null &&
-              typeof result === "object" &&
-              (result as { blocked?: boolean }).blocked === true
+            if (result === null || typeof result !== "object") continue;
+            const typed = result as { blocked?: boolean; pass?: boolean; blocked_by?: unknown; reason?: unknown };
+            if (typed.blocked === true) {
+              blockedChecks.push({ case: caseId, run: runName, stage: stage.stage, check, ...(result as Record<string, unknown>) });
+            } else if (
+              typed.pass === false &&
+              (typeof typed.blocked_by === "string" || typeof typed.reason === "string")
             ) {
               blockedChecks.push({ case: caseId, run: runName, stage: stage.stage, check, ...(result as Record<string, unknown>) });
             }

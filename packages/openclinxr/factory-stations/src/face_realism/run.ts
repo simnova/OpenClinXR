@@ -34,7 +34,8 @@ import {
   type StageRecord,
 } from "./shared.js";
 import { runStage1, runStage2, runStage3 } from "./stages-a.js";
-import { runStage4, runStage5, runStage6, runStage7 } from "./stages-b.js";
+import { runStage4, runStage7 } from "./stages-b.js";
+import { runStage5, runStage6 } from "./stages-d.js";
 
 export {
   assertNoModelStage,

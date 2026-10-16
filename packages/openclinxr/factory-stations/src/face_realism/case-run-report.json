@@ -6,7 +6,7 @@
    "runs": {
     "run1": {
      "status": "completed",
-     "wallSeconds": 637.07,
+     "wallSeconds": 817.136,
      "stages": [
       {
        "stage": 1,
@@ -47,7 +47,7 @@
         "pass": true,
         "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_light] young"
        },
-       "wallSeconds": 2.408
+       "wallSeconds": 6.432
       },
       {
        "stage": 2,
@@ -93,7 +93,7 @@
         "pass": true,
         "detail": "all-zero weights are a byte copy of the picked family PNG"
        },
-       "wallSeconds": 0.457,
+       "wallSeconds": 0.746,
        "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
       },
       {
@@ -598,7 +598,7 @@
          "actual": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198"
         }
        },
-       "wallSeconds": 189.029,
+       "wallSeconds": 285.327,
        "note": "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)",
        "extra": {
         "executedChainStages": [
@@ -906,7 +906,7 @@
        "outputs": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
-         "sha256": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329"
+         "sha256": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6"
         }
        ],
        "unchainedInputs": [
@@ -986,22 +986,22 @@
          "name": "aisha-lidconform.glb",
          "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
          "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
-         "actual": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329"
+         "actual": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6"
         }
        },
-       "wallSeconds": 442.798,
+       "wallSeconds": 522.273,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage4-blender.log",
-         "sha256": "4c5cbaa584ab52d58221d86b780382bece5dd63b4d8518467c8fec3ebf1eb1d5"
+         "sha256": "f1a30618b0f55dd4c56b30d39f97b2f4230ad3800f6b5076ec19945fa96ad58e"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.skin-baked.png",
-         "sha256": "e8fce840c6919ae54e6a333bc5884e8def4728e8c005678e95a8589e3af5eccb"
+         "sha256": "19e39223f8108c7077dd2ee6e3e4564f01d3808b36bac71a9c57d7fbc2f3e2e1"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.skin-normal.png",
-         "sha256": "95928d85b22b9bea08f26220274dab6a1f17791bcacfff4ea1b1d4fcd146d934"
+         "sha256": "d2b90e5f37d146e695e20aaf61d4a31d782ed605afcd9034cea6b396426b7947"
         }
        ],
        "extra": {
@@ -1170,7 +1170,7 @@
         "pass": true,
         "detail": "eye flag record matches the case inputs (shell off)"
        },
-       "wallSeconds": 0.001,
+       "wallSeconds": 0,
        "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
       },
       {
@@ -1264,7 +1264,7 @@
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
-           "sha256": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329"
+           "sha256": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6"
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
@@ -1285,7 +1285,7 @@
          "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
         }
        },
-       "wallSeconds": 1.781,
+       "wallSeconds": 1.791,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage6-fit.log",
@@ -1410,7 +1410,7 @@
         "pass": true,
         "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
        },
-       "wallSeconds": 0.593,
+       "wallSeconds": 0.564,
        "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
        "extra": {
         "checks": {
@@ -1920,7 +1920,7 @@
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
-         "sha256": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329"
+         "sha256": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
@@ -1932,7 +1932,7 @@
     },
     "run2": {
      "status": "completed",
-     "wallSeconds": 579.288,
+     "wallSeconds": 635.457,
      "stages": [
       {
        "stage": 1,
@@ -1973,7 +1973,7 @@
         "pass": true,
         "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_light] young"
        },
-       "wallSeconds": 2.315
+       "wallSeconds": 2.55
       },
       {
        "stage": 2,
@@ -2019,7 +2019,7 @@
         "pass": true,
         "detail": "all-zero weights are a byte copy of the picked family PNG"
        },
-       "wallSeconds": 0.455,
+       "wallSeconds": 0.467,
        "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
       },
       {
@@ -2524,7 +2524,7 @@
          "actual": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198"
         }
        },
-       "wallSeconds": 148.628,
+       "wallSeconds": 148.43,
        "note": "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)",
        "extra": {
         "executedChainStages": [
@@ -2832,7 +2832,7 @@
        "outputs": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
-         "sha256": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943"
+         "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
         }
        ],
        "unchainedInputs": [
@@ -2912,22 +2912,22 @@
          "name": "aisha-lidconform.glb",
          "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
          "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
-         "actual": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943"
+         "actual": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
         }
        },
-       "wallSeconds": 425.571,
+       "wallSeconds": 481.19,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage4-blender.log",
-         "sha256": "4c2d8b031346afa5080085ed7e09d85b82429bf8c786f8bca76a744edc0c9bfa"
+         "sha256": "a9364186de54c43f1859dfe211938e6ac1ed68819e52b4cc7a0f3dc228b719f6"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.skin-baked.png",
-         "sha256": "4dd81fc0b9ab43f4034189fda44c5dd5ae424900a9dbc7f4bba54d85b2d533aa"
+         "sha256": "3ceb3c6b600a108417b6b0953036fb61a4b15c1678006dbd4a0c75af057c30e1"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.skin-normal.png",
-         "sha256": "bd02d86b991ae914b7a0ba2e645e0670a2293a8406839080cf512af0a51f6dcf"
+         "sha256": "493fae437c293f85714a492e713120171ba8baebb71f74bc64e18f3017225621"
         }
        ],
        "extra": {
@@ -3096,7 +3096,7 @@
         "pass": true,
         "detail": "eye flag record matches the case inputs (shell off)"
        },
-       "wallSeconds": 0.001,
+       "wallSeconds": 0,
        "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
       },
       {
@@ -3190,7 +3190,7 @@
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
-           "sha256": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943"
+           "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
@@ -3211,7 +3211,7 @@
          "actual": "342bd1ee70bf282864708741b3e239f911cfef90e26ecc7eb77e662ad3bcb6c3"
         }
        },
-       "wallSeconds": 1.723,
+       "wallSeconds": 2.234,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage6-fit.log",
@@ -3336,7 +3336,7 @@
         "pass": true,
         "detail": "shape_clauses --verify rc=0; lid G1 PASS; face-gate/G4/catchlight blocked-or-report-only as recorded"
        },
-       "wallSeconds": 0.592,
+       "wallSeconds": 0.582,
        "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
        "extra": {
         "checks": {
@@ -3846,7 +3846,7 @@
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
-         "sha256": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943"
+         "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
@@ -3862,7 +3862,7 @@
    "runs": {
     "run1": {
      "status": "partial",
-     "wallSeconds": 845.282,
+     "wallSeconds": 771.873,
      "stages": [
       {
        "stage": 1,
@@ -3903,7 +3903,7 @@
         "pass": true,
         "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_medium] young"
        },
-       "wallSeconds": 2.331
+       "wallSeconds": 2.353
       },
       {
        "stage": 2,
@@ -4454,7 +4454,7 @@
          "actual": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db"
         }
        },
-       "wallSeconds": 244.325,
+       "wallSeconds": 218.773,
        "note": "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)",
        "extra": {
         "executedChainStages": [
@@ -4758,7 +4758,7 @@
        "outputs": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
-         "sha256": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b"
+         "sha256": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999"
         }
        ],
        "unchainedInputs": [
@@ -4832,28 +4832,28 @@
        "ran": true,
        "blocked": false,
        "gate": {
-        "pass": false,
-        "detail": "bytes differ and body POSITION differs (2 meshes differ: recorded, not a stop)",
+        "pass": true,
+        "detail": "body POSITION identical to the post-canthus r3 record (d57672cedab6)",
         "knownGood": {
-         "name": "body2-lidconform.glb",
-         "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
-         "actual": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b"
+         "name": "body2-lidconform.glb POSITION",
+         "expected": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+         "expectedSource": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5) POSITION map",
+         "actual": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed"
         }
        },
-       "wallSeconds": 595.648,
+       "wallSeconds": 547.56,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage4-blender.log",
-         "sha256": "a04ddc899bc0a6dd3df835af8f0cc90f9eba54a4d4eb30c400caa09691981354"
+         "sha256": "d2d767a3a478d19764f53996edc93cfa607b087d3123a43962b4276a8a921dd5"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.skin-baked.png",
-         "sha256": "44f59006899c1563e7d686f96a1e0c961bf4eb82e212c62468b0374cca96cf7b"
+         "sha256": "6db8a17b2297c7387942a9739b28cc403f9d581d66a209115d80d0de64fd2619"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.skin-normal.png",
-         "sha256": "7e406a390d8dc742621bcc9625cf55ed76e623aec0b847289090f82bb46418b2"
+         "sha256": "33871e0c450f2290ae6036826506eb48b37a1e4fd688d0cbafc1a2f7e1821b16"
         }
        ],
        "extra": {
@@ -4997,7 +4997,24 @@
           "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh"
          ]
         },
-        "faceFit": null
+        "faceFit": null,
+        "positionR3": {
+         "match": true,
+         "recordGlb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/r3-run1/body2-lidconform.glb",
+         "recordGlbSha256": "92d51c44851b5a3dfe760c813a62720381494d3dc2c09ab6c7b626eede335e90",
+         "body": "mpfb_adult_male_street_casual_body"
+        },
+        "knownGoodRows": [
+         {
+          "name": "body2-lidconform.glb",
+          "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+          "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)",
+          "actual": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999",
+          "match": false,
+          "informational": true,
+          "note": "stale since 838595e7c; eye lane re-pin"
+         }
+        ]
        }
       },
       {
@@ -5022,7 +5039,7 @@
         "pass": true,
         "detail": "eye flag record matches the case inputs (shell off)"
        },
-       "wallSeconds": 0.002,
+       "wallSeconds": 0.001,
        "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
       },
       {
@@ -5116,7 +5133,7 @@
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
-           "sha256": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b"
+           "sha256": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999"
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
@@ -5137,7 +5154,7 @@
          "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
         }
        },
-       "wallSeconds": 1.888,
+       "wallSeconds": 2.097,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage6-fit.log",
@@ -5248,7 +5265,7 @@
         "pass": false,
         "detail": "shape_clauses --verify rc=0; lid G1 FAIL/blocked; face-gate/G4/catchlight blocked-or-report-only as recorded"
        },
-       "wallSeconds": 0.627,
+       "wallSeconds": 0.626,
        "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
        "extra": {
         "checks": {
@@ -5267,7 +5284,8 @@
           "pass": false,
           "oursBody": "mpfb_adult_male_street_casual_body",
           "knownBody": "mpfb_adult_male_street_casual_body",
-          "detail": "rebake body POSITION differs from the pinned store GLB"
+          "detail": "rebake body POSITION differs from the pinned store GLB",
+          "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
          },
          "lid_g4": {
           "blocked": true,
@@ -5282,7 +5300,8 @@
           "note": "eye-band max5x5 has no landed measurement script; the hand-measured value lives in the r2 report; no numeric gate"
          }
         }
-       }
+       },
+       "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
       }
      ],
      "unchainedInputs": [
@@ -5760,7 +5779,7 @@
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
-         "sha256": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b"
+         "sha256": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
@@ -5772,7 +5791,7 @@
     },
     "run2": {
      "status": "partial",
-     "wallSeconds": 829.394,
+     "wallSeconds": 760.912,
      "stages": [
       {
        "stage": 1,
@@ -5813,7 +5832,7 @@
         "pass": true,
         "detail": "tone-check.py reproduced tools/openclinxr/asset-pipeline/skin/families/tone-report.json byte-identical; pick young == nearest[warm_medium] young"
        },
-       "wallSeconds": 2.466
+       "wallSeconds": 2.393
       },
       {
        "stage": 2,
@@ -5859,7 +5878,7 @@
         "pass": true,
         "detail": "all-zero weights are a byte copy of the picked family PNG"
        },
-       "wallSeconds": 0.471,
+       "wallSeconds": 0.46,
        "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
       },
       {
@@ -6364,7 +6383,7 @@
          "actual": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db"
         }
        },
-       "wallSeconds": 258.173,
+       "wallSeconds": 239.122,
        "note": "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)",
        "extra": {
         "executedChainStages": [
@@ -6668,7 +6687,7 @@
        "outputs": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
-         "sha256": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088"
+         "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
         }
        ],
        "unchainedInputs": [
@@ -6742,28 +6761,28 @@
        "ran": true,
        "blocked": false,
        "gate": {
-        "pass": false,
-        "detail": "bytes differ and body POSITION differs (2 meshes differ: recorded, not a stop)",
+        "pass": true,
+        "detail": "body POSITION identical to the post-canthus r3 record (d57672cedab6)",
         "knownGood": {
-         "name": "body2-lidconform.glb",
-         "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-         "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
-         "actual": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088"
+         "name": "body2-lidconform.glb POSITION",
+         "expected": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+         "expectedSource": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5) POSITION map",
+         "actual": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed"
         }
        },
-       "wallSeconds": 564.081,
+       "wallSeconds": 516.127,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage4-blender.log",
-         "sha256": "9bf78814199a3453c56fb77915a85835059425ebc6edebf6098d361bb2cfe99e"
+         "sha256": "2d573a3e22998aabc974b5fbf23020dffbdc496f5c291fedda33e59e5893953f"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.skin-baked.png",
-         "sha256": "eb9ae6e7a7e78571c5ba5af0d966c6832f6ad1a0d0fdd8e31e375eb1e8fa52dc"
+         "sha256": "32e88aaeff362e93a405cefa3313eb5d459f5f0fbe191a33adbfcf9ca470443c"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.skin-normal.png",
-         "sha256": "a6cc5a4fe769105aa5c937f1b496ee6ac19a7689ef229e7166c4635d184c4a89"
+         "sha256": "7e406a390d8dc742621bcc9625cf55ed76e623aec0b847289090f82bb46418b2"
         }
        ],
        "extra": {
@@ -6907,7 +6926,24 @@
           "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh"
          ]
         },
-        "faceFit": null
+        "faceFit": null,
+        "positionR3": {
+         "match": true,
+         "recordGlb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/r3-run1/body2-lidconform.glb",
+         "recordGlbSha256": "92d51c44851b5a3dfe760c813a62720381494d3dc2c09ab6c7b626eede335e90",
+         "body": "mpfb_adult_male_street_casual_body"
+        },
+        "knownGoodRows": [
+         {
+          "name": "body2-lidconform.glb",
+          "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+          "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)",
+          "actual": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13",
+          "match": false,
+          "informational": true,
+          "note": "stale since 838595e7c; eye lane re-pin"
+         }
+        ]
        }
       },
       {
@@ -7026,7 +7062,7 @@
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
-           "sha256": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088"
+           "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
           },
           {
            "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
@@ -7047,7 +7083,7 @@
          "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed"
         }
        },
-       "wallSeconds": 3.467,
+       "wallSeconds": 2.195,
        "byproducts": [
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage6-fit.log",
@@ -7158,7 +7194,7 @@
         "pass": false,
         "detail": "shape_clauses --verify rc=0; lid G1 FAIL/blocked; face-gate/G4/catchlight blocked-or-report-only as recorded"
        },
-       "wallSeconds": 0.732,
+       "wallSeconds": 0.612,
        "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
        "extra": {
         "checks": {
@@ -7177,7 +7213,8 @@
           "pass": false,
           "oursBody": "mpfb_adult_male_street_casual_body",
           "knownBody": "mpfb_adult_male_street_casual_body",
-          "detail": "rebake body POSITION differs from the pinned store GLB"
+          "detail": "rebake body POSITION differs from the pinned store GLB",
+          "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
          },
          "lid_g4": {
           "blocked": true,
@@ -7192,7 +7229,8 @@
           "note": "eye-band max5x5 has no landed measurement script; the hand-measured value lives in the r2 report; no numeric gate"
          }
         }
-       }
+       },
+       "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
       }
      ],
      "unchainedInputs": [
@@ -7670,7 +7708,7 @@
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
-         "sha256": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088"
+         "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
         },
         {
          "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",
@@ -7701,7 +7739,7 @@
    "name": "aisha-lidconform.glb",
    "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
    "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
-   "actual": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329",
+   "actual": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6",
    "match": false
   },
   {
@@ -7731,7 +7769,7 @@
    "name": "aisha-lidconform.glb",
    "expected": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
    "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256",
-   "actual": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943",
+   "actual": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d",
    "match": false
   },
   {
@@ -7758,11 +7796,23 @@
    "case": "body2",
    "run": "run1",
    "stage": 4,
+   "name": "body2-lidconform.glb POSITION",
+   "expected": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+   "expectedSource": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5) POSITION map",
+   "actual": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 4,
    "name": "body2-lidconform.glb",
    "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
-   "actual": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b",
-   "match": false
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)",
+   "actual": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999",
+   "match": false,
+   "informational": true,
+   "note": "stale since 838595e7c; eye lane re-pin"
   },
   {
    "case": "body2",
@@ -7788,11 +7838,23 @@
    "case": "body2",
    "run": "run2",
    "stage": 4,
+   "name": "body2-lidconform.glb POSITION",
+   "expected": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+   "expectedSource": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5) POSITION map",
+   "actual": "d57672cedab63227aa2ac393f53ef850649a2449f9065b01e268e743ff5111ed",
+   "match": true
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 4,
    "name": "body2-lidconform.glb",
    "expected": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256",
-   "actual": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088",
-   "match": false
+   "expectedSource": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)",
+   "actual": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13",
+   "match": false,
+   "informational": true,
+   "note": "stale since 838595e7c; eye lane re-pin"
   },
   {
    "case": "body2",
@@ -7864,10 +7926,28 @@
    "case": "body2",
    "run": "run1",
    "stage": 7,
+   "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 7,
    "check": "face_gate",
    "blocked": true,
    "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/rechain/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
    "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "body2",
+   "run": "run1",
+   "stage": 7,
+   "check": "lid_g1",
+   "ran": true,
+   "pass": false,
+   "oursBody": "mpfb_adult_male_street_casual_body",
+   "knownBody": "mpfb_adult_male_street_casual_body",
+   "detail": "rebake body POSITION differs from the pinned store GLB",
+   "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
   },
   {
    "case": "body2",
@@ -7882,10 +7962,28 @@
    "case": "body2",
    "run": "run2",
    "stage": 7,
+   "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 7,
    "check": "face_gate",
    "blocked": true,
    "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/rechain/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
    "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "body2",
+   "run": "run2",
+   "stage": 7,
+   "check": "lid_g1",
+   "ran": true,
+   "pass": false,
+   "oursBody": "mpfb_adult_male_street_casual_body",
+   "knownBody": "mpfb_adult_male_street_casual_body",
+   "detail": "rebake body POSITION differs from the pinned store GLB",
+   "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)"
   },
   {
    "case": "body2",
@@ -8428,7 +8526,7 @@
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
-     "sha256": "419ac7ff24a7f11c94b3cca8e84b36280292cd3048684b98229e5380741ed329"
+     "sha256": "db53d1c7957fe86f3d65069495a4c7c2386ba76b73d948d102bee5bdddc851a6"
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/stage5-eyesflags.json",
@@ -8966,7 +9064,7 @@
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
-     "sha256": "30a97c569537183b0ac26df44baa56a5b49b3624c586e97e0ef75209b7b2e943"
+     "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/stage5-eyesflags.json",
@@ -9504,7 +9602,7 @@
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
-     "sha256": "1ca574c267f8d10d1eb764015c04149a804d9de4a312b3bfa89664c6c597089b"
+     "sha256": "4d168383f6f2f88225d88f1e61a1329236cd685e075cd1353e5dda45406a8999"
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/stage5-eyesflags.json",
@@ -10042,7 +10140,7 @@
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
-     "sha256": "12a2b9c5d0fdc8800d19b6ec6e2a3d6624e8402a635fff3f331b9d4838bd0088"
+     "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/stage5-eyesflags.json",

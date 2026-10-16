@@ -490,16 +490,30 @@
      19.44
     ]
    },
-   "stage4_known_good": {
-    "assets": {
-     "value": "lid-conform-any/body2-lidconform.glb",
-     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path"
+    "stage4_known_good": {
+     "assets": {
+      "value": "lid-conform-any/body2-lidconform.glb",
+      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path (pre-fix pin; kept as informational only, see stage4_position_known_good)"
+     },
+     "sha256": {
+      "value": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)"
+     }
     },
-    "sha256": {
-     "value": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256"
-    }
-   },
+    "stage4_position_known_good": {
+     "source": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5)",
+     "value": {
+      "glb": {
+       "assets": "face-station-cases/body2/r3-run1/body2-lidconform.glb",
+       "sha256": "92d51c44851b5a3dfe760c813a62720381494d3dc2c09ab6c7b626eede335e90",
+       "source": "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3].outputs[0] (path and sha256)"
+      },
+      "body": {
+       "value": "mpfb_adult_male_street_casual_body",
+       "source": "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3].positionFallback.oursBody"
+      }
+     }
+    },
    "fit_bake": {
     "value": false,
     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"

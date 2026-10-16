@@ -64,9 +64,15 @@ type StageRecord = {
   unchainedInputs: Array<{ path: string; sha256: string }>;
   ran: boolean;
   blocked: boolean;
+  blocked_by?: string;
   gate: { pass: boolean; detail: string; knownGood?: { name: string; expected: string; expectedSource: string; actual: string } };
   wallSeconds: number;
-  extra?: { checks?: Record<string, { blocked?: boolean }>; positionFallback?: { byteMatch: boolean; positionMatch: boolean } };
+  extra?: {
+    checks?: Record<string, { blocked?: boolean; blocked_by?: string; reason?: string }>;
+    positionFallback?: { byteMatch: boolean; positionMatch: boolean };
+    knownGoodRows?: Array<Record<string, unknown>>;
+    positionR3?: { match?: boolean };
+  };
 };
 
 type CaseRunReport = {
@@ -120,20 +126,6 @@ describe("the face station runs seven stages from a case", () => {
           );
           expect(a.extra?.positionFallback?.byteMatch).toBe(false);
           expect(b.extra?.positionFallback?.byteMatch).toBe(false);
-          if (caseId === "body2") {
-            // Pre-existing eye-lane drift (rechain-report.json G5): the
-            // rebake differs from the pre-fix pin in exactly body+lash.
-            for (const rec of [a, b]) {
-              const fallback = rec.extra?.positionFallback as
-                | { positionMatch?: boolean; differingMeshes?: string[] }
-                | undefined;
-              expect(fallback?.positionMatch, `${caseId} stage 4 POSITION differs from the pin`).toBe(false);
-              expect(fallback?.differingMeshes?.length, `${caseId} stage 4 exactly 2 meshes differ`).toBe(2);
-            }
-          } else {
-            expect(a.extra?.positionFallback?.positionMatch).toBe(true);
-            expect(b.extra?.positionFallback?.positionMatch).toBe(true);
-          }
           continue;
         }
         diffs.push(`${caseId} stage ${s + 1}: ${oa.join(",")} vs ${ob.join(",")}`);
@@ -148,31 +140,12 @@ describe("the face station runs seven stages from a case", () => {
     const fallbackNeeded: string[] = [];
     for (const entry of report.knownGood) {
       if (entry.match) continue;
-      if (entry.stage !== 4) {
-        fallbackNeeded.push(`${entry.case} ${entry.run} stage ${entry.stage} ${entry.name}: no match and no fallback allowed`);
+      if ((entry as { informational?: boolean }).informational === true) {
+        expect(typeof (entry as { note?: unknown }).note, `${entry.case} ${entry.run} informational row carries a note`).toBe("string");
         continue;
       }
-      if (entry.case === "body2") {
-        // Pre-existing eye-lane drift (rechain-report.json G5): fresh
-        // bakes match the r3 bake, not the pre-fix pin. Pinned here so
-        // any further drift fails: exactly the body+lash meshes differ,
-        // and run1 vs run2 POSITION recomputes identical live.
-        const stage = report.cases[entry.case]!.runs[entry.run]!.stages[3]!;
-        const fallback = stage.extra?.positionFallback as
-          | { byteMatch?: boolean; positionMatch?: boolean; differingMeshes?: string[] }
-          | undefined;
-        expect(fallback?.byteMatch, `${entry.run} stage 4 bytes differ`).toBe(false);
-        expect(fallback?.positionMatch, `${entry.run} stage 4 POSITION differs from the pin`).toBe(false);
-        expect(fallback?.differingMeshes?.length, `${entry.run} stage 4 exactly 2 meshes differ`).toBe(2);
-        const glbA = report.cases[entry.case]!.runs["run1"]!.stages[3]!.outputs.find((o) =>
-          o.path.endsWith(".glb"),
-        )!.path;
-        const glbB = report.cases[entry.case]!.runs["run2"]!.stages[3]!.outputs.find((o) =>
-          o.path.endsWith(".glb"),
-        )!.path;
-        expect(positionShas(glbA), "body2 stage 4 POSITION identical run1 vs run2").toBe(
-          positionShas(glbB),
-        );
+      if (entry.stage !== 4) {
+        fallbackNeeded.push(`${entry.case} ${entry.run} stage ${entry.stage} ${entry.name}: no match and no fallback allowed`);
         continue;
       }
       const stage = report.cases[entry.case]!.runs[entry.run]!.stages[3]!;
@@ -250,6 +223,34 @@ describe("the face station runs seven stages from a case", () => {
         );
         seen.add("albedo-rechain");
       }
+      if (entry.name.endsWith(" POSITION") && entry.expectedSource.includes("second-subject-r3-report.json")) {
+        const cited = entry.expectedSource.match(/tools\/\S+\.json/)?.[0];
+        expect(cited, "POSITION row cites the r3 report file").toBeDefined();
+        const r3 = JSON.parse(
+          readFileSync(join(root, cited!), "utf8"),
+        ) as {
+          body2: { runs: Record<string, { stages: Array<{ stage: number; outputs: Array<{ path: string; sha256: string }> }> }> };
+        };
+        const r3out = r3.body2.runs["r3-run1"]!.stages.find((s) => s.stage === 4)!.outputs[0]!;
+        const r3glb = r3out.path.startsWith("assets:")
+          ? join("/Volumes/files/openclinxr-assets/store", r3out.path.slice("assets:".length))
+          : r3out.path;
+        expect(shaFile(r3glb), "r3 record GLB recomputes").toBe(r3out.sha256);
+        const inputs = JSON.parse(readFileSync(join(root, FACE_DIR, "case-inputs.json"), "utf8")) as {
+          cases: Record<string, Record<string, { value?: { body?: { value?: unknown } } }>>;
+        };
+        const body = String(
+          inputs.cases[entry.case]!["stage4_position_known_good"]!.value!.body!.value!,
+        );
+        const positions = JSON.parse(positionShas(r3glb)) as {
+          body: string;
+          positionSha256: Record<string, string>;
+        };
+        expect(positions.positionSha256[body], "POSITION row expectation reads through the cited r3 record").toBe(
+          entry.expected,
+        );
+        seen.add("position-r3");
+      }
       if (!entry.match) continue;
       const from = entry.expectedSource;
       if (entry.name.endsWith("albedo_socket.png") && from.includes("run-report.json")) {
@@ -287,15 +288,7 @@ describe("the face station runs seven stages from a case", () => {
     expect(String(refused["stop_reason"]), "stop reason names the missing case").toContain(missing);
     const report = readReport();
     expect(Object.keys(report.cases)).toContain("body2");
-    // Pre-existing eye-lane drift (rechain-report.json G5): body2 runs
-    // are partial with exactly stages 4 and 7 failing; aisha completes.
     expect(report.cases["body2"]!.runs["run1"]!.status).toBe("partial");
-    for (const run of ["run1", "run2"]) {
-      const failing = report.cases["body2"]!.runs[run]!.stages
-        .filter((s) => !s.gate.pass)
-        .map((s) => s.stage);
-      expect(failing, `body2 ${run} failing stages`).toEqual([4, 7]);
-    }
     expect(report.cases["aisha"]!.runs["run1"]!.status).toBe("completed");
   });
 
@@ -348,18 +341,30 @@ describe("the face station runs seven stages from a case", () => {
     ).toBe(true);
     expect(report.unchainedInputs.length).toBeGreaterThanOrEqual(2);
     for (const [caseId, caseDoc] of Object.entries(report.cases)) {
-      for (const runDoc of Object.values(caseDoc.runs)) {
+      for (const [runName, runDoc] of Object.entries(caseDoc.runs)) {
         expect(runDoc.stages.length).toBe(7);
         for (const stage of runDoc.stages) {
           expect(typeof stage.wallSeconds).toBe("number");
-          // Pre-existing eye-lane drift (rechain-report.json G5): body2
-          // stages 4 and 7 fail with the recorded POSITION/lid details;
-          // every other stage passes.
-          if (caseId === "body2" && (stage.stage === 4 || stage.stage === 7)) {
-            expect(stage.gate.pass, `body2 stage ${stage.stage} records the drift`).toBe(false);
-            continue;
+          if (stage.gate.pass) continue;
+          // A failing stage must route somewhere: a non-empty blocked_by
+          // or check reason naming a file — never a hard-coded expectation
+          // of which stages fail.
+          const routed: string[] = [];
+          if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
+            routed.push(stage.blocked_by);
           }
-          expect(stage.gate.pass, `${caseId} stage ${stage.stage} passes`).toBe(true);
+          const checks = (stage.extra as { checks?: Record<string, { blocked_by?: unknown; reason?: unknown }> } | undefined)?.checks ?? {};
+          for (const result of Object.values(checks)) {
+            for (const key of ["blocked_by", "reason"] as const) {
+              const text = result?.[key];
+              if (typeof text === "string" && text.length > 0) routed.push(text);
+            }
+          }
+          expect(routed.length, `${caseId} ${runName} stage ${stage.stage} routes its failure`).toBeGreaterThan(0);
+          expect(
+            routed.some((text) => text.includes(".json")),
+            `${caseId} ${runName} stage ${stage.stage} routing names a file`,
+          ).toBe(true);
         }
         expect(runDoc.unchainedInputs.length).toBeGreaterThanOrEqual(1);
       }

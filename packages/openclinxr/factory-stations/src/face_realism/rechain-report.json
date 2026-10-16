@@ -1133,14 +1133,19 @@
    "from": "c4f032155eab8c5727ca9ac8ab798acad012529c02234d8b614d6f4ff57a71f6",
    "to": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db"
   },
-  "stage4Body2PreExisting": {
-   "status": "FAIL (pre-existing, not this card)",
+  "stage4Body2H1": {
+   "status": "PASS via the station's own post-canthus record (H1 fix)",
    "evidence": [
-    "fresh bake body+lash POSITION == r3-run1 bake (mine==r3), both differ from the pre-fix pin lid-conform-any/body2-lidconform.glb",
-    "body mesh 922/38995 verts moved >0.01mm, max 1.389mm, mean 0.168mm (lid-region re-seating scale)",
-    "r3 already recorded s4 F with the same signature (S/st-r3/RESULT.md); old tracked runs predate the eye-lane fixes in HEAD",
+    "known-good is the r3-run1 bake POSITION map (second-subject-r3-report.json:body2.runs.r3-run1.stages[3]); per-mesh POSITION compared as the fallback does",
+    "pre-fix any-subject pin kept as an informational row only (stale since 838595e7c; eye lane re-pin), never asserted",
+    "body mesh 922/38995 verts moved >0.01mm vs the pre-fix pin, max 1.389mm, mean 0.168mm (lid-region re-seating scale)",
     "stage 4 consumes no stage-3 output; this card changes no eye/materializer/pin file"
    ]
+  },
+  "stage7Body2H1": {
+   "status": "FAIL routed, not hard-coded (H1 fix)",
+   "blocked_by": "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)",
+   "note": "lid G1 still compares against the stale base; every failing body2 stage carries a file-naming blocked_by/reason"
   }
  },
  "sweepGNote": "regional-chroma sweepG socket 4e8b36305aa30fce751e5ba836bbfa5afec83af784476a9458695c79f04befe2 reproduced by the station chain before beard",

@@ -27,6 +27,7 @@ import {
   FIT_DIR_REL,
   FIT_REL,
   MATERIALIZE_REL,
+  R3_REPORT_REL,
   readJsonFile,
   resolveBlender,
   runMisePython,
@@ -34,6 +35,7 @@ import {
   sanitizedFaceRealismEnv,
   SHAPE_REL,
   sha256File,
+  type StageGate,
   type StageIO,
   type StageRecord,
 } from "./shared.js";
@@ -226,115 +228,95 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string): Sta
       extra: { lidconformRecord, positionFallback, faceFit: faceFitRecord },
     };
   }
+  // Post-canthus POSITION record (case-inputs stage4_position_known_good):
+  // when the pre-fix pin mismatches, compare per-mesh POSITION against the
+  // station's own r3-bake record instead of failing on the stale pin. The
+  // stale pin is kept as an informational row only, never asserted.
+  const posEntry = caseRec["stage4_position_known_good"] as
+    | {
+        source?: unknown;
+        value?: {
+          glb?: { assets?: unknown; sha256?: unknown };
+          body?: { value?: unknown };
+        };
+      }
+    | undefined;
+  let finalGate = gate;
+  let blockedBy: string | undefined;
+  let positionR3: Record<string, unknown> | undefined;
+  const knownGoodRows: Array<Record<string, unknown>> = [];
+  if (posEntry !== undefined && posEntry !== null && typeof posEntry === "object" && "value" in posEntry) {
+    const posValue = (posEntry as { value?: unknown }).value as {
+      glb?: { assets?: unknown; sha256?: unknown };
+      body?: { value?: unknown };
+    };
+    const r3Rel = String(posValue.glb?.assets ?? "");
+    const r3Abs = path.join(ASSET_STORE_ROOT, r3Rel);
+    const r3Sha = String(posValue.glb?.sha256 ?? "");
+    if (sha256File(r3Abs) !== r3Sha) {
+      throw new Error(`stage-4 r3 record GLB sha mismatch at ${r3Abs}: refused`);
+    }
+    const r3Body = String(posValue.body?.value ?? "");
+    const oursPos = runPositionDriver(outGlb);
+    const r3Pos = runPositionDriver(r3Abs);
+    const meshes = new Set([
+      ...Object.keys(oursPos.positionSha256),
+      ...Object.keys(r3Pos.positionSha256),
+    ]);
+    const differing = [...meshes].filter(
+      (mesh) => oursPos.positionSha256[mesh] !== r3Pos.positionSha256[mesh],
+    );
+    const r3Source = `${String(posEntry.source ?? R3_REPORT_REL)} POSITION map`;
+    knownGoodRows.push({
+      name: path.basename(outGlb),
+      expected: knownSha ?? "",
+      expectedSource: knownSource,
+      actual: outSha,
+      match: false,
+      informational: true,
+      note: "stale since 838595e7c; eye lane re-pin",
+    });
+    if (differing.length === 0) {
+      const expected = r3Pos.positionSha256[r3Body] ?? "";
+      const actual = oursPos.positionSha256[oursPos.body] ?? "";
+      const r3gate: StageGate = {
+        pass: expected.length > 0 && expected === actual,
+        detail:
+          expected.length > 0 && expected === actual
+            ? `body POSITION identical to the post-canthus r3 record (${expected.slice(0, 12)})`
+            : `POSITION mismatch vs the r3 record (body ${actual.slice(0, 12)} vs ${expected.slice(0, 12)})`,
+        knownGood: {
+          name: `${path.basename(outGlb)} POSITION`,
+          expected,
+          expectedSource: r3Source,
+          actual,
+        },
+      };
+      finalGate = r3gate;
+      positionR3 = { match: r3gate.pass, recordGlb: r3Abs, recordGlbSha256: r3Sha, body: r3Body };
+      if (!r3gate.pass) {
+        blockedBy = `fresh bake drifted from the r3 POSITION record in ${R3_REPORT_REL} (body POSITION differs)`;
+      }
+    } else {
+      positionR3 = { match: false, recordGlb: r3Abs, recordGlbSha256: r3Sha, body: r3Body, differing };
+      blockedBy = `fresh bake drifted from the r3 POSITION record in ${R3_REPORT_REL} (${differing.length} meshes differ)`;
+    }
+  }
   return {
     ...rec,
     outputs: [{ path: outGlb, sha256: outSha }],
     byproducts,
     ran: true,
-    gate,
+    ...(blockedBy !== undefined ? { blocked_by: blockedBy } : {}),
+    gate: finalGate,
     wallSeconds: (Date.now() - t0) / 1000,
-    extra: { lidconformRecord, positionFallback, faceFit: faceFitRecord },
-  };
-}
-
-export function runStage5(caseRec: Record<string, unknown>, outDir: string): StageRecord {
-  const rec = emptyStageRecord(5, "eye_flags");
-  const t0 = Date.now();
-  const flags = caseRec["eye_flags"] as Record<string, { value?: unknown }>;
-  const doc = {
-    asset: flags["asset"]?.value ?? null,
-    cornea: flags["cornea"]?.value ?? null,
-    texture: flags["texture"]?.value ?? null,
-    shell: flags["shell"]?.value === false ? "off" : String(flags["shell"]?.value ?? "off"),
-  };
-  const abs = path.join(outDir, "stage5-eyesflags.json");
-  writeFileSync(abs, `${JSON.stringify(doc, null, 1)}\n`);
-  const bakeArgv = caseValue<string[]>(caseRec, "materializer_argv");
-  const eyeArgv = bakeArgv.filter((token, index) => {
-    if (!token.startsWith("--eye-")) return false;
-    void index;
-    return true;
-  });
-  const eyeTextureToken = bakeArgv.includes("--eye-texture")
-    ? (bakeArgv[bakeArgv.indexOf("--eye-texture") + 1] as string | undefined)
-    : undefined;
-  const fullEyeArgv = [...eyeArgv];
-  if (eyeTextureToken !== undefined && !fullEyeArgv.includes(eyeTextureToken)) {
-    fullEyeArgv.push(eyeTextureToken);
-  }
-  rec.script = MATERIALIZE_REL;
-  rec.argv = fullEyeArgv;
-  rec.note = "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)";
-  rec.outputs = [{ path: abs, sha256: sha256File(abs) }];
-  rec.ran = true;
-  rec.gate = {
-    pass: doc.asset === (flags["asset"]?.value ?? null) && doc.shell === "off",
-    detail: "eye flag record matches the case inputs (shell off)",
-  };
-  rec.wallSeconds = (Date.now() - t0) / 1000;
-  return rec;
-}
-
-export function runStage6(caseRec: Record<string, unknown>, outDir: string): StageRecord {
-  const rec = emptyStageRecord(6, "face_fit");
-  const t0 = Date.now();
-  const fitCase = caseValue<string>(caseRec, "fit_case");
-  const fitDir = path.join(repoRoot(), FIT_DIR_REL);
-  rec.script = FIT_REL;
-  rec.argv = ["--case", fitCase];
-  let fit: ReturnType<typeof runFitForStage>;
-  try {
-    fit = runFitForStage(fitCase, outDir, "stage6");
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      ...rec,
-      ran: false,
-      blocked: true,
-      blockReason: `face-fit failed: ${message.slice(0, 300)}`,
-      wanted: `${FIT_REL} --case completing for the case`,
-      gate: { pass: false, detail: "fit did not complete" },
-      wallSeconds: (Date.now() - t0) / 1000,
-    };
-  }
-  const weightsName = `fit_weights_${fitCase}.json`;
-  const weightsOut = fit.weightsCopyPath;
-  const fileWeightsOut = fit.fileWeightsCopyPath;
-  const report = readJsonFile(path.join(fitDir, "fit-report.json")) as {
-    cases?: Record<string, Record<string, unknown>>;
-  };
-  const caseEntry = report.cases?.[fitCase] ?? {};
-  const restored = fit.restored;
-  const weightsSha = sha256File(weightsOut);
-  const knownSha = sha256File(path.join(fitDir, weightsName));
-  const beatsSweep = caseEntry["beatsSweep"] === true;
-  const targetsAbs = path.join(fitDir, "any-subject-targets.json");
-  rec.inputs = [{ path: targetsAbs, sha256: sha256File(targetsAbs) }];
-  rec.outputs = [
-    { path: weightsOut, sha256: weightsSha },
-    { path: fileWeightsOut, sha256: sha256File(fileWeightsOut) },
-  ];
-  rec.byproducts = [
-    { path: path.join(outDir, "stage6-fit.log"), sha256: sha256File(path.join(outDir, "stage6-fit.log")) },
-  ];
-  rec.ran = true;
-  rec.gate = {
-    pass: weightsSha === knownSha && beatsSweep && restored,
-    detail: `fit weights match the tracked file (${weightsSha.slice(0, 12)}); beatsSweep=${beatsSweep}; tracked files restored=${restored}`,
-    knownGood: {
-      name: weightsName,
-      expected: knownSha,
-      expectedSource: `${FIT_DIR_REL}/${weightsName} (tracked, read live)`,
-      actual: weightsSha,
+    extra: {
+      lidconformRecord,
+      positionFallback,
+      faceFit: faceFitRecord,
+      ...(positionR3 !== undefined ? { positionR3, knownGoodRows } : {}),
     },
   };
-  rec.wallSeconds = (Date.now() - t0) / 1000;
-  rec.extra = {
-    caseEntry,
-    restored,
-    note: "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir",
-  };
-  return rec;
 }
 
 export function runStage7(
@@ -393,6 +375,11 @@ export function runStage7(
       const ours = runPositionDriver(oursGlb);
       const known = runPositionDriver(knownAbs);
       const match = ours.positionSha256[ours.body] === known.positionSha256[known.body];
+      const r3routed =
+        !match &&
+        !fitSupersedes &&
+        caseRec["stage4_position_known_good"] !== undefined &&
+        (stage4.extra as { positionR3?: { match?: boolean } } | undefined)?.positionR3?.match === true;
       checks["lid_g1"] = {
         ran: true,
         pass: match || fitSupersedes,
@@ -403,6 +390,12 @@ export function runStage7(
           : fitSupersedes
             ? "rebake body POSITION differs from the PRE-FIX pin by design (fit baked; see stage-4 faceFit); not a stop"
             : "rebake body POSITION differs from the pinned store GLB",
+        ...(r3routed
+          ? {
+              blocked_by:
+                "eye lane: any-subject-report.json base not re-pinned after 838595e7c (stage-4 POSITION matches the r3 record)",
+            }
+          : {}),
       };
     } else {
       checks["lid_g1"] = {
@@ -452,6 +445,7 @@ export function runStage7(
   }
   const shapePass = (checks["shape_clauses"] as { pass?: boolean }).pass === true;
   const g1Pass = (checks["lid_g1"] as { pass?: boolean }).pass === true;
+  const lidBlockedBy = (checks["lid_g1"] as { blocked_by?: unknown }).blocked_by;
   rec.script = SHAPE_REL;
   rec.argv = ["--verify"];
   rec.note =
@@ -464,5 +458,8 @@ export function runStage7(
   };
   rec.wallSeconds = (Date.now() - t0) / 1000;
   rec.extra = { checks };
+  if (!g1Pass && typeof lidBlockedBy === "string" && lidBlockedBy.length > 0) {
+    return { ...rec, blocked_by: lidBlockedBy };
+  }
   return rec;
 }

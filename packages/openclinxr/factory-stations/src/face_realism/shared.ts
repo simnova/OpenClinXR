@@ -39,6 +39,7 @@ export type StageRecord = {
   ran: boolean;
   blocked: boolean;
   blockReason?: string;
+  blocked_by?: string;
   wanted?: string;
   gate: StageGate;
   wallSeconds: number;
@@ -69,6 +70,8 @@ export const FACE_GATE_MODEL_REL = "tools/openclinxr/evidence/landmarks/models/f
 export const RUN_REPORT_REL = "packages/openclinxr/factory-stations/src/face_realism/run-report.json";
 export const R2_REPORT_REL =
   "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json";
+export const R3_REPORT_REL =
+  "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json";
 export const CASE_INPUTS_REL =
   "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json";
 
