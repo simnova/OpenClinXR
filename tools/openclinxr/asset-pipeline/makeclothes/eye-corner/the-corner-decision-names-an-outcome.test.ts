@@ -11,13 +11,16 @@ import { describe, expect, it } from "vitest";
  * body2) and records per subject {g1Base, g1Fill, g2FillOutsidePx,
  * renders+sha256} plus one decision in {land, rework, drop, other}.
  *
- * Rules (from the card):
+ * Rules (from the card as corrected by HANDBACK 1):
  * - land: fill >= base on every outer crop AND > base on >= 1 far-eye
  *   crop (yaw40-L-outer, yaw-40-R-outer) AND G2 0 px on both subjects.
- * - drop: the conformed base already reaches frontal on the outer crops,
- *   OR the fill changes no outer crop by more than the run-to-run noise.
  * - rework: the fill helps (any outer fill > base) but G2 fails
  *   (unionOutside > 0) or it visibly floats off the conformed lid.
+ * - drop: land fails and rework triggers are absent and the grader saw
+ *   no visible difference (graderVerdict === "no visible difference").
+ *   (The original noise-clause drop rule counted any 1px change as a
+ *   change because run-to-run noise is 0; the grader's native-pixel
+ *   verdict replaces it.)
  * - other: anything else, explained in `reason`.
  *
  * The test recomputes the outcome from the recorded numbers and asserts
@@ -51,19 +54,20 @@ type Subject = {
 function decision(): {
   decision: string;
   reason: string;
+  graderVerdict: string;
   subjects: Record<string, Subject>;
   noise: { maxAbsG1Delta: number };
 } {
   return JSON.parse(readFileSync(DECISION, "utf8")) as {
     decision: string;
     reason: string;
+    graderVerdict: string;
     subjects: Record<string, Subject>;
     noise: { maxAbsG1Delta: number };
   };
 }
 
 function recompute(d: ReturnType<typeof decision>): string {
-  const noise = d.noise.maxAbsG1Delta;
   const g2ok = SUBJECTS.every((s) => d.subjects[s].g2FillOutsidePx === 0);
   const landPer = (s: string): boolean =>
     VIEWS.every((v) =>
@@ -77,25 +81,6 @@ function recompute(d: ReturnType<typeof decision>): string {
     );
   const land =
     g2ok && SUBJECTS.every(landPer) && SUBJECTS.some(farEyeGain);
-  const baseReachesFrontal = SUBJECTS.every((s) =>
-    (["yaw40", "yaw-40"] as const).every((v) =>
-      SIDES.every(
-        (side) =>
-          d.subjects[s].g1Base[v][side].frac >= d.subjects[s].g1Base.front[side].frac,
-      ),
-    ),
-  );
-  const withinNoise = SUBJECTS.every((s) =>
-    VIEWS.every((v) =>
-      SIDES.every(
-        (side) =>
-          Math.abs(
-            d.subjects[s].g1Fill[v][side].frac - d.subjects[s].g1Base[v][side].frac,
-          ) <= noise,
-      ),
-    ),
-  );
-  const drop = baseReachesFrontal || withinNoise;
   const helps = SUBJECTS.some((s) =>
     VIEWS.some((v) =>
       SIDES.some(
@@ -106,9 +91,11 @@ function recompute(d: ReturnType<typeof decision>): string {
   const rework =
     helps &&
     SUBJECTS.some((s) => d.subjects[s].g2FillOutsidePx > 0 || d.subjects[s].floatsOffLid);
+  const drop =
+    !land && !rework && d.graderVerdict === "no visible difference";
   if (land) return "land";
-  if (drop) return "drop";
   if (rework) return "rework";
+  if (drop) return "drop";
   return "other";
 }
 
@@ -135,6 +122,7 @@ describe("the corner decision names an outcome", () => {
       }
     }
     expect(["land", "rework", "drop", "other"]).toContain(d.decision);
+    expect(d.graderVerdict).toBe("no visible difference");
     expect(d.reason.length).toBeGreaterThan(50);
   });
 

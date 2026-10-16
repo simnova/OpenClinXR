@@ -501,6 +501,20 @@
    ]
   }
  },
- "decision": "other",
- "reason": "do-not-land. G1 NOT_MET both: aisha fill far-eye yaw40-L-out 0.0201 (8/399px, bg 0.36) vs frontal 0.6066, yaw-40-R-out 0.0 vs 0.5386; body2 0.0256 (1/39px, bg 0.92) vs 0.4164, 0.0 vs 0.5161. land fails: aisha yaw40-L-out fill 0.0201 < base 0.0251 (10/399px), noise 0. drop fails: bases far below frontal and 6/8 yaw-outer cells change by >0. rework triggers absent: G2 union 0 both (band 2/3px on-seam), CW3 -0.005/-0.0049, CW1 >=0.986/0.993, no float in 400px crops or blink. Grazing far-eye sixths are 36-94% background past the silhouette (perspective collapse, same mechanism as eye3): body2 gains 0->1px far-eye and +6/+14px near-eye do not justify landing with an Aisha far-eye regression. Fill stays store-only; parameterised cross-subject tools stay."
+ "decision": "drop",
+ "reason": "drop the fill. land fails: aisha far-eye yaw40-L-outer fill 0.0201 (8/399px) < base 0.0251 (10/399px), a 2px regression with run-to-run noise 0. rework triggers absent: G2 union 0px both subjects (band 2/3px on-seam), CW3 -0.005/-0.0049, CW1 >=0.986/0.993, no float in 400px crops or blink. graderVerdict no visible difference: orchestrator compared with/without 400px crops at native pixels on both subjects and saw no visible difference in any pair; max far-eye outer-cell change is 2px (aisha yaw40-L 10->8, yaw-40-R 0->0; body2 yaw40-L 0->1, yaw-40-R 0->0) against 33-51 visible corner px (eye-corner derive report tsk_c259331546dd74df, commit 10f5c9065, G1.tissueConsistency.fill.visiblePx yaw views 42/33/50/51). G1 NOT_MET both either way. Fill stays store-only.",
+ "graderVerdict": "no visible difference",
+ "graderCropsCompared": [
+  "assets:corner-decide/aisha/eyecorner-400crop-base-yaw40-R.png",
+  "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw40-R.png",
+  "assets:corner-decide/body2/eyecorner-400crop-base-front-L.png",
+  "assets:corner-decide/body2/eyecorner-400crop-fill-front-L.png"
+ ],
+ "referenceTissueCounts": {
+  "source": "eye-corner derive report tsk_c259331546dd74df (commit 10f5c9065), G1.tissueConsistency.fill.visiblePx",
+  "yaw25": 42,
+  "yaw-25": 33,
+  "yaw40": 50,
+  "yaw-40": 51
+ }
 }
