@@ -10,6 +10,11 @@ import { describe, expect, it } from "vitest";
 // module is entrypoint-reachable (via isolated-subject-lab.js) and the
 // ceiling (10) must not rise, so the fix is pinned by source hash + source
 // text instead of by import.
+// FIXED (tsk_fd7dedb8dc543758): the product-path globe map is no longer a
+// generic-room PMREM — rig-key-globe-env.ts builds it from the product rig's
+// own lights. The RoomEnvironment clause below is converted to an inverted
+// guard (it fails if the generic room returns); the studio path keeps its
+// own room. moduleSha256 in catchlight-report.json tracks the edited source.
 import {
   centroid,
   connectedWhere,
@@ -99,7 +104,15 @@ describe("the cornea env intensity changes the globe", () => {
     const fnIdx = src.indexOf("export async function applyProductRig");
     expect(fnIdx, "applyProductRig present").toBeGreaterThanOrEqual(0);
     const body = src.slice(fnIdx);
-    expect(body, "PMREM RoomEnvironment source reused").toMatch(/new RoomEnvironment\(\)/);
+    // FIXED (tsk_fd7dedb8dc543758): the generic-room PMREM no longer feeds
+    // the globe map — rig-key-globe-env.ts builds it from the product rig's
+    // own lights. Inverted guard: a generic room on this path fails the card.
+    expect(body, "tsk_fd7dedb8dc543758 forbids the generic room on the product path (rig-built env owns it)").not.toMatch(
+      /new RoomEnvironment\(\)/,
+    );
+    expect(body, "tsk_fd7dedb8dc543758 rig-built globe map on the product path").toMatch(
+      /buildProductRigGlobeEnvMap/,
+    );
     expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
     expect(body, "h1 iris-disc roughnessMap present").toMatch(/roughnessMap = roughDisc/);
     expect(body, "disc texel pinned").toMatch(/ROUGH_DISC_INNER/);

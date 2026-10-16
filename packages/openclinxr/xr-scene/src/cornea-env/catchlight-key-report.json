@@ -1,0 +1,1058 @@
+{
+ "card": "tsk_fd7dedb8dc543758",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchkey",
+ "module": "packages/openclinxr/xr-scene/src/cornea-env/rig-key-globe-env.ts",
+ "moduleSha256": "e2a2d7d9b94d54954b5851345ab1b1271e960a3addba3a87c96af6cde095e9f6",
+ "callSite": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+ "callSiteSha256": "92b82b2453ae6d648967ac9eb04eb6f2f069828255d56b9c8ab6075c6c744733",
+ "rig": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json",
+ "rigSha256": "c2de99cb6761cb2f0ed8e7bfe071d34559e0bff4d25a5302af27f02e77b2c617",
+ "rigKey": {
+  "name": "key",
+  "blender": [
+   0.0862,
+   -0.0523,
+   2.4
+  ],
+  "size": 2.16,
+  "energy": 124.6667,
+  "tempK": 5000
+ },
+ "washNy": {
+  "name": "wash_ny",
+  "blender": [
+   -0.0134,
+   -2.2,
+   1.325
+  ],
+  "size": 1.4575,
+  "energy": 36.0,
+  "tempK": 6500
+ },
+ "store": "/Volumes/files/openclinxr-assets/store/catchlight-key/",
+ "subjects": {
+  "aisha": {
+   "glb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+   "glbSha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+  },
+  "body2": {
+   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/body2-lidconform.glb",
+   "glbSha256": "f1136f3d60e7400aa6846f9000b541871f30484cdfde04de09f7b7ad184be16e"
+  }
+ },
+ "corneaFit": {
+  "aisha.L": {
+   "centre": [
+    -0.030779,
+    1.546155,
+    0.127409
+   ],
+   "R_mm": 12.2378,
+   "meanResid_mm": 0.1885,
+   "verts": 256
+  },
+  "aisha.R": {
+   "centre": [
+    0.030777,
+    1.546154,
+    0.127407
+   ],
+   "R_mm": 12.2395,
+   "meanResid_mm": 0.1844,
+   "verts": 268
+  },
+  "body2.L": {
+   "centre": [
+    -0.029851,
+    1.653319,
+    0.130675
+   ],
+   "R_mm": 12.237,
+   "meanResid_mm": 0.2502,
+   "verts": 256
+  },
+  "body2.R": {
+   "centre": [
+    0.02983,
+    1.653315,
+    0.130664
+   ],
+   "R_mm": 12.2493,
+   "meanResid_mm": 0.2466,
+   "verts": 268
+  },
+  "note": "patch follows the 12.24mm globe sphere, not a 7.8mm cap; prediction uses Gullstrand 7.8mm curvature with the apex located from the fit",
+  "gullstrandAnteriorR_mm": 7.8
+ },
+ "materialNote": "GLBs carry openclinxr_eye_cornea_mat on L/R cornea meshes, but the runtime scene exposes only mat_makeclothes_library_eyes_* (readback matched length 1 both subjects); the map lands on the globe only",
+ "envBuilder": {
+  "loci": [
+   "key",
+   "fill",
+   "wash_px",
+   "wash_nx",
+   "wash_py",
+   "wash_ny",
+   "spill"
+  ],
+  "areaRadiance": "energy/(size*size): key 124.6667/4.6656=26.72, washes 36/2.125=16.94",
+  "pointRadiance": "energy*0.01 capped 5 (overlay factor): fill 1.84, spill 0.28",
+  "sigma": 0.04,
+  "background": "black",
+  "replacement": "untagged directional within 1.0m of the re-anchored key takes the key record's size/radiance/colour to the twin locus"
+ },
+ "spotDefinition": "in-disc pixels with on-minus-off L* >= 25 (h1 diffSpot); iris circle = L*<45 comp x1.15; pupil_r = mean radial of L*<30 comp",
+ "eyes": {
+  "aisha.front.L": {
+   "seed": [
+    498,
+    707
+   ],
+   "iris": [
+    498.7,
+    707.6,
+    17.6
+   ],
+   "pupil_r": 14.9,
+   "sclera_n": 1619,
+   "pre_spot": [
+    497.9,
+    719.3,
+    80,
+    11.7
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    502.6,
+    687.1
+   ],
+   "key_theta_deg": 71.5,
+   "key_radius_px": 23.0,
+   "key_tol": 24.0,
+   "post_spot": [
+    498.8,
+    714.1,
+    229
+   ],
+   "post_maxD": 72.5,
+   "key_dist": 27.2,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 20.9,
+   "wash_pred": [
+    500.5,
+    705.6
+   ],
+   "wash_radius_px": 10.3,
+   "wash_tol": 11.3,
+   "wash_dist": 8.6,
+   "wash_verdict": "pass",
+   "halo": {
+    "post_n": 337,
+    "pre_n": 61,
+    "post_on_sclera": 3,
+    "post_maxR": 54.8
+   }
+  },
+  "aisha.front.R": {
+   "seed": [
+    780,
+    708
+   ],
+   "iris": [
+    780.2,
+    708.3,
+    17.5
+   ],
+   "pupil_r": 14.9,
+   "sclera_n": 1683,
+   "pre_spot": [
+    783.2,
+    719.3,
+    103,
+    11.4
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    779.9,
+    687.1
+   ],
+   "key_theta_deg": 71.6,
+   "key_radius_px": 23.1,
+   "key_tol": 24.1,
+   "post_spot": [
+    780.8,
+    716.1,
+    221
+   ],
+   "post_maxD": 73.1,
+   "key_dist": 29.1,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 21.2,
+   "wash_pred": [
+    779.3,
+    705.6
+   ],
+   "wash_radius_px": 10.3,
+   "wash_tol": 11.3,
+   "wash_dist": 10.6,
+   "wash_verdict": "pass",
+   "halo": {
+    "post_n": 375,
+    "pre_n": 53,
+    "post_on_sclera": 0,
+    "post_maxR": 54.5
+   }
+  },
+  "aisha.yaw25.L": {
+   "seed": [
+    371,
+    701
+   ],
+   "iris": [
+    371.7,
+    701.1,
+    22.2
+   ],
+   "pupil_r": 13.7,
+   "sclera_n": 3005,
+   "pre_spot": [
+    372.0,
+    710.4,
+    98,
+    9.4
+   ],
+   "pre_maxD": 87.8,
+   "key_pred": [
+    398.9,
+    685.8
+   ],
+   "key_theta_deg": 71.5,
+   "key_radius_px": 22.4,
+   "key_tol": 23.4,
+   "post_spot": [
+    372.7,
+    707.9,
+    248
+   ],
+   "post_maxD": 73.1,
+   "key_dist": 34.2,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 31.2,
+   "wash_pred": [
+    392.1,
+    703.7
+   ],
+   "wash_radius_px": 10.0,
+   "wash_tol": 11.0,
+   "wash_dist": 19.9,
+   "wash_verdict": "fail",
+   "halo": {
+    "post_n": 104,
+    "pre_n": 27,
+    "post_on_sclera": 0,
+    "post_maxR": 28.5
+   }
+  },
+  "aisha.yaw25.R": {
+   "seed": [
+    624,
+    708
+   ],
+   "iris": [
+    624.9,
+    708.4,
+    16.8
+   ],
+   "pupil_r": 14.3,
+   "sclera_n": 2950,
+   "pre_spot": [
+    617.9,
+    716.1,
+    124,
+    10.4
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    643.5,
+    687.5
+   ],
+   "key_theta_deg": 71.6,
+   "key_radius_px": 23.3,
+   "key_tol": 24.3,
+   "post_spot": [
+    617.2,
+    713.2,
+    233
+   ],
+   "post_maxD": 72.6,
+   "key_dist": 36.8,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 28.0,
+   "wash_pred": [
+    637.7,
+    706.2
+   ],
+   "wash_radius_px": 10.4,
+   "wash_tol": 11.4,
+   "wash_dist": 21.6,
+   "wash_verdict": "fail",
+   "halo": {
+    "post_n": 185,
+    "pre_n": 56,
+    "post_on_sclera": 0,
+    "post_maxR": 23.9
+   }
+  },
+  "body2.front.L": {
+   "seed": [
+    497,
+    682
+   ],
+   "iris": [
+    497.5,
+    682.3,
+    16.8
+   ],
+   "pupil_r": 14.4,
+   "sclera_n": 3740,
+   "pre_spot": [
+    492.8,
+    688.1,
+    119,
+    7.4
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    504.8,
+    652.4
+   ],
+   "key_theta_deg": 71.9,
+   "key_radius_px": 23.5,
+   "key_tol": 24.5,
+   "post_spot": [
+    492.2,
+    687.5,
+    223
+   ],
+   "post_maxD": 72.6,
+   "key_dist": 37.4,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 30.8,
+   "wash_pred": [
+    502.7,
+    671.2
+   ],
+   "wash_radius_px": 10.5,
+   "wash_tol": 11.5,
+   "wash_dist": 19.4,
+   "wash_verdict": "fail",
+   "halo": {
+    "post_n": 61,
+    "pre_n": 0,
+    "post_on_sclera": 0,
+    "post_maxR": 48.8
+   }
+  },
+  "body2.front.R": {
+   "seed": [
+    781,
+    682
+   ],
+   "iris": [
+    781.5,
+    682.7,
+    17.1
+   ],
+   "pupil_r": 14.6,
+   "sclera_n": 3796,
+   "pre_spot": [
+    786.7,
+    687.9,
+    123,
+    7.3
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    777.7,
+    652.3
+   ],
+   "key_theta_deg": 72.0,
+   "key_radius_px": 23.5,
+   "key_tol": 24.5,
+   "post_spot": [
+    787.2,
+    687.4,
+    218
+   ],
+   "post_maxD": 72.6,
+   "key_dist": 36.4,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 30.7,
+   "wash_pred": [
+    777.1,
+    671.2
+   ],
+   "wash_radius_px": 10.5,
+   "wash_tol": 11.5,
+   "wash_dist": 19.1,
+   "wash_verdict": "fail",
+   "halo": {
+    "post_n": 78,
+    "pre_n": 0,
+    "post_on_sclera": 0,
+    "post_maxR": 48.9
+   }
+  },
+  "body2.yaw25.R": {
+   "seed": [
+    601,
+    678
+   ],
+   "iris": [
+    601.9,
+    678.3,
+    21.2
+   ],
+   "pupil_r": 17.5,
+   "sclera_n": 3732,
+   "pre_spot": [
+    601.3,
+    687.5,
+    111,
+    9.3
+   ],
+   "pre_maxD": 89.2,
+   "key_pred": [
+    621.2,
+    652.3
+   ],
+   "key_theta_deg": 72.0,
+   "key_radius_px": 23.7,
+   "key_tol": 24.7,
+   "post_spot": [
+    599.5,
+    686.5,
+    253
+   ],
+   "post_maxD": 72.8,
+   "key_dist": 40.5,
+   "key_verdict": "fail",
+   "fals_pred_off_pupil": 32.4,
+   "wash_pred": [
+    615.2,
+    671.4
+   ],
+   "wash_radius_px": 10.6,
+   "wash_tol": 11.6,
+   "wash_dist": 21.8,
+   "wash_verdict": "fail",
+   "halo": {
+    "post_n": 112,
+    "pre_n": 0,
+    "post_on_sclera": 0,
+    "post_maxR": 60.5
+   }
+  }
+ },
+ "g4": {
+  "skin": {
+   "aisha.front": {
+    "crops": {
+     "cheek": [
+      432,
+      800,
+      532,
+      880
+     ],
+     "forehead": [
+      560,
+      379,
+      720,
+      499
+     ]
+    },
+    "headBoxPx": [
+     220.23897746452087,
+     140.79808724886652,
+     1059.761022535479,
+     1139.2019127511335
+    ],
+    "cheek": {
+     "rect": [
+      432,
+      800,
+      532,
+      880
+     ],
+     "changed": 0,
+     "meanL_pre": 88.16,
+     "meanL_post": 88.16,
+     "verdict": "pass"
+    },
+    "forehead": {
+     "rect": [
+      560,
+      379,
+      720,
+      499
+     ],
+     "changed": 0,
+     "meanL_pre": 90.8,
+     "meanL_post": 90.8,
+     "verdict": "pass"
+    }
+   },
+   "aisha.yaw25": {
+    "crops": {
+     "cheek": [
+      359,
+      809,
+      459,
+      889
+     ],
+     "forehead": [
+      520,
+      370,
+      680,
+      490
+     ]
+    },
+    "headBoxPx": [
+     90.79969804524943,
+     118.10349575483961,
+     1110.1146339625898,
+     1161.8965042451603
+    ],
+    "cheek": {
+     "rect": [
+      359,
+      809,
+      459,
+      889
+     ],
+     "changed": 0,
+     "meanL_pre": 89.61,
+     "meanL_post": 89.61,
+     "verdict": "pass"
+    },
+    "forehead": {
+     "rect": [
+      520,
+      370,
+      680,
+      490
+     ],
+     "changed": 0,
+     "meanL_pre": 89.82,
+     "meanL_post": 89.82,
+     "verdict": "pass"
+    }
+   },
+   "body2.front": {
+    "crops": {
+     "cheek": [
+      434,
+      800,
+      534,
+      880
+     ],
+     "forehead": [
+      560,
+      379,
+      720,
+      499
+     ]
+    },
+    "headBoxPx": [
+     225.35876853972064,
+     140.79673527634426,
+     1054.6412314602794,
+     1139.2032647236558
+    ],
+    "cheek": {
+     "rect": [
+      434,
+      800,
+      534,
+      880
+     ],
+     "changed": 0,
+     "meanL_pre": 88.05,
+     "meanL_post": 88.05,
+     "verdict": "pass"
+    },
+    "forehead": {
+     "rect": [
+      560,
+      379,
+      720,
+      499
+     ],
+     "changed": 0,
+     "meanL_pre": 90.23,
+     "meanL_post": 90.23,
+     "verdict": "pass"
+    }
+   },
+   "body2.yaw25": {
+    "crops": {
+     "cheek": [
+      352,
+      808,
+      452,
+      888
+     ],
+     "forehead": [
+      515,
+      371,
+      675,
+      491
+     ]
+    },
+    "headBoxPx": [
+     80.21242659139801,
+     119.14624959806382,
+     1109.9876668528755,
+     1160.8537504019362
+    ],
+    "cheek": {
+     "rect": [
+      352,
+      808,
+      452,
+      888
+     ],
+     "changed": 0,
+     "meanL_pre": 89.0,
+     "meanL_post": 89.0,
+     "verdict": "pass"
+    },
+    "forehead": {
+     "rect": [
+      515,
+      371,
+      675,
+      491
+     ],
+     "changed": 0,
+     "meanL_pre": 89.22,
+     "meanL_post": 89.22,
+     "verdict": "pass"
+    }
+   }
+  },
+  "sclera": {
+   "aisha.front.L": {
+    "post06": 87.53,
+    "post00": 82.43,
+    "pre06": 85.23,
+    "dPost": 5.1,
+    "dPrePost06": 2.3,
+    "verdict": "fail"
+   },
+   "aisha.front.R": {
+    "post06": 87.38,
+    "post00": 82.08,
+    "pre06": 84.98,
+    "dPost": 5.31,
+    "dPrePost06": 2.4,
+    "verdict": "fail"
+   },
+   "aisha.yaw25.L": {
+    "post06": 86.09,
+    "post00": 83.7,
+    "pre06": 84.99,
+    "dPost": 2.39,
+    "dPrePost06": 1.1,
+    "verdict": "pass"
+   },
+   "aisha.yaw25.R": {
+    "post06": 85.67,
+    "post00": 82.91,
+    "pre06": 84.47,
+    "dPost": 2.75,
+    "dPrePost06": 1.2,
+    "verdict": "pass"
+   },
+   "body2.front.L": {
+    "post06": 85.29,
+    "post00": 82.66,
+    "pre06": 84.17,
+    "dPost": 2.63,
+    "dPrePost06": 1.12,
+    "verdict": "pass"
+   },
+   "body2.front.R": {
+    "post06": 84.1,
+    "post00": 81.41,
+    "pre06": 82.97,
+    "dPost": 2.69,
+    "dPrePost06": 1.12,
+    "verdict": "pass"
+   },
+   "body2.yaw25.R": {
+    "post06": 84.02,
+    "post00": 81.36,
+    "pre06": 82.9,
+    "dPost": 2.66,
+    "dPrePost06": 1.12,
+    "verdict": "pass"
+   }
+  }
+ },
+ "g2": {
+  "override": {
+   "directionals": [
+    {
+     "color": "#ffe4ce",
+     "intensity": 1.246667,
+     "position": [
+      0.5862,
+      1.4,
+      0.5523
+     ],
+     "relativeToHead": true
+    }
+   ],
+   "twinWorld": [
+    0.5862,
+    2.9611,
+    0.6167
+   ],
+   "keyWorld": [
+    0.0862,
+    2.9611,
+    0.6167
+   ],
+   "lateralShiftM": 0.5
+  },
+  "readback": {
+   "sourceCount": 7,
+   "sourceNames": [
+    "key+override",
+    "fill",
+    "wash_px",
+    "wash_nx",
+    "wash_py",
+    "wash_ny",
+    "spill"
+   ],
+   "keyHeadRelative": [
+    0.0862,
+    1.4,
+    0.5523
+   ],
+   "keyReplaced": true,
+   "replacementName": "key+override"
+  },
+  "aisha.front.L": {
+   "pred0": [
+    502.6,
+    687.1
+   ],
+   "pred1": [
+    509.2,
+    688.5
+   ],
+   "dPred": [
+    6.7,
+    1.4
+   ],
+   "meas0": [
+    498.7,
+    713.8,
+    234
+   ],
+   "meas1": [
+    496.9,
+    713.4,
+    235
+   ],
+   "dMeas": [
+    -1.9,
+    -0.4
+   ],
+   "directionCos": -1.0,
+   "motionPx": 1.94,
+   "verdict": "fail"
+  },
+  "aisha.front.R": {
+   "pred0": [
+    779.9,
+    687.1
+   ],
+   "pred1": [
+    786.8,
+    688.1
+   ],
+   "dPred": [
+    6.9,
+    1.0
+   ],
+   "meas0": [
+    781.0,
+    716.1,
+    226
+   ],
+   "meas1": [
+    779.3,
+    716.0,
+    245
+   ],
+   "dMeas": [
+    -1.7,
+    -0.1
+   ],
+   "directionCos": -0.996,
+   "motionPx": 1.7,
+   "verdict": "fail"
+  },
+  "aisha.yaw25.L": {
+   "pred0": [
+    398.9,
+    685.8
+   ],
+   "pred1": [
+    404.6,
+    688.1
+   ],
+   "dPred": [
+    5.7,
+    2.3
+   ],
+   "meas0": [
+    372.7,
+    707.9,
+    248
+   ],
+   "meas1": [
+    373.5,
+    707.4,
+    213
+   ],
+   "dMeas": [
+    0.8,
+    -0.4
+   ],
+   "directionCos": 0.662,
+   "motionPx": 0.89,
+   "verdict": "fail"
+  },
+  "aisha.yaw25.R": {
+   "pred0": [
+    643.5,
+    687.5
+   ],
+   "pred1": [
+    649.8,
+    689.6
+   ],
+   "dPred": [
+    6.3,
+    2.1
+   ],
+   "meas0": [
+    617.3,
+    713.2,
+    231
+   ],
+   "meas1": [
+    616.5,
+    712.4,
+    208
+   ],
+   "dMeas": [
+    -0.7,
+    -0.8
+   ],
+   "directionCos": -0.863,
+   "motionPx": 1.06,
+   "verdict": "fail"
+  }
+ },
+ "g3": true,
+ "probe": {
+  "roomEnvRestored": "probe-roomenv-ck-aisha-06-front.png",
+  "preShaMatch": true,
+  "probeVsPreChangedTotal": 0,
+  "verdict": "panel returns without the module"
+ },
+ "derivation": "Rig key at Blender (0.0862,-0.0523,2.4) -> three (0.0862,2.4,0.0523); cast (0,0.5,1) -> (0,1,-0.5); re-anchor delta=headCentre-castThree; key head-relative (0.0862,1.4,0.5523) (readback). From the eye the key sits ~70deg overhead. Convex-mirror sub-stellar point S=C+r*(V+K)/|V+K| with Gullstrand r=7.8mm (fit gives the 12.24mm globe, resid <0.25mm, so curvature uses 7.8 and the apex comes from the fit). Predicted key spot = upper limbus, under the upper lid; its visible remainder plus panel-edge streak stay <25 L*. The >=25 set is the frontal wash ring (wash_ny frontal at eye level, 16.94 radiance): static under a +0.5m key shift (G2 directionCos<0), Fresnel-skewed toward the lower limbus (measured 8-22px below sub-stellar points vs 10-24px tolerances). Restoring RoomEnvironment reproduces PRE bit-identically: the module alone moves the reflection.",
+ "renders": {
+  "post-ck-aisha-00-front.png": {
+   "png": "post-ck-aisha-00-front.png",
+   "sha256": "19d71d5463ef0bf8531bcc624b85c83f980bdb1bac578a8234656fd5556198b1"
+  },
+  "post-ck-aisha-00-shift-front.png": {
+   "png": "post-ck-aisha-00-shift-front.png",
+   "sha256": "9ef58b0a7435287161bf70b42b09acb93bfc58bf61a64f7bc8c2da1f832dc31c"
+  },
+  "post-ck-aisha-00-shift-yaw25.png": {
+   "png": "post-ck-aisha-00-shift-yaw25.png",
+   "sha256": "f8d77a9fc4e8f0c94ce88b845c1b46b8a3f10cb99fbdf4807fb3e25f12d615c4"
+  },
+  "post-ck-aisha-00-yaw25.png": {
+   "png": "post-ck-aisha-00-yaw25.png",
+   "sha256": "66b571d2cffa86963b7f7df60cfc85e66dcc497a187253e5e42e8e5519d0c30f"
+  },
+  "post-ck-aisha-06-front.png": {
+   "png": "post-ck-aisha-06-front.png",
+   "sha256": "93d247595f2536599286c31e85f12e9ac84dba616ac639f5aafabe86e6d88e5d"
+  },
+  "post-ck-aisha-06-shift-front.png": {
+   "png": "post-ck-aisha-06-shift-front.png",
+   "sha256": "98ee8480b5aa129cd6fdccf258de45b93636939ed38d8e765d3158a689ba89b9"
+  },
+  "post-ck-aisha-06-shift-yaw25.png": {
+   "png": "post-ck-aisha-06-shift-yaw25.png",
+   "sha256": "04e4a0a4f15d432a1de4973146985dfeb980812936716909c36ee40efd75c921"
+  },
+  "post-ck-aisha-06-yaw25.png": {
+   "png": "post-ck-aisha-06-yaw25.png",
+   "sha256": "ed01cd5dd5a401f8095a0fac97a057f0985036a20b3bc358d86679dc233f3eb6"
+  },
+  "post-ck-body2-00-front.png": {
+   "png": "post-ck-body2-00-front.png",
+   "sha256": "b409590dd781a7f85ef666a6b1787cbd17235fc3862059dcbbea48d4c120198b"
+  },
+  "post-ck-body2-00-yaw25.png": {
+   "png": "post-ck-body2-00-yaw25.png",
+   "sha256": "d6b8a6414ceefb6a39ca4294498d477842c2d0865fa5a7d438863192af02c4f4"
+  },
+  "post-ck-body2-06-front.png": {
+   "png": "post-ck-body2-06-front.png",
+   "sha256": "d29cb903f12b733f1db29daa4082df2ace659984163501d47c3171c5f8f61a3d"
+  },
+  "post-ck-body2-06-yaw25.png": {
+   "png": "post-ck-body2-06-yaw25.png",
+   "sha256": "8062bdc91a3c33eed60d7e0ce784ede36a6a88b34c3724c605cd62e75c41c708"
+  },
+  "pre-ck-aisha-00-front.png": {
+   "png": "pre-ck-aisha-00-front.png",
+   "sha256": "19d71d5463ef0bf8531bcc624b85c83f980bdb1bac578a8234656fd5556198b1"
+  },
+  "pre-ck-aisha-00-yaw25.png": {
+   "png": "pre-ck-aisha-00-yaw25.png",
+   "sha256": "66b571d2cffa86963b7f7df60cfc85e66dcc497a187253e5e42e8e5519d0c30f"
+  },
+  "pre-ck-aisha-06-front.png": {
+   "png": "pre-ck-aisha-06-front.png",
+   "sha256": "7a8c60bf39f012e2d5307ccd460691bb966817b1882a29f36b57df6cdb462592"
+  },
+  "pre-ck-aisha-06-yaw25.png": {
+   "png": "pre-ck-aisha-06-yaw25.png",
+   "sha256": "217c567cf466c924c4fd71bd356e45d661076440bfbf03054106b7482d7072ef"
+  },
+  "pre-ck-body2-00-front.png": {
+   "png": "pre-ck-body2-00-front.png",
+   "sha256": "b409590dd781a7f85ef666a6b1787cbd17235fc3862059dcbbea48d4c120198b"
+  },
+  "pre-ck-body2-00-yaw25.png": {
+   "png": "pre-ck-body2-00-yaw25.png",
+   "sha256": "d6b8a6414ceefb6a39ca4294498d477842c2d0865fa5a7d438863192af02c4f4"
+  },
+  "pre-ck-body2-06-front.png": {
+   "png": "pre-ck-body2-06-front.png",
+   "sha256": "4510d4a41f5bc597c77bf1e741f5a284ef48cb4f6ebb1564916c817a5128401e"
+  },
+  "pre-ck-body2-06-yaw25.png": {
+   "png": "pre-ck-body2-06-yaw25.png",
+   "sha256": "2fb921f2053b3585a3256d9abae427f844e4136afd27cfbf3d602de808d1deef"
+  },
+  "probe-roomenv-ck-aisha-06-front.png": {
+   "png": "probe-roomenv-ck-aisha-06-front.png",
+   "sha256": "7a8c60bf39f012e2d5307ccd460691bb966817b1882a29f36b57df6cdb462592"
+  },
+  "probe-roomenv-ck-aisha-06-yaw25.png": {
+   "png": "probe-roomenv-ck-aisha-06-yaw25.png",
+   "sha256": "217c567cf466c924c4fd71bd356e45d661076440bfbf03054106b7482d7072ef"
+  },
+  "sheet-aisha-front-post.png": {
+   "png": "sheet-aisha-front-post.png",
+   "sha256": "24ad23dd18ca18700f397dc2d3eda56b707ac3a6319c8a7ccdd5d5f7e30148c0"
+  },
+  "sheet-aisha-front-pre.png": {
+   "png": "sheet-aisha-front-pre.png",
+   "sha256": "ae2cd91abf98b02bbf0f4787ea9a05a8ae362447111ace8ea8a855473ca9f6e7"
+  },
+  "sheet-aisha-yaw25-post.png": {
+   "png": "sheet-aisha-yaw25-post.png",
+   "sha256": "4cee81601d9b6acbc6d0f94368c31daedc5470e1f1d614d8947362f11624d127"
+  },
+  "sheet-aisha-yaw25-pre.png": {
+   "png": "sheet-aisha-yaw25-pre.png",
+   "sha256": "3de3f1aad37d75f55306ab13a2d6d1ec971fb254267910a2a1187bc173cdf0ff"
+  },
+  "sheet-body2-front-post.png": {
+   "png": "sheet-body2-front-post.png",
+   "sha256": "aca8a415ec694e3c736f62d26e80cc2fe81446c8bef269c3d39b9c12ce6548ae"
+  },
+  "sheet-body2-front-pre.png": {
+   "png": "sheet-body2-front-pre.png",
+   "sha256": "d28e9951bb1cc41d6fc7e17d8c3607f46e60a0df4861ff9eb61b2fca43f450ee"
+  },
+  "sheet-body2-yaw25-post.png": {
+   "png": "sheet-body2-yaw25-post.png",
+   "sha256": "b0f21108ce41bd1539a80cbdbbf1bded2b52d78ff791fe7b5ee0eb2b7adfd449"
+  },
+  "sheet-body2-yaw25-pre.png": {
+   "png": "sheet-body2-yaw25-pre.png",
+   "sha256": "b2685a8b807c9d2d567c37604d90e6c286d559e91d6d6962d053a5f8fc2c5a19"
+  }
+ },
+ "storeShas": {
+  "post-ck-aisha-00-front.png": "19d71d5463ef0bf8531bcc624b85c83f980bdb1bac578a8234656fd5556198b1",
+  "post-ck-aisha-00-shift-front.png": "9ef58b0a7435287161bf70b42b09acb93bfc58bf61a64f7bc8c2da1f832dc31c",
+  "post-ck-aisha-00-shift-yaw25.png": "f8d77a9fc4e8f0c94ce88b845c1b46b8a3f10cb99fbdf4807fb3e25f12d615c4",
+  "post-ck-aisha-00-yaw25.png": "66b571d2cffa86963b7f7df60cfc85e66dcc497a187253e5e42e8e5519d0c30f",
+  "post-ck-aisha-06-front.png": "93d247595f2536599286c31e85f12e9ac84dba616ac639f5aafabe86e6d88e5d",
+  "post-ck-aisha-06-shift-front.png": "98ee8480b5aa129cd6fdccf258de45b93636939ed38d8e765d3158a689ba89b9",
+  "post-ck-aisha-06-shift-yaw25.png": "04e4a0a4f15d432a1de4973146985dfeb980812936716909c36ee40efd75c921",
+  "post-ck-aisha-06-yaw25.png": "ed01cd5dd5a401f8095a0fac97a057f0985036a20b3bc358d86679dc233f3eb6",
+  "post-ck-body2-00-front.png": "b409590dd781a7f85ef666a6b1787cbd17235fc3862059dcbbea48d4c120198b",
+  "post-ck-body2-00-yaw25.png": "d6b8a6414ceefb6a39ca4294498d477842c2d0865fa5a7d438863192af02c4f4",
+  "post-ck-body2-06-front.png": "d29cb903f12b733f1db29daa4082df2ace659984163501d47c3171c5f8f61a3d",
+  "post-ck-body2-06-yaw25.png": "8062bdc91a3c33eed60d7e0ce784ede36a6a88b34c3724c605cd62e75c41c708",
+  "pre-ck-aisha-00-front.png": "19d71d5463ef0bf8531bcc624b85c83f980bdb1bac578a8234656fd5556198b1",
+  "pre-ck-aisha-00-yaw25.png": "66b571d2cffa86963b7f7df60cfc85e66dcc497a187253e5e42e8e5519d0c30f",
+  "pre-ck-aisha-06-front.png": "7a8c60bf39f012e2d5307ccd460691bb966817b1882a29f36b57df6cdb462592",
+  "pre-ck-aisha-06-yaw25.png": "217c567cf466c924c4fd71bd356e45d661076440bfbf03054106b7482d7072ef",
+  "pre-ck-body2-00-front.png": "b409590dd781a7f85ef666a6b1787cbd17235fc3862059dcbbea48d4c120198b",
+  "pre-ck-body2-00-yaw25.png": "d6b8a6414ceefb6a39ca4294498d477842c2d0865fa5a7d438863192af02c4f4",
+  "pre-ck-body2-06-front.png": "4510d4a41f5bc597c77bf1e741f5a284ef48cb4f6ebb1564916c817a5128401e",
+  "pre-ck-body2-06-yaw25.png": "2fb921f2053b3585a3256d9abae427f844e4136afd27cfbf3d602de808d1deef",
+  "probe-roomenv-ck-aisha-06-front.png": "7a8c60bf39f012e2d5307ccd460691bb966817b1882a29f36b57df6cdb462592",
+  "probe-roomenv-ck-aisha-06-yaw25.png": "217c567cf466c924c4fd71bd356e45d661076440bfbf03054106b7482d7072ef",
+  "sheet-aisha-front-post.png": "24ad23dd18ca18700f397dc2d3eda56b707ac3a6319c8a7ccdd5d5f7e30148c0",
+  "sheet-aisha-front-pre.png": "ae2cd91abf98b02bbf0f4787ea9a05a8ae362447111ace8ea8a855473ca9f6e7",
+  "sheet-aisha-yaw25-post.png": "4cee81601d9b6acbc6d0f94368c31daedc5470e1f1d614d8947362f11624d127",
+  "sheet-aisha-yaw25-pre.png": "3de3f1aad37d75f55306ab13a2d6d1ec971fb254267910a2a1187bc173cdf0ff",
+  "sheet-body2-front-post.png": "aca8a415ec694e3c736f62d26e80cc2fe81446c8bef269c3d39b9c12ce6548ae",
+  "sheet-body2-front-pre.png": "d28e9951bb1cc41d6fc7e17d8c3607f46e60a0df4861ff9eb61b2fca43f450ee",
+  "sheet-body2-yaw25-post.png": "b0f21108ce41bd1539a80cbdbbf1bded2b52d78ff791fe7b5ee0eb2b7adfd449",
+  "sheet-body2-yaw25-pre.png": "b2685a8b807c9d2d567c37604d90e6c286d559e91d6d6962d053a5f8fc2c5a19",
+  "post-ck-aisha-06.json": "4b48c90bc4709ccc206d170bf3b6018e11e7a38f8866aac5b2e5d069f53b52e1",
+  "post-ck-aisha-00.json": "a4cf71025448dec84f4f0a90de2c5dfb8b2aae4e3acc5c002ba225b936dfbbbc",
+  "post-ck-body2-06.json": "3d2953d144833132e6c06dde7bef11acea07608144d2cad3d32d63ecbb736987",
+  "post-ck-body2-00.json": "4cad988a619ccdf86d895b8541649f11fe33f1ce637eeab7bc0b5688a81d3bf6",
+  "post-ck-aisha-06-shift.json": "fa5ab69826a028b28c1ffadb3c4513843e2a2b4e557537c6faf7b6316b7cb267",
+  "post-ck-aisha-00-shift.json": "43ebbf44a9394c64f9ead73530edeab948d92aa8cfbf6265b7e4c0cd4dbbbc24",
+  "pre-ck-aisha-06.json": "1b8d9fcf1aa7801f28b490cb2e393293022815a2718b62cd1b8fd7b4c3708549",
+  "pre-ck-aisha-00.json": "ad49067abb53d1265b02698372de3d79a1d0d74920ce5659267e39c630baaf3d",
+  "pre-ck-body2-06.json": "e0466b839d1ca911e57bdca7279ef334480ec5aa93431f6f78c4c091bb3235f3",
+  "pre-ck-body2-00.json": "dd9f786837e37fe13052aa308ee9a57c205d56464694f377b5b52efd41020a16"
+ },
+ "falsifier": {
+  "predictedOnPupil": false,
+  "note": "key sub-stellar point 21-41px off pupil centre (pupil_r 14-18): lidded, not pupil-bound; the rig geometry (70deg-overhead key + eye-level wash ring) defeats key catch-light gates - recorded, see derivation"
+ },
+ "verdicts": {
+  "G1_key": "fail",
+  "G2": "fail",
+  "G3": "pass",
+  "G4_skin": "pass",
+  "G4_sclera": "6/8 within 1.9 (aisha.front 2.30/2.40)",
+  "G5": "pass",
+  "probe": "pass"
+ }
+}

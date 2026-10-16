@@ -24,6 +24,7 @@ import {
   type WebGLRenderer,
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { buildProductRigGlobeEnvMap } from "./cornea-env/rig-key-globe-env.js";
 
 /**
  * Product rig lighting bridge (variant evaluator). The lab cannot import from
@@ -113,6 +114,19 @@ export type ProductRigApplied = {
     envMapSet: boolean;
     roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null;
   };
+  /**
+   * Rig-built globe env readback (tsk_fd7dedb8dc543758): the emissive loci
+   * the globe map was PMREM'd from, the re-anchored key locus, and whether a
+   * rigOverride twin replaced the key. Recorded so the catchlight-key gate
+   * test asserts the key relation from live readback, not source.
+   */
+  rigEnv: {
+    sourceCount: number;
+    sourceNames: string[];
+    keyHeadRelative: [number, number, number];
+    keyReplaced: boolean;
+    replacementName: string | null;
+  } | null;
 };
 
 /** Variant evaluator light-rig override. Positions are absolute unless relativeToHead. */
@@ -354,15 +368,27 @@ export async function applyProductRig(
   // scene.environment alone leaves the globe intensity stuck at 1.0 and
   // 0.6-vs-0.0 renders bit-identical; (2) scene.environment lights every PBR
   // material (600k px moved on the Aisha product portrait, cheek mean +~20
-  // levels), while the scoped map leaves skin pixel-identical. Same
-  // PMREM-of-a-RoomEnvironment source the studio path uses above (same
-  // sigma); no iris-texture change. Recorded on the return for CW2 readback.
+  // levels), while the scoped map leaves skin pixel-identical. The map source
+  // is tsk_fd7dedb8dc543758 rig-key-globe-env.ts: a PMREM (same sigma 0.04)
+  // of a black scene holding one emissive locus per rig light at its
+  // re-anchored head-relative locus — so the reflection sits where the rig's
+  // lights reflect instead of a generic-room panel over the pupil. No
+  // generic-room source on this path (the studio path above keeps its own).
   // h1: the globe also gets a procedural iris-disc roughnessMap (same
   // traverse): the 0.5 scalar blurs the env to a flat lift, so the disc
   // multiplies down to 0.06 effective while the sclera stays 0.5.
-  const pmrem = new PMREMGenerator(renderer);
-  const globeEnv = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  pmrem.dispose();
+  const rigGlobe = await buildProductRigGlobeEnvMap({
+    renderer,
+    rigUrl: fns.resolveLightingRigPublicPath(environmentId),
+    scene,
+    headCentre,
+  });
+  if (!rigGlobe) {
+    throw new Error(
+      `product rig ${environmentId} globe env refused — no globe map without the rig's own lights`,
+    );
+  }
+  const globeEnv = rigGlobe.texture;
   const globeMatched: string[] = [];
   const roughDisc = buildIrisDiscRoughnessMap();
   scene.traverse((o) => {
@@ -412,6 +438,13 @@ export async function applyProductRig(
         globeMatched.length > 0
           ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV }
           : null,
+    },
+    rigEnv: {
+      sourceCount: rigGlobe.built.loci.length,
+      sourceNames: rigGlobe.built.loci.map((l) => l.name),
+      keyHeadRelative: rigGlobe.built.keyHeadRelative,
+      keyReplaced: rigGlobe.built.keyReplaced,
+      replacementName: rigGlobe.built.replacementName,
     },
   };
 }
