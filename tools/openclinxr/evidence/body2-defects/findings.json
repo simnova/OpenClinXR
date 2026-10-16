@@ -1,0 +1,160 @@
+{
+ "card": "tsk_c7302c32b3dcacdc",
+ "falsifier": {
+  "fresh_r2_repro": "byte-identical (meanabsdiff 0.0); both defects reproduce; not_reproduced not used",
+  "r2_front_sha256": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+  "r2_yaw25_sha256": "95755a9ad8812f2f81210ae48ca6b3e5e5b2dadb925ab4da229ee04417c64ce2",
+  "r2_yaw40_sha256": "5efc610684f624441c4559ae1c10ad2f752a57cec8a3823efc1aa8562c8a7919"
+ },
+ "method": {
+  "camera": "r2 variant ss-body2.variant.json: renderSize 1280, portrait, productEnvironmentId ob_triage_room_v1, views front/yaw25/yaw40",
+  "chain_intermediates": "same rig/camera; skinOverride baseColorUrl varies, roughness+normal held at r2 files (except b2s3-solved-nomap: albedo only)",
+  "harness": "tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant (read-and-run only; variants live in the store, not the repo)",
+  "presence_metric": "crown: frac of pixels with R-G>25 in crop x[450,830] y[200,450]; eyes: frac with R-G>20 in boxes x[460,560]+x[720,820] y[620,700]",
+  "rig": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json exposure 0.9",
+  "stage_inputs": {
+   "1": "final.glb 94a9ca6c as-is, skinOverride null (no body2 albedo exists yet)",
+   "2": "same as 1 (stage2-layers-zero.png is family-space, not body UV; byte-identical render 85801226efea proves it)",
+   "3": "final.glb + solved-albedo-bb/occ/lips/corners/sym/socket as skinOverride.baseColorUrl",
+   "4": "body2-lidconform.glb ab2765e4 + socket albedo + lidconform normal",
+   "5": "same as 4 (stage5 outputs stage5-eyesflags.json only; byte-identical render ef150b4e5b0c proves no visual delta)",
+   "6": "same as 4 (stage6 outputs fit weights only; byte-identical render proves no visual delta)",
+   "7": "same as 4 (stage7 outputs probes only; byte-identical render proves no visual delta)"
+  },
+  "station": "face station r2 (second-subject-r2-report.json on wt/second2, card tsk_efec6e3fcfc8887c): 1_family_tone 2_skin_layers 3_replay_albedo 4_lid_conform 5_eye_flags 6_face_fit 7_checks"
+ },
+ "rows": [
+  {
+   "fix_file": "tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py",
+   "fix_function": "scalp_apply() (plus the input-side crown_step refusal in compose(), lines 976-989, commit b3167aa35, which already guards this exact failure)",
+   "id": "crown-paint",
+   "location": {
+    "atlas": "4096px skin albedo (albedo_socket.png lineage) chain-manifest.json",
+    "material": "mpfb_skin_adult_male_street_casual (body mesh prim 0, material slot 4; skinOverride matchedMaterials [mpfb_skin_adult_male_street_casual] per ss-body2.json materialInventory)",
+    "mesh": "mpfb_adult_male_street_casual_body.001",
+    "uv_box": {
+     "atlas_size": 4096,
+     "paint_core_normalized": [
+      0.7395,
+      0.4565,
+      0.7961,
+      0.5513
+     ],
+     "paint_core_px": {
+      "x0": 3029,
+      "x1": 3261,
+      "y0": 1838,
+      "y1": 2226
+     },
+     "wash_dome_normalized_u": [
+      0.6412,
+      0.795
+     ],
+     "wash_dome_normalized_v": [
+      0.2446,
+      0.7891
+     ],
+     "wash_dome_px": {
+      "x0": 2626,
+      "x1": 3256,
+      "y0": 863,
+      "y1": 3094
+     }
+    }
+   },
+   "per_stage_renders": [
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s2-layers-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s5-eyeflags-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s6-facefit-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s7-checks-front.png"
+   ],
+   "presence_by_stage": {
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.866,
+    "4": 0.866,
+    "5": 0.866,
+    "6": 0.866,
+    "7": 0.866
+   },
+   "stage": 3,
+   "text": "Orange-red crown wash with a dark-red lips-shaped core on the bald dome. Absent in S1/S2 (clean GLB scalp), present in the stage-3 INPUT solved-albedo-bb.png and every chain output. Lineage: baseT-4096 plain at blob box; compose-albedo (face_replay_compose.py scalp_apply, r1 cmd with --skip-join) carries the lips; solve/replay/chain preserve it. Source: the locked donor island (island-T.png 1408x736) blended raw-resized without registration (treat_frac 0.919, tone_shift_L -23.83 per port5/compose-report.json); blob template-matches the donor mouth (NCC 0.915) and lands outside body2's eroded facecore keep-out. Current code refuses this input (crown_step_over_bound, b3167aa35); r1 ran before the refusal and carried the paint to the sheet.",
+   "verdict": "cause_found"
+  },
+  {
+   "fix_file": "tools/openclinxr/asset-pipeline/anny/iris_palette.py",
+   "fix_function": "eye_iris_colour() (selector returning 'brown' for patient/brown; consumed by materialize_mpfb_humanoid_candidate.py make_material_from_mhmat eye path ~line 6012 resolving brown.mhmat -> brown_eye.png). Fix = hue/neutrality gate on the selected asset or a neutral brown asset; Aisha's iris-centred-c (neutral) is the passing reference.",
+   "id": "pink-eyes",
+   "location": {
+    "atlas": "eye texture brown_eye (GLB image 5, 1024x1024 RGBA), sampled by eye-mesh UVs u[0.0362,0.9911] v[0.0237,0.9890]; eye texture is not an input/output of any of the 7 stages",
+    "material": "mat_makeclothes_library_eyes_adult_male_street_casual (eye mesh single primitive, material slot 12; render color #ffffff, baseColorMap 1024 per ss-body2.json materialInventory)",
+    "mesh": "makeclothes_library_eyes_high_poly_mpfb_adult_male_street_casual_mesh",
+    "uv_box": {
+     "atlas_size": 1024,
+     "texture": "brown_eye",
+     "u": [
+      0.0362,
+      0.9911
+     ],
+     "v": [
+      0.0237,
+      0.989
+     ]
+    }
+   },
+   "per_stage_renders": [
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s2-layers-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s5-eyeflags-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s6-facefit-front.png",
+    "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s7-checks-front.png"
+   ],
+   "presence_by_stage": {
+    "1": 0.721,
+    "2": 0.721,
+    "3": 0.915,
+    "4": 0.758,
+    "5": 0.758,
+    "6": 0.758,
+    "7": 0.758
+   },
+   "stage": 1,
+   "text": "Iris renders red-brown (iris-ring mean 125,84,66, R-G 40) and sclera pink-grey vs Aisha (84,70,62, R-G 15; white sclera) under the identical rig. Present already in the S1 base-GLB render (skinOverride null), so no station stage introduces it: the brown_eye asset itself is reddish (red-brown iris, pink-veined sclera) while Aisha's iris-centred-c is neutral. The stage-5 eye flags carry no per-subject value and materialOverrides is empty; lid-conform (S4) re-seats the globes (sclera reads whiter) but the iris redness persists. Measured on 1280px fronts with the r2 rig/camera.",
+   "verdict": "cause_found"
+  }
+ ],
+ "sheets": {
+  "/Volumes/files/openclinxr-assets/store/body2-defects/bisect-crown-sheet.png": "0fab2aec40bcc5c251e30c70b56daea1cd7885d994537d860a575ebde6310d2d",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/bisect-eyes-sheet.png": "85a57dcebe89d1330cdb67eb4c696cc9fc04cb4aa1c429680899b7726a3b9bea"
+ },
+ "store_render_shas": {
+  "/Volumes/files/openclinxr-assets/store/body2-defects/bisect-crown-sheet.png": "0fab2aec40bcc5c251e30c70b56daea1cd7885d994537d860a575ebde6310d2d",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/bisect-eyes-sheet.png": "85a57dcebe89d1330cdb67eb4c696cc9fc04cb4aa1c429680899b7726a3b9bea",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-yaw25.png": "a2984d206c3a874189e8253721425e64b6d3aa238a7f1aec4da9e9528fd874d2",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-yaw40.png": "91e9508388faca5e66fb4d6a9f8d58666da7e2f4f8c73fba4f98ea368fa2737b",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s2-layers-front.png": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-corners-front.png": "8cc87a9e7a555c8328bd343789868ce17a47e62a30656018aa793cc4e5080e32",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-lips-front.png": "8855151cf590e52035a88061b8a019658c36f648b1380c92b4a24afc5c6e0d00",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-occ-front.png": "8855151cf590e52035a88061b8a019658c36f648b1380c92b4a24afc5c6e0d00",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-yaw25.png": "95755a9ad8812f2f81210ae48ca6b3e5e5b2dadb925ab4da229ee04417c64ce2",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-yaw40.png": "5efc610684f624441c4559ae1c10ad2f752a57cec8a3823efc1aa8562c8a7919",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-solved-front.png": "c77417aaae41bbb2591b9479b577392d86e8345337fc0ecdf0f57295e879b469",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-solved-nomap-front.png": "40ada5ecbf36107888491c6fba0fd610ec859c1ec7b3592d46208842aae40531",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-sym-front.png": "95a7369ef1ee34cee45e31d6b7bde0ee901c7c320b973aafdac47b65d9a6070c",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-front.png": "ef150b4e5b0ce33cd0ac5e3d59f08b8cc46a9496fa84926ac2c4f40ca9065a88",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-yaw25.png": "6edaa553e99b19041873cd1f519df0da9237d726569650c6096fa21c0577a6c2",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-yaw40.png": "90aa28a4b66c71faf0dcdac9198159d1536f226e8a4b627f32245eb09d2b2ad4",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s5-eyeflags-front.png": "ef150b4e5b0ce33cd0ac5e3d59f08b8cc46a9496fa84926ac2c4f40ca9065a88",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s6-facefit-front.png": "ef150b4e5b0ce33cd0ac5e3d59f08b8cc46a9496fa84926ac2c4f40ca9065a88",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s7-checks-front.png": "ef150b4e5b0ce33cd0ac5e3d59f08b8cc46a9496fa84926ac2c4f40ca9065a88"
+ },
+ "subject": "body2 (adult_male_street_casual, final.glb 94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437)",
+ "subject_glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+}
