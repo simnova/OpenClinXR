@@ -75,6 +75,7 @@
   "tests": [
     "src/compiled-room-readiness.test.ts",
     "src/cornea-env/the-cornea-env-intensity-changes-the-globe.test.ts",
+    "src/cornea-env/the-key-catchlight-is-falsified-by-rig.test.ts",
     "src/encounter-actor-framing.test.ts",
     "src/eye-shader/the-eye-shader-runs-in-the-runtime.test.ts",
     "src/eye-shader/the-iris-parallax-matches-a-refraction-render.test.ts",
