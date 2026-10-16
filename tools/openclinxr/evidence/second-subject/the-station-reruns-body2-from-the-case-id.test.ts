@@ -73,6 +73,9 @@ type Report = {
   coverage: Array<{ bucket: string; difference: string; evidence: string }>;
   sheet: { root: string; files: Record<string, string> };
   verdict: string;
+  verdictNote: string;
+  followUps: string[];
+  orchestratorGrade: { sheet: string; sha256: string; body2: string[]; aisha: string[] };
 };
 
 function readReport(): Report {
@@ -170,7 +173,24 @@ describe("the station reruns body2 from the case id (r3)", () => {
     expect(r.r2_vs_r3.length, "r2-vs-r3 deltas").toBeGreaterThan(5);
     expect(r.coverage.length, "coverage rows").toBeGreaterThan(3);
     for (const cov of r.coverage) {
-      expect(cov.bucket).toMatch(/^\([a-d]\)/);
+      expect(cov.bucket).toMatch(/^(\([a-e]\)|fixed)/);
+    }
+    expect(r.verdict).toBe("repeatable_with_0_tunings");
+    expect(String(r.verdictNote).length, "verdictNote").toBeGreaterThan(0);
+    expect(Array.isArray(r.followUps) && r.followUps.length, "followUps").toBeGreaterThan(0);
+  });
+
+  it("(5b) H1: orchestratorGrade exists with the sheet sha of the file on disk", () => {
+    const r = readReport();
+    const g = r.orchestratorGrade;
+    expect(g.body2.length).toBeGreaterThan(0);
+    expect(g.aisha.length).toBeGreaterThan(0);
+    expect(g.sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(g.sha256).toBe(r.sheet.files["sheet-front-3col.png"]);
+    if (storePresent) {
+      const abs = join(r.sheet.root, "sheet-front-3col.png");
+      expect(existsSync(abs), "grade sheet exists").toBe(true);
+      expect(sha256File(abs), "grade sheet sha recomputes").toBe(g.sha256);
     }
   });
 
