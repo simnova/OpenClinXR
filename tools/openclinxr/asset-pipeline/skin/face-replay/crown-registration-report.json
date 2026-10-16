@@ -1,0 +1,198 @@
+{
+ "card": "tsk_d79470fdf2a6a0b0",
+ "island_box_note": "body2 derived box [51,149,3959,4022] is the fresh-derive facecore|scalp mask union (spills: union bbox spans the atlas; recorded, not fixed). Chain masks union [50,134,4055,4023], largest component [2629,756,4055,3479] (S/port5/chain/derive_out). Body2 head-vertex UV bbox [48.4,107.1,3958.1,4047.4] px at 4096 (S/body2/final.glb, chin_y 1.5461). Aisha box [2456,614,4054,3686] passed explicitly, verified from head-vertex UVs (S/scalp/RESULT.md step 3).",
+ "post_fix": {
+  "aisha": {
+   "base_sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53",
+   "donor_sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+   "note": "registered path unchanged: still refuses input side identically, no output png. Output-sha equality cannot pass as written (no shas exist); refusal equality + input-sha equality recorded instead.",
+   "refusal": {
+    "reason": "crown_step_over_bound",
+    "side": "input",
+    "max": 43.40706676811223,
+    "bound": 8.0,
+    "scalp_source": null
+   },
+   "report": "S/crownreg/pre/aisha-report-post.json",
+   "report_sha256": "0ddc51d32f6fa0aefda8380256348ccac4007ed5b937e049fe963e8cb4021343",
+   "registration": {
+    "donor_dims": [
+     3072,
+     1598
+    ],
+    "box_dims": [
+     3072,
+     1598
+    ],
+    "ncc": 0.6297028051590704,
+    "registered": true,
+    "reason": "donor dims equal upright island dims: locked donor"
+   },
+   "scalp_source": "locked_island"
+  },
+  "body2": {
+   "compose_base": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/compose-albedo.png",
+   "compose_base_note": "output is byte-identical to the base (subject_base, donor weight 0): sha 99a49ce4 == base sha",
+   "compose_out": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/compose-albedo.png",
+   "compose_report": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/compose-report.json",
+   "compose_report_sha256": "40ccb75a0cf293744140aa03bed4d0cbe5acc7dc2a77d6cadb7f3eb0f75412a4",
+   "compose_sha256": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
+   "crown_presence": 0.8303,
+   "crown_presence_bound": 0.433,
+   "crown_presence_pass": false,
+   "crown_presence_note": "bound MISSES as written: the broad orange wash lives in the base albedo itself (paint-box mean RGB 136.7,86.1,58.4 R-G 50.6; pre-solve render already 0.705), so removing the donor mouth cannot clear it; repopulating the wash needs a registered clean donor (ECC lock card, out of scope). The bound is also tone-confounded: goal-front itself measures 1.0 in the same crop (warm skin R-G 53). Donor-mouth evidence for this card: paint-box 0 texels differ, output step 2.343 vs pre-fix 27.035.",
+   "front_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/render/body2-crownreg-socket-front.png",
+   "front_render_sha256": "dddddc831e7d7d58c95f22ee6881c36473c5df4a5b0949da83ac1cc5d8527832",
+   "yaw25_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/render/body2-crownreg-socket-yaw25.png",
+   "yaw25_render_sha256": "5c092993263b4e79db55c1090df84239debb9fff3c800baab7602fb788d3ab03",
+   "yaw40_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2/render/body2-crownreg-socket-yaw40.png",
+   "yaw40_render_sha256": "b1c07e83bba881a5af3a822b6235f22614c76cd622c65c99c36ba9d5c0419a5e",
+   "store_front": "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-front.png",
+   "store_compose": "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-compose-albedo.png",
+   "in_crown_step_max": 2.343406439502587,
+   "out_crown_step_max": 2.343406439502587,
+   "paint_box_texels_differing": 0,
+   "full_texels_differing_from_base": 0,
+   "refusal": null,
+   "scalp_source": "subject_base",
+   "registration": {
+    "donor_dims": [
+     1408,
+     736
+    ],
+    "box_dims": [
+     3873,
+     3908
+    ],
+    "ncc": 0.5850516499362314,
+    "registered": false,
+    "reason": "donor dims differ from upright island dims: unregistered donor is never resized; scalp comes from the subject base"
+   },
+   "treat_frac": 0.0,
+   "chain": {
+    "solved_albedo": "120dc4418d625ce44e71e8df154554a2d0e88ee49ee326fde71f0bf6def7ad94",
+    "albedo_occ": "c5a05b83d67a81044fc5886f7f35674edcfa9d4a057ccdd9e4f1469f72ac3e43",
+    "roughness": "dc1e953363997faa56af69fc7157e4ff82d3a4d2f9be02cbc246c2a8ac92103a",
+    "albedo_lips": "c5a05b83d67a81044fc5886f7f35674edcfa9d4a057ccdd9e4f1469f72ac3e43",
+    "albedo_corners": "e137d56586654c079a8478c71d6179bdd2179cf659bb7af9ae3c415e58aaeec7",
+    "albedo_sym": "4bd4d81638858f9c92b61a08fa8ea646fc35c07d19d4f5cb9f71de3e4caec9e4",
+    "albedo_socket": "a1fe7573e7eda4eaee023578f4be8077986ffd95cc27635314e79ef47eb62c8e",
+    "solve_params": "8bdd157de622b5b953d884dd04d849b72b6ddbdef7066d9bb309f66d1530ef9a"
+   },
+   "solve_six_new": [
+    53.254,
+    13.241,
+    20.426,
+    7.497,
+    2.374,
+    2.95
+   ],
+   "solve_six_r2": [
+    53.036,
+    13.32,
+    20.466,
+    7.582,
+    2.415,
+    2.988
+   ],
+   "solve_six_note": "rounded to 3dp here; exact in S/crownreg/body2/solve-params.json (sha 8bdd157d...). r2 six from S/port5/solve-params-body2-bb.json."
+  }
+ },
+ "pre_fix": {
+  "aisha": {
+   "base": "S/join/out-albedo.png",
+   "base_sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53",
+   "box": [
+    2456,
+    614,
+    4054,
+    3686
+   ],
+   "donor": "S/scalp/locked-pick.png",
+   "donor_dims": [
+    3072,
+    1598
+   ],
+   "donor_sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+   "input_crown_step_max": 43.40706676811223,
+   "note": "current code refuses (input side); no output png, so no output sha as the card expected. Recorded instead of bent.",
+   "output_crown_step_max": 7.187494998588733,
+   "refusal": {
+    "bound": 8.0,
+    "max": 43.40706676811223,
+    "reason": "crown_step_over_bound",
+    "scalp_source": null,
+    "side": "input"
+   },
+   "report": "S/crownreg/pre/aisha-report.json",
+   "report_sha256": "9697f744761ef0f1074a46f6930f2f25839ba6c30c380c82211465f4ea3f8f1f",
+   "runs": 2,
+   "upright_dims": [
+    3072,
+    1598
+   ]
+  },
+  "body2": {
+   "base": "S/body2/join/compose-new/albedo-4096.png",
+   "base_input_crown_step_max": 2.343406439502587,
+   "base_sha256": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
+   "box": [
+    51,
+    149,
+    3959,
+    4022
+   ],
+   "box_source": "fresh-derive facecore|scalp union (= _island_box_from_masks)",
+   "donor": "S/body2/uv2-src/island-T.png",
+   "donor_dims": [
+    1408,
+    736
+   ],
+   "donor_sha256": "3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069",
+   "falsifier_e": 2.343406439502587,
+   "falsifier_verdict": "proceed (base usable scalp source)",
+   "locked_resized": true,
+   "output_crown_step_max": 27.035232898484203,
+   "refusal": {
+    "bound": 8.0,
+    "max": 27.035232898484203,
+    "reason": "crown_step_over_bound",
+    "scalp_source": null,
+    "side": "output"
+   },
+   "report": "S/crownreg/pre/body2-report.json",
+   "report_sha256": "091016ba069f9b13f4a03aefe555716158605b2b8fb0b542c85ac37e025d33f6",
+   "runs": 2,
+   "upright_dims": [
+    3873,
+    3908
+   ]
+  },
+  "fixtures_scalp_mode": {
+   "A": "7fa4152ee6d17f4b6dd64ef9c97a80ba6195c7bea78bd5c8793989fc6c410436",
+   "E": "f0b0bccc1003457f3c4662a106fd0e78fe1758765f4c2cc7e36ac23ea22d648b",
+   "L": "4702572a9c453a16fcecf2f16aec409a0c43026e3e5b164b32b4d79f895fa843",
+   "M_note": "no locked-M fixture; test uses evaluate-only (base-good-M sha 0052745e1f2fa1fda4750a200ac7753d3198538209992ca444b481071273e6d0, eval crown_step max 0.7798)"
+  },
+  "registration_content_check": {
+   "masked_lowband_ncc_scalp_work": {
+    "aisha": 0.5908,
+    "body2": 0.6929
+   },
+   "full_lowband_ncc": {
+    "aisha": 0.6297,
+    "body2": 0.5851
+   },
+   "gate": 0.8,
+   "verdict": "no separation across gate; dims only, NCC recorded not enforced"
+  }
+ },
+ "store_shas": {
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-front.png": "dddddc831e7d7d58c95f22ee6881c36473c5df4a5b0949da83ac1cc5d8527832",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-yaw25.png": "5c092993263b4e79db55c1090df84239debb9fff3c800baab7602fb788d3ab03",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-compose-albedo.png": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
+  "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-yaw40.png": "b1c07e83bba881a5af3a822b6235f22614c76cd622c65c99c36ba9d5c0419a5e"
+ }
+}

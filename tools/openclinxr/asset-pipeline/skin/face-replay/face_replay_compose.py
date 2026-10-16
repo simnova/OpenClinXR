@@ -841,6 +841,36 @@ def _from_upright(up: np.ndarray, box: tuple[int, int, int, int]) -> np.ndarray:
     return back
 
 
+def _donor_registration(locked: np.ndarray, up_w: int, up_h: int,
+                        base_up: np.ndarray) -> dict:
+    """Donor-to-subject registration decision (dims only, no names).
+
+    A donor stored at the upright island size is a locked donor; anything
+    else is unregistered and must never be resized into the subject. The
+    lowband NCC between the (resized-for-measure only) donor and the
+    subject base over the upright field is recorded, never enforced: the
+    measured pair (0.591 vs 0.693 masked over scalp-work, 0.630 vs 0.585
+    full-frame) does not separate across NCC_GATE, so dims decide alone.
+    """
+    dh, dw = locked.shape[0], locked.shape[1]
+    registered = (dw == up_w and dh == up_h)
+    if (dw, dh) != (up_w, up_h):
+        probe = np.array(Image.fromarray(locked).resize(
+            (up_w, up_h), Image.LANCZOS))
+    else:
+        probe = locked
+    try:
+        ncc = lowband_ncc(base_up, probe)
+    except Exception:
+        ncc = 0.0
+    reason = ("donor dims equal upright island dims: locked donor"
+              if registered else
+              "donor dims differ from upright island dims: unregistered "
+              "donor is never resized; scalp comes from the subject base")
+    return {"donor_dims": [dw, dh], "box_dims": [up_w, up_h], "ncc": ncc,
+            "registered": registered, "reason": reason}
+
+
 def _island_box_from_masks(masks: dict[str, np.ndarray],
                            shape: tuple[int, int]) -> tuple[int, int, int,
                                                             int]:
@@ -933,36 +963,88 @@ def compose(args: argparse.Namespace) -> dict:
         masks_up = {k: _to_upright(v, island_box)
                     for k, v in masks.items()}
         sides_up = _sides_upright(sides, island_box)
-        locked_up = locked
-        if (locked_up.shape[1], locked_up.shape[0]) != (
-                work_up.shape[1], work_up.shape[0]):
-            locked_up = np.array(Image.fromarray(locked_up).resize(
-                (work_up.shape[1], work_up.shape[0]), Image.LANCZOS))
-            report["parameters"]["locked_resized"] = True
-        before_lab = lab_of(work_up).astype(np.float64)
-        out_up, scalp_info = scalp_apply(work_up, locked_up, masks_up,
-                                         scale, args.feather_texels)
-        out = working.copy()
-        x0, y0, x1, y1 = island_box
-        out[y0:y1, x0:x1] = _from_upright(out_up, island_box)
-        regions = regions_from_masks(masks_up)
-        out_lab = lab_of(out_up).astype(np.float64)
-        report["region_table"] = region_table(out_lab, regions, sides_up,
-                                              scale)
-        interiors = zero_interiors(regions, scale, args.feather_texels)
-        report["exact_zero"] = exact_zero_report(before_lab, out_up,
-                                                 regions, interiors)
+        bx0, by0, bx1, by1 = island_box
+        # Upright island dims are the box dims swapped by the 90-degree
+        # rotation: width = box height, height = box width.
+        up_w, up_h = (by1 - by0), (bx1 - bx0)
+        reg = _donor_registration(locked, up_w, up_h, work_up)
+        registered = bool(reg["registered"])
+        if not registered:
+            # Unregistered donor: never resize; the scalp is the subject's
+            # own base skin (donor weight 0 everywhere). Output returns, no
+            # refusal; tables are still measured on the returned image.
+            before_lab = lab_of(work_up).astype(np.float64)
+            out_up = work_up.copy()
+            out = working.copy()
+            regions = regions_from_masks(masks_up)
+            out_lab = lab_of(out_up).astype(np.float64)
+            report["region_table"] = region_table(out_lab, regions, sides_up,
+                                                  scale)
+            interiors = zero_interiors(regions, scale, args.feather_texels)
+            report["exact_zero"] = exact_zero_report(before_lab, out_up,
+                                                     regions, interiors)
+            scalp_info = {
+                "tone_shift_Lab": [0.0, 0.0, 0.0],
+                "tone_anchor": "subject-base-unregistered",
+                "treat_frac": 0.0,
+                "scalp_source": "subject_base",
+                "registration": reg,
+            }
+        else:
+            locked_up = locked
+            if (locked_up.shape[1], locked_up.shape[0]) != (
+                    work_up.shape[1], work_up.shape[0]):
+                locked_up = np.array(Image.fromarray(locked_up).resize(
+                    (work_up.shape[1], work_up.shape[0]), Image.LANCZOS))
+                report["parameters"]["locked_resized"] = True
+            before_lab = lab_of(work_up).astype(np.float64)
+            out_up, scalp_info = scalp_apply(work_up, locked_up, masks_up,
+                                             scale, args.feather_texels)
+            scalp_info["scalp_source"] = "locked_island"
+            scalp_info["registration"] = reg
+            out = working.copy()
+            x0, y0, x1, y1 = island_box
+            out[y0:y1, x0:x1] = _from_upright(out_up, island_box)
+            regions = regions_from_masks(masks_up)
+            out_lab = lab_of(out_up).astype(np.float64)
+            report["region_table"] = region_table(out_lab, regions, sides_up,
+                                                  scale)
+            interiors = zero_interiors(regions, scale, args.feather_texels)
+            report["exact_zero"] = exact_zero_report(before_lab, out_up,
+                                                     regions, interiors)
     else:
+        up_w, up_h = w, h
+        reg = _donor_registration(locked, up_w, up_h, working)
+        registered = bool(reg["registered"])
         before_lab = lab_of(working).astype(np.float64)
-        out, scalp_info = scalp_apply(working, locked, masks, scale,
-                                      args.feather_texels)
-        out_lab = lab_of(out).astype(np.float64)
-        regions = regions_from_masks(masks)
-        report["region_table"] = region_table(out_lab, regions, sides,
-                                              scale)
-        interiors = zero_interiors(regions, scale, args.feather_texels)
-        report["exact_zero"] = exact_zero_report(before_lab, out, regions,
-                                                 interiors)
+        if not registered:
+            out = working.copy()
+            regions = regions_from_masks(masks)
+            out_lab = lab_of(out).astype(np.float64)
+            report["region_table"] = region_table(out_lab, regions, sides,
+                                                  scale)
+            interiors = zero_interiors(regions, scale, args.feather_texels)
+            report["exact_zero"] = exact_zero_report(before_lab, out,
+                                                     regions, interiors)
+            scalp_info = {
+                "tone_shift_Lab": [0.0, 0.0, 0.0],
+                "tone_anchor": "subject-base-unregistered",
+                "treat_frac": 0.0,
+                "scalp_source": "subject_base",
+                "registration": reg,
+            }
+        else:
+            out, scalp_info = scalp_apply(working, locked, masks, scale,
+                                          args.feather_texels)
+            scalp_info["scalp_source"] = "locked_island"
+            scalp_info["registration"] = reg
+            out_lab = lab_of(out).astype(np.float64)
+            regions = regions_from_masks(masks)
+            report["region_table"] = region_table(out_lab, regions, sides,
+                                                  scale)
+            interiors = zero_interiors(regions, scale, args.feather_texels)
+            report["exact_zero"] = exact_zero_report(before_lab, out, regions,
+                                                     interiors)
     report["scalp"] = scalp_info
     # Input-side refusal: a painted scalp arrives in the BASE skin, and the
     # join+scalp treatment smooths it away (bad-A input 16.9 -> output 1.8),
@@ -972,6 +1054,14 @@ def compose(args: argparse.Namespace) -> dict:
         before_lab, regions, sides_up if island_box is not None else sides,
         scale)
     report["input_region_table"] = {"crown_step": in_table["crown_step"]}
+    # Unregistered donors return the subject's own base skin with donor
+    # weight 0 everywhere: the run returns output with no refusal either
+    # side. Registered runs keep the existing refusal behaviour exactly.
+    if not registered:
+        save_rgb(Path(args.out), out)
+        with open(args.report, "w") as f:
+            json.dump(report, f, indent=1)
+        return report
     in_step = in_table["crown_step"]
     if in_step["max"] is not None and in_step["max"] > in_step["bound"]:
         report["refusal"] = {
