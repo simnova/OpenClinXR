@@ -35,8 +35,16 @@ Anatomy sources (all spatial constants in mm):
   out, never a hard step). Sized from the goal photo: the upper-lip
   shadow rises over ~5 mm including shading geometry (S/beard/RESULT.md
   goal column profile), so the albedo fades over 3 mm and light adds
-  the rest. SUPPORT_MM 9.0 (3 sigma, field ~1% at the support rim)
-  bounds the bit-exact restore.
+  the rest. SUPPORT_MM 12.0 bounds the bit-exact restore past the
+  10 mm cheek ramp (field exactly 0 at the ramp rim).
+- CHEEK_RAMP_MM 10.0: the cheek-side upper boundary thins over a
+  centimetre (density/strength ramp, lip/chin cores stay full).
+  Lane-manager-measured falloff width; consistent with cheek 45-50 vs
+  chin 75-80 FU/cm2 (Dua review).
+- COMMISSURE_TRIM_MM 4.0: the lips-mask hole ends at the commissures.
+  Tip-band profile (S/beard/RESULT.md): outer 16 texels are L55 skin,
+  lip-like tissue starts inside |lat| ~114; the cut lands at 114, on
+  skin, sparing the vermilion.
 - LIPS_EXCLUDE_MM 0.5 + LIP_FEATHER_MM 0.5: the cutout hugs the
   mask edge (lane-manager grade: no pale halo ring). The edge already
   sits within ~2 mm of the skin/vermilion transition (albedo L falls
@@ -96,7 +104,9 @@ STIPPLE_R_MM = 0.12
 BASE_DENSITY_PER_MM2 = 0.65
 EXTRA_DENSITY_PER_MM2 = 0.85
 FADE_MM = 3.0
-SUPPORT_MM = 9.0
+SUPPORT_MM = 12.0
+CHEEK_RAMP_MM = 10.0
+COMMISSURE_TRIM_MM = 4.0
 LIPS_EXCLUDE_MM = 0.5
 LIP_FEATHER_MM = 0.5
 PHILTRUM_MM = 14.0
@@ -152,19 +162,22 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
     d = d / n
     perp = np.array([-d[1], d[0]])
     p0 = (pts["nostril-L"] + pts["nostril-R"]) / 2.0
-    rr, cc = np.mgrid[0:h, 0:w].astype(np.float64)
-    proj = (cc - p0[0]) * d[0] + (rr - p0[1]) * d[1]
-    lat = (cc - p0[0]) * perp[0] + (rr - p0[1]) * perp[1]
-    ear_half = max(float(abs(((pts["ear-attach-L"] - p0) * perp).sum())),
-                   float(abs(((pts["ear-attach-R"] - p0) * perp).sum())))
-    ear_proj = float((((pts["ear-attach-L"] + pts["ear-attach-R"]) / 2.0 - p0) * d).sum())
-    chin_proj = float(((chin - p0) * d).sum())
     lips_bin = (lips > 0.5).astype(np.uint8)
     if not lips_bin.any():
         raise RuntimeError("beard_shadow refuses: lips mask is empty")
-    lips_excl = dilate(lips_bin, LIPS_EXCLUDE_MM * tpm)
-    lip_top = float(proj[lips_bin > 0].min())
-    lip_half = float(np.abs(lat[lips_bin > 0]).max())
+    rr, cc = np.mgrid[0:h, 0:w].astype(np.float64)
+    proj = (cc - p0[0]) * d[0] + (rr - p0[1]) * d[1]
+    lat = (cc - p0[0]) * perp[0] + (rr - p0[1]) * perp[1]
+    alat = np.abs(lat)
+    raw_half = float(alat[lips_bin > 0].max())
+    # Commissures: the lips-mask tips past the vermilion ends are skin
+    # (tip-band profile), so the hole reference ends there too.
+    lips_ref = (lips_bin > 0) & (alat <= raw_half - COMMISSURE_TRIM_MM * tpm)
+    if not lips_ref.any():
+        raise RuntimeError("beard_shadow refuses: trimmed lips reference is empty")
+    lips_excl = dilate(lips_ref.astype(np.uint8), LIPS_EXCLUDE_MM * tpm)
+    lip_top = float(proj[lips_ref].min())
+    lip_half = float(alat[lips_ref].max())
     nostril_lat = float((abs(((pts["nostril-L"] - p0) * perp).sum())
                           + abs(((pts["nostril-R"] - p0) * perp).sum())) / 2.0)
     # Continuous top edge: flat below the subnasale at the centre, up
@@ -174,23 +187,37 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
     lip_line = lip_top + LIP_TOP_TOL_MM * tpm
     run_inner = lip_half - nostril_lat
     slope_inner = (lip_line - top_centre) / run_inner if run_inner > 1.0 else 0.0
+    ear_half = max(float(abs(((pts["ear-attach-L"] - p0) * perp).sum())),
+                   float(abs(((pts["ear-attach-R"] - p0) * perp).sum())))
+    ear_proj = float((((pts["ear-attach-L"] + pts["ear-attach-R"]) / 2.0 - p0) * d).sum())
+    chin_proj = float(((chin - p0) * d).sum())
     run_ear = ear_half - lip_half
     slope_ear = (lip_line - ear_proj) / run_ear if run_ear > 1.0 else 0.0
     slope_ear = max(slope_ear, 0.0)
-    alat = np.abs(lat)
     top = np.where(alat <= nostril_lat, top_centre,
                    np.where(alat <= lip_half,
                             top_centre + slope_inner * (alat - nostril_lat),
                             lip_line - slope_ear * (alat - lip_half)))
     hard = ((facecore > 0.5) & (proj > top) & (alat <= ear_half)
             & (proj <= chin_proj + CHIN_BEYOND_MM * tpm) & (~lips_excl))
-    dist_lips = cv2.distanceTransform((1 - lips_bin).astype(np.uint8),
+    dist_lips = cv2.distanceTransform((1 - lips_ref.astype(np.uint8)),
                                       cv2.DIST_L2, 3).astype(np.float64)
     zone = (hard & (proj <= lip_line)
             & (dist_lips <= MUSTACHE_ZONE_MM * tpm))
     support = dilate(hard.astype(np.uint8), SUPPORT_MM * tpm)
+    # Cheek density ramp: above the top edge, outside mouth width, the
+    # beard thins over CHEEK_RAMP_MM (no stain edge). Cores keep full.
+    cheekband = alat > lip_half
+    above = (proj < top) & (proj >= top - CHEEK_RAMP_MM * tpm)
+    rampband = cheekband & above & (facecore > 0.5) & support
+    rampval = np.where(rampband, 1.0 - (top - proj) / (CHEEK_RAMP_MM * tpm), 0.0)
+    central = alat <= lip_half
+    nose_gate = np.where(central,
+                         np.clip((proj - top) / (NOSE_RAMP_MM * tpm), 0, 1), 1.0)
     return {"hard": hard, "zone": zone, "support": support, "top": top,
-            "proj": proj,
+            "proj": proj, "rampband": rampband, "rampval": rampval,
+            "nose_gate": nose_gate,
+            "band_mm2": float(rampband.sum()) / tpm / tpm,
             "area_mm2": float(hard.sum()) / tpm / tpm,
             "zone_mm2": float(zone.sum()) / tpm / tpm,
             "dist_lips": dist_lips}
@@ -266,7 +293,9 @@ def main(argv: list[str] | None = None) -> int:
     hard, zone = parts["hard"], parts["zone"]
     support = parts["support"]
     dist_lips = parts["dist_lips"]
-    top = parts["top"]
+    rampband = parts["rampband"]
+    rampval = parts["rampval"]
+    nose_gate = parts["nose_gate"]
     if a.mask_out is not None:
         Image.fromarray((hard * 255).astype(np.uint8)).save(a.mask_out)
 
@@ -284,14 +313,14 @@ def main(argv: list[str] | None = None) -> int:
             outer = outer / float(outer.max())
         lip_gate = np.clip((dist_lips / tpm - LIPS_EXCLUDE_MM)
                            / LIP_FEATHER_MM, 0, 1)
-        # Nose guard: no outward fade above the top edge; the shadow
-        # deepens over NOSE_RAMP_MM below it (goal subnasale gradient).
-        nose_gate = np.clip((parts["proj"] - top) / (NOSE_RAMP_MM * tpm), 0, 1)
+        # Nose guard now lives in build_beard_mask (centre only); the
+        # cheek ramp below carries the upper-cheek falloff instead.
         zoneprox = gauss(zone.astype(np.float32), FADE_MM * tpm)
         if float(zoneprox.max()) > 0:
             zoneprox = zoneprox / float(zoneprox.max())
-        field = outer * lip_gate * nose_gate * support
-        gate = lip_gate * nose_gate
+        core = outer * lip_gate * nose_gate * support
+        field = np.maximum(core, rampval * rampband)
+        gate = np.maximum(lip_gate * nose_gate, rampval * rampband)
         lab = rgb_to_lab(alb)
         lab[..., 0] += w * LOW_DARKEN_L * field * (1.0 + ZONE_BOOST_L * zoneprox)
         lab[..., 1] += w * LOW_SHIFT_A * field
@@ -299,20 +328,32 @@ def main(argv: list[str] | None = None) -> int:
         rng = np.random.default_rng(int(a.seed))
         n_base = int(round(BASE_DENSITY_PER_MM2 * parts["area_mm2"]))
         n_extra = int(round(EXTRA_DENSITY_PER_MM2 * parts["zone_mm2"]))
+        n_ramp = int(round(BASE_DENSITY_PER_MM2 * parts["band_mm2"]))
+        ramp_c = stipple_centres(rampband, n_ramp, rng)
+        if len(ramp_c):
+            cx = np.clip(ramp_c[:, 0].astype(int), 0, wpx - 1)
+            cy = np.clip(ramp_c[:, 1].astype(int), 0, h - 1)
+            keep = rng.random(len(ramp_c)) < rampval[cy, cx]
+            ramp_c = ramp_c[keep]
         centres = np.vstack([stipple_centres(hard, n_base, rng),
                              stipple_centres(zone, n_extra, rng)])
         radii = STIPPLE_R_MM * tpm * np.exp(0.2 * rng.standard_normal(len(centres)))
         radii = np.clip(radii, 0.2, None)
         apply_stipple(lab, hard, centres, radii, w, gate)
+        if len(ramp_c):
+            ramp_r = STIPPLE_R_MM * tpm * np.exp(
+                0.2 * rng.standard_normal(len(ramp_c)))
+            ramp_r = np.clip(ramp_r, 0.2, None)
+            apply_stipple(lab, support, ramp_c, ramp_r, w, gate)
         lab[..., 0] = np.clip(lab[..., 0], 0, 100)
         out = lab_to_rgb(lab)
         # Bit-exact outside the faded support: the stage changes only
         # texels inside its derived mask plus the mm fade.
         out[~support] = alb[~support]
         Image.fromarray(out).save(a.albedo_out)
-        print("beard_shadow: weight=%s mask=%d zone=%d dots=%d wrote %s"
+        print("beard_shadow: weight=%s mask=%d zone=%d dots=%d+ramp%d wrote %s"
               % (a.weight, int(hard.sum()), int(zone.sum()),
-                 len(centres), a.albedo_out), flush=True)
+                 len(centres), len(ramp_c), a.albedo_out), flush=True)
 
     if a.report_out is not None:
         with open(a.report_out, "w") as f:
@@ -323,6 +364,9 @@ def main(argv: list[str] | None = None) -> int:
                        "zone_mm2": round(parts["zone_mm2"], 1),
                        "mask_frac": round(float(hard.mean()), 6),
                        "fade_mm": FADE_MM, "support_mm": SUPPORT_MM,
+                       "ramp_mm": CHEEK_RAMP_MM,
+                       "band_mm2": round(parts["band_mm2"], 1),
+                       "trim_mm": COMMISSURE_TRIM_MM,
                        "support_px": int(support.sum())}, f, indent=1)
     return 0
 
