@@ -11,9 +11,15 @@ this module): measures source stats in albedo space under the
 mesh-derived face-core mask and render stats under supplied
 render-space masks, then WRITES solve-parameters.json carrying the
 subject id, the six numbers, the offset, the mask/input/goal shas and
-the method version. REPLAY: reads the parameters, verifies the input
-albedo + mask shas, measures the source stats LIVE from the supplied
-input, applies the affine globally, writes the output. Zero renders,
+the method version. With --chroma-grid NxM (+ --chroma-pre-json,
+--chroma-goal-json, --landmarks-uv, --mouth-mask) SOLVE additionally
+fits a stored regional chroma field: per-cell goal-minus-render a*/b*
+means over the below-brow band in landmark-normalised coordinates,
+evaluation-patch cells excluded, demeaned, gaussian-smoothed, mapped to
+albedo UV through the mesh-derived UV anchors. REPLAY: reads the
+parameters, verifies the input albedo + mask shas, measures the source
+stats LIVE from the supplied input, applies the affine globally (plus
+the stored field when present), writes the output. Zero renders,
 zero model calls, zero child processes on the replay path. A recorded
 input sha mismatch is a hard REFUSE (non-zero exit), never a fallback.
 
@@ -42,6 +48,15 @@ import face_replay_compose as C
 METHOD_VERSION = "global-lab6-v2"
 MIN_MASK_TEXELS = 64
 MIN_HALF_TEXELS = 500
+
+REGIONAL_CHROMA_METHOD = "regional-chroma-v1"
+# Normalised render-space grid extent in midline units (x-cx)/ied.
+# Cheek patches sit at |nx| ~ 0.43-0.51 (115px/ied); +-0.65 covers the
+# band sides with margin. Vertical ny=(y-brow)/(mouth-brow); the band
+# bottom (mouth+0.25*ied) maps to ~1.17-1.23, set per solve from the
+# pre-solve mask JSON and recorded.
+CHROMA_NX_RANGE = (-0.65, 0.65)
+MIN_CELL_TEXELS = 200
 
 
 def face_stats(rgb: np.ndarray, mask: np.ndarray) -> tuple[list, list, int]:
@@ -82,6 +97,311 @@ def apply_transfer(rgb: np.ndarray, src_mean: list, src_sd: list,
     out = (lab - mu_s) / np.maximum(sd_s, 1e-6) * sd_t + mu_t
     out[..., 0] = np.clip(out[..., 0], 0.0, 100.0)
     return C.rgb_of(out)
+
+
+def _norm_anchors(mask_json: dict) -> dict:
+    """Landmark anchors from a make_belowbrow_mask.py JSON."""
+    return {
+        "cx": float(mask_json["cx"]),
+        "ied": float(mask_json["ied"]),
+        "brow_row": float(mask_json["brow_row"]),
+        "mouth_bottom": float(mask_json["mouth_bottom"]),
+        "eye_row": float(mask_json["eye_row"]),
+    }
+
+
+def _render_nxny(xs: np.ndarray, ys: np.ndarray, a: dict) -> tuple[np.ndarray, np.ndarray]:
+    nx = (xs - a["cx"]) / a["ied"]
+    ny = (ys - a["brow_row"]) / (a["mouth_bottom"] - a["brow_row"])
+    return nx, ny
+
+
+def _eval_patch_rects(mask_json: dict, half: float = 20.0) -> list:
+    """40x40 evaluation patches (same centres/half-size as the mask
+    script: PATCH_R=20) as normalised rects (nx0, ny0, nx1, ny1)."""
+    a = _norm_anchors(mask_json)
+    rects = []
+    for name in ("L_cheek", "R_cheek", "forehead_below_brow", "chin"):
+        cxp, cyp = mask_json["regions"][name]["center"]
+        xs = np.array([cxp - half, cxp + half])
+        ys = np.array([cyp - half, cyp + half])
+        nx, ny = _render_nxny(xs, ys, a)
+        rects.append((name, float(nx[0]), float(ny[0]),
+                      float(nx[1]), float(ny[1])))
+    return rects
+
+
+def _cells_overlapping(nx_edges: np.ndarray, ny_edges: np.ndarray,
+                       rect: tuple) -> set:
+    _, x0, y0, x1, y1 = rect
+    hit = set()
+    for iy in range(len(ny_edges) - 1):
+        if ny_edges[iy + 1] < y0 or ny_edges[iy] > y1:
+            continue
+        for ix in range(len(nx_edges) - 1):
+            if nx_edges[ix + 1] < x0 or nx_edges[ix] > x1:
+                continue
+            hit.add((ix, iy))
+    return hit
+
+
+def _cell_means_ab(rgb: np.ndarray, keep: np.ndarray,
+                   nx: np.ndarray, ny: np.ndarray,
+                   nx_edges: np.ndarray, ny_edges: np.ndarray) -> tuple:
+    """Mean a*/b* per grid cell over kept pixels; count grid."""
+    lab = C.lab_of(rgb).astype(np.float64)
+    ix = np.clip(np.digitize(nx, nx_edges) - 1, 0, len(nx_edges) - 2)
+    iy = np.clip(np.digitize(ny, ny_edges) - 1, 0, len(ny_edges) - 2)
+    ny_cells, nx_cells = len(ny_edges) - 1, len(nx_edges) - 1
+    means = np.full((ny_cells, nx_cells, 2), np.nan)
+    counts = np.zeros((ny_cells, nx_cells), dtype=np.int64)
+    # ix/iy/nx/ny are already kept-pixels-only from coords(); ab is masked
+    # from the full Lab image with the same keep mask, so rows align.
+    flat = iy * nx_cells + ix
+    ab = np.stack([lab[..., 1], lab[..., 2]], axis=-1)[keep]
+    if flat.size:
+        order = np.argsort(flat, kind="stable")
+        srt = flat[order]
+        bounds = np.searchsorted(srt, np.arange(1, nx_cells * ny_cells + 1))
+        prev = 0
+        for ci, b in enumerate(bounds):
+            n = int(b - prev)
+            counts[ci // nx_cells, ci % nx_cells] = n
+            if n >= MIN_CELL_TEXELS:
+                means[ci // nx_cells, ci % nx_cells] = \
+                    ab[order[prev:b]].mean(axis=0)
+            prev = b
+    return means, counts
+
+
+def _nearest_fill(raw: np.ndarray, valid: np.ndarray) -> np.ndarray:
+    """Fill invalid cells with the nearest valid cell value (grid is tiny;
+    brute force)."""
+    out = raw.copy()
+    vy, vx = np.where(valid)
+    for iy in range(raw.shape[0]):
+        for ix in range(raw.shape[1]):
+            if valid[iy, ix]:
+                continue
+            d2 = (vy - iy) ** 2 + (vx - ix) ** 2
+            j = int(np.argmin(d2))
+            out[iy, ix] = raw[vy[j], vx[j]]
+    return out
+
+
+def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
+                          pre_json: dict, goal_rgb: np.ndarray,
+                          goal_keep: np.ndarray, goal_json: dict,
+                          landmarks: dict, mouth_t: float,
+                          nx_cells: int, ny_cells: int,
+                          sigma_cells: float,
+                          mirror: bool = False,
+                          notch: bool = False,
+                          notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00") -> dict:
+    """Fit the stored regional chroma field.
+
+    Per cell: goal-minus-pre mean a*/b* over the below-brow band in
+    landmark-normalised coordinates (each image with its own mask-JSON
+    anchors). Cells overlapping any of the 4 evaluation patches (in
+    either image's coordinates) are EXCLUDED from the fit. With mirror,
+    the raw deltas are averaged about the midline first, so the stored
+    field adds no left/right difference of its own (the render-space
+    midline-asymmetry gate must not grow while an asymmetric residual is
+    corrected). The fit mean is removed (global tone stays with the six
+    numbers; L untouched), then a Gaussian smooth propagates fit values
+    into excluded cells so held-out patches generalise from neighbours.
+    """
+    a_pre = _norm_anchors(pre_json)
+    a_goal = _norm_anchors(goal_json)
+    # Patch half-size shared literally with the mask script (same 40x40
+    # evaluation boxes the report measures); lazy import so the replay
+    # path never pays for cv2/skimage.
+    import make_belowbrow_mask as _mbm
+    patch_half = float(_mbm.PATCH_R)
+    ny1 = 1.0 + 0.25 * a_pre["ied"] / (a_pre["mouth_bottom"] - a_pre["brow_row"])
+    nx_edges = np.linspace(CHROMA_NX_RANGE[0], CHROMA_NX_RANGE[1], nx_cells + 1)
+    ny_edges = np.linspace(0.0, ny1, ny_cells + 1)
+
+    def coords(rgb, keep, a):
+        h, w = keep.shape
+        ys, xs = np.where(keep)
+        nx, ny = _render_nxny(xs.astype(np.float64),
+                              ys.astype(np.float64), a)
+        return xs, ys, nx, ny
+
+    _, _, pnx, pny = coords(pre_rgb, pre_keep, a_pre)
+    _, _, gnx, gny = coords(goal_rgb, goal_keep, a_goal)
+    pre_m, pre_n = _cell_means_ab(pre_rgb, pre_keep, pnx, pny,
+                                  nx_edges, ny_edges)
+    goal_m, goal_n = _cell_means_ab(goal_rgb, goal_keep, gnx, gny,
+                                    nx_edges, ny_edges)
+    covered = (~np.isnan(pre_m[..., 0])) & (~np.isnan(goal_m[..., 0]))
+
+    eval_cells: set = set()
+    for js in (pre_json, goal_json):
+        for rect in _eval_patch_rects(js, half=patch_half):
+            eval_cells |= _cells_overlapping(nx_edges, ny_edges, rect)
+    fit = covered & np.array(
+        [[(ix, iy) not in eval_cells
+          for ix in range(nx_cells)] for iy in range(ny_cells)])
+    if int(fit.sum()) < 4:
+        raise RuntimeError(f"CHROMA_TOO_FEW_FIT_CELLS n={int(fit.sum())}: refuse")
+
+    raw = np.where(covered[..., None],
+                   goal_m - pre_m, np.nan)
+    if mirror:
+        for iy in range(ny_cells):
+            for ix in range(nx_cells):
+                jx = nx_cells - 1 - ix
+                if jx <= ix:
+                    continue
+                a, b = covered[iy, ix], covered[iy, jx]
+                if a and b:
+                    avg = (raw[iy, ix] + raw[iy, jx]) / 2
+                    raw[iy, ix] = raw[iy, jx] = avg
+                elif b:
+                    raw[iy, ix] = raw[iy, jx]
+                elif a:
+                    raw[iy, jx] = raw[iy, ix]
+    filled = raw.copy()
+    for c in range(2):
+        plane = raw[..., c]
+        filled[..., c] = _nearest_fill(
+            np.where(np.isnan(plane), 0.0, plane), covered)
+    demean = [float(filled[..., c][fit].mean()) for c in range(2)]
+    zero_mean = filled - np.array(demean)
+    # Gaussian smooth (C.gauss: separable, truncate 3, reflect): suppresses
+    # per-cell sampling noise and, crucially, bleeds fit values into the
+    # held-out evaluation cells so they inherit neighbour corrections.
+    smooth = C.gauss(zero_mean, float(sigma_cells))
+    notch_desc = None
+    if notch:
+        # Spare curved-midline zones (nose slopes, mouth, chin cleft):
+        # their render-vs-goal delta is mostly key-light shading, not
+        # albedo, so baking it in cannot converge and only feeds
+        # asymmetric render response (measured: the a* asymmetry excess
+        # sits at |nx|<0.2, not in the smooth cheek/forehead eval zones).
+        # Cosine-ramped per-cell weights on the smoothed field; the
+        # bilinear replay lookup keeps the applied field continuous.
+        # Core geometry comes from --chroma-notch-cores as universal
+        # face proportions in normalised units (recorded verbatim).
+        try:
+            cores = [tuple(float(v) for v in c.split(","))
+                     for c in notch_cores.split(";")]
+            assert all(len(c) == 3 for c in cores)
+        except (ValueError, AssertionError, AttributeError):
+            raise SystemExit("--chroma-notch-cores must look like "
+                             "\"hx,ny0,ny1;hx,ny0,ny1\"")
+        ramp = 0.10
+        wcell = np.ones((ny_cells, nx_cells))
+        ccx = (nx_edges[:-1] + nx_edges[1:]) / 2
+        ccy = (ny_edges[:-1] + ny_edges[1:]) / 2
+        for iy in range(ny_cells):
+            for ix in range(nx_cells):
+                w = 1.0
+                for hx, y0, y1 in cores:
+                    dx = max(0.0, abs(ccx[ix]) - hx)
+                    dy = max(0.0, ccy[iy] - y1, y0 - ccy[iy])
+                    d = (dx * dx + dy * dy) ** 0.5
+                    if d <= 0.0:
+                        w = 0.0
+                    elif d < ramp:
+                        w = min(w, 0.5 - 0.5 * np.cos(np.pi * d / ramp))
+                wcell[iy, ix] = w
+        smooth = smooth * wcell[..., None]
+        notch_desc = {"cores": [{"half_nx": c[0], "ny0": c[1], "ny1": c[2]}
+                               for c in cores],
+                      "ramp": ramp,
+                      "why": "curved-midline render delta is shading, not "
+                             "albedo; sparing it removes asymmetric render "
+                             "response without touching smooth eval zones"}
+
+    lms = landmarks["landmarks"]
+    def uv(name):
+        return lms[name]["uv_texel"]
+    eye_l = (np.array(uv("eye-corner-L-inner")) + np.array(uv("eye-corner-L-outer"))) / 2
+    eye_r = (np.array(uv("eye-corner-R-inner")) + np.array(uv("eye-corner-R-outer"))) / 2
+    brow_rows = [uv(k)[0] for k in ("brow-end-L-inner", "brow-end-L-outer",
+                                    "brow-end-R-inner", "brow-end-R-outer")]
+    return {
+        "method": REGIONAL_CHROMA_METHOD,
+        "mirror": bool(mirror),
+        "notch": notch_desc,
+        "grid": {"nx": nx_cells, "ny": ny_cells,
+                 "nx_range": list(CHROMA_NX_RANGE),
+                 "ny_range": [0.0, float(ny1)]},
+        "render_anchors": {"pre": a_pre, "goal": a_goal},
+        "uv_anchors": {
+            # uv_texel = [u*S, v*S]; u runs down the face, v across it:
+            # horizontal s = v*S, vertical t = u*S.
+            "mid_s": float((np.array(uv("nose-tip"))[1] + np.array(uv("chin"))[1]) / 2),
+            "ied_s": float(abs(eye_r[1] - eye_l[1])),
+            "brow_t": float(sum(brow_rows) / len(brow_rows)),
+            "mouth_t": float(mouth_t),
+            "mouth_source": "mean u*S of mesh-derived lip-mask texels",
+            "landmarks_size": int(landmarks.get("size", 4096)),
+        },
+        "cells_ab": [[[float(smooth[iy, ix, 0]), float(smooth[iy, ix, 1])]
+                      for ix in range(nx_cells)] for iy in range(ny_cells)],
+        "fit_cells": sorted([list(c) for c in
+                             [(ix, iy) for iy in range(ny_cells)
+                              for ix in range(nx_cells) if fit[iy, ix]]]),
+        "eval_cells": sorted([list(c) for c in eval_cells]),
+        "unfit_cells": sorted([[ix, iy] for iy in range(ny_cells)
+                               for ix in range(nx_cells)
+                               if not covered[iy, ix]]),
+        "demean_ab": demean,
+        "smoothing": {"kernel": "separable-gaussian", "sigma_cells": float(sigma_cells),
+                      "truncate": 3.0, "mode": "reflect",
+                      "why": "suppress per-cell sampling noise and bleed fit "
+                             "values into held-out evaluation cells so they "
+                             "inherit neighbour corrections"},
+    }
+
+
+def apply_regional_chroma(lab: np.ndarray, face: np.ndarray,
+                          field: dict, albedo_size: int) -> np.ndarray:
+    """Add the stored a*/b* field to albedo Lab (L untouched).
+
+    Texel (row=v*S across, col=u*S down) -> normalised coords via the
+    mesh-derived UV anchors, bilinear sample of the smoothed grid
+    (clamped at the edges), weighted by the facecore mask value so
+    non-face texels are untouched and edges blend without a seam.
+    """
+    g = field["grid"]
+    nx_cells, ny_cells = int(g["nx"]), int(g["ny"])
+    (nx0, nx1), (ny0, ny1) = g["nx_range"], g["ny_range"]
+    u = field["uv_anchors"]
+    f = albedo_size / float(u["landmarks_size"])
+    s0, ieds = u["mid_s"] * f, u["ied_s"] * f
+    bt, mt = u["brow_t"] * f, u["mouth_t"] * f
+    h, w = lab.shape[:2]
+    ss = np.tile(np.arange(h, dtype=np.float64)[:, None], (1, w))
+    tt = np.tile(np.arange(w, dtype=np.float64)[None, :], (h, 1))
+    nx = (ss - s0) / ieds
+    ny = (tt - bt) / (mt - bt)
+    gx = (nx - nx0) / (nx1 - nx0) * nx_cells - 0.5
+    gy = (ny - ny0) / (ny1 - ny0) * ny_cells - 0.5
+    gx = np.clip(gx, 0.0, nx_cells - 1.0)
+    gy = np.clip(gy, 0.0, ny_cells - 1.0)
+    x0 = np.floor(gx).astype(np.int64)
+    y0 = np.floor(gy).astype(np.int64)
+    x1 = np.minimum(x0 + 1, nx_cells - 1)
+    y1 = np.minimum(y0 + 1, ny_cells - 1)
+    fx = (gx - x0)[..., None]
+    fy = (gy - y0)[..., None]
+    cells = np.array(field["cells_ab"], dtype=np.float64)
+    v00 = cells[y0, x0]
+    v10 = cells[y0, x1]
+    v01 = cells[y1, x0]
+    v11 = cells[y1, x1]
+    delta = (v00 * (1 - fx) + v10 * fx) * (1 - fy) + \
+            (v01 * (1 - fx) + v11 * fx) * fy
+    wgt = np.clip(face, 0.0, 1.0)[..., None]
+    out = lab.copy()
+    out[..., 1] += delta[..., 0] * wgt[..., 0]
+    out[..., 2] += delta[..., 1] * wgt[..., 0]
+    return out
 
 
 def cheek_delta_l(rgb: np.ndarray, face: np.ndarray, side_path: Path,
@@ -147,6 +467,49 @@ def cmd_solve(args: argparse.Namespace) -> dict:
         },
         "albedo_size": [w, h],
     }
+    if args.chroma_grid:
+        for need, label in ((args.chroma_pre_json, "--chroma-pre-json"),
+                            (args.chroma_goal_json, "--chroma-goal-json"),
+                            (args.landmarks_uv, "--landmarks-uv"),
+                            (args.mouth_mask, "--mouth-mask")):
+            if not need:
+                raise SystemExit(f"chroma field needs {label}")
+        try:
+            nx_s, ny_s = args.chroma_grid.lower().split("x")
+            nx_cells, ny_cells = int(nx_s), int(ny_s)
+        except ValueError:
+            raise SystemExit("chroma_grid must look like 6x5")
+        pre_json = json.loads(Path(args.chroma_pre_json).read_text(encoding="utf8"))
+        goal_json = json.loads(Path(args.chroma_goal_json).read_text(encoding="utf8"))
+        landmarks = json.loads(Path(args.landmarks_uv).read_text(encoding="utf8"))
+        mouth_mask = C.load_mask(Path(args.mouth_mask), (w, h))
+        _my, _mx = np.where(mouth_mask > 0.5)
+        if _my.size < MIN_MASK_TEXELS:
+            raise RuntimeError("CHROMA_MOUTH_MASK_TOO_SMALL: refuse")
+        # u runs down the face = array columns of the mask image.
+        mouth_t = float(_mx.mean()) * float(landmarks.get("size", 4096)) / float(w)
+        pre_keep = (C.load_mask(Path(args.pre_mask), (pw, ph)) > 0.5)
+        goal_keep = (C.load_mask(Path(args.goal_mask), (gw, gh)) > 0.5)
+        field = solve_regional_chroma(pre, pre_keep, pre_json, goal, goal_keep,
+                                      goal_json, landmarks, mouth_t,
+                                      nx_cells, ny_cells,
+                                      float(args.chroma_sigma),
+                                      mirror=bool(args.chroma_mirror),
+                                      notch=bool(args.chroma_notch),
+                                      notch_cores=args.chroma_notch_cores)
+        field["files"] = {
+            "pre_mask_json": Path(args.chroma_pre_json).name,
+            "goal_mask_json": Path(args.chroma_goal_json).name,
+            "landmarks_uv": Path(args.landmarks_uv).name,
+            "mouth_mask": Path(args.mouth_mask).name,
+        }
+        field["shas"] = {
+            "pre_mask_json": C.sha256_file(Path(args.chroma_pre_json)),
+            "goal_mask_json": C.sha256_file(Path(args.chroma_goal_json)),
+            "landmarks_uv": C.sha256_file(Path(args.landmarks_uv)),
+            "mouth_mask": C.sha256_file(Path(args.mouth_mask)),
+        }
+        params["regional_chroma"] = field
     out = Path(args.out_params)
     out.write_text(json.dumps(params, indent=1) + "\n", encoding="utf8")
     return params
@@ -179,6 +542,16 @@ def cmd_replay(args: argparse.Namespace) -> dict:
     src_n = params["source_albedo"]["n"]
     six = params["six"]
     out = apply_transfer(rgb, src_mean, src_sd, six[:3], six[3:])
+    field = params.get("regional_chroma")
+    if field is not None:
+        if field.get("method") != REGIONAL_CHROMA_METHOD:
+            raise RuntimeError(f"COLOUR_CHROMA_METHOD_MISMATCH "
+                               f"{field.get('method')}: refuse")
+        # Stored a*/b* field on top of the global affine (L untouched).
+        # Params without a field take the byte-identical path above.
+        lab = C.lab_of(out).astype(np.float64)
+        lab = apply_regional_chroma(lab, face, field, w)
+        out = C.rgb_of(lab)
     d_before: float | None = None
     d_after: float | None = None
     nl = nr = 0
@@ -263,6 +636,7 @@ def cmd_replay(args: argparse.Namespace) -> dict:
         "mode": "colour-replay",
         "subject": params.get("subject"),
         "method": params.get("method"),
+        "regional_chroma": (params.get("regional_chroma") or {}).get("method"),
         "six": six,
         "offset_D_render_minus_albedo":
             params.get("offset_D_render_minus_albedo"),
@@ -305,6 +679,27 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--side-map", default=None)
     ap.add_argument("--out", default=None)
     ap.add_argument("--report", default=None)
+    ap.add_argument("--chroma-grid", default=None,
+                    help="opt-in regional chroma field, e.g. 6x5 "
+                         "(columns x rows over the below-brow band)")
+    ap.add_argument("--chroma-sigma", type=float, default=1.0,
+                    help="gaussian smooth of the field in cell units")
+    ap.add_argument("--chroma-pre-json", default=None,
+                    help="below-brow mask JSON for --pre-render")
+    ap.add_argument("--chroma-goal-json", default=None,
+                    help="below-brow mask JSON for --goal-render")
+    ap.add_argument("--landmarks-uv", default=None,
+                    help="derive landmarks-uv.json (mesh UV anchors)")
+    ap.add_argument("--mouth-mask", default=None,
+                    help="derive mask-lips.png (mesh mouth anchor)")
+    ap.add_argument("--chroma-mirror", action="store_true",
+                    help="average raw cell deltas about the midline so the "
+                         "field adds no left/right difference of its own")
+    ap.add_argument("--chroma-notch", action="store_true",
+                    help="cosine-ramped spare of curved-midline cells "
+                         "(nose/mouth shading zones)")
+    ap.add_argument("--chroma-notch-cores", default="0.20,0.32,0.70;0.26,0.80,1.00",
+                    help="notch cores as hx,ny0,ny1 triples in normalised units")
     return ap
 
 

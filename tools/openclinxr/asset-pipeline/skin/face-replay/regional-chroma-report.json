@@ -1,0 +1,892 @@
+{
+ "card": "tsk_3c0e55130d11b3dc",
+ "verdict": "FALSIFIER: no swept setting passes G1 (>=3/4) with G3 (asymmetry <= pre_fix per channel, noise 0) holding; closest is sweepG (G1 3/4, a* +0.022/b* +0.006 over pre_fix).",
+ "bound_per_channel": 3,
+ "pre_fix": {
+  "render": "S/regchroma/step0/capM1/body2-hb1-measure-front.png (fresh 1024 capture of the hb1-socket albedo_socket.png under the port5 studio+eye measurement harness)",
+  "render_sha256": "fd6bc0087555124a51fc31f41945fbf6d62771895c92879afdf8a2867162af69",
+  "mask_rows": {
+   "cx": 511,
+   "eye_row": 527.4,
+   "ied": 225.7,
+   "brow_row": 467,
+   "mouth_bottom": 737,
+   "n": 208453
+  },
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     58.09,
+     12.42,
+     18.24
+    ],
+    "render_center": [
+     396,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     55.81,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     411,
+     514
+    ],
+    "goal_gatefrac": 0.989,
+    "dLab_render_minus_goal": [
+     2.28,
+     -3.12,
+     -3.8
+    ],
+    "within_3_per_channel": false
+   },
+   "R_cheek": {
+    "render_Lab": [
+     57.22,
+     14.05,
+     19.66
+    ],
+    "render_center": [
+     626,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     57.01,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     641,
+     514
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     0.21,
+     -1.49,
+     -2.38
+    ],
+    "within_3_per_channel": true
+   },
+   "forehead_below_brow": {
+    "render_Lab": [
+     60.53,
+     9.06,
+     18.04
+    ],
+    "render_center": [
+     511,
+     492
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     62.02,
+     15.45,
+     22.39
+    ],
+    "goal_center": [
+     526,
+     384
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     -1.49,
+     -6.39,
+     -4.35
+    ],
+    "within_3_per_channel": false
+   },
+   "chin": {
+    "render_Lab": [
+     67.21,
+     11.56,
+     15.89
+    ],
+    "render_center": [
+     511,
+     772
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     44.97,
+     17.68,
+     12.2
+    ],
+    "goal_center": [
+     526,
+     778
+    ],
+    "goal_gatefrac": 0.443,
+    "dLab_render_minus_goal": [
+     22.24,
+     -6.12,
+     3.69
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "g1_count": 1,
+  "band_ab": {
+   "render": [
+    13.77,
+    19.76
+   ],
+   "goal": [
+    14.38,
+    20.02
+   ],
+   "note": "means over rows brow..mouth+0.25ied in below-brow mask; S/regchroma/step0/step0_numbers.py"
+  },
+  "non_chin_L_residuals": [
+   2.28,
+   0.21,
+   -1.49
+  ],
+  "band_premise_holds": true,
+  "asymmetry": [
+   4.4016,
+   1.4431,
+   2.8791
+  ],
+  "run_to_run_noise": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "noise_note": "two independent captures byte-identical (2756e3dd native-variant pair; fd6bc008 harness pair); asymmetry identical to 4dp",
+  "mask_script": "tools/.../face-replay/make_belowbrow_mask.py",
+  "mask_script_sha256": "9e470a187da95e373966060b16b8cd360e1f0fc8178dace0505190bfae0bdb7f",
+  "mask_script_source_sha256": "9e470a187da95e373966060b16b8cd360e1f0fc8178dace0505190bfae0bdb7f",
+  "goal_mask_agrees_with_port5": true,
+  "harness_note": "native hb1-socket variant (pink body2 eyes, no eye override) refuses the eye-hole mask at 1280 and at 1024 (1 left/0 right candidates); measurement reuses the port5 studio-rig + eye/teeth-override harness that every render_vs_goal in this lineage used. Eyes are outside all measured regions."
+ },
+ "sweep": [
+  {
+   "setting": "sweepA",
+   "grid": "6x5",
+   "sigma": 1.0,
+   "mirror": false,
+   "notch": null,
+   "g1_count": 2,
+   "regions": {
+    "L_cheek": [
+     2.18,
+     -1.62,
+     -1.7
+    ],
+    "R_cheek": [
+     0.15,
+     0.4,
+     0.48
+    ],
+    "forehead_below_brow": [
+     -1.62,
+     -3.31,
+     -1.03
+    ],
+    "chin": [
+     22.27,
+     -5.84,
+     3.68
+    ]
+   },
+   "asymmetry": [
+    4.3953,
+    1.6633,
+    3.3542
+   ],
+   "fit_cells": 18,
+   "eval_cells": 12,
+   "socket_sha256": "c8d7014979ac446cf2b19af909430916cfb3f4bc1f670a324bb0df3d309aca36"
+  },
+  {
+   "setting": "sweepB",
+   "grid": "8x6",
+   "sigma": 1.0,
+   "mirror": true,
+   "notch": null,
+   "g1_count": 2,
+   "regions": {
+    "L_cheek": [
+     2.32,
+     -1.78,
+     -0.85
+    ],
+    "R_cheek": [
+     0.29,
+     -0.07,
+     0.66
+    ],
+    "forehead_below_brow": [
+     -1.59,
+     -3.15,
+     -0.69
+    ],
+    "chin": [
+     22.23,
+     -6.05,
+     2.94
+    ]
+   },
+   "asymmetry": [
+    4.3971,
+    1.4791,
+    2.8857
+   ],
+   "fit_cells": 30,
+   "eval_cells": 16,
+   "socket_sha256": "971ec5d465bd54679218fdd142fff7ee731eef7166e7549b434e1c382dc5b4b8"
+  },
+  {
+   "setting": "sweepC",
+   "grid": "6x5",
+   "sigma": 1.5,
+   "mirror": true,
+   "notch": null,
+   "g1_count": 2,
+   "regions": {
+    "L_cheek": [
+     2.29,
+     -1.82,
+     -1.71
+    ],
+    "R_cheek": [
+     0.23,
+     -0.15,
+     -0.25
+    ],
+    "forehead_below_brow": [
+     -1.52,
+     -4.08,
+     -1.54
+    ],
+    "chin": [
+     22.22,
+     -5.6,
+     3.96
+    ]
+   },
+   "asymmetry": [
+    4.3951,
+    1.4802,
+    2.8879
+   ],
+   "fit_cells": 18,
+   "eval_cells": 12,
+   "socket_sha256": "50be5b92c013dcecf30f351d17a91a75da56bf78fff1a0c4c1c11526523812c3"
+  },
+  {
+   "setting": "sweepD",
+   "grid": "4x3",
+   "sigma": 1.0,
+   "mirror": true,
+   "notch": null,
+   "g1_count": 2,
+   "regions": {
+    "L_cheek": [
+     2.31,
+     -1.72,
+     -1.93
+    ],
+    "R_cheek": [
+     0.24,
+     -0.08,
+     -0.52
+    ],
+    "forehead_below_brow": [
+     -1.61,
+     -4.33,
+     -1.85
+    ],
+    "chin": [
+     22.14,
+     -5.25,
+     4.04
+    ]
+   },
+   "asymmetry": [
+    4.3962,
+    1.4831,
+    2.8893
+   ],
+   "fit_cells": 4,
+   "eval_cells": 8,
+   "socket_sha256": "aeea5e625a70a41d2fc60f14fffb5d14f893dddb7d8afdc65e102f72f5eb8096"
+  },
+  {
+   "setting": "sweepE",
+   "grid": "6x5",
+   "sigma": 0.7,
+   "mirror": true,
+   "notch": null,
+   "g1_count": 3,
+   "regions": {
+    "L_cheek": [
+     2.15,
+     -1.16,
+     -1.14
+    ],
+    "R_cheek": [
+     0.06,
+     0.53,
+     0.3
+    ],
+    "forehead_below_brow": [
+     -1.52,
+     -2.94,
+     -0.59
+    ],
+    "chin": [
+     22.25,
+     -6.02,
+     3.3
+    ]
+   },
+   "asymmetry": [
+    4.3983,
+    1.4894,
+    2.8848
+   ],
+   "fit_cells": 18,
+   "eval_cells": 12,
+   "socket_sha256": "fd097392412b92ab3382a2c0008cb8efd5ae53a8f5e1bc29746a58624e7fe6a8"
+  },
+  {
+   "setting": "sweepF",
+   "grid": "8x6",
+   "sigma": 0.7,
+   "mirror": true,
+   "notch": null,
+   "g1_count": 3,
+   "regions": {
+    "L_cheek": [
+     2.21,
+     -1.44,
+     -0.46
+    ],
+    "R_cheek": [
+     0.16,
+     0.23,
+     1.04
+    ],
+    "forehead_below_brow": [
+     -1.49,
+     -2.87,
+     -0.4
+    ],
+    "chin": [
+     22.21,
+     -6.06,
+     2.42
+    ]
+   },
+   "asymmetry": [
+    4.3952,
+    1.4802,
+    2.884
+   ],
+   "fit_cells": 30,
+   "eval_cells": 16,
+   "socket_sha256": "74c9d574813fccb204fa40cbdf902b6b9a7cf7768cb797e1c2b7129b3f900d67"
+  },
+  {
+   "setting": "sweepG",
+   "grid": "8x6",
+   "sigma": 0.7,
+   "mirror": true,
+   "notch": "0.20,0.32,0.70;0.26,0.80,1.00",
+   "g1_count": 3,
+   "regions": {
+    "L_cheek": [
+     2.21,
+     -1.45,
+     -0.49
+    ],
+    "R_cheek": [
+     0.16,
+     0.2,
+     1.02
+    ],
+    "forehead_below_brow": [
+     -1.49,
+     -2.87,
+     -0.4
+    ],
+    "chin": [
+     22.24,
+     -6.12,
+     3.69
+    ]
+   },
+   "asymmetry": [
+    4.3964,
+    1.4654,
+    2.8848
+   ],
+   "fit_cells": 30,
+   "eval_cells": 16,
+   "socket_sha256": "4e8b36305aa30fce751e5ba836bbfa5afec83af784476a9458695c79f04befe2"
+  },
+  {
+   "setting": "sweepH",
+   "grid": "8x6",
+   "sigma": 0.7,
+   "mirror": true,
+   "notch": "0.20,0.32,0.70;0.26,0.80,1.00;0.30,1.00,1.35",
+   "g1_count": 3,
+   "regions": {
+    "L_cheek": [
+     2.21,
+     -1.45,
+     -0.49
+    ],
+    "R_cheek": [
+     0.16,
+     0.2,
+     1.02
+    ],
+    "forehead_below_brow": [
+     -1.49,
+     -2.87,
+     -0.4
+    ],
+    "chin": [
+     22.24,
+     -6.12,
+     3.69
+    ]
+   },
+   "asymmetry": [
+    4.3959,
+    1.4666,
+    2.8843
+   ],
+   "fit_cells": 30,
+   "eval_cells": 16,
+   "socket_sha256": "a5eb15a246e1653d296c5bcc4a0768d48f4d6bfaf76de03c2d382cc3bffc0631"
+  }
+ ],
+ "best": {
+  "setting": "sweepG (8x6 grid, sigma 0.7 cells, mirror, notch 0.20,0.32,0.70;0.26,0.80,1.00)",
+  "why": "only settings E/F/G/H reach G1 3/4 (held-out patches generalise); G has the smallest G3 excess (a* +0.022, b* +0.006; L passes). H (+chin notch) confirms the floor: a* 1.4666, still over.",
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     58.02,
+     14.09,
+     21.55
+    ],
+    "render_center": [
+     396,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     55.81,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     411,
+     514
+    ],
+    "goal_gatefrac": 0.989,
+    "dLab_render_minus_goal": [
+     2.21,
+     -1.45,
+     -0.49
+    ],
+    "within_3_per_channel": true
+   },
+   "R_cheek": {
+    "render_Lab": [
+     57.17,
+     15.74,
+     23.06
+    ],
+    "render_center": [
+     626,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     57.01,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     641,
+     514
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     0.16,
+     0.2,
+     1.02
+    ],
+    "within_3_per_channel": true
+   },
+   "forehead_below_brow": {
+    "render_Lab": [
+     60.53,
+     12.58,
+     21.99
+    ],
+    "render_center": [
+     511,
+     492
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     62.02,
+     15.45,
+     22.39
+    ],
+    "goal_center": [
+     526,
+     384
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     -1.49,
+     -2.87,
+     -0.4
+    ],
+    "within_3_per_channel": true
+   },
+   "chin": {
+    "render_Lab": [
+     67.21,
+     11.56,
+     15.89
+    ],
+    "render_center": [
+     511,
+     772
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     44.97,
+     17.68,
+     12.2
+    ],
+    "goal_center": [
+     526,
+     778
+    ],
+    "goal_gatefrac": 0.443,
+    "dLab_render_minus_goal": [
+     22.24,
+     -6.12,
+     3.69
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "g1_count": 3,
+  "chin": "recorded, not gated (stubble, another card)",
+  "asymmetry": [
+   4.3964,
+   1.4654,
+   2.8848
+  ],
+  "g3_bound": [
+   4.4016,
+   1.4431,
+   2.8791
+  ],
+  "fit_cells": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    4
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    4
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    3,
+    2
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    5,
+    0
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    5,
+    3
+   ],
+   [
+    5,
+    4
+   ],
+   [
+    5,
+    5
+   ],
+   [
+    6,
+    0
+   ],
+   [
+    6,
+    4
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    7,
+    0
+   ],
+   [
+    7,
+    4
+   ]
+  ],
+  "eval_cells": [
+   [
+    0,
+    1
+   ],
+   [
+    0,
+    2
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    1,
+    3
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    4,
+    0
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    6,
+    2
+   ],
+   [
+    6,
+    3
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    7,
+    2
+   ],
+   [
+    7,
+    3
+   ]
+  ],
+  "unfit_cells": [
+   [
+    0,
+    5
+   ],
+   [
+    7,
+    5
+   ]
+  ],
+  "field": {
+   "method": "regional-chroma-v1",
+   "grid": {
+    "nx": 8,
+    "ny": 6,
+    "nx_range": [
+     -0.65,
+     0.65
+    ],
+    "ny_range": [
+     0.0,
+     1.232295719844358
+    ]
+   },
+   "mirror": true,
+   "notch": {
+    "cores": [
+     {
+      "half_nx": 0.2,
+      "ny0": 0.32,
+      "ny1": 0.7
+     },
+     {
+      "half_nx": 0.26,
+      "ny0": 0.8,
+      "ny1": 1.0
+     }
+    ],
+    "ramp": 0.1,
+    "why": "curved-midline render delta is shading, not albedo; sparing it removes asymmetric render response without touching smooth eval zones"
+   },
+   "demean_ab": [
+    -5.102,
+    -4.94
+   ],
+   "smoothing": {
+    "kernel": "separable-gaussian",
+    "sigma_cells": 0.7,
+    "truncate": 3.0,
+    "mode": "reflect",
+    "why": "suppress per-cell sampling noise and bleed fit values into held-out evaluation cells so they inherit neighbour corrections"
+   },
+   "uv_anchors": {
+    "mid_s": 2116.9443359375,
+    "ied_s": 267.0602011865335,
+    "brow_t": 3392.84912109375,
+    "mouth_t": 3721.114304778525,
+    "mouth_source": "mean u*S of mesh-derived lip-mask texels",
+    "landmarks_size": 4096
+   }
+  },
+  "solve_six": [
+   53.2765,
+   13.2204,
+   20.3959,
+   7.4905,
+   2.3989,
+   2.9276
+  ],
+  "six_matches_hb1": true
+ },
+ "gates": {
+  "g1_count": 3,
+  "g1_pass": true,
+  "g1_note": "3/4 non-chin regions within 3 per channel; chin recorded",
+  "g2_fit_eval_disjoint": true,
+  "g3_per_channel_le_pre_fix": [
+   true,
+   false,
+   false
+  ],
+  "g3_pass": false,
+  "g4_aisha_suite_green": true,
+  "g4_recorded_out_sha": "d2f30005f28eff51ff2ad0037fa809019f4fd7ef0ab8cc13e24938f2817b57c2"
+ },
+ "renders": {
+  "front": "/Volumes/files/openclinxr-assets/store/body2-regional-chroma/body2-regchroma-front.png",
+  "front_sha256": "ba91d1f704baaa9f1b1d64ba80861b34807de47f83d29cd7b010f53c538638e3",
+  "yaw25_sha256": "8cfc2b93e57f24eaf942cf79b7be6845351f5605f0bad3371b3a7db731c3f5e4",
+  "yaw40_sha256": "a411b6a5a52d1c711c70ef0ea5cccad57ef75ff4a64d1f4b679acd26eb709ab9",
+  "source": "sweepG chain albedo_socket.png (4e8b36305aa30fce), deterministic re-capture (front sha identical across runs)"
+ },
+ "falsifier": {
+  "triggered": true,
+  "numbers": "A 2/4 a+0.220 b+0.475; B 2/4 a+0.036 b+0.007; C 2/4 a+0.037 b+0.009; D 2/4 a+0.040 b+0.010; E 3/4 a+0.046 b+0.006; F 3/4 a+0.037 b+0.005; G 3/4 a+0.022 b+0.006; H 3/4 a+0.024 b+0.005 (excess over pre_fix a*/b*; L passes everywhere)",
+  "mechanism": "mirror-symmetric field adds no split (L passes); the a*/b* excess is key-light (38 deg azimuth) response to any effective correction, concentrated at curved midline (|nx|<0.2: +0.093 in F) not eval zones; notch halves it (+0.037 F -> +0.022 G) but the paracentral remainder (+0.019) cannot be spared without touching cheek eval cells."
+ },
+ "files": {
+  "solve_module": "tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_colour.py",
+  "mask_module": "tools/openclinxr/asset-pipeline/skin/face-replay/make_belowbrow_mask.py",
+  "goal_front": "S/body2/goal-front.png (sha b42f8105...)",
+  "hb1_solve_params": "S/crownreg/body2hb1/solve-params.json",
+  "landmarks_uv": "S/crownreg/body2hb1/chain/derive_out/landmarks-uv.json"
+ }
+}
