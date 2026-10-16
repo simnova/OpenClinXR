@@ -1,0 +1,1128 @@
+{
+  "before": {
+    "note": "live tree, consumers=80; clauses from zz-dump run 2026-10-16T06:01Z (load 1-min 28.26); vitest runs below",
+    "consumers": 80,
+    "a_violations": [],
+    "b_violations": [],
+    "c_violations": [
+      "@openclinxr/asset-registry./runtime-bundle-lookups publishes findRuntimeActorAssetByRole which no consumes.json lists",
+      "@openclinxr/rest. publishes ApiFacultyCompileLockRecord which no consumes.json lists",
+      "@openclinxr/scenario-runtime. publishes REQUIRED_STATE_OUTCOMES which no consumes.json lists",
+      "@openclinxr/scenario-runtime. publishes requiredStateOutcomePromotes which no consumes.json lists",
+      "@openclinxr/shared-schemas. publishes EQUIPMENT_BINDING_PRECEDENCE which no consumes.json lists",
+      "@openclinxr/shared-schemas. publishes ProductionStationId which no consumes.json lists",
+      "@openclinxr/shared-schemas. publishes classifyScenarioEquipmentBinding which no consumes.json lists",
+      "@openclinxr/station-mouth-executor. publishes ApplyProvenance which no consumes.json lists",
+      "@openclinxr/station-mouth-executor. publishes ApplyResult which no consumes.json lists",
+      "@openclinxr/station-mouth-executor. publishes BuildProblemOptions which no consumes.json lists",
+      "@openclinxr/station-mouth-executor. publishes Problem which no consumes.json lists",
+      "@openclinxr/station-mouth-executor. publishes Solution which no consumes.json lists",
+      "@openclinxr/station-mouth-objective. publishes SolutionFrame which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes Problem which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes RegistryPin which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes RunOptions which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes RunResult which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes Solution which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes loadPin which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes loadPinnedSolver which no consumes.json lists",
+      "@openclinxr/station-mouth-registry. publishes verifySolution which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes CueTrackCue which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes EvaluateParams which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes EvaluatorOutput which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes EvaluatorSummary which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes EvaluatorTrack which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes FrameRecord which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes NowGapPoint which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes PositionSpace which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes PremiseProbeRow which no consumes.json lists",
+      "@openclinxr/station-mouth-verifier. publishes ToothSample which no consumes.json lists",
+      "@openclinxr/ui-route-shared. publishes FacultyCompileLockClient which no consumes.json lists",
+      "@openclinxr/ui-route-shared./admin-api-client-types publishes AdminAssembledExamReplayProjection which no consumes.json lists",
+      "@openclinxr/xr-scene. publishes bootIsolatedSubjectLab which no consumes.json lists",
+      "@openclinxr/xr-station. publishes inspectStationFixtureVocabulary which no consumes.json lists",
+      "@openclinxr/xr-station. publishes setStretcherInclineDegrees which no consumes.json lists"
+    ],
+    "d_violations": [
+      "@cellix/config-vitest./node serves package, runtime-app with no allowlist reason",
+      "@openclinxr/api. serves evidence, package, tools with no allowlist reason",
+      "@openclinxr/asset-registry. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/asset-registry./actor-posture serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./approach-executor serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/asset-registry./bedside-approach-path serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./case-approach-intent serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./case-frozen-scene-plans serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./cast-asset-constants serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./environment-zone-templates serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./fixture-wall-mounting serves package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./initial-scene-contents serves package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./layout-solve serves package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./runtime-asset-review serves package, tools with no allowlist reason",
+      "@openclinxr/asset-registry./runtime-bundle-lookups serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/asset-registry./runtime-bundles serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/asset-registry./scene-plan-freeze serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/auth. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/capability-gateway. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/compute-slots./slots serves evidence, package, tools with no allowlist reason",
+      "@openclinxr/conversation-policy. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/domain./claim-language serves package, runtime-app with no allowlist reason",
+      "@openclinxr/exam-assembly. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/factory-stations. serves evidence, package, tools with no allowlist reason",
+      "@openclinxr/factory-stations./catalog serves package, runtime-app with no allowlist reason",
+      "@openclinxr/factory-stations./room-chain serves evidence, package, tools with no allowlist reason",
+      "@openclinxr/graphql./documents serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/model-gateway. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/model-vetting. serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/motion-compiler./glb-bake serves package, tools with no allowlist reason",
+      "@openclinxr/rest. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/scenario-fixtures. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/scenario-fixtures./authored-utterance-record serves package, runtime-app with no allowlist reason",
+      "@openclinxr/scenario-fixtures./ed-chest-pain serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/scenario-fixtures./pediatric-asthma serves runtime-app, tools with no allowlist reason",
+      "@openclinxr/scenario-fixtures./scenario-bank serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/scenario-runtime. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/service-local-compute./local serves evidence, package, tools with no allowlist reason",
+      "@openclinxr/session-state. serves evidence, package with no allowlist reason",
+      "@openclinxr/session-state./accepted-scene-plan serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/shared-schemas. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/telemetry. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-route-shared. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-shared. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-shared./admin-factory-station-cards serves package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-shared./assembled-exam-replay-timeline serves package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-shared./factory-run-progress-panel serves package, runtime-app with no allowlist reason",
+      "@openclinxr/ui-shared./factory-run-table-client serves package, runtime-app with no allowlist reason",
+      "@openclinxr/voice-gateway. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-asset-loading. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-capture-evidence. serves package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-humanoid-animation. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-humanoid-animation./case-owned-approach-runtime serves evidence, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-humanoid-animation./locomotion-clip-playback serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/xr-humanoid-animation./mounted-approach-geometry serves evidence, runtime-app with no allowlist reason",
+      "@openclinxr/xr-locomotion. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-pose. serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-pose./actor-floor-composition serves evidence, package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-runtime-state. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-runtime-state./bedside-approach-execution serves evidence, package with no allowlist reason",
+      "@openclinxr/xr-runtime-wiring. serves package, runtime-app with no allowlist reason",
+      "@openclinxr/xr-scene-cues. serves package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-scene. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-station. serves evidence, package, runtime-app, tools with no allowlist reason",
+      "@openclinxr/xr-trace-readiness. serves package, runtime-app with no allowlist reason"
+    ],
+    "e_violations": [],
+    "globalUnconsumedCount": 44,
+    "unconsumed_by_provider": [
+      [
+        "@openclinxr/asset-registry",
+        [
+          {
+            "specifier": "./runtime-bundle-lookups",
+            "names": [
+              "findRuntimeActorAssetByRole"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/rest",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "ApiFacultyCompileLockRecord"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/scenario-runtime",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "REQUIRED_STATE_OUTCOMES",
+              "requiredStateOutcomePromotes"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/shared-schemas",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "EQUIPMENT_BINDING_PRECEDENCE",
+              "ProductionStationId",
+              "classifyScenarioEquipmentBinding"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/station-mouth-executor",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "ApplyProvenance",
+              "ApplyResult",
+              "BuildProblemOptions",
+              "Problem",
+              "Solution"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/station-mouth-objective",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "SolutionFrame"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/station-mouth-registry",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "Problem",
+              "RegistryPin",
+              "RunOptions",
+              "RunResult",
+              "Solution",
+              "loadPin",
+              "loadPinnedSolver",
+              "verifySolution"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/station-mouth-verifier",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "CueTrackCue",
+              "EvaluateParams",
+              "EvaluatorOutput",
+              "EvaluatorSummary",
+              "EvaluatorTrack",
+              "FrameRecord",
+              "NowGapPoint",
+              "PositionSpace",
+              "PremiseProbeRow",
+              "ToothSample"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/ui-route-shared",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "FacultyCompileLockClient"
+            ]
+          },
+          {
+            "specifier": "./admin-api-client-types",
+            "names": [
+              "AdminAssembledExamReplayProjection"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-scene",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "bootIsolatedSubjectLab"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-station",
+        [
+          {
+            "specifier": ".",
+            "names": [
+              "inspectStationFixtureVocabulary",
+              "setStretcherInclineDegrees"
+            ]
+          }
+        ]
+      ]
+    ],
+    "mixed_by_provider": [
+      [
+        "@cellix/config-vitest",
+        [
+          {
+            "specifier": "./node",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/api",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/asset-registry",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./actor-posture",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./approach-executor",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./bedside-approach-path",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./case-approach-intent",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./case-frozen-scene-plans",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./cast-asset-constants",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./environment-zone-templates",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./fixture-wall-mounting",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./initial-scene-contents",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./layout-solve",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./runtime-asset-review",
+            "classes": [
+              "package",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./runtime-bundle-lookups",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./runtime-bundles",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./scene-plan-freeze",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/auth",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/capability-gateway",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/compute-slots",
+        [
+          {
+            "specifier": "./slots",
+            "classes": [
+              "evidence",
+              "package",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/conversation-policy",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/domain",
+        [
+          {
+            "specifier": "./claim-language",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/exam-assembly",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/factory-stations",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./catalog",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./room-chain",
+            "classes": [
+              "evidence",
+              "package",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/graphql",
+        [
+          {
+            "specifier": "./documents",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/model-gateway",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/model-vetting",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/motion-compiler",
+        [
+          {
+            "specifier": "./glb-bake",
+            "classes": [
+              "package",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/rest",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/scenario-fixtures",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./authored-utterance-record",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./ed-chest-pain",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./pediatric-asthma",
+            "classes": [
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./scenario-bank",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/scenario-runtime",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/service-local-compute",
+        [
+          {
+            "specifier": "./local",
+            "classes": [
+              "evidence",
+              "package",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/session-state",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package"
+            ]
+          },
+          {
+            "specifier": "./accepted-scene-plan",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/shared-schemas",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/telemetry",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/ui-route-shared",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/ui-shared",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./admin-factory-station-cards",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./assembled-exam-replay-timeline",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./factory-run-progress-panel",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./factory-run-table-client",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/voice-gateway",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-asset-loading",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-capture-evidence",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-humanoid-animation",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./case-owned-approach-runtime",
+            "classes": [
+              "evidence",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./locomotion-clip-playback",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./mounted-approach-geometry",
+            "classes": [
+              "evidence",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-locomotion",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-pose",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          },
+          {
+            "specifier": "./actor-floor-composition",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-runtime-state",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          },
+          {
+            "specifier": "./bedside-approach-execution",
+            "classes": [
+              "evidence",
+              "package"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-runtime-wiring",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-scene",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-scene-cues",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-station",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "evidence",
+              "package",
+              "runtime-app",
+              "tools"
+            ]
+          }
+        ]
+      ],
+      [
+        "@openclinxr/xr-trace-readiness",
+        [
+          {
+            "specifier": ".",
+            "classes": [
+              "package",
+              "runtime-app"
+            ]
+          }
+        ]
+      ]
+    ],
+    "vitest_runs": [
+      {
+        "run": "base0",
+        "at": "06:00Z",
+        "load_1min": 82.84,
+        "clause5_ms": 12270,
+        "clause6_ms": 2540
+      },
+      {
+        "run": "base1",
+        "at": "06:01Z",
+        "load_1min": 25.3,
+        "clause5_ms": 13022,
+        "clause6_ms": 4066
+      },
+      {
+        "run": "base2",
+        "at": "06:01Z",
+        "load_1min": 22.85,
+        "clause5_ms": 15133,
+        "clause6_ms": 3241
+      },
+      {
+        "run": "base3",
+        "at": "06:02Z",
+        "load_1min": 21.33,
+        "clause5_ms": 13294,
+        "clause6_ms": 3807
+      }
+    ],
+    "median_of_last3_ms": {
+      "clause5": 13294,
+      "clause6": 3807
+    }
+  },
+  "after": {
+    "note": "same live tree; single-scan index + memoised walks; outputs verified byte-identical (see g1)",
+    "consumers": 80,
+    "g1": {
+      "a_identical": true,
+      "b_identical": true,
+      "c_identical": true,
+      "d_identical": true,
+      "e_identical": true,
+      "g6_identical": true,
+      "unconsumed_identical": true,
+      "mixed_identical": true,
+      "a_len": 0,
+      "b_len": 0,
+      "c_len": 36,
+      "d_len": 65,
+      "e_len": 0,
+      "g6": 44
+    },
+    "vitest_runs": [
+      {
+        "run": "after0",
+        "at": "06:08Z",
+        "load_1min": 78.25,
+        "clause5_ms": 4348,
+        "clause6_ms": 4036
+      },
+      {
+        "run": "after1",
+        "at": "06:08Z",
+        "load_1min": 78.0,
+        "clause5_ms": 5264,
+        "clause6_ms": 4045,
+        "note": "inside zz-dump process, suite ran twice in-process"
+      },
+      {
+        "run": "after2",
+        "at": "06:10Z",
+        "load_1min": 52.84,
+        "clause5_ms": 2647,
+        "clause6_ms": 2007
+      },
+      {
+        "run": "after3",
+        "at": "06:10Z",
+        "load_1min": 43.95,
+        "clause5_ms": 2690,
+        "clause6_ms": 2177
+      },
+      {
+        "run": "after4",
+        "at": "06:10Z",
+        "load_1min": 41.31,
+        "clause5_ms": 2682,
+        "clause6_ms": 2070
+      },
+      {
+        "run": "q1",
+        "at": "07:14Z",
+        "load_1min": 23.6,
+        "clause5_ms": 3355,
+        "clause6_ms": 2775
+      },
+      {
+        "run": "q2",
+        "at": "07:14Z",
+        "load_1min": 23.05,
+        "clause5_ms": 2751,
+        "clause6_ms": 2073
+      },
+      {
+        "run": "q3",
+        "at": "07:15Z",
+        "load_1min": 24.01,
+        "clause5_ms": 2899,
+        "clause6_ms": 2232
+      },
+      {
+        "run": "r1",
+        "at": "07:15Z",
+        "load_1min": 24.06,
+        "clause5_ms": 3501,
+        "clause6_ms": 4135,
+        "note": "burst spike mid-run"
+      },
+      {
+        "run": "r2",
+        "at": "07:15Z",
+        "load_1min": 29.18,
+        "clause5_ms": 3231,
+        "clause6_ms": 2191,
+        "note": "load>25, not G2-qualifying"
+      },
+      {
+        "run": "r3",
+        "at": "07:16Z",
+        "load_1min": 29.24,
+        "clause5_ms": 2897,
+        "clause6_ms": 2079,
+        "note": "load>25, not G2-qualifying"
+      },
+      {
+        "run": "f1",
+        "at": "07:21Z",
+        "load_1min": 17.71,
+        "clause5_ms": 2873,
+        "clause6_ms": 2378
+      },
+      {
+        "run": "f2",
+        "at": "07:22Z",
+        "load_1min": 18.1,
+        "clause5_ms": 2903,
+        "clause6_ms": 2195
+      },
+      {
+        "run": "f3",
+        "at": "07:22Z",
+        "load_1min": 17.45,
+        "clause5_ms": 2917,
+        "clause6_ms": 2255
+      }
+    ],
+    "g2_quiet_runs_pending": false,
+    "g2_sets": {
+      "q_set_loads_below25": {
+        "clause5_median_ms": 2899,
+        "clause6_median_ms": 2232,
+        "g2_5_pass": true,
+        "g2_6_pass": false
+      },
+      "f_set_loads_below25": {
+        "clause5_median_ms": 2903,
+        "clause6_median_ms": 2255,
+        "g2_5_pass": true,
+        "g2_6_pass": false
+      }
+    },
+    "g2_claim": "(5) PASS; (6) NOT CLAIMED per card fallback: 2.26s median vs 2.0s budget at load<25; cost is ts.createProgram (140 roots/3674 files, ~2s inherent), not redundant walks",
+    "full_arch_suite": {
+      "at": "06:10Z",
+      "files": "26 passed",
+      "tests": "291 passed"
+    },
+    "g3": "all 14 file tests pass; planted violations (1)(2)(3)(4)(11)(12)(13)(14) still fail; counterweights (8)(9)(10) still fail-closed"
+  }
+}

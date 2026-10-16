@@ -159,6 +159,12 @@ const consumerCache = new Map<string, ConsumerDef[]>();
 const entrypointCache = new Map<string, DeclaredEntrypoint[]>();
 const publishedCache = new Map<string, Set<string>>();
 const symbolCache = new Map<string, Set<string>>();
+// Single-scan index (per process, never across runs or commits): the
+// live-tree gate walks every consumer dir once per process; repeated checks
+// in one run reuse the memoised bindings instead of re-walking the tree.
+const contractOwnersCache = new Map<string, string[]>();
+const contractsConsumersCache = new Map<string, ConsumerDef[]>();
+const bindingsCache = new Map<string, ConsumerBindings>();
 
 export function classForConsumerDir(dir: string): ConsumerClass {
   if (dir.startsWith("apps/")) return "runtime-app";
@@ -226,6 +232,8 @@ export function discoverConsumers(root: string): ConsumerDef[] {
 
 /** Dirs that already own a consumes.json anywhere under the consumer roots. */
 export function existingContractOwners(root: string): string[] {
+  const cached = contractOwnersCache.get(root);
+  if (cached !== undefined) return cached;
   const out: string[] = [];
   const walk = (relativeDir: string): void => {
     let entries: Dirent<string>[];
@@ -245,19 +253,25 @@ export function existingContractOwners(root: string): string[] {
     }
   };
   for (const base of ["packages", "apps", "tools/openclinxr"]) walk(base);
-  return out.sort();
+  const sorted = out.sort();
+  contractOwnersCache.set(root, sorted);
+  return sorted;
 }
 
 /** Computed consumers plus sticky contract owners (e.g. nested makeclothes). */
 export function consumersWithContracts(root: string): ConsumerDef[] {
+  const cached = contractsConsumersCache.get(root);
+  if (cached !== undefined) return cached;
   const out = new Map<string, ConsumerClass>();
   for (const c of discoverConsumers(root)) out.set(c.dir, c.class);
   for (const dir of existingContractOwners(root)) {
     if (!out.has(dir)) out.set(dir, classForConsumerDir(dir));
   }
-  return [...out.entries()]
+  const sorted = [...out.entries()]
     .map(([dir, cls]) => ({ dir, class: cls }))
     .sort((a, b) => a.dir.localeCompare(b.dir));
+  contractsConsumersCache.set(root, sorted);
+  return sorted;
 }
 
 /**
@@ -481,9 +495,23 @@ export function derivedBindings(
   consumerDir: string,
   allConsumerDirs?: string[],
 ): ConsumerBindings {
+  const resolved = allConsumerDirs ?? consumersWithContracts(root).map((c) => c.dir);
+  const key = `${root}\t${consumerDir}\t${[...resolved].sort().join(",")}`;
+  const cached = bindingsCache.get(key);
+  if (cached !== undefined) return cached;
+  const computed = derivedBindingsUncached(root, consumerDir, resolved);
+  bindingsCache.set(key, computed);
+  return computed;
+}
+
+function derivedBindingsUncached(
+  root: string,
+  consumerDir: string,
+  allConsumerDirs: string[],
+): ConsumerBindings {
   const providers = discoverWorkspaceProviders(root);
   const longestFirst = [...providers.keys()].sort((a, b) => b.length - a.length);
-  const nested = (allConsumerDirs ?? consumersWithContracts(root).map((c) => c.dir))
+  const nested = allConsumerDirs
     .filter((d) => d !== consumerDir && d.startsWith(`${consumerDir}/`))
     .map((d) => join(root, d));
   const files: string[] = [];
@@ -615,6 +643,40 @@ export function derivedPathReachImports(
   return derivedBindings(root, consumerDir, allConsumerDirs).pathReach;
 }
 
+/**
+ * One run scans the tree once: every consumer dir walked a single time, the
+ * bindings memoised per (root, consumer, consumer-set) and shared by every
+ * clause in the run. In-process only — never across runs or commits.
+ */
+export type ConsumerContractsIndex = {
+  consumers: ConsumerDef[];
+  bindingsByConsumer: Map<string, ConsumerBindings>;
+};
+
+export function buildConsumerContractsIndex(
+  root: string,
+  consumers?: ConsumerDef[],
+): ConsumerContractsIndex {
+  const list = consumers ?? consumersWithContracts(root);
+  const allDirs = list.map((c) => c.dir);
+  const bindingsByConsumer = new Map<string, ConsumerBindings>();
+  for (const consumer of list) {
+    bindingsByConsumer.set(consumer.dir, derivedBindings(root, consumer.dir, allDirs));
+  }
+  return { consumers: list, bindingsByConsumer };
+}
+
+function bindingsFor(
+  root: string,
+  consumerDir: string,
+  allDirs: string[],
+  index?: ConsumerContractsIndex,
+): ConsumerBindings {
+  const shared = index?.bindingsByConsumer.get(consumerDir);
+  if (shared !== undefined) return shared;
+  return derivedBindings(root, consumerDir, allDirs);
+}
+
 export function readContracts(root: string, consumerDir: string): ContractRow[] {
   const full = join(root, consumerDir, "consumes.json");
   if (!existsSync(full)) return [];
@@ -676,8 +738,10 @@ export function readAllowlist(root: string): AllowlistRow[] {
 export function checkUnlistedImports(
   root: string,
   consumers?: ConsumerDef[],
+  index?: ConsumerContractsIndex,
 ): string[] {
   consumers ??= consumersWithContracts(root);
+  const allDirs = consumers.map((c) => c.dir);
   const violations: string[] = [];
   for (const consumer of consumers) {
     const contracts = readContracts(root, consumer.dir);
@@ -689,7 +753,7 @@ export function checkUnlistedImports(
         new Set(row.names.map((n) => n.name)),
       );
     }
-    const bindings = derivedBindings(root, consumer.dir);
+    const bindings = bindingsFor(root, consumer.dir, allDirs, index);
     const check = (imports: Map<string, ImportedName[]>, via: string): void => {
       for (const [key, names] of imports) {
         const listedNames = listed.get(key);
@@ -721,14 +785,16 @@ export function checkUnlistedImports(
 export function checkMissingContracts(
   root: string,
   consumers?: ConsumerDef[],
+  index?: ConsumerContractsIndex,
 ): string[] {
   consumers ??= consumersWithContracts(root);
   const dirs = new Set(consumers.map((c) => c.dir));
+  const allDirs = [...dirs];
   const violations: string[] = [];
   for (const consumer of consumers) {
     const full = join(root, consumer.dir, "consumes.json");
     if (existsSync(full)) continue;
-    const bindings = derivedBindings(root, consumer.dir, [...dirs]);
+    const bindings = bindingsFor(root, consumer.dir, allDirs, index);
     const imports = bindings.specifier.size > 0 ? bindings.specifier : bindings.ownTest.size > 0 ? bindings.ownTest : bindings.pathReach;
     if (imports.size === 0) continue;
     const [key] = [...imports.keys()].sort();
@@ -794,8 +860,10 @@ export function checkUnconsumedPublished(
 function servedByClasses(
   root: string,
   consumers?: ConsumerDef[],
+  index?: ConsumerContractsIndex,
 ): Map<string, Set<ConsumerClass>> {
   consumers ??= consumersWithContracts(root);
+  const allDirs = consumers.map((c) => c.dir);
   const servedBy = new Map<string, Set<ConsumerClass>>();
   const add = (key: string, cls: ConsumerClass): void => {
     const set = servedBy.get(key) ?? new Set<ConsumerClass>();
@@ -803,7 +871,7 @@ function servedByClasses(
     servedBy.set(key, set);
   };
   for (const consumer of consumers) {
-    const bindings = derivedBindings(root, consumer.dir);
+    const bindings = bindingsFor(root, consumer.dir, allDirs, index);
     for (const [key] of bindings.specifier) add(key, consumer.class);
     // own-test is ignored here: a package testing its own surface never
     // splits an entrypoint. A path-reach binding serves under the importing
@@ -818,8 +886,9 @@ export function checkMixedClassEntrypoints(
   root: string,
   consumers?: ConsumerDef[],
   allowlist: AllowlistRow[] = readAllowlist(root),
+  index?: ConsumerContractsIndex,
 ): string[] {
-  const servedBy = servedByClasses(root, consumers);
+  const servedBy = servedByClasses(root, consumers, index);
   const excused = new Map<string, AllowlistRow>();
   for (const row of allowlist) excused.set(`${row.provider}\t${row.entrypoint}`, row);
   const violations: string[] = [];
@@ -888,9 +957,10 @@ export function measureMixedByProvider(
   root: string,
   consumers?: ConsumerDef[],
   allowlist: AllowlistRow[] = readAllowlist(root),
+  index?: ConsumerContractsIndex,
 ): Map<string, MixedMeasure[]> {
   consumers ??= consumersWithContracts(root);
-  const servedBy = servedByClasses(root, consumers);
+  const servedBy = servedByClasses(root, consumers, index);
   const excused = new Map<string, AllowlistRow>();
   for (const row of allowlist) excused.set(`${row.provider}\t${row.entrypoint}`, row);
   const out = new Map<string, MixedMeasure[]>();
@@ -1156,12 +1226,15 @@ describe("consumer contracts match imports", () => {
   it("(5) live tree: clauses (a), (b) and (e) pass hard; clauses (c) and (d) hold at their ceilings", { timeout: 30_000 }, () => {
     const root = findRoot();
     const consumers = consumersWithContracts(root);
+    // One run scans the tree once: the index walks every consumer dir a
+    // single time and every clause below reuses it (in-process only).
+    const index = buildConsumerContractsIndex(root, consumers);
     expect(consumers.length).toBeGreaterThan(70);
-    expect(checkUnlistedImports(root, consumers).join("\n")).toBe("");
+    expect(checkUnlistedImports(root, consumers, index).join("\n")).toBe("");
     expect(checkListedNotPublished(root, consumers).join("\n")).toBe("");
-    expect(checkMissingContracts(root, consumers).join("\n")).toBe("");
-    const unconsumed = measureUnconsumedByProvider(root);
-    const mixed = measureMixedByProvider(root);
+    expect(checkMissingContracts(root, consumers, index).join("\n")).toBe("");
+    const unconsumed = measureUnconsumedByProvider(root, consumers);
+    const mixed = measureMixedByProvider(root, consumers, readAllowlist(root), index);
     const ceiling = readContractCeilings();
     expect(ceiling === null ? "missing ceiling file" : "").toBe("");
     expect(checkContractCeilings(unconsumed, mixed, ceiling).join("\n")).toBe("");
@@ -1179,8 +1252,7 @@ describe("consumer contracts match imports", () => {
       "@openclinxr/xr-dialogue./package-actor-turn",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
-    const allConsumers = consumersWithContracts(root);
-    expect(checkMixedClassEntrypoints(root, allConsumers, []).join("\n")).toContain(
+    expect(checkMixedClassEntrypoints(root, consumers, [], index).join("\n")).toContain(
       "./actor-audio-runtime",
     );
   });
@@ -1194,7 +1266,8 @@ describe("consumer contracts match imports", () => {
     // It was "> 50" until removals legitimately crossed it; any fixed floor
     // above zero becomes a target that blocks the next removal, so it only
     // demands a non-empty report. The per-provider ceilings carry the counts.
-    const count = globalUnconsumedCount(findRoot());
+    const root = findRoot();
+    const count = globalUnconsumedCount(root, consumersWithContracts(root));
     expect(count).toBeGreaterThan(0);
   });
 
