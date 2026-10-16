@@ -9,9 +9,8 @@
  * bound naming no scalp source.
  *
  * Known-bads, each asserted to fail validation (the raw refusal is
- * printed as KNOWN-BAD-RED before the throw assertion): (a) is now the
- * unregistered-donor contract (cross-window donor returns the base with
- * scalp_source subject_base, pixel-identical); (b) a report with
+ * printed as KNOWN-BAD-RED before the throw assertion): (a) a
+ * crown_step-over-bound scalp passing compose; (b) a report with
  * after==goal on every channel of every region; (c) an AFTER citing a
  * render sha not listed in renders[]; (d) a mask mean L below 20.
  */
@@ -152,32 +151,15 @@ describe("tone solved per region, painted scalp refuses", () => {
       .toThrow(/CROWN_STEP_OVER_BOUND/);
   }, 240000);
 
-  it("unregistered donor (a): cross-window donor returns base, no refusal", () => {
-    // Registration contract (crown-registered card): a donor whose dims
-    // differ from the upright island is never resized; the scalp comes
-    // from the subject base with no refusal. base-seam-M (448) with
-    // locked-A (512) is that case: it previously threw
-    // CROWN_STEP_OVER_BOUND and now returns the base untouched.
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "toneunreg-"));
-    const out = path.join(tmp, "out.png");
-    const reportPath = path.join(tmp, "report.json");
-    const locked = path.join(FIX, "locked-A.png");
-    execFileSync("python3", [MODULE,
-      "--base-skin", path.join(FIX, "base-seam-M.png"),
-      "--locked-island", locked, "--locked-sha", shaOf(locked),
-      "--masks", masksDir("M"), "--side-map", sideOf("M", tmp),
-      "--input-space", "island-upright", "--skip-join",
-      "--out", out, "--report", reportPath], { encoding: "utf8" });
-    const rep = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-    expect(rep.scalp?.scalp_source).toBe("subject_base");
-    const diff = execFileSync("python3", ["-c", [
-      "import numpy as np",
-      "from PIL import Image",
-      `x=np.array(Image.open(${JSON.stringify(out)}).convert('RGB')).astype(int)`,
-      `y=np.array(Image.open(${JSON.stringify(path.join(FIX, "base-seam-M.png"))}).convert('RGB')).astype(int)`,
-      "print(int((x!=y).any(axis=2).sum()))",
-    ].join("\n")], { encoding: "utf8" });
-    expect(parseInt(diff.trim(), 10)).toBe(0);
+  it("known-bad (a): over-bound scalp must not pass compose", () => {
+    let msg = "";
+    try {
+      runCompose("M", "base-seam-M.png", "A");
+    } catch (e) {
+      msg = (e as Error).message;
+    }
+    console.log(`KNOWN-BAD-RED (a): ${msg.split("\n").pop()}`);
+    expect(msg).toMatch(/CROWN_STEP_OVER_BOUND/);
   }, 240000);
 
   it("known-bad (b): after==goal every channel every region fails", () => {

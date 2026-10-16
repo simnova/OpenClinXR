@@ -193,6 +193,130 @@
   "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-compose-albedo.png": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
   "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
   "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
-  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-yaw40.png": "b1c07e83bba881a5af3a822b6235f22614c76cd622c65c99c36ba9d5c0419a5e"
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-yaw40.png": "b1c07e83bba881a5af3a822b6235f22614c76cd622c65c99c36ba9d5c0419a5e",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-front.png": "5b260e3d03c0ae5e24c8bee60f5c726bff6206c6b35c51525db1577857c8eb26",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-yaw25.png": "ac32d0e7a65bba67460eeb7862a269370a3cd5ee2a5abfcc4c7d472e7051802f",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-yaw40.png": "fc70f2c8c7d5bd51ff8465901f9cbb359e7990c652620973230292044ecec354",
+  "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-compose-albedo.png": "940ce5c6d6eb0b13d1e3d20f049251d34badca8ba33aee75c49ec595d17a211f"
+ },
+ "hb1": {
+  "aisha": {
+   "base_sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53",
+   "note": "registered path unchanged (weight construction extracted verbatim; fixture shas identical); still refuses input side identically.",
+   "refusal": {
+    "reason": "crown_step_over_bound",
+    "side": "input",
+    "max": 43.40706676811223,
+    "bound": 8.0,
+    "scalp_source": null
+   }
+  },
+  "attempts": [
+   {
+    "n": 1,
+    "anchor": "forehead-region-mean",
+    "verdict": "rejected on texture inspection, no render spent",
+    "numbers": "anchor target RGB [125.9,2.4,20.1] (lips, not skin); paint-box albedo [126.3,6.6,20.7] R-G 119.7; whole-atlas upright forehead rows hold lips/paint, not forehead skin."
+   },
+   {
+    "n": 2,
+    "anchor": "facecore-skin-gated",
+    "verdict": "full chain + render; chroma matched, presence bound missed",
+    "numbers": "anchor shift L +3.15; paint-box albedo [152.4,103.5,75.9]; compose out_step 2.73; front presence 0.8646 (bound 0.433); render dome-forehead dLab [-11.53,-0.43,-0.23] (chroma matched, L -11.5 shading); yaw25 0.8749 yaw40 0.8853."
+   }
+  ],
+  "attempt3": "none: no principled candidate remains; lightening albedo past the skin match to beat dome shading would be a deliberate mismatch (render-tuning outside compose scope). Stopped per handback.",
+  "body2": {
+   "compose_out": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/compose-albedo.png",
+   "compose_report": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/compose-report.json",
+   "compose_report_sha256": "af1f608988f0ec22a7211b8e7a200e08b772248cd2dff3252b1ac0c8c8154cf2",
+   "compose_sha256": "940ce5c6d6eb0b13d1e3d20f049251d34badca8ba33aee75c49ec595d17a211f",
+   "anchor": "facecore-skin-gated",
+   "treat_frac": 0.919,
+   "shift_Lab": [
+    3.15,
+    -0.29,
+    0.74
+   ],
+   "in_crown_step_max": 2.343406439502587,
+   "out_crown_step_max": 2.7263119036682752,
+   "refusal": null,
+   "scalp_source": "subject_base_tone_matched",
+   "registration": {
+    "donor_dims": [
+     1408,
+     736
+    ],
+    "box_dims": [
+     3873,
+     3908
+    ],
+    "ncc": 0.5850516499362314,
+    "registered": false
+   },
+   "texture_gate": {
+    "crown_minus_forehead_dab": 13.543,
+    "spread_dab": 16.024,
+    "bound_2x_spread": 32.048,
+    "meaningful": false,
+    "reason": "whole-atlas upright box scrambles rows: the forehead region mean RGB is [125.9,2.4,20.1] (lips) and the 16.0 spread is lips-vs-temple, not forehead-vs-temple skin; the numeric pass is vacuous, stated not claimed."
+   },
+   "render_relative": {
+    "dome_Lab": [
+     70.52,
+     6.79,
+     19.43
+    ],
+    "forehead_Lab": [
+     82.04,
+     7.22,
+     19.66
+    ],
+    "dome_minus_forehead_dLab": [
+     -11.53,
+     -0.43,
+     -0.23
+    ],
+    "note": "chroma matched (da -0.43, db -0.23); L -11.5 is dome shading under the rig (dome faces wash lights, forehead faces key), not albedo: texture low band equals face skin by construction."
+   },
+   "crown_presence": 0.8646,
+   "crown_presence_bound": 0.433,
+   "crown_presence_pass": false,
+   "crown_presence_note": "miss: warm skin under this rig always exceeds R-G>25 (goal-front itself 1.0 in the same crop; b2s1 light skin 0.0); r1 defect 0.8662 vs hb1 0.8646 look identical to this threshold yet hb1 crop mean [200.8,169.4,139.4] vs r1 [137.7,67.9,48.7] (much lighter, chroma matched).",
+   "front_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-front.png",
+   "yaw25_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-yaw25.png",
+   "yaw40_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-yaw40.png",
+   "store_front": "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-front.png",
+   "store_front_sha256": "5b260e3d03c0ae5e24c8bee60f5c726bff6206c6b35c51525db1577857c8eb26",
+   "store_yaw25_sha256": "ac32d0e7a65bba67460eeb7862a269370a3cd5ee2a5abfcc4c7d472e7051802f",
+   "store_yaw40_sha256": "fc70f2c8c7d5bd51ff8465901f9cbb359e7990c652620973230292044ecec354",
+   "store_compose_sha256": "940ce5c6d6eb0b13d1e3d20f049251d34badca8ba33aee75c49ec595d17a211f",
+   "chain": {
+    "solved_albedo": "93a84c6c65c069bedc073dd13a57b2d3cc57bd9a2c559bbfb2cef256e57f",
+    "solve_params": "36cbeabf1451e75d3d0490a1d39754454f3bd748f5897424213955475dfaad5d",
+    "albedo_occ": "c57b1d0dc5264954938876ebfc1876ab860ce78d5594226a385abfbbd7683b82",
+    "roughness": "f25eeda5211f5c831bbf9c0b8c89a6c3c679613f149a71b819d0839083ecc412",
+    "albedo_lips": "c57b1d0dc5264954938876ebfc1876ab860ce78d5594226a385abfbbd7683b82",
+    "albedo_corners": "b4d5e4512c2901d178f96689c1ef9097ba7466c19a6dc0335782f54bec128b2a",
+    "albedo_sym": "9f1c370f6d0eb060ef0b30d5468c7d67b5016bf9a7e6c53e364d221d7510d71d",
+    "albedo_socket": "d5ea4f2e93a52a2887245af0327c5ade7d3bd4a646cceed24e557bd3660226d4"
+   },
+   "solve_six_new": [
+    53.277,
+    13.22,
+    20.396,
+    7.491,
+    2.399,
+    2.928
+   ],
+   "solve_six_r2": [
+    53.036,
+    13.32,
+    20.466,
+    7.582,
+    2.415,
+    2.988
+   ]
+  }
  }
 }

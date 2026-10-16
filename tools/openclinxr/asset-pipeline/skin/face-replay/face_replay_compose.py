@@ -660,13 +660,19 @@ def join_refresh(base: np.ndarray, tile: np.ndarray,
     return joined, info
 
 
-def scalp_apply(base: np.ndarray, locked: np.ndarray,
-                masks: dict[str, np.ndarray], scale: float,
-                feather_texels: float) -> tuple[np.ndarray, dict]:
+def _scalp_weight(base: np.ndarray, masks: dict[str, np.ndarray],
+                   scale: float,
+                   feather_texels: float) -> tuple[np.ndarray, dict,
+                                                   dict, np.ndarray, dict]:
+    """Shared scalp treatment weight (outline/keep-out/feather build).
+
+    Single construction used by both the locked-donor apply and the
+    unregistered self tone match: outline minus mesh keep-outs, feathered,
+    with the shared keep-out interiors hard-zeroed past the W>0.001 reach,
+    so keep-out interiors stay bit-exact for the exact-zero report, which
+    reads these identical objects.
+    """
     h, w = base.shape[:2]
-    if (locked.shape[1], locked.shape[0]) != (w, h):
-        locked = np.array(Image.fromarray(locked).resize(
-            (w, h), Image.LANCZOS))
     sig = feather_texels / 3.0 * scale
     outline, outline_info = corner_flood_outline(base)
     outline_soft = gauss(outline.astype(np.float64), sig)
@@ -721,6 +727,18 @@ def scalp_apply(base: np.ndarray, locked: np.ndarray,
     for _name, (_interior, _rule) in interiors.items():
         hard_zero |= _interior
     weight[hard_zero] = 0.0
+    return weight, regions, interiors, outline, outline_info
+
+
+def scalp_apply(base: np.ndarray, locked: np.ndarray,
+                masks: dict[str, np.ndarray], scale: float,
+                feather_texels: float) -> tuple[np.ndarray, dict]:
+    h, w = base.shape[:2]
+    if (locked.shape[1], locked.shape[0]) != (w, h):
+        locked = np.array(Image.fromarray(locked).resize(
+            (w, h), Image.LANCZOS))
+    weight, regions, interiors, _outline, outline_info = _scalp_weight(
+        base, masks, scale, feather_texels)
     # Mean-only Lab tone anchor on the central forehead column straddling
     # the hairline (central 74% of the facecore width, rows from 20% of the
     # facecore height above its top edge to 2% below): the locked island
@@ -756,6 +774,52 @@ def scalp_apply(base: np.ndarray, locked: np.ndarray,
     changed = weight > 0.001
     out[changed] = new_up[changed]
     _ = tgt
+    info = {"tone_shift_Lab": [float(v) for v in shift],
+            "tone_anchor": anchor_name,
+            "treat_frac": float(changed.mean()),
+            "outline": outline_info}
+    return out, info
+
+
+def self_tone_match(base: np.ndarray, masks: dict[str, np.ndarray],
+                    scale: float,
+                    feather_texels: float) -> tuple[np.ndarray, dict]:
+    """Unregistered-donor scalp: the subject's own skin, low band matched.
+
+    Same treatment weight as the locked-donor apply (shared construction,
+    keep-out interiors bit-exact). The LOW band of the base scalp is
+    replaced by the forehead-region mean while the base's own HIGH band
+    (pores) is kept: low/high split mirrors the join refresh
+    (robust_lowband for low, 6-texel norm_conv residual for high), so a
+    broad wash or stipple cast in the base low band lands on the forehead
+    tone and only pore grain survives.
+    """
+    weight, regions, interiors, outline, outline_info = _scalp_weight(
+        base, masks, scale, feather_texels)
+    base_lab = lab_of(base).astype(np.float64)
+    # Anchor is the subject's own face skin: facecore gated by the skin
+    # sampler (drops lips/paint/high-chroma outliers), falling back to the
+    # forehead region. A raw forehead-region mean is unsafe: with a
+    # whole-atlas island box the upright "forehead" rows can hold lips or
+    # paint instead of forehead skin.
+    gated = regions["facecore"] & skin_sample_mask(base)
+    if int(gated.sum()) >= MIN_REGION_TEXELS:
+        anchor, anchor_name = gated, "facecore-skin-gated"
+    else:
+        anchor, anchor_name = regions["forehead"], "forehead-fallback"
+    forehead_mean = base_lab[anchor].reshape(-1, 3).mean(axis=0)
+    skin = outline
+    low = robust_lowband(base_lab, skin, scale)
+    hi = base_lab - norm_conv(base_lab, skin, 6.0 * scale)
+    tgt_lab = np.clip(forehead_mean + hi, [0, -128, -128], [100, 127, 127])
+    new_lab = ((1 - weight[:, :, None]) * base_lab
+               + weight[:, :, None] * tgt_lab)
+    new_up = rgb_of(np.clip(new_lab, [0, -128, -128], [100, 127, 127]))
+    out = base.copy()
+    changed = weight > 0.001
+    out[changed] = new_up[changed]
+    treated_mean = base_lab[changed].reshape(-1, 3).mean(axis=0)
+    shift = forehead_mean - treated_mean
     info = {"tone_shift_Lab": [float(v) for v in shift],
             "tone_anchor": anchor_name,
             "treat_frac": float(changed.mean()),
@@ -971,11 +1035,18 @@ def compose(args: argparse.Namespace) -> dict:
         registered = bool(reg["registered"])
         if not registered:
             # Unregistered donor: never resize; the scalp is the subject's
-            # own base skin (donor weight 0 everywhere). Output returns, no
-            # refusal; tables are still measured on the returned image.
+            # own skin, low band matched to the subject's own forehead
+            # (pores kept). The output-side crown_step refusal below still
+            # applies to this treated base: a painted or seamed base
+            # refuses; only a clean treated base returns.
             before_lab = lab_of(work_up).astype(np.float64)
-            out_up = work_up.copy()
+            out_up, scalp_info = self_tone_match(
+                work_up, masks_up, scale, args.feather_texels)
+            scalp_info["scalp_source"] = "subject_base_tone_matched"
+            scalp_info["registration"] = reg
             out = working.copy()
+            x0, y0, x1, y1 = island_box
+            out[y0:y1, x0:x1] = _from_upright(out_up, island_box)
             regions = regions_from_masks(masks_up)
             out_lab = lab_of(out_up).astype(np.float64)
             report["region_table"] = region_table(out_lab, regions, sides_up,
@@ -983,13 +1054,6 @@ def compose(args: argparse.Namespace) -> dict:
             interiors = zero_interiors(regions, scale, args.feather_texels)
             report["exact_zero"] = exact_zero_report(before_lab, out_up,
                                                      regions, interiors)
-            scalp_info = {
-                "tone_shift_Lab": [0.0, 0.0, 0.0],
-                "tone_anchor": "subject-base-unregistered",
-                "treat_frac": 0.0,
-                "scalp_source": "subject_base",
-                "registration": reg,
-            }
         else:
             locked_up = locked
             if (locked_up.shape[1], locked_up.shape[0]) != (
@@ -1018,21 +1082,17 @@ def compose(args: argparse.Namespace) -> dict:
         registered = bool(reg["registered"])
         before_lab = lab_of(working).astype(np.float64)
         if not registered:
-            out = working.copy()
-            regions = regions_from_masks(masks)
+            out, scalp_info = self_tone_match(working, masks, scale,
+                                              args.feather_texels)
+            scalp_info["scalp_source"] = "subject_base_tone_matched"
+            scalp_info["registration"] = reg
             out_lab = lab_of(out).astype(np.float64)
+            regions = regions_from_masks(masks)
             report["region_table"] = region_table(out_lab, regions, sides,
                                                   scale)
             interiors = zero_interiors(regions, scale, args.feather_texels)
             report["exact_zero"] = exact_zero_report(before_lab, out,
                                                      regions, interiors)
-            scalp_info = {
-                "tone_shift_Lab": [0.0, 0.0, 0.0],
-                "tone_anchor": "subject-base-unregistered",
-                "treat_frac": 0.0,
-                "scalp_source": "subject_base",
-                "registration": reg,
-            }
         else:
             out, scalp_info = scalp_apply(working, locked, masks, scale,
                                           args.feather_texels)
@@ -1054,14 +1114,11 @@ def compose(args: argparse.Namespace) -> dict:
         before_lab, regions, sides_up if island_box is not None else sides,
         scale)
     report["input_region_table"] = {"crown_step": in_table["crown_step"]}
-    # Unregistered donors return the subject's own base skin with donor
-    # weight 0 everywhere: the run returns output with no refusal either
-    # side. Registered runs keep the existing refusal behaviour exactly.
-    if not registered:
-        save_rgb(Path(args.out), out)
-        with open(args.report, "w") as f:
-            json.dump(report, f, indent=1)
-        return report
+    # Both refusals apply to every run: the unregistered output is the
+    # treated base, so a painted or seamed base still refuses (input side
+    # when the base arrives painted, output side when treatment leaves a
+    # step). Only a clean treated base returns, with its scalp source
+    # recorded above.
     in_step = in_table["crown_step"]
     if in_step["max"] is not None and in_step["max"] > in_step["bound"]:
         report["refusal"] = {

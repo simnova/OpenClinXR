@@ -4,16 +4,19 @@
  * Registration = donor dims equal the upright island box dims (a donor
  * stored at the upright island size is a locked donor; anything else is
  * unregistered and must never be resized into the subject). Unregistered
- * donors compose the scalp from the subject's own base skin (donor weight
- * 0 everywhere): output returns, no refusal, scalp_source == subject_base.
- * Registered donors (fixture A/E/L, whose locked dims equal the base dims)
- * keep the existing code path byte-identical (STEP 0 shas below).
+ * donors take the subject's own scalp through a forehead-anchored low-band
+ * tone match (pores kept, keep-outs bit-exact,
+ * scalp_source == subject_base_tone_matched), and the output-side
+ * crown_step refusal still applies to that treated base: a seamed base
+ * refuses, only a clean treated base returns. Registered donors (fixture
+ * A/E/L, whose locked dims equal the base dims) keep the existing code
+ * path byte-identical (STEP 0 shas below).
  *
  * RED fixture (no new tracked binary: built at test time from tracked
  * locked-A.png): a high-contrast dark-red disc painted into locked-A,
- * shrunk to ~46% (body2's 1408/3072 ratio). Pre-fix the harness resizes
- * it back up and pastes it (texels change); post-fix 0 texels differ
- * from base anywhere and scalp_source == subject_base.
+ * shrunk to ~46% (body2's 1408/3072 ratio). The harness never resizes it:
+ * the disc-painted donor and a plain shrunk donor give byte-comparable
+ * identical outputs (0 donor texels), while the treatment still runs.
  *
  * STEP 0 values (S/crownreg/pre/): A 7fa4152e, E f0b0bccc, L 4702572a.
  * M has no locked-M fixture so the suite uses it evaluate-only (as
@@ -64,8 +67,10 @@ function sideOf(win: string, dir: string): string {
   return dest;
 }
 
+type ScalpReport = { scalp?: { scalp_source?: string } };
+
 function composeIslandUpright(win: string, base: string, locked: string,
-  lockedSha: string): { out: string; report: { scalp?: { scalp_source?: string } } } {
+  lockedSha: string): { out: string; report: ScalpReport } {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `cregout-${win}-`));
   const out = path.join(tmp, "out.png");
   const reportPath = path.join(tmp, "report.json");
@@ -77,22 +82,24 @@ function composeIslandUpright(win: string, base: string, locked: string,
   return { out, report: JSON.parse(fs.readFileSync(reportPath, "utf8")) };
 }
 
-/** RED donor at test time: dark-red disc in locked-A, shrunk to ~46%. */
-function buildRedDonor(): { file: string; sha: string } {
+/** Shrunk donors at test time: disc-painted and plain, both 235x235. */
+function buildShrunkDonors(): { red: string; plain: string } {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cregred-"));
-  const file = path.join(tmp, "red-donor.png");
+  const red = path.join(tmp, "red-donor.png");
+  const plain = path.join(tmp, "plain-donor.png");
   execFileSync("python3", ["-c", [
     "from PIL import Image, ImageDraw",
     `a=${JSON.stringify(path.join(FIX, "locked-A.png"))}`,
-    `o=${JSON.stringify(file)}`,
+    `r=${JSON.stringify(red)}`,
+    `p=${JSON.stringify(plain)}`,
     "img=Image.open(a).convert('RGB')",
     "d=ImageDraw.Draw(img)",
     "cx,cy=img.size[0]//2,img.size[1]//2",
     "d.ellipse([cx-60,cy-60,cx+60,cy+60],fill=(139,0,0))",
-    "small=img.resize((235,235),Image.LANCZOS)",
-    "small.save(o)",
+    "img.resize((235,235),Image.LANCZOS).save(r)",
+    "Image.open(a).convert('RGB').resize((235,235),Image.LANCZOS).save(p)",
   ].join("\n")], { encoding: "utf8" });
-  return { file, sha: shaOf(file) };
+  return { red, plain };
 }
 
 function texelDiff(a: string, b: string): number {
@@ -102,19 +109,6 @@ function texelDiff(a: string, b: string): number {
     `x=np.array(Image.open(${JSON.stringify(a)}).convert('RGB')).astype(int)`,
     `y=np.array(Image.open(${JSON.stringify(b)}).convert('RGB')).astype(int)`,
     "print(int((x!=y).any(axis=2).sum()))",
-  ].join("\n")], { encoding: "utf8" });
-  return parseInt(out.trim(), 10);
-}
-
-function texelDiffInBox(composed: string, base: string,
-  box: [number, number, number, number]): number {
-  const out = execFileSync("python3", ["-c", [
-    "import numpy as np",
-    "from PIL import Image",
-    `x=np.array(Image.open(${JSON.stringify(composed)}).convert('RGB')).astype(int)`,
-    `y=np.array(Image.open(${JSON.stringify(base)}).convert('RGB')).astype(int)`,
-    `x0,y0,x1,y1=${JSON.stringify(box)}`,
-    "print(int((x[y0:y1,x0:x1]!=y[y0:y1,x0:x1]).any(axis=2).sum()))",
   ].join("\n")], { encoding: "utf8" });
   return parseInt(out.trim(), 10);
 }
@@ -131,14 +125,22 @@ function crownPresence(render: string): number {
 }
 
 describe("a donor island lands only where it is registered", () => {
-  it("an unregistered (shrunk, disc-painted) donor leaves base untouched", () => {
-    const { file, sha } = buildRedDonor();
+  it("a clean base with an unregistered donor returns tone-matched, 0 donor texels", () => {
+    const { red, plain } = buildShrunkDonors();
     const base = path.join(FIX, "base-good-A.png");
-    const { out, report } = composeIslandUpright("A", base, file, sha);
-    expect(report.scalp?.scalp_source, "unregistered scalp source")
-      .toBe("subject_base");
-    expect(texelDiff(out, base), "0 texels differ from base anywhere")
-      .toBe(0);
+    const first = composeIslandUpright("A", base, red, shaOf(red));
+    const second = composeIslandUpright("A", base, plain, shaOf(plain));
+    expect(first.report.scalp?.scalp_source, "unregistered scalp source")
+      .toBe("subject_base_tone_matched");
+    expect(texelDiff(first.out, base), "treatment runs on clean base")
+      .toBeGreaterThan(0);
+    expect(texelDiff(first.out, second.out), "0 donor texels").toBe(0);
+  }, 240000);
+
+  it("a seamed base with an unregistered donor refuses", () => {
+    const locked = path.join(FIX, "locked-A.png");
+    expect(() => composeIslandUpright("M", path.join(FIX, "base-seam-M.png"),
+      locked, shaOf(locked))).toThrow(/CROWN_STEP_OVER_BOUND/);
   }, 240000);
 
   it("fixture A/E/L compose shas equal STEP 0; M evaluates deterministically", () => {
@@ -159,29 +161,28 @@ describe("a donor island lands only where it is registered", () => {
       .toBeCloseTo(M_EVAL_STEP_MAX, 6);
   }, 240000);
 
-  it("the registration report lands body2 on subject_base with a clean crown", () => {
+  it("the hb1 registration report lands body2 tone-matched with a clean crown", () => {
     const rep = JSON.parse(fs.readFileSync(REPORT, "utf8"));
     expect(rep.pre_fix?.aisha?.base_sha256, "aisha inputs cited pre")
       .toBeTruthy();
-    expect(rep.post_fix?.aisha?.base_sha256, "aisha inputs cited post")
+    expect(rep.hb1?.aisha?.base_sha256, "aisha inputs cited hb1")
       .toBe(rep.pre_fix.aisha.base_sha256);
-    expect(rep.post_fix?.aisha?.refusal?.max, "aisha refusal unchanged")
+    expect(rep.hb1?.aisha?.refusal?.max, "aisha refusal unchanged")
       .toBe(rep.pre_fix.aisha.refusal.max);
-    const post = rep.post_fix?.body2;
-    expect(post?.refusal ?? null, "body2 post-fix has no refusal").toBeNull();
-    expect(post?.scalp_source, "body2 scalp source").toBe("subject_base");
-    expect(texelDiffInBox(post.compose_out, post.compose_base,
-      [3029, 3261, 1838, 2226]), "0 texels differ in the paint box").toBe(0);
-    // Crown presence cannot meet the 0.433 bound as written and is not
-    // bent to: the broad orange wash lives in the base albedo itself
-    // (pre-solve render already 0.705; base paint-box R-G 50.6), so removing
-    // the donor mouth cannot clear it, and the bound is tone-confounded
-    // (goal-front itself measures 1.0 in the same crop). The test asserts
-    // the recorded value is honestly recomputed and the miss is recorded.
-    expect(crownPresence(post.front_render), "presence recomputes")
-      .toBeCloseTo(post.crown_presence, 4);
-    expect(post.crown_presence_bound, "bound recorded").toBe(0.433);
-    expect(post.crown_presence_pass, "bound miss recorded honestly")
+    const hb1 = rep.hb1?.body2;
+    expect(hb1?.refusal ?? null, "body2 hb1 has no refusal").toBeNull();
+    expect(hb1?.scalp_source, "body2 scalp source")
+      .toBe("subject_base_tone_matched");
+    // Presence 0.433 is unmet and is not bent to: attempt 1 targeted lip
+    // tone (rejected on texture), attempt 2 matched chroma (render da -0.4)
+    // but warm skin under this rig always exceeds R-G>25 (goal-front itself
+    // is 1.0); lightening albedo past the match to beat dome shading would
+    // be a deliberate mismatch. The test asserts the recorded miss
+    // recomputes instead of passing a tuned bound.
+    expect(crownPresence(hb1.front_render), "presence recomputes")
+      .toBeCloseTo(hb1.crown_presence, 4);
+    expect(hb1.crown_presence_bound, "bound recorded").toBe(0.433);
+    expect(hb1.crown_presence_pass, "bound miss recorded honestly")
       .toBe(false);
     for (const [p, sha] of Object.entries(
       (rep.store_shas ?? {}) as Record<string, string>)) {
