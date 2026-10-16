@@ -1,0 +1,645 @@
+{
+ "card": "tsk_0b0a357a8e83645b",
+ "bakes": {
+  "body2Argv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea",
+  "aishaArgv": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "lidconformRecord": {
+   "offsetMm": 0.5,
+   "weights": [
+    1.0,
+    0.0
+   ],
+   "ringSource": "own-pre-conform-bake-topological",
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform-any/body2-eyeglobe-base.glb",
+   "h1": {
+    "targetWidthMm": 25.0,
+    "patchK": 6,
+    "patchM": 8,
+    "patchD": 2,
+    "seatCeilingMm": 1.5,
+    "seatFloorMm": 0.5,
+    "lashFollowMm": 4.0
+   },
+   "b2": {
+    "seatSpreadK2": 0.5,
+    "seatSpreadK3": 0.25,
+    "lidLiftMm": 0.55
+   },
+   "displacedVerts": 744,
+   "perSide": {
+    "L": {
+     "baseRing1": 56,
+     "matchedRing1": 56,
+     "matchMedMm": 0.0043,
+     "matchMaxMm": 0.0044,
+     "preWidenWidthMm": 22.809,
+     "widenNeedMm": 2.191,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "ring2": 112,
+     "ring3": 112,
+     "seatedVerts": 39,
+     "fleshVerts": 17,
+     "movedVerts": 39,
+     "maxSeatMm": 2.661,
+     "maxWidenMm": 1.1089,
+     "maxLiftMm": 0.55,
+     "maxSpreadMm": 1.3305
+    },
+    "R": {
+     "baseRing1": 56,
+     "matchedRing1": 56,
+     "matchMedMm": 0.0043,
+     "matchMaxMm": 0.0044,
+     "preWidenWidthMm": 22.809,
+     "widenNeedMm": 2.191,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "ring2": 112,
+     "ring3": 112,
+     "seatedVerts": 39,
+     "fleshVerts": 17,
+     "movedVerts": 39,
+     "maxSeatMm": 2.661,
+     "maxWidenMm": 1.1089,
+     "maxLiftMm": 0.55,
+     "maxSpreadMm": 1.3305
+    }
+   },
+   "lashFollow": {
+    "found": true,
+    "movedVerts": 11088,
+    "maxFollowMm": 2.879350765959174,
+    "keyBlocks": 0
+   },
+   "keyBlocksCarried": [
+    "Basis",
+    "eye-left-closure",
+    "eye-left-opened-up",
+    "eye-left-slit",
+    "eye-right-closure",
+    "eye-right-opened-up",
+    "eye-right-slit",
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up",
+    "mouth-compression",
+    "mouth-corner-puller",
+    "mouth-depression-retraction",
+    "mouth-depression-retraction.001",
+    "mouth-elevation",
+    "mouth-eversion",
+    "mouth-open",
+    "mouth-parling",
+    "mouth-part-later",
+    "mouth-protusion",
+    "mouth-pursing",
+    "mouth-retraction",
+    "mouth-upward-retraction",
+    "neck-platysma",
+    "nose-compression-uncompress",
+    "nose-depression",
+    "nose-left-dilatation",
+    "nose-left-elevation",
+    "viseme_aa",
+    "viseme_CH",
+    "viseme_DD",
+    "viseme_E",
+    "viseme_FF",
+    "viseme_I",
+    "viseme_kk",
+    "viseme_nn",
+    "viseme_O",
+    "viseme_PP",
+    "viseme_RR",
+    "viseme_sil",
+    "viseme_SS",
+    "viseme_TH",
+    "viseme_U"
+   ]
+  },
+  "baseGlb": {
+   "path": "assets:lid-conform-any/body2-eyeglobe-base.glb",
+   "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
+  },
+  "newGlb": {
+   "path": "assets:b2canthus/body2-lidconform.glb",
+   "sha256": "308ae3a8a9c8b5233c289455a4511f3cf0472000535f9127a976d18979ba09d1"
+  },
+  "preGlb": {
+   "path": "assets:b2canthus/body2-step0-pre.glb",
+   "sha256": "4099d3a15d0cb5daa42b91b283db4ac66b17d708b435d2e5634eff1729964cee"
+  },
+  "note": "output stems kept canonical (aisha-lidconform/body2-lidconform): the materializer refuses unknown stems (materialize_mpfb_humanoid_candidate.py:5753-5758) and must not be edited; STEP0 pre-fix body2 archived as body2-step0-pre.glb (measurement input only, stem irrelevant)"
+ },
+ "g1": {
+  "aishaPostPositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f",
+  "aishaStep0PositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f",
+  "pass": true,
+  "how": "B2 keys default 0, so Aisha's disp_world is untouched (spread/lift blocks skipped); b2 record in the post-fix Aisha bake log reads seatSpreadK2/K3 0.0 + lidLiftMm 0.0"
+ },
+ "g2": {
+  "flips": 0,
+  "bandFaces": 5854,
+  "seatedSpan": {
+   "def": "ring1 verts at the tear-film offset (|gap-0.5|<=0.05; the full-weight core, cf Aisha seated span 0.5)",
+   "perSide": {
+    "L": {
+     "n": 26,
+     "preN": 26,
+     "min": 0.5,
+     "max": 0.54
+    },
+    "R": {
+     "n": 26,
+     "preN": 26,
+     "min": 0.5,
+     "max": 0.54
+    }
+   },
+   "pass": true
+  },
+  "flesh": {
+   "def": "ring1 verts past the sphere cap (lateral > globeR+1.0: gap<=1.0 geometrically forbidden, conform-report.json g1 note)",
+   "verts": [
+    {
+     "side": "L",
+     "gapMm": 1.88,
+     "lateralMm": 13.64,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.276,
+     "lateralMm": 14.104,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.429,
+     "lateralMm": 14.248,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.511,
+     "lateralMm": 14.278,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.5,
+     "lateralMm": 14.193,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 1.847,
+     "lateralMm": 13.138,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.331,
+     "lateralMm": 13.89,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 1.571,
+     "lateralMm": 13.199,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.1,
+     "lateralMm": 13.922,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.374,
+     "lateralMm": 14.202,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.474,
+     "lateralMm": 14.272,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.524,
+     "lateralMm": 14.257,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.427,
+     "lateralMm": 14.07,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "L",
+     "gapMm": 2.175,
+     "lateralMm": 13.627,
+     "capRMm": 13.031,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 1.88,
+     "lateralMm": 13.612,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.275,
+     "lateralMm": 14.076,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.429,
+     "lateralMm": 14.22,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.511,
+     "lateralMm": 14.25,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.5,
+     "lateralMm": 14.166,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 1.847,
+     "lateralMm": 13.11,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.331,
+     "lateralMm": 13.862,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.474,
+     "lateralMm": 14.245,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.524,
+     "lateralMm": 14.23,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.427,
+     "lateralMm": 14.043,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.175,
+     "lateralMm": 13.6,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 1.571,
+     "lateralMm": 13.172,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.1,
+     "lateralMm": 13.895,
+     "capRMm": 13.019,
+     "beyondCap": true
+    },
+    {
+     "side": "R",
+     "gapMm": 2.374,
+     "lateralMm": 14.174,
+     "capRMm": 13.019,
+     "beyondCap": true
+    }
+   ],
+   "minBeyondCapMm": 0.091,
+   "minGapMm": 1.571
+  },
+  "boundary": {
+   "def": "in-cap ring1 verts outside [0.3,1.0] (gap-adaptive partials by design); report-only",
+   "verts": [
+    {
+     "side": "L",
+     "gapMm": 1.214,
+     "lateralMm": 10.341,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.534,
+     "lateralMm": 10.709,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.501,
+     "lateralMm": 10.623,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.198,
+     "lateralMm": 9.963,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.062,
+     "lateralMm": 10.111,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.407,
+     "lateralMm": 10.569,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.561,
+     "lateralMm": 10.722,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.399,
+     "lateralMm": 10.361,
+     "capRMm": 13.031
+    },
+    {
+     "side": "L",
+     "gapMm": 1.275,
+     "lateralMm": 12.171,
+     "capRMm": 13.031
+    },
+    {
+     "side": "R",
+     "gapMm": 1.214,
+     "lateralMm": 10.369,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.534,
+     "lateralMm": 10.736,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.501,
+     "lateralMm": 10.651,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.198,
+     "lateralMm": 9.991,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.398,
+     "lateralMm": 10.389,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.274,
+     "lateralMm": 12.143,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.062,
+     "lateralMm": 10.138,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.407,
+     "lateralMm": 10.596,
+     "capRMm": 13.019
+    },
+    {
+     "side": "R",
+     "gapMm": 1.56,
+     "lateralMm": 10.75,
+     "capRMm": 13.019
+    }
+   ]
+  },
+  "globeCorneaPositionSha": {
+   "rows": {
+    "makeclothes_library_eyes_high_poly_globe_mpfb_adult_male_street_casual_mesh": {
+     "base": "250389df150c8a24c0228927e112c956642a06669373ee6bcbd05a72b87a28b7",
+     "new": "250389df150c8a24c0228927e112c956642a06669373ee6bcbd05a72b87a28b7"
+    },
+    "openclinxr_eye_cornea_high_poly_left_mpfb_adult_male_street_casual_mesh": {
+     "base": "7adb083cf7748ecac403fbcf9e134755cd765ce34e0151b46478aa370c7fcee8",
+     "new": "7adb083cf7748ecac403fbcf9e134755cd765ce34e0151b46478aa370c7fcee8"
+    },
+    "openclinxr_eye_cornea_high_poly_right_mpfb_adult_male_street_casual_mesh": {
+     "base": "72a03de97edb0a620a67487b8ad47170350c7adbb67a5e1d127e7476daa90f3a",
+     "new": "72a03de97edb0a620a67487b8ad47170350c7adbb67a5e1d127e7476daa90f3a"
+    }
+   },
+   "pass": true
+  },
+  "fissureNewMm": {
+   "L": 25.798,
+   "R": 25.798
+  },
+  "fissureGoalMm": 25.9,
+  "fissurePass": true,
+  "blinkClosed10GlobePx": 0
+ },
+ "g3": {
+  "aishaMrd1Mm": 4.803,
+  "body2Step0Mrd1Mm": 3.869,
+  "barMidpointMm": 4.336,
+  "body2PostMrd1Mm": {
+   "L": 4.519,
+   "R": 4.519
+  },
+  "clinicalNormalMm": [
+   4,
+   5
+  ],
+  "clinicalSource": "StatPearls Ptosis NBK546705",
+  "pass": true
+ },
+ "g4": {
+  "grep": "rg for the 8 mesh/stem literals over lid_conform.py + lid_conform_core.py + measure_conform.py exits 1 (no match)",
+  "pass": true
+ },
+ "probes": {
+  "g2revert": "STEP0 rebake with pre-fix code (unmodified lid_conform.py): 12 flips / 5830 band faces (step0-body2.json c3) -- flips return without the seat change",
+  "g3revert": "STEP0 MRD1 3.869 < bar 4.336 (step0-body2.json mrd1.new) -- the gate bites without the lift"
+ },
+ "alternatives": {
+  "scope": "measured on the recorded body2 base->new field (GLB space); the Blender body is watertight (0 boundary edges, LIDCONFORM_DIAG) while the export fragments into 48 islands (36593/38995 verts unreachable from ring1), so GLB-space kernels underpredict Blender BFS reach -- the chosen two-hop Blender spread is verified by the real post-fix bake (0 flips)",
+  "singleHopSpread02": {
+   "flips": 12,
+   "note": "ring2 += 0.25/0.5 x mean neighbour ring1 motion; no improvement"
+  },
+  "singleHopSpread075": {
+   "flips": 14,
+   "note": "worse: new sharp boundary at ring2/ring3"
+  },
+  "capTravel": {
+   "cap20": 12,
+   "cap1863": 12,
+   "cap15": 12,
+   "note": "seated-span min degrades (-0.275/-0.412/-0.775): caps trade flips for seating"
+  },
+  "twinWeld": {
+   "result": "disproven: 0 moved verts with an unmoved coincident twin (body2 and Aisha alike)",
+   "note": "coincident doubles (e.g. 1156/1157) move together; flips are boundary-shear faces (2.4-2.8mm vs 0 across one edge), not twin seams"
+  }
+ },
+ "falsifier": {
+  "aishaMinusBody2Step0Mm": 0.933,
+  "remeasureSpreadMm": 0.0,
+  "spreadSource": "mrd1-test.json vs step0-body2.json (same inputs, two runs): 3.869 == 3.869",
+  "verdict": "0.933 >> 0.0: G3 has a known-good, gate stands"
+ },
+ "sheet": {
+  "root": "/Volumes/files/openclinxr-assets/store/b2canthus/",
+  "files": {
+   "sheet-body2-post-front-eyeL-crop.png": {
+    "sha256": "0190cfedf412e0eb26d1ea00754220e5b2197cf9fe735ca73250b58eb58ff64b",
+    "bytes": 210760,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-post-front-eyeR-crop.png": {
+    "sha256": "23825de3db653970826fd4dc71582cfbe07dad9a3046463c1474e88833f525d4",
+    "bytes": 208692,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-post-front-full.png": {
+    "sha256": "9d53d8bcd73cac2992ffc0b6474389c5581b16372d1ced02e410cc1d2938c9d3",
+    "bytes": 1586351,
+    "width": 1280,
+    "height": 1280
+   },
+   "sheet-body2-post-yaw25-eyeL-crop.png": {
+    "sha256": "14333b55e6bbf337e55dbf89977145526556d82a20f658e5a5a058fad007a33d",
+    "bytes": 200890,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-post-yaw25-eyeR-crop.png": {
+    "sha256": "1b9dc8e51cbeeb1d6a452163c10111696780821221c085c30c88dfa6a4a4dd6c",
+    "bytes": 212062,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-post-yaw25-full.png": {
+    "sha256": "b49eb61517fbb241111bb6eb447f3f37e4bd4836a59afffe999757381c9b4dd0",
+    "bytes": 1591045,
+    "width": 1280,
+    "height": 1280
+   },
+   "sheet-body2-pre-front-eyeL-crop.png": {
+    "sha256": "abbc9cc8448987e959c767628380f33508656145bf15555a2b5251a5a1876d39",
+    "bytes": 210380,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-pre-front-eyeR-crop.png": {
+    "sha256": "9c31de0e569616a236b28c16084fa003755b8ac4ba6b04b6e87d58fd44c60a7b",
+    "bytes": 208497,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-pre-front-full.png": {
+    "sha256": "dcab538d81aa963059ddf559fe819c232fe479aadd0351c2c2f1db1a500b5bd0",
+    "bytes": 1586132,
+    "width": 1280,
+    "height": 1280
+   },
+   "sheet-body2-pre-yaw25-eyeL-crop.png": {
+    "sha256": "8da100a4e49de39e150d834e26422683abe586c06b72c93aecaa2361890e6704",
+    "bytes": 200838,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-pre-yaw25-eyeR-crop.png": {
+    "sha256": "e3c31cb31397a70e1417b903e1df4b6483b5ef49c6893a7fb3975ff4d6c84a5e",
+    "bytes": 211468,
+    "width": 420,
+    "height": 420
+   },
+   "sheet-body2-pre-yaw25-full.png": {
+    "sha256": "a9b4bfda950ca7b89db5c00a4efb1531c0995ac424e6aca24ab441d9ae1145a4",
+    "bytes": 1591213,
+    "width": 1280,
+    "height": 1280
+   }
+  },
+  "method": "Blender EEVEE eye-region portraits (85mm at 0.38m, front + yaw25, 1280px fulls, 420px native eye crops on projected cornea centres; hair hidden, Icosphere removed). three.js capture not attempted: lidany recorded its 120s lab-ready timeout for this subject class (any-subject-report.json sheet.threeJsAttempt), the card's fallback condition.",
+  "renderScript": "scratch, uncommitted (/tmp b2cportrait.py lineage)"
+ },
+ "target": {
+  "goalMm": 25.9,
+  "source": "any-subject-report.json target (temple ruler + aisha ear-bias, Farkas corroboration)"
+ }
+}

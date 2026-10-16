@@ -430,6 +430,31 @@ def main():
                  for t in ("L", "R") for k in ("min", "med", "max"))
     report["g1"] = {"gapsMm": g1, "pass": bool(g1pass)}
 
+    # MRD1 (margin-reflex distance 1, mm) per eye on both bakes, same
+    # script: corneal apex (max forward cornea vert) to highest
+    # upper-lid ring1 point. Cornea meshes map to sides by nearer
+    # fitted centre (role-resolved names, no subject literal).
+    mrd1 = {}
+    for tag, ld in (("base", base), ("new", new)):
+        worlds2 = core.node_worlds(ld["js"])
+        cnames = core.resolve_cornea_mesh_names(ld["js"])
+        cpts = {n: core.skin_mesh(ld["js"], ld["blob"], worlds2, n)[0]
+                for n in cnames}
+        per = {}
+        picks = {}
+        for t in ("L", "R"):
+            c = ld["centres"][t][0]
+            rings = core.derive_eye_rings(ld["body"], ld["tris"], c)
+            pick = min(cpts,
+                       key=lambda n: float(np.linalg.norm(
+                           cpts[n].mean(axis=0) - c)))
+            picks[t] = pick
+            per[t] = core.mrd1_mm(ld["body"], rings["ring1"],
+                                   cpts[pick])
+        assert picks["L"] != picks["R"], "cornea side map collided"
+        mrd1[tag] = per
+    report["mrd1"] = mrd1
+
     # C1: eye POSITION arrays exactly equal (names resolved per bake by
     # role; same-subject bakes share names, compared pairwise).
     c1 = {}

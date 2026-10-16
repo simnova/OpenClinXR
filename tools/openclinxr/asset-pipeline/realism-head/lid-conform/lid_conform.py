@@ -27,6 +27,9 @@ ring (ring1) is located on the in-Blender body as follows:
    the high-poly eye is honoured). Weight is 1 at ring1 falling to 0 at
    ring2 (LID_CONFORM weights [1.0, 0.0]); ring2/ring3 derive by BFS on
    the Blender adjacency and are recorded (ring2 is the zero anchor).
+   B2 (body2 row only): the seat displacement additionally decays over
+   ring2/ring3 (seatSpreadK2/K3) and the upper lid lifts (lidLiftMm)
+   before seating; both default 0 (Aisha's field unchanged).
 
 Shape-key consistency: the same local displacement is added to the Basis
 AND to every other shape-key block, so each key's delta (basis -> key)
@@ -76,6 +79,32 @@ def base_glb_for_case(case_id):
 # surface +offsetMm with a gap-adaptive weight (1 inside seatFloorMm,
 # falling to 0 at seatCeilingMm -- flesh canthi stay in flesh). ring2
 # stays the zero anchor. Lash roots follow the lid field (lashFollowMm).
+# B2 (tsk_0b0a357a8e83645b): body2 adds a two-hop decay spread of the
+# SEAT displacement over ring2/ring3 (seatSpreadK2/K3) and an upper-lid
+# height term (lidLiftMm, Blender +z, smoothstepped from the ring
+# mid-height so the field stays continuous). Both default to 0, which
+# reproduces the pre-B2 field exactly (Aisha's row sets neither, so her
+# conformed body is unchanged -- G1 POSITION sha verified).
+#   seatSpreadK2/K3: the 12 body2 canthus flips (any-subject-report g2)
+#     span moved<->anchored across the sharp seat/flesh boundary (seat
+#     travel 2.775mm vs Aisha 1.863). Real-field trials of single-hop
+#     ring2-only spread (flips stay 12) and travel caps 2.0/1.863/1.5
+#     (flips stay 12) do not unflip; the Blender body is watertight (0
+#     boundary edges) while the export fragments into 48 islands, so the
+#     Blender BFS reaches the flip neighbourhood past ring2 and a
+#     two-hop decay (0.5/0.25, mirroring the widen patch depth falloff
+#     1.0/0.5/0.15) halves shear at each edge while ring1 travel -- and
+#     hence the seated span -- is untouched.
+#   lidLiftMm: body2 STEP0 MRD1 3.869 (step0-body2.json, same script)
+#     vs Aisha 4.8025 (step0-aisha.json) and the clinical normal 4-5
+#     (StatPearls Ptosis NBK546705). G3 bar = midpoint = 4.336; minimum
+#     lift 0.467 + seat-retarget allowance = 0.55 (verified post-bake).
+#     The case's own photo goal (2.71/2.84 from pts_target_body2_front
+#     iris landmarks 468/473 x adopted 0.2572 mm/px, any-subject-report
+#     target) already sits BELOW the embodied lid, so the photo cannot
+#     source a lift -- the term closes the house-normal gap instead.
+#     Aisha's photo goal (4.66/4.78 x true 0.1812 mm/px, conform-report
+#     target) already matches her embodied 4.80, hence her 0.0.
 LID_CONFORM_BY_CASE_ID = {
     "aisha": {"offsetMm": 0.5, "weights": [1.0, 0.0],
               "targetWidthMm": 26.8, "patchK": 6, "patchM": 8,
@@ -84,7 +113,9 @@ LID_CONFORM_BY_CASE_ID = {
     "body2": {"offsetMm": 0.5, "weights": [1.0, 0.0],
               "targetWidthMm": 25.0, "patchK": 6, "patchM": 8,
               "patchD": 2, "seatCeilingMm": 1.5,
-              "seatFloorMm": 0.5, "lashFollowMm": 4.0},
+              "seatFloorMm": 0.5, "lashFollowMm": 4.0,
+              "seatSpreadK2": 0.5, "seatSpreadK3": 0.25,
+              "lidLiftMm": 0.55},
 }
 
 
@@ -217,6 +248,14 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
 
     disp_world = np.zeros((n_verts, 3), dtype=float)
     per_side = {}
+    # B2 case-row keys ride via case_id (the materialize call site is
+    # frozen: it forwards only the H1 kwargs). Defaults 0 reproduce the
+    # pre-B2 field exactly, so unlisted cases (Aisha) are unchanged.
+    _b2 = LID_CONFORM_BY_CASE_ID.get(case_id, {}) if case_id else {}
+    _spread_k2 = float(_b2.get("seatSpreadK2", 0.0))
+    _spread_k3 = float(_b2.get("seatSpreadK3", 0.0))
+    _lift_mm = float(_b2.get("lidLiftMm", 0.0))
+    seat_d = np.zeros((n_verts, 3), dtype=float)
     for side, gc in centres.items():
         bpts = bsides[side]
         bc, _, _ = core.fit_sphere_kasa(bpts)
@@ -330,6 +369,35 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
             outer.append(np.array(sorted(nxt)))
             frontier = nxt
         ring2, ring3 = outer[0], outer[1]
+        # B2 LIFT (before seat so the seat still lands surface+offset):
+        # upper-lid (+Blender z) smoothstep field, full on upper ring1,
+        # decaying over the upper ring2/ring3 neighbourhood. Zero at and
+        # below the ring mid-height, so the field is continuous (no new
+        # cliff at the midline). Skipped entirely when lidLiftMm is 0.
+        lift_max = 0.0
+        if _lift_mm > 0.0:
+            _lz = np.array([float(body_world[int(v)][2]
+                                  + disp_world[int(v)][2])
+                            for v in ring1])
+            _lzmin, _lzmax = float(_lz.min()), float(_lz.max())
+            _lmid = (_lzmin + _lzmax) / 2.0
+            _lhalf = max(_lzmax - _lmid, 1e-9)
+
+            def _lw(z):
+                _t = min(max((float(z) - _lmid) / _lhalf, 0.0), 1.0)
+                return float(np.sin(_t * np.pi / 2.0) ** 2)
+
+            for vi in (int(v) for v in ring1):
+                _w = _lw(body_world[vi][2] + disp_world[vi][2])
+                if _w > 0.0:
+                    disp_world[vi][2] += _lift_mm / 1000.0 * _w
+                    lift_max = max(lift_max, _lift_mm * _w)
+            for _ring, _k in ((ring2, 0.5), (ring3, 0.25)):
+                for vi in (int(v) for v in _ring):
+                    _w = _lw(body_world[vi][2] + disp_world[vi][2])
+                    if _w > 0.0:
+                        disp_world[vi][2] += _lift_mm / 1000.0 * _k * _w
+                        lift_max = max(lift_max, _lift_mm * _k * _w)
         # H1 SEAT (gap-adaptive): full seating toward surface+offset for
         # near-globe verts, falling to 0 at seat_ceiling_mm (flesh stays).
         # Ring2 keeps weight 0 (anchor).
@@ -364,11 +432,32 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
                 + (dv / ln) * (offset_mm / 1000.0)
             d = gw * (target - p)
             disp_world[vi] += d
+            seat_d[vi] += d
             moved += 1
             seated += 1
             maxd = max(maxd, float(np.linalg.norm(d)) * 1000.0)
         if weights[1] != 0.0:
             raise RuntimeError("LIDCONFORM: ring2 weight must be 0")
+        # B2 SPREAD (after seat): share each ring1 vert's SEAT motion
+        # with its ring2/ring3 neighbours (two-hop decay k2/k3 on the
+        # watertight Blender adjacency), halving shear at each edge of
+        # the sharp seat/flesh boundary. Ring1 travel is untouched, so
+        # the seated span still lands surface+offset. Skipped entirely
+        # when both keys are 0 (Aisha path bitwise identical).
+        spread_max = 0.0
+        if _spread_k2 > 0.0 or _spread_k3 > 0.0:
+            _r1s = set(int(v) for v in ring1)
+            for _ring, _k in ((ring2, _spread_k2), (ring3, _spread_k3)):
+                if _k <= 0.0:
+                    continue
+                for _w in (int(v) for v in _ring):
+                    _nbs = [v for v in adj.get(_w, ()) if v in _r1s]
+                    if not _nbs:
+                        continue
+                    _sd = _k * seat_d[np.array(_nbs)].mean(axis=0)
+                    disp_world[_w] += _sd
+                    spread_max = max(
+                        spread_max, float(np.linalg.norm(_sd)) * 1000.0)
         per_side[side] = {
             "baseRing1": int(len(brings["ring1"])),
             "matchedRing1": int(len(ring1)),
@@ -385,6 +474,8 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
             "movedVerts": moved,
             "maxSeatMm": round(maxd, 4),
             "maxWidenMm": round(widen_max, 4),
+            "maxLiftMm": round(lift_max, 4),
+            "maxSpreadMm": round(spread_max, 4),
         }
 
     # C4 lash follow (the card's permitted exception): lash verts take the
@@ -464,6 +555,9 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
                      "seatCeilingMm": seat_ceiling_mm,
                      "seatFloorMm": seat_floor_mm,
                      "lashFollowMm": lash_follow_mm},
+              "b2": {"seatSpreadK2": _spread_k2,
+                     "seatSpreadK3": _spread_k3,
+                     "lidLiftMm": _lift_mm},
               "displacedVerts": int(nz.sum()), "perSide": per_side,
               "lashFollow": lash_info,
               "keyBlocksCarried": [kb.name for kb in key_blocks]}

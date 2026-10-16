@@ -420,6 +420,26 @@ def fissure_dims(loop_pts):
     return {"widthMm": width, "heightMm": height}
 
 
+def mrd1_mm(body_pos, ring1_idx, cornea_pos):
+    """Margin-reflex distance 1 (mm) for one eye, GLB space.
+
+    Corneal apex = cornea vertex with max forward (+z; the bake faces
+    +z per lid_conform._gltf_to_blender) coordinate. Upper lid = ring1
+    (margin loop) verts at or above the loop's vertical (y) midpoint.
+    MRD1 = highest upper-lid y minus apex y. Generic over every
+    subject: meshes resolve by role, no subject literal.
+    """
+    loop = np.asarray(body_pos)[np.asarray(ring1_idx, dtype=int)]
+    cor = np.asarray(cornea_pos)
+    apex = cor[cor[:, 2].argmax()]
+    mid_y = float(loop[:, 1].min() + loop[:, 1].max()) / 2.0
+    upper = loop[loop[:, 1] >= mid_y]
+    return {"mrd1Mm": round(float(upper[:, 1].max() - apex[1]) * 1000.0, 3),
+            "apexYm": float(apex[1]),
+            "upperN": int(len(upper)),
+            "ringN": int(len(loop))}
+
+
 def face_normals(pos, tris):
     a = pos[tris[:, 0]]
     b = pos[tris[:, 1]]
