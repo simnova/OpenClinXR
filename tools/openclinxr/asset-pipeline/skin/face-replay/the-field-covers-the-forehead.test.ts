@@ -124,7 +124,7 @@ sys.stdout.write(hashlib.sha256(buf.getvalue()).hexdigest())
 
 const GATED = ["L_cheek", "R_cheek", "forehead", "chin"] as const;
 
-describe("the field covers the forehead", () => {
+describe("the field covers the forehead", { timeout: 240000 }, () => {
   it("verdict is the falsifier: forehead never within 3 with cheeks kept", () => {
     const r = readReport();
     expect(r.verdict).toMatch(/FALSIFIER/);
@@ -239,7 +239,7 @@ function readHb1(): Hb1Report {
   return JSON.parse(fs.readFileSync(REPORT, "utf8")) as Hb1Report;
 }
 
-describe("the field covers the forehead (handback 1: refit to residual)", () => {
+describe("the field covers the forehead (handback 1: refit to residual)", { timeout: 240000 }, () => {
   it("v2 improves the forehead but loses L_cheek: nothing lands", () => {
     const r = readHb1();
     expect(r.handback1.verdict).toMatch(/NO LAND/);

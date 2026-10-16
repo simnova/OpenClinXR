@@ -50,6 +50,8 @@ MIN_MASK_TEXELS = 64
 MIN_HALF_TEXELS = 500
 
 REGIONAL_CHROMA_METHOD = "regional-chroma-v1"
+REGIONAL_CHROMA_METHOD_V2 = "regional-chroma-v2"
+REGIONAL_CHROMA_METHODS = (REGIONAL_CHROMA_METHOD, REGIONAL_CHROMA_METHOD_V2)
 # Normalised render-space grid extent in midline units (x-cx)/ied.
 # Cheek patches sit at |nx| ~ 0.43-0.51 (115px/ied); +-0.65 covers the
 # band sides with margin. Vertical ny=(y-brow)/(mouth-brow); the band
@@ -245,17 +247,21 @@ def _nearest_fill(raw: np.ndarray, valid: np.ndarray) -> np.ndarray:
 
 
 def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
-                          pre_json: dict, goal_rgb: np.ndarray,
-                          goal_keep: np.ndarray, goal_json: dict,
-                          landmarks: dict, mouth_t: float,
-                          nx_cells: int, ny_cells: int,
-                           sigma_cells: float,
-                          mirror: bool = False,
-                          notch: bool = False,
-                          notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00",
-                          luminance: bool = False,
-                          pre_skin: np.ndarray | None = None,
-                          goal_skin: np.ndarray | None = None) -> dict:
+                           pre_json: dict, goal_rgb: np.ndarray,
+                           goal_keep: np.ndarray, goal_json: dict,
+                           landmarks: dict, mouth_t: float,
+                           nx_cells: int, ny_cells: int,
+                            sigma_cells: float,
+                           mirror: bool = False,
+                           notch: bool = False,
+                           notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00",
+                           luminance: bool = False,
+                           pre_skin: np.ndarray | None = None,
+                           goal_skin: np.ndarray | None = None,
+                           ref_rgb: np.ndarray | None = None,
+                           ref_keep: np.ndarray | None = None,
+                           ref_json: dict | None = None,
+                           ref_skin: np.ndarray | None = None) -> dict:
     """Fit the stored regional chroma field.
 
     Per cell: goal-minus-pre mean a*/b* over the below-brow band in
@@ -268,6 +274,13 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     corrected). The fit mean is removed (global tone stays with the six
     numbers; L untouched), then a Gaussian smooth propagates fit values
     into excluded cells so held-out patches generalise from neighbours.
+
+    With ref_rgb/ref_keep/ref_json (opt-in v2, tsk_dcb7bb6496ad3e36 G6):
+    the fitted delta is goal-minus-REF (e.g. goal-minus-sixonly-render,
+    the post-six residual) instead of goal-minus-pre; the grid geometry
+    (anchors, ny0/ny1 from the pre/goal pair) and the fit/eval machinery
+    are unchanged, and the stored method is regional-chroma-v2. Without
+    the ref triple the solve below is exactly the legacy v1 one.
 
     With luminance=True the same machinery additionally fits a
     low-frequency L channel (same cells, same fit/eval split, same
@@ -290,6 +303,21 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     """
     a_pre = _norm_anchors(pre_json)
     a_goal = _norm_anchors(goal_json)
+    # v2 base for the fitted delta: the ref render (post-six residual)
+    # instead of the pre render. Grid geometry (anchors, ny0/ny1) stays
+    # on the pre/goal pair so fit/eval cells keep their v1 shape.
+    v2 = ref_rgb is not None
+    if v2:
+        assert ref_keep is not None and ref_json is not None
+        base_rgb, base_keep = ref_rgb, ref_keep
+        a_base = _norm_anchors(ref_json)
+        base_skin, base_json = ref_skin, ref_json
+        base_top, _ = _forehead_top(ref_json)
+    else:
+        base_rgb, base_keep = pre_rgb, pre_keep
+        a_base = a_pre
+        base_skin, base_json = pre_skin, pre_json
+        base_top, _ = _forehead_top(pre_json)
     # Forehead extent: grid ny0 = the lower (more negative) of the two
     # forehead-polygon tops, no margin. Legacy ny0 == 0.0 unless the
     # skin masks opt in (keeps old solves reproducible bit-for-bit).
@@ -319,6 +347,7 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
 
     pre_keep = _widen(pre_keep, pre_skin, a_pre, pre_top)
     goal_keep = _widen(goal_keep, goal_skin, a_goal, goal_top)
+    base_keep = _widen(base_keep, base_skin, a_base, base_top)
     # Patch half-size shared literally with the mask script (same 40x40
     # evaluation boxes the report measures); lazy import so the replay
     # path never pays for cv2/skimage.
@@ -335,16 +364,16 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                               ys.astype(np.float64), a)
         return xs, ys, nx, ny
 
-    _, _, pnx, pny = coords(pre_rgb, pre_keep, a_pre)
+    _, _, pnx, pny = coords(base_rgb, base_keep, a_base)
     _, _, gnx, gny = coords(goal_rgb, goal_keep, a_goal)
-    pre_m, pre_n = _cell_means_ab(pre_rgb, pre_keep, pnx, pny,
+    pre_m, pre_n = _cell_means_ab(base_rgb, base_keep, pnx, pny,
                                   nx_edges, ny_edges)
     goal_m, goal_n = _cell_means_ab(goal_rgb, goal_keep, gnx, gny,
                                     nx_edges, ny_edges)
     covered = (~np.isnan(pre_m[..., 0])) & (~np.isnan(goal_m[..., 0]))
     eval_cells: set = set()
     fh_rects: list = []
-    for js in (pre_json, goal_json):
+    for js in (base_json, goal_json):
         for rect in _eval_patch_rects(js, half=patch_half):
             eval_cells |= _cells_overlapping(nx_edges, ny_edges, rect)
             if rect[0] == "forehead":
@@ -442,7 +471,7 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
         # supply (they match the face mean, not the cheek/forehead shape).
         p_ix, p_iy, p_nyc, p_nxc = _cell_bins(pnx, pny, nx_edges, ny_edges)
         g_ix, g_iy, _, _ = _cell_bins(gnx, gny, nx_edges, ny_edges)
-        pre_l, _ = _cell_means_l(pre_rgb, pre_keep, p_ix, p_iy, p_nyc, p_nxc)
+        pre_l, _ = _cell_means_l(base_rgb, base_keep, p_ix, p_iy, p_nyc, p_nxc)
         goal_l, _ = _cell_means_l(goal_rgb, goal_keep, g_ix, g_iy, p_nyc, p_nxc)
         raw_l = np.where(covered, goal_l[..., 0] - pre_l[..., 0], np.nan)
         if mirror:
@@ -475,8 +504,8 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     eye_r = (np.array(uv("eye-corner-R-inner")) + np.array(uv("eye-corner-R-outer"))) / 2
     brow_rows = [uv(k)[0] for k in ("brow-end-L-inner", "brow-end-L-outer",
                                     "brow-end-R-inner", "brow-end-R-outer")]
-    return {
-        "method": REGIONAL_CHROMA_METHOD,
+    out = {
+        "method": REGIONAL_CHROMA_METHOD_V2 if v2 else REGIONAL_CHROMA_METHOD,
         "mirror": bool(mirror),
         "notch": notch_desc,
         "grid": {"nx": nx_cells, "ny": ny_cells,
@@ -536,6 +565,11 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                              "values into held-out evaluation cells so they "
                              "inherit neighbour corrections"},
     }
+    if v2:
+        out["fit_target"] = "goal-minus-sixonly-render"
+        out["forehead_extent"]["fh_top_ref_row"] = base_top
+        out["render_anchors"]["ref"] = a_base
+    return out
 
 
 def apply_regional_chroma(lab: np.ndarray, face: np.ndarray,
@@ -682,6 +716,20 @@ def cmd_solve(args: argparse.Namespace) -> dict:
             if args.chroma_pre_skin else None
         goal_skin = (C.load_mask(Path(args.chroma_goal_skin), (gw, gh)) > 0.5) \
             if args.chroma_goal_skin else None
+        ref_given = (args.chroma_ref_render or args.chroma_ref_mask
+                     or args.chroma_ref_json or args.chroma_ref_skin)
+        ref_rgb = ref_keep = ref_json = ref_skin = None
+        if ref_given:
+            if not (args.chroma_ref_render and args.chroma_ref_mask
+                    and args.chroma_ref_json):
+                raise SystemExit("v2 refit needs --chroma-ref-render "
+                                 "--chroma-ref-mask --chroma-ref-json together")
+            ref_rgb = C.load_rgb(Path(args.chroma_ref_render))
+            rw, rh = ref_rgb.shape[1], ref_rgb.shape[0]
+            ref_keep = (_mask_or_refuse(Path(args.chroma_ref_mask), (rw, rh)) > 0.5)
+            ref_json = json.loads(Path(args.chroma_ref_json).read_text(encoding="utf8"))
+            if args.chroma_ref_skin:
+                ref_skin = (C.load_mask(Path(args.chroma_ref_skin), (rw, rh)) > 0.5)
         field = solve_regional_chroma(pre, pre_keep, pre_json, goal, goal_keep,
                                       goal_json, landmarks, mouth_t,
                                       nx_cells, ny_cells,
@@ -691,7 +739,11 @@ def cmd_solve(args: argparse.Namespace) -> dict:
                                       notch_cores=args.chroma_notch_cores,
                                       luminance=bool(args.chroma_luminance),
                                       pre_skin=pre_skin,
-                                      goal_skin=goal_skin)
+                                      goal_skin=goal_skin,
+                                      ref_rgb=ref_rgb,
+                                      ref_keep=ref_keep,
+                                      ref_json=ref_json,
+                                      ref_skin=ref_skin)
         field["files"] = {
             "pre_mask_json": Path(args.chroma_pre_json).name,
             "goal_mask_json": Path(args.chroma_goal_json).name,
@@ -710,6 +762,16 @@ def cmd_solve(args: argparse.Namespace) -> dict:
         if args.chroma_goal_skin:
             field["files"]["goal_skin"] = Path(args.chroma_goal_skin).name
             field["shas"]["goal_skin"] = C.sha256_file(Path(args.chroma_goal_skin))
+        if ref_given:
+            field["files"]["ref_render"] = Path(args.chroma_ref_render).name
+            field["files"]["ref_mask"] = Path(args.chroma_ref_mask).name
+            field["files"]["ref_mask_json"] = Path(args.chroma_ref_json).name
+            field["shas"]["ref_render"] = C.sha256_file(Path(args.chroma_ref_render))
+            field["shas"]["ref_mask"] = C.sha256_file(Path(args.chroma_ref_mask))
+            field["shas"]["ref_mask_json"] = C.sha256_file(Path(args.chroma_ref_json))
+            if args.chroma_ref_skin:
+                field["files"]["ref_skin"] = Path(args.chroma_ref_skin).name
+                field["shas"]["ref_skin"] = C.sha256_file(Path(args.chroma_ref_skin))
         params["regional_chroma"] = field
     out = Path(args.out_params)
     out.write_text(json.dumps(params, indent=1) + "\n", encoding="utf8")
@@ -745,7 +807,7 @@ def cmd_replay(args: argparse.Namespace) -> dict:
     out = apply_transfer(rgb, src_mean, src_sd, six[:3], six[3:])
     field = params.get("regional_chroma")
     if field is not None:
-        if field.get("method") != REGIONAL_CHROMA_METHOD:
+        if field.get("method") not in REGIONAL_CHROMA_METHODS:
             raise RuntimeError(f"COLOUR_CHROMA_METHOD_MISMATCH "
                                f"{field.get('method')}: refuse")
         # Stored a*/b* field on top of the global affine (L untouched).
@@ -913,6 +975,18 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--chroma-goal-skin", default=None,
                     help="eroded-skin mask PNG for --goal-render (see "
                          "--chroma-pre-skin)")
+    ap.add_argument("--chroma-ref-render", default=None,
+                    help="opt-in v2 fit base: fit goal-minus-REF (e.g. the "
+                         "six-only render, i.e. the post-six residual) "
+                         "instead of goal-minus-pre; needs --chroma-ref-"
+                         "mask and --chroma-ref-json, plus --chroma-ref-"
+                         "skin for the above-brow extent on the ref side")
+    ap.add_argument("--chroma-ref-mask", default=None,
+                    help="below-brow mask PNG for --chroma-ref-render")
+    ap.add_argument("--chroma-ref-json", default=None,
+                    help="below-brow mask JSON for --chroma-ref-render")
+    ap.add_argument("--chroma-ref-skin", default=None,
+                    help="eroded-skin mask PNG for --chroma-ref-render")
     return ap
 
 
