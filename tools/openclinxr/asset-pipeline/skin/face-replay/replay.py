@@ -155,6 +155,17 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--feather-px", str(params["feather_px"])]
         inputs["albedo_socket_png"] = store_dir / output_paths["albedo_socket_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_socket_png"]
+    elif name == "beard_shadow":
+        cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_beard_png"])]
+        derive_out = store_dir / "derive_out"
+        cmd += ["--landmarks", str(derive_out / "landmarks-uv.json")]
+        cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
+        cmd += ["--weight", str(params["weight"])]
+        cmd += ["--seed", str(params["seed"])]
+        cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
+        inputs["albedo_beard_png"] = store_dir / output_paths["albedo_beard_png"]
+        inputs["albedo_png"] = store_dir / output_paths["albedo_beard_png"]
     else:
         raise RuntimeError(f"Unknown stage: {name}")
 
