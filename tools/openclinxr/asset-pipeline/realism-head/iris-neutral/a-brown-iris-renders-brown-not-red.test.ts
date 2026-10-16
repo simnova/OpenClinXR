@@ -96,6 +96,27 @@ print(json.dumps({
 
   it("(unit) the materializer keeps --eye-texture precedence (source)", () => {
     const src = readFileSync(MATERIALIZER, "utf8");
+    // HANDBACK1: output-stem tables are product config — no card scratch
+    // stems (prefix/postfix/irisfix) may enter them. Bakes use registered
+    // stems with outputs in store subdirectories instead.
+    for (const table of [
+      "LOWER_GARMENT_BY_OUTPUT_STEM",
+      "EYE_DIAMETER_TARGET_MM",
+    ]) {
+      const start = src.indexOf(`${table} = {`);
+      expect(start, `table ${table} found`).toBeGreaterThan(-1);
+      const end = src.indexOf("\n}", start);
+      const keys = [...src.slice(start, end).matchAll(/"([^"]+)":/g)].map(
+        (m) => m[1]!,
+      );
+      expect(keys.length, `${table} must stay non-empty`).toBeGreaterThan(0);
+      for (const k of keys) {
+        expect(
+          /prefix|postfix|irisfix/.test(k),
+          `${table} carries a scratch stem ${k}`,
+        ).toBe(false);
+      }
+    }
     // Explicit --eye-texture prints EYE_TEXTURE_RESOLVED with its own path...
     expect(
       src.includes('print(f"EYE_TEXTURE_RESOLVED {_iris_key} {args.eye_texture}")'),

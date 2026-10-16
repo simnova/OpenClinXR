@@ -1,7 +1,7 @@
 {
  "aisha": {
   "argv": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
-  "bakeCommand": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- <argv> --output <glb> (cwd = worktree root)",
+  "bakeCommand": "HANDBACK1: prefix baked on a pristine origin/main worktree (irisneutral-base, detached origin/main 67f513a46, removed after) with the conform-report.json argv into store/iris-neutral/prefix/aisha-lidconform.glb (registered stem, no new table rows). First prefix attempt crashed post-export at run_teeth_rest_clearance (fresh tree lacked node_modules -> @gltf-transform ERR_MODULE_NOT_FOUND; blender still exits 0, GLB lacked the cornea split); rebaked with node_modules symlinked (0 tracebacks, EYEMESH_CORNEA_SPLIT present). Postfix baked on wt/irisneutral (scratch rows removed) into store/iris-neutral/postfix/aisha-lidconform.glb with the same argv.",
   "explicitEyeTextureKeepsPrecedence": true,
   "postfix": {
    "eyeImage": {
@@ -27,9 +27,9 @@
      "TEXCOORD_0": "9e730dd8f1035c6be1a3b50b2da471a086324df81c26d17e7d8fda6d4735fd4c"
     }
    },
-   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-postfix.glb",
-   "glbSha256": "1e622051bc18d45211156a255704e655bc601412bab1039aa866ff2ca74f6bac",
-   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-postfix-bake.log"
+   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/aisha-lidconform.glb",
+   "glbSha256": "6508d111929b33a01e87d410ab5d3ed72c67e3f52f31fb35fc156b33d4dd0f28",
+   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/aisha-lidconform-bake.log"
   },
   "prefix": {
    "eyeImage": {
@@ -55,9 +55,9 @@
      "TEXCOORD_0": "9e730dd8f1035c6be1a3b50b2da471a086324df81c26d17e7d8fda6d4735fd4c"
     }
    },
-   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-prefix.glb",
-   "glbSha256": "59b9db2a18d61dce47bcc6cd2d7e57d9989e459ce679fab58a27383346415a10",
-   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-prefix-bake.log"
+   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/prefix/aisha-lidconform.glb",
+   "glbSha256": "3077b7bfc4b0d1508f2b3b429ce30b53ca4b4be58c6ca86c513db2eca7c0ac12",
+   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/prefix/aisha-lidconform-bake.log"
   },
   "referenceRenderCorroboration": {
    "glb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb (sha 96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76, conform-report.json newGlb)",
@@ -87,19 +87,19 @@
   }
  },
  "body2": {
-  "bakeArgv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea (no --eye-texture: resolver path; lid-conform applies via case map adult_male_street_casual->body2)",
-  "bakeLogEyeLine": "EYE_TEXTURE_RESOLVED brown tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png (store/iris-neutral/body2-irisfix-bake.log)",
+  "bakeArgv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea (no --eye-texture: resolver path; lid-conform via case map; HANDBACK1 output store/iris-neutral/postfix/body2-lidconform.glb, registered stem body2-lidconform)",
+  "bakeLogEyeLine": "EYE_TEXTURE_RESOLVED brown tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png (store/iris-neutral/postfix/body2-lidconform-bake.log, 0 tracebacks)",
   "bakeLogMaterialLine": "EYE_MATERIAL brown.mhmat diffuseTexture /Users/patrick/.grok/worktrees/src-openclinxr/irisneutral/tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png name mat_makeclothes_library_eyes_adult_male_street_casual",
   "eyeImageSha256": "ac2bede531982d08bdaa62052d7b6ad993e7e4ea6c894fccb60beec6337a1901 (image name iris-centred-c, 594900 bytes: same bytes as Aisha)",
-  "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/body2-irisfix.glb",
-  "glbSha256": "c38d7a960492999b8a8d022706bb5557cb4cce0be455d9a93ec9388900ff49b3",
+  "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/body2-lidconform.glb",
+  "glbSha256": "f1136f3d60e7400aa6846f9000b541871f30484cdfde04de09f7b7ad184be16e",
   "lidconform": "LIDCONFORM_BAKED targetWidthMm 25.0 matchMedMm 0.0043 displacedVerts 624 (mirrors any-subject-report.json)",
   "post": {
    "hueDeg": 17.3,
    "irisLum": 62.9,
    "presence": 0.6863,
-   "render": "/Volumes/files/openclinxr-assets/store/iris-neutral/body2-postfix-render/b2s4-lidconform-front.png",
-   "renderJsonGlb": "c38d7a960492999b8a8d022706bb5557cb4cce0be455d9a93ec9388900ff49b3 (= body2-irisfix.glb)",
+   "render": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/body2-render/b2s4-lidconform-front.png",
+   "renderJsonGlb": "f1136f3d60e7400aa6846f9000b541871f30484cdfde04de09f7b7ad184be16e (= postfix body2-lidconform.glb)",
    "renderSha256": "592f5a375de388793c4ffa3d2fe37cb364f9588b2576e8399ef14581a114ad29",
    "ringMeanRGB": [
     77.5,
@@ -128,13 +128,13 @@
    "ringRG": 56.4,
    "scleraLum": 221.0
   },
-  "renderCommand": "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant /Volumes/files/openclinxr-assets/store/body2-defects/variants/b2s4-lidconform.variant.json --glb /Volumes/files/openclinxr-assets/store/iris-neutral/body2-irisfix.glb --out /Volumes/files/openclinxr-assets/store/iris-neutral/body2-postfix-render (--glb accepts absolute paths; no worktree copy needed)",
+  "renderCommand": "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant /Volumes/files/openclinxr-assets/store/body2-defects/variants/b2s4-lidconform.variant.json --glb /Volumes/files/openclinxr-assets/store/iris-neutral/postfix/body2-lidconform.glb --out /Volumes/files/openclinxr-assets/store/iris-neutral/postfix/body2-render (render bytes identical to v1: front sha still 592f5a37)",
   "ringMethod": "pupil centre per eye = centroid of darkest 2% changed-mask pixels in findings eye boxes (pre pupils (498.2,681.3)/(776.5,678.6)); ring = union annulus r10..24px about pupils (n=2989; excludes pupil r<10 and sclera/skin r>24 which is byte-identical pre/post); identical mask pre+post (non-eye meanAbsDiff 0.0, zero px >5); presence = frac R-G>20 in findings boxes x[460,560]+x[720,820] y[620,700]; hue = HSV hue of mean RGB; lum = mean(R,G,B); sclera mask = box px with post lum>190 (n=2101), identical pre/post"
  },
  "card": "tsk_b1604af3eb881268",
  "environment": {
-  "cacheStaging": "worktree cache premise was partial: eyes/makehuman-highpoly absent (bake refused #337) and garments/sources a strict subset of main (bake refused #740). Staged read-only: symlink eyes/makehuman-highpoly -> lidconform worktree copy (sha 516695dd/da249321, CC0 header verified, byte-identical to realism-95 copy); replaced garments/sources with symlink to main checkout sources (worktree copy was a strict subset, zero unique files). No cached ASSET bytes written or modified. Post-bake the worktree cache was restored to pristine (symlinks removed, tracked partial copies checked out): git status shows only the two source edits plus the iris-neutral dir; the commit contains zero .openclinxr-local changes.",
-  "stemRegistration": "EYE_DIAMETER_TARGET_MM + LOWER_GARMENT_BY_OUTPUT_STEM rows for aisha-prefix/aisha-postfix/body2-irisfix mirror the sibling aisha-lidconform/body2-lidconform rows (24.0mm adult; female lower for Aisha) per the #377 gate's own instruction; landed before STEP0 so prefix/postfix share treatment (G4 premise). Values identical to the conform bakes; zero behavior delta vs sibling stems."
+  "cacheStaging": "worktree cache premise was partial: eyes/makehuman-highpoly absent (bake refused #337) and garments/sources a strict subset of main (bake refused #740). Staged read-only: symlink eyes/makehuman-highpoly -> lidconform worktree copy (sha 516695dd/da249321, CC0 header verified, byte-identical to realism-95 copy); replaced garments/sources with symlink to main checkout sources (worktree copy was a strict subset, zero unique files). No cached ASSET bytes written or modified. Post-bake the worktree cache was restored to pristine (symlinks removed, tracked partial copies checked out): git status shows only the two source edits plus the iris-neutral dir; the commit contains zero .openclinxr-local changes. HANDBACK1: same read-only staging reused for the rebakes (highpoly symlink + main garments/sources symlink + node_modules symlink on the pristine tree); worktree cache restored to pristine after; commit contains zero .openclinxr-local changes.",
+  "stemRegistration": "HANDBACK1: all five scratch rows REMOVED from LOWER_GARMENT_BY_OUTPUT_STEM and EYE_DIAMETER_TARGET_MM (product config clean; test asserts no prefix/postfix/irisfix keys). All bakes use registered stems (aisha-lidconform, body2-lidconform) with outputs in store/iris-neutral/prefix/ and store/iris-neutral/postfix/ subdirectories."
  },
  "existingTests": {
   "eye-colour-is-case-driven.test.ts": "2 passed / 3 failed - PRE-EXISTING: bank missing actorId patient_maya_johnson_v1 (scenario bank on wt/irisneutral lacks the actorId the test greps); identical 3 failures with this card edits stashed (git stash push/pop verified). Shipped-GLB/bank drift, untouched by this card (no shipped GLB writes).",
@@ -225,25 +225,25 @@
   "crops": [
    {
     "box": "x[347,927] y[590,770] (580x180, native, no upscale)",
-    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-front-eye-pre.png",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/sheet-front-eye-pre.png",
     "sha256": "abf26b56178da6bbcae4a59fea2559d24ba128b73eb06c50b038c0168e8acac1",
     "view": "front pre"
    },
    {
     "box": "x[347,927] y[590,770] (580x180, native, no upscale)",
-    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-front-eye-post.png",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/sheet-front-eye-post.png",
     "sha256": "50d426178160988a5beb2ae4273540f5800d5074da61c5ceda6cd1fc68cb2ba4",
     "view": "front post"
    },
    {
     "box": "x[200,780] y[588,768] (580x180, native, no upscale; yaw pupils (372.9,677.9)/(607.9,678.7) via changed-mask)",
-    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-yaw25-eye-pre.png",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/sheet-yaw25-eye-pre.png",
     "sha256": "227c314a33d28c3bdbc274573d8511f9930ea0d77342c53a01c25e9519b8cb72",
     "view": "yaw25 pre"
    },
    {
     "box": "x[200,780] y[588,768] (580x180, native, no upscale; yaw pupils (372.9,677.9)/(607.9,678.7) via changed-mask)",
-    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-yaw25-eye-post.png",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/postfix/sheet-yaw25-eye-post.png",
     "sha256": "6c493e25fd9d4b2910778ac9ba1be3ba36c1b87e90692c6f61903d3cf7f9b538",
     "view": "yaw25 post"
    }
@@ -285,5 +285,5 @@
   }
  },
  "verdict": "fixed",
- "verdictNote": "post-fix body2 iris renders brown-neutral (ringRG 18.3, hue 17.3, matching Aisha reference 17.9 under the same rig/texture); falsifier not triggered (log shows EYE_TEXTURE_RESOLVED with iris-centred-c AND ringRG <= 27.5)"
+ "verdictNote": "HANDBACK1 re-measured on registered-stem GLBs: post-fix body2 iris renders brown-neutral (ringRG 18.3, hue 17.3, matching Aisha reference 17.9); postfix Aisha eye bytes equal the pristine-tree prefix; falsifier not triggered."
 }

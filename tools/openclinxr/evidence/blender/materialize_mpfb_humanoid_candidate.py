@@ -197,10 +197,6 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "eg-104-m3": FEMALE_COVERING_LOWER,
     # lidconform (tsk_83147b9cfdf9ab03): same adult-female civilian lower.
     "aisha-lidconform": FEMALE_COVERING_LOWER,
-    # iris-neutral (tsk_b1604af3eb881268): same adult-female civilian lower
-    # (same mpfb-ob-patient-aisha body as aisha-lidconform above).
-    "aisha-prefix": FEMALE_COVERING_LOWER,
-    "aisha-postfix": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2668,13 +2664,6 @@ EYE_DIAMETER_TARGET_MM = {
     # mpfb-street-adult-male, so adult axial length applies.
     "body2-eyeglobe-base": 24.0,
     "body2-lidconform": 24.0,
-    # iris-neutral (tsk_b1604af3eb881268): same adult bodies under card stems
-    # (aisha-prefix/aisha-postfix are the mpfb-ob-patient-aisha bake;
-    # body2-irisfix is the adult_male_street_casual bake), so adult axial
-    # length applies — mirrors the aisha-lidconform / body2-lidconform rows.
-    "aisha-prefix": 24.0,
-    "aisha-postfix": 24.0,
-    "body2-irisfix": 24.0,
 }
 
 # ---------------------------------------------------------------------------
