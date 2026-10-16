@@ -1,22 +1,18 @@
 // Face-realism stages 1-3: family/tone pick, skin layers, skin chain.
 // Each stage runs its landed script as a subprocess; case values come from
 // case-inputs.json (no case is named here).
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "../repo-root.js";
-import { runReplayChain, FACE_REALISM_REPLAY_REL, prepareFixtureReplayDir } from "./chain.js";
+import { runReplayChain, FACE_REALISM_REPLAY_REL } from "./chain.js";
 import {
   ASSET_STORE_ROOT,
   caseValue,
-  digString,
   emptyStageRecord,
   entryString,
   FAMILIES_DIR_REL,
-  pngOutputs,
-  R2_REPORT_REL,
   readJsonFile,
   runMisePython,
-  RUN_REPORT_REL,
   sha256File,
   STAGE2_DRIVER_REL,
   type StageIO,
@@ -24,6 +20,17 @@ import {
   TONE_CHECK_REL,
   TONE_REPORT_REL,
 } from "./shared.js";
+import {
+  cfgLeaf,
+  cfgLeafSource,
+  cfgValue,
+  checkSha,
+  runBeardSubStage,
+  runColourSubStage,
+  runComposeSubStage,
+  storeAbs,
+  type SubStage,
+} from "./stages-c.js";
 
 export function runStage1(
   caseId: string,
@@ -162,77 +169,52 @@ export function runStage3(
   const rec = emptyStageRecord(3, "skin_chain");
   const t0 = Date.now();
   const chainSubject = caseValue<string>(caseRec, "chain_subject");
-  const deriveSize = caseValue<number>(caseRec, "derive_size");
   const skipStages = caseValue<string[]>(caseRec, "stage3_skip_stages");
-  const glbEntry = caseRec["stage3_glb"] as Record<string, unknown>;
-  const albedoEntry = caseRec["stage3_albedo"] as Record<string, unknown>;
-  const useFixture = !("assets" in glbEntry);
-  let glbFile: string;
-  let albedoFile: string;
-  let aoFile: string | null = null;
-  if (useFixture) {
-    const albedoRel = entryString(albedoEntry, "file", "value");
-    const albedoSha = entryString(albedoEntry, "sha256", "value");
-    if (sha256File(path.join(repoRoot(), albedoRel)) !== albedoSha) {
-      throw new Error(`fixture albedo sha mismatch at ${albedoRel}: refused`);
-    }
-    const staged = prepareFixtureReplayDir(outDir, albedoRel, deriveSize);
-    albedoFile = staged.albedoFile;
-    glbFile = staged.glbFile;
-    aoFile = staged.aoFile;
-  } else {
-    glbFile = path.join(ASSET_STORE_ROOT, entryString(glbEntry, "assets", "value"));
-    albedoFile = path.join(ASSET_STORE_ROOT, entryString(albedoEntry, "assets", "value"));
-    if (sha256File(glbFile) !== entryString(glbEntry, "sha256", "value")) {
-      throw new Error(`stage-3 GLB sha mismatch at ${glbFile}: refused`);
-    }
-    if (sha256File(albedoFile) !== entryString(albedoEntry, "sha256", "value")) {
-      throw new Error(`stage-3 albedo sha mismatch at ${albedoFile}: refused`);
-    }
-  }
+  const glbAbs = storeAbs(entryString(caseRec, "stage3_glb", "assets", "value"));
+  checkSha(glbAbs, entryString(caseRec, "stage3_glb", "sha256", "value"));
+  const compose = runComposeSubStage(caseRec, outDir);
+  const composeOut = compose.outputs[0]!.path;
+  const colour = runColourSubStage(caseRec, composeOut, outDir);
+  const colourOut = colour.outputs[0]!.path;
   const chainFile =
     recordChainManifest !== undefined && recordChainManifest.length > 0
       ? recordChainManifest
       : (caseValue<string>(caseRec, "chain_manifest") as string);
-  const chainAbs = path.isAbsolute(chainFile) ? chainFile : path.join(repoRoot(), chainFile);
-  let manifestAbs = chainAbs;
-  if (useFixture) {
-    const chain = readJsonFile(chainAbs) as { stages?: Array<{ parameters?: Record<string, unknown> }> };
-    const firstStage = Array.isArray(chain.stages) ? chain.stages[0] : undefined;
-    if (firstStage !== undefined) {
-      firstStage.parameters = { ...(firstStage.parameters ?? {}), size: Math.round(deriveSize) };
+  const manifestAbs = path.isAbsolute(chainFile) ? chainFile : path.join(repoRoot(), chainFile);
+  for (const entry of readdirSync(outDir)) {
+    if (
+      entry.startsWith("albedo_") ||
+      entry === "roughness.png" ||
+      entry === "eye-mask-union.png"
+    ) {
+      const abs = path.join(outDir, entry);
+      try {
+        rmSync(abs);
+      } catch {
+        throw new Error(`stage-3 cannot clear stale chain product at ${abs}: refused`);
+      }
     }
-    manifestAbs = path.join(outDir, "stage3-manifest-size.json");
-    writeFileSync(manifestAbs, `${JSON.stringify(chain)}\n`);
+  }
+  const manifestDoc = readJsonFile(manifestAbs) as {
+    stages?: Array<{ name?: unknown; parameters?: Record<string, unknown> }>;
+  };
+  const deriveSize = caseValue<number>(caseRec, "derive_size");
+  const deriveParams = manifestDoc.stages?.find((stage) => stage.name === "derive")?.parameters;
+  if (deriveParams?.["size"] !== deriveSize) {
+    throw new Error(
+      `chain derive size ${String(deriveParams?.["size"])} != case derive_size ${String(deriveSize)}: refused`,
+    );
   }
   const replayed = runReplayChain({
     subject: chainSubject,
     manifestFile: manifestAbs,
-    glbFile,
-    albedoFile,
+    glbFile: glbAbs,
+    albedoFile: colourOut,
     storeDir: outDir,
-    skipAo: useFixture,
+    skipAo: false,
     skipStages,
   });
-  const replayProducts = pngOutputs(outDir).filter(
-    (entry) =>
-      path.basename(entry.path).startsWith("albedo_") ||
-      path.basename(entry.path) === "roughness.png" ||
-      path.basename(entry.path) === "eye-mask-union.png",
-  );
-  const deriveAo = path.join(outDir, "derive_out", "ao.png");
-  const outputs =
-    useFixture || !existsSync(deriveAo)
-      ? replayProducts
-      : [...replayProducts, { path: deriveAo, sha256: sha256File(deriveAo) }];
-  const inputs: StageIO[] = [
-    { path: glbFile, sha256: sha256File(glbFile) },
-    { path: albedoFile, sha256: sha256File(albedoFile) },
-    { path: manifestAbs, sha256: replayed.manifestSha256 },
-  ];
-  if (aoFile !== null) inputs.push({ path: aoFile, sha256: sha256File(aoFile) });
-  rec.script = FACE_REALISM_REPLAY_REL;
-  rec.argv = [
+  const chainArgv = [
     "--manifest",
     manifestAbs,
     "--subject",
@@ -240,43 +222,103 @@ export function runStage3(
     "--store",
     outDir,
     "--glb",
-    glbFile,
+    glbAbs,
     "--albedo",
-    albedoFile,
-    ...(useFixture ? ["--skip-ao"] : []),
+    colourOut,
     ...(skipStages.length > 0 ? ["--skip-stages", skipStages.join(",")] : []),
   ];
+  const socketPng = path.join(outDir, "albedo_socket.png");
+  const socketSha = sha256File(socketPng);
+  const colourCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_colour");
+  const socketExpected = cfgLeaf(colourCfg, "expected_chain_socket_sha256", "value");
+  const socketSource = cfgLeafSource(colourCfg, "expected_chain_socket_sha256");
+  const chainGate =
+    socketSha === socketExpected
+      ? { pass: true, detail: `chain socket matches the pinned known-good (${socketSha.slice(0, 12)})` }
+      : {
+          pass: false,
+          detail: `chain socket ${socketSha.slice(0, 12)} vs known-good ${socketExpected.slice(0, 12)}`,
+        };
+  const chain: SubStage = {
+    script: FACE_REALISM_REPLAY_REL,
+    argv: chainArgv,
+    inputs: [
+      { path: glbAbs, sha256: sha256File(glbAbs) },
+      { path: colourOut, sha256: sha256File(colourOut) },
+      { path: manifestAbs, sha256: replayed.manifestSha256 },
+    ],
+    outputs: readdirSync(outDir)
+      .filter(
+        (entry) =>
+          entry.startsWith("albedo_") ||
+          entry === "roughness.png" ||
+          entry === "eye-mask-union.png",
+      )
+      .sort()
+      .map((entry) => {
+        const abs = path.join(outDir, entry);
+        return { path: abs, sha256: sha256File(abs) };
+      }),
+    ran: true,
+    gate: chainGate,
+  };
+  const deriveAo = path.join(outDir, "derive_out", "ao.png");
+  if (existsSync(deriveAo)) {
+    chain.outputs.push({ path: deriveAo, sha256: sha256File(deriveAo) });
+  }
+  const beard = runBeardSubStage(caseRec, socketPng, outDir);
+  const beardSha = beard.outputs[0]!.sha256;
+  const subStages = [compose, colour, chain, beard];
+  const inputs: StageIO[] = [
+    ...compose.inputs,
+    ...colour.inputs,
+    ...chain.inputs,
+    ...beard.inputs,
+  ];
+  const outputs: StageIO[] = [
+    ...compose.outputs,
+    ...colour.outputs,
+    ...chain.outputs,
+    ...beard.outputs,
+  ];
+  rec.script = FACE_REALISM_REPLAY_REL;
+  rec.argv = chainArgv;
+  rec.note =
+    "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)";
   rec.inputs = inputs;
   rec.outputs = outputs;
   rec.ran = true;
-  const expected = useFixture
-    ? digString(readJsonFile(path.join(repoRoot(), RUN_REPORT_REL)), ["finalAlbedo", "sha256"])
-    : digString(readJsonFile(path.join(repoRoot(), R2_REPORT_REL)), [
-        "stages",
-        "3_replay_albedo",
-        "outputs_run1",
-        "albedo_socket.png",
-      ]);
-  const expectedSource = useFixture
-    ? `${RUN_REPORT_REL} key finalAlbedo.sha256`
-    : `${R2_REPORT_REL} key stages.3_replay_albedo.outputs_run1.albedo_socket.png`;
+  const failed = subStages.filter((sub) => !sub.gate.pass);
+  const beardCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_beard");
+  const beardExpectedSource = cfgLeafSource(beardCfg, "expected_out_sha256");
   rec.gate = {
-    pass: replayed.finalSha256 === expected,
+    pass: failed.length === 0,
     detail:
-      replayed.finalSha256 === expected
-        ? `final ${replayed.finalName} matches the pinned known-good`
-        : `final ${replayed.finalName} ${(replayed.finalSha256 ?? "null").slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
+      failed.length === 0
+        ? `compose+colour+chain+beard all match their pinned known-goods; final albedo_beard.png ${beardSha.slice(0, 12)}`
+        : `failing sub-stages: ${failed.map((sub) => `${sub.script.split("/").at(-1)}: ${sub.gate.detail}`).join("; ")}`,
     knownGood: {
-      name: replayed.finalName,
-      expected,
-      expectedSource,
-      actual: replayed.finalSha256 ?? "",
+      name: "albedo_beard.png",
+      expected: cfgLeaf(beardCfg, "expected_out_sha256", "value"),
+      expectedSource: beardExpectedSource,
+      actual: beardSha,
     },
   };
   rec.wallSeconds = (Date.now() - t0) / 1000;
   rec.extra = {
     executedChainStages: replayed.executedChainStages,
     manifestSha256: replayed.manifestSha256,
+    socketExpected,
+    socketExpectedSource: socketSource,
+    socketActual: socketSha,
+    subStages: subStages.map((sub) => ({
+      script: sub.script,
+      argv: sub.argv,
+      inputs: sub.inputs,
+      outputs: sub.outputs,
+      ran: sub.ran,
+      gate: sub.gate,
+    })),
   };
-  return { record: rec, finalSha256: replayed.finalSha256 };
+  return { record: rec, finalSha256: beardSha };
 }

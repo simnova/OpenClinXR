@@ -15,10 +15,10 @@
     "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects key (line 210)",
     "value": "aisha"
    },
-   "derive_size": {
-    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key deriveSizeOverride.to (fixture-scale; full 4096 needs Blender/human-run per chain ao_bake note)",
-    "value": 512
-   },
+    "derive_size": {
+     "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[derive].parameters.size 4096; full Blender AO bake both runs per aisha-real-chain-report.json:G3_real_chain.method",
+     "value": 4096
+    },
    "eye_flags": {
     "asset": {
      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.argv token --eye-asset (line 17)",
@@ -104,34 +104,132 @@
     "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.aisha.phenotype_tone (line 301)",
     "value": "warm_light"
    },
-   "stage3_albedo": {
-    "file": {
-     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.albedo.file",
-     "value": "tools/openclinxr/asset-pipeline/skin/face-replay/fixtures/base-good-A.png"
+    "stage3_glb": {
+     "assets": {
+      "source": "copied from S/eyefinal/base.glb (sha verified after copy); named by tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:subjects.aisha.glb",
+      "value": "face-station-cases/aisha/inputs/eyefinal-base.glb"
+     },
+     "sha256": {
+      "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:subjects.aisha.glb_sha256",
+      "value": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f"
+     }
     },
-    "sha256": {
-     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.albedo.sha256",
-     "value": "cdc7fa419e8f2b0ba974c33cd8bc8d9bb465aabac641393a6ecdd5648a05d0a0"
-    }
-   },
-   "stage3_ao": {
-    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.ao.method (flat 230 grey staged by the station; Blender bake is human-run per chain ao_bake note)",
-    "value": "flat-230-skip-ao"
-   },
-   "stage3_glb": {
-    "method": {
-     "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json:inputs.glb.method (deterministic synthetic trimesh fixture: plane + eye/brow blobs)",
-     "value": "synthetic-trimesh-fixture"
+    "stage3_skip_stages": {
+     "source": "beard_shadow skipped in the replay so it runs as its own beard_shadow.py subprocess (this card); occlusion runs (no skip)",
+     "value": [
+      "beard_shadow"
+     ]
     },
-    "sha256": {
-     "source": "none: generated per run; the gated known-good is the stage-3 final albedo",
-     "value": null
-    }
-   },
-   "stage3_skip_stages": {
-    "source": "none for aisha (r2 named --skip-stages apply_occ for body2 only)",
-    "value": []
-   },
+    "stage3_compose": {
+     "source": "face_replay_compose.py full-atlas argv; every input sha verified against compose-report.json and aisha-compose-report.json",
+     "value": {
+      "base_skin": {
+       "assets": "face-station-cases/aisha/inputs/compose-base-albedo.png",
+       "sha256": "ba454ee98d3354d26540be98d88e0561433ed0d2ca647b1320368a3fa80fca53",
+       "source": "copied from S/join/out-albedo.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:inputs.base_skin"
+      },
+      "locked_island": {
+       "assets": "face-station-cases/aisha/inputs/compose-locked-island.png",
+       "sha256": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+       "source": "copied from S/scalp/locked-pick.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:inputs.locked_island and aisha-compose-report.json:inputs.locked_island"
+      },
+      "locked_sha": {
+       "value": "df3fe0b9b0f006f04c16c4cacca994b12243b6e5f43696b47578951f84d258c5",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:inputs.locked_island.sha256 (compose verifies --locked-sha)"
+      },
+      "masks": {
+       "assets": "face-station-cases/aisha/inputs/masks",
+       "source": "copied from S/derive/A (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:inputs.masks; all 10 shas == S/derive/A per aisha-real-chain-report.json:G2_derive_table.compose_report_vs_A",
+       "shas": {
+        "mask-facecore.png": "a36822ec886483564c62e83be91bccda3f2aa8669d2cd3282121e64f5b241d91",
+        "mask-scalp.png": "66beb5e7915ace39231d5cc8ac407874dbe2eff5e1a9e39f903c4e0e0c27f61a",
+        "mask-ears-L.png": "e3942a2a80a9c6a7bb2e3d7f87bec8d03e7e318542d9709a69aa6e119730c4be",
+        "mask-ears-R.png": "d2d7f2454d4daaeb47f2652b7e7c8c63d144294bd9f10ef0a346536f8386af82",
+        "mask-neck.png": "0c4f6884a04110f74567758830d144729af61b27c8d4f0495759025846bbf839",
+        "mask-brows-L.png": "c58546f20872dc4a6bcdd03f243c98792695a79f7629542dcf8e118a6507a9f4",
+        "mask-brows-R.png": "c4716b7475e1a987ca5f7dacc642a0145b9284bbcbe9e09353b5d200020bb45a",
+        "mask-lips.png": "f7fcafafc0d90f7a1f2b6482b3cd9dd46085e5c8697ce1f65cc09f0af8484d97",
+        "mask-eyes-L.png": "1126bf4a8bcffad85a7d6d749c31adc76019a0a38870de70a3e442d8b0a780d7",
+        "mask-eyes-R.png": "c01587468bf35c0d75abba4668207f60a6dbb6c330f9e25ddc2df5c9bfe192d2"
+       }
+      },
+      "side_map": {
+       "assets": "face-station-cases/aisha/inputs/side-map.png",
+       "sha256": "cd770a98de4694d81c5bb9e078f42eacefc8b6ecfb186fc2cf9da7171c2b2ce8",
+       "source": "copied from S/port/side-4096.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:inputs.side_map"
+      },
+      "input_space": {
+       "value": "atlas",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:parameters.input_space"
+      },
+      "island_box": {
+       "value": [
+        2456,
+        614,
+        4054,
+        3686
+       ],
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:parameters.island_box and aisha-compose-report.json:inputs.island_box"
+      },
+      "skip_join": {
+       "value": true,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/compose-report.json:parameters.skip_join (join_limit: no station-python join implementation; exercised fixture-scale)"
+      },
+      "expected_out_sha256": {
+       "value": "e5b1ac1ecf9ebc808f525021677f05cb723ae82606645d4756317488732d818e",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-compose-report.json:post.out_sha256 (== pre.out_sha256, refusal null, scalp_source locked_island)"
+      }
+     }
+    },
+    "stage3_colour": {
+     "source": "face_replay_colour.py --replay argv; output == solve-report.json:output_sha256 per aisha-real-chain-report.json:subjects.aisha.chain_albedo_source",
+     "value": {
+      "input_albedo": {
+       "assets": "face-station-cases/aisha/inputs/colour-input-albedo.png",
+       "sha256": "549250a61d204c1c6e418b519ea516e0a9ea5e3c7e4491527bc0f43fe0cd50bb",
+       "source": "copied from S/brow2/out-albedo.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/solve-parameters.json:shas.input_albedo; link note: the brow band between compose output and this input is Imagine work (S/brow2/fix_brow2.py, out of scope), recorded in rechain-report.json"
+      },
+      "albedo_mask": {
+       "assets": "face-station-cases/aisha/inputs/masks/mask-facecore.png",
+       "sha256": "a36822ec886483564c62e83be91bccda3f2aa8669d2cd3282121e64f5b241d91",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/solve-parameters.json:shas.albedo_mask (same file as the compose facecore mask)"
+      },
+      "params": {
+       "repo": "tools/openclinxr/asset-pipeline/skin/face-replay/solve-parameters.json",
+       "sha256": "37210c1e8234285699fe2082bb15e493dac5ed7dfdca2251f9f2d978ac35339f",
+       "source": "tracked solve-parameters.json (method global-lab6-v2, no regional field: Aisha's path untouched per the chroma test)"
+      },
+      "expected_out_sha256": {
+       "value": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:subjects.aisha.chain_albedo_sha256 (== solve-report.json:output_sha256)"
+      },
+      "expected_chain_socket_sha256": {
+       "value": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:G3_real_chain.output_shas_with_beard.albedo_socket.png"
+      }
+     }
+    },
+    "stage3_beard": {
+     "source": "beard_shadow.py argv; weight from the chain manifest subject override",
+     "value": {
+      "weight": {
+       "value": 0.0,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.aisha.overrides.beard_shadow.weight (identity: albedo_beard == albedo_socket per aisha-real-chain-report.json:G3_real_chain.albedo_beard_equals_albedo_socket)"
+      },
+      "seed": {
+       "value": 11,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.seed"
+      },
+      "texels_per_mm": {
+       "value": 4.079,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm and beard-shadow-report.json:texels_per_mm.value"
+      },
+      "expected_out_sha256": {
+       "value": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:G3_real_chain.output_shas_with_beard.albedo_socket.png (== albedo_beard.png)"
+      }
+     }
+    },
    "tone_anchor_lab": {
     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_light",
     "value": [
@@ -261,20 +359,112 @@
     "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases.body2.phenotype_tone (line 437)",
     "value": "warm_medium"
    },
-   "stage3_albedo": {
-    "assets": {
-     "source": "copied from S/port5/solved-albedo-bb.png (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.albedo",
-     "value": "face-station-cases/body2/solved-albedo-bb.png"
+    "stage3_compose": {
+     "source": "face_replay_compose.py full-atlas argv (crown fix e45449661: unregistered donor tone-matched from the subject base); every input sha verified against crown-registration-report.json",
+     "value": {
+      "base_skin": {
+       "assets": "face-station-cases/body2/inputs/compose-base-albedo.png",
+       "sha256": "99a49ce48583003ed93c2c7f9e9d2c8bddc522f10c2ea7f8f963297ef9dcc78b",
+       "source": "copied from S/body2/join/compose-new/albedo-4096.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json:pre_fix.body2.base_sha256"
+      },
+      "locked_island": {
+       "assets": "face-station-cases/body2/inputs/compose-locked-island.png",
+       "sha256": "3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069",
+       "source": "copied from S/body2/uv2-src/island-T.png (sha verified after copy); tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json:pre_fix.body2.donor_sha256 (1408x736 vs upright 3873x3908: unregistered, never resized)"
+      },
+      "locked_sha": {
+       "value": "3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json:pre_fix.body2.donor_sha256 (compose verifies --locked-sha)"
+      },
+      "glb_masks": {
+       "assets": "face-station-cases/body2/final.glb",
+       "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+       "source": "compose derives atlas masks from the subject GLB (S/crownreg/body2hb1/compose-report.json:inputs.glb); same GLB as stage3_glb"
+      },
+      "input_space": {
+       "value": "atlas",
+       "source": "S/crownreg/body2hb1/compose-report.json:parameters.input_space"
+      },
+      "island_box": {
+       "value": [
+        51,
+        149,
+        3959,
+        4022
+       ],
+       "source": "S/crownreg/body2hb1/compose-report.json:parameters.island_box (fresh-derive facecore|scalp union per crown-registration-report.json:island_box_note)"
+      },
+      "skip_join": {
+       "value": true,
+       "source": "S/crownreg/body2hb1/compose-report.json:parameters.skip_join (join_limit: no station-python join implementation; exercised fixture-scale)"
+      },
+      "expected_out_sha256": {
+       "value": "940ce5c6d6eb0b13d1e3d20f049251d34badca8ba33aee75c49ec595d17a211f",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json:hb1.body2.store_compose_sha256 (scalp_source subject_base_tone_matched, out_step 2.73)"
+      }
+     }
     },
-    "sha256": {
-     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.albedo (sha 33855ce9)",
-     "value": "33855ce987f5146b466227258f2ec947b23448c76ca4c1d8b5e52de5f092f6fa"
-    }
-   },
-   "stage3_ao": {
-    "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.rerun (derive recomputed fresh by replay.py; Blender AO inside derive.py)",
-    "value": "derive-recomputed"
-   },
+    "stage3_colour": {
+     "source": "face_replay_colour.py --replay argv with the stored regional chroma field (e7b2a8ded); the input is this run's compose output",
+     "value": {
+      "input_albedo": {
+       "value": "stage3-compose-output",
+       "expected_sha256": "940ce5c6d6eb0b13d1e3d20f049251d34badca8ba33aee75c49ec595d17a211f",
+       "source": "chained from this run's compose output (must equal the hb1 compose sha above, which is also the params shas.input_albedo)"
+      },
+      "albedo_mask": {
+       "assets": "face-station-cases/body2/inputs/masks/mask-facecore.png",
+       "sha256": "a2bf033966c2e972bb1909bf93a10e358b82e62c24ee852ea3f944d42effc3b2",
+       "source": "copied from S/crownreg/body2hb1/chain/derive_out/mask-facecore.png (sha verified after copy); S/regchroma/sweepG solve-params shas.albedo_mask; the full mask-{role} set lives beside it because the colour replay builds its region table from sibling masks"
+      },
+      "masks": {
+       "assets": "face-station-cases/body2/inputs/masks",
+       "source": "copied from S/crownreg/body2hb1/chain/derive_out (sha verified after copy); sibling mask-{role} set for the colour region table (== S/regchroma/sweepG/chain/derive_out masks)",
+       "shas": {
+        "mask-facecore.png": "a2bf033966c2e972bb1909bf93a10e358b82e62c24ee852ea3f944d42effc3b2",
+        "mask-scalp.png": "ac2b776e404b48de9ba3e818bfde77823c1f047f2e1cd1647d79600affe3e4d1",
+        "mask-ears-L.png": "e7bb53a14f457494973b9725147565a2fb1c4ae9164d2fe890793c7fa7686390",
+        "mask-ears-R.png": "a179b7e9d12ac1b6a880906605415030e03c3d83478dc879d5758e96681c82c3",
+        "mask-neck.png": "3a0cdf5ad7ad5d148caf0908ce782c48345258798a1fc649e335c436cb0d6463",
+        "mask-brows-L.png": "eaa41fa32c0d11123e0a10b1c31feaa3a686c45cad17e8a546b40610c74e4383",
+        "mask-brows-R.png": "3a678f330313843eb791428851a6cb2d4475cc22f2572cf5d1bd93277a162f78",
+        "mask-lips.png": "3bc49f3d331b61571be43be8767d56d99c8bf480312db893f221717e819707d7",
+        "mask-eyes-L.png": "8812345106c565bd41914223814cac03f71f84ceac4f8fd884bd40475098d76f",
+        "mask-eyes-R.png": "7a6d687f2913cf3ab08311a9e40415f47aa2504c1dc653ef9f60a64aaba374e7"
+       }
+      },
+      "params": {
+       "assets": "face-station-cases/body2/inputs/colour-params-sweepG.json",
+       "sha256": "6ff97b16bbf6b0e2613b988a1d88fa4909b03faaba1f8c9e1fba386882818695",
+       "source": "copied from S/regchroma/sweepG/solve-params.json (sha verified after copy); method global-lab6-v2 + regional-chroma-v1 grid 8x6 sigma 0.7 mirror notch 0.20,0.32,0.70;0.26,0.80,1.00 per tools/openclinxr/asset-pipeline/skin/face-replay/regional-chroma-report.json:best (six_matches_hb1)"
+      },
+      "expected_chain_socket_sha256": {
+       "value": "4e8b36305aa30fce751e5ba836bbfa5afec83af784476a9458695c79f04befe2",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/regional-chroma-report.json:sweep[6].socket_sha256 (sweepG) == beard-shadow-report.json:inputs.chain_albedo_sha256"
+      }
+     }
+    },
+    "stage3_beard": {
+     "source": "beard_shadow.py argv; weight from the chain manifest subject override",
+     "value": {
+      "weight": {
+       "value": 0.9,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.adult_male_street_casual.overrides.beard_shadow.weight (polygon re-measure min max|dLab| at 0.9 per aisha-real-chain-report.json:G4_polygon_sweep)"
+      },
+      "seed": {
+       "value": 11,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.seed"
+      },
+      "texels_per_mm": {
+       "value": 4.079,
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm and beard-shadow-report.json:texels_per_mm.value"
+      },
+      "expected_out_sha256": {
+       "value": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db",
+       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:G4_polygon_sweep.w09_albedo_regenerated_sha256 (mask_px 227668 == beard-shadow-report.json:mask.mask_px)"
+      }
+     }
+    },
    "stage3_glb": {
     "assets": {
      "source": "copied from S/body2/final.glb (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256 and tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.adult_male_street_casual.glb_sha256",
@@ -285,12 +475,13 @@
      "value": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
     }
    },
-   "stage3_skip_stages": {
-    "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.skip_stages (matches no chain stage name, so occlusion RAN)",
-    "value": [
-     "apply_occ"
-    ]
-   },
+    "stage3_skip_stages": {
+     "source": "apply_occ matches no chain stage name, so occlusion RAN (per tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.skip_stages); beard_shadow skipped in the replay so it runs as its own beard_shadow.py subprocess (this card)",
+     "value": [
+      "apply_occ",
+      "beard_shadow"
+     ]
+    },
    "tone_anchor_lab": {
     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_medium",
     "value": [
