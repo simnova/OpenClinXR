@@ -92,6 +92,10 @@ function pythonBin(): string {
     ["-c", "import sys;print(sys.executable)"], { encoding: "utf8" }).trim();
 }
 
+function shaOf(file: string): string {
+  return execFileSync("shasum", ["-a", "256", file], { encoding: "utf8" }).split(" ")[0]!;
+}
+
 /** Replay a synthetic old-style field; returns the output sha. */
 function replayOldField(): string {
   const py = `
@@ -205,4 +209,93 @@ describe("the field covers the forehead", () => {
   it("old params replay byte-identically (below-brow normalisation unchanged)", () => {
     expect(replayOldField(), "old-style grid replays to the pre-change pin").toBe(OLD_FIELD_PIN);
   }, 120000);
+});
+
+const HB1 = "handback1" as const;
+
+type Hb1Report = Report & {
+  handback1: {
+    verdict: string;
+    fit_target_change: { to: string; method_version: string };
+    transfer: {
+      albedo_delta_a_face_mean: number;
+      render_delta_a: Record<string, number>;
+      transfer_ratio_a: Record<string, number>;
+      roughness_mean: { forehead_band: number; cheek_band: number };
+      highlight_fraction: {
+        forehead: number; L_cheek: number; R_cheek: number; chin: number;
+      };
+      finding: string;
+    };
+    sweep: Record<string, SweepEntry & {
+      method: string; fit_target: string;
+    }>;
+    gates: { g1_pass: boolean; g2_fit_eval_disjoint: boolean };
+    field_change: string;
+  };
+};
+
+function readHb1(): Hb1Report {
+  return JSON.parse(fs.readFileSync(REPORT, "utf8")) as Hb1Report;
+}
+
+describe("the field covers the forehead (handback 1: refit to residual)", () => {
+  it("v2 improves the forehead but loses L_cheek: nothing lands", () => {
+    const r = readHb1();
+    expect(r.handback1.verdict).toMatch(/NO LAND/);
+    expect(r.handback1.field_change).toMatch(/none/);
+    expect(r.handback1.gates.g1_pass).toBe(false);
+    let anyForeheadPassWith3 = false;
+    for (const [tag, s] of Object.entries(r.handback1.sweep)) {
+      expect(s.method, `${tag} marked v2`).toBe("regional-chroma-v2");
+      expect(s.fit_target, `${tag} fit target`).toBe("goal-minus-sixonly-render");
+      expect(s.six_matches_landed, `${tag} six untouched`).toBe(true);
+      for (const name of GATED) {
+        const pass = s.dLab[name]!.every((x) => Math.abs(x) <= BOUND);
+        expect(s.within3[name], `${tag} ${name} flag matches`).toBe(pass);
+      }
+      const count = GATED.filter((n) => s.within3[n]).length;
+      expect(s.g1_count, `${tag} count recomputes`).toBe(count);
+      expect(disjoint(s.fit_cells, s.eval_cells), `${tag} G2`).toBe(true);
+      if (s.within3["forehead"] && count >= 3) anyForeheadPassWith3 = true;
+    }
+    expect(anyForeheadPassWith3, "no refit pairs forehead with >=3/4").toBe(false);
+    const fl = r.handback1.sweep["sweepF-L"]!;
+    expect(fl.dLab["forehead"]![1], "refit forehead a* improves to -3.89").toBe(-3.89);
+    expect(fl.within3["forehead"]).toBe(false);
+    expect(fl.dLab["L_cheek"]![2], "but L_cheek b* lost at -3.20").toBe(-3.2);
+    expect(fl.within3["L_cheek"]).toBe(false);
+  });
+
+  it("transfer table pins: forehead 0.49, cheeks 0.97, sheen without roughness gap", () => {
+    const t = readHb1().handback1.transfer;
+    expect(t.albedo_delta_a_face_mean).toBe(3.828);
+    expect(t.render_delta_a["forehead"]).toBe(1.87);
+    expect(t.transfer_ratio_a["forehead"], "forehead transfer ~0.49, not 0.2").toBe(0.489);
+    expect(t.transfer_ratio_a["L_cheek"]).toBe(0.969);
+    expect(t.transfer_ratio_a["R_cheek"]).toBe(0.974);
+    expect(t.roughness_mean.forehead_band, "no roughness gap").toBe(0.6043);
+    expect(t.roughness_mean.cheek_band).toBe(0.6209);
+    expect(t.highlight_fraction.forehead, "forehead sheen 36% over L70").toBe(0.3616);
+    expect(t.highlight_fraction.L_cheek).toBe(0.0);
+    expect(t.finding).toMatch(/shading card/);
+  });
+
+  it("v1 field params replay byte-identically when scratch present", () => {
+    const base = "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/mouthlm/resweepL/sweepE";
+    const params = `${base}/solve-params.json`;
+    const solved = `${base}/solved-albedo.png`;
+    if (!fs.existsSync(params) || !fs.existsSync(solved)) return;
+    const wb = JSON.parse(fs.readFileSync(params, "utf8")) as {
+      regional_chroma: { method: string };
+    };
+    expect(wb.regional_chroma.method, "scratch params are v1").toBe("regional-chroma-v1");
+    const dir = fs.mkdtempSync("/tmp/v1fr-");
+    const out = `${dir}/out.png`;
+    execFileSync(pythonBin(), [path.join(DIR, "face_replay_colour.py"), "--replay",
+      "--input-albedo", `${base}/../../../crownreg/body2hb1/compose-albedo.png`,
+      "--albedo-mask", `${base}/../../../crownreg/body2hb1/chain/derive_out/mask-facecore.png`,
+      "--params", params, "--out", out], { encoding: "utf8" });
+    expect(shaOf(out), "v1 field replays to stored bytes").toBe(shaOf(solved));
+  }, 180000);
 });

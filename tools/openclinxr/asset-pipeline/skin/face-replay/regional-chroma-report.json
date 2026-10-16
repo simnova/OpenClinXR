@@ -2573,5 +2573,17 @@
   "mechanism": "field fits goal-pre (~0 on forehead a*) while the six overshoots it by -5.10; forehead render transfer ~0.2 vs ~0.8 below brow",
   "field_change": "none",
   "full_record": "tools/openclinxr/asset-pipeline/skin/face-replay/forehead-field-report.json"
+ },
+ "forehead_field_hb1": {
+  "card": "tsk_364338d60bdf29ff handback 1",
+  "verdict": "NO LAND: refit-to-residual (v2) improves the forehead (best a* -5.38 -> -3.89, b* crosses into pass) but loses L_cheek (b* -2.43 -> -3.20) vs the v1 best; no setting reaches forehead within 3 with cheeks+chin. Trade-off table recorded; v2 code reverted, nothing lands.",
+  "transfer_a": {
+   "forehead": 0.489,
+   "L_cheek": 0.969,
+   "R_cheek": 0.974,
+   "chin": 0.734
+  },
+  "field_change": "none",
+  "full_record": "tools/openclinxr/asset-pipeline/skin/face-replay/forehead-field-report.json handback1"
  }
 }

@@ -2385,5 +2385,2216 @@
   "pre_skin": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/skin-prehb1.png",
   "goal_skin": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/skin-goal.png",
   "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/body2/final.glb"
+ },
+ "handback1": {
+  "card": "tsk_364338d60bdf29ff handback 1",
+  "verdict": "NO LAND: refit-to-residual (v2) improves the forehead (best a* -5.38 -> -3.89, b* crosses into pass) but loses L_cheek (b* -2.43 -> -3.20) vs the v1 best; no setting reaches forehead within 3 with cheeks+chin. Trade-off table recorded; v2 code reverted, nothing lands.",
+  "fit_target_change": {
+   "from": "goal-minus-pre-render (v1: fits ~0 on forehead a* while the six overshoots it by -5.10)",
+   "to": "goal-minus-sixonly-render (v2: six-only capture S/mouthlm/sixonly/cap/body2-mouthlm-sixonly-front.png, same studio rig/exposure 0.3762/harness; chain rebuilt byte-identical d5ea4f2e)",
+   "method_version": "regional-chroma-v2 (replay accepts v1+v2; v1 field replay 9202412a == stored)",
+   "ref_files": {
+    "render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/mouthlm/sixonly/cap/body2-mouthlm-sixonly-front.png",
+    "mask": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/sixonly-bb-mask.png",
+    "mask_json": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/sixonly-bb-mask.json",
+    "skin": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/skin-sixonly.png"
+   }
+  },
+  "transfer": {
+   "experiment": "uniform +4.0 a* on all face-core albedo texels (measured face-mean +3.828 after rgb8 round-trip; S/fhfield/transfer-albedo.png) -> fresh chain -> studio capture S/fhfield/transfer/cap/body2-fhfield-transfer-front.png; polygon regions vs six-only capture",
+   "albedo_delta_a_face_mean": 3.828,
+   "render_delta_a": {
+    "forehead": 1.87,
+    "L_cheek": 3.71,
+    "R_cheek": 3.73,
+    "chin": 2.81
+   },
+   "transfer_ratio_a": {
+    "forehead": 0.489,
+    "L_cheek": 0.969,
+    "R_cheek": 0.974,
+    "chin": 0.734
+   },
+   "roughness_mean": {
+    "forehead_band": 0.6043,
+    "cheek_band": 0.6209,
+    "face": 0.6164,
+    "note": "albedo UV bands (t<brow_t vs cheek ny 0.3-0.7) over S/mouthlm/sixonly/chain/roughness.png; build stats mean 0.697 T-zone 0.574 cheek-open 0.724"
+   },
+   "highlight_fraction": {
+    "threshold": "L>70 (raw polygon pixels, six-only capture)",
+    "forehead": 0.3616,
+    "L_cheek": 0.0,
+    "R_cheek": 0.0,
+    "chin": 0.0,
+    "L_gt_75_all_zero": true
+   },
+   "finding": "forehead transfer 0.49 is NOT a roughness effect (0.604 vs 0.621: same map) but sits under a bright sheen (36% pixels L>70 vs 0% elsewhere) from forehead geometry facing the 38-deg key; chroma response compression, not albedo shortage. For the shading card: do not over-paint albedo."
+  },
+  "sweep": {
+   "sweepE": {
+    "grid": "6x5",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": null,
+    "luminance": false,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      3
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      2
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      5,
+      2
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      2,
+      0
+     ],
+     [
+      3,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      5,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.87,
+      -2.48,
+      -3.65
+     ],
+     "R_cheek": [
+      3.56,
+      -1.75,
+      -1.26
+     ],
+     "forehead": [
+      -0.82,
+      -3.59,
+      -2.0
+     ],
+     "chin": [
+      -1.16,
+      -0.61,
+      -0.52
+     ],
+     "upperlip_skin": [
+      12.9,
+      0.11,
+      0.36
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": false,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.9,
+     0.11,
+     0.36
+    ],
+    "asymmetry": [
+     4.4145,
+     1.4529,
+     2.8404
+    ],
+    "front_sha256": "99200523a5efcc7069b54e664704375a1bac4908d26bc9852fb24d379f22cc53",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepE/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepE/measure.json"
+    }
+   },
+   "sweepF": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": null,
+    "luminance": false,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.78,
+      -2.39,
+      -3.4
+     ],
+     "R_cheek": [
+      3.58,
+      -1.61,
+      -0.99
+     ],
+     "forehead": [
+      -0.83,
+      -3.37,
+      -1.79
+     ],
+     "chin": [
+      -1.18,
+      -0.46,
+      -0.17
+     ],
+     "upperlip_skin": [
+      12.96,
+      0.1,
+      0.92
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": false,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.96,
+     0.1,
+     0.92
+    ],
+    "asymmetry": [
+     4.4158,
+     1.4564,
+     2.8354
+    ],
+    "front_sha256": "4215cda44fe40a5bf2348bb45aa1f346751c1f9ee2c3f1dc08badd7c360687b4",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepF/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepF/measure.json"
+    }
+   },
+   "sweepG": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": "0.20,0.32,0.70;0.26,0.80,1.00",
+    "luminance": false,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.82,
+      -2.32,
+      -3.3
+     ],
+     "R_cheek": [
+      3.58,
+      -1.57,
+      -0.95
+     ],
+     "forehead": [
+      -0.83,
+      -3.37,
+      -1.79
+     ],
+     "chin": [
+      -1.23,
+      0.26,
+      0.74
+     ],
+     "upperlip_skin": [
+      12.9,
+      1.07,
+      2.72
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": false,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.9,
+     1.07,
+     2.72
+    ],
+    "asymmetry": [
+     4.416,
+     1.457,
+     2.8416
+    ],
+    "front_sha256": "da5d474021011d049a8ab91a4edb2e8cb248d71e751fcfadaaefb416da8648b6",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepG/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepG/measure.json"
+    }
+   },
+   "sweepH": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": "0.20,0.32,0.70;0.26,0.80,1.00;0.30,1.00,1.35",
+    "luminance": false,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 1,
+    "dLab": {
+     "L_cheek": [
+      3.82,
+      -2.32,
+      -3.3
+     ],
+     "R_cheek": [
+      3.58,
+      -1.57,
+      -0.95
+     ],
+     "forehead": [
+      -0.83,
+      -3.37,
+      -1.79
+     ],
+     "chin": [
+      -1.19,
+      0.43,
+      1.09
+     ],
+     "upperlip_skin": [
+      12.9,
+      1.08,
+      2.72
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": false,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.9,
+     1.08,
+     2.72
+    ],
+    "asymmetry": [
+     4.4148,
+     1.4588,
+     2.8404
+    ],
+    "front_sha256": "6803f54cd6e1058518b061c580b27bf33ba1fecd48bdf83627cc2204e9a42694",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepH/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepH/measure.json"
+    }
+   },
+   "sweepE-L": {
+    "grid": "6x5",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": null,
+    "luminance": true,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      3
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      2
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      5,
+      2
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      2,
+      0
+     ],
+     [
+      3,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      5,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 2,
+    "dLab": {
+     "L_cheek": [
+      1.37,
+      -2.05,
+      -3.48
+     ],
+     "R_cheek": [
+      0.91,
+      -1.04,
+      -1.04
+     ],
+     "forehead": [
+      0.85,
+      -4.13,
+      -2.53
+     ],
+     "chin": [
+      -1.81,
+      -0.24,
+      -0.21
+     ],
+     "upperlip_skin": [
+      9.89,
+      0.96,
+      1.03
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": true,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     9.89,
+     0.96,
+     1.03
+    ],
+    "asymmetry": [
+     4.3719,
+     1.4744,
+     2.8804
+    ],
+    "front_sha256": "f2c598e5632548d91637f3b8cb2549ade188540aa0d0d38a477ad22d28344618",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepE-L/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepE-L/measure.json"
+    }
+   },
+   "sweepF-L": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": null,
+    "luminance": true,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 2,
+    "dLab": {
+     "L_cheek": [
+      1.37,
+      -1.93,
+      -3.2
+     ],
+     "R_cheek": [
+      0.75,
+      -0.88,
+      -0.81
+     ],
+     "forehead": [
+      0.86,
+      -3.89,
+      -2.34
+     ],
+     "chin": [
+      -1.15,
+      -0.21,
+      0.08
+     ],
+     "upperlip_skin": [
+      9.38,
+      1.14,
+      1.54
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": true,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     9.38,
+     1.14,
+     1.54
+    ],
+    "asymmetry": [
+     4.3593,
+     1.4825,
+     2.8712
+    ],
+    "front_sha256": "a14ee04c87db05f9d460dd7eba2c754c616ec4cd948a89302f4a20424134a993",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepF-L/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepF-L/measure.json"
+    }
+   },
+   "sweepG-L": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": "0.20,0.32,0.70;0.26,0.80,1.00",
+    "luminance": true,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 2,
+    "dLab": {
+     "L_cheek": [
+      1.29,
+      -1.89,
+      -3.15
+     ],
+     "R_cheek": [
+      0.72,
+      -0.85,
+      -0.77
+     ],
+     "forehead": [
+      0.86,
+      -3.89,
+      -2.34
+     ],
+     "chin": [
+      -1.08,
+      0.45,
+      0.96
+     ],
+     "upperlip_skin": [
+      12.81,
+      1.11,
+      2.74
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": true,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.81,
+     1.11,
+     2.74
+    ],
+    "asymmetry": [
+     4.3578,
+     1.4903,
+     2.8623
+    ],
+    "front_sha256": "8470cc99cb93ad0ffeed6f2fcbfc3886848d4887cce570b5c53a0969d88da699",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepG-L/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepG-L/measure.json"
+    }
+   },
+   "sweepH-L": {
+    "grid": "8x6",
+    "sigma": 0.7,
+    "mirror": true,
+    "notch": "0.20,0.32,0.70;0.26,0.80,1.00;0.30,1.00,1.35",
+    "luminance": true,
+    "method": "regional-chroma-v2",
+    "fit_target": "goal-minus-sixonly-render",
+    "six_matches_landed": true,
+    "ny_range": [
+     -0.14427860696517414,
+     1.140360696517413
+    ],
+    "fit_cells": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      5,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      5
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      4
+     ]
+    ],
+    "eval_cells": [
+     [
+      0,
+      3
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ],
+    "forehead_eval_cells": [
+     [
+      3,
+      0
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "forehead_fit_above_brow": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      0
+     ],
+     [
+      7,
+      0
+     ]
+    ],
+    "g2_disjoint": true,
+    "g1_count": 2,
+    "dLab": {
+     "L_cheek": [
+      1.29,
+      -1.89,
+      -3.15
+     ],
+     "R_cheek": [
+      0.72,
+      -0.85,
+      -0.77
+     ],
+     "forehead": [
+      0.86,
+      -3.89,
+      -2.34
+     ],
+     "chin": [
+      -1.01,
+      0.66,
+      1.32
+     ],
+     "upperlip_skin": [
+      12.82,
+      1.11,
+      2.74
+     ]
+    },
+    "within3": {
+     "L_cheek": false,
+     "R_cheek": true,
+     "forehead": false,
+     "chin": true
+    },
+    "upperlip_skin_dLab": [
+     12.82,
+     1.11,
+     2.74
+    ],
+    "asymmetry": [
+     4.3569,
+     1.4912,
+     2.8611
+    ],
+    "front_sha256": "316fc10b7995fc54077b1833c50461a5da85e18d716c9c392ac97e49adb857fc",
+    "files": {
+     "solve_params": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepH-L/solve-params.json",
+     "measure": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/fhfield/ref/sweepH-L/measure.json"
+    }
+   }
+  },
+  "tradeoff_vs_v1_best": {
+   "v1_best": "sweepE-L (v1): L_cheek pass, R_cheek pass, chin pass, forehead [2.64,-5.38,-3.45]",
+   "refit_best_forehead": "sweepF/G/H-L: forehead [0.86,-3.89,-2.34] (a* miss 0.89, b* passes) but L_cheek b* -3.15..-3.20 fails",
+   "refit_noL_best": "sweepF: forehead [-0.83,-3.37,-1.79] (miss 0.37) but G1 1/4 chin-only",
+   "conclusion": "forehead improves (a* -5.38 -> -3.89, b* into pass) AND L_cheek is lost (b* -2.43 -> -3.20): fails improve-without-loss; nothing lands"
+  },
+  "gates": {
+   "g1_pass": false,
+   "g2_fit_eval_disjoint": true,
+   "g2_note": "recomputed per refit setting from stored lists (all True)",
+   "g3_counterweight": "not run (no G1 passer)",
+   "g4_pre_fix_bound": [
+    4.4016,
+    1.4431,
+    2.8791
+   ],
+   "g5": "no renders (nothing chosen)"
+  },
+  "field_change": "none (v2 evaluated in scratch S/fhfield/ref/, reverted)"
  }
 }
