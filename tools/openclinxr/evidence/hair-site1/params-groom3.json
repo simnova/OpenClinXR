@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "selection": "minimum declared fitness over 16 bounded seeded CMA-ES evaluations",
+  "bounds": {
+    "colorScale": [
+      0.35,
+      0.8
+    ],
+    "hueShiftDeg": [
+      -4.0,
+      4.0
+    ],
+    "reflection": [
+      0.2,
+      0.5
+    ],
+    "secondaryReflection": [
+      0.6,
+      1.4
+    ],
+    "roughness": [
+      0.3,
+      0.45
+    ]
+  },
+  "bestEval": 14,
+  "searchFitness512": 3.6328820327694995,
+  "params": {
+    "melanin": 0.8873210898001433,
+    "redness": 0.2640266937403898,
+    "lobe_R": 0.40185151623278714,
+    "lobe_SR": 0.8009397021454464,
+    "roughness": 0.3953358169595746,
+    "random": 0.01924847013666792,
+    "key_energy": 149.37668031234784,
+    "key_elev_deg": 46.53246179277051,
+    "fill_W": 51.79189232647554,
+    "rim_W": 0.08356157384086677,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_size_m": 1.6326859138340684,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.05,
+    "model": "HUANG",
+    "lobe_T": 0.9680277704689224,
+    "colorScale": 0.5923398410032845,
+    "hueShiftDeg": 0.6449343211960281,
+    "directColorLinear": [
+      0.00947524186876787,
+      0.006922087345103819,
+      0.005410466879388128
+    ],
+    "reflection": 0.22099553516010836,
+    "secondaryReflection": 0.7574389105120084
+  },
+  "colorParams": {
+    "colorScale": 0.5923398410032845,
+    "hueShiftDeg": 0.6449343211960281,
+    "directColorLinear": [
+      0.00947524186876787,
+      0.006922087345103819,
+      0.005410466879388128
+    ],
+    "reflection": 0.22099553516010836,
+    "secondaryReflection": 0.7574389105120084,
+    "roughness": 0.3953358169595746
+  }
+}

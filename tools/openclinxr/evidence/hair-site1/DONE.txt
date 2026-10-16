@@ -1,0 +1,6 @@
+DONE hair-site1 2026-10-16
+Entry 123 in docs/progress.html (id entry-2026-10-16T1315) with stills + 7 s turntable + measured table.
+Assets: hair-before-after-2026-10-16.png, hair-crown-ear-2026-10-16.png,
+hair-turntable-2026-10-16.mp4, hair-turntable-poster-2026-10-16.png.
+pnpm pages:validate: Validated GitHub Pages static site wiring.
+Not pushed (per brief).

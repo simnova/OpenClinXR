@@ -1,0 +1,5 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/cameras-scorer-v3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/params-groom3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/render_turntable.py
+/private/tmp/hair-site1-groom3-strands.npz

@@ -1,0 +1,54 @@
+RESULT hair-site1: hair rebuilt as one station on Aisha-generated targets (progress entry 123)
+Story: the hair pipeline was rebuilt as one station that regenerates the groom from fixed inputs:
+targets generated on Aisha herself (Grok Imagine on our renders, ear-tucked, four calibrated views)
+-> multi-view carved hair volume (six views incl. mirrors, symmetric)
+-> 3D strand-direction field from the target photos (Paris 2004 / Wei 2005 method)
+-> traced guides -> ~99k frame-transport strands -> Huang hair shader.
+Numbers below are from hair-groom3 RESULT/score3 (this slice re-renders, it does not re-score).
+
+BEFORE (this slice, controlled): hair-hem2 cells/c_curve/strands.npz
+(sha256 1478302a680491d77ca38b3e7826f42a1da0bc56511c1f724abb35b15e6ebaf3, 99945 fibres)
+with its material (look7 COLOR direct [0.00947524, 0.00692209, 0.00541047], R 0.221, TRT 0.757,
+rough 0.395, TT 0.5, HUANG/COLOR), rendered under the groom3 studio rig verbatim
+(render_before.py = render_studio.py copy; cameras-scorer-v3.json; body
+mpfb-peds-parent-aisha.glb from this worktree): E/renders-before/{front,three_quarter,profile_90,back}.png,
+Cycles 1024 px / 64 spp / seed 7 / OIDN, HAIR_BEAUTY_ONLY=1, 217.7 s total.
+AFTER: groom3 renders-studio PNGs reused verbatim (same rig, same cameras, same 1024/64spp/seed7 settings).
+Cross-check: before back render matches hem2 scores/c_curve/back.png (short blunt back, long front
+curtains) -- that is the genuine old groom, not a render bug.
+
+STILLS:
+- docs/assets/hair-before-after-2026-10-16.png: 1200x1656, 1218978 bytes (<= 1.5 MB).
+  rows front/three-quarter/profile/back; cols target | before | after.
+  Target column = aisha-v3 Imagine PNGs (target-front-a1, target-three_quarter-a1, target-profile,
+  target-back), labelled as Imagine output, never as our output.
+- docs/assets/hair-crown-ear-2026-10-16.png: 1040x616, 399189 bytes.
+  Top = target row of groom3 crops.png; bottom = groom3 row (3q ear | profile ear | back crown).
+
+VIDEO:
+- docs/assets/hair-turntable-2026-10-16.mp4: 720x720, 7.0 s, 24 fps, 168 frames, H.264 yuv420p,
+  497662 bytes (<= 6 MB). Orbit at the front-camera radius/height (r=0.7, z=1.494, 50 mm lens),
+  camera Track-To empty at (0,0,1.45); groom3 strands + studio rig + c08 colour/0.15 rough,
+  Cycles 720 px / 10 spp / seed 7 / OIDN, 827.4 + 90.3 s render. Frames read before embedding:
+  f0000 (front), f0042 (profile), f0084 (back) -- subject framed throughout.
+- docs/assets/hair-turntable-poster-2026-10-16.png: 640x640 back-view frame, 306663 bytes.
+- First turntable attempt failed framing (hand-built look-at matrix assigned rows to copies, camera
+  stayed at origin); fixed with Track-To constraint. One Blender run died mid-orbit under CPU
+  contention with a sibling worker; resume-skip flag refilled the missing 11 frames.
+
+MEASURED NUMBERS (groom3 STEP 3, reused): profile IoU 0.8753, back IoU 0.8164,
+partCrossingsAboveVertex 0 (gate 0), lane peakRatio 0.973 (gate <1.5), back seam max 3 px rows156-950
+(gate <=4), cheek curtain profile cols<280 outside-px 1246 -> 634, strays outside-px -13..-28% every view.
+Known price: front IoU 0.5298 -> 0.4796 (guide field has ~no anterior-shoulder drape).
+
+pages:validate output:
+  $ pnpm pages:validate
+  $ tsx tools/openclinxr/evidence/check-github-pages-site.ts
+  Validated GitHub Pages static site wiring.
+
+SAW
+- SCOPE: one progress entry (123) with controlled target|before|after stills, crown/ear close-up, and a
+  7 s groom3 turntable; every pixel rendered in-Blender under one studio rig, numbers quoted from RESULT files.
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims;
+EEVEE/Quest material response; other bodies/seeds; animation/combing dynamics; no re-scoring in this slice
+(IoU/gate numbers are groom3's, reused with provenance, not re-measured).

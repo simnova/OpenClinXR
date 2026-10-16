@@ -1,0 +1,9 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hem2/cells/c_curve/strands.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/params-before.json
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/render_before.py
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/renders-before/back.png
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/renders-before/front.png
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/renders-before/profile_90.png
+/Users/patrick/.grok/worktrees/src-openclinxr/site-hair1/tools/openclinxr/evidence/hair-site1/renders-before/three_quarter.png

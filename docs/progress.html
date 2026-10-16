@@ -27,6 +27,69 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-10-16T1315">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 123 &middot; 2026-10-16 13:15 UTC</p>
+          <h2>Aisha's hair is now one rebuilt groom grown from targets of Aisha herself.</h2>
+        </div>
+        <p>
+          The hair pipeline was rebuilt as one station that regenerates the groom from fixed inputs: ear-tucked
+          targets generated on Aisha herself (Grok Imagine edits of our own renders, four calibrated views), a carved
+          six-view hair volume, a 3D strand-direction field traced into guides, about 99k frame-transport strands,
+          and the Huang hair shader.
+        </p>
+        <p>
+          The stills below pair the old patch-chain groom (hair-hem2 c_curve) against groom3 under the same studio rig
+          and the same four cameras at 1024&nbsp;px; only the groom differs. The target column is Imagine output on our
+          own render and is labelled as the target, never as our output.
+        </p>
+        <div class="motion-proof" style="margin-top:16px;">
+          <video class="motion-proof__video" controls loop playsinline preload="metadata" width="720" height="720"
+            poster="assets/hair-turntable-poster-2026-10-16.png"
+            aria-label="A 7 second turntable of the groom3 hair on Aisha, head and shoulders, studio rig.">
+            <source src="assets/hair-turntable-2026-10-16.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              A 7&nbsp;s turntable of groom3 (168 frames at 24&nbsp;fps, 720&nbsp;px, Cycles 10&nbsp;spp with denoise).
+              Three frames were read before embedding; the head and shoulders stay framed through the full orbit.
+            </p>
+          </div>
+        </div>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/hair-before-after-2026-10-16.png" alt="Controlled before/after pairs. Columns: target, before (patch-chain groom), after (groom3). Rows: front, three-quarter, profile, back." width="1200" height="1656" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Target (Imagine) | before (hem2 c_curve) | after (groom3). Same rig, same cameras; only the groom differs.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/hair-crown-ear-2026-10-16.png" alt="Close-up of the crown and ear. Top row: target. Bottom row: groom3." width="1040" height="616" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Crown and ear close-up. Top: target. Bottom: groom3; the ear stays bare and the back crown part reads clean.</figcaption>
+          </figure>
+        </div>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>Groom3 studio measurements against the aisha-v3 targets.</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Measured result</th></tr></thead>
+            <tbody>
+              <tr><td>Profile IoU</td><td>0.8753 (crown miss p95 21.1&nbsp;px down to 10.8, cheek curtain halved).</td></tr>
+              <tr><td>Back IoU</td><td>0.8164, with the back seam at 3&nbsp;px (gate 4 or fewer).</td></tr>
+              <tr><td>Part crossings above vertex</td><td>0 (gate 0).</td></tr>
+              <tr><td>Lane peak ratio</td><td>0.973 (gate below 1.5).</td></tr>
+              <tr><td>Strays</td><td>Outside-mask pixels down 13 to 28 percent in every view.</td></tr>
+              <tr><td>Known price</td><td>Front drape narrows (front IoU 0.53 down to 0.48); the guide field has almost no anterior-shoulder drape.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="evidence-note">
+          Evidence: <code>tools/openclinxr/evidence/hair-site1/</code> (render scripts, before renders, turntable
+          frames, RESULT). Still wrong: ear-region strand clumping, crown part not crisp, strands look slightly banded
+          up close, front curtains narrower than target.
+        </p>
+        <p class="status-copy">
+          <strong>notEvidenceFor:</strong> headset playback, Quest performance or readiness, clinical validity, scoring validity, licensure, production readiness, or exam equivalence.
+        </p>
+      </section>
       <section class="band" id="entry-2026-10-07T1515">
         <div class="section-heading">
           <p class="eyebrow">Entry 122 &middot; 2026-10-07 15:15 UTC</p>
