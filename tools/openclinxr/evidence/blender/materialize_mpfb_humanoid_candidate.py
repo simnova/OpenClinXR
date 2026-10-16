@@ -197,6 +197,10 @@ LOWER_GARMENT_BY_OUTPUT_STEM = {
     "eg-104-m3": FEMALE_COVERING_LOWER,
     # lidconform (tsk_83147b9cfdf9ab03): same adult-female civilian lower.
     "aisha-lidconform": FEMALE_COVERING_LOWER,
+    # iris-neutral (tsk_b1604af3eb881268): same adult-female civilian lower
+    # (same mpfb-ob-patient-aisha body as aisha-lidconform above).
+    "aisha-prefix": FEMALE_COVERING_LOWER,
+    "aisha-postfix": FEMALE_COVERING_LOWER,
 }
 
 SHOE_BY_REFERENCE = {
@@ -2664,6 +2668,13 @@ EYE_DIAMETER_TARGET_MM = {
     # mpfb-street-adult-male, so adult axial length applies.
     "body2-eyeglobe-base": 24.0,
     "body2-lidconform": 24.0,
+    # iris-neutral (tsk_b1604af3eb881268): same adult bodies under card stems
+    # (aisha-prefix/aisha-postfix are the mpfb-ob-patient-aisha bake;
+    # body2-irisfix is the adult_male_street_casual bake), so adult axial
+    # length applies — mirrors the aisha-lidconform / body2-lidconform rows.
+    "aisha-prefix": 24.0,
+    "aisha-postfix": 24.0,
+    "body2-irisfix": 24.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -6011,11 +6022,29 @@ def main():
     if str(_anny_dir_eye) not in _sys_eye.path:
         _sys_eye.path.insert(0, str(_anny_dir_eye))
     from automate_blender import eye_iris_colour  # noqa: E402
+    from iris_palette import iris_diffuse_override  # noqa: E402
 
     _iris_key = eye_iris_colour(
         args.actor_role,
         {"eye_color": phenotype_eye_colour(args.eye_colour_reference or args.reference)},
     )
+    # Neutral-brown iris (tsk_b1604af3eb881268): with no explicit
+    # --eye-texture, a resolved pack id swaps the pack diffuse for the neutral
+    # texture through the SAME TEXTURE_OVERRIDES slot --eye-texture uses
+    # (consumed by make_material_from_mhmat below). An explicit --eye-texture
+    # keeps precedence. No subject or output-stem literal here: f(pack id).
+    if getattr(args, "eye_texture", None):
+        print(f"EYE_TEXTURE_RESOLVED {_iris_key} {args.eye_texture}")
+    else:
+        _iris_override_rel = iris_diffuse_override(_iris_key)
+        if _iris_override_rel is not None:
+            TEXTURE_OVERRIDES["mat_makeclothes_library_eyes"] = str(
+                (REPO_ROOT / _iris_override_rel).resolve()
+            )
+        print(
+            f"EYE_TEXTURE_RESOLVED {_iris_key} "
+            f"{_iris_override_rel if _iris_override_rel is not None else 'pack'}"
+        )
     _eye_mat_dir = (
         pathlib.Path(__file__).resolve().parents[4]
         / ".openclinxr-local/provider-cache/eyes/makehuman-system-assets"

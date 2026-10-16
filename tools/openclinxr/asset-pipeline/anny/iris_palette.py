@@ -46,6 +46,28 @@ _CLINICIAN_ROLE_TOKENS = ("nurse", "clinician", "staff", "physician", "doctor")
 _FAMILY_ROLE_TOKENS = ("family", "parent", "spouse", "guardian")
 
 
+# Neutral-brown diffuse override (tsk_b1604af3eb881268): the staged pack
+# brown_eye.png renders red (texel iris-ring mean hue ~11.6 deg) while the
+# authored neutral brown holds ~20.2 deg. The authored texture is UV-locked
+# to the pack layout (pupil shift 0.77/0.63 texels per
+# tools/openclinxr/asset-pipeline/eyes/texture-manifest.json), so it drops
+# into the same eye-material slot with no UV change.
+_IRIS_DIFFUSE_OVERRIDE_BY_PACK_ID = {
+    "brown": "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+}
+
+
+def iris_diffuse_override(pack_id: str) -> str | None:
+    """Diffuse texture replacing the pack texture for a selected iris id.
+
+    Pure f(pack id) -> repo-relative texture path or None. Only "brown"
+    resolves (to the neutral brown texture above); every other id returns
+    None and the bake keeps the pack texture. eye_iris_colour return values
+    are unchanged — this maps the SELECTED id, never a role or phenotype.
+    """
+    return _IRIS_DIFFUSE_OVERRIDE_BY_PACK_ID.get((pack_id or "").strip().lower())
+
+
 def eye_iris_colour(actor_role: str, phenotype: Dict[str, Any] | None = None) -> str:
     """Declared iris asset id for the actor: f(role, phenotype) — #356, #518.
 

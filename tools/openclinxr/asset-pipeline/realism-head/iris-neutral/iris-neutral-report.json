@@ -1,0 +1,289 @@
+{
+ "aisha": {
+  "argv": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "bakeCommand": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- <argv> --output <glb> (cwd = worktree root)",
+  "explicitEyeTextureKeepsPrecedence": true,
+  "postfix": {
+   "eyeImage": {
+    "byteLength": 594900,
+    "name": "iris-centred-c",
+    "sha256": "ac2bede531982d08bdaa62052d7b6ad993e7e4ea6c894fccb60beec6337a1901"
+   },
+   "eyeMeshes": {
+    "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "49e45d70a923ed00bdf93e83b1cca7235aee28706a4c1941443f6e30e9f1696e",
+     "TEXCOORD_0": "e85aa4bba3dd7ea3661f05cd0125f5c8a7217b9a6e25cfe4b111be47c17d3b78"
+    },
+    "makeclothes_library_eyes_high_poly_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "5ea7106b70f3b8e36a7f5ec1258c78e762793caff2aae417956b3eba3d20bd5c",
+     "TEXCOORD_0": "300bbfcf4329c5e5c2e03189ffb3df3653f1889c48379b0f81b6f5f9dfad6c62"
+    },
+    "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "e8b6bc18faf75bc5c186c5caf7ac82c597e258d8caf5f2fe4ad6943ae78fc52e",
+     "TEXCOORD_0": "a8992e9bc0169af2470570b5858f1cfabf968d0c1d45de7ada8746d4c6cc324a"
+    },
+    "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "6d002e6984d3f364762dd326c291e6d63c55a1b6d239c30a973affc373e36958",
+     "TEXCOORD_0": "9e730dd8f1035c6be1a3b50b2da471a086324df81c26d17e7d8fda6d4735fd4c"
+    }
+   },
+   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-postfix.glb",
+   "glbSha256": "1e622051bc18d45211156a255704e655bc601412bab1039aa866ff2ca74f6bac",
+   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-postfix-bake.log"
+  },
+  "prefix": {
+   "eyeImage": {
+    "byteLength": 594900,
+    "name": "iris-centred-c",
+    "sha256": "ac2bede531982d08bdaa62052d7b6ad993e7e4ea6c894fccb60beec6337a1901"
+   },
+   "eyeMeshes": {
+    "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "49e45d70a923ed00bdf93e83b1cca7235aee28706a4c1941443f6e30e9f1696e",
+     "TEXCOORD_0": "e85aa4bba3dd7ea3661f05cd0125f5c8a7217b9a6e25cfe4b111be47c17d3b78"
+    },
+    "makeclothes_library_eyes_high_poly_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "5ea7106b70f3b8e36a7f5ec1258c78e762793caff2aae417956b3eba3d20bd5c",
+     "TEXCOORD_0": "300bbfcf4329c5e5c2e03189ffb3df3653f1889c48379b0f81b6f5f9dfad6c62"
+    },
+    "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "e8b6bc18faf75bc5c186c5caf7ac82c597e258d8caf5f2fe4ad6943ae78fc52e",
+     "TEXCOORD_0": "a8992e9bc0169af2470570b5858f1cfabf968d0c1d45de7ada8746d4c6cc324a"
+    },
+    "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh": {
+     "POSITION": "6d002e6984d3f364762dd326c291e6d63c55a1b6d239c30a973affc373e36958",
+     "TEXCOORD_0": "9e730dd8f1035c6be1a3b50b2da471a086324df81c26d17e7d8fda6d4735fd4c"
+    }
+   },
+   "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-prefix.glb",
+   "glbSha256": "59b9db2a18d61dce47bcc6cd2d7e57d9989e459ce679fab58a27383346415a10",
+   "log": "/Volumes/files/openclinxr-assets/store/iris-neutral/aisha-prefix-bake.log"
+  },
+  "referenceRenderCorroboration": {
+   "glb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb (sha 96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76, conform-report.json newGlb)",
+   "method": "same pupil-anchored annuli on Aisha's own pupils (500.3,706.7)/(782.1,710.1)",
+   "note": "same iris-centred-c texture under the same rig reads the same render-space hue as body2-postfix: the fix converges body2 onto the neutral reference",
+   "r10-24": {
+    "hueDeg": 17.9,
+    "lum": 82.8,
+    "meanRGBapprox": [
+     98.2,
+     77.9,
+     70.3
+    ],
+    "ringRG": 20.2
+   },
+   "render": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-aisha-r2/ss-aisha-front.png (rig ob_triage_room_v1, 1280 portrait)",
+   "r8-18": {
+    "hueDeg": 15.7,
+    "lum": 56.8,
+    "ringRG": 19.0
+   }
+  },
+  "shasEqual": {
+   "TEXCOORD_0": true,
+   "eyeImage": true,
+   "POSITION": true
+  }
+ },
+ "body2": {
+  "bakeArgv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea (no --eye-texture: resolver path; lid-conform applies via case map adult_male_street_casual->body2)",
+  "bakeLogEyeLine": "EYE_TEXTURE_RESOLVED brown tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png (store/iris-neutral/body2-irisfix-bake.log)",
+  "bakeLogMaterialLine": "EYE_MATERIAL brown.mhmat diffuseTexture /Users/patrick/.grok/worktrees/src-openclinxr/irisneutral/tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png name mat_makeclothes_library_eyes_adult_male_street_casual",
+  "eyeImageSha256": "ac2bede531982d08bdaa62052d7b6ad993e7e4ea6c894fccb60beec6337a1901 (image name iris-centred-c, 594900 bytes: same bytes as Aisha)",
+  "glb": "/Volumes/files/openclinxr-assets/store/iris-neutral/body2-irisfix.glb",
+  "glbSha256": "c38d7a960492999b8a8d022706bb5557cb4cce0be455d9a93ec9388900ff49b3",
+  "lidconform": "LIDCONFORM_BAKED targetWidthMm 25.0 matchMedMm 0.0043 displacedVerts 624 (mirrors any-subject-report.json)",
+  "post": {
+   "hueDeg": 17.3,
+   "irisLum": 62.9,
+   "presence": 0.6863,
+   "render": "/Volumes/files/openclinxr-assets/store/iris-neutral/body2-postfix-render/b2s4-lidconform-front.png",
+   "renderJsonGlb": "c38d7a960492999b8a8d022706bb5557cb4cce0be455d9a93ec9388900ff49b3 (= body2-irisfix.glb)",
+   "renderSha256": "592f5a375de388793c4ffa3d2fe37cb364f9588b2576e8399ef14581a114ad29",
+   "ringMeanRGB": [
+    77.5,
+    59.2,
+    51.8
+   ],
+   "ringRG": 18.3,
+   "scleraLum": 221.4,
+   "scleraMeanRGB": [
+    224.3,
+    221.9,
+    218.0
+   ]
+  },
+  "pre": {
+   "hueDeg": 7.2,
+   "irisLum": 89.9,
+   "presence": 0.7576,
+   "render": "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s4-lidconform-front.png",
+   "renderSha256": "ef150b4e5b0ce33cd0ac5e3d59f08b8cc46a9496fa84926ac2c4f40ca9065a88 (= findings.json store_render_shas b2s4)",
+   "ringMeanRGB": [
+    130.1,
+    73.7,
+    66.0
+   ],
+   "ringRG": 56.4,
+   "scleraLum": 221.0
+  },
+  "renderCommand": "MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant /Volumes/files/openclinxr-assets/store/body2-defects/variants/b2s4-lidconform.variant.json --glb /Volumes/files/openclinxr-assets/store/iris-neutral/body2-irisfix.glb --out /Volumes/files/openclinxr-assets/store/iris-neutral/body2-postfix-render (--glb accepts absolute paths; no worktree copy needed)",
+  "ringMethod": "pupil centre per eye = centroid of darkest 2% changed-mask pixels in findings eye boxes (pre pupils (498.2,681.3)/(776.5,678.6)); ring = union annulus r10..24px about pupils (n=2989; excludes pupil r<10 and sclera/skin r>24 which is byte-identical pre/post); identical mask pre+post (non-eye meanAbsDiff 0.0, zero px >5); presence = frac R-G>20 in findings boxes x[460,560]+x[720,820] y[620,700]; hue = HSV hue of mean RGB; lum = mean(R,G,B); sclera mask = box px with post lum>190 (n=2101), identical pre/post"
+ },
+ "card": "tsk_b1604af3eb881268",
+ "environment": {
+  "cacheStaging": "worktree cache premise was partial: eyes/makehuman-highpoly absent (bake refused #337) and garments/sources a strict subset of main (bake refused #740). Staged read-only: symlink eyes/makehuman-highpoly -> lidconform worktree copy (sha 516695dd/da249321, CC0 header verified, byte-identical to realism-95 copy); replaced garments/sources with symlink to main checkout sources (worktree copy was a strict subset, zero unique files). No cached ASSET bytes written or modified. Post-bake the worktree cache was restored to pristine (symlinks removed, tracked partial copies checked out): git status shows only the two source edits plus the iris-neutral dir; the commit contains zero .openclinxr-local changes.",
+  "stemRegistration": "EYE_DIAMETER_TARGET_MM + LOWER_GARMENT_BY_OUTPUT_STEM rows for aisha-prefix/aisha-postfix/body2-irisfix mirror the sibling aisha-lidconform/body2-lidconform rows (24.0mm adult; female lower for Aisha) per the #377 gate's own instruction; landed before STEP0 so prefix/postfix share treatment (G4 premise). Values identical to the conform bakes; zero behavior delta vs sibling stems."
+ },
+ "existingTests": {
+  "eye-colour-is-case-driven.test.ts": "2 passed / 3 failed - PRE-EXISTING: bank missing actorId patient_maya_johnson_v1 (scenario bank on wt/irisneutral lacks the actorId the test greps); identical 3 failures with this card edits stashed (git stash push/pop verified). Shipped-GLB/bank drift, untouched by this card (no shipped GLB writes).",
+  "an-authored-eye-colour-is-one-the-factory-can-build.test.ts": "3 passed / 3 (pack unchanged: nine members intact)"
+ },
+ "falsifier": {
+  "recorded": "n/a (not triggered)",
+  "trigger": "post-fix bake log shows EYE_TEXTURE_RESOLVED with iris-centred-c AND render iris R-G > 27.5 -> verdict falsified",
+  "triggered": false
+ },
+ "gates": {
+  "G1": {
+   "bar": "resolved-texel iris-ring hue >= 15.9",
+   "pass": true
+  },
+  "G2": {
+   "bar": "post ringRG <= 27.5 AND presence < 0.758",
+   "pass": true,
+   "postPresence": 0.6863,
+   "postRingRG": 18.3
+  },
+  "G3": {
+   "bar": "post hue in [15.9,60] AND irisL < scleraL",
+   "pass": true,
+   "postHue": 17.3,
+   "postIrisLum": 62.9,
+   "postScleraLum": 221.4
+  },
+  "G4": {
+   "bar": "postfix eye image + POSITION/TEXCOORD_0 shas == STEP0",
+   "pass": true
+  },
+  "G5": {
+   "bar": "iris_palette.py grep subject literals == 0",
+   "hits": 0,
+   "pass": true
+  }
+ },
+ "probes": [
+  {
+   "gate": "G1",
+   "method": "hue() of pack brown_eye.png texel ring (what the resolver would return without the fix)",
+   "result": "FAIL as required (probe of the broken path)",
+   "value": {
+    "bar": 15.9,
+    "hueDeg": 11.4
+   }
+  },
+  {
+   "gate": "G2",
+   "method": "gate metrics on the PRE-fix render with the identical ring",
+   "result": "FAIL as required (probe of the broken path)",
+   "value": {
+    "bar": 27.5,
+    "presence": 0.7576,
+    "ringRG": 56.4
+   }
+  },
+  {
+   "gate": "G3",
+   "method": "(a) pre-fix hue 7.2 outside [15.9,60]; (b) CW grey iris (128,128,128) hue 0.0 outside [15.9,60]",
+   "result": "FAIL as required in both (probe of the broken path + CW)",
+   "value": {
+    "greyHue": 0.0,
+    "preHue": 7.2
+   }
+  },
+  {
+   "gate": "G4",
+   "method": "same comparator, prefix globe POSITION sha vs body2 globe POSITION sha (must MISMATCH) alongside prefix==postfix (must MATCH)",
+   "result": "mismatch detected (False) while prefix==postfix True: comparator non-vacuous",
+   "value": {
+    "crossSubjectEqual": false,
+    "prefixEqPostfix": true
+   }
+  },
+  {
+   "gate": "G5",
+   "method": "grep count on /tmp copy of iris_palette.py with injected probe_subject = aisha line (must HIT) alongside real file (must be 0)",
+   "result": "injected file hits=1 (fail shown); real file hits=0 (pass)",
+   "value": {
+    "injectedHits": 1,
+    "realHits": 0
+   }
+  }
+ ],
+ "sheet": {
+  "crops": [
+   {
+    "box": "x[347,927] y[590,770] (580x180, native, no upscale)",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-front-eye-pre.png",
+    "sha256": "abf26b56178da6bbcae4a59fea2559d24ba128b73eb06c50b038c0168e8acac1",
+    "view": "front pre"
+   },
+   {
+    "box": "x[347,927] y[590,770] (580x180, native, no upscale)",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-front-eye-post.png",
+    "sha256": "50d426178160988a5beb2ae4273540f5800d5074da61c5ceda6cd1fc68cb2ba4",
+    "view": "front post"
+   },
+   {
+    "box": "x[200,780] y[588,768] (580x180, native, no upscale; yaw pupils (372.9,677.9)/(607.9,678.7) via changed-mask)",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-yaw25-eye-pre.png",
+    "sha256": "227c314a33d28c3bdbc274573d8511f9930ea0d77342c53a01c25e9519b8cb72",
+    "view": "yaw25 pre"
+   },
+   {
+    "box": "x[200,780] y[588,768] (580x180, native, no upscale; yaw pupils (372.9,677.9)/(607.9,678.7) via changed-mask)",
+    "path": "/Volumes/files/openclinxr-assets/store/iris-neutral/sheet-yaw25-eye-post.png",
+    "sha256": "6c493e25fd9d4b2910778ac9ba1be3ba36c1b87e90692c6f61903d3cf7f9b538",
+    "view": "yaw25 post"
+   }
+  ],
+  "yaw25RingSanity": {
+   "method": "r10-24 about yaw pupils, pre vs post",
+   "nearEye": {
+    "postRG": 24.0,
+    "preRG": 40.5
+   },
+   "note": "no gate on yaw; both eyes improve (lid-cover noise on near eye at yaw)"
+  }
+ },
+ "texel": {
+  "annulus": "r 45..100px about pupil centres (296,724),(722,302) of the 1024 texture (n=50136)",
+  "barDeg": 15.9,
+  "barNote": "midpoint of pack-brown 11.6 and neutral 20.2 per card",
+  "method": "PIL RGB means -> colorsys HSV hue of mean (reproduces card: brown (70.1,15.7,3.0)->11.4, centred-c (29.7,14.1,6.2)->20.2)",
+  "perIdHueDeg": {
+   "blue": 194.8,
+   "bluegreen": 163.1,
+   "brown": 11.4,
+   "brownlight": 35.7,
+   "deepblue": 242.0,
+   "green": 114.0,
+   "grey": 138.7,
+   "ice": 139.5,
+   "lightblue": 195.8
+  },
+  "resolved": {
+   "hueDeg": 20.2,
+   "meanRGB": [
+    29.8,
+    14.2,
+    6.2
+   ],
+   "path": "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+   "sourceSha256": "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695 (texture-manifest.json)"
+  }
+ },
+ "verdict": "fixed",
+ "verdictNote": "post-fix body2 iris renders brown-neutral (ringRG 18.3, hue 17.3, matching Aisha reference 17.9 under the same rig/texture); falsifier not triggered (log shows EYE_TEXTURE_RESOLVED with iris-centred-c AND ringRG <= 27.5)"
+}
