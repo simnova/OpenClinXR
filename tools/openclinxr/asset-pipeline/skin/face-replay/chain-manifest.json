@@ -244,14 +244,14 @@
       "overrides": {
         "lips": { "ratio": 1.0 },
         "symmetrise": { "strength": 1.0 },
-        "beard_shadow": { "weight": 0.9 }
+        "beard_shadow": { "weight": 1.0 }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
         "skin_tone_rgb": "card SUBJECT line: warm_medium (0.66, 0.50, 0.40)",
         "lips.ratio": "measurement: S/skins/RESULT.md G2 — pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
-        "beard_shadow.weight": "measurement: S/beard/RESULT.md sweep 0/0.25/0.5/0.75/0.85/0.9/1.0, min max|dLab| over lip+chin patches at 0.9 (2.32, bound 3)"
+        "beard_shadow.weight": "measurement: S/beard/RESULT.md sweep 0/0.25/0.5/0.75/0.9/1.0, min max|dLab| over lip+chin patches at 1.0 (1.48, bound 3)"
       }
     }
   },

@@ -10,34 +10,47 @@ Texels outside the hard beard mask are bit-exact.
 
 Mask: facecore texels below a landmark-derived top edge, outside the
 dilated lips mask, bounded laterally by the ear-attach landmarks and
-past the chin by a short jaw margin. The top edge is the nostril line
-at the centre, rising outward along the nose-wing to mouth-corner line
-(constant-projection edges drift up the face at the island sides: a
-flat nostril line rendered onto under-eye skin in the green-paint
-probe, so the edge follows anatomy instead). Every size is in mm via
+past the chin by a short jaw margin. The top edge is flat below the
+subnasale at the centre (nose tip, alae and bridge are never beard),
+rises outward along the nose-wing to mouth-corner line, then runs from
+the mouth corner up/back toward the ear lobe (no horizontal mouth-level
+edge, no vertical nasolabial edge). Every outer edge fades over
+millimetres (no hard steps); the lip cutout hugs the lips mask with a
+1 mm margin and a short feather (no pale halo). Every size is in mm via
 the mesh texel density; every mm value is sourced below.
 
 Anatomy sources (all spatial constants in mm):
 - TEXEL density: sqrt(sum UV-texel area / sum 3D mm area) over
   facecore-gated skin faces, the skin_layers.py method; body2 measured
   4.079 texels/mm at albedo size (S/beard/RESULT.md).
-- STIPPLE_R_MM 0.25: beard shaft mean diameter ~0.125 mm (Caucasian
-  beard mean 125.6 um, ~1.83x scalp, SCC comparative study Table I);
-  the visible stubble dot (shaft plus root shadow) is modelled at twice
-  the shaft diameter. Per-dot radius jitter keeps dots from gridding.
+- STIPPLE_R_MM 0.12: sub-texel grain, not resolvable dots (125 um
+  shaft is ~0.5 texel at 4.079 tex/mm; follicles must not resolve as
+  dots at portrait distance, lane-manager grade). Sub-texel centre
+  jitter plus per-dot radius jitter keep the grain from gridding.
 - BASE_DENSITY 0.65/mm2 (65/cm2, mid chin 45-80 FU/cm2) and zone total
   1.50/mm2 (150/cm2, mustache central 150-160 FU/cm2), Dua facial-hair
   transplantation review; consistent with 20-80 follicles/cm2 across
   facial areas (Elsner/Wiley beard review).
-- FEATHER_MM 1.5: derive.py lips feather sigma 6 texels, ~1.5 mm at the
-  measured body2 density.
-- LOW_SIGMA_MM 12.0: fix_sym.py low band sigma 48 texels, ~12 mm.
-- LIPS_EXCLUDE_MM 2.0: clears the vermilion plus the lip-mask soft edge.
-- Top edge: nostril line at the centre, rising outward with the slope
-  from the nose wing (nostril landmarks) to the mouth corner (outer
-  15% of the lips mask); below the lip line the jaw curtain hangs full
-  ear width, so jaw and low sideburns are kept while under-eye drift
-  is cut. Sideburns above lip level stay untreated (recorded limit).
+- FADE_MM 3.0: outer edges fade over millimetres (beard shadow fades
+  out, never a hard step). Sized from the goal photo: the upper-lip
+  shadow rises over ~5 mm including shading geometry (S/beard/RESULT.md
+  goal column profile), so the albedo fades over 3 mm and light adds
+  the rest. SUPPORT_MM 9.0 (3 sigma, field ~1% at the support rim)
+  bounds the bit-exact restore.
+- LIPS_EXCLUDE_MM 1.0 + LIP_FEATHER_MM 1.0: the cutout hugs
+  mask-lips.png (lane-manager grade: no pale halo ring).
+- PHILTRUM_MM 14.0: top edge at the centre sits below the subnasale
+  (nose never beard). Measured body2 via hue-probe renders: the hole
+  bottoms render from UV just above subnasale col while the philtrum
+  renders one probe-step lower, so lip-top minus 14 mm clears holes
+  and alae (S/beard/RESULT.md);
+  the NOSE_RAMP_MM 4.0 gate below it deepens the shadow over the
+  goal-measured ~5 mm subnasale gradient and kills the outward fade
+  above the edge (nostril interiors stay clean).
+- Top edge past the centre: nose-wing to mouth-corner slope, then
+  mouth-corner to ear-lobe line (both landmark-derived, continuous at
+  the corner); no horizontal mouth-level edge, no vertical nasolabial
+  edge. Cheek-boundary ears: ear-attach landmarks.
 - MUSTACHE_ZONE_MM 22.0: dense mustache band above the lips (higher on
   the upper edge/philtrum, Dua review). Measured body2 distance-to-lips:
   upper lip 7.7 mm, philtrum mid 19.4 mm, philtrum top 28.8 mm, cheeks
@@ -46,15 +59,16 @@ Anatomy sources (all spatial constants in mm):
   2.0 keeps the zone above the lip line (goatee stays base).
 - CHIN_BEYOND_MM 10.0: beard continues past the chin point onto the jaw
   (goal shows jaw stipple); the facecore mask bounds it anyway.
-- LOW deltas (L -8, a -2.5, b -1.0 at weight 1): measured need is chin
-  dL -8.2 and upper-lip dL -15.4 (low band -8 plus the denser mustache
-  stipple mean near -7), S/beard/RESULT.md. The mustache zone carries
-  ZONE_BOOST_L 1.0 extra L darkening (zone ~2x: mustache central
-  150-160 vs chin 45-80 FU/cm2, Dua review); chroma is not boosted
+- LOW deltas (L -8, a -4.0, b -2.0 at weight 1): grey-blue
+  darken/desaturate (goal upper lip L 42-58, a* 7-10: cooler and less
+  red, never brown). Measured need chin dL -8.2, upper-lip dL -15.4
+  (S/beard/RESULT.md). The mustache zone carries ZONE_BOOST_L 1.0
+  extra L darkening (zone ~2x: mustache central 150-160 vs chin 45-80
+  FU/cm2, Dua review); chroma is not boosted
   (dense hair darkens first, desaturation saturates).
 - STIPPLE_DEPTH 26: terminal hair surface near L 20-30 against skin
-  near L 55-65; STIPPLE_R_MM 0.32 keeps dots visible after the render
-  downsample (dot near 0.6 mm across with its root shadow).
+  near L 55-65; STIPPLE_DESAT 3.0 cools the dots toward grey-blue so
+  the grain never reads brown.
 """
 
 from __future__ import annotations
@@ -73,21 +87,24 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fix_lips import lab_to_rgb, rgb_to_lab  # noqa: E402
 
 SEED_DEFAULT = 11
-STIPPLE_R_MM = 0.32
+STIPPLE_R_MM = 0.12
 BASE_DENSITY_PER_MM2 = 0.65
 EXTRA_DENSITY_PER_MM2 = 0.85
-FEATHER_MM = 1.5
-LOW_SIGMA_MM = 12.0
-LIPS_EXCLUDE_MM = 2.0
+FADE_MM = 3.0
+SUPPORT_MM = 9.0
+LIPS_EXCLUDE_MM = 1.0
+LIP_FEATHER_MM = 1.0
+PHILTRUM_MM = 14.0
 MUSTACHE_ZONE_MM = 22.0
+NOSE_RAMP_MM = 4.0
 LIP_TOP_TOL_MM = 2.0
 CHIN_BEYOND_MM = 10.0
 ZONE_BOOST_L = 1.0
 LOW_DARKEN_L = -8.0
-LOW_SHIFT_A = -2.5
-LOW_SHIFT_B = -1.0
+LOW_SHIFT_A = -4.0
+LOW_SHIFT_B = -2.0
 STIPPLE_DEPTH = 26.0
-STIPPLE_DESAT = 1.0
+STIPPLE_DESAT = 3.0
 
 NEEDED_LANDMARKS = ("nose-tip", "nostril-L", "nostril-R", "chin",
                     "ear-attach-L", "ear-attach-R")
@@ -135,6 +152,7 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
     lat = (cc - p0[0]) * perp[0] + (rr - p0[1]) * perp[1]
     ear_half = max(float(abs(((pts["ear-attach-L"] - p0) * perp).sum())),
                    float(abs(((pts["ear-attach-R"] - p0) * perp).sum())))
+    ear_proj = float((((pts["ear-attach-L"] + pts["ear-attach-R"]) / 2.0 - p0) * d).sum())
     chin_proj = float(((chin - p0) * d).sum())
     lips_bin = (lips > 0.5).astype(np.uint8)
     if not lips_bin.any():
@@ -144,26 +162,33 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
     lip_half = float(np.abs(lat[lips_bin > 0]).max())
     nostril_lat = float((abs(((pts["nostril-L"] - p0) * perp).sum())
                           + abs(((pts["nostril-R"] - p0) * perp).sum())) / 2.0)
-    outer = (lips_bin > 0) & (np.abs(lat) >= 0.85 * lip_half)
-    corner_top = float(proj[outer].min()) if outer.any() else lip_top
-    run = lip_half - nostril_lat
-    slope = max(corner_top / run, 0.0) if run > 1.0 else 0.0
-    rise = slope * np.clip(np.abs(lat) - nostril_lat, 0, None)
-    # Above the lip line the steep nose-to-mouth-corner rise cuts the
-    # island-side drift; below it the jaw curtain hangs full width.
-    below_lips = proj > lip_top + LIP_TOP_TOL_MM * tpm
-    lat_ok = np.abs(lat) <= ear_half
-    hard = ((facecore > 0.5) & (below_lips | (proj > rise)) & lat_ok
+    # Continuous top edge: flat below the subnasale at the centre, up
+    # the nose-wing slope to the mouth corner, then mouth-corner to
+    # ear-lobe line (no horizontal mouth-level edge, no nasolabial wall).
+    top_centre = lip_top - PHILTRUM_MM * tpm
+    lip_line = lip_top + LIP_TOP_TOL_MM * tpm
+    run_inner = lip_half - nostril_lat
+    slope_inner = (lip_line - top_centre) / run_inner if run_inner > 1.0 else 0.0
+    run_ear = ear_half - lip_half
+    slope_ear = (lip_line - ear_proj) / run_ear if run_ear > 1.0 else 0.0
+    slope_ear = max(slope_ear, 0.0)
+    alat = np.abs(lat)
+    top = np.where(alat <= nostril_lat, top_centre,
+                   np.where(alat <= lip_half,
+                            top_centre + slope_inner * (alat - nostril_lat),
+                            lip_line - slope_ear * (alat - lip_half)))
+    hard = ((facecore > 0.5) & (proj > top) & (alat <= ear_half)
             & (proj <= chin_proj + CHIN_BEYOND_MM * tpm) & (~lips_excl))
     dist_lips = cv2.distanceTransform((1 - lips_bin).astype(np.uint8),
                                       cv2.DIST_L2, 3).astype(np.float64)
-    zone = (hard & (proj <= lip_top + LIP_TOP_TOL_MM * tpm)
+    zone = (hard & (proj <= lip_line)
             & (dist_lips <= MUSTACHE_ZONE_MM * tpm))
-    soft = gauss(hard.astype(np.float32), FEATHER_MM * tpm).astype(np.float64)
-    soft = soft * hard
-    return {"hard": hard, "soft": soft, "zone": zone,
+    support = dilate(hard.astype(np.uint8), SUPPORT_MM * tpm)
+    return {"hard": hard, "zone": zone, "support": support, "top": top,
+            "proj": proj,
             "area_mm2": float(hard.sum()) / tpm / tpm,
-            "zone_mm2": float(zone.sum()) / tpm / tpm}
+            "zone_mm2": float(zone.sum()) / tpm / tpm,
+            "dist_lips": dist_lips}
 
 
 def stipple_centres(mask: np.ndarray, count: int,
@@ -180,7 +205,7 @@ def stipple_centres(mask: np.ndarray, count: int,
 
 def apply_stipple(lab: np.ndarray, hard: np.ndarray,
                   centres: np.ndarray, radii: np.ndarray,
-                  weight: float) -> None:
+                  weight: float, gate: np.ndarray) -> None:
     h, w = hard.shape
     for (cx, cy), r in zip(centres.tolist(), radii.tolist()):
         ext = int(np.ceil(1.6 * r)) + 1
@@ -191,7 +216,7 @@ def apply_stipple(lab: np.ndarray, hard: np.ndarray,
         yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float64)
         a = np.exp(-2.0 * (((xx - cx) / r) ** 2 + ((yy - cy) / r) ** 2))
         a[a < 0.05] = 0.0
-        a = a * hard[y0:y1, x0:x1]
+        a = a * hard[y0:y1, x0:x1] * gate[y0:y1, x0:x1]
         if not a.any():
             continue
         lab[y0:y1, x0:x1, 0] -= weight * STIPPLE_DEPTH * a
@@ -233,7 +258,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     parts = build_beard_mask(facecore, lips, landmarks, tpm)
-    hard, soft, zone = parts["hard"], parts["soft"], parts["zone"]
+    hard, zone = parts["hard"], parts["zone"]
+    support = parts["support"]
+    dist_lips = parts["dist_lips"]
+    top = parts["top"]
     if a.mask_out is not None:
         Image.fromarray((hard * 255).astype(np.uint8)).save(a.mask_out)
 
@@ -244,32 +272,38 @@ def main(argv: list[str] | None = None) -> int:
         print("beard_shadow: painted mask texels=%d wrote %s"
               % (int(hard.sum()), a.albedo_out), flush=True)
     else:
-        lab = rgb_to_lab(alb)
-        zoneprox = gauss(zone.astype(np.float32), FEATHER_MM * tpm)
-        zoneprox = np.clip(zoneprox, 0, None)
+        # Smooth low-band field: the hard mask faded outward over FADE_MM
+        # (no hard steps), gated off the lips over LIP_FEATHER_MM (no halo).
+        outer = gauss(hard.astype(np.float32), FADE_MM * tpm)
+        if float(outer.max()) > 0:
+            outer = outer / float(outer.max())
+        lip_gate = np.clip((dist_lips / tpm - LIPS_EXCLUDE_MM)
+                           / LIP_FEATHER_MM, 0, 1)
+        # Nose guard: no outward fade above the top edge; the shadow
+        # deepens over NOSE_RAMP_MM below it (goal subnasale gradient).
+        nose_gate = np.clip((parts["proj"] - top) / (NOSE_RAMP_MM * tpm), 0, 1)
+        zoneprox = gauss(zone.astype(np.float32), FADE_MM * tpm)
         if float(zoneprox.max()) > 0:
             zoneprox = zoneprox / float(zoneprox.max())
-        field_L = soft * (1.0 + ZONE_BOOST_L * zoneprox)
-        low_L = gauss(field_L.astype(np.float32), LOW_SIGMA_MM * tpm)
-        low_ab = gauss(soft.astype(np.float32), LOW_SIGMA_MM * tpm)
-        low_L = np.clip(low_L, 0, None) * hard
-        low_ab = np.clip(low_ab, 0, None) * hard
-        lab[..., 0] += w * LOW_DARKEN_L * low_L
-        lab[..., 1] += w * LOW_SHIFT_A * low_ab
-        lab[..., 2] += w * LOW_SHIFT_B * low_ab
+        field = outer * lip_gate * nose_gate * support
+        gate = lip_gate * nose_gate
+        lab = rgb_to_lab(alb)
+        lab[..., 0] += w * LOW_DARKEN_L * field * (1.0 + ZONE_BOOST_L * zoneprox)
+        lab[..., 1] += w * LOW_SHIFT_A * field
+        lab[..., 2] += w * LOW_SHIFT_B * field
         rng = np.random.default_rng(int(a.seed))
         n_base = int(round(BASE_DENSITY_PER_MM2 * parts["area_mm2"]))
         n_extra = int(round(EXTRA_DENSITY_PER_MM2 * parts["zone_mm2"]))
         centres = np.vstack([stipple_centres(hard, n_base, rng),
                              stipple_centres(zone, n_extra, rng)])
         radii = STIPPLE_R_MM * tpm * np.exp(0.2 * rng.standard_normal(len(centres)))
-        radii = np.clip(radii, 0.6, None)
-        apply_stipple(lab, hard, centres, radii, w)
+        radii = np.clip(radii, 0.2, None)
+        apply_stipple(lab, hard, centres, radii, w, gate)
         lab[..., 0] = np.clip(lab[..., 0], 0, 100)
         out = lab_to_rgb(lab)
-        # Bit-exact outside the hard mask: the stage changes only texels
-        # inside its derived mask.
-        out[~hard] = alb[~hard]
+        # Bit-exact outside the faded support: the stage changes only
+        # texels inside its derived mask plus the mm fade.
+        out[~support] = alb[~support]
         Image.fromarray(out).save(a.albedo_out)
         print("beard_shadow: weight=%s mask=%d zone=%d dots=%d wrote %s"
               % (a.weight, int(hard.sum()), int(zone.sum()),
@@ -282,7 +316,9 @@ def main(argv: list[str] | None = None) -> int:
                        "mask_px": int(hard.sum()),
                        "area_mm2": round(parts["area_mm2"], 1),
                        "zone_mm2": round(parts["zone_mm2"], 1),
-                       "mask_frac": round(float(hard.mean()), 6)}, f, indent=1)
+                       "mask_frac": round(float(hard.mean()), 6),
+                       "fade_mm": FADE_MM, "support_mm": SUPPORT_MM,
+                       "support_px": int(support.sum())}, f, indent=1)
     return 0
 
 

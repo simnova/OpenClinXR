@@ -27,7 +27,7 @@
    "crown_step": "S/port5/compose-report.json region_table.crown_step max 27.035 > bound 8.0 (p999 14.422); logged as a quality flag in r1 while the run continued"
   }
  },
- "chain_manifest_sha256": "d7ade82cbcfefadd52c1a04775d5665a37463cd6e0ab8da22e5d353f05e8114e",
+ "chain_manifest_sha256": "55aacacd0ca6d3666e19344eacb4f30db60ac34299831059ef0755627d40d8a4",
  "commands": [
   "REUSED r1 (code+outputs unchanged, shas re-verified): python3 tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py --base-skin S/body2/join/compose-new/albedo-4096.png --locked-island S/body2/uv2-src/island-T.png --locked-sha 3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069 --glb S/body2/final.glb --skip-join --out S/port5/compose-albedo.png --report S/port5/compose-report.json",
   "REUSED r1: python3 tools/openclinxr/asset-pipeline/skin/face-replay/derive.py S/body2/final.glb S/port5/chain/derive_out --size 4096 (chain-bb/derive_out is a byte copy; derive.json sha re-verified)",

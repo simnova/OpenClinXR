@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "instrument": "tools/openclinxr/asset-pipeline/skin/face-replay/beard_shadow.py",
  "card": "tsk_5528fca8df9804f5",
  "subject": "adult_male_street_casual",
@@ -19,11 +19,11 @@
   "measured_in": "S/beard/RESULT.md"
  },
  "mask": {
-  "mask_px": 197524,
-  "area_mm2": 11871.7,
-  "zone_mm2": 1191.0,
+  "mask_px": 222467,
+  "area_mm2": 13370.8,
+  "zone_mm2": 948.7,
   "seed": 11,
-  "derivation": "facecore below nose-wing-to-mouth-corner top edge, outside dilated lips, ear-bound sides, chin+10mm; mustache zone above lip line within 22mm of lips"
+  "derivation": "facecore below subnasale-anchored top edge (centre) / nose-wing slope / mouth-corner-to-ear-lobe line, outside 1mm lips hug, ear-bound sides, chin+10mm; mustache zone above lip line within 22mm of lips; 3mm outward fade + 4mm nose-guard ramp + 1mm lip feather"
  },
  "sweep": [
   {
@@ -72,26 +72,26 @@
    "weight": 0.25,
    "render": "beard-w0p25-front.png",
    "lip_Lab": [
-    63.96,
-    11.81,
-    16.41
+    63.99,
+    11.42,
+    16.28
    ],
    "lip_dlab_vs_goal": [
-    11.87,
-    1.72,
-    2.44
+    11.9,
+    1.33,
+    2.32
    ],
    "chin_Lab": [
-    51.09,
-    15.11,
-    18.86
+    51.56,
+    14.64,
+    18.67
    ],
    "chin_dlab_vs_goal": [
-    5.66,
-    1.87,
-    0.58
+    6.13,
+    1.41,
+    0.39
    ],
-   "max_abs_dlab": 11.87,
+   "max_abs_dlab": 11.9,
    "g3_dlab_vs_w0": {
     "cheekL": [
      0.0,
@@ -114,26 +114,26 @@
    "weight": 0.5,
    "render": "beard-w0p5-front.png",
    "lip_Lab": [
-    60.26,
-    12.17,
-    16.56
+    60.25,
+    11.48,
+    16.3
    ],
    "lip_dlab_vs_goal": [
-    8.18,
-    2.08,
-    2.6
+    8.16,
+    1.38,
+    2.34
    ],
    "chin_Lab": [
-    48.35,
-    15.16,
-    18.8
+    49.1,
+    14.33,
+    18.11
    ],
    "chin_dlab_vs_goal": [
-    2.92,
-    1.92,
-    0.52
+    3.67,
+    1.09,
+    -0.17
    ],
-   "max_abs_dlab": 8.18,
+   "max_abs_dlab": 8.16,
    "g3_dlab_vs_w0": {
     "cheekL": [
      0.0,
@@ -156,68 +156,26 @@
    "weight": 0.75,
    "render": "beard-w0p75-front.png",
    "lip_Lab": [
-    56.56,
-    12.25,
-    16.29
+    56.37,
+    11.25,
+    16.02
    ],
    "lip_dlab_vs_goal": [
-    4.47,
-    2.15,
-    2.33
+    4.29,
+    1.16,
+    2.05
    ],
    "chin_Lab": [
-    45.68,
-    14.79,
-    18.62
+    46.87,
+    13.41,
+    17.81
    ],
    "chin_dlab_vs_goal": [
-    0.25,
-    1.55,
-    0.34
+    1.44,
+    0.18,
+    -0.47
    ],
-   "max_abs_dlab": 4.47,
-   "g3_dlab_vs_w0": {
-    "cheekL": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "cheekR": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "fore": [
-     0.0,
-     0.0,
-     0.0
-    ]
-   }
-  },
-  {
-   "weight": 0.85,
-   "render": "beard-w0p85-front.png",
-   "lip_Lab": [
-    55.12,
-    12.17,
-    16.11
-   ],
-   "lip_dlab_vs_goal": [
-    3.03,
-    2.08,
-    2.15
-   ],
-   "chin_Lab": [
-    44.59,
-    14.74,
-    18.43
-   ],
-   "chin_dlab_vs_goal": [
-    -0.84,
-    1.5,
-    0.16
-   ],
-   "max_abs_dlab": 3.03,
+   "max_abs_dlab": 4.29,
    "g3_dlab_vs_w0": {
     "cheekL": [
      0.0,
@@ -240,26 +198,26 @@
    "weight": 0.9,
    "render": "beard-w0p9-front.png",
    "lip_Lab": [
-    54.41,
-    12.13,
-    16.0
+    54.02,
+    10.94,
+    15.7
    ],
    "lip_dlab_vs_goal": [
-    2.32,
-    2.03,
-    2.04
+    1.93,
+    0.85,
+    1.74
    ],
    "chin_Lab": [
-    44.06,
-    14.7,
-    18.35
+    45.39,
+    13.21,
+    17.7
    ],
    "chin_dlab_vs_goal": [
-    -1.37,
-    1.46,
-    0.07
+    -0.04,
+    -0.03,
+    -0.58
    ],
-   "max_abs_dlab": 2.32,
+   "max_abs_dlab": 1.93,
    "g3_dlab_vs_w0": {
     "cheekL": [
      0.0,
@@ -282,26 +240,26 @@
    "weight": 1.0,
    "render": "beard-w1p0-front.png",
    "lip_Lab": [
-    53.01,
-    12.02,
-    15.76
+    52.44,
+    10.71,
+    15.45
    ],
    "lip_dlab_vs_goal": [
-    0.92,
-    1.93,
-    1.8
+    0.35,
+    0.61,
+    1.48
    ],
    "chin_Lab": [
-    43.0,
-    14.44,
-    18.23
+    44.47,
+    12.84,
+    17.35
    ],
    "chin_dlab_vs_goal": [
-    -2.43,
-    1.2,
-    -0.05
+    -0.96,
+    -0.4,
+    -0.93
    ],
-   "max_abs_dlab": 2.43,
+   "max_abs_dlab": 1.48,
    "g3_dlab_vs_w0": {
     "cheekL": [
      0.0,
@@ -321,8 +279,8 @@
    }
   }
  ],
- "chosen_weight": 0.9,
- "chosen_criterion": "minimises max per-channel |dLab| over lip+chin patches (2.32 at 0.9 vs 2.43 at 1.0, 3.03 at 0.85)",
+ "chosen_weight": 1.0,
+ "chosen_criterion": "minimises max per-channel |dLab| over lip+chin patches (1.48 at 1.0 vs 1.93 at 0.9)",
  "g1": {
   "before": {
    "albedo_corners.png": "68ac5352c2505035b9e332e25f77d8bffff7a56b821cd491e9a81e3acd17249b",
@@ -344,6 +302,7 @@
   },
   "equal": true,
   "note": "synthetic-GLB aisha chain replay via S/beard/g1_replay.py; albedo_beard.png==albedo_socket.png at weight 0",
+  "real_aisha": "NOT RUN: derive.py asserts mouth-hole-loop on the shipped runtime aisha GLB (closed/decimated lips, no boundary loop); S/derive/A belongs to eyefinal/base.glb (2be4b098), a different mesh with no paired chain albedo",
   "aisha_overrides": "beard_shadow.weight 0.0"
  },
  "g2": {
@@ -357,24 +316,24 @@
   },
   "size": "40x40 mean",
   "lip_Lab": [
-   54.41,
-   12.13,
-   16.0
+   52.44,
+   10.71,
+   15.45
   ],
   "lip_dlab": [
-   2.32,
-   2.03,
-   2.04
+   0.35,
+   0.61,
+   1.48
   ],
   "chin_Lab": [
-   44.06,
-   14.7,
-   18.35
+   44.47,
+   12.84,
+   17.35
   ],
   "chin_dlab": [
-   -1.37,
-   1.46,
-   0.07
+   -0.96,
+   -0.4,
+   -0.93
   ],
   "bound": 3,
   "pass": true,
@@ -401,26 +360,26 @@
   ],
   "bound": 0.5,
   "pass": true,
-  "note": "exactly 0.0 on every channel: deterministic harness (w0 re-render byte-identical to landed ba91d1f7) plus bit-exact albedo outside the hard mask; stated plainly, not bent"
+  "note": "exactly 0.0 on every channel: deterministic harness (w0 re-render byte-identical to landed ba91d1f7) plus bit-exact albedo outside the faded support; stated plainly, not bent"
  },
  "g4": {
   "mask_paint_albedo": "/Volumes/files/openclinxr-assets/store/beard-shadow/body2-beard-mask-green-albedo.png",
   "mask_paint_front": "/Volumes/files/openclinxr-assets/store/beard-shadow/body2-beard-mask-green-front.png",
-  "placement": "upper lip, chin and jaw only; cheeks/forehead/eyes/nose/lips clear (greenfrac 0 cheek/fore, 1.0 lip/chin)"
+  "placement": "upper lip, chin, jaw/sideburns only; nose-tip/bridge/holes/alae-flanks/cheeks/forehead/eyes/lips clear (holes 0.015, ala-upper 0.0, cheek/fore 0, lip/chin 1.0)"
  },
  "renders": {
   "front": "/Volumes/files/openclinxr-assets/store/beard-shadow/body2-beard-shadow-front.png",
   "yaw25": "/Volumes/files/openclinxr-assets/store/beard-shadow/body2-beard-shadow-yaw25.png",
   "yaw40": "/Volumes/files/openclinxr-assets/store/beard-shadow/body2-beard-shadow-yaw40.png",
   "shas": {
-   "front": "f657087f17212c24f94dbf71af116c4eda7895e9b0bd2fae0ef76fcd06b740b9",
-   "yaw25": "142ed255c7703886d4258658cd986379f6fab5038e80b0ba3d53eab648462606",
-   "yaw40": "4795e5c2fa1f118e1fa3b5b7fa74e51c04b1bb4ebd7880be8387d8d810492e7e"
+   "front": "a1abd756dd693fb0fe1e998e08b7647476ed8f1ff6763e188837162fe718d1a4",
+   "yaw25": "c62a0783746e9336fde540a88afaef02477a320a63a04240d77667818f181dd8",
+   "yaw40": "48b80c07f3fb65172ad397e9cdf26ee17de37fd533315d0fe553a1e02beb99ed"
   }
  },
  "green_shas": {
-  "albedo": "8281daba14bfacce9c26c8c9805b2add0ad3ac35bf1124d7fb3925542e3dde54",
-  "front": "e8aac076e26587e95ab4b93e07a5baba847146efac79a4887d8ae7f05647c462"
+  "albedo": "56281851b2510284fe86151e1ad91ceda0c9b47eb88df6d2b864d1b5154a55f3",
+  "front": "3e7a05b38a4e2621c34a41a695a695bfd50ba85d6aa461305996f49e82e2595e"
  },
- "not_tested": "sideburns above lip level untreated (recorded limit); animated beard; other subjects/glbs"
+ "not_tested": "animated beard; other subjects/glbs"
 }

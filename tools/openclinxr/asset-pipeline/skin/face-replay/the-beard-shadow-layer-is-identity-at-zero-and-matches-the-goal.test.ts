@@ -6,7 +6,7 @@
  * derive outputs (landmarks-uv.json + mask-lips.png + mask-facecore.png),
  * the treatment is a seeded stipple plus a low-band darken/desaturate
  * scaled by one weight, weight 0 is a byte copy, and texels outside the
- * hard mask are bit-exact. The tracked beard-shadow-report.json carries
+ * hard mask plus its millimetre fade are bit-exact. The tracked beard-shadow-report.json carries
  * the weight sweep, the G1 aisha shas, the G2/G3 numbers, and the render
  * shas (recomputed when the files are present).
  */
@@ -92,7 +92,7 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
     expect(shaOf(o1)).not.toBe(shaOf(fx.albedo));
   });
 
-  it("a nonzero weight changes texels only inside the hard beard mask", () => {
+  it("a nonzero weight changes texels only inside the faded support", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "beard-mask-"));
     const fx = writeFixture(tmp);
     const out = path.join(tmp, "out.png");
@@ -100,20 +100,28 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
     const rep = path.join(tmp, "rep.json");
     runBeard(tmp, beardArgs(fx, out, 0.75,
       ["--mask-out", mask, "--report-out", rep]));
-    const info = JSON.parse(fs.readFileSync(rep, "utf8")) as { mask_px: number };
+    const info = JSON.parse(fs.readFileSync(rep, "utf8")) as {
+      mask_px: number; support_mm: number;
+    };
     expect(info.mask_px).toBeGreaterThan(100);
+    expect(info.support_mm).toBeGreaterThan(0);
     const raw = execFileSync("python3", ["-c", [
-      "import sys, json",
+      "import sys, json, math",
       `sys.path.insert(0, ${JSON.stringify(DIR)})`,
       "import numpy as np",
       "from PIL import Image",
+      "import cv2",
       "import face_replay_compose as C",
       `rgb1=np.array(Image.open(${JSON.stringify(fx.albedo)}).convert('RGB'))`,
       `rgb2=np.array(Image.open(${JSON.stringify(out)}).convert('RGB'))`,
       `m=np.array(Image.open(${JSON.stringify(mask)}).convert('L'))>127`,
+      `rep=json.load(open(${JSON.stringify(rep)}))`,
+      "r=int(math.ceil(float(rep['support_mm'])*4.0))",
+      "k=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(2*r+1,2*r+1))",
+      "support=cv2.dilate(m.astype(np.uint8),k)>0",
       "lab1=C.lab_of(rgb1); lab2=C.lab_of(rgb2)",
       "d=np.abs(lab1-lab2).max(axis=2)",
-      "outside=(~m)",
+      "outside=(~support)",
       "inside=m",
       "print(json.dumps({'n':int(outside.sum()),'max':float(d[outside].max()),"
       + "'changed':int((np.abs(rgb1.astype(int)-rgb2.astype(int)).max(axis=2)[inside]>0).sum())}))",
