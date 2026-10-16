@@ -37,8 +37,13 @@ Anatomy sources (all spatial constants in mm):
   goal column profile), so the albedo fades over 3 mm and light adds
   the rest. SUPPORT_MM 9.0 (3 sigma, field ~1% at the support rim)
   bounds the bit-exact restore.
-- LIPS_EXCLUDE_MM 1.0 + LIP_FEATHER_MM 1.0: the cutout hugs
-  mask-lips.png (lane-manager grade: no pale halo ring).
+- LIPS_EXCLUDE_MM 0.5 + LIP_FEATHER_MM 0.5: the cutout hugs the
+  mask edge (lane-manager grade: no pale halo ring). The edge already
+  sits within ~2 mm of the skin/vermilion transition (albedo L falls
+  53->35 across +-2 mm of the edge, S/beard/RESULT.md), so no 8 mm
+  erosion: eroding the derive ring leaves a 184-texel mouth-opening
+  core and would paint the vermilion. Untreated gap shrank 2 mm to
+  1 mm (render halo 8-10 px -> ~4 px).
 - PHILTRUM_MM 14.0: top edge at the centre sits below the subnasale
   (nose never beard). Measured body2 via hue-probe renders: the hole
   bottoms render from UV just above subnasale col while the philtrum
@@ -92,8 +97,8 @@ BASE_DENSITY_PER_MM2 = 0.65
 EXTRA_DENSITY_PER_MM2 = 0.85
 FADE_MM = 3.0
 SUPPORT_MM = 9.0
-LIPS_EXCLUDE_MM = 1.0
-LIP_FEATHER_MM = 1.0
+LIPS_EXCLUDE_MM = 0.5
+LIP_FEATHER_MM = 0.5
 PHILTRUM_MM = 14.0
 MUSTACHE_ZONE_MM = 22.0
 NOSE_RAMP_MM = 4.0
