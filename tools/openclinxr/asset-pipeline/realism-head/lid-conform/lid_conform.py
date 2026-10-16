@@ -6,13 +6,17 @@ ring (ring1) is located on the in-Blender body as follows:
 1. The ring is DERIVED TOPOLOGICALLY (lid_conform_core.derive_eye_rings,
    the lidcurve_measure.py definition: eye-opening boundary loop nearest
    each globe centre + BFS outward rings; no hard-coded vertex indices)
-   on the BASE bake GLB (BASE_GLB_PATH, staged copy of the eyeglobe base
-   bake whose body is bit-identical to this bake's pre-conform body --
-   measured micron-coincident at the margin, reported per bake below).
-   The in-Blender post-subdiv body is watertight (measured: 0 boundary
-   edges at both polygon and tessellation level), so the boundary walk
-   cannot run here; the base GLB carries the identical surface WITH the
-   export-time openings.
+   on the SUBJECT'S OWN pre-conform bake GLB (base_glb_for_case, the
+   eyeglobe base bake whose body is bit-identical to this bake's
+   pre-conform body -- measured micron-coincident at the margin,
+   reported per bake below). The in-Blender post-subdiv body is
+   watertight (measured: 0 boundary edges at both polygon and
+   tessellation level), so the boundary walk cannot run here; the base
+   GLB carries the identical surface WITH the export-time openings.
+   Body/globe/cornea meshes inside that GLB resolve BY ROLE
+   (lid_conform_core resolve_*_mesh_name: the mpfb_skin_* body material,
+   the node-referenced eye-material globe, the openclinxr_eye_cornea_mat
+   corneas -- tags the materializer already writes for every subject).
 2. Each base-ring vertex is matched to its NEAREST in-Blender body vertex
    (world space; measured match ~0.002 mm at ~1 mm edge spacing, so the
    match is unambiguous). Refuses loudly on any match above
@@ -32,8 +36,13 @@ Called from tools/openclinxr/evidence/blender/
 materialize_mpfb_humanoid_candidate.py at the call site only, after the
 subdiv bake (both the helper strip and the subdiv rebuild Basis data, so
 an earlier Basis edit does not reach the export -- measured zero-vert
-diff). No-op for every output stem not listed in
-LID_CONFORM_BY_OUTPUT_STEM.
+diff). No-op for every case id not listed in LID_CONFORM_BY_CASE_ID.
+
+Fissure targets (any-subject-report.json): aisha 26.8 bakes toward the
+27.7 case goal (conform-report.json); body2's target converts its own
+eye-corner landmarks (any-subject-targets.json) to mm with its own
+pre-conform bake head scale (temple ruler 127-356, method in the
+report), minus the 0.9 seat-pullback the aisha prototype measured.
 """
 
 import json
@@ -47,24 +56,46 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 import lid_conform_core as core  # noqa: E402
 
-# Staged copy of the eyeglobe base bake (bit-identical body to this bake's
-# pre-conform body; sha256 pinned in conform-report.json).
-BASE_GLB_PATH = ("/Volumes/files/openclinxr-assets/store/lid-conform/"
-                 "aisha-eyeglobe-base.glb")
+# Store roots holding each case's own pre-conform eyeglobe base bake
+# (bit-identical body to the conformed bake's pre-conform body; sha256
+# pinned in the conform record). Built per case id -- no stem literal.
+_LID_STORE = "/Volumes/files/openclinxr-assets/store/lid-conform"
+_LID_ANY_STORE = "/Volumes/files/openclinxr-assets/store/lid-conform-any"
 
-# Per-output-stem lid-conform config. Absent stem = no-op (byte-stable).
+
+def base_glb_for_case(case_id):
+    """Ring-source GLB for a case: the subject's own pre-conform bake."""
+    store = _LID_STORE if case_id == "aisha" else _LID_ANY_STORE
+    return f"{store}/{case_id}-eyeglobe-base.glb"
+
+
+# Per-case lid-conform config. Absent case = no-op (byte-stable).
 # H1 (widen-then-seat): rigid canthus patches widen the margin loop to
 # targetWidthMm along the lid surface first (K/M/D patch geometry, no
 # hand-placed vertices); then each ring1 vert seats toward the globe
 # surface +offsetMm with a gap-adaptive weight (1 inside seatFloorMm,
 # falling to 0 at seatCeilingMm -- flesh canthi stay in flesh). ring2
 # stays the zero anchor. Lash roots follow the lid field (lashFollowMm).
-LID_CONFORM_BY_OUTPUT_STEM = {
-    "aisha-lidconform": {"offsetMm": 0.5, "weights": [1.0, 0.0],
-                         "targetWidthMm": 26.8, "patchK": 6, "patchM": 8,
-                         "patchD": 2, "seatCeilingMm": 1.5,
-                         "seatFloorMm": 0.5, "lashFollowMm": 4.0},
+LID_CONFORM_BY_CASE_ID = {
+    "aisha": {"offsetMm": 0.5, "weights": [1.0, 0.0],
+              "targetWidthMm": 26.8, "patchK": 6, "patchM": 8,
+              "patchD": 2, "seatCeilingMm": 1.5,
+              "seatFloorMm": 0.5, "lashFollowMm": 4.0},
+    "body2": {"offsetMm": 0.5, "weights": [1.0, 0.0],
+              "targetWidthMm": 25.0, "patchK": 6, "patchM": 8,
+              "patchD": 2, "seatCeilingMm": 1.5,
+              "seatFloorMm": 0.5, "lashFollowMm": 4.0},
 }
+
+
+def case_config(case_id):
+    """Config for a case id, or None (no-op). Never raises on unknown."""
+    cfg = LID_CONFORM_BY_CASE_ID.get(case_id)
+    if cfg is None:
+        return None
+    out = dict(cfg)
+    out["baseGlb"] = base_glb_for_case(case_id)
+    return out
 
 TEAR_OFFSET_DEFAULT_MM = 0.5
 MATCH_REFUSE_MM = 0.5
@@ -104,7 +135,8 @@ def _gltf_to_blender(pts):
 def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
                  weights=(1.0, 0.0), target_width_mm=None, patch_k=6,
                  patch_m=8, patch_d=2, seat_ceiling_mm=1.5,
-                 seat_floor_mm=0.5, lash_follow_mm=4.0):
+                 seat_floor_mm=0.5, lash_follow_mm=4.0,
+                 ring_source_glb=None, case_id=None):
     """Seat the lid rings on the globe mesh. Returns the LIDCONFORM record."""
     import bpy  # noqa: E402
     from mathutils import Vector  # noqa: E402
@@ -159,11 +191,19 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
         [tuple(eyes_asset.matrix_world @ v.co)
          for v in em.vertices], eye_tris)
 
-    # Ring source: topological derivation on the base GLB (identical body
-    # surface WITH the export-time openings), matched spatially here.
-    bjs, bblob = core.load_glb(BASE_GLB_PATH)
+    # Ring source: topological derivation on the subject's OWN pre-conform
+    # bake GLB (identical body surface WITH the export-time openings),
+    # meshes resolved by role; matched spatially here.
+    _ring_glb = ring_source_glb or (
+        base_glb_for_case(case_id) if case_id else None)
+    if not _ring_glb:
+        raise RuntimeError(
+            "LIDCONFORM: no ring-source GLB (pass ring_source_glb or "
+            "case_id) -- refusing")
+    bjs, bblob = core.load_glb(_ring_glb)
     bworlds = core.node_worlds(bjs)
-    bbody, bbody_idx = core.skin_mesh(bjs, bblob, bworlds, core.BODY_NAME)
+    bbody, bbody_idx = core.skin_mesh(
+        bjs, bblob, bworlds, core.resolve_body_mesh_name(bjs))
     btris = bbody_idx.reshape(-1, 3)
     bsides = core.eye_sides(bjs, bblob, bworlds)
 
@@ -417,8 +457,8 @@ def conform_lids(human, eyes_asset, offset_mm=TEAR_OFFSET_DEFAULT_MM,
     bpy.context.view_layer.update()
 
     record = {"offsetMm": offset_mm, "weights": list(weights),
-              "ringSource": "base-glb-topological",
-              "baseGlb": BASE_GLB_PATH,
+              "ringSource": "own-pre-conform-bake-topological",
+              "baseGlb": _ring_glb,
               "h1": {"targetWidthMm": target_width_mm, "patchK": patch_k,
                      "patchM": patch_m, "patchD": patch_d,
                      "seatCeilingMm": seat_ceiling_mm,

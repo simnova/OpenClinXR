@@ -13,22 +13,104 @@ tools/openclinxr/evidence/realism-head/globe/cw1-protrusion.py :32-163).
 """
 
 import json
+import re
 import struct
 from collections import defaultdict
 
 import numpy as np
 
+# Role tags the materializer already writes (no subject mesh/stem literals):
+# - body prims carry a material named mpfb_skin_<subject> (materialize
+#   skin_material_name + the ^mpfb_skin_ body-smooth scope);
+# - the split globe keeps the eye material mat_makeclothes_library_eyes*
+#   (materialize TEXTURE_OVERRIDES key + eye-material prefix);
+# - split corneas carry exactly openclinxr_eye_cornea_mat (materialize
+#   _eyemesh_split_cornea_glb, written verbatim for every subject).
+ROLE_BODY_MATERIAL_RE = re.compile(r"^mpfb_skin_", re.I)
+ROLE_EYE_MATERIAL_RE = re.compile(r"^mat_makeclothes_library_eyes", re.I)
+ROLE_CORNEA_MATERIAL = "openclinxr_eye_cornea_mat"
+
 COMP = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2),
         5125: ("I", 4), 5126: ("f", 4)}
 NCOMP = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
 
-BODY_NAME = "mpfb_ob_patient_aisha_body"
-GLOBE_NAME = ("makeclothes_library_eyes_high_poly_globe_"
-              "mpfb_ob_patient_aisha_mesh")
-CORNEA_NAMES = (
-    "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh",
-    "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh",
-)
+
+def _prim_material_names(js, mesh):
+    mats = js.get("materials", [])
+    out = []
+    for prim in mesh.get("primitives", []):
+        mi = prim.get("material")
+        out.append(mats[mi].get("name", "") if mi is not None else "")
+    return out
+
+
+def resolve_body_mesh_name(js):
+    """Body mesh by role: the node-referenced mesh skinned with mpfb_skin_*."""
+    nodes = js.get("nodes", [])
+    ref = {n.get("mesh") for n in nodes if "mesh" in n}
+    cands = []
+    for mi, m in enumerate(js.get("meshes", [])):
+        if mi not in ref:
+            continue
+        if any(ROLE_BODY_MATERIAL_RE.match(nm or "")
+               for nm in _prim_material_names(js, m)):
+            cands.append(m.get("name"))
+    if len(cands) != 1:
+        raise RuntimeError(
+            f"LIDCONFORM: role body mesh not unique: {cands} -- refusing")
+    return cands[0]
+
+
+def resolve_globe_mesh_name(js):
+    """Globe mesh by role: the node-referenced eye-material mesh.
+
+    The split keeps the unsplit eye mesh entry in meshes[] but repoints its
+    node at the globe, so node-referenced + eye material isolates the globe
+    with no subject literal.
+    """
+    nodes = js.get("nodes", [])
+    ref = {n.get("mesh") for n in nodes if "mesh" in n}
+    cands = []
+    for mi, m in enumerate(js.get("meshes", [])):
+        if mi not in ref:
+            continue
+        if any(ROLE_EYE_MATERIAL_RE.match(nm or "")
+               for nm in _prim_material_names(js, m)):
+            cands.append(m.get("name"))
+    if len(cands) != 1:
+        raise RuntimeError(
+            f"LIDCONFORM: role globe mesh not unique: {cands} -- refusing")
+    return cands[0]
+
+
+def resolve_cornea_mesh_names(js):
+    """Cornea meshes by role: node-referenced meshes on the cornea material."""
+    nodes = js.get("nodes", [])
+    ref = {n.get("mesh") for n in nodes if "mesh" in n}
+    cands = []
+    for mi, m in enumerate(js.get("meshes", [])):
+        if mi not in ref:
+            continue
+        if ROLE_CORNEA_MATERIAL in _prim_material_names(js, m):
+            cands.append(m.get("name"))
+    if len(cands) != 2:
+        raise RuntimeError(
+            f"LIDCONFORM: role cornea meshes != 2: {cands} -- refusing "
+            "(bake without the cornea split cannot conform)")
+    return tuple(cands)
+
+
+def resolve_lash_mesh_name(js):
+    """Lash mesh by role: the node-referenced mesh on an eyelash material."""
+    nodes = js.get("nodes", [])
+    ref = {n.get("mesh") for n in nodes if "mesh" in n}
+    cands = [m.get("name") for mi, m in enumerate(js.get("meshes", []))
+             if mi in ref and any("eyelash" in (nm or "").lower()
+                                  for nm in _prim_material_names(js, m))]
+    if len(cands) != 1:
+        raise RuntimeError(
+            f"LIDCONFORM: role lash mesh not unique: {cands} -- refusing")
+    return cands[0]
 
 
 def load_glb(path):
@@ -250,9 +332,11 @@ def fit_sphere_kasa(pts):
 
 def eye_sides(js, blob, worlds):
     """Split globe+cornea verts into L/R (lidcurve_measure.py :199-208)."""
-    globe, _ = skin_mesh(js, blob, worlds, GLOBE_NAME)
+    globe_name = resolve_globe_mesh_name(js)
+    cornea_names = resolve_cornea_mesh_names(js)
+    globe, _ = skin_mesh(js, blob, worlds, globe_name)
     cor = {}
-    for name in CORNEA_NAMES:
+    for name in cornea_names:
         pts, _ = skin_mesh(js, blob, worlds, name)
         cor[name] = pts
     names = list(cor)

@@ -1,0 +1,186 @@
+{
+ "bake": {
+  "argv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea [--no-lid-conform for the base bake]",
+  "baseGlb": {
+   "path": "assets:lid-conform-any/body2-eyeglobe-base.glb",
+   "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
+  },
+  "caseMap": "materialize_mpfb_humanoid_candidate.py lid_conform_case_for_subject: ob_patient_aisha->aisha, adult_male_street_casual->body2; --no-lid-conform flag for pre-conform base bakes",
+  "conformParams": {
+   "lashFollowMm": 4.0,
+   "offsetMm": 0.5,
+   "patchD": 2,
+   "patchK": 6,
+   "patchM": 8,
+   "seatCeilingMm": 1.5,
+   "seatFloorMm": 0.5,
+   "targetWidthMm": 25.0,
+   "weights": [
+    1.0,
+    0.0
+   ]
+  },
+  "lidconformRecord": {
+   "lashFollow": {
+    "found": true,
+    "maxFollowMm": 2.7739815861013035,
+    "movedVerts": 11088
+   },
+   "matchMaxMm": 0.0044,
+   "matchMedMm": 0.0043,
+   "movedVerts": 736,
+   "perSide": {
+    "L": {
+     "fleshVerts": 17,
+     "matchedRing1": 56,
+     "preWidenWidthMm": 22.809,
+     "seatedVerts": 39,
+     "widenNeedMm": 2.191
+    },
+    "R": {
+     "fleshVerts": 17,
+     "matchedRing1": 56,
+     "preWidenWidthMm": 22.809,
+     "seatedVerts": 39,
+     "widenNeedMm": 2.191
+    }
+   }
+  },
+  "newGlb": {
+   "path": "assets:lid-conform-any/body2-lidconform.glb",
+   "sha256": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a"
+  }
+ },
+ "card": "tsk_56c4fed983304ea6",
+ "falsifier": {
+  "action": "none - body2 failing G2 is a recorded result",
+  "failingClauses": [
+   "ring1 max gap 2.524mm outside [0.3,1.0] (canthal flesh; sphere-cap necessity, same proof as the aisha conform-report.json verdict: past |x-cx| the ray forbids gap<=1.0)",
+   "12 flipped faces (grazing canthus slivers, dots -0.001..-0.032, ~1mm2 each; seat travel 2.775mm vs 1.863 aisha from deeper canthus stand-off at equal 24.0mm globe)"
+  ]
+ },
+ "g1": {
+  "pass": true,
+  "rebakeBodyPositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f",
+  "storeBodyPositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f"
+ },
+ "g2": {
+  "blinkClosedGlobePx": 0,
+  "bodyVerts": 38995,
+  "c1GlobeIdentical": true,
+  "c3Flips": 12,
+  "c4OutsideMovedVerts": 0,
+  "fissureNewMm": {
+   "L": 25.798,
+   "R": 25.798
+  },
+  "fissureTargetMm": 25.9,
+  "pass": false,
+  "passClauses": [
+   "lid-conform runs (transfer match max 0.0044mm, micron-coincident: base body bit-identical to pre-conform body)",
+   "globe + both corneas byte-identical base->new (POSITION sha 250389df/7adb083c/72a03de9 prefixes equal)",
+   "fissure width 25.798 within 1mm of 25.9 target",
+   "G4 blink closed-1.0 geometric 0 globe px outside the closed lid"
+  ],
+  "ring1GapsMm": {
+   "L.ring1": {
+    "max": 2.524,
+    "med": 0.704,
+    "min": 0.5,
+    "n": 56
+   },
+   "R.ring1": {
+    "max": 2.524,
+    "med": 0.704,
+    "min": 0.5,
+    "n": 56
+   }
+  }
+ },
+ "g3": {
+  "forbiddenLiterals": [
+   "mpfb_ob_patient_aisha",
+   "mpfb_adult_male_street_casual",
+   "aisha-lidconform",
+   "aisha-eyeglobe",
+   "body2-lidconform",
+   "body2-eyeglobe",
+   "high_poly_globe_mpfb",
+   "cornea_high_poly"
+  ],
+  "pass": true,
+  "scope": "lid_conform.py + lid_conform_core.py + measure_conform.py (rg exit 1; one docstring usage example generalised)"
+ },
+ "g4": {
+  "closed10FrontGlobePx": 0,
+  "pass": true
+ },
+ "notTested": [
+  "gaze rotation (compat-eyes NT)"
+ ],
+ "roleResolution": {
+  "body": "mpfb_skin_* primitive material (materialize apply_body_auto_smooth scope ^mpfb_skin_, line ~1665; skin_material_name f'mpfb_skin_{subject}')",
+  "code": "lid_conform_core.py resolve_body_mesh_name / resolve_globe_mesh_name / resolve_cornea_mesh_names / resolve_lash_mesh_name (no subject mesh/stem literal)",
+  "cornea": "openclinxr_eye_cornea_mat material, exact (materialize _eyemesh_split_cornea_glb line ~3913, verbatim every subject)",
+  "globe": "node-referenced mesh on mat_makeclothes_library_eyes* (materialize TEXTURE_OVERRIDES key + eye-material prefix; split repoints the node at the globe so the unsplit remnant is unreferenced)",
+  "resolvedBody2": {
+   "body": "mpfb_adult_male_street_casual_body",
+   "cornea": [
+    "openclinxr_eye_cornea_high_poly_left_mpfb_adult_male_street_casual_mesh",
+    "openclinxr_eye_cornea_high_poly_right_mpfb_adult_male_street_casual_mesh"
+   ],
+   "globe": "makeclothes_library_eyes_high_poly_globe_mpfb_adult_male_street_casual_mesh",
+   "lash": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh"
+  },
+  "resolvedAisha": {
+   "body": "mpfb_ob_patient_aisha_body",
+   "cornea": [
+    "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh",
+    "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh"
+   ],
+   "globe": "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh",
+   "lash": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh"
+  }
+ },
+ "sheet": {
+  "fallback": "Blender-side head-framed EEVEE portraits (/tmp/lidany_portrait.py, scratch, uncommitted): anchor eye-bone midpoint, facing from eye-bone vectors, 85mm lens at 0.38m, front + yaw25, 1280px, 420px eye crops centred on projected eye bones; stray in-frame Icosphere removed; fitted hair hidden",
+  "files": {
+   "sheet-body2-base-front-eyeL-crop.png": "7731d708bd770256054290388c96f0462c13f91ae387b5c49e6a9757469660d2",
+   "sheet-body2-base-front-eyeR-crop.png": "59d565539908b1201da7aacc18fd77d425fe16a420d1c0237d5dd6726716fe71",
+   "sheet-body2-base-front-full.png": "3e7b10dcb46ffc162efa806fd90df69bf405f5adb048b9d261b27d5a76116c29",
+   "sheet-body2-base-yaw25-eyeL-crop.png": "1e0013547132ed05497581e35682d19ff920c4b4813c97b21f57cddedf73ba25",
+   "sheet-body2-base-yaw25-eyeR-crop.png": "9607787803675939b3f5a73cc29212ca4bf3d3f65e2dbeb1e8f64dcb7210b908",
+   "sheet-body2-base-yaw25-full.png": "b90c0554af3d85354189b8a1106401c7f4c573da18a6a3500ac3b01c72a8d665",
+   "sheet-body2-new-front-eyeL-crop.png": "f01a4000b600245f8e91d241ca2cd1cabdda63ef499ff6eb7535cfbcc25fe694",
+   "sheet-body2-new-front-eyeR-crop.png": "4e1fac7f638e7169ae96f4da9d4c59c2200787e632fc8a39d144028a3140d321",
+   "sheet-body2-new-front-full.png": "76945bd93131dbabd2d5adedac5fd48874bfb14c6ec8a234388563faf7d4cb8e",
+   "sheet-body2-new-yaw25-eyeL-crop.png": "b0db07a936727e37e8be35979d2ca2a338beefb1a5a385c05a7b3f644c5f5272",
+   "sheet-body2-new-yaw25-eyeR-crop.png": "b8e718980dea078c29c92b933ac81b7b64ff249e97820bdbbb7ce2041337460f",
+   "sheet-body2-new-yaw25-full.png": "ed13cfb6befce95611d99f7e7780fd247601f133dad5a464f588f803cf36ea3e"
+  },
+  "root": "/Volumes/files/openclinxr-assets/store/lid-conform-any/",
+  "threeJsAttempt": {
+   "command": "pnpm tsx tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts --variant .openclinxr/scratch-lidany/body2-natural-base.variant.json --out <store>/lid-conform-any/sheet-base --glb .openclinxr/scratch-lidany/body2-eyeglobe-base.glb",
+   "error": "page.waitForFunction: Timeout 120000ms exceeded (isolated-subject lab never signals ready; same failure class as second-subject-report.json sheet evidence)",
+   "note": "missing @openclinxr/service-local-compute dist fixed first via pnpm --filter @openclinxr/service-local-compute build (exit 0); capture then timed out"
+  }
+ },
+ "target": {
+  "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json body2 eyeCorners (1266d136b)",
+  "method": "temple ruler: goal head width = |x356-x127| at eye height from pts_target_body2_front.npy (514.11px); bake head width = x-span of the subject OWN pre-conform base-bake body mesh in the +-10mm eye-height slab, eye height from fitted globe centres, GLB meters (170.81mm); mmPerPx = slab/temple corrected by the aisha-measured ear bias",
+  "goalEyeCornerPx": {
+   "L33-133": 100.74,
+   "R362-263": 100.42,
+   "mean": 100.58
+  },
+  "headSlabSpanMm": 170.81,
+  "goalTemplePx": 514.11,
+  "earBias": "aisha ruler mmPerPx 0.2318 vs true 0.1812 (fitted 27.7 / goal 152.9px) -> bias factor 1.2795: the bake slab spans ears, the goal oval sits inside them",
+  "adoptedMmPerPx": 0.2572,
+  "goalMm": 25.9,
+  "corroboration": "inner-canthal ruler: goal 133-362 129.54px; Farkas 1994 North American white male en-en 32.9 (Barretto table, PMC3562989) -> 0.2547, within 2 percent of 0.2597",
+  "bakeParamMm": 25.0,
+  "bakeParamNote": "goal minus the 0.9 seat-pullback the aisha prototype measured (27.7 goal -> 26.8 param lands 27.01; conform-report.json bakeParamNote)",
+  "plausibility": "pooled 2D palpebral fissure mean 27.4+-3.2 (PMC13161299); Asian adult male 27.0+-1.8 (PubMed 18349663); South Indian male 31.08+-1.79 (PMC3562989); 25.9 sits inside the published range"
+ }
+}

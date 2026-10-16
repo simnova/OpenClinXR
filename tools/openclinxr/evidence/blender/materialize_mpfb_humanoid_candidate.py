@@ -129,6 +129,22 @@ def mesh_prefix_for_subject(subject_id, eye_colour_reference):
     return f"mpfb_{subject_id}"
 
 
+# Lid-conform case identity: the conform config lives keyed by
+# reference-set case id (lid_conform.case_config), not by output stem.
+# The bake identity is subject_id (--reference or --eye-colour-reference);
+# this maps it to the case the reference-set manifest and
+# any-subject-targets.json know. Unmapped subjects never conform.
+LID_CONFORM_CASE_BY_SUBJECT_ID = {
+    "ob_patient_aisha": "aisha",
+    "adult_male_street_casual": "body2",
+}
+
+
+def lid_conform_case_for_subject(subject_id):
+    """Case id driving lid-conform for a baked subject, or None (no-op)."""
+    return LID_CONFORM_CASE_BY_SUBJECT_ID.get(subject_id)
+
+
 def claim_mesh_data_name(obj, name):
     """Assign obj.data.name, purging orphan mesh datablocks that would force a `.001`.
 
@@ -2429,6 +2445,16 @@ def parse_args():
     parser.add_argument("--eye-tear-rough", type=float, default=0.45)
     parser.add_argument("--eye-tear-fan-steps", default="1.5,3.0,4.5")
     parser.add_argument("--eye-tear-snap-mm", type=float, default=2.5)
+    parser.add_argument(
+        "--no-lid-conform",
+        action="store_true",
+        help=(
+            "Lid-conform: skip the case-keyed lid-ring seating even when the "
+            "baked subject maps to a conform case. Pre-conform (eyeglobe "
+            "base) bakes pass this so their bodies carry the export-time lid "
+            "openings the conform pass derives its rings from."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -2633,6 +2659,11 @@ EYE_DIAMETER_TARGET_MM = {
     # lidconform (tsk_83147b9cfdf9ab03): same adult-female body as
     # mpfb-ob-patient-aisha (lid-ring seating bake under the card stem).
     "aisha-lidconform": 24.0,
+    # any-subject lid-conform (tsk_56c4fed983304ea6): body2 pre-conform
+    # base + conformed bakes; same adult male body as
+    # mpfb-street-adult-male, so adult axial length applies.
+    "body2-eyeglobe-base": 24.0,
+    "body2-lidconform": 24.0,
 }
 
 # ---------------------------------------------------------------------------
@@ -8488,16 +8519,20 @@ def main():
         )
     else:
         print("BODY_SUBDIV_SKIPPED --no-body-subdiv")
-    # Lid-conform (tsk_83147b9cfdf9ab03): seat the inner lid ring on the
-    # globe mesh +0.5 mm tear-film offset. Runs HERE, on the FINAL
-    # subdivided body after the helper strip + subdiv bake above: both
-    # stages rebuild Basis data (strip reapply_all_details, subdiv
-    # copy-bake-apply-delta), so a pre-strip Basis edit does not reach
-    # the export (measured: zero-vert diff on the first bake). The eye
-    # resize is long final, so the globe the rays hit is the exported
-    # one; nothing downstream re-derives lid verts except the export
-    # split/smooth, which preserve positions. Absent stem = no-op, so
-    # every other bake stays byte-stable.
+    # Lid-conform (tsk_83147b9cfdf9ab03, any-subject tsk_56c4fed983304ea6):
+    # seat the inner lid ring on the globe mesh +0.5 mm tear-film offset.
+    # Runs HERE, on the FINAL subdivided body after the helper strip +
+    # subdiv bake above: both stages rebuild Basis data (strip
+    # reapply_all_details, subdiv copy-bake-apply-delta), so a pre-strip
+    # Basis edit does not reach the export (measured: zero-vert diff on
+    # the first bake). The eye resize is long final, so the globe the
+    # rays hit is the exported one; nothing downstream re-derives lid
+    # verts except the export split/smooth, which preserve positions.
+    # Keyed by CASE id (lid_conform_case_for_subject), not output stem;
+    # the ring source is the subject's own pre-conform base bake, meshes
+    # resolved by role. Absent case (or --no-lid-conform, which
+    # pre-conform base bakes pass) = no-op, so every other bake stays
+    # byte-stable.
     import sys as _sys_lidconform
 
     _lidconform_dir = (
@@ -8506,11 +8541,15 @@ def main():
     if str(_lidconform_dir) not in _sys_lidconform.path:
         _sys_lidconform.path.insert(0, str(_lidconform_dir))
     from lid_conform import (  # noqa: E402
-        LID_CONFORM_BY_OUTPUT_STEM as _LID_CONFORM_TABLE,
+        base_glb_for_case as _lidconform_base_for_case,
     )
+    from lid_conform import case_config as _lidconform_case_config  # noqa: E402
 
-    _lidconform_cfg = _LID_CONFORM_TABLE.get(
-        pathlib.Path(args.output).stem)
+    _lidconform_cfg = None
+    if not getattr(args, "no_lid_conform", False):
+        _lidconform_case = lid_conform_case_for_subject(subject_id)
+        if _lidconform_case is not None:
+            _lidconform_cfg = _lidconform_case_config(_lidconform_case)
     if _lidconform_cfg is not None:
         from lid_conform import conform_lids as _conform_lids  # noqa: E402
 
@@ -8527,8 +8566,15 @@ def main():
                 "seatCeilingMm", 1.5)),
             seat_floor_mm=float(_lidconform_cfg.get("seatFloorMm", 0.5)),
             lash_follow_mm=float(_lidconform_cfg.get(
-                "lashFollowMm", 4.0)))
+                "lashFollowMm", 4.0)),
+            ring_source_glb=_lidconform_base_for_case(_lidconform_case),
+            case_id=_lidconform_case)
         print("LIDCONFORM_BAKED " + json.dumps(_lidconform_record))
+    else:
+        print("LIDCONFORM_SKIPPED "
+              + json.dumps({"subject": subject_id,
+                            "noLidConform": bool(getattr(
+                                args, "no_lid_conform", False))}))
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
     # Every subject: MPFB's subdiv bake swaps body mesh data via

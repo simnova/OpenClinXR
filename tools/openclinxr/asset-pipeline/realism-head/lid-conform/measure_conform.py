@@ -1,4 +1,6 @@
-"""Gate scorer for lid-conform (tsk_83147b9cfdf9ab03). Read-only on GLBs/PNGs.
+"""Gate scorer for lid-conform (tsk_83147b9cfdf9ab03, any-subject
+tsk_56c4fed983304ea6). Read-only on GLBs/PNGs. Meshes resolve by role
+(lid_conform_core resolve_*_mesh_name), so every case measures.
 
 G1 ring sits on globe: ring1 (margin loop, topological) signed gap vs the
   globe MESH surface within [0.3, 1.0] mm every vertex; ring2/ring3 report.
@@ -16,8 +18,8 @@ G4 blink closure 1.0 + slit 1.0: geometric eye-px outside the closed lid
   (--blink-base/--blink-new PNG paths) must be <= base.
 
 Usage:
-  mise exec -- python3 measure_conform.py --base <base.glb> \\
-    --new <aisha-lidconform.glb> --out conform-report.json \\
+  mise exec -- python3 measure_conform.py --base <case-eyeglobe-base.glb> \\
+    --new <case-conformed.glb> --out conform-report.json \\
     [--neon-base DIR --neon-new DIR] [--blink-base PNG --blink-new PNG] \\
     [--bake-argv "..."] [--cw1-tool PATH]
 """
@@ -207,12 +209,9 @@ def run_cw1(cw1, glb, base_glb, out_path, res_mm=0.12, box_mm=130.0):
 
     js, blob = cw1.load_glb(str(glb))
     worlds = cw1.node_worlds(js)
-    body_name = "mpfb_ob_patient_aisha_body"
-    eye_names = [
-        "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh",
-        "openclinxr_eye_cornea_high_poly_left_mpfb_ob_patient_aisha_mesh",
-        "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh",
-    ]
+    body_name = core.resolve_body_mesh_name(js)
+    eye_names = [core.resolve_globe_mesh_name(js),
+                 *core.resolve_cornea_mesh_names(js)]
     body, body_idx = cw1.skin_mesh(js, blob, worlds, body_name)
     eyes = [cw1.skin_mesh(js, blob, worlds, n) for n in eye_names]
     cornea = {m: pts for m, (pts, _) in zip(eye_names[1:], eyes[1:])}
@@ -372,7 +371,8 @@ def main():
     for tag, path in (("base", args.base), ("new", args.new)):
         js, blob = core.load_glb(path)
         worlds = core.node_worlds(js)
-        body, body_idx = core.skin_mesh(js, blob, worlds, core.BODY_NAME)
+        body, body_idx = core.skin_mesh(
+            js, blob, worlds, core.resolve_body_mesh_name(js))
         tris = body_idx.reshape(-1, 3)
         sides = core.eye_sides(js, blob, worlds)
         centres = {}
@@ -380,11 +380,11 @@ def main():
             c, r, rms = core.fit_sphere_kasa(pts)
             centres[t] = (c, r, rms)
         # per-side eye surface soup (globe + nearer cornea)
-        globe_all, globe_idx = core.skin_mesh(js, blob, worlds,
-                                              core.GLOBE_NAME)
+        globe_all, globe_idx = core.skin_mesh(
+            js, blob, worlds, core.resolve_globe_mesh_name(js))
         gtris = globe_idx.reshape(-1, 3)
         cor = [core.skin_mesh(js, blob, worlds, n)
-               for n in core.CORNEA_NAMES]
+               for n in core.resolve_cornea_mesh_names(js)]
         soup = {}
         for t in ("L", "R"):
             parts = [globe_all[gtris][
@@ -430,9 +430,14 @@ def main():
                  for t in ("L", "R") for k in ("min", "med", "max"))
     report["g1"] = {"gapsMm": g1, "pass": bool(g1pass)}
 
-    # C1: eye POSITION arrays exactly equal.
+    # C1: eye POSITION arrays exactly equal (names resolved per bake by
+    # role; same-subject bakes share names, compared pairwise).
     c1 = {}
-    for name in (core.GLOBE_NAME,) + core.CORNEA_NAMES:
+    _c1_names = {}
+    for tag, ld in (("base", base), ("new", new)):
+        _c1_names[tag] = ((core.resolve_globe_mesh_name(ld["js"]),)
+                           + core.resolve_cornea_mesh_names(ld["js"]))
+    for name in _c1_names["base"]:
         for tag, ld in (("base", base), ("new", new)):
             mesh = next(m for m in ld["js"]["meshes"]
                         if m.get("name") == name)
@@ -485,8 +490,7 @@ def main():
     outside_moved = (base["body"][out_idx] != new["body"][out_idx]).any(
         axis=1)
     c4pass = not bool(outside_moved.any())
-    lash_name = ("openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_"
-                 "ob_patient_aisha_mesh")
+    lash_name = core.resolve_lash_mesh_name(base["js"])
 
     def _lash_pos(ld):
         mesh = next(m for m in ld["js"]["meshes"]
