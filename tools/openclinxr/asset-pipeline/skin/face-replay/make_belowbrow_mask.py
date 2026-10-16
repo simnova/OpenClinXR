@@ -13,8 +13,9 @@ enclosed non-skin regions remain). Candidate eye holes: area>=800,
 centroid rows in [0.35H,0.62H], |x-cx|>=40 where cx is the component
 centroid x. Largest candidate left of cx + largest right of cx merge to
 the eye pair. eye_row = mean of the two centroid rows; IED = their
-|x| separation. Brow line: brow_row = eye_row - 60 (fixed offset, same
-for all images; ~brow-to-eye distance at 1024px).
+|x| separation. Brow line: brow_row = eye_row - BROW_IED*ied (ied-scaled
+so the mask band starts on the same anatomy on every face size; ratio
+from the goal placement, see constants).
 
 Mouth: the lip parting (darkest horizontal band of the face-column
 lightness profile below the nose) and mouth_bottom (first row below the
@@ -24,7 +25,7 @@ through to the nostril. mouth_bottom anchors the chin patch.
 
 Regions (40x40 boxes, Lab over gate&below-brow pixels if n>=300,
 gatefrac noted): L/R cheek at (cx-+115, eye_row+95);
-forehead-below-brow at (cx, brow_row+25); chin at
+forehead-below-brow at (cx, eye_row-FH_IED*ied); chin at
 (cx, mouth_bottom+CHIN_MARGIN*ied).
 
 Outputs: <out-png> mask (255 = keep), <out-json> with method, rows,
@@ -40,7 +41,17 @@ import numpy as np
 from PIL import Image
 from skimage.color import rgb2lab
 
-BROW_OFFSET = 60
+BROW_OFFSET = 60  # legacy fixed-pixel value, kept for reference only
+# Brow and forehead offsets in ied units, ratios taken from the GOAL's
+# landed placement (S/port5/goal-bb-mask.json: eye_row 419, brow_row 359,
+# forehead centre 384, ied 264.9): brow sits (419-359)/264.9 = 0.2265
+# ied above the eye line, the forehead patch centre (419-384)/264.9 =
+# 0.1321 ied above it. The old fixed 60px brow offset put the render
+# forehead box (smaller face, ied 225.4) on the glabella while the goal
+# box sat above the brows; scaling by ied lands both on the same
+# anatomy (goal placement unchanged by construction).
+BROW_IED = 60.0 / 264.9
+FH_IED = 35.0 / 264.9
 # Mouth profile rule (all in ied units; sourced from the STEP0 column
 # profiles S/mouthlm/profile.json, mean Lab over cx+-15, 1024px images):
 # - PART_LO/PART_HI: parting sits ~1.2 ied below eye_row (render
@@ -209,7 +220,8 @@ def build(png_in, png_out, json_out):
     cx = int(cent[biggest][0])
     me, holes = eroded_filled(comp, biggest, w, h)
     eye_row, ied, short = eye_pair(holes, cx, h)
-    brow_row = int(round(eye_row - BROW_OFFSET))
+    brow_row = int(round(eye_row - BROW_IED * ied))
+    fh_cy = int(round(eye_row - FH_IED * ied))
     parting_row, parting_L = mouth_parting(L, eye_row, ied, cx, w, h)
     skin_resume, crease_dip = mouth_bottom_row(L, parting_row, ied, cx, w, h)
     chin_cy = skin_resume + int(round(CHIN_MARGIN * ied))
@@ -217,7 +229,7 @@ def build(png_in, png_out, json_out):
     regions = {
         "L_cheek": patch_lab(lab, keep, cx - 115, int(round(eye_row + 95))),
         "R_cheek": patch_lab(lab, keep, cx + 115, int(round(eye_row + 95))),
-        "forehead_below_brow": patch_lab(lab, keep, cx, brow_row + 25),
+        "forehead_below_brow": patch_lab(lab, keep, cx, fh_cy),
         "chin": patch_lab(lab, keep, cx, chin_cy),
     }
     Image.fromarray(keep * 255).save(png_out)

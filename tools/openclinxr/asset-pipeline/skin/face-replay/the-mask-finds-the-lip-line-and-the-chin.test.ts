@@ -5,8 +5,11 @@
  * images when present (S scratch; skip with a logged reason otherwise)
  * and asserts the lane-manager gates: G1 parting row within +-12 of 812
  * (render) / 728 (goal); G2 chin 40x40 box fully inside rows 880-930
- * (render) / 808-864 (goal) with gatefrac >= 0.9; G3 cheek/forehead
- * centres and Lab equal the landed S/port5 mask JSON values. Validates
+ * (render) / 808-864 (goal) with gatefrac >= 0.9; G3 cheeks centres and
+ * Lab equal the landed S/port5 mask JSON values on both images, goal
+ * forehead equal too, render forehead at the ied-scaled anatomy
+ * (eye-0.1321*ied = [511,498], handback 1: brow/forehead offsets scaled
+ * by ied from the goal ratio, render only moves). Validates
  * mouth-landmark-report.json beside this test (G4 numbers, overlay shas).
  *
  * RED state (card tsk_80caf274c12851ed): the current instrument finds
@@ -42,7 +45,7 @@ const IMAGES = {
 
 type Region = { center: [number, number]; n: number; gatefrac: number; Lab: [number, number, number] | null };
 type MaskJson = {
-  cx: number; eye_row: number; ied: number; brow_row: number;
+  cx: number; eye_row: number; ied: number; brow_row: number; brow_row: number;
   mouth_centroid: [number, number]; mouth_bottom: number;
   parting_row?: number;
   regions: Record<"L_cheek" | "R_cheek" | "forehead_below_brow" | "chin", Region>;
@@ -101,14 +104,31 @@ describe("the mask finds the lip line and the chin", () => {
     }
   });
 
-  gate("G3 cheek/forehead centres and Lab equal the landed S/port5 values", () => {
+  gate("G3 cheeks equal landed values; forehead on the same anatomy", () => {
+    const rep = JSON.parse(fs.readFileSync(REPORT, "utf8")) as {
+      render_forehead: { center: [number, number]; Lab: [number, number, number] };
+    };
     for (const name of ["render", "goal"] as const) {
       const spec = IMAGES[name];
       const m = runInstrument(spec.input);
       const ref = JSON.parse(fs.readFileSync(spec.reference, "utf8")) as MaskJson;
-      for (const r of ["L_cheek", "R_cheek", "forehead_below_brow"] as const) {
+      for (const r of ["L_cheek", "R_cheek"] as const) {
         expect(m.regions[r].center, `${name} ${r} centre`).toEqual(ref.regions[r].center);
         expect(m.regions[r].Lab, `${name} ${r} Lab`).toEqual(ref.regions[r].Lab);
+      }
+      if (name === "goal") {
+        expect(m.regions.forehead_below_brow.center, "goal forehead centre")
+          .toEqual(ref.regions.forehead_below_brow.center);
+        expect(m.regions.forehead_below_brow.Lab, "goal forehead Lab")
+          .toEqual(ref.regions.forehead_below_brow.Lab);
+      } else {
+        expect(m.brow_row, "render brow_row ied-scaled").toBe(476);
+        expect(m.regions.forehead_below_brow.center, "render forehead anatomy")
+          .toEqual([511, 498]);
+        expect(m.regions.forehead_below_brow.gatefrac, "render forehead gatefrac")
+          .toBe(1.0);
+        expect(m.regions.forehead_below_brow.Lab, "render forehead Lab recorded")
+          .toEqual(rep.render_forehead.Lab);
       }
     }
   });
@@ -124,10 +144,12 @@ describe("the mask finds the lip line and the chin", () => {
       g4_within3_count: number;
       g4_regions: Record<string, [number, number, number]>;
       g4_blocks: string[];
+      render_forehead: { center: [number, number]; Lab: [number, number, number] };
       overlays: { file: string; sha256: string }[];
     };
     for (const k of ["parting", "mouth_bottom", "chin_center", "g4_report_key",
-      "g4_within3_count", "g4_regions", "g4_blocks", "overlays"] as const) {
+      "g4_within3_count", "g4_regions", "g4_blocks", "render_forehead",
+      "overlays"] as const) {
       expect(rep[k], `report has ${k}`).toBeDefined();
     }
     // Falsifier record (card tsk_80caf274c12851ed): with corrected
