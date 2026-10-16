@@ -1,0 +1,506 @@
+{
+ "schemaVersion": "openclinxr.eye-corner-decision.v1",
+ "card": "tsk_269eccc5a315a65f",
+ "g1Definition": "bright texel r>150 g>140 b>130 over head-masked corner sixths of the neon lash aperture (g1_canthus.py); threshold = frontal on the same (fill) bake",
+ "g2Definition": "render-occlusion CW2 union: magenta fill texels in the eye band outside BOTH dilated (+8px) blink lash boxes at closure 1.0 + slit 1.0 (must be 0)",
+ "noise": {
+  "method": "aisha sheet rerun into noise-rerun; max abs G1 brightFraction delta over base/fill x 5 views x L/R x inner/outer; front fill PNG sha compare",
+  "maxAbsG1Delta": 0,
+  "rerunPngSha256": "6f86a2c10eb5e6035d249f9483cc98dfd2d8e1353b33ed7aea8cab0a38092feb",
+  "origPngSha256": "6f86a2c10eb5e6035d249f9483cc98dfd2d8e1353b33ed7aea8cab0a38092feb"
+ },
+ "subjects": {
+  "aisha": {
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+   "baseSha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+   "fillGlb": "/Volumes/files/openclinxr-assets/store/corner-decide/aisha-lidconform-fill.glb",
+   "fillSha256": "0f475c97ea8c62e5263cc7fbb191d39be95e673b72ef827b45779de656d95b6a",
+   "g1Base": {
+    "front": {
+     "L": {
+      "frac": 0.6054,
+      "headPx": 882,
+      "bg": 0.0567
+     },
+     "R": {
+      "frac": 0.5317,
+      "headPx": 867,
+      "bg": 0.0493
+     }
+    },
+    "yaw40": {
+     "L": {
+      "frac": 0.0251,
+      "headPx": 399,
+      "bg": 0.3606
+     },
+     "R": {
+      "frac": 0.6735,
+      "headPx": 778,
+      "bg": 0.0189
+     }
+    },
+    "yaw-40": {
+     "L": {
+      "frac": 0.4865,
+      "headPx": 814,
+      "bg": 0.0145
+     },
+     "R": {
+      "frac": 0.0,
+      "headPx": 566,
+      "bg": 0.1424
+     }
+    }
+   },
+   "g1Fill": {
+    "front": {
+     "L": {
+      "frac": 0.6066,
+      "headPx": 882,
+      "bg": 0.0567
+     },
+     "R": {
+      "frac": 0.5386,
+      "headPx": 867,
+      "bg": 0.0493
+     }
+    },
+    "yaw40": {
+     "L": {
+      "frac": 0.0201,
+      "headPx": 399,
+      "bg": 0.3606
+     },
+     "R": {
+      "frac": 0.6787,
+      "headPx": 778,
+      "bg": 0.0189
+     }
+    },
+    "yaw-40": {
+     "L": {
+      "frac": 0.4889,
+      "headPx": 814,
+      "bg": 0.0145
+     },
+     "R": {
+      "frac": 0.0,
+      "headPx": 566,
+      "bg": 0.1424
+     }
+    }
+   },
+   "g1Verdict": "NOT_MET",
+   "g2FillOutsidePx": 0,
+   "cw2": {
+    "perHalfOutside": {
+     "L": 1,
+     "R": 1
+    },
+    "bandMagenta": 2,
+    "unionOutside": 0
+   },
+   "sheetG2": {
+    "base": {
+     "front": {
+      "L": 2118,
+      "R": 2152
+     },
+     "yaw25": {
+      "L": 2085,
+      "R": 1735
+     },
+     "yaw-25": {
+      "L": 1838,
+      "R": 2257
+     },
+     "yaw40": {
+      "L": 1213,
+      "R": 1993
+     },
+     "yaw-40": {
+      "L": 1982,
+      "R": 1381
+     }
+    },
+    "fill": {
+     "front": {
+      "L": 2106,
+      "R": 2140
+     },
+     "yaw25": {
+      "L": 1990,
+      "R": 1693
+     },
+     "yaw-25": {
+      "L": 1798,
+      "R": 2164
+     },
+     "yaw40": {
+      "L": 1159,
+      "R": 1933
+     },
+     "yaw-40": {
+      "L": 1920,
+      "R": 1328
+     }
+    }
+   },
+   "geometric": {
+    "edgeBase": {
+     "front": 30941,
+     "yaw25": 24369,
+     "yaw-25": 24445,
+     "yaw40": 22070,
+     "yaw-40": 22485
+    },
+    "edgeFill": {
+     "front": 30912,
+     "yaw25": 24147,
+     "yaw-25": 24276,
+     "yaw40": 21834,
+     "yaw-40": 22258
+    },
+    "cw1Ratio": {
+     "front": 0.9861,
+     "yaw25": 0.9927,
+     "yaw-25": 0.9924,
+     "yaw40": 0.993,
+     "yaw-40": 0.9912
+    },
+    "cw3maxMm": -0.005,
+    "blinkFillOutsideClosed": {
+     "front": 0,
+     "yaw25": 3,
+     "yaw-25": 4,
+     "yaw40": 14,
+     "yaw-40": 17
+    }
+   },
+   "floatsOffLid": false,
+   "floatRefs": [
+    "assets:corner-decide/aisha/eyecorner-400crop-fill-front-L.png",
+    "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw40-L.png",
+    "assets:corner-decide/aisha/eyecorner-400crop-fill-blink-L.png"
+   ],
+   "renders": [
+    {
+     "file": "assets:corner-decide/aisha/eye-corner-sheet.png",
+     "sha256": "b27b71759228b3b549a3a6d1769af85bee2d0a93c59411ae10980f45bb8f037c"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-blink-L.png",
+     "sha256": "b99ec242c6324b66b66d256c15926eda764e3da80eff75b6e5ea6801f1d943c6"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-blink-R.png",
+     "sha256": "b2cc6decb6ef6519825bf94fe8cb36244a1ff20a3935cf47e21722bfca7e7163"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-front-L.png",
+     "sha256": "e2ef7e5990ac1864cb4618b549884c0b1f56d59db125d4fdae3333fb3b7b7a12"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-front-R.png",
+     "sha256": "dd4fffb66e1f4239f57549016a526d4977bc5cfbdfae5ac4b11c8ec9f9750136"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-yaw-40-L.png",
+     "sha256": "fc9afc7497c84255770c1bfb1691bd8f1696e06465a8c8551840b1423d49011a"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-yaw-40-R.png",
+     "sha256": "e9a4695c869dc18e39e912cf2c8ea8138fd79aa8dcc1eed5a35ecb8fc8336294"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-yaw40-L.png",
+     "sha256": "cc19b4acfeb4d0a969faddfc0bd4d4cea5fc4e9b5bf688083ab54f62f58910d2"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-base-yaw40-R.png",
+     "sha256": "8f6cfd5fcf8325fa956e9560c8438d16d43c019e2cea2141238022d50d118cd5"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-blink-L.png",
+     "sha256": "792d8bb421a9bd30c81a9bbfe6733bdb3f97e2bac7766e905d4d19e2ae832c3f"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-blink-R.png",
+     "sha256": "9917e006ecf30537b58cd960d16c2e5b30e39bbf04d0151e14a22ca4111de6e3"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-front-L.png",
+     "sha256": "b6622ff5f603b393f1b3e52b32069c1a430d49edf5d55cb516919a7876bce4b5"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-front-R.png",
+     "sha256": "afe1730aefaa6c290ef1ed2e21ed52b49c54e6d3defeb627d1193606a8a5095b"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw-40-L.png",
+     "sha256": "fc66c68dc9ffdd3faeaa7fc76c44c3ca6b94b40577a7d98263302279fbb19927"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw-40-R.png",
+     "sha256": "8fc9662938cc0e06fd80729f1f44647905ce61c80e72f8b3a4d3bb8bfa2bd43e"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw40-L.png",
+     "sha256": "60465896624edc9b505e09e0d4dcea75445fb9cf96276aec0bc292cb5372dc42"
+    },
+    {
+     "file": "assets:corner-decide/aisha/eyecorner-400crop-fill-yaw40-R.png",
+     "sha256": "c171d7411e6bbc846f518d3c27da5b17df91423997c2cfdc2b9f6d77cbc61bd2"
+    }
+   ]
+  },
+  "body2": {
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/b2canthus/body2-lidconform.glb",
+   "baseSha256": "f29e8de569d9de5a67a6351e24f27b8361bd661454d823ffd3920b26ff3787fb",
+   "fillGlb": "/Volumes/files/openclinxr-assets/store/corner-decide/body2-lidconform-fill.glb",
+   "fillSha256": "c4df54f293fb3d9c5246f82031c6e7dddade980c435e70ef2d29950cca44ae3e",
+   "g1Base": {
+    "front": {
+     "L": {
+      "frac": 0.4049,
+      "headPx": 610,
+      "bg": 0.0543
+     },
+     "R": {
+      "frac": 0.5048,
+      "headPx": 620,
+      "bg": 0.0388
+     }
+    },
+    "yaw40": {
+     "L": {
+      "frac": 0.0,
+      "headPx": 29,
+      "bg": 0.9414
+     },
+     "R": {
+      "frac": 0.1364,
+      "headPx": 711,
+      "bg": 0.0125
+     }
+    },
+    "yaw-40": {
+     "L": {
+      "frac": 0.1581,
+      "headPx": 658,
+      "bg": 0.0208
+     },
+     "R": {
+      "frac": 0.0,
+      "headPx": 13,
+      "bg": 0.9759
+     }
+    }
+   },
+   "g1Fill": {
+    "front": {
+     "L": {
+      "frac": 0.4164,
+      "headPx": 610,
+      "bg": 0.0543
+     },
+     "R": {
+      "frac": 0.5161,
+      "headPx": 620,
+      "bg": 0.0388
+     }
+    },
+    "yaw40": {
+     "L": {
+      "frac": 0.0256,
+      "headPx": 39,
+      "bg": 0.9212
+     },
+     "R": {
+      "frac": 0.1449,
+      "headPx": 711,
+      "bg": 0.0125
+     }
+    },
+    "yaw-40": {
+     "L": {
+      "frac": 0.1793,
+      "headPx": 658,
+      "bg": 0.0208
+     },
+     "R": {
+      "frac": 0.0,
+      "headPx": 30,
+      "bg": 0.9444
+     }
+    }
+   },
+   "g1Verdict": "NOT_MET",
+   "g2FillOutsidePx": 0,
+   "cw2": {
+    "perHalfOutside": {
+     "L": 2,
+     "R": 1
+    },
+    "bandMagenta": 3,
+    "unionOutside": 0
+   },
+   "sheetG2": {
+    "base": {
+     "front": {
+      "L": 1265,
+      "R": 1386
+     },
+     "yaw25": {
+      "L": 1556,
+      "R": 1408
+     },
+     "yaw-25": {
+      "L": 1659,
+      "R": 1657
+     },
+     "yaw40": {
+      "L": 968,
+      "R": 1660
+     },
+     "yaw-40": {
+      "L": 1521,
+      "R": 976
+     }
+    },
+    "fill": {
+     "front": {
+      "L": 1261,
+      "R": 1374
+     },
+     "yaw25": {
+      "L": 1516,
+      "R": 1388
+     },
+     "yaw-25": {
+      "L": 1634,
+      "R": 1610
+     },
+     "yaw40": {
+      "L": 964,
+      "R": 1615
+     },
+     "yaw-40": {
+      "L": 1476,
+      "R": 971
+     }
+    }
+   },
+   "geometric": {
+    "edgeBase": {
+     "front": 38820,
+     "yaw25": 37959,
+     "yaw-25": 35992,
+     "yaw40": 35463,
+     "yaw-40": 34318
+    },
+    "edgeFill": {
+     "front": 38762,
+     "yaw25": 37692,
+     "yaw-25": 35764,
+     "yaw40": 35140,
+     "yaw-40": 34036
+    },
+    "cw1Ratio": {
+     "front": 0.993,
+     "yaw25": 0.9953,
+     "yaw-25": 0.9947,
+     "yaw40": 0.9986,
+     "yaw-40": 0.9985
+    },
+    "cw3maxMm": -0.0049,
+    "blinkFillOutsideClosed": {
+     "front": 5,
+     "yaw25": 232,
+     "yaw-25": 219,
+     "yaw40": 415,
+     "yaw-40": 401
+    }
+   },
+   "floatsOffLid": false,
+   "floatRefs": [
+    "assets:corner-decide/body2/eyecorner-400crop-fill-front-L.png",
+    "assets:corner-decide/body2/eyecorner-400crop-fill-yaw40-L.png",
+    "assets:corner-decide/body2/eyecorner-400crop-fill-blink-L.png"
+   ],
+   "renders": [
+    {
+     "file": "assets:corner-decide/body2/eye-corner-sheet.png",
+     "sha256": "a55c1479a2f8198c46625238e44a864bf64a65d59a1b9ef0124ce4dc93a8a594"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-blink-L.png",
+     "sha256": "9898f46db7fbf474a639c3c18c2df6bb69fef98bab9a2bda681019776facbf66"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-blink-R.png",
+     "sha256": "f8038c75b82eea335f345bcfacf3ce72ae2ecc3776a863fa20114703ae764fce"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-front-L.png",
+     "sha256": "fe64a580fb6e8fb99f07ffb7fd7e36832ba7ebd9e383a6ead1d85ca849f29acf"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-front-R.png",
+     "sha256": "a4b2afb7dbd6b17bb4c803306ba9ac49a0c0e4fb994c64e67a0a430eac64e30b"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-yaw-40-L.png",
+     "sha256": "05a1318371d1090c54f7d397ec8f0d3823bba6542a5a355722783bed8e1f48aa"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-yaw-40-R.png",
+     "sha256": "beac4e2e4558b0c6c4afd482cc4c018a6b5a4eeeb4f15bcf14b3b8264dcac40a"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-yaw40-L.png",
+     "sha256": "b65d5ed7a97e635b7167da98a26740b49d4427fc383d9fe2cb87839540e7b0c3"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-base-yaw40-R.png",
+     "sha256": "d1c0e4469e6665d76cc846b0729f6728a60428fd6497245a245b23cb9e289bc0"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-blink-L.png",
+     "sha256": "f94b06796ca3494813b7375238520fd60efb4bd7cad15be20ffc0e764871abc6"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-blink-R.png",
+     "sha256": "689910596198dbe4ad703a7b17a68dd5d27944f7e6008e21899bc71d00440ffc"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-front-L.png",
+     "sha256": "29eda5a89cf98df06475be57d2734347374851bb04b00bd8fd33a8f9ef5e479f"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-front-R.png",
+     "sha256": "5c170fa1899d268b0e382850fd7b5b5ea1945839053ff4ea8d65f7f74b4f651d"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-yaw-40-L.png",
+     "sha256": "aed2f4931f3cbab0afc475d7bf7abde8ca3f50bf682b10a5a0f26e7ed5ed8fe3"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-yaw-40-R.png",
+     "sha256": "fc5f517fca6216af8cb15ea371ad475f0afa44afe79a1a787ef96f1498b5211f"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-yaw40-L.png",
+     "sha256": "4ae081496a809f8d73667ae721a29c2ec722279539f185fbbdc54939d3df162f"
+    },
+    {
+     "file": "assets:corner-decide/body2/eyecorner-400crop-fill-yaw40-R.png",
+     "sha256": "af45f5894d5e968ce979ce554b7847fb8f2959562dc7c5b3483473cfb2c2ad31"
+    }
+   ]
+  }
+ },
+ "decision": "other",
+ "reason": "do-not-land. G1 NOT_MET both: aisha fill far-eye yaw40-L-out 0.0201 (8/399px, bg 0.36) vs frontal 0.6066, yaw-40-R-out 0.0 vs 0.5386; body2 0.0256 (1/39px, bg 0.92) vs 0.4164, 0.0 vs 0.5161. land fails: aisha yaw40-L-out fill 0.0201 < base 0.0251 (10/399px), noise 0. drop fails: bases far below frontal and 6/8 yaw-outer cells change by >0. rework triggers absent: G2 union 0 both (band 2/3px on-seam), CW3 -0.005/-0.0049, CW1 >=0.986/0.993, no float in 400px crops or blink. Grazing far-eye sixths are 36-94% background past the silhouette (perspective collapse, same mechanism as eye3): body2 gains 0->1px far-eye and +6/+14px near-eye do not justify landing with an Aisha far-eye regression. Fill stays store-only; parameterised cross-subject tools stay."
+}

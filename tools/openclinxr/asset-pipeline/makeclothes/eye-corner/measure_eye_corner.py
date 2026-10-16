@@ -135,6 +135,22 @@ def mesh_by_sub(js, sub):
     return hits[0]
 
 
+def find_body_mesh(js):
+    """Root MPFB body mesh (lid-conform exports): name ends with _body.
+
+    The eye3-era `patient_aisha_body.` substring matches neither
+    aisha-lidconform (mpfb_ob_patient_aisha_body) nor body2-lidconform
+    (mpfb_adult_male_street_casual_body), so match the root exactly.
+    Excludes .high-poly / .teeth / .tongue shells by construction.
+    """
+    import re
+
+    hits = [m for m in js["meshes"] if re.search(r"_body$", m.get("name", ""))]
+    if len(hits) != 1:
+        raise RuntimeError(f"body mesh hits={len(hits)}")
+    return hits[0]
+
+
 def skin_prims(js, blob, worlds, mesh, morph_weights=None):
     """All prims of a mesh skinned to world; returns (pos, tris)."""
     P_all, T_all = [], []
@@ -273,12 +289,22 @@ def main():
         worlds = node_worlds(js)
         with open(path, "rb") as f:
             sha = hashlib.sha256(f.read()).hexdigest()
-        body = mesh_by_sub(js, "patient_aisha_body.")
+        body = find_body_mesh(js)
         globe = mesh_by_sub(js, "globe")
-        cornea = mesh_by_sub(js, "cornea")
+        # Lid-conform exports split the cornea into left/right meshes;
+        # concatenate all (eye3 bake had one).
+        cornea_hits = [m for m in js["meshes"] if "cornea" in m.get("name", "").lower()]
+        if not cornea_hits:
+            raise RuntimeError("mesh /cornea/ hits=0")
         body_pos, body_tris = skin_prims(js, blob, worlds, body)
         globe_pos, globe_tris = skin_prims(js, blob, worlds, globe)
-        cornea_pos, _ = skin_prims(js, blob, worlds, cornea)
+        cpos, ctris = [], []
+        for cm in cornea_hits:
+            p, _ = skin_prims(js, blob, worlds, cm)
+            cpos.append(p)
+        import numpy as _np
+
+        cornea_pos = _np.concatenate(cpos)
         try:
             fillm = mesh_by_sub(js, "corner_fill")
             fill_pos, fill_tris = skin_prims(js, blob, worlds, fillm)

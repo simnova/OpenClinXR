@@ -209,14 +209,18 @@ function neonize(root, mode) {
   root.traverse((o) => {
     if (!o.isMesh) return;
     const nm = (o.name || "").toLowerCase();
-    // Runtime mesh names (multi-prim bodies arrive split):
-    //   body… mpfb_ob_patient_aisha_body001[_1..7] (prim 0 = skin)
-    //   globe… mpfb_ob_patient_aisha_body_meshhigh-poly
+    // Runtime mesh names (multi-prim bodies arrive split; lid-conform
+    // exports name the body node <subject>_body_mesh, e.g. Aisha
+    // mpfb_ob_patient_aisha_body_mesh and body2
+    // mpfb_adult_male_street_casual_body_mesh; the eye3-era
+    // mpfb_ob_patient_aisha_body001 prefix matches neither):
+    //   body… *_body_mesh[(_1..7)] (prim 0 = skin)
+    //   globe… *high-poly* (globe node …_body_mesh.high-poly)
     //   cornea… openclinxr_eye_cornea_high_poly_…
     const isFill = nm.includes("corner_fill");
     const isLash = nm.includes("eyelash");
     const isEye = nm.includes("high-poly") || nm.includes("cornea");
-    const isBody = nm.startsWith("mpfb_ob_patient_aisha_body001");
+    const isBody = nm.includes("_body") && !nm.includes("high-poly") && !nm.includes("teeth") && !nm.includes("tongue");
     let color = null;
     if (isFill) {
       color = mode === "g2" ? 0x00ff00 : mode === "cw2" ? 0xff00ff : 0xffffff;

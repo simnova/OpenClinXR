@@ -191,8 +191,13 @@ def main():
 
     g, blob = load(a.glb)
 
+    # Body mesh: any MPFB body root (Aisha mpfb_ob_patient_aisha_body,
+    # body2 mpfb_adult_male_street_casual_body). The eye3-era
+    # `patient_aisha_body.` pattern does not match lid-conform exports,
+    # so match the root body mesh name exactly (excludes .high-poly /
+    # .teeth / .tongue shells).
     body_hits = [i for i, m in enumerate(g["meshes"])
-                 if re.search(r"patient_aisha_body\.", m.get("name", ""))]
+                 if re.search(r"_body$", m.get("name", ""))]
     if len(body_hits) != 1:
         raise SystemExit(
             f"refusing: {len(body_hits)} body meshes "
@@ -203,7 +208,7 @@ def main():
     if len(globe_hits) != 1:
         raise SystemExit(f"refusing: {len(globe_hits)} globe meshes")
     cornea_hits = find_mesh(g, r"cornea")
-    if len(cornea_hits) != 1:
+    if len(cornea_hits) < 1:
         raise SystemExit(f"refusing: {len(cornea_hits)} cornea meshes")
     if any(re.search(r"corner_fill", m.get("name", ""), re.I)
            for m in g["meshes"]):
@@ -248,6 +253,14 @@ def main():
     if missing:
         raise SystemExit(f"refusing: body lacks lid keys {missing}")
 
+    # eye-band centre from the globe itself (lid-conform Aisha sits at
+    # y~1.55, body2 at y~1.65; the eye3-era absolute 1.50-1.60 band misses
+    # body2 entirely). Mesh-local frames align (Aisha globe mean matched
+    # the old band), so anchor the donor band on the measured globe.
+    _gp0 = g["meshes"][globe_hits[0]]["primitives"][0]
+    _G0 = rd(g, blob, _gp0["attributes"]["POSITION"]).astype(float)
+    GLOBE_Y = float(_G0[:, 1].mean())
+
     # eye-band donor pool per side (lash A3 frame: GLB metres, y-up local).
     donors = {}
     for side in ("L", "R"):
@@ -259,8 +272,8 @@ def main():
             Bp = rd(g, blob, bp["attributes"]["POSITION"]).astype(float)
             Dp = [rd(g, blob, bp["targets"][mp[t]]["POSITION"]).astype(float)
                   for t in LID_KEYS]
-            eye = (np.abs(Bp[:, 0]) < 0.06) & (Bp[:, 1] > 1.50) & \
-                (Bp[:, 1] < 1.60)
+            eye = (np.abs(Bp[:, 0]) < 0.06) & \
+                (np.abs(Bp[:, 1] - GLOBE_Y) < 0.05)
             ssel = (Bp[:, 0] < 0) if side == "L" else (Bp[:, 0] >= 0)
             Pside.append(Bp[eye & ssel])
             Dall.append([d[eye & ssel] for d in Dp])
@@ -280,8 +293,14 @@ def main():
     # eye.L / eye.R joint bind positions (never assumed from x alone).
     gp = g["meshes"][globe_hits[0]]["primitives"][0]
     G = rd(g, blob, gp["attributes"]["POSITION"]).astype(float)
-    cp = g["meshes"][cornea_hits[0]]["primitives"][0]
-    C = rd(g, blob, cp["attributes"]["POSITION"]).astype(float)
+    # Lid-conform exports split the cornea into left/right meshes; the
+    # eye3 bake had one. Concatenate all cornea prims (split by x below).
+    C = np.concatenate([
+        rd(g, blob, p["attributes"]["POSITION"]).astype(float)
+        for hi in cornea_hits
+        for p in g["meshes"][hi]["primitives"]
+        if "POSITION" in p["attributes"]
+    ])
     jnames = [g["nodes"][j].get("name") for j in g["skins"][0]["joints"]]
     if "eye.L" not in jnames or "eye.R" not in jnames:
         raise SystemExit("refusing: eye.L/eye.R joints missing")
