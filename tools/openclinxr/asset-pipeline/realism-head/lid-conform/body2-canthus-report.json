@@ -23,9 +23,11 @@
    "b2": {
     "seatSpreadK2": 0.5,
     "seatSpreadK3": 0.25,
-    "lidLiftMm": 0.55
+    "seatSpreadK4": 0.125,
+    "seatSpreadPasses": 3,
+    "seatSpreadRate": 0.5
    },
-   "displacedVerts": 744,
+   "displacedVerts": 1112,
    "perSide": {
     "L": {
      "baseRing1": 56,
@@ -40,13 +42,15 @@
      ],
      "ring2": 112,
      "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
      "seatedVerts": 39,
      "fleshVerts": 17,
      "movedVerts": 39,
-     "maxSeatMm": 2.661,
-     "maxWidenMm": 1.1089,
-     "maxLiftMm": 0.55,
-     "maxSpreadMm": 1.3305
+     "maxSeatMm": 2.7749,
+     "maxWidenMm": 1.0953,
+     "maxSpreadMm": 1.3875,
+     "maxDiffuseMm": 0.1569
     },
     "R": {
      "baseRing1": 56,
@@ -61,19 +65,21 @@
      ],
      "ring2": 112,
      "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
      "seatedVerts": 39,
      "fleshVerts": 17,
      "movedVerts": 39,
-     "maxSeatMm": 2.661,
-     "maxWidenMm": 1.1089,
-     "maxLiftMm": 0.55,
-     "maxSpreadMm": 1.3305
+     "maxSeatMm": 2.775,
+     "maxWidenMm": 1.0953,
+     "maxSpreadMm": 1.3875,
+     "maxDiffuseMm": 0.1569
     }
    },
    "lashFollow": {
     "found": true,
     "movedVerts": 11088,
-    "maxFollowMm": 2.879350765959174,
+    "maxFollowMm": 2.713945160998205,
     "keyBlocks": 0
    },
    "keyBlocksCarried": [
@@ -133,7 +139,7 @@
   },
   "newGlb": {
    "path": "assets:b2canthus/body2-lidconform.glb",
-   "sha256": "308ae3a8a9c8b5233c289455a4511f3cf0472000535f9127a976d18979ba09d1"
+   "sha256": "f29e8de569d9de5a67a6351e24f27b8361bd661454d823ffd3920b26ff3787fb"
   },
   "preGlb": {
    "path": "assets:b2canthus/body2-step0-pre.glb",
@@ -145,11 +151,11 @@
   "aishaPostPositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f",
   "aishaStep0PositionSha256": "770a7eb36314b2f8e85a8a1a80bcb343c131a9a2abff6f1c5bf8dbe164879c7f",
   "pass": true,
-  "how": "B2 keys default 0, so Aisha's disp_world is untouched (spread/lift blocks skipped); b2 record in the post-fix Aisha bake log reads seatSpreadK2/K3 0.0 + lidLiftMm 0.0"
+  "how": "B2 keys default 0, so Aisha's disp_world is untouched (spread blocks skipped); post-fix Aisha bake log carries no height term"
  },
  "g2": {
   "flips": 0,
-  "bandFaces": 5854,
+  "bandFaces": 5830,
   "seatedSpan": {
    "def": "ring1 verts at the tear-film offset (|gap-0.5|<=0.05; the full-weight core, cf Aisha seated span 0.5)",
    "perSide": {
@@ -157,13 +163,13 @@
      "n": 26,
      "preN": 26,
      "min": 0.5,
-     "max": 0.54
+     "max": 0.538
     },
     "R": {
      "n": 26,
      "preN": 26,
      "min": 0.5,
-     "max": 0.54
+     "max": 0.538
     }
    },
    "pass": true
@@ -173,21 +179,21 @@
    "verts": [
     {
      "side": "L",
-     "gapMm": 1.88,
+     "gapMm": 1.868,
      "lateralMm": 13.64,
      "capRMm": 13.031,
      "beyondCap": true
     },
     {
      "side": "L",
-     "gapMm": 2.276,
+     "gapMm": 2.285,
      "lateralMm": 14.104,
      "capRMm": 13.031,
      "beyondCap": true
     },
     {
      "side": "L",
-     "gapMm": 2.429,
+     "gapMm": 2.431,
      "lateralMm": 14.248,
      "capRMm": 13.031,
      "beyondCap": true
@@ -222,21 +228,21 @@
     },
     {
      "side": "L",
-     "gapMm": 1.571,
+     "gapMm": 1.552,
      "lateralMm": 13.199,
      "capRMm": 13.031,
      "beyondCap": true
     },
     {
      "side": "L",
-     "gapMm": 2.1,
+     "gapMm": 2.115,
      "lateralMm": 13.922,
      "capRMm": 13.031,
      "beyondCap": true
     },
     {
      "side": "L",
-     "gapMm": 2.374,
+     "gapMm": 2.379,
      "lateralMm": 14.202,
      "capRMm": 13.031,
      "beyondCap": true
@@ -271,21 +277,21 @@
     },
     {
      "side": "R",
-     "gapMm": 1.88,
+     "gapMm": 1.868,
      "lateralMm": 13.612,
      "capRMm": 13.019,
      "beyondCap": true
     },
     {
      "side": "R",
-     "gapMm": 2.275,
+     "gapMm": 2.285,
      "lateralMm": 14.076,
      "capRMm": 13.019,
      "beyondCap": true
     },
     {
      "side": "R",
-     "gapMm": 2.429,
+     "gapMm": 2.431,
      "lateralMm": 14.22,
      "capRMm": 13.019,
      "beyondCap": true
@@ -348,28 +354,28 @@
     },
     {
      "side": "R",
-     "gapMm": 1.571,
+     "gapMm": 1.552,
      "lateralMm": 13.172,
      "capRMm": 13.019,
      "beyondCap": true
     },
     {
      "side": "R",
-     "gapMm": 2.1,
+     "gapMm": 2.115,
      "lateralMm": 13.895,
      "capRMm": 13.019,
      "beyondCap": true
     },
     {
      "side": "R",
-     "gapMm": 2.374,
+     "gapMm": 2.379,
      "lateralMm": 14.174,
      "capRMm": 13.019,
      "beyondCap": true
     }
    ],
    "minBeyondCapMm": 0.091,
-   "minGapMm": 1.571
+   "minGapMm": 1.552
   },
   "boundary": {
    "def": "in-cap ring1 verts outside [0.3,1.0] (gap-adaptive partials by design); report-only",
@@ -510,91 +516,108 @@
   "blinkClosed10GlobePx": 0
  },
  "g3": {
-  "aishaMrd1Mm": 4.803,
-  "body2Step0Mrd1Mm": 3.869,
-  "barMidpointMm": 4.336,
-  "body2PostMrd1Mm": {
-   "L": 4.519,
-   "R": 4.519
+  "verdict": "body2 embodied MRD1 sits above its own case photo goal; no lift applied",
+  "photoGoalMrd1Mm": {
+   "L": 2.714,
+   "R": 2.835
   },
+  "photoGoalSource": "tools/openclinxr/evidence/face-fit/pts_target_body2_front.npy iris landmarks 468 (L) / 473 (R) pupil centres vs upper-lid 159/386, x adopted 0.2572 mm/px (any-subject-report.json target.adoptedMmPerPx)",
+  "embodiedPreMrd1Mm": 3.869,
+  "embodiedPreSource": "STEP0 pre-fix conformed bake, same measure script (step0-body2.json mrd1.new)",
+  "embodiedPostMrd1Mm": {
+   "L": 3.869,
+   "R": 3.869
+  },
+  "aishaMrd1Mm": 4.803,
   "clinicalNormalMm": [
    4,
    5
   ],
   "clinicalSource": "StatPearls Ptosis NBK546705",
-  "pass": true
+  "pass": null
  },
  "g4": {
   "grep": "rg for the 8 mesh/stem literals over lid_conform.py + lid_conform_core.py + measure_conform.py exits 1 (no match)",
   "pass": true
  },
  "probes": {
-  "g2revert": "STEP0 rebake with pre-fix code (unmodified lid_conform.py): 12 flips / 5830 band faces (step0-body2.json c3) -- flips return without the seat change",
-  "g3revert": "STEP0 MRD1 3.869 < bar 4.336 (step0-body2.json mrd1.new) -- the gate bites without the lift"
+  "g2revert": "STEP0 rebake with pre-fix code (unmodified lid_conform.py): 12 flips / 5830 band faces (step0-body2.json c3) -- flips return with the spread off"
  },
  "alternatives": {
-  "scope": "measured on the recorded body2 base->new field (GLB space); the Blender body is watertight (0 boundary edges, LIDCONFORM_DIAG) while the export fragments into 48 islands (36593/38995 verts unreachable from ring1), so GLB-space kernels underpredict Blender BFS reach -- the chosen two-hop Blender spread is verified by the real post-fix bake (0 flips)",
-  "singleHopSpread02": {
-   "flips": 12,
-   "note": "ring2 += 0.25/0.5 x mean neighbour ring1 motion; no improvement"
-  },
-  "singleHopSpread075": {
-   "flips": 14,
-   "note": "worse: new sharp boundary at ring2/ring3"
+  "scope": "measured on the recorded body2 base->new field (GLB space) except where noted as real bakes; the Blender body is watertight (0 boundary edges, LIDCONFORM_DIAG) while the export fragments into 48 islands (36593/38995 verts unreachable from ring1), so GLB-space kernels underpredict Blender BFS reach",
+  "singleHopSpread": {
+   "flips": "12 at 0.25/0.5, 14 at 0.75 (worse: new sharp boundary at ring2/ring3)",
+   "scope": "GLB sim on the recorded field"
   },
   "capTravel": {
    "cap20": 12,
    "cap1863": 12,
    "cap15": 12,
-   "note": "seated-span min degrades (-0.275/-0.412/-0.775): caps trade flips for seating"
+   "note": "seated-span min degrades (-0.275/-0.412/-0.775): caps trade flips for seating",
+   "scope": "GLB sim on the recorded field"
   },
   "twinWeld": {
    "result": "disproven: 0 moved verts with an unmoved coincident twin (body2 and Aisha alike)",
    "note": "coincident doubles (e.g. 1156/1157) move together; flips are boundary-shear faces (2.4-2.8mm vs 0 across one edge), not twin seams"
+  },
+  "twoHopBake": {
+   "flips": 12,
+   "note": "real bake (seatSpreadK2/K3 only): flips relocate, zero overlap with STEP0 or each other -- one-shot decay moves the cliff, flesh-neighbourhood verts whose ring1 sources are all zero never move",
+   "scope": "real Blender bake (bake-body2-hb1.log)"
+  },
+  "threeHopBake": {
+   "flips": 12,
+   "note": "real bake (+seatSpreadK4): same 12 faces as the two-hop bake -- ring4 added no effective motion (displacedVerts 696, unchanged)",
+   "scope": "real Blender bake (bake-body2-hb2.log)"
+  },
+  "diffusionBake": {
+   "flips": 0,
+   "note": "real bake (+seatSpreadPasses 3 at seatSpreadRate 0.5 over hops 2..6, ring1 fixed, 8mm band mask): Jacobi passes propagate motion through flesh neighbourhoods via already-moved neighbours; displacedVerts 1112; 8mm mask restores outside-band 0 after an unmasked bake leaked 22 fringe verts (<=0.056mm at 8-9mm)",
+   "scope": "real Blender bake (bake-body2-hb3.log unmasked, bake-body2-hb4.log masked)"
   }
  },
  "falsifier": {
   "aishaMinusBody2Step0Mm": 0.933,
   "remeasureSpreadMm": 0.0,
   "spreadSource": "mrd1-test.json vs step0-body2.json (same inputs, two runs): 3.869 == 3.869",
-  "verdict": "0.933 >> 0.0: G3 has a known-good, gate stands"
+  "verdict": "0.933 >> 0.0: MRD1 methodology discriminates; G3 stays report-only per handback 1 (Aisha is a different person, not a body2 target)"
  },
  "sheet": {
   "root": "/Volumes/files/openclinxr-assets/store/b2canthus/",
   "files": {
    "sheet-body2-post-front-eyeL-crop.png": {
-    "sha256": "0190cfedf412e0eb26d1ea00754220e5b2197cf9fe735ca73250b58eb58ff64b",
-    "bytes": 210760,
+    "sha256": "87013ca34150d1ee98c88e040634f053427d847b552fbf99d761e21c739ccdb5",
+    "bytes": 207811,
     "width": 420,
     "height": 420
    },
    "sheet-body2-post-front-eyeR-crop.png": {
-    "sha256": "23825de3db653970826fd4dc71582cfbe07dad9a3046463c1474e88833f525d4",
-    "bytes": 208692,
+    "sha256": "fa29c985fffeeb95d36137ba5a628e24bedbd466cecafad2f675b2599baffe1a",
+    "bytes": 205984,
     "width": 420,
     "height": 420
    },
    "sheet-body2-post-front-full.png": {
-    "sha256": "9d53d8bcd73cac2992ffc0b6474389c5581b16372d1ced02e410cc1d2938c9d3",
-    "bytes": 1586351,
+    "sha256": "81169dcddb960d5004aecdcfcff2ab07379e447a92af88c7fdb1e8678ac3bb5e",
+    "bytes": 1580391,
     "width": 1280,
     "height": 1280
    },
    "sheet-body2-post-yaw25-eyeL-crop.png": {
-    "sha256": "14333b55e6bbf337e55dbf89977145526556d82a20f658e5a5a058fad007a33d",
-    "bytes": 200890,
+    "sha256": "3d638cd24301607584f3ee3646664e37a4ef7fded03bc7ab907348ea41b78d3e",
+    "bytes": 198295,
     "width": 420,
     "height": 420
    },
    "sheet-body2-post-yaw25-eyeR-crop.png": {
-    "sha256": "1b9dc8e51cbeeb1d6a452163c10111696780821221c085c30c88dfa6a4a4dd6c",
-    "bytes": 212062,
+    "sha256": "614c15a7b1c4357c5c5c56ce3db08a256eb37fb9c254361cc9c8e0761064114a",
+    "bytes": 208514,
     "width": 420,
     "height": 420
    },
    "sheet-body2-post-yaw25-full.png": {
-    "sha256": "b49eb61517fbb241111bb6eb447f3f37e4bd4836a59afffe999757381c9b4dd0",
-    "bytes": 1591045,
+    "sha256": "9a8b3708949c9044e168b2161a856a6d4de354612dc05fd92b09b1f0b813359f",
+    "bytes": 1583923,
     "width": 1280,
     "height": 1280
    },
@@ -611,7 +634,7 @@
     "height": 420
    },
    "sheet-body2-pre-front-full.png": {
-    "sha256": "dcab538d81aa963059ddf559fe819c232fe479aadd0351c2c2f1db1a500b5bd0",
+    "sha256": "a4497fc75f10023ddcefcac2174d834596fb1fcec466d7d508409c8ce44a848b",
     "bytes": 1586132,
     "width": 1280,
     "height": 1280
@@ -629,7 +652,7 @@
     "height": 420
    },
    "sheet-body2-pre-yaw25-full.png": {
-    "sha256": "a9b4bfda950ca7b89db5c00a4efb1531c0995ac424e6aca24ab441d9ae1145a4",
+    "sha256": "684c1f5d17b0564253fa6e623726686ee4121d6cd0816f1825f30049f1eb0ddb",
     "bytes": 1591213,
     "width": 1280,
     "height": 1280

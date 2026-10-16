@@ -31,14 +31,14 @@ import { describe, expect, it } from "vitest";
  */
 
 /**
- * ## FIXED (tsk_0b0a357a8e83645b)
+ * ## FIXED (tsk_0b0a357a8e83645b, handback 1: seat only, no lift)
  *
- * The G2 RECORDED-FAIL above is fixed by the body2 canthus seat (two-hop
- * decay spread of the seat displacement, lid_conform.py body2 row) plus
- * the upper-lid height term (lidLiftMm 0.55). The fail-encoding assertion
- * below now points at body2-canthus-report.json and asserts the fixed
- * values (0 flips, seated span in band); any-subject-report.json stays as
- * the historical pre-fix record. All other assertions are untouched.
+ * The G2 RECORDED-FAIL above is fixed by the body2 canthus seat spread
+ * (one-shot decay plus Jacobi diffusion, lid_conform.py body2 row); no
+ * height term exists. The fail-encoding assertion below now points at
+ * body2-canthus-report.json and asserts the fixed values (0 flips,
+ * seated span in band); any-subject-report.json stays as the historical
+ * pre-fix record. All other assertions are untouched.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
