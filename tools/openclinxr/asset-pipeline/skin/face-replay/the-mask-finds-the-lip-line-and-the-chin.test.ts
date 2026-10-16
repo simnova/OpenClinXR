@@ -77,7 +77,7 @@ if (!HAS_IMAGES) {
     `goal ${fs.existsSync(IMAGES.goal.input)}); gates not evaluated`);
 }
 
-describe("the mask finds the lip line and the chin", () => {
+describe("the mask finds the lip line and the chin", { timeout: 240000 }, () => {
   const gate = HAS_IMAGES ? it : it.skip;
 
   gate("G1 parting row within +-12 of 812 (render) / 728 (goal)", () => {

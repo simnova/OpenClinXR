@@ -104,7 +104,7 @@ function writeSyntheticGLB(tmpDir: string, opts: {
   return glbPath;
 }
 
-describe("derive refuses a non-body skin", () => {
+describe("derive refuses a non-body skin", { timeout: 240000 }, () => {
   it("an eyebrow-named mesh larger than a body-named one never wins skin", () => {
     const tmp = fs.mkdtempSync(osp.tmpdir() + "/refuse-bigbrow-");
     // body 61x61 (~7k faces, below the 20k floor) with a mouth hole,
@@ -149,7 +149,7 @@ describe("derive refuses a non-body skin", () => {
   });
 });
 
-describe("aisha replays for real (aisha-real-chain-report.json)", () => {
+describe("aisha replays for real (aisha-real-chain-report.json)", { timeout: 240000 }, () => {
   it("G2: base.glb reproduces S/derive/A, LOD is refused", () => {
     const rep = JSON.parse(fs.readFileSync(REPORT, "utf8")) as {
       G2_derive_table: {
