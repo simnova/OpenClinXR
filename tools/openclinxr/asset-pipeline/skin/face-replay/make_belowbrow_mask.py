@@ -16,19 +16,23 @@ the eye pair. eye_row = mean of the two centroid rows; IED = their
 |x| separation. Brow line: brow_row = eye_row - 60 (fixed offset, same
 for all images; ~brow-to-eye distance at 1024px).
 
-Mouth: enclosed holes below the eyes scored by dark-core strength
-(oral gap = strongest L<20 line), restricted to holes with clean skin
-below (rejects jaw/neck crease). mouth_bottom anchors the chin patch.
+Mouth: the lip parting (darkest horizontal band of the face-column
+lightness profile below the nose) and mouth_bottom (first row below the
+sub-labial crease dip where chin skin resumes). No enclosed-hole
+requirement, so closed lips (which pass the skin gate) no longer fall
+through to the nostril. mouth_bottom anchors the chin patch.
 
 Regions (40x40 boxes, Lab over gate&below-brow pixels if n>=300,
 gatefrac noted): L/R cheek at (cx-+115, eye_row+95);
-forehead-below-brow at (cx, brow_row+25); chin at (cx, mouth_bottom+35).
+forehead-below-brow at (cx, brow_row+25); chin at
+(cx, mouth_bottom+CHIN_MARGIN*ied).
 
 Outputs: <out-png> mask (255 = keep), <out-json> with method, rows,
 per-region Lab, and the hole shortlist. Refuses (non-zero exit) if no
 eye pair is found.
 """
 import json
+import math
 import sys
 
 import cv2
@@ -37,9 +41,45 @@ from PIL import Image
 from skimage.color import rgb2lab
 
 BROW_OFFSET = 60
-MOUTH_LO, MOUTH_HI = 80, 330
-DARK_HALF = 100
-BELOW_CLEAN_MAX = 0.15
+# Mouth profile rule (all in ied units; sourced from the STEP0 column
+# profiles S/mouthlm/profile.json, mean Lab over cx+-15, 1024px images):
+# - PART_LO/PART_HI: parting sits ~1.2 ied below eye_row (render
+#   (812-527.4)/225.4=1.26, goal (728-419)/264.9=1.17, pre-hb1
+#   (819-539.6)/238.8=1.17); the window [0.95,1.35] excludes the
+#   nostril shadow above (~0.89 ied on render: (728-527.4)/225.4) and
+#   the sub-labial/jaw shadow below (>=1.38 ied: goal (784-419)/264.9,
+#   render (868-527.4)/225.4=1.51).
+# - DIP_LO/DIP_HI: the sub-labial crease dip sits ~0.2 ied below the
+#   parting (render (870-816)/225.4=0.24, goal (785-733)/264.9=0.20,
+#   pre-hb1 (869-819)/238.8=0.21); the window [0.15,0.50] brackets it
+#   while excluding the parting's own dark skirt (ends <0.1 ied below
+#   the minimum) and the jaw shadow (>=0.5 ied below the parting:
+#   render (944-816)/225.4=0.57, goal (868-733)/264.9=0.51,
+#   pre-hb1 (945-819)/238.8=0.53). The dip separates lip red above from
+#   chin skin below, so no chroma test is needed: lip a* reaches 29
+#   (pre-hb1 lower lip) while chin a* reaches 20 (pre-hb1 chin), which
+#   no single a* threshold separates, while every image carries an L<35
+#   crease trough between them.
+# - PROF_HALF: column half-width; the STEP0 +-15px probe is 15/225.4=0.067
+#   ied (render) and 15/264.9=0.057 ied (goal); 0.07 reproduces it.
+# - SKIN_L_MIN: chin-skin resume test (lightness only; chroma cannot
+#   separate lip red from red chin skin, so the crease dip does).
+#   Crease troughs read L<=33 on all three images (render 868-876
+#   L 25-32, goal 780-800 L 10-28, pre-hb1 857-877 L 23-33) while
+#   chin-skin plateaus read L>=38 at resume. The resume needs a
+#   sustained run (RESUME_LEN), not one row.
+# - RESUME_LEN: sustained-run length; 0.10 ied ~= 23/26 rows, longer than
+#   any post-dip bright flicker and shorter than any chin plateau
+#   (~50px ~= 0.2 ied: render 880-930, goal 808-864, pre-hb1 880-944).
+# - CHIN_MARGIN: chin centre below mouth_bottom; 0.12 ied ~= 27/32px puts
+#   the 40px box mid-plateau (render 880+27=907: box 887-927 in 880-930;
+#   goal 808+32=840: box 820-860 in 808-864).
+PART_LO, PART_HI = 0.95, 1.35
+DIP_LO, DIP_HI = 0.15, 0.50
+PROF_HALF = 0.07
+SKIN_L_MIN = 35.0
+RESUME_LEN = 0.10
+CHIN_MARGIN = 0.12
 PATCH_R = 20
 PATCH_MIN_N = 300
 
@@ -90,36 +130,59 @@ def eye_pair(holes, cx, h):
     return eye_row, ied, holes_short
 
 
-def mouth_hole(L, gate, holes, eye_row, h, cx, w):
-    """Mouth = enclosed hole in the mouth row-band with the strongest dark
-    core (oral gap = strongest L<20 line over cx+-100 cols).
+def mouth_parting(L, eye_row, ied, cx, w, h):
+    """Mouth = the lip parting: darkest row of the face-column lightness
+    profile in [eye+PART_LO*ied, eye+PART_HI*ied].
 
-    Row-band [0.64H, 0.76H] (same fractions on every image): both the
-    tracked portrait capture and the goal photo are 1024px head portraits
-    with the face vertically centred, so the mouth line falls in this
-    band while nose-base shadow (above) and jaw/neck crease shadow
-    (below) fall outside it. No per-image numbers. Refuses when the band
-    holds no enclosed hole (framing assumption visibly broken).
+    The column mean (over cx+-PROF_HALF*ied) averages out speckle while
+    the window brackets the ~1.2-ied eye-to-mouth distance, so neither
+    the nostril shadow above nor the sub-labial/jaw shadow below can win.
+    No enclosed-hole requirement: closed lips pass the skin gate, so the
+    old hole rule fell through to the nostril. Refuses only when the
+    window is empty (framing assumption visibly broken).
     """
-    nh, ch, sh, ceh = cv2.connectedComponentsWithStats(holes, 8)
-    lo, hi = 0.64 * h, 0.76 * h
-    scored = []
-    for i in range(1, nh):
-        cxx, cyy = ceh[i][0], ceh[i][1]
-        if not (lo <= cyy <= hi and abs(cxx - cx) < 100
-                and sh[i, 4] >= 400):
-            continue
-        x, y, ww, hh = (int(sh[i, 0]), int(sh[i, 1]),
-                        int(sh[i, 2]), int(sh[i, 3]))
-        cols = np.arange(max(0, cx - DARK_HALF), min(w, cx + DARK_HALF))
-        core = max(int((L[r, cols] < 20).sum()) for r in range(y, y + hh))
-        scored.append((core, i))
-    if not scored:
+    hw = max(8, int(round(PROF_HALF * ied)))
+    cols = np.arange(max(0, cx - hw), min(w, cx + hw))
+    lo = int(math.ceil(eye_row + PART_LO * ied))
+    hi = int(math.floor(eye_row + PART_HI * ied))
+    if hi <= lo or lo >= h:
         raise RuntimeError(
-            "no enclosed mouth hole in rows [0.64H,0.76H]: refuse")
-    core, i = max(scored)
-    return (int(ceh[i][0]), int(ceh[i][1]),
-            int(sh[i, 1] + sh[i, 3]), core, len(scored))
+            "no parting search window: eye_row/ied framing broken")
+    hi = min(hi, h - 1)
+    prof = L[lo:hi + 1][:, cols].mean(axis=1)
+    row = lo + int(np.argmin(prof))
+    return row, float(prof[row - lo])
+
+
+def mouth_bottom_row(L, parting_row, ied, cx, w, h):
+    """mouth_bottom = lower edge of the mouth complex: the sub-labial
+    crease dip (darkest column-lightness row in
+    [parting+DIP_LO*ied, parting+DIP_HI*ied]) anchors the search, and
+    mouth_bottom is the first row below the dip where lightness returns
+    to skin (L>=SKIN_L_MIN sustained for RESUME_LEN*ied rows).
+
+    The dip separates lip red above from chin skin below on every
+    image, so the resume test needs no chroma threshold (lip a* hits
+    29 while reddish chin skin hits 20: inseparable). Refuses when the
+    dip window is empty or no resume follows (framing broken).
+    """
+    hw = max(8, int(round(PROF_HALF * ied)))
+    cols = np.arange(max(0, cx - hw), min(w, cx + hw))
+    prof = L[:, cols].mean(axis=1)
+    dlo = parting_row + int(math.floor(DIP_LO * ied))
+    dhi = parting_row + int(math.ceil(DIP_HI * ied))
+    if dhi <= dlo or dlo >= h:
+        raise RuntimeError(
+            "no crease-dip search window: parting/ied framing broken")
+    dhi = min(dhi, h - 1)
+    dip = dlo + int(np.argmin(prof[dlo:dhi + 1]))
+    need = max(4, int(round(RESUME_LEN * ied)))
+    run = 0
+    for r in range(dip + 1, h):
+        run = run + 1 if prof[r] >= SKIN_L_MIN else 0
+        if run >= need:
+            return r - need + 1, dip
+    raise RuntimeError("no chin-skin resume below the crease dip: refuse")
 
 
 def patch_lab(lab, keep, cx, cy):
@@ -147,25 +210,28 @@ def build(png_in, png_out, json_out):
     me, holes = eroded_filled(comp, biggest, w, h)
     eye_row, ied, short = eye_pair(holes, cx, h)
     brow_row = int(round(eye_row - BROW_OFFSET))
-    mouth_cx, mouth_cy, mouth_bottom, mouth_core, mouth_ncand = \
-        mouth_hole(L, gate, holes, eye_row, h, cx, w)
+    parting_row, parting_L = mouth_parting(L, eye_row, ied, cx, w, h)
+    skin_resume, crease_dip = mouth_bottom_row(L, parting_row, ied, cx, w, h)
+    chin_cy = skin_resume + int(round(CHIN_MARGIN * ied))
     keep = ((me > 0) & (np.arange(h)[:, None] > brow_row)).astype(np.uint8)
     regions = {
         "L_cheek": patch_lab(lab, keep, cx - 115, int(round(eye_row + 95))),
         "R_cheek": patch_lab(lab, keep, cx + 115, int(round(eye_row + 95))),
         "forehead_below_brow": patch_lab(lab, keep, cx, brow_row + 25),
-        "chin": patch_lab(lab, keep, cx, mouth_bottom + 35),
+        "chin": patch_lab(lab, keep, cx, chin_cy),
     }
     Image.fromarray(keep * 255).save(png_out)
     ys, xs = np.where(keep > 0)
     info = {"input": png_in,
-            "method": "skinchroma-a6-largest-erode8-below-brow60",
+            "method": "skinchroma-a6-largest-erode8-below-brow60-lipparting",
             "cx": cx, "eye_row": round(eye_row, 1), "ied": round(ied, 1),
             "brow_row": brow_row,
-            "mouth_centroid": [mouth_cx, mouth_cy],
-            "mouth_bottom": mouth_bottom,
-            "mouth_core_Llt20": mouth_core,
-            "mouth_band_candidates": mouth_ncand,
+            "mouth_centroid": [cx, parting_row],
+            "parting_row": parting_row,
+            "parting_L": parting_L,
+            "crease_dip_row": crease_dip,
+            "mouth_bottom": skin_resume,
+            "chin_margin_ied": CHIN_MARGIN,
             "n": int((keep > 0).sum()),
             "bbox_xywh": [int(xs.min()), int(ys.min()),
                           int(xs.max() - xs.min()),

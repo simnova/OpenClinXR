@@ -888,5 +888,278 @@
   "goal_front": "S/body2/goal-front.png (sha b42f8105...)",
   "hb1_solve_params": "S/crownreg/body2hb1/solve-params.json",
   "landmarks_uv": "S/crownreg/body2hb1/chain/derive_out/landmarks-uv.json"
+ },
+ "mouthlm": {
+  "card": "tsk_80caf274c12851ed",
+  "setting": "G (8x6 grid, sigma 0.7 cells, mirror, notch 0.20,0.32,0.70;0.26,0.80,1.00) re-run under the corrected lip-line instrument",
+  "inputs_same_as_landed": {
+   "input_albedo": "S/crownreg/body2hb1/compose-albedo.png",
+   "albedo_mask": "S/crownreg/body2hb1/chain/derive_out/mask-facecore.png",
+   "pre_render": "S/crownreg/body2hb1/render/body2-pre-hb1-front.png",
+   "goal_render": "S/body2/goal-front.png",
+   "landmarks_uv": "S/crownreg/body2hb1/chain/derive_out/landmarks-uv.json",
+   "mouth_mask": "S/crownreg/body2hb1/chain/derive_out/mask-lips.png",
+   "glb": "S/body2/final.glb",
+   "harness": "runtime-portrait-capture.ts variant mode (portrait, studio rig, exposure 0.3762)"
+  },
+  "corrected_solve_masks": {
+   "pre": {
+    "file": "S/mouthlm/pre-bb-mask.json",
+    "sha256": "dfd238bd5041b9ae926f016376650716add0bd59094fc03ae4d92aa27e95e33a",
+    "anchors": {
+     "cx": 511.0,
+     "eye_row": 539.6,
+     "ied": 238.8,
+     "brow_row": 480.0,
+     "mouth_bottom": 879.0
+    },
+    "parting_row": 819,
+    "crease_dip_row": 869,
+    "chin_center": [
+     511,
+     908
+    ]
+   },
+   "goal": {
+    "file": "S/mouthlm/goal-bb-mask.json",
+    "sha256": "cbca3d14fbb443a2b394cdfe3d9c12626abecb6f4b4f876dfbbc99264bc07f62",
+    "anchors": {
+     "cx": 526.0,
+     "eye_row": 419.0,
+     "ied": 264.9,
+     "brow_row": 359.0,
+     "mouth_bottom": 808.0
+    },
+    "parting_row": 733,
+    "crease_dip_row": 787,
+    "chin_center": [
+     526,
+     840
+    ]
+   }
+  },
+  "solve": {
+   "six": [
+    53.2765,
+    13.2204,
+    20.3959,
+    7.4905,
+    2.3989,
+    2.9276
+   ],
+   "six_matches_landed": true,
+   "grid_ny_range": [
+    0.0,
+    1.149624060150376
+   ],
+   "landed_grid_ny_range": [
+    0.0,
+    1.232295719844358
+   ],
+   "fit_cells": 34,
+   "eval_cells": 12,
+   "unfit_cells": 2,
+   "eval_cell_list": [
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     3,
+     5
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     6,
+     1
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     7,
+     1
+    ],
+    [
+     7,
+     2
+    ]
+   ],
+   "demean_ab": [
+    -5.056,
+    -4.763
+   ]
+  },
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     58.13,
+     13.74,
+     20.88
+    ],
+    "render_center": [
+     396,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     55.81,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     411,
+     514
+    ],
+    "goal_gatefrac": 0.989,
+    "dLab_render_minus_goal": [
+     2.32,
+     -1.8,
+     -1.16
+    ],
+    "within_3_per_channel": true
+   },
+   "R_cheek": {
+    "render_Lab": [
+     57.26,
+     15.36,
+     22.31
+    ],
+    "render_center": [
+     626,
+     622
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     57.01,
+     15.54,
+     22.04
+    ],
+    "goal_center": [
+     641,
+     514
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     0.25,
+     -0.18,
+     0.27
+    ],
+    "within_3_per_channel": true
+   },
+   "forehead_below_brow": {
+    "render_Lab": [
+     60.43,
+     12.33,
+     21.33
+    ],
+    "render_center": [
+     511,
+     492
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     62.02,
+     15.45,
+     22.39
+    ],
+    "goal_center": [
+     526,
+     384
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     -1.59,
+     -3.12,
+     -1.06
+    ],
+    "within_3_per_channel": false
+   },
+   "chin": {
+    "render_Lab": [
+     56.66,
+     15.22,
+     22.48
+    ],
+    "render_center": [
+     511,
+     905
+    ],
+    "render_gatefrac": 1.0,
+    "goal_Lab": [
+     47.1,
+     13.34,
+     17.94
+    ],
+    "goal_center": [
+     526,
+     840
+    ],
+    "goal_gatefrac": 1.0,
+    "dLab_render_minus_goal": [
+     9.56,
+     1.88,
+     4.54
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "g1_count": 2,
+  "g1_note": "cheeks pass; forehead misses by 0.12 in a*; chin misses on L (+9.56, structural) and b* (+4.54)",
+  "six_only_ablation": {
+   "g1_count": 1,
+   "forehead_a": -6.39,
+   "note": "same six, field stripped: field moves forehead -6.39 -> -3.12 and cheeks to green"
+  },
+  "asymmetry": [
+   4.3975,
+   1.461,
+   2.8838
+  ],
+  "asymmetry_bound_pre_fix": [
+   4.4016,
+   1.4431,
+   2.8791
+  ],
+  "run_to_run_noise": [
+   0,
+   0,
+   0
+  ],
+  "noise_note": "capG1/capG2 byte-identical front renders (ebddced1)",
+  "renders": {
+   "front": "/Volumes/files/openclinxr/store/mouth-landmark/body2-mouthlm-g1-front.png",
+   "front_sha256": "ebddced168265bd7d6e0c0e35fbe74d40389dfd84f625de9e5b6bcaecc2434c2"
+  },
+  "field_change": "none: no face_replay_colour.py change; diagnosis shows the gaps need setting/structural moves, not a fitted constant",
+  "blocks": [
+   "chin L +9.56: the stored field is a*/b*-only by construction (L owned by the global six, which still match landed). Goal chin (47.10) carries stubble darkening vs clean render chin skin (56.66): the landed stubble deferral, now measured on-skin (+9.56 vs +22.24 philtrum-vs-chin). Unfixable in this field family.",
+   "chin b* +4.54: chin eval cells (3,5),(4,5) receive -0.78 (notch-spared curved midline per the landed G3 finding + sigma-0.7 smoothing tax); need is ~-5.6 at transfer ~0.8. Un-notching the chin trades the landed midline-asymmetry bound (sweepH: 1.4666 > 1.4654).",
+   "forehead a* -3.12 (miss by 0.12): eval cells (3,0),(4,0) receive +4.04 a* but render transfer is ~0.8 (six-only 9.06 -> field 12.33 vs goal 15.45). Open-loop albedo field under-corrects where render response < 1; closing 0.12 needs a setting or structural change beyond pinned setting G."
+  ]
  }
 }

@@ -1,0 +1,68 @@
+{
+ "card": "tsk_80caf274c12851ed",
+ "parting": {
+  "render": 816,
+  "goal": 733
+ },
+ "mouth_bottom": {
+  "render": 878,
+  "goal": 808
+ },
+ "crease_dip": {
+  "render": 869,
+  "goal": 787
+ },
+ "chin_center": {
+  "render": [
+   511,
+   905
+  ],
+  "goal": [
+   526,
+   840
+  ]
+ },
+ "g4_report_key": "mouthlm",
+ "g4_within3_count": 2,
+ "g4_regions": {
+  "L_cheek": [
+   2.32,
+   -1.8,
+   -1.16
+  ],
+  "R_cheek": [
+   0.25,
+   -0.18,
+   0.27
+  ],
+  "forehead_below_brow": [
+   -1.59,
+   -3.12,
+   -1.06
+  ],
+  "chin": [
+   9.56,
+   1.88,
+   4.54
+  ]
+ },
+ "g4_blocks": [
+  "chin L +9.56: the stored field is a*/b*-only by construction (L owned by the global six, which still match landed). Goal chin (47.10) carries stubble darkening vs clean render chin skin (56.66): the landed stubble deferral, now measured on-skin (+9.56 vs +22.24 philtrum-vs-chin). Unfixable in this field family.",
+  "chin b* +4.54: chin eval cells (3,5),(4,5) receive -0.78 (notch-spared curved midline per the landed G3 finding + sigma-0.7 smoothing tax); need is ~-5.6 at transfer ~0.8. Un-notching the chin trades the landed midline-asymmetry bound (sweepH: 1.4666 > 1.4654).",
+  "forehead a* -3.12 (miss by 0.12): eval cells (3,0),(4,0) receive +4.04 a* but render transfer is ~0.8 (six-only 9.06 -> field 12.33 vs goal 15.45). Open-loop albedo field under-corrects where render response < 1; closing 0.12 needs a setting or structural change beyond pinned setting G."
+ ],
+ "overlays": [
+  {
+   "file": "/Volumes/files/openclinxr/store/mouth-landmark/body2-render-mouth-landmark.png",
+   "sha256": "e62ef4158c52621df11981a00278ef2dc25153717be03d346e9a5701d9aff44b"
+  },
+  {
+   "file": "/Volumes/files/openclinxr/store/mouth-landmark/body2-goal-mouth-landmark.png",
+   "sha256": "f6b105a189753e08e640fa24c4aba4117b28ef16a79f3bfc17a2691e641638aa"
+  },
+  {
+   "file": "/Volumes/files/openclinxr/store/mouth-landmark/body2-mouthlm-g1-front.png",
+   "sha256": "ebddced168265bd7d6e0c0e35fbe74d40389dfd84f625de9e5b6bcaecc2434c2"
+  }
+ ]
+}
