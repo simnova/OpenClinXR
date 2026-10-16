@@ -142,7 +142,7 @@ describe("the mask finds the lip line and the chin", { timeout: 240000 }, () => 
     const fgCheck = execFileSync("mise",
       ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
         "python3", "-c",
-        "import sys; sys.path.insert(0, '/Users/patrick/.grok/worktrees/src-openclinxr/mouthlm/tools/openclinxr/asset-pipeline/skin/face-replay');" +
+        "import sys; sys.path.insert(0, '" + DIR + "');" +
         "import face_landmark_regions as F;" +
         "print(F.FACE_GATE_MODULE + ' ' + F._FG.region_polygons.__module__)"],
       { encoding: "utf8", timeout: 120000 }).trim();
@@ -169,7 +169,7 @@ describe("the mask finds the lip line and the chin", { timeout: 240000 }, () => 
       const fgCentroid = execFileSync("mise",
         ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
           "python3", "-c",
-          "import sys; sys.path.insert(0, '/Users/patrick/.grok/worktrees/src-openclinxr/mouthlm/tools/openclinxr/evidence/face-gate');" +
+          "import sys; sys.path.insert(0, '" + path.join(DIR, "../../../evidence/face-gate") + "');" +
           "import face_gate as F;" +
           `F.MODEL_PATH='${m.landmarks.model_path}';` +
           "from PIL import Image;" +
