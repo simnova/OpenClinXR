@@ -206,18 +206,19 @@ describe("the mask finds the lip line and the chin", () => {
       "overlays"] as const) {
       expect(rep[k], `report has ${k}`).toBeDefined();
     }
-    // Falsifier record (handback 2, polygon regions): the setting-G
-    // field re-run reaches 1/4 (chin passes; cheeks fail on L +3.5-3.9,
-    // forehead on a* -4.2; the field is a*/b*-only and the six already
-    // match). Pinned, not bent: any silent change to the numbers
+    // Record (handback 3, polygon regions + landed L-channel field):
+    // setting sweepE+L reaches 3/4 (cheeks + chin; forehead misses on
+    // a*/b*), passes the room-rig counterweight on all 3 contrasts, and
+    // is the closest of the four L-settings (fewest over-bound
+    // channels). Pinned, not bent: any silent change to the numbers
     // breaks it.
-    expect(rep.g4_within3_count, "G4 within-3 count recomputes to 1")
-      .toBe(1);
+    expect(rep.g4_within3_count, "G4 within-3 count recomputes to 3")
+      .toBe(3);
     const flags = Object.fromEntries(Object.entries(rep.g4_regions)
       .map(([n, d]) => [n, (d as [number, number, number])
         .every((x) => Math.abs(x) <= 3)]));
-    expect(flags, "chin passes; cheeks + forehead fail").toEqual({
-      L_cheek: false, R_cheek: false, forehead: false,
+    expect(flags, "cheeks + chin pass, forehead fails").toEqual({
+      L_cheek: true, R_cheek: true, forehead: false,
       chin: true,
     });
     expect(rep.g4_blocks.length, "blocker statement recorded").toBeGreaterThanOrEqual(1);
@@ -238,10 +239,12 @@ describe("the mask finds the lip line and the chin", () => {
       expect(mouthlm.regions[n]!.dLab_render_minus_goal,
         `report key dLab matches for ${n}`).toEqual(d);
     }
-    expect(mouthlm.g1_count, "report key G1 count matches").toBe(1);
-    const scratchCap = "/Users/patrick/.grok/worktrees/src-openclinxr/" +
-      "realism-95/.openclinxr/realism-spike/mouthlm/sweepG3/cap/final-mask.json";
-    const scratchGoal = "/Users/patrick/.grok/worktrees/src-openclinxr/" +
+    expect(mouthlm.g1_count, "report key G1 count matches").toBe(3);
+    const scratchCap = (rep as { g4_cap_mask?: string }).g4_cap_mask ??
+      "/Users/patrick/.grok/worktrees/src-openclinxr/" +
+      "realism-95/.openclinxr/realism-spike/mouthlm/resweepL/sweepE/cap/final-mask.json";
+    const scratchGoal = (rep as { g4_goal_mask?: string }).g4_goal_mask ??
+      "/Users/patrick/.grok/worktrees/src-openclinxr/" +
       "realism-95/.openclinxr/realism-spike/mouthlm/goal-bb-mask.json";
     if (fs.existsSync(scratchCap) && fs.existsSync(scratchGoal)) {
       const fin = JSON.parse(fs.readFileSync(scratchCap, "utf8")) as MaskJson;

@@ -1,5 +1,5 @@
 {
- "card": "tsk_80caf274c12851ed handback 2",
+ "card": "tsk_80caf274c12851ed handback 3",
  "parting": {
   "render": 816,
   "goal": 733
@@ -40,40 +40,41 @@
  },
  "min_polygon_n": 300,
  "min_measured_polygon_n": 3486,
- "g4_report_key": "mouthlm_r3",
- "g4_within3_count": 1,
+ "g4_report_key": "mouthlm_r4",
+ "g4_within3_count": 3,
  "g4_regions": {
   "L_cheek": [
-   3.85,
-   -1.54,
-   -2.13
+   1.17,
+   -1.41,
+   -2.43
   ],
   "R_cheek": [
-   3.54,
-   -0.76,
-   0.28
+   0.71,
+   -0.4,
+   0.03
   ],
   "forehead": [
-   -0.8,
-   -4.18,
-   -2.34
+   2.64,
+   -5.38,
+   -3.45
   ],
   "chin": [
-   -1.39,
-   0.3,
-   0.73
+   -2.31,
+   0.6,
+   0.7
   ]
  },
  "upperlip_skin_dLab": [
-  12.81,
-  1.11,
-  2.75
+  8.6,
+  1.75,
+  1.69
  ],
  "g4_blocks": [
-  "cheek L +3.5-3.9: render albedo too light on the anatomical cheek quads; only the global six own L and they already match on facecore means. Local L correction is outside the a*/b* field family.",
-  "forehead a* -4.2: rendered response shortfall at the anatomical forehead (applied field under-corrects; best across A-H is F/H -4.18).",
-  "upperlip_skin L +12.8: render philtrum far lighter than goal (beard-card territory), recorded not gated."
+  "forehead a* -5.38 / b* -3.45 (E): open-loop albedo field under-corrects where render response < 1; L over-moves first (+2.64), chroma lags.",
+  "upperlip_skin L +8.6: philtrum far lighter than goal; beard-card territory, recorded not gated."
  ],
+ "g4_cap_mask": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/mouthlm/resweepL/sweepE/cap/final-mask.json",
+ "g4_goal_mask": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/mouthlm/goal-bb-mask.json",
  "overlays": [
   {
    "file": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-render-mouth-landmark.png",
@@ -84,8 +85,16 @@
    "sha256": "987361d1c2a0c70c7741a5bd8d498d7ccc170e35f8845e61dd704ee93c65fcfa"
   },
   {
-   "file": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-g3-front.png",
-   "sha256": "b88eff647333a0814f69b8a68ea0351b1cf988e84a362a1880ee63898a586d7a"
+   "file": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-e-front.png",
+   "sha256": "b1b0a8e7e2c857711a9fd1cbf48a4efa31cba71bacb575d10293c9fd8bfd7721"
+  },
+  {
+   "file": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-room-before.png",
+   "sha256": "5b260e3d03c0ae5e24c8bee60f5c726bff6206c6b35c51525db1577857c8eb26"
+  },
+  {
+   "file": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-room-e-front.png",
+   "sha256": "adfc99dc7a896e19a0f9ee52b6dcbb7e6de36d128786c3a1072baabbfab42cb8"
   }
  ]
 }

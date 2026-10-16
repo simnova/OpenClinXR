@@ -2127,6 +2127,443 @@
    "cheek L +3.5-3.9: render albedo too light on the anatomical cheek quads; only the global six own L and they already match on facecore means. Local L correction is outside the a*/b* field family.",
    "forehead a* -4.2: rendered response shortfall at the anatomical forehead (applied field under-corrects; best across A-H is F/H -4.18).",
    "upperlip_skin L +12.8: render philtrum far lighter than goal (beard-card territory), recorded not gated."
+  ],
+  "superseded_by": "mouthlm_r4 (L-channel sweepE field landed; r3 numbers untouched)"
+ },
+ "mouthlm_r4": {
+  "card": "tsk_80caf274c12851ed handback 3",
+  "field_change": "LANDED: optional low-frequency L channel in the stored regional field (same grid/smoothing/fit-eval split/mirror/notch as the chroma channels; demeaned so the six keep the face mean; replay applies it only when cells_l present; field-free and chroma-only params replay exactly as before). Chosen setting: sweepE+L (6x5, sigma 0.7, mirror, no notch).",
+  "setting": "sweepE+L (6x5 grid, sigma 0.7 cells, mirror, no notch, luminance on)",
+  "why_e": "all four L-settings reach 3/4 with G2 intact and pass the room counterweight; E has the fewest over-bound channels (forehead a*/b* only; F/G/H also miss forehead L).",
+  "solve": {
+   "six": [
+    53.3014,
+    13.1898,
+    20.3927,
+    7.4761,
+    2.4015,
+    2.9194
+   ],
+   "fit_cells": 24,
+   "eval_cells": 4,
+   "unfit_cells": 2,
+   "eval_cell_list": [
+    [
+     0,
+     2
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     5,
+     2
+    ]
+   ],
+   "demean_ab": [
+    -4.392,
+    -3.907
+   ],
+   "demean_l": 3.117,
+   "luminance": true
+  },
+  "regions": {
+   "L_cheek": {
+    "render_Lab": [
+     50.1,
+     14.62,
+     20.4
+    ],
+    "render_center": [
+     370,
+     702
+    ],
+    "render_n": 15080,
+    "goal_Lab": [
+     48.93,
+     16.03,
+     22.83
+    ],
+    "goal_center": [
+     368,
+     608
+    ],
+    "goal_n": 15456,
+    "dLab_render_minus_goal": [
+     1.17,
+     -1.41,
+     -2.43
+    ],
+    "within_3_per_channel": true
+   },
+   "R_cheek": {
+    "render_Lab": [
+     52.35,
+     15.6,
+     22.96
+    ],
+    "render_center": [
+     657,
+     703
+    ],
+    "render_n": 15324,
+    "goal_Lab": [
+     51.64,
+     16.0,
+     22.93
+    ],
+    "goal_center": [
+     672,
+     612
+    ],
+    "goal_n": 16002,
+    "dLab_render_minus_goal": [
+     0.71,
+     -0.4,
+     0.03
+    ],
+    "within_3_per_channel": true
+   },
+   "forehead": {
+    "render_Lab": [
+     72.05,
+     8.34,
+     16.82
+    ],
+    "render_center": [
+     517,
+     438
+    ],
+    "render_n": 6295,
+    "goal_Lab": [
+     69.41,
+     13.72,
+     20.27
+    ],
+    "goal_center": [
+     521,
+     334
+    ],
+    "goal_n": 8346,
+    "dLab_render_minus_goal": [
+     2.64,
+     -5.38,
+     -3.45
+    ],
+    "within_3_per_channel": false
+   },
+   "chin": {
+    "render_Lab": [
+     40.01,
+     13.23,
+     18.18
+    ],
+    "render_center": [
+     516,
+     924
+    ],
+    "render_n": 14479,
+    "goal_Lab": [
+     42.32,
+     12.63,
+     17.48
+    ],
+    "goal_center": [
+     525,
+     835
+    ],
+    "goal_n": 9288,
+    "dLab_render_minus_goal": [
+     -2.31,
+     0.6,
+     0.7
+    ],
+    "within_3_per_channel": true
+   },
+   "upperlip_skin": {
+    "render_Lab": [
+     60.94,
+     12.65,
+     16.76
+    ],
+    "render_center": [
+     513,
+     768
+    ],
+    "render_n": 3486,
+    "goal_Lab": [
+     52.34,
+     10.9,
+     15.07
+    ],
+    "goal_center": [
+     519,
+     676
+    ],
+    "goal_n": 3925,
+    "dLab_render_minus_goal": [
+     8.6,
+     1.75,
+     1.69
+    ],
+    "within_3_per_channel": false
+   }
+  },
+  "g1_count": 3,
+  "all_l_settings": {
+   "sweepE": {
+    "g1_count": 3,
+    "dLab": {
+     "L_cheek": [
+      1.17,
+      -1.41,
+      -2.43
+     ],
+     "R_cheek": [
+      0.71,
+      -0.4,
+      0.03
+     ],
+     "forehead": [
+      2.64,
+      -5.38,
+      -3.45
+     ],
+     "chin": [
+      -2.31,
+      0.6,
+      0.7
+     ],
+     "upperlip_skin": [
+      8.6,
+      1.75,
+      1.69
+     ]
+    },
+    "asymmetry": [
+     4.3668,
+     1.4795,
+     2.8538
+    ],
+    "front_sha256": "b1b0a8e7e2c85771",
+    "g2_disjoint": true
+   },
+   "sweepF": {
+    "g1_count": 3,
+    "dLab": {
+     "L_cheek": [
+      0.38,
+      -0.86,
+      -1.89
+     ],
+     "R_cheek": [
+      -0.11,
+      0.2,
+      0.58
+     ],
+     "forehead": [
+      3.64,
+      -5.5,
+      -3.66
+     ],
+     "chin": [
+      -1.91,
+      0.55,
+      0.8
+     ],
+     "upperlip_skin": [
+      8.06,
+      1.53,
+      1.31
+     ]
+    },
+    "asymmetry": [
+     4.2764,
+     1.4981,
+     2.843
+    ],
+    "front_sha256": "0179f84c32521b6a",
+    "g2_disjoint": true
+   },
+   "sweepG": {
+    "g1_count": 3,
+    "dLab": {
+     "L_cheek": [
+      0.5,
+      -0.86,
+      -1.85
+     ],
+     "R_cheek": [
+      -0.01,
+      0.2,
+      0.6
+     ],
+     "forehead": [
+      3.63,
+      -5.5,
+      -3.65
+     ],
+     "chin": [
+      -1.62,
+      0.65,
+      1.03
+     ],
+     "upperlip_skin": [
+      12.77,
+      1.1,
+      2.71
+     ]
+    },
+    "asymmetry": [
+     4.2643,
+     1.4933,
+     2.8317
+    ],
+    "front_sha256": "d78a3801797c60ea",
+    "g2_disjoint": true
+   },
+   "sweepH": {
+    "g1_count": 3,
+    "dLab": {
+     "L_cheek": [
+      0.5,
+      -0.86,
+      -1.84
+     ],
+     "R_cheek": [
+      -0.01,
+      0.2,
+      0.6
+     ],
+     "forehead": [
+      3.64,
+      -5.5,
+      -3.65
+     ],
+     "chin": [
+      -1.0,
+      0.83,
+      1.58
+     ],
+     "upperlip_skin": [
+      12.78,
+      1.11,
+      2.72
+     ]
+    },
+    "asymmetry": [
+     4.2565,
+     1.4956,
+     2.8197
+    ],
+    "front_sha256": "3f5a41eb7e2c0654",
+    "g2_disjoint": true
+   }
+  },
+  "counterweight": {
+   "contrasts": {
+    "sweepE": {
+     "passes": true,
+     "cheekL-fore": {
+      "d_studio": -6.35,
+      "d_room": -4.91,
+      "reject": false
+     },
+     "cheekR-fore": {
+      "d_studio": -6.48,
+      "d_room": -5.15,
+      "reject": false
+     },
+     "chin-fore": {
+      "d_studio": -5.98,
+      "d_room": -5.21,
+      "reject": false
+     }
+    },
+    "sweepF": {
+     "passes": true,
+     "cheekL-fore": {
+      "d_studio": -8.14,
+      "d_room": -6.36,
+      "reject": false
+     },
+     "cheekR-fore": {
+      "d_studio": -8.29,
+      "d_room": -6.67,
+      "reject": false
+     },
+     "chin-fore": {
+      "d_studio": -6.78,
+      "d_room": -5.77,
+      "reject": false
+     }
+    },
+    "sweepG": {
+     "passes": true,
+     "cheekL-fore": {
+      "d_studio": -8.01,
+      "d_room": -6.11,
+      "reject": false
+     },
+     "cheekR-fore": {
+      "d_studio": -8.18,
+      "d_room": -6.46,
+      "reject": false
+     },
+     "chin-fore": {
+      "d_studio": -6.44,
+      "d_room": -5.39,
+      "reject": false
+     }
+    },
+    "sweepH": {
+     "passes": true,
+     "cheekL-fore": {
+      "d_studio": -8.01,
+      "d_room": -6.17,
+      "reject": false
+     },
+     "cheekR-fore": {
+      "d_studio": -8.19,
+      "d_room": -6.46,
+      "reject": false
+     },
+     "chin-fore": {
+      "d_studio": -5.82,
+      "d_room": -4.74,
+      "reject": false
+     }
+    }
+   },
+   "note": "raw polygon means (face_gate.measure_region semantics, no skin gate: gate is studio-lighting-tuned and clips 72% of forehead pixels under the room rig); same pixel sets before/after on each rig"
+  },
+  "counterweight_note": "raw polygon L means (face_gate.measure_region semantics, no skin gate: the gate is studio-lighting-tuned and clips 72% of forehead pixels under the room rig); same pixel sets before/after on each rig. Reject rule: opposite direction AND |d_room| > |d_studio}. All 4 settings pass on all 3 contrasts.",
+  "asymmetry": [
+   4.3668,
+   1.4795,
+   2.8538
+  ],
+  "asymmetry_bound_pre_fix": [
+   4.4016,
+   1.4431,
+   2.8791
+  ],
+  "renders": {
+   "studio_front": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-e-front.png",
+   "studio_front_sha256": "b1b0a8e7e2c857711a9fd1cbf48a4efa31cba71bacb575d10293c9fd8bfd7721",
+   "room_before": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-room-before.png",
+   "room_before_sha256": "5b260e3d03c0ae5e24c8bee60f5c726bff6206c6b35c51525db1577857c8eb26",
+   "room_after": "/Volumes/files/openclinxr-assets/store/mouth-landmark/body2-mouthlm-room-e-front.png",
+   "room_after_sha256": "adfc99dc7a896e19a0f9ee52b6dcbb7e6de36d128786c3a1072baabbfab42cb8"
+  },
+  "blocks_remaining": [
+   "forehead a* -5.38 / b* -3.45 (E): open-loop albedo field under-corrects where render response < 1; L over-moves first (+2.64), chroma lags.",
+   "upperlip_skin L +8.6: philtrum far lighter than goal; beard-card territory, recorded not gated."
   ]
  }
 }

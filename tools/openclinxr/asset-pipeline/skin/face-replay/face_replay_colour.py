@@ -145,20 +145,23 @@ def _cells_overlapping(nx_edges: np.ndarray, ny_edges: np.ndarray,
     return hit
 
 
-def _cell_means_ab(rgb: np.ndarray, keep: np.ndarray,
-                   nx: np.ndarray, ny: np.ndarray,
-                   nx_edges: np.ndarray, ny_edges: np.ndarray) -> tuple:
-    """Mean a*/b* per grid cell over kept pixels; count grid."""
-    lab = C.lab_of(rgb).astype(np.float64)
+def _cell_bins(nx: np.ndarray, ny: np.ndarray,
+               nx_edges: np.ndarray, ny_edges: np.ndarray) -> tuple:
+    """Bin kept-pixel normalised coords to grid cells (shared binning for
+    every channel so all means cover identical pixel sets)."""
     ix = np.clip(np.digitize(nx, nx_edges) - 1, 0, len(nx_edges) - 2)
     iy = np.clip(np.digitize(ny, ny_edges) - 1, 0, len(ny_edges) - 2)
-    ny_cells, nx_cells = len(ny_edges) - 1, len(nx_edges) - 1
-    means = np.full((ny_cells, nx_cells, 2), np.nan)
+    return ix, iy, len(ny_edges) - 1, len(nx_edges) - 1
+
+
+def _binned_means(feat: np.ndarray, flat: np.ndarray,
+                  ny_cells: int, nx_cells: int) -> tuple:
+    """Mean of per-pixel feature rows (n, k) per grid cell; count grid.
+    Same stable-sort/searchsorted walk as the original a*/b* helper, so
+    refactored channels reproduce its numbers exactly."""
+    k = feat.shape[1]
+    means = np.full((ny_cells, nx_cells, k), np.nan)
     counts = np.zeros((ny_cells, nx_cells), dtype=np.int64)
-    # ix/iy/nx/ny are already kept-pixels-only from coords(); ab is masked
-    # from the full Lab image with the same keep mask, so rows align.
-    flat = iy * nx_cells + ix
-    ab = np.stack([lab[..., 1], lab[..., 2]], axis=-1)[keep]
     if flat.size:
         order = np.argsort(flat, kind="stable")
         srt = flat[order]
@@ -169,8 +172,41 @@ def _cell_means_ab(rgb: np.ndarray, keep: np.ndarray,
             counts[ci // nx_cells, ci % nx_cells] = n
             if n >= MIN_CELL_TEXELS:
                 means[ci // nx_cells, ci % nx_cells] = \
-                    ab[order[prev:b]].mean(axis=0)
+                    feat[order[prev:b]].mean(axis=0)
             prev = b
+    return means, counts
+
+
+def _cell_means_ab(rgb: np.ndarray, keep: np.ndarray,
+                   nx: np.ndarray, ny: np.ndarray,
+                   nx_edges: np.ndarray, ny_edges: np.ndarray) -> tuple:
+    """Mean a*/b* per grid cell over kept pixels; count grid."""
+    lab = C.lab_of(rgb).astype(np.float64)
+    ix, iy, ny_cells, nx_cells = _cell_bins(nx, ny, nx_edges, ny_edges)
+    # ix/iy/nx/ny are already kept-pixels-only from coords(); ab is masked
+    # from the full Lab image with the same keep mask, so rows align.
+    flat = iy * nx_cells + ix
+    ab = np.stack([lab[..., 1], lab[..., 2]], axis=-1)[keep]
+    if flat.size:
+        means, counts = _binned_means(ab, flat, ny_cells, nx_cells)
+    else:
+        means = np.full((ny_cells, nx_cells, 2), np.nan)
+        counts = np.zeros((ny_cells, nx_cells), dtype=np.int64)
+    return means, counts
+
+
+def _cell_means_l(rgb: np.ndarray, keep: np.ndarray,
+                  ix: np.ndarray, iy: np.ndarray,
+                  ny_cells: int, nx_cells: int) -> tuple:
+    """Mean L per grid cell over the SAME binned pixel sets as a*/b*."""
+    lab = C.lab_of(rgb).astype(np.float64)
+    flat = iy * nx_cells + ix
+    L = lab[..., 0][keep][..., None]
+    if flat.size:
+        means, counts = _binned_means(L, flat, ny_cells, nx_cells)
+    else:
+        means = np.full((ny_cells, nx_cells, 1), np.nan)
+        counts = np.zeros((ny_cells, nx_cells), dtype=np.int64)
     return means, counts
 
 
@@ -194,10 +230,11 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                           goal_keep: np.ndarray, goal_json: dict,
                           landmarks: dict, mouth_t: float,
                           nx_cells: int, ny_cells: int,
-                          sigma_cells: float,
+                           sigma_cells: float,
                           mirror: bool = False,
                           notch: bool = False,
-                          notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00") -> dict:
+                          notch_cores: str = "0.20,0.32,0.70;0.26,0.80,1.00",
+                          luminance: bool = False) -> dict:
     """Fit the stored regional chroma field.
 
     Per cell: goal-minus-pre mean a*/b* over the below-brow band in
@@ -210,6 +247,12 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     corrected). The fit mean is removed (global tone stays with the six
     numbers; L untouched), then a Gaussian smooth propagates fit values
     into excluded cells so held-out patches generalise from neighbours.
+
+    With luminance=True the same machinery additionally fits a
+    low-frequency L channel (same cells, same fit/eval split, same
+    demean/smooth/notch): the global six keep the face mean while the
+    field carries local lightness (HB3: matched-anatomy cheeks/forehead
+    miss on L, which no a*/b* field can move).
     """
     a_pre = _norm_anchors(pre_json)
     a_goal = _norm_anchors(goal_json)
@@ -236,7 +279,6 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
     goal_m, goal_n = _cell_means_ab(goal_rgb, goal_keep, gnx, gny,
                                     nx_edges, ny_edges)
     covered = (~np.isnan(pre_m[..., 0])) & (~np.isnan(goal_m[..., 0]))
-
     eval_cells: set = set()
     for js in (pre_json, goal_json):
         for rect in _eval_patch_rects(js, half=patch_half):
@@ -316,6 +358,40 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
                              "albedo; sparing it removes asymmetric render "
                              "response without touching smooth eval zones"}
 
+    cells_l = None
+    demean_l = None
+    if luminance:
+        # Same pixel sets, same fit/eval split, same mirror/demean/smooth/
+        # notch as the chroma channels: local lightness the six cannot
+        # supply (they match the face mean, not the cheek/forehead shape).
+        p_ix, p_iy, p_nyc, p_nxc = _cell_bins(pnx, pny, nx_edges, ny_edges)
+        g_ix, g_iy, _, _ = _cell_bins(gnx, gny, nx_edges, ny_edges)
+        pre_l, _ = _cell_means_l(pre_rgb, pre_keep, p_ix, p_iy, p_nyc, p_nxc)
+        goal_l, _ = _cell_means_l(goal_rgb, goal_keep, g_ix, g_iy, p_nyc, p_nxc)
+        raw_l = np.where(covered, goal_l[..., 0] - pre_l[..., 0], np.nan)
+        if mirror:
+            for iy in range(ny_cells):
+                for ix in range(nx_cells):
+                    jx = nx_cells - 1 - ix
+                    if jx <= ix:
+                        continue
+                    a, b = covered[iy, ix], covered[iy, jx]
+                    if a and b:
+                        avg = (raw_l[iy, ix] + raw_l[iy, jx]) / 2
+                        raw_l[iy, ix] = raw_l[iy, jx] = avg
+                    elif b:
+                        raw_l[iy, ix] = raw_l[iy, jx]
+                    elif a:
+                        raw_l[iy, jx] = raw_l[iy, ix]
+        filled_l = _nearest_fill(
+            np.where(np.isnan(raw_l), 0.0, raw_l), covered)
+        demean_l = float(filled_l[fit].mean())
+        smooth_l = C.gauss(filled_l - demean_l, float(sigma_cells))
+        if notch:
+            smooth_l = smooth_l * wcell
+        cells_l = [[float(smooth_l[iy, ix]) for ix in range(nx_cells)]
+                   for iy in range(ny_cells)]
+
     lms = landmarks["landmarks"]
     def uv(name):
         return lms[name]["uv_texel"]
@@ -343,6 +419,9 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
         },
         "cells_ab": [[[float(smooth[iy, ix, 0]), float(smooth[iy, ix, 1])]
                       for ix in range(nx_cells)] for iy in range(ny_cells)],
+        "luminance": bool(luminance),
+        "cells_l": cells_l,
+        "demean_l": demean_l,
         "fit_cells": sorted([list(c) for c in
                              [(ix, iy) for iy in range(ny_cells)
                               for ix in range(nx_cells) if fit[iy, ix]]]),
@@ -361,7 +440,9 @@ def solve_regional_chroma(pre_rgb: np.ndarray, pre_keep: np.ndarray,
 
 def apply_regional_chroma(lab: np.ndarray, face: np.ndarray,
                           field: dict, albedo_size: int) -> np.ndarray:
-    """Add the stored a*/b* field to albedo Lab (L untouched).
+    """Add the stored a*/b* field to albedo Lab (plus the stored L channel
+    when the field carries one; fields without it behave exactly as
+    before, and field-free params never reach this function).
 
     Texel (row=v*S across, col=u*S down) -> normalised coords via the
     mesh-derived UV anchors, bilinear sample of the smoothed grid
@@ -390,17 +471,24 @@ def apply_regional_chroma(lab: np.ndarray, face: np.ndarray,
     y1 = np.minimum(y0 + 1, ny_cells - 1)
     fx = (gx - x0)[..., None]
     fy = (gy - y0)[..., None]
-    cells = np.array(field["cells_ab"], dtype=np.float64)
-    v00 = cells[y0, x0]
-    v10 = cells[y0, x1]
-    v01 = cells[y1, x0]
-    v11 = cells[y1, x1]
-    delta = (v00 * (1 - fx) + v10 * fx) * (1 - fy) + \
+
+    def sample(cells):
+        v00 = cells[y0, x0]
+        v10 = cells[y0, x1]
+        v01 = cells[y1, x0]
+        v11 = cells[y1, x1]
+        return (v00 * (1 - fx) + v10 * fx) * (1 - fy) + \
             (v01 * (1 - fx) + v11 * fx) * fy
+
+    cells = np.array(field["cells_ab"], dtype=np.float64)
+    delta = sample(cells)
     wgt = np.clip(face, 0.0, 1.0)[..., None]
     out = lab.copy()
     out[..., 1] += delta[..., 0] * wgt[..., 0]
     out[..., 2] += delta[..., 1] * wgt[..., 0]
+    if field.get("cells_l") is not None:
+        cells_l = np.array(field["cells_l"], dtype=np.float64)[..., None]
+        out[..., 0] += sample(cells_l)[..., 0] * wgt[..., 0]
     return out
 
 
@@ -496,7 +584,8 @@ def cmd_solve(args: argparse.Namespace) -> dict:
                                       float(args.chroma_sigma),
                                       mirror=bool(args.chroma_mirror),
                                       notch=bool(args.chroma_notch),
-                                      notch_cores=args.chroma_notch_cores)
+                                      notch_cores=args.chroma_notch_cores,
+                                      luminance=bool(args.chroma_luminance))
         field["files"] = {
             "pre_mask_json": Path(args.chroma_pre_json).name,
             "goal_mask_json": Path(args.chroma_goal_json).name,
@@ -700,6 +789,10 @@ def build_parser() -> argparse.ArgumentParser:
                          "(nose/mouth shading zones)")
     ap.add_argument("--chroma-notch-cores", default="0.20,0.32,0.70;0.26,0.80,1.00",
                     help="notch cores as hx,ny0,ny1 triples in normalised units")
+    ap.add_argument("--chroma-luminance", action="store_true",
+                    help="add an optional low-frequency L channel to the "
+                         "stored field (same grid/smoothing/fit-eval split; "
+                         "fields without it replay exactly as before)")
     return ap
 
 
