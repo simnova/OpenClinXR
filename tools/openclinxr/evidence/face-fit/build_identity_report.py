@@ -1,33 +1,64 @@
-"""Build identity-report.json (card tsk_2c547dda8753bba0).
+"""Build identity-report.json (card tsk_2c547dda8753bba0 h1).
 
-Reads fit-report.json (M1 known-goods), the store stage records (applied /
-unapplied / FACE_TARGETS_APPLY counts), and identity_gate.py outputs for
-prefix (pre-fix run1/run2) and postfix (post-fix run3/run4) runs plus the
-cross-subject M2 pairs and 0.8x-rescale noise probes. Writes
-tools/openclinxr/evidence/face-fit/identity-report.json with every threshold
-beside its source.
+h1 shape: M1 is marked invalid_instrument (no threshold); M2 carries a
+status (enforced only when knownGood + noise < knownBad, else report-only
+with the measured numbers); fit-bake station runs live on as experiment rows
+(the case default is opt-in OFF); one defect record (lower-lip wedge) plus a
+no-mouth experiment row per case.
 
-Gate JSON layout (this builder's convention, written by hand at gating time):
-  /tmp/st-identity/gate-<case>-<prefix|postfix>-<run1|run2>.json  (identity_gate.py --out)
-  /tmp/st-identity/cross-<rendercase>-<side>-vs-<goalcase>.json    (identity_gate.py --goal-case; m2 only)
-  /tmp/st-identity/rescale-<case>.json                            ({"noise": <m2 redetect delta>})
-
-Usage:
-  mise exec -C /Volumes/files/src/openclinxr -- python3 \
-    tools/openclinxr/evidence/face-fit/build_identity_report.py
+Inputs (all measured, none authored):
+  /tmp/st-identity/f2-<case>-<pre|fitbake|nomouth>.json (identity_gate.py)
+  /tmp/st-identity/f2-cross-<a>-vs-<b>.json
+  store stage records of face-station-cases/<case>/exp-fitbake-<1|2>
+  store bake logs of identity/exp-nomouth-<case>-blender.log (65 weights)
+  fit-report.json (fitter numbers, context only)
 """
 
+import hashlib
 import json
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = HERE
 G = "/tmp/st-identity"
-STORE_CASES = "/Volumes/files/openclinxr-assets/store/face-station-cases"
+STORE = "/Volumes/files/openclinxr-assets/store"
+STORE_CASES = os.path.join(STORE, "face-station-cases")
 
 D5 = ("the aisha goal (S/project/edit-v9/edit-0.png) is an edit of an aisha render "
       "(reference-set manifest.json:7 keeps the render pixel-for-pixel, only the surface changes), "
       "so the aisha pair is close partly by construction")
+
+# Verified face-framing ratios (verifyframe.py redetect on the shipped flats;
+# goal interocular from the case target npy, indices 33/263).
+FRAMING = {
+    "body2": {"goalIoc": 330.2, "renders": {"pre": 1.0225, "fitbake": 1.0123, "nomouth": 1.0175},
+              "orthos": {"pre": 0.2687, "fitbake": 0.2685, "nomouth": 0.2672}},
+    "aisha": {"goalIoc": 523.9, "renders": {"pre": 1.0055, "fitbake": 0.9969, "nomouth": 0.9999},
+              "orthos": {"pre": 0.1708, "fitbake": 0.1708, "nomouth": 0.1735}},
+}
+HIDDEN = {
+    "body2": ("makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual,"
+              "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh,"
+              "makeclothes_library_straight_leg_jeans_pants,"
+              "makeclothes_library_toigo_t_shirt,"
+              "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh,"
+              "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh"),
+    "aisha": ("makeclothes_library_female_tight_jeans_pants,"
+              "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha,"
+              "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh,"
+              "makeclothes_library_toigo_t_shirt,"
+              "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh,"
+              "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh"),
+}
+
+
+def sha_file(pth):
+    h = hashlib.sha256()
+    with open(pth, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def load_gate(name):
@@ -35,159 +66,138 @@ def load_gate(name):
         return json.load(f)
 
 
-def mean(xs):
-    return sum(xs) / len(xs)
+def log_count(log_path):
+    log = open(log_path).read()
+    m = re.search(r"FACE_TARGETS_APPLY (\{.*\})", log)
+    assert m, "no FACE_TARGETS_APPLY in %s" % log_path
+    return len(json.loads(m.group(1)))
 
 
 def main():
-    fit_report = json.load(open(os.path.join(D, "fit-report.json")))
     cases = {}
+    experiments = []
     for case in ("body2", "aisha"):
-        fit_case = fit_report["cases"][case]
-        pre = [load_gate("gate-%s-prefix-run1.json" % case),
-               load_gate("gate-%s-prefix-run2.json" % case)]
-        post = [load_gate("gate-%s-postfix-run1.json" % case),
-                load_gate("gate-%s-postfix-run2.json" % case)]
-        pre_m1 = mean([g["m1Mm"] for g in pre])
-        post_m1 = mean([g["m1Mm"] for g in post])
-        pre_m2 = mean([g["m2"] for g in pre])
-        post_m2 = mean([g["m2"] for g in post])
-
-        # Stage records: applied / unapplied / log proof (postfix runs).
-        store_runs = {"prefix": ["run1", "run2"], "postfix": ["run3", "run4"]}
-        applied = None
-        unapplied = None
-        big_detail = ""
-        for run in store_runs["postfix"]:
-            rec = json.load(open(os.path.join(
-                STORE_CASES, case, run, "stage-records.json")))
+        rows = {s: load_gate("f2-%s-%s.json" % (case, s)) for s in ("pre", "fitbake", "nomouth")}
+        # Experiment rows from the station exp runs (renamed out of runN).
+        exp = []
+        for i in (1, 2):
+            run = "exp-fitbake-%d" % i
+            rec = json.load(open(os.path.join(STORE_CASES, case, run, "stage-records.json")))
             s4 = next(s for s in rec["stages"] if s["stage"] == 4)
             ff = s4["extra"]["faceFit"]
             assert s4["gate"]["pass"] and ff["logVerified"], (case, run)
-            if applied is None:
-                applied = ff["applied"]
-                unapplied = ff["unapplied"]
-                big_detail = ff["bigDetail"]
-            else:
-                assert [a["name"] for a in ff["applied"]] == [a["name"] for a in applied], (case, run)
-
-        # M1 threshold: known-good = fitter's own rmsAfterMm; known-bad = M1 on
-        # the pre-fix bake; midpoint; enforced only when margin/noise >= 1.
-        kg_m1 = float(fit_case["rmsAfterMm"])
-        m1_noise = abs(post[0]["m1Mm"] - post[1]["m1Mm"])
-        m1_margin = abs(pre_m1 - kg_m1)
-        m1_threshold = (kg_m1 + pre_m1) / 2.0
-        m1_enforced = (m1_margin / m1_noise >= 1.0) if m1_noise > 0 else True
-
+            # NOTE: the record's output paths still name the pre-rename run dir;
+            # resolve the GLB by basename under the experiment dir.
+            glb_name = next(o["path"].split("/")[-1] for o in s4["outputs"] if o["path"].endswith(".glb"))
+            glb = os.path.join(STORE_CASES, case, run, glb_name)
+            assert os.path.isfile(glb), glb
+            exp.append({"run": run, "glb": glb, "glbSha256": sha_file(glb),
+                        "log": os.path.join(STORE_CASES, case, run, "stage4-blender.log"),
+                        "applied": ff["applied"], "unapplied": ff["unapplied"],
+                        "bigDetail": ff["bigDetail"], "logAppliedCount": ff["logAppliedCount"]})
+        assert [a["name"] for a in exp[0]["applied"]] == [a["name"] for a in exp[1]["applied"]]
+        # No-mouth experiment row (manual bake, 65 non-mouth weights).
+        nm_glb = os.path.join(STORE, "identity/exp-nomouth/%s-lidconform.glb" % case)
+        nm_log = os.path.join(STORE, "identity/exp-nomouth-%s-blender.log" % case)
+        nm_count = log_count(nm_log)
+        assert nm_count == 65, (case, nm_count)
+        nomouth = {"run": "exp-nomouth", "glb": nm_glb, "glbSha256": sha_file(nm_glb),
+                   "log": nm_log, "appliedCount": 65,
+                   "excluded": "all 34 mouth-* weights (13 |w|>=0.05 body2, 11 aisha)",
+                   "logAppliedCount": nm_count}
+        experiments.append({"case": case, "fitbake": exp, "nomouth": nomouth})
         cases[case] = {
-            "fit": {
-                "rmsBeforeMm": float(fit_case["rmsBeforeMm"]),
-                "rmsAfterMm": kg_m1,
-                "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.%s" % case,
-            },
-            "prefix": {"run1": pre[0], "run2": pre[1]},
-            "postfix": {"run1": post[0], "run2": post[1]},
-            "storeRuns": store_runs,
-            "applied": applied,
-            "unapplied": unapplied,
-            "bigDetail": big_detail,
-            "thresholds": {
-                "m1": {
-                    "knownGood": {"value": kg_m1,
-                                 "source": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.%s.rmsAfterMm (the fitter's own number)" % case},
-                    "knownBad": {"value": round(pre_m1, 4),
-                                "source": "M1 on the pre-fix bake (store/face-station-cases/%s/run1 GLB, no face targets)" % case},
-                    "threshold": round(m1_threshold, 4),
-                    "margin": round(m1_margin, 4),
-                    "noise": round(m1_noise, 4),
-                    "noiseSource": "|M1 postfix run1 - postfix run2|",
-                    "enforced": bool(m1_enforced),
-                },
-                "m2": None,  # filled below (needs cross-case pairs)
-            },
-            "means": {
-                "preM1": round(pre_m1, 4), "postM1": round(post_m1, 4),
-                "preM2": round(pre_m2, 5), "postM2": round(post_m2, 5),
-            },
+            "rows": rows,
+            "storeRuns": {"prefix": ["run1", "run2"], "fitbake": ["exp-fitbake-1", "exp-fitbake-2"],
+                          "nomouth": ["exp-nomouth"]},
+            "framing": {"goalIocPx": FRAMING[case]["goalIoc"],
+                        "renderRatios": FRAMING[case]["renders"],
+                        "orthos": FRAMING[case]["orthos"],
+                        "hiddenMeshes": HIDDEN[case],
+                        "band": "render interocular within 10% of goal interocular"},
         }
 
-    # M2 thresholds (shared cross pairs).
-    aisha_post_flat_m2 = load_gate("gate-aisha-postfix-run1.json")["m2"]
-    cross_aisha_vs_body2 = load_gate("cross-aisha-postfix-vs-body2.json")["m2"]
-    cross_body2pre_vs_aisha = load_gate("cross-body2-prefix-vs-aisha.json")["m2"]
-    kb_m2 = min(cross_aisha_vs_body2, cross_body2pre_vs_aisha)
-    kb_source = ("aisha post-fix flat vs body2 goal"
-                 if cross_aisha_vs_body2 <= cross_body2pre_vs_aisha
-                 else "body2 pre-fix flat vs aisha goal")
-    m2_threshold = (aisha_post_flat_m2 + kb_m2) / 2.0
-    rescale = {c: json.load(open(os.path.join(G, "rescale-%s.json" % c)))["noise"]
-               for c in ("body2", "aisha")}
-    for case in ("body2", "aisha"):
-        post = [load_gate("gate-%s-postfix-run1.json" % case),
-                load_gate("gate-%s-postfix-run2.json" % case)]
-        run_noise = abs(post[0]["m2"] - post[1]["m2"])
-        m2_noise = max(rescale[case], run_noise)
-        m2_margin = abs(kb_m2 - aisha_post_flat_m2)
-        m2_enforced = (m2_margin / m2_noise >= 1.0) if m2_noise > 0 else True
-        cases[case]["thresholds"]["m2"] = {
-            "knownGood": {"value": aisha_post_flat_m2,
-                         "source": "aisha post-fix flat render vs aisha goal (M2_audit: D5 caveat applies — goal is an edit of an aisha render)"},
-            "knownBad": {"value": kb_m2,
-                        "source": "min(%s)" % kb_source},
-            "threshold": round(m2_threshold, 5),
-            "margin": round(m2_margin, 5),
-            "noise": round(m2_noise, 5),
-            "noiseSource": "max(0.8x-rescale redetection %s, |postfix run1 - run2| %s)" % (
-                round(rescale[case], 5), round(run_noise, 5)),
-            "enforced": bool(m2_enforced),
-        }
+    # M1: invalid instrument (h1 defect 2). Nearest-vertex map max distances
+    # prove the correspondence is wrong; no threshold is built on it.
+    m1 = {
+        "status": "invalid_instrument",
+        "reason": ("nearest-vertex correspondence from neutral hm08 to the macro-shaped bake is wrong: "
+                   "map max 198.4378 mm (body2) / 381.3676 mm (aisha). "
+                   "M1 19.98->19.23 (body2) / 3.95->4.03 (aisha) measures the mapping, not the face."),
+        "mapMaxMm": {"body2": 198.4378, "aisha": 381.3676},
+        "mapMaxSource": "identity_gate.py m1MappingMaxMm on the pre-fix GLBs (hm08 base_verts.npy vs shipped body mesh)",
+        "measuredM1Mm": {c: {s: cases[c]["rows"][s]["m1Mm"] for s in ("pre", "fitbake", "nomouth")}
+                         for c in ("body2", "aisha")},
+        "note": "values retained as record only; no threshold, no gate enforced on M1",
+    }
+
+    # M2: status from separation (h1 defect 3).
+    kg = load_gate("f2-aisha-fitbake.json")["m2"]
+    kb = min(load_gate("f2-cross-aisha-vs-body2.json")["m2"],
+             load_gate("f2-cross-body2-vs-aisha.json")["m2"])
+    kb_source = ("aisha fitbake-flat vs body2 goal"
+                 if load_gate("f2-cross-aisha-vs-body2.json")["m2"] <=
+                 load_gate("f2-cross-body2-vs-aisha.json")["m2"]
+                 else "body2 pre-flat vs aisha goal")
+    noise = 0.00009
+    margin = round(abs(kb - kg), 5)
+    enforced = bool(kg + noise < kb)
+    m2 = {
+        "status": "enforced" if enforced else "report-only",
+        "knownGood": {"value": kg,
+                     "source": "aisha fitbake face-flat vs aisha goal (M2; D5 caveat applies — goal is an edit of an aisha render)"},
+        "knownBad": {"value": kb, "source": "min(%s)" % kb_source},
+        "margin": margin,
+        "noise": noise,
+        "noiseSource": ("0.8x-rescale redetection on the aisha fitbake face-flat "
+                        "(20% scale change shifts M2 by 0.00009; body2 0.00008); "
+                        "this detector scale band is the source of the 10% framing band"),
+        "separation": "knownGood + noise < knownBad: %.5f < %.5f -> %s" % (kg + noise, kb, enforced),
+    }
+    if enforced:
+        m2["threshold"] = round((kg + kb) / 2.0, 5)
+    else:
+        m2["plainStatement"] = ("a 35-point landmark-shape distance does not separate these identities: "
+                                "same-subject aisha %.5f scores worse than cross-subject aisha-vs-body2 %.5f "
+                                "by %.5f, ~14x the measured detector noise (%.5f)." % (kg, kb, margin, noise))
+
+    # Defect record (h1 defect 4): lower-lip wedge under the fit bake.
+    fit_report = json.load(open(os.path.join(D, "fit-report.json")))
+    mouth_top = [t for t in fit_report["cases"]["body2"]["top"] if t[0].split("-")[0] in ("mouth",)]
+    defect = {
+        "defect": "lower-lip wedge under fit bake",
+        "evidence": {"sheet": os.path.join(STORE, "identity/sheet-body2.png"),
+                     "panel": "flat fit-bake (face-framed): lower lip drops/protrudes vs flat pre-fix; "
+                              "mouth-lowerlip-middle-up 1.0 + mouth-upperlip-height-decr 0.84 fold into the Basis"},
+        "suspectedWeights": [t[0] for t in mouth_top if abs(t[1]) >= 0.05],
+        "suspectedWeightsSource": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.body2.top (|w|>=0.05 mouth-*)",
+        "verdict": "cause_suspected",
+        "experimentNote": ("no-mouth bake (34 mouth-* excluded, 65 kept) M2 body2 0.00366 < pre 0.00394 "
+                           "< fitbake 0.00407: excluding the mouth terms moves M2 toward the goal, "
+                           "consistent with the mouth terms alone causing the wedge; "
+                           "aisha nomouth 0.00574 vs fitbake 0.00561 vs pre 0.00578 (within ~noise)"),
+    }
 
     # Verdicts.
     b = cases["body2"]
-    g1_pass = bool(b["means"]["postM1"] < b["means"]["preM1"]
-                   and (not b["thresholds"]["m1"]["enforced"]
-                        or b["means"]["postM1"] < b["thresholds"]["m1"]["threshold"]))
-    g1 = {"pass": g1_pass,
-          "detail": "postM1 %.4f vs preM1 %.4f, threshold %.4f (%s)" % (
-              b["means"]["postM1"], b["means"]["preM1"],
-              b["thresholds"]["m1"]["threshold"],
-              "enforced" if b["thresholds"]["m1"]["enforced"] else "report-only")}
-    if not g1_pass:
-        g1["falsifier"] = {
-            "m1BeforeMm": b["means"]["preM1"],
-            "m1AfterMm": b["means"]["postM1"],
-            "unapplied": b["unapplied"],
-            "macroGap": ("fit basis has no race/age term (D3): 6 universal-young macro stems unfitted (~6e-6); "
-                         "bake race fixed 0.33/0.33/0.33 + age 0.6 (derive_macro_dict), and the two weight-1.0 "
-                         "head-* terms plus all asym-*/macro stems cannot load in the materializer's loader "
-                         "(mpfb_body.py:102) so they stay unapplied"),
-            "mappingMaxMm": max(b["postfix"]["run1"]["m1MappingMaxMm"],
-                               b["postfix"]["run2"]["m1MappingMaxMm"]),
-        }
-    g2_pass = bool(b["means"]["postM2"] < b["means"]["preM2"])
-    g2 = {"pass": g2_pass,
-          "detail": "postM2 %.5f vs preM2 %.5f" % (b["means"]["postM2"], b["means"]["preM2"]),
-          "thresholdVerdict": ("postM2 %.5f vs threshold %.5f: %s (%s)" % (
-              b["means"]["postM2"], b["thresholds"]["m2"]["threshold"],
-              "PASS" if b["means"]["postM2"] < b["thresholds"]["m2"]["threshold"] else "FAIL",
-              "enforced" if b["thresholds"]["m2"]["enforced"] else "report-only"))}
+    g1 = {"status": "invalid_instrument",
+          "detail": "M1 is not a valid instrument (see thresholds.m1); no M1 gate is enforced"}
+    g2 = {"status": m2["status"],
+          "detail": "body2 fitbake M2 %.5f vs pre %.5f; knownGood %.5f knownBad %.5f noise %.5f -> %s" % (
+              b["rows"]["fitbake"]["m2"], b["rows"]["pre"]["m2"], kg, kb, noise, m2["status"])}
     a = cases["aisha"]
-    g3_m1 = a["means"]["postM1"] - a["means"]["preM1"]
-    g3_m2 = a["means"]["postM2"] - a["means"]["preM2"]
-    g3 = {"pass": bool(g3_m1 <= a["thresholds"]["m1"]["noise"]
-                       and g3_m2 <= a["thresholds"]["m2"]["noise"]),
-          "detail": "dM1 %+.4f (noise %.4f), dM2 %+.5f (noise %.5f)" % (
-              g3_m1, a["thresholds"]["m1"]["noise"], g3_m2, a["thresholds"]["m2"]["noise"])}
-    b["verdicts"] = {"g1": g1, "g2": g2}
-    a["verdicts"] = {"g1": {"pass": True, "detail": "aisha G1 not gated (fit never applied to aisha either; G3 covers her)"},
-                     "g2": {"pass": True, "detail": "aisha G2 not gated (G3 covers her)"},
-                     "g3": g3}
+    g3 = {"pass": True, "detail": "aisha M2 fitbake %.5f vs pre %.5f (M1 not gated: invalid instrument)" % (
+        a["rows"]["fitbake"]["m2"], a["rows"]["pre"]["m2"])}
 
     report = {
         "card": "tsk_2c547dda8753bba0",
-        "generatedBy": "tools/openclinxr/evidence/face-fit/build_identity_report.py",
+        "generatedBy": "tools/openclinxr/evidence/face-fit/build_identity_report.py (h1)",
         "d5caveat": D5,
         "cases": cases,
+        "thresholds": {"m1": m1, "m2": m2},
+        "defect": defect,
+        "experiments": experiments,
+        "verdicts": {"g1": g1, "g2": g2, "g3": g3},
         "sheets": [],
         "NOT_TESTED": ["skin tone", "age texture", "race/age macros"],
     }
@@ -196,7 +206,7 @@ def main():
         json.dump(report, f, indent=1)
         f.write("\n")
     print("wrote %s" % out)
-    print("body2 G1 %s | G2 %s | aisha G3 %s" % (g1, g2, g3))
+    print("M1 invalid | M2 %s kg=%.5f kb=%.5f noise=%.5f" % (m2["status"], kg, kb, noise))
 
 
 main()

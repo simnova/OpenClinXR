@@ -10,11 +10,13 @@ import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "../repo-root.js";
 import {
+  buildStage4Gate,
   FACE_TARGET_LOADER_FILE,
   faceTargetsLogCount,
   listLoadableFaceTargetNames,
   partitionFaceTargets,
   runFitForStage,
+  type Stage4FaceFit,
 } from "./fit-bake.js";
 import {
   ASSET_STORE_ROOT,
@@ -32,7 +34,6 @@ import {
   sanitizedFaceRealismEnv,
   SHAPE_REL,
   sha256File,
-  type StageGate,
   type StageIO,
   type StageRecord,
 } from "./shared.js";
@@ -61,45 +62,55 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string): Sta
     const asRepoRel = path.join(repoRoot(), token);
     return existsSync(asRepoRel) ? asRepoRel : token;
   });
-  // Face fit BEFORE the bake (tsk_2c547dda8753bba0): run the fitter now so the
-  // bake below folds the case weights into the Basis via --face-targets.
+  // h1 landing safety: the fit bake is OPT-IN per case (case-inputs.json
+  // fit_bake, absent = off). Off reproduces the pre-fix bake exactly: no fit
+  // pre-step, no --face-targets, byte/POSITION gate against the pin.
+  const fitBakeEnabled =
+    (caseRec["fit_bake"] as { value?: unknown } | undefined)?.value === true;
   const fitCase = caseValue<string>(caseRec, "fit_case");
-  let fit: ReturnType<typeof runFitForStage>;
-  try {
-    fit = runFitForStage(fitCase, outDir, "stage4");
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      ...rec,
-      ran: false,
-      blocked: true,
-      blockReason: `pre-bake face-fit failed: ${message.slice(0, 300)}`,
-      wanted: `${FIT_REL} --case completing before the stage-4 bake`,
-      gate: { pass: false, detail: "fit did not complete; bake refused without it" },
-      wallSeconds: (Date.now() - t0) / 1000,
-    };
+  let fit: ReturnType<typeof runFitForStage> | null = null;
+  let partition: ReturnType<typeof partitionFaceTargets> | null = null;
+  let faceTargetsCsv = "";
+  if (fitBakeEnabled) {
+    try {
+      fit = runFitForStage(fitCase, outDir, "stage4");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        ...rec,
+        ran: false,
+        blocked: true,
+        blockReason: `pre-bake face-fit failed: ${message.slice(0, 300)}`,
+        wanted: `${FIT_REL} --case completing before the stage-4 bake`,
+        gate: { pass: false, detail: "fit did not complete; bake refused without it" },
+        wallSeconds: (Date.now() - t0) / 1000,
+      };
+    }
+    partition = partitionFaceTargets(fit.fileWeights, fit.subOf, listLoadableFaceTargetNames());
+    faceTargetsCsv = partition.applied
+      .map((entry) => `${entry.name}=${String(entry.weight)}`)
+      .join(",");
   }
   const targetsAbs = path.join(repoRoot(), FIT_DIR_REL, "any-subject-targets.json");
-  const partition = partitionFaceTargets(fit.fileWeights, fit.subOf, listLoadableFaceTargetNames());
-  const faceTargetsCsv = partition.applied
-    .map((entry) => `${entry.name}=${String(entry.weight)}`)
-    .join(",");
   const outGlb = path.join(
     outDir,
     knownRel !== null ? path.basename(knownRel) : "stage4-lidconform.glb",
   );
   const argv = [...resolvedArgv];
-  if (partition.applied.length > 0) {
+  if (partition !== null && partition.applied.length > 0) {
     argv.push("--face-targets", faceTargetsCsv);
   }
   argv.push("--output", outGlb);
   const materialize = path.join(repoRoot(), MATERIALIZE_REL);
   rec.script = MATERIALIZE_REL;
   rec.argv = argv;
-  rec.inputs = [
-    { path: ringAbs, sha256: sha256File(ringAbs) },
-    { path: targetsAbs, sha256: sha256File(targetsAbs) },
-  ];
+  rec.inputs =
+    fit === null
+      ? [{ path: ringAbs, sha256: sha256File(ringAbs) }]
+      : [
+          { path: ringAbs, sha256: sha256File(ringAbs) },
+          { path: targetsAbs, sha256: sha256File(targetsAbs) },
+        ];
   let stdout = "";
   try {
     const raw = execFileSync(resolveBlender(), ["--background", "--python", materialize, "--", ...argv], {
@@ -151,105 +162,64 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string): Sta
     }
   }
   const outSha = sha256File(outGlb);
-  // G4 counterweight (tsk_2c547dda8753bba0): the bake log must prove the fit
-  // was folded into the Basis, with exactly the applied weight count.
+  // G4 counterweight: with the fit bake on, the log must prove the fit was
+  // folded into the Basis with exactly the applied weight count.
   const logAppliedCount = faceTargetsLogCount(stdout);
-  const logVerified = partition.applied.length > 0 && logAppliedCount === partition.applied.length;
-  const faceFitRecord = {
-    fitCase,
-    weightsSha256: sha256File(fit.weightsCopyPath),
-    fileWeightsSha256: sha256File(fit.fileWeightsCopyPath),
-    trackedRestored: fit.restored,
-    applied: partition.applied,
-    unapplied: partition.unapplied,
-    appliedBig: partition.appliedBig,
-    totalBig: partition.totalBig,
-    bigDetail: `${partition.appliedBig}/${partition.totalBig} weights with |w|>=0.05 applied`,
-    loader: FACE_TARGET_LOADER_FILE,
-    logAppliedCount,
-    logVerified,
-  };
+  const logVerified =
+    partition !== null && partition.applied.length > 0 && logAppliedCount === partition.applied.length;
+  const faceFitRecord: Stage4FaceFit =
+    fit === null || partition === null
+      ? null
+      : {
+          fitCase,
+          fitBakeOptIn: true,
+          weightsSha256: sha256File(fit.weightsCopyPath),
+          fileWeightsSha256: sha256File(fit.fileWeightsCopyPath),
+          trackedRestored: fit.restored,
+          applied: partition.applied,
+          unapplied: partition.unapplied,
+          appliedBig: partition.appliedBig,
+          totalBig: partition.totalBig,
+          bigDetail: `${partition.appliedBig}/${partition.totalBig} weights with |w|>=0.05 applied`,
+          loader: FACE_TARGET_LOADER_FILE,
+          logAppliedCount,
+          logVerified,
+        };
   const stem = path.basename(outGlb, ".glb");
   const byproducts: StageIO[] = [
     { path: path.join(outDir, "stage4-blender.log"), sha256: sha256File(path.join(outDir, "stage4-blender.log")) },
-    { path: fit.fitLogPath, sha256: sha256File(fit.fitLogPath) },
-    { path: fit.weightsCopyPath, sha256: sha256File(fit.weightsCopyPath) },
-    { path: fit.fileWeightsCopyPath, sha256: sha256File(fit.fileWeightsCopyPath) },
   ];
+  if (fit !== null) {
+    byproducts.push(
+      { path: fit.fitLogPath, sha256: sha256File(fit.fitLogPath) },
+      { path: fit.weightsCopyPath, sha256: sha256File(fit.weightsCopyPath) },
+      { path: fit.fileWeightsCopyPath, sha256: sha256File(fit.fileWeightsCopyPath) },
+    );
+  }
   for (const entry of readdirSync(outDir)) {
     if (entry.startsWith(stem) && entry !== path.basename(outGlb) && (entry.endsWith(".png") || entry.endsWith(".glb"))) {
       const abs = path.join(outDir, entry);
       byproducts.push({ path: abs, sha256: sha256File(abs) });
     }
   }
-  let gate: StageGate;
-  let positionFallback: Record<string, unknown> | undefined;
-  if (knownAbs !== null && knownSha !== null && existsSync(knownAbs)) {
-    const storeSha = sha256File(knownAbs);
-    const storeDrift = storeSha !== knownSha ? `; store file drifted (${storeSha.slice(0, 12)})` : "";
-    if (outSha === knownSha && logAppliedCount < 0) {
-      gate = {
-        pass: storeDrift.length === 0,
-        detail: `rebake byte-identical to the pinned store GLB${storeDrift}`,
-        knownGood: {
-          name: path.basename(outGlb),
-          expected: knownSha,
-          expectedSource: knownSource,
-          actual: outSha,
-        },
-      };
-    } else if (!logVerified) {
-      gate = {
-        pass: false,
-        detail:
-          `fit NOT baked: FACE_TARGETS_APPLY count ${logAppliedCount} vs ` +
-          `${partition.applied.length} applied weights (a run that did not bake the fit fails)`,
-        knownGood: {
-          name: path.basename(outGlb),
-          expected: knownSha,
-          expectedSource: knownSource,
-          actual: outSha,
-        },
-      };
-    } else {
-      const ours = runPositionDriver(outGlb);
-      const known = runPositionDriver(knownAbs);
-      const bodyMatch = ours.positionSha256[ours.body] === known.positionSha256[known.body];
-      const differing = Object.keys(ours.positionSha256).filter(
-        (mesh) => ours.positionSha256[mesh] !== known.positionSha256[mesh],
-      );
-      positionFallback = {
-        byteMatch: false,
-        positionMatch: bodyMatch,
-        oursBody: ours.body,
-        knownBody: known.body,
-        differingMeshes: differing,
-      };
-      gate = {
-        pass: true,
-        detail:
-          `fit baked into the Basis (FACE_TARGETS_APPLY ${partition.applied.length} weights, ` +
-          `${faceFitRecord.bigDetail}); byte-identity with the pre-fix pin is not expected by ` +
-          `design — the known-good move is recorded here${storeDrift}`,
-        knownGood: {
-          name: path.basename(outGlb),
-          expected: knownSha,
-          expectedSource: knownSource,
-          actual: outSha,
-        },
-      };
-    }
-  } else {
-    gate = { pass: true, detail: "no pinned known-good carried for this case; output recorded" };
-  }
-  if (!logVerified) {
+  const { gate, positionFallback } = buildStage4Gate({
+    outSha,
+    outGlb,
+    knownAbs,
+    knownSha,
+    knownSource,
+    faceFitRecord,
+    logAppliedCount,
+    logVerified,
+  });
+  if (faceFitRecord !== null && !logVerified) {
     return {
       ...rec,
       outputs: [{ path: outGlb, sha256: outSha }],
       byproducts,
       ran: true,
       blocked: true,
-      blockReason: `FACE_TARGETS_APPLY missing or short in the bake log (count ${logAppliedCount} vs ${partition.applied.length} applied)`,
+      blockReason: `FACE_TARGETS_APPLY missing or short in the bake log (count ${logAppliedCount} vs ${faceFitRecord.applied.length} applied)`,
       wanted: `${MATERIALIZE_REL} printing FACE_TARGETS_APPLY with the applied weight count`,
       gate,
       wallSeconds: (Date.now() - t0) / 1000,

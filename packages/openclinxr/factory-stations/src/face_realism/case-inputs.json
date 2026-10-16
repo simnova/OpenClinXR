@@ -149,6 +149,10 @@
      "value": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256"
     }
+   },
+   "fit_bake": {
+    "value": false,
+    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
    }
   },
   "body2": {
@@ -304,6 +308,10 @@
      "value": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256"
     }
+   },
+   "fit_bake": {
+    "value": false,
+    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
    }
   }
  },

@@ -7,14 +7,13 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
- * Card tsk_2c547dda8753bba0: the station bakes the fitted face and gates
- * identity against the goal.
+ * Card tsk_2c547dda8753bba0 h1: the station bakes the fitted face only when
+ * the per-case opt-in is on; the identity gate records experiment rows.
  *
- * All heavy evidence comes from the tracked reports (identity-report.json,
- * built from the store runs after the fact) plus the store bake logs. This
- * test recomputes every check from the named files. No threshold is a
- * literal here: every bound is read from identity-report.json, whose
- * thresholds cite their sources.
+ * All heavy evidence comes from the tracked identity-report.json plus the
+ * store files it names. No threshold is a literal here: every bound is read
+ * from the report, whose thresholds cite their sources. M1 is marked
+ * invalid_instrument (no threshold); M2 carries enforced/report-only status.
  */
 
 /** Local repo-root walk: repo-root.js is entrypoint-reachable, so importing
@@ -28,7 +27,7 @@ function testRepoRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
-type Gate = {
+type GateRow = {
   m1Mm: number;
   m2: number;
   glb: { path: string; sha256: string };
@@ -36,34 +35,31 @@ type Gate = {
   m1MappingMaxMm: number;
 };
 
-type Threshold = {
-  knownGood: { value: number; source: string };
-  knownBad: { value: number; source: string };
-  threshold: number;
-  margin: number;
-  noise: number;
-  enforced: boolean;
-};
-
-type CaseReport = {
-  prefix: { run1: Gate; run2: Gate };
-  postfix: { run1: Gate; run2: Gate };
-  storeRuns: { prefix: [string, string]; postfix: [string, string] };
-  applied: Array<{ name: string; weight: number }>;
-  unapplied: Array<{ name: string; weight: number; reason: string }>;
-  bigDetail: string;
-  thresholds: { m1: Threshold; m2: Threshold };
-  verdicts: {
-    g1: { pass: boolean; detail: string; falsifier?: Record<string, unknown> };
-    g2: { pass: boolean; detail: string };
-    g3?: { pass: boolean; detail: string };
-  };
-};
-
 type IdentityReport = {
   card: string;
-  cases: { body2: CaseReport; aisha: CaseReport };
   d5caveat: string;
+  cases: Record<string, { rows: Record<string, GateRow> }>;
+  thresholds: {
+    m1: { status: string; reason?: string; mapMaxMm?: unknown; threshold?: number };
+    m2: {
+      status: string;
+      knownGood: { value: number; source: string };
+      knownBad: { value: number; source: string };
+      margin: number;
+      noise: number;
+      noiseSource: string;
+      threshold?: number;
+      plainStatement?: string;
+    };
+  };
+  defect: { defect: string; evidence: { sheet: string; panel: string }; suspectedWeights: string[]; verdict: string };
+  experiments: Array<{
+    case: string;
+    fitbake: Array<{ run: string; glb: string; glbSha256: string; log: string; applied: Array<{ name: string; weight: number }>; logAppliedCount: number }>;
+    nomouth: { run: string; glb: string; glbSha256: string; log: string; appliedCount: number; logAppliedCount: number };
+  }>;
+  verdicts: { g1: { status: string }; g2: { status: string }; g3: { pass: boolean } };
+  sheets: Array<{ case: string; sheet: string; sha256: string }>;
 };
 
 function readIdentity(): IdentityReport {
@@ -73,194 +69,142 @@ function readIdentity(): IdentityReport {
   ) as IdentityReport;
 }
 
-function readStageRecords(caseId: string, run: string): {
-  stages: Array<{
-    stage: number;
-    argv: string[];
-    gate: { pass: boolean };
-    extra?: { faceFit?: { applied?: Array<{ name: string; weight: number }>; logVerified?: boolean; logAppliedCount?: number } };
-  }>;
-} {
-  const recordsPath = `/Volumes/files/openclinxr-assets/store/face-station-cases/${caseId}/${run}/stage-records.json`;
-  return JSON.parse(readFileSync(recordsPath, "utf8")) as {
-    stages: Array<{
-      stage: number;
-      argv: string[];
-      gate: { pass: boolean };
-      extra?: { faceFit?: { applied?: Array<{ name: string; weight: number }>; logVerified?: boolean; logAppliedCount?: number } };
-    }>;
-  };
-}
-
 function shaFile(abs: string): string {
   return createHash("sha256").update(readFileSync(abs)).digest("hex");
 }
 
 describe("the station bakes the fitted face", () => {
-  it("(G1) body2 post-fix M1 beats pre-fix M1 within the enforced threshold, or the failure is recorded", () => {
+  it("(G1) M1 is either a verified topological measure or marked invalid_instrument with no threshold", () => {
     const report = readIdentity();
-    const body2 = report.cases.body2;
-    const g1 = body2.verdicts.g1;
-    const post = (body2.postfix.run1.m1Mm + body2.postfix.run2.m1Mm) / 2;
-    const pre = (body2.prefix.run1.m1Mm + body2.prefix.run2.m1Mm) / 2;
-    if (g1.pass) {
-      expect(post, "body2 post-fix M1 < pre-fix M1").toBeLessThan(pre);
-      const t = body2.thresholds.m1;
-      if (t.enforced) {
-        expect(post, `body2 post-fix M1 within threshold ${t.threshold} (${t.knownGood.source} / ${t.knownBad.source})`).toBeLessThan(
-          t.threshold,
-        );
-      }
+    const m1 = report.thresholds.m1;
+    if (m1.status === "verified_topological") {
+      const proof = m1 as { bijection?: { verified?: boolean; mapFile?: string } };
+      expect(proof.bijection?.verified, "topological bijection verified on the pre-fix bake").toBe(true);
+      expect(proof.bijection?.mapFile, "bijection map file named").toBeTruthy();
     } else {
-      // Falsifier path: the report carries M1 before/after, the unapplied
-      // list, and the macro gap instead of a pass.
-      const f = g1.falsifier ?? {};
-      expect(f["m1BeforeMm"], "falsifier records M1 before").toBeCloseTo(pre, 3);
-      expect(f["m1AfterMm"], "falsifier records M1 after").toBeCloseTo(post, 3);
-      expect((f["unapplied"] as unknown[]).length, "falsifier records the unapplied list").toBeGreaterThan(0);
-      expect(String(f["macroGap"] ?? ""), "falsifier records the D3 macro gap").toContain("macro");
+      expect(m1.status, "M1 marked invalid_instrument").toBe("invalid_instrument");
+      expect("threshold" in m1, "no threshold built on an invalid instrument").toBe(false);
+      expect(String(m1.reason ?? ""), "reason recorded").toContain("map max");
+      expect(report.verdicts.g1.status, "G1 verdict follows the instrument status").toBe("invalid_instrument");
     }
   });
 
-  it("(G2) body2 M2 verdict is recomputed from the report (gate recorded, not forced)", () => {
+  it("(G2) M2 status is enforced only when knownGood + noise < knownBad", () => {
     const report = readIdentity();
-    const body2 = report.cases.body2;
-    const post = (body2.postfix.run1.m2 + body2.postfix.run2.m2) / 2;
-    const pre = (body2.prefix.run1.m2 + body2.prefix.run2.m2) / 2;
-    const t = body2.thresholds.m2;
-    const g2 = body2.verdicts.g2;
-    // Consistency lock: the recorded gate verdict must equal the recomputed
-    // measurement (false here: post 0.00496 > pre 0.00401). The strict gate
-    // itself lives in (G2-strict) it.fails below.
-    expect(g2.pass, `recorded G2 verdict matches recomputation (${g2.detail})`).toBe(post < pre);
-    const expectThresholdPass = post < t.threshold;
-    expect(
-      g2.thresholdVerdict.includes(expectThresholdPass ? "PASS" : "FAIL"),
-      `recorded threshold verdict matches recomputation vs ${t.threshold} (${t.enforced ? "enforced" : "report-only"})`,
-    ).toBe(true);
+    const t = report.thresholds.m2;
+    const separated = t.knownGood.value + t.noise < t.knownBad.value;
+    expect(t.status, `M2 status matches separation (kg ${t.knownGood.value} + noise ${t.noise} vs kb ${t.knownBad.value})`).toBe(
+      separated ? "enforced" : "report-only",
+    );
+    if (t.status === "enforced") {
+      expect(t.threshold, "enforced threshold is the midpoint").toBeCloseTo(
+        (t.knownGood.value + t.knownBad.value) / 2, 5,
+      );
+    } else {
+      expect("threshold" in t, "report-only carries no threshold").toBe(false);
+      expect(String(t.plainStatement ?? ""), "plain non-separation statement recorded").toContain("does not separate");
+    }
+    expect(report.verdicts.g2.status, "G2 verdict follows the M2 status").toBe(t.status);
   });
 
-  it.fails("(G2-strict) body2 M2 post-fix < pre-fix (known FAIL: 0.00496 > 0.00401; it.fails flips red if fixed)", () => {
+  it("(G3) aisha M2 verdict is recomputed from the report", () => {
     const report = readIdentity();
-    const body2 = report.cases.body2;
-    const post = (body2.postfix.run1.m2 + body2.postfix.run2.m2) / 2;
-    const pre = (body2.prefix.run1.m2 + body2.prefix.run2.m2) / 2;
-    expect(post, "body2 post-fix M2 < pre-fix M2").toBeLessThan(pre);
-  });
-
-  it("(G3) aisha verdict is recomputed from the report (gate recorded, not forced)", () => {
-    const report = readIdentity();
-    const aisha = report.cases.aisha;
+    const aisha = report.cases["aisha"]!.rows;
     expect(report.d5caveat, "D5 caveat carried").toContain("edit");
-    const g3 = aisha.verdicts.g3!;
-    const dM1 =
-      (aisha.postfix.run1.m1Mm + aisha.postfix.run2.m1Mm) / 2 -
-      (aisha.prefix.run1.m1Mm + aisha.prefix.run2.m1Mm) / 2;
-    const dM2 =
-      (aisha.postfix.run1.m2 + aisha.postfix.run2.m2) / 2 -
-      (aisha.prefix.run1.m2 + aisha.prefix.run2.m2) / 2;
-    const expectPass = dM1 <= aisha.thresholds.m1.noise && dM2 <= aisha.thresholds.m2.noise;
-    expect(g3.pass, `recorded G3 verdict matches recomputation (${g3.detail})`).toBe(expectPass);
+    const dM2 = aisha["fitbake"]!.m2 - aisha["pre"]!.m2;
+    const noise = report.thresholds.m2.noise;
+    expect(report.verdicts.g3.pass, `recorded G3 verdict matches recomputation (dM2 ${dM2})`).toBe(dM2 <= noise);
   });
 
-  it.fails("(G3-strict) aisha M1 and M2 do not get worse than pre-fix by more than noise (known FAIL: dM1 +0.0734 > noise 0)", () => {
-    const report = readIdentity();
-    const aisha = report.cases.aisha;
-    for (const key of ["m1Mm", "m2"] as const) {
-      const pre = (aisha.prefix.run1[key] + aisha.prefix.run2[key]) / 2;
-      const post = (aisha.postfix.run1[key] + aisha.postfix.run2[key]) / 2;
-      const noise = key === "m1Mm" ? aisha.thresholds.m1.noise : aisha.thresholds.m2.noise;
-      expect(post - pre, `aisha ${key} worsening within noise ${noise}`).toBeLessThanOrEqual(noise);
-    }
-  });
-
-  it("(G4) counterweight: every post-fix stage-4 bake log proves FACE_TARGETS_APPLY with the applied count", () => {
-    const report = readIdentity();
+  it("(G4) default runs carry NO FACE_TARGETS_APPLY while experiment rows do; opt-in stays off", () => {
+    const root = testRepoRoot();
+    const inputs = JSON.parse(
+      readFileSync(join(root, "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json"), "utf8"),
+    ) as { cases: Record<string, { fit_bake?: { value?: unknown; source?: unknown } }> };
     for (const caseId of ["body2", "aisha"] as const) {
-      const doc = report.cases[caseId];
-      for (const run of doc.storeRuns.postfix) {
-        const records = readStageRecords(caseId, run);
-        const stage4 = records.stages.find((s) => s.stage === 4)!;
-        expect(stage4.gate.pass, `${caseId} ${run} stage 4 gate passes`).toBe(true);
-        const faceFit = stage4.extra?.faceFit;
-        expect(faceFit?.logVerified, `${caseId} ${run} log proves the bake`).toBe(true);
+      expect(inputs.cases[caseId]?.fit_bake?.value, `${caseId} fit-bake opt-in stays off`).toBe(false);
+      expect(String(inputs.cases[caseId]?.fit_bake?.source ?? ""), `${caseId} flag source names the card`).toContain(
+        "tsk_2c547dda8753bba0",
+      );
+      for (const run of ["run1", "run2"]) {
         const logPath = `/Volumes/files/openclinxr-assets/store/face-station-cases/${caseId}/${run}/stage4-blender.log`;
         const log = readFileSync(logPath, "utf8");
+        expect(log.includes("FACE_TARGETS_APPLY "), `${caseId} ${run} default bake has no fit`).toBe(false);
+      }
+    }
+    const report = readIdentity();
+    for (const exp of report.experiments) {
+      for (const row of exp.fitbake) {
+        const log = readFileSync(row.log, "utf8");
         const at = log.lastIndexOf("FACE_TARGETS_APPLY ");
-        expect(at, `${caseId} ${run} bake log carries FACE_TARGETS_APPLY`).toBeGreaterThanOrEqual(0);
+        expect(at, `${exp.case} ${row.run} experiment bake proves the fit`).toBeGreaterThanOrEqual(0);
         const tail = log.slice(at + "FACE_TARGETS_APPLY ".length);
         const logged = JSON.parse(tail.slice(0, tail.indexOf("\n"))) as Record<string, number>;
-        expect(Object.keys(logged).length, `${caseId} ${run} log count equals applied[].length`).toBe(
-          faceFit?.applied?.length ?? -1,
+        expect(Object.keys(logged).length, `${exp.case} ${row.run} log count equals applied[].length`).toBe(
+          row.applied.length,
         );
-        expect(Object.keys(logged).length, `${caseId} ${run} log count equals report applied`).toBe(
-          doc.applied.length,
-        );
+        expect(row.logAppliedCount, `${exp.case} ${row.run} recorded count matches`).toBe(row.applied.length);
       }
+      const nm = exp.nomouth;
+      const nmLog = readFileSync(nm.log, "utf8");
+      const nmAt = nmLog.lastIndexOf("FACE_TARGETS_APPLY ");
+      expect(nmAt, `${exp.case} no-mouth bake proves its fit`).toBeGreaterThanOrEqual(0);
+      const nmTail = nmLog.slice(nmAt + "FACE_TARGETS_APPLY ".length);
+      const nmLogged = JSON.parse(nmTail.slice(0, nmTail.indexOf("\n"))) as Record<string, number>;
+      expect(Object.keys(nmLogged).length, `${exp.case} no-mouth log count is 65`).toBe(65);
+      expect(Object.keys(nmLogged).some((k) => k.startsWith("mouth-")), `${exp.case} no-mouth excludes mouth-*`).toBe(
+        false,
+      );
     }
   });
 
-  it("(G5) counterweight: M1 recomputes from the stored GLB within noise; thresholds come from the report", () => {
+  it("(G5) counterweight: M1/M2 recompute from the named store files; thresholds come from the report", () => {
     const root = testRepoRoot();
     const gateScript = join(root, "tools/openclinxr/evidence/face-fit/identity_gate.py");
     const report = readIdentity();
+    const rows: Array<{ caseId: string; side: string; row: GateRow }> = [];
     for (const caseId of ["body2", "aisha"] as const) {
-      const doc = report.cases[caseId];
-      const noise = doc.thresholds.m1.noise;
-      for (const side of ["prefix", "postfix"] as const) {
-        for (const runKey of ["run1", "run2"] as const) {
-          const gate = doc[side][runKey];
-          expect(existsSync(gate.glb.path), `store GLB present: ${gate.glb.path}`).toBe(true);
-          // The report names the store bytes; they must still recompute.
-          expect(shaFile(gate.glb.path), `${caseId} ${side} ${runKey} GLB sha recomputes`).toBe(gate.glb.sha256);
-          expect(existsSync(gate.flatRender.path), `store flat render present`).toBe(true);
-          expect(shaFile(gate.flatRender.path), `${caseId} ${side} ${runKey} flat sha recomputes`).toBe(
-            gate.flatRender.sha256,
-          );
-          // Recompute M1 (and M2) from the named store files via the gate
-          // script and compare to the reported values within noise.
-          const outTmp = join(
-            os.tmpdir(),
-            `.g5-recompute-${caseId}-${side}-${runKey}-${process.pid}.json`,
-          );
-          const raw = execFileSync(
-            "mise",
-            [
-              "exec",
-              "-C",
-              "/Volumes/files/src/openclinxr",
-              "--",
-              "python3",
-              gateScript,
-              "--case",
-              caseId,
-              "--glb",
-              gate.glb.path,
-              "--flat-render",
-              gate.flatRender.path,
-              "--out",
-              outTmp,
-            ],
-            { encoding: "utf8", timeout: 600_000 },
-          );
-          expect(raw, `${caseId} ${side} ${runKey} gate recompute prints`).toContain("IDENTITY_GATE");
-          const recomputed = JSON.parse(readFileSync(outTmp, "utf8")) as { m1Mm: number; m2: number };
-          rmSync(outTmp, { force: true });
-          expect(
-            Math.abs(recomputed.m1Mm - gate.m1Mm),
-            `${caseId} ${side} ${runKey} M1 recomputes within noise ${noise}`,
-          ).toBeLessThanOrEqual(Math.max(noise, 0.001));
-          const m2noise = doc.thresholds.m2.noise;
-          expect(
-            Math.abs(recomputed.m2 - gate.m2),
-            `${caseId} ${side} ${runKey} M2 recomputes within noise ${m2noise}`,
-          ).toBeLessThanOrEqual(Math.max(m2noise, 0.0001));
-        }
+      for (const side of ["pre", "fitbake", "nomouth"]) {
+        rows.push({ caseId, side, row: report.cases[caseId]!.rows[side]! });
       }
-      // No literal thresholds: the enforced bounds live in the report with sources.
-      expect(doc.thresholds.m1.threshold, "M1 threshold read from report").toBeGreaterThan(0);
-      expect(doc.thresholds.m2.threshold, "M2 threshold read from report").toBeGreaterThan(0);
-      expect(String(doc.thresholds.m1.knownGood.source), "M1 known-good cites its source").toContain("fit-report.json");
     }
+    for (const { caseId, side, row } of rows) {
+      expect(existsSync(row.glb.path), `store GLB present: ${row.glb.path}`).toBe(true);
+      expect(shaFile(row.glb.path), `${caseId} ${side} GLB sha recomputes`).toBe(row.glb.sha256);
+      expect(existsSync(row.flatRender.path), `store flat render present`).toBe(true);
+      expect(shaFile(row.flatRender.path), `${caseId} ${side} flat sha recomputes`).toBe(row.flatRender.sha256);
+      const outTmp = join(os.tmpdir(), `.g5-recompute-${caseId}-${side}-${process.pid}.json`);
+      const raw = execFileSync(
+        "mise",
+        ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", gateScript,
+          "--case", caseId, "--glb", row.glb.path, "--flat-render", row.flatRender.path, "--out", outTmp],
+        { encoding: "utf8", timeout: 600_000 },
+      );
+      expect(raw, `${caseId} ${side} gate recompute prints`).toContain("IDENTITY_GATE");
+      const recomputed = JSON.parse(readFileSync(outTmp, "utf8")) as { m1Mm: number; m2: number };
+      rmSync(outTmp, { force: true });
+      // Deterministic recompute: epsilons cover report rounding only.
+      expect(Math.abs(recomputed.m1Mm - row.m1Mm), `${caseId} ${side} M1 recomputes`).toBeLessThanOrEqual(0.001);
+      expect(Math.abs(recomputed.m2 - row.m2), `${caseId} ${side} M2 recomputes`).toBeLessThanOrEqual(0.00002);
+    }
+    // No literal thresholds: status and bounds live in the report with sources.
+    expect(report.thresholds.m1.status, "M1 status read from report").toBe("invalid_instrument");
+    expect(["enforced", "report-only"], "M2 status read from report").toContain(report.thresholds.m2.status);
   }, 600_000);
+
+  it("(defect) lower-lip wedge recorded with evidence, suspects, and a no-mouth experiment", () => {
+    const report = readIdentity();
+    const d = report.defect;
+    expect(d.defect, "defect named").toBe("lower-lip wedge under fit bake");
+    expect(d.verdict, "verdict cause_suspected").toBe("cause_suspected");
+    expect(d.suspectedWeights.length, "suspected mouth weights listed").toBeGreaterThan(0);
+    expect(d.suspectedWeights.every((w) => w.startsWith("mouth-")), "all suspects are mouth-*").toBe(true);
+    const sheet = report.sheets.find((s) => s.case === "body2");
+    expect(sheet, "body2 sheet recorded").toBeDefined();
+    expect(existsSync(sheet!.sheet), "sheet file present").toBe(true);
+    expect(shaFile(sheet!.sheet), "sheet sha recomputes").toBe(sheet!.sha256);
+    for (const exp of report.experiments) {
+      expect(exp.nomouth.appliedCount, `${exp.case} no-mouth applied count`).toBe(65);
+    }
+  });
 });

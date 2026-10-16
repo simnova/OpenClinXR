@@ -3,11 +3,19 @@
 // materializer-loadable (applied) vs not (unapplied, never dropped silently).
 //
 // Case data lives only in case-inputs.json; this module names no case.
-import { copyFileSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { repoRoot } from "../repo-root.js";
-import { FIT_DIR_REL, FIT_REL, runMisePython, sha256Bytes, sha256File } from "./shared.js";
+import {
+  FIT_DIR_REL,
+  FIT_REL,
+  runMisePython,
+  runPositionDriver,
+  sha256Bytes,
+  sha256File,
+  type StageGate,
+} from "./shared.js";
 
 /** MPFB target subdirs the materializer loader scans. Must match
  * load_mpfb_face_shape_keys (packages/openclinxr/factory-stations/src/body_param/mpfb_body.py:102);
@@ -138,6 +146,96 @@ export function faceTargetsLogCount(stdout: string): number {
   } catch {
     return -1;
   }
+}
+
+export type Stage4FaceFit = {
+  fitCase: string;
+  fitBakeOptIn: true;
+  weightsSha256: string;
+  fileWeightsSha256: string;
+  trackedRestored: boolean;
+  applied: Array<{ name: string; weight: number }>;
+  unapplied: Array<{ name: string; weight: number; reason: string }>;
+  appliedBig: number;
+  totalBig: number;
+  bigDetail: string;
+  loader: string;
+  logAppliedCount: number;
+  logVerified: boolean;
+} | null;
+
+/** Stage-4 gate: default (no fit) keeps the byte/POSITION pin; a verified
+ * fit bake records the known-good move instead of failing it. */
+export function buildStage4Gate(input: {
+  outSha: string;
+  outGlb: string;
+  knownAbs: string | null;
+  knownSha: string | null;
+  knownSource: string;
+  faceFitRecord: Exclude<Stage4FaceFit, null> | null;
+  logAppliedCount: number;
+  logVerified: boolean;
+}): { gate: StageGate; positionFallback: Record<string, unknown> | undefined } {
+  const { outSha, outGlb, knownAbs, knownSha, knownSource, faceFitRecord, logAppliedCount, logVerified } = input;
+  const kg = {
+    name: path.basename(outGlb),
+    expected: knownSha ?? "",
+    expectedSource: knownSource,
+    actual: outSha,
+  };
+  if (knownAbs === null || knownSha === null || !existsSync(knownAbs)) {
+    return { gate: { pass: true, detail: "no pinned known-good carried for this case; output recorded" }, positionFallback: undefined };
+  }
+  const storeSha = sha256File(knownAbs);
+  const storeDrift = storeSha !== knownSha ? `; store file drifted (${storeSha.slice(0, 12)})` : "";
+  const positions = (): { match: boolean; fallback: Record<string, unknown> } => {
+    const ours = runPositionDriver(outGlb);
+    const known = runPositionDriver(knownAbs);
+    const match = ours.positionSha256[ours.body] === known.positionSha256[known.body];
+    const differing = Object.keys(ours.positionSha256).filter(
+      (mesh) => ours.positionSha256[mesh] !== known.positionSha256[mesh],
+    );
+    return {
+      match,
+      fallback: { byteMatch: false, positionMatch: match, oursBody: ours.body, knownBody: known.body, differingMeshes: differing },
+    };
+  };
+  if (outSha === knownSha && faceFitRecord === null) {
+    return {
+      gate: { pass: storeDrift.length === 0, detail: `rebake byte-identical to the pinned store GLB${storeDrift}`, knownGood: kg },
+      positionFallback: undefined,
+    };
+  }
+  if (faceFitRecord === null) {
+    const { match, fallback } = positions();
+    return {
+      gate: {
+        pass: match,
+        detail: `${match ? "bytes differ; body POSITION identical" : "bytes differ and body POSITION differs"} (${(fallback["differingMeshes"] as unknown[]).length} meshes differ: recorded, not a stop)${storeDrift}`,
+        knownGood: kg,
+      },
+      positionFallback: fallback,
+    };
+  }
+  if (!logVerified) {
+    return {
+      gate: {
+        pass: false,
+        detail: `fit NOT baked: FACE_TARGETS_APPLY count ${logAppliedCount} vs ${faceFitRecord.applied.length} applied weights (a run that did not bake the fit fails)`,
+        knownGood: kg,
+      },
+      positionFallback: undefined,
+    };
+  }
+  const { fallback } = positions();
+  return {
+    gate: {
+      pass: true,
+      detail: `fit baked into the Basis (FACE_TARGETS_APPLY ${faceFitRecord.applied.length} weights, ${faceFitRecord.bigDetail}); byte-identity with the pre-fix pin is not expected by design — the known-good move is recorded here${storeDrift}`,
+      knownGood: kg,
+    },
+    positionFallback: fallback,
+  };
 }
 
 export type FitForStage = {
