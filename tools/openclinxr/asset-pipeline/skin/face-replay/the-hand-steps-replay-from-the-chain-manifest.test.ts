@@ -800,6 +800,14 @@ describe("hand-steps per-stage masks, T-zone, corners, known-bads", () => {
     const albedo = path.join(FIX, "base-good-A.png");
     const manifest = loadManifest();
     manifest.stages[0].parameters.size = 512;
+    // This replay uses a synthetic fixture GLB, not a pinned subject mesh:
+    // blank the subject GLB pins (the aisha pin is exercised by the
+    // derive-refuses-a-non-body-skin-and-aisha-replays-for-real suite).
+    for (const subj of Object.values(manifest.subjects) as {
+      glb_sha256?: string;
+    }[]) {
+      subj.glb_sha256 = "PLACEHOLDER_GLB_SHA256";
+    }
     const manPath = path.join(tmp, "manifest.json");
     fs.writeFileSync(manPath, JSON.stringify(manifest));
     const runOnce = (store: string) => {

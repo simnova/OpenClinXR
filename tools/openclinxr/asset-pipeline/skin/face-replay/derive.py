@@ -106,6 +106,93 @@ def sha256_file(p: Path) -> str:
     return h.hexdigest()
 
 
+class NoBodySkinMeshError(RuntimeError):
+    """Named refusal: no mesh in the GLB qualifies as derive skin."""
+
+
+# A derive skin must be body-named and match none of these role/garment
+# patterns (aisha-real-chain card tsk_adb53f2a4f22fd72: the decimated
+# runtime LOD's fallback "largest mesh" picked an eyebrow card as SKIN).
+ROLE_PATTERNS = ("eyebrow", "lash", "tearline", "teeth", "tongue", "eye",
+                 "globe", "cornea", "cloth", "jean", "pant", "shoe", "boot",
+                 "shirt", "hair", "glass", "hat", "cap")
+
+# Split body primitives merge only when they partition one surface on one
+# UV atlas: pairwise 3D-bbox-disjoint and pairwise UV-coverage IoU below
+# this (measured at 256px). Base.glb splits 3D-nest (y-ranges subsets of
+# body.001) so they never merge: largest primitive wins, byte-identical
+# to S/derive/A.
+MERGE_IOU_MAX = 0.05
+
+# A derive skin must carry enough faces for 4096px masks. Measured:
+# genuine subjects 70,504 (ref3) / 70,672 (lidconform) / 73,096 (base)
+# faces; decimated runtime LOD assembly 10,705 faces merged (largest
+# primitive 7,060); hand-steps synthetic fixture ~30k faces (must pass).
+# Floor sits ~2x above the LOD assembly, ~3.5x below the smallest
+# genuine subject.
+SKIN_MIN_FACES = 20000
+
+
+def _uv_coverage(uv: np.ndarray, faces: np.ndarray, size: int = 256) -> np.ndarray:
+    img = np.zeros((size, size), np.uint8)
+    px = np.clip((uv * size).astype(int), 0, size - 1)
+    for tri in px[faces]:
+        p = tri[:, ::-1][:, [1, 0]]
+        cv2.fillPoly(img, [np.round(p).astype(np.int32)], 255)
+    return img > 0
+
+
+def _body_primitives_merge(geoms: dict, names: list[str]) -> tuple | None:
+    """Merged (V, F, UV) when every pair is 3D-bbox-disjoint on one UV
+    atlas, else None (caller picks the largest primitive)."""
+    if len(names) < 2:
+        return None
+    for i in range(len(names)):
+        vi = geoms[names[i]][0]
+        uvi = geoms[names[i]][2]
+        if not (isinstance(uvi, np.ndarray) and uvi.ndim == 2
+                and uvi.shape[1] == 2 and len(uvi) == len(vi)):
+            return None  # a part without per-vert UVs: not one atlas
+        if not ((uvi >= 0.0).all() and (uvi <= 1.0).all()):
+            return None
+        for j in range(i + 1, len(names)):
+            vj = geoms[names[j]][0]
+            lo = np.maximum(vi.min(axis=0), vj.min(axis=0))
+            hi = np.minimum(vi.max(axis=0), vj.max(axis=0))
+            if bool((hi > lo).all()):
+                return None  # 3D bboxes intersect: not a partition
+            ci = _uv_coverage(geoms[names[i]][2], geoms[names[i]][1])
+            cj = _uv_coverage(geoms[names[j]][2], geoms[names[j]][1])
+            inter = int((ci & cj).sum())
+            union = int((ci | cj).sum())
+            if union and inter / union >= MERGE_IOU_MAX:
+                return None  # UV stacks: separate atlases, not one
+    parts = sorted(names, key=lambda k: len(geoms[k][0]), reverse=True)
+    v_all, f_all, uv_all, off = [], [], [], 0
+    for k in parts:
+        v, f, uv = geoms[k]
+        v_all.append(v)
+        f_all.append(f + off)
+        uv_all.append(uv)
+        off += len(v)
+    return (np.vstack(v_all), np.vstack(f_all), np.vstack(uv_all))
+
+
+def find_mouth_loop(V: np.ndarray, F: np.ndarray, cx: float,
+                    tcen: float | None) -> np.ndarray | None:
+    """Largest centred boundary loop overlapping teeth height (n, xs, ys
+    bounds are the chain's mouth-hole definition). Shared by
+    load_subject (skin qualification) and main (the loop itself)."""
+    for lp in sorted(boundary_loops(F), key=len, reverse=True):
+        w = V[lp]
+        xc = w[:, 0].mean()
+        xs, ys = np.ptp(w[:, 0]), np.ptp(w[:, 1])
+        if abs(xc - cx) < 0.010 and 0.030 < xs < 0.080 and ys < 0.060:
+            if tcen is None or (w[:, 1].min() < tcen < w[:, 1].max() + 0.020):
+                return lp
+    return None
+
+
 def load_subject(glb_path: Path) -> dict:
     """World-space verts/faces/UVs per mesh, roles by name substring."""
     s = trimesh.load(str(glb_path), force="scene")
@@ -125,14 +212,44 @@ def load_subject(glb_path: Path) -> dict:
             uv[:, 1] = 1.0 - uv[:, 1]
         geoms.setdefault(name, (v, np.asarray(g.faces, dtype=np.int64), uv))
     roles = {}
-    for name, (v, f, uv) in geoms.items():
-        n = name.lower()
-        if "body.001" in n and ("skin" not in roles or len(v) > len(roles["skin"][0])):
-            roles["skin"] = (v, f, uv, name)
-    if "skin" not in roles:
-        name = max(geoms, key=lambda k: len(geoms[k][0]))
+    body_names = [name for name, (v, f, uv) in geoms.items()
+                  if "body" in name.lower()
+                  and not any(s in name.lower() for s in ROLE_PATTERNS)
+                  and isinstance(uv, np.ndarray) and uv.ndim == 2
+                  and uv.shape[1] == 2 and len(uv) == len(v)]
+    if not body_names:
+        raise NoBodySkinMeshError(
+            "NO_BODY_SKIN_MESH: no body-named mesh with per-vert UVs "
+            "(excluding role meshes %s) in %s; meshes present: %s"
+            % (",".join(ROLE_PATTERNS), glb_path, sorted(geoms)))
+    merged = _body_primitives_merge(geoms, body_names)
+    if merged is not None:
+        v, f, uv = merged
+        big = max(body_names, key=lambda k: len(geoms[k][0]))
+        roles["skin"] = (v, f, uv, big + "+mergedx%d" % len(body_names))
+    else:
+        name = max(body_names, key=lambda k: len(geoms[k][0]))
         v, f, uv = geoms[name]
         roles["skin"] = (v, f, uv, name)
+    skinV, skinF = roles["skin"][0], roles["skin"][1]
+    if len(skinF) < SKIN_MIN_FACES:
+        raise NoBodySkinMeshError(
+            "NO_BODY_SKIN_MESH: chosen skin mesh %s in %s has %d faces "
+            "(min %d for 4096px derivation); decimated runtime LOD is "
+            "not a derive subject"
+            % (roles["skin"][3], glb_path, len(skinF), SKIN_MIN_FACES))
+    skin_cx = float((skinV[:, 0].min() + skinV[:, 0].max()) / 2)
+    teeth_cands = [(vv, nm) for nm, (vv, ff, uu) in geoms.items()
+                   if "teeth" in nm.lower()
+                   and "tongue" not in nm.lower()]
+    teeth_mean = (max(teeth_cands, key=lambda c: len(c[0]))[0][:, 1].mean()
+                  if teeth_cands else None)
+    if find_mouth_loop(skinV, skinF, skin_cx,
+                       float(teeth_mean) if teeth_mean is not None else None) is None:
+        raise NoBodySkinMeshError(
+            "NO_BODY_SKIN_MESH: chosen skin mesh %s in %s has no mouth "
+            "hole loop (largest centred boundary loop at teeth height); "
+            "not a derive subject" % (roles["skin"][3], glb_path))
     for key, sub in (("brow", "eyebrow"), ("lash", "lash"),
                      ("tearline", "tearline"), ("teeth", "teeth")):
         cands = [(v, f, uv, nm) for nm, (v, f, uv) in geoms.items()
@@ -235,17 +352,10 @@ def main(argv: list[str] | None = None) -> int:
     methods["roles"]["skin"] = skin_name
 
     # ---- mouth hole loop: the LARGEST centred loop overlapping teeth height ----
-    loops = boundary_loops(F)
+    # (load_subject already refused a skin without one; shared predicate)
     tcen = teethV[:, 1].mean() if teethV is not None else None
-    mouth = None
-    for lp in sorted(loops, key=len, reverse=True):
-        w = V[lp]
-        xc = w[:, 0].mean()
-        xs, ys = np.ptp(w[:, 0]), np.ptp(w[:, 1])
-        if abs(xc - cx) < 0.010 and 0.030 < xs < 0.080 and ys < 0.060:
-            if tcen is None or (w[:, 1].min() < tcen < w[:, 1].max() + 0.020):
-                mouth = lp
-                break
+    mouth = find_mouth_loop(
+        V, F, cx, float(tcen) if tcen is not None else None)
     assert mouth is not None, "mouth hole loop not found"
     mV = V[mouth]
     mouth_bot, mouth_top = float(mV[:, 1].min()), float(mV[:, 1].max())

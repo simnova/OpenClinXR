@@ -1,0 +1,77 @@
+{
+  "doc": "Aisha real-chain report (card tsk_adb53f2a4f22fd72): derive refuses a non-body skin; Aisha's real chain runs byte-identical with the beard stage present (w0) vs removed.",
+  "card": "tsk_adb53f2a4f22fd72",
+  "subjects": {
+    "aisha": {
+      "glb": "S/eyefinal/base.glb",
+      "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
+      "chain_albedo": "S/aishareal/aisha-solved-albedo.png",
+      "chain_albedo_sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40",
+      "chain_albedo_source": "face_replay_colour.py --replay of S/brow2/out-albedo.png (sha 549250a61d204c1c6e418b519ea516e0a9ea5e3c7e4491527bc0f43fe0cd50bb, the solve input per solve-parameters.json shas) with tracked solve-parameters.json; output sha == solve-report.json output_sha256"
+    }
+  },
+  "G2_derive_table": {
+    "method": "derive.py (patched load_subject) --size 4096 --no-ao per candidate; masks compared by sha256 vs S/derive/A; compose-report.json mask shas compared vs S/derive/A",
+    "compose_report_vs_A": "all 10 mask shas in compose-report.json == S/derive/A shas (facecore a36822ec, scalp 66beb5e7, ears e3942a2a/d2d7f245, neck 0c4f6884, brows c58546f2/c4716b74, lips f7fcafaf, eyes 1126bf4a/c0158746)",
+    "candidates": {
+      "S/eyefinal/base.glb": {
+        "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
+        "skin": "mpfb_ob_patient_aisha_body.001 (largest body primitive, 73096 faces; 8 body splits 3D-nest so NO merge)",
+        "mouth_loop_n": 188,
+        "same_as_A": ["occupancy.png", "mask-lips.png", "mask-brows-L.png", "mask-brows-R.png", "mask-eyes-L.png", "mask-eyes-R.png", "mask-ears-L.png", "mask-ears-R.png", "mask-neck.png", "mask-scalp.png", "mask-facecore.png", "socket-wall-L.png", "socket-wall-R.png", "landmarks-uv.json"],
+        "differing": [],
+        "verdict": "REPRODUCES S/derive/A (derive.json differs only in wall_s timing)"
+      },
+      "store/lid-conform/aisha-lidconform.glb": {
+        "skin": "mpfb_ob_patient_aisha_body (largest body primitive, 70672 faces)",
+        "mouth_loop_n": 188,
+        "same_as_A": ["mask-ears-L.png", "mask-ears-R.png"],
+        "differing": ["occupancy.png", "mask-lips.png", "mask-brows-L.png", "mask-brows-R.png", "mask-eyes-L.png", "mask-eyes-R.png", "mask-facecore.png", "mask-neck.png", "mask-scalp.png", "socket-wall-L.png", "socket-wall-R.png"],
+        "verdict": "nearest does not reproduce A"
+      },
+      "S/regen3/aisha-ref3.glb": {
+        "skin": "mpfb_ob_patient_aisha_body.001 (largest body primitive, 70504 faces)",
+        "mouth_loop_n": 188,
+        "same_as_A": ["mask-brows-L.png", "mask-brows-R.png", "mask-ears-L.png", "mask-ears-R.png"],
+        "differing": ["occupancy.png", "mask-lips.png", "mask-eyes-L.png", "mask-eyes-R.png", "mask-facecore.png", "mask-neck.png", "mask-scalp.png", "socket-wall-L.png", "socket-wall-R.png"],
+        "verdict": "nearest does not reproduce A"
+      },
+      "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb": {
+        "skin": "refused",
+        "mouth_loop_n": null,
+        "verdict": "NO_BODY_SKIN_MESH (largest body primitive mpfb_ob_patient_aisha_v1_body, 7060 faces < SKIN_MIN_FACES 20000); pre-fix code picked the eyebrow card as SKIN and died at the mouth-hole assert"
+      }
+    }
+  },
+  "G3_real_chain": {
+    "method": "replay.py --manifest chain-manifest.json --subject aisha --glb S/eyefinal/base.glb --albedo S/aishareal/aisha-solved-albedo.png (full Blender AO bake both runs, seed 0), once with beard_shadow (weight 0) and once with the stage removed from a scratch manifest copy",
+    "stores": ["S/aishareal/chain-with-beard", "S/aishareal/chain-no-beard"],
+    "common_outputs_byte_identical": ["derive_out/ao.png", "derive_out/occupancy.png", "derive_out/mask-lips.png", "derive_out/mask-brows-L.png", "derive_out/mask-brows-R.png", "derive_out/mask-eyes-L.png", "derive_out/mask-eyes-R.png", "derive_out/mask-ears-L.png", "derive_out/mask-ears-R.png", "derive_out/mask-neck.png", "derive_out/mask-scalp.png", "derive_out/mask-facecore.png", "derive_out/socket-wall-L.png", "derive_out/socket-wall-R.png", "derive_out/lipuv.npz", "derive_out/landmarks-uv.json", "albedo_occ.png", "roughness.png", "albedo_lips.png", "albedo_corners.png", "albedo_sym.png", "eye-mask-union.png", "albedo_socket.png"],
+    "derive_json_note": "byte-differs ONLY in wall_s/ao_s Blender bake timings (127.4/123.5s vs 177.1/173.0s); all content keys identical",
+    "ao_vs_A": "chain ao.png sha 5dc2f1bd3d3b88ef163094f6d2cbac9eb57d0bbea8164b0df6b380a8565838d4 == S/derive/A/ao.png (real Blender bake reproduces A)",
+    "output_shas_with_beard": {
+      "albedo_occ.png": "05af4119d43c1c7d2d1009484c805ede66de16dcc076588c882a8f2b1e189140",
+      "roughness.png": "f150fec7b87a05f84a05f2f18e259e14bc3ff00529ec18c4628b3ae1749b8572",
+      "albedo_lips.png": "610731456aea11a93610a2c76f1581c9e4039651be29c5324e28ad48a764c27e",
+      "albedo_corners.png": "f50d041aa51fd90e0abaa7f35d4226a624e2a127b0968aee5961912d65a6cc5d",
+      "albedo_sym.png": "c616e2744c2377fd74456dc1ed11b1892386bd248ea09504974e61d9356f82ae",
+      "albedo_socket.png": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198",
+      "albedo_beard.png": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198"
+    },
+    "albedo_beard_equals_albedo_socket": true
+  },
+  "G4_polygon_sweep": {
+    "method": "face_landmark_regions.polygon_regions (upperlip_skin, chin) on the same S/beard/sweep/render beard-w{0,0p5,0p75,0p9,1p0}-front.png + S/body2/goal-front.png the box-patch sweep used; skin gate + eroded mask per make_belowbrow_mask; FaceLandmarker spread 0.0; full table in S/aishareal/g4-polygon-sweep.json",
+    "max_abs_dlab_vs_goal": {"0.0": 12.79, "0.5": 5.19, "0.75": 2.76, "0.9": 2.38, "1.0": 3.41},
+    "chosen_weight": 0.9,
+    "chosen_criterion": "minimises max per-channel |dLab| over polygon upperlip_skin+chin (same rule as the box-patch sweep, which chose 1.0 at 1.43)",
+    "manifest_update": "subjects.adult_male_street_casual.overrides.beard_shadow.weight 1.0 -> 0.9 + sources entry (chain-manifest.json)",
+    "w09_albedo_regenerated_sha256": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db (byte-identical to S/beard/sweep/albedo_beard_w0.9.png; mask_px 227668 == beard-shadow-report.json)",
+    "store_renders": {
+      "front": "/Volumes/files/openclinxr-assets/store/aisha-real-chain/body2-beard-w0p9-front.png",
+      "front_sha256": "57b492cbded86044056b9bf49d57c51cb25503256d91666ea1bdf35c793bb7ca",
+      "yaw40": "/Volumes/files/openclinxr-assets/store/aisha-real-chain/body2-beard-w0p9-yaw40.png",
+      "yaw40_sha256": "338e39657708517a29f7706c0c90db1ba6e2c2c455e2d0095bceb81f1e1a8741"
+    }
+  }
+}
