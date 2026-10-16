@@ -119,6 +119,10 @@
         "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
         "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
       },
+      "nose_tip_idx1_xy": [
+        642.1115875244141,
+        907.3670959472656
+      ],
       "render": {
         "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-aisha-r2/ss-aisha-front.png",
         "sha256": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d",
@@ -129,7 +133,34 @@
       },
       "rule": {
         "lid": "eye-contour landmark box +30 px per eye, landmarks detected on this render (sweep-lid.json fixture rule)",
-        "tint": "cheek relative box of sweep-tint.json x450-650 y550-750 @1024 (same-rig pre/post)"
+        "tint": "recorded cheek box mapped through the landmark frame (tint-box-frame.json, origin index 33, scale |33-263|); box from the PRE image landmarks (or the render's own when no pre), same pixels on pre/post under one rig"
+      },
+      "tint_box_no_pre": {
+        "anchors": {
+          "frame_file": "tint-box-frame.json",
+          "origin_idx": 33,
+          "origin_xy": [
+            447.6511764526367,
+            706.9828796386719
+          ],
+          "scale": 390.6334967323269,
+          "scale_idx": 263,
+          "scale_pt_xy": [
+            838.2802581787109,
+            708.8401031494141
+          ]
+        },
+        "box": [
+          553,
+          744,
+          834,
+          1024
+        ],
+        "box_from": "render landmarks (no pre)",
+        "overlay": {
+          "path": "/Volumes/files/openclinxr-assets/store/checks-by-case/tint-box-aisha.png",
+          "sha256": "afea000a96934019d131bc96b1c1318cbd58eec71f59e405b76d53de6ea51ed1"
+        }
       },
       "tint_note": "no pre/post pair for aisha on this card: LID only"
     },
@@ -160,15 +191,34 @@
         "value": 0.25555555555555554
       },
       "TINT": {
+        "anchors": {
+          "frame_file": "tint-box-frame.json",
+          "origin_idx": 33,
+          "origin_xy": [
+            449.893798828125,
+            681.2076568603516
+          ],
+          "scale": 386.2103791160332,
+          "scale_idx": 263,
+          "scale_pt_xy": [
+            836.1029815673828,
+            680.2463531494141
+          ]
+        },
         "box": [
-          562,
-          688,
-          812,
-          938
+          554,
+          718,
+          832,
+          995
         ],
+        "box_from": "pre landmarks",
         "cutoff": 0.326,
-        "kept_px": 1341,
-        "kept_regions": 1,
+        "kept_px": 1771,
+        "kept_regions": 3,
+        "overlay": {
+          "path": "/Volumes/files/openclinxr-assets/store/checks-by-case/tint-box-body2.png",
+          "sha256": "ae506ea10713a1b488ee5a5b301b0c57a1f152109c3780ad5f3b5c7e2899c61c"
+        },
         "pass": true,
         "post": {
           "path": "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s3-socket-front.png",
@@ -178,6 +228,10 @@
             1280
           ]
         },
+        "post_nose_tip_idx1_xy": [
+          642.9644775390625,
+          898.0784606933594
+        ],
         "pre": {
           "path": "/Volumes/files/openclinxr-assets/store/body2-defects/stage-renders/b2s1-base-front.png",
           "sha256": "85801226efea8e1775be428ab57af3115d49ec3ca08a5cb5169b4af47e6ecd7b",
@@ -186,8 +240,12 @@
             1280
           ]
         },
+        "pre_nose_tip_idx1_xy": [
+          643.3403015136719,
+          893.1417846679688
+        ],
         "source": "shape-report.json TINT cutoff (read, not restated)",
-        "value": 0.022159428911362283
+        "value": 0.023675837544450684
       },
       "detected": true,
       "eye_boxes": {
@@ -208,6 +266,10 @@
         "path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
         "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
       },
+      "nose_tip_idx1_xy": [
+        642.9644775390625,
+        898.0784606933594
+      ],
       "render": {
         "path": "/Volumes/files/openclinxr-assets/store/second-subject/sheet-r2/ss-body2-front.png",
         "sha256": "0580c3fb43bd9b8fcddaeac75c48654bebdb18cd3d759688f0cca7815c2f43c9",
@@ -218,7 +280,7 @@
       },
       "rule": {
         "lid": "eye-contour landmark box +30 px per eye, landmarks detected on this render (sweep-lid.json fixture rule)",
-        "tint": "cheek relative box of sweep-tint.json x450-650 y550-750 @1024 (same-rig pre/post)"
+        "tint": "recorded cheek box mapped through the landmark frame (tint-box-frame.json, origin index 33, scale |33-263|); box from the PRE image landmarks (or the render's own when no pre), same pixels on pre/post under one rig"
       },
       "tint_lid_on_post_observation": {
         "box": [
@@ -234,5 +296,38 @@
         "value": 0.2541436464088398
       }
     }
+  },
+  "tint_box_finding": {
+    "measured": {
+      "aisha": {
+        "box": [
+          553,
+          744,
+          834,
+          1024
+        ],
+        "nose_inside": true
+      },
+      "body2": {
+        "box": [
+          554,
+          718,
+          832,
+          995
+        ],
+        "nose_inside": true
+      },
+      "s3start": {
+        "box": [
+          450,
+          550,
+          650,
+          750
+        ],
+        "nose_inside": true
+      }
+    },
+    "method": "recorded box mapped through the landmark frame (origin index 33, uniform scale |33-263|, axis-aligned; uv in tint-box-frame.json), box from PRE landmarks, same pixels on pre/post",
+    "nose_relationship": "the recorded fixture box contains the source nose-tip landmark (index 1) with margins x +63/+137 px, y +111/+89 px (tint-box-source-s3start.png in scratch); any landmark-consistent map preserves interior, so the mapped box on every subject contains that subject's nose tip: aisha, body2-post, s3start all measured inside. The prescribed nose-exclusion is unsatisfiable without redefining the region (out of scope: no clause-definition edits). Region is central midface (nose + inner right cheek), not lateral cheek."
   }
 }

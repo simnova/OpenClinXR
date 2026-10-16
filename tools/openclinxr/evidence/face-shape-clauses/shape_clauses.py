@@ -43,6 +43,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FIX = os.path.join(SCRIPT_DIR, "fixtures")
 GATE_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "face-gate"))
 REPORT_FILE = os.path.join(SCRIPT_DIR, "shape-report.json")
+FRAME_FILE = os.path.join(SCRIPT_DIR, "tint-box-frame.json")
 
 TINT_LO, TINT_HI = 3.0, 12.0
 TINT_K = 2.0
@@ -176,14 +177,34 @@ def eye_crop_from_render(rgb, pts, contour):
     return (x0, y0, x1, y1), rgb[y0:y1, x0:x1]
 
 
-def cheek_box_for_size(w, h):
-    """TINT fixture rule as relative box (sweep-tint.json: cheek x450-650
-    y550-750 on 1024x1024 sources). Exact on 1024 sources, proportional
-    elsewhere; pre/post under the same rig share the frame so one box fits."""
-    fx0, fy0, fx1, fy1 = 450.0 / 1024.0, 550.0 / 1024.0, 650.0 / 1024.0, \
-        750.0 / 1024.0
-    return (max(0, int(round(fx0 * w))), max(0, int(round(fy0 * h))),
-            min(w, int(round(fx1 * w))), min(h, int(round(fy1 * h))))
+def read_box_frame():
+    with open(FRAME_FILE) as f:
+        return json.load(f)
+
+
+def cheek_box_from_landmarks(pts):
+    """TINT box in the landmark frame (tint-box-frame.json: origin eye-A
+    outer corner index 33, uniform scale |33-263|, axis-aligned).
+
+    The recorded fixture box is expressed once as normalized (u, v) corners
+    and mapped through landmarks detected on the given image, the same way
+    LID cuts eye crops from the subject's own render. Exact on the fitting
+    image by construction (float error ~1e-13, then round to pixels).
+    Returns (box, anchors) with full-precision anchor coordinates so the
+    box recomputes from the report without a model.
+    """
+    frame = read_box_frame()["uv"]
+    ox, oy = float(pts[33][0]), float(pts[33][1])
+    ex, ey = float(pts[263][0]), float(pts[263][1])
+    s = math.hypot(ex - ox, ey - oy)
+    box = (int(round(ox + frame["x0"] * s)),
+           int(round(oy + frame["y0"] * s)),
+           int(round(ox + frame["x1"] * s)),
+           int(round(oy + frame["y1"] * s)))
+    anchors = {"origin_idx": 33, "scale_idx": 263,
+               "origin_xy": [ox, oy], "scale_pt_xy": [ex, ey], "scale": s,
+               "frame_file": "tint-box-frame.json"}
+    return box, anchors
 
 
 def run_subject(subject, render_path, pre_path=None, model=None):
@@ -211,13 +232,17 @@ def run_subject(subject, render_path, pre_path=None, model=None):
            "rule": {"lid": "eye-contour landmark box +30 px per eye, "
                            "landmarks detected on this render "
                            "(sweep-lid.json fixture rule)",
-                    "tint": "cheek relative box of sweep-tint.json "
-                            "x450-650 y550-750 @1024 (same-rig pre/post)"}}
+                    "tint": "recorded cheek box mapped through the "
+                            "landmark frame (tint-box-frame.json, origin "
+                            "index 33, scale |33-263|); box from the PRE "
+                            "image landmarks (or the render's own when no "
+                            "pre), same pixels on pre/post under one rig"}}
     if pts is None:
         out["detected"] = False
         out["note"] = gate.DETECT_FAIL_NOTE
         return out
     out["detected"] = True
+    out["nose_tip_idx1_xy"] = [float(pts[1][0]), float(pts[1][1])]
     eye_boxes, lids = {}, {}
     for eye, contour in (
             ("A", [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157,
@@ -253,18 +278,38 @@ def run_subject(subject, render_path, pre_path=None, model=None):
             out["TINT"] = {"error": "pre/post shapes differ: %s vs %s" %
                             (list(pre_rgb.shape), list(rgb.shape))}
         else:
-            x0, y0, x1, y1 = cheek_box_for_size(w, h)
-            out["cheek_box"] = [x0, y0, x1, y1]
-            m = tint_measure(pre_rgb[y0:y1, x0:x1], rgb[y0:y1, x0:x1])
-            tcut = read_cutoff("TINT")
-            out["TINT"] = {"box": [x0, y0, x1, y1], "value": m["value"],
-                           "kept_px": m["kept_px"],
-                           "kept_regions": m["kept_regions"],
-                           "cutoff": tcut,
-                           "pass": bool(m["value"] <= tcut),
-                           "source": "shape-report.json TINT cutoff (read, "
-                                     "not restated)"}
+            pre_pts = gate.detect_points(landmarker,
+                                         Image.fromarray(pre_rgb))
+            if pre_pts is None:
+                out["TINT"] = {"error": "no face in pre: %s" % pre_path}
+            else:
+                out["pre_nose_tip_idx1_xy"] = [float(pre_pts[1][0]),
+                                               float(pre_pts[1][1])]
+                (x0, y0, x1, y1), anchors = cheek_box_from_landmarks(
+                    pre_pts)
+                x0, y0 = max(0, x0), max(0, y0)
+                x1, y1 = min(w, x1), min(h, y1)
+                out["cheek_box"] = [x0, y0, x1, y1]
+                out["cheek_box_anchors"] = anchors
+                m = tint_measure(pre_rgb[y0:y1, x0:x1], rgb[y0:y1, x0:x1])
+                tcut = read_cutoff("TINT")
+                out["TINT"] = {"box": [x0, y0, x1, y1],
+                               "box_from": "pre landmarks",
+                               "anchors": anchors,
+                               "value": m["value"],
+                               "kept_px": m["kept_px"],
+                               "kept_regions": m["kept_regions"],
+                               "cutoff": tcut,
+                               "pass": bool(m["value"] <= tcut),
+                               "source": "shape-report.json TINT cutoff "
+                                         "(read, not restated)"}
     else:
+        (x0, y0, x1, y1), anchors = cheek_box_from_landmarks(pts)
+        x0, y0 = max(0, x0), max(0, y0)
+        x1, y1 = min(w, x1), min(h, y1)
+        out["tint_box_no_pre"] = {"box": [x0, y0, x1, y1],
+                                  "box_from": "render landmarks (no pre)",
+                                  "anchors": anchors}
         out["TINT"] = None
     return out
 

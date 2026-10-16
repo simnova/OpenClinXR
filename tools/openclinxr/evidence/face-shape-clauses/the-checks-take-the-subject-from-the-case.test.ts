@@ -177,6 +177,70 @@ describe(suiteName, () => {
     );
   });
 
+  itStore("H1: the TINT box is landmark-derived per subject (frame recomputation)", () => {
+    const frame = JSON.parse(readFileSync(join(SHAPE_DIR, "tint-box-frame.json"), "utf8")) as {
+      uv: { x0: number; y0: number; x1: number; y1: number };
+    };
+    const rep = JSON.parse(readFileSync(SHAPE_REPORT, "utf8")) as {
+      subjects: Record<string, {
+        eye_boxes: Record<string, number[]>;
+        TINT: {
+          box: number[];
+          box_from: string;
+          anchors: { origin_xy: number[]; scale: number };
+          post_nose_tip_idx1_xy: number[];
+          overlay: { path: string; sha256: string };
+        } | null;
+        tint_box_no_pre?: {
+          box: number[];
+          anchors: { origin_xy: number[]; scale: number };
+          overlay: { path: string; sha256: string };
+        };
+        nose_tip_idx1_xy: number[];
+      }>;
+      tint_box_finding: {
+        measured: Record<string, { box: number[]; nose_inside: boolean }>;
+      };
+    };
+    // Box recomputes from the recorded anchors + frame with plain
+    // arithmetic: a copied or proportional box does not satisfy this.
+    function expected(anchors: { origin_xy: number[]; scale: number }): number[] {
+      const [ox, oy] = anchors.origin_xy;
+      const s = anchors.scale;
+      return [
+        Math.round(ox + frame.uv.x0 * s),
+        Math.round(oy + frame.uv.y0 * s),
+        Math.round(ox + frame.uv.x1 * s),
+        Math.round(oy + frame.uv.y1 * s),
+      ];
+    }
+    const b2 = rep.subjects["body2"].TINT!;
+    expect(expected(b2.anchors), "body2 TINT box recomputes from its anchors").toEqual(b2.box);
+    const ai = rep.subjects["aisha"].tint_box_no_pre!;
+    expect(expected(ai.anchors), "aisha TINT box recomputes from its anchors").toEqual(ai.box);
+    // Per-subject landmarks: boxes differ across subjects and differ from
+    // the superseded proportional box [562,688,812,938] (h0 framing bug).
+    expect(b2.box, "body2 box equals the aisha box (shared landmarks?)").not.toEqual(ai.box);
+    expect(b2.box, "body2 box is still the proportional box").not.toEqual([562, 688, 812, 938]);
+    // One box from pre landmarks, shared by pre/post under one rig.
+    expect(b2.box_from).toBe("pre landmarks");
+    // Grading evidence: nose tips recorded, overlays cite store bytes.
+    for (const [name, entry] of [["body2", b2], ["aisha", ai]] as const) {
+      expect(entry.overlay.sha256, `${name} overlay sha`).toMatch(/^[0-9a-f]{64}$/);
+      expect(sha256(entry.overlay.path), `${name} overlay bytes`).toBe(entry.overlay.sha256);
+    }
+    expect(typeof b2.post_nose_tip_idx1_xy[0], "body2 post nose tip").toBe("number");
+    // Measured disclosure (tint_box_finding): the recorded fixture box
+    // contains the source nose tip, so every landmark-consistent map keeps
+    // the subject nose tip inside; the report records nose_inside true on
+    // all three. A future region redefinition flips these tripwires.
+    for (const key of ["s3start", "aisha", "body2"]) {
+      expect(
+        rep.tint_box_finding.measured[key].nose_inside,
+        `${key} nose_inside flipped: region or frame changed, re-grade`,
+      ).toBe(true);
+    }
+  });
   it("G5: the model refusal (missing file and wrong sha both refuse)", () => {
     const dir = mkdtempSync(join(tmpdir(), "checks-case-"));
     const wrong = join(dir, "wrong.task");
