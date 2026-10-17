@@ -170,13 +170,29 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_detail_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
+        from PIL import Image as _PI2
+        import numpy as _np2
+        _eyes = (_np2.array(_PI2.open(derive_out / "mask-eyes-L.png").convert("L")) |
+                 _np2.array(_PI2.open(derive_out / "mask-eyes-R.png").convert("L")))
+        _eyes_union = store_dir / "eye-mask-union.png"
+        _PI2.fromarray(_eyes).save(_eyes_union)
+        _brows = (_np2.array(_PI2.open(derive_out / "mask-brows-L.png").convert("L")) |
+                  _np2.array(_PI2.open(derive_out / "mask-brows-R.png").convert("L")))
+        _brows_union = store_dir / "brow-mask-union.png"
+        _PI2.fromarray(_brows).save(_brows_union)
         cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        cmd += ["--eyes-mask", str(_eyes_union)]
+        cmd += ["--brows-mask", str(_brows_union)]
         cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
         cmd += ["--seed", str(params["seed"])]
         cmd += ["--crease-gain", str(params["crease_gain"])]
         cmd += ["--pore-gain", str(params["pore_gain"])]
         cmd += ["--pore-d-mm", str(params["pore_d_mm"])]
         cmd += ["--pore-density-per-mm2", str(params["pore_density_per_mm2"])]
+        cmd += ["--pore-sub-d-mm", str(params["pore_sub_d_mm"])]
+        cmd += ["--pore-sub-density-per-mm2", str(params["pore_sub_density_per_mm2"])]
+        cmd += ["--pore-sub-amp-frac", str(params["pore_sub_amp_frac"])]
+        cmd += ["--feather-mm", str(params["feather_mm"])]
         inputs["albedo_detail_png"] = store_dir / output_paths["albedo_detail_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]
     else:

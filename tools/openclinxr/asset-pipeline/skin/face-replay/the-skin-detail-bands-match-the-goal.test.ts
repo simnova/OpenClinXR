@@ -82,13 +82,13 @@ function bandEnergies(before: string, after: string,
     `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(after)}).convert('RGB')))[...,0]`,
     // Lab-L crease-band energy with the same G(1.43)-G(12.2) split the
     // stage uses at 4.079 tex/mm; added RMS over the gated region. The
-    // measurement erodes the fixture block by 12 px: the stage gate
-    // feathers 2 texels at the block border, so the transition ring is
-    // edge behavior, not attenuation (edges are covered by the byte-copy
-    // and determinism tests; the forehead region is deep interior).
+    // measurement erodes the fixture block by 16 px: the stage gate
+    // feathers 1.0 mm (4 texels), so the transition ring is edge
+    // behavior, not attenuation (edges are covered by the byte-copy and
+    // no-hard-edge tests; the forehead region is deep interior).
     "def band(l): return cv2.GaussianBlur(l,(0,0),1.43)-cv2.GaussianBlur(l,(0,0),12.2)",
     `m0=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127)`,
-    "m=cv2.erode(m0.astype(np.uint8),np.ones((25,25),np.uint8))>0",
+    "m=cv2.erode(m0.astype(np.uint8),np.ones((33,33),np.uint8))>0",
     "ea=float(np.sqrt((band(a)[m]**2).mean()))",
     "eb=float(np.sqrt((band(b)[m]**2).mean()))",
     "rms=float(np.sqrt(((b-a)[m]**2).mean()))",
@@ -129,13 +129,60 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(rHalf).toBeLessThan(0.6);
   });
 
-  it("raises pore-band RMS by the stated pore gain", () => {
+  it("adds darkening-only pore structure at the stated RMS (no bright pores)", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-pore-"));
     const { albedo, facecore } = makeFixture(tmp);
     const out = runStage(tmp, albedo, facecore,
       ["--crease-gain", "0", "--pore-gain", "3.0"], "pore.png");
     const { addedRms } = bandEnergies(albedo, out, facecore);
     expect(Math.abs(addedRms - 3.0) / 3.0).toBeLessThan(0.15);
+    // No LOCAL positive excursions: pores are dark pits (handback 1).
+    // The stage preserves the facecore L mean exactly (uniform lift =
+    // -field mean, tone-neutral by construction), so excursions are
+    // measured against the uniform level (median over the block); the
+    // uint8 round-trip admits half-LSB dust, not bright dots.
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "from fix_lips import rgb_to_lab",
+      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB')))[...,0]`,
+      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
+      `m=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127)`,
+      "d=b-a",
+      "lvl=float(np.median(d[m]))",
+      "print(json.dumps({'maxUp':float((d-lvl)[m].max()),'minDown':float((d-lvl)[m].min())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const s = JSON.parse(raw) as { maxUp: number; minDown: number };
+    expect(s.maxUp).toBeLessThanOrEqual(0.5);
+    expect(s.minDown).toBeLessThan(-1.0);
+  });
+
+  it("leaves no hard edge at the support border", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-edge-"));
+    const { albedo, facecore } = makeFixture(tmp);
+    const out = runStage(tmp, albedo, facecore,
+      ["--crease-gain", "0", "--pore-gain", "3.0"], "pore.png");
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "import cv2",
+      "from fix_lips import rgb_to_lab",
+      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
+      // support = dilate(facecore, feather_tex=4) at 4.079 tex/mm;
+      // ring = transition zone, interior = eroded deep field.
+      `fc=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127).astype(np.uint8)`,
+      "sup=cv2.dilate(fc,np.ones((9,9),np.uint8))>0",
+      "ring=(cv2.dilate(fc,np.ones((13,13),np.uint8))>0)&(cv2.erode(fc,np.ones((13,13),np.uint8))==0)",
+      "inter=(cv2.erode(fc,np.ones((29,29),np.uint8))>0)",
+      "lap=np.abs(cv2.Laplacian(b.astype(np.float32),cv2.CV_32F))",
+      "print(json.dumps({'ring':float(lap[ring].max()),'inter':float(lap[inter].max())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const s = JSON.parse(raw) as { ring: number; inter: number };
+    expect(s.ring).toBeLessThanOrEqual(s.inter);
   });
 
   it("names no subject (generic, case-driven)", () => {
@@ -202,11 +249,12 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
     expect(Math.abs(leg.goal_body2.forehead_crease - 1.254)).toBeLessThan(0.05);
   });
 
-  it("G1: forehead fix rows pass the midpoint rule; nasolabial rows route to geometry", () => {
-    // STEP 1 routes forehead bands to the albedo fix and nasolabial
-    // bands to mesh geometry (persist through A5 lighting-x-geometry
-    // only: albedo-borne fraction <= 0.25). Fix rows must pass; routed
-    // rows must carry the falsifier evidence, not a pass.
+  it("G1 (corrected): forehead fix rows move closer in log ratio past the midpoint without excess overshoot", () => {
+    // Handback 1 corrects the gate: past-the-midpoint alone let body2's
+    // forehead crease overshoot (0.819 -> 1.631, farther in |log|).
+    // Corrected: POST closer to goal than PRE in log ratio AND past the
+    // midpoint toward the goal; overshooting the goal by more than the
+    // PRE gap fails. Nasolabial rows stay routed to mesh geometry.
     const r = loadReport();
     expect(r.gates.g1.rows.length).toBe(8);
     const fracOf = (subject: string, region: string, band: string): number => {
@@ -218,11 +266,19 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
       expect(Math.abs(row.midpoint - expectedMid)).toBeLessThan(1e-3);
       if (row.region === "forehead") {
         expect(row.route).toBe("fix");
-        const preAbove = row.pre_ratio > 1;
-        const expectPass = preAbove
+        const pastMid = row.pre_ratio > 1
           ? row.post_ratio <= row.midpoint
           : row.post_ratio >= row.midpoint;
-        expect(row.pass).toBe(expectPass);
+        const closer = Math.abs(Math.log(row.post_ratio)) <
+          Math.abs(Math.log(row.pre_ratio)) - 1e-9;
+        let overshootOk = true;
+        if (row.pre_ratio < 1 && row.post_ratio > 1) {
+          overshootOk = (row.post_ratio - 1) <= (1 - row.pre_ratio) + 1e-3;
+        }
+        if (row.pre_ratio > 1 && row.post_ratio < 1) {
+          overshootOk = (1 - row.post_ratio) <= (row.pre_ratio - 1) + 1e-3;
+        }
+        expect(row.pass).toBe(pastMid && closer && overshootOk);
         expect(row.pass).toBe(true);
       } else {
         expect(row.region).toBe("nasolabial");

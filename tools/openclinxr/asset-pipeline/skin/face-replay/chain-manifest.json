@@ -238,8 +238,12 @@
         "pore_gain": 0.0,
         "seed": 11,
         "texels_per_mm": 4.079,
-        "pore_d_mm": 0.5,
-        "pore_density_per_mm2": 0.5
+        "pore_d_mm": 0.3,
+        "pore_density_per_mm2": 0.8,
+        "pore_sub_d_mm": 0.15,
+        "pore_sub_density_per_mm2": 3.2,
+        "pore_sub_amp_frac": 0.5,
+        "feather_mm": 1.0
       },
       "input_kinds": ["albedo_png", "facecore_mask", "lips_mask"],
       "output_shas_aisha": {
@@ -253,8 +257,12 @@
         "pore_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = no added structure)",
         "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (same convention as beard_shadow)",
         "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) = 4.079 at 4096 (beard_shadow.py method)",
-        "pore_d_mm": "Flament et al., Clin Cosmet Investig Dermatol 2015: visible facial skin pores 250-500 um (detection threshold 250 um); default 0.5 mm sits at the top of that range so the render projection lands in the measured pore band",
-        "pore_density_per_mm2": "Flament et al. 2015: cheek density 10-90/cm2 = 0.1-0.9/mm2; default 0.5/mm2 is the middle of that range",
+        "pore_d_mm": "Flament et al., Clin Cosmet Investig Dermatol 2015: visible facial skin pores 250-500 um (detection threshold 250 um); handback 1 (barely resolve at portrait distance): 0.3 mm lower end of the cited range",
+        "pore_density_per_mm2": "Flament et al. 2015: cheek density 10-90/cm2 = 0.1-0.9/mm2; handback 1 (dense): 0.8/mm2 top of the cited range",
+        "pore_sub_d_mm": "operator/consult decision: sub-pore grain octave at half the cited pore size",
+        "pore_sub_density_per_mm2": "operator/consult decision: sub-pore grain denser (4x the pore octave)",
+        "pore_sub_amp_frac": "operator/consult decision: sub-pore grain at half the main-octave amplitude",
+        "feather_mm": "operator/consult decision: 1.0 mm gate feather (between the fix_lips 6-texel feather and the beard 3.0 mm outer fade)",
         "crease_smooth_mm": "operator/consult decision: 3.0 mm upper gaussian keeps forehead-fold energy (~8-15 mm spacing) inside the removed band; 0.35 mm lower gaussian spares fine grain"
       }
     }
@@ -264,14 +272,14 @@
       "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
       "sources": {
         "glb_sha256": "measured: sha256sum S/eyefinal/base.glb; its derive --no-ao 4096 reproduces S/derive/A 13/13 masks + landmarks-uv.json byte-identical (card tsk_adb53f2a4f22fd72 STEP0, S/aishareal/derive-base)",
-        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (g=1 with affine transfer; probeC moves fh_c 0.00407->0.00302, pore cross-talk compensated by pore_gain)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (p=6.2 affine from probeP slope 0.0030725/L-unit against goal 0.03686; POST verifies)"
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: g=1 with affine transfer; probeC moves fh_c 0.00407->0.00302, darkening-only cross-talk compensated by pore_gain)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: p=7.0 affine from probeD slope 0.004693/L-unit against goal 0.03686 under corrected G1; POST2 verifies)"
       },
       "overrides": {
         "lips": { "ratio": 1.30 },
         "symmetrise": { "strength": 1.0 },
         "beard_shadow": { "weight": 0.0 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 6.2 }
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 7.0 }
       }
     },
     "adult_male_street_casual": {
@@ -281,7 +289,7 @@
         "lips": { "ratio": 1.0 },
         "symmetrise": { "strength": 1.0 },
         "beard_shadow": { "weight": 0.9 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 5.2 }
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 4.0 }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
@@ -289,8 +297,8 @@
         "lips.ratio": "measurement: S/skins/RESULT.md G2 — pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
         "beard_shadow.weight": "measurement: card tsk_adb53f2a4f22fd72 G4 polygon re-measure (face_landmark_regions upperlip_skin+chin vs goal on the same S/beard/sweep renders): min max|dLab| at 0.9 (2.38) vs 1.0 (3.41); was 1.0 by box-patch rule (S/aishareal/g4-polygon-sweep.json)",
-        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (g=1 with affine transfer; probeC moves fh_c 0.01475->0.00448, residual is the lighting-x-geometry floor)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (p=5.2 affine from probeP slope 0.007285/L-unit against goal 0.07087; POST verifies)"
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: g=1 with affine transfer; probeC moves fh_c 0.01475->0.00448, residual is the lighting-x-geometry floor)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: p=4.0 affine from probeD slope 0.009987/L-unit against goal 0.07087 under corrected G1; POST2 verifies)"
       }
     },
     "peds_patient_child": {

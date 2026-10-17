@@ -250,10 +250,10 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post.png"),
-               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post", "wrinkle-body2-post-front.png"),
-               "aisha": os.path.join(POST_STORE, "post", "wrinkle-aisha-post-front.png")}
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post2.png"),
+               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post2.png")}
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post2", "wrinkle-body2-post2-front.png"),
+               "aisha": os.path.join(POST_STORE, "post2", "wrinkle-aisha-post2-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
 
@@ -335,6 +335,7 @@ def run_post():
                                                xs.min():xs.max() + 1]}
     # ---- G1 rows ----
     g1_rows = []
+    import math as _math
     for subj in ("body2", "aisha"):
         for region in REGIONS:
             for band in ("crease", "pore"):
@@ -342,14 +343,26 @@ def run_post():
                 r0 = rec["ratio"]
                 r1 = round(post_e[subj]["bands"][region][band] / rec["goal"], 4)
                 mid = round((r0 + 1) / 2, 4)
-                toward = (r1 <= mid) if r0 > 1 else (r1 >= mid)
+                # Corrected G1 (handback 1): past the midpoint toward the
+                # goal AND closer in log ratio; overshooting the goal by
+                # more than the PRE gap fails.
+                past_mid = (r1 <= mid) if r0 > 1 else (r1 >= mid)
+                closer = abs(_math.log(r1)) < abs(_math.log(r0)) - 1e-9
+                overshoot_ok = True
+                if r0 < 1 and r1 > 1:
+                    overshoot_ok = (r1 - 1) <= (1 - r0) + 1e-3
+                if r0 > 1 and r1 < 1:
+                    overshoot_ok = (1 - r1) <= (r0 - 1) + 1e-3
+                passed = bool(past_mid and closer and overshoot_ok)
                 route = "fix" if region == "forehead" else "falsifier-geometry"
                 g1_rows.append({
                     "subject": subj, "region": region, "band": band,
                     "pre_ratio": r0, "post_ratio": r1, "midpoint": mid,
-                    "toward_goal": bool(toward),
+                    "toward_goal": bool(past_mid),
+                    "closer_log": bool(closer),
+                    "overshoot_ok": bool(overshoot_ok),
                     "route": route,
-                    "pass": bool(toward) if route == "fix" else False,
+                    "pass": passed if route == "fix" else False,
                     "falsifier": (None if route == "fix" else
                                   "nasolabial bands persist through A5 "
                                   "(lighting x geometry only): mesh-fold "
@@ -377,17 +390,26 @@ def run_post():
                               "pre_isolated": pre_iso, "post_isolated": post_iso,
                               "new": new})
         g2["new_peaks"].extend([f"{subj}/albedo@{b}" for b in new])
-        # render forehead patch PRE vs POST (logY, same-instrument domain)
+        # render forehead patch PRE vs POST (logY, same-instrument domain;
+        # SAME pixel window for both (PRE bbox clipped): landmark jitter
+        # would otherwise compare different fold content (skin_gates_split
+        # G0 same-pixel principle); the window artifact flagged a bin-48
+        # peak that vanishes on the aligned window (probes2 analysis).
         pre_an = analyse(report["pre"][f"render_{subj}"]["path"], landmarker)
         pre_logy = np.log(np.maximum(
             REX.luminance_Y(REX.srgb_to_linear(pre_an["rgb"])), 1e-6))
         fm = pre_an["masks"]["forehead"]
         ys2, xs2 = np.where(fm)
-        rp_pre = pre_logy[ys2.min():ys2.max() + 1, xs2.min():xs2.max() + 1]
-        rp_post = post_e[subj]["forehead_patch"]
-        h = min(rp_pre.shape[0], rp_post.shape[0])
-        w = min(rp_pre.shape[1], rp_post.shape[1])
-        rp0, rp1 = fft_profile(rp_pre[:h, :w]), fft_profile(rp_post[:h, :w])
+        y0, y1 = ys2.min(), ys2.max() + 1
+        x0, x1 = xs2.min(), xs2.max() + 1
+        post_logy = np.log(np.maximum(
+            REX.luminance_Y(REX.srgb_to_linear(
+                np.array(Image.open(POST_RENDER[subj]).convert("RGB")))), 1e-6))
+        hh = min(y1 - y0, post_logy.shape[0] - y0)
+        ww = min(x1 - x0, post_logy.shape[1] - x0)
+        rp_pre = pre_logy[y0:y0 + hh, x0:x0 + ww]
+        rp_post = post_logy[y0:y0 + hh, x0:x0 + ww]
+        rp0, rp1 = fft_profile(rp_pre), fft_profile(rp_post)
         rpre_iso = isolated_bins(rp0)
         rpost_iso = isolated_bins(rp1, rp0)
         rnew = [b for b in rpost_iso if b not in rpre_iso]
@@ -463,22 +485,27 @@ def run_post():
     import re as _re
     man = json.load(open(os.path.join(DIR, "chain-manifest.json")))
     dstage = next(s for s in man["stages"] if s["name"] == "detail_bands")
+    ov = {s: man["subjects"][s]["overrides"]["detail_bands"]
+          for s in man["subjects"]}
     fix = {"stage": "detail_bands", "script": "detail_bands.py",
            "parameters": dstage["parameters"],
-           "overrides": {s: man["subjects"][s]["overrides"]["detail_bands"]
-                         for s in man["subjects"]},
+           "overrides": ov,
            "solve": {
-               "transfer": ("affine from room-rig probes: body2 probeC "
-                            "(g=1,p=0) fh_c 0.01475->0.00448 fh_p "
-                            "0.02271->0.01008, probeP (g=0,p=4) fh_c "
-                            "->0.02691 fh_p ->0.05185; aisha probeC fh_c "
-                            "0.00407->0.00302 fh_p 0.00705->0.00525, probeP "
-                            "fh_c ->0.00863 fh_p ->0.01934; probes in "
-                            "store/skin-wrinkle-scale/probes/ + wrinkletest/"),
-               "chosen": ("body2 (g=1.0,p=5.2): predict fh_c 1.13 fh_p "
-                          "0.68; aisha (g=1.0,p=6.2): predict fh_c 0.74 "
-                          "fh_p 0.66; POST superlinear on body2 fh_c "
-                          "(1.63) recorded"),
+               "transfer": ("affine from room-rig probes, handback-1 stage "
+                            "(darkening-only pits 0.3mm/0.8mm2 + sub-grain): "
+                            "body2 probeC (g=1,p=0, reused: stage-independent) "
+                            "fh_c 0.01475->0.00448 fh_p 0.02271->0.01008; "
+                            "body2 probeD (g=1,p=3.0) and aisha probeD "
+                            "(g=1,p=3.0) in store/skin-wrinkle-scale/probes2/; "
+                            "old bipolar probes retained in probes/ + "
+                            "wrinkletest/ as superseded evidence"),
+               "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
+                          "G1 targets in log ratio (mid-window); POST "
+                          "verifies no excess overshoot"
+                          % (ov["adult_male_street_casual"]["crease_gain"],
+                             ov["adult_male_street_casual"]["pore_gain"],
+                             ov["aisha"]["crease_gain"],
+                             ov["aisha"]["pore_gain"])),
                "goal_bands_source": "this report pre.ratios (goal-photo band energies)"}}
     # ---- G4 sheet strips PRE|POST|goal ----
     strips = []
@@ -524,11 +551,14 @@ def run_post():
                            "nasolabial: fold unchanged (geometry, routed)."),
           "lane_manager": "pending"}
     report["fix"] = fix
+    n_fix_pass = sum(1 for r in g1_rows if r["route"] == "fix" and r["pass"])
     report["gates"] = {"g1": {"rows": g1_rows,
-                              "verdict": ("4/8 toward-goal (forehead fix "
-                                          "rows PASS); nasolabial routed to "
-                                          "mesh geometry per STEP 1, FAIL "
-                                          "as written for those rows")},
+                              "verdict": (
+                                  f"corrected G1: {n_fix_pass}/4 forehead fix "
+                                  "rows pass (closer in log ratio, past "
+                                  "midpoint, no excess overshoot); nasolabial "
+                                  "routed to mesh geometry per STEP 1, FAIL "
+                                  "as written for those rows")},
                        "g2": g2, "g3": {"rows": g3_rows},
                        "g4": g4, "mirror_cheek_report_only": mirror}
     report["post"] = post_e
