@@ -5,41 +5,41 @@ import { AnimationMixer, type Object3D, Vector3 as ThreeVector3 } from "three";
 import {
   captureRestStance,
 } from "./arrival-stance-close-mod.js";
+import { applyCaseOwnedArrivedLock } from "./case-owned-approach-arrived-mod.js";
 import type {
   CaseOwnedApproachFrame,
   CaseOwnedBedsideApproach,
 } from "./case-owned-approach-runtime-mod.js";
+import { applyWalkingPhaseLocks } from "./case-owned-approach-walking-tail-mod.js";
 import {
   applyClipDrivenSettlingTurn,
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
+import { footBaseStepIsActive } from "./foot-base-stride-retarget-mod.js";
+import { applyFootFlatten, resetFootFlatten } from "./foot-flatten-mod.js";
+import { applyFootstepCorrection, captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
+import { readFootstepExitDelaySubsteps, readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S, FOOTSTEP_TRAVEL_COEFFS } from "./footstep-plan-schedule.js";
+import { readFootstepToeSeparationM } from "./footstep-toe-separation-mod.js";
 import { applyTimedHeadGazeLead } from "./head-lead-anticipation-mod.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
-import { applyCaseOwnedArrivedLock } from "./case-owned-approach-arrived-mod.js";
+import {
+  createStanceLockState,
+} from "./stance-lock-mod.js";
+import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
 import {
   applySteppingTurn,
   enterSteppingTurn,
   seedSteppingTurnClose,
 } from "./stepping-turn-frame-mod.js";
 import {
-  createStanceLockState,
-} from "./stance-lock-mod.js";
-import { captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
-import { applyFootstepCorrection } from "./footstep-plan-amplitude-mod.js";
-import { applyWalkingPhaseLocks } from "./case-owned-approach-walking-tail-mod.js";
-import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S, FOOTSTEP_TRAVEL_COEFFS } from "./footstep-plan-schedule.js";
-import { readFootstepExitDelaySubsteps, readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
-import { readFootstepToeSeparationM } from "./footstep-toe-separation-mod.js";
-import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
-import {
   resolveClipStanceForFrame,
   resolveStopTriggerInput,
   updateStopPlayback,
 } from "./stop-clip-playback-mod.js";
-import { readWalkExitWindowEnabled } from "./walk-exit-window-query-flag-mod.js";
-import { footBaseStepIsActive } from "./foot-base-stride-retarget-mod.js";
-import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
+import { recaptureStopRestStance } from "./stop-rest-recapture-mod.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
+import { readWalkExitWindowEnabled } from "./walk-exit-window-query-flag-mod.js";
 
 type Vector3 = { x: number; y: number; z: number };
 
@@ -474,10 +474,16 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
         floorOriginY: approach.floorOriginY,
         contactBandMeters: approach.contactBandMeters,
       });
+      // FOOT-FLATTEN settling-end half (flat-stance slice, see
+      // foot-flatten-mod.ts): the clock carries across to arrived.
+      applyFootFlatten({ actorSlot: approach.actorSlot, deltaSeconds, floorOriginY: approach.floorOriginY });
     }
     return;
   }
-  if (applyCaseOwnedArrivedLock(approach)) return;
+  if (applyCaseOwnedArrivedLock(approach, deltaSeconds)) return;
+  // Non-standing phases restart the flatten clocks (pose-neutral; settling
+  // returns above, arrived inside the lock, so this is walk/stop).
+  resetFootFlatten(approach.actorSlot);
   // No second arrived correction here: the arrived lock above owns EVERY
   // arrived frame with locomotion <= 0 (it returns true for all of them), so a
   // correction after this point is dead code — and were it live it would apply

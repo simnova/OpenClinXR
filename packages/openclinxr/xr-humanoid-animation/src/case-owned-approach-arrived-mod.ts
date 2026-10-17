@@ -1,11 +1,12 @@
-import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import {
   applyArrivalStanceClose,
 } from "./arrival-stance-close-mod.js";
+import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
+import { applyFootFlatten } from "./foot-flatten-mod.js";
+import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import {
   restoreSettlingRestToePose,
 } from "./settling-step-turn-mod.js";
-import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 
 /**
  * Arrived-phase lock (2026-10-11 close, 2026-10-14 hold): the arrival continuity hold
@@ -14,7 +15,10 @@ import { applySettledPostureCorrection } from "./settled-posture-correction.js";
  * boundary moved — the same pattern `stance-lock-ik.ts`'s own header describes for its
  * own split out of `stance-lock-mod.ts`. Returns true when it owned the frame.
  */
-export function applyCaseOwnedArrivedLock(approach: CaseOwnedBedsideApproach): boolean {
+export function applyCaseOwnedArrivedLock(
+  approach: CaseOwnedBedsideApproach,
+  deltaSeconds?: number,
+): boolean {
   if (approach.execution.phase !== "arrived" || approach.execution.drive.locomotion > 0) return false;
   // Arrived: continuity HOLD, then settled correction. The 2026-10-11 gradual close
   // converged toes toward the walk-start rest snapshot; measured 2026-10-14 it glided the
@@ -96,6 +100,16 @@ export function applyCaseOwnedArrivedLock(approach: CaseOwnedBedsideApproach): b
     rightToe: approach.rightToe,
     floorOriginY: approach.floorOriginY,
     contactBandMeters: approach.contactBandMeters,
+  });
+  // FOOT-FLATTEN (flat-stance slice): after the hold + correction, rotate each
+  // planted foot's ankle so heel-sole and toe both lie on the floor (pitch ->
+  // 0 about the slot-lateral axis, pivoting about the toe, knee re-solved by
+  // the hinge). Eases in over 0.3 s from the first gated frame, holds after.
+  // No-op without leg chains (headless markers) or on airborne feet.
+  applyFootFlatten({
+    actorSlot: approach.actorSlot,
+    deltaSeconds: deltaSeconds ?? 1 / 30,
+    floorOriginY: approach.floorOriginY,
   });
   return true;
 }
