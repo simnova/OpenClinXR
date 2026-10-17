@@ -146,7 +146,8 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
       subjects: Record<string, { overrides: Record<string, { weight: number }>; sources?: Record<string, string> }>;
     };
     const names = manifest.stages.map((s) => s.name);
-    expect(names.slice(-2)).toEqual(["socket", "beard_shadow"]);
+    expect(names.indexOf("beard_shadow")).toBe(names.indexOf("socket") + 1);
+    expect(names[names.length - 1]).toBe("detail_bands");
     expect(manifest.subjects.aisha.overrides.beard_shadow.weight).toBe(0.0);
     const male = manifest.subjects.adult_male_street_casual;
     expect(male.overrides.beard_shadow.weight).toBeGreaterThan(0);

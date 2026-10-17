@@ -1,0 +1,1821 @@
+{
+ "card": "tsk_5d4e39424a56502e",
+ "instrument": {
+  "exposure_invariant": "band-pass energy (RMS inside the region) of log luminance (log Y, linear-light Y from sRGB via room_exposure.srgb_to_linear/luminance_Y); a global exposure multiplies Y by k so log Y shifts by log k, which every zero-DC band filter kills",
+  "face_height_landmarks": [
+   10,
+   152
+  ],
+  "face_height_def": "H = ||P10 - P152|| in px (FaceLandmarker crown-to-chin)",
+  "crease_band_face_fraction": [
+   "H/430",
+   "H/140"
+  ],
+  "crease_band_def": "DoG sigmas (H/430, H/140) applied to logY; RMS over region",
+  "pore_band_face_fraction": [
+   "H/1500",
+   "H/130"
+  ],
+  "pore_band_def": "G(H/1500) - G(H/130) applied to logY (fine-grain high-pass); RMS over region",
+  "pixel_radii_per_image": {
+   "render_body2": {
+    "crease": [
+     1.758,
+     5.399
+    ],
+    "pore": [
+     0.504,
+     5.814
+    ],
+    "strip_w": 13
+   },
+   "render_aisha": {
+    "crease": [
+     1.721,
+     5.284
+    ],
+    "pore": [
+     0.493,
+     5.691
+    ],
+    "strip_w": 12
+   },
+   "goal_body2": {
+    "crease": [
+     1.505,
+     4.621
+    ],
+    "pore": [
+     0.431,
+     4.977
+    ],
+    "strip_w": 11
+   },
+   "goal_aisha": {
+    "crease": [
+     1.202,
+     3.692
+    ],
+    "pore": [
+     0.4,
+     3.976
+    ],
+    "strip_w": 9
+   }
+  },
+  "forehead_landmarks": "face_gate.region_polygons forehead: bottom row = brow_side_a/b points lifted 22% toward P10, top row = same points pulled 55% toward P10; intersected with the eroded skin gate (ERODE_PX 3)",
+  "nasolabial_landmarks": {
+   "L": [
+    98,
+    61
+   ],
+   "R": [
+    327,
+    291
+   ],
+   "width_px": "H/60",
+   "source": "room_rig_remeasure.nasolabial_mask segments (14 px at H ~= 860)"
+  },
+  "legacy_column": {
+   "def": "gray (0.299/0.587/0.114) u8; pore = RMS(gray - box5(gray)); crease = RMS(DoG(max(2,fh_h/50), max(6,fh_h/14))); 14 px strips; room_rig_remeasure.py G5 code path verbatim",
+   "values": {
+    "render_body2": {
+     "forehead_pore": 1.095,
+     "nasolabial_pore": 4.685,
+     "forehead_crease": 1.447,
+     "nasolabial_crease": 4.589
+    },
+    "render_aisha": {
+     "forehead_pore": 0.5,
+     "nasolabial_pore": 2.078,
+     "forehead_crease": 0.549,
+     "nasolabial_crease": 5.308
+    },
+    "goal_body2": {
+     "forehead_pore": 6.459,
+     "nasolabial_pore": 6.039,
+     "forehead_crease": 1.254,
+     "nasolabial_crease": 2.527
+    },
+    "goal_aisha": {
+     "forehead_pore": 2.936,
+     "nasolabial_pore": 2.979,
+     "forehead_crease": 0.865,
+     "nasolabial_crease": 5.328
+    }
+   }
+  },
+  "invariance_probe": {
+   "rule": "linear-RGB scaling k in {0.8, 1.25}, clip recorded, unclipped-pixel comparison; bound max |E'-E|/E <= 0.05 per image x region x band",
+   "bound": 0.05,
+   "max_move": 0.0,
+   "detail": {
+    "render_body2": {
+     "k0.8/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/crease": {
+      "move": 0.04163,
+      "kept_frac": 0.1075,
+      "void": true
+     },
+     "k1.25/forehead/pore": {
+      "move": 0.04658,
+      "kept_frac": 0.1075,
+      "void": true
+     },
+     "k1.25/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     }
+    },
+    "render_aisha": {
+     "k0.8/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/crease": {
+      "move": 0.09961,
+      "kept_frac": 0.0003,
+      "void": true
+     },
+     "k1.25/forehead/pore": {
+      "move": 0.11365,
+      "kept_frac": 0.0003,
+      "void": true
+     },
+     "k1.25/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     }
+    },
+    "goal_body2": {
+     "k0.8/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     }
+    },
+    "goal_aisha": {
+     "k0.8/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k0.8/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/forehead/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/crease": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     },
+     "k1.25/nasolabial/pore": {
+      "move": 0.0,
+      "kept_frac": 1.0,
+      "void": false
+     }
+    }
+   }
+  },
+  "fft_prominence_rule": "2D FFT magnitude of the mean-subtracted Hann-windowed patch, radial bins of 1 cycle/patch-width; a bin is an isolated peak iff magnitude > 3x the annulus (+-2 bins, excl. self) median AND > 2x the max PRE magnitude at the same bin; NEW = isolated in POST but not in PRE. Seam check: max |Laplacian| along the facecore island border ring PRE vs POST."
+ },
+ "pre": {
+  "render_body2": {
+   "H": 755.8,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61",
+   "sigmas_px": {
+    "crease": [
+     1.758,
+     5.399
+    ],
+    "pore": [
+     0.504,
+     5.814
+    ],
+    "strip_w": 13
+   },
+   "bands": {
+    "forehead": {
+     "crease": 0.01475,
+     "pore": 0.02271,
+     "n": 12156
+    },
+    "nasolabial": {
+     "crease": 0.0842,
+     "pore": 0.12715,
+     "n": 3727
+    }
+   },
+   "robust": {
+    "forehead": {
+     "crease": 0.06127,
+     "pore": 0.09438
+    },
+    "nasolabial": {
+     "crease": 0.11136,
+     "pore": 0.18521
+    }
+   }
+  },
+  "render_aisha": {
+   "H": 739.82,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
+   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343",
+   "sigmas_px": {
+    "crease": [
+     1.721,
+     5.284
+    ],
+    "pore": [
+     0.493,
+     5.691
+    ],
+    "strip_w": 12
+   },
+   "bands": {
+    "forehead": {
+     "crease": 0.00407,
+     "pore": 0.00705,
+     "n": 10074
+    },
+    "nasolabial": {
+     "crease": 0.09708,
+     "pore": 0.13071,
+     "n": 3389
+    }
+   },
+   "robust": {
+    "forehead": {
+     "crease": 0.01667,
+     "pore": 0.02886
+    },
+    "nasolabial": {
+     "crease": 0.099,
+     "pore": 0.13739
+    }
+   }
+  },
+  "goal_body2": {
+   "H": 647.0,
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/body2/goal-front.png",
+   "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+   "sigmas_px": {
+    "crease": [
+     1.505,
+     4.621
+    ],
+    "pore": [
+     0.431,
+     4.977
+    ],
+    "strip_w": 11
+   },
+   "bands": {
+    "forehead": {
+     "crease": 0.01801,
+     "pore": 0.07087,
+     "n": 8346
+    },
+    "nasolabial": {
+     "crease": 0.05819,
+     "pore": 0.12167,
+     "n": 2625
+    }
+   },
+   "robust": {
+    "forehead": {
+     "crease": 0.06544,
+     "pore": 0.26107
+    },
+    "nasolabial": {
+     "crease": 0.05693,
+     "pore": 0.16071
+    }
+   }
+  },
+  "goal_aisha": {
+   "H": 516.88,
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+   "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf",
+   "sigmas_px": {
+    "crease": [
+     1.202,
+     3.692
+    ],
+    "pore": [
+     0.4,
+     3.976
+    ],
+    "strip_w": 9
+   },
+   "bands": {
+    "forehead": {
+     "crease": 0.0136,
+     "pore": 0.03686,
+     "n": 5288
+    },
+    "nasolabial": {
+     "crease": 0.07076,
+     "pore": 0.10029,
+     "n": 2402
+    }
+   },
+   "robust": {
+    "forehead": {
+     "crease": 0.05495,
+     "pore": 0.1497
+    },
+    "nasolabial": {
+     "crease": 0.09406,
+     "pore": 0.15773
+    }
+   }
+  },
+  "ratios": {
+   "body2": {
+    "forehead": {
+     "crease": {
+      "render": 0.01475,
+      "goal": 0.01801,
+      "ratio": 0.819
+     },
+     "pore": {
+      "render": 0.02271,
+      "goal": 0.07087,
+      "ratio": 0.3204
+     }
+    },
+    "nasolabial": {
+     "crease": {
+      "render": 0.0842,
+      "goal": 0.05819,
+      "ratio": 1.447
+     },
+     "pore": {
+      "render": 0.12715,
+      "goal": 0.12167,
+      "ratio": 1.045
+     }
+    }
+   },
+   "aisha": {
+    "forehead": {
+     "crease": {
+      "render": 0.00407,
+      "goal": 0.0136,
+      "ratio": 0.2993
+     },
+     "pore": {
+      "render": 0.00705,
+      "goal": 0.03686,
+      "ratio": 0.1913
+     }
+    },
+    "nasolabial": {
+     "crease": {
+      "render": 0.09708,
+      "goal": 0.07076,
+      "ratio": 1.372
+     },
+     "pore": {
+      "render": 0.13071,
+      "goal": 0.10029,
+      "ratio": 1.3033
+     }
+    }
+   }
+  },
+  "robust_ratios": {
+   "body2": {
+    "forehead": {
+     "crease": {
+      "render": 0.06127,
+      "goal": 0.06544,
+      "ratio": 0.9363
+     },
+     "pore": {
+      "render": 0.09438,
+      "goal": 0.26107,
+      "ratio": 0.3615
+     }
+    },
+    "nasolabial": {
+     "crease": {
+      "render": 0.11136,
+      "goal": 0.05693,
+      "ratio": 1.9561
+     },
+     "pore": {
+      "render": 0.18521,
+      "goal": 0.16071,
+      "ratio": 1.1524
+     }
+    }
+   },
+   "aisha": {
+    "forehead": {
+     "crease": {
+      "render": 0.01667,
+      "goal": 0.05495,
+      "ratio": 0.3034
+     },
+     "pore": {
+      "render": 0.02886,
+      "goal": 0.1497,
+      "ratio": 0.1928
+     }
+    },
+    "nasolabial": {
+     "crease": {
+      "render": 0.099,
+      "goal": 0.09406,
+      "ratio": 1.0525
+     },
+     "pore": {
+      "render": 0.13739,
+      "goal": 0.15773,
+      "ratio": 0.871
+     }
+    }
+   }
+  }
+ },
+ "ablation": {
+  "A1_body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a1-body2-front.png",
+   "sha256": "35427bacf9cd96675a41f3cb7bf8300f301200282da39e84d073200c19fc8f22",
+   "H": 752.71,
+   "bands": {
+    "forehead": {
+     "crease": 0.00229,
+     "pore": 0.0036,
+     "n": 11892
+    },
+    "nasolabial": {
+     "crease": 0.08845,
+     "pore": 0.12727,
+     "n": 3817
+    }
+   }
+  },
+  "A1_aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a1-aisha-front.png",
+   "sha256": "a27e96d1a833103c900c7a9cd2c753197f291ab060ba388c8b7a5b265a9a4d28",
+   "H": 720.58,
+   "bands": {
+    "forehead": {
+     "crease": 0.00222,
+     "pore": 0.00357,
+     "n": 9939
+    },
+    "nasolabial": {
+     "crease": 0.08112,
+     "pore": 0.11893,
+     "n": 3606
+    }
+   }
+  },
+  "A2_body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a2-body2-front.png",
+   "sha256": "d8cc2c417d386932c62c292525da6ef3d76c5efc58a6f9bfe878504c0476f5c7",
+   "H": 755.0,
+   "bands": {
+    "forehead": {
+     "crease": 0.01485,
+     "pore": 0.02285,
+     "n": 12217
+    },
+    "nasolabial": {
+     "crease": 0.08856,
+     "pore": 0.1309,
+     "n": 3732
+    }
+   }
+  },
+  "A2_aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a2-aisha-front.png",
+   "sha256": "96b3c1d900a63eb2989f39c0c5484434927fdac2b02adc1070f4ab7da944354e",
+   "H": 738.08,
+   "bands": {
+    "forehead": {
+     "crease": 0.00408,
+     "pore": 0.00699,
+     "n": 9823
+    },
+    "nasolabial": {
+     "crease": 0.10616,
+     "pore": 0.14945,
+     "n": 3477
+    }
+   }
+  },
+  "A4a_body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4a-body2-front.png",
+   "sha256": "68498473eac9e302b6f583c08db5944e522d6fd43d670316cdbe0f23c6f1c3ea",
+   "H": 755.17,
+   "bands": {
+    "forehead": {
+     "crease": 0.01517,
+     "pore": 0.02345,
+     "n": 12103
+    },
+    "nasolabial": {
+     "crease": 0.08208,
+     "pore": 0.12428,
+     "n": 3721
+    }
+   }
+  },
+  "A4a_aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4a-aisha-front.png",
+   "sha256": "239ee838412e033783e43cf71f8f8a00ffe76f94209bbe03a48b3bb2392fbcc3",
+   "H": 739.08,
+   "bands": {
+    "forehead": {
+     "crease": 0.00405,
+     "pore": 0.00702,
+     "n": 10032
+    },
+    "nasolabial": {
+     "crease": 0.09622,
+     "pore": 0.12985,
+     "n": 3389
+    }
+   }
+  },
+  "A4b_body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4b-body2-front.png",
+   "sha256": "a0bdedae6a7112c0d560c63b308dbe308f38034faa03a2319cce9a5e0c1b7c7b",
+   "H": 755.49,
+   "bands": {
+    "forehead": {
+     "crease": 0.01475,
+     "pore": 0.02271,
+     "n": 12149
+    },
+    "nasolabial": {
+     "crease": 0.08306,
+     "pore": 0.12599,
+     "n": 3713
+    }
+   }
+  },
+  "A4b_aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4b-aisha-front.png",
+   "sha256": "dd71e0e32a6053ee01aa0c0eb179fcc1050d9934c952f003c25775d9612a5065",
+   "H": 740.16,
+   "bands": {
+    "forehead": {
+     "crease": 0.00391,
+     "pore": 0.00686,
+     "n": 10139
+    },
+    "nasolabial": {
+     "crease": 0.09067,
+     "pore": 0.12063,
+     "n": 3402
+    }
+   }
+  },
+  "A5_body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a5-body2-front.png",
+   "sha256": "07f4b0fff69d3c779305d3cebddcf8ec718a9eca208c0c17abbde684a958ad41",
+   "H": 751.34,
+   "bands": {
+    "forehead": {
+     "crease": 0.00109,
+     "pore": 0.00235,
+     "n": 11458
+    },
+    "nasolabial": {
+     "crease": 0.08892,
+     "pore": 0.12762,
+     "n": 3847
+    }
+   }
+  },
+  "A5_aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a5-aisha-front.png",
+   "sha256": "d194ec4af18c79190813b7e4cbfe5efcaed9162d4ed93bc8b215a121192c7395",
+   "H": 719.4,
+   "bands": {
+    "forehead": {
+     "crease": 0.00065,
+     "pore": 0.00211,
+     "n": 9841
+    },
+    "nasolabial": {
+     "crease": 0.07662,
+     "pore": 0.11121,
+     "n": 3582
+    }
+   }
+  }
+ },
+ "step1": {
+  "rows": [
+   {
+    "subject": "body2",
+    "A1": {
+     "forehead": {
+      "crease": 0.00229,
+      "pore": 0.0036
+     },
+     "nasolabial": {
+      "crease": 0.08845,
+      "pore": 0.12727
+     }
+    },
+    "A2": {
+     "forehead": {
+      "crease": 0.01485,
+      "pore": 0.02285
+     },
+     "nasolabial": {
+      "crease": 0.08856,
+      "pore": 0.1309
+     }
+    },
+    "A4a": {
+     "forehead": {
+      "crease": 0.01517,
+      "pore": 0.02345
+     },
+     "nasolabial": {
+      "crease": 0.08208,
+      "pore": 0.12428
+     }
+    },
+    "A4b": {
+     "forehead": {
+      "crease": 0.01475,
+      "pore": 0.02271
+     },
+     "nasolabial": {
+      "crease": 0.08306,
+      "pore": 0.12599
+     }
+    },
+    "A5": {
+     "forehead": {
+      "crease": 0.00109,
+      "pore": 0.00235
+     },
+     "nasolabial": {
+      "crease": 0.08892,
+      "pore": 0.12762
+     }
+    },
+    "base": {
+     "forehead": {
+      "crease": 0.01475,
+      "pore": 0.02271
+     },
+     "nasolabial": {
+      "crease": 0.0842,
+      "pore": 0.12715
+     }
+    },
+    "albedo_borne_frac": {
+     "forehead": {
+      "crease": 0.926,
+      "pore": 0.897
+     },
+     "nasolabial": {
+      "crease": -0.056,
+      "pore": -0.004
+     }
+    }
+   },
+   {
+    "subject": "aisha",
+    "A1": {
+     "forehead": {
+      "crease": 0.00222,
+      "pore": 0.00357
+     },
+     "nasolabial": {
+      "crease": 0.08112,
+      "pore": 0.11893
+     }
+    },
+    "A2": {
+     "forehead": {
+      "crease": 0.00408,
+      "pore": 0.00699
+     },
+     "nasolabial": {
+      "crease": 0.10616,
+      "pore": 0.14945
+     }
+    },
+    "A4a": {
+     "forehead": {
+      "crease": 0.00405,
+      "pore": 0.00702
+     },
+     "nasolabial": {
+      "crease": 0.09622,
+      "pore": 0.12985
+     }
+    },
+    "A4b": {
+     "forehead": {
+      "crease": 0.00391,
+      "pore": 0.00686
+     },
+     "nasolabial": {
+      "crease": 0.09067,
+      "pore": 0.12063
+     }
+    },
+    "A5": {
+     "forehead": {
+      "crease": 0.00065,
+      "pore": 0.00211
+     },
+     "nasolabial": {
+      "crease": 0.07662,
+      "pore": 0.11121
+     }
+    },
+    "base": {
+     "forehead": {
+      "crease": 0.00407,
+      "pore": 0.00705
+     },
+     "nasolabial": {
+      "crease": 0.09708,
+      "pore": 0.13071
+     }
+    },
+    "albedo_borne_frac": {
+     "forehead": {
+      "crease": 0.84,
+      "pore": 0.701
+     },
+     "nasolabial": {
+      "crease": 0.211,
+      "pore": 0.149
+     }
+    }
+   }
+  ],
+  "verdict": {
+   "forehead": "ALBEDO (skin/**): A1 flat-albedo kills 84pc (body2) / ~48pc (aisha) of both bands; A2 (no AO), A4a (uniform roughness), A4b (normalScale 0) hold base energy; residual == A5 lighting-x-geometry floor. Fix routes to a new albedo stage.",
+   "nasolabial": "MESH GEOMETRY (outside skin/**): both bands persist through A5 (flat albedo + uniform roughness + normalScale 0, lighting x geometry only) at base energy; no skin/** layer carries them. FALSIFIER for the nasolabial band pair: no albedo/roughness/normal-map change can reshape the fold-edge energy; routed, not fixed."
+  }
+ },
+ "fix": {
+  "stage": "detail_bands",
+  "script": "detail_bands.py",
+  "parameters": {
+   "crease_gain": 0.0,
+   "pore_gain": 0.0,
+   "seed": 11,
+   "texels_per_mm": 4.079,
+   "pore_d_mm": 0.5,
+   "pore_density_per_mm2": 0.5
+  },
+  "overrides": {
+   "aisha": {
+    "crease_gain": 1.0,
+    "pore_gain": 6.2
+   },
+   "adult_male_street_casual": {
+    "crease_gain": 1.0,
+    "pore_gain": 5.2
+   }
+  },
+  "solve": {
+   "transfer": "affine from room-rig probes: body2 probeC (g=1,p=0) fh_c 0.01475->0.00448 fh_p 0.02271->0.01008, probeP (g=0,p=4) fh_c ->0.02691 fh_p ->0.05185; aisha probeC fh_c 0.00407->0.00302 fh_p 0.00705->0.00525, probeP fh_c ->0.00863 fh_p ->0.01934; probes in store/skin-wrinkle-scale/probes/ + wrinkletest/",
+   "chosen": "body2 (g=1.0,p=5.2): predict fh_c 1.13 fh_p 0.68; aisha (g=1.0,p=6.2): predict fh_c 0.74 fh_p 0.66; POST superlinear on body2 fh_c (1.63) recorded",
+   "goal_bands_source": "this report pre.ratios (goal-photo band energies)"
+  }
+ },
+ "gates": {
+  "g1": {
+   "rows": [
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "band": "crease",
+     "pre_ratio": 0.819,
+     "post_ratio": 1.6308,
+     "midpoint": 0.9095,
+     "toward_goal": true,
+     "route": "fix",
+     "pass": true,
+     "falsifier": null
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "band": "pore",
+     "pre_ratio": 0.3204,
+     "post_ratio": 0.9026,
+     "midpoint": 0.6602,
+     "toward_goal": true,
+     "route": "fix",
+     "pass": true,
+     "falsifier": null
+    },
+    {
+     "subject": "body2",
+     "region": "nasolabial",
+     "band": "crease",
+     "pre_ratio": 1.447,
+     "post_ratio": 1.6245,
+     "midpoint": 1.2235,
+     "toward_goal": false,
+     "route": "falsifier-geometry",
+     "pass": false,
+     "falsifier": "nasolabial bands persist through A5 (lighting x geometry only): mesh-fold energy, outside skin/**; see step1"
+    },
+    {
+     "subject": "body2",
+     "region": "nasolabial",
+     "band": "pore",
+     "pre_ratio": 1.045,
+     "post_ratio": 1.3946,
+     "midpoint": 1.0225,
+     "toward_goal": false,
+     "route": "falsifier-geometry",
+     "pass": false,
+     "falsifier": "nasolabial bands persist through A5 (lighting x geometry only): mesh-fold energy, outside skin/**; see step1"
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "band": "crease",
+     "pre_ratio": 0.2993,
+     "post_ratio": 1.1699,
+     "midpoint": 0.6497,
+     "toward_goal": true,
+     "route": "fix",
+     "pass": true,
+     "falsifier": null
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "band": "pore",
+     "pre_ratio": 0.1913,
+     "post_ratio": 1.0114,
+     "midpoint": 0.5957,
+     "toward_goal": true,
+     "route": "fix",
+     "pass": true,
+     "falsifier": null
+    },
+    {
+     "subject": "aisha",
+     "region": "nasolabial",
+     "band": "crease",
+     "pre_ratio": 1.372,
+     "post_ratio": 1.594,
+     "midpoint": 1.186,
+     "toward_goal": false,
+     "route": "falsifier-geometry",
+     "pass": false,
+     "falsifier": "nasolabial bands persist through A5 (lighting x geometry only): mesh-fold energy, outside skin/**; see step1"
+    },
+    {
+     "subject": "aisha",
+     "region": "nasolabial",
+     "band": "pore",
+     "pre_ratio": 1.3033,
+     "post_ratio": 1.821,
+     "midpoint": 1.1517,
+     "toward_goal": false,
+     "route": "falsifier-geometry",
+     "pass": false,
+     "falsifier": "nasolabial bands persist through A5 (lighting x geometry only): mesh-fold energy, outside skin/**; see step1"
+    }
+   ],
+   "verdict": "4/8 toward-goal (forehead fix rows PASS); nasolabial routed to mesh geometry per STEP 1, FAIL as written for those rows"
+  },
+  "g2": {
+   "patches": [
+    {
+     "subject": "body2",
+     "kind": "albedo-facecore-L",
+     "pre_isolated": [
+      816
+     ],
+     "new": []
+    },
+    {
+     "subject": "body2",
+     "kind": "render-forehead-logY",
+     "pre_isolated": [
+      55
+     ],
+     "new": []
+    },
+    {
+     "subject": "aisha",
+     "kind": "albedo-facecore-L",
+     "pre_isolated": [],
+     "new": []
+    },
+    {
+     "subject": "aisha",
+     "kind": "render-forehead-logY",
+     "pre_isolated": [
+      49
+     ],
+     "new": []
+    }
+   ],
+   "new_peaks": [],
+   "seams": [
+    {
+     "subject": "body2",
+     "albedo": "pre",
+     "step": 0.4998,
+     "max_abs_laplacian": 94.2803
+    },
+    {
+     "subject": "body2",
+     "albedo": "post",
+     "step": 0.2575,
+     "max_abs_laplacian": 92.0324
+    },
+    {
+     "subject": "aisha",
+     "albedo": "pre",
+     "step": 0.7252,
+     "max_abs_laplacian": 33.553
+    },
+    {
+     "subject": "aisha",
+     "albedo": "post",
+     "step": 0.2741,
+     "max_abs_laplacian": 89.1278
+    }
+   ],
+   "pass": true
+  },
+  "g3": {
+   "rows": [
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.643,
+     "d_eval": 1.713,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 0.368,
+     "d_eval": 0.444,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.916,
+     "d_eval_pre": 7.467,
+     "d_eval": 7.397,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.916,
+     "d_eval_pre": 8.742,
+     "d_eval": 8.666,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.012,
+     "d_eval": 3.013,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 1.01,
+     "d_eval": 0.984,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.419,
+     "d_eval_pre": 1.828,
+     "d_eval": 1.827,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.419,
+     "d_eval_pre": 3.83,
+     "d_eval": 3.856,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.374,
+     "d_eval_pre": 4.813,
+     "d_eval": 4.811,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.374,
+     "d_eval_pre": 1.494,
+     "d_eval": 1.506,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 7.588,
+     "d_eval_pre": 10.482,
+     "d_eval": 10.5,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 7.588,
+     "d_eval_pre": 4.414,
+     "d_eval": 4.767,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.26,
+     "d_eval": 0.256,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 2.33,
+     "d_eval": 2.303,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.715,
+     "d_eval_pre": 5.1,
+     "d_eval": 5.096,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.715,
+     "d_eval_pre": 2.51,
+     "d_eval": 2.537,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.542,
+     "d_eval": 0.538,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.501,
+     "d_eval": 0.489,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.236,
+     "d_eval_pre": 3.972,
+     "d_eval": 3.968,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.236,
+     "d_eval_pre": 2.929,
+     "d_eval": 2.941,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 12.448,
+     "d_eval_pre": 15.557,
+     "d_eval": 15.471,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 12.448,
+     "d_eval_pre": 0.227,
+     "d_eval": 0.364,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 4.299,
+     "d_eval": 4.298,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.819,
+     "d_eval": 0.814,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 2.594,
+     "d_eval": 2.597,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 1.052,
+     "d_eval": 1.046,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.35,
+     "d_eval": 1.324,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.407,
+     "d_eval": 1.515,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 4.582,
+     "d_eval_pre": 7.76,
+     "d_eval": 7.786,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 4.582,
+     "d_eval_pre": 7.703,
+     "d_eval": 7.595,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.102,
+     "d_eval": 3.104,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.961,
+     "d_eval": 0.938,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.35,
+     "d_eval_pre": 1.738,
+     "d_eval": 1.736,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.35,
+     "d_eval_pre": 3.879,
+     "d_eval": 3.902,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.994,
+     "d_eval_pre": 4.145,
+     "d_eval": 4.143,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.994,
+     "d_eval_pre": 1.587,
+     "d_eval": 1.597,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 3.132,
+     "d_eval": 3.121,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 3.782,
+     "d_eval": 3.772,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 8.011,
+     "d_eval_pre": 12.242,
+     "d_eval": 12.231,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 8.011,
+     "d_eval_pre": 5.328,
+     "d_eval": 5.338,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.424,
+     "d_eval": 3.428,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.812,
+     "d_eval": 0.781,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.113,
+     "d_eval_pre": 1.416,
+     "d_eval": 1.412,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.113,
+     "d_eval_pre": 4.028,
+     "d_eval": 4.059,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.538,
+     "d_eval": 0.542,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.978,
+     "d_eval": 0.964,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.934,
+     "d_eval_pre": 2.892,
+     "d_eval": 2.888,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.934,
+     "d_eval_pre": 2.452,
+     "d_eval": 2.466,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    }
+   ],
+   "verdict": "PASS (no regressions: 37/48 enforced rows pass at PRE and 37/48 at POST; pre-existing fails fail identically at PRE)",
+   "regressions": []
+  },
+  "g4": {
+   "strips": [
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_forehead_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_nasolabial_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_forehead_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_nasolabial_pre-post-goal.png"
+   ],
+   "method": "native room-rig pixels, no upscaling or resampling; padded (not scaled) to common height per strip",
+   "worker_grade": "forehead: pores visible both subjects, no plastic smoothing, no tiling; fold lines geometrically intact (expected: mesh geometry). nasolabial: fold unchanged (geometry, routed).",
+   "lane_manager": "pending"
+  },
+  "mirror_cheek_report_only": {
+   "reason": "report-only for body2, reason photo regional shading (cheek-relative-brightness-report.json: photo side 0.040 of the 0.054 gap). Coordinator decision.",
+   "rows": [
+    {
+     "subject": "body2",
+     "pre": 3.187,
+     "post": 3.182,
+     "goal": -3.547
+    },
+    {
+     "subject": "aisha",
+     "pre": 0.54,
+     "post": 0.457,
+     "goal": -2.484
+    }
+   ]
+  }
+ },
+ "renders": [
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
+   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post/wrinkle-body2-post-front.png",
+   "sha256": "81d0c98051fef11f733ad6835048d873fbc3875ea4f011d6bbc7129f25836b90"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post/wrinkle-aisha-post-front.png",
+   "sha256": "9f8a06bd6d89e12ac395a944486f534e0725b3b0007feacc9701a64b8938846d"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post.png",
+   "sha256": "e74e54042b5d5f20218694212fe6c306e5a2826ce6976d18d624a478eaefa90f"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_aisha_post.png",
+   "sha256": "7d3f6412e13ef6119ada2b608ab485c427918588ed39ccc42367b157396437a1"
+  }
+ ],
+ "post": {
+  "body2": {
+   "H": 727.76,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post/wrinkle-body2-post-front.png",
+   "sha256": "81d0c98051fef11f733ad6835048d873fbc3875ea4f011d6bbc7129f25836b90",
+   "bands": {
+    "forehead": {
+     "crease": 0.02937,
+     "pore": 0.06397,
+     "n": 13876
+    },
+    "nasolabial": {
+     "crease": 0.09453,
+     "pore": 0.16968,
+     "n": 3551
+    }
+   },
+   "forehead_bbox": [
+    473,
+    620,
+    816,
+    683
+   ]
+  },
+  "aisha": {
+   "H": 730.38,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post/wrinkle-aisha-post-front.png",
+   "sha256": "9f8a06bd6d89e12ac395a944486f534e0725b3b0007feacc9701a64b8938846d",
+   "bands": {
+    "forehead": {
+     "crease": 0.01591,
+     "pore": 0.03728,
+     "n": 12244
+    },
+    "nasolabial": {
+     "crease": 0.11279,
+     "pore": 0.18263,
+     "n": 3169
+    }
+   },
+   "forehead_bbox": [
+    489,
+    625,
+    801,
+    681
+   ]
+  }
+ }
+}

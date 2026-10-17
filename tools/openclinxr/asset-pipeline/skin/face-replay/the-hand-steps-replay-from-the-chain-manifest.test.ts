@@ -230,9 +230,9 @@ describe("the hand steps replay from the chain manifest", () => {
   it("manifest is valid JSON with all required stages", () => {
     const manifest = loadManifest();
     expect(manifest.method_version).toBe("face-replay-hands-v1");
-    expect(manifest.stages.length).toBe(8);
+    expect(manifest.stages.length).toBe(9);
     const names = manifest.stages.map((s: StageDef) => s.name);
-    expect(names).toEqual(["derive", "occlusion", "roughness", "lips", "eye_corners", "symmetrise", "socket", "beard_shadow"]);
+    expect(names).toEqual(["derive", "occlusion", "roughness", "lips", "eye_corners", "symmetrise", "socket", "beard_shadow", "detail_bands"]);
     for (const stage of manifest.stages) {
       expect(stage.script).toBeTruthy();
       expect(stage.parameters).toBeTruthy();

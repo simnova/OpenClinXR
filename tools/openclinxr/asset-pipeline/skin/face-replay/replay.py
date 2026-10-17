@@ -166,6 +166,19 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
         inputs["albedo_beard_png"] = store_dir / output_paths["albedo_beard_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_beard_png"]
+    elif name == "detail_bands":
+        cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_detail_png"])]
+        derive_out = store_dir / "derive_out"
+        cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
+        cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
+        cmd += ["--seed", str(params["seed"])]
+        cmd += ["--crease-gain", str(params["crease_gain"])]
+        cmd += ["--pore-gain", str(params["pore_gain"])]
+        cmd += ["--pore-d-mm", str(params["pore_d_mm"])]
+        cmd += ["--pore-density-per-mm2", str(params["pore_density_per_mm2"])]
+        inputs["albedo_detail_png"] = store_dir / output_paths["albedo_detail_png"]
+        inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]
     else:
         raise RuntimeError(f"Unknown stage: {name}")
 
