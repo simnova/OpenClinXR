@@ -12,6 +12,28 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+
+
+def _vermilion_union(store_dir: Path, albedo_png: Path, derive_out: Path) -> Path:
+    """Albedo-chroma vermilion mask shared by beard + detail (handback 6).
+
+    Built deterministically from the pre-beard chain albedo plus the
+    lipuv union, so both stages hug the identical border (no seam
+    between the grain and beard exclusions). Saved under store_dir for
+    provenance; identical bytes on re-runs of the same inputs.
+    """
+    import numpy as _np
+    from PIL import Image as _PI
+    import detail_bands as _DB
+    alb = _np.array(_PI.open(albedo_png).convert("RGB"))
+    z = _np.load(str(derive_out / "lipuv.npz"))
+    union = ((_np.array(z["hard_up"]) > 0) | (_np.array(z["hard_lo"]) > 0))
+    verm = _DB.vermilion_mask_from_albedo(alb, union)
+    out = store_dir / "lip-vermilion-albedo-union.png"
+    _PI.fromarray((verm.astype(_np.uint8)) * 255).save(out)
+    return out
+
 
 def sha256_file(p: Path) -> str:
     h = hashlib.sha256()
