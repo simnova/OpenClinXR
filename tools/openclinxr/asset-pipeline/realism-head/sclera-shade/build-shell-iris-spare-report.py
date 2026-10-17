@@ -87,7 +87,7 @@ ROUNDS = [
     ("r3", 1.0, 0.0),
     ("r4", 3.0, 0.0),
     ("r5", 2.0, 1.0),
-    ("r6", 2.0, 0.5),
+    ("r6", 0.5, 0.0),
 ]
 BASE_ARGV = {
     "aisha": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
@@ -119,8 +119,27 @@ for row, spare, power in ROUNDS:
         "body2": side_gate(mb, cb, pre_iris["body2"], pre_cw["body2"]["catchlightPeakL"]),
     })
 
-pick = sweep[-1]["row"] if sweep else "r1"
-P = {s: sweep[-1][s] for s in ("aisha", "body2")} if sweep else None
+def passes(row):
+    n = 0
+    for s in ("aisha", "body2"):
+        for k in ("M1", "M2a", "M2b"):
+            v, m = row[s][k], mid[s][k]
+            n += 1 if (v >= m if k == "M2a" else v <= m) else 0
+        d = row[s]["D90"]
+        n += 1 if d90win[s][0] <= d <= d90win[s][1] else 0
+        n += 1 if row[s]["irisEuclidVsPre"] <= iris_floor[s] else 0
+        cw = row[s]["catchlightPeakL"]
+        n += 1 if abs(cw - pre_cw[s]["catchlightPeakL"]) <= cw_noise[s] else 0
+    return n
+
+
+pick = sweep[0]["row"] if sweep else "r1"
+best = -1
+for row in sweep:
+    n = passes(row)
+    if n > best:
+        best, pick = n, row["row"]
+P = {s: next(r[s] for r in sweep if r["row"] == pick) for s in ("aisha", "body2")} if sweep else None
 
 g1 = {s: {k: {"value": P[s][k], "mid": mid[s][k],
                     "pass": (P[s][k] >= mid[s][k]) if k == "M2a" else (P[s][k] <= mid[s][k])}
@@ -191,13 +210,11 @@ if os.path.isfile(f"{sheet_dir}/manifest.json"):
     sheet["files"] = load(f"{sheet_dir}/manifest.json")
 
 occ = {}
-for s in ("aisha", "body2"):
-    occ[s] = None
-# occlusion O per subject read from the pick round's aisha/body2 bake logs
+# occlusion O per subject: power>0 rounds print EYESHELL_OCCLUSION (power 0
+# skips the scale, so read O from the r1 bake logs).
 import re
-for s, logf in (("aisha", f"{STORE}/{pick}/{s}-bake.log"
-                 if False else f"{STORE}/{pick}/aisha-bake.log"),
-                ("body2", f"{STORE}/{pick}/body2-bake.log")):
+for s, logf in (("aisha", f"{STORE}/r1/aisha-bake.log"),
+                ("body2", f"{STORE}/r1/body2-bake.log")):
     try:
         txt = open(logf).read()
         ms = re.findall(r"EYESHELL_OCCLUSION [LR] occ=([0-9.]+)", txt)
@@ -234,8 +251,8 @@ report = {
     },
     "fix": {
         "files": ["tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py (eyeshell code + call site only)"],
-        "knobs": {"--eye-shell-iris-spare": sweep[-1]["params"]["irisSpare"] if sweep else 1.0,
-                  "--eye-shell-occlusion-power": sweep[-1]["params"]["occlusionPower"] if sweep else 1.0},
+        "knobs": {"--eye-shell-iris-spare": next(r["params"]["irisSpare"] for r in sweep if r["row"] == pick),
+                  "--eye-shell-occlusion-power": next(r["params"]["occlusionPower"] for r in sweep if r["row"] == pick)},
         "knobNote": "new knobs default neutral (spare 0.0, occpow 0.0) so --eye-occlusion-shell alone reproduces main-value bakes byte-stable; the sweep passes them explicitly. Old knob defaults unchanged (margin 0.5/corner 0.8/ramp-mm 2.5/boost 1.6/color 120,88,80/ring-frac 0.25/upper-span-mm 6.0/upper-peak 0.0); shell stays opt-in.",
         "baseShell": BASE_SHELL + " (s5 pick pinned explicitly every round; r1 ring-frac not logged, s5 value 0.2 presumed)",
         "baseArgv": BASE_ARGV,
