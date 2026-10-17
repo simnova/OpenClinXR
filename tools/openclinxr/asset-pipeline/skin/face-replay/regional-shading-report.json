@@ -1,0 +1,783 @@
+{
+ "card": "tsk_bfe7c0ec6b0ba639",
+ "frozen_report": "tools/openclinxr/asset-pipeline/skin/face-replay/skin-gates-split-report.json",
+ "frozen_report_sha256": "1ac8e2ee234a26eb38ec1c0e39c80f6ac66baddf3b0739d2300b576a0f98d018",
+ "frozen_thresholds": {
+  "G1/cheek_u_lo/b": 1.715,
+  "G1/chin/L": 4.555,
+  "G1/forehead/L": 3.916,
+  "G1/upperlip_skin/L": 4.555,
+  "G1/upperlip_skin/b": 1.715,
+  "G2/L_cheek/CdivL": 0.05399,
+  "G2/L_cheek/Lratio_face": 0.04145,
+  "G2/L_cheek/logY_face": 0.10293,
+  "G2/R_cheek/CdivL": 0.07498,
+  "G2/chin/CdivL": 0.03316,
+  "G2/chin/Lratio_face": 0.02442,
+  "G2/chin/logY_face": 0.10173,
+  "G2/forehead/Lratio_face": 0.03932,
+  "G2/forehead/logY_face": 0.0916,
+  "G2/upperlip_skin/CdivL": 0.0147,
+  "G2/upperlip_skin/Lratio_face": 0.00787,
+  "G2/upperlip_skin/logY_face": 0.0517
+ },
+ "red_first": "RED 2026-10-17: the-regional-shading-layer-is-found-by-ablation.test.ts 5 failed (ENOENT regional-shading-report.json) before report exists.",
+ "step0": {
+  "recorded_before_ablations": true,
+  "decision": "Both sides contribute to L_cheek logY_face 0.30453 (photo side ~2/3 of cross-subject gap; render side body2-specific). Aisha photo IS asymmetric same direction (-0.091 vs body2 -0.150), so the photo-side stop rule does not trigger. Forehead failure is photo-dominated; upperlip failure is render-dominated (beard/occlusion direction). Proceed to ablations.",
+  "gates": {
+   "G2/L_cheek/logY_face": {
+    "render_body2": 0.18777,
+    "photo_body2": -0.11676,
+    "render_aisha": 0.10786,
+    "photo_aisha": 0.04489,
+    "d_body2": 0.30453
+   },
+   "G2/L_cheek/Lratio_face": {
+    "render_body2": 1.08577,
+    "photo_body2": 0.97246,
+    "render_aisha": 1.05004,
+    "photo_aisha": 1.02646,
+    "d_body2": 0.11331
+   },
+   "G2/L_cheek/CdivL": {
+    "render_body2": 0.34542,
+    "photo_body2": 0.42915,
+    "render_aisha": 0.23744,
+    "photo_aisha": 0.27608,
+    "d_body2": 0.08373
+   },
+   "G2/forehead/logY_face": {
+    "render_body2": 0.51555,
+    "photo_body2": 0.68449,
+    "render_aisha": 0.44046,
+    "photo_aisha": 0.38641,
+    "d_body2": 0.16894
+   },
+   "G2/forehead/Lratio_face": {
+    "render_body2": 1.21951,
+    "photo_body2": 1.30429,
+    "render_aisha": 1.17489,
+    "photo_aisha": 1.15788,
+    "d_body2": 0.08478
+   },
+   "G2/upperlip_skin/logY_face": {
+    "render_body2": -0.03271,
+    "photo_body2": 0.02006,
+    "render_aisha": 0.12199,
+    "photo_aisha": 0.12053,
+    "d_body2": 0.05277
+   },
+   "G2/upperlip_skin/Lratio_face": {
+    "render_body2": 1.01279,
+    "photo_body2": 1.04043,
+    "render_aisha": 1.05572,
+    "photo_aisha": 1.05616,
+    "d_body2": 0.02764
+   },
+   "G2/upperlip_skin/CdivL": {
+    "render_body2": 0.36259,
+    "photo_body2": 0.27163,
+    "render_aisha": 0.2514,
+    "photo_aisha": 0.26057,
+    "d_body2": 0.09096
+   }
+  },
+  "LR_asym_logY": {
+   "render_body2": 0.14454,
+   "photo_body2": -0.15045,
+   "render_aisha": 0.05312,
+   "photo_aisha": -0.09099
+  },
+  "mechanism": "g2_per_image quantities from skin-gates-split-report.json (same pipeline as skin_gates_split.py pair_quantities/render_quantities); no new renders."
+ },
+ "ablation_means": {
+  "body2": {
+   "face_mean_rgb": [
+    143.606,
+    106.705,
+    82.196
+   ],
+   "face_mean_roughness": 157.1719,
+   "n_facecore": 533985
+  },
+  "aisha": {
+   "face_mean_rgb": [
+    158.957,
+    124.059,
+    101.754
+   ],
+   "face_mean_roughness": 157.0875,
+   "n_facecore": 534899
+  }
+ },
+ "ablation_mechanisms": {
+  "A1": "flat albedo (facecore-mean sRGB fill, ablation-means.json) + base roughness/normal; variant regshade-a1-<subj>",
+  "A2": "chain re-run with occlusion skipped: replay.py --skip-stages occlusion (replay.py:196-199,229-233) on repo chain-manifest.json, derive_out seeded from run2, --skip-ao; body2 glb final.glb + stage3-colour-out.png (sha-verified), aisha eyefinal-base.glb + stage3-colour-out.png",
+  "A3": "scratch manifest chain-manifest-A3.json (store/skin-regional-shading/): adult_male_street_casual beard_shadow.weight 0.9->0.0; weight-0 identity verified albedo_beard==albedo_socket; A3-aisha reproduces run2 albedo byte-identical",
+  "A4a": "uniform roughness (facecore-mean fill, ablation-means.json); variant roughnessMapUrl swap",
+  "A4b": "normalScale 0 (normalUrl kept); variant-only",
+  "A5": "A1 albedo + A4a roughness + normalScale 0 (lighting x geometry only)"
+ },
+ "ablations": [
+  {
+   "ablation": "A1",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a1-body2-front.png",
+   "render_sha256": "35427bacf9cd96675a41f3cb7bf8300f301200282da39e84d073200c19fc8f22",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.24114,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.08372,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.04822,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.26192,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.13368,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.34773,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.10829,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.04493,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A1",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a1-aisha-front.png",
+   "render_sha256": "a27e96d1a833103c900c7a9cd2c753197f291ab060ba388c8b7a5b265a9a4d28",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.04178,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.00932,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.00909,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.11983,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.05598,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.21557,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.07057,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.03841,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A2",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a2-body2-front.png",
+   "render_sha256": "d8cc2c417d386932c62c292525da6ef3d76c5efc58a6f9bfe878504c0476f5c7",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.29531,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.10746,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.08774,
+     "threshold": 0.05399,
+     "pass": false
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.19719,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.09914,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.02222,
+     "threshold": 0.0517,
+     "pass": true
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.0041,
+     "threshold": 0.00787,
+     "pass": true
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.07221,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A2",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a2-aisha-front.png",
+   "render_sha256": "96b3c1d900a63eb2989f39c0c5484434927fdac2b02adc1070f4ab7da944354e",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.05052,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.01768,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.04106,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.03118,
+     "threshold": 0.0916,
+     "pass": true
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.00627,
+     "threshold": 0.03932,
+     "pass": true
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.06023,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.01877,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.03016,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A3",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a3-body2-front.png",
+   "render_sha256": "3342a85e63586b9205386b009f0b6dd24143af041f01d891e7aa901aeba5a80e",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.25393,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.08939,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.10206,
+     "threshold": 0.05399,
+     "pass": false
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.29539,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.14653,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.26713,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.07775,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.02974,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A3",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a3-aisha-front.png",
+   "render_sha256": "07bd015ce2244db116aee0ffeac201fd8b899320454afba26506707a39d045ab",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.06253,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.02338,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.03855,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.05431,
+     "threshold": 0.0916,
+     "pass": true
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.01707,
+     "threshold": 0.03932,
+     "pass": true
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.00161,
+     "threshold": 0.0517,
+     "pass": true
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.00043,
+     "threshold": 0.00787,
+     "pass": true
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.00917,
+     "threshold": 0.0147,
+     "pass": true
+    }
+   }
+  },
+  {
+   "ablation": "A4a",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4a-body2-front.png",
+   "render_sha256": "68498473eac9e302b6f583c08db5944e522d6fd43d670316cdbe0f23c6f1c3ea",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.3059,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.11363,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.08361,
+     "threshold": 0.05399,
+     "pass": false
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.17377,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.08689,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.05188,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.02749,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.0914,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A4a",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4a-aisha-front.png",
+   "render_sha256": "239ee838412e033783e43cf71f8f8a00ffe76f94209bbe03a48b3bb2392fbcc3",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.06254,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.02331,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.03846,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.05452,
+     "threshold": 0.0916,
+     "pass": true
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.0171,
+     "threshold": 0.03932,
+     "pass": true
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.00891,
+     "threshold": 0.0517,
+     "pass": true
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.00414,
+     "threshold": 0.00787,
+     "pass": true
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.00368,
+     "threshold": 0.0147,
+     "pass": true
+    }
+   }
+  },
+  {
+   "ablation": "A4b",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4b-body2-front.png",
+   "render_sha256": "a0bdedae6a7112c0d560c63b308dbe308f38034faa03a2319cce9a5e0c1b7c7b",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.30171,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.11206,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.08343,
+     "threshold": 0.05399,
+     "pass": false
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.17108,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.08588,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.05417,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.02838,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.09084,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A4b",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a4b-aisha-front.png",
+   "render_sha256": "dd71e0e32a6053ee01aa0c0eb179fcc1050d9934c952f003c25775d9612a5065",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.06171,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.02301,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.03846,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.05465,
+     "threshold": 0.0916,
+     "pass": true
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.01715,
+     "threshold": 0.03932,
+     "pass": true
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.00216,
+     "threshold": 0.0517,
+     "pass": true
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.00031,
+     "threshold": 0.00787,
+     "pass": true
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.00959,
+     "threshold": 0.0147,
+     "pass": true
+    }
+   }
+  },
+  {
+   "ablation": "A5",
+   "subject": "body2",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a5-body2-front.png",
+   "render_sha256": "07f4b0fff69d3c779305d3cebddcf8ec718a9eca208c0c17abbde684a958ad41",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.24716,
+     "threshold": 0.10293,
+     "pass": false
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.08571,
+     "threshold": 0.04145,
+     "pass": false
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.04754,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.26709,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.13552,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.35983,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.11293,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.04446,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  },
+  {
+   "ablation": "A5",
+   "subject": "aisha",
+   "render_png": "/Volumes/files/openclinxr-assets/store/skin-regional-shading/regshade-a5-aisha-front.png",
+   "render_sha256": "d194ec4af18c79190813b7e4cbfe5efcaed9162d4ed93bc8b215a121192c7395",
+   "cheek_mapping": {
+    "cheek_side_a": "L_cheek",
+    "cheek_side_b": "R_cheek"
+   },
+   "gates": {
+    "G2/L_cheek/logY_face": {
+     "d_eval": 0.04246,
+     "threshold": 0.10293,
+     "pass": true
+    },
+    "G2/L_cheek/Lratio_face": {
+     "d_eval": 0.00947,
+     "threshold": 0.04145,
+     "pass": true
+    },
+    "G2/L_cheek/CdivL": {
+     "d_eval": 0.00896,
+     "threshold": 0.05399,
+     "pass": true
+    },
+    "G2/forehead/logY_face": {
+     "d_eval": 0.11774,
+     "threshold": 0.0916,
+     "pass": false
+    },
+    "G2/forehead/Lratio_face": {
+     "d_eval": 0.05526,
+     "threshold": 0.03932,
+     "pass": false
+    },
+    "G2/upperlip_skin/logY_face": {
+     "d_eval": 0.21436,
+     "threshold": 0.0517,
+     "pass": false
+    },
+    "G2/upperlip_skin/Lratio_face": {
+     "d_eval": 0.07032,
+     "threshold": 0.00787,
+     "pass": false
+    },
+    "G2/upperlip_skin/CdivL": {
+     "d_eval": 0.03644,
+     "threshold": 0.0147,
+     "pass": false
+    }
+   }
+  }
+ ],
+ "falsifier": {
+  "base": 0.30453,
+  "target": 0.2,
+  "best": 0.24114,
+  "met": false,
+  "rule": "no ablation moves body2 L_cheek logY_face from 0.30453 toward 0.10293 by more than half the gap (to <= 0.20)"
+ },
+ "verdict": "photo_side",
+ "verdict_reason": "Falsifier holds (best A1 0.24114 > 0.20); no single skin layer is clearly the cause. A5 (all texture shading flattened) still fails at 0.24716, and flat-albedo renders shade both meshes alike under the rig (L/R asym +0.167 body2 vs +0.139 aisha), so mesh geometry is not the body2-specific driver. The body2-specific part is photo lighting: body2 photo L cheek -0.162 darker (logY_face) than Aisha photo with same-direction asymmetry in both photos, plus a bright photo forehead (+0.684 vs +0.386). Baking key-direction shading into albedo would break gate (a); rig changes are out of scope. No fix; route to rig/photo (candidate 4).",
+ "fix": null,
+ "aisha_control": "base-aisha reproduces frozen render_aisha quantities within 0.0021 logY / 0.019 hue; enforced12 0 fails. A3-aisha render byte-identical to base-aisha (beard weight already 0). A1/A5 break Aisha gates (7 fails each): flattening albedo moves the known-good away from her photo, as expected.",
+ "crops": [
+  "crop-base-body2-L_cheek.png",
+  "crop-base-body2-forehead.png",
+  "crop-A1-body2-L_cheek.png",
+  "crop-A1-body2-forehead.png"
+ ],
+ "inputs": {
+  "renders_sha256": {
+   "base/body2": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61",
+   "base/aisha": "07bd015ce2244db116aee0ffeac201fd8b899320454afba26506707a39d045ab",
+   "A1/body2": "35427bacf9cd96675a41f3cb7bf8300f301200282da39e84d073200c19fc8f22",
+   "A1/aisha": "a27e96d1a833103c900c7a9cd2c753197f291ab060ba388c8b7a5b265a9a4d28",
+   "A2/body2": "d8cc2c417d386932c62c292525da6ef3d76c5efc58a6f9bfe878504c0476f5c7",
+   "A2/aisha": "96b3c1d900a63eb2989f39c0c5484434927fdac2b02adc1070f4ab7da944354e",
+   "A3/body2": "3342a85e63586b9205386b009f0b6dd24143af041f01d891e7aa901aeba5a80e",
+   "A3/aisha": "07bd015ce2244db116aee0ffeac201fd8b899320454afba26506707a39d045ab",
+   "A4a/body2": "68498473eac9e302b6f583c08db5944e522d6fd43d670316cdbe0f23c6f1c3ea",
+   "A4a/aisha": "239ee838412e033783e43cf71f8f8a00ffe76f94209bbe03a48b3bb2392fbcc3",
+   "A4b/body2": "a0bdedae6a7112c0d560c63b308dbe308f38034faa03a2319cce9a5e0c1b7c7b",
+   "A4b/aisha": "dd71e0e32a6053ee01aa0c0eb179fcc1050d9934c952f003c25775d9612a5065",
+   "A5/body2": "07f4b0fff69d3c779305d3cebddcf8ec718a9eca208c0c17abbde684a958ad41",
+   "A5/aisha": "d194ec4af18c79190813b7e4cbfe5efcaed9162d4ed93bc8b215a121192c7395"
+  }
+ }
+}
