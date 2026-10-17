@@ -65,6 +65,13 @@ export type FootBaseState = {
    * skips it for exactly one substep after each clamp.
    */
   prevClamped: Record<FootBaseSide, boolean>;
+  /**
+   * Rig-aware length scale (rig-aware slice): rig leg / physician leg from
+   * the actor's own skeleton rest pose (1 on the physician). Stored on the
+   * approach state at the first step; callers scale row heights/excursions
+   * and the height datum by it. Null until the first step.
+   */
+  rigLengthScale: number | null;
 };
 
 export type FootBaseStepSummary = {
@@ -133,5 +140,6 @@ export function createState(stance: FootBaseSide): FootBaseState {
     worst: null,
     kneeBudget: null,
     prevClamped: { left: false, right: false },
+    rigLengthScale: null,
   };
 }

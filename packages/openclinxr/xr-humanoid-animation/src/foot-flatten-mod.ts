@@ -1,5 +1,6 @@
 import type { Object3D } from "three";
 import { Quaternion, Vector3 } from "three";
+import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
 import type { StanceFoot } from "./stance-lock-mod.js";
 import {
@@ -41,6 +42,12 @@ import {
  * (HEEL_LOCAL_L/R: lowest-Y posterior-half vertex with dominant foot-joint
  * skin weight in bind pose, footLocal = inverseBind(foot) * POSITION;
  * L/R mirrored in x). Copied, not retyped from a new measurement.
+ *
+ * RIG-AWARE (rig-aware slice): `applyFootFlatten` resolves the actor's own
+ * heel-contact local via `./foot-rig-geometry-mod.js` (physician heel scaled
+ * by the rig's rest foot->toe ratio) and passes it as `heelLocal`; the
+ * physician footScale is exactly 1, so the default-constant path runs
+ * untouched there. `flattenFootPose`'s own signature is unchanged.
  */
 
 export type FootFlattenSide = StanceFoot;
@@ -242,6 +249,10 @@ export function applyFootFlatten(input: {
     left: { skipped: true, appliedRadians: 0 },
     right: { skipped: true, appliedRadians: 0 },
   };
+  // RIG-AWARE (rig-aware slice): per-rig heel-contact local from the actor's
+  // own skeleton rest pose (cached). Physician footScale is exactly 1, so the
+  // default production constant path below runs untouched (byte-identical).
+  const rigGeometry = resolveRigFootGeometry(actorSlot);
   for (const side of ["left", "right"] as const) {
     const clock = state[side];
     clock.elapsedS += dt;
@@ -257,6 +268,7 @@ export function applyFootFlatten(input: {
       slotYawRadians: yaw,
       ease01: footFlattenEase01(clock.elapsedS),
       maxStepRadians: maxStep,
+      heelLocal: rigGeometry.footScale === 1 ? undefined : rigGeometry.heelLocal[side],
       previousBendNormal: clock.bendNormal,
     });
     clock.bendNormal = result.bendNormal;

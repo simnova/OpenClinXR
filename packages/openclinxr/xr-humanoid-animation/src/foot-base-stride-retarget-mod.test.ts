@@ -717,7 +717,11 @@ describe("foot-base swing-knee budget", () => {
       swingToe.updateWorldMatrix(true, false);
       const toeY = swingToe.matrixWorld.elements[13] ?? Number.NaN;
       if (toeY < minMidSwingToeY) minMidSwingToeY = toeY;
-      const floorM = heightDatumOf(swing) + 0.008;
+      // RIG-AWARE: the budget floor rides the rig-scaled datum (k x datum +
+      // 8 mm); read the k the step stored on the approach state (public
+      // entrypoint, no internal import).
+      const rigK = readFootBaseState(approach)?.rigLengthScale ?? 1;
+      const floorM = rigK * heightDatumOf(swing) + 0.008;
       // The floor binds the TARGET heel: the hinge drives the heel onto it
       // (miss ~0), but the toe rides the rigid foot offset, which rotates
       // with the shin during the solve — on these mixer-less stub legs the
@@ -735,7 +739,9 @@ describe("foot-base swing-knee budget", () => {
     expect(budget?.floorLimitedSubsteps ?? 0).toBeGreaterThan(0);
     // And the floored targets keep mid-swing toes near the floor, not metres
     // off it: the minimum sits within rigid-foot slop below the datum floor.
-    const floorRef = Math.min(heightDatumOf("left"), heightDatumOf("right")) + 0.008;
+    const rigKFinal = readFootBaseState(approach)?.rigLengthScale ?? 1;
+    expect(rigKFinal).toBeLessThan(1);
+    const floorRef = rigKFinal * Math.min(heightDatumOf("left"), heightDatumOf("right")) + 0.008;
     expect(minMidSwingToeY).toBeGreaterThanOrEqual(floorRef - 0.015);
     expect(minMidSwingToeY).toBeLessThan(floorRef + 0.05);
     clearFootBaseState(approach);
@@ -804,5 +810,57 @@ describe("foot-base symmetric half travel (step-asym slice)", () => {
     expect(gaps.length).toBeGreaterThanOrEqual(3);
     for (const gap of gaps) expect(gap).toBeCloseTo(0.5, 9);
     clearFootBaseState(approach);
+  });
+
+  it("derives a sub-unity rig length scale from a child-proportioned rig", () => {
+    // Rig-aware slice, folded in via the public entrypoint (no new export):
+    // a child-proportioned skeleton (0.674x foot->toe segments) must store a
+    // rigLengthScale below 1 on first use; the standard fixture stays at 1.
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const labels = stanceLabels();
+    const mkApproach = (hipHeightM: number, segmentM: number) => {
+      const { slot, leftToe, rightToe } = buildLeggedRig(hipHeightM, segmentM);
+      return {
+        actorSlot: slot,
+        leftToe,
+        rightToe,
+        floorOriginY: 0,
+        contactBandMeters: 0.06,
+        footstep: { scale: 0.8369, steps: 4, bones: [], lastToeSeparationM: null },
+        execution: { phase: "walking", walkSimSubsteps: 0 },
+        lockArmed: true,
+        start: { x: 0, y: 0, z: 0 },
+        lock: { stanceFoot: "left" },
+        labels,
+      };
+    };
+    const childLike = mkApproach(0.5, 0.12);
+    applyFootBaseStep({
+      approach: childLike as never,
+      routeDx: 0,
+      routeDz: 2,
+      routeLength: 2,
+      clip: { labels, actionTimeSeconds: 0.6 },
+    });
+    const childScale = readFootBaseState(childLike)?.rigLengthScale;
+    expect(childScale).not.toBeNull();
+    expect(childScale as number).toBeLessThan(1);
+    clearFootBaseState(childLike);
+    const standard = mkApproach(0.78, 0.21);
+    applyFootBaseStep({
+      approach: standard as never,
+      routeDx: 0,
+      routeDz: 2,
+      routeLength: 2,
+      clip: { labels, actionTimeSeconds: 0.6 },
+    });
+    const standardScale = readFootBaseState(standard)?.rigLengthScale;
+    expect(standardScale).not.toBeNull();
+    // The hand-built fixture is near-physician proportioned (not the exact
+    // GLB rest pose), so it must sit near 1 and strictly above the
+    // child-proportioned rig.
+    expect(standardScale as number).toBeGreaterThan(childScale as number);
+    expect(standardScale as number).toBeGreaterThan(0.95);
+    clearFootBaseState(standard);
   });
 });

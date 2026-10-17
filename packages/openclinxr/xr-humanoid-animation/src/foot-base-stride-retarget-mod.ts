@@ -27,6 +27,7 @@ import {
   heelTargetForToeTargetStable,
   solveSteppingLegHinge,
 } from "./stepping-turn-leg-ik-mod.js";
+import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 
 /**
  * Schedule/role math lives in `./foot-base-schedule-mod.js` (split out for
@@ -197,6 +198,18 @@ export function applyFootBaseStep(input: {
   const floorY = approach.floorOriginY;
 
   const slot = approach.actorSlot;
+  // RIG-AWARE (rig-aware slice): per-rig length scale from the actor's own
+  // skeleton rest pose (1 on the physician). Row heights/excursions and the
+  // height datum below scale by it; horizontal footholds already come from
+  // the plan and timing phases stay as-is. Stored on the approach state.
+  const rigK = resolveRigFootGeometry(slot).lengthScale;
+  state.rigLengthScale = rigK;
+  const rigDatum = (side: FootBaseSide): number =>
+    rigK === 1 ? FOOT_BASE_HEIGHT_DATUM[side] : rigK * FOOT_BASE_HEIGHT_DATUM[side];
+  const rigScaledHeight = (heightM: number): number =>
+    rigK === 1 ? scale * heightM : scale * rigK * heightM;
+  const rigScaledLateral = (lateralM: number): number =>
+    rigK === 1 ? lateralM : rigK * lateralM;
   const segX = unitX * halfTravel;
   const segZ = unitZ * halfTravel;
   const segLen = Math.abs(halfTravel);
@@ -308,7 +321,7 @@ export function applyFootBaseStep(input: {
   // mid-swing), so touchdown and handover still coincide with no snap.
   const pinTargetFor = (side: FootBaseSide): { x: number; y: number; z: number } => ({
     x: state.foothold[side].x,
-    y: floorY + FOOT_BASE_HEIGHT_DATUM[side] + scale * rowNow(side).heightM,
+    y: floorY + rigDatum(side) + rigScaledHeight(rowNow(side).heightM),
     z: state.foothold[side].z,
   });
   const stanceAlong = (stanceFoothold.x - approach.start.x) * unitX
@@ -343,10 +356,10 @@ export function applyFootBaseStep(input: {
   const swingAlong = liftoffAlong + swingProgress * (swingTouchdownAlong - liftoffAlong);
   const swingTarget = {
     x: approach.start.x + unitX * swingAlong
-      + sideX * (state.sideHome[swing] + swingRow.lateralM),
-    y: floorY + FOOT_BASE_HEIGHT_DATUM[swing] + scale * swingRow.heightM,
+      + sideX * (state.sideHome[swing] + rigScaledLateral(swingRow.lateralM)),
+    y: floorY + rigDatum(swing) + rigScaledHeight(swingRow.heightM),
     z: approach.start.z + unitZ * swingAlong
-      + sideZ * (state.sideHome[swing] + swingRow.lateralM),
+      + sideZ * (state.sideHome[swing] + rigScaledLateral(swingRow.lateralM)),
   };
 
   const sub = (approach.execution as { walkSimSubsteps?: number | null }).walkSimSubsteps ?? -1;
@@ -399,7 +412,7 @@ export function applyFootBaseStep(input: {
         offsetEntry: captured.offset,
         offsetYawRadians: captured.yaw,
         floorY,
-        heightDatumM: FOOT_BASE_HEIGHT_DATUM[side],
+        heightDatumM: rigDatum(side),
         walkSpeedMpsRaw: (approach as { walkSpeedMetersPerSecond?: unknown }).walkSpeedMetersPerSecond,
         prevRecord: state.kneeBudget,
       });

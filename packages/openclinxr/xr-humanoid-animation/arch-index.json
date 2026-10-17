@@ -69,6 +69,7 @@
     "src/locomotion-order-mod.test.ts",
     "src/natural-blink-and-emotion.test.ts",
     "src/reassured-drives-mouth-corner-puller.test.ts",
+    "src/rig-aware-foot-geometry.test.ts",
     "src/stepping-turn-backward-footfalls-mod.test.ts",
     "src/stepping-turn-execution-mod.test.ts",
     "src/stepping-turn-leg-quat-norm.test.ts",

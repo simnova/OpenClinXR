@@ -105,6 +105,30 @@ const FLAT_HEEL_LOCAL = {
 /** Fixture toe offset in the foot-bone frame (see buildLegSide). */
 const FLAT_TOE_LOCAL = { x: 0, y: -0.03, z: 0.15 };
 
+/**
+ * RIG-AWARE (rig-aware slice): production foot-flatten resolves the
+ * heel-contact local from the rig's own rest foot->toe ratio (physician heel
+ * x rig ratio). This fixture's toe offset is not physician-proportioned, so
+ * the control geometry below is scaled by the same ratio, computed inline
+ * from the fixture's own toe offset (this file may only import the public
+ * subpath, per the test-import-surface ceiling — no internal import).
+ */
+const PHYSICIAN_FOOT_TOE_REST_M = 0.1402248740196228;
+const FLAT_FOOT_SCALE =
+  Math.hypot(FLAT_TOE_LOCAL.x, FLAT_TOE_LOCAL.y, FLAT_TOE_LOCAL.z) / PHYSICIAN_FOOT_TOE_REST_M;
+const FLAT_HEEL_SCALED = {
+  L: {
+    x: FLAT_HEEL_LOCAL.L.x * FLAT_FOOT_SCALE,
+    y: FLAT_HEEL_LOCAL.L.y * FLAT_FOOT_SCALE,
+    z: FLAT_HEEL_LOCAL.L.z * FLAT_FOOT_SCALE,
+  },
+  R: {
+    x: FLAT_HEEL_LOCAL.R.x * FLAT_FOOT_SCALE,
+    y: FLAT_HEEL_LOCAL.R.y * FLAT_FOOT_SCALE,
+    z: FLAT_HEEL_LOCAL.R.z * FLAT_FOOT_SCALE,
+  },
+};
+
 function poseFootWorld(foot: THREE.Object3D, world: THREE.Quaternion): void {
   foot.parent?.updateWorldMatrix(true, false);
   const parentQ = new THREE.Quaternion();
@@ -114,7 +138,7 @@ function poseFootWorld(foot: THREE.Object3D, world: THREE.Quaternion): void {
 }
 
 function heelContactOf(foot: THREE.Object3D, side: "L" | "R"): { x: number; y: number; z: number } {
-  const local = FLAT_HEEL_LOCAL[side];
+  const local = FLAT_HEEL_SCALED[side];
   foot.updateWorldMatrix(true, false);
   const v = new THREE.Vector3(local.x, local.y, local.z);
   foot.localToWorld(v);
@@ -123,13 +147,13 @@ function heelContactOf(foot: THREE.Object3D, side: "L" | "R"): { x: number; y: n
 
 /** Heel-toe XZ distance for a side, from the two bone-frame locals. */
 function heelToeDxz(side: "L" | "R"): number {
-  const h = FLAT_HEEL_LOCAL[side];
+  const h = FLAT_HEEL_SCALED[side];
   return Math.hypot(h.x - FLAT_TOE_LOCAL.x, h.z - FLAT_TOE_LOCAL.z);
 }
 
 /** Foot-world pitch that puts the production contact level with the toe. */
 function levelPitch(side: "L" | "R"): number {
-  const h = FLAT_HEEL_LOCAL[side];
+  const h = FLAT_HEEL_SCALED[side];
   return -Math.atan2(h.y - FLAT_TOE_LOCAL.y, heelToeDxz(side));
 }
 
@@ -140,7 +164,7 @@ function levelPitch(side: "L" | "R"): number {
  * vector's own angle: y-diff = R·sin(a0 + theta).
  */
 function liftPitch(side: "L" | "R", heightM: number): number {
-  const h = FLAT_HEEL_LOCAL[side];
+  const h = FLAT_HEEL_SCALED[side];
   const dy = h.y - FLAT_TOE_LOCAL.y;
   const dxz = heelToeDxz(side);
   return Math.asin(heightM / Math.hypot(dy, dxz)) - Math.atan2(dy, dxz);
@@ -348,8 +372,9 @@ describe("the arrived stance closes to rest", () => {
     (left["lower1"] as THREE.Object3D).rotation.x = 1.0;
     (right["lower1"] as THREE.Object3D).rotation.x = 1.0;
     actorSlot.updateMatrixWorld(true);
-    // Heel-sole contact per the production calibration (see FLAT_HEEL_LOCAL).
-    // Start level, then heel-up 50 mm about the slot-lateral axis (world X).
+    // Heel-sole contact per the production calibration, rig-scaled to this
+    // fixture (see FLAT_HEEL_SCALED). Start level, then heel-up 50 mm about
+    // the slot-lateral axis (world X).
     for (const [foot, side] of [[leftFoot, "L"], [rightFoot, "R"]] as const) {
       poseFootWorld(
         foot,
