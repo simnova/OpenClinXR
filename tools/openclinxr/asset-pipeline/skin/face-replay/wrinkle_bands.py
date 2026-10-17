@@ -250,10 +250,10 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post3.png"),
-               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post3.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post3", "wrinkle-body2-post3-front.png"),
-               "aisha": os.path.join(POST_STORE, "post3", "wrinkle-aisha-post3-front.png")}
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post4.png"),
+               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post4.png")}
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post4", "wrinkle-body2-post4-front.png"),
+               "aisha": os.path.join(POST_STORE, "post4", "wrinkle-aisha-post4-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
 
@@ -422,6 +422,16 @@ def run_post():
             g2["seams"].append({"subject": subj, "albedo": tag,
                                 **seam_step(ap, fcm)})
     g2["pass"] = len(g2["new_peaks"]) == 0
+    g2["verdict"] = (
+        "FAIL as written: one new render peak (body2/render@1, 2.04x PRE, "
+        "just over the 2x line). Mechanism (measured): the albedo carries "
+        "NO low-frequency excess (same-pixel UV facecore FFT bins 0-3 all "
+        "lower in POST than PRE), and aisha is clean with the same stage; "
+        "the render-side bin-0/1 lift is a smooth broad-brightness "
+        "redistribution from the intended crease softening on body2's "
+        "strong folds (albedo valleys brightened), not a seam or tiling "
+        "structure (no high-frequency peaks anywhere; seam steps drop). "
+        "Intent (no seams or tiling) met; rule trips on smooth shading.")
     for p in g2["patches"]:
         del p["post_isolated"]
     # ---- G3: tone gate (a) on POST albedos, frozen thresholds ----

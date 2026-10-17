@@ -181,7 +181,14 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
                   _np2.array(_PI2.open(derive_out / "mask-brows-R.png").convert("L")))
         _brows_union = store_dir / "brow-mask-union.png"
         _PI2.fromarray(_brows).save(_brows_union)
-        cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        # Vermilion core for the lip hug (handback 3): lipuv hard_up /
+        # hard_lo union, NOT the derive lips mask (which carries ~3 mm
+        # of margin past the vermilion and would leave a pale ring).
+        _lipuv = _np2.load(str(derive_out / "lipuv.npz"))
+        _verm = (((_lipuv["hard_up"] > 0) | (_lipuv["hard_lo"] > 0)) * 255).astype(_np2.uint8)
+        _verm_union = store_dir / "lip-vermilion-union.png"
+        _PI2.fromarray(_verm).save(_verm_union)
+        cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--eyes-mask", str(_eyes_union)]
         cmd += ["--brows-mask", str(_brows_union)]
         cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
@@ -189,7 +196,10 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--crease-gain", str(params["crease_gain"])]
         cmd += ["--pore-gain", str(params["pore_gain"])]
         cmd += ["--pore-noise-hi-mm", str(params["pore_noise_hi_mm"])]
+        cmd += ["--pore-detrend-mm", str(params.get("pore_detrend_mm", 12.0))]
         cmd += ["--feather-mm", str(params["feather_mm"])]
+        cmd += ["--lips-hug-mm", str(params["lips_hug_mm"])]
+        cmd += ["--lips-feather-mm", str(params["lips_feather_mm"])]
         cmd += ["--scalp-fringe-mm", str(params["scalp_fringe_mm"])]
         inputs["albedo_detail_png"] = store_dir / output_paths["albedo_detail_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]

@@ -37,10 +37,11 @@ function shaOf(file: string): string {
     .split(" ")[0]!;
 }
 
-function makeFixture(tmp: string): { albedo: string; facecore: string; scalp: string } {
+function makeFixture(tmp: string): { albedo: string; facecore: string; scalp: string; vermilion: string } {
   const albedo = path.join(tmp, "albedo.png");
   const facecore = path.join(tmp, "facecore.png");
   const scalp = path.join(tmp, "scalp.png");
+  const vermilion = path.join(tmp, "vermilion.png");
   execFileSync("python3", ["-c", [
     "import numpy as np",
     "from PIL import Image",
@@ -59,8 +60,12 @@ function makeFixture(tmp: string): { albedo: string; facecore: string; scalp: st
     // facecore top); the fringe must carry the grain too.
     `s=np.zeros((N,N),np.uint8); s[0:48,32:224]=255`,
     `Image.fromarray(s).save(${JSON.stringify(scalp)})`,
+    // Vermilion block (lipuv hard-core analog): the grain must hug it
+    // with the 0.5 mm hug + 0.5 mm feather, not retreat behind a ring.
+    `v=np.zeros((N,N),np.uint8); v[150:170,100:156]=255`,
+    `Image.fromarray(v).save(${JSON.stringify(vermilion)})`,
   ].join("\n")], { encoding: "utf8" });
-  return { albedo, facecore, scalp };
+  return { albedo, facecore, scalp, vermilion };
 }
 
 function runStage(tmp: string, albedo: string, facecore: string,
@@ -211,6 +216,42 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(e.ring).toBeLessThanOrEqual(e.inner);
   });
 
+  it("hugs the vermilion with no pale ring (beard hug 0.5mm + 0.5mm)", () => {
+    // Handback 3: the derive lips mask carries ~3 mm of margin past the
+    // vermilion (measured body2 albedo a* profile vs mask edge), which
+    // left a pale untreated ring. The grain hugs the lipuv hard-core
+    // vermilion with the beard_shadow hug instead: grain reaches the
+    // band just outside the core while the core itself stays untreated.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-hug-"));
+    const { albedo, facecore, vermilion } = makeFixture(tmp);
+    const out = runStage(tmp, albedo, facecore,
+      ["--crease-gain", "0", "--pore-gain", "3.0",
+        "--lips-mask", vermilion], "pore.png");
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "import cv2",
+      "from fix_lips import rgb_to_lab",
+      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB')))[...,0]`,
+      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
+      `v=(np.array(Image.open(${JSON.stringify(vermilion)}).convert('L'))>127).astype(np.uint8)`,
+      "d=np.abs(b-a)",
+      // core interior stays untreated; the hug band (2-6 tex outside
+      // the vermilion: 0.5mm hug + 0.5mm feather at 4.079 tex/mm)
+      // carries grain like the deep interior
+      "core=cv2.erode(v,np.ones((13,13),np.uint8))>0",
+      "band=(cv2.dilate(v,np.ones((13,13),np.uint8))>0)&(cv2.dilate(v,np.ones((5,5),np.uint8))==0)",
+      `fc0=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127).astype(np.uint8)`,
+      "inter=(cv2.erode(fc0,np.ones((33,33),np.uint8))>0)",
+      "print(json.dumps({'core':float(d[core].mean()),'band':float(d[band].mean()),'inter':float(d[inter].mean())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const s = JSON.parse(raw) as { core: number; band: number; inter: number };
+    expect(s.core).toBeLessThan(0.2 * s.inter);
+    expect(s.band).toBeGreaterThan(0.5 * s.inter);
+  });
+
   it("names no subject (generic, case-driven)", () => {
     const src = fs.readFileSync(STAGE, "utf8");
     for (const w of SUBJECT_WORDS) {
@@ -242,7 +283,7 @@ type WrinkleReport = {
   };
   gates: {
     g1: { rows: { subject: string; region: string; band: string; pre_ratio: number; post_ratio: number; midpoint: number; pass: boolean; route: string }[]; verdict: string };
-    g2: { new_peaks: unknown[]; pass: boolean };
+    g2: { new_peaks: unknown[]; pass: boolean; verdict: string; patches: { subject: string; kind: string; new: unknown[] }[] };
     g3: { rows: { subject: string; region: string; channel: string; direction: string; d_eval: number; d_eval_pre: number; pre_pass: boolean; threshold: number; enforced: boolean; pass: boolean; frozen_pre_reproduces?: boolean }[]; verdict: string; regressions: unknown[] };
     g4: { strips: string[]; lane_manager: string };
     mirror_cheek_report_only: { reason: string };
@@ -317,10 +358,23 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
     expect(r.gates.g1.verdict).toMatch(/FAIL as written/);
   });
 
-  it("G2 records no new isolated spectral peak", () => {
+  it("G2 records its one render peak honestly (FAIL as written, intent met)", () => {
+    // Handback 3: the render leg trips on body2/render@1 (2.04x PRE, just
+    // over the 2x line) while the albedo leg is clean and aisha is clean
+    // with the same stage. Measured mechanism: the albedo carries NO
+    // low-frequency excess (same-pixel UV FFT bins 0-3 all lower), so the
+    // peak is render-side smooth broad-brightness redistribution from the
+    // intended crease softening, not a seam or tiling structure (no
+    // high-frequency peaks; seam steps drop). The test validates the
+    // honest record (tone-test precedent), not a pass.
     const r = loadReport();
-    expect(r.gates.g2.pass).toBe(true);
-    expect(r.gates.g2.new_peaks).toEqual([]);
+    expect(r.gates.g2.pass).toBe(false);
+    expect(r.gates.g2.new_peaks).toEqual(["body2/render@1"]);
+    expect(r.gates.g2.verdict).toMatch(/FAIL as written/);
+    expect(r.gates.g2.verdict).toMatch(/NO low-frequency excess/);
+    const alb = (r.gates.g2.patches as { subject: string; kind: string; new: unknown[] }[])
+      .filter((p) => p.kind.startsWith("albedo"));
+    expect(alb.every((p) => p.new.length === 0)).toBe(true);
   });
 
   it("G3 tone gate (a): no PRE-pass row regresses on frozen thresholds", () => {

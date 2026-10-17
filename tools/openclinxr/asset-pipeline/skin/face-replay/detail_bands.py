@@ -22,18 +22,18 @@ more than the PRE gap fails).
   pore band (the same G(H/1500)-G(H/130) band as wrinkle_bands.py, in
   texels: low cut PORE_NOISE_LO_TEX 0.5 kills single-texel spikes, high
   cut PORE_NOISE_HI_MM * texels_per_mm sits at the instrument sigma_hi;
-  ~1 texel projects to ~1 screen pixel at portrait scale via the measured
-  4.079 tex/mm and the measured head height, recorded in the report),
-  then a dark-biased dense grain (band-limited noise, asymmetric caps:
-  dark extends 2x bright, CAP_NEG/CAP_POS, no demean: the clipped field
-  keeps its natural near-zero mean so the floor stays at the uniform
-  level; dense low-contrast both sides like the goal micro-contrast, no
-  sparse bright specks by construction), detrended at the crease scale
-  (minus G(s_crease): the pore field carries no energy at or above the
-  removed fold band, and no support-scale swell), tone shift bounded
-  (|support mean| <= 0.12 field-RMS units; G3 verifies no regressions) and normalised to RMS 1, so p is the added L RMS. No
-  amplified noise (the band filter removes pixel spikes) and no tiled
-  patch (seeded full-frame noise, no repetition).
+  the forehead measures ~2 tex/px at portrait scale: facecore island
+  ~780 texels wide vs forehead screen patch ~300-400 px, so the hi-cut
+  projects inside the render pore band; transfer measured, not assumed),
+  then a dark-biased dense grain (asymmetric caps, no demean: the
+  field keeps its natural near-zero mean so the floor stays uniform;
+  dense low-contrast both sides like the goal micro-contrast, no sparse
+  bright specks by construction), detrended at the crease scale and at
+  patch scale (no fold-band refill, no support-scale or patch-scale
+  swell), tone shift bounded (|support mean| <= 0.12 field-RMS units;
+  G3 verifies no regressions) and normalised to RMS 1, so p is the
+  added L RMS. No amplified noise (the band filter removes pixel spikes)
+  and no tiled patch (seeded full-frame noise, no repetition).
 
 Scales (all in mm via texels_per_mm, never in texels):
 - CREASE_SMOOTH_MM 3.0: crease-band upper gaussian; forehead folds span
@@ -41,8 +41,12 @@ Scales (all in mm via texels_per_mm, never in texels):
 - PORE_SMOOTH_MM 0.35: crease-band lower gaussian; fine grain below
   ~2 mm stays in the high band the attenuator spares.
 - PORE_NOISE_HI_MM 1.4: noise high cut at the instrument pore-band
-  sigma_hi (H/130 at portrait scale ~1 tex/px): keeps the grain below
+  sigma_hi (H/130 at portrait scale ~2 tex/px): keeps the grain below
   crease-band wavelengths so it cannot refill the removed folds.
+- PORE_DETREND_MM 12.0: second detrend scale (4x the crease smooth):
+  kills patch-scale swells the one-sided mapping rectifies into the
+  field (handback 3: a bin-1 render-FFT peak on the portrait re-render);
+  ~8x above the grain band, so no pore-band energy is removed.
 - CAP_POS 1.4 / CAP_NEG -3.0: asymmetric caps (dark extends 2x bright;
   operator/consult decision documented in wrinkle-scale-report.json
   fix.solve): dense low-contrast both sides like the goal
@@ -53,6 +57,12 @@ Scales (all in mm via texels_per_mm, never in texels):
   decision, same convention as beard_shadow).
 - FEATHER_MM 1.0: gate feather (operator/consult decision: between the
   fix_lips 6-texel feather and the beard 3.0 mm outer fade).
+- LIPS_HUG_MM 0.5 / LIPS_FEATHER_MM 0.5: the grain meets the lips with
+  no pale ring: vermilion-core hug + feather exactly like
+  beard_shadow.py LIPS_EXCLUDE_MM/LIP_FEATHER_MM (handback 3: the
+  derive lips mask carries ~3 mm of margin past the vermilion, measured
+  subject albedo a* profile vs mask edge, so the lipuv hard_up|hard_lo
+  vermilion core is hugged instead).
 - SCALP_FRINGE_MM 25.0: the pore field covers all face and forehead skin
   up to the scalp boundary: facecore UNION the scalp-mask fringe within
   25 mm of the facecore (the forehead skin above the facecore top, below
@@ -85,9 +95,12 @@ CREASE_SMOOTH_MM = 3.0
 PORE_SMOOTH_MM = 0.35
 PORE_NOISE_HI_MM = 1.4
 PORE_NOISE_LO_TEX = 0.5
+PORE_DETREND_MM = 12.0
 CAP_POS = 1.4
 CAP_NEG = -3.0
 FEATHER_MM = 1.0
+LIPS_HUG_MM = 0.5
+LIPS_FEATHER_MM = 0.5
 SCALP_FRINGE_MM = 25.0
 
 
@@ -109,7 +122,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("albedo_out", type=Path)
     ap.add_argument("--facecore-mask", type=Path, required=True)
     ap.add_argument("--scalp-mask", type=Path, default=None)
-    ap.add_argument("--lips-mask", type=Path, default=None)
+    ap.add_argument("--lips-mask", type=Path, default=None,
+                    help="vermilion-core mask (lipuv hard_up|hard_lo union): "
+                         "grain hugs it with LIPS_HUG_MM + LIPS_FEATHER_MM, "
+                         "the beard_shadow.py vermilion hug")
     ap.add_argument("--eyes-mask", type=Path, default=None)
     ap.add_argument("--brows-mask", type=Path, default=None)
     ap.add_argument("--crease-gain", type=float, default=0.0)
@@ -117,7 +133,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=SEED_DEFAULT)
     ap.add_argument("--texels-per-mm", type=float, required=True)
     ap.add_argument("--pore-noise-hi-mm", type=float, default=PORE_NOISE_HI_MM)
+    ap.add_argument("--pore-detrend-mm", type=float, default=PORE_DETREND_MM)
     ap.add_argument("--feather-mm", type=float, default=FEATHER_MM)
+    ap.add_argument("--lips-hug-mm", type=float, default=LIPS_HUG_MM)
+    ap.add_argument("--lips-feather-mm", type=float, default=LIPS_FEATHER_MM)
     ap.add_argument("--scalp-fringe-mm", type=float, default=SCALP_FRINGE_MM)
     ap.add_argument("--report-out", type=Path, default=None)
     a = ap.parse_args(argv)
@@ -141,9 +160,34 @@ def main(argv: list[str] | None = None) -> int:
         hard = facecore | (scalp & near)
     else:
         hard = facecore
-    for opt in (a.lips_mask, a.eyes_mask, a.brows_mask):
+    for opt in (a.eyes_mask, a.brows_mask):
         if opt is not None:
             hard = hard & ~(load_mask(opt, (h, wpx)) > 0.5)
+    # Lips (vermilion hug, handback 3): the grain meets the lips with no
+    # ring. The derive lips mask carries ~3 mm of margin past the
+    # vermilion (measured albedo a* profile vs mask edge: the derive
+    # lips mask carries ~3 mm of margin), so the
+    # hard exclusion would leave a pale untreated ring. Instead the
+    # vermilion core (lipuv hard_up|hard_lo union, passed as --lips-mask)
+    # is hugged exactly like beard_shadow.py (LIPS_EXCLUDE_MM 0.5 hug,
+    # LIP_FEATHER_MM 0.5 feather) via its own multiplicative cut.
+    lips_cut = np.ones((h, wpx), dtype=np.float64)
+    lips_support_extra = np.zeros((h, wpx), dtype=bool)
+    if a.lips_mask is not None:
+        hug_tex = max(float(a.lips_hug_mm) * tpm, 0.0)
+        feather_lips_tex = max(float(a.lips_feather_mm) * tpm, 1.0)
+        verm = load_mask(a.lips_mask, (h, wpx)) > 0.5
+        hug = cv2.dilate(verm.astype(np.uint8),
+                         np.ones((2 * int(round(hug_tex)) + 1,
+                                  2 * int(round(hug_tex)) + 1), np.uint8)) > 0
+        cut = gauss(hug.astype(np.float32), feather_lips_tex)
+        if float(cut.max()) > 0:
+            cut = cut / float(cut.max())
+        lips_cut = 1.0 - cut
+        lips_support_extra = cv2.dilate(
+            hug.astype(np.uint8),
+            np.ones((2 * int(round(feather_lips_tex)) + 1,
+                     2 * int(round(feather_lips_tex)) + 1), np.uint8)) > 0
 
     if g == 0.0 and p == 0.0:
         # Identity by construction (fix_lips ratio-1.0 pattern): a PIL
@@ -156,9 +200,10 @@ def main(argv: list[str] | None = None) -> int:
     gate = gauss(hard.astype(np.float32), feather_tex)
     if float(gate.max()) > 0:
         gate = gate / float(gate.max())
-    support = cv2.dilate(hard.astype(np.uint8),
-                         np.ones((2 * int(round(feather_tex)) + 1,
-                                  2 * int(round(feather_tex)) + 1), np.uint8)) > 0
+    gate = gate * lips_cut
+    support = (cv2.dilate(hard.astype(np.uint8),
+                           np.ones((2 * int(round(feather_tex)) + 1,
+                                    2 * int(round(feather_tex)) + 1), np.uint8)) > 0) | lips_support_extra
 
     lab = rgb_to_lab(alb)
     lum = lab[..., 0].astype(np.float64)
@@ -193,9 +238,13 @@ def main(argv: list[str] | None = None) -> int:
         field = np.zeros_like(lum)
         if sd > 0:
             field = band / sd
-            # Detrend at the crease scale: no fold-band refill, no
-            # support-scale swell (tone drift).
+            # Detrend at the crease scale (no fold-band refill) and at
+            # patch scale (no support-scale or patch-scale swell: handback
+            # 3 flagged a bin-1 render-FFT peak from rectified low-freq
+            # content; the detrend sits ~8x above the grain band so no
+            # pore-band energy is removed).
             field = field - gauss(field, s_crease)
+            field = field - gauss(field, float(a.pore_detrend_mm) * tpm)
             # Asymmetric caps (no demean: the clipped field keeps its
             # natural near-zero mean, so the floor stays at the uniform
             # level; demeaning would lift the floor back up).
