@@ -20,12 +20,13 @@ def _vermilion_union(store_dir: Path, albedo_png: Path, derive_out: Path) -> Pat
 
     The lipuv union is the lip MESH region, bigger than the visible
     vermilion (margin skin at the corners/borders), so hugging it leaves
-    a pale band. The vermilion is segmented from the albedo itself (360
-    radial a*-edge rays from the union centroid; no absolute threshold),
-    so both stages hug the identical border with no seam between the
-    grain and beard exclusions. Saved under store_dir for provenance;
-    identical bytes on re-runs of the same inputs (falls back to the
-    union on flat albedos).
+    a pale band. The vermilion is segmented from the albedo itself (the
+    half-maximum a* edge: redder than surrounding skin by half the
+    peak-minus-skin range; no absolute threshold), so both stages hug
+    the identical border with no seam between the grain and beard
+    exclusions. Saved under store_dir for provenance; identical bytes
+    on re-runs of the same inputs (falls back to the union on flat
+    albedos).
     """
     import numpy as _np
     from PIL import Image as _PI

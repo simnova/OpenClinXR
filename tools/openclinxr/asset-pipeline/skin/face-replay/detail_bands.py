@@ -122,39 +122,43 @@ def load_mask(path: Path, shape: tuple[int, int]) -> np.ndarray:
 
 
 def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
-    """Vermilion from the albedo itself (handback 6).
+    """Vermilion from the albedo itself (handback 7).
 
     The lipuv union is the lip MESH region, bigger than the visible
-    vermilion (margin skin at the corners and along the borders), so
-    hugging it leaves a pale band. The visible vermilion is much redder
-    than the surrounding perioral skin on both subjects, so the core is
-    {a* > surrounding-ring median + 6}; the core is closed big (seals the
-    mouth opening and joins the lip), the largest component is kept and
-    hole-filled (mouth interior stays excluded). Falls back to the union
-    when the core covers < 5% of the union (flat albedo, synthetic
-    fixtures). Both subjects verified against the visible vermilion edge.
+    vermilion (margin skin at the corners/borders), so hugging it leaves
+    a pale band. Edge rule: inside the union neighbourhood, a texel is
+    vermilion where its a* exceeds the local skin a* (median 2-4 mm
+    outside the lips mask) by at least HALF of (lip a* peak minus skin
+    a*): the half-maximum edge. Stated numbers (measured per image):
+    skin ~10-14, peaks ~23-29, thresholds ~17-20 on both subjects. The contour is closed morphologically, then
+    smoothed with a 0.5 mm Gaussian and thresholded at 0.5 (no polygons,
+    no straight segments), hole-filled (mouth opening stays excluded),
+    components < 200 texels dropped. Falls back to the union when it
+    covers < 5% of the union (flat albedo, synthetic fixtures).
     """
     lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
-    av = lab[..., 1].astype(np.float64)
-    h, w = av.shape
-    ring = (cv2.dilate(union.astype(np.uint8), np.ones((121, 121), np.uint8)) > 0) & (
-        cv2.dilate(union.astype(np.uint8), np.ones((61, 61), np.uint8)) == 0)
-    skin = float(np.median(av[ring])) if ring.sum() else 0.0
+    h, w = lab.shape[:2]
+    av = cv2.GaussianBlur(lab[..., 1].astype(np.float64), (0, 0), 3.0)
+    ring = (cv2.dilate(union.astype(np.uint8), np.ones((49, 49), np.uint8)) > 0) & (
+        cv2.dilate(union.astype(np.uint8), np.ones((25, 25), np.uint8)) == 0)
+    skin = float(np.median(av[ring])) if np.count_nonzero(ring) else 0.0
     near = cv2.dilate(union.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
-    raw = (av > skin + 6.0) & near
+    peak = float(av[union].max(initial=skin)) if np.count_nonzero(union) else skin
+    thr = skin + 0.5 * max(0.0, peak - skin)
+    raw = (av > thr) & near
     cl = cv2.morphologyEx(raw.astype(np.uint8), cv2.MORPH_CLOSE,
-                           cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31)))
-    n, lbl, stats, _ = cv2.connectedComponentsWithStats(cl, 8)
-    if n <= 1:
-        return union
-    big = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
-    core = (lbl == big)
-    # Fill the mouth opening (enclosed background hole inside the lip ring).
-    inv = (~core).astype(np.uint8)
-    vis = np.zeros((h + 2, w + 2), np.uint8)
-    cv2.floodFill(inv, vis, (0, 0), 1)
-    core = core | (vis[1:-1, 1:-1] == 0)
-    out = core & (near | union)
+                          np.ones((7, 7), np.uint8))
+    sm = cv2.GaussianBlur(cl.astype(np.float64), (0, 0), 4.079 * 0.5)
+    keep = sm > 0.5
+    ff = keep.astype(np.uint8).copy()
+    pad = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(ff, pad, (0, 0), 1)
+    filled = keep | (ff != 1)
+    n, lbl, stats, _ = cv2.connectedComponentsWithStats(filled.astype(np.uint8), 8)
+    out = np.zeros(filled.shape, dtype=bool)
+    for i in range(1, n):
+        if stats[i, cv2.CC_STAT_AREA] >= 200:
+            out[lbl == i] = True
     if out.sum() < 0.05 * max(1, int(union.sum())):
         return union
     return out

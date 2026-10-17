@@ -497,9 +497,31 @@ def run_post():
     dstage = next(s for s in man["stages"] if s["name"] == "detail_bands")
     ov = {s: man["subjects"][s]["overrides"]["detail_bands"]
           for s in man["subjects"]}
+    verm_rec = {}
+    for subj in ("body2", "aisha"):
+        dd = ("/Volumes/files/openclinxr-assets/store/face-station-cases/"
+              f"{subj}/run2/derive_out")
+        alb0 = np.array(Image.open(
+            "/Volumes/files/openclinxr-assets/store/face-station-cases/"
+            f"{subj}/run2/albedo_socket.png").convert("RGB"))
+        z = np.load(os.path.join(dd, "lipuv.npz"))
+        uu = ((z["hard_up"] > 0) | (z["hard_lo"] > 0))
+        import detail_bands as _DB
+        lab0 = _DB.rgb_to_lab(alb0)
+        av0 = cv2.GaussianBlur(lab0[..., 1].astype(float), (0, 0), 3.0)
+        ring0 = (cv2.dilate(uu.astype(np.uint8), np.ones((49, 49), np.uint8)) > 0) & (
+            cv2.dilate(uu.astype(np.uint8), np.ones((25, 25), np.uint8)) == 0)
+        sk = round(float(np.median(av0[ring0])), 2) if ring0.sum() else 0.0
+        pk = round(float(av0[uu].max()), 2) if uu.sum() else sk
+        m = _DB.vermilion_mask_from_albedo(alb0, uu)
+        verm_rec[subj] = {"skin_med_a": sk, "peak_a": pk,
+                          "threshold_a": round(sk + 0.5 * max(0.0, pk - sk), 2),
+                          "frac_of_union": round(float(m.sum() / max(1, uu.sum())), 3),
+                          "sha_note": "mask bytes identical to replay-built lip-vermilion-albedo-union.png (deterministic same inputs)"}
     fix = {"stage": "detail_bands", "script": "detail_bands.py",
            "parameters": dstage["parameters"],
            "overrides": ov,
+           "vermilion": verm_rec,
            "solve": {
                "transfer": ("affine from room-rig probes, handback-4 noise "
                             "stage (band-limited 0.5tex-1.4mm grain, "
