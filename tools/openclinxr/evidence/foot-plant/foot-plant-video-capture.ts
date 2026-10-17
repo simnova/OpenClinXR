@@ -2755,6 +2755,29 @@ async function runFeetCloseup(
   return { idlePng, arrivalPng, sidecar };
 }
 
+/**
+ * Single capture-browser launcher shared by the video flow and the
+ * standing-pitch `--feet-closeup` still flow (2026-10-17 fixup). Both paths
+ * need the identical headless flags; keeping one chromium launch call site
+ * keeps the heavy-compute launch freeze at its shrink-only ceiling instead of
+ * adding a second direct launch.
+ */
+async function launchCaptureBrowser(): Promise<Browser> {
+  return chromium.launch({
+    headless: true,
+    args: [
+      "--disable-gpu-vsync",
+      "--disable-frame-rate-limit",
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows",
+      "--use-angle=metal",
+      "--enable-gpu-rasterization",
+      "--ignore-gpu-blocklist",
+    ],
+  });
+}
+
 async function main(): Promise<void> {
   const feetCloseup = feetCloseupFromArgv();
   const hasExplicitOutputDir = process.argv.some((arg) => arg.startsWith("--output-dir="));
@@ -2795,19 +2818,7 @@ async function main(): Promise<void> {
     let server: PortlessDevServer | null = null;
     try {
       server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
-      const browser = await chromium.launch({
-        headless: true,
-        args: [
-          "--disable-gpu-vsync",
-          "--disable-frame-rate-limit",
-          "--disable-background-timer-throttling",
-          "--disable-renderer-backgrounding",
-          "--disable-backgrounding-occluded-windows",
-          "--use-angle=metal",
-          "--enable-gpu-rasterization",
-          "--ignore-gpu-blocklist",
-        ],
-      });
+      const browser = await launchCaptureBrowser();
       try {
         const done = await runFeetCloseup(server, browser, bundleJson, ACTIVE_BUILD_URL, outputDir, tag, urlQuery);
         process.stdout.write(`[feet-closeup] wrote ${done.idlePng} ${done.arrivalPng} ${done.sidecar}\n`);
@@ -2824,19 +2835,7 @@ async function main(): Promise<void> {
   let server: PortlessDevServer | null = null;
   try {
     server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
-    const browser = await chromium.launch({
-      headless: true,
-      args: [
-        "--disable-gpu-vsync",
-        "--disable-frame-rate-limit",
-        "--disable-background-timer-throttling",
-        "--disable-renderer-backgrounding",
-        "--disable-backgrounding-occluded-windows",
-        "--use-angle=metal",
-        "--enable-gpu-rasterization",
-        "--ignore-gpu-blocklist",
-      ],
-    });
+    const browser = await launchCaptureBrowser();
     try {
       const dry = await dryPass(server, browser, bundleJson);
       const { evidence: dryEvidence, gpuFps, poses, clipForwardDiagnostic } = dry;
