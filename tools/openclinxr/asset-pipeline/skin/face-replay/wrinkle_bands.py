@@ -250,10 +250,10 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post5.png"),
-               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post4.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post5", "wrinkle-body2-post5-front.png"),
-               "aisha": os.path.join(POST_STORE, "post4", "wrinkle-aisha-post4-front.png")}
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post7.png"),
+               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post6.png")}
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post7", "wrinkle-body2-post7-front.png"),
+               "aisha": os.path.join(POST_STORE, "post6a", "wrinkle-aisha-post6-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
 
@@ -517,14 +517,15 @@ def run_post():
                                 "(G(H/1500)-G(H/130), peak sensitivity "
                                 "~2-4 px); render transfer measured, not "
                                 "assumed"),
-               "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
-                          "G1 targets (forehead fix rows past midpoint, "
-                          "closer in log, no excess overshoot); POST "
-                          "verifies"
-                          % (ov["adult_male_street_casual"]["crease_gain"],
-                             ov["adult_male_street_casual"]["pore_gain"],
-                             ov["aisha"]["crease_gain"],
-                             ov["aisha"]["pore_gain"])),
+                "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
+                           "G1 targets (forehead fix rows past midpoint, "
+                           "closer in log, no excess overshoot); lip exclusion "
+                           "is the albedo-vermilion mask (handback 6, same "
+                           "for beard+detail, tone-neutral); POST verifies"
+                           % (ov["adult_male_street_casual"]["crease_gain"],
+                              ov["adult_male_street_casual"]["pore_gain"],
+                              ov["aisha"]["crease_gain"],
+                              ov["aisha"]["pore_gain"])),
                "goal_bands_source": "this report pre.ratios (goal-photo band energies)"}}
     # ---- G4 sheet strips PRE|POST|goal ----
     strips = []

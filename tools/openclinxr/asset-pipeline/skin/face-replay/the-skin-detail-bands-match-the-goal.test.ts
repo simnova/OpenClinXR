@@ -289,6 +289,39 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(s.band).toBeGreaterThan(0.5 * s.inter);
   });
 
+  it("finds the vermilion from the albedo, falling back to the union", () => {
+    // Handback 6: the lipuv union is the lip MESH region, bigger than the
+    // visible vermilion. The builder takes the steepest a* descent after
+    // the vermilion peak along 360 rays: on a synthetic face (red lips on
+    // mid-gray skin inside a union box) it must hug the lips (not the
+    // whole union); on a flat field it falls back to the union.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-verm-"));
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "import detail_bands as D",
+      "a=np.ones((256,256,3),np.uint8)*180",
+      "a[100:156,80:176]=[200,120,130]",
+      "u=np.zeros((256,256),bool); u[80:176,60:196]=True",
+      "m=D.vermilion_mask_from_albedo(a,u)",
+      "print(json.dumps({'frac':float(m.sum()/u.sum()),'rows':[int(np.where(m)[0].min()),int(np.where(m)[0].max())],'cols':[int(np.where(m)[1].min()),int(np.where(m)[1].max())]}))",
+      "f=np.ones((256,256,3),np.uint8)*180",
+      "m2=D.vermilion_mask_from_albedo(f,u)",
+      "print(json.dumps({'fallback':bool((m2==u).all())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const lines = raw.trim().split("\n");
+    const s = JSON.parse(lines[0]) as { frac: number; rows: number[]; cols: number[] };
+    expect(s.frac).toBeGreaterThan(0.2);
+    expect(s.frac).toBeLessThan(0.9);
+    expect(s.rows[0]).toBeGreaterThanOrEqual(95);
+    expect(s.rows[1]).toBeLessThanOrEqual(161);
+    expect(s.cols[0]).toBeGreaterThanOrEqual(75);
+    expect(s.cols[1]).toBeLessThanOrEqual(181);
+    expect((JSON.parse(lines[1]) as { fallback: boolean }).fallback).toBe(true);
+  });
+
   it("names no subject (generic, case-driven)", () => {
     const src = fs.readFileSync(STAGE, "utf8");
     for (const w of SUBJECT_WORDS) {

@@ -103,7 +103,6 @@ PORE_NOISE_LO_TEX = 0.5
 PORE_DETREND_MM = 12.0
 CAP_POS = 1.4
 CAP_NEG = -3.0
-VERMILION_CHROMA_MARGIN = 6.0
 FEATHER_MM = 1.0
 LIPS_HUG_MM = 0.5
 LIPS_FEATHER_MM = 0.5
@@ -122,41 +121,40 @@ def load_mask(path: Path, shape: tuple[int, int]) -> np.ndarray:
     return m
 
 
-def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray,
-                               margin: float = VERMILION_CHROMA_MARGIN) -> np.ndarray:
+def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
     """Vermilion from the albedo itself (handback 6).
 
-    The lipuv hard_up|hard_lo union is the lip MESH region: it is bigger
-    than the visible vermilion (margin skin at the corners and along the
-    borders), so hugging it leaves a pale band. The visible vermilion is
-    redder than the surrounding perioral skin on both subjects, so the
-    vermilion is {a* > skin_ring_median + margin} inside the union
-    neighbourhood, morphologically closed+opened, hole-filled (the mouth
-    opening stays excluded), components < 200 texels dropped.
-    Margin default +6: measured split (body2 skin 10.9 / aisha 10.5;
-    capture 0.23/0.30 of the union; boundary plots hug the visible
-    vermilion on both). Falls back to the union when it finds < 5% of
-    the union (uniform albedo, synthetic fixtures).
+    The lipuv union is the lip MESH region, bigger than the visible
+    vermilion (margin skin at the corners and along the borders), so
+    hugging it leaves a pale band. The visible vermilion is much redder
+    than the surrounding perioral skin on both subjects, so the core is
+    {a* > surrounding-ring median + 6}; the core is closed big (seals the
+    mouth opening and joins the lip), the largest component is kept and
+    hole-filled (mouth interior stays excluded). Falls back to the union
+    when the core covers < 5% of the union (flat albedo, synthetic
+    fixtures). Both subjects verified against the visible vermilion edge.
     """
-    h, w = union.shape
     lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
     av = lab[..., 1].astype(np.float64)
+    h, w = av.shape
     ring = (cv2.dilate(union.astype(np.uint8), np.ones((121, 121), np.uint8)) > 0) & (
         cv2.dilate(union.astype(np.uint8), np.ones((61, 61), np.uint8)) == 0)
     skin = float(np.median(av[ring])) if ring.sum() else 0.0
     near = cv2.dilate(union.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
-    raw = (av > skin + float(margin)) & near
-    cl = cv2.morphologyEx(raw.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
-    op = cv2.morphologyEx(cl, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8)) > 0
-    ff = (op.astype(np.uint8) * 255).copy()
-    ff_full = np.zeros((h + 2, w + 2), np.uint8)
-    cv2.floodFill(ff, ff_full, (0, 0), 128)
-    filled = op | (ff != 128)
-    n, lbl, stats, _ = cv2.connectedComponentsWithStats(filled.astype(np.uint8), 8)
-    out = np.zeros_like(filled)
-    for i in range(1, n):
-        if stats[i][cv2.CC_STAT_AREA] >= 200:
-            out[lbl == i] = True
+    raw = (av > skin + 6.0) & near
+    cl = cv2.morphologyEx(raw.astype(np.uint8), cv2.MORPH_CLOSE,
+                           cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31)))
+    n, lbl, stats, _ = cv2.connectedComponentsWithStats(cl, 8)
+    if n <= 1:
+        return union
+    big = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    core = (lbl == big)
+    # Fill the mouth opening (enclosed background hole inside the lip ring).
+    inv = (~core).astype(np.uint8)
+    vis = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(inv, vis, (0, 0), 1)
+    core = core | (vis[1:-1, 1:-1] == 0)
+    out = core & (near | union)
     if out.sum() < 0.05 * max(1, int(union.sum())):
         return union
     return out

@@ -18,10 +18,14 @@ sys.path.insert(0, str(Path(__file__).parent))
 def _vermilion_union(store_dir: Path, albedo_png: Path, derive_out: Path) -> Path:
     """Albedo-chroma vermilion mask shared by beard + detail (handback 6).
 
-    Built deterministically from the pre-beard chain albedo plus the
-    lipuv union, so both stages hug the identical border (no seam
-    between the grain and beard exclusions). Saved under store_dir for
-    provenance; identical bytes on re-runs of the same inputs.
+    The lipuv union is the lip MESH region, bigger than the visible
+    vermilion (margin skin at the corners/borders), so hugging it leaves
+    a pale band. The vermilion is segmented from the albedo itself (360
+    radial a*-edge rays from the union centroid; no absolute threshold),
+    so both stages hug the identical border with no seam between the
+    grain and beard exclusions. Saved under store_dir for provenance;
+    identical bytes on re-runs of the same inputs (falls back to the
+    union on flat albedos).
     """
     import numpy as _np
     from PIL import Image as _PI
@@ -31,7 +35,7 @@ def _vermilion_union(store_dir: Path, albedo_png: Path, derive_out: Path) -> Pat
     union = ((_np.array(z["hard_up"]) > 0) | (_np.array(z["hard_lo"]) > 0))
     verm = _DB.vermilion_mask_from_albedo(alb, union)
     out = store_dir / "lip-vermilion-albedo-union.png"
-    _PI.fromarray((verm.astype(_np.uint8)) * 255).save(out)
+    _PI.fromarray(verm.astype(_np.uint8) * 255).save(out)
     return out
 
 
@@ -181,17 +185,14 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_beard_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--landmarks", str(derive_out / "landmarks-uv.json")]
-        # Vermilion hug (handback 4): the derive lips mask carries ~3 mm
-        # of margin past the vermilion, leaving a pale ring; the beard
-        # hugs the lipuv hard_up|hard_lo vermilion core instead (same
-        # union detail_bands consumes), with its 0.5 mm hug + 0.5 mm
-        # feather. Aisha (weight 0) is unaffected: identity by copy.
-        from PIL import Image as _PI3
-        import numpy as _np3
-        _lip = _np3.load(str(derive_out / "lipuv.npz"))
-        _verm = (((_lip["hard_up"] > 0) | (_lip["hard_lo"] > 0)) * 255).astype(_np3.uint8)
-        _verm_union = store_dir / "lip-vermilion-union.png"
-        _PI3.fromarray(_verm).save(_verm_union)
+        # Vermilion from the albedo (handback 6): the lipuv union is the
+        # lip MESH region, bigger than the visible vermilion, so hugging
+        # it leaves a pale band. The SAME albedo-chroma mask detail_bands
+        # hugs is built here from the pre-beard socket albedo (identical
+        # bytes on re-runs; falls back to the union on flat albedos).
+        # Aisha (weight 0) is unaffected: identity by copy.
+        _socket_alb = Path(inputs.get("albedo_socket_png", resolved["albedo_png"]))
+        _verm_union = _vermilion_union(store_dir, _socket_alb, derive_out)
         cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
         cmd += ["--weight", str(params["weight"])]
@@ -214,13 +215,11 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
                   _np2.array(_PI2.open(derive_out / "mask-brows-R.png").convert("L")))
         _brows_union = store_dir / "brow-mask-union.png"
         _PI2.fromarray(_brows).save(_brows_union)
-        # Vermilion core for the lip hug (handback 3): lipuv hard_up /
-        # hard_lo union, NOT the derive lips mask (which carries ~3 mm
-        # of margin past the vermilion and would leave a pale ring).
-        _lipuv = _np2.load(str(derive_out / "lipuv.npz"))
-        _verm = (((_lipuv["hard_up"] > 0) | (_lipuv["hard_lo"] > 0)) * 255).astype(_np2.uint8)
-        _verm_union = store_dir / "lip-vermilion-union.png"
-        _PI2.fromarray(_verm).save(_verm_union)
+        # Vermilion from the albedo (handback 6): the same shared mask the
+        # beard stage hugs, so grain and beard meet at one identical
+        # border (no seam between the two exclusions).
+        _socket_alb2 = Path(inputs.get("albedo_socket_png", resolved["albedo_png"]))
+        _verm_union = _vermilion_union(store_dir, _socket_alb2, derive_out)
         cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--eyes-mask", str(_eyes_union)]
         cmd += ["--brows-mask", str(_brows_union)]
