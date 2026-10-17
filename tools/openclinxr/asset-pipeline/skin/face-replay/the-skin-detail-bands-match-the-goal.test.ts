@@ -216,8 +216,45 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(e.ring).toBeLessThanOrEqual(e.inner);
   });
 
-  it("hugs the vermilion with no pale ring (beard hug 0.5mm + 0.5mm)", () => {
-    // Handback 3: the derive lips mask carries ~3 mm of margin past the
+  it("does not fill dark holes (nostril interiors stay dark)", () => {
+    // Handback 5: the converged crease removal filled nostril interiors
+    // (low-pass leaks skin into the hole, +tens of L, blue-grey specks).
+    // Texels darker than L25 keep the input; the grain and crease work
+    // still applies around the hole.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-hole-"));
+    const { albedo, facecore } = makeFixture(tmp);
+    const hole = path.join(tmp, "hole-albedo.png");
+    execFileSync("python3", ["-c", [
+      "import numpy as np",
+      "from PIL import Image",
+      `a=np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB'))`,
+      "yy,xx=np.mgrid[0:256,0:256]",
+      "a[((xx-200)**2+(yy-200)**2)<144]=[8,8,8]",
+      `Image.fromarray(a).save(${JSON.stringify(hole)})`,
+    ].join("\n")], { encoding: "utf8" });
+    const out = runStage(tmp, hole, facecore,
+      ["--crease-gain", "1.0", "--pore-gain", "3.0"], "hole-out.png");
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "import cv2",
+      "from fix_lips import rgb_to_lab",
+      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(hole)}).convert('RGB')))[...,0]`,
+      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
+      "yy,xx=np.mgrid[0:256,0:256]",
+      "disk=((xx-200)**2+(yy-200)**2)<64",
+      "ring=((xx-200)**2+(yy-200)**2>=256)&((xx-200)**2+(yy-200)**2<900)",
+      "d=np.abs(b-a)",
+      "print(json.dumps({'disk':float(d[disk].mean()),'ring':float(d[ring].mean())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const s = JSON.parse(raw) as { disk: number; ring: number };
+    expect(s.disk).toBeLessThan(1.0);
+    expect(s.ring).toBeGreaterThan(1.0);
+  });
+
+  it("hugs the vermilion with no pale ring (beard hug 0.5mm + 0.5mm)", () => {    // Handback 3: the derive lips mask carries ~3 mm of margin past the
     // vermilion (measured body2 albedo a* profile vs mask edge), which
     // left a pale untreated ring. The grain hugs the lipuv hard-core
     // vermilion with the beard_shadow hug instead: grain reaches the

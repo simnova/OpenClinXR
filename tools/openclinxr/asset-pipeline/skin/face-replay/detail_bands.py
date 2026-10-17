@@ -57,12 +57,17 @@ Scales (all in mm via texels_per_mm, never in texels):
   decision, same convention as beard_shadow).
 - FEATHER_MM 1.0: gate feather (operator/consult decision: between the
   fix_lips 6-texel feather and the beard 3.0 mm outer fade).
-- LIPS_HUG_MM 0.5 / LIPS_FEATHER_MM 0.5: the grain meets the lips with
-  no pale ring: vermilion-core hug + feather exactly like
+- LIPS_HUG_MM 0.5 / LIPS_FEATHER_MM 0.5: the grain meets the lips
+  with no pale ring: vermilion-core hug + feather exactly like
   beard_shadow.py LIPS_EXCLUDE_MM/LIP_FEATHER_MM (handback 3: the
   derive lips mask carries ~3 mm of margin past the vermilion, measured
   subject albedo a* profile vs mask edge, so the lipuv hard_up|hard_lo
   vermilion core is hugged instead).
+- DARK_TEXEL_GUARD (lum 15..25 smoothstep): the converged crease
+  removal fills small dark holes (nostril/mouth interiors brighten tens
+  of L as the low-pass leaks skin into them: handback 5 blue-grey
+  nostril specks). Texels darker than L25 keep the input (smooth
+  value-space transition, no hard edge).
 - SCALP_FRINGE_MM 25.0: the pore field covers all face and forehead skin
   up to the scalp boundary: facecore UNION the scalp-mask fringe within
   25 mm of the facecore (the forehead skin above the facecore top, below
@@ -193,16 +198,24 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     feather_tex = max(float(a.feather_mm) * tpm, 1.0)
+    lum = rgb_to_lab(alb)[..., 0].astype(np.float64)
     gate = gauss(hard.astype(np.float32), feather_tex)
     if float(gate.max()) > 0:
         gate = gate / float(gate.max())
     gate = gate * lips_cut
+    # Dark-texel guard (handback 5): the converged crease removal fills
+    # small dark holes (nostril/mouth interiors brighten tens of L as the
+    # low-pass leaks skin into them, then the demeaned field normalises
+    # around them). The stage never brightens texels darker than
+    # NOSTRIL_L: gate is multiplied by smoothstep((L-15)/10), so dark
+    # interiors (and deep moles/eyeliner-class pigment) keep the input
+    # byte path with a smooth value-space transition (no hard edge).
+    dark_guard = np.clip((lum - 15.0) / 10.0, 0.0, 1.0)
+    gate = gate * (dark_guard * dark_guard * (3.0 - 2.0 * dark_guard))
     support = (cv2.dilate(hard.astype(np.uint8),
                            np.ones((2 * int(round(feather_tex)) + 1,
                                     2 * int(round(feather_tex)) + 1), np.uint8)) > 0) | lips_support_extra
 
-    lab = rgb_to_lab(alb)
-    lum = lab[..., 0].astype(np.float64)
     s_pore = PORE_SMOOTH_MM * tpm
     s_crease = CREASE_SMOOTH_MM * tpm
     # Converged band removal (N_ITER fixed, bit-deterministic): one DoG
@@ -222,10 +235,12 @@ def main(argv: list[str] | None = None) -> int:
     if p != 0.0:
         # Dense dark-biased grain: seeded white noise filtered to the
         # instrument pore band (texels), detrended at the crease scale
-        # (no fold-band refill, no support-scale swell), asymmetric
-        # caps (iterated with demeaning): pits read deeper than bumps
-        # read bright, dense low-contrast both sides like the goal
-        # micro-contrast, no sparse bright specks by construction.
+        # (no fold-band refill) and at patch scale (no support-scale or
+        # patch-scale swell), asymmetric caps (dark extends further than
+        # bright): pits read deeper than the floor reads bright, dense
+        # low-contrast both sides like the goal micro-contrast, no
+        # sparse bright specks by construction. No demean: the clipped
+        # field keeps its natural near-zero mean.
         rng = np.random.default_rng(int(a.seed))
         white = rng.standard_normal((h, wpx))
         s_hi = float(a.pore_noise_hi_mm) * tpm
@@ -253,6 +268,7 @@ def main(argv: list[str] | None = None) -> int:
                 field = field / rms
                 added_rms = float(np.sqrt((field[support] ** 2).mean()))
                 shaped = shaped + p * field * gate
+    lab = rgb_to_lab(alb)
     lab[..., 0] = np.clip(gate * shaped + (1.0 - gate) * lum, 0, 100)
     out = lab_to_rgb(lab)
     # Bit-exact outside the dilated support: the stage changes only
