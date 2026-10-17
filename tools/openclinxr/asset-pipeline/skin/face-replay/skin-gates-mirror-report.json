@@ -1,0 +1,2400 @@
+{
+ "card": "tsk_b2e8149e77e563f4",
+ "caveat_anchors": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab, source = goal PHOTOS' facecore (lighting offset caveat applies)",
+ "enforcement_rule": "unchanged: known-good closer than every known-bad, and margin / max(sampling noise, 8-bit floor) >= 1. Coordinator overrides are demote-only (photo lateral key; photo side dominates). Thresholds from known-good/known-bad only, never from body2.",
+ "g0m": {
+  "rule": "per candidate quantity q in {logY_face, CdivL, Lratio_face}: q_mirror = mean(q_L_cheek, q_R_cheek) per image; synthetic lateral exposure gradient in linear RGB, exp(g*x_norm) and (1+g*x_norm), x_norm in [-1,1] across the face width, g in {0.05, 0.1, 0.2}, same-pixel recompute; KEPT iff max |mirror'-mirror| <= FLOOR[q] (logY 0.01, Lratio 0.005, CdivL 0.005: measured G0 epsilons) AND sensitivity (+5 L* both cheeks) moves mirror > FLOOR[q]; validity max one-sided |q_L'-q_L| > FLOOR[q] recorded per quantity (CdivL expected still even one-sided: pixel-wise exposure invariance); fail -> report-only; Lratio joins only if it passes.",
+  "threshold_source": "card tsk_b2e8149e77e563f4 (G0M); floors are the measured G0 epsilons (PHYS_FLOOR).",
+  "floors": {
+   "logY_face": 0.01,
+   "Lratio_face": 0.005,
+   "CdivL": 0.005
+  },
+  "gs": [
+   0.05,
+   0.1,
+   0.2
+  ],
+  "shapes": [
+   "exp",
+   "linear"
+  ],
+  "clipping_frac": {
+   "body2": {
+    "exp-g0.05": 0.0,
+    "linear-g0.05": 0.0,
+    "exp-g0.1": 0.0,
+    "linear-g0.1": 0.0,
+    "exp-g0.2": 1e-06,
+    "linear-g0.2": 1e-06
+   },
+   "aisha": {
+    "exp-g0.05": 1e-06,
+    "linear-g0.05": 1e-06,
+    "exp-g0.1": 2e-06,
+    "linear-g0.1": 2e-06,
+    "exp-g0.2": 7e-06,
+    "linear-g0.2": 6e-06
+   }
+  },
+  "per_quantity": {
+   "logY_face": {
+    "mirror_max_move": 0.006275,
+    "onesided_max_move": 0.14692,
+    "onesided_exp_max": 0.14177,
+    "onesided_linear_max": 0.14692,
+    "onesided_moved": true,
+    "sens_move": 0.072055,
+    "floor": 0.01,
+    "kept": true,
+    "note": null
+   },
+   "CdivL": {
+    "mirror_max_move": 0.000155,
+    "onesided_max_move": 0.00037,
+    "onesided_exp_max": 0.00037,
+    "onesided_linear_max": 0.00026,
+    "onesided_moved": false,
+    "sens_move": 0.019295,
+    "floor": 0.005,
+    "kept": true,
+    "note": "expected: exposure-invariant pixel by pixel, one-sided stillness recorded"
+   },
+   "Lratio_face": {
+    "mirror_max_move": 0.00151,
+    "onesided_max_move": 0.0512,
+    "onesided_exp_max": 0.04949,
+    "onesided_linear_max": 0.0512,
+    "onesided_moved": true,
+    "sens_move": 0.02885,
+    "floor": 0.005,
+    "kept": true,
+    "note": null
+   }
+  },
+  "kept": [
+   "logY_face",
+   "CdivL",
+   "Lratio_face"
+  ],
+  "dropped": []
+ },
+ "g2m_rows": [
+  {
+   "gate": "G2Ma",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "aisha-render-vs-body2-photo",
+   "d_good": 0.00908,
+   "d_bad": 0.12283,
+   "threshold": 0.06595,
+   "margin": 0.05687,
+   "noise": 0.00279,
+   "margin_over_noise": 20.38,
+   "margin_over_phys": 5.69,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-body2-photo",
+   "d_eval": 0.15703,
+   "body2_pass": false
+  },
+  {
+   "gate": "G2Mb",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "body2-render-vs-aisha-photo",
+   "d_good": 0.00908,
+   "d_bad": 0.02511,
+   "threshold": 0.01709,
+   "margin": 0.00802,
+   "noise": 0.00143,
+   "margin_over_noise": 5.61,
+   "margin_over_phys": 0.8,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
+   "d_eval": 0.02511,
+   "body2_pass": true
+  },
+  {
+   "gate": "G2Ma",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "aisha-render-vs-body2-photo",
+   "d_good": 0.05172,
+   "d_bad": 0.19015,
+   "threshold": 0.12094,
+   "margin": 0.06921,
+   "noise": 0.00025,
+   "margin_over_noise": 276.84,
+   "margin_over_phys": 13.84,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-body2-photo",
+   "d_eval": 0.06118,
+   "body2_pass": true
+  },
+  {
+   "gate": "G2Mb",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "body2-render-vs-aisha-photo",
+   "d_good": 0.05172,
+   "d_bad": 0.07725,
+   "threshold": 0.06449,
+   "margin": 0.01276,
+   "noise": 0.00034,
+   "margin_over_noise": 37.53,
+   "margin_over_phys": 2.55,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
+   "d_eval": 0.07725,
+   "body2_pass": true
+  },
+  {
+   "gate": "G2Ma",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "aisha-render-vs-body2-photo",
+   "d_good": 0.00289,
+   "d_bad": 0.0375,
+   "threshold": 0.02019,
+   "margin": 0.01731,
+   "noise": 0.00101,
+   "margin_over_noise": 17.14,
+   "margin_over_phys": 3.46,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-body2-photo",
+   "d_eval": 0.05421,
+   "body2_pass": false
+  },
+  {
+   "gate": "G2Mb",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bad": "body2-render-vs-aisha-photo",
+   "d_good": 0.00289,
+   "d_bad": 0.01381,
+   "threshold": 0.00835,
+   "margin": 0.00546,
+   "noise": 0.00057,
+   "margin_over_noise": 9.58,
+   "margin_over_phys": 1.09,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
+   "d_eval": 0.01381,
+   "body2_pass": true
+  }
+ ],
+ "g2m_pair_deltas": {
+  "good/aisha-render-vs-aisha-photo": {
+   "logY_face": 0.00908,
+   "CdivL": 0.05172,
+   "Lratio_face": 0.00289
+  },
+  "badA/aisha-render-vs-body2-photo": {
+   "logY_face": 0.12283,
+   "CdivL": 0.19015,
+   "Lratio_face": 0.0375
+  },
+  "badB/body2-render-vs-aisha-photo": {
+   "logY_face": 0.02511,
+   "CdivL": 0.07725,
+   "Lratio_face": 0.01381
+  },
+  "eval/body2-render-vs-body2-photo": {
+   "logY_face": 0.15703,
+   "CdivL": 0.06118,
+   "Lratio_face": 0.05421
+  }
+ },
+ "g2m_per_image": {
+  "render_body2": {
+   "mirror": {
+    "logY_face": 0.11549999999999999,
+    "CdivL": 0.36002,
+    "Lratio_face": 1.056255
+   }
+  },
+  "render_aisha": {
+   "mirror": {
+    "logY_face": 0.0813,
+    "CdivL": 0.23105,
+    "Lratio_face": 1.0395500000000002
+   }
+  },
+  "photo_body2": {
+   "mirror": {
+    "logY_face": -0.041535,
+    "CdivL": 0.4212,
+    "Lratio_face": 1.0020499999999999
+   }
+  },
+  "photo_aisha": {
+   "mirror": {
+    "logY_face": 0.090385,
+    "CdivL": 0.28276999999999997,
+    "Lratio_face": 1.0424449999999998
+   }
+  }
+ },
+ "gates": [
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/L",
+   "kind": "(a)",
+   "region": "cheek_u_hi",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 9.339,
+   "d_bads": [
+    0.229,
+    15.558
+   ],
+   "row_thresholds": [
+    4.784,
+    12.448
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 4.784,
+   "margin": -4.555,
+   "noise": 0.03578,
+   "margin_over_noise": -127.31,
+   "margin_over_phys": -12.55,
+   "margin_over_denom": -12.55,
+   "denom_max_noise_floor": 0.363,
+   "phys_floor": 0.363,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 6.448,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 15.558,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/a",
+   "kind": "(a)",
+   "region": "cheek_u_hi",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.819,
+   "d_bads": [
+    4.021,
+    0.541
+   ],
+   "row_thresholds": [
+    2.42,
+    0.68
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.68,
+   "margin": -0.139,
+   "noise": 0.01195,
+   "margin_over_noise": -11.63,
+   "margin_over_phys": -0.18,
+   "margin_over_denom": -0.18,
+   "denom_max_noise_floor": 0.756,
+   "phys_floor": 0.756,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 4.299,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 0.541,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/b",
+   "kind": "(a)",
+   "region": "cheek_u_hi",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.051,
+   "d_bads": [
+    2.379,
+    0.836
+   ],
+   "row_thresholds": [
+    1.715,
+    0.943
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.943,
+   "margin": -0.108,
+   "noise": 0.00928,
+   "margin_over_noise": -11.64,
+   "margin_over_phys": -0.15,
+   "margin_over_denom": -0.15,
+   "denom_max_noise_floor": 0.726,
+   "phys_floor": 0.726,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 2.594,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 0.836,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/L",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 4.695,
+   "d_bads": [
+    4.415,
+    10.481
+   ],
+   "row_thresholds": [
+    4.555,
+    7.588
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": -0.14,
+   "noise": 0.03882,
+   "margin_over_noise": -3.61,
+   "margin_over_phys": -0.39,
+   "margin_over_denom": -0.39,
+   "denom_max_noise_floor": 0.363,
+   "phys_floor": 0.363,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.371,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 10.481,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/a",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 2.33,
+   "d_bads": [
+    2.51,
+    5.1
+   ],
+   "row_thresholds": [
+    2.42,
+    3.715
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 2.42,
+   "margin": 0.09,
+   "noise": 0.00781,
+   "margin_over_noise": 11.52,
+   "margin_over_phys": 0.12,
+   "margin_over_denom": 0.12,
+   "denom_max_noise_floor": 0.756,
+   "phys_floor": 0.756,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.26,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 5.1,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/b",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.501,
+   "d_bads": [
+    2.929,
+    3.972
+   ],
+   "row_thresholds": [
+    1.715,
+    2.236
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": 1.214,
+   "noise": 0.01229,
+   "margin_over_noise": 98.78,
+   "margin_over_phys": 1.67,
+   "margin_over_denom": 1.67,
+   "denom_max_noise_floor": 0.726,
+   "phys_floor": 0.726,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.542,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 3.972,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/L",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.405,
+   "d_bads": [
+    7.705,
+    7.76
+   ],
+   "row_thresholds": [
+    4.555,
+    4.582
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": 3.15,
+   "noise": 0.02163,
+   "margin_over_noise": 145.63,
+   "margin_over_phys": 8.68,
+   "margin_over_denom": 8.68,
+   "denom_max_noise_floor": 0.363,
+   "phys_floor": 0.363,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.35,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 7.76,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/a",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.962,
+   "d_bads": [
+    3.878,
+    1.738
+   ],
+   "row_thresholds": [
+    2.42,
+    1.35
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.35,
+   "margin": 0.388,
+   "noise": 0.01067,
+   "margin_over_noise": 36.36,
+   "margin_over_phys": 0.51,
+   "margin_over_denom": 0.51,
+   "denom_max_noise_floor": 0.756,
+   "phys_floor": 0.756,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.102,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.738,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/b",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.843,
+   "d_bads": [
+    1.587,
+    4.145
+   ],
+   "row_thresholds": [
+    1.715,
+    2.994
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": -0.128,
+   "noise": 0.0067,
+   "margin_over_noise": -19.1,
+   "margin_over_phys": -0.18,
+   "margin_over_denom": -0.18,
+   "denom_max_noise_floor": 0.726,
+   "phys_floor": 0.726,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.715,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 4.145,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/L",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.367,
+   "d_bads": [
+    8.743,
+    7.466
+   ],
+   "row_thresholds": [
+    4.555,
+    3.916
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 3.916,
+   "margin": 3.549,
+   "noise": 0.01939,
+   "margin_over_noise": 183.03,
+   "margin_over_phys": 9.78,
+   "margin_over_denom": 9.78,
+   "denom_max_noise_floor": 0.363,
+   "phys_floor": 0.363,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.644,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 7.466,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/a",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.011,
+   "d_bads": [
+    3.829,
+    1.828
+   ],
+   "row_thresholds": [
+    2.42,
+    1.419
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.419,
+   "margin": 0.408,
+   "noise": 0.00892,
+   "margin_over_noise": 45.74,
+   "margin_over_phys": 0.54,
+   "margin_over_denom": 0.54,
+   "denom_max_noise_floor": 0.756,
+   "phys_floor": 0.756,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.012,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.828,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/b",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.936,
+   "d_bads": [
+    1.494,
+    4.813
+   ],
+   "row_thresholds": [
+    1.715,
+    3.374
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": -0.221,
+   "noise": 0.00812,
+   "margin_over_noise": -27.22,
+   "margin_over_phys": -0.3,
+   "margin_over_denom": -0.3,
+   "denom_max_noise_floor": 0.726,
+   "phys_floor": 0.726,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.383,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 4.813,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/L",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 3.781,
+   "d_bads": [
+    5.329,
+    12.242
+   ],
+   "row_thresholds": [
+    4.555,
+    8.011
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": 0.774,
+   "noise": 0.04441,
+   "margin_over_noise": 17.43,
+   "margin_over_phys": 2.13,
+   "margin_over_denom": 2.13,
+   "denom_max_noise_floor": 0.363,
+   "phys_floor": 0.363,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.132,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 12.242,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/a",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.811,
+   "d_bads": [
+    4.029,
+    1.416
+   ],
+   "row_thresholds": [
+    2.42,
+    1.113
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.113,
+   "margin": 0.302,
+   "noise": 0.01903,
+   "margin_over_noise": 15.87,
+   "margin_over_phys": 0.4,
+   "margin_over_denom": 0.4,
+   "denom_max_noise_floor": 0.756,
+   "phys_floor": 0.756,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.424,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.416,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/b",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.978,
+   "d_bads": [
+    2.452,
+    2.891
+   ],
+   "row_thresholds": [
+    1.715,
+    1.934
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": 0.737,
+   "noise": 0.0196,
+   "margin_over_noise": 37.6,
+   "margin_over_phys": 1.02,
+   "margin_over_denom": 1.02,
+   "denom_max_noise_floor": 0.726,
+   "phys_floor": 0.726,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.539,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 2.891,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/CdivL",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.03864,
+   "d_bads": [
+    0.19171,
+    0.06934
+   ],
+   "row_thresholds": [
+    0.11517,
+    0.05399
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.05399,
+   "margin": 0.01535,
+   "noise": 0.00044,
+   "margin_over_noise": 34.89,
+   "margin_over_phys": 3.07,
+   "margin_over_denom": 3.07,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08373,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.06934,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/Lratio_face",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.02358,
+   "d_bads": [
+    0.07758,
+    0.05931
+   ],
+   "row_thresholds": [
+    0.05058,
+    0.04145
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.04145,
+   "margin": 0.01786,
+   "noise": 0.00103,
+   "margin_over_noise": 17.34,
+   "margin_over_phys": 3.57,
+   "margin_over_denom": 3.57,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.11331,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.05931,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/hue",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 13.656,
+   "d_bads": [
+    10.098,
+    12.495
+   ],
+   "row_thresholds": [
+    11.877,
+    13.0755
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 11.877,
+   "margin": -1.779,
+   "noise": 0.0666,
+   "margin_over_noise": -26.71,
+   "margin_over_phys": -1.19,
+   "margin_over_denom": -1.19,
+   "denom_max_noise_floor": 1.5,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key (whole gate report-only: not all known-bad rows enforceable)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 8.937,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 12.495,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/logY_face",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.06297,
+   "d_bads": [
+    0.22462,
+    0.14288
+   ],
+   "row_thresholds": [
+    0.1438,
+    0.10293
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.10293,
+   "margin": 0.03995,
+   "noise": 0.00277,
+   "margin_over_noise": 14.42,
+   "margin_over_phys": 4.0,
+   "margin_over_denom": 4.0,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.30453,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.14288,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/CdivL",
+   "kind": "(b)",
+   "region": "R_cheek",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.0648,
+   "d_bads": [
+    0.18859,
+    0.08516
+   ],
+   "row_thresholds": [
+    0.1267,
+    0.07498
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.07498,
+   "margin": 0.01018,
+   "noise": 0.00063,
+   "margin_over_noise": 16.16,
+   "margin_over_phys": 2.04,
+   "margin_over_denom": 2.04,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.03863,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.08516,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/Lratio_face",
+   "kind": "(b)",
+   "region": "R_cheek",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.02937,
+   "d_bads": [
+    0.00258,
+    0.03169
+   ],
+   "row_thresholds": [
+    0.01597,
+    0.03053
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 0.01597,
+   "margin": -0.0134,
+   "noise": 0.00147,
+   "margin_over_noise": -9.12,
+   "margin_over_phys": -2.68,
+   "margin_over_denom": -2.68,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key (whole gate report-only: not all known-bad rows enforceable)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.0049,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.03169,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/hue",
+   "kind": "(b)",
+   "region": "R_cheek",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 9.242,
+   "d_bads": [
+    8.789,
+    8.406
+   ],
+   "row_thresholds": [
+    9.0155,
+    8.824
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 8.824,
+   "margin": -0.418,
+   "noise": 0.05546,
+   "margin_over_noise": -7.54,
+   "margin_over_phys": -0.28,
+   "margin_over_denom": -0.28,
+   "denom_max_noise_floor": 1.5,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key (whole gate report-only: not all known-bad rows enforceable)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 7.953,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 8.406,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/logY_face",
+   "kind": "(b)",
+   "region": "R_cheek",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.08114,
+   "d_bads": [
+    0.02105,
+    0.09265
+   ],
+   "row_thresholds": [
+    0.0511,
+    0.0869
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 0.0511,
+   "margin": -0.03005,
+   "noise": 0.00391,
+   "margin_over_noise": -7.69,
+   "margin_over_phys": -3.0,
+   "margin_over_denom": -3.0,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": false,
+   "unenforced_reason": "photo lateral key (whole gate report-only: not all known-bad rows enforceable)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.00954,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.09265,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/chin/CdivL",
+   "kind": "(b)",
+   "region": "chin",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00756,
+   "d_bads": [
+    0.05876,
+    0.0957
+   ],
+   "row_thresholds": [
+    0.03316,
+    0.05163
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.03316,
+   "margin": 0.0256,
+   "noise": 0.00045,
+   "margin_over_noise": 56.89,
+   "margin_over_phys": 5.12,
+   "margin_over_denom": 5.12,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.02938,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.0957,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/chin/Lratio_face",
+   "kind": "(b)",
+   "region": "chin",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.0012,
+   "d_bads": [
+    0.06863,
+    0.04764
+   ],
+   "row_thresholds": [
+    0.03492,
+    0.02442
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.02442,
+   "margin": 0.02322,
+   "noise": 0.00129,
+   "margin_over_noise": 18.0,
+   "margin_over_phys": 4.64,
+   "margin_over_denom": 4.64,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.01979,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.04764,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/chin/hue",
+   "kind": "(b)",
+   "region": "chin",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 1.742,
+   "d_bads": [
+    9.24,
+    2.007
+   ],
+   "row_thresholds": [
+    5.491,
+    1.8745
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.8745,
+   "margin": 0.1325,
+   "noise": 0.04602,
+   "margin_over_noise": 2.88,
+   "margin_over_phys": 0.09,
+   "margin_over_denom": 0.09,
+   "denom_max_noise_floor": 1.5,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 5.491,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 2.007,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/chin/logY_face",
+   "kind": "(b)",
+   "region": "chin",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00546,
+   "d_bads": [
+    0.27692,
+    0.19801
+   ],
+   "row_thresholds": [
+    0.14119,
+    0.10173
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.10173,
+   "margin": 0.09627,
+   "noise": 0.00414,
+   "margin_over_noise": 23.25,
+   "margin_over_phys": 9.63,
+   "margin_over_denom": 9.63,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08437,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.19801,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/CdivL",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.09006,
+   "d_bads": [
+    0.15611,
+    0.0128
+   ],
+   "row_thresholds": [
+    0.12308,
+    0.05143
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.05143,
+   "margin": -0.03863,
+   "noise": 0.00059,
+   "margin_over_noise": -65.47,
+   "margin_over_phys": -7.73,
+   "margin_over_denom": -7.73,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "photo side dominates; whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.05325,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.0128,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/Lratio_face",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.01701,
+   "d_bads": [
+    0.1294,
+    0.06163
+   ],
+   "row_thresholds": [
+    0.0732,
+    0.03932
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.03932,
+   "margin": 0.02231,
+   "noise": 0.00076,
+   "margin_over_noise": 29.36,
+   "margin_over_phys": 4.46,
+   "margin_over_denom": 4.46,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08478,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.06163,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true,
+   "coordinator_note": "stays enforced: known-good/known-bad test enforces under the unchanged rule"
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/hue",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 9.169,
+   "d_bads": [
+    15.14,
+    8.233
+   ],
+   "row_thresholds": [
+    12.1545,
+    8.701
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 8.701,
+   "margin": -0.468,
+   "noise": 0.03588,
+   "margin_over_noise": -13.04,
+   "margin_over_phys": -0.31,
+   "margin_over_denom": -0.31,
+   "denom_max_noise_floor": 1.5,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "photo side dominates; whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 14.204,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 8.233,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/logY_face",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.05405,
+   "d_bads": [
+    0.24403,
+    0.12914
+   ],
+   "row_thresholds": [
+    0.14904,
+    0.0916
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.0916,
+   "margin": 0.03754,
+   "noise": 0.00174,
+   "margin_over_noise": 21.57,
+   "margin_over_phys": 3.75,
+   "margin_over_denom": 3.75,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.16894,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.12914,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true,
+   "coordinator_note": "stays enforced: known-good/known-bad test enforces under the unchanged rule"
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/CdivL",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00917,
+   "d_bads": [
+    0.02023,
+    0.10202
+   ],
+   "row_thresholds": [
+    0.0147,
+    0.05559
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.0147,
+   "margin": 0.00553,
+   "noise": 0.00079,
+   "margin_over_noise": 7.0,
+   "margin_over_phys": 1.11,
+   "margin_over_denom": 1.11,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.09096,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.10202,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/Lratio_face",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00044,
+   "d_bads": [
+    0.01529,
+    0.04337
+   ],
+   "row_thresholds": [
+    0.00787,
+    0.02191
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.00787,
+   "margin": 0.00742,
+   "noise": 0.00151,
+   "margin_over_noise": 4.91,
+   "margin_over_phys": 1.48,
+   "margin_over_denom": 1.48,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.02764,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.04337,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/hue",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 6.66,
+   "d_bads": [
+    11.406,
+    2.637
+   ],
+   "row_thresholds": [
+    9.033,
+    4.6485
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 4.6485,
+   "margin": -2.0115,
+   "noise": 0.09559,
+   "margin_over_noise": -21.04,
+   "margin_over_phys": -1.34,
+   "margin_over_denom": -1.34,
+   "denom_max_noise_floor": 1.5,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 7.383,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 2.637,
+    "pass": false
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/logY_face",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00146,
+   "d_bads": [
+    0.10193,
+    0.15324
+   ],
+   "row_thresholds": [
+    0.0517,
+    0.07735
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.0517,
+   "margin": 0.05023,
+   "noise": 0.00433,
+   "margin_over_noise": 11.6,
+   "margin_over_phys": 5.02,
+   "margin_over_denom": 5.02,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.05277,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.15324,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2M",
+   "gate_id": "G2M/mirror_cheek/CdivL",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.05172,
+   "d_bads": [
+    0.19015,
+    0.07725
+   ],
+   "row_thresholds": [
+    0.12094,
+    0.06449
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.06449,
+   "margin": 0.01276,
+   "noise": 0.00034,
+   "margin_over_noise": 37.53,
+   "margin_over_phys": 2.55,
+   "margin_over_denom": 2.55,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.06118,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.07725,
+    "pass": true
+   },
+   "body2_pass": true,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2M",
+   "gate_id": "G2M/mirror_cheek/Lratio_face",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00289,
+   "d_bads": [
+    0.0375,
+    0.01381
+   ],
+   "row_thresholds": [
+    0.02019,
+    0.00835
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.00835,
+   "margin": 0.00546,
+   "noise": 0.00101,
+   "margin_over_noise": 5.41,
+   "margin_over_phys": 1.09,
+   "margin_over_denom": 1.09,
+   "denom_max_noise_floor": 0.005,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.05421,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.01381,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": true
+  },
+  {
+   "gate": "G2M",
+   "gate_id": "G2M/mirror_cheek/logY_face",
+   "kind": "(b)",
+   "region": "mirror_cheek",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00908,
+   "d_bads": [
+    0.12283,
+    0.02511
+   ],
+   "row_thresholds": [
+    0.06595,
+    0.01709
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.01709,
+   "margin": 0.00801,
+   "noise": 0.00279,
+   "margin_over_noise": 2.87,
+   "margin_over_phys": 0.8,
+   "margin_over_denom": 0.8,
+   "denom_max_noise_floor": 0.01,
+   "phys_floor": 0.01,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: margin/max(noise, floor) < 1 (below quantisation floor)",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.15703,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.02511,
+    "pass": true
+   },
+   "body2_pass": false,
+   "enforced_by_rule": false
+  }
+ ],
+ "aisha_eval": {
+  "G1/cheek_u_hi/L": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G1/cheek_u_hi/a": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": true,
+   "pass": false
+  },
+  "G1/cheek_u_hi/b": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": true,
+   "pass": false
+  },
+  "G1/cheek_u_lo/L": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G1/cheek_u_lo/a": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/cheek_u_lo/b": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/chin/L": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/chin/a": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/chin/b": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G1/forehead/L": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/forehead/a": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/forehead/b": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G1/upperlip_skin/L": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/upperlip_skin/a": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G1/upperlip_skin/b": {
+   "match_pair": "aisha-albedo-vs-warm_light",
+   "reject_pair": "aisha-vs-warm_medium",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/L_cheek/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/L_cheek/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/L_cheek/hue": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G2/L_cheek/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/R_cheek/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/R_cheek/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G2/R_cheek/hue": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G2/R_cheek/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": false,
+   "pass": false
+  },
+  "G2/chin/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/chin/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/chin/hue": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/chin/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/forehead/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": true,
+   "pass": false
+  },
+  "G2/forehead/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/forehead/hue": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": true,
+   "pass": false
+  },
+  "G2/forehead/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/upperlip_skin/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/upperlip_skin/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2/upperlip_skin/hue": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": false,
+   "reject_pass": true,
+   "pass": false
+  },
+  "G2/upperlip_skin/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2M/mirror_cheek/CdivL": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2M/mirror_cheek/Lratio_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  },
+  "G2M/mirror_cheek/logY_face": {
+   "match_pair": "aisha-render-vs-aisha-photo",
+   "reject_pair": "aisha-render-vs-body2-photo",
+   "match_pass": true,
+   "reject_pass": true,
+   "pass": true
+  }
+ },
+ "body2_summary": {
+  "enforced_pass": 9,
+  "enforced_total": 15
+ },
+ "aisha_summary": {
+  "enforced_pass": 15,
+  "enforced_total": 15
+ },
+ "status_changes": [
+  {
+   "gate_id": "G2/L_cheek/CdivL",
+   "was_enforced": true,
+   "now_enforced": false,
+   "why": "enforced -> report-only: photo lateral key"
+  },
+  {
+   "gate_id": "G2/L_cheek/Lratio_face",
+   "was_enforced": true,
+   "now_enforced": false,
+   "why": "enforced -> report-only: photo lateral key"
+  },
+  {
+   "gate_id": "G2/L_cheek/logY_face",
+   "was_enforced": true,
+   "now_enforced": false,
+   "why": "enforced -> report-only: photo lateral key"
+  },
+  {
+   "gate_id": "G2/R_cheek/CdivL",
+   "was_enforced": true,
+   "now_enforced": false,
+   "why": "enforced -> report-only: photo lateral key"
+  }
+ ],
+ "added_gates": [
+  "G2M/mirror_cheek/CdivL",
+  "G2M/mirror_cheek/Lratio_face",
+  "G2M/mirror_cheek/logY_face"
+ ],
+ "forehead_verdict": [
+  {
+   "gate_id": "G2/forehead/CdivL",
+   "enforced": false,
+   "note": "photo side dominates"
+  },
+  {
+   "gate_id": "G2/forehead/Lratio_face",
+   "enforced": true,
+   "note": "stays enforced: known-good/known-bad test enforces under the unchanged rule"
+  },
+  {
+   "gate_id": "G2/forehead/hue",
+   "enforced": false,
+   "note": "photo side dominates"
+  },
+  {
+   "gate_id": "G2/forehead/logY_face",
+   "enforced": true,
+   "note": "stays enforced: known-good/known-bad test enforces under the unchanged rule"
+  }
+ ],
+ "split_report_sha256": "5d5dc3c26e5dc9c76901e203ca49b22f95ac667a891a0976663bc440178024bb",
+ "falsifier": "15/38 gates enforced (3 mirror quantities kept: ['logY_face', 'CdivL', 'Lratio_face']; dropped: []); body2 enforced-gate passes: 9/15; aisha enforced-gate passes: 15/15",
+ "red_first": "RED 2026-10-17: 3 tests 3 failed (vitest the-lateral-skin-gates-cancel-the-photo-key.test.ts): --apply-lateral/--lr-quantities unrecognised + ENOENT skin-gates-mirror-report.json.",
+ "landmarker": {
+  "model_path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+ }
+}

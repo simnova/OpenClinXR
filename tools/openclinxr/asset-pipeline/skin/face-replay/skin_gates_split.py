@@ -162,6 +162,60 @@ RED_FIRST = ("RED 2026-10-17: 5 tests 5 failed (vitest "
              "EPS revised 0.5 -> 1.5 with the header note); 4 report its "
              "ENOENT skin-gates-split-report.json.")
 
+# MIRROR EXTENSION (card tsk_b2e8149e77e563f4): lateral room-render skin
+# gates are mirror-averaged so the photo's lateral key cancels. Both goal
+# photos carry a lateral key (regional-shading-report.json step0
+# LR_asym_logY photo_body2 -0.150, photo_aisha -0.091), so one-sided
+# L_cheek/R_cheek gates measure the photo's light direction (body2 L_cheek
+# 0.30 vs 0.103: about two thirds photo-side). Coordinator decision: change
+# how lateral gates are measured; photo untouched; body2 unmuted.
+MIRROR_CARD = "tsk_b2e8149e77e563f4"
+MIRROR_QUANTS = ["logY_face", "CdivL", "Lratio_face"]
+MIRROR_STORE = "/Volumes/files/openclinxr-assets/store/skin-gates-mirror"
+MIRROR_REPORT_OUT = os.path.join(DIR, "skin-gates-mirror-report.json")
+SPLIT_REPORT_IN = os.path.join(DIR, "skin-gates-split-report.json")
+MIRROR_REGION = "mirror_cheek"
+LATERAL_KEY_REASON = "photo lateral key"
+FOREHEAD_PHOTO_REASON = "photo side dominates"
+
+# G0M RULE, written BEFORE any mirror number is read (the card's
+# precondition): a synthetic lateral exposure gradient is applied to each
+# room render in linear RGB, multiplier exp(g * x_norm) with x_norm in
+# [-1, 1] across the FACE width (union-face bbox), for g in {0.05, 0.1,
+# 0.2}, plus a plain linear ramp (1 + g * x_norm) for the same g.
+# Per-image q_mirror = mean(q_L_cheek, q_R_cheek), recomputed on the SAME
+# pixels (polygon AND original skin gate; clipping fractions recorded).
+# KEPT (may gate) iff max |mirror' - mirror| over renders x g x shapes <=
+# FLOOR[q] AND sensitivity (symmetric +5 L* on both cheeks of a render
+# copy) moves the mirror by > FLOOR[q]. Probe validity, recorded per
+# quantity: max one-sided |q_L' - q_L| > FLOOR[q]. CdivL =
+# C*/(L*+16) is already exposure-invariant pixel by pixel, so a lateral
+# gradient should not move even the one-sided CdivL; onesided_moved=false
+# for CdivL is expected and recorded, not a drop. For logY_face /
+# Lratio_face a still one-sided value means the probe did not stress the
+# quantity -> dropped with that reason. Lratio_face joins the mirror set
+# only if it passes. A quantity that fails stays report-only (FALSIFIER
+# for that quantity). FLOORs are the measured G0 epsilons (PHYS_FLOOR).
+G0M_GS = [0.05, 0.1, 0.2]
+G0M_SHAPES = ["exp", "linear"]
+G0M_FLOOR = {"logY_face": 0.01, "Lratio_face": 0.005, "CdivL": 0.005}
+G0M_RULE = (
+    "per candidate quantity q in {logY_face, CdivL, Lratio_face}: "
+    "q_mirror = mean(q_L_cheek, q_R_cheek) per image; synthetic lateral "
+    "exposure gradient in linear RGB, exp(g*x_norm) and (1+g*x_norm), "
+    "x_norm in [-1,1] across the face width, g in {0.05, 0.1, 0.2}, "
+    "same-pixel recompute; KEPT iff max |mirror'-mirror| <= FLOOR[q] "
+    "(logY 0.01, Lratio 0.005, CdivL 0.005: measured G0 epsilons) AND "
+    "sensitivity (+5 L* both cheeks) moves mirror > FLOOR[q]; validity "
+    "max one-sided |q_L'-q_L| > FLOOR[q] recorded per quantity "
+    "(CdivL expected still even one-sided: pixel-wise exposure "
+    "invariance); fail -> report-only; Lratio joins only if it passes.")
+
+MIRROR_RED_FIRST = ("RED 2026-10-17: 3 tests 3 failed (vitest "
+                    "the-lateral-skin-gates-cancel-the-photo-key.test.ts): "
+                    "--apply-lateral/--lr-quantities unrecognised + ENOENT "
+                    "skin-gates-mirror-report.json.")
+
 
 def sha256_file(path):
     h = hashlib.sha256()
@@ -747,6 +801,257 @@ def g2_evaluate(rows, deltas):
     return rows
 
 
+def lateral_rgb(rgb, x_norm, g, shape):
+    """Apply a lateral exposure gradient in linear RGB, re-encode sRGB."""
+    lin = REX.srgb_to_linear(rgb)
+    mult = np.exp(g * x_norm) if shape == "exp" else (1.0 + g * x_norm)
+    return (REX.linear_to_srgb(lin * mult[..., None]) * 255.0).round().astype(np.uint8)
+
+
+def face_x_norm(gate_shape, fsel):
+    """x_norm in [-1, 1] across the union-face bbox (mirror-probe geometry)."""
+    ys, xs = np.where(fsel)
+    x0, x1 = int(xs.min()), int(xs.max())
+    w = max(1, x1 - x0)
+    cx = (x0 + x1) / 2.0
+    return 2.0 * (np.arange(gate_shape[1])[None, :].repeat(
+        gate_shape[0], axis=0) - cx) / w
+
+
+def mirror_of(qdict):
+    """q_mirror = mean(q_L, q_R) per quantity (None-aware)."""
+    out = {}
+    for q in MIRROR_QUANTS:
+        l = qdict["L_cheek"][q]
+        r = qdict["R_cheek"][q]
+        out[q] = None if l is None or r is None else (l + r) / 2.0
+    return out
+
+
+def mirror_g0_probe(pr):
+    """G0M lateral-gradient probe (rule in G0M_RULE, written pre-run).
+
+    Same-pixel recompute: original polygon AND original skin gate selections
+    applied to the gradient image. Returns (g0m dict, kept list).
+    """
+    per_q_mirror, per_q_one, per_q_sens = {}, {}, {}
+    clip = {}
+    os.makedirs(MIRROR_STORE, exist_ok=True)
+    for subj, v in pr.items():
+        gate0 = (v["gate"] > 0)
+        sel = {r: v["polymasks"][r] & gate0 for r in REGIONS}
+        fsel = np.zeros(gate0.shape, bool)
+        for r in REGIONS:
+            fsel |= sel[r]
+        xn = face_x_norm(gate0.shape, fsel)
+        _m0, _f0, qq0 = quants_on_sel(v["rgb"], sel, fsel)
+        mir0 = mirror_of(qq0)
+        for g in G0M_GS:
+            for shape in G0M_SHAPES:
+                grad = lateral_rgb(v["rgb"], xn, g, shape)
+                Image.fromarray(grad).save(os.path.join(
+                    MIRROR_STORE, f"gm-{subj}-{shape}-g{g}.png"))
+                unclipped = ((REX.srgb_to_linear(v["rgb"]) *
+                              (np.exp(g * xn) if shape == "exp"
+                               else (1.0 + g * xn))[..., None] <= 1.0)).all(axis=2)
+                clip.setdefault(subj, {})[f"{shape}-g{g}"] = round(
+                    float((~unclipped).mean()), 6)
+                _m1, _f1, qqk = quants_on_sel(grad, sel, fsel)
+                mirk = mirror_of(qqk)
+                for q in MIRROR_QUANTS:
+                    if mirk[q] is not None and mir0[q] is not None:
+                        per_q_mirror.setdefault(q, []).append(abs(mirk[q] - mir0[q]))
+                    if qqk["L_cheek"][q] is not None and qq0["L_cheek"][q] is not None:
+                        per_q_one.setdefault((q, shape), []).append(
+                            abs(qqk["L_cheek"][q] - qq0["L_cheek"][q]))
+        # sensitivity: symmetric +5 L* on BOTH cheeks of a render copy.
+        cheek = np.zeros(gate0.shape, bool)
+        for cn in ("L_cheek", "R_cheek"):
+            cheek |= v["polymasks"][cn] & gate0
+        labp = v["lab"].copy()
+        labp[cheek, 0] += 5.0
+        rgbp = (np.clip(lab2rgb(labp), 0.0, 1.0) * 255.0).round().astype(np.uint8)
+        _m, _f, qp, _n = render_quantities(rgbp, v["polymasks"])
+        mirp = mirror_of(qp)
+        for q in MIRROR_QUANTS:
+            if mirp[q] is not None and mir0[q] is not None:
+                per_q_sens.setdefault(q, []).append(abs(mirp[q] - mir0[q]))
+    g0m = {"rule": G0M_RULE,
+           "threshold_source": "card tsk_b2e8149e77e563f4 (G0M); floors are "
+                               "the measured G0 epsilons (PHYS_FLOOR).",
+           "floors": dict(G0M_FLOOR), "gs": list(G0M_GS),
+           "shapes": list(G0M_SHAPES),
+           "clipping_frac": clip, "per_quantity": {}}
+    kept = []
+    for q in MIRROR_QUANTS:
+        mm = round(float(np.max(per_q_mirror[q])), 6)
+        om = {s: round(float(np.max(per_q_one[(q, s)])), 6) for s in G0M_SHAPES}
+        sm = round(float(np.max(per_q_sens[q])), 6)
+        mirror_ok = mm <= G0M_FLOOR[q]
+        sens_ok = sm > G0M_FLOOR[q]
+        onesided = max(om.values()) > G0M_FLOOR[q]
+        if mirror_ok and sens_ok and (onesided or q == "CdivL"):
+            kept.append(q)
+            note = ("expected: exposure-invariant pixel by pixel, one-sided "
+                    "stillness recorded" if not onesided else None)
+        else:
+            note = ("probe gradient did not stress the one-sided value "
+                    "(probe invalid for this quantity)"
+                    if not onesided and q != "CdivL"
+                    else "mirror moved beyond floor or insensitive: "
+                         "report-only (FALSIFIER for this quantity)")
+        g0m["per_quantity"][q] = {
+            "mirror_max_move": mm, "onesided_max_move": max(om.values()),
+            "onesided_exp_max": om["exp"], "onesided_linear_max": om["linear"],
+            "onesided_moved": bool(onesided), "sens_move": sm,
+            "floor": G0M_FLOOR[q], "kept": bool(q in kept), "note": note}
+    g0m["kept"] = kept
+    g0m["dropped"] = [q for q in MIRROR_QUANTS if q not in kept]
+    return g0m, kept
+
+
+def mirror_quantity_noise(va, vb, q, n_draws=G2_SPLITS, seed=7777):
+    """SD of a mirror-delta under paired seeded half-splits of each cheek.
+
+    Face means fixed (n ~5x region n, spread negligible beside region term),
+    same convention as quantity_noise.
+    """
+    draws = np.empty(n_draws)
+    for d_i in range(n_draws):
+        vals = []
+        for v, s in ((va, seed + d_i), (vb, seed + 100000 + d_i)):
+            means = {}
+            for ci, cn in enumerate(("L_cheek", "R_cheek")):
+                sel = (v["polymasks"][cn] & (v["gate"] > 0))
+                idx = np.flatnonzero(sel)
+                rng = np.random.default_rng(s + ci)
+                half = rng.permutation(idx)[:len(idx) // 2]
+                flat_lab = v["lab"].reshape(-1, 3)
+                flat_y = ylin_of(v["rgb"]).reshape(-1)
+                Lab = flat_lab[half].mean(axis=0)
+                Y = float(flat_y[half].mean())
+                means[cn] = {"Lab": [float(x) for x in Lab], "Y": Y}
+            fsel = np.zeros(v["gate"].shape, bool)
+            for rr in REGIONS:
+                fsel |= v["polymasks"][rr] & (v["gate"] > 0)
+            face = {"Lab": [float(x) for x in v["lab"][fsel].mean(axis=0)],
+                    "Y": float(ylin_of(v["rgb"])[fsel].mean())}
+            qq = quantities_from_means(means, face)
+            vals.append((qq["L_cheek"][q] + qq["R_cheek"][q]) / 2.0)
+        draws[d_i] = abs(vals[0] - vals[1])
+    return round(float(draws.std()), 5)
+
+
+def g2m_thresholds(mirror_deltas, pr, kept):
+    """Mirror-gate thresholds from known-good/known-bad ONLY (pre-eval)."""
+    rows = []
+    for q in kept:
+        d_good = mirror_deltas["good/aisha-render-vs-aisha-photo"][q]
+        for tag, sub in (("G2Ma", "badA/aisha-render-vs-body2-photo"),
+                         ("G2Mb", "badB/body2-render-vs-aisha-photo")):
+            d_bad = mirror_deltas[sub][q]
+            a_key, b_key = (("render_aisha", "photo_body2")
+                            if sub.startswith("badA")
+                            else ("render_body2", "photo_aisha"))
+            noise = mirror_quantity_noise(pr[a_key], pr[b_key], q)
+            thr = (d_good + d_bad) / 2.0
+            margin = abs(d_bad - d_good) / 2.0
+            rows.append(finish_row(
+                {"gate": tag, "kind": "(b)",
+                 "region": MIRROR_REGION, "quantity": q,
+                 "known_good": "aisha-render-vs-aisha-photo",
+                 "known_bad": sub.split("/", 1)[1]},
+                round(d_good, 5), round(d_bad, 5),
+                round(thr, 5), round(margin, 5), noise, PHYS_FLOOR[q]))
+    return rows
+
+
+def g2m_evaluate(rows, mirror_deltas):
+    """Body2 mirror pairs, computed AFTER thresholds (code order)."""
+    for row in rows:
+        if row["gate"] == "G2Ma":
+            d_eval = mirror_deltas["eval/body2-render-vs-body2-photo"][row["quantity"]]
+            row["body2_pair"] = "body2-render-vs-body2-photo"
+            row["d_eval"] = d_eval
+            row["body2_pass"] = bool(d_eval < row["threshold"])
+        else:
+            d_eval = mirror_deltas["badB/body2-render-vs-aisha-photo"][row["quantity"]]
+            row["body2_pair"] = "body2-render-vs-aisha-photo (rejection)"
+            row["d_eval"] = d_eval
+            row["body2_pass"] = bool(d_eval > row["threshold"])
+    return rows
+
+
+def apply_mirror_overrides(gates):
+    """Coordinator overrides (demote-only). Returns forehead verdict list.
+
+    One-sided lateral G2 gates -> report-only "photo lateral key" (even
+    rows the unchanged rule would enforce). Forehead G2 gates: enforced
+    under the unchanged rule stay enforced (said which); the rest are
+    report-only "photo side dominates". G1 (texture space, no photo) and
+    upper lip / chin / mirror gates are untouched.
+    """
+    forehead = []
+    for g in gates:
+        g["enforced_by_rule"] = g["enforced"]
+        if g["kind"] == "(b)" and g["region"] in ("L_cheek", "R_cheek"):
+            prev = g["unenforced_reason"]
+            g["enforced"] = False
+            g["unenforced_reason"] = (LATERAL_KEY_REASON +
+                                      (f" ({prev})" if prev else ""))
+        elif g["kind"] == "(b)" and g["region"] == "forehead":
+            if g["enforced"]:
+                g["coordinator_note"] = ("stays enforced: known-good/known-bad "
+                                         "test enforces under the unchanged rule")
+                forehead.append({"gate_id": g["gate_id"], "enforced": True,
+                                 "note": g["coordinator_note"]})
+            else:
+                prev = g["unenforced_reason"]
+                g["unenforced_reason"] = (FOREHEAD_PHOTO_REASON +
+                                          (f"; {prev}" if prev else ""))
+                forehead.append({"gate_id": g["gate_id"], "enforced": False,
+                                 "note": FOREHEAD_PHOTO_REASON})
+    return forehead
+
+
+def mirror_status_diff(gates):
+    """Every gate whose enforced status changed vs the landed split g3."""
+    with open(SPLIT_REPORT_IN) as f:
+        split = json.load(f)
+    prev = {g["gate_id"]: g["enforced"] for g in split["g3"]}
+    changed, added = [], []
+    for g in gates:
+        if g["gate_id"] not in prev:
+            added.append(g["gate_id"])
+        elif prev[g["gate_id"]] != g["enforced"]:
+            changed.append({
+                "gate_id": g["gate_id"],
+                "was_enforced": prev[g["gate_id"]],
+                "now_enforced": g["enforced"],
+                "why": (f"enforced -> report-only: {g['unenforced_reason']}"
+                        if prev[g["gate_id"]] and not g["enforced"]
+                        else f"report-only -> enforced: {g['unenforced_reason']}")})
+    return changed, added, split
+
+
+def aisha_eval(gates):
+    """Aisha match (known-good pair) + rejection (badA pair) per gate."""
+    out = {}
+    for g in gates:
+        T = g["threshold"]
+        if T is None:
+            out[g["gate_id"]] = {"match_pass": None, "reject_pass": None,
+                                 "pass": None}
+            continue
+        m = bool(g["d_good"] < T)
+        r = bool(g["d_bads"][0] is not None and g["d_bads"][0] > T)
+        out[g["gate_id"]] = {"match_pair": g["known_good"],
+                             "reject_pair": g["known_bads"][0],
+                             "match_pass": m, "reject_pass": r,
+                             "pass": bool(m and r)}
+    return out
+
+
 def main():
     import argparse
     ap = argparse.ArgumentParser()
@@ -754,6 +1059,12 @@ def main():
                     metavar=("PNG", "K", "OUT"))
     ap.add_argument("--band-quantities", default=None, metavar="PNG")
     ap.add_argument("--render-quantities", default=None, metavar="PNG")
+    ap.add_argument("--apply-lateral", nargs=4, default=None,
+                    metavar=("PNG", "G", "SHAPE", "OUT"))
+    ap.add_argument("--lr-quantities", default=None, metavar="PNG")
+    ap.add_argument("--mirror", action="store_true",
+                    help="full pipeline + mirror-averaged lateral gates -> "
+                         "skin-gates-mirror-report.json (split report untouched)")
     args = ap.parse_args()
     if args.srgb_scale:
         png, k, out = args.srgb_scale
@@ -773,6 +1084,31 @@ def main():
         face = {"Lab": [(a + b) / 2 for a, b in zip(top["Lab"], bot["Lab"])],
                 "Y": (top["Y"] + bot["Y"]) / 2}
         print(json.dumps(quantities_from_means({"top": top, "bottom": bot}, face)))
+        return
+    if args.apply_lateral:
+        png, g, shape, out = args.apply_lateral
+        assert shape in G0M_SHAPES, f"shape must be one of {G0M_SHAPES}"
+        rgb = load_rgb(png)
+        w = rgb.shape[1]
+        xn = 2.0 * (np.arange(w)[None, :].repeat(rgb.shape[0], axis=0)
+                    - (w - 1) / 2.0) / max(1, w - 1)
+        Image.fromarray(lateral_rgb(rgb, xn, float(g), shape)).save(out)
+        print(json.dumps({"out": out, "sha256": sha256_file(out)}))
+        return
+    if args.lr_quantities:
+        rgb = load_rgb(args.lr_quantities)
+        w = rgb.shape[1]
+        halves = {"left": rgb[:, :w // 2], "right": rgb[:, w // 2:]}
+        parts = {}
+        for side, arr in halves.items():
+            parts[side] = {
+                "Lab": [float(v) for v in
+                        lab_of(arr).reshape(-1, 3).mean(axis=0)],
+                "Y": float(ylin_of(arr).mean())}
+        face = {"Lab": [float(v) for v in
+                        lab_of(rgb).reshape(-1, 3).mean(axis=0)],
+                "Y": float(ylin_of(rgb).mean())}
+        print(json.dumps(quantities_from_means(parts, face)))
         return
     if args.render_quantities:
         landmarker = FLR.create_landmarker()
@@ -895,6 +1231,95 @@ def main():
     print("G0 kept:", kept, "dropped:", g0["dropped"])
     print("G0 max_change:", json.dumps(g0["max_change"]))
     print("G0 sens:", json.dumps(g0["sens_move"]))
+    print("falsifier:", falsifier)
+    if args.mirror:
+        write_mirror_report(g0, kept, alb, g1_floors, g1_floor_detail,
+                            g1_rows, pr, quants, deltas, per_image, g2_rows)
+
+
+def write_mirror_report(g0, kept, alb, g1_floors, g1_floor_detail,
+                        g1_rows, pr, quants, deltas, per_image, g2_rows):
+    """Mirror extension: G0M probe, mirror gates, overrides, new report.
+
+    Thresholds use known-good/known-bad ONLY; body2/Aisha evaluation after.
+    The landed split report is read (status diff) but never rewritten.
+    """
+    g0m, mkept = mirror_g0_probe(
+        {"body2": pr["render_body2"], "aisha": pr["render_aisha"]})
+    # per-image mirror quantities for every render/photo pair image.
+    g2m_per_image = {}
+    for key in ("render_body2", "render_aisha", "photo_body2", "photo_aisha"):
+        g2m_per_image[key] = {"mirror": mirror_of(quants[key])}
+    mirror_deltas = {}
+    for tag in ("good/aisha-render-vs-aisha-photo",
+                "badA/aisha-render-vs-body2-photo",
+                "badB/body2-render-vs-aisha-photo",
+                "eval/body2-render-vs-body2-photo"):
+        a, b = {"good/aisha-render-vs-aisha-photo": ("render_aisha", "photo_aisha"),
+                "badA/aisha-render-vs-body2-photo": ("render_aisha", "photo_body2"),
+                "badB/body2-render-vs-aisha-photo": ("render_body2", "photo_aisha"),
+                "eval/body2-render-vs-body2-photo": ("render_body2", "photo_body2")}[tag]
+        mirror_deltas[tag] = {
+            q: (None if g2m_per_image[a]["mirror"][q] is None
+                or g2m_per_image[b]["mirror"][q] is None
+                else round(abs(g2m_per_image[a]["mirror"][q] -
+                               g2m_per_image[b]["mirror"][q]), 5))
+            for q in mkept}
+    g2m_rows = g2m_evaluate(
+        g2m_thresholds(mirror_deltas, pr, mkept), mirror_deltas)
+    gates = (build_gates([r for r in g1_rows],
+                         lambda cq: g1_floors.get(cq)) +
+             build_gates([r for r in g2_rows],
+                         lambda cq: PHYS_FLOOR.get(cq)) +
+             build_gates([r for r in g2m_rows],
+                         lambda cq: PHYS_FLOOR.get(cq)))
+    forehead_verdict = apply_mirror_overrides(gates)
+    changed, added, split = mirror_status_diff(gates)
+    aisha = aisha_eval(gates)
+    enf = [g for g in gates if g["enforced"]]
+    enf_b2 = sum(1 for g in enf if g["body2_pass"])
+    enf_aisha = sum(1 for g in enf if aisha[g["gate_id"]]["pass"])
+    falsifier = (f"{len(enf)}/{len(gates)} gates enforced "
+                 f"({len(mkept)} mirror quantities kept: {mkept}; "
+                 f"dropped: {g0m['dropped']}); "
+                 f"body2 enforced-gate passes: {enf_b2}/{len(enf)}; "
+                 f"aisha enforced-gate passes: {enf_aisha}/{len(enf)}")
+    report = {
+        "card": MIRROR_CARD,
+        "caveat_anchors": ANCHOR_SOURCE,
+        "enforcement_rule": ("unchanged: known-good closer than every "
+                             "known-bad, and margin / max(sampling noise, "
+                             "8-bit floor) >= 1. Coordinator overrides are "
+                             "demote-only (photo lateral key; photo side "
+                             "dominates). Thresholds from known-good/known-bad "
+                             "only, never from body2."),
+        "g0m": g0m,
+        "g2m_rows": g2m_rows,
+        "g2m_pair_deltas": mirror_deltas,
+        "g2m_per_image": g2m_per_image,
+        "gates": gates,
+        "aisha_eval": aisha,
+        "body2_summary": {
+            "enforced_pass": enf_b2, "enforced_total": len(enf)},
+        "aisha_summary": {
+            "enforced_pass": enf_aisha, "enforced_total": len(enf)},
+        "status_changes": changed,
+        "added_gates": added,
+        "forehead_verdict": forehead_verdict,
+        "split_report_sha256": sha256_file(SPLIT_REPORT_IN),
+        "falsifier": falsifier,
+        "red_first": MIRROR_RED_FIRST,
+        "landmarker": {"model_path": FLR.model_path(),
+                       "model_sha256": FLR.model_sha(FLR.model_path())},
+    }
+    with open(MIRROR_REPORT_OUT, "w") as f:
+        json.dump(report, f, indent=1)
+        f.write("\n")
+    print(f"wrote {MIRROR_REPORT_OUT}")
+    print("G0M kept:", mkept, "dropped:", g0m["dropped"])
+    print("G0M per_quantity:", json.dumps(g0m["per_quantity"]))
+    print("status_changes:", json.dumps(changed))
+    print("added:", json.dumps(added))
     print("falsifier:", falsifier)
 
 
