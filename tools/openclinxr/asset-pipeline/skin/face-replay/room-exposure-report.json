@@ -1,0 +1,654 @@
+{
+ "card": "tsk_9863341f09670c5b",
+ "box_rule": "fh = y(152 chin) - y(10 crown); cx = x(152); x0 = cx - 0.55*fh, x1 = cx + 0.55*fh, y0 = chin_y + 0.04*fh, y1 = frame bottom (clamped). One function (shirt_box_from_points) for every image; never moved per image.",
+ "boxes": {
+  "body2": {
+   "x0": 224,
+   "y0": 1239,
+   "x1": 1056,
+   "y1": 1280,
+   "fh": 755.8012771606445
+  },
+  "body2_b": {
+   "x0": 224,
+   "y0": 1239,
+   "x1": 1056,
+   "y1": 1280,
+   "fh": 755.8012771606445
+  },
+  "body2_15": {
+   "x0": 225,
+   "y0": 1240,
+   "x1": 1055,
+   "y1": 1280,
+   "fh": 754.8513031005859
+  },
+  "aisha": {
+   "x0": 232,
+   "y0": 1242,
+   "x1": 1046,
+   "y1": 1280,
+   "fh": 739.791145324707
+  },
+  "aisha_15": {
+   "x0": 232,
+   "y0": 1242,
+   "x1": 1046,
+   "y1": 1280,
+   "fh": 740.2420043945312
+  },
+  "goal_body2": {
+   "x0": 160,
+   "y0": 925,
+   "x1": 872,
+   "y1": 1024,
+   "fh": 646.9683837890625
+  },
+  "goal_aisha": {
+   "x0": 228,
+   "y0": 887,
+   "x1": 797,
+   "y1": 1024,
+   "fh": 516.8800659179688
+  }
+ },
+ "framing_note": "No view extension: the sage shirt is visible in the existing front renders' bottom corners (body2 nsage 9132, aisha 11561); the centre under the chin is neck skin in all four images, so the box is a bottom band, not a centre patch.",
+ "masks": {
+  "body2": {
+   "n_box": 34112,
+   "n_shirt": 9132,
+   "mean_rgb": [
+    191.4,
+    196.13,
+    176.77
+   ],
+   "mean_Lab": [
+    78.328,
+    -5.101,
+    9.182
+   ],
+   "mean_Ylin": 0.542547,
+   "quadrant_n": [
+    2155,
+    2245,
+    2322,
+    2410
+   ]
+  },
+  "body2_b": {
+   "n_box": 34112,
+   "n_shirt": 9132,
+   "mean_rgb": [
+    191.4,
+    196.13,
+    176.77
+   ],
+   "mean_Lab": [
+    78.328,
+    -5.101,
+    9.182
+   ],
+   "mean_Ylin": 0.542547,
+   "quadrant_n": [
+    2155,
+    2245,
+    2322,
+    2410
+   ]
+  },
+  "body2_15": {
+   "n_box": 33200,
+   "n_shirt": 8835,
+   "mean_rgb": [
+    191.58,
+    196.29,
+    176.96
+   ],
+   "mean_Lab": [
+    78.389,
+    -5.088,
+    9.169
+   ],
+   "mean_Ylin": 0.543598,
+   "quadrant_n": [
+    2138,
+    2228,
+    2193,
+    2276
+   ]
+  },
+  "aisha": {
+   "n_box": 30932,
+   "n_shirt": 11561,
+   "mean_rgb": [
+    187.46,
+    192.85,
+    173.1
+   ],
+   "mean_Lab": [
+    77.084,
+    -5.417,
+    9.317
+   ],
+   "mean_Ylin": 0.520157,
+   "quadrant_n": [
+    2231,
+    2435,
+    3384,
+    3511
+   ]
+  },
+  "aisha_15": {
+   "n_box": 30932,
+   "n_shirt": 11561,
+   "mean_rgb": [
+    187.46,
+    192.85,
+    173.1
+   ],
+   "mean_Lab": [
+    77.084,
+    -5.417,
+    9.317
+   ],
+   "mean_Ylin": 0.520157,
+   "quadrant_n": [
+    2231,
+    2435,
+    3384,
+    3511
+   ]
+  },
+  "goal_body2": {
+   "n_box": 70488,
+   "n_shirt": 1270,
+   "mean_rgb": [
+    135.82,
+    147.01,
+    131.78
+   ],
+   "mean_Lab": [
+    59.643,
+    -7.011,
+    6.706
+   ],
+   "mean_Ylin": 0.279497,
+   "quadrant_n": [
+    318,
+    359,
+    391,
+    202
+   ]
+  },
+  "goal_aisha": {
+   "n_box": 77953,
+   "n_shirt": 25657,
+   "mean_rgb": [
+    93.04,
+    111.5,
+    89.58
+   ],
+   "mean_Lab": [
+    44.97,
+    -11.476,
+    9.958
+   ],
+   "mean_Ylin": 0.146786,
+   "quadrant_n": [
+    3880,
+    4383,
+    8149,
+    9245
+   ]
+  }
+ },
+ "k": {
+  "body2": {
+   "k_Y_applied": 0.515157,
+   "Y_photo": 0.279497,
+   "Y_render": 0.542547,
+   "L_ratio_beside": 0.761452,
+   "L_photo": 59.643,
+   "L_render": 78.328
+  },
+  "aisha": {
+   "k_Y_applied": 0.282196,
+   "Y_photo": 0.146786,
+   "Y_render": 0.520157,
+   "L_ratio_beside": 0.58339,
+   "L_photo": 44.97,
+   "L_render": 77.084
+  }
+ },
+ "g0": {
+  "rule": "per subject: |a*_render - a*_photo| <= noise_a + spread_a AND |b*_render - b*_photo| <= noise_b + spread_b, where noise = |render capture A - render capture B| shirt-patch channel means (body2: 14a vs 14b; aisha: 15 vs 14, shirt untouched by the IOR override by construction) and spread = SD of the photo patch's 4 quadrant sub-patch channel means. L excluded (exposure lives in L). Fail for a subject => record and stop for that subject (valid outcome).",
+  "threshold_source": "card tsk_9863341f09670c5b (G0); instrument face_landmark_regions.py + room_rig_remeasure.py skin gate",
+  "subjects": {
+   "body2": {
+    "pass": false,
+    "noise_ab": [
+     0.0,
+     0.0
+    ],
+    "spread_ab": [
+     0.32,
+     0.182
+    ],
+    "diff_ab": [
+     1.91,
+     2.476
+    ],
+    "render_Lab": [
+     78.328,
+     -5.101,
+     9.182
+    ],
+    "photo_Lab": [
+     59.643,
+     -7.011,
+     6.706
+    ]
+   },
+   "aisha": {
+    "pass": false,
+    "noise_ab": [
+     0.0,
+     0.0
+    ],
+    "spread_ab": [
+     0.743,
+     0.735
+    ],
+    "diff_ab": [
+     6.059,
+     0.641
+    ],
+    "render_Lab": [
+     77.084,
+     -5.417,
+     9.317
+    ],
+    "photo_Lab": [
+     44.97,
+     -11.476,
+     9.958
+    ]
+   }
+  }
+ },
+ "g1": {
+  "threshold_source": "card tsk_9863341f09670c5b (G1)",
+  "grey_png": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-room-exposure/flat-grey-128.png",
+   "sha256": "3de2374260c7a47bdf7e2288d173e446d56d3a4a186da2491179eb7a75aeafe6",
+   "rgb": [
+    128,
+    128,
+    128
+   ]
+  },
+  "subjects": {
+   "body2": {
+    "pass": true,
+    "k_real": 0.515157,
+    "k_grey": 0.515157,
+    "noise": 0.0,
+    "k_shirtgrey_moves": true,
+    "k_shirtgrey": 1.294804,
+    "triviality": "PASS is trivially guaranteed: the sage gate (g>=r) and the skin gate (r>g) are disjoint by construction, so no skin pixel can enter the shirt mask; the in-memory replacement proves it (k identical) and the shirt-grey control proves sensitivity (k moves). No re-render: captures are bit-deterministic (14a vs 14b identical) and the shirt material is untouched by the skin override by construction (pattern mpfb_skin, isolated-subject-material-variants.ts:98-124)."
+   },
+   "aisha": {
+    "skipped": "G0 failed: the shirt is not a valid reference here",
+    "pass": null,
+    "k_real": 0.282196,
+    "k_grey": null,
+    "noise": null
+   }
+  }
+ },
+ "g2": {
+  "threshold_source": "BOUND 3 per channel, the-tone-is-solved-per-region-and-a-painted-scalp-refuses.test.ts",
+  "subjects": {
+   "body2": {
+    "regions": {
+     "forehead": {
+      "unnormalised_dLab": [
+       12.79,
+       5.93,
+       1.27
+      ],
+      "normalised_dLab": [
+       6.67,
+       7.47,
+       2.98
+      ],
+      "pass": false,
+      "render_Lab": [
+       62.74,
+       6.25,
+       17.29
+      ],
+      "goal_Lab": [
+       69.41,
+       13.72,
+       20.27
+      ]
+     },
+     "L_cheek": {
+      "unnormalised_dLab": [
+       23.75,
+       2.41,
+       4.74
+      ],
+      "normalised_dLab": [
+       6.41,
+       5.02,
+       0.64
+      ],
+      "pass": false,
+      "render_Lab": [
+       54.09,
+       10.64,
+       21.76
+      ],
+      "goal_Lab": [
+       47.68,
+       15.66,
+       22.4
+      ]
+     },
+     "R_cheek": {
+      "unnormalised_dLab": [
+       15.12,
+       1.94,
+       4.71
+      ],
+      "normalised_dLab": [
+       1.28,
+       4.72,
+       0.77
+      ],
+      "pass": false,
+      "render_Lab": [
+       50.28,
+       11.26,
+       22.13
+      ],
+      "goal_Lab": [
+       51.56,
+       15.98,
+       22.9
+      ]
+     },
+     "chin": {
+      "unnormalised_dLab": [
+       13.76,
+       1.87,
+       7.24
+      ],
+      "normalised_dLab": [
+       0.63,
+       0.74,
+       2.58
+      ],
+      "pass": true,
+      "render_Lab": [
+       37.58,
+       10.63,
+       18.95
+      ],
+      "goal_Lab": [
+       36.95,
+       11.37,
+       16.37
+      ]
+     }
+    },
+    "n_within3_of_4": null,
+    "pass_claimed": false,
+    "pass_note": "withheld: G0 failed, k unvalidated",
+    "face_median_L": {
+     "normalised": 49.78,
+     "n": 97813,
+     "unnormalised": 66.03,
+     "n_unn": 98060,
+     "goal": 49.78,
+     "n_goal": 59198
+    }
+   },
+   "aisha": {
+    "skipped": "G0 failed",
+    "regions": {}
+   }
+  }
+ },
+ "g3": {
+  "residual_after_k_is_albedo_gap": {
+   "forehead": {
+    "unnormalised_dLab": [
+     12.79,
+     5.93,
+     1.27
+    ],
+    "normalised_dLab": [
+     6.67,
+     7.47,
+     2.98
+    ],
+    "pass": false,
+    "render_Lab": [
+     62.74,
+     6.25,
+     17.29
+    ],
+    "goal_Lab": [
+     69.41,
+     13.72,
+     20.27
+    ]
+   },
+   "L_cheek": {
+    "unnormalised_dLab": [
+     23.75,
+     2.41,
+     4.74
+    ],
+    "normalised_dLab": [
+     6.41,
+     5.02,
+     0.64
+    ],
+    "pass": false,
+    "render_Lab": [
+     54.09,
+     10.64,
+     21.76
+    ],
+    "goal_Lab": [
+     47.68,
+     15.66,
+     22.4
+    ]
+   },
+   "R_cheek": {
+    "unnormalised_dLab": [
+     15.12,
+     1.94,
+     4.71
+    ],
+    "normalised_dLab": [
+     1.28,
+     4.72,
+     0.77
+    ],
+    "pass": false,
+    "render_Lab": [
+     50.28,
+     11.26,
+     22.13
+    ],
+    "goal_Lab": [
+     51.56,
+     15.98,
+     22.9
+    ]
+   },
+   "chin": {
+    "unnormalised_dLab": [
+     13.76,
+     1.87,
+     7.24
+    ],
+    "normalised_dLab": [
+     0.63,
+     0.74,
+     2.58
+    ],
+    "pass": true,
+    "render_Lab": [
+     37.58,
+     10.63,
+     18.95
+    ],
+    "goal_Lab": [
+     36.95,
+     11.37,
+     16.37
+    ]
+   }
+  },
+  "k_validated": false,
+  "note": "record only, no fix: residual per-region dLab after exposure normalisation is the albedo gap. k is UNVALIDATED (G0 failed), so the split between exposure and albedo is indicative, not claimed."
+ },
+ "g4": {
+  "table_with_k": {
+   "0": {
+    "per_region": {
+     "upperlip_skin": [
+      7.87,
+      2.68,
+      1.53
+     ],
+     "chin": [
+      5.41,
+      0.16,
+      2.6
+     ]
+    },
+    "max_abs_dlab": 7.87
+   },
+   "0.5": {
+    "per_region": {
+     "upperlip_skin": [
+      2.61,
+      0.9,
+      4.28
+     ],
+     "chin": [
+      2.82,
+      0.27,
+      2.64
+     ]
+    },
+    "max_abs_dlab": 4.28
+   },
+   "0.75": {
+    "per_region": {
+     "upperlip_skin": [
+      0.65,
+      0.0,
+      5.35
+     ],
+     "chin": [
+      1.42,
+      0.66,
+      2.63
+     ]
+    },
+    "max_abs_dlab": 5.35
+   },
+   "0.9": {
+    "per_region": {
+     "upperlip_skin": [
+      2.76,
+      0.48,
+      5.83
+     ],
+     "chin": [
+      0.63,
+      0.74,
+      2.58
+     ]
+    },
+    "max_abs_dlab": 5.83
+   },
+   "1.0": {
+    "per_region": {
+     "upperlip_skin": [
+      4.22,
+      0.75,
+      6.03
+     ],
+     "chin": [
+      0.18,
+      0.96,
+      2.64
+     ]
+    },
+    "max_abs_dlab": 6.03
+   }
+  },
+  "room_rig_choice_with_k": "0.5",
+  "station_choice": 0.9,
+  "k_validated": false,
+  "chain_manifest_weight": 0.9,
+  "recommendation": "keep chain-manifest (no change)",
+  "rule_source": "aisha-real-chain-report.json G4_polygon_sweep (minimise max per-channel |dLab| over polygon upperlip_skin+chin); chain-manifest.json unchanged."
+ },
+ "inputs": {
+  "body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61"
+  },
+  "body2_b": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14b-front.png",
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61"
+  },
+  "body2_15": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-front.png",
+   "sha256": "6ca1a557e1da2c18b718ee6896377b9a3fb6102cb4650b5dbbaae6136944bdcb"
+  },
+  "aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
+   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
+  },
+  "aisha_15": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-15-front.png",
+   "sha256": "c81370e0572b398090729251520d6d4640a0cabfe9d7ddbb60608a1ecb89519f"
+  },
+  "goal_body2": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/body2/goal-front.png",
+   "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97"
+  },
+  "goal_aisha": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+   "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf"
+  },
+  "flat_grey_128": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-room-exposure/flat-grey-128.png",
+   "sha256": "3de2374260c7a47bdf7e2288d173e446d56d3a4a186da2491179eb7a75aeafe6"
+  }
+ },
+ "material_identity": {
+  "shirt_mesh": "makeclothes_library_toigo_t_shirt",
+  "shirt_material": "mat_makeclothes_library_toigo_t_shirt",
+  "inventoried_color": "#9eb19e",
+  "inventory_source": "capture JSONs skinior-body2-14a.json / skinior-aisha-14.json materialInventory via collectMaterialInventory, packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts:321, recorded at isolated-subject-debug-evidence.ts:213",
+  "no_id_pass": "no per-pixel material-ID pass exists in the capture tool; per-material flat-colour variants are possible via applyMaterialOverrides match (isolated-subject-material-variants.ts:379, readback runtime-portrait-capture.ts:404-460) but cannot reframe below the chin without tool edits outside WRITE_ROOTS; pixel mask is colour-anchored to the inventoried sage, purity guarded by G1."
+ },
+ "red_first": "RED 2026-10-17, module+report absent: 8 tests 6 failed 2 passed (vitest the-room-exposure-comes-from-the-shirt.test.ts): python3: can't open file '.../room_exposure.py': [Errno 2]; ENOENT room-exposure-report.json (4 main its + known-bad c/d); known-bad a/b passed (fixture + pure-JS, no module needed).",
+ "landmarker": {
+  "model_path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+ }
+}
