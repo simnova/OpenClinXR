@@ -1,0 +1,664 @@
+{
+ "card": "tsk_c309c61d93a899",
+ "frozen_threshold": 0.00835,
+ "frozen_threshold_source": "tools/openclinxr/asset-pipeline/skin/face-replay/skin-gates-mirror-report.json G2Mb/mirror_cheek/Lratio_face rows threshold (known-good Aisha 0.00289; known-bads 0.0375, 0.0138; d_eval body2 0.05421)",
+ "red_first": "RED 2026-10-17: 3 tests 3 failed (vitest the-cheek-brightness-cause-is-found-one-layer-at-a-time.test.ts): ENOENT cheek-relative-brightness-report.json.",
+ "step0": {
+  "rule": "recompute mirrored cheek L* ratio (and mirrored logY) for BOTH subjects on every existing regional-shading render vs each subject's photo, plus denominator variants on the base renders; reuse skin_gates_split.py functions (photo_regions, render_quantities, mirror_of, quantities_from_means); never recompute thresholds",
+  "threshold": 0.00835,
+  "half_gap_target": 0.0313,
+  "ablation": [
+   {
+    "variant": "base",
+    "render": "body2",
+    "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61",
+    "mirror": {
+     "Lratio_face": 1.056255,
+     "logY_face": 0.11549999999999999
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.08577,
+      "logY_face": 0.18777
+     },
+     "R": {
+      "Lratio_face": 1.02674,
+      "logY_face": 0.04323
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.05421,
+     "logY_face": 0.15703
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01381,
+     "logY_face": 0.02511
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.05421,
+     "logY_face": 0.15703
+    }
+   },
+   {
+    "variant": "base",
+    "render": "aisha",
+    "sha256": "07bd015ce2244db116aee0ffeac201fd8b899320454afba26506707a39d045ab",
+    "mirror": {
+     "Lratio_face": 1.03902,
+     "logY_face": 0.08003
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.04984,
+      "logY_face": 0.10742
+     },
+     "R": {
+      "Lratio_face": 1.0282,
+      "logY_face": 0.05264
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03697,
+     "logY_face": 0.12157
+    }
+   },
+   {
+    "variant": "a1",
+    "render": "body2",
+    "sha256": "35427bacf9cd96675a41f3cb7bf8300f301200282da39e84d073200c19fc8f22",
+    "mirror": {
+     "Lratio_face": 1.024305,
+     "logY_face": 0.040900000000000006
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.05618,
+      "logY_face": 0.12438
+     },
+     "R": {
+      "Lratio_face": 0.99243,
+      "logY_face": -0.04258
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.02226,
+     "logY_face": 0.08244
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01814,
+     "logY_face": 0.04948
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.02226,
+     "logY_face": 0.08244
+    }
+   },
+   {
+    "variant": "a1",
+    "render": "aisha",
+    "sha256": "a27e96d1a833103c900c7a9cd2c753197f291ab060ba388c8b7a5b265a9a4d28",
+    "mirror": {
+     "Lratio_face": 1.01056,
+     "logY_face": 0.017044999999999998
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.03578,
+      "logY_face": 0.08667
+     },
+     "R": {
+      "Lratio_face": 0.98534,
+      "logY_face": -0.05258
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.03188,
+     "logY_face": 0.07334
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.03188,
+     "logY_face": 0.07334
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.00851,
+     "logY_face": 0.05858
+    }
+   },
+   {
+    "variant": "a2",
+    "render": "body2",
+    "sha256": "d8cc2c417d386932c62c292525da6ef3d76c5efc58a6f9bfe878504c0476f5c7",
+    "mirror": {
+     "Lratio_face": 1.0500699999999998,
+     "logY_face": 0.104625
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.07992,
+      "logY_face": 0.17855
+     },
+     "R": {
+      "Lratio_face": 1.02022,
+      "logY_face": 0.0307
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.04802,
+     "logY_face": 0.14616
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00762,
+     "logY_face": 0.01424
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.04802,
+     "logY_face": 0.14616
+    }
+   },
+   {
+    "variant": "a2",
+    "render": "aisha",
+    "sha256": "96b3c1d900a63eb2989f39c0c5484434927fdac2b02adc1070f4ab7da944354e",
+    "mirror": {
+     "Lratio_face": 1.033635,
+     "logY_face": 0.06864999999999999
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.04414,
+      "logY_face": 0.09541
+     },
+     "R": {
+      "Lratio_face": 1.02313,
+      "logY_face": 0.04189
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00881,
+     "logY_face": 0.02174
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00881,
+     "logY_face": 0.02174
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03159,
+     "logY_face": 0.11018
+    }
+   },
+   {
+    "variant": "a3",
+    "render": "body2",
+    "sha256": "3342a85e63586b9205386b009f0b6dd24143af041f01d891e7aa901aeba5a80e",
+    "mirror": {
+     "Lratio_face": 1.03716,
+     "logY_face": 0.07139
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.06185,
+      "logY_face": 0.13717
+     },
+     "R": {
+      "Lratio_face": 1.01247,
+      "logY_face": 0.00561
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.03511,
+     "logY_face": 0.11292
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00528,
+     "logY_face": 0.01899
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03511,
+     "logY_face": 0.11292
+    }
+   },
+   {
+    "variant": "a3",
+    "render": "aisha",
+    "sha256": "07bd015ce2244db116aee0ffeac201fd8b899320454afba26506707a39d045ab",
+    "mirror": {
+     "Lratio_face": 1.03902,
+     "logY_face": 0.08003
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.04984,
+      "logY_face": 0.10742
+     },
+     "R": {
+      "Lratio_face": 1.0282,
+      "logY_face": 0.05264
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03697,
+     "logY_face": 0.12157
+    }
+   },
+   {
+    "variant": "a4a",
+    "render": "body2",
+    "sha256": "68498473eac9e302b6f583c08db5944e522d6fd43d670316cdbe0f23c6f1c3ea",
+    "mirror": {
+     "Lratio_face": 1.05659,
+     "logY_face": 0.11691
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.08609,
+      "logY_face": 0.18914
+     },
+     "R": {
+      "Lratio_face": 1.02709,
+      "logY_face": 0.04468
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.05454,
+     "logY_face": 0.15845
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01415,
+     "logY_face": 0.02653
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.05454,
+     "logY_face": 0.15845
+    }
+   },
+   {
+    "variant": "a4a",
+    "render": "aisha",
+    "sha256": "239ee838412e033783e43cf71f8f8a00ffe76f94209bbe03a48b3bb2392fbcc3",
+    "mirror": {
+     "Lratio_face": 1.03944,
+     "logY_face": 0.08134
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.04977,
+      "logY_face": 0.10743
+     },
+     "R": {
+      "Lratio_face": 1.02911,
+      "logY_face": 0.05525
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.003,
+     "logY_face": 0.00904
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.003,
+     "logY_face": 0.00904
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03739,
+     "logY_face": 0.12287
+    }
+   },
+   {
+    "variant": "a4b",
+    "render": "body2",
+    "sha256": "a0bdedae6a7112c0d560c63b308dbe308f38034faa03a2319cce9a5e0c1b7c7b",
+    "mirror": {
+     "Lratio_face": 1.055085,
+     "logY_face": 0.11283
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.08452,
+      "logY_face": 0.18495
+     },
+     "R": {
+      "Lratio_face": 1.02565,
+      "logY_face": 0.04071
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.05304,
+     "logY_face": 0.15437
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01264,
+     "logY_face": 0.02245
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.05304,
+     "logY_face": 0.15437
+    }
+   },
+   {
+    "variant": "a4b",
+    "render": "aisha",
+    "sha256": "dd71e0e32a6053ee01aa0c0eb179fcc1050d9934c952f003c25775d9612a5065",
+    "mirror": {
+     "Lratio_face": 1.038775,
+     "logY_face": 0.07947
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.04947,
+      "logY_face": 0.1066
+     },
+     "R": {
+      "Lratio_face": 1.02808,
+      "logY_face": 0.05234
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00367,
+     "logY_face": 0.01091
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00367,
+     "logY_face": 0.01091
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03673,
+     "logY_face": 0.12101
+    }
+   },
+   {
+    "variant": "a5",
+    "render": "body2",
+    "sha256": "07f4b0fff69d3c779305d3cebddcf8ec718a9eca208c0c17abbde684a958ad41",
+    "mirror": {
+     "Lratio_face": 1.025895,
+     "logY_face": 0.045924999999999994
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.05817,
+      "logY_face": 0.1304
+     },
+     "R": {
+      "Lratio_face": 0.99362,
+      "logY_face": -0.03855
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.02385,
+     "logY_face": 0.08746
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01655,
+     "logY_face": 0.04446
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.02385,
+     "logY_face": 0.08746
+    }
+   },
+   {
+    "variant": "a5",
+    "render": "aisha",
+    "sha256": "d194ec4af18c79190813b7e4cbfe5efcaed9162d4ed93bc8b215a121192c7395",
+    "mirror": {
+     "Lratio_face": 1.0098449999999999,
+     "logY_face": 0.015279999999999998
+    },
+    "onesided": {
+     "L": {
+      "Lratio_face": 1.03593,
+      "logY_face": 0.08735
+     },
+     "R": {
+      "Lratio_face": 0.98376,
+      "logY_face": -0.05679
+     }
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.0326,
+     "logY_face": 0.0751
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.0326,
+     "logY_face": 0.0751
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.00779,
+     "logY_face": 0.05682
+    }
+   }
+  ],
+  "denominator": [
+   {
+    "denominator": "face_all5",
+    "render": "body2",
+    "mirror": {
+     "Lratio_face": 1.056255,
+     "logY_face": 0.11549999999999999
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.05421,
+     "logY_face": 0.15703
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.01381,
+     "logY_face": 0.02511
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.05421,
+     "logY_face": 0.15703
+    }
+   },
+   {
+    "denominator": "face_all5",
+    "render": "aisha",
+    "mirror": {
+     "Lratio_face": 1.03902,
+     "logY_face": 0.08003
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00342,
+     "logY_face": 0.01035
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03697,
+     "logY_face": 0.12157
+    }
+   },
+   {
+    "denominator": "face_no_beard",
+    "render": "body2",
+    "mirror": {
+     "Lratio_face": 0.970395,
+     "logY_face": -0.094765
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.0283,
+     "logY_face": 0.10401
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00796,
+     "logY_face": 0.02742
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.0283,
+     "logY_face": 0.10401
+    }
+   },
+   {
+    "denominator": "face_no_beard",
+    "render": "aisha",
+    "mirror": {
+     "Lratio_face": 0.97576,
+     "logY_face": -0.079535
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.0026,
+     "logY_face": 0.01219
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.0026,
+     "logY_face": 0.01219
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.03367,
+     "logY_face": 0.11924
+    }
+   },
+   {
+    "denominator": "face_no_forehead",
+    "render": "body2",
+    "mirror": {
+     "Lratio_face": 1.09012,
+     "logY_face": 0.21582500000000002
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.0354,
+     "logY_face": 0.08147
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.02444,
+     "logY_face": 0.05811
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.0354,
+     "logY_face": 0.08147
+    }
+   },
+   {
+    "denominator": "face_no_forehead",
+    "render": "aisha",
+    "mirror": {
+     "Lratio_face": 1.06301,
+     "logY_face": 0.154145
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00267,
+     "logY_face": 0.00357
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00267,
+     "logY_face": 0.00357
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.00829,
+     "logY_face": 0.01978
+    }
+   },
+   {
+    "denominator": "median_all5",
+    "render": "body2",
+    "mirror": {
+     "Lratio_face": 1.078735,
+     "logY_face": 0.2269
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.06358,
+     "logY_face": 0.1828
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.05669,
+     "logY_face": 0.16188
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.06358,
+     "logY_face": 0.1828
+    }
+   },
+   {
+    "denominator": "median_all5",
+    "render": "aisha",
+    "mirror": {
+     "Lratio_face": 1.02225,
+     "logY_face": 0.06601
+    },
+    "delta_vs_own": {
+     "Lratio_face": 0.00021,
+     "logY_face": 0.00099
+    },
+    "delta_vs_aisha_photo": {
+     "Lratio_face": 0.00021,
+     "logY_face": 0.00099
+    },
+    "delta_vs_body2_photo": {
+     "Lratio_face": 0.00709,
+     "logY_face": 0.02192
+    }
+   }
+  ],
+  "photo_mirrors": {
+   "body2": {
+    "Lratio_face": 1.0020499999999999,
+    "logY_face": -0.041535
+   },
+   "aisha": {
+    "Lratio_face": 1.0424449999999998,
+    "logY_face": 0.090385
+   }
+  },
+  "summary": "body2 Lratio own-delta: base 0.05421, A1 0.02226, A2 0.04802, A3 0.03511, A4a 0.05454, A4b 0.05304, A5 0.02385; none <= 0.00835. Movers beyond half-gap (<=0.0313): A1, A5. Aisha beside: base 0.00342 pass; A1 0.03188 fail; A2 0.00881 fail; A3 0.00342, A4a 0.003, A4b 0.00367 pass; A5 0.0326 fail. Denominator base body2: no_beard 0.0283 (Aisha 0.0026), no_forehead 0.0354, median 0.06358."
+ },
+ "candidates": {
+  "c1_rig": {
+   "ran": true,
+   "result": "not the cause",
+   "reason": "Photo lateral-key estimator K=exp(|LR_asym_logY|) from regional-shading-report.json step0 (render_body2 0.14454, photo_body2 -0.15045, render_aisha 0.05312, photo_aisha -0.09099): photo_body2 K=1.1623, photo_aisha K=1.0952. Rig nominal from regshade-base-body2.json lights: key DirectionalLight 1.246667 vs fill PointLight 1.84 (K_rig nominal 0.68; point-vs-directional not directly comparable, stated). Sensitivity: G0M probe mirror_max_move 0.00151 <= floor 0.005 (skin-gates-mirror-report.json g0m per_quantity Lratio_face) so the mirrored ratio is insensitive to lateral rig ratio by construction; and the SAME rig renders Aisha to 0.00342 (this STEP0 base), so the rig cannot be the body2-specific cause. No scratch renders needed; no rig change in this card."
+  },
+  "c2_geometry": {
+   "ran": true,
+   "result": "not established",
+   "reason": "Method: pygltflib stride-52 interleave read of skin material-4 POSITION+NORMAL from station GLBs (body2-lidconform.glb 643563fc..., aisha-lidconform.glb 0fbaf4c6...); face = n.z>0.3 and y in p40-p85; cheek = face and |x| in [0.04,0.22] and y sub-band. y[45,70]: body2 cheek n.z 0.7112 (n=895) vs aisha 0.5258 (n=468); absolute y[0.9,1.35] band: 0.8559 vs 0.8525 (delta 0.0034). Band-fragile: no stable body2-specific geometry signal. No curvature maps exist in either derive_out (ao.png/occupancy.png only). A5 (no normal map, macro geometry only) still 0.02385. No mesh change; route to face-fit only if a stable metric is found."
+  },
+  "c3_denominator": {
+   "ran": true,
+   "result": "not a fix",
+   "reason": "no_beard re-derived from known-good/known-bad only: d_good 0.0026, d_badA 0.03367, d_badB 0.00796, threshold min(0.018135,0.00528)=0.00528; body2 d_eval 0.0283 still fails AND badB margin 0.00268 < phys floor 0.005 so the row is unenforceable (separation broken under the unchanged rule). no_forehead: threshold 0.00548, badA margin 0.00281 < 0.005, same failure. median_all5 worse (0.06358). No change to skin_gates_split.py; no flips."
+  }
+ },
+ "verdict": "none",
+ "verdict_reason": "No candidate both moves body2 below 0.00835 and keeps Aisha passing with separation. Largest partial mover is albedo (A1 0.05421->0.02226 removes ~0.032 of the 0.04586 gap) but A1 leaves 0.0223 failing and breaks Aisha (0.03188); A5 ~= A1 (0.02385) so roughness/normal/AO contribute ~nothing; A5 residual with all texture flattened is lighting x macro-geometry or photo symmetric shading. Fix null; no flips.",
+ "fix": null,
+ "flips": [],
+ "falsifier": {
+  "base": 0.05421,
+  "target": 0.0313,
+  "best": 0.02226,
+  "met": false,
+  "rule": "stop and report if nothing moves body2 delta below 0.00835 or to <= 0.0313; A1 (0.02226), A5 (0.02385) and no_beard (0.0283) moved beyond half-gap, so C1/C2/C3 were examined and none qualified"
+ },
+ "crops": [
+  "crop-base-body2-L_cheek.png (162x178, b28b2dbb...)",
+  "crop-base-body2-R_cheek.png (165x180, 0e04f87e...)",
+  "crop-a1-body2-L_cheek.png (162x179, a97f60b0...)",
+  "crop-a1-body2-R_cheek.png (165x177, 3dba8c48...); native-resolution polygon-bbox crops, no upscaling, in store/skin-cheek-brightness/"
+ ],
+ "inputs": {
+  "regshade_base_body2_png": "7be7cda9...",
+  "regshade_base_aisha_png": "07bd015c...",
+  "goal_body2_png": "b42f8105...",
+  "goal_aisha_png": "534c0468...",
+  "mirror_report": "665d8911...",
+  "regshade_base_body2_json": "b9c56da9... (rig)",
+  "body2_glb": "643563fc...",
+  "aisha_glb": "0fbaf4c6..."
+ }
+}
