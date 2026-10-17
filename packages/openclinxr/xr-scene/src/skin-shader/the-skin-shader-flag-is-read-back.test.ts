@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 import {
   BoxGeometry,
   DataTexture,
+  DoubleSide,
   Group,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   TextureLoader,
 } from "three";
@@ -16,7 +18,12 @@ import {
 // from the entrypoint, so it does not count). The pre-existing
 // encounter-actor-framing test was routed through the entrypoint in the same
 // commit, so testInternalImports holds at 10 with no new public exports.
-import { applyMaterialOverrides } from "../isolated-subject-material-variants.js";
+import {
+  applyMaterialOverrides,
+  applySkinOverride,
+  collectMaterialInventory,
+  SKIN_IOR,
+} from "../isolated-subject-material-variants.js";
 import { countChangedPx, decodePngFile, sobelEnergy, type CropRect } from "./png-crop.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -265,4 +272,121 @@ describe("the skin shader flag is read back", () => {
   it("report module sha matches the shipped source", () => {
     expect(sha256File(modulePath)).toBe(report.moduleSha256);
   });
+});
+
+// Skin IOR swap units (card tsk_d4667a3e507da70d), moved here so they share this
+// file's existing import of isolated-subject-material-variants: a new test file
+// importing it would raise xr-scene testInternalImports above its ceiling (10).
+function iorTex(): DataTexture {
+  const t = new DataTexture(new Uint8Array([200, 150, 130, 255]), 1, 1);
+  t.needsUpdate = true;
+  return t;
+}
+
+/** Stand in for the lab path's TextureLoader (node has no image decoder). */
+async function withIorStubTextures<T>(run: () => Promise<T>): Promise<T> {
+  const fake = iorTex();
+  const orig = TextureLoader.prototype.loadAsync;
+  TextureLoader.prototype.loadAsync = (async () => fake) as never;
+  try {
+    return await run();
+  } finally {
+    TextureLoader.prototype.loadAsync = orig;
+  }
+}
+
+function iorMaterialScene(): {
+  root: Group;
+  skin: MeshStandardMaterial;
+  eye: MeshStandardMaterial;
+  cloth: MeshStandardMaterial;
+} {
+  const root = new Group();
+  const geo = new BoxGeometry(1, 1, 1);
+  const skin = new MeshStandardMaterial({ name: "mpfb_skin_body" });
+  skin.color.set("#c8a080");
+  skin.roughness = 0.62;
+  skin.map = iorTex();
+  skin.normalMap = iorTex();
+  skin.roughnessMap = iorTex();
+  // Handback 1: the swap must carry ALL material state (silhouette flags),
+  // not just maps/scalars.
+  skin.side = DoubleSide;
+  skin.transparent = true;
+  skin.opacity = 0.9;
+  skin.alphaTest = 0.3;
+  skin.depthWrite = false;
+  skin.flatShading = true;
+  const eye = new MeshStandardMaterial({ name: "mat_makeclothes_library_eyes_ob_patient_aisha" });
+  eye.color.set("#ffffff");
+  const cloth = new MeshStandardMaterial({ name: "shirt_cloth" });
+  cloth.color.set("#304050");
+  root.add(new Mesh(geo, skin));
+  root.add(new Mesh(geo, eye));
+  root.add(new Mesh(geo, cloth));
+  return { root, skin, eye, cloth };
+}
+
+describe("the skin renders at skin IOR (swap units)", { timeout: 60000 }, () => {
+  it("swaps skin to MeshPhysicalMaterial at SKIN_IOR, preserving maps/scalars/color", async () => {
+    const { root, skin, eye, cloth } = iorMaterialScene();
+    const before = collectMaterialInventory(root);
+    const applied = await withIorStubTextures(() =>
+      applySkinOverride(root, { baseColorUrl: "https://example.invalid/a.png" }),
+    );
+    expect(applied.matchedMaterials).toEqual(["mpfb_skin_body"]);
+    expect(applied.ior).toBe(SKIN_IOR);
+    let skinNow: unknown = null;
+    root.traverse((o) => {
+      if (o instanceof Mesh && (o.material as MeshStandardMaterial).name === "mpfb_skin_body") {
+        skinNow = o.material;
+      }
+    });
+    const phys = skinNow as MeshPhysicalMaterial;
+    expect(phys).toBeInstanceOf(MeshPhysicalMaterial);
+    expect(phys.ior).toBe(1.4);
+    expect(phys.map).toBe(skin.map);
+    expect(phys.normalMap).toBe(skin.normalMap);
+    expect(phys.roughnessMap).toBe(skin.roughnessMap);
+    expect(phys.roughness).toBe(skin.roughness);
+    expect(`#${phys.color.getHexString()}`).toBe(`#${skin.color.getHexString()}`);
+    // Full state survives the swap (handback 1: silhouette flags).
+    expect(phys.side).toBe(DoubleSide);
+    expect(phys.transparent).toBe(true);
+    expect(phys.opacity).toBe(0.9);
+    expect(phys.alphaTest).toBe(0.3);
+    expect(phys.depthWrite).toBe(false);
+    expect(phys.flatShading).toBe(true);
+    expect(phys.defines).toEqual({ STANDARD: "", PHYSICAL: "" });
+    // Eye and cloth are untouched: same instances, still standard.
+    root.traverse((o) => {
+      if (!(o instanceof Mesh)) return;
+      const m = o.material as MeshStandardMaterial;
+      if (m.name !== "mpfb_skin_body") {
+        expect(m).toBeInstanceOf(MeshStandardMaterial);
+        expect(m).not.toBeInstanceOf(MeshPhysicalMaterial);
+      }
+    });
+    expect(eye.color.getHexString()).toBe("ffffff");
+    expect(cloth.color.getHexString()).toBe("304050");
+    const after = collectMaterialInventory(root);
+    expect(after.filter((e) => e.material !== "mpfb_skin_body")).toEqual(
+      before.filter((e) => e.material !== "mpfb_skin_body"),
+    );
+  });
+
+  it("honours the explicit SkinOverride.ior control value (G1 control)", async () => {
+    const { root } = iorMaterialScene();
+    const applied = await withIorStubTextures(() =>
+      applySkinOverride(root, { ior: 1.5 }),
+    );
+    expect(applied.ior).toBe(1.5);
+    root.traverse((o) => {
+      if (o instanceof Mesh && (o.material as MeshStandardMaterial).name === "mpfb_skin_body") {
+        expect(o.material).toBeInstanceOf(MeshPhysicalMaterial);
+        expect((o.material as MeshPhysicalMaterial).ior).toBe(1.5);
+      }
+    });
+  });
+
 });
