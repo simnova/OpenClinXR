@@ -12,7 +12,19 @@
  *
  * Usage:
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/slide-phase-capture.ts \
- *     --vehicle=sc05 --runs=3 --out=.openclinxr/evidence/footstep-plan/control [--query=closedLoopWalk=1] [--start=N]
+ *     --vehicle=sc05 --runs=3 --out=.openclinxr/evidence/footstep-plan/control [--query=closedLoopWalk=1] [--start=N] [--actor=physician|nurse|child]
+ *
+ * Actors-readiness slice (other-actors): opt-in `--actor=nurse|child` walks the
+ * SAME SC-05 frozen-plan bedside route with a different rig in the physician's
+ * slot. The runtime resolves the walker's GLB by scenario pool assignment keyed
+ * on role (humanoid-runtime-asset-url.ts `pickAdultGlb`), never reading the
+ * bundle's model.blob for this scenario — so a bundle-JSON patch would be
+ * silently ineffective (measured 2026-09-25, see foot-plant-video-capture.ts
+ * `--humanoid`). This tool therefore intercepts the NETWORK REQUEST for the
+ * physician GLB and serves the requested rig's bytes instead (capture-only,
+ * same pattern as that tool's `installHumanoidOverrideRoute`). Default
+ * `--actor=physician` (or absent): no interception, existing invocations are
+ * unchanged.
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -83,6 +95,30 @@ function queryFromArgv(): string {
   const flag = process.argv.find((a) => a.startsWith("--query="))?.slice("--query=".length);
   return flag ?? "";
 }
+
+type CaptureActor = "physician" | "nurse" | "child";
+
+/** Rig walked in the physician's slot; default physician preserves existing behaviour. */
+function actorFromArgv(): CaptureActor {
+  const flag = process.argv.find((a) => a.startsWith("--actor="))?.slice("--actor=".length);
+  if (flag === undefined || flag === "physician") return "physician";
+  if (flag === "nurse" || flag === "child") return flag;
+  throw new Error("usage: --actor=physician|nurse|child");
+}
+
+const ACTOR_GLB: Record<CaptureActor, string> = {
+  physician: "mpfb-clinical-physician-adult.glb",
+  nurse: "mpfb-clinical-nurse-adult.glb",
+  child: "mpfb-peds-patient-child.glb",
+};
+
+/** Repo-relative GLB path for the requested actor (physician = shipped bytes). */
+function actorGlbPath(actor: CaptureActor): string {
+  return `apps/ui-xr/public/generated-humanoids/${ACTOR_GLB[actor]}`;
+}
+
+/** Runtime request path the walker GLB is served from (pool assignment, role-keyed). */
+const PHYSICIAN_RUNTIME_GLB_PATH = "/generated-humanoids/mpfb-clinical-physician-adult.glb";
 
 function realSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -261,9 +297,33 @@ const PROBE_SOURCE = `
 const HEEL_LOCAL_L = [-0.0022, 0.01817, 0.06779];
 const HEEL_LOCAL_R = [0.0022, 0.01817, 0.06779];
 
-const STANDING_PITCH_PROBE_SOURCE = `
+/**
+ * Actors-readiness calibration: the constants above are measured off the
+ * PHYSICIAN bytes (see provenance above). The nurse adult foot is 0.984x the
+ * physician foot (rest-frame foot->toe-joint 0.13801 vs 0.14022 m, measured
+ * 2026-10-17 via jointTracks rest samples on the shipped bytes) — the
+ * physician constants transfer within ~1 mm, so the nurse reuses them. The
+ * child foot is 0.674x (0.09447 vs 0.14022 m); reusing the physician point
+ * would plant the contact ~2.2 cm behind the true heel, so the child uses the
+ * uniformly scaled point (similar-triangles pitch preservation). Production
+ * applies the physician point to every rig (foot-flatten-mod.ts HEEL_LOCAL);
+ * that reuse is reported as a probable defect in actors-readiness RESULT.json,
+ * not corrected here.
+ */
+const HEEL_LOCAL_BY_ACTOR: Record<CaptureActor, { L: number[]; R: number[] }> = {
+  physician: { L: HEEL_LOCAL_L, R: HEEL_LOCAL_R },
+  nurse: { L: HEEL_LOCAL_L, R: HEEL_LOCAL_R },
+  child: {
+    L: [-0.00148, 0.01224, 0.04567],
+    R: [0.00148, 0.01224, 0.04567],
+  },
+};
+
+function standingPitchProbeSource(actor: CaptureActor): string {
+  const locals = HEEL_LOCAL_BY_ACTOR[actor];
+  return `
 (() => {
-  const LOCALS = { L: ${JSON.stringify(HEEL_LOCAL_L)}, R: ${JSON.stringify(HEEL_LOCAL_R)} };
+  const LOCALS = { L: ${JSON.stringify(locals.L)}, R: ${JSON.stringify(locals.R)} };
   const none = { heelContactL: null, heelContactR: null };
   const scene = globalThis.__openClinXrDebugScene;
   if (!scene) return none;
@@ -297,6 +357,7 @@ const STANDING_PITCH_PROBE_SOURCE = `
   };
 })()
 `;
+}
 
 /** COPIED VERBATIM from settle-entry-capture.ts LABELS_SOURCE (see file header). */
 const LABELS_SOURCE = `
@@ -313,7 +374,7 @@ const LABELS_SOURCE = `
 })()
 `;
 
-async function probe(page: Page): Promise<FrameProbe> {
+async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
   const tail = (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
   const liveActors = (await page.evaluate(LIVE_POSE_PROBE_SOURCE)) as LiveActorPose[];
   // Standing-pitch additive read; old builds / pre-spawn frames yield nulls.
@@ -323,7 +384,7 @@ async function probe(page: Page): Promise<FrameProbe> {
     heelContactR: null,
   };
   try {
-    const read = (await page.evaluate(STANDING_PITCH_PROBE_SOURCE)) as typeof heel;
+    const read = (await page.evaluate(standingPitchProbeSource(actor))) as typeof heel;
     if (read && typeof read === "object") heel = { ...heel, ...read };
   } catch {
     /* contact stays null; the tail still records */
@@ -343,6 +404,8 @@ function baseQuery(vehicle: Vehicle): string {
   return "steppingTurn=1";
 }
 
+type ActorOverride = { actor: CaptureActor; file: string; sha256: string; byteLength: number } | null;
+
 async function runOnce(
   vehicle: Vehicle,
   runIndex: number,
@@ -352,6 +415,9 @@ async function runOnce(
   baseUrl: string,
   extraQuery: string,
   browser: Browser,
+  actor: CaptureActor,
+  overrideBytes: Buffer | null,
+  overrideProof: ActorOverride,
 ): Promise<void> {
   const tag = `${vehicle}-run${runIndex}`;
   let context: BrowserContext | null = null;
@@ -362,6 +428,16 @@ async function runOnce(
     await page.route(SCENE_CLOSURE_BUNDLE_ROUTE, async (route) => {
       await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
     });
+    // Actors-readiness rig swap (capture-only): serve the requested rig's bytes
+    // behind the physician's resolved GLB URL. See --actor header note.
+    if (actor !== "physician" && overrideBytes !== null) {
+      const bytes = overrideBytes;
+      const pattern = `**${PHYSICIAN_RUNTIME_GLB_PATH}`;
+      await page.route(pattern, async (route) => {
+        process.stdout.write(`[${tag}] actor-override: serving ${ACTOR_GLB[actor]} for ${route.request().url()}\n`);
+        await route.fulfill({ status: 200, contentType: "model/gltf-binary", body: bytes });
+      });
+    }
     const fullQuery = extraQuery ? `${baseQuery(vehicle)}&${extraQuery}` : baseQuery(vehicle);
     const url = `${buildSceneClosureUrl(baseUrl)}&${fullQuery}`;
     await page.goto(url, { waitUntil: "load", timeout: 180_000 });
@@ -377,20 +453,20 @@ async function runOnce(
 
     // Pre-walk: coarse steps until walking (real sleeps let GLB I/O proceed).
     const preWalk: Array<FrameProbe & { preStep: number }> = [];
-    let p = await probe(page);
+    let p = await probe(page, actor);
     let preSteps = 0;
     while (p.phase !== "walking" && preSteps < PRE_WALK_STEP_CAP) {
       preWalk.push({ ...p, preStep: preSteps });
       await page.clock.fastForward(PRE_WALK_STEP_MS);
       await realSleep(150);
-      p = await probe(page);
+      p = await probe(page, actor);
       preSteps += 1;
     }
     if (p.phase !== "walking") throw new Error(`never reached walking (phase=${p.phase})`);
     const g0 = p.sampleCount;
     await page.clock.fastForward(500);
     await realSleep(300);
-    const g1 = (await probe(page)).sampleCount;
+    const g1 = (await probe(page, actor)).sampleCount;
     process.stdout.write(`[${tag}] sample-growth: ${g0} -> ${g1} per 500 ms simulated\n`);
     if (g1 <= g0) throw new Error("no samples under fake clock");
 
@@ -421,7 +497,7 @@ async function runOnce(
     let arrivedFrames = 0;
     for (;;) {
       await page.clock.fastForward(STEP_SECONDS * 1000);
-      const f = await probe(page);
+      const f = await probe(page, actor);
       frames.push({ ...f, step });
       step += 1;
       if (f.phase === "arrived") arrivedFrames += 1;
@@ -470,6 +546,8 @@ async function runOnce(
           runIndex,
           urlQuery: fullQuery,
           scenario: SCENE_CLOSURE_SCENARIO_ID,
+          actor,
+          actorOverride: overrideProof,
           distProof,
           clockHonoured,
           labels,
@@ -492,7 +570,24 @@ async function main(): Promise<void> {
   const start = startFromArgv();
   const outDir = outFromArgv();
   const extraQuery = queryFromArgv();
+  const actor = actorFromArgv();
   await mkdir(outDir, { recursive: true });
+  // Actors-readiness rig bytes (capture-only route override, see header).
+  // Default actor loads the shipped bytes through the normal path (no override).
+  let overrideBytes: Buffer | null = null;
+  let overrideProof: ActorOverride = null;
+  if (actor !== "physician") {
+    const file = actorGlbPath(actor);
+    const bytes = await readFile(file);
+    overrideBytes = bytes;
+    overrideProof = {
+      actor,
+      file,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+      byteLength: bytes.length,
+    };
+    process.stdout.write(`[actor] ${actor}: override ${file} sha256=${overrideProof.sha256.slice(0, 16)} bytes=${bytes.length}\n`);
+  }
 
   const distProof: DistProof = [];
   for (const file of DIST_FILES) {
@@ -517,7 +612,7 @@ async function main(): Promise<void> {
   try {
     await services.sceneCapture.withBrowser(`footstep-${vehicle}`, async (browser) => {
       for (let i = start; i < start + runs; i += 1) {
-        await runOnce(vehicle, i, outDir, distProof, bundleJson, server.url, extraQuery, browser as Browser);
+        await runOnce(vehicle, i, outDir, distProof, bundleJson, server.url, extraQuery, browser as Browser, actor, overrideBytes, overrideProof);
       }
     });
   } finally {
