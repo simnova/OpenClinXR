@@ -4210,6 +4210,7 @@ def _eye_sclera_lid_ao(eyes_asset, human, strength, feather, uniform_probe,
     _ao = np.full((h, w), np.nan, dtype=float)
     _skipped_seam = 0
     _omesh = eyes_asset.data
+    _tmp = _omesh.copy()
     _tmp.calc_loop_triangles()
     for _tri in _tmp.loop_triangles:
         _vidx = list(_tri.vertices)
