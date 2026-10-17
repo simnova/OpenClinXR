@@ -20,12 +20,10 @@ import { describe, expect, it } from "vitest";
  * Measured outcome (recorded, not wished): G1 holds (aisha rebake
  * body POSITION sha identical); body2 runs micron-coincident
  * (matchMax 0.0044), width 25.798 within 1mm of the 25.9 goal, globe
- * byte-identical, blink seals geometrically; G2 is RECORDED-FAIL on one
- * clause — canthal flesh stands 2.524 off-globe (the same sphere-cap
- * necessity the aisha verdict proves). The second clause (12 grazing
- * canthus slivers flipping under 2.775mm seat travel vs 1.863 aisha) is
- * fixed post-canthus: 0 flips, re-pinned tsk_b85fc19dac1bc8cc with the
- * pre-fix values kept in supersededPreCanthus.
+ * byte-identical, blink seals geometrically; G2 is RECORDED-FAIL on two
+ * clauses — canthal flesh stands 2.524 off-globe (the same sphere-cap
+ * necessity the aisha verdict proves) and 12 grazing canthus slivers
+ * flip under 2.775mm seat travel (vs 1.863 aisha).
  *
  * claimScope: any-subject lid-conform wiring and its measured gates.
  * notEvidenceFor: clinical_validity, production_asset_readiness, gaze
@@ -39,7 +37,8 @@ import { describe, expect, it } from "vitest";
  * (one-shot decay plus Jacobi diffusion, lid_conform.py body2 row); no
  * height term exists. The fail-encoding assertion below now points at
  * body2-canthus-report.json and asserts the fixed values (0 flips,
- * seated span in band).
+ * seated span in band); any-subject-report.json stays as the historical
+ * pre-fix record. All other assertions are untouched.
  *
  * ## RE-PINNED (tsk_b85fc19dac1bc8cc)
  *
@@ -48,8 +47,8 @@ import { describe, expect, it } from "vitest";
  * the fixed values (0 flips; ring1 max still 2.524 past the sphere cap,
  * so g2.pass stays false on that clause). The pre-fix pin
  * (ab2765e4, 2.524 flesh max, 12 flips) moved verbatim into
- * supersededPreCanthus, which the assertions below read instead.
- * All other assertions are untouched.
+ * supersededPreCanthus, which the assertions below read instead; the
+ * live g2 now has 0 flips, so only the sphere-cap clause still fails.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
