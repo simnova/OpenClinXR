@@ -127,7 +127,7 @@ describe("head-lead timed anticipation", () => {
   });
 
   it("flag-absent walking applies the full bounded delta, bit-identical across runs", () => {
-    setSearch("?steppingTurn=1");
+    setSearch("?steppingTurn=1&footstepPlan=0"); // default-flip opt-out
     const first = buildWalkingApproach({ travelled: 0, route: 1.31, speed: 0.77 });
     const second = buildWalkingApproach({ travelled: 0, route: 1.31, speed: 0.77 });
     applyCaseOwnedStanceLock(first.approach as never, 1 / 30);

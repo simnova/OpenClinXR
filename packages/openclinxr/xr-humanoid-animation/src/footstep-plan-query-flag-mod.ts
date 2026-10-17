@@ -1,15 +1,16 @@
 /**
  * Footstep-plan query flags for the case-owned bedside approach.
  *
- * Default OFF: only exactly `footstepPlan=1` reads true; absent or any other
- * value reads false. Same opt-in `=== "1"` shape as the neighbouring flag
- * mods; this module also reaches node tests with no DOM lib, so no bare
- * `window` reference.
+ * Default ON: only exactly `footstepPlan=0` reads false; absent or any other
+ * value reads true. Opt-out `!== "0"` shape (mirrors stepping-turn): the
+ * footstep plan ships enabled and only `?footstepPlan=0` disables it. This
+ * module also reaches node tests with no DOM lib, so no bare `window`
+ * reference.
  */
 
 /** Pure parser, unit-tested without a DOM. */
 export function parseFootstepPlanEnabled(search: string): boolean {
-  return new URLSearchParams(search).get("footstepPlan") === "1";
+  return new URLSearchParams(search).get("footstepPlan") !== "0";
 }
 
 /** Browser entry read; false anywhere without a location search (node, tools). */

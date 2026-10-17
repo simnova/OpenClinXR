@@ -41,7 +41,7 @@ describe("footstep-plan amplitude blend", () => {
   });
 
   it("s=0 returns standing flexion with clip-true yaw/roll, s=1 the clip pose, norms hold", () => {
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1&footBase=0" } };
     const slot = new THREE.Group();
     const rest = quat(0, 0, 0, 1);
     // Off-X clip deliberately: the creep M2 flexion-only blend keeps yaw/roll clip-true.
@@ -83,13 +83,13 @@ describe("footstep-plan amplitude blend", () => {
       bones: [{ bone: leg, rest: { x: 0, y: 0, z: 0, w: 1 } }],
     };
     const before = leg.quaternion.clone();
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=0" } } // default-flip opt-out;
     const walking: Loose = { execution: { phase: "walking" }, actorSlot: slot, footstep: state };
     const settling: Loose = { execution: { phase: "settling" }, actorSlot: slot, footstep: state };
     const stateless: Loose = { execution: { phase: "walking" }, actorSlot: slot, footstep: null };
     applyFootstepPlanStep({ approach: walking, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(leg.quaternion.equals(before)).toBe(true);
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1&footBase=0" } };
     applyFootstepPlanStep({ approach: settling, routeDx: 0, routeDz: 1, routeLength: 1.31 });
     expect(leg.quaternion.equals(before)).toBe(true);
     applyFootstepPlanStep({ approach: stateless, routeDx: 0, routeDz: 1, routeLength: 1.31 });
@@ -108,10 +108,10 @@ describe("footstep-plan amplitude blend", () => {
       restStance: { quats: { "upperleg01.L": { x: 0, y: 0, z: 0, w: 1 } } },
       footstep: { scale: 1, steps: 9, bones: [] },
     };
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=0" } } // default-flip opt-out;
     captureFootstepRest(approach);
     expect(approach.footstep).toBeNull();
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1&footBase=0" } };
     captureFootstepRest(approach);
     expect(approach.footstep.scale).toBeCloseTo(0.707, 3);
     expect(approach.footstep.steps).toBe(3);
@@ -121,7 +121,7 @@ describe("footstep-plan amplitude blend", () => {
 
 describe("footstep-plan through the public walking entrypoint", () => {
   beforeEach(() => {
-    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1" } };
+    (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1&footBase=0" } };
   });
   afterEach(() => {
     delete (globalThis as unknown as { window?: unknown }).window;

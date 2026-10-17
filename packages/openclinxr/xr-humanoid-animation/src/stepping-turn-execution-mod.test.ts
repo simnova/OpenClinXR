@@ -47,7 +47,7 @@ describe("stepping-turn execution rest gate", () => {
   });
 
   it("keeps the mirror plan without ?footstepPlan=1", () => {
-    const plan = beginWithFlag("");
+    const plan = beginWithFlag("?footstepPlan=0") // default-flip opt-out;
     const only = plan.steps[0];
     if (!only) throw new Error("expected 1 step");
     const cos = Math.cos(only.yawRadians);

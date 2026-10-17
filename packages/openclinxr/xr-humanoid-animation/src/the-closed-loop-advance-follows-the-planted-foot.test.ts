@@ -10,7 +10,7 @@ import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
  * the walking path — with a synthetic two-foot track: the test moves the toes
  * (the clip's job) and prescribes the executor advance (the executor's job),
  * then reads the slot back. The closed loop is default-OFF on main, so every
- * test sets `?closedLoopWalk=1` (the last one adds `?plannedWalkSpeed=1` to pin
+ * test sets `?closedLoopWalk=1&footstepPlan=0&footBase=0` (the last one adds `?plannedWalkSpeed=1` to pin
  * the opt-out). The track is unambiguous by construction (centimetre steps
  * against a 6 cm band and a strict-backward rule), so each assertion pins one
  * clause: single support advances by the planted displacement, double support
@@ -104,7 +104,7 @@ afterEach(() => {
 // Default-OFF wiring: every test below opts in, exactly as production runs it.
 beforeEach(() => {
   (globalThis as unknown as { window?: unknown }).window = {
-    location: { search: "?closedLoopWalk=1" },
+    location: { search: "?closedLoopWalk=1&footstepPlan=0&footBase=0" },
   };
 });
 
@@ -175,7 +175,7 @@ describe("closed-loop root advance through the public entrypoint", () => {
 
   it("counterweight: the planned-speed flag restores the prescription", () => {
     (globalThis as unknown as { window?: unknown }).window = {
-      location: { search: "?closedLoopWalk=1&plannedWalkSpeed=1" },
+      location: { search: "?closedLoopWalk=1&footstepPlan=0&footBase=0&plannedWalkSpeed=1" },
     };
     const track = buildTrack();
     // The shared fixture pre-seeds a literal initial state; clear it so the

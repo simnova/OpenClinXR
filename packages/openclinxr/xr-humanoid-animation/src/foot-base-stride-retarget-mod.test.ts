@@ -221,7 +221,7 @@ describe("foot-base stride retarget", () => {
       lock: { stanceFoot: "left" },
     };
     const labels = stanceLabels();
-    setSearch("?footstepPlan=1&fixedClock=1");
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=0"); // default-flip: opt-out restores legacy null (evidence default-readiness/rig-aware)
     expect(
       applyFootBaseStep({
         approach: approach as never,
@@ -259,7 +259,7 @@ describe("foot-base stride retarget", () => {
     expect(footBaseStepIsActive(6.01)).toBe(false);
     expect(footBaseStepIsActive(10)).toBe(false);
     // Flag off kills even a plan-accepted in-range route.
-    setSearch("?footstepPlan=1&fixedClock=1");
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=0"); // default-flip: opt-out (evidence default-readiness/rig-aware)
     expect(footBaseStepIsActive(1.31)).toBe(false);
     setSearch(null);
     expect(footBaseStepIsActive(1.31)).toBe(false);
