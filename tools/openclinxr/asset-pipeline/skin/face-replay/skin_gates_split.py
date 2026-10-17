@@ -144,7 +144,15 @@ G0_KS = [0.5, 2.0]
 # G0. Thresholds use known-good/known-bad ONLY; body2 evaluation numbers
 # are computed after.
 PHYS_FLOOR = {"logY_face": 0.01, "Lratio_face": 0.005, "hue": 1.5,
-              "CdivL": 0.005, "L": 0.05, "a": None, "b": None}
+              "CdivL": 0.005}
+# G1 channel floors (L/a/b) are MEASURED at runtime (measure_albedo_floors,
+# stored as g1_quant_floors): the same 8-bit-quantisation idea as the G0
+# epsilons, but on the albedo region pixels themselves (see method note).
+# HANDBACK 2 enforcement: a gate is enforced only if
+#   margin / max(sampling noise, phys floor) >= 1
+# (G2/chin/hue was enforced with margin/phys 0.09: margin 0.135 deg
+# against the measured 1.5 deg floor, indistinguishable from 8-bit
+# round-trip noise).
 G1_SPLITS = 20
 G2_SPLITS = 20
 
@@ -422,11 +430,10 @@ def albedo_region_labs():
     return out
 
 
-def finish_row(base, d_good, d_bad, thr, margin, noise, cq):
+def finish_row(base, d_good, d_bad, thr, margin, noise, floor):
     """RULE 1: enforceable iff d_good < d_bad AND margin/noise >= 1."""
     separates = bool(d_bad > d_good)
     m_over_n = round(margin / noise, 2) if noise else None
-    floor = PHYS_FLOOR.get(cq)
     m_over_phys = round(margin / floor, 2) if floor else None
     enforceable = bool(separates and noise and margin / noise >= 1)
     if enforceable:
@@ -448,12 +455,54 @@ def finish_row(base, d_good, d_bad, thr, margin, noise, cq):
     return base
 
 
-def build_gates(rows):
-    """RULE 2: gate enforced iff ALL its known-bad rows enforceable.
+def measure_albedo_floors(alb):
+    """8-bit quantisation floor per Lab channel on albedo region pixels.
+
+    METHOD (stated): for every texture region of both albedos, take the
+    exact uint8 sRGB region pixels, compute float64 Lab, recompute with
+    +1 LSB added to R, G and B separately (clipped at 255), and record
+    the max abs per-channel Lab move over pixels x steps x regions x
+    subjects. The floor per channel is that max, rounded UP to 3 decimals
+    (conservative): the smallest Lab difference that cannot be 1-LSB
+    rounding. Same idea as the G0 epsilons, measured on the albedo
+    pixels themselves instead of borrowed from the render probe.
+    """
+    worst = {"L": 0.0, "a": 0.0, "b": 0.0}
+    detail = {}
+    for subj in ("body2", "aisha"):
+        rgb = load_rgb(ALBEDO[subj])
+        detail[subj] = {}
+        for r in TEX_REGIONS:
+            sel = alb[subj]["regs"][r]
+            px = rgb[sel].reshape(-1, 3).astype(float)
+            if len(px) == 0:
+                continue
+            base = rgb2lab(px.reshape(1, -1, 3) / 255.0).reshape(-1, 3)
+            mx = [0.0, 0.0, 0.0]
+            for c in range(3):
+                step = px.copy()
+                step[:, c] = np.minimum(255.0, step[:, c] + 1.0)
+                lab1 = rgb2lab(step.reshape(1, -1, 3) / 255.0).reshape(-1, 3)
+                mx = np.maximum(mx, np.abs(lab1 - base).max(axis=0)).tolist()
+            detail[subj][r] = {"n": len(px),
+                               "max_abs_dLab_1LSB": [round(float(v), 4) for v in mx]}
+            for ci, ch in enumerate("Lab"):
+                worst[ch] = max(worst[ch], mx[ci])
+    import math
+    floors = {ch: math.ceil(v * 1000.0) / 1000.0 for ch, v in worst.items()}
+    return floors, detail
+
+
+def build_gates(rows, floor_of):
+    """RULE 2 + HANDBACK 2 floor rule.
 
     Per-gate threshold = smallest midpoint across its known-bads.
     Body2 gate verdict = match-direction AND rejection-direction
     sub-verdicts against the gate threshold.
+    floor_of maps channel/quantity -> measured phys floor (None allowed:
+    gate then stays report-only).
+    Enforcement: T ok AND all rows enforceable AND floor measured AND
+    margin / max(noise, floor) >= 1.
     """
     groups = {}
     for r in rows:
@@ -461,6 +510,7 @@ def build_gates(rows):
         groups.setdefault((r["kind"], r["region"], cq), []).append(r)
     gates = []
     for (kind, region, cq), rs in sorted(groups.items()):
+        floor = floor_of(cq)
         thrs = [x["threshold"] for x in rs if x["threshold"] is not None]
         T = min(thrs) if len(thrs) == len(rs) else None
         d_good = rs[0]["d_good"]
@@ -471,10 +521,25 @@ def build_gates(rows):
             gnoise = max(noises) if noises else None
         else:
             gmargin, gnoise = None, None
-        floor = PHYS_FLOOR.get(cq)
-        enforced = bool(T is not None and all(x["row_enforceable"] for x in rs))
-        reason = (None if enforced else
-                  "whole gate report-only: not all known-bad rows enforceable")
+        denom = max([g for g in (gnoise, floor) if g is not None],
+                    default=None)
+        m_over_denom = (round(gmargin / denom, 2)
+                        if (gmargin is not None and denom) else None)
+        rows_ok = all(x["row_enforceable"] for x in rs)
+        floor_ok = m_over_denom is not None and m_over_denom >= 1
+        enforced = bool(T is not None and rows_ok and floor_ok)
+        if T is None:
+            reason = "no gate: region below MIN_POLY_N"
+        elif not rows_ok:
+            reason = ("whole gate report-only: not all known-bad rows "
+                      "enforceable")
+        elif floor is None:
+            reason = "whole gate report-only: no measured floor"
+        elif not floor_ok:
+            reason = ("whole gate report-only: margin/max(noise, floor) < 1 "
+                      "(below quantisation floor)")
+        else:
+            reason = None
         match_r = next(x for x in rs if x["gate"].endswith("a"))
         rej_r = next(x for x in rs if x["gate"].endswith("b"))
         if T is None or match_r["d_eval"] is None or rej_r["d_eval"] is None:
@@ -499,6 +564,8 @@ def build_gates(rows):
             "margin_over_noise": (round(gmargin / gnoise, 2) if gnoise else None),
             "margin_over_phys": (round(gmargin / floor, 2)
                                  if (gmargin is not None and floor) else None),
+            "margin_over_denom": m_over_denom,
+            "denom_max_noise_floor": denom,
             "phys_floor": floor,
             "enforced": enforced, "unenforced_reason": reason,
             "body2_match": {"pair": match_r["body2_pair"],
@@ -509,7 +576,7 @@ def build_gates(rows):
     return gates
 
 
-def g1_thresholds(alb):
+def g1_thresholds(alb, floors):
     """G1 thresholds from known-good/known-bad ONLY (before evaluation)."""
     rows = []
     for r in TEX_REGIONS:
@@ -536,7 +603,7 @@ def g1_thresholds(alb):
                      "known_good": "aisha-albedo-vs-warm_light",
                      "known_bad": tag.split("/")[1]},
                     round(d_good, 3), round(d_bad, 3),
-                    round(thr, 3), round(margin, 3), noise, ch))
+                    round(thr, 3), round(margin, 3), noise, floors[ch]))
     return rows
 
 
@@ -621,7 +688,7 @@ def g2_thresholds(deltas, pr, kept):
                      "known_good": "aisha-render-vs-aisha-photo",
                      "known_bad": sub.split("/", 1)[1]},
                     d_good, d_bad, round(thr, 5), round(margin, 5),
-                    noise, q))
+                    noise, PHYS_FLOOR[q]))
     return rows
 
 
@@ -719,11 +786,15 @@ def main():
     landmarker = FLR.create_landmarker()
     g0, kept = g0_probe(landmarker)
     alb = albedo_region_labs()
-    g1_rows = g1_evaluate(g1_thresholds(alb), alb)
+    g1_floors, g1_floor_detail = measure_albedo_floors(alb)
+    g1_rows = g1_evaluate(g1_thresholds(alb, g1_floors), alb)
     pr, quants, deltas, per_image = pair_quantities(landmarker)
     g2_rows = g2_evaluate(g2_thresholds(deltas, pr, kept), deltas)
 
-    g3 = build_gates(g1_rows + g2_rows)
+    g3 = (build_gates([r for r in g1_rows],
+                      lambda cq: g1_floors.get(cq)) +
+          build_gates([r for r in g2_rows],
+                      lambda cq: PHYS_FLOOR.get(cq)))
     enf = [g for g in g3 if g["enforced"]]
     enf_rows = [r for r in g1_rows + g2_rows if r["row_enforceable"]]
     falsifier = ("no gate separates known-good from known-bad: module "
@@ -760,11 +831,16 @@ def main():
                       "(region x channel/quantity) enforced iff ALL its "
                       "known-bad rows enforceable; gate threshold = smallest "
                       "midpoint; gate margin = distance from it to the "
-                      "nearest delta; gate noise = max row noise. RULE 3: "
+                      "nearest delta; gate noise = max row noise. HANDBACK "
+                      "2: gate enforced only if margin/max(noise, floor) "
+                      ">= 1 (floor = measured G0 epsilon for G2 quantities, "
+                      "measured albedo 1-LSB floor for G1 channels); no "
+                      "enforced gate may have a null floor. RULE 3: "
                       "noise is pixel-sampling SD ONLY (margins/noise "
                       "~50-350 expected); margin_over_phys divides by the "
-                      "measured G0 epsilon (hue 1.5 deg etc.; G1 L uses "
-                      "dL 0.05; G1 a/b null, no measured epsilon). Render "
+                      "measured G0 epsilon (hue 1.5 deg etc.; G1 channels "
+                      "use the measured albedo floors, never null on an "
+                      "enforced gate). Render "
                       "run-to-run adds 0 per room-rig-remeasure G0. "
                       "Thresholds use known-good/known-bad ONLY; body2 "
                       "evaluation numbers are computed after."),
@@ -786,6 +862,11 @@ def main():
                                                   "row_enforceable")} for r in g2_rows],
         "g1_albedo_means": {s: {"means": alb[s]["means"], "n": alb[s]["n"]}
                             for s in alb},
+        "g1_quant_floors": {"floors": g1_floors, "detail": g1_floor_detail,
+                            "method": ("max abs per-channel Lab move under "
+                                       "+1 LSB per channel, over region "
+                                       "pixels x texture regions x both "
+                                       "albedos, rounded up to 3 decimals")},
         "g2_pair_deltas": deltas,
         "g2_per_image": per_image,
         "g3": g3,

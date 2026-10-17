@@ -86,6 +86,10 @@ type Gate = {
   row_thresholds: number[];
   row_enforceable: boolean[];
   threshold: number | null;
+  margin: number | null;
+  noise: number | null;
+  phys_floor: number | null;
+  margin_over_denom: number | null;
   margin_over_noise: number | null;
   enforced: boolean;
   unenforced_reason: string | null;
@@ -128,17 +132,29 @@ function checkRow(row: GateRow & { d_good: number; d_bad: number; margin: number
   }
 }
 
-/** RULE 2: no enforced gate with a non-separating row; threshold is the smallest midpoint. */
-function checkGate(gate: Gate): void {
+/** RULE 2 + HANDBACK 2 floor rule: no enforced gate with a non-separating
+ * row, a null floor, or margin/max(noise, floor) < 1; threshold is the
+ * smallest midpoint. */
+function checkGate(gate: Gate & { noise: number | null; margin: number | null; phys_floor: number | null; margin_over_denom: number | null }): void {
   expect(gate.known_bads.length).toBe(2);
   expect(gate.row_thresholds.length).toBe(2);
   expect(gate.row_enforceable.length).toBe(2);
   if (gate.threshold !== null) {
     expect(gate.threshold).toBe(Math.min(...gate.row_thresholds));
   }
-  const allRowsGood = gate.row_enforceable.every(Boolean) &&
+  const rowsOk = gate.row_enforceable.every(Boolean) &&
     gate.d_bads.every((b) => b !== null && b > gate.d_good);
-  expect(gate.enforced).toBe(allRowsGood && gate.threshold !== null);
+  const denom = gate.noise !== null && gate.phys_floor !== null
+    ? Math.max(gate.noise, gate.phys_floor)
+    : null;
+  const floorOk = gate.margin !== null && denom !== null && denom > 0 &&
+    gate.margin / denom >= 1;
+  expect(gate.enforced).toBe(rowsOk && floorOk && gate.threshold !== null);
+  if (gate.enforced) {
+    expect(gate.phys_floor).not.toBeNull();
+    expect(gate.margin_over_denom).not.toBeNull();
+    expect(gate.margin_over_denom as number).toBeGreaterThanOrEqual(1);
+  }
   if (gate.threshold !== null) {
     const m = gate.body2_match;
     const r = gate.body2_reject;
