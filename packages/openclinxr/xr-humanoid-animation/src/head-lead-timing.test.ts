@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { Group, Object3D } from "three";
 import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
 
-const LEAD_S = 0.35;
+const LEAD_S = 0.25;
 const MAX_YAW = (45 * Math.PI) / 180;
 const BODY = 2.0465145552132036;
 const TARGET = Math.PI;
+const DT = 1 / 30;
+const ROUTE = 1.31;
 
 function setSearch(search: string): void {
   (globalThis as unknown as { window?: unknown }).window = { location: { search } };
@@ -73,21 +75,48 @@ function buildSettlingApproach() {
 }
 
 describe("head-lead timed anticipation", () => {
-  it("walking with remaining time > LEAD_S applies no head lead", () => {
+  it("fresh walk applies no head lead (realized speed still unknown)", () => {
     setSearch("?steppingTurn=1&footstepPlan=1&fixedClock=1");
-    const { approach, head } = buildWalkingApproach({ travelled: 0, route: 1.31, speed: 0.77 });
-    applyCaseOwnedStanceLock(approach as never, 1 / 30);
+    const { approach, head } = buildWalkingApproach({ travelled: 0, route: ROUTE, speed: 0.77 });
+    applyCaseOwnedStanceLock(approach as never, DT);
     expect(head.rotation.y).toBeCloseTo(0, 6);
   });
 
-  it("walking at remaining LEAD_S/2 applies about half the bounded delta", () => {
+  it("stays at zero where the nominal estimator would already ramp", () => {
+    // 37 frames at 0.029 m/frame: realized speed is exactly 0.87 m/s, so the
+    // remaining 0.237 m reads as 0.272 s (> LEAD_S) and the weight is exactly
+    // 0. The round-1 nominal estimator (1.37 m/s) would read 0.173 s and ramp
+    // to ~11 deg here, so this case distinguishes the two estimators.
     setSearch("?steppingTurn=1&footstepPlan=1&fixedClock=1");
-    const speed = 0.77;
-    const route = 1.31;
-    const travelled = route - speed * (LEAD_S / 2);
-    const { approach, head } = buildWalkingApproach({ travelled, route, speed });
-    applyCaseOwnedStanceLock(approach as never, 1 / 30);
-    expect(head.rotation.y).toBeCloseTo(MAX_YAW * 0.5, 2);
+    const built = buildWalkingApproach({ travelled: 0, route: ROUTE, speed: 0.77 });
+    const exec = built.approach.execution;
+    for (let frame = 0; frame < 37; frame += 1) {
+      built.head.rotation.y = 0;
+      if (frame > 0) exec.travelledMeters += 0.029;
+      applyCaseOwnedStanceLock(built.approach as never, DT);
+    }
+    expect(built.head.rotation.y).toBeCloseTo(0, 6);
+  });
+
+  it("at remaining LEAD_S/2 of realized time applies about half the bounded delta", () => {
+    // 30 history frames seed the datum (start 0, elapsed E), then the final
+    // frame jumps travelled to exactly T with (ROUTE - T) / ((T - 0) / Ef) =
+    // LEAD_S / 2, so the weight is smoothstep(0.5) = 0.5 up to float error.
+    setSearch("?steppingTurn=1&footstepPlan=1&fixedClock=1");
+    const built = buildWalkingApproach({ travelled: 0, route: ROUTE, speed: 0.77 });
+    const exec = built.approach.execution;
+    let elapsed = 0;
+    for (let frame = 0; frame < 30; frame += 1) {
+      built.head.rotation.y = 0;
+      if (frame > 0) exec.travelledMeters += 0.03;
+      applyCaseOwnedStanceLock(built.approach as never, DT);
+      elapsed += DT;
+    }
+    const ef = elapsed + DT;
+    exec.travelledMeters = (ROUTE * ef) / (ef + LEAD_S / 2);
+    built.head.rotation.y = 0;
+    applyCaseOwnedStanceLock(built.approach as never, DT);
+    expect(built.head.rotation.y).toBeCloseTo(MAX_YAW * 0.5, 4);
   });
 
   it("settling applies the full bounded delta", () => {

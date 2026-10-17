@@ -384,7 +384,7 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   // Read-only diagnostic: a frame with no leg solve reports null, never a stale miss.
   approach.lastHeelMissM = null;
   // HEAD LEADS THE TURN (timed anticipation lives in head-lead-anticipation-mod.ts).
-  applyTimedHeadGazeLead(approach);
+  applyTimedHeadGazeLead(approach, deltaSeconds);
   if (approach.execution.phase === "settling") {
     if (applySteppingTurn(approach, deltaSeconds)) return;
     // ## CHANGED: retired the procedural lift-and-slide turn (`applySettlingStepTurnPose`) for
