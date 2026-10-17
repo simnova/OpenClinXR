@@ -814,6 +814,10 @@
         "kind": "runtime"
       },
       {
+        "name": "FOOT_BASE_PLANT_PHASE",
+        "kind": "runtime"
+      },
+      {
         "name": "FOOT_BASE_ROWS",
         "kind": "runtime"
       },
@@ -823,6 +827,10 @@
       },
       {
         "name": "footBaseRowAt",
+        "kind": "runtime"
+      },
+      {
+        "name": "footBaseScheduleStance",
         "kind": "runtime"
       }
     ]

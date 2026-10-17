@@ -1,4 +1,4 @@
-import { FOOTSTEP_START_PHASE_S } from "./footstep-plan-schedule.js";
+import { FOOTSTEP_START_PHASE_S, planFootsteps } from "./footstep-plan-schedule.js";
 import { budgetSwingTarget } from "./foot-base-knee-budget-mod.js";
 import type { FootBasePathRow } from "./foot-base-path-data-mod.js";
 import {
@@ -173,9 +173,25 @@ export function applyFootBaseStep(input: {
   const planShiftedS = unwrappedS - state.entryUnwrappedS + FOOTSTEP_START_PHASE_S;
   const halfIndex = footBaseHalfIndex(planShiftedS, cycleS);
   const scale = approach.footstep?.scale ?? FOOT_BASE_DEFAULT_SCALE;
-  const halfTravel = footBaseHalfTravelM(halfIndex, scale);
   const routeLen = Math.hypot(input.routeDx, input.routeDz);
   if (!(routeLen > 0)) return null;
+  // Symmetric foothold spacing (step-asym slice): ONE half-travel per
+  // half-cycle, the mean of the route's planned halves (route length over the
+  // plan's half count, the plan in force when present, else a fresh solve
+  // which the route gate guarantees to accept). The foothold polyline then
+  // totals exactly the route length; the per-foot affines stay the
+  // planner/M3 model (planFootsteps, FOOTSTEP_TRAVEL_COEFFS untouched), so
+  // plan-only and flag-absent paths never reach this branch and read
+  // byte-identical geometry.
+  const stepsInForce = approach.footstep?.steps;
+  const freshPlan = typeof stepsInForce === "number" ? null : planFootsteps(routeLen);
+  const steps =
+    typeof stepsInForce === "number"
+      ? stepsInForce
+      : freshPlan !== null && !("refused" in freshPlan)
+        ? freshPlan.steps
+        : 0;
+  const halfTravel = footBaseHalfTravelM(routeLen, steps, scale);
   const unitX = input.routeDx / routeLen;
   const unitZ = input.routeDz / routeLen;
   const floorY = approach.floorOriginY;
@@ -191,14 +207,14 @@ export function applyFootBaseStep(input: {
   // halves plus the current half's share). Pinning against the executor's
   // own advance cancels the stride and the walk thrashes (measured root
   // 1.39 m for 0.28 m travel); the pin below is then a mm correction.
-  let bodyTravelM = 0;
-  for (let h = 1; h < halfIndex; h += 1) bodyTravelM += footBaseHalfTravelM(h, scale);
+  // Halves are symmetric now (halfTravel identical every half), so the sum is
+  // arithmetic, not a loop.
   const bounds = footBaseHalfBounds(halfIndex, cycleS);
   const halfSpan = bounds.end - bounds.start;
   const halfFrac = halfSpan > 0
     ? Math.min(Math.max((planShiftedS - bounds.start) / halfSpan, 0), 1)
     : 0;
-  bodyTravelM += halfTravel * halfFrac;
+  const bodyTravelM = (halfIndex - 1 + halfFrac) * halfTravel;
 
   const rowNow = (foot: FootBaseSide): FootBasePathRow =>
     footBaseRowAt(foot, footBaseRelPhase(foot, phase01));
@@ -314,8 +330,10 @@ export function applyFootBaseStep(input: {
   const swingProgress = 0.5 - 0.5 * Math.cos(Math.PI * swingLinear);
   const liftoffAlong = (state.foothold[swing].x - approach.start.x) * unitX
     + (state.foothold[swing].z - approach.start.z) * unitZ;
-  const touchdownHalf = footBaseHalfIndex(planShiftedS + (1 - swingRel) * cycleS, cycleS);
-  const touchdownAlong = stanceAlong + footBaseHalfTravelM(touchdownHalf, scale);
+  // Touchdown uses the symmetric half travel from the stance foothold (exact
+  // coincidence with the handover plant, which is the same foothold plus the
+  // same half travel), so touchdown and handover still coincide with no snap.
+  const touchdownAlong = stanceAlong + halfTravel;
   // FOOTBASE-6 (with the phase-target exit): the final swing's touchdown
   // half lies past the planned walk, so the raw projection aims at a ghost
   // plant past the route end (L toe 0.32 m past target at exit). Footholds
@@ -340,6 +358,12 @@ export function applyFootBaseStep(input: {
   const yawNow = slot.rotation.y;
   const poleWorld = { x: Math.sin(yawNow), y: 0, z: Math.cos(yawNow) };
 
+  // Solve pass: every leg is solved from the same slot position (the body
+  // advance just SET above), so no leg's pin perturbs another leg's solve.
+  // Pins apply afterwards in miss order (below): the recorded toe of the
+  // last-pinned foot is exact and every other foot is off by that last
+  // correction, so pinning smallest-miss-last minimises the residual.
+  const pinQueue: Array<{ side: FootBaseSide; missM: number }> = [];
   for (const side of ordered) {
     const chain = findSteppingLegChain(slot, side);
     if (chain === null) continue;
@@ -399,23 +423,34 @@ export function applyFootBaseStep(input: {
     if (solved.bendNormal !== null) state.hingeNormal[side] = solved.bendNormal;
     if (isPin) {
       if (side === stance) stanceMissM = solved.missM;
-      // THE SLOT PIN: exact rigid translate of the pinned toe onto its
-      // foothold. The swing (if any) is solved after the pins. In double
-      // support each pin is a mm correction by construction, so ordering is
-      // immaterial; the crown goes first.
-      const toeNow = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
-      const anchor = state.foothold[side];
-      if (toeNow !== null) {
-        slot.position.x += anchor.x - toeNow.x;
-        slot.position.z += anchor.z - toeNow.z;
-        slot.updateMatrixWorld(true);
-      }
+      pinQueue.push({ side, missM: solved.missM });
     } else {
       swingMissM = solved.missM;
     }
     const worst = state.worst;
     if (worst === null || solved.missM > worst.missM) {
       state.worst = { missM: solved.missM, side, sub };
+    }
+  }
+  // PIN PASS (step-asym slice): pin in descending miss order (biggest
+  // correction first, smallest last). Sequential exact-pins on one rigid slot
+  // leave every earlier pin off by the last correction; the last-pinned foot
+  // is exact and the rest carry that last correction as residual. Pinning
+  // smallest-miss-last makes the residual the smallest solve miss instead of
+  // whichever foot the role order happened to put last (a band-held co-stance
+  // foot fighting the mixer's swing pose, or a fresh landing, can carry a cm
+  // miss while the settled foot's is mm). Single support is one pin either
+  // way; all-single-miss ties keep role order (stable sort).
+  pinQueue.sort((a, b) => b.missM - a.missM);
+  for (const { side } of pinQueue) {
+    // THE SLOT PIN: exact rigid translate of the pinned toe onto its
+    // foothold.
+    const toeNow = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
+    const anchor = state.foothold[side];
+    if (toeNow !== null) {
+      slot.position.x += anchor.x - toeNow.x;
+      slot.position.z += anchor.z - toeNow.z;
+      slot.updateMatrixWorld(true);
     }
   }
   // Band-hold signal for the next substep (consumed one frame later).

@@ -741,3 +741,68 @@ describe("foot-base swing-knee budget", () => {
     clearFootBaseState(approach);
   });
 });
+
+describe("foot-base symmetric half travel (step-asym slice)", () => {
+  it("footholds alternate at one equal half-travel totalling the route", () => {
+    // Behavioral pin of the symmetric half-travel contract (the helper itself
+    // is deliberately NOT imported here: package tests route through the
+    // entrypoint, and foot-base.ts publishes no new symbol for this slice).
+    // On the 2.0 m route (4 halves) every consecutive foothold pair must sit
+    // exactly 0.5 m apart along the route, whatever the affine model says.
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildLeggedRig();
+    const approach = {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.8369, steps: 4, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+    const labels = stanceLabels();
+    const placements: Array<{ foot: string; z: number; sub: number }> = [];
+    let prevL = "";
+    let prevR = "";
+    const dt = 0.005;
+    for (let sub = 0; sub < 700; sub += 1) {
+      (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = sub;
+      const summary = applyFootBaseStep({
+        approach: approach as never,
+        routeDx: 0,
+        routeDz: 2,
+        routeLength: 2,
+        clip: { labels, actionTimeSeconds: 0.55 + sub * dt },
+      });
+      expect(summary).not.toBeNull();
+      const state = readFootBaseState(approach);
+      const lKey = `${state?.foothold.left.x.toFixed(6)},${state?.foothold.left.z.toFixed(6)}`;
+      const rKey = `${state?.foothold.right.x.toFixed(6)},${state?.foothold.right.z.toFixed(6)}`;
+      if (state?.placed.left === true && lKey !== prevL) {
+        placements.push({ foot: "left", z: state.foothold.left.z, sub });
+        prevL = lKey;
+      }
+      if (state?.placed.right === true && rKey !== prevR) {
+        placements.push({ foot: "right", z: state.foothold.right.z, sub });
+        prevR = rKey;
+      }
+    }
+    // Entry pair (both feet same substep) bases the chain; every later plant
+    // is one half-travel past the other foothold.
+    expect(placements.length).toBeGreaterThanOrEqual(5);
+    const gaps: number[] = [];
+    for (let k = 1; k < placements.length; k += 1) {
+      const prev = placements[k - 1]!;
+      const cur = placements[k]!;
+      if (prev.foot === cur.foot) continue;
+      if (prev.sub === cur.sub) continue;
+      gaps.push(Math.abs(cur.z - prev.z));
+    }
+    expect(gaps.length).toBeGreaterThanOrEqual(3);
+    for (const gap of gaps) expect(gap).toBeCloseTo(0.5, 9);
+    clearFootBaseState(approach);
+  });
+});

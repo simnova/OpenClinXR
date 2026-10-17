@@ -160,10 +160,24 @@ export function footBaseHalfIndex(unwrappedActionTimeS: number, cycleS: number):
   return 1000;
 }
 
-/** This half's ground travel at stride scale s, from the per-foot affines. */
-export function footBaseHalfTravelM(halfIndex: number, scale: number): number {
+/**
+ * ONE symmetric half-travel per half-cycle: the mean of the route's planned
+ * halves (routeLengthM / steps). Every half travels the same distance, so
+ * footholds alternate equally and the polyline totals exactly the route
+ * length with the plan's plant count unchanged. On even-half routes this
+ * coincides with the mean of the two per-foot affines; on odd-half routes it
+ * additionally absorbs the (L-R)/2 pairing remainder a mean-affine spacing
+ * would leave (36 mm on SC-05), which the phase-only k-th-passing exit would
+ * carry straight into arrival. The scale argument serves only the defensive
+ * fallback below (unreachable under the route gate, which requires plan
+ * acceptance): the literal mean of the two per-foot affines at this scale.
+ */
+export function footBaseHalfTravelM(routeLengthM: number, steps: number, scale: number): number {
+  if (Number.isFinite(routeLengthM) && routeLengthM > 0 && Number.isInteger(steps) && steps > 0) {
+    return routeLengthM / steps;
+  }
   const c = FOOTSTEP_TRAVEL_COEFFS;
-  return halfIndex % 2 === 1 ? c.aEndR * scale + c.bEndR : c.aEndL * scale + c.bEndL;
+  return ((c.aEndR + c.aEndL) / 2) * scale + ((c.bEndR + c.bEndL) / 2);
 }
 
 /**

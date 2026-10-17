@@ -14,11 +14,11 @@ import { readFootBaseEnabled } from "./foot-base-query-flag-mod.js";
  * planner alone accepts 0.5 m (s=0.891) and 10 m (s=0.977) while refusing
  * 0.8 m, so plan-acceptance without the bounds does not enforce the range.
  * The footholds and schedule are built from the plan's half count for the
- * route (planFootsteps steps + the per-half affine travel in
- * footBaseHalfTravelM at the plan's scale, read off approach.footstep):
- * no route constant enters the geometry, so 1.31 m runs byte-identical
- * while 2.0/3.7/6.0 m take the same branch. A refused plan (a middle step
- * under 0.7) or a route outside [0.8, 6.0] keeps the legacy path.
+ * route (planFootsteps steps + the symmetric half travel in
+ * footBaseHalfTravelM, route length over that count, read off
+ * approach.footstep): no route constant enters the geometry, so 1.31 m runs
+ * byte-identical while 2.0/3.7/6.0 m take the same branch. A refused plan (a
+ * middle step under 0.7) or a route outside [0.8, 6.0] keeps the legacy path.
  */
 export function footBaseStepIsActive(routeLengthMeters: number): boolean {
   if (!readFootBaseEnabled()) return false;
