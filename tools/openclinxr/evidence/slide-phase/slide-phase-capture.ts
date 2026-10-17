@@ -17,23 +17,23 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { Browser, BrowserContext, Page } from "../lib/slotted-playwright.js";
-import {
-  LIVE_POSE_PROBE_SOURCE,
-  type LiveActorPose,
-} from "./live-pose-probe.js";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
 import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
 } from "../lib/portless-server.js";
+import type { Browser, BrowserContext, Page } from "../lib/slotted-playwright.js";
 import {
   buildSceneClosureBundleJson,
   buildSceneClosureUrl,
   SCENE_CLOSURE_BUNDLE_ROUTE,
   SCENE_CLOSURE_SCENARIO_ID,
 } from "../scene-closure/proofs/sc-05/ui-xr-bedside-approach-capture.js";
+import {
+  LIVE_POSE_PROBE_SOURCE,
+  type LiveActorPose,
+} from "./live-pose-probe.js";
 
 const STEP_SECONDS = 1 / 30;
 const PRE_WALK_STEP_MS = 100;
@@ -108,6 +108,8 @@ type FrameProbe = {
   legWorlds: Record<string, Vec3 | null> | null;
   footYawL: number | null;
   footYawR: number | null;
+  /** Head bone world yaw (atan2(e[8],e[10])); null when no head bone / old builds. */
+  headYaw: number | null;
   stoppedSeconds: number;
   targetHeading: number | null;
   travelHeading: number | null;
@@ -135,7 +137,7 @@ const PROBE_SOURCE = `
   const scene = globalThis.__openClinXrDebugScene;
   let clipTime = null;
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
-  let legBones = null, legWorlds = null;
+  let legBones = null, legWorlds = null, headYaw = null;
   if (scene) {
     const actorId = ev ? ev.physicianActorId : null;
     let physRoot = null;
@@ -196,6 +198,17 @@ const PROBE_SOURCE = `
       };
       footYawL = yawOf("footL", "foot.L");
       footYawR = yawOf("footR", "foot.R");
+      let headBone = null;
+      physRoot.traverse((o) => {
+        if (headBone) return;
+        const n = typeof o.name === "string" ? o.name.replaceAll(".", "") : "";
+        if (n === "head") headBone = o;
+      });
+      if (headBone) {
+        if (typeof headBone.updateWorldMatrix === "function") headBone.updateWorldMatrix(true, false);
+        const e = headBone.matrixWorld.elements;
+        headYaw = Math.atan2(e[8], e[10]);
+      }
     }
   }
   return {
@@ -207,7 +220,7 @@ const PROBE_SOURCE = `
     stanceFoot: tail ? tail.stanceFoot : null,
     travelledMeters: tail && tail.travelledMeters !== undefined ? tail.travelledMeters : null,
     clipTime,
-    upperL, upperR, legBones, legWorlds, footYawL, footYawR,
+    upperL, upperR, legBones, legWorlds, footYawL, footYawR, headYaw,
     stoppedSeconds: ev ? ev.stoppedSeconds : 0,
     targetHeading: ev ? ev.targetHeadingRadians : null,
     travelHeading: ev ? ev.travelHeadingRadians : null,
