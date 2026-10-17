@@ -61,6 +61,7 @@
     "src/footstep-plan-query-flag-mod.test.ts",
     "src/footstep-plan-schedule.test.ts",
     "src/footstep-probe-target-shift-mod.test.ts",
+    "src/head-lead-timing.test.ts",
     "src/humanoid-animation.test.ts",
     "src/inner-mouth-cavity-drive.test.ts",
     "src/jaw-viseme-drive.test.ts",

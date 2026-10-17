@@ -44,13 +44,18 @@ export function applyHeadGazeLeadYaw(input: {
   bodyHeadingRadians: number;
   targetHeadingRadians: number;
   maxHeadYawRadians?: number;
+  /** Timed-anticipation weight in [0, 1]; multiplies the bounded yaw. Defaults to 1 (no ramp). */
+  leadWeight01?: number;
 }): { headLocalYawDeltaRadians: number } | null {
   const head = findHeadBone(input.actorSlot);
   if (head === null) return null;
   const maxYaw = input.maxHeadYawRadians ?? HEAD_GAZE_LEAD_MAX_YAW_RADIANS;
   const desired = shortestYawDelta(input.bodyHeadingRadians, input.targetHeadingRadians);
   const bounded = Math.max(-maxYaw, Math.min(maxYaw, desired));
-  head.rotation.set(head.rotation.x, head.rotation.y + bounded, head.rotation.z, head.rotation.order);
+  const rawWeight = input.leadWeight01 ?? 1;
+  const weight = Number.isFinite(rawWeight) ? Math.max(0, Math.min(1, rawWeight)) : 1;
+  const scaled = bounded * weight;
+  head.rotation.set(head.rotation.x, head.rotation.y + scaled, head.rotation.z, head.rotation.order);
   head.quaternion.setFromEuler(head.rotation);
-  return { headLocalYawDeltaRadians: bounded };
+  return { headLocalYawDeltaRadians: scaled };
 }

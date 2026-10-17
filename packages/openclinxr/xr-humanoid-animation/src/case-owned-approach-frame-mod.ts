@@ -13,7 +13,7 @@ import {
   applyClipDrivenSettlingTurn,
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
-import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
+import { applyTimedHeadGazeLead } from "./head-lead-anticipation-mod.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import { applyCaseOwnedArrivedLock } from "./case-owned-approach-arrived-mod.js";
 import {
@@ -383,18 +383,8 @@ export function applyCaseOwnedStanceLock(approach: CaseOwnedBedsideApproach | nu
   if (approach === null) return;
   // Read-only diagnostic: a frame with no leg solve reports null, never a stale miss.
   approach.lastHeelMissM = null;
-  // HEAD LEADS THE TURN. Ahead of both the entry and the settling turns of a phase (walking,
-  // settling), the head yaws toward the target heading first — bounded, so the neck does not
-  // exceed a natural range while the torso still faces the travel heading. `arrived`/`not_started`
-  // are excluded: by `arrived` body heading already equals target heading, so the lead computes to
-  // zero, and `not_started` has no target-facing decision to anticipate yet.
-  if (approach.execution.phase === "walking" || approach.execution.phase === "settling" || approach.execution.phase === "stopping") {
-    applyHeadGazeLeadYaw({
-      actorSlot: approach.actorSlot,
-      bodyHeadingRadians: approach.actorSlot.rotation.y,
-      targetHeadingRadians: approach.intent.target.headingRadians,
-    });
-  }
+  // HEAD LEADS THE TURN (timed anticipation lives in head-lead-anticipation-mod.ts).
+  applyTimedHeadGazeLead(approach);
   if (approach.execution.phase === "settling") {
     if (applySteppingTurn(approach, deltaSeconds)) return;
     // ## CHANGED: retired the procedural lift-and-slide turn (`applySettlingStepTurnPose`) for
