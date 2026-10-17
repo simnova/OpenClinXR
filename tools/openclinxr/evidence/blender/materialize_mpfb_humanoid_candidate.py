@@ -2452,6 +2452,26 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--eye-shell-iris-spare",
+        type=float,
+        default=1.0,
+        help=(
+            "Eyeshell B2 iris spare: UV-space feather over the iris disk in "
+            "units of the texture limbus width (1.0 spares the iris plus one "
+            "limbus width; 0.0 disables the spare for ablation probes)."
+        ),
+    )
+    parser.add_argument(
+        "--eye-shell-occlusion-power",
+        type=float,
+        default=1.0,
+        help=(
+            "Eyeshell B2 lid-occlusion scale: per-eye shell strength is the "
+            "covered upper-cap fraction raised to this power (1.0 linear; "
+            "0.0 disables the scale for ablation probes)."
+        ),
+    )
+    parser.add_argument(
         "--eye-tearline",
         action="store_true",
         help=(
@@ -3147,7 +3167,8 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                    shell_ramp_m, shell_upper_boost, tear_color, tear_rough,
                    tear_fan_steps_m, tear_snap_m, build_shell=True,
                    shell_upper_span_m=0.006, shell_upper_peak=0.0,
-                   shell_ring_frac=0.25):
+                   shell_ring_frac=0.25, shell_iris_spare=1.0,
+                   shell_occlusion_power=1.0):
     """B2 shell + B3 tearline. Returns (shell_mat_name|None, tear_mat_name|None)."""
     MW = eyes_asset.matrix_world
     IW = MW.inverted()
@@ -3244,6 +3265,38 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         # 100% to the head bone on the eye's own armature; lid motion arrives
         # post-export via _eyshell_transfer_lid_keys.
         _eyshell_bind_to_head(shell_obj, arm)
+        for _v in ("shell_iris_spare", "shell_occlusion_power"):
+            _x = {"shell_iris_spare": shell_iris_spare,
+                  "shell_occlusion_power": shell_occlusion_power}[_v]
+            if not np.isfinite(_x) or _x < 0.0:
+                raise RuntimeError(f"EYESHELL: {_v} must be finite >= 0, got {_x!r}")
+        # Iris-spare UV table: the shell duplicates the globe cap, so its UVs
+        # locate the iris disk with the eye texture's own centres. Iris-disk
+        # numerals come from packages/openclinxr/xr-scene/src/eye-shader/
+        # eye-parallax.ts (EYE_IRIS_CENTER_L/R_UV file-UV, three sampling with
+        # v=0 at image top; EYE_IRIS_RADIUS_UV 135/1024; EYE_LIMBUS_WIDTH_UV
+        # 30/1024): Blender/glTF UVs flip v, so the centres below are (u,
+        # 1-v). Per-vert UVs are loop-averaged; the spare takes the nearer of
+        # the two disks so no chart-to-group side assumption is needed.
+        _uv_layer = shell_obj.data.uv_layers.active
+        if _uv_layer is None:
+            raise RuntimeError("EYESHELL: shell mesh has no UV layer — refusing")
+        _nverts = len(shell_obj.data.vertices)
+        _uv_sum = np.zeros((_nverts, 2), dtype=float)
+        _uv_cnt = np.zeros(_nverts, dtype=float)
+        for _poly in shell_obj.data.polygons:
+            for _li in _poly.loop_indices:
+                _vi = shell_obj.data.loops[_li].vertex_index
+                _uv = _uv_layer.data[_li].uv
+                _uv_sum[_vi, 0] += float(_uv[0])
+                _uv_sum[_vi, 1] += float(_uv[1])
+                _uv_cnt[_vi] += 1.0
+        _uv_cnt[_uv_cnt == 0.0] = 1.0
+        _vert_uv = _uv_sum / _uv_cnt[:, None]
+        _IRIS_R = 135.0 / 1024.0
+        _LIMBUS_W = 30.0 / 1024.0
+        _IRIS_C = ((299.55 / 1024.0, 1.0 - 724.0 / 1024.0),
+                   (724.65 / 1024.0, 1.0 - 302.72 / 1024.0))
         alpha = np.zeros(len(shell_obj.data.vertices))
         _band_max, _band_n = 0.0, 0
         for side, idx in sides.items():
@@ -3343,6 +3396,40 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                 _band_max = max(_band_max, float(band.max()))
                 _band_n += int((band > 0.01).sum())
                 a = np.maximum(a, np.clip(band, 0.0, 1.0))
+            # Iris spare: zero the field over the iris disk and cornea,
+            # feathering outward over the limbus width. UV-space (the globe's
+            # own UVs against the texture iris centres above), so no
+            # screen-space or pixel constant enters the bake.
+            if shell_iris_spare > 0.0:
+                _suv = _vert_uv[np.asarray(idx, dtype=int)]
+                _d0 = np.linalg.norm(_suv - np.asarray(_IRIS_C[0]), axis=1)
+                _d1 = np.linalg.norm(_suv - np.asarray(_IRIS_C[1]), axis=1)
+                _ri = np.minimum(_d0, _d1)
+                _feather = float(shell_iris_spare) * _LIMBUS_W
+                _spare = _eyshell_smoothstep(_IRIS_R, _IRIS_R + _feather, _ri)
+                a = a * _spare
+                print(f"EYESHELL_SPARE {side} spared={int((_spare <= 0.001).sum())} "
+                      f"feather={int(((_spare > 0.001) & (_spare < 0.999)).sum())}")
+            # Lid-occlusion scale: the lid overhang blocks key light over the
+            # covered fraction of the upper globe cap, so the whole shell
+            # field for this eye scales with that fraction. O = mean over the
+            # side's upper-cap shell verts seated under the seated upper lid
+            # margin at the same x (lid z above vert z); scale = O^power.
+            # Pure seated-bake geometry (lid loops + fitted globe); no photo,
+            # no PRE, no goal gap enters the bake.
+            if shell_occlusion_power > 0.0 and len(loops[side]["up"]) >= 2:
+                _xs, _zs = loops[side]["up"][:, 0], loops[side]["up"][:, 2]
+                _cap = w[:, 2] > c[2]
+                _inside = _cap & (w[:, 0] >= _xs[0]) & (w[:, 0] <= _xs[-1])
+                _lidz = np.interp(w[:, 0], _xs, _zs)
+                _covered = np.zeros(len(w), dtype=bool)
+                _covered[_inside] = _lidz[_inside] - w[_inside, 2] > 0.0
+                _occ = float(_covered[_cap].mean()) if int(_cap.sum()) else 1.0
+                _occ = min(max(_occ, 0.0), 1.0)
+                _scale = _occ ** float(shell_occlusion_power)
+                a = a * _scale
+                print(f"EYESHELL_OCCLUSION {side} occ={_occ:.3f} "
+                      f"power={float(shell_occlusion_power):.2f} scale={_scale:.3f}")
             alpha[idx] = np.clip(a, 0.0, 1.0)
         if len(shell_obj.data.color_attributes):
             raise RuntimeError("EYESHELL: shell mesh already has color attributes")
@@ -3398,7 +3485,8 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         print(f"EYESHELL_SHELL verts={len(shell_obj.data.vertices)} "
               f"alpha_med={float(np.median(alpha)):.3f} alpha_max={float(alpha.max()):.3f} "
               f"peak={shell_upper_peak} span_mm={shell_upper_span_m * 1000.0:.1f} "
-              f"band_max={_band_max:.3f} band_n={_band_n}")
+              f"band_max={_band_max:.3f} band_n={_band_n} "
+              f"spare={shell_iris_spare} occpow={shell_occlusion_power}")
 
     # ---- B3: lid->globe strips + snapped corner fans ----
     tear_name = None
@@ -6228,6 +6316,8 @@ def main():
             shell_upper_span_m=float(args.eye_shell_upper_span_mm) / 1000.0,
             shell_upper_peak=float(args.eye_shell_upper_peak),
             shell_ring_frac=float(args.eye_shell_ring_frac),
+            shell_iris_spare=float(args.eye_shell_iris_spare),
+            shell_occlusion_power=float(args.eye_shell_occlusion_power),
         )
 
     # #381 — the cast actor wears the fitted hair the library rail already proves.

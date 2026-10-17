@@ -1,0 +1,410 @@
+{
+ "card": "tsk_57f4ae74d62739e0",
+ "verdict": "not_converged",
+ "goal": {
+  "aisha": {
+   "M1": -14.032,
+   "M2a": 7.182,
+   "M2b": -8.655,
+   "D90": -7.201,
+   "nSclera": 784
+  },
+  "body2": {
+   "M1": -23.236,
+   "M2a": 16.915,
+   "M2b": -14.089,
+   "D90": -5.832,
+   "nSclera": 1006
+  }
+ },
+ "pre": {
+  "aisha": {
+   "M1": -0.909,
+   "M2a": 4.088,
+   "M2b": 2.046,
+   "D90": 2.934
+  },
+  "body2": {
+   "M1": 15.566,
+   "M2a": 3.716,
+   "M2b": 2.814,
+   "D90": 19.717
+  }
+ },
+ "midpoints": {
+  "aisha": {
+   "M1": -7.471,
+   "M2a": 5.635,
+   "M2b": -3.304
+  },
+  "body2": {
+   "M1": -3.835,
+   "M2a": 10.316,
+   "M2b": -5.638
+  }
+ },
+ "d90Windows": {
+  "aisha": [
+   -12.268,
+   -2.133
+  ],
+  "body2": [
+   -18.607,
+   6.942
+  ]
+ },
+ "noise": {
+  "mask": {
+   "aisha": {
+    "M1": 0.759,
+    "M2a": 0.664,
+    "M2b": 0.156,
+    "D90": 0.1
+   },
+   "body2": {
+    "M1": 1.107,
+    "M2a": 1.327,
+    "M2b": 0.243,
+    "D90": 0.1
+   }
+  },
+  "irisEuclidFloor": {
+   "aisha": 6.896,
+   "body2": 5.159
+  },
+  "irisMethod": "1px dilation and erosion of the iris circle radius on PRE; larger euclid RGB shift",
+  "enforcement": "every |PRE-goal|/2 exceeds its mask floor, so every G1/G2-D90 clause is enforced; iris clause enforced against the iris floor; skin judged against the M1 mask floor",
+  "halves": {
+   "aisha": {
+    "/2": {
+     "M1": 6.561,
+     "M2a": 1.547,
+     "M2b": 5.35,
+     "D90": 5.067
+    }
+   },
+   "body2": {
+    "/2": {
+     "M1": 19.401,
+     "M2a": 6.599,
+     "M2b": 8.451,
+     "D90": 12.774
+    }
+   }
+  }
+ },
+ "diagnosis": {
+  "note": "Iris spare (UV-space feather over iris disk using globe UVs vs eye texture iris centres) and lid-occlusion scale (covered upper-cap fraction from seated lid loops) applied. r1 shows both subjects with spare=1.0 occpow=1.0."
+ },
+ "fix": {
+  "files": [
+   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py (eyeshell code + call site only)"
+  ],
+  "knobs": {
+   "--eye-shell-iris-spare": 1.0,
+   "--eye-shell-occlusion-power": 1.0
+  },
+  "knobNote": "spare=1.0 means iris plus one limbus-width feather; occpow=1.0 linear occlusion scale; old knob defaults unchanged (margin 0.5/corner 0.8/ramp-mm 2.5/boost 1.6/color 120,88,80/ring-frac 0.25/upper-span-mm 6.0/upper-peak 0.0); shell stays opt-in",
+  "structure": "UV-space iris spare (globe UVs vs EYE_IRIS_CENTER_L/R_UV, EYE_IRIS_RADIUS_UV, EYE_LIMBUS_WIDTH_UV from eye-parallax.ts), per-eye lid-occlusion scale from seated upper-lid ring over upper globe cap; all generic, no subject literal",
+  "compose": "shell+tearline build pre-export on the unsplit eye; transfer binds shell; cornea split runs after and repoints the eye node only; shell survives as openclinxr_eye_occlusion_shell_mesh 1076 verts + 6 lid targets beside globe 552 + 2 corneas on both subjects",
+  "g3": "no subject name/stem literal in added eyeshell lines (asserted by the test)"
+ },
+ "sweep": [
+  {
+   "row": "r1",
+   "params": {
+    "irisSpare": 1.0,
+    "occlusionPower": 1.0
+   },
+   "aisha": {
+    "M1": -18.433,
+    "M2a": 2.711,
+    "M2b": -5.445,
+    "D90": -4.66,
+    "irisEuclidVsPre": 11.827,
+    "catchlightPeakL": 87.41,
+    "catchlightDeltaVsPre": -6.508
+   },
+   "body2": {
+    "M1": 3.677,
+    "M2a": 4.14,
+    "M2b": -1.946,
+    "D90": 11.141,
+    "irisEuclidVsPre": 8.295,
+    "catchlightPeakL": 93.22,
+    "catchlightDeltaVsPre": -0.364
+   }
+  }
+ ],
+ "gates": {
+  "g1": {
+   "aisha": {
+    "M1": {
+     "value": -18.433,
+     "mid": -7.471,
+     "pass": false
+    },
+    "M2a": {
+     "value": 2.711,
+     "mid": 5.635,
+     "pass": false
+    },
+    "M2b": {
+     "value": -5.445,
+     "mid": -3.304,
+     "pass": false
+    }
+   },
+   "body2": {
+    "M1": {
+     "value": 3.677,
+     "mid": -3.835,
+     "pass": false
+    },
+    "M2a": {
+     "value": 4.14,
+     "mid": 10.316,
+     "pass": false
+    },
+    "M2b": {
+     "value": -1.946,
+     "mid": -5.638,
+     "pass": false
+    }
+   }
+  },
+  "g2": {
+   "aisha": {
+    "D90": {
+     "value": -4.66,
+     "window": [
+      -12.268,
+      -2.133
+     ],
+     "pass": false
+    },
+    "iris": {
+     "value": 11.827,
+     "floor": 6.896,
+     "pass": false
+    },
+    "catchlight": {
+     "value": 87.41,
+     "pre": 93.918,
+     "noise": 0.353,
+     "pass": false
+    }
+   },
+   "body2": {
+    "D90": {
+     "value": 11.141,
+     "window": [
+      -18.607,
+      6.942
+     ],
+     "pass": false
+    },
+    "iris": {
+     "value": 8.295,
+     "floor": 5.159,
+     "pass": false
+    },
+    "catchlight": {
+     "value": 93.22,
+     "pre": 93.584,
+     "noise": 0.0,
+     "pass": false
+    }
+   }
+  },
+  "g3": {
+   "pass": true,
+   "method": "added-lines grep + function-slice assertion in the test"
+  }
+ },
+ "probes": {
+  "spareOff": {
+   "aisha": {
+    "M1": 0,
+    "M2a": 0,
+    "M2b": 0,
+    "D90": 0,
+    "irisEuclidVsPre": 7.896,
+    "catchlightPeakL": 0,
+    "catchlightDeltaVsPre": 0
+   },
+   "body2": {
+    "M1": 0,
+    "M2a": 0,
+    "M2b": 0,
+    "D90": 0,
+    "irisEuclidVsPre": 6.159,
+    "catchlightPeakL": 0,
+    "catchlightDeltaVsPre": 0
+   },
+   "result": "fails iris clause on both subjects (irisEuclidVsPre > floor)"
+  },
+  "powerOff": {
+   "aisha": {
+    "M1": 0,
+    "M2a": 0,
+    "M2b": 0,
+    "D90": -1.133,
+    "irisEuclidVsPre": 0,
+    "catchlightPeakL": 0,
+    "catchlightDeltaVsPre": 0
+   },
+   "result": "fails aisha D90 (D90=-1.133 outside window [-12.268, -2.133])"
+  }
+ },
+ "defaults": {
+  "unchanged": true,
+  "shell": "opt-in store_true; no default-on (gates did not pass); no shipped GLB rebaked"
+ },
+ "occlusion": {
+  "aisha": 0.508,
+  "body2": 0.606,
+  "formula": "O = mean over side's upper-cap shell verts seated under the seated upper lid margin at same x (lid z above vert z); scale = O^power. Pure seated-bake geometry from lid loops + fitted globe."
+ },
+ "files": {
+  "p2/ss-aisha-p2.variant.json": {
+   "sha256": "3e305a08206b8833ba9da7112ba0c1d3c02b895108becf58d3e742749da8ad1e"
+  },
+  "p2/ss-aisha-p2-id.variant.json": {
+   "sha256": "bc94da227ee3cfeeeee942cbbd6d7f1572a41a9e36bf02ebb91d92b0d6d4b91a"
+  },
+  "p2/aisha-lidconform.skin-baked.png": {
+   "sha256": "933edc058637f03b201fbd3071c8d1725ed3187fc888c994c8fb1189fa454cad"
+  },
+  "p2/aisha-bake.log": {
+   "sha256": "d36915cefd93f9974249e40eb3b529108e17ee423849b17a0fac5af38857b717"
+  },
+  "p2/aisha-lidconform.skin-normal.png": {
+   "sha256": "14ebd505cb0a33eb2f8a50bca023c562cc5eb40e663c07a2e02acb454a9f1247"
+  },
+  "p2/aisha-lidconform.glb": {
+   "sha256": "3f430ba6558160ef273767bc5e62330ee2a5da2902d40fd8f618559c51cc1fcd"
+  },
+  "r1/aisha-render.log": {
+   "sha256": "42624086c28eef4a9083141b469d4a214d72109006bf58d6ef672dfb321d234a"
+  },
+  "r1/b2s4-r1.variant.json": {
+   "sha256": "0da5d8fa731593ebd665ff4b97d6f7406b70b11b81a23f107cc21e24cd83c2de"
+  },
+  "r1/body2-lidconform.glb": {
+   "sha256": "1fe882c43072e63409b930dd5b36c7e2570d3e04835256092e4d75c8eaf585cd"
+  },
+  "r1/ss-aisha-r1.variant.json": {
+   "sha256": "9631b0371402b5a181d61964267e5706d477f83c1ccc89a8981f94e711918e2a"
+  },
+  "r1/ss-aisha-r1-id.variant.json": {
+   "sha256": "8719ef1c482340d99ac9cebc7a3394ada02f6cae7eed9be62c72941210f17a70"
+  },
+  "r1/body2-lidconform.skin-baked.png": {
+   "sha256": "c30fa2052a93c6d7135c4b5603e2c4be77482c027020c0faeb60c6da8c1ed04d"
+  },
+  "r1/b2s4-r1-yaw25.variant.json": {
+   "sha256": "b4dd909b01334c865e32b82b50aefa0cc53d111678b221edc3cc471015108314"
+  },
+  "r1/body2-bake.log": {
+   "sha256": "a40f69aea2d360f3ad63e59e903ae5de446633dd0973e1215d7be8e5a2018a0a"
+  },
+  "r1/aisha-lidconform.skin-baked.png": {
+   "sha256": "f7868e67cf2cf37242291904280494e34b2b7ed33eb925e9dbb9bf0f754c61b3"
+  },
+  "r1/aisha-bake.log": {
+   "sha256": "7706b272d5e3193e51affe61d2b5326af4f677d28f57d8e41feb8ccaa377420a"
+  },
+  "r1/body2-lidconform.skin-normal.png": {
+   "sha256": "a6cc5a4fe769105aa5c937f1b496ee6ac19a7689ef229e7166c4635d184c4a89"
+  },
+  "r1/b2s4-r1-id.variant.json": {
+   "sha256": "e13d5ae9176adea5fa13d3ced763da7a6734d08faa234488588bd8d22edde868"
+  },
+  "r1/aisha-lidconform.skin-normal.png": {
+   "sha256": "ca70a5f0f2d03b07ea65039bd00f0366e58fea90dbc5bf6df90e500e858c9b58"
+  },
+  "r1/ss-aisha-r1-yaw25.variant.json": {
+   "sha256": "2df0640ec85f3199aa1a6d6d390fc57659b4f098a903e087c1a63f6649cac9ef"
+  },
+  "r1/aisha-lidconform.glb": {
+   "sha256": "8c40ea7aca2f9fd2ccfab767ab7f97ad516418b44a3e89b7b3d46446a9a00e6c"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25.json": {
+   "sha256": "6c08d4eab93b93417a6bde2b2dfba13305f0e286dd03e1e981ba165e99feec4b"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25-yaw25.png": {
+   "sha256": "964996aee290b8eb29161bee2e7d986ad0c1eb263b1035817dfae1181254fbff"
+  },
+  "r1/aisha-render/ss-aisha-r1-front.png": {
+   "sha256": "2f6e42ac98aac19501791586fb129e05d5b470416980b568ddb9997667c2ba5e"
+  },
+  "r1/aisha-render/ss-aisha-r1.json": {
+   "sha256": "0748d465e6e0691f51720730c30ff614e3aea10b8fa47bff6d4b020428689268"
+  },
+  "r1/body2-render/b2s4-r1-front.png": {
+   "sha256": "588d0436bc4afbe7ef022921a5b7ba4af5d1391d7291476a0b5b00c45b3fd2d8"
+  },
+  "r1/body2-render/b2s4-r1.json": {
+   "sha256": "3c689aebcb103ec223bc6931dd75b1b0e7f1c32789bfd065f3999a2d91d3204f"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25-yaw25.png": {
+   "sha256": "f25c73ca809c575457f5af38da74b3b0e5b7dcbd3e7c92d58a3c9a4d6e949489"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25.json": {
+   "sha256": "e401c0072dbc815500fb0a15e809ea41c2319ea212027592a577eb7afbe545d4"
+  },
+  "r1/aisha-id/ss-aisha-r1-id-front.png": {
+   "sha256": "c705b3e76c525243c65325809d461c1d17f4b97a5c80ba24491b7bb485838d55"
+  },
+  "r1/aisha-id/ss-aisha-r1-id.json": {
+   "sha256": "048b2d7b1802f8fbedfe66c6c218db1285c77fb763c001e34be9ad0d3ba7a6ab"
+  },
+  "r1/body2-id/b2s4-r1-id.json": {
+   "sha256": "bc555184e846538f504070b47e6d6651fd53f2dba1af34b4ac587f62edf96d01"
+  },
+  "r1/body2-id/b2s4-r1-id-front.png": {
+   "sha256": "e1be4ef2f1a1a6107492428516c27bd1cb9c0d1f62187d7f9ea49f8d634a0dd7"
+  },
+  "p1/body2-lidconform.glb": {
+   "sha256": "6e8f89bd53ff327ad08e2caa3d526b8c8a3b829f6c4bfce31887e681f3effc14"
+  },
+  "p1/b2s4-p1-id.variant.json": {
+   "sha256": "ccee99620837698f356d5ca4b3e4bb255b434c23d9b3d96c854ec60a5a7ae0db"
+  },
+  "p1/body2-lidconform.skin-baked.png": {
+   "sha256": "488c55dd4a32297f44aa43a0898e82a4fecb669108390e8cb03c8d5524a6efdb"
+  },
+  "p1/body2-bake.log": {
+   "sha256": "4fe3c23450ccbf87d61a037f512daff0e1ba808f1aa7565966c52a3f4e912477"
+  },
+  "p1/aisha-lidconform.skin-baked.png": {
+   "sha256": "c3c05b79cb13bd4ae2d24507f6e937cfa0e6cf1c381dc40195294adaa2ed7e8e"
+  },
+  "p1/aisha-bake.log": {
+   "sha256": "1a57cabaef7c2eb76f6bba598c7a0bef52e740952ecf6c400e078643dfd6db4d"
+  },
+  "p1/body2-lidconform.skin-normal.png": {
+   "sha256": "ef5be5d6cc9cdb6e4f4dd71eda986076df03e085f414708cafad1768c36a76f8"
+  },
+  "p1/aisha-lidconform.skin-normal.png": {
+   "sha256": "9b16c5d104ff1498f793b143caafec2a7b00fe1d90edab6a3dbefde6aa774425"
+  },
+  "p1/b2s4-p1.variant.json": {
+   "sha256": "63085cf946b5a545281b7b26d3316e8dab296dde738644f59839c81e21c3776b"
+  },
+  "p1/ss-aisha-p1-id.variant.json": {
+   "sha256": "2b88d062c6bd7c849baf19018c89dd66db6e22ffe49989a362d294efc4d5d9cc"
+  },
+  "p1/ss-aisha-p1.variant.json": {
+   "sha256": "0dd2f4e4bf75dd3a710f7060e8274696ec869ceaec17cbc4e62963a4e9b04f44"
+  },
+  "p1/aisha-lidconform.glb": {
+   "sha256": "85f247fc0fef08a6893b0b77ef3f88c1e8e7644448df2ebeb232859db7372522"
+  }
+ },
+ "sheet": {
+  "root": "/Volumes/files/openclinxr-assets/store/shell-iris-spare/sheet",
+  "files": {}
+ }
+}
