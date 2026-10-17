@@ -134,6 +134,18 @@ function bodyOnlyFromArgv(): boolean {
 }
 
 /**
+ * Standing-pitch slice (2026-10-17): opt-in `--feet-closeup` (or
+ * `--feet-closeup=1`); default off. When on, main() skips the video flow and
+ * runs the closeup still flow below: one isolated side-view still of the feet
+ * (shoes kept, never body-only) at idle and one at arrival, written to
+ * --output-dir (default .openclinxr/evidence/standing-pitch). Existing
+ * invocations are unchanged.
+ */
+function feetCloseupFromArgv(): boolean {
+  return process.argv.some((arg) => arg === "--feet-closeup" || arg === "--feet-closeup=1");
+}
+
+/**
  * Pull a feet-side pose back for full-body framing: same side view axis, ~2x the
  * distance, look raised to mid-torso so head and feet share the frame.
  */
@@ -2505,8 +2517,251 @@ function probeMp4(mp4Path: string): { durationSeconds: number; frameCount: numbe
   return { durationSeconds: Number(String(duration).trim()), frameCount: Number(String(frames).trim()) };
 }
 
+/**
+ * Standing-pitch `--feet-closeup` still flow (2026-10-17). Two isolated
+ * side-view stills of the walker's feet with shoes kept (never --body-only):
+ * one at idle (skeleton rest, sim-frozen right after load) and one at arrival
+ * (phase arrived, stopped >= 2 s). Camera: floor-height eye (0.22 m), look at
+ * 0.07 m over the feet midpoint, perpendicular to the ankle->toe forward, both
+ * perp sides shot, brighter midtone wins, both-feet-inside-NDC gate decides
+ * the distance (1.0 -> 1.4 -> 1.8 m).
+ */
+const FEET_CLOSEUP_DEFAULT_DIR = ".openclinxr/evidence/standing-pitch";
+
+type FeetBones = {
+  phase: string | null;
+  stoppedSeconds: number;
+  actorId: string | null;
+  ankleL: Vec3 | null;
+  ankleR: Vec3 | null;
+  toeL: Vec3 | null;
+  toeR: Vec3 | null;
+};
+
+const FEET_BONES_PROBE_SOURCE = String.raw`
+(() => {
+  const scene = globalThis.__openClinXrDebugScene;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const out = {
+    phase: ev ? ev.phase : null,
+    stoppedSeconds: ev ? ev.stoppedSeconds : 0,
+    actorId: ev ? ev.physicianActorId : null,
+    ankleL: null, ankleR: null, toeL: null, toeR: null,
+  };
+  if (!scene) return out;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return out;
+  const wOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    const e = bone.matrixWorld.elements;
+    return { x: e[12], y: e[13], z: e[14] };
+  };
+  out.ankleL = wOf("footL", "foot.L");
+  out.ankleR = wOf("footR", "foot.R");
+  out.toeL = wOf("toe1-1L", "toe1-1.L");
+  out.toeR = wOf("toe1-1R", "toe1-1.R");
+  return out;
+})()
+`;
+
+function feetCloseupTag(extraQuery: string, steppingTurnEnabled: boolean): string {
+  const q = `${steppingTurnEnabled ? "steppingTurn=1" : "steppingTurn=0"}&${extraQuery}`;
+  if (q.includes("footBase=1")) return "plan-footbase";
+  if (q.includes("footstepPlan=1")) return "plan-only";
+  return "default";
+}
+
+async function readFeetBones(page: Page): Promise<FeetBones> {
+  return (await page.evaluate(FEET_BONES_PROBE_SOURCE)) as FeetBones;
+}
+
+function feetMid(feet: FeetBones): { x: number; z: number; toeY: number } | null {
+  const pts = [feet.ankleL, feet.ankleR, feet.toeL, feet.toeR].filter((p): p is Vec3 => p !== null);
+  if (pts.length < 4) return null;
+  const toeYs = [feet.toeL?.y ?? NaN, feet.toeR?.y ?? NaN].filter((y) => Number.isFinite(y));
+  return {
+    x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
+    z: pts.reduce((s, p) => s + p.z, 0) / pts.length,
+    toeY: toeYs.length > 0 ? Math.min(...toeYs) : 0,
+  };
+}
+
+/** Side-view pose at floor height over the feet midpoint; side = +1/-1 perp. */
+function feetCloseupPose(mid: { x: number; z: number }, fwd: { x: number; z: number }, side: number, dist: number): CameraPose {
+  const px = -fwd.z * side;
+  const pz = fwd.x * side;
+  return {
+    eye: { x: mid.x + px * dist, y: 0.22, z: mid.z + pz * dist },
+    look: { x: mid.x, y: 0.07, z: mid.z },
+    fov: 45,
+  };
+}
+
+async function shootFeetCloseup(
+  page: Page,
+  feet: FeetBones,
+  outPng: string,
+): Promise<{ camera: CameraPose; midtone: number; side: string; dist: number; feet: FeetBones; floorY: number; ndcPass: boolean }> {
+  const mid = feetMid(feet);
+  if (!mid) throw new Error("feet closeup: ankle/toe bones unresolved");
+  const fwdRaw = {
+    x: (feet.toeL!.x + feet.toeR!.x) / 2 - (feet.ankleL!.x + feet.ankleR!.x) / 2,
+    z: (feet.toeL!.z + feet.toeR!.z) / 2 - (feet.ankleL!.z + feet.ankleR!.z) / 2,
+  };
+  const fwdLen = Math.hypot(fwdRaw.x, fwdRaw.z) || 1;
+  const fwd = { x: fwdRaw.x / fwdLen, z: fwdRaw.z / fwdLen };
+  const floorY = mid.toeY - 0.01;
+  // Isolate by the EVIDENCE actor id the bone probe just resolved (the bundle
+  // walker id can differ from the runtime physician id; isolating by the wrong
+  // id hides nothing and the room stays in frame — measured 2026-10-17).
+  const isolateResult = (await page.evaluate(
+    `${ISOLATE_SOURCE}(${JSON.stringify({ actorId: feet.actorId, cx: mid.x, cz: mid.z, floorY })})`,
+  )) as { ok: boolean; hiddenCount?: number; floorAdded?: boolean; reason?: string };
+  if (!isolateResult.ok) throw new Error(`feet closeup: isolation failed (${isolateResult.reason ?? "unknown"})`);
+  process.stdout.write(
+    `[feet-closeup] isolated actor=${feet.actorId} hidden=${isolateResult.hiddenCount ?? "?"} floor=${isolateResult.floorAdded === true ? "yes" : "no"}\n`,
+  );
+  await hideDomUi(page);
+  const bound = 0.9;
+  const inside = (p: NdcPoint): boolean =>
+    p !== null && !p.behind && Math.abs(p.x) <= bound && Math.abs(p.y) <= bound;
+  let winner: { png: Buffer; camera: CameraPose; midtone: number; side: string; dist: number } | null = null;
+  let ndcPass = false;
+  for (const dist of [1.0, 1.4, 1.8]) {
+    const shots: Array<{ png: Buffer; camera: CameraPose; midtone: number; side: string; dist: number; ndc: boolean }> = [];
+    for (const side of [1, -1]) {
+      const pose = feetCloseupPose(mid, fwd, side, dist);
+      await placeCamera(page, pose);
+      // Pump one render: under the frozen clock the canvas keeps the
+      // pre-isolation frame until a fastForward fires rAF (measured
+      // 2026-10-17: screenshots without this show the full room).
+      await page.clock.fastForward(20);
+      const ndc = await projectPoints(page, [feet.ankleL, feet.ankleR, feet.toeL, feet.toeR]);
+      const ok = ndc.length === 4 && ndc.every(inside);
+      const png = await page.screenshot({ animations: "disabled" });
+      shots.push({ png, camera: pose, midtone: midtoneFraction(png), side: side === 1 ? "+perp" : "-perp", dist, ndc: ok });
+    }
+    shots.sort((a, b) => b.midtone - a.midtone);
+    const passing = shots.filter((s) => s.ndc);
+    if (passing.length > 0) {
+      const best = passing[0]!;
+      winner = best;
+      ndcPass = true;
+      break;
+    }
+    const best = shots[0]!;
+    if (!winner || best.midtone > winner.midtone) winner = best;
+  }
+  if (!winner) throw new Error("feet closeup: no screenshot produced");
+  await writeFile(outPng, winner.png);
+  // Re-read bones at shoot time: the render pumps advanced sim <= 120 ms.
+  const atShoot = await readFeetBones(page);
+  feet.phase = atShoot.phase;
+  feet.stoppedSeconds = atShoot.stoppedSeconds;
+  feet.ankleL = atShoot.ankleL;
+  feet.ankleR = atShoot.ankleR;
+  feet.toeL = atShoot.toeL;
+  feet.toeR = atShoot.toeR;
+  process.stdout.write(
+    `[feet-closeup] ${path.basename(outPng)} side=${winner.side} dist=${winner.dist.toFixed(1)}m midtone=${winner.midtone.toFixed(3)} ndcPass=${ndcPass}\n`,
+  );
+  return { camera: winner.camera, midtone: winner.midtone, side: winner.side, dist: winner.dist, feet, floorY, ndcPass };
+}
+
+async function runFeetCloseup(
+  server: PortlessDevServer,
+  browser: Browser,
+  bundleJson: string,
+  buildUrl: (baseUrl: string) => string,
+  outputDir: string,
+  tag: string,
+  urlQuery: string,
+): Promise<{ idlePng: string; arrivalPng: string; sidecar: string }> {
+  await mkdir(outputDir, { recursive: true });
+  const idlePng = path.join(outputDir, `feet-idle-${tag}.png`);
+  const arrivalPng = path.join(outputDir, `feet-arrival-${tag}.png`);
+  const sidecar = path.join(outputDir, `feet-closeup-${tag}.json`);
+  const results: Record<string, unknown> = { tag, urlQuery, measuredAt: new Date().toISOString() };
+  for (const phase of ["idle", "arrival"] as const) {
+    const context = await browser.newContext({ viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT } });
+    const page = await context.newPage();
+    try {
+      await page.addInitScript(BROWSER_PAGE_GLOBALS_INIT_SCRIPT);
+      const override = humanoidGlbOverride();
+      if (override) await installHumanoidOverrideRoute(page, override);
+      await page.route(ACTIVE_BUNDLE_ROUTE, async (route) => {
+        await route.fulfill({ status: 200, contentType: "application/json", body: bundleJson });
+      });
+      // Freeze sim time BEFORE navigation so the idle still holds the rest
+      // pose: with post-load install the approach already walks (or arrives)
+      // during GLB fetch, and the "idle" still mislabels a walking frame.
+      // install() alone still ticks with wall time (measured 2026-10-17: the
+      // hold check fails), and pauseAt(install-time) reads as "the past" once
+      // load ticks the fake clock — so pause just ahead (+50 ms of timers is
+      // harmless boot) and BEFORE goto.
+      await page.clock.install();
+      const installFakeMs = (await page.evaluate(`(() => Date.now())()`)) as number;
+      await page.clock.pauseAt(installFakeMs + 50);
+      await page.goto(buildUrl(server.url), { waitUntil: "load", timeout: 180_000 });
+      const t0 = (await page.evaluate(`(() => Date.now())()`)) as number;
+      await realSleep(1500);
+      const t1 = (await page.evaluate(`(() => Date.now())()`)) as number;
+      if (Math.abs(t1 - t0) >= 300) throw new Error("feet closeup: fake clock not honoured; refusing stills");
+      let feet = await readFeetBones(page);
+      let polls = 0;
+      while (!(feet.ankleL && feet.ankleR && feet.toeL && feet.toeR) && polls < 900) {
+        await page.clock.fastForward(100);
+        await realSleep(200);
+        feet = await readFeetBones(page);
+        polls += 1;
+      }
+      if (!(feet.ankleL && feet.ankleR && feet.toeL && feet.toeR)) {
+        throw new Error(`feet closeup ${phase}: foot bones never resolved (polls=${polls})`);
+      }
+      if (phase === "arrival") {
+        let steps = 0;
+        for (;;) {
+          if (feet.phase === "arrived") {
+            if (feet.stoppedSeconds >= 2) break;
+          }
+          if (steps >= 1500) throw new Error(`feet closeup arrival: never settled (phase=${feet.phase} stopped=${feet.stoppedSeconds})`);
+          await page.clock.fastForward(1000 / 30);
+          feet = await readFeetBones(page);
+          steps += 1;
+        }
+        // Re-read once more settled: bones at the held pose.
+        feet = await readFeetBones(page);
+      }
+      const shot = await shootFeetCloseup(page, feet, phase === "idle" ? idlePng : arrivalPng);
+      results[phase] = shot;
+      process.stdout.write(`[feet-closeup] ${phase} simPhase=${feet.phase} polls=${polls}\n`);
+    } finally {
+      await context.close().catch(() => undefined);
+    }
+  }
+  await writeFile(sidecar, `${JSON.stringify(results, null, 2)}\n`);
+  return { idlePng, arrivalPng, sidecar };
+}
+
 async function main(): Promise<void> {
-  const outputDir = path.resolve(process.cwd(), outputDirFromArgv());
+  const feetCloseup = feetCloseupFromArgv();
+  const hasExplicitOutputDir = process.argv.some((arg) => arg.startsWith("--output-dir="));
+  const outputDir = path.resolve(
+    process.cwd(),
+    hasExplicitOutputDir ? outputDirFromArgv() : feetCloseup ? FEET_CLOSEUP_DEFAULT_DIR : outputDirFromArgv(),
+  );
   const steppingTurnEnabled = steppingTurnEnabledFromArgv();
   const ccdStanceLockEnabled = ccdStanceLockEnabledFromArgv();
   const extraQuery = extraQueryFromArgv();
@@ -2531,8 +2786,39 @@ async function main(): Promise<void> {
     + (ccdStanceLockEnabled ? "&ccdStanceLock=1" : "")
     + (extraQuery ? `&${extraQuery}` : "");
   ACTIVE_WALKER_ACTOR_ID = scenario.walkerActorId;
-  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}, query=${extraQuery || "(none)"}, bodyOnly=${bodyOnly ? "1" : "0"}\n`);
+  process.stdout.write(`[scenario] ${scenario.scenarioId}, walker actorId ${scenario.walkerActorId}, steppingTurn=${steppingTurnEnabled ? "1" : "0"}, ccdStanceLock=${ccdStanceLockEnabled ? "1" : "0"}, query=${extraQuery || "(none)"}, bodyOnly=${bodyOnly ? "1" : "0"}${feetCloseup ? ", feetCloseup=1" : ""}\n`);
   const bundleJson = scenario.bundleJson;
+  if (feetCloseup) {
+    // Standing-pitch still flow: two isolated feet stills, no video assembly.
+    const tag = feetCloseupTag(extraQuery, steppingTurnEnabled);
+    const urlQuery = `${steppingTurnEnabled ? "steppingTurn=1" : "steppingTurn=0"}${extraQuery ? `&${extraQuery}` : ""}`;
+    let server: PortlessDevServer | null = null;
+    try {
+      server = await spawnPortlessDevServer({ filter: "@openclinxr/ui-xr", readyTimeoutMs: 180_000 });
+      const browser = await chromium.launch({
+        headless: true,
+        args: [
+          "--disable-gpu-vsync",
+          "--disable-frame-rate-limit",
+          "--disable-background-timer-throttling",
+          "--disable-renderer-backgrounding",
+          "--disable-backgrounding-occluded-windows",
+          "--use-angle=metal",
+          "--enable-gpu-rasterization",
+          "--ignore-gpu-blocklist",
+        ],
+      });
+      try {
+        const done = await runFeetCloseup(server, browser, bundleJson, ACTIVE_BUILD_URL, outputDir, tag, urlQuery);
+        process.stdout.write(`[feet-closeup] wrote ${done.idlePng} ${done.arrivalPng} ${done.sidecar}\n`);
+      } finally {
+        await browser.close().catch(() => undefined);
+      }
+    } finally {
+      if (server) await stopPortlessDevServer(server.proc);
+    }
+    return;
+  }
   const humanoidOverride = humanoidGlbOverride();
   if (humanoidOverride) process.stderr.write(`[humanoid] override requested: ${humanoidOverride}\n`);
   let server: PortlessDevServer | null = null;

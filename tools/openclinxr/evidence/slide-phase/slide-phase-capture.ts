@@ -115,6 +115,13 @@ type FrameProbe = {
   travelHeading: number | null;
   startWorld: Vec3 | null;
   targetWorld: Vec3 | null;
+  /**
+   * Standing-pitch slice (2026-10-17): heel-sole contact world per foot, read
+   * by a SEPARATE evaluate (STANDING_PITCH_PROBE_SOURCE below) so the
+   * verbatim PROBE_SOURCE copy above never diverges. Null on old captures.
+   */
+  heelContactL: Vec3 | null;
+  heelContactR: Vec3 | null;
   /** S2: executor walking-call index (fixed-clock substep datum); null on old builds. */
   walkSimSubsteps: number | null;
   /** S2: knee flexion degrees per side, for the amplitude counterweight; null on old builds. */
@@ -233,6 +240,64 @@ const PROBE_SOURCE = `
 })()
 `;
 
+/**
+ * Standing-pitch slice (2026-10-17): heel-sole CONTACT world per foot.
+ *
+ * legWorlds.heelL/R above reads the foot.L/R bone ORIGIN (the ankle joint —
+ * wOf("footL", "foot.L") in PROBE_SOURCE). The sole that touches the floor
+ * sits ~0.069 m below and ~0.014 m behind it, so this probe transforms a
+ * fixed foot-bone-local heel-sole point into world per frame.
+ *
+ * HEEL_LOCAL provenance (measured 2026-10-17 off the shipped bytes
+ * apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb via
+ * @gltf-transform/core, NOT hand-picked): among vertices whose dominant skin
+ * weight (>= 0.5) is the foot.L/R joint, in bind pose, the lowest-Y vertex on
+ * the posterior half (opposite the ankle->toe-joint XZ direction) is the heel
+ * sole (y=0.0017, body mesh v4676; toe sole y=0.0000 v4747; ankle 0.0689 above
+ * the heel sole). footLocal = inverseBind(foot) * POSITION. L/R mirrored in x.
+ * All mesh-node worlds are identity, so world = footBone.matrixWorld * local
+ * (matrixWorld already carries the 0.86 actor scale).
+ */
+const HEEL_LOCAL_L = [-0.0022, 0.01817, 0.06779];
+const HEEL_LOCAL_R = [0.0022, 0.01817, 0.06779];
+
+const STANDING_PITCH_PROBE_SOURCE = `
+(() => {
+  const LOCALS = { L: ${JSON.stringify(HEEL_LOCAL_L)}, R: ${JSON.stringify(HEEL_LOCAL_R)} };
+  const none = { heelContactL: null, heelContactR: null };
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return none;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return none;
+  const contactOf = (a, b, local) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    const e = bone.matrixWorld.elements;
+    return {
+      x: e[0] * local[0] + e[4] * local[1] + e[8] * local[2] + e[12],
+      y: e[1] * local[0] + e[5] * local[1] + e[9] * local[2] + e[13],
+      z: e[2] * local[0] + e[6] * local[1] + e[10] * local[2] + e[14],
+    };
+  };
+  return {
+    heelContactL: contactOf("footL", "foot.L", LOCALS.L),
+    heelContactR: contactOf("footR", "foot.R", LOCALS.R),
+  };
+})()
+`;
+
 /** COPIED VERBATIM from settle-entry-capture.ts LABELS_SOURCE (see file header). */
 const LABELS_SOURCE = `
 (() => {
@@ -251,7 +316,24 @@ const LABELS_SOURCE = `
 async function probe(page: Page): Promise<FrameProbe> {
   const tail = (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
   const liveActors = (await page.evaluate(LIVE_POSE_PROBE_SOURCE)) as LiveActorPose[];
-  return { ...tail, liveActors: Array.isArray(liveActors) ? liveActors : [] };
+  // Standing-pitch additive read; old builds / pre-spawn frames yield nulls.
+  // A failing second evaluate must never lose the primary tail: default nulls.
+  let heel: { heelContactL: Vec3 | null; heelContactR: Vec3 | null } = {
+    heelContactL: null,
+    heelContactR: null,
+  };
+  try {
+    const read = (await page.evaluate(STANDING_PITCH_PROBE_SOURCE)) as typeof heel;
+    if (read && typeof read === "object") heel = { ...heel, ...read };
+  } catch {
+    /* contact stays null; the tail still records */
+  }
+  return {
+    ...tail,
+    heelContactL: tail.heelContactL ?? heel.heelContactL,
+    heelContactR: tail.heelContactR ?? heel.heelContactR,
+    liveActors: Array.isArray(liveActors) ? liveActors : [],
+  };
 }
 
 type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
