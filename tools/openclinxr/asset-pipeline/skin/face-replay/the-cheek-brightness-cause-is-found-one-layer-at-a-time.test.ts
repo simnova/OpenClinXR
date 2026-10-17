@@ -60,6 +60,7 @@ type Report = {
     { ran: boolean; result: string; reason: string }
   >;
   verdict: (typeof VERDICTS)[number];
+  verdict_partial: boolean;
   fix: null | { kind: string };
   falsifier: { base: number; target: number; best: number; met: boolean };
   red_first: string;
@@ -135,9 +136,12 @@ describe("the cheek-brightness cause is found one layer at a time", () => {
       (d) => d < FROZEN_THRESHOLD || d <= FALSIFIER_HALF_GAP,
     );
     expect(rep.falsifier.met).toBe(!moverExists);
-    // Verdict is in the closed set; "none" requires no qualifying fix and
-    // no unexamined open candidate left by a mover.
+    // Verdict is in the closed set; HANDBACK 1: A1 (0.02226) and the
+    // no-beard denominator (0.0283) cross the half-gap line, so the verdict
+    // is albedo (partial), not "none". A1 flattening Aisha is expected.
     expect(VERDICTS).toContain(rep.verdict);
+    expect(rep.verdict).toBe("albedo");
+    expect(rep.verdict_partial).toBe(true);
     if (rep.verdict === "none") {
       expect(rep.fix).toBeNull();
       for (const c of ["c1_rig", "c2_geometry", "c3_denominator"]) {

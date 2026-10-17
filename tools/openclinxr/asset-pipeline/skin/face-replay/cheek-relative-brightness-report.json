@@ -634,8 +634,8 @@
    "reason": "no_beard re-derived from known-good/known-bad only: d_good 0.0026, d_badA 0.03367, d_badB 0.00796, threshold min(0.018135,0.00528)=0.00528; body2 d_eval 0.0283 still fails AND badB margin 0.00268 < phys floor 0.005 so the row is unenforceable (separation broken under the unchanged rule). no_forehead: threshold 0.00548, badA margin 0.00281 < 0.005, same failure. median_all5 worse (0.06358). No change to skin_gates_split.py; no flips."
   }
  },
- "verdict": "none",
- "verdict_reason": "No candidate both moves body2 below 0.00835 and keeps Aisha passing with separation. Largest partial mover is albedo (A1 0.05421->0.02226 removes ~0.032 of the 0.04586 gap) but A1 leaves 0.0223 failing and breaks Aisha (0.03188); A5 ~= A1 (0.02385) so roughness/normal/AO contribute ~nothing; A5 residual with all texture flattened is lighting x macro-geometry or photo symmetric shading. Fix null; no flips.",
+ "verdict": "albedo",
+ "verdict_reason": "HANDBACK 1 correction: the brief falsifier stops only if nothing moves body2 below 0.00835 or to <= 0.0313. A1 flat albedo moves body2 0.05421 -> 0.02226 and the no-beard denominator moves it to 0.0283: both cross the half-gap line, so the verdict is not 'none'. Albedo regional variation is the leading layer (partial: residual 0.0223 remains). A1 flattening Aisha (0.03188) is expected -- it removes her real variation as well -- and is not a reason to reject the finding. No fix landed (fix null, no flips); verdict records the cause layer, not a shipped change.",
  "fix": null,
  "flips": [],
  "falsifier": {
@@ -660,5 +660,61 @@
   "regshade_base_body2_json": "b9c56da9... (rig)",
   "body2_glb": "643563fc...",
   "aisha_glb": "0fbaf4c6..."
+ },
+ "verdict_partial": true,
+ "stage_table": {
+  "rule": "texture-space, unlit: cheek-region (cheek_u_lo + cheek_u_hi) mean L* ratio (L*+16) to face-region (all five texture regions) mean, same regions as gate (a) via skin_gates_split.texture_regions; per station stage output PNG, both subjects; photo-side render-space mirrored ratios for comparison",
+  "body2": {
+   "albedo_sym": 0.95578,
+   "albedo_socket": 0.95625,
+   "albedo_corners": 0.95516,
+   "albedo_lips": 0.95318,
+   "albedo_occ": 0.95318,
+   "albedo_beard": 0.95759,
+   "stage3-colour-out": 0.96532,
+   "stage3-compose-out": 0.96872
+  },
+  "aisha": {
+   "albedo_sym": 0.95527,
+   "albedo_socket": 0.95406,
+   "albedo_corners": 0.95723,
+   "albedo_lips": 0.95613,
+   "albedo_occ": 0.95612,
+   "albedo_beard": 0.95406,
+   "stage3-colour-out": 0.96597,
+   "stage3-compose-out": 0.9624
+  },
+  "body2_deltas": {
+   "socket": 0.00047,
+   "corners": -0.00109,
+   "lips": -0.00198,
+   "occ": 0.0,
+   "beard": 0.00441,
+   "colour": 0.00773,
+   "compose": 0.0034
+  },
+  "aisha_deltas": {
+   "socket": -0.00121,
+   "corners": 0.00317,
+   "lips": -0.0011,
+   "occ": -1e-05,
+   "beard": -0.00206,
+   "colour": 0.01191,
+   "compose": -0.00357
+  },
+  "photo_side_render_space_mirror": {
+   "photo_body2": 1.00205,
+   "photo_aisha": 1.04244
+  },
+  "colour_solve": {
+   "body2_L_std_gain": 1.1782,
+   "aisha_L_std_gain": 0.9212,
+   "source": "stage3-colour-report.json six[3]/source_measured.std[0] per subject"
+  },
+  "reading": "only body2-specific stage is beard (+0.00441 vs aisha -0.00206); the colour solve raises BOTH subjects (+0.00773 body2, +0.01191 aisha), so the ~1.18 L-std stretch is not body2-specific and an L-gain=1 ablation cannot fix body2 while keeping Aisha passing"
+ },
+ "step3_ablation": {
+  "ran": false,
+  "reason": "Beard is the only body2-specific stage, and its removal ablation already exists: regshade-a3 chain re-run (beard_shadow.weight 0.9->0.0, chain-manifest-A3.json) for BOTH subjects gives body2 mirrored delta 0.03511 (still > 0.00835) with Aisha 0.00342 passing -- re-running it would duplicate A3. Colour-gain=1 fails the gate for running (raises both subjects, not body2-specific). No station stage changed in this card."
  }
 }
