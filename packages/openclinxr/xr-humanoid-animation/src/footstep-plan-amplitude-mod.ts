@@ -1,8 +1,7 @@
+import type { ResolvedBedsideApproach } from "@openclinxr/asset-registry/case-approach-intent";
 import type { Object3D } from "three";
 import { Quaternion } from "three";
-import type { ResolvedBedsideApproach } from "@openclinxr/asset-registry/case-approach-intent";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
-import { planFootsteps } from "./footstep-plan-schedule.js";
 import {
   parseFootstepPlanEnabled,
   parseFootstepRouteMeters,
@@ -10,7 +9,9 @@ import {
   readFootstepProbeModelScale,
   readFootstepRouteMeters,
 } from "./footstep-plan-query-flag-mod.js";
+import { planFootsteps } from "./footstep-plan-schedule.js";
 import { extendLocoGroundRoute } from "./loco-ground-tap-mod.js";
+import { footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 
 /**
  * Footstep-plan S2 stride amplitude (default OFF, `?footstepPlan=1`).
@@ -101,7 +102,7 @@ function collectPelvisBones(actorSlot: Object3D): Object3D[] {
  * (gates then show the miss loudly, never a silent half-blend).
  */
 export function captureFootstepRest(approach: CaseOwnedBedsideApproach): void {
-  if (!readFootstepPlanEnabled()) {
+  if (!footstepPlanActiveFor(approach.actorSlot)) {
     approach.footstep = null;
     return;
   }
@@ -301,7 +302,7 @@ export function pushFootstepSafetyRecord(record: { reason: string; travelledM: n
  * the executor's correctedAtPassing guard double-covers a missed clear.
  */
 export function applyFootstepCorrection(approach: CaseOwnedBedsideApproach): void {
-  if (!readFootstepPlanEnabled()) return;
+  if (!footstepPlanActiveFor(approach.actorSlot)) return;
   const state = approach.execution.footstep;
   if (state === null || state === undefined) return;
   if (state.lastPassing !== null) {
@@ -351,7 +352,7 @@ export function applyFootstepPlanStep(input: {
   routeLength: number;
 }): void {
   const { approach } = input;
-  if (!readFootstepPlanEnabled()) return;
+  if (!footstepPlanActiveFor(approach.actorSlot)) return;
   if (approach.execution.phase !== "walking" || input.routeLength <= 0) return;
   const state = approach.footstep;
   if (state === null) return;

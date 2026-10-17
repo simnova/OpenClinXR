@@ -1,6 +1,11 @@
 import type { Object3D } from "three";
 import { Quaternion, Vector3 } from "three";
+import { footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 import { worldXyz } from "./stance-lock-ik.js";
+import {
+  overridePlanWithBackwardFootfalls,
+  planBackwardTurnFootfalls,
+} from "./stepping-turn-backward-footfalls-mod.js";
 import {
   findSteppingLegChain,
   type HingeQuat,
@@ -14,11 +19,6 @@ import {
   steppingTurnAt,
   steppingTurnLegScale,
 } from "./stepping-turn-plan-mod.js";
-import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
-import {
-  overridePlanWithBackwardFootfalls,
-  planBackwardTurnFootfalls,
-} from "./stepping-turn-backward-footfalls-mod.js";
 import { readSteppingTurnLegacyPin } from "./stepping-turn-query-flag-mod.js";
 import {
   pivotSlotXzForSteppingFrame,
@@ -160,7 +160,7 @@ export function beginSteppingTurn(input: {
     // Rest-beside-stance landing is `?footstepPlan=1` ONLY (default path keeps the
     // old mirror plan): the snapshot value is rest data, but the rest LANDING is
     // plan geometry. `legScale` above is untouched (pre-existing leg-length scale).
-    restSepM: readFootstepPlanEnabled() ? (input.restSepXzM ?? null) : null,
+    restSepM: footstepPlanActiveFor(actorSlot) ? (input.restSepXzM ?? null) : null,
   };
   // Center the final pair under the pelvis (two-step turns): the yaw split steers the
   // pivot-arc composition, so optimize it against the closed-form slot path. Falls back
@@ -171,7 +171,7 @@ export function beginSteppingTurn(input: {
   const first = planned.steps[0] ?? null;
   const planTarget = input.turnTargetXz ?? null;
   const restSepForFootfalls = planInput.restSepM ?? null;
-  const plan = readFootstepPlanEnabled()
+  const plan = footstepPlanActiveFor(actorSlot)
     && first !== null
     && planTarget !== null
     && restSepForFootfalls !== null

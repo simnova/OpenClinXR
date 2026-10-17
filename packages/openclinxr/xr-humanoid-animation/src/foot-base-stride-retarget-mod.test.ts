@@ -1,7 +1,7 @@
-import * as THREE from "three";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as THREE from "three";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   applyFootBaseStep,
@@ -862,5 +862,84 @@ describe("foot-base symmetric half travel (step-asym slice)", () => {
     expect(standardScale as number).toBeGreaterThan(childScale as number);
     expect(standardScale as number).toBeGreaterThan(0.95);
     clearFootBaseState(standard);
+  });
+});
+
+describe("rig-capability gate (default flip round 3)", () => {
+  /**
+   * The predicate lives in `rig-capability-gate-mod.ts`; this exercises it
+   * through the foot-base layer's own entrypoint so no new internal test
+   * import is added. A chainless actor slot (the SC-05 harness shape: only the
+   * `toe1-1.L`/`toe1-1.R` contact cues, no leg chain) reads inactive however
+   * the query is set, and a chain-bearing slot follows the flags.
+   */
+  function buildChainlessRig(): { slot: THREE.Group; leftToe: THREE.Object3D; rightToe: THREE.Object3D } {
+    const slot = new THREE.Group();
+    const leftToe = new THREE.Object3D();
+    leftToe.name = "toe1-1.L";
+    slot.add(leftToe);
+    const rightToe = new THREE.Object3D();
+    rightToe.name = "toe1-1.R";
+    slot.add(rightToe);
+    slot.updateMatrixWorld(true);
+    return { slot, leftToe, rightToe };
+  }
+
+  function approachFor(slot: THREE.Group, leftToe: THREE.Object3D, rightToe: THREE.Object3D) {
+    return {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+  }
+
+  it("a chainless rig stays inactive with footBase=1 and footstepPlan=1", () => {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildChainlessRig();
+    const approach = approachFor(slot, leftToe, rightToe);
+    const labels = stanceLabels();
+    const summary = applyFootBaseStep({
+      approach: approach as never,
+      routeDx: 0,
+      routeDz: 1.31,
+      routeLength: 1.31,
+      clip: { labels, actionTimeSeconds: 0.3 },
+    });
+    expect(summary).toBeNull();
+    expect(readFootBaseState(approach)).toBeNull();
+  });
+
+  it("a chain-bearing rig follows the flag (active at footBase=1, null at footBase=0)", () => {
+    const { slot, leftToe, rightToe } = buildLeggedRig();
+    const labels = stanceLabels();
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const active = approachFor(slot, leftToe, rightToe);
+    const summary = applyFootBaseStep({
+      approach: active as never,
+      routeDx: 0,
+      routeDz: 1.31,
+      routeLength: 1.31,
+      clip: { labels, actionTimeSeconds: 0.3 },
+    });
+    expect(summary).not.toBeNull();
+    clearFootBaseState(active);
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=0");
+    const gatedOff = approachFor(slot, leftToe, rightToe);
+    expect(
+      applyFootBaseStep({
+        approach: gatedOff as never,
+        routeDx: 0,
+        routeDz: 1.31,
+        routeLength: 1.31,
+        clip: { labels, actionTimeSeconds: 0.3 },
+      }),
+    ).toBeNull();
   });
 });

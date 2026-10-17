@@ -98,6 +98,19 @@ import { sceneClosureCaseDocument } from "../../../tools/openclinxr/factory/scen
  * close yields (or never had a snapshot to close against) publishes double support — both toes
  * settled, neither a swing foot mid-step. `stopSlideL/R` below reads `run.stanceL/R`, which this
  * harness already builds every frame from `approach.lock.labelledStance` (see the loop below).
+ *
+ * ## CHANGED (default flip, rig-capability gate): the default locomotion stack (`?footBase=1` +
+ * `?footstepPlan=1`) now runs only on a rig whose actor slot carries a solvable stance leg chain
+ * (`rig-capability-gate-mod.ts`, `rigHasStanceLegChain`); a chainless rig takes exactly the
+ * flag-absent path. This harness stages a synthetic humanoid whose physician slot has only the
+ * `toe1-1.L`/`toe1-1.R` contact cues and NO leg chain, so the foot-base retarget's IK pin was
+ * structurally inert (`legSolveFrames 0`) while it still SET the walking slot: the planted clip toe
+ * slid at the body-advance rate, worst frame 0.010115 m against the 0.005 m perceptual floor. With
+ * the gate that slot is chainless, so the plan never captures, the foot-base step never runs and
+ * the closed loop never engages — this harness now exercises the gate's legacy fallback, and every
+ * threshold and query below is unchanged. The real-rig default stack (a legged actor slot) is
+ * covered by the `slide-phase-capture` browser runs in `.openclinxr/evidence/default-flip/verify/`,
+ * not by this node harness.
  */
 
 const CASE = sceneClosureCaseDocument();

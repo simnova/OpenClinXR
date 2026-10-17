@@ -1,16 +1,13 @@
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
 import { applyClosedLoopWalkStep } from "./closed-loop-root-advance-mod.js";
-import {
-  applyFootBaseStep,
-  footBaseStepIsActive,
-} from "./foot-base-stride-retarget-mod.js";
+import { applyFootBaseStep } from "./foot-base-stride-retarget-mod.js";
 import {
   applyFootstepPlanStep,
   pushFootstepTapRecord,
   snapshotFootstepTapStage,
 } from "./footstep-plan-amplitude-mod.js";
-import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import { readLocoGroundNoStanceLock } from "./loco-ground-tap-mod.js";
+import { footBaseActiveFor, footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 import { applyStanceLockedGroundAdvance } from "./stance-lock-mod.js";
 import {
   resolveClipStanceForFrame,
@@ -59,7 +56,7 @@ export function applyWalkingPhaseLocks(
     // labels and the would-be correction, but nothing is written — the
     // rendered walk isolates clip + root. Settling/arrived writers above are
     // unaffected, so the run still terminates.
-    observeOnly: readLocoGroundNoStanceLock() || readFootstepPlanEnabled(),
+    observeOnly: readLocoGroundNoStanceLock() || footstepPlanActiveFor(approach.actorSlot),
     recordHeelMiss: (missM: number | null): void => { approach.lastHeelMissM = missM; },
     ...(routeLength > 0
       ? { travelUnit: { x: routeDx / routeLength, z: routeDz / routeLength }, routeStart: approach.start }
@@ -70,7 +67,7 @@ export function applyWalkingPhaseLocks(
   // pose first; the closed loop below then advances on the scaled planted foot.
   // M1 tap (creep slice, same flag): snapshot the toe worlds at each stage —
   // reads only, and the whole block is skipped with the flag off.
-  const footstepTapOn = readFootstepPlanEnabled();
+  const footstepTapOn = footstepPlanActiveFor(approach.actorSlot);
   const tapMixer = footstepTapOn
     ? snapshotFootstepTapStage({
         actorSlot: approach.actorSlot,
@@ -81,7 +78,7 @@ export function applyWalkingPhaseLocks(
   // FOOT-BASE (default OFF, `?footBase=1` on any plan-accepted route): stride
   // retargeting replaces BOTH the amplitude blend and the closed-loop advance
   // below; a refused route or a missing flag keeps the legacy path.
-  const footBaseActive = footBaseStepIsActive(routeLength);
+  const footBaseActive = footBaseActiveFor(approach.actorSlot, routeLength);
   if (footBaseActive) {
     applyFootBaseStep({
       approach,

@@ -1,18 +1,10 @@
-import { FOOTSTEP_START_PHASE_S, planFootsteps } from "./footstep-plan-schedule.js";
 import { budgetSwingTarget } from "./foot-base-knee-budget-mod.js";
 import type { FootBasePathRow } from "./foot-base-path-data-mod.js";
-import {
-  getOrCreateFootBaseState,
-  heelWorldNow,
-  toeWorldNow,
-  type FootBaseApproachState,
-  type FootBaseClipRead,
-  type FootBaseStepSummary,
-} from "./foot-base-state-mod.js";
 import {
   FOOT_BASE_HEIGHT_DATUM,
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
+  type FootBaseSide,
   footBaseBandHoldSides,
   footBaseHalfBounds,
   footBaseHalfIndex,
@@ -20,14 +12,22 @@ import {
   footBaseRelPhase,
   footBaseRowAt,
   footBaseScheduleStance,
-  type FootBaseSide,
 } from "./foot-base-schedule-mod.js";
+import {
+  type FootBaseApproachState,
+  type FootBaseClipRead,
+  type FootBaseStepSummary,
+  getOrCreateFootBaseState,
+  heelWorldNow,
+  toeWorldNow,
+} from "./foot-base-state-mod.js";
+import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
+import { FOOTSTEP_START_PHASE_S, planFootsteps } from "./footstep-plan-schedule.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
   solveSteppingLegHinge,
 } from "./stepping-turn-leg-ik-mod.js";
-import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 
 /**
  * Schedule/role math lives in `./foot-base-schedule-mod.js` (split out for
@@ -37,13 +37,13 @@ import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 export {
   FOOT_BASE_LIFT_PHASE,
   FOOT_BASE_STANCE_FRACTION,
+  type FootBaseSide,
   footBaseHalfBounds,
   footBaseHalfIndex,
   footBaseHalfTravelM,
   footBaseRelPhase,
   footBaseRowAt,
   footBaseScheduleStance,
-  type FootBaseSide,
 };
 
 /**
@@ -112,6 +112,8 @@ export const FOOT_BASE_DEFAULT_SCALE = 0.707;
  * budget); the gate is re-exported here so existing deep importers keep
  * working. Behaviour is unchanged. */
 import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
+import { footBaseActiveFor } from "./rig-capability-gate-mod.js";
+
 export { footBaseStepIsActive };
 
 /**
@@ -137,7 +139,7 @@ export function applyFootBaseStep(input: {
   clip: FootBaseClipRead | null;
 }): FootBaseStepSummary | null {
   const { approach, routeLength } = input;
-  if (!footBaseStepIsActive(routeLength)) return null;
+  if (!footBaseActiveFor(approach.actorSlot, routeLength)) return null;
   if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
   // The first walking frame still holds the idle pose (the lock skips it and
   // anchors on the next one): recording footholds off it would plant them up

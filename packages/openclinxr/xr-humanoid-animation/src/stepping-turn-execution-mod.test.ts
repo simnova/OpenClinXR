@@ -11,6 +11,23 @@ function rig() {
   const actorSlot = new THREE.Group();
   actorSlot.position.set(0, 0.9, 0);
   actorSlot.rotation.y = 0;
+  // Rig-capability gate: the plan-owned rest landing needs a solvable stance
+  // leg chain on the actor slot, so this fixture stages one (see
+  // `rig-capability-gate-mod.ts`). A chainless rig falls back to the mirror plan.
+  for (const side of ["L", "R"] as const) {
+    for (const name of [
+      `upperleg01.${side}`,
+      `upperleg02.${side}`,
+      `lowerleg01.${side}`,
+      `lowerleg02.${side}`,
+      `foot.${side}`,
+      `toe1-1.${side}`,
+    ]) {
+      const bone = new THREE.Object3D();
+      bone.name = name;
+      actorSlot.add(bone);
+    }
+  }
   const leftToe = new THREE.Object3D();
   leftToe.position.set(-0.1, 0.016, 0);
   actorSlot.add(leftToe);

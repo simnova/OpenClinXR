@@ -24,6 +24,27 @@ function bone(slot: THREE.Group, name: string, q: THREE.Quaternion): THREE.Objec
   return b;
 }
 
+/**
+ * The rig-capability gate (`rig-capability-gate-mod.ts`) runs the plan on an
+ * actor slot only when it carries a solvable stance leg chain. These fixtures
+ * exercise the plan math, so they stage a chain-bearing rig; the fixture's own
+ * named leg/pelvis bones stay the ones under test.
+ */
+function stanceChain(slot: THREE.Group): void {
+  for (const side of ["L", "R"] as const) {
+    for (const name of [
+      `upperleg01.${side}`,
+      `upperleg02.${side}`,
+      `lowerleg01.${side}`,
+      `lowerleg02.${side}`,
+      `foot.${side}`,
+      `toe1-1.${side}`,
+    ]) {
+      bone(slot, name, quat(0, 0, 0, 1));
+    }
+  }
+}
+
 function angleDeg(a: THREE.Quaternion, b: THREE.Quaternion): number {
   const dot = Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w));
   return (2 * Math.acos(dot) * 180) / Math.PI;
@@ -43,6 +64,7 @@ describe("footstep-plan amplitude blend", () => {
   it("s=0 returns standing flexion with clip-true yaw/roll, s=1 the clip pose, norms hold", () => {
     (globalThis as unknown as { window?: unknown }).window = { location: { search: "?footstepPlan=1&footBase=0" } };
     const slot = new THREE.Group();
+    stanceChain(slot);
     const rest = quat(0, 0, 0, 1);
     // Off-X clip deliberately: the creep M2 flexion-only blend keeps yaw/roll clip-true.
     const clip = quat(0.3, 0.1, 0.05, 1);
@@ -98,6 +120,7 @@ describe("footstep-plan amplitude blend", () => {
 
   it("capture clears state without the flag and resolves scale with it", () => {
     const slot = new THREE.Group();
+    stanceChain(slot);
     bone(slot, "upperleg01.L", quat(0, 0, 0, 1));
     const approach: Loose = {
       actorSlot: slot,
@@ -129,6 +152,7 @@ describe("footstep-plan through the public walking entrypoint", () => {
 
   it("implies the closed loop and blends the legs post-pose", () => {
     const actorSlot = new THREE.Group();
+    stanceChain(actorSlot);
     const legL = bone(actorSlot, "upperleg01.L", quat(0.3, 0, 0, 1));
     const leftToe = new THREE.Object3D();
     leftToe.name = "toe1-1L";

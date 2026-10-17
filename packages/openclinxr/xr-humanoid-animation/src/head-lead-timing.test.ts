@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { Group, Object3D } from "three";
+import { describe, expect, it } from "vitest";
 import { applyCaseOwnedStanceLock } from "./case-owned-approach-runtime.js";
 
 const LEAD_S = 0.25;
@@ -13,11 +13,36 @@ function setSearch(search: string): void {
   (globalThis as unknown as { window?: unknown }).window = { location: { search } };
 }
 
+/**
+ * The rig-capability gate (`rig-capability-gate-mod.ts`) hands the walking slot
+ * to the plan stack only when the actor slot carries a solvable stance leg
+ * chain. These fixtures exercise the plan-owned timed head lead, so they stage
+ * a chain-bearing rig; a chainless rig (as the SC-05 harness uses) falls back
+ * to the legacy full lead.
+ */
+function addStanceChain(slot: Group): void {
+  for (const side of ["L", "R"] as const) {
+    for (const name of [
+      `upperleg01.${side}`,
+      `upperleg02.${side}`,
+      `lowerleg01.${side}`,
+      `lowerleg02.${side}`,
+      `foot.${side}`,
+      `toe1-1.${side}`,
+    ]) {
+      const bone = new Object3D();
+      bone.name = name;
+      slot.add(bone);
+    }
+  }
+}
+
 function buildWalkingApproach(input: { travelled: number; route: number; speed: number }) {
   const actorSlot = new Group();
   const head = new Object3D();
   head.name = "head";
   actorSlot.add(head);
+  addStanceChain(actorSlot);
   actorSlot.rotation.y = BODY;
   actorSlot.updateMatrixWorld(true);
   const approach = {
@@ -48,6 +73,7 @@ function buildSettlingApproach() {
   const head = new Object3D();
   head.name = "head";
   actorSlot.add(head);
+  addStanceChain(actorSlot);
   actorSlot.rotation.y = BODY;
   actorSlot.updateMatrixWorld(true);
   const approach = {

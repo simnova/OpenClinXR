@@ -15,13 +15,13 @@ import {
   applyClipDrivenSettlingTurn,
   createClipDrivenSettlingTurnState,
 } from "./clip-driven-settling-turn-mod.js";
-import { footBaseStepIsActive } from "./foot-base-stride-retarget-mod.js";
 import { applyFootFlatten, resetFootFlatten } from "./foot-flatten-mod.js";
 import { applyFootstepCorrection, captureFootstepRest } from "./footstep-plan-amplitude-mod.js";
-import { readFootstepExitDelaySubsteps, readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { readFootstepExitDelaySubsteps } from "./footstep-plan-query-flag-mod.js";
 import { FOOTSTEP_R_PASSING_S, FOOTSTEP_START_PHASE_S, FOOTSTEP_TRAVEL_COEFFS } from "./footstep-plan-schedule.js";
 import { readFootstepToeSeparationM } from "./footstep-toe-separation-mod.js";
 import { applyTimedHeadGazeLead } from "./head-lead-anticipation-mod.js";
+import { footBaseActiveFor, footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 import { applySettledPostureCorrection } from "./settled-posture-correction.js";
 import {
   createStanceLockState,
@@ -120,9 +120,9 @@ export function advanceCaseOwnedBedsideApproach(
   // flag-absent path never reads this branch (false without `?footBase=1`).
   const routeDxExit = approach.target.x - approach.start.x;
   const routeDzExit = approach.target.z - approach.start.z;
-  const footBaseExitActive = footBaseStepIsActive(Math.hypot(routeDxExit, routeDzExit));
+  const footBaseExitActive = footBaseActiveFor(approach.actorSlot, Math.hypot(routeDxExit, routeDzExit));
   const footstepExit =
-    clipStanceForExit === undefined || !readFootstepPlanEnabled() || approach.footstep === null
+    clipStanceForExit === undefined || !footstepPlanActiveFor(approach.actorSlot) || approach.footstep === null
       ? null
       : {
           steps: approach.footstep.steps,

@@ -1,6 +1,6 @@
 import type { Object3D } from "three";
 import { readClosedLoopWalkEnabled } from "./closed-loop-walk-query-flag-mod.js";
-import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
+import { footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 
 /**
  * Closed-loop root advance for the walking phase (walk-closed-loop stage 2).
@@ -316,7 +316,7 @@ export function applyClosedLoopWalkStep(input: {
   if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
   // S2: ?footstepPlan=1 implies the closed loop (plus observe-only lock at the
   // call site), so the flag alone suffices; the S1 flags keep working as before.
-  if ((!readClosedLoopWalkEnabled() && !readFootstepPlanEnabled()) || readPlannedWalkSpeed()) return null;
+  if ((!readClosedLoopWalkEnabled() && !footstepPlanActiveFor(approach.actorSlot)) || readPlannedWalkSpeed()) return null;
   const remainingMeters = Math.max(0, routeLength - approach.execution.travelledMeters);
   if (approach.closedLoop === null) approach.closedLoop = createClosedLoopWalkState();
   const closed = applyClosedLoopRootAdvance({

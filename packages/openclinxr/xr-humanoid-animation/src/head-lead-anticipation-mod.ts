@@ -1,6 +1,6 @@
-import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
-import { readFootstepPlanEnabled } from "./footstep-plan-query-flag-mod.js";
 import type { CaseOwnedBedsideApproach } from "./case-owned-approach-runtime-mod.js";
+import { applyHeadGazeLeadYaw } from "./head-gaze-lead-mod.js";
+import { footstepPlanActiveFor } from "./rig-capability-gate-mod.js";
 
 /**
  * Head-lead timed anticipation (module-local timing for the frame module).
@@ -97,7 +97,7 @@ export function applyTimedHeadGazeLead(approach: CaseOwnedBedsideApproach, delta
     walkData.delete(approach);
     return;
   }
-  if (readFootstepPlanEnabled() && phase === "walking") {
+  if (footstepPlanActiveFor(approach.actorSlot) && phase === "walking") {
     applyHeadGazeLeadYaw({
       actorSlot: approach.actorSlot,
       bodyHeadingRadians: approach.actorSlot.rotation.y,
