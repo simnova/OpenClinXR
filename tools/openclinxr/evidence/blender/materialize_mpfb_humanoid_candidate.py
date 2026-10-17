@@ -2424,6 +2424,34 @@ def parse_args():
     parser.add_argument("--eye-shell-upper-boost", type=float, default=1.6)
     parser.add_argument("--eye-shell-color", default="120,88,80")
     parser.add_argument(
+        "--eye-shell-ring-frac",
+        type=float,
+        default=0.25,
+        help=(
+            "Eyeshell B2 margin ring: lid-relative half-width as a fraction "
+            "of the subject's own local opening height per side (0.25 covers "
+            "half the opening total, mid-band stays clear). Default 0.25."
+        ),
+    )
+    parser.add_argument(
+        "--eye-shell-upper-span-mm",
+        type=float,
+        default=6.0,
+        help=(
+            "Eyeshell B2 upper-lid band: how far below the subject's own "
+            "upper lid margin the lid shadow reaches (mm). Default 6.0."
+        ),
+    )
+    parser.add_argument(
+        "--eye-shell-upper-peak",
+        type=float,
+        default=0.0,
+        help=(
+            "Eyeshell B2 upper-lid band: peak alpha just under the upper lid "
+            "margin. Default 0.0 keeps main-value bakes byte-stable (band off)."
+        ),
+    )
+    parser.add_argument(
         "--eye-tearline",
         action="store_true",
         help=(
@@ -3117,7 +3145,9 @@ def _eyshell_subdivide_eye(eyes_asset, rounds):
 
 def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                    shell_ramp_m, shell_upper_boost, tear_color, tear_rough,
-                   tear_fan_steps_m, tear_snap_m, build_shell=True):
+                   tear_fan_steps_m, tear_snap_m, build_shell=True,
+                   shell_upper_span_m=0.006, shell_upper_peak=0.0,
+                   shell_ring_frac=0.25):
     """B2 shell + B3 tearline. Returns (shell_mat_name|None, tear_mat_name|None)."""
     MW = eyes_asset.matrix_world
     IW = MW.inverted()
@@ -3215,13 +3245,51 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         # post-export via _eyshell_transfer_lid_keys.
         _eyshell_bind_to_head(shell_obj, arm)
         alpha = np.zeros(len(shell_obj.data.vertices))
+        _band_max, _band_n = 0.0, 0
         for side, idx in sides.items():
             c, r = spheres[side]
             w = np.array([tuple(MW @ shell_obj.data.vertices[i].co) for i in idx], dtype=float)
             loop = np.vstack([loops[side]["up"], loops[side]["lo"]])
             lp = c + (loop - c) / np.linalg.norm(loop - c, axis=1, keepdims=True) * r
-            dl = arc_min(w, lp, c, r)
-            a = shell_margin * (1.0 - _eyshell_smoothstep(0.0, shell_ramp_m, dl))
+            # Asymmetric lid rings: the upper lid casts the shadow (full
+            # margin peak, lid-relative width), the lower lid only a weak
+            # base (fixed 0.3 of margin — a generic constant, not a knob or
+            # a subject value) so the bright lower sclera of the goal photos
+            # survives. Both rings are lid-relative (fraction of the
+            # subject's OWN local opening height): symmetric absolute ramps
+            # flood slit openings uniformly and no placement can recover a
+            # vertical gradient from a flat field (measured diag: flat-field
+            # M2b near +0.4 under a -36.5 uniform shadow).
+            upl0, lol0 = loops[side]["up"], loops[side]["lo"]
+            if len(upl0) >= 2 and len(lol0) >= 2:
+                oh = (np.interp(w[:, 0], upl0[:, 0], upl0[:, 2])
+                      - np.interp(w[:, 0], lol0[:, 0], lol0[:, 2]))
+                # --eye-shell-ramp-mm survives as the canthus floor: where the
+                # loops meet the opening vanishes and the fraction would
+                # degenerate, so the ring never narrows past half the ramp.
+                oh = np.clip(oh, shell_ramp_m * 0.5, None)
+                lpu = c + (upl0 - c) / np.linalg.norm(
+                    upl0 - c, axis=1, keepdims=True) * r
+                lpl = c + (lol0 - c) / np.linalg.norm(
+                    lol0 - c, axis=1, keepdims=True) * r
+                dl_up = arc_min(w, lpu, c, r) / oh
+                dl_lo = arc_min(w, lpl, c, r) / oh
+            else:
+                dl_up = arc_min(w, lp, c, r) / 0.008
+                dl_lo = dl_up
+            a_up = shell_margin * (
+                1.0 - _eyshell_smoothstep(0.0, shell_ring_frac, dl_up))
+            a_lo = 0.15 * shell_margin * (
+                1.0 - _eyshell_smoothstep(0.0, shell_ring_frac, dl_lo))
+            # Limbus-sparing lateral gate: the goal photos show bright
+            # limbus-adjacent sclera with the shadow riding laterally toward
+            # the canthi. The upper ring is faded over the central column
+            # (fixed generic fractions of the globe radius, no subject
+            # value) so the iris-adjacent sclera stays bright while the
+            # lateral upper band and the corner term carry the shadow.
+            lat = _eyshell_smoothstep(
+                0.25 * r, 0.55 * r, np.abs(w[:, 0] - c[0]))
+            a = np.maximum(a_up * lat, a_lo)
             rho = np.linalg.norm(w[:, [0, 2]] - c[[0, 2]], axis=1)
             low = w[:, 2] <= c[2]
             clamp = np.zeros(len(w), dtype=bool)
@@ -3231,11 +3299,50 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                 cp = np.vstack([c + (p - c) / float(np.linalg.norm(p - c)) * r
                                 for p in canthi[side]])
                 dc = arc_min(w, cp, c, r)
-                corner = shell_corner * (1.0 - _eyshell_smoothstep(0.0, 0.004, dc))
+                # Lid-relative corner span: the canthal shadow covers the
+                # outer third of the subject's OWN eye width (fixed generic
+                # fraction), so wide and narrow eyes alike shade the canthal
+                # bulk — an absolute 4 mm ramp only ever darkens the tails
+                # and can never move the canthal median.
+                w_span = float(upl0[:, 0].max() - upl0[:, 0].min()) \
+                    if len(upl0) >= 2 else 0.025
+                corner = shell_corner * (
+                    1.0 - _eyshell_smoothstep(0.0, 0.3 * max(w_span, 0.010), dc))
                 corner[rho < 0.0045] = 0.0
+                # Upper-weighted canthi: the lid shadow pools at the upper
+                # canthus and fades below centre (fixed generic 0.35 floor),
+                # so the lower canthal bulk stays bright for the D90 bright
+                # tail while the upper canthal bulk carries M2a.
+                up_w = _eyshell_smoothstep(
+                    c[2] - 0.002, c[2] + 0.002, w[:, 2])
+                corner = corner * (0.35 + 0.65 * up_w)
                 a = np.maximum(a, corner)
             upm = w[:, 2] > c[2]
             a[upm] = np.minimum(a[upm] * shell_upper_boost, 0.75)
+            # Upper-lid shadow band: depth under the subject's OWN upper lid
+            # margin at the same x (resampled loop, x-ascending), fading over
+            # shell_upper_span_m. The asymmetric rings above already grade
+            # top-to-bottom; this band adds top emphasis where the lid
+            # overhangs. The pupil guard keeps the iris clear: the band
+            # fades in from the limbus (0.5 globe radii, anatomical iris)
+            # so only sclera is shadowed.
+            upl = loops[side]["up"]
+            if shell_upper_peak > 0.0 and len(upl) >= 2:
+                xs, zs = upl[:, 0], upl[:, 2]
+                inside = (w[:, 0] >= xs[0]) & (w[:, 0] <= xs[-1])
+                drop = np.interp(w[:, 0], xs, zs) - w[:, 2]
+                pupil_r = 0.5 * r
+                guard = _eyshell_smoothstep(
+                    pupil_r, pupil_r + 0.001,
+                    np.linalg.norm(w[:, [0, 2]] - c[[0, 2]], axis=1))
+                band_m = inside & (drop > 0.0) & (w[:, 2] > c[2])
+                band = np.zeros(len(w))
+                band[band_m] = (shell_upper_peak * guard[band_m]
+                                * (1.0 - _eyshell_smoothstep(
+                                    0.0, shell_upper_span_m, drop[band_m])))
+                _band_max = max(_band_max, float(band.max()))
+                _band_n += int((band > 0.01).sum())
+                a = np.maximum(a, np.clip(band, 0.0, 1.0))
             alpha[idx] = np.clip(a, 0.0, 1.0)
         if len(shell_obj.data.color_attributes):
             raise RuntimeError("EYESHELL: shell mesh already has color attributes")
@@ -3289,7 +3396,9 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         coll.objects.link(shell_obj)
         shell_mat_name = shell_mat.name
         print(f"EYESHELL_SHELL verts={len(shell_obj.data.vertices)} "
-              f"alpha_med={float(np.median(alpha)):.3f} alpha_max={float(alpha.max()):.3f}")
+              f"alpha_med={float(np.median(alpha)):.3f} alpha_max={float(alpha.max()):.3f} "
+              f"peak={shell_upper_peak} span_mm={shell_upper_span_m * 1000.0:.1f} "
+              f"band_max={_band_max:.3f} band_n={_band_n}")
 
     # ---- B3: lid->globe strips + snapped corner fans ----
     tear_name = None
@@ -3561,8 +3670,10 @@ def _eyshell_transfer_lid_keys(path):
     A Blender-side transfer measured every delta as exactly 0.0 (refused as
     a vacuous slot), so the six EYESHELL_LID_KEYS are written post-export
     into the GLB bytes: per target vert, the delta of the nearest SAME-SIDE
-    body vert with union |d| > 0.05 mm over the six keys (eye-band donors,
-    |x| < 0.06, y in 1.50..1.60, GLB meters). Side is measured from bytes
+    body vert with union |d| > 0.05 mm over the six keys (eye-band donors:
+    |x| < 0.06, y within the shell's own y-span +- 10 mm, GLB meters —
+    derived from the target mesh bytes, so tall and short faces share the
+    code with no height constant). Side is measured from bytes
     (motion mass per bind-x side), never from target names. A vert whose
     nearest moving donor is beyond 2.0 mm keeps a zero delta (rigid on the
     head bind) and is counted, never invented. Refuses when the body lacks
@@ -3670,6 +3781,20 @@ def _eyshell_transfer_lid_keys(path):
             f"EYESHELL: body GLB morphs miss lid keys {missing} — refusing")
     MOVE_EPS = 0.00005  # 0.05 mm donor moving mask (lash-measured razor edge)
     NN_CAP = 0.002  # 2.0 mm: beyond this a vert stays rigid, counted not faked
+    # Donor y-band derived from the target meshes' own span (GLB meters):
+    # the shell/tearline ride the eye, so the lids live within their y-span
+    # +- lid travel (10 mm covers closure). No fixed height window.
+    targets = [(i, m) for i, m in enumerate(g["meshes"]) if _re.search(
+        r"openclinxr_eye_occlusion_shell|openclinxr_eye_tearline|openclinxr_caruncle",
+        m["name"], _re.I)]
+    if not targets:
+        raise RuntimeError("EYESHELL: no shell/tearline/caruncle mesh — refusing")
+    _ys = [acc(g["meshes"][mi]["primitives"][0]["attributes"]["POSITION"])[:, 1]
+           for mi, _ in targets]
+    _yall = np.concatenate(_ys).astype(float)
+    DONOR_YLO, DONOR_YHI = float(_yall.min()) - 0.010, float(_yall.max()) + 0.010
+    print(f"EYESHELL_DONOR_BAND ylo={DONOR_YLO:.4f} yhi={DONOR_YHI:.4f} "
+          f"(shell span {float(_yall.min()):.4f}..{float(_yall.max()):.4f} +- 10mm)")
     donors = {}
     for side in ("L", "R"):
         Pside, Dall = [], []
@@ -3680,7 +3805,7 @@ def _eyshell_transfer_lid_keys(path):
             Bp = acc(bp["attributes"]["POSITION"]).astype(float)
             Dp = [acc(bp["targets"][mp[t]]["POSITION"]).astype(float)
                   for t in EYESHELL_LID_KEYS]
-            eye = (np.abs(Bp[:, 0]) < 0.06) & (Bp[:, 1] > 1.50) & (Bp[:, 1] < 1.60)
+            eye = (np.abs(Bp[:, 0]) < 0.06) & (Bp[:, 1] > DONOR_YLO) & (Bp[:, 1] < DONOR_YHI)
             ssel = (Bp[:, 0] < 0) if side == "L" else (Bp[:, 0] >= 0)
             Pside.append(Bp[eye & ssel])
             Dall.append([d[eye & ssel] for d in Dp])
@@ -3696,11 +3821,6 @@ def _eyshell_transfer_lid_keys(path):
                 f"({int(move.sum())} < 100) — refusing")
         donors[side] = (Pside, Dall, move)
 
-    targets = [(i, m) for i, m in enumerate(g["meshes"]) if _re.search(
-        r"openclinxr_eye_occlusion_shell|openclinxr_eye_tearline|openclinxr_caruncle",
-        m["name"], _re.I)]
-    if not targets:
-        raise RuntimeError("EYESHELL: no shell/tearline/caruncle mesh — refusing")
     record = {"shell": None, "tearline": None, "caruncle": {"present": False,
               "reason": "no licensable .mhclo; factory bake creates no caruncle mesh"}}
     for mi, m in targets:
@@ -6066,7 +6186,13 @@ def main():
     # Eyemesh --eye-cornea: POST-EXPORT GLB-space split (the exporter must see
     # the unsplit high-poly mesh; OBJ-space probes cannot reproduce the spike's
     # GLB-space UV-box classification). Records the CTX here; the split runs
-    # after export beside the eyeshell patch. All three options default OFF.
+    # after export beside the eyeshell patch. The shell/tearline build above
+    # consumes the unsplit eyes_asset pre-export, and the post-export cornea
+    # split touches only the eye mesh (name/UV classified), so --eye-cornea
+    # composes with --eye-occlusion-shell/--eye-tearline: transfer binds the
+    # shell first, the split repoints the eye node only (the shell survives by
+    # name and vertex count, asserted per bake in the shell-placement report).
+    # All three options default OFF.
     if getattr(args, "eye_cornea", False):
         if getattr(args, "eye_asset", "low-poly") != "high-poly":
             raise RuntimeError(
@@ -6076,10 +6202,6 @@ def main():
             raise RuntimeError(
                 "EYEMESH: --eye-cornea refuses --eye-subdivide (subdivide "
                 "rebuilds the unsplit mesh; the split keeps the fitted weights)")
-        if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
-            raise RuntimeError(
-                "EYEMESH: --eye-cornea refuses the eyeshell B2/B3 passes "
-                "(they consume the unsplit eyes_asset)")
         EYEMESH_CORNEA_CTX["eye_mesh"] = eyes_asset.data.name
         EYEMESH_CORNEA_CTX["subject_id"] = subject_id
     if getattr(args, "eye_subdivide", 0):
@@ -6103,6 +6225,9 @@ def main():
                               for v in str(args.eye_tear_fan_steps).split(",")],
             tear_snap_m=float(args.eye_tear_snap_mm) / 1000.0,
             build_shell=bool(getattr(args, "eye_occlusion_shell", False)),
+            shell_upper_span_m=float(args.eye_shell_upper_span_mm) / 1000.0,
+            shell_upper_peak=float(args.eye_shell_upper_peak),
+            shell_ring_frac=float(args.eye_shell_ring_frac),
         )
 
     # #381 — the cast actor wears the fitted hair the library rail already proves.
@@ -8750,8 +8875,9 @@ def main():
     # Shell-rebind (tsk_fc93bdfcb41dad07): GLB-space lid bind for the
     # shell/tearline (lash A3 method — nearest same-side moving body vert).
     # Runs after the unlit patch on the final bytes; refuses loudly on a
-    # vacuous transfer. Mutually exclusive with --eye-cornea (which refuses
-    # the shell/tearline flags above), so ordering vs the split is moot.
+    # vacuous transfer. Runs BEFORE the cornea split below: the split touches
+    # only the eye mesh (name/UV classified), so the shell and its freshly
+    # transferred targets survive it untouched.
     if getattr(args, "eye_occlusion_shell", False) or getattr(args, "eye_tearline", False):
         _eyshell_transfer_lid_keys(str(output))
 

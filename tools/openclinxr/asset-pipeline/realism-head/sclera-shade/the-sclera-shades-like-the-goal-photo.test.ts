@@ -153,7 +153,11 @@ describe("the sclera shades like the goal photo (report integrity)", () => {
     expect(src).toMatch(/"--eye-shell-ramp-mm", type=float, default=2\.5\)/);
     expect(src).toMatch(/"--eye-shell-upper-boost", type=float, default=1\.6\)/);
     expect(src).toMatch(/"--eye-shell-color", default="120,88,80"\)/);
-    expect(src).toMatch(/--eye-cornea refuses (the eyeshell B2\/B3|.*B2\/B3)/);
+    // tsk_6a46705a72eb008b: the shell now composes with --eye-cornea (the
+    // split repoints the eye node only; the shell survives by name and
+    // vertex count). Still opt-in, still main knob values.
+    expect(src, "cornea no longer refuses the shell").not.toMatch(/--eye-cornea refuses the eyeshell/);
+    expect(src).toMatch(/composes with --eye-occlusion-shell/);
     expect(src, "no reverted default-on wiring").not.toContain("_eyshell_want_shell");
     expect(src, "no new shell knob defaults").not.toContain("eye-shell-upper-cap");
   });
