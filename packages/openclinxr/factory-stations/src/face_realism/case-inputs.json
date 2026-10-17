@@ -491,15 +491,15 @@
     ]
    },
     "stage4_known_good": {
-     "assets": {
-      "value": "lid-conform-any/body2-lidconform.glb",
-      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path (pre-fix pin; kept as informational only, see stage4_position_known_good)"
+      "assets": {
+       "value": "lid-conform-any/r2-canthus/body2-lidconform.glb",
+       "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path (re-pinned tsk_b85fc19dac1bc8cc post-canthus)"
+      },
+      "sha256": {
+       "value": "c3bdb636feefa611e1803548330fceeba3016e300f1154ddac6cb45100aa7382",
+       "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (re-pinned tsk_b85fc19dac1bc8cc; pre-fix ab2765e4… in supersededPreCanthus)"
+      }
      },
-     "sha256": {
-      "value": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
-      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (stale since the canthus fix; eye lane re-pin)"
-     }
-    },
     "stage4_position_known_good": {
      "source": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5)",
      "value": {

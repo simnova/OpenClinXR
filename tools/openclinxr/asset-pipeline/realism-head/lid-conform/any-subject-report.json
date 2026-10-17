@@ -1,6 +1,6 @@
 {
  "bake": {
-  "argv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea [--no-lid-conform for the base bake]",
+  "argv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea",
   "baseGlb": {
    "path": "assets:lid-conform-any/body2-eyeglobe-base.glb",
    "sha256": "71fc3a1167f29d035d5b79e3fd88bb0451735cd8b695a765026a0ff83afc29b7"
@@ -23,40 +23,59 @@
   "lidconformRecord": {
    "lashFollow": {
     "found": true,
-    "maxFollowMm": 2.7739815861013035,
-    "movedVerts": 11088
+    "movedVerts": 11088,
+    "maxFollowMm": 2.713945160998205,
+    "keyBlocks": 0
    },
    "matchMaxMm": 0.0044,
    "matchMedMm": 0.0043,
-   "movedVerts": 736,
+   "displacedVerts": 1112,
+   "displacedVertsNote": "replaces the pre-fix movedVerts=736 count; post-canthus code reports displacedVerts (seat+widen+spread+diffuse body verts, lash excluded)",
+   "b2": {
+    "seatSpreadK2": 0.5,
+    "seatSpreadK3": 0.25,
+    "seatSpreadK4": 0.125,
+    "seatSpreadPasses": 3,
+    "seatSpreadRate": 0.5
+   },
    "perSide": {
     "L": {
      "fleshVerts": 17,
      "matchedRing1": 56,
      "preWidenWidthMm": 22.809,
      "seatedVerts": 39,
-     "widenNeedMm": 2.191
+     "widenNeedMm": 2.191,
+     "movedVerts": 39,
+     "maxSeatMm": 2.7749,
+     "maxWidenMm": 1.0953,
+     "maxSpreadMm": 1.3875,
+     "maxDiffuseMm": 0.1569
     },
     "R": {
      "fleshVerts": 17,
      "matchedRing1": 56,
      "preWidenWidthMm": 22.809,
      "seatedVerts": 39,
-     "widenNeedMm": 2.191
+     "widenNeedMm": 2.191,
+     "movedVerts": 39,
+     "maxSeatMm": 2.775,
+     "maxWidenMm": 1.0953,
+     "maxSpreadMm": 1.3875,
+     "maxDiffuseMm": 0.1569
     }
    }
   },
   "newGlb": {
-   "path": "assets:lid-conform-any/body2-lidconform.glb",
-   "sha256": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a"
+   "path": "assets:lid-conform-any/r2-canthus/body2-lidconform.glb",
+   "sha256": "c3bdb636feefa611e1803548330fceeba3016e300f1154ddac6cb45100aa7382"
   }
  },
  "card": "tsk_56c4fed983304ea6",
  "falsifier": {
-  "action": "none - body2 failing G2 is a recorded result",
+  "action": "none - body2 failing G2 on the ring1-gap clause is a recorded result",
   "failingClauses": [
    "ring1 max gap 2.524mm outside [0.3,1.0] (canthal flesh; sphere-cap necessity, same proof as the aisha conform-report.json verdict: past |x-cx| the ray forbids gap<=1.0)",
-   "12 flipped faces (grazing canthus slivers, dots -0.001..-0.032, ~1mm2 each; seat travel 2.775mm vs 1.863 aisha from deeper canthus stand-off at equal 24.0mm globe)"
+   "RESOLVED by the canthus seat spread (838595e7c): this bake measures 0 flips over 5830 band faces (was 12 grazing canthus slivers pre-fix)"
   ]
  },
  "g1": {
@@ -68,7 +87,7 @@
   "blinkClosedGlobePx": 0,
   "bodyVerts": 38995,
   "c1GlobeIdentical": true,
-  "c3Flips": 12,
+  "c3Flips": 0,
   "c4OutsideMovedVerts": 0,
   "fissureNewMm": {
    "L": 25.798,
@@ -80,22 +99,24 @@
    "lid-conform runs (transfer match max 0.0044mm, micron-coincident: base body bit-identical to pre-conform body)",
    "globe + both corneas byte-identical base->new (POSITION sha 250389df/7adb083c/72a03de9 prefixes equal)",
    "fissure width 25.798 within 1mm of 25.9 target",
-   "G4 blink closed-1.0 geometric 0 globe px outside the closed lid"
+   "G4 blink closed-1.0 geometric 0 globe px outside the closed lid",
+   "canthus seat spread: 0 flips over 5830 band faces; seated span 26/26 verts in [0.5,0.538]"
   ],
   "ring1GapsMm": {
    "L.ring1": {
-    "max": 2.524,
-    "med": 0.704,
+    "n": 56,
     "min": 0.5,
-    "n": 56
+    "med": 0.704,
+    "max": 2.524
    },
    "R.ring1": {
-    "max": 2.524,
-    "med": 0.704,
+    "n": 56,
     "min": 0.5,
-    "n": 56
+    "med": 0.704,
+    "max": 2.524
    }
-  }
+  },
+  "measureSource": "/Volumes/files/openclinxr-assets/store/lid-conform-any/r2-canthus/body2-measure.json (this card's measure_conform.py run: g1/c1/c2/c3/c4/g4)"
  },
  "g3": {
   "forbiddenLiterals": [
@@ -182,5 +203,149 @@
   "bakeParamMm": 25.0,
   "bakeParamNote": "goal minus the 0.9 seat-pullback the aisha prototype measured (27.7 goal -> 26.8 param lands 27.01; conform-report.json bakeParamNote)",
   "plausibility": "pooled 2D palpebral fissure mean 27.4+-3.2 (PMC13161299); Asian adult male 27.0+-1.8 (PubMed 18349663); South Indian male 31.08+-1.79 (PMC3562989); 25.9 sits inside the published range"
+ },
+ "supersededPreCanthus": {
+  "cause": "canthus fix 838595e7c (lid_conform.py seat spread) changed the conformed body; the pre-fix GLB bytes are kept here, not asserted against fresh bakes",
+  "supersededByCard": "tsk_b85fc19dac1bc8cc",
+  "bake": {
+   "newGlb": {
+    "path": "assets:lid-conform-any/body2-lidconform.glb",
+    "sha256": "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a"
+   },
+   "lidconformRecord": {
+    "lashFollow": {
+     "found": true,
+     "maxFollowMm": 2.7739815861013035,
+     "movedVerts": 11088
+    },
+    "matchMaxMm": 0.0044,
+    "matchMedMm": 0.0043,
+    "movedVerts": 736,
+    "perSide": {
+     "L": {
+      "fleshVerts": 17,
+      "matchedRing1": 56,
+      "preWidenWidthMm": 22.809,
+      "seatedVerts": 39,
+      "widenNeedMm": 2.191
+     },
+     "R": {
+      "fleshVerts": 17,
+      "matchedRing1": 56,
+      "preWidenWidthMm": 22.809,
+      "seatedVerts": 39,
+      "widenNeedMm": 2.191
+     }
+    }
+   }
+  },
+  "g2": {
+   "ring1GapsMm": {
+    "L.ring1": {
+     "max": 2.524,
+     "med": 0.704,
+     "min": 0.5,
+     "n": 56
+    },
+    "R.ring1": {
+     "max": 2.524,
+     "med": 0.704,
+     "min": 0.5,
+     "n": 56
+    }
+   },
+   "c3Flips": 12,
+   "fissureNewMm": {
+    "L": 25.798,
+    "R": 25.798
+   },
+   "fissureTargetMm": 25.9,
+   "pass": false
+  }
+ },
+ "repin": {
+  "card": "tsk_b85fc19dac1bc8cc",
+  "cause": "stage-7 lid_g1 blocked_by: any-subject-report.json base not re-pinned after 838595e7c",
+  "bake": {
+   "argv": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea",
+   "newGlb": {
+    "path": "assets:lid-conform-any/r2-canthus/body2-lidconform.glb",
+    "sha256": "c3bdb636feefa611e1803548330fceeba3016e300f1154ddac6cb45100aa7382"
+   },
+   "recordSource": "/Volumes/files/openclinxr-assets/store/lid-conform-any/r2-canthus/lidconform-record.json"
+  },
+  "measure": "/Volumes/files/openclinxr-assets/store/lid-conform-any/r2-canthus/body2-measure.json",
+  "vsCanthus": {
+   "flips": {
+    "canthus": 0,
+    "fresh": 0,
+    "verdict": "identical"
+   },
+   "bandFaces": {
+    "canthus": 5830,
+    "fresh": 5830,
+    "verdict": "identical"
+   },
+   "ring1GapsMm": {
+    "canthusMax": 2.524,
+    "freshMax": 2.524,
+    "verdict": "identical (ring1 fixed by the spread; seat moves ring2+ only)"
+   },
+   "seatedSpan": {
+    "canthus": "26/26 verts in [0.5,0.538]",
+    "fresh": "26/26 verts in [0.5,0.538]",
+    "verdict": "identical (recomputed from this bake with lid_conform_core)"
+   },
+   "fissureNewMm": {
+    "canthus": {
+     "L": 25.798,
+     "R": 25.798
+    },
+    "fresh": {
+     "L": 25.798,
+     "R": 25.798
+    },
+    "verdict": "identical"
+   },
+   "blinkClosed10GlobePx": {
+    "canthus": 0,
+    "fresh": 0,
+    "verdict": "identical"
+   },
+   "globeCorneaPositionSha": {
+    "verdict": "identical base and new shas on all 3 eye meshes"
+   },
+   "bodyVerts": {
+    "canthus": 38995,
+    "fresh": 38995,
+    "verdict": "identical"
+   },
+   "outsideMovedVerts": {
+    "canthus": 0,
+    "fresh": 0,
+    "verdict": "identical (8mm band mask holds)"
+   },
+   "lashMaxFollowMm": {
+    "canthus": 2.713945160998205,
+    "fresh": 2.713945160998205,
+    "verdict": "identical"
+   },
+   "mrd1NewMm": {
+    "canthus": {
+     "L": 3.869,
+     "R": 3.869
+    },
+    "fresh": {
+     "L": 3.869,
+     "R": 3.869
+    },
+    "verdict": "identical"
+   },
+   "bytes": {
+    "canthusGlb": "f29e8de569d9de5a67a6351e24f27b8361bd661454d823ffd3920b26ff3787fb",
+    "freshGlb": "c3bdb636feefa611e1803548330fceeba3016e300f1154ddac6cb45100aa7382",
+    "verdict": "bytes differ (glTF container stamps); body POSITION map identical on all 13 meshes (see station FALSIFIER check)"
+   }
+  }
  }
 }

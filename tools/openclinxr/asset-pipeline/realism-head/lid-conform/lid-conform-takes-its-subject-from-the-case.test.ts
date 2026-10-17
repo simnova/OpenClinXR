@@ -20,10 +20,12 @@ import { describe, expect, it } from "vitest";
  * Measured outcome (recorded, not wished): G1 holds (aisha rebake
  * body POSITION sha identical); body2 runs micron-coincident
  * (matchMax 0.0044), width 25.798 within 1mm of the 25.9 goal, globe
- * byte-identical, blink seals geometrically; G2 is RECORDED-FAIL on two
- * clauses — canthal flesh stands 2.524 off-globe (the same sphere-cap
- * necessity the aisha verdict proves) and 12 grazing canthus slivers
- * flip under 2.775mm seat travel (vs 1.863 aisha).
+ * byte-identical, blink seals geometrically; G2 is RECORDED-FAIL on one
+ * clause — canthal flesh stands 2.524 off-globe (the same sphere-cap
+ * necessity the aisha verdict proves). The second clause (12 grazing
+ * canthus slivers flipping under 2.775mm seat travel vs 1.863 aisha) is
+ * fixed post-canthus: 0 flips, re-pinned tsk_b85fc19dac1bc8cc with the
+ * pre-fix values kept in supersededPreCanthus.
  *
  * claimScope: any-subject lid-conform wiring and its measured gates.
  * notEvidenceFor: clinical_validity, production_asset_readiness, gaze
@@ -37,8 +39,17 @@ import { describe, expect, it } from "vitest";
  * (one-shot decay plus Jacobi diffusion, lid_conform.py body2 row); no
  * height term exists. The fail-encoding assertion below now points at
  * body2-canthus-report.json and asserts the fixed values (0 flips,
- * seated span in band); any-subject-report.json stays as the historical
- * pre-fix record. All other assertions are untouched.
+ * seated span in band).
+ *
+ * ## RE-PINNED (tsk_b85fc19dac1bc8cc)
+ *
+ * any-subject-report.json is re-pinned from a fresh post-fix bake
+ * (lid-conform-any/r2-canthus/body2-lidconform.glb): its g2 now records
+ * the fixed values (0 flips; ring1 max still 2.524 past the sphere cap,
+ * so g2.pass stays false on that clause). The pre-fix pin
+ * (ab2765e4, 2.524 flesh max, 12 flips) moved verbatim into
+ * supersededPreCanthus, which the assertions below read instead.
+ * All other assertions are untouched.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -92,6 +103,15 @@ type Report = {
   g4: { pass: boolean; closed10FrontGlobePx: number };
   sheet: { root: string; files: Record<string, string> };
   falsifier: { failingClauses: string[] };
+  supersededPreCanthus: {
+    bake: { newGlb: { path: string; sha256: string } };
+    g2: {
+      ring1GapsMm: Record<string, { n: number; min: number; med: number; max: number }>;
+      c3Flips: number;
+      fissureNewMm: Record<string, number>;
+      pass: boolean;
+    };
+  };
 };
 
 function readReport(): Report {
@@ -197,14 +217,23 @@ describe("lid-conform takes its subject from the case", () => {
     for (const key of ["L", "R"]) {
       expect(c.g2.seatedSpan.perSide[key]!.max).toBeLessThanOrEqual(1.0);
     }
-    // Pre-fix record preserved: any-subject-report.json still pins the
-    // exact RECORDED-FAIL values (2.524 flesh max, 12 flips).
+    // Pre-fix record preserved in supersededPreCanthus: the exact
+    // RECORDED-FAIL values (2.524 flesh max, 12 flips) moved there on the
+    // re-pin card; the live g2 records the fresh post-fix bake (0 flips,
+    // ring1 max still 2.524 past the cap, so g2.pass stays false).
     const r = readReport();
     expect(r.g2.pass).toBe(false);
+    expect(r.g2.c3Flips).toBe(0);
     for (const key of ["L.ring1", "R.ring1"]) {
       expect(r.g2.ring1GapsMm[key]!.max).toBe(2.524);
     }
-    expect(r.g2.c3Flips).toBe(12);
+    expect(r.supersededPreCanthus.bake.newGlb.sha256).toBe(
+      "ab2765e49084db74350d095a9daf5b5e862e77cdc822988187ef21862a183b5a",
+    );
+    for (const key of ["L.ring1", "R.ring1"]) {
+      expect(r.supersededPreCanthus.g2.ring1GapsMm[key]!.max).toBe(2.524);
+    }
+    expect(r.supersededPreCanthus.g2.c3Flips).toBe(12);
   });
 
   it("(7) body2 sheets exist in the store with the report shas, crops >= 300px", () => {
@@ -235,7 +264,8 @@ describe("lid-conform takes its subject from the case", () => {
     const w = r.g2.fissureNewMm["L"]!;
     expect(Math.abs(w - 25.9) <= 1.0, "recorded width passes").toBe(true);
     expect(Math.abs(21.0 - 25.9) <= 1.0, "narrow width would fail").toBe(false);
-    expect(r.g2.c3Flips === 0, "recorded flips correctly fail the 0 bar").toBe(false);
+    expect(r.supersededPreCanthus.g2.c3Flips === 0, "pre-fix flips correctly fail the 0 bar").toBe(false);
+    expect(r.g2.c3Flips === 0, "re-pinned flips pass the 0 bar").toBe(true);
     const g = r.g2.ring1GapsMm["L.ring1"]!;
     expect(
       g.min >= 0.3 && g.max <= 1.0,

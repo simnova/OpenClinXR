@@ -192,7 +192,10 @@ describe("the face station runs seven stages from a case", () => {
         join(root, "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json"),
         "utf8",
       ),
-    ) as { bake: { newGlb: { sha256: string } } };
+    ) as {
+      bake: { newGlb: { sha256: string } };
+      supersededPreCanthus?: { bake: { newGlb: { sha256: string } } };
+    };
     const realChain = JSON.parse(
       readFileSync(
         join(
@@ -211,10 +214,13 @@ describe("the face station runs seven stages from a case", () => {
     ];
     for (const entry of report.knownGood) {
       if (entry.name.endsWith("-lidconform.glb")) {
-        expect(
-          [conform.bake.newGlb.sha256, anySubject.bake.newGlb.sha256],
-          "stage-4 expectation cites a conform report",
-        ).toContain(entry.expected);
+        // Re-pin tsk_b85fc19dac1bc8cc: pre-fix runs cite the superseded
+        // pin, which the record keeps in supersededPreCanthus — read from
+        // the record, never weakened.
+        const accepted = [conform.bake.newGlb.sha256, anySubject.bake.newGlb.sha256];
+        const superseded = anySubject.supersededPreCanthus?.bake.newGlb.sha256;
+        if (typeof superseded === "string") accepted.push(superseded);
+        expect(accepted, "stage-4 expectation cites a conform report").toContain(entry.expected);
         seen.add(`bake-${entry.case}`);
       }
       if (entry.name === "albedo_beard.png" && entry.expectedSource.includes("aisha-real-chain-report.json")) {
