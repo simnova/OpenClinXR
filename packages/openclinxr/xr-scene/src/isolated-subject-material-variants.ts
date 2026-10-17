@@ -32,6 +32,17 @@ import {
 } from "./skin-shader/skin-shade.js";
 
 /**
+ * Skin index of refraction: ~1.4 for the stratum corneum / epidermis
+ * (Tuchin, Tissue Optics 3rd ed., Table 1.3: n = 1.36-1.43; GPU Gems 3
+ * ch. 14, d'Eon & Luebke, models the skin air-tissue interface at 1.4).
+ * three.js MeshStandardMaterial hardcodes dielectric F0 0.04 (IOR 1.5);
+ * at n = 1.4, F0 = ((n-1)/(n+1))^2 = 0.0278.
+ */
+export const SKIN_IOR = 1.4;
+/** Fresnel F0 at SKIN_IOR: ((SKIN_IOR-1)/(SKIN_IOR+1))^2 = 0.0278. */
+export const SKIN_F0 = ((SKIN_IOR - 1) / (SKIN_IOR + 1)) ** 2;
+
+/**
  * Variant evaluator skin override (data-driven, deterministic).
  * Applied after GLB load to every material whose name matches `materialNameMatch`
  * (regex source, case-insensitive, default "mpfb_skin"). Never writes a GLB.
@@ -45,6 +56,12 @@ export type SkinOverride = {
   aoMapUrl?: string;
   aoMapIntensity?: number;
   materialNameMatch?: string;
+  /**
+   * Explicit IOR for the G1 control only (card tsk_d4667a3e507da70):
+   * physical swap at 1.5 vs the untouched MeshStandard render. Absent,
+   * the skin renders at SKIN_IOR (1.4). Must be finite when present.
+   */
+  ior?: number;
 };
 
 /** Skin-realism portrait: remove fitted hair meshes (/hair/i over mesh, node, geometry names) so the head frames without hair. */
@@ -72,6 +89,8 @@ export type SkinOverrideApplied = {
   roughness: number | null;
   roughnessMap: { url: string; size: [number, number] } | null;
   ao: { url: string; size: [number, number]; intensity: number } | null;
+  /** Index of refraction the matched skin material(s) render at. */
+  ior: number;
 };
 
 /** Variant evaluator: override skin maps/scalars on matching materials (post-load, no GLB write). */
@@ -82,6 +101,9 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
     re = new RegExp(pattern, "i");
   } catch {
     throw new Error(`skinOverride.materialNameMatch is not a valid regex: ${pattern}`);
+  }
+  if (override.ior != null && !Number.isFinite(override.ior)) {
+    throw new Error(`skinOverride.ior must be finite, got ${JSON.stringify(override.ior)}`);
   }
   const loader = new TextureLoader();
   const matched: MeshStandardMaterial[] = [];
@@ -167,7 +189,47 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
       m.needsUpdate = true;
     }
   }
-  return { pattern, matchedMaterials: matchedNames, baseColor, normal, roughness, roughnessMap, ao };
+  // Skin renders at SKIN_IOR: swap each matched MeshStandardMaterial for a
+  // MeshPhysicalMaterial copying maps/scalars (same pattern as the generic
+  // physical override below), then set ior. override.ior is G1-only.
+  const ior = override.ior ?? SKIN_IOR;
+  const swapped = new Map<MeshStandardMaterial, MeshPhysicalMaterial>();
+  for (const src of matched) {
+    const next = new MeshPhysicalMaterial();
+    next.name = src.name;
+    next.color.copy(src.color);
+    next.map = src.map;
+    next.normalMap = src.normalMap;
+    next.normalScale.copy(src.normalScale);
+    next.roughnessMap = src.roughnessMap;
+    next.roughness = src.roughness;
+    next.metalnessMap = src.metalnessMap;
+    next.metalness = src.metalness;
+    next.emissive.copy(src.emissive);
+    next.emissiveIntensity = src.emissiveIntensity;
+    next.envMapIntensity = src.envMapIntensity;
+    next.aoMap = src.aoMap;
+    next.aoMapIntensity = src.aoMapIntensity;
+    next.ior = ior;
+    swapped.set(src, next);
+  }
+  root.traverse((o) => {
+    if (!(o instanceof Mesh)) return;
+    if (Array.isArray(o.material)) {
+      o.material = o.material.map((m) => {
+        const next = m instanceof MeshStandardMaterial ? swapped.get(m) : undefined;
+        if (next) next.needsUpdate = true;
+        return next ?? m;
+      });
+    } else if (o.material instanceof MeshStandardMaterial) {
+      const next = swapped.get(o.material);
+      if (next) {
+        next.needsUpdate = true;
+        o.material = next;
+      }
+    }
+  });
+  return { pattern, matchedMaterials: matchedNames, baseColor, normal, roughness, roughnessMap, ao, ior };
 }
 
 /**

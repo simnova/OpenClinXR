@@ -1,0 +1,560 @@
+{
+ "card": "tsk_d4667a3e507da70",
+ "code": {
+  "SKIN_IOR": 1.4,
+  "SKIN_F0": 0.0278,
+  "F0_source": "Tuchin, Tissue Optics 3rd ed., Table 1.3 (skin n=1.36-1.43); GPU Gems 3 ch. 14 (d'Eon & Luebke) models the skin air-tissue interface at IOR 1.4; F0 = ((n-1)/(n+1))^2 = 0.0278 beside SKIN_IOR in packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts",
+  "explicit_override_field": "SkinOverride.ior (G1 control only; default SKIN_IOR)",
+  "product_runtime_note": "NOT TESTED on the learner exam runtime: no file under apps/ui-xr/src references isolated-subject-material-variants (grep, 2026-10-17). Consumed by the measurement harness only: packages/openclinxr/xr-scene/src/isolated-subject-lab.ts:41-43 (import) and :341 (applySkinOverride in the variant path), served via apps/ui-xr/isolated-subject.html. No apps/** file edited."
+ },
+ "inputs": {
+  "body2_glb": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+   "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
+  },
+  "body2_albedo": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/albedo_beard.png",
+   "sha256": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db"
+  },
+  "body2_roughness": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/roughness.png",
+   "sha256": "97a4ac54cd9a64e92c9d0f9257d0ee1db2f77e32afd122dfba1cdec1d3da2ee6"
+  },
+  "body2_normal": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.skin-normal.png",
+   "sha256": "7e406a390d8dc742621bcc9625cf55ed76e623aec0b847289090f82bb46418b2"
+  },
+  "aisha_glb": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+   "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+  },
+  "aisha_albedo": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/albedo_beard.png",
+   "sha256": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198"
+  },
+  "aisha_roughness": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/roughness.png",
+   "sha256": "f150fec7b87a05f84a05f2f18e259e14bc3ff00529ec18c4628b3ae1749b8572"
+  },
+  "aisha_normal": {
+   "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.skin-normal.png",
+   "sha256": "493fae437c293f85714a492e713120171ba8baebb71f74bc64e18f3017225621"
+  },
+  "goal_body2": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/body2/goal-front.png",
+   "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97"
+  },
+  "goal_aisha": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+   "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf"
+  },
+  "rig": {
+   "path": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json",
+   "sha256": "754caa7cffaa436af40e428afaacc49603bb6a52680c82eaa85ec77e66341bd6"
+  },
+  "case_report": {
+   "path": "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json",
+   "note": "latest runs: body2/run2 + aisha/run2"
+  }
+ },
+ "thresholds": {
+  "G0": {
+   "threshold": "per-region run-to-run meanAbsDiff (15a vs 15b, 14a vs 14b); denominator for all enforced gates",
+   "threshold_source": "card tsk_d4667a3e507da70 (G0); instrument face_landmark_regions.py ERODE_PX 3"
+  },
+  "G1": {
+   "threshold": "per-region + global meanAbsDiff(base, 15a) within G0 noise (0.0); falsifier: else stop and report the diff",
+   "threshold_source": "card tsk_d4667a3e507da70 (G1)"
+  },
+  "G2": {
+   "threshold": "skinOverrideApplied.ior == 1.4 exactly (body2 + aisha); non-skin collectMaterialInventory identical 15 vs 14",
+   "threshold_source": "card tsk_d4667a3e507da70 (G2)"
+  },
+  "G3": {
+   "threshold": "HL drops 1.5 -> 1.4 on BOTH metrics AND stays >= lower goal value (cheek floor 0.0618, own floor 0.0393); not matte",
+   "threshold_source": "forehead-sheen-report.json goals (body2 HL_cheek 0.6054/HL_own 0.1746; aisha-edit-0 HL_cheek 0.0618/HL_own 0.0393) + metric defs (DL=10.0, K=0.85 cheek; +2.0/0.95 own-median)"
+  },
+  "G4a": {
+   "threshold": "per-channel |dLab| <= 3 (BOUND 3) for the 4 regchroma regions; L-field 3-of-4 count",
+   "threshold_source": "tools/openclinxr/asset-pipeline/skin/face-replay/the-tone-is-solved-per-region-and-a-painted-scalp-refuses.test.ts:30"
+  },
+  "G4b": {
+   "threshold": "minimise max per-channel |dLab| over polygon upperlip_skin+chin (render vs goal); recommend only",
+   "threshold_source": "aisha-real-chain-report.json G4_polygon_sweep (chosen_weight 0.9)"
+  },
+  "G4c": {
+   "threshold": "report forehead residual dLab + transfer/gap-closure beside studio numbers (record)",
+   "threshold_source": "forehead-field-report.json + forehead-sheen-report.json gates.G5"
+  },
+  "G5": {
+   "threshold": "record only, no fix (face-polygon median L vs goal + warm_medium anchor; high-pass wrinkle contrast)",
+   "threshold_source": "station lane grade c7cd115a5 (record-only residuals)"
+  }
+ },
+ "gates": {
+  "G0": {
+   "threshold_source": "card tsk_d4667a3e507da70 (G0); instrument face_landmark_regions.py ERODE_PX 3",
+   "regions": {
+    "ior15": {
+     "forehead": 0.0,
+     "L_cheek": 0.0,
+     "R_cheek": 0.0,
+     "chin": 0.0,
+     "upperlip_skin": 0.0
+    },
+    "ior14": {
+     "forehead": 0.0,
+     "L_cheek": 0.0,
+     "R_cheek": 0.0,
+     "chin": 0.0,
+     "upperlip_skin": 0.0
+    }
+   },
+   "global": {
+    "ior15": 0.0,
+    "ior14": 0.0
+   }
+  },
+  "G1": {
+   "threshold_source": "card tsk_d4667a3e507da70 (G1)",
+   "regions": {
+    "forehead": 0.0,
+    "L_cheek": 0.0,
+    "R_cheek": 0.0,
+    "chin": 0.0602,
+    "upperlip_skin": 0.0
+   },
+   "global": 0.0128,
+   "frac_px_any_diff": 0.001058,
+   "frac_px_diff_gt1": 0.001042,
+   "max_abs": 54
+  },
+  "G2": {
+   "threshold_source": "card tsk_d4667a3e507da70 (G2)",
+   "body2": {
+    "skin_material": [
+     "mpfb_skin_adult_male_street_casual"
+    ],
+    "ior_15": 1.5,
+    "ior_14": 1.4,
+    "skin_type_15": "MeshPhysicalMaterial",
+    "skin_type_14": "MeshPhysicalMaterial",
+    "nonskin_inventory_identical_15_vs_14": true
+   },
+   "aisha": {
+    "skin_material": [
+     "mpfb_skin_ob_patient_aisha"
+    ],
+    "ior_15": 1.5,
+    "ior_14": 1.4,
+    "skin_type_15": "MeshPhysicalMaterial",
+    "skin_type_14": "MeshPhysicalMaterial",
+    "nonskin_inventory_identical_15_vs_14": true
+   },
+   "base_skin_type": "MeshStandardMaterial"
+  },
+  "G3": {
+   "threshold_source": "forehead-sheen-report.json goals + metric defs",
+   "values": {
+    "body2_15a": {
+     "HL_cheek": 0.5226,
+     "HL_own": 0.0736,
+     "medL": 83.04,
+     "medC": 21.54,
+     "n": 12143
+    },
+    "body2_14a": {
+     "HL_cheek": 0.4413,
+     "HL_own": 0.0786,
+     "medL": 82.35,
+     "medC": 22.89,
+     "n": 12103
+    },
+    "aisha_15": {
+     "HL_cheek": 0.5315,
+     "HL_own": 0.0,
+     "medL": 87.51,
+     "medC": 12.99,
+     "n": 10070
+    },
+    "aisha_14": {
+     "HL_cheek": 0.5417,
+     "HL_own": 0.0,
+     "medL": 87.22,
+     "medC": 13.39,
+     "n": 10074
+    },
+    "goal_body2": {
+     "HL_cheek": 0.6054,
+     "HL_own": 0.1746,
+     "medL": 69.79,
+     "medC": 23.72,
+     "n": 8346
+    },
+    "goal_aisha": {
+     "HL_cheek": 0.0618,
+     "HL_own": 0.0393,
+     "medL": 68.82,
+     "medC": 18.59,
+     "n": 5288
+    }
+   }
+  },
+  "G4": {
+   "threshold_source": "BOUND 3 test:30; aisha-real-chain G4; fhfield/fhsheen reports",
+   "regional_dlab": {
+    "body2_14a_vs_goal": {
+     "forehead": [
+      12.8,
+      5.92,
+      1.27
+     ],
+     "L_cheek": [
+      23.75,
+      2.41,
+      4.74
+     ],
+     "R_cheek": [
+      15.08,
+      1.92,
+      4.72
+     ],
+     "chin": [
+      13.74,
+      1.87,
+      7.24
+     ],
+     "upperlip_skin": [
+      13.43,
+      3.26,
+      10.99
+     ]
+    },
+    "aisha_14_vs_goal": {
+     "forehead": [
+      18.27,
+      4.45,
+      3.77
+     ],
+     "L_cheek": [
+      16.94,
+      3.73,
+      3.61
+     ],
+     "R_cheek": [
+      12.76,
+      4.06,
+      0.09
+     ],
+     "chin": [
+      12.8,
+      1.42,
+      4.38
+     ],
+     "upperlip_skin": [
+      15.27,
+      0.78,
+      3.94
+     ]
+    },
+    "body2_L_within3_of_4": 0
+   },
+   "beard_sweep": {
+    "0": {
+     "per_region": {
+      "upperlip_skin": [
+       26.68,
+       0.69,
+       5.61
+      ],
+      "chin": [
+       19.86,
+       2.62,
+       7.31
+      ]
+     },
+     "max_abs_dlab": 26.68
+    },
+    "0.5": {
+     "per_region": {
+      "upperlip_skin": [
+       20.12,
+       1.59,
+       9.07
+      ],
+      "chin": [
+       16.62,
+       2.48,
+       7.36
+      ]
+     },
+     "max_abs_dlab": 20.12
+    },
+    "0.75": {
+     "per_region": {
+      "upperlip_skin": [
+       16.06,
+       2.68,
+       10.39
+      ],
+      "chin": [
+       14.85,
+       1.99,
+       7.34
+      ]
+     },
+     "max_abs_dlab": 16.06
+    },
+    "0.9": {
+     "per_region": {
+      "upperlip_skin": [
+       13.43,
+       3.26,
+       10.99
+      ],
+      "chin": [
+       13.74,
+       1.87,
+       7.24
+      ]
+     },
+     "max_abs_dlab": 13.74
+    },
+    "1.0": {
+     "per_region": {
+      "upperlip_skin": [
+       11.6,
+       3.59,
+       11.25
+      ],
+      "chin": [
+       13.02,
+       1.55,
+       7.26
+      ]
+     },
+     "max_abs_dlab": 13.02
+    },
+    "room_rig_choice": "1.0",
+    "station_choice": 0.9,
+    "recommendation": "keep chain-manifest (no change)"
+   },
+   "forehead_transfer": {
+    "forehead_residual_14a": [
+     12.8,
+     5.92,
+     1.27
+    ],
+    "forehead_residual_15a": [
+     13.42,
+     6.37,
+     0.07
+    ],
+    "gap_closure_15_to_14": {
+     "L": 0.046,
+     "a": 0.071,
+     "b": -17.143
+    }
+   }
+  },
+  "G5": {
+   "threshold_source": "station lane grade c7cd115a5 (record-only)",
+   "body2_render_face_median_L": 66.0,
+   "body2_render_face_n": 98019,
+   "body2_goal_face_median_L": 49.78,
+   "body2_goal_face_n": 59198,
+   "warm_medium_anchor_L": 49.26,
+   "warm_medium_anchor_source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_medium[0]",
+   "render_forehead_hp_contrast": 1.093,
+   "render_nasolabial_hp_contrast": 4.674,
+   "render_nasolabial_n": 3625,
+   "goal_forehead_hp_contrast": 6.459,
+   "goal_nasolabial_hp_contrast": 6.039,
+   "goal_nasolabial_n": 2625,
+   "highpass_kernel": "5x5 box blur (cv2.blur ksize 5); contrast = RMS(gray - blur) over mask",
+   "nasolabial_indices": {
+    "L": [
+     98,
+     61
+    ],
+    "R": [
+     327,
+     291
+    ],
+    "width_px": 14,
+    "source": "tools/openclinxr/evidence/face-gate/face_gate.py:INDICES"
+   }
+  },
+  "G6": {
+   "threshold_source": "card tsk_d4667a3e507da70 (G6)",
+   "grade": "pending lane manager"
+  }
+ },
+ "renders": [
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-front.png",
+   "sha256": "1b26f2ee1d4d58f7698315196576287495a4b658b38be62c09ffa94a7b11729d"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-yaw25.png",
+   "sha256": "7d3f33d6d31ee586623874489d129d779e5af4d90d7e3e326d7aa9184f73117d"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-yaw40.png",
+   "sha256": "d0f4111c382cea5d95a7b54f2c6f6f1b79d9c4168b66d3a32551ead229591239"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
+   "sha256": "ec92a7ce158ca5357b8b9ce2f5f8cfbcdc467daf0bcae3f4a980b6e02bfd602a"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-yaw25.png",
+   "sha256": "4a8a18ef211de9108081db6360fd950ea3c068d57d9f739ae00c728fdf09ca9d"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-yaw40.png",
+   "sha256": "14f873a220d3ea5dce3661a74ecdd450cee15fe62edbfdf992bf68e5e0ac7427"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-15-front.png",
+   "sha256": "c81370e0572b398090729251520d6d4640a0cabfe9d7ddbb60608a1ecb89519f"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-15-yaw25.png",
+   "sha256": "a09fd7a5d36ad95b2285f683b997f1bd9ff9f8e10d4932cc5280cf4c97e1c084"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-15-yaw40.png",
+   "sha256": "006bbec755d89a77d94ccca3845b54c68d4f4f137a8d21c3c73f6370a16b81cc"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
+   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-yaw25.png",
+   "sha256": "f2799b76dc8df6a6891948c0a1b1b6123f3cf1c4cfb6753894c087e87f87fcab"
+  },
+  {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-yaw40.png",
+   "sha256": "a04ae668dff912bda4aac9230fb69c7f96313080228b43fe77900f938484b3a6"
+  }
+ ],
+ "landmarker": {
+  "model_path": "/Volumes/files/openclinxr-assets/store/face-fit/face_landmarker.task",
+  "model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+ },
+ "verdicts": {
+  "G0": {
+   "verdict": "PASS (noise floor established)",
+   "detail": "Harness is bit-deterministic: every per-region and global run-to-run meanAbsDiff is exactly 0.0 (15a-vs-15b, 14a-vs-14b). margin/noise is undefined as a ratio (denominator 0); enforced gates below quote absolute margins against this exact-zero floor, which satisfies the intent of margin/noise >= 1 (no sub-noise enforcement possible).",
+   "noise": {
+    "threshold_source": "card tsk_d4667a3e507da70 (G0); instrument face_landmark_regions.py ERODE_PX 3",
+    "regions": {
+     "ior15": {
+      "forehead": 0.0,
+      "L_cheek": 0.0,
+      "R_cheek": 0.0,
+      "chin": 0.0,
+      "upperlip_skin": 0.0
+     },
+     "ior14": {
+      "forehead": 0.0,
+      "L_cheek": 0.0,
+      "R_cheek": 0.0,
+      "chin": 0.0,
+      "upperlip_skin": 0.0
+     }
+    },
+    "global": {
+     "ior15": 0.0,
+     "ior14": 0.0
+    }
+   }
+  },
+  "G1": {
+   "verdict": "FAIL as written (falsifier FIRED)",
+   "detail": "Physical swap at IOR 1.5 vs untouched MeshStandard: global meanAbsDiff 0.0128 (frac>0 px 0.001058, frac>1 LSB 0.001042, max 54), chin-region 0.0602 vs G0 noise 0.0 everywhere else. The swap alone changes 0.1% of pixels (specular-path rounding on the chin/jaw curve), i.e. NOT bit-identical. IOR 1.5->1.4 effect is 0.4977 global (~39x the swap effect), so attribution of the G3/G4 deltas to IOR stands, but the control is recorded as failed, not waved through. Downstream gates compare 1.5 vs 1.4 (independent of G1) and are measured.",
+   "numbers": {
+    "threshold_source": "card tsk_d4667a3e507da70 (G1)",
+    "regions": {
+     "forehead": 0.0,
+     "L_cheek": 0.0,
+     "R_cheek": 0.0,
+     "chin": 0.0602,
+     "upperlip_skin": 0.0
+    },
+    "global": 0.0128,
+    "frac_px_any_diff": 0.001058,
+    "frac_px_diff_gt1": 0.001042,
+    "max_abs": 54
+   }
+  },
+  "G2": {
+   "verdict": "PASS",
+   "detail": "skinOverrideApplied.ior reads back exactly 1.4 on body2 (mpfb_skin_adult_male_street_casual) and Aisha (mpfb_skin_ob_patient_aisha); 1.5 on both controls; every non-skin collectMaterialInventory entry identical 15-vs-14 on both subjects; skin type MeshPhysicalMaterial on all four, MeshStandardMaterial on the pre-change baseline."
+  },
+  "G3": {
+   "verdict": "FAIL as written (2 of 4 comparisons move the wrong way; Aisha own-median below floor)",
+   "detail": "body2 HL_cheek 0.5226 -> 0.4413 (drops, stays >= 0.0618 floor: PASS); body2 HL_own 0.0736 -> 0.0786 (RISES, stays >= 0.0393 floor: direction FAIL); aisha HL_cheek 0.5315 -> 0.5417 (RISES: direction FAIL, above floor); aisha HL_own 0.0000 -> 0.0000 (flat, BELOW the 0.0393 floor: FAIL). Room rig keeps both foreheads far above the cheek-anchored matte floor (not matte by HL_cheek), but IOR 1.4 is not a uniform sheen fix on this rig. Goal recompute reproduces forehead-sheen-report.json both_metrics exactly (body2 0.6054/0.1746, aisha 0.0618/0.0393), validating the instrument.",
+   "floors": {
+    "HL_cheek": 0.0618,
+    "HL_own": 0.0393
+   },
+   "margin_note": "noise 0.0: margins absolute (body2 cheek drop 0.0813)."
+  },
+  "G4a": {
+   "verdict": "FAIL (0 of 4 within 3 per channel; L-field 0 of 4)",
+   "detail": "body2 room-rig 14a vs goal-front: forehead [12.8, 5.92, 1.27], L_cheek [23.75, 2.41, 4.74], R_cheek [15.08, 1.92, 4.72], chin [13.74, 1.87, 7.24]; no region within 3 on any channel. The room rig renders ~13-24 L too bright (face median L 66.0 vs goal 49.78; rig exposure 0.9 + IBL wash), so L fails everywhere while chroma is closer (b* within ~5 except chin/upperlip). Mouth-landmark studio L-field '3 of 4' does NOT hold on the room rig.",
+   "studio_beside": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/mouth-landmark-report.json:g4_regions (studio rig, render-minus-goal)",
+    "L_cheek": [
+     1.17,
+     -1.41,
+     -2.43
+    ],
+    "R_cheek": [
+     0.71,
+     -0.4,
+     0.03
+    ],
+    "forehead": [
+     2.64,
+     -5.38,
+     -3.45
+    ],
+    "chin": [
+     -2.31,
+     0.6,
+     0.7
+    ],
+    "within3_count": 3
+   }
+  },
+  "G4b": {
+   "verdict": "room-rig choice 1.0 beside station 0.9; RECOMMEND keep chain-manifest",
+   "detail": "min-max rule (max per-channel |dLab| over upperlip_skin+chin, render vs goal): w0 26.68 / w0.5 20.12 / w0.75 16.06 / w0.9 13.74 / w1.0 13.02. Choice flips to 1.0 on the room rig, but the margin (0.72) is small against the ~13 L-driven residual: the driver is room-rig brightness (upperlip L 26.68 -> 11.60 monotonic with weight), not the beard pattern. No manifest change."
+  },
+  "G4c": {
+   "verdict": "recorded (forehead residual + gap-closure analog; no albedo transfer exists room-side)",
+   "detail": "Room forehead residual 14a [12.8, 5.92, 1.27] vs 15a [13.42, 6.37, 0.07]: IOR closes L by 4.6% and a* by 7.1%, moves b* AWAY (gap -17.1: residual 0.07 -> 1.27). Studio sheen G5 transfer_ratio_a_F0 forehead 0.598 describes an ALBEDO transfer (albedo_delta_a_face_mean 3.828); room-side the albedo delta is 0 by construction (IOR lives in the material, same albedo_beard), so no same-definition ratio exists; gap-closure is the stated analog.",
+   "studio_beside": {
+    "transfer_ratio_a_F0_forehead": 0.598,
+    "transfer_ratio_a_F0_cheeks": {
+     "L_cheek": 1.001,
+     "R_cheek": 0.998
+    },
+    "transfer_ratio_a_F0_chin": 0.713,
+    "source": "forehead-sheen-report.json gates.G5"
+   }
+  },
+  "G5": {
+   "verdict": "recorded only, no fix",
+   "detail": "body2 face-polygon median L: render 66.0 vs goal 49.78 vs warm_medium anchor 49.26 (goal matches the anchor; the render sits ~16 L high on the room rig). Wrinkle high-pass (5x5 box) RMS: forehead render 1.093 vs goal 6.459 (render ~6x smoother); nasolabial render 4.674 vs goal 6.039. Room renders under-express wrinkle contrast; recorded, not gated."
+  },
+  "G6": {
+   "verdict": "renders complete (12 room PNGs + 4 sweep fronts + shas in report.renders); grade pending lane manager",
+   "detail": "No plastic look and no matte forehead claimed here: body2 HL_cheek 0.44 (lit, not matte); Aisha HL_own 0.0 reads matte at the own-median scale. Lane-manager grade pending."
+  }
+ }
+}
