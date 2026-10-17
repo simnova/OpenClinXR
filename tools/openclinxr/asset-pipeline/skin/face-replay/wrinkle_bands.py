@@ -250,10 +250,10 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post7.png"),
-               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post6.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post7", "wrinkle-body2-post7-front.png"),
-               "aisha": os.path.join(POST_STORE, "post6a", "wrinkle-aisha-post6-front.png")}
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post8.png"),
+               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post8.png")}
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post8", "wrinkle-body2-post8-front.png"),
+               "aisha": os.path.join(POST_STORE, "post8", "wrinkle-aisha-post8-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
 
