@@ -1,0 +1,421 @@
+{
+ "ablations": {
+  "a": {
+   "body2": {
+    "D90": -10.868,
+    "M1": -19.173,
+    "M2a": 7.313,
+    "M2b": 5.366,
+    "nSclera": 1808
+   },
+   "body2Moves": {
+    "M2a": "toward",
+    "M2b": "AWAY (3.0->5.4 vs goal -14.1)"
+   },
+   "label": "sclera albedo scale toward goal M1 (k0.759 aisha / k0.457 body2; prior session bake)",
+   "method": "scale only the sclera region of the eye diffuse, iris untouched",
+   "subject_aisha": {
+    "D90": -3.465,
+    "M1": -9.965,
+    "M2a": 6.93,
+    "M2b": 3.641,
+    "nSclera": 2510
+   },
+   "subject_aishaMoves": {
+    "M2a": "toward (4.1->6.9 vs goal 7.2)",
+    "M2b": "AWAY (2.0->3.6 vs goal -8.7)"
+   }
+  },
+  "b": {
+   "body2": {
+    "D90": -6.917,
+    "M1": -19.919,
+    "M2a": 0.0,
+    "M2b": 0.263,
+    "nSclera": 2050
+   },
+   "body2Moves": {
+    "M2a": "AWAY (3.7->0.0 vs goal 16.9)",
+    "M2b": "toward, weakly (3.0->0.3 vs goal -14.1)"
+   },
+   "label": "lid occlusion on the globe (B2 shell; prior session params margin.65/corner1.0/ramp2.0/boost1.8/cap.9/cornerramp12/pocket7-11/atten.35/color55,44,37)",
+   "method": "materializer --eye-occlusion-shell bake (shell default-on under --eye-cornea in the worktree at the time)",
+   "subject_aisha": {
+    "D90": -29.084,
+    "M1": -38.047,
+    "M2a": -3.987,
+    "M2b": -5.542,
+    "nSclera": 2617
+   },
+   "subject_aishaMoves": {
+    "M2a": "AWAY (4.1->-4.0 vs goal 7.2; uniform-greys the limbus band)",
+    "M2b": "toward (2.0->-5.5 vs goal -8.7)"
+   }
+  },
+  "c": {
+   "body2": {
+    "D90": 14.132,
+    "M1": 8.078,
+    "M2a": 5.532,
+    "M2b": 4.72,
+    "nSclera": 1691
+   },
+   "body2Moves": {
+    "M2a": "toward (3.7->5.5)",
+    "M2b": "AWAY (3.0->4.7)"
+   },
+   "label": "eye shader lighting (runtime-only globe envMapIntensity 0.15 / roughness 0.9 on PRE GLBs)",
+   "method": "materialOverrides match mat_makeclothes_library_eyes (no rebake)",
+   "subject_aisha": {
+    "D90": -1.968,
+    "M1": -7.543,
+    "M2a": 5.834,
+    "M2b": 3.628,
+    "nSclera": 2508
+   },
+   "subject_aishaMoves": {
+    "M2a": "toward (4.1->5.8)",
+    "M2b": "AWAY (2.0->3.6)"
+   }
+  }
+ },
+ "body2Diagnosis": {
+  "conclusion": "The B2 shell is present at runtime (1076 verts, healthy per-vertex alpha median 0.25, same material/consumption as Aisha probe-verified live) and covers the globe (+0.3mm proud, same as Aisha), but its shadow over body2's visible sclera band is ~6x weaker (differential beauty-minus-noshell median dL -5.6 vs Aisha -36.7; upper-limbus quadrant -1.05 vs -35.7; canthal quadrants do respond, -15/-16). The baked field concentrates alpha canthally and zeroes the lower-central pocket (lower-atten x pocket gate), so the visible effect is hypersensitive to where the rendered opening falls: body2's opening maps to near-zero-alpha territory (3D-mapped matched baked-alpha median 0.00 vs Aisha 0.45, 85%+ pixels matched within 1.5mm). M2b therefore cannot respond on body2 no matter the strength: raising strength only deepens the canthi (M2a up) and grey-veils the median (M1/D90 overshoot, G2 fail). No subject-specific constant was introduced; the pocket/gate/atten interplay is generic.",
+  "differential": "per-pixel dL* = L*(shell beauty) - L*(shell-hidden beauty), same GLB, bit-identical portrait headBox (delta 0.0 all pairs)",
+  "evidence": [
+   "store/sclera-shade/diag/aisha-shadow.png",
+   "store/sclera-shade/diag/body2-shadow.png",
+   "store/sclera-shade/diag/aisha-diag.png",
+   "store/sclera-shade/diag/body2-diag.png"
+  ],
+  "irisControlDL": 0.0,
+  "r4QuadrantDL": {
+   "aisha": {
+    "lc": -46.67,
+    "ll": -31.52,
+    "uc": -35.67,
+    "ul": -0.99
+   },
+   "body2": {
+    "lc": -15.21,
+    "ll": -16.12,
+    "uc": -1.05,
+    "ul": 0.0
+   }
+  },
+  "ruledOut": [
+   "camera (headBoxPx delta 0.0 beauty vs ID vs shell-hidden vs noshell, all pairs)",
+   "mask (ID-globe masks, nSclera 1700-2600, iris circle verified by radial profile)",
+   "alpha field missing (in-GLB COLOR_0 alpha median 0.25 both; upper-band mean 0.33 aisha / 0.38 body2)",
+   "placement (shell +0.30mm proud mid-band both at bind; rest==bind, rendered centroids match bind to 0.1mm)",
+   "consumption (live probe: MeshBasicMaterial vertexColors transparent depthWrite-false side-2 COLOR itemSize-4 morphs-6x0, identical both)",
+   "gaze/opening size (iris centered 0.52/0.45 rel; opening 44/42px tall)",
+   "lid-conform staleness (lid-margin heights base-vs-R4 identical to 0.1mm both subjects)"
+  ]
+ },
+ "card": "tsk_c120564ce449c2b1",
+ "cause": {
+  "lever": "b (lid occlusion on the globe)",
+  "numbers": "only b moves M2b toward goal on BOTH subjects (aisha +2.0->-5.5, body2 +3.0->+0.3); a and c move M2b AWAY on both (+2.0->+3.6/+3.6 aisha, +3.0->+5.4/+4.7 body2): uniform globe darkening cannot produce the upper-lid shadow gradient. b moves M2a away on both (needs retune, not achieved: sweep r1-r7).",
+  "verdict": "cause_found_fix_not_converged"
+ },
+ "files": {
+  "store/sclera-shade/diag/aisha-diag.png": "7921b5ce462d6bc61cb779c2938c76ba7114e6428d07e400af1e080676ab9fa2",
+  "store/sclera-shade/diag/aisha-shadow.png": "99534a734074cfdac5d3f44c2e8c9805d05238dd7754f204e2b850062a0ab192",
+  "store/sclera-shade/diag/body2-diag.png": "df2b83a6d914395d14ea637c06d766fbea860ff841cb1d20f405e9db096b4932",
+  "store/sclera-shade/diag/body2-shadow.png": "a4cf94ee64061f592e510407aa073b9d5908426d9b6f6e4adb7ee4c5715c00a8",
+  "store/sclera-shade/remeasure/abl-a-aisha-debug.png": "6cb1e96689b81d7bfcb424253091bec89f3c1c257abe4ebd9ea1d4b9731cac39",
+  "store/sclera-shade/remeasure/abl-a-aisha.json": "5418db989f06ae4f2b8765182731f71702961b663d21ab1030f5260a6360599a",
+  "store/sclera-shade/remeasure/abl-a-body2-debug.png": "56c16e18c9889b1d93921b6f7d048080bef90dfaa909dc7a29efdde6f160d7c2",
+  "store/sclera-shade/remeasure/abl-a-body2.json": "99dad6541c2ae794abe442dec6656d03c6db2c98b5dd3ce89c0fffd99a0f9ab1",
+  "store/sclera-shade/remeasure/abl-b-aisha-debug.png": "925714c3dbea7c8346deacfaab703a38d544195baa134995caf94e6bba2b1f0f",
+  "store/sclera-shade/remeasure/abl-b-aisha.json": "ee932de33dd2acf2dbcea15f294701b82627a43018be3a87fc3bd48f36fd7dd6",
+  "store/sclera-shade/remeasure/abl-b-body2-debug.png": "48cbf65c1c72497686d6c3c65f77ea9fa1db9f0c002414aec6f3049c4096546e",
+  "store/sclera-shade/remeasure/abl-b-body2.json": "5f121a4bd4ed2439079b9b0e619b7baf10de63085fea5d95d24bd04e7fc41d63",
+  "store/sclera-shade/remeasure/abl-c-aisha-debug.png": "39a42c7ea5bbd17dc953d85e5b3ce0fda4e54e66845e1bbb2adbeaf2869ee4b6",
+  "store/sclera-shade/remeasure/abl-c-aisha.json": "1e9734b357f276913136f287a01689eee5cbe8715aff2c7aad2165c6327237ca",
+  "store/sclera-shade/remeasure/abl-c-body2-debug.png": "5b9d0dbfbad0316837614f3cc229717eaf17bec8c4b603f0e27ff179c93201d0",
+  "store/sclera-shade/remeasure/abl-c-body2.json": "06de30b7a02c1264fe5275959ef20fdbbad645f3210a8af1ffd73663f598ee0c",
+  "store/sclera-shade/remeasure/goal-aisha-debug.png": "6452a97a745ff8a0397e5327b8696c7b16499911005d542c04317ab11b40c28a",
+  "store/sclera-shade/remeasure/goal-aisha.json": "f334e5b64643822156226600018c086f3c11da16adfacd8255de8d96a595d9cf",
+  "store/sclera-shade/remeasure/goal-body2-debug.png": "4dd8d7532a45129265b937bcdb1438fd65ce96a8648562f88a6379314e10d9cf",
+  "store/sclera-shade/remeasure/goal-body2.json": "e679c0c072e46acbb3da71b14267b8d081f2dd18ad58a7fe3e6580ec441a8c86",
+  "store/sclera-shade/remeasure/pre-aisha-debug.png": "54a2c1fb7030f3ebbd6c268882b25bd2c9421e3d8fde742073e32dcfa54482f3",
+  "store/sclera-shade/remeasure/pre-aisha.json": "4dddb23296009c2c217379f6fdb0fee3e1abaf3dc5738f27b24825411b3471cb",
+  "store/sclera-shade/remeasure/pre-body2-debug.png": "65c55177890f279440666922b4a736155a36fbef079a2e61a475bc8ebe945a6f",
+  "store/sclera-shade/remeasure/pre-body2.json": "c3deb9f8f008ad9b7c1e81f6d8e84ffc6a6d83965b63b09f44d503d363a8f7b5",
+  "store/sclera-shade/remeasure/r1-aisha-debug.png": "541976a45fba9e58f887c7ce55dc5d4ac1e27b9848f7e137931750c22da5c097",
+  "store/sclera-shade/remeasure/r1-aisha.json": "7b596e8a75bafacc4b51193a30adad19df56613141eef296dd89c326d5160e4f",
+  "store/sclera-shade/remeasure/r1-body2-debug.png": "1743029412e8d679beb0484ab89cd5dab3fcff05d80e869b223b9390b6a72bc2",
+  "store/sclera-shade/remeasure/r1-body2.json": "78db8a6c4ea7add07d02836a9e32f20d71e711d7073b864d9c638c159d77bc65",
+  "store/sclera-shade/remeasure/r2-aisha-debug.png": "77b5ad3601866852881c1237efc475f06406ef3257bb0d8ef0cd6e526e230512",
+  "store/sclera-shade/remeasure/r2-aisha.json": "dd855a4038bf66ee4712d59473ad5045e130b36df4e61f6d1331f587770fedb7",
+  "store/sclera-shade/remeasure/r2-body2-debug.png": "90501da23e678b85d9e27e26193be43083acc1ae03c6e196e27d87f32b7ab7f9",
+  "store/sclera-shade/remeasure/r2-body2.json": "6d1ac1b83fa427f0fe312a00f4f94e28f15be325fccc28261c42d8f5d3e60cdb",
+  "store/sclera-shade/remeasure/r3-aisha-debug.png": "7ad8cb62cb6ba7234ee23e0d945a155d7f371c4be698ecd523031382a2308251",
+  "store/sclera-shade/remeasure/r3-aisha.json": "641d22e0f1b17f62456806420829aee914c8747bc29b3f88c314a88b79ce25db",
+  "store/sclera-shade/remeasure/r3-body2-debug.png": "b3eeededc813174d6310276f141c6312fa80f6b4ba9329c8ed805cc859914022",
+  "store/sclera-shade/remeasure/r3-body2.json": "ccca4d3c211c2f58bb17e5b28d8e9e919b3c77485bb4bbb78c276854d4d2a34e",
+  "store/sclera-shade/remeasure/r4-aisha-debug.png": "a43240f5e5ae1ec84eb5a8ada048d9080edb6400a33f33aef8649b6cb826dd56",
+  "store/sclera-shade/remeasure/r4-aisha.json": "286309f552b0543dc91b21cd9d6670a38b2cdec78956e50e068a542a7ae95ead",
+  "store/sclera-shade/remeasure/r4-body2-debug.png": "e9201e6a4322302f4392951d5b13dc565d8538cb1a27dda3fe7daf8ce2aea485",
+  "store/sclera-shade/remeasure/r4-body2.json": "ec706530a75793f3b68247ffb38f9e9cd40eb2c3e76591c5c785ed1912b606d1",
+  "store/sclera-shade/remeasure/r6-aisha-debug.png": "36702411a9d84e54a0a70becfc2a74e58034e2e76277f49a0a7309453bb6d699",
+  "store/sclera-shade/remeasure/r6-aisha.json": "a4c5ef7d98be0ffabcc6194404667508176ac2ca9f5546508357f7661fdf6db4",
+  "store/sclera-shade/remeasure/r7-aisha-debug.png": "5c3010037a617d5a1b5d9a32384597e1a14376bd03d0a01fc3e34cf1dd324918",
+  "store/sclera-shade/remeasure/r7-aisha.json": "efb09b8e3b7ee337d98791f6d0799fd2583148b1bab1573b514fce038e718b9f"
+ },
+ "g1Midpoints": {
+  "aisha": {
+   "M1": -7.47,
+   "M2a": 5.635,
+   "M2b": -3.3
+  },
+  "body2": {
+   "M1": -3.8,
+   "M2a": 10.3,
+   "M2b": -5.57
+  }
+ },
+ "g2D90Windows": {
+  "aisha": [
+   -12.27,
+   -2.13
+  ],
+  "body2": [
+   -18.55,
+   6.95
+  ]
+ },
+ "goal": {
+  "aisha": {
+   "D90": -7.201,
+   "M1": -14.032,
+   "M2a": 7.182,
+   "M2b": -8.655,
+   "method": "MediaPipe eye polygon eroded 2px minus MediaPipe 468-477 iris circle; overlay store/sclera-shade/remeasure/goal-aisha-debug.png",
+   "nSclera": 784,
+   "photo": "realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+   "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf"
+  },
+  "body2": {
+   "D90": -5.832,
+   "M1": -23.236,
+   "M2a": 16.915,
+   "M2b": -14.089,
+   "method": "MediaPipe eye polygon eroded 2px minus MediaPipe 468-477 iris circle; overlay store/sclera-shade/remeasure/goal-body2-debug.png",
+   "nSclera": 1006,
+   "photo": "realism-95/.openclinxr/realism-spike/body2/goal-front.png",
+   "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97"
+  }
+ },
+ "masks": {
+  "beautyRenders": "store pre/aisha-render + pre/body2-render, ablation-a/b/c render dirs (prior session; front view)",
+  "erodedPolygon": "goal photos: MediaPipe eye-contour polygon eroded 2px minus iris circle (landmarks 468-477); refusal below 50 px/eye",
+  "idGlobe": "renders: sclera = eye-GLOBE material pixels from an ID pass (materialOverrides paint only mat_makeclothes_library_eyes color #000000 + emissive #00ff00; shell/tearline/caruncle hidden; portrait headBoxPx delta 0.0 vs beauty on all 8 pairs = same camera) at key threshold G-R>=30 & G-B>=30 & G>=80 (calibrated: tone-mapped key median RGB 141,225,89), assigned per eye within 5px-dilated eye polygon, minus the beauty-frame iris circle; refusal below 50 px/eye",
+  "m2aDeviation": "brief said thirds along the corner axis; measured 2026-10-17 the literal middle third is anatomically the iris (survivor counts with correct masks: goal-A 3px, goal-B 33px, PRE-A 36px, PRE-B 11px), so M2a = limbus-adjacent (near iris edge) minus canthal (near corners) Voronoi partition (scales 0.5*iris-r / 0.25*axis-len), same code on goal and renders",
+  "overlays": "mask tinted magenta on the beauty frame + eye-band crops, native pixels, one PNG per measured image (see files.*-debug.png)",
+  "refusal": "exit 2 + error JSON on NaN metric, <50 mask px per eye, empty limbus/canthal/upper/lower split, ID/beauty size mismatch, no face"
+ },
+ "noise": 0.0,
+ "noiseMethod": "prior session render-twice rep (store/sclera-shade/pre-aisha-front-rep.json): byte-identical inputs, deterministic renderer; every G1/G2 clause enforced (|PRE-goal|/2 >> 0)",
+ "notes": {
+  "renderConfound": "r1/r2 body2 first rendered WITHOUT the b2s4 skinOverride (skin 86.0 vs PRE 71.6); re-rendered with the override, final numbers use the override pass (skin 71.4/71.6). Aisha renders never use a skinOverride.",
+  "reverted": "product defaults unchanged vs origin/main: materialize_mpfb_humanoid_candidate.py + isolated-subject-material-variants.ts reverted; probe-shell-render.ts deleted (outside write roots); local xr-scene dist/ build still contains the reverted readback null-safe line (git-ignored, harmless).",
+  "sheet": "no PRE-vs-POST sheet: no POST was picked (fix not converged); eye-band crops live in the per-image debug overlays and diag composites."
+ },
+ "pre": {
+  "aisha": {
+   "D90": 2.934,
+   "M1": -0.909,
+   "M2a": 4.088,
+   "M2b": 2.046,
+   "nSclera": 2481
+  },
+  "body2": {
+   "D90": 19.717,
+   "M1": 15.631,
+   "M2a": 3.689,
+   "M2b": 2.952,
+   "nSclera": 1700
+  },
+  "note": "rebaked in-worktree pre-sweep (aisha e3279f07 / body2 d69e4d0f GLBs); body2 beauty uses the b2s4 skinOverride (albedo_socket, roughness 1) like all prior body2 renders"
+ },
+ "productCode": {
+  "isolationReadbackNote": "one out-of-roots harness crash fix was needed for the card's own ID-pass clause (hide on the MeshBasicMaterial shell crashed readbackMaterial on m.emissive.getHexString); it is REVERTED here per the stop order (see notes.reverted)",
+  "materialize": "opt-in --eye-occlusion-shell / --eye-tearline (store_true); --eye-cornea refuses B2/B3; shell defaults margin 0.5 / corner 0.8 / ramp-mm 2.5 / boost 1.6 / color 120,88,80 (origin/main values, asserted by the test)",
+  "status": "UNCHANGED vs origin/main (reverted this card; shell stays opt-in, no default-on, no new knobs)"
+ },
+ "sweep": [
+  {
+   "aisha": {
+    "D90": -18.854,
+    "M1": -40.443,
+    "M2a": 9.561,
+    "M2b": -17.345
+   },
+   "body2": {
+    "D90": 3.517,
+    "M1": -3.541,
+    "M2a": 10.944,
+    "M2b": -0.399
+   },
+   "params": {
+    "boost": 1.8,
+    "cap": 0.7,
+    "color": "90,68,58",
+    "corner": 1.0,
+    "cornerRampMm": 6.0,
+    "lowerAtten": 0.3,
+    "margin": 0.45,
+    "pocketHiMm": 12.0,
+    "pocketLoMm": 8.0,
+    "rampMm": 2.0
+   },
+   "row": "r1"
+  },
+  {
+   "aisha": {
+    "D90": -9.474,
+    "M1": -29.634,
+    "M2a": 9.814,
+    "M2b": -15.152
+   },
+   "body2": {
+    "D90": 13.326,
+    "M1": 5.878,
+    "M2a": 10.768,
+    "M2b": -0.037
+   },
+   "params": {
+    "boost": 2.0,
+    "cap": 0.65,
+    "color": "120,88,80",
+    "corner": 1.2,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.15,
+    "margin": 0.4,
+    "pocketHiMm": 12.0,
+    "pocketLoMm": 8.0,
+    "rampMm": 2.0
+   },
+   "row": "r2"
+  },
+  {
+   "aisha": {
+    "D90": -9.5,
+    "M1": -30.518,
+    "M2a": 12.595,
+    "M2b": -14.929
+   },
+   "body2": {
+    "D90": 13.326,
+    "M1": 5.812,
+    "M2a": 10.916,
+    "M2b": -0.251
+   },
+   "params": {
+    "boost": 2.6,
+    "cap": 0.8,
+    "color": "120,88,80",
+    "corner": 1.2,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.15,
+    "margin": 0.4,
+    "pocketHiMm": 12.0,
+    "pocketLoMm": 8.0,
+    "rampMm": 4.0
+   },
+   "row": "r3"
+  },
+  {
+   "aisha": {
+    "D90": -5.403,
+    "M1": -40.428,
+    "M2a": 11.056,
+    "M2b": -27.067
+   },
+   "body2": {
+    "D90": 19.113,
+    "M1": 8.284,
+    "M2a": 17.393,
+    "M2b": -0.592
+   },
+   "params": {
+    "boost": 2.6,
+    "cap": 0.8,
+    "color": "90,68,58",
+    "corner": 1.2,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.0,
+    "margin": 0.45,
+    "pocketHiMm": 12.0,
+    "pocketLoMm": 8.0,
+    "rampMm": 4.0
+   },
+   "row": "r4"
+  },
+  {
+   "aisha": "NOT MEASURED (baked, never rendered)",
+   "body2": "NOT MEASURED (never baked: prior bake interrupted; no GLB)",
+   "params": {
+    "boost": 3.0,
+    "cap": 0.9,
+    "color": "90,68,58",
+    "corner": 1.5,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.0,
+    "margin": 0.6,
+    "pocketHiMm": 12.0,
+    "pocketLoMm": 8.0,
+    "rampMm": 4.0
+   },
+   "row": "r5"
+  },
+  {
+   "aisha": {
+    "D90": -53.56,
+    "M1": -62.167,
+    "M2a": 0.023,
+    "M2b": -7.295
+   },
+   "body2": "NOT MEASURED (baked, never rendered)",
+   "params": {
+    "boost": 3.0,
+    "cap": 0.9,
+    "color": "90,68,58",
+    "corner": 1.5,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.0,
+    "margin": 0.6,
+    "pocketHiMm": 6.0,
+    "pocketLoMm": 3.0,
+    "rampMm": 4.0
+   },
+   "row": "r6"
+  },
+  {
+   "aisha": {
+    "D90": -34.537,
+    "M1": -35.288,
+    "M2a": 0.387,
+    "M2b": 0.387
+   },
+   "body2": "NOT MEASURED (baked, never rendered)",
+   "params": {
+    "boost": 2.2,
+    "cap": 0.8,
+    "color": "150,118,106",
+    "corner": 1.2,
+    "cornerRampMm": 8.0,
+    "lowerAtten": 0.3,
+    "margin": 0.9,
+    "pocketHiMm": 7.0,
+    "pocketLoMm": 2.0,
+    "rampMm": 8.0
+   },
+   "row": "r7"
+  }
+ ],
+ "verdict": "cause_found_fix_not_converged"
+}
