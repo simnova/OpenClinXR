@@ -24,6 +24,7 @@ import { describe, expect, it } from "vitest";
 import {
   BoxGeometry,
   DataTexture,
+  DoubleSide,
   Group,
   Mesh,
   MeshPhysicalMaterial,
@@ -77,6 +78,14 @@ function threeMaterialScene(): {
   skin.map = tex();
   skin.normalMap = tex();
   skin.roughnessMap = tex();
+  // Handback 1: the swap must carry ALL material state (silhouette flags),
+  // not just maps/scalars.
+  skin.side = DoubleSide;
+  skin.transparent = true;
+  skin.opacity = 0.9;
+  skin.alphaTest = 0.3;
+  skin.depthWrite = false;
+  skin.flatShading = true;
   const eye = new MeshStandardMaterial({ name: "mat_makeclothes_library_eyes_ob_patient_aisha" });
   eye.color.set("#ffffff");
   const cloth = new MeshStandardMaterial({ name: "shirt_cloth" });
@@ -121,6 +130,14 @@ describe("the skin renders at skin IOR", { timeout: 60000 }, () => {
     expect(phys.roughnessMap).toBe(skin.roughnessMap);
     expect(phys.roughness).toBe(skin.roughness);
     expect(`#${phys.color.getHexString()}`).toBe(`#${skin.color.getHexString()}`);
+    // Full state survives the swap (handback 1: silhouette flags).
+    expect(phys.side).toBe(DoubleSide);
+    expect(phys.transparent).toBe(true);
+    expect(phys.opacity).toBe(0.9);
+    expect(phys.alphaTest).toBe(0.3);
+    expect(phys.depthWrite).toBe(false);
+    expect(phys.flatShading).toBe(true);
+    expect(phys.defines).toEqual({ STANDARD: "", PHYSICAL: "" });
     // Eye and cloth are untouched: same instances, still standard.
     root.traverse((o) => {
       if (!(o instanceof Mesh)) return;

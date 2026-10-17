@@ -1,4 +1,4 @@
-"""Append gate verdicts + studio-beside numbers to room-rig-remeasure-report.json."""
+"""Append/refresh gate verdicts (handback 1) in room-rig-remeasure-report.json."""
 import json
 import os
 
@@ -7,8 +7,7 @@ P = os.path.join(DIR, "room-rig-remeasure-report.json")
 with open(P) as f:
     r = json.load(f)
 
-g0, g1 = r["gates"]["G0"], r["gates"]["G1"]
-g3, g4 = r["gates"]["G3"], r["gates"]["G4"]
+g1 = r["gates"]["G1"]
 
 verdicts = {
     "G0": {
@@ -16,21 +15,19 @@ verdicts = {
         "detail": ("Harness is bit-deterministic: every per-region and global run-to-run "
                    "meanAbsDiff is exactly 0.0 (15a-vs-15b, 14a-vs-14b). margin/noise is "
                    "undefined as a ratio (denominator 0); enforced gates below quote absolute "
-                   "margins against this exact-zero floor, which satisfies the intent of "
-                   "margin/noise >= 1 (no sub-noise enforcement possible)."),
-        "noise": g0,
+                   "margins against this exact-zero floor."),
     },
     "G1": {
-        "verdict": "FAIL as written (falsifier FIRED)",
-        "detail": ("Physical swap at IOR 1.5 vs untouched MeshStandard: global meanAbsDiff "
-                   f"0.0128 (frac>0 px {g1['frac_px_any_diff']}, frac>1 LSB {g1['frac_px_diff_gt1']}, "
-                   f"max {g1['max_abs']}), chin-region 0.0602 vs G0 noise 0.0 everywhere else. "
-                   "The swap alone changes 0.1% of pixels (specular-path rounding on the "
-                   "chin/jaw curve), i.e. NOT bit-identical. IOR 1.5->1.4 effect is 0.4977 "
-                   "global (~39x the swap effect), so attribution of the G3/G4 deltas to IOR "
-                   "stands, but the control is recorded as failed, not waved through. "
-                   "Downstream gates compare 1.5 vs 1.4 (independent of G1) and are measured."),
-        "numbers": g1,
+        "verdict": "PASS (exact; falsifier no longer fires)",
+        "detail": ("BEFORE (hand-copy swap, commit 92b02d570): global meanAbsDiff 0.0128 "
+                   "(chin-region 0.0602, 0.1% px differ, max 54) vs G0 noise 0.0: falsifier "
+                   "fired. AFTER (full-state copy: MeshStandardMaterial.prototype.copy + "
+                   "restored {STANDARD, PHYSICAL} defines + ior): base-vs-15a global "
+                   f"meanAbsDiff {g1['global']}, frac>0 {g1['frac_px_any_diff']}, "
+                   f"max {g1['max_abs']}: bit-identical. The swap alone changes nothing; "
+                   "the silhouette diff was dropped side/blend/depth state, as diagnosed."),
+        "before": {"global_mad": 0.0128, "chin_mad": 0.0602, "frac_px_gt1": 0.001042, "max_abs": 54},
+        "after": g1,
     },
     "G2": {
         "verdict": "PASS",
@@ -38,29 +35,23 @@ verdicts = {
                    "(mpfb_skin_adult_male_street_casual) and Aisha (mpfb_skin_ob_patient_aisha); "
                    "1.5 on both controls; every non-skin collectMaterialInventory entry identical "
                    "15-vs-14 on both subjects; skin type MeshPhysicalMaterial on all four, "
-                   "MeshStandardMaterial on the pre-change baseline."),
+                   "MeshStandardMaterial on the pre-change baseline. Recomputed on the re-rendered "
+                   "images."),
     },
     "G3": {
-        "verdict": "FAIL as written (2 of 4 comparisons move the wrong way; Aisha own-median below floor)",
-        "detail": ("body2 HL_cheek 0.5226 -> 0.4413 (drops, stays >= 0.0618 floor: PASS); "
-                   "body2 HL_own 0.0736 -> 0.0786 (RISES, stays >= 0.0393 floor: direction FAIL); "
-                   "aisha HL_cheek 0.5315 -> 0.5417 (RISES: direction FAIL, above floor); "
-                   "aisha HL_own 0.0000 -> 0.0000 (flat, BELOW the 0.0393 floor: FAIL). "
-                   "Room rig keeps both foreheads far above the cheek-anchored matte floor "
-                   "(not matte by HL_cheek), but IOR 1.4 is not a uniform sheen fix on this rig. "
-                   "Goal recompute reproduces forehead-sheen-report.json both_metrics exactly "
-                   "(body2 0.6054/0.1746, aisha 0.0618/0.0393), validating the instrument."),
-        "floors": {"HL_cheek": 0.0618, "HL_own": 0.0393},
-        "margin_note": "noise 0.0: margins absolute (body2 cheek drop 0.0813).",
+        "verdict": "FAIL as written, with the Aisha own-median clause report-only (floor unreachable on this rig)",
+        "detail": ("Recomputed on the re-rendered images (moves at edges only). Aisha HL_own is "
+                   "0.0 at IOR 1.5 AND at IOR 1.4: the 0.0393 floor is unreachable on this rig "
+                   "regardless of IOR, so that clause is report-only (reason: rig, not IOR). "
+                   "Remaining clauses: body2 cheek drops and stays above floor (PASS); body2 own "
+                   "and Aisha cheek rise (direction FAIL). Not matte by HL_cheek on both."),
+        "aisha_own_median_floor_unreachable": True,
     },
     "G4a": {
         "verdict": "FAIL (0 of 4 within 3 per channel; L-field 0 of 4)",
-        "detail": ("body2 room-rig 14a vs goal-front: forehead [12.8, 5.92, 1.27], L_cheek "
-                   "[23.75, 2.41, 4.74], R_cheek [15.08, 1.92, 4.72], chin [13.74, 1.87, 7.24]; "
-                   "no region within 3 on any channel. The room rig renders ~13-24 L too bright "
-                   "(face median L 66.0 vs goal 49.78; rig exposure 0.9 + IBL wash), so L fails "
-                   "everywhere while chroma is closer (b* within ~5 except chin/upperlip). "
-                   "Mouth-landmark studio L-field '3 of 4' does NOT hold on the room rig."),
+        "detail": ("Recomputed on the re-rendered images. Room rig renders sit ~13-24 L high "
+                   "(rig exposure 0.9 + IBL wash); mouth-landmark studio L-field '3 of 4' does "
+                   "not hold on the room rig."),
         "studio_beside": {
             "source": "tools/openclinxr/asset-pipeline/skin/face-replay/mouth-landmark-report.json:g4_regions (studio rig, render-minus-goal)",
             "L_cheek": [1.17, -1.41, -2.43],
@@ -72,20 +63,18 @@ verdicts = {
     },
     "G4b": {
         "verdict": "room-rig choice 1.0 beside station 0.9; RECOMMEND keep chain-manifest",
-        "detail": ("min-max rule (max per-channel |dLab| over upperlip_skin+chin, render vs goal): "
-                   "w0 26.68 / w0.5 20.12 / w0.75 16.06 / w0.9 13.74 / w1.0 13.02. "
-                   "Choice flips to 1.0 on the room rig, but the margin (0.72) is small against "
-                   "the ~13 L-driven residual: the driver is room-rig brightness (upperlip L "
-                   "26.68 -> 11.60 monotonic with weight), not the beard pattern. No manifest change."),
+        "detail": ("min-max rule over upperlip_skin+chin, render vs goal. Recomputed on the "
+                   "re-rendered fronts; driver is room-rig brightness, not the beard pattern. "
+                   "No manifest change."),
     },
     "G4c": {
-        "verdict": "recorded (forehead residual + gap-closure analog; no albedo transfer exists room-side)",
-        "detail": ("Room forehead residual 14a [12.8, 5.92, 1.27] vs 15a [13.42, 6.37, 0.07]: "
-                   "IOR closes L by 4.6% and a* by 7.1%, moves b* AWAY (gap -17.1: residual "
-                   "0.07 -> 1.27). Studio sheen G5 transfer_ratio_a_F0 forehead 0.598 describes an "
-                   "ALBEDO transfer (albedo_delta_a_face_mean 3.828); room-side the albedo delta is "
-                   "0 by construction (IOR lives in the material, same albedo_beard), so no "
-                   "same-definition ratio exists; gap-closure is the stated analog."),
+        "verdict": "recorded (IOR gap closure; albedo-edit transfer NOT MEASURED room-side)",
+        "detail": ("Renamed: ior_gap_closure (was forehead_transfer). The studio "
+                   "transfer_ratio_a_F0 (forehead 0.598) describes an ALBEDO transfer "
+                   "(albedo_delta_a_face_mean 3.828); room-side the albedo delta is 0 by "
+                   "construction, so no same-definition ratio exists and the +3.828 a* edit "
+                   "was not re-baked for the room rig: recorded as not measured, reason stated "
+                   "in gates.G4.albedo_edit_transfer."),
         "studio_beside": {
             "transfer_ratio_a_F0_forehead": 0.598,
             "transfer_ratio_a_F0_cheeks": {"L_cheek": 1.001, "R_cheek": 0.998},
@@ -94,24 +83,22 @@ verdicts = {
         },
     },
     "G5": {
-        "verdict": "recorded only, no fix",
-        "detail": ("body2 face-polygon median L: render 66.0 vs goal 49.78 vs warm_medium anchor "
-                   "49.26 (goal matches the anchor; the render sits ~16 L high on the room rig). "
-                   "Wrinkle high-pass (5x5 box) RMS: forehead render 1.093 vs goal 6.459 (render "
-                   "~6x smoother); nasolabial render 4.674 vs goal 6.039. Room renders under-express "
-                   "wrinkle contrast; recorded, not gated."),
+        "verdict": "recorded only, no fix (pore-scale + crease-scale side by side)",
+        "detail": ("Handback 1: the 5x5 box high-pass resolves pores (render forehead far below "
+                   "goal), so a crease-scale DoG band (sigmas from forehead bbox height) is "
+                   "recorded beside it for forehead + nasolabial, render vs goal. Both record-only."),
     },
     "G6": {
-        "verdict": "renders complete (12 room PNGs + 4 sweep fronts + shas in report.renders); grade pending lane manager",
-        "detail": ("No plastic look and no matte forehead claimed here: body2 HL_cheek 0.44 "
-                   "(lit, not matte); Aisha HL_own 0.0 reads matte at the own-median scale. "
-                   "Lane-manager grade pending."),
+        "verdict": "renders refreshed (base/15a/14a body2 fronts re-rendered) + grade: lane-manager PASS",
+        "detail": ("Lane-manager grade on native-1280 room renders: IOR 1.4 vs 1.5 subtle and "
+                   "correct in direction (slightly less glint on brow and nose bridge), no plastic "
+                   "look, forehead not matte, both subjects."),
     },
 }
 r["verdicts"] = verdicts
 with open(P, "w") as f:
     json.dump(r, f, indent=1)
     f.write("\n")
-print("verdicts appended")
+print("verdicts refreshed (handback 1)")
 for k, v in verdicts.items():
     print(f"{k}: {v['verdict']}")

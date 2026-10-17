@@ -137,11 +137,20 @@ def nasolabial_mask(shape_hw, pts):
     return (m > 0)
 
 
-def highpass_contrast(gray_u8, mask):
-    blur = cv2.blur(gray_u8, (5, 5))
+def highpass_contrast(gray_u8, mask, ksize=5):
+    blur = cv2.blur(gray_u8, (ksize, ksize))
     hp = gray_u8.astype(np.float32) - blur.astype(np.float32)
     sel = mask > 0
     return round(float(np.sqrt((hp[sel] ** 2).mean())), 3) if sel.sum() else None
+
+
+def crease_contrast(gray_u8, mask, sigma_small, sigma_large):
+    """Difference-of-Gaussians band contrast (crease scale, not pore scale)."""
+    small = cv2.GaussianBlur(gray_u8, (0, 0), sigma_small)
+    large = cv2.GaussianBlur(gray_u8, (0, 0), sigma_large)
+    dog = small.astype(np.float32) - large.astype(np.float32)
+    sel = mask > 0
+    return round(float(np.sqrt((dog[sel] ** 2).mean())), 3) if sel.sum() else None
 
 
 def dump_image(png_path, landmarker, out_npz):
@@ -323,7 +332,20 @@ def main():
         g5[f"{tag}_forehead_hp_contrast"] = highpass_contrast(gray, fmask)
         g5[f"{tag}_nasolabial_hp_contrast"] = highpass_contrast(gray, nl)
         g5[f"{tag}_nasolabial_n"] = int(nl.sum())
-    g5["highpass_kernel"] = "5x5 box blur (cv2.blur ksize 5); contrast = RMS(gray - blur) over mask"
+        # Crease-scale band (handback 1): DoG sigmas from the measured
+        # forehead-polygon bbox height fh_h (creases span ~fh_h/50..fh_h/14
+        # px at 1280); the 5x5 box above resolves pores, this resolves folds.
+        ys, xs = np.where(fmask > 0)
+        fh_h = int(ys.max() - ys.min()) if len(ys) else 0
+        s_small = max(2.0, round(fh_h / 50.0, 1))
+        s_large = max(6.0, round(fh_h / 14.0, 1))
+        g5[f"{tag}_forehead_bbox_h"] = fh_h
+        g5[f"{tag}_crease_band_sigmas"] = [s_small, s_large]
+        g5[f"{tag}_forehead_crease_contrast"] = crease_contrast(gray, fmask, s_small, s_large)
+        g5[f"{tag}_nasolabial_crease_contrast"] = crease_contrast(gray, nl, s_small, s_large)
+    g5["highpass_kernel"] = "5x5 box blur (cv2.blur ksize 5); contrast = RMS(gray - blur) over mask (pore scale)"
+    g5["crease_kernel"] = ("difference of Gaussians G(sigma_small) - G(sigma_large), sigmas from forehead bbox "
+                           "height (small = fh_h/50, large = fh_h/14); contrast = RMS(DoG) over mask (fold scale)")
     g5["nasolabial_indices"] = {"L": [98, 61], "R": [327, 291], "width_px": 14,
                                 "source": "tools/openclinxr/evidence/face-gate/face_gate.py:INDICES"}
 
@@ -429,7 +451,14 @@ def main():
                    "regional_dlab": g4a, "beard_sweep": {**g4b, "room_rig_choice": g4b_choice,
                                                          "station_choice": 0.9,
                                                          "recommendation": "keep chain-manifest (no change)"},
-                   "forehead_transfer": g4c},
+                   "ior_gap_closure": g4c,
+                   "albedo_edit_transfer": {
+                       "measured": False,
+                       "reason": ("NOT MEASURED on the room rig: the studio ratio's albedo leg "
+                                  "(albedo_delta_a_face_mean 3.828 from the +a* transfer bake) was never "
+                                  "re-baked for the room rig, and room-side the albedo delta is 0 by "
+                                  "construction (IOR lives in the material, same albedo_beard). "
+                                  "The ior_gap_closure above is the room-side analog.")}},
             "G5": {"threshold_source": "station lane grade c7cd115a5 (record-only)", **g5},
             "G6": {"threshold_source": "card tsk_d4667a3e507da70 (G6)", "grade": "pending lane manager"},
         },

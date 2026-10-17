@@ -190,26 +190,25 @@ export async function applySkinOverride(root: Object3D, override: SkinOverride):
     }
   }
   // Skin renders at SKIN_IOR: swap each matched MeshStandardMaterial for a
-  // MeshPhysicalMaterial copying maps/scalars (same pattern as the generic
-  // physical override below), then set ior. override.ior is G1-only.
+  // MeshPhysicalMaterial carrying ALL of its state (three r184:
+  // Material.copy covers side/transparent/opacity/alphaTest/depth/blend/
+  // polygonOffset/vertexColors/userData; MeshStandardMaterial.copy the
+  // maps/scalars/envMap/flatShading/fog). Standard.copy resets defines to
+  // {STANDARD}, so restore the constructor's {STANDARD, PHYSICAL} after
+  // (MeshPhysicalMaterial.js ctor + copy()). Fresh-physical defaults are
+  // effect-free (clearcoat/sheen/transmission 0; specularIntensity 1 keeps
+  // F0 0.04 at ior 1.5). NOTE: next.copy(src) would be wrong here:
+  // Physical.copy reads physical-only fields off the standard source.
   const ior = override.ior ?? SKIN_IOR;
   const swapped = new Map<MeshStandardMaterial, MeshPhysicalMaterial>();
+  const standardCopy = MeshStandardMaterial.prototype.copy as unknown as (
+    this: MeshPhysicalMaterial,
+    source: MeshStandardMaterial,
+  ) => void;
   for (const src of matched) {
     const next = new MeshPhysicalMaterial();
-    next.name = src.name;
-    next.color.copy(src.color);
-    next.map = src.map;
-    next.normalMap = src.normalMap;
-    next.normalScale.copy(src.normalScale);
-    next.roughnessMap = src.roughnessMap;
-    next.roughness = src.roughness;
-    next.metalnessMap = src.metalnessMap;
-    next.metalness = src.metalness;
-    next.emissive.copy(src.emissive);
-    next.emissiveIntensity = src.emissiveIntensity;
-    next.envMapIntensity = src.envMapIntensity;
-    next.aoMap = src.aoMap;
-    next.aoMapIntensity = src.aoMapIntensity;
+    standardCopy.call(next, src);
+    next.defines = { STANDARD: "", PHYSICAL: "" };
     next.ior = ior;
     swapped.set(src, next);
   }

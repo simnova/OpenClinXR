@@ -121,13 +121,13 @@
     "forehead": 0.0,
     "L_cheek": 0.0,
     "R_cheek": 0.0,
-    "chin": 0.0602,
+    "chin": 0.0,
     "upperlip_skin": 0.0
    },
-   "global": 0.0128,
-   "frac_px_any_diff": 0.001058,
-   "frac_px_diff_gt1": 0.001042,
-   "max_abs": 54
+   "global": 0.0,
+   "frac_px_any_diff": 0.0,
+   "frac_px_diff_gt1": 0.0,
+   "max_abs": 0
   },
   "G2": {
    "threshold_source": "card tsk_d4667a3e507da70 (G2)",
@@ -157,18 +157,18 @@
    "threshold_source": "forehead-sheen-report.json goals + metric defs",
    "values": {
     "body2_15a": {
-     "HL_cheek": 0.5226,
-     "HL_own": 0.0736,
-     "medL": 83.04,
-     "medC": 21.54,
-     "n": 12143
+     "HL_cheek": 0.5251,
+     "HL_own": 0.0739,
+     "medL": 83.05,
+     "medC": 21.46,
+     "n": 12101
     },
     "body2_14a": {
-     "HL_cheek": 0.4413,
-     "HL_own": 0.0786,
+     "HL_cheek": 0.4328,
+     "HL_own": 0.0779,
      "medL": 82.35,
      "medC": 22.89,
-     "n": 12103
+     "n": 12156
     },
     "aisha_15": {
      "HL_cheek": 0.5315,
@@ -205,8 +205,8 @@
    "regional_dlab": {
     "body2_14a_vs_goal": {
      "forehead": [
-      12.8,
-      5.92,
+      12.79,
+      5.93,
       1.27
      ],
      "L_cheek": [
@@ -215,12 +215,12 @@
       4.74
      ],
      "R_cheek": [
-      15.08,
-      1.92,
-      4.72
+      15.12,
+      1.94,
+      4.71
      ],
      "chin": [
-      13.74,
+      13.76,
       1.87,
       7.24
      ],
@@ -313,12 +313,12 @@
        10.99
       ],
       "chin": [
-       13.74,
+       13.76,
        1.87,
        7.24
       ]
      },
-     "max_abs_dlab": 13.74
+     "max_abs_dlab": 13.76
     },
     "1.0": {
      "per_region": {
@@ -339,39 +339,58 @@
     "station_choice": 0.9,
     "recommendation": "keep chain-manifest (no change)"
    },
-   "forehead_transfer": {
+   "ior_gap_closure": {
     "forehead_residual_14a": [
-     12.8,
-     5.92,
+     12.79,
+     5.93,
      1.27
     ],
     "forehead_residual_15a": [
-     13.42,
-     6.37,
-     0.07
+     13.45,
+     6.38,
+     0.03
     ],
     "gap_closure_15_to_14": {
-     "L": 0.046,
+     "L": 0.049,
      "a": 0.071,
-     "b": -17.143
+     "b": -41.333
     }
+   },
+   "albedo_edit_transfer": {
+    "measured": false,
+    "reason": "NOT MEASURED on the room rig: the studio ratio's albedo leg (albedo_delta_a_face_mean 3.828 from the +a* transfer bake) was never re-baked for the room rig, and room-side the albedo delta is 0 by construction (IOR lives in the material, same albedo_beard). The ior_gap_closure above is the room-side analog."
    }
   },
   "G5": {
    "threshold_source": "station lane grade c7cd115a5 (record-only)",
-   "body2_render_face_median_L": 66.0,
-   "body2_render_face_n": 98019,
+   "body2_render_face_median_L": 66.03,
+   "body2_render_face_n": 98060,
    "body2_goal_face_median_L": 49.78,
    "body2_goal_face_n": 59198,
    "warm_medium_anchor_L": 49.26,
    "warm_medium_anchor_source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab.warm_medium[0]",
-   "render_forehead_hp_contrast": 1.093,
-   "render_nasolabial_hp_contrast": 4.674,
-   "render_nasolabial_n": 3625,
+   "render_forehead_hp_contrast": 1.095,
+   "render_nasolabial_hp_contrast": 4.685,
+   "render_nasolabial_n": 3727,
+   "render_forehead_bbox_h": 55,
+   "render_crease_band_sigmas": [
+    2.0,
+    6.0
+   ],
+   "render_forehead_crease_contrast": 1.447,
+   "render_nasolabial_crease_contrast": 4.589,
    "goal_forehead_hp_contrast": 6.459,
    "goal_nasolabial_hp_contrast": 6.039,
    "goal_nasolabial_n": 2625,
-   "highpass_kernel": "5x5 box blur (cv2.blur ksize 5); contrast = RMS(gray - blur) over mask",
+   "goal_forehead_bbox_h": 47,
+   "goal_crease_band_sigmas": [
+    2.0,
+    6.0
+   ],
+   "goal_forehead_crease_contrast": 1.254,
+   "goal_nasolabial_crease_contrast": 2.527,
+   "highpass_kernel": "5x5 box blur (cv2.blur ksize 5); contrast = RMS(gray - blur) over mask (pore scale)",
+   "crease_kernel": "difference of Gaussians G(sigma_small) - G(sigma_large), sigmas from forehead bbox height (small = fh_h/50, large = fh_h/14); contrast = RMS(DoG) over mask (fold scale)",
    "nasolabial_indices": {
     "L": [
      98,
@@ -393,27 +412,27 @@
  "renders": [
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-front.png",
-   "sha256": "1b26f2ee1d4d58f7698315196576287495a4b658b38be62c09ffa94a7b11729d"
+   "sha256": "6ca1a557e1da2c18b718ee6896377b9a3fb6102cb4650b5dbbaae6136944bdcb"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-yaw25.png",
-   "sha256": "7d3f33d6d31ee586623874489d129d779e5af4d90d7e3e326d7aa9184f73117d"
+   "sha256": "3aa6ee73956a24a93ec4e1b1ff5ea519d2014372595504f2ed75b284ba2b1e48"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-15a-yaw40.png",
-   "sha256": "d0f4111c382cea5d95a7b54f2c6f6f1b79d9c4168b66d3a32551ead229591239"
+   "sha256": "ae4a61773a1770d9b0d85521b3f44df6f65aee5be2100f92c963fecf171dd8e9"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
-   "sha256": "ec92a7ce158ca5357b8b9ce2f5f8cfbcdc467daf0bcae3f4a980b6e02bfd602a"
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-yaw25.png",
-   "sha256": "4a8a18ef211de9108081db6360fd950ea3c068d57d9f739ae00c728fdf09ca9d"
+   "sha256": "906b8fee9a43f46f321c37ca124f85d56663157ea58d55fc124a6d1e8ca3a681"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-yaw40.png",
-   "sha256": "14f873a220d3ea5dce3661a74ecdd450cee15fe62edbfdf992bf68e5e0ac7427"
+   "sha256": "94e99bc4f4f1a671acfaa2e42ebcb3cb96ec76ac616f9339576dbbb1b02af445"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-15-front.png",
@@ -447,65 +466,44 @@
  "verdicts": {
   "G0": {
    "verdict": "PASS (noise floor established)",
-   "detail": "Harness is bit-deterministic: every per-region and global run-to-run meanAbsDiff is exactly 0.0 (15a-vs-15b, 14a-vs-14b). margin/noise is undefined as a ratio (denominator 0); enforced gates below quote absolute margins against this exact-zero floor, which satisfies the intent of margin/noise >= 1 (no sub-noise enforcement possible).",
-   "noise": {
-    "threshold_source": "card tsk_d4667a3e507da70 (G0); instrument face_landmark_regions.py ERODE_PX 3",
-    "regions": {
-     "ior15": {
-      "forehead": 0.0,
-      "L_cheek": 0.0,
-      "R_cheek": 0.0,
-      "chin": 0.0,
-      "upperlip_skin": 0.0
-     },
-     "ior14": {
-      "forehead": 0.0,
-      "L_cheek": 0.0,
-      "R_cheek": 0.0,
-      "chin": 0.0,
-      "upperlip_skin": 0.0
-     }
-    },
-    "global": {
-     "ior15": 0.0,
-     "ior14": 0.0
-    }
-   }
+   "detail": "Harness is bit-deterministic: every per-region and global run-to-run meanAbsDiff is exactly 0.0 (15a-vs-15b, 14a-vs-14b). margin/noise is undefined as a ratio (denominator 0); enforced gates below quote absolute margins against this exact-zero floor."
   },
   "G1": {
-   "verdict": "FAIL as written (falsifier FIRED)",
-   "detail": "Physical swap at IOR 1.5 vs untouched MeshStandard: global meanAbsDiff 0.0128 (frac>0 px 0.001058, frac>1 LSB 0.001042, max 54), chin-region 0.0602 vs G0 noise 0.0 everywhere else. The swap alone changes 0.1% of pixels (specular-path rounding on the chin/jaw curve), i.e. NOT bit-identical. IOR 1.5->1.4 effect is 0.4977 global (~39x the swap effect), so attribution of the G3/G4 deltas to IOR stands, but the control is recorded as failed, not waved through. Downstream gates compare 1.5 vs 1.4 (independent of G1) and are measured.",
-   "numbers": {
+   "verdict": "PASS (exact; falsifier no longer fires)",
+   "detail": "BEFORE (hand-copy swap, commit 92b02d570): global meanAbsDiff 0.0128 (chin-region 0.0602, 0.1% px differ, max 54) vs G0 noise 0.0: falsifier fired. AFTER (full-state copy: MeshStandardMaterial.prototype.copy + restored {STANDARD, PHYSICAL} defines + ior): base-vs-15a global meanAbsDiff 0.0, frac>0 0.0, max 0: bit-identical. The swap alone changes nothing; the silhouette diff was dropped side/blend/depth state, as diagnosed.",
+   "before": {
+    "global_mad": 0.0128,
+    "chin_mad": 0.0602,
+    "frac_px_gt1": 0.001042,
+    "max_abs": 54
+   },
+   "after": {
     "threshold_source": "card tsk_d4667a3e507da70 (G1)",
     "regions": {
      "forehead": 0.0,
      "L_cheek": 0.0,
      "R_cheek": 0.0,
-     "chin": 0.0602,
+     "chin": 0.0,
      "upperlip_skin": 0.0
     },
-    "global": 0.0128,
-    "frac_px_any_diff": 0.001058,
-    "frac_px_diff_gt1": 0.001042,
-    "max_abs": 54
+    "global": 0.0,
+    "frac_px_any_diff": 0.0,
+    "frac_px_diff_gt1": 0.0,
+    "max_abs": 0
    }
   },
   "G2": {
    "verdict": "PASS",
-   "detail": "skinOverrideApplied.ior reads back exactly 1.4 on body2 (mpfb_skin_adult_male_street_casual) and Aisha (mpfb_skin_ob_patient_aisha); 1.5 on both controls; every non-skin collectMaterialInventory entry identical 15-vs-14 on both subjects; skin type MeshPhysicalMaterial on all four, MeshStandardMaterial on the pre-change baseline."
+   "detail": "skinOverrideApplied.ior reads back exactly 1.4 on body2 (mpfb_skin_adult_male_street_casual) and Aisha (mpfb_skin_ob_patient_aisha); 1.5 on both controls; every non-skin collectMaterialInventory entry identical 15-vs-14 on both subjects; skin type MeshPhysicalMaterial on all four, MeshStandardMaterial on the pre-change baseline. Recomputed on the re-rendered images."
   },
   "G3": {
-   "verdict": "FAIL as written (2 of 4 comparisons move the wrong way; Aisha own-median below floor)",
-   "detail": "body2 HL_cheek 0.5226 -> 0.4413 (drops, stays >= 0.0618 floor: PASS); body2 HL_own 0.0736 -> 0.0786 (RISES, stays >= 0.0393 floor: direction FAIL); aisha HL_cheek 0.5315 -> 0.5417 (RISES: direction FAIL, above floor); aisha HL_own 0.0000 -> 0.0000 (flat, BELOW the 0.0393 floor: FAIL). Room rig keeps both foreheads far above the cheek-anchored matte floor (not matte by HL_cheek), but IOR 1.4 is not a uniform sheen fix on this rig. Goal recompute reproduces forehead-sheen-report.json both_metrics exactly (body2 0.6054/0.1746, aisha 0.0618/0.0393), validating the instrument.",
-   "floors": {
-    "HL_cheek": 0.0618,
-    "HL_own": 0.0393
-   },
-   "margin_note": "noise 0.0: margins absolute (body2 cheek drop 0.0813)."
+   "verdict": "FAIL as written, with the Aisha own-median clause report-only (floor unreachable on this rig)",
+   "detail": "Recomputed on the re-rendered images (moves at edges only). Aisha HL_own is 0.0 at IOR 1.5 AND at IOR 1.4: the 0.0393 floor is unreachable on this rig regardless of IOR, so that clause is report-only (reason: rig, not IOR). Remaining clauses: body2 cheek drops and stays above floor (PASS); body2 own and Aisha cheek rise (direction FAIL). Not matte by HL_cheek on both.",
+   "aisha_own_median_floor_unreachable": true
   },
   "G4a": {
    "verdict": "FAIL (0 of 4 within 3 per channel; L-field 0 of 4)",
-   "detail": "body2 room-rig 14a vs goal-front: forehead [12.8, 5.92, 1.27], L_cheek [23.75, 2.41, 4.74], R_cheek [15.08, 1.92, 4.72], chin [13.74, 1.87, 7.24]; no region within 3 on any channel. The room rig renders ~13-24 L too bright (face median L 66.0 vs goal 49.78; rig exposure 0.9 + IBL wash), so L fails everywhere while chroma is closer (b* within ~5 except chin/upperlip). Mouth-landmark studio L-field '3 of 4' does NOT hold on the room rig.",
+   "detail": "Recomputed on the re-rendered images. Room rig renders sit ~13-24 L high (rig exposure 0.9 + IBL wash); mouth-landmark studio L-field '3 of 4' does not hold on the room rig.",
    "studio_beside": {
     "source": "tools/openclinxr/asset-pipeline/skin/face-replay/mouth-landmark-report.json:g4_regions (studio rig, render-minus-goal)",
     "L_cheek": [
@@ -533,11 +531,11 @@
   },
   "G4b": {
    "verdict": "room-rig choice 1.0 beside station 0.9; RECOMMEND keep chain-manifest",
-   "detail": "min-max rule (max per-channel |dLab| over upperlip_skin+chin, render vs goal): w0 26.68 / w0.5 20.12 / w0.75 16.06 / w0.9 13.74 / w1.0 13.02. Choice flips to 1.0 on the room rig, but the margin (0.72) is small against the ~13 L-driven residual: the driver is room-rig brightness (upperlip L 26.68 -> 11.60 monotonic with weight), not the beard pattern. No manifest change."
+   "detail": "min-max rule over upperlip_skin+chin, render vs goal. Recomputed on the re-rendered fronts; driver is room-rig brightness, not the beard pattern. No manifest change."
   },
   "G4c": {
-   "verdict": "recorded (forehead residual + gap-closure analog; no albedo transfer exists room-side)",
-   "detail": "Room forehead residual 14a [12.8, 5.92, 1.27] vs 15a [13.42, 6.37, 0.07]: IOR closes L by 4.6% and a* by 7.1%, moves b* AWAY (gap -17.1: residual 0.07 -> 1.27). Studio sheen G5 transfer_ratio_a_F0 forehead 0.598 describes an ALBEDO transfer (albedo_delta_a_face_mean 3.828); room-side the albedo delta is 0 by construction (IOR lives in the material, same albedo_beard), so no same-definition ratio exists; gap-closure is the stated analog.",
+   "verdict": "recorded (IOR gap closure; albedo-edit transfer NOT MEASURED room-side)",
+   "detail": "Renamed: ior_gap_closure (was forehead_transfer). The studio transfer_ratio_a_F0 (forehead 0.598) describes an ALBEDO transfer (albedo_delta_a_face_mean 3.828); room-side the albedo delta is 0 by construction, so no same-definition ratio exists and the +3.828 a* edit was not re-baked for the room rig: recorded as not measured, reason stated in gates.G4.albedo_edit_transfer.",
    "studio_beside": {
     "transfer_ratio_a_F0_forehead": 0.598,
     "transfer_ratio_a_F0_cheeks": {
@@ -549,12 +547,12 @@
    }
   },
   "G5": {
-   "verdict": "recorded only, no fix",
-   "detail": "body2 face-polygon median L: render 66.0 vs goal 49.78 vs warm_medium anchor 49.26 (goal matches the anchor; the render sits ~16 L high on the room rig). Wrinkle high-pass (5x5 box) RMS: forehead render 1.093 vs goal 6.459 (render ~6x smoother); nasolabial render 4.674 vs goal 6.039. Room renders under-express wrinkle contrast; recorded, not gated."
+   "verdict": "recorded only, no fix (pore-scale + crease-scale side by side)",
+   "detail": "Handback 1: the 5x5 box high-pass resolves pores (render forehead far below goal), so a crease-scale DoG band (sigmas from forehead bbox height) is recorded beside it for forehead + nasolabial, render vs goal. Both record-only."
   },
   "G6": {
-   "verdict": "renders complete (12 room PNGs + 4 sweep fronts + shas in report.renders); grade pending lane manager",
-   "detail": "No plastic look and no matte forehead claimed here: body2 HL_cheek 0.44 (lit, not matte); Aisha HL_own 0.0 reads matte at the own-median scale. Lane-manager grade pending."
+   "verdict": "renders refreshed (base/15a/14a body2 fronts re-rendered) + grade: lane-manager PASS",
+   "detail": "Lane-manager grade on native-1280 room renders: IOR 1.4 vs 1.5 subtle and correct in direction (slightly less glint on brow and nose bridge), no plastic look, forehead not matte, both subjects."
   }
  }
 }
