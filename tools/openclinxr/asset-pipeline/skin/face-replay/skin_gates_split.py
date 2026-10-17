@@ -982,23 +982,32 @@ def g2m_evaluate(rows, mirror_deltas):
     return rows
 
 
-def apply_mirror_overrides(gates):
-    """Coordinator overrides (demote-only). Returns forehead verdict list.
+def apply_mirror_overrides(gates, g0m):
+    """Coordinator overrides (demote-only; HANDBACK 1: probe-derived).
 
-    One-sided lateral G2 gates -> report-only "photo lateral key" (even
-    rows the unchanged rule would enforce). Forehead G2 gates: enforced
-    under the unchanged rule stay enforced (said which); the rest are
-    report-only "photo side dominates". G1 (texture space, no photo) and
-    upper lip / chin / mirror gates are untouched.
+    The "photo lateral key" demotion applies ONLY to quantities the G0M
+    probe shows a lateral key moves: {q in MIRROR_QUANTS with
+    onesided_moved} -- derived from the probe result, not a hand list.
+    CdivL is exposure-invariant per pixel (onesided_moved=false), so a
+    lateral key cannot move it: CdivL cheek gates go back under the normal
+    enforcement rule untouched. Hue was never a mirror candidate and has
+    no lateral probe: its one-sided gates keep their rule reason as-is.
+    Forehead G2 gates: enforced under the unchanged rule stay enforced
+    (said which); the rest are report-only "photo side dominates". G1
+    (texture space, no photo) and upper lip / chin / mirror gates untouched.
     """
+    lateral_moved = {q for q in MIRROR_QUANTS
+                     if g0m["per_quantity"][q]["onesided_moved"]}
     forehead = []
     for g in gates:
         g["enforced_by_rule"] = g["enforced"]
         if g["kind"] == "(b)" and g["region"] in ("L_cheek", "R_cheek"):
-            prev = g["unenforced_reason"]
-            g["enforced"] = False
-            g["unenforced_reason"] = (LATERAL_KEY_REASON +
-                                      (f" ({prev})" if prev else ""))
+            q = g["channel_or_quantity"]
+            if q in lateral_moved:
+                prev = g["unenforced_reason"]
+                g["enforced"] = False
+                g["unenforced_reason"] = (LATERAL_KEY_REASON +
+                                          (f" ({prev})" if prev else ""))
         elif g["kind"] == "(b)" and g["region"] == "forehead":
             if g["enforced"]:
                 g["coordinator_note"] = ("stays enforced: known-good/known-bad "
@@ -1273,7 +1282,7 @@ def write_mirror_report(g0, kept, alb, g1_floors, g1_floor_detail,
                          lambda cq: PHYS_FLOOR.get(cq)) +
              build_gates([r for r in g2m_rows],
                          lambda cq: PHYS_FLOOR.get(cq)))
-    forehead_verdict = apply_mirror_overrides(gates)
+    forehead_verdict = apply_mirror_overrides(gates, g0m)
     changed, added, split = mirror_status_diff(gates)
     aisha = aisha_eval(gates)
     enf = [g for g in gates if g["enforced"]]
@@ -1290,9 +1299,13 @@ def write_mirror_report(g0, kept, alb, g1_floors, g1_floor_detail,
         "enforcement_rule": ("unchanged: known-good closer than every "
                              "known-bad, and margin / max(sampling noise, "
                              "8-bit floor) >= 1. Coordinator overrides are "
-                             "demote-only (photo lateral key; photo side "
-                             "dominates). Thresholds from known-good/known-bad "
-                             "only, never from body2."),
+                             "demote-only: the photo-lateral-key demotion "
+                             "applies only to quantities the G0M probe shows "
+                             "a lateral key moves (onesided_moved; derived "
+                             "from the probe, not a hand list -- CdivL is "
+                             "exposure-invariant per pixel and stays under "
+                             "the normal rule). Thresholds from "
+                             "known-good/known-bad only, never from body2."),
         "g0m": g0m,
         "g2m_rows": g2m_rows,
         "g2m_pair_deltas": mirror_deltas,

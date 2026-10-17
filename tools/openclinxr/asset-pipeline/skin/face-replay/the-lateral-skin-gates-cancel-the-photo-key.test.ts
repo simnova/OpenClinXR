@@ -100,13 +100,16 @@ type MirrorReport = {
     dropped: string[];
     per_quantity: Record<string, {
       mirror_max_move: number; onesided_max_move: number;
-      sens_move: number; kept: boolean;
+      onesided_moved: boolean; sens_move: number; kept: boolean;
     }>;
   };
   gates: Gate[];
   status_changes: { gate_id: string; was_enforced: boolean; now_enforced: boolean; why: string }[];
   added_gates: string[];
   forehead_verdict: { gate_id: string; enforced: boolean; note: string }[];
+  aisha_eval: Record<string, { pass: boolean | null }>;
+  body2_summary: { enforced_pass: number; enforced_total: number };
+  aisha_summary: { enforced_pass: number; enforced_total: number };
   red_first: string;
 };
 
@@ -166,11 +169,14 @@ describe("the lateral skin gates cancel the photo key", () => {
       expect(v.sens_move).toBeGreaterThan(rep.g0m.floors[q]);
       expect(rep.g0m.kept.includes(q)).toBe(v.kept);
     }
-    // One-sided lateral gates stay in the table, report-only, photo key.
+    // One-sided lateral gates for probe-moved quantities stay in the table,
+    // report-only, photo key; CdivL/hue are not probe-moved (HANDBACK 1).
     const lateral = rep.gates.filter((g) => g.kind === "(b)" &&
       (g.region === "L_cheek" || g.region === "R_cheek"));
     expect(lateral.length).toBeGreaterThan(0);
-    for (const g of lateral) {
+    const movedQs = new Set(Object.entries(rep.g0m.per_quantity)
+      .filter(([, v]) => v.onesided_moved).map(([q]) => q));
+    for (const g of lateral.filter((h) => movedQs.has(h.channel_or_quantity))) {
       expect(g.enforced).toBe(false);
       expect(g.unenforced_reason ?? "").toMatch(/photo lateral key/);
     }
@@ -188,9 +194,31 @@ describe("the lateral skin gates cancel the photo key", () => {
       // Coordinator overrides may only demote, never promote.
       if (g.enforced) expect(g.enforced_by_rule).toBe(true);
     }
-    // Status-change list present: every demoted one-sided lateral gate named.
+    // HANDBACK 1: CdivL is exposure-invariant per pixel (probe onesided
+    // still), so a lateral key cannot move it: cheek CdivL gates are back
+    // under the normal rule and enforced.
+    for (const id of ["G2/L_cheek/CdivL", "G2/R_cheek/CdivL"]) {
+      expect(rep.gates.find((g) => g.gate_id === id)?.enforced).toBe(true);
+    }
+    // The "photo lateral key" demotion is probe-derived: no gate carries
+    // it for a quantity whose one-sided probe change was <= floor.
+    const moved = new Set(Object.entries(rep.g0m.per_quantity)
+      .filter(([, v]) => v.onesided_moved).map(([q]) => q));
+    for (const g of rep.gates) {
+      if ((g.unenforced_reason ?? "").match(/photo lateral key/)) {
+        expect(moved.has(g.channel_or_quantity)).toBe(true);
+      }
+    }
+    // Body2/Aisha enforced pass counts re-report consistently.
+    const enf = rep.gates.filter((g) => g.enforced);
+    expect(rep.body2_summary.enforced_total).toBe(enf.length);
+    expect(rep.body2_summary.enforced_pass).toBe(
+      enf.filter((g) => g.body2_pass).length);
+    expect(rep.aisha_summary.enforced_total).toBe(enf.length);
+    expect(rep.aisha_summary.enforced_pass).toBe(
+      enf.filter((g) => rep.aisha_eval[g.gate_id]?.pass).length);
     expect(rep.status_changes.length).toBeGreaterThan(0);
-    for (const g of lateral.filter((h) => h.enforced_by_rule)) {
+    for (const g of lateral.filter((h) => h.enforced_by_rule && !h.enforced)) {
       expect(rep.status_changes.map((c) => c.gate_id)).toContain(g.gate_id);
     }
     expect(rep.red_first).toMatch(/RED/);
