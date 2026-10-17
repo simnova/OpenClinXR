@@ -275,6 +275,8 @@ const NOT_EVIDENCE_FOR = ["gait_realism", "clinical_plausibility", "quest_perfor
 
 type Vec3 = { x: number; y: number; z: number };
 type CamMode = "feet-side" | "three-quarter";
+/** Fixed = world-fixed pose for the whole pass; tracking = follow-camera (video-framing slice). */
+type CameraMode = "fixed" | "tracking";
 
 type RuntimeSample = {
   atMs: number;
@@ -371,6 +373,8 @@ type FootPlantVideoReport = {
   hiddenMeshCount: number;
   /** Garment/hair mesh names hidden by the body-only rule (empty when bodyOnly is false). */
   bodyOnlyHiddenMeshes: string[];
+  /** Black-patch fix (2026-10-17): mesh/material pairs whose hidden-surface material was swapped for skin. */
+  bodyOnlySkinFixedMeshes: string[];
   fpsCandidates: {
     fakeClock: { honoured: boolean; fps: number };
     gpuRealtime: { fps: number | null };
@@ -452,7 +456,15 @@ type FootPlantVideoReport = {
     feetSide: CameraPose;
     threeQuarter: CameraPose;
     sideDistanceMeters: number;
+    /** Follow specs when a view ran tracking (null for fixed views). */
+    tracking: { feetSide: TrackingSpec | null; threeQuarter: TrackingSpec | null };
   };
+  /**
+   * Video-framing slice (2026-10-17): per-view camera mode. "fixed" = one
+   * world-fixed pose for the whole pass; "tracking" = follow-camera holding a
+   * fixed offset off the slot XZ (see TrackingSpec).
+   */
+  cameraMode: { feetSide: CameraMode; threeQuarter: CameraMode };
   walkDiagnostics: {
     clipStanceAdvanceMetersPerSecond: number | null;
     playback: Record<string, unknown> | null;
@@ -771,6 +783,17 @@ const ISOLATE_SOURCE = String.raw`
  * `tools/openclinxr/evidence/foot-plant/stepping-turn/render_stepping_strip.py`
  * (STEP_BODY gray + STEP_THIGH/SHIN/FOOT). Capture-page only; runs after isolation
  * so the room-hide count it reports is unchanged when this step is skipped.
+ *
+ * Black-patch fix (2026-10-17, video-framing slice): the shipped body GLB carries
+ * `openclinxr_hidden_*` primitives (alphaMode MASK, baseColor [0,0,0,0]) exactly
+ * where garments cover the torso — measured in the physician GLB (7 hidden
+ * materials). Hiding the garments exposes those masked regions as black torso
+ * patches (video20 feet-side-contact.png). So after the garment hide, every
+ * remaining visible skinned mesh whose material name matches /hidden/ gets that
+ * material REPLACED with a flat skin tone (0xc8b0a2, the baked texture's own
+ * non-black mean — the texture itself is black under garments, so re-texturing
+ * keeps the patches). Runs BEFORE the leg-segment tint so foot/toe primitives
+ * ex-hidden-foot still tint yellow like the rest of seg3.
  */
 const BODY_ONLY_SOURCE = String.raw`
 ((p) => {
@@ -800,6 +823,57 @@ const BODY_ONLY_SOURCE = String.raw`
   const thighRe = /upperleg01|upperleg02|thigh/i;
   const shinRe = /lowerleg01|lowerleg02|shin/i;
   const footRe = /foot|toe/i;
+  // Black-patch fix: swap every hidden-surface (garment-masked) material on a
+  // still-visible body mesh for a FLAT skin tone, so skin shows where the
+  // garment was. Flat, not the body's own mpfb_skin_* texture: the baked skin
+  // texture is itself black exactly where garments covered (measured 2026-10-17
+  // on mpfb-clinical-physician-adult.skin-baked.png — masked texels read ~0),
+  // so re-texturing keeps the patches black. The flat tone 0xc8b0a2 is the
+  // mean of the texture's non-black texels (same script, same file). The donor
+  // clone keeps the skin roughness/metalness; all maps are stripped because
+  // masked-region UVs point at garbage/black texels (colour, normal alike).
+  let skinDonor = null;
+  physRoot.traverse((o) => {
+    if (skinDonor || !o.isSkinnedMesh || o.visible === false) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (m && /skin/i.test(m.name || "") && !/hidden/i.test(m.name || "")) {
+        skinDonor = m;
+        break;
+      }
+    }
+  });
+  const skinFixed = [];
+  physRoot.traverse((o) => {
+    if (!o.isSkinnedMesh || o.visible === false) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    if (!mats.some((m) => m && /hidden/i.test(m.name || ""))) return;
+    try {
+      const next = mats.map((m) => {
+        if (!m || !/hidden/i.test(m.name || "")) return m;
+        let c = null;
+        if (skinDonor && typeof skinDonor.clone === "function") {
+          c = skinDonor.clone();
+        } else if (m && typeof m.clone === "function") {
+          c = m.clone();
+        } else {
+          return m;
+        }
+        if (c.color && typeof c.color.set === "function") c.color.set(0xc8b0a2);
+        if ("map" in c) c.map = null;
+        if ("alphaMap" in c) c.alphaMap = null;
+        if ("normalMap" in c) c.normalMap = null;
+        if ("roughnessMap" in c) c.roughnessMap = null;
+        if (typeof c.alphaTest === "number") c.alphaTest = 0;
+        if (typeof c.transparent === "boolean") c.transparent = false;
+        if (typeof c.opacity === "number") c.opacity = 1;
+        c.needsUpdate = true;
+        skinFixed.push(((o.name || "(unnamed)") + "/" + (m.name || "(unnamed-mat)")));
+        return c;
+      });
+      o.material = Array.isArray(o.material) ? next : next[0];
+    } catch (err) { /* skin loss is a grading gap, not a capture failure */ }
+  });
   // Segment flat colours copied from render_stepping_strip.py STEP_THIGH/SHIN/FOOT.
   const SEG_COLORS = { 1: 0xff4d1a, 2: 0x1abfa6, 3: 0xffd926 };
   const colouredMeshes = [];
@@ -864,7 +938,7 @@ const BODY_ONLY_SOURCE = String.raw`
     } catch (err) { /* colour loss is a grading gap, not a capture failure */ }
   });
   if (typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld(true);
-  return { ok: true, hiddenMeshes, colouredMeshes, segFractions };
+  return { ok: true, hiddenMeshes, colouredMeshes, segFractions, skinFixed };
 })
 `;
 
@@ -1298,6 +1372,7 @@ const DRAWN_SUBJECT_SOURCE = String.raw`
   // Proper world bbox for head/toe
   let headBbMaxY = -Infinity;
   let toeBbMinY = Infinity;
+  let bbMinX = Infinity, bbMaxX = -Infinity, bbMinZ = Infinity, bbMaxZ = -Infinity;
   physMeshes.forEach((m) => {
     try {
       if (typeof m.geometry.computeBoundingBox === "function") m.geometry.computeBoundingBox();
@@ -1309,15 +1384,26 @@ const DRAWN_SUBJECT_SOURCE = String.raw`
         const vx = k & 1 ? bb.max.x : bb.min.x;
         const vy = k & 2 ? bb.max.y : bb.min.y;
         const vz = k & 4 ? bb.max.z : bb.min.z;
+        const wx = e[0]*vx + e[4]*vy + e[8]*vz + e[12];
         const wy = e[1]*vx + e[5]*vy + e[9]*vz + e[13];
+        const wz = e[2]*vx + e[6]*vy + e[10]*vz + e[14];
         if (wy > headBbMaxY) headBbMaxY = wy;
         if (wy < toeBbMinY) toeBbMinY = wy;
+        if (wx < bbMinX) bbMinX = wx;
+        if (wx > bbMaxX) bbMaxX = wx;
+        if (wz < bbMinZ) bbMinZ = wz;
+        if (wz > bbMaxZ) bbMaxZ = wz;
       }
     } catch (err) {}
   });
-  // Project head top and toe bottom to NDC
-  const headNdc = project({ x: 0, y: headBbMaxY, z: 0 }); // x,z don't matter for y frac
-  const toeNdc = project({ x: 0, y: toeBbMinY, z: 0 });
+  // Project head top and toe bottom to NDC at the subject's own bbox-centre
+  // XZ: NDC y depends on view depth, so projecting at the world origin (0,0)
+  // mismeasures the height fraction for subjects walking metres from the
+  // origin (long footstepRouteM routes). Centre-XZ is exact for this fraction.
+  const bbCx = (bbMinX + bbMaxX) / 2;
+  const bbCz = (bbMinZ + bbMaxZ) / 2;
+  const headNdc = project({ x: bbCx, y: headBbMaxY, z: bbCz });
+  const toeNdc = project({ x: bbCx, y: toeBbMinY, z: bbCz });
   let subjectScreenHeightFraction = 0;
   let upright = false;
   if (headNdc && toeNdc && !headNdc.behind && !toeNdc.behind) {
@@ -1460,6 +1546,8 @@ async function dryPass(
   rankedThreeQuarter: ScoredCandidate[];
   fill: { feetSide: boolean; threeQuarter: boolean };
   clipForwardDiagnostic: ClipForwardDiagnostic | null;
+  /** Largest visible-mesh shell (the room); null when the lookup failed. Drives tracking selection. */
+  room: RoomBounds | null;
 }> {
   const context = await browser.newContext({
     viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
@@ -1548,6 +1636,9 @@ async function dryPass(
       rightToe: dryTail?.rightToe ?? null,
       slot: dryTail?.slot ? { x: dryTail.slot.x, z: dryTail.slot.z } : null,
     };
+    // Feet-side dry refs cover BOTH walk ends: with only the arrived ref, dry
+    // selection blesss a close eye that later loses the walk-start foot at
+    // record time (SC-05 start-foot NDC x 0.93 > 0.9, measured 2026-10-17).
     // Spread refs across the walk for three-quarter: the arrived pelvis sits
     // against furniture and misjudges mid-walk clearance.
     const walkingSamples = walkingSamplesForFraming;
@@ -1567,7 +1658,17 @@ async function dryPass(
         `[dry] walk extent n=${walkingSamples.length} slot (${first.slot.x.toFixed(2)},${first.slot.z.toFixed(2)}) -> (${last.slot.x.toFixed(2)},${last.slot.z.toFixed(2)})\n`,
       );
     }
-    const feetSide = await decidePose(page, "feet-side", feetSideCandidates(frame), [arrivedRef], dryFloorY, room);
+    const feetSideRefs: FramingRef[] = walkingSamples.length > 0
+      ? [
+          {
+            leftToe: walkingSamples[0].leftToe,
+            rightToe: walkingSamples[0].rightToe,
+            slot: walkingSamples[0].slot ? { x: walkingSamples[0].slot.x, z: walkingSamples[0].slot.z } : null,
+          },
+          arrivedRef,
+        ]
+      : [arrivedRef];
+    const feetSide = await decidePose(page, "feet-side", feetSideCandidates(frame), feetSideRefs, dryFloorY, room);
     const threeQuarter = await decidePose(page, "three-quarter", threeQuarterCandidates(frame), walkRefs, dryFloorY, room);
     // DIAGNOSTIC (kimodo cagematch, round 12): the runtime's OWN measured clip forward, rate-1
     // stance speed and playback timeScale, published by station-bedside-approach-mod.ts onto
@@ -1600,6 +1701,7 @@ async function dryPass(
       // Fill light only for the unlit far side; the lit side needs none.
       fill: { feetSide: feetSide.name.startsWith("-perp"), threeQuarter: threeQuarter.name.startsWith("-perp") },
       clipForwardDiagnostic,
+      room,
     };
   } finally {
     await context.close().catch(() => undefined);
@@ -1806,7 +1908,12 @@ function feetSideCandidates(frame: ApproachFrame): Array<{ name: string; pose: C
       y: 0.35,
       z: frame.mid.z + frame.pz * side * dist - frame.hz * back,
     },
-    look: { x: frame.mid.x + frame.hx * 0.35, y: 0.12, z: frame.mid.z + frame.hz * 0.35 },
+    // Look bias 0.15 (was 0.35): the +0.35 target-ward bias pushed the WALK-START
+    // foot to NDC x 0.93, outside the 0.9 bound, on the short SC-05 route
+    // (measured 2026-10-17) — the dry feet-side refs only covered the ARRIVED end,
+    // so selection never saw the start end escaping. Recentring (a margin fix,
+    // not a check loosening) fits both ends; span is unchanged by a look shift.
+    look: { x: frame.mid.x + frame.hx * 0.15, y: 0.12, z: frame.mid.z + frame.hz * 0.15 },
     fov,
   });
   // The lit +perp side at midpoint distance sits inside the mattress or past the wall (all
@@ -1864,6 +1971,98 @@ function threeQuarterCandidates(frame: ApproachFrame): Array<{ name: string; pos
     { name: "+perp/2.6/ahead0.0/h2.0/f60", pose: at(1, 2.6, 0.0, 2.0, 60) },
     { name: "+perp/2.3/back1.2/h1.7/f55", pose: at(1, 2.3, -1.2, 1.7, 55) },
   ];
+}
+
+/**
+ * Tracking follow-camera (video-framing slice, 2026-10-17): long routes (2.0 m
+ * and up under footstepRouteM) start outside the 4.5 m room shell, so no
+ * world-fixed eye frames the whole walk — the side camera loses the body as it
+ * walks away and the three-quarter scan refuses every candidate. A tracking
+ * pass keeps a FIXED height/distance/side offset and follows the actor slot XZ
+ * with a first-order lag follow (rate 5/s: critically damped by construction —
+ * exponential approach, no overshoot, no oscillation), with NO orientation
+ * change (the perp/heading offset vector is constant). The body stays framed
+ * for the whole route; isolation removes the room so nothing occludes.
+ */
+type TrackingSpec = {
+  /** Route frame unit vectors (constant orientation for the whole pass). */
+  px: number;
+  pz: number;
+  hx: number;
+  hz: number;
+  floorY: number;
+  /** Lateral offset along +perp (lit side; the room is isolated away). */
+  eyeSideMeters: number;
+  eyeHeightMeters: number;
+  /** Along-heading offset of the eye behind the slot (<= 0). */
+  eyeAheadMeters: number;
+  lookHeightMeters: number;
+  lookAheadMeters: number;
+  fov: number;
+};
+
+/** First-order-lag follow rate (1/s). alpha per 1/30 s step = 1-exp(-5/30) ≈ 0.15. */
+const TRACKING_FOLLOW_RATE = 5;
+
+function trackingPoseForSlot(spec: TrackingSpec, slot: { x: number; z: number }): CameraPose {
+  return {
+    eye: {
+      x: slot.x + spec.px * spec.eyeSideMeters + spec.hx * spec.eyeAheadMeters,
+      y: spec.floorY + spec.eyeHeightMeters,
+      z: slot.z + spec.pz * spec.eyeSideMeters + spec.hz * spec.eyeAheadMeters,
+    },
+    look: {
+      x: slot.x + spec.hx * spec.lookAheadMeters,
+      y: spec.floorY + spec.lookHeightMeters,
+      z: slot.z + spec.hz * spec.lookAheadMeters,
+    },
+    fov: spec.fov,
+  };
+}
+
+/**
+ * Feet-side tracking: full-body side view (head and feet share the frame, toes
+ * low). At 2.2 m / fov 50 the 1.7 m subject fills ~0.8 of frame height and the
+ * ±0.5 m stride swing stays inside 0.9 with margin.
+ */
+function makeFeetTrackingSpec(frame: ApproachFrame, floorY: number): TrackingSpec {
+  return {
+    px: frame.px, pz: frame.pz, hx: frame.hx, hz: frame.hz, floorY,
+    eyeSideMeters: 2.6, eyeHeightMeters: 0.9, eyeAheadMeters: 0,
+    lookHeightMeters: 0.7, lookAheadMeters: 0, fov: 50,
+  };
+}
+
+/** Three-quarter tracking: the same follow, higher eye, torso look. */
+function makeThreeQuarterTrackingSpec(frame: ApproachFrame, floorY: number): TrackingSpec {
+  return {
+    px: frame.px, pz: frame.pz, hx: frame.hx, hz: frame.hz, floorY,
+    eyeSideMeters: 2.4, eyeHeightMeters: 1.6, eyeAheadMeters: 0.8,
+    lookHeightMeters: 0.7, lookAheadMeters: 0, fov: 50,
+  };
+}
+
+/**
+ * Automatic tracking selection: the route exceeds the room when the margined
+ * route (length + the same 0.8 m framing margin the fixed camera sizes itself
+ * with) is longer than the room shell's smaller horizontal span — no
+ * world-fixed eye can hold that walk. Short routes stay fixed even when an
+ * endpoint sits centimetres outside the shell (measured SC-05: walk start
+ * 0.44 m past the shell, still perfectly fixed-frameable); a fixed view that
+ * still fails its framingCheck is retried once with tracking at record time.
+ */
+function routeNeedsTracking(
+  start: Vec3,
+  target: Vec3,
+  room: RoomBounds | null,
+): { needed: boolean; reason: string } {
+  const routeLen = Math.hypot(target.x - start.x, target.z - start.z);
+  if (!room) return { needed: false, reason: `no-room-bounds routeLen=${routeLen.toFixed(2)}` };
+  const minHoriz = Math.min(room.s[0], room.s[2]);
+  if (routeLen + 0.8 > minHoriz) {
+    return { needed: true, reason: `route-exceeds-room routeLen=${routeLen.toFixed(2)} minHoriz=${minHoriz.toFixed(2)}` };
+  }
+  return { needed: false, reason: `route-fits-room routeLen=${routeLen.toFixed(2)} minHoriz=${minHoriz.toFixed(2)}` };
 }
 
 /**
@@ -2019,12 +2218,16 @@ type RecordedPass = {
   markers: number;
   clockHonoured: boolean;
   pose: CameraPose;
+  /** Non-null when this pass followed the slot (tracking); the asserted pose moved per step. */
+  tracking: TrackingSpec | null;
   fill: string;
   framing: FramingSample[];
   isolated: string;
   isolatedHiddenCount: number;
   bodyOnlyHiddenMeshes: string[];
   bodyOnlyColoredMeshes: string[];
+  /** Black-patch fix (2026-10-17): mesh/material pairs whose hidden-surface material was swapped for skin. */
+  bodyOnlySkinFixedMeshes: string[];
   scan: ScanResult[];
   // Drawn-subject check results (captured once per pass, on the last walking frame)
   subjectVisibleMeshes: number;
@@ -2053,6 +2256,7 @@ async function recordPass(
   isolate: { cx: number; cz: number; floorY: number } | null,
   scanEyes: ScanEye[] = [],
   bodyOnly = false,
+  tracking: TrackingSpec | null = null,
 ): Promise<RecordedPass> {
   const context = await browser.newContext({
     viewport: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT },
@@ -2122,6 +2326,7 @@ async function recordPass(
     let isolatedHiddenCount = 0;
     let bodyOnlyHiddenMeshes: string[] = [];
     let bodyOnlyColoredMeshes: string[] = [];
+    let bodyOnlySkinFixedMeshes: string[] = [];
     if (isolate) {
       const isolatePayload = { ...isolate, actorId: activeWalkerActorId() };
       const iso = (await page.evaluate(
@@ -2136,11 +2341,12 @@ async function recordPass(
     if (bodyOnly) {
       const bo = (await page.evaluate(
         `${BODY_ONLY_SOURCE}(${JSON.stringify({ actorId: activeWalkerActorId() })})`,
-      )) as { ok: boolean; hiddenMeshes?: string[]; colouredMeshes?: string[]; segFractions?: Record<string, number[]>; reason?: string };
+      )) as { ok: boolean; hiddenMeshes?: string[]; colouredMeshes?: string[]; segFractions?: Record<string, number[]>; skinFixed?: string[]; reason?: string };
       if (!bo.ok) throw new Error(`${mode} body-only failed: ${bo.reason ?? "unknown"}`);
       bodyOnlyHiddenMeshes = bo.hiddenMeshes ?? [];
       bodyOnlyColoredMeshes = bo.colouredMeshes ?? [];
-      process.stdout.write(`[${mode}] body-only: hidden ${bodyOnlyHiddenMeshes.length} (${bodyOnlyHiddenMeshes.join(",") || "(none)"}) coloured ${bodyOnlyColoredMeshes.length} (${bodyOnlyColoredMeshes.join(",") || "(none)"})\n`);
+      bodyOnlySkinFixedMeshes = bo.skinFixed ?? [];
+      process.stdout.write(`[${mode}] body-only: hidden ${bodyOnlyHiddenMeshes.length} (${bodyOnlyHiddenMeshes.join(",") || "(none)"}) coloured ${bodyOnlyColoredMeshes.length} (${bodyOnlyColoredMeshes.join(",") || "(none)"}) skinFixed ${bodyOnlySkinFixedMeshes.length}\n`);
     }
     // Capture-only fill light for the unlit far side (labeled overlay; toes untouched).
     const fillResult = fillEnabled
@@ -2155,7 +2361,9 @@ async function recordPass(
       ? `cloned room ${fillResult.kind} at intensity ${Number(fillResult.intensity).toFixed(3)}`
       : `absent (${fillResult.reason ?? "unknown"})`;
     process.stdout.write(`[${mode}] fill light: ${fill}\n`);
-    // Walking: fine steps with one screenshot per step.
+    // Walking: fine steps with one screenshot per step. The staging dir is
+    // cleared first so a tracking retry over the same dir never mixes passes.
+    await rm(stagingModeDir, { recursive: true, force: true });
     await mkdir(stagingModeDir, { recursive: true });
     const shotSimMs: number[] = [];
     const shotBytes: number[] = [];
@@ -2165,12 +2373,40 @@ async function recordPass(
     const scanAcc = scanEyes.map(() => ({ projFail: 0, clear: 0, n: 0 }));
     let markers = 0;
     let step = 0;
+    // Tracking follow state: smoothed slot XZ plus the pose actually asserted
+    // this step (fixed passes keep asserting `pose`; tracking asserts the
+    // follow pose AFTER the clock advances, so the frame matches the slot).
+    let follow: { x: number; z: number } | null = null;
+    let currentPose: CameraPose = pose;
     for (;;) {
-      const camWorld = await placeCamera(page, pose);
+      let camWorld: readonly number[] | null = null;
+      if (tracking === null) {
+        camWorld = await placeCamera(page, pose);
+      }
       await page.clock.fastForward(STEP_SECONDS * 1000);
       // Real settle: the compositor presents in wall time, not fake time. A
       // screenshot fired the instant the fake clock advances captures a blank.
       await realSleep(150);
+      summary = await readSummary(page);
+      const evidence = await readEvidence(page);
+      const tail = evidence?.samples?.length ? evidence.samples[evidence.samples.length - 1]! : null;
+      if (tracking !== null && tail?.slot) {
+        if (!follow) {
+          follow = { x: tail.slot.x, z: tail.slot.z };
+        } else {
+          // First-order lag follow (critically damped: exponential approach,
+          // no overshoot, no oscillation), fixed orientation (offset constant).
+          const alpha = 1 - Math.exp(-TRACKING_FOLLOW_RATE * STEP_SECONDS);
+          follow = {
+            x: follow.x + (tail.slot.x - follow.x) * alpha,
+            z: follow.z + (tail.slot.z - follow.z) * alpha,
+          };
+        }
+        currentPose = trackingPoseForSlot(tracking, follow);
+        camWorld = await placeCamera(page, currentPose);
+      } else if (tracking !== null) {
+        camWorld = await placeCamera(page, currentPose);
+      }
       const camAfter = (await page.evaluate(READ_CAM_SOURCE)) as readonly number[] | null;
       const buf = await page.screenshot({ animations: "disabled" });
       const file = path.join(stagingModeDir, `shot-${String(step).padStart(4, "0")}.png`);
@@ -2192,9 +2428,8 @@ async function recordPass(
         // Probe loss is a measurement gap, not a capture failure.
       }
       step += 1;
-      summary = await readSummary(page);
-      const evidence = await readEvidence(page);
-      const tail = evidence?.samples?.length ? evidence.samples[evidence.samples.length - 1]! : null;
+      // summary/evidence/tail were read above (before the tracking placement),
+      // so the framing projection below measures the asserted camera.
       // Numeric framing proof for this exact frame: project toes+head through
       // the capture camera; three-quarter also raycasts camera->pelvis.
       // Scan eyes (three-quarter take-1 only, never isolated) are measured
@@ -2205,7 +2440,7 @@ async function recordPass(
         let occluded: boolean | null = null;
         let blocker: string | null = null;
         if (mode === "three-quarter") {
-          const occl = await queryOcclusion(page, pose.eye, pelvis);
+          const occl = await queryOcclusion(page, currentPose.eye, pelvis);
           occluded = occl.occluded ?? true;
           if (occluded) blocker = blockerSummary(occl);
         }
@@ -2265,7 +2500,7 @@ async function recordPass(
       `[${mode}] drawn-subject: subjMeshes=${drawn.subjectVisibleMeshes} nonSubjMeshes=${drawn.nonSubjectVisibleMeshes} subjH=${drawn.subjectScreenHeightFraction.toFixed(3)} upright=${drawn.upright}\n`,
     );
     const playback = await readPlayback(page);
-    return { shotSimMs, evidence: finalEvidence, markers, clockHonoured, pose, fill, framing, isolated, isolatedHiddenCount, bodyOnlyHiddenMeshes, bodyOnlyColoredMeshes, scan,
+    return { shotSimMs, evidence: finalEvidence, markers, clockHonoured, pose, tracking, fill, framing, isolated, isolatedHiddenCount, bodyOnlyHiddenMeshes, bodyOnlyColoredMeshes, bodyOnlySkinFixedMeshes, scan,
       subjectVisibleMeshes: drawn.subjectVisibleMeshes,
       nonSubjectVisibleMeshes: drawn.nonSubjectVisibleMeshes,
       subjectScreenHeightFraction: drawn.subjectScreenHeightFraction,
@@ -2381,7 +2616,7 @@ function insideNdc(p: NdcPoint, bound: number): boolean {
   return p !== null && !p.behind && Math.abs(p.x) <= bound && Math.abs(p.y) <= bound;
 }
 
-function summarizeFeetFraming(pass: RecordedPass, fullBody = false): {
+function summarizeFeetFraming(pass: RecordedPass, fullBody = false, tracking = false): {
   walkingFrames: number;
   toesInsideEveryWalkingFrame: boolean;
   toesLowerHalfEveryWalkingFrame: boolean;
@@ -2406,6 +2641,30 @@ function summarizeFeetFraming(pass: RecordedPass, fullBody = false): {
   const subjectVisibleMeshes = pass.subjectVisibleMeshes ?? 0;
   const nonSubjectVisibleMeshes = pass.nonSubjectVisibleMeshes ?? 0;
   const subjectScreenHeightFraction = pass.subjectScreenHeightFraction ?? 0;
+  // Tracking follow-camera gate: the camera translates WITH the slot, so the
+  // excursion-across-frame (span) and lower-half rules — which assume a fixed
+  // eye watching feet sweep past — do not apply. What tracking must hold is
+  // the subject framed head-to-toe every walking frame, alone, upright-large.
+  // Documented as its own gate, not a loosened fixed gate.
+  if (tracking) {
+    const drawnPass =
+      toesInside &&
+      headInside &&
+      subjectVisibleMeshes > 0 &&
+      nonSubjectVisibleMeshes === 0 &&
+      subjectScreenHeightFraction >= 0.35;
+    return {
+      walkingFrames: walk.length,
+      toesInsideEveryWalkingFrame: toesInside,
+      toesLowerHalfEveryWalkingFrame: lowerHalf,
+      headInsideEveryWalkingFrame: headInside,
+      toeSpanFraction: spanFraction,
+      subjectVisibleMeshes,
+      nonSubjectVisibleMeshes,
+      subjectScreenHeightFraction,
+      pass: drawnPass,
+    };
+  }
   // Full-body side view (step-capture lean slice): head AND toes inside every
   // walking frame replaces the feet-filling lower-half rule; the pulled-back
   // camera shrinks the toe span, so the span floor drops to 0.2. Default path
@@ -2872,6 +3131,30 @@ async function main(): Promise<void> {
         .slice(0, 10)
         .map((c) => ({ name: c.name, pose: c.pose }));
       process.stdout.write(`[dry] three-quarter take-1: ${tqTake1.name}; scan: ${scanShortlist.map((s) => s.name).join(", ")}\n`);
+      // Video-framing slice (2026-10-17): automatic tracking selection. Long
+      // routes start outside the room shell, where no world-fixed eye holds the
+      // walk — those go tracking (follow slot XZ, fixed offset, isolated);
+      // short in-room routes stay fixed. A fixed view that still fails its
+      // framingCheck is retried once with tracking below (before the gate).
+      const trackFrame = approachFrame(dryStart, dryTarget);
+      const trackDecision = routeNeedsTracking(dryStart, dryTarget, dry.room);
+      const useTracking = trackDecision.needed;
+      process.stdout.write(`[track] ${useTracking ? "TRACKING" : "fixed"}: ${trackDecision.reason}\n`);
+      const cameraMode: { feetSide: CameraMode; threeQuarter: CameraMode } = {
+        feetSide: useTracking ? "tracking" : "fixed",
+        threeQuarter: useTracking ? "tracking" : "fixed",
+      };
+      const trackIsolate = {
+        cx: (dryStart.x + dryTarget.x) / 2,
+        cz: (dryStart.z + dryTarget.z) / 2,
+        floorY: dryEvidence.floorOriginY ?? 0,
+      };
+      const dryWalkForStart = dryEvidence.samples.filter((s) => s.phase === "walking");
+      const dryStartSlot = dryWalkForStart.length > 0 && dryWalkForStart[0].slot
+        ? { x: dryWalkForStart[0].slot.x, z: dryWalkForStart[0].slot.z }
+        : { x: dryStart.x, z: dryStart.z };
+      const feetSpec = makeFeetTrackingSpec(trackFrame, trackIsolate.floorY);
+      const tqSpec = makeThreeQuarterTrackingSpec(trackFrame, trackIsolate.floorY);
       // Step-capture lean slice: --full-body pulls the side view back so head
       // and feet share the frame (three-quarter is already full-body). The
       // side pass still isolates the physician, so the pulled-back eye leaving
@@ -2882,24 +3165,33 @@ async function main(): Promise<void> {
           `[full-body] side eye=(${feetPose.eye.x.toFixed(2)},${feetPose.eye.y.toFixed(2)},${feetPose.eye.z.toFixed(2)}) look=(${feetPose.look.x.toFixed(2)},${feetPose.look.y.toFixed(2)},${feetPose.look.z.toFixed(2)}) fov=${feetPose.fov}\n`,
         );
       }
-      const feetPass = await recordPass(server, browser, bundleJson, "feet-side", feetPose, dry.fill.feetSide, path.join(stagingDir, "feet-side"), {
-        cx: (dryStart.x + dryTarget.x) / 2,
-        cz: (dryStart.z + dryTarget.z) / 2,
-        floorY: dryEvidence.floorOriginY ?? 0,
-      }, [], bodyOnly);
+      let feetPass = await recordPass(server, browser, bundleJson, "feet-side",
+        useTracking ? trackingPoseForSlot(feetSpec, dryStartSlot) : feetPose,
+        useTracking ? false : dry.fill.feetSide,
+        path.join(stagingDir, "feet-side"), {
+          cx: (dryStart.x + dryTarget.x) / 2,
+          cz: (dryStart.z + dryTarget.z) / 2,
+          floorY: dryEvidence.floorOriginY ?? 0,
+        }, [], bodyOnly,
+        useTracking ? feetSpec : null);
       const stagingByMode: Record<CamMode, string> = {
         "feet-side": path.join(stagingDir, "feet-side"),
         "three-quarter": path.join(stagingDir, "three-quarter-0"),
       };
       const tqTake1Pass = await recordPass(
-        server, browser, bundleJson, "three-quarter", tqTake1.pose,
-        tqTake1.name.startsWith("-perp"), path.join(stagingDir, "three-quarter-0"), null, scanShortlist, bodyOnly,
+        server, browser, bundleJson, "three-quarter",
+        useTracking ? trackingPoseForSlot(tqSpec, dryStartSlot) : tqTake1.pose,
+        useTracking ? true : tqTake1.name.startsWith("-perp"),
+        path.join(stagingDir, "three-quarter-0"),
+        useTracking ? trackIsolate : null,
+        useTracking ? [] : scanShortlist, bodyOnly,
+        useTracking ? tqSpec : null,
       );
       const tqTake1Summary = summarizeTqFraming(tqTake1Pass, "three-quarter-0");
       let tqWinnerPass = tqTake1Pass;
       let tqWinnerSummary = tqTake1Summary;
-      let tqWinnerStage = "three-quarter-0";
-      if (!tqTake1Summary.pass) {
+      let tqWinnerStage = useTracking ? "three-quarter-tracking" : "three-quarter-0";
+      if (!tqTake1Summary.pass && !useTracking) {
         const scanned = [...tqTake1Pass.scan]
           .filter((s) => s.n > 0)
           .sort((a, b) => a.projFail - b.projFail || b.clear - a.clear);
@@ -2955,6 +3247,39 @@ async function main(): Promise<void> {
           }
         }
       }
+      // Fixed-fails fallback (one retry per failed view): the route fit the
+      // room on dry measurements but the fixed framingCheck still failed at
+      // record time — re-record that view tracking rather than refusing.
+      if (!useTracking) {
+        const feetEarly = summarizeFeetFraming(feetPass, fullBodySideView, false);
+        if (!feetEarly.pass || !tqWinnerSummary.pass) {
+          process.stdout.write(
+            `[track] fixed framing failed (feet=${feetEarly.pass} ` +
+              `(inside=${feetEarly.toesInsideEveryWalkingFrame} lower=${feetEarly.toesLowerHalfEveryWalkingFrame} span=${feetEarly.toeSpanFraction.toFixed(3)} subjH=${feetEarly.subjectScreenHeightFraction.toFixed(3)}) ` +
+              `tq=${tqWinnerSummary.pass}); retrying failed views with tracking\n`,
+          );
+          const recWalk = feetPass.evidence.samples.filter((s) => s.phase === "walking");
+          const recStartSlot = recWalk.length > 0 && recWalk[0].slot
+            ? { x: recWalk[0].slot.x, z: recWalk[0].slot.z }
+            : dryStartSlot;
+          if (!feetEarly.pass) {
+            stagingByMode["feet-side"] = path.join(stagingDir, "feet-side-tracking");
+            feetPass = await recordPass(server, browser, bundleJson, "feet-side",
+              trackingPoseForSlot(feetSpec, recStartSlot), false,
+              stagingByMode["feet-side"], trackIsolate, [], bodyOnly, feetSpec);
+            cameraMode.feetSide = "tracking";
+          }
+          if (!tqWinnerSummary.pass) {
+            stagingByMode["three-quarter"] = path.join(stagingDir, "three-quarter-tracking");
+            tqWinnerStage = "three-quarter-tracking";
+            tqWinnerPass = await recordPass(server, browser, bundleJson, "three-quarter",
+              trackingPoseForSlot(tqSpec, recStartSlot), true,
+              stagingByMode["three-quarter"], trackIsolate, [], bodyOnly, tqSpec);
+            tqWinnerSummary = summarizeTqFraming(tqWinnerPass, tqWinnerStage);
+            cameraMode.threeQuarter = "tracking";
+          }
+        }
+      }
       process.stdout.write(`[gate] three-quarter winner: ${stagingByMode["three-quarter"]} clear=${tqWinnerSummary.clearViewFraction.toFixed(3)}\n`);
       const passes: Record<CamMode, RecordedPass> = {
         "feet-side": feetPass,
@@ -2995,7 +3320,8 @@ async function main(): Promise<void> {
 
       // Framing gate from the per-frame record-time projections: the script
       // exits non-zero unless both views hold the subject every walking frame.
-      const feetSummary = summarizeFeetFraming(passes["feet-side"], fullBodySideView);
+      // Tracking views use the follow-camera gate (head+toes framed, alone).
+      const feetSummary = summarizeFeetFraming(passes["feet-side"], fullBodySideView, cameraMode.feetSide === "tracking");
       const tqSummary = summarizeTqFraming(passes["three-quarter"], "three-quarter");
       const framingCheck = {
         feetSide: {
@@ -3020,7 +3346,7 @@ async function main(): Promise<void> {
         },
       };
       process.stdout.write(
-        `[gate] feet-side frames=${feetSummary.walkingFrames} toesInside=${feetSummary.toesInsideEveryWalkingFrame} lowerHalf=${feetSummary.toesLowerHalfEveryWalkingFrame} headInside=${feetSummary.headInsideEveryWalkingFrame} span=${feetSummary.toeSpanFraction.toFixed(3)} subjMeshes=${feetSummary.subjectVisibleMeshes} nonSubjMeshes=${feetSummary.nonSubjectVisibleMeshes} subjH=${feetSummary.subjectScreenHeightFraction.toFixed(3)} fullBody=${fullBodySideView} pass=${feetSummary.pass}\n`,
+        `[gate] feet-side frames=${feetSummary.walkingFrames} toesInside=${feetSummary.toesInsideEveryWalkingFrame} lowerHalf=${feetSummary.toesLowerHalfEveryWalkingFrame} headInside=${feetSummary.headInsideEveryWalkingFrame} span=${feetSummary.toeSpanFraction.toFixed(3)} subjMeshes=${feetSummary.subjectVisibleMeshes} nonSubjMeshes=${feetSummary.nonSubjectVisibleMeshes} subjH=${feetSummary.subjectScreenHeightFraction.toFixed(3)} fullBody=${fullBodySideView} mode=${cameraMode.feetSide} pass=${feetSummary.pass}\n`,
       );
       // A refused run still writes its report: the measurements are what explain the refusal.
       let framingFailure: Error | null = null;
@@ -3152,6 +3478,7 @@ async function main(): Promise<void> {
         bodyOnly,
         hiddenMeshCount: passes["feet-side"].isolatedHiddenCount + passes["feet-side"].bodyOnlyHiddenMeshes.length,
         bodyOnlyHiddenMeshes: passes["feet-side"].bodyOnlyHiddenMeshes,
+        bodyOnlySkinFixedMeshes: passes["feet-side"].bodyOnlySkinFixedMeshes,
         fpsCandidates: {
           fakeClock: { honoured: passes["feet-side"].clockHonoured, fps: 1 / STEP_SECONDS },
           gpuRealtime: { fps: gpuFps },
@@ -3218,7 +3545,12 @@ async function main(): Promise<void> {
           feetSide: passes["feet-side"].pose,
           threeQuarter: passes["three-quarter"].pose,
           sideDistanceMeters: poses.sideDistanceMeters,
+          tracking: {
+            feetSide: passes["feet-side"].tracking,
+            threeQuarter: passes["three-quarter"].tracking,
+          },
         },
+        cameraMode,
         claimScope: CLAIM_SCOPE,
         notEvidenceFor: NOT_EVIDENCE_FOR,
       };
