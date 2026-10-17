@@ -4,7 +4,7 @@
  "region_choices": "render/photo: FaceLandmarker polygons x eroded-skin gate (face_landmark_regions.py:76-126 polygon_regions; forehead, L/R cheek via cheek_mapping, chin, upperlip_skin), same as room_rig_remeasure.py:66-88 regions_of. texture: derive landmarks-uv.json carries 18 points, not the 478 FaceMesh indices face_gate.py:265 region_polygons needs, so no UV projection of the same polygons; face_replay_compose.py:410 regions_from_masks on derive masks (forehead = facecore top-25pc rows) + geometric subdivisions of its facecore (cheek_u_lo/hi mid-row outer U bands; chin bottom rows excl. lips; upperlip_skin band above lips excl. lips). UV laterality unmapped; both albedos share the convention.",
  "threshold_rules": {
   "G0": "per candidate quantity: max |q'-q| over regions x renders under k-scaling in {0.5, 2.0} (linear RGB, clip) <= EPS[q]; SAME-pixel comparison (polygon AND original gate AND scaled gate AND unclipped; kept fractions recorded; clipped pixels carry no colour and cannot test the quantity); sensitivity: +5 a* cheek copy moves hue/CdivL > SENS_MIN, +5 L* cheek copy moves logY_face/Lratio_face > SENS_MIN; drop failures; dL_face must NOT be invariant (counterexample).",
-  "G1_G2": "per row: threshold = midpoint(known-good delta, known-bad delta); margin = |bad-good|/2; noise = SD over 20 seeded half-splits (G1: albedo region mean per channel; G2: paired quantity-delta draws; render run-to-run adds 0 per room-rig-remeasure G0); enforced iff margin/noise >= 1 else report-only. Thresholds use known-good/known-bad ONLY; body2 evaluation numbers are computed after."
+  "G1_G2": "per row: threshold = midpoint(known-good delta, known-bad delta); margin = |bad-good|/2. RULE 1: row enforceable iff d_good < d_bad AND margin/noise >= 1; else report-only (inverted/tied rows: does not separate known-good from known-bad). RULE 2: gate (region x channel/quantity) enforced iff ALL its known-bad rows enforceable; gate threshold = smallest midpoint; gate margin = distance from it to the nearest delta; gate noise = max row noise. RULE 3: noise is pixel-sampling SD ONLY (margins/noise ~50-350 expected); margin_over_phys divides by the measured G0 epsilon (hue 1.5 deg etc.; G1 L uses dL 0.05; G1 a/b null, no measured epsilon). Render run-to-run adds 0 per room-rig-remeasure G0. Thresholds use known-good/known-bad ONLY; body2 evaluation numbers are computed after."
  },
  "g0": {
   "rule": "per candidate quantity: max |q'-q| over regions x renders under k-scaling in {0.5, 2.0} (linear RGB, clip) <= EPS[q]; SAME-pixel comparison (polygon AND original gate AND scaled gate AND unclipped; kept fractions recorded; clipped pixels carry no colour and cannot test the quantity); sensitivity: +5 a* cheek copy moves hue/CdivL > SENS_MIN, +5 L* cheek copy moves logY_face/Lratio_face > SENS_MIN; drop failures; dL_face must NOT be invariant (counterexample).",
@@ -152,9 +152,14 @@
    "d_bad": 8.743,
    "threshold": 4.555,
    "margin": 4.188,
-   "noise": 0.02126,
-   "margin_over_noise": 196.99,
-   "enforced": true
+   "noise": 0.02209,
+   "margin_over_noise": 189.59,
+   "margin_over_phys": 83.76,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -167,9 +172,14 @@
    "d_bad": 7.466,
    "threshold": 3.916,
    "margin": 3.549,
-   "noise": 0.01902,
-   "margin_over_noise": 186.62,
-   "enforced": true
+   "noise": 0.01483,
+   "margin_over_noise": 239.31,
+   "margin_over_phys": 70.98,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -182,9 +192,14 @@
    "d_bad": 3.829,
    "threshold": 2.42,
    "margin": 1.409,
-   "noise": 0.00399,
-   "margin_over_noise": 353.13,
-   "enforced": true
+   "noise": 0.00402,
+   "margin_over_noise": 350.5,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -197,9 +212,14 @@
    "d_bad": 1.828,
    "threshold": 1.419,
    "margin": 0.409,
-   "noise": 0.00833,
-   "margin_over_noise": 49.04,
-   "enforced": true
+   "noise": 0.00935,
+   "margin_over_noise": 43.74,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -212,9 +232,14 @@
    "d_bad": 1.494,
    "threshold": 1.715,
    "margin": 0.221,
-   "noise": 0.00248,
-   "margin_over_noise": 89.11,
-   "enforced": true
+   "noise": 0.00339,
+   "margin_over_noise": 65.19,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1b",
@@ -227,9 +252,14 @@
    "d_bad": 4.813,
    "threshold": 3.374,
    "margin": 1.438,
-   "noise": 0.01013,
-   "margin_over_noise": 142.0,
-   "enforced": true
+   "noise": 0.01032,
+   "margin_over_noise": 139.34,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -242,9 +272,14 @@
    "d_bad": 4.415,
    "threshold": 4.555,
    "margin": 0.14,
-   "noise": 0.03604,
-   "margin_over_noise": 3.88,
-   "enforced": true
+   "noise": 0.03135,
+   "margin_over_noise": 4.47,
+   "margin_over_phys": 2.8,
+   "phys_floor": 0.05,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1b",
@@ -257,9 +292,14 @@
    "d_bad": 10.481,
    "threshold": 7.588,
    "margin": 2.893,
-   "noise": 0.02764,
-   "margin_over_noise": 104.67,
-   "enforced": true
+   "noise": 0.02421,
+   "margin_over_noise": 119.5,
+   "margin_over_phys": 57.86,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -272,9 +312,14 @@
    "d_bad": 2.51,
    "threshold": 2.42,
    "margin": 0.09,
-   "noise": 0.00647,
-   "margin_over_noise": 13.91,
-   "enforced": true
+   "noise": 0.00499,
+   "margin_over_noise": 18.04,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -287,9 +332,14 @@
    "d_bad": 5.1,
    "threshold": 3.715,
    "margin": 1.385,
-   "noise": 0.00752,
-   "margin_over_noise": 184.18,
-   "enforced": true
+   "noise": 0.00783,
+   "margin_over_noise": 176.88,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -302,9 +352,14 @@
    "d_bad": 2.929,
    "threshold": 1.715,
    "margin": 1.214,
-   "noise": 0.0059,
-   "margin_over_noise": 205.76,
-   "enforced": true
+   "noise": 0.00634,
+   "margin_over_noise": 191.48,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -317,9 +372,14 @@
    "d_bad": 3.972,
    "threshold": 2.236,
    "margin": 1.736,
-   "noise": 0.01175,
-   "margin_over_noise": 147.7,
-   "enforced": true
+   "noise": 0.0117,
+   "margin_over_noise": 148.38,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -332,9 +392,14 @@
    "d_bad": 0.229,
    "threshold": 4.784,
    "margin": 4.555,
-   "noise": 0.04095,
-   "margin_over_noise": 111.23,
-   "enforced": true
+   "noise": 0.0319,
+   "margin_over_noise": 142.79,
+   "margin_over_phys": 91.1,
+   "phys_floor": 0.05,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1b",
@@ -347,9 +412,14 @@
    "d_bad": 15.558,
    "threshold": 12.448,
    "margin": 3.11,
-   "noise": 0.03344,
-   "margin_over_noise": 92.99,
-   "enforced": true
+   "noise": 0.02597,
+   "margin_over_noise": 119.75,
+   "margin_over_phys": 62.2,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -362,9 +432,14 @@
    "d_bad": 4.021,
    "threshold": 2.42,
    "margin": 1.601,
-   "noise": 0.01256,
-   "margin_over_noise": 127.47,
-   "enforced": true
+   "noise": 0.00866,
+   "margin_over_noise": 184.87,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -377,9 +452,14 @@
    "d_bad": 0.541,
    "threshold": 0.68,
    "margin": 0.139,
-   "noise": 0.01137,
-   "margin_over_noise": 12.23,
-   "enforced": true
+   "noise": 0.00685,
+   "margin_over_noise": 20.29,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1a",
@@ -392,9 +472,14 @@
    "d_bad": 2.379,
    "threshold": 1.715,
    "margin": 0.664,
-   "noise": 0.01149,
-   "margin_over_noise": 57.79,
-   "enforced": true
+   "noise": 0.01153,
+   "margin_over_noise": 57.59,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -407,9 +492,14 @@
    "d_bad": 0.836,
    "threshold": 0.943,
    "margin": 0.107,
-   "noise": 0.00696,
-   "margin_over_noise": 15.45,
-   "enforced": true
+   "noise": 0.00777,
+   "margin_over_noise": 13.77,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1a",
@@ -422,9 +512,14 @@
    "d_bad": 7.705,
    "threshold": 4.555,
    "margin": 3.15,
-   "noise": 0.01586,
-   "margin_over_noise": 198.61,
-   "enforced": true
+   "noise": 0.01716,
+   "margin_over_noise": 183.57,
+   "margin_over_phys": 63.0,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -437,9 +532,14 @@
    "d_bad": 7.76,
    "threshold": 4.582,
    "margin": 3.178,
-   "noise": 0.01915,
-   "margin_over_noise": 165.93,
-   "enforced": true
+   "noise": 0.01229,
+   "margin_over_noise": 258.58,
+   "margin_over_phys": 63.56,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -452,9 +552,14 @@
    "d_bad": 3.878,
    "threshold": 2.42,
    "margin": 1.458,
-   "noise": 0.00424,
-   "margin_over_noise": 343.87,
-   "enforced": true
+   "noise": 0.00323,
+   "margin_over_noise": 451.39,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -467,9 +572,14 @@
    "d_bad": 1.738,
    "threshold": 1.35,
    "margin": 0.388,
-   "noise": 0.00915,
-   "margin_over_noise": 42.4,
-   "enforced": true
+   "noise": 0.00983,
+   "margin_over_noise": 39.47,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -482,9 +592,14 @@
    "d_bad": 1.587,
    "threshold": 1.715,
    "margin": 0.128,
-   "noise": 0.00474,
-   "margin_over_noise": 27.0,
-   "enforced": true
+   "noise": 0.00342,
+   "margin_over_noise": 37.43,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G1b",
@@ -497,9 +612,14 @@
    "d_bad": 4.145,
    "threshold": 2.994,
    "margin": 1.151,
-   "noise": 0.00775,
-   "margin_over_noise": 148.52,
-   "enforced": true
+   "noise": 0.00708,
+   "margin_over_noise": 162.57,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -512,9 +632,14 @@
    "d_bad": 5.329,
    "threshold": 4.555,
    "margin": 0.774,
-   "noise": 0.05029,
-   "margin_over_noise": 15.39,
-   "enforced": true
+   "noise": 0.0486,
+   "margin_over_noise": 15.93,
+   "margin_over_phys": 15.48,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -527,9 +652,14 @@
    "d_bad": 12.242,
    "threshold": 8.011,
    "margin": 4.23,
-   "noise": 0.04393,
-   "margin_over_noise": 96.3,
-   "enforced": true
+   "noise": 0.03617,
+   "margin_over_noise": 116.95,
+   "margin_over_phys": 84.6,
+   "phys_floor": 0.05,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -542,9 +672,14 @@
    "d_bad": 4.029,
    "threshold": 2.42,
    "margin": 1.609,
-   "noise": 0.0069,
-   "margin_over_noise": 233.19,
-   "enforced": true
+   "noise": 0.00906,
+   "margin_over_noise": 177.59,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -557,9 +692,14 @@
    "d_bad": 1.416,
    "threshold": 1.113,
    "margin": 0.302,
-   "noise": 0.01617,
-   "margin_over_noise": 18.71,
-   "enforced": true
+   "noise": 0.01462,
+   "margin_over_noise": 20.66,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1a",
@@ -572,9 +712,14 @@
    "d_bad": 2.452,
    "threshold": 1.715,
    "margin": 0.737,
-   "noise": 0.01243,
-   "margin_over_noise": 59.29,
-   "enforced": true
+   "noise": 0.01345,
+   "margin_over_noise": 54.8,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G1b",
@@ -587,9 +732,14 @@
    "d_bad": 2.891,
    "threshold": 1.934,
    "margin": 0.957,
-   "noise": 0.02022,
-   "margin_over_noise": 47.3,
-   "enforced": true
+   "noise": 0.02416,
+   "margin_over_noise": 39.61,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   }
  ],
  "g1_body2_evaluation": [
@@ -600,8 +750,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 1.644,
    "threshold": 4.555,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -610,8 +759,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 7.466,
    "threshold": 3.916,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -620,8 +768,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 3.012,
    "threshold": 2.42,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -630,8 +777,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 1.828,
    "threshold": 1.419,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -640,8 +786,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 1.383,
    "threshold": 1.715,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1b",
@@ -650,8 +795,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 4.813,
    "threshold": 3.374,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -660,8 +804,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 1.371,
    "threshold": 4.555,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1b",
@@ -670,8 +813,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 10.481,
    "threshold": 7.588,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -680,8 +822,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 0.26,
    "threshold": 2.42,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -690,8 +831,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 5.1,
    "threshold": 3.715,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -700,8 +840,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 0.542,
    "threshold": 1.715,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -710,8 +849,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 3.972,
    "threshold": 2.236,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -720,8 +858,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 6.448,
    "threshold": 4.784,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1b",
@@ -730,8 +867,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 15.558,
    "threshold": 12.448,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -740,8 +876,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 4.299,
    "threshold": 2.42,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -750,8 +885,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 0.541,
    "threshold": 0.68,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1a",
@@ -760,8 +894,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 2.594,
    "threshold": 1.715,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -770,8 +903,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 0.836,
    "threshold": 0.943,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1a",
@@ -780,8 +912,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 1.35,
    "threshold": 4.555,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -790,8 +921,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 7.76,
    "threshold": 4.582,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -800,8 +930,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 3.102,
    "threshold": 2.42,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -810,8 +939,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 1.738,
    "threshold": 1.35,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -820,8 +948,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 0.715,
    "threshold": 1.715,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G1b",
@@ -830,8 +957,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 4.145,
    "threshold": 2.994,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -840,8 +966,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 3.132,
    "threshold": 4.555,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -850,8 +975,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 12.242,
    "threshold": 8.011,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -860,8 +984,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 3.424,
    "threshold": 2.42,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -870,8 +993,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 1.416,
    "threshold": 1.113,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1a",
@@ -880,8 +1002,7 @@
    "body2_pair": "body2-albedo-vs-warm_medium",
    "d_eval": 0.539,
    "threshold": 1.715,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G1b",
@@ -890,8 +1011,7 @@
    "body2_pair": "body2-albedo-vs-warm_light (rejection)",
    "d_eval": 2.891,
    "threshold": 1.934,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   }
  ],
  "g2_thresholds": [
@@ -908,7 +1028,12 @@
    "margin": 0.09499,
    "noise": 0.00174,
    "margin_over_noise": 54.59,
-   "enforced": true
+   "margin_over_phys": 9.5,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -922,8 +1047,13 @@
    "threshold": 0.0916,
    "margin": 0.03755,
    "noise": 0.00109,
-   "margin_over_noise": 34.44,
-   "enforced": true
+   "margin_over_noise": 34.45,
+   "margin_over_phys": 3.75,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -937,8 +1067,13 @@
    "threshold": 0.0732,
    "margin": 0.05619,
    "noise": 0.00076,
-   "margin_over_noise": 73.94,
-   "enforced": true
+   "margin_over_noise": 73.93,
+   "margin_over_phys": 11.24,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -953,7 +1088,12 @@
    "margin": 0.02231,
    "noise": 0.00042,
    "margin_over_noise": 53.12,
-   "enforced": true
+   "margin_over_phys": 4.46,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -968,7 +1108,12 @@
    "margin": 2.9855,
    "noise": 0.02377,
    "margin_over_noise": 125.6,
-   "enforced": true
+   "margin_over_phys": 1.99,
+   "phys_floor": 1.5,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -983,7 +1128,12 @@
    "margin": 0.468,
    "noise": 0.03588,
    "margin_over_noise": 13.04,
-   "enforced": true
+   "margin_over_phys": 0.31,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2a",
@@ -998,7 +1148,12 @@
    "margin": 0.03302,
    "noise": 0.00059,
    "margin_over_noise": 55.97,
-   "enforced": true
+   "margin_over_phys": 6.6,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1013,7 +1168,12 @@
    "margin": 0.03863,
    "noise": 0.00037,
    "margin_over_noise": 104.41,
-   "enforced": true
+   "margin_over_phys": 7.73,
+   "phys_floor": 0.005,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2a",
@@ -1028,7 +1188,12 @@
    "margin": 0.08082,
    "noise": 0.00261,
    "margin_over_noise": 30.97,
-   "enforced": true
+   "margin_over_phys": 8.08,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1042,8 +1207,13 @@
    "threshold": 0.10293,
    "margin": 0.03996,
    "noise": 0.00277,
-   "margin_over_noise": 14.42,
-   "enforced": true
+   "margin_over_noise": 14.43,
+   "margin_over_phys": 4.0,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1058,7 +1228,12 @@
    "margin": 0.027,
    "noise": 0.00084,
    "margin_over_noise": 32.14,
-   "enforced": true
+   "margin_over_phys": 5.4,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1073,7 +1248,12 @@
    "margin": 0.01786,
    "noise": 0.00103,
    "margin_over_noise": 17.34,
-   "enforced": true
+   "margin_over_phys": 3.57,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1088,7 +1268,12 @@
    "margin": 1.779,
    "noise": 0.03141,
    "margin_over_noise": 56.64,
-   "enforced": true
+   "margin_over_phys": 1.19,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2b",
@@ -1103,7 +1288,12 @@
    "margin": 0.5805,
    "noise": 0.0666,
    "margin_over_noise": 8.72,
-   "enforced": true
+   "margin_over_phys": 0.39,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2a",
@@ -1117,8 +1307,13 @@
    "threshold": 0.11517,
    "margin": 0.07653,
    "noise": 0.00037,
-   "margin_over_noise": 206.85,
-   "enforced": true
+   "margin_over_noise": 206.84,
+   "margin_over_phys": 15.31,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1133,7 +1328,12 @@
    "margin": 0.01535,
    "noise": 0.00044,
    "margin_over_noise": 34.89,
-   "enforced": true
+   "margin_over_phys": 3.07,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1148,7 +1348,12 @@
    "margin": 0.03005,
    "noise": 0.0028,
    "margin_over_noise": 10.73,
-   "enforced": true
+   "margin_over_phys": 3.0,
+   "phys_floor": 0.01,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2b",
@@ -1163,7 +1368,12 @@
    "margin": 0.00575,
    "noise": 0.00391,
    "margin_over_noise": 1.47,
-   "enforced": true
+   "margin_over_phys": 0.57,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1177,8 +1387,13 @@
    "threshold": 0.01597,
    "margin": 0.0134,
    "noise": 0.00092,
-   "margin_over_noise": 14.56,
-   "enforced": true
+   "margin_over_noise": 14.57,
+   "margin_over_phys": 2.68,
+   "phys_floor": 0.005,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2b",
@@ -1193,7 +1408,12 @@
    "margin": 0.00116,
    "noise": 0.00147,
    "margin_over_noise": 0.79,
-   "enforced": false
+   "margin_over_phys": 0.23,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "margin/noise < 1"
   },
   {
    "gate": "G2a",
@@ -1208,7 +1428,12 @@
    "margin": 0.2265,
    "noise": 0.04024,
    "margin_over_noise": 5.63,
-   "enforced": true
+   "margin_over_phys": 0.15,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2b",
@@ -1223,7 +1448,12 @@
    "margin": 0.418,
    "noise": 0.05546,
    "margin_over_noise": 7.54,
-   "enforced": true
+   "margin_over_phys": 0.28,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2a",
@@ -1237,8 +1467,13 @@
    "threshold": 0.1267,
    "margin": 0.0619,
    "noise": 0.00026,
-   "margin_over_noise": 238.06,
-   "enforced": true
+   "margin_over_noise": 238.08,
+   "margin_over_phys": 12.38,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1253,7 +1488,12 @@
    "margin": 0.01018,
    "noise": 0.00063,
    "margin_over_noise": 16.16,
-   "enforced": true
+   "margin_over_phys": 2.04,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1268,7 +1508,12 @@
    "margin": 0.13573,
    "noise": 0.00413,
    "margin_over_noise": 32.86,
-   "enforced": true
+   "margin_over_phys": 13.57,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1283,7 +1528,12 @@
    "margin": 0.09627,
    "noise": 0.00414,
    "margin_over_noise": 23.25,
-   "enforced": true
+   "margin_over_phys": 9.63,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1298,7 +1548,12 @@
    "margin": 0.03371,
    "noise": 0.00119,
    "margin_over_noise": 28.33,
-   "enforced": true
+   "margin_over_phys": 6.74,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1313,7 +1568,12 @@
    "margin": 0.02322,
    "noise": 0.00129,
    "margin_over_noise": 18.0,
-   "enforced": true
+   "margin_over_phys": 4.64,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1328,7 +1588,12 @@
    "margin": 3.749,
    "noise": 0.04016,
    "margin_over_noise": 93.35,
-   "enforced": true
+   "margin_over_phys": 2.5,
+   "phys_floor": 1.5,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1343,7 +1608,12 @@
    "margin": 0.1325,
    "noise": 0.04602,
    "margin_over_noise": 2.88,
-   "enforced": true
+   "margin_over_phys": 0.09,
+   "phys_floor": 1.5,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1358,7 +1628,12 @@
    "margin": 0.0256,
    "noise": 0.00045,
    "margin_over_noise": 56.89,
-   "enforced": true
+   "margin_over_phys": 5.12,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1373,7 +1648,12 @@
    "margin": 0.04407,
    "noise": 0.0003,
    "margin_over_noise": 146.9,
-   "enforced": true
+   "margin_over_phys": 8.81,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1388,7 +1668,12 @@
    "margin": 0.05024,
    "noise": 0.00433,
    "margin_over_noise": 11.6,
-   "enforced": true
+   "margin_over_phys": 5.02,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1403,7 +1688,12 @@
    "margin": 0.07589,
    "noise": 0.00358,
    "margin_over_noise": 21.2,
-   "enforced": true
+   "margin_over_phys": 7.59,
+   "phys_floor": 0.01,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1418,7 +1708,12 @@
    "margin": 0.00743,
    "noise": 0.00151,
    "margin_over_noise": 4.92,
-   "enforced": true
+   "margin_over_phys": 1.49,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1432,8 +1727,13 @@
    "threshold": 0.02191,
    "margin": 0.02146,
    "noise": 0.00137,
-   "margin_over_noise": 15.67,
-   "enforced": true
+   "margin_over_noise": 15.66,
+   "margin_over_phys": 4.29,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2a",
@@ -1448,7 +1748,12 @@
    "margin": 2.373,
    "noise": 0.09559,
    "margin_over_noise": 24.82,
-   "enforced": true
+   "margin_over_phys": 1.58,
+   "phys_floor": 1.5,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1463,7 +1768,12 @@
    "margin": 2.0115,
    "noise": 0.08062,
    "margin_over_noise": 24.95,
-   "enforced": true
+   "margin_over_phys": 1.34,
+   "phys_floor": 1.5,
+   "separates": false,
+   "row_enforceable": false,
+   "enforced": false,
+   "unenforced_reason": "does not separate known-good from known-bad (d_bad <= d_good)"
   },
   {
    "gate": "G2a",
@@ -1478,7 +1788,12 @@
    "margin": 0.00553,
    "noise": 0.0005,
    "margin_over_noise": 11.06,
-   "enforced": true
+   "margin_over_phys": 1.11,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   },
   {
    "gate": "G2b",
@@ -1493,7 +1808,12 @@
    "margin": 0.04643,
    "noise": 0.00079,
    "margin_over_noise": 58.77,
-   "enforced": true
+   "margin_over_phys": 9.29,
+   "phys_floor": 0.005,
+   "separates": true,
+   "row_enforceable": true,
+   "enforced": true,
+   "unenforced_reason": null
   }
  ],
  "g2_body2_evaluation": [
@@ -1504,8 +1824,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.16894,
    "threshold": 0.14904,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1514,8 +1833,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.12914,
    "threshold": 0.0916,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1524,8 +1842,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.08478,
    "threshold": 0.0732,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1534,8 +1851,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.06163,
    "threshold": 0.03932,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1544,8 +1860,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 14.204,
    "threshold": 12.1545,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1554,8 +1869,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 8.233,
    "threshold": 8.701,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1564,8 +1878,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.05325,
    "threshold": 0.12308,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1574,8 +1887,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.0128,
    "threshold": 0.05143,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1584,8 +1896,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.30453,
    "threshold": 0.1438,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1594,8 +1905,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.14288,
    "threshold": 0.10293,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1604,8 +1914,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.11331,
    "threshold": 0.05058,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1614,8 +1923,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.05931,
    "threshold": 0.04145,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1624,8 +1932,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 8.937,
    "threshold": 11.877,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2b",
@@ -1634,8 +1941,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 12.495,
    "threshold": 13.0755,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1644,8 +1950,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.08373,
    "threshold": 0.11517,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1654,8 +1959,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.06934,
    "threshold": 0.05399,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1664,8 +1968,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.00954,
    "threshold": 0.0511,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2b",
@@ -1674,8 +1977,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.09265,
    "threshold": 0.0869,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1684,8 +1986,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.0049,
    "threshold": 0.01597,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2b",
@@ -1694,8 +1995,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.03169,
    "threshold": 0.03053,
-   "body2_pass": true,
-   "enforced": false
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1704,8 +2004,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 7.953,
    "threshold": 9.0155,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2b",
@@ -1714,8 +2013,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 8.406,
    "threshold": 8.824,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1724,8 +2022,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.03863,
    "threshold": 0.1267,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1734,8 +2031,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.08516,
    "threshold": 0.07498,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1744,8 +2040,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.08437,
    "threshold": 0.14119,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1754,8 +2049,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.19801,
    "threshold": 0.10173,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1764,8 +2058,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.01979,
    "threshold": 0.03492,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1774,8 +2067,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.04764,
    "threshold": 0.02442,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1784,8 +2076,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 5.491,
    "threshold": 5.491,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1794,8 +2085,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 2.007,
    "threshold": 1.8745,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1804,8 +2094,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.02938,
    "threshold": 0.03316,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1814,8 +2103,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.0957,
    "threshold": 0.05163,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1824,8 +2112,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.05277,
    "threshold": 0.0517,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1834,8 +2121,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.15324,
    "threshold": 0.07735,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1844,8 +2130,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.02764,
    "threshold": 0.00787,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1854,8 +2139,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.04337,
    "threshold": 0.02191,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2a",
@@ -1864,8 +2148,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 7.383,
    "threshold": 9.033,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1874,8 +2157,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 2.637,
    "threshold": 4.6485,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": false
   },
   {
    "gate": "G2a",
@@ -1884,8 +2166,7 @@
    "body2_pair": "body2-render-vs-body2-photo",
    "d_eval": 0.09096,
    "threshold": 0.0147,
-   "body2_pass": false,
-   "enforced": true
+   "row_enforceable": true
   },
   {
    "gate": "G2b",
@@ -1894,8 +2175,7 @@
    "body2_pair": "body2-render-vs-aisha-photo (rejection)",
    "d_eval": 0.10202,
    "threshold": 0.05559,
-   "body2_pass": true,
-   "enforced": true
+   "row_enforceable": true
   }
  ],
  "g1_albedo_means": {
@@ -2398,987 +2678,1547 @@
  },
  "g3": [
   {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 4.555,
-   "margin_over_noise": 196.99,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 1.644,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 3.916,
-   "margin_over_noise": 186.62,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 7.466,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 2.42,
-   "margin_over_noise": 353.13,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 3.012,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 1.419,
-   "margin_over_noise": 49.04,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 1.828,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 1.715,
-   "margin_over_noise": 89.11,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 1.383,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "forehead",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 3.374,
-   "margin_over_noise": 142.0,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 4.813,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 4.555,
-   "margin_over_noise": 3.88,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 1.371,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 7.588,
-   "margin_over_noise": 104.67,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 10.481,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 2.42,
-   "margin_over_noise": 13.91,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 0.26,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 3.715,
-   "margin_over_noise": 184.18,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 5.1,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 1.715,
-   "margin_over_noise": 205.76,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 0.542,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_lo",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 2.236,
-   "margin_over_noise": 147.7,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 3.972,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/L",
    "kind": "(a)",
    "region": "cheek_u_hi",
    "channel_or_quantity": "L",
    "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 9.339,
+   "d_bads": [
+    0.229,
+    15.558
+   ],
+   "row_thresholds": [
+    4.784,
+    12.448
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
    "threshold": 4.784,
-   "margin_over_noise": 111.23,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 6.448,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_hi",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 12.448,
-   "margin_over_noise": 92.99,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 15.558,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "cheek_u_hi",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 2.42,
-   "margin_over_noise": 127.47,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 4.299,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_hi",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 0.68,
-   "margin_over_noise": 12.23,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 0.541,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "cheek_u_hi",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 1.715,
-   "margin_over_noise": 57.79,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 2.594,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "cheek_u_hi",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 0.943,
-   "margin_over_noise": 15.45,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 0.836,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 4.555,
-   "margin_over_noise": 198.61,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 1.35,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 4.582,
-   "margin_over_noise": 165.93,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 7.76,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 2.42,
-   "margin_over_noise": 343.87,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 3.102,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 1.35,
-   "margin_over_noise": 42.4,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 1.738,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 1.715,
-   "margin_over_noise": 27.0,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 0.715,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "chin",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 2.994,
-   "margin_over_noise": 148.52,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 4.145,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 4.555,
-   "margin_over_noise": 15.39,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 3.132,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "L",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 8.011,
-   "margin_over_noise": 96.3,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 12.242,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 2.42,
-   "margin_over_noise": 233.19,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 3.424,
-   "body2_pass": false
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "a",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 1.113,
-   "margin_over_noise": 18.71,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 1.416,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1a",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "aisha-vs-warm_medium",
-   "threshold": 1.715,
-   "margin_over_noise": 59.29,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_medium",
-   "d_eval": 0.539,
-   "body2_pass": true
-  },
-  {
-   "gate": "G1b",
-   "kind": "(a)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "b",
-   "known_good": "aisha-albedo-vs-warm_light",
-   "known_bad": "body2-vs-warm_light",
-   "threshold": 1.934,
-   "margin_over_noise": 47.3,
-   "enforced": true,
-   "body2_pair": "body2-albedo-vs-warm_light (rejection)",
-   "d_eval": 2.891,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.14904,
-   "margin_over_noise": 54.59,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.16894,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.0916,
-   "margin_over_noise": 34.44,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.12914,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.0732,
-   "margin_over_noise": 73.94,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.08478,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.03932,
-   "margin_over_noise": 53.12,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.06163,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 12.1545,
-   "margin_over_noise": 125.6,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 14.204,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 8.701,
-   "margin_over_noise": 13.04,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 8.233,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.12308,
-   "margin_over_noise": 55.97,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.05325,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "forehead",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.05143,
-   "margin_over_noise": 104.41,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.0128,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.1438,
-   "margin_over_noise": 30.97,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.30453,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.10293,
-   "margin_over_noise": 14.42,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.14288,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.05058,
-   "margin_over_noise": 32.14,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.11331,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.04145,
-   "margin_over_noise": 17.34,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.05931,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 11.877,
-   "margin_over_noise": 56.64,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 8.937,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 13.0755,
-   "margin_over_noise": 8.72,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 12.495,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.11517,
-   "margin_over_noise": 206.85,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.08373,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "L_cheek",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.05399,
-   "margin_over_noise": 34.89,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.06934,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.0511,
-   "margin_over_noise": 10.73,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.00954,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.0869,
-   "margin_over_noise": 1.47,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.09265,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.01597,
-   "margin_over_noise": 14.56,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.0049,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.03053,
-   "margin_over_noise": 0.79,
+   "margin": -4.555,
+   "noise": 0.0319,
+   "margin_over_noise": -142.79,
+   "margin_over_phys": -91.1,
+   "phys_floor": 0.05,
    "enforced": false,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.03169,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 9.0155,
-   "margin_over_noise": 5.63,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 7.953,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 8.824,
-   "margin_over_noise": 7.54,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 8.406,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 6.448,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 15.558,
+    "pass": true
+   },
    "body2_pass": false
   },
   {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "R_cheek",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.1267,
-   "margin_over_noise": 238.06,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.03863,
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/a",
+   "kind": "(a)",
+   "region": "cheek_u_hi",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.819,
+   "d_bads": [
+    4.021,
+    0.541
+   ],
+   "row_thresholds": [
+    2.42,
+    0.68
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.68,
+   "margin": -0.139,
+   "noise": 0.00866,
+   "margin_over_noise": -16.05,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 4.299,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 0.541,
+    "pass": false
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_hi/b",
+   "kind": "(a)",
+   "region": "cheek_u_hi",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.051,
+   "d_bads": [
+    2.379,
+    0.836
+   ],
+   "row_thresholds": [
+    1.715,
+    0.943
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.943,
+   "margin": -0.108,
+   "noise": 0.01153,
+   "margin_over_noise": -9.37,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 2.594,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 0.836,
+    "pass": false
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/L",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 4.695,
+   "d_bads": [
+    4.415,
+    10.481
+   ],
+   "row_thresholds": [
+    4.555,
+    7.588
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": -0.14,
+   "noise": 0.03135,
+   "margin_over_noise": -4.47,
+   "margin_over_phys": -2.8,
+   "phys_floor": 0.05,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.371,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 10.481,
+    "pass": true
+   },
    "body2_pass": true
   },
   {
-   "gate": "G2b",
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/a",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 2.33,
+   "d_bads": [
+    2.51,
+    5.1
+   ],
+   "row_thresholds": [
+    2.42,
+    3.715
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 2.42,
+   "margin": 0.09,
+   "noise": 0.00783,
+   "margin_over_noise": 11.49,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.26,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 5.1,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/cheek_u_lo/b",
+   "kind": "(a)",
+   "region": "cheek_u_lo",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.501,
+   "d_bads": [
+    2.929,
+    3.972
+   ],
+   "row_thresholds": [
+    1.715,
+    2.236
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": 1.214,
+   "noise": 0.0117,
+   "margin_over_noise": 103.76,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.542,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 3.972,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/L",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.405,
+   "d_bads": [
+    7.705,
+    7.76
+   ],
+   "row_thresholds": [
+    4.555,
+    4.582
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": 3.15,
+   "noise": 0.01716,
+   "margin_over_noise": 183.57,
+   "margin_over_phys": 63.0,
+   "phys_floor": 0.05,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.35,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 7.76,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/a",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.962,
+   "d_bads": [
+    3.878,
+    1.738
+   ],
+   "row_thresholds": [
+    2.42,
+    1.35
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.35,
+   "margin": 0.388,
+   "noise": 0.00983,
+   "margin_over_noise": 39.47,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.102,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.738,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/chin/b",
+   "kind": "(a)",
+   "region": "chin",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.843,
+   "d_bads": [
+    1.587,
+    4.145
+   ],
+   "row_thresholds": [
+    1.715,
+    2.994
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": -0.128,
+   "noise": 0.00708,
+   "margin_over_noise": -18.08,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.715,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 4.145,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/L",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.367,
+   "d_bads": [
+    8.743,
+    7.466
+   ],
+   "row_thresholds": [
+    4.555,
+    3.916
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 3.916,
+   "margin": 3.549,
+   "noise": 0.02209,
+   "margin_over_noise": 160.66,
+   "margin_over_phys": 70.98,
+   "phys_floor": 0.05,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.644,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 7.466,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/a",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.011,
+   "d_bads": [
+    3.829,
+    1.828
+   ],
+   "row_thresholds": [
+    2.42,
+    1.419
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.419,
+   "margin": 0.408,
+   "noise": 0.00935,
+   "margin_over_noise": 43.64,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.012,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.828,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/forehead/b",
+   "kind": "(a)",
+   "region": "forehead",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 1.936,
+   "d_bads": [
+    1.494,
+    4.813
+   ],
+   "row_thresholds": [
+    1.715,
+    3.374
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": -0.221,
+   "noise": 0.01032,
+   "margin_over_noise": -21.41,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 1.383,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 4.813,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/L",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "L",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 3.781,
+   "d_bads": [
+    5.329,
+    12.242
+   ],
+   "row_thresholds": [
+    4.555,
+    8.011
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 4.555,
+   "margin": 0.774,
+   "noise": 0.0486,
+   "margin_over_noise": 15.93,
+   "margin_over_phys": 15.48,
+   "phys_floor": 0.05,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.132,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 12.242,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/a",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "a",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.811,
+   "d_bads": [
+    4.029,
+    1.416
+   ],
+   "row_thresholds": [
+    2.42,
+    1.113
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.113,
+   "margin": 0.302,
+   "noise": 0.01462,
+   "margin_over_noise": 20.66,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 3.424,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 1.416,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G1",
+   "gate_id": "G1/upperlip_skin/b",
+   "kind": "(a)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "b",
+   "known_good": "aisha-albedo-vs-warm_light",
+   "known_bads": [
+    "aisha-vs-warm_medium",
+    "body2-vs-warm_light"
+   ],
+   "d_good": 0.978,
+   "d_bads": [
+    2.452,
+    2.891
+   ],
+   "row_thresholds": [
+    1.715,
+    1.934
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.715,
+   "margin": 0.737,
+   "noise": 0.02416,
+   "margin_over_noise": 30.5,
+   "margin_over_phys": null,
+   "phys_floor": null,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-albedo-vs-warm_medium",
+    "d_eval": 0.539,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-albedo-vs-warm_light (rejection)",
+    "d_eval": 2.891,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/CdivL",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.03864,
+   "d_bads": [
+    0.19171,
+    0.06934
+   ],
+   "row_thresholds": [
+    0.11517,
+    0.05399
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.05399,
+   "margin": 0.01535,
+   "noise": 0.00044,
+   "margin_over_noise": 34.89,
+   "margin_over_phys": 3.07,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08373,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.06934,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/Lratio_face",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "Lratio_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.02358,
+   "d_bads": [
+    0.07758,
+    0.05931
+   ],
+   "row_thresholds": [
+    0.05058,
+    0.04145
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.04145,
+   "margin": 0.01786,
+   "noise": 0.00103,
+   "margin_over_noise": 17.34,
+   "margin_over_phys": 3.57,
+   "phys_floor": 0.005,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.11331,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.05931,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/hue",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 13.656,
+   "d_bads": [
+    10.098,
+    12.495
+   ],
+   "row_thresholds": [
+    11.877,
+    13.0755
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 11.877,
+   "margin": -1.779,
+   "noise": 0.0666,
+   "margin_over_noise": -26.71,
+   "margin_over_phys": -1.19,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 8.937,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 12.495,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/L_cheek/logY_face",
+   "kind": "(b)",
+   "region": "L_cheek",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.06297,
+   "d_bads": [
+    0.22462,
+    0.14288
+   ],
+   "row_thresholds": [
+    0.1438,
+    0.10293
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.10293,
+   "margin": 0.03995,
+   "noise": 0.00277,
+   "margin_over_noise": 14.42,
+   "margin_over_phys": 4.0,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.30453,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.14288,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/CdivL",
    "kind": "(b)",
    "region": "R_cheek",
    "channel_or_quantity": "CdivL",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.0648,
+   "d_bads": [
+    0.18859,
+    0.08516
+   ],
+   "row_thresholds": [
+    0.1267,
+    0.07498
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
    "threshold": 0.07498,
+   "margin": 0.01018,
+   "noise": 0.00063,
    "margin_over_noise": 16.16,
+   "margin_over_phys": 2.04,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.08516,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.03863,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.08516,
+    "pass": true
+   },
    "body2_pass": true
   },
   {
-   "gate": "G2a",
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/Lratio_face",
    "kind": "(b)",
-   "region": "chin",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.14119,
-   "margin_over_noise": 32.86,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.08437,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "chin",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.10173,
-   "margin_over_noise": 23.25,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.19801,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "chin",
+   "region": "R_cheek",
    "channel_or_quantity": "Lratio_face",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.03492,
-   "margin_over_noise": 28.33,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.01979,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.02937,
+   "d_bads": [
+    0.00258,
+    0.03169
+   ],
+   "row_thresholds": [
+    0.01597,
+    0.03053
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 0.01597,
+   "margin": -0.0134,
+   "noise": 0.00147,
+   "margin_over_noise": -9.12,
+   "margin_over_phys": -2.68,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.0049,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.03169,
+    "pass": true
+   },
    "body2_pass": true
   },
   {
-   "gate": "G2b",
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/hue",
    "kind": "(b)",
-   "region": "chin",
-   "channel_or_quantity": "Lratio_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.02442,
-   "margin_over_noise": 18.0,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.04764,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "chin",
+   "region": "R_cheek",
    "channel_or_quantity": "hue",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 5.491,
-   "margin_over_noise": 93.35,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 5.491,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 9.242,
+   "d_bads": [
+    8.789,
+    8.406
+   ],
+   "row_thresholds": [
+    9.0155,
+    8.824
+   ],
+   "row_enforceable": [
+    false,
+    false
+   ],
+   "threshold": 8.824,
+   "margin": -0.418,
+   "noise": 0.05546,
+   "margin_over_noise": -7.54,
+   "margin_over_phys": -0.28,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 7.953,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 8.406,
+    "pass": false
+   },
    "body2_pass": false
   },
   {
-   "gate": "G2b",
+   "gate": "G2",
+   "gate_id": "G2/R_cheek/logY_face",
    "kind": "(b)",
-   "region": "chin",
-   "channel_or_quantity": "hue",
+   "region": "R_cheek",
+   "channel_or_quantity": "logY_face",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 1.8745,
-   "margin_over_noise": 2.88,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 2.007,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.08114,
+   "d_bads": [
+    0.02105,
+    0.09265
+   ],
+   "row_thresholds": [
+    0.0511,
+    0.0869
+   ],
+   "row_enforceable": [
+    false,
+    true
+   ],
+   "threshold": 0.0511,
+   "margin": -0.03005,
+   "noise": 0.00391,
+   "margin_over_noise": -7.69,
+   "margin_over_phys": -3.0,
+   "phys_floor": 0.01,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.00954,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.09265,
+    "pass": true
+   },
    "body2_pass": true
   },
   {
-   "gate": "G2a",
+   "gate": "G2",
+   "gate_id": "G2/chin/CdivL",
    "kind": "(b)",
    "region": "chin",
    "channel_or_quantity": "CdivL",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00756,
+   "d_bads": [
+    0.05876,
+    0.0957
+   ],
+   "row_thresholds": [
+    0.03316,
+    0.05163
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
    "threshold": 0.03316,
+   "margin": 0.0256,
+   "noise": 0.00045,
    "margin_over_noise": 56.89,
+   "margin_over_phys": 5.12,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.02938,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.02938,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.0957,
+    "pass": true
+   },
    "body2_pass": true
   },
   {
-   "gate": "G2b",
+   "gate": "G2",
+   "gate_id": "G2/chin/Lratio_face",
    "kind": "(b)",
    "region": "chin",
-   "channel_or_quantity": "CdivL",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.05163,
-   "margin_over_noise": 146.9,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.0957,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.0517,
-   "margin_over_noise": 11.6,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.05277,
-   "body2_pass": false
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "logY_face",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.07735,
-   "margin_over_noise": 21.2,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.15324,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "upperlip_skin",
    "channel_or_quantity": "Lratio_face",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 0.00787,
-   "margin_over_noise": 4.92,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.0012,
+   "d_bads": [
+    0.06863,
+    0.04764
+   ],
+   "row_thresholds": [
+    0.03492,
+    0.02442
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.02442,
+   "margin": 0.02322,
+   "noise": 0.00129,
+   "margin_over_noise": 18.0,
+   "margin_over_phys": 4.64,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.02764,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.01979,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.04764,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/chin/hue",
+   "kind": "(b)",
+   "region": "chin",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 1.742,
+   "d_bads": [
+    9.24,
+    2.007
+   ],
+   "row_thresholds": [
+    5.491,
+    1.8745
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 1.8745,
+   "margin": 0.1325,
+   "noise": 0.04602,
+   "margin_over_noise": 2.88,
+   "margin_over_phys": 0.09,
+   "phys_floor": 1.5,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 5.491,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 2.007,
+    "pass": true
+   },
    "body2_pass": false
   },
   {
-   "gate": "G2b",
+   "gate": "G2",
+   "gate_id": "G2/chin/logY_face",
    "kind": "(b)",
-   "region": "upperlip_skin",
+   "region": "chin",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00546,
+   "d_bads": [
+    0.27692,
+    0.19801
+   ],
+   "row_thresholds": [
+    0.14119,
+    0.10173
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.10173,
+   "margin": 0.09627,
+   "noise": 0.00414,
+   "margin_over_noise": 23.25,
+   "margin_over_phys": 9.63,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08437,
+    "pass": true
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.19801,
+    "pass": true
+   },
+   "body2_pass": true
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/CdivL",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "CdivL",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.09006,
+   "d_bads": [
+    0.15611,
+    0.0128
+   ],
+   "row_thresholds": [
+    0.12308,
+    0.05143
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 0.05143,
+   "margin": -0.03863,
+   "noise": 0.00059,
+   "margin_over_noise": -65.47,
+   "margin_over_phys": -7.73,
+   "phys_floor": 0.005,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.05325,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.0128,
+    "pass": false
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/Lratio_face",
+   "kind": "(b)",
+   "region": "forehead",
    "channel_or_quantity": "Lratio_face",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.02191,
-   "margin_over_noise": 15.67,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.01701,
+   "d_bads": [
+    0.1294,
+    0.06163
+   ],
+   "row_thresholds": [
+    0.0732,
+    0.03932
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.03932,
+   "margin": 0.02231,
+   "noise": 0.00076,
+   "margin_over_noise": 29.36,
+   "margin_over_phys": 4.46,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.04337,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2a",
-   "kind": "(b)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
-   "threshold": 9.033,
-   "margin_over_noise": 24.82,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 7.383,
-   "body2_pass": true
-  },
-  {
-   "gate": "G2b",
-   "kind": "(b)",
-   "region": "upperlip_skin",
-   "channel_or_quantity": "hue",
-   "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 4.6485,
-   "margin_over_noise": 24.95,
-   "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 2.637,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.08478,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.06163,
+    "pass": true
+   },
    "body2_pass": false
   },
   {
-   "gate": "G2a",
+   "gate": "G2",
+   "gate_id": "G2/forehead/hue",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 9.169,
+   "d_bads": [
+    15.14,
+    8.233
+   ],
+   "row_thresholds": [
+    12.1545,
+    8.701
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 8.701,
+   "margin": -0.468,
+   "noise": 0.03588,
+   "margin_over_noise": -13.04,
+   "margin_over_phys": -0.31,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 14.204,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 8.233,
+    "pass": false
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/forehead/logY_face",
+   "kind": "(b)",
+   "region": "forehead",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.05405,
+   "d_bads": [
+    0.24403,
+    0.12914
+   ],
+   "row_thresholds": [
+    0.14904,
+    0.0916
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.0916,
+   "margin": 0.03754,
+   "noise": 0.00174,
+   "margin_over_noise": 21.57,
+   "margin_over_phys": 3.75,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.16894,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.12914,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/CdivL",
    "kind": "(b)",
    "region": "upperlip_skin",
    "channel_or_quantity": "CdivL",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "aisha-render-vs-body2-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00917,
+   "d_bads": [
+    0.02023,
+    0.10202
+   ],
+   "row_thresholds": [
+    0.0147,
+    0.05559
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
    "threshold": 0.0147,
-   "margin_over_noise": 11.06,
+   "margin": 0.00553,
+   "noise": 0.00079,
+   "margin_over_noise": 7.0,
+   "margin_over_phys": 1.11,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-body2-photo",
-   "d_eval": 0.09096,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.09096,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.10202,
+    "pass": true
+   },
    "body2_pass": false
   },
   {
-   "gate": "G2b",
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/Lratio_face",
    "kind": "(b)",
    "region": "upperlip_skin",
-   "channel_or_quantity": "CdivL",
+   "channel_or_quantity": "Lratio_face",
    "known_good": "aisha-render-vs-aisha-photo",
-   "known_bad": "body2-render-vs-aisha-photo",
-   "threshold": 0.05559,
-   "margin_over_noise": 58.77,
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00044,
+   "d_bads": [
+    0.01529,
+    0.04337
+   ],
+   "row_thresholds": [
+    0.00787,
+    0.02191
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.00787,
+   "margin": 0.00742,
+   "noise": 0.00151,
+   "margin_over_noise": 4.91,
+   "margin_over_phys": 1.48,
+   "phys_floor": 0.005,
    "enforced": true,
-   "body2_pair": "body2-render-vs-aisha-photo (rejection)",
-   "d_eval": 0.10202,
-   "body2_pass": true
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.02764,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.04337,
+    "pass": true
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/hue",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "hue",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 6.66,
+   "d_bads": [
+    11.406,
+    2.637
+   ],
+   "row_thresholds": [
+    9.033,
+    4.6485
+   ],
+   "row_enforceable": [
+    true,
+    false
+   ],
+   "threshold": 4.6485,
+   "margin": -2.0115,
+   "noise": 0.09559,
+   "margin_over_noise": -21.04,
+   "margin_over_phys": -1.34,
+   "phys_floor": 1.5,
+   "enforced": false,
+   "unenforced_reason": "whole gate report-only: not all known-bad rows enforceable",
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 7.383,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 2.637,
+    "pass": false
+   },
+   "body2_pass": false
+  },
+  {
+   "gate": "G2",
+   "gate_id": "G2/upperlip_skin/logY_face",
+   "kind": "(b)",
+   "region": "upperlip_skin",
+   "channel_or_quantity": "logY_face",
+   "known_good": "aisha-render-vs-aisha-photo",
+   "known_bads": [
+    "aisha-render-vs-body2-photo",
+    "body2-render-vs-aisha-photo"
+   ],
+   "d_good": 0.00146,
+   "d_bads": [
+    0.10193,
+    0.15324
+   ],
+   "row_thresholds": [
+    0.0517,
+    0.07735
+   ],
+   "row_enforceable": [
+    true,
+    true
+   ],
+   "threshold": 0.0517,
+   "margin": 0.05023,
+   "noise": 0.00433,
+   "margin_over_noise": 11.6,
+   "margin_over_phys": 5.02,
+   "phys_floor": 0.01,
+   "enforced": true,
+   "unenforced_reason": null,
+   "body2_match": {
+    "pair": "body2-render-vs-body2-photo",
+    "d_eval": 0.05277,
+    "pass": false
+   },
+   "body2_reject": {
+    "pair": "body2-render-vs-aisha-photo (rejection)",
+    "d_eval": 0.15324,
+    "pass": true
+   },
+   "body2_pass": false
   }
  ],
- "falsifier": "69/70 rows enforced; body2 enforced passes: 47/69",
+ "falsifier": "22/35 gates enforced (54/70 rows); body2 enforced-gate passes: 10/22",
  "anchors": {
   "values": {
    "warm_medium": [

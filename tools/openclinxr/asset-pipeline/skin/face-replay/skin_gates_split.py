@@ -119,13 +119,32 @@ G0_KS = [0.5, 2.0]
 
 # G1/G2 RULE, written BEFORE any number is read: per row (region x
 # channel/quantity x cross-pair): threshold = midpoint of the known-good
-# and known-bad deltas; margin = |bad - good| / 2; noise = SD over 20
-# seeded random half-splits of the region pixels of the delta recomputed
-# per draw (anchor fixed for G1; render+photo draws paired for G2; render
-# run-to-run adds 0 per room-rig-remeasure-report.json G0); enforced iff
-# margin / noise >= 1, else report-only. Body2 verdicts are computed only
-# after all thresholds (code order: thresholds dict first, evaluation
-# second; report sections g1_thresholds/g2_thresholds precede evaluation).
+# and known-bad deltas; margin = |bad-good|/2.
+# RULE 1 (handback 1: the brief's first rule was incomplete): a row is
+# enforceable only if d_good < d_bad (the known-good is closer to its
+# reference than the known-bad is) AND margin/noise >= 1. Inverted or
+# tied rows (d_bad <= d_good) are report-only with reason "does not
+# separate known-good from known-bad (d_bad <= d_good)".
+# RULE 2: a gate (region x channel/quantity) is enforced only if ALL its
+# known-bad rows (G1a and G1b, or G2a and G2b) are enforceable; otherwise
+# the whole gate is report-only. The per-gate threshold is the smallest
+# midpoint across its known-bads; the gate margin is the distance from
+# that threshold to the nearest delta (min(T - d_good, min(d_bad - T)),
+# strictly inside the interval when all rows separate); gate noise is the
+# max row noise (conservative).
+# RULE 3: noise = SD over 20 seeded half-splits. That denominator is
+# pixel-sampling noise ONLY (it does not include instrument, landmark or
+# lighting-model error, which is why margins/noise of ~50-350 are
+# expected, not suspicious). A second column, margin_over_phys, divides
+# the margin by the measured G0 invariance/quantisation epsilon for that
+# quantity (logY_face 0.01, Lratio_face 0.005, hue 1.5 deg, CdivL 0.005);
+# G1 L uses the dL_face epsilon (0.05, same-unit L* noise bound); G1 a/b
+# have no measured G0 epsilon (null, stated) since G0 probed quantities,
+# not absolute channels. Render run-to-run adds 0 per room-rig-remeasure
+# G0. Thresholds use known-good/known-bad ONLY; body2 evaluation numbers
+# are computed after.
+PHYS_FLOOR = {"logY_face": 0.01, "Lratio_face": 0.005, "hue": 1.5,
+              "CdivL": 0.005, "L": 0.05, "a": None, "b": None}
 G1_SPLITS = 20
 G2_SPLITS = 20
 
@@ -403,6 +422,93 @@ def albedo_region_labs():
     return out
 
 
+def finish_row(base, d_good, d_bad, thr, margin, noise, cq):
+    """RULE 1: enforceable iff d_good < d_bad AND margin/noise >= 1."""
+    separates = bool(d_bad > d_good)
+    m_over_n = round(margin / noise, 2) if noise else None
+    floor = PHYS_FLOOR.get(cq)
+    m_over_phys = round(margin / floor, 2) if floor else None
+    enforceable = bool(separates and noise and margin / noise >= 1)
+    if enforceable:
+        reason = None
+    elif not separates:
+        reason = ("does not separate known-good from known-bad "
+                  "(d_bad <= d_good)")
+    else:
+        reason = "margin/noise < 1"
+    base.update({"d_good": d_good, "d_bad": d_bad,
+                 "threshold": thr, "margin": margin, "noise": noise,
+                 "margin_over_noise": m_over_n,
+                 "margin_over_phys": m_over_phys,
+                 "phys_floor": floor,
+                 "separates": separates,
+                 "row_enforceable": enforceable,
+                 "enforced": enforceable,
+                 "unenforced_reason": reason})
+    return base
+
+
+def build_gates(rows):
+    """RULE 2: gate enforced iff ALL its known-bad rows enforceable.
+
+    Per-gate threshold = smallest midpoint across its known-bads.
+    Body2 gate verdict = match-direction AND rejection-direction
+    sub-verdicts against the gate threshold.
+    """
+    groups = {}
+    for r in rows:
+        cq = r.get("channel", r.get("quantity"))
+        groups.setdefault((r["kind"], r["region"], cq), []).append(r)
+    gates = []
+    for (kind, region, cq), rs in sorted(groups.items()):
+        thrs = [x["threshold"] for x in rs if x["threshold"] is not None]
+        T = min(thrs) if len(thrs) == len(rs) else None
+        d_good = rs[0]["d_good"]
+        d_bads = [x["d_bad"] for x in rs]
+        if T is not None and all(isinstance(v, (int, float)) for v in [d_good] + d_bads):
+            gmargin = min([T - d_good] + [b - T for b in d_bads])
+            noises = [x["noise"] for x in rs if x["noise"]]
+            gnoise = max(noises) if noises else None
+        else:
+            gmargin, gnoise = None, None
+        floor = PHYS_FLOOR.get(cq)
+        enforced = bool(T is not None and all(x["row_enforceable"] for x in rs))
+        reason = (None if enforced else
+                  "whole gate report-only: not all known-bad rows enforceable")
+        match_r = next(x for x in rs if x["gate"].endswith("a"))
+        rej_r = next(x for x in rs if x["gate"].endswith("b"))
+        if T is None or match_r["d_eval"] is None or rej_r["d_eval"] is None:
+            m_pass, r_pass, overall = None, None, None
+        else:
+            m_pass = bool(match_r["d_eval"] < T)
+            r_pass = bool(rej_r["d_eval"] > T)
+            overall = bool(m_pass and r_pass)
+        gates.append({
+            "gate": f"{match_r['gate'][:-1]}",
+            "gate_id": f"{match_r['gate'][:-1]}/{region}/{cq}",
+            "kind": kind, "region": region,
+            "channel_or_quantity": cq,
+            "known_good": rs[0]["known_good"],
+            "known_bads": [x["known_bad"] for x in rs],
+            "d_good": d_good, "d_bads": d_bads,
+            "row_thresholds": thrs,
+            "row_enforceable": [x["row_enforceable"] for x in rs],
+            "threshold": round(T, 5) if T is not None else None,
+            "margin": round(gmargin, 5) if gmargin is not None else None,
+            "noise": gnoise,
+            "margin_over_noise": (round(gmargin / gnoise, 2) if gnoise else None),
+            "margin_over_phys": (round(gmargin / floor, 2)
+                                 if (gmargin is not None and floor) else None),
+            "phys_floor": floor,
+            "enforced": enforced, "unenforced_reason": reason,
+            "body2_match": {"pair": match_r["body2_pair"],
+                            "d_eval": match_r["d_eval"], "pass": m_pass},
+            "body2_reject": {"pair": rej_r["body2_pair"],
+                             "d_eval": rej_r["d_eval"], "pass": r_pass},
+            "body2_pass": overall})
+    return gates
+
+
 def g1_thresholds(alb):
     """G1 thresholds from known-good/known-bad ONLY (before evaluation)."""
     rows = []
@@ -424,16 +530,13 @@ def g1_thresholds(alb):
                     half = rng.permutation(idx)[:len(idx) // 2]
                     draws[d_i] = vec[half][:, ci].mean()
                 noise = round(float(draws.std()), 5)
-                enforced = bool(noise > 0 and margin / noise >= 1)
-                rows.append({"gate": tag.split("/")[0], "kind": "(a)",
-                             "region": r, "channel": ch,
-                             "known_good": "aisha-albedo-vs-warm_light",
-                             "known_bad": tag.split("/")[1],
-                             "d_good": round(d_good, 3), "d_bad": round(d_bad, 3),
-                             "threshold": round(thr, 3),
-                             "margin": round(margin, 3), "noise": noise,
-                             "margin_over_noise": round(margin / noise, 2) if noise else None,
-                             "enforced": enforced})
+                rows.append(finish_row(
+                    {"gate": tag.split("/")[0], "kind": "(a)",
+                     "region": r, "channel": ch,
+                     "known_good": "aisha-albedo-vs-warm_light",
+                     "known_bad": tag.split("/")[1]},
+                    round(d_good, 3), round(d_bad, 3),
+                    round(thr, 3), round(margin, 3), noise, ch))
     return rows
 
 
@@ -495,7 +598,12 @@ def g2_thresholds(deltas, pr, kept):
                                  "d_good": d_good, "d_bad": d_bad,
                                  "threshold": None, "margin": None,
                                  "noise": None, "margin_over_noise": None,
+                                 "margin_over_phys": None,
+                                 "phys_floor": PHYS_FLOOR.get(q),
+                                 "separates": None,
+                                 "row_enforceable": False,
                                  "enforced": False,
+                                 "unenforced_reason": "no gate: region below MIN_POLY_N",
                                  "note": "region below MIN_POLY_N: no gate"})
                     continue
                 thr = (d_good + d_bad) / 2.0
@@ -507,17 +615,13 @@ def g2_thresholds(deltas, pr, kept):
                 # (quantity_noise); render run-to-run adds 0 per
                 # room-rig-remeasure-report.json G0.
                 noise = quantity_noise(pr[a_key], pr[b_key], r, q)
-                enforced = bool(noise > 0 and margin / noise >= 1)
-                rows.append({"gate": tag, "kind": "(b)",
-                             "region": r, "quantity": q,
-                             "known_good": "aisha-render-vs-aisha-photo",
-                             "known_bad": sub.split("/", 1)[1],
-                             "d_good": d_good, "d_bad": d_bad,
-                             "threshold": round(thr, 5),
-                             "margin": round(margin, 5), "noise": noise,
-                             "margin_over_noise": (round(margin / noise, 2)
-                                                   if noise else None),
-                             "enforced": enforced})
+                rows.append(finish_row(
+                    {"gate": tag, "kind": "(b)",
+                     "region": r, "quantity": q,
+                     "known_good": "aisha-render-vs-aisha-photo",
+                     "known_bad": sub.split("/", 1)[1]},
+                    d_good, d_bad, round(thr, 5), round(margin, 5),
+                    noise, q))
     return rows
 
 
@@ -619,23 +723,15 @@ def main():
     pr, quants, deltas, per_image = pair_quantities(landmarker)
     g2_rows = g2_evaluate(g2_thresholds(deltas, pr, kept), deltas)
 
-    g3 = []
-    for row in g1_rows + g2_rows:
-        g3.append({"gate": row["gate"], "kind": row["kind"],
-                   "region": row["region"],
-                   "channel_or_quantity": row.get("channel", row.get("quantity")),
-                   "known_good": row["known_good"], "known_bad": row["known_bad"],
-                   "threshold": row["threshold"],
-                   "margin_over_noise": row["margin_over_noise"],
-                   "enforced": row["enforced"],
-                   "body2_pair": row["body2_pair"], "d_eval": row["d_eval"],
-                   "body2_pass": row["body2_pass"]})
+    g3 = build_gates(g1_rows + g2_rows)
     enf = [g for g in g3 if g["enforced"]]
-    falsifier = ("no gate separates known-good from known-bad with "
-                 "margin/noise >= 1: module report-only"
+    enf_rows = [r for r in g1_rows + g2_rows if r["row_enforceable"]]
+    falsifier = ("no gate separates known-good from known-bad: module "
+                 "report-only"
                  if not enf else
-                 f"{len(enf)}/{len(g3)} rows enforced; "
-                 f"body2 enforced passes: "
+                 f"{len(enf)}/{len(g3)} gates enforced "
+                 f"({len(enf_rows)}/{len(g1_rows + g2_rows)} rows); "
+                 f"body2 enforced-gate passes: "
                  f"{sum(1 for g in enf if g['body2_pass'])}/{len(enf)}")
 
     report = {
@@ -657,11 +753,19 @@ def main():
         "threshold_rules": {
             "G0": g0["rule"],
             "G1_G2": ("per row: threshold = midpoint(known-good delta, "
-                      "known-bad delta); margin = |bad-good|/2; noise = SD "
-                      "over 20 seeded half-splits (G1: albedo region mean "
-                      "per channel; G2: paired quantity-delta draws; render "
-                      "run-to-run adds 0 per room-rig-remeasure G0); "
-                      "enforced iff margin/noise >= 1 else report-only. "
+                      "known-bad delta); margin = |bad-good|/2. RULE 1: row "
+                      "enforceable iff d_good < d_bad AND margin/noise >= 1; "
+                      "else report-only (inverted/tied rows: does not "
+                      "separate known-good from known-bad). RULE 2: gate "
+                      "(region x channel/quantity) enforced iff ALL its "
+                      "known-bad rows enforceable; gate threshold = smallest "
+                      "midpoint; gate margin = distance from it to the "
+                      "nearest delta; gate noise = max row noise. RULE 3: "
+                      "noise is pixel-sampling SD ONLY (margins/noise "
+                      "~50-350 expected); margin_over_phys divides by the "
+                      "measured G0 epsilon (hue 1.5 deg etc.; G1 L uses "
+                      "dL 0.05; G1 a/b null, no measured epsilon). Render "
+                      "run-to-run adds 0 per room-rig-remeasure G0. "
                       "Thresholds use known-good/known-bad ONLY; body2 "
                       "evaluation numbers are computed after."),
         },
@@ -671,15 +775,15 @@ def main():
                           for r in g1_rows],
         "g1_body2_evaluation": [{k: r[k] for k in ("gate", "region", "channel",
                                                   "body2_pair", "d_eval",
-                                                  "threshold", "body2_pass",
-                                                  "enforced")} for r in g1_rows],
+                                                  "threshold",
+                                                  "row_enforceable")} for r in g1_rows],
         "g2_thresholds": [{k: v for k, v in r.items() if k != "body2_pass"
                            and k != "d_eval" and k != "body2_pair"}
                           for r in g2_rows],
         "g2_body2_evaluation": [{k: r[k] for k in ("gate", "region", "quantity",
                                                   "body2_pair", "d_eval",
-                                                  "threshold", "body2_pass",
-                                                  "enforced")} for r in g2_rows],
+                                                  "threshold",
+                                                  "row_enforceable")} for r in g2_rows],
         "g1_albedo_means": {s: {"means": alb[s]["means"], "n": alb[s]["n"]}
                             for s in alb},
         "g2_pair_deltas": deltas,

@@ -74,12 +74,32 @@ type GateRow = {
   d_bad?: number;
 };
 
+type Gate = {
+  gate_id: string;
+  kind: string;
+  region: string;
+  channel_or_quantity: string;
+  known_good: string;
+  known_bads: string[];
+  d_good: number;
+  d_bads: (number | null)[];
+  row_thresholds: number[];
+  row_enforceable: boolean[];
+  threshold: number | null;
+  margin_over_noise: number | null;
+  enforced: boolean;
+  unenforced_reason: string | null;
+  body2_match: { pair: string | null; d_eval: number | null; pass: boolean | null };
+  body2_reject: { pair: string | null; d_eval: number | null; pass: boolean | null };
+  body2_pass: boolean | null;
+};
+
 type SplitReport = {
   card: string;
   g0: { kept: string[]; dropped: string[]; eps: Record<string, number>; max_change: Record<string, number> };
-  g1_thresholds: (GateRow & { d_good: number; d_bad: number; margin: number; noise: number })[];
-  g2_thresholds: (GateRow & { d_good: number; d_bad: number; margin: number; noise: number })[];
-  g3: GateRow[];
+  g1_thresholds: (GateRow & { d_good: number; d_bad: number; margin: number; noise: number; separates: boolean; row_enforceable: boolean; unenforced_reason: string | null })[];
+  g2_thresholds: (GateRow & { d_good: number; d_bad: number; margin: number; noise: number; separates: boolean; row_enforceable: boolean; unenforced_reason: string | null })[];
+  g3: Gate[];
   falsifier: string;
 };
 
@@ -87,7 +107,7 @@ function loadReport(): SplitReport {
   return JSON.parse(fs.readFileSync(REPORT, "utf8")) as SplitReport;
 }
 
-function checkRow(row: GateRow & { d_good: number; d_bad: number; margin: number; noise: number }): void {
+function checkRow(row: GateRow & { d_good: number; d_bad: number; margin: number; noise: number; separates: boolean; row_enforceable: boolean; unenforced_reason: string | null }): void {
   expect(row.known_good.length).toBeGreaterThan(0);
   expect(row.known_bad.length).toBeGreaterThan(0);
   expect(row.known_bad).not.toBe(row.known_good);
@@ -96,8 +116,38 @@ function checkRow(row: GateRow & { d_good: number; d_bad: number; margin: number
   expect(row.threshold).toBeGreaterThan(lo);
   expect(row.threshold).toBeLessThan(hi);
   expect(row.margin_over_noise === null || typeof row.margin_over_noise === "number").toBe(true);
-  const consistent = row.noise > 0 && row.margin / row.noise >= 1;
+  const consistent = row.noise > 0 && row.margin / row.noise >= 1 && row.d_bad > row.d_good;
   expect(row.enforced).toBe(consistent);
+  // RULE 1: no enforced row with d_bad <= d_good.
+  expect(row.separates).toBe(row.d_bad > row.d_good);
+  expect(row.row_enforceable).toBe(row.enforced);
+  if (row.enforced) {
+    expect(row.d_bad).toBeGreaterThan(row.d_good);
+  } else if (row.d_bad <= row.d_good) {
+    expect(row.unenforced_reason ?? "").toMatch(/does not separate/);
+  }
+}
+
+/** RULE 2: no enforced gate with a non-separating row; threshold is the smallest midpoint. */
+function checkGate(gate: Gate): void {
+  expect(gate.known_bads.length).toBe(2);
+  expect(gate.row_thresholds.length).toBe(2);
+  expect(gate.row_enforceable.length).toBe(2);
+  if (gate.threshold !== null) {
+    expect(gate.threshold).toBe(Math.min(...gate.row_thresholds));
+  }
+  const allRowsGood = gate.row_enforceable.every(Boolean) &&
+    gate.d_bads.every((b) => b !== null && b > gate.d_good);
+  expect(gate.enforced).toBe(allRowsGood && gate.threshold !== null);
+  if (gate.threshold !== null) {
+    const m = gate.body2_match;
+    const r = gate.body2_reject;
+    if (m.d_eval !== null) expect(m.pass).toBe(m.d_eval < gate.threshold);
+    if (r.d_eval !== null) expect(r.pass).toBe(r.d_eval > gate.threshold);
+    if (m.pass !== null && r.pass !== null) {
+      expect(gate.body2_pass).toBe(m.pass && r.pass);
+    }
+  }
 }
 
 function red(label: string, fn: () => void, want: RegExp): void {
@@ -140,7 +190,11 @@ describe("skin gates are split by what light can change", () => {
     const rows = [...rep.g1_thresholds, ...rep.g2_thresholds];
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) checkRow(row);
-    expect(rep.g3.length).toBe(rows.length);
+    expect(rep.g3.length).toBeGreaterThan(0);
+    for (const gate of rep.g3) checkGate(gate);
+    // G3 covers every row's gate exactly once per kind/region/quantity.
+    const keys = new Set(rows.map((r) => `${r.kind}/${r.region}/${(r as unknown as { channel?: string; quantity?: string }).channel ?? (r as unknown as { quantity?: string }).quantity}`));
+    expect(rep.g3.length).toBe(keys.size);
   });
 
   it("the G0 counterexample (plain dL) is never a kept G2 quantity", () => {
@@ -194,5 +248,17 @@ describe("skin gates are split by what light can change", () => {
     red("dL-as-G2-quantity", () => {
       expect(rep.g0.kept).toContain("dL_face");
     }, /to include/);
+    const invRow = rep.g1_thresholds.find((r) => r.d_bad <= r.d_good);
+    if (invRow) {
+      red("inverted-row-enforced", () => {
+        checkRow({ ...invRow, enforced: true, row_enforceable: true });
+      }, /toBeGreaterThan|to be greater than|to be false/);
+    }
+    const invGate = rep.g3.find((g) => !g.enforced && g.threshold !== null);
+    if (invGate) {
+      red("gate-enforced-with-bad-row", () => {
+        checkGate({ ...invGate, enforced: true });
+      }, /toBe\(false\)|to be false|Object\.is/);
+    }
   });
 });
