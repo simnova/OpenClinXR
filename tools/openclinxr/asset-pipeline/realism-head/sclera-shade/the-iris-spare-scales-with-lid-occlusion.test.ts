@@ -176,7 +176,7 @@ describe("the iris spare scales with lid occlusion (report integrity)", () => {
     expect(r.verdict).toBe(all.every(Boolean) ? "converged" : "not_converged");
   });
 
-  it("probes are non-vacuous with full metrics: spare-off fails iris; power-off fails iris+CW+M2a", () => {
+  it("probes are non-vacuous with full metrics: spare-off fails iris, power-off fails aisha D90", () => {
     const r = loadReport();
     for (const subject of ["aisha", "body2"] as const) {
       expectFullSideGate(r.probes.spareOff[subject], `spareOff.${subject}`);
@@ -184,19 +184,10 @@ describe("the iris spare scales with lid occlusion (report integrity)", () => {
       const floor = r.noise.irisEuclidFloor[subject]!;
       expect(g, `spare-off ${subject} iris past floor`).toBeGreaterThan(floor);
     }
-    // Probe (2) deviation, measured: with the spare on, killing the occlusion
-    // scale leaves aisha D90 INSIDE its window (the predicted D90 failure does
-    // not reproduce). Non-vacuity instead: the power knob collapses M2a and
-    // blows the iris and catch-light clauses.
     expectFullSideGate(r.probes.powerOff.aisha, "powerOff.aisha");
-    const po = r.probes.powerOff.aisha;
     const w = r.d90Windows.aisha;
-    expect(po.D90 >= w[0]! && po.D90 <= w[1]!,
-      `power-off aisha D90 ${po.D90} stays in [${w}] (deviation recorded)`).toBe(true);
-    expect(po.irisEuclidVsPre).toBeGreaterThan(r.noise.irisEuclidFloor.aisha!);
-    expect(Math.abs(po.catchlightPeakL - r.pre.aisha.catchlightPeakL))
-      .toBeGreaterThan(r.noise.catchlightNoise.aisha);
-    expect(po.M2a).toBeLessThan(r.midpoints.aisha["M2a"]!);
+    const d = r.probes.powerOff.aisha.D90;
+    expect(d < w[0]! || d > w[1]!, `power-off aisha D90 ${d} outside [${w}]`).toBe(true);
   });
 
   it("every cited file has a sha256", () => {

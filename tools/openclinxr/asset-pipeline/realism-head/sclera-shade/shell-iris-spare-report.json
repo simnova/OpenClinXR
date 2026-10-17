@@ -68,18 +68,19 @@
   "catchlightMethod": "measure_catchlight.py max 5x5 box mean inside the iris circle on the PRE frame; noise = max change under 1px erode/dilate"
  },
  "diagnosis": {
-  "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified on the r1 GLBs (exporter writes glTF_UV=(u,1-v_blender), so GLB UVs match file-UV): inside-disc verts cluster on the iris cap (124-126 verts/eye, mean axis dist 2.75-2.90mm < 6mm) while unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm). No UV-origin bug; cite /tmp/uv_verify.py numbers in the lane report.",
-  "spareEffect": "the GLB shell alpha-0 disc covers the iris (232 verts, alpha min/med/max 0/0/0 in-disk on r1) yet r1-vs-p1 beauty differs only 0.58 levels inside the iris: the s5-base field already spares the iris (pupil guard + lateral gate + corner rho guard leave p1 in-disk alpha max 0.132, median 0). POST-vs-PRE iris gap (11.7/7.9) is spare-independent.",
-  "catchlightMechanism": "spare-independent too (r1 87.41 vs p1 87.27 on aisha): the shell is a KHR_materials_unlit physical surface 0.3mm above the cornea; the hide-shell control variant crashes the lab readback (m.emissive undefined on the unlit material), so the depth pre-emption hypothesis is unconfirmed by render. No harness change made; recorded as the falsifier mechanism.",
-  "bakeNoise": "same-code bakes vary ~2px in lid aperture (p2 aisha 44.6/42.6 vs r1 46.6/46.3); PRE-vs-p2 outside-iris diff 0.15 levels, so beauty is comparable and the metric gaps dwarf bake noise, but iris/CW clauses sit near the noise scale."
+  "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified on the r1 GLBs (exporter writes glTF_UV=(u,1-v_blender), so GLB UVs match file-UV): inside-disc verts cluster on the iris cap (124-126 verts/eye, mean axis dist 2.75-2.90mm < 6mm) while unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm). No UV-origin bug. Bake-time EYESHELL_SPARE_CHECK prints the same falsifier per round (active rms ~4mm vs noflip ~9mm).",
+  "idMethod": "ID renders use shell-stripped GLB copies (strip_shell_for_id.py clears the occlusion-shell/tearline mesh slots; all indices stable), because the variant `hide` path crashes the lab readback on the shell's unlit material (no .emissive) and a shell-visible ID contaminates the mask with shell strength (r1 ID keys 4496 vs r2 3580 at full power). Stripped-ID masks recover the PRE/s5 scale (r1 2651/1762 vs PRE 2481/1006 vs s5 2743/1748). This matches the documented intent (shell hidden for the ID pass). No harness change made.",
+  "spareEffect": "the GLB shell alpha-0 disc covers the iris (232 verts, alpha min/med/max 0/0/0 in-disk on r1) yet r1-vs-p1 beauty differs only 0.58 levels inside the iris: the s5-base field already spares the iris (pupil guard + lateral gate + corner rho guard leave p1 in-disk alpha max 0.132, median 0). POST-vs-PRE iris gap (11.8/8.3) is spare-independent.",
+  "catchlightMechanism": "spare-independent too (r1 87.41 vs p1 87.27 on aisha): the shell is a KHR_materials_unlit physical surface 0.3mm above the cornea; the hide-shell control variant crashes the lab readback (unlit material) so the depth pre-emption hypothesis is unconfirmed by render. No harness change made; recorded as the falsifier mechanism.",
+  "bakeNoise": "same-code bakes vary ~2px in lid aperture (p2/r2 L 42.6 vs r1 46.3); PRE-vs-p2 outside-iris diff 0.15 levels, so beauty is comparable and the metric gaps dwarf bake noise, but iris/CW clauses sit near the noise scale."
  },
  "fix": {
   "files": [
    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py (eyeshell code + call site only)"
   ],
   "knobs": {
-   "--eye-shell-iris-spare": 1.0,
-   "--eye-shell-occlusion-power": 1.0
+   "--eye-shell-iris-spare": 2.0,
+   "--eye-shell-occlusion-power": 0.0
   },
   "knobNote": "new knobs default neutral (spare 0.0, occpow 0.0) so --eye-occlusion-shell alone reproduces main-value bakes byte-stable; the sweep passes them explicitly. Old knob defaults unchanged (margin 0.5/corner 0.8/ramp-mm 2.5/boost 1.6/color 120,88,80/ring-frac 0.25/upper-span-mm 6.0/upper-peak 0.0); shell stays opt-in.",
   "baseShell": "--eye-occlusion-shell --eye-shell-ring-frac 0.2 --eye-shell-upper-span-mm 3.0 --eye-shell-upper-peak 0.7 (s5 pick pinned explicitly every round; r1 ring-frac not logged, s5 value 0.2 presumed)",
@@ -99,22 +100,51 @@
     "occlusionPower": 1.0
    },
    "aisha": {
-    "M1": -18.433,
-    "M2a": 2.711,
-    "M2b": -5.445,
-    "D90": -4.66,
+    "M1": -25.339,
+    "M2a": 3.717,
+    "M2b": -10.403,
+    "D90": -11.258,
     "irisEuclidVsPre": 11.827,
     "catchlightPeakL": 87.41,
-    "catchlightDeltaVsPre": -6.508
+    "catchlightDeltaVsPre": -6.508,
+    "nSclera": 2651
    },
    "body2": {
-    "M1": 3.677,
-    "M2a": 4.14,
-    "M2b": -1.946,
-    "D90": 11.141,
+    "M1": 1.445,
+    "M2a": 3.052,
+    "M2b": -5.476,
+    "D90": 10.834,
     "irisEuclidVsPre": 8.295,
     "catchlightPeakL": 93.22,
-    "catchlightDeltaVsPre": -0.364
+    "catchlightDeltaVsPre": -0.364,
+    "nSclera": 1762
+   }
+  },
+  {
+   "row": "r2",
+   "params": {
+    "irisSpare": 2.0,
+    "occlusionPower": 0.0
+   },
+   "aisha": {
+    "M1": -39.991,
+    "M2a": 5.792,
+    "M2b": -14.361,
+    "D90": -18.264,
+    "irisEuclidVsPre": 16.537,
+    "catchlightPeakL": 86.71,
+    "catchlightDeltaVsPre": -7.208,
+    "nSclera": 2630
+   },
+   "body2": {
+    "M1": -4.682,
+    "M2a": 3.696,
+    "M2b": -8.378,
+    "D90": 7.714,
+    "irisEuclidVsPre": 9.592,
+    "catchlightPeakL": 93.082,
+    "catchlightDeltaVsPre": -0.502,
+    "nSclera": 1749
    }
   }
  ],
@@ -122,56 +152,56 @@
   "g1": {
    "aisha": {
     "M1": {
-     "value": -18.433,
+     "value": -39.991,
      "mid": -7.471,
      "pass": true
     },
     "M2a": {
-     "value": 2.711,
+     "value": 5.792,
      "mid": 5.635,
-     "pass": false
+     "pass": true
     },
     "M2b": {
-     "value": -5.445,
+     "value": -14.361,
      "mid": -3.304,
      "pass": true
     }
    },
    "body2": {
     "M1": {
-     "value": 3.677,
+     "value": -4.682,
      "mid": -3.835,
-     "pass": false
+     "pass": true
     },
     "M2a": {
-     "value": 4.14,
+     "value": 3.696,
      "mid": 10.316,
      "pass": false
     },
     "M2b": {
-     "value": -1.946,
+     "value": -8.378,
      "mid": -5.638,
-     "pass": false
+     "pass": true
     }
    }
   },
   "g2": {
    "aisha": {
     "D90": {
-     "value": -4.66,
+     "value": -18.264,
      "window": [
       -12.268,
       -2.133
      ],
-     "pass": true
+     "pass": false
     },
     "iris": {
-     "value": 11.827,
+     "value": 16.537,
      "floor": 6.896,
      "pass": false
     },
     "catchlight": {
-     "value": 87.41,
+     "value": 86.71,
      "pre": 93.918,
      "noise": 0.435,
      "pass": false
@@ -179,7 +209,7 @@
    },
    "body2": {
     "D90": {
-     "value": 11.141,
+     "value": 7.714,
      "window": [
       -18.607,
       6.942
@@ -187,12 +217,12 @@
      "pass": false
     },
     "iris": {
-     "value": 8.295,
+     "value": 9.592,
      "floor": 5.159,
      "pass": false
     },
     "catchlight": {
-     "value": 93.22,
+     "value": 93.082,
      "pre": 93.584,
      "noise": 0.0,
      "pass": false
@@ -207,36 +237,39 @@
  "probes": {
   "spareOff": {
    "aisha": {
-    "M1": -18.827,
-    "M2a": 2.332,
-    "M2b": -5.76,
-    "D90": -5.017,
+    "M1": -25.527,
+    "M2a": 3.285,
+    "M2b": -10.193,
+    "D90": -11.86,
     "irisEuclidVsPre": 11.716,
     "catchlightPeakL": 87.272,
-    "catchlightDeltaVsPre": -6.646
+    "catchlightDeltaVsPre": -6.646,
+    "nSclera": 2638
    },
    "body2": {
-    "M1": 3.698,
-    "M2a": 3.918,
-    "M2b": -1.859,
-    "D90": 11.197,
+    "M1": 1.378,
+    "M2a": 2.66,
+    "M2b": -5.682,
+    "D90": 10.837,
     "irisEuclidVsPre": 7.855,
     "catchlightPeakL": 93.22,
-    "catchlightDeltaVsPre": -0.364
+    "catchlightDeltaVsPre": -0.364,
+    "nSclera": 1761
    },
    "result": "fails iris clause on both subjects (aisha 11.716 > 6.896; body2 7.855 > 5.159)"
   },
   "powerOff": {
    "aisha": {
-    "M1": -18.488,
-    "M2a": -3.204,
-    "M2b": -39.812,
-    "D90": -6.314,
+    "M1": -40.986,
+    "M2a": 2.685,
+    "M2b": -17.527,
+    "D90": -16.255,
     "irisEuclidVsPre": 19.631,
     "catchlightPeakL": 87.046,
-    "catchlightDeltaVsPre": -6.872
+    "catchlightDeltaVsPre": -6.872,
+    "nSclera": 2743
    },
-   "result": "aisha D90 stays in-window with the spare on (-6.314 in [-12.268, -2.133]); non-vacuity via iris (19.631 > 6.896), catch-light (|87.046-93.918| > 0.435) and M2a (-3.204 < 5.635)"
+   "result": "aisha D90 fails with the spare on (-16.255 outside [-12.268, -2.133])"
   }
  },
  "defaults": {
@@ -244,20 +277,23 @@
   "shell": "opt-in store_true; no default-on (gates did not pass); no shipped GLB rebaked"
  },
  "occlusion": {
-  "aisha": 0.508,
-  "body2": 0.606,
+  "aisha": null,
+  "body2": null,
   "formula": "O = mean over side's upper-cap shell verts seated under the seated upper lid margin at same x (lid z above vert z); scale = O^power. Pure seated-bake geometry from lid loops + fitted globe."
  },
- "pick": "r1",
+ "pick": "r2",
  "files": {
   "p1/aisha-bake.log": {
    "sha256": "1a57cabaef7c2eb76f6bba598c7a0bef52e740952ecf6c400e078643dfd6db4d"
   },
   "p1/aisha-id/ss-aisha-p1-id-front.png": {
-   "sha256": "a8f298644f54fcae28aab4b2d168f4ec55e41ade0f928378427df2bb73e7eb70"
+   "sha256": "90eecf7089ee0b797c5bc099a1204e8901ef44e8034aabe32bc0819e52251cba"
   },
   "p1/aisha-id/ss-aisha-p1-id.json": {
-   "sha256": "c0659393121f22daac31a5a82297f9e194cb3ef03b16a32b0c5871841e791c31"
+   "sha256": "86672bb7f0ed67823f1f3e9910ae7626864af5baed0026a99f30153c338a970a"
+  },
+  "p1/aisha-lidconform-noshll.glb": {
+   "sha256": "3050946f3de8fd855e13c83237f04130cea43aa7a64b6b55a973f1b2f7b80519"
   },
   "p1/aisha-lidconform.glb": {
    "sha256": "85f247fc0fef08a6893b0b77ef3f88c1e8e7644448df2ebeb232859db7372522"
@@ -278,10 +314,13 @@
    "sha256": "4fe3c23450ccbf87d61a037f512daff0e1ba808f1aa7565966c52a3f4e912477"
   },
   "p1/body2-id/b2s4-p1-id-front.png": {
-   "sha256": "d90500834fee360b49a0028c188641a322a123354be1329baa3fc136035bab17"
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
   },
   "p1/body2-id/b2s4-p1-id.json": {
-   "sha256": "ec7a776f307b884c1b95baab62b6d4e9a0db880cf7cc028e30949234cbda761a"
+   "sha256": "04af2b10e9b5c2d45c6242b9380717a2a94c3b0713712e8352ab66c372915223"
+  },
+  "p1/body2-lidconform-noshll.glb": {
+   "sha256": "925100ec6752b5aa0106a276c008d728a4626fa14521025e875d9d1712724c3d"
   },
   "p1/body2-lidconform.glb": {
    "sha256": "6e8f89bd53ff327ad08e2caa3d526b8c8a3b829f6c4bfce31887e681f3effc14"
@@ -302,10 +341,13 @@
    "sha256": "d36915cefd93f9974249e40eb3b529108e17ee423849b17a0fac5af38857b717"
   },
   "p2/aisha-id/ss-aisha-p2-id-front.png": {
-   "sha256": "95a2fac82171b0d35349176b15720bf407e81b3beac229ce1a0050a6299160c1"
+   "sha256": "f8a981f9bfde8cc099b5700efc8a970a26bb8250ca44df4fe3ce8ac48e15422d"
   },
   "p2/aisha-id/ss-aisha-p2-id.json": {
-   "sha256": "4ef3fd676a4ea302f68e05f99022935620b2784634e43f26c7b810afd631ee62"
+   "sha256": "9dd766ebcb6497feaa1e02187208a8e1f3722e4150b19b0037943c566878c61c"
+  },
+  "p2/aisha-lidconform-noshll.glb": {
+   "sha256": "b9309eb442de0a4e119d88564d43948647c0f522fc052254448fd586b200996d"
   },
   "p2/aisha-lidconform.glb": {
    "sha256": "3f430ba6558160ef273767bc5e62330ee2a5da2902d40fd8f618559c51cc1fcd"
@@ -326,10 +368,13 @@
    "sha256": "7706b272d5e3193e51affe61d2b5326af4f677d28f57d8e41feb8ccaa377420a"
   },
   "r1/aisha-id/ss-aisha-r1-id-front.png": {
-   "sha256": "c705b3e76c525243c65325809d461c1d17f4b97a5c80ba24491b7bb485838d55"
+   "sha256": "88a5eee457f05ef7619cb2bf6eaf3e6995ef9f98b1466c5ea9c0702cf3a90713"
   },
   "r1/aisha-id/ss-aisha-r1-id.json": {
-   "sha256": "048b2d7b1802f8fbedfe66c6c218db1285c77fb763c001e34be9ad0d3ba7a6ab"
+   "sha256": "80b43112d342407e5610e20a002d0eb645cbe8e032df6c4bd47a26c29304074d"
+  },
+  "r1/aisha-lidconform-noshll.glb": {
+   "sha256": "fd8304eecc631fdc6de3e10edebc3c092719d9cccfb3452c635d8f26cb6b0a1f"
   },
   "r1/aisha-lidconform.glb": {
    "sha256": "8c40ea7aca2f9fd2ccfab767ab7f97ad516418b44a3e89b7b3d46446a9a00e6c"
@@ -362,10 +407,13 @@
    "sha256": "a40f69aea2d360f3ad63e59e903ae5de446633dd0973e1215d7be8e5a2018a0a"
   },
   "r1/body2-id/b2s4-r1-id-front.png": {
-   "sha256": "e1be4ef2f1a1a6107492428516c27bd1cb9c0d1f62187d7f9ea49f8d634a0dd7"
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
   },
   "r1/body2-id/b2s4-r1-id.json": {
-   "sha256": "bc555184e846538f504070b47e6d6651fd53f2dba1af34b4ac587f62edf96d01"
+   "sha256": "643cc80a3e182311be659f9c3325cf9b4678292389c2839b9d329ebd7bbd62c9"
+  },
+  "r1/body2-lidconform-noshll.glb": {
+   "sha256": "5e79aa2f1493eb954f76055f9b44b209eac0e25fb26806bf8ed9f5fb42fa89a5"
   },
   "r1/body2-lidconform.glb": {
    "sha256": "1fe882c43072e63409b930dd5b36c7e2570d3e04835256092e4d75c8eaf585cd"
@@ -393,6 +441,78 @@
   },
   "r1/ss-aisha-r1.variant.json": {
    "sha256": "9631b0371402b5a181d61964267e5706d477f83c1ccc89a8981f94e711918e2a"
+  },
+  "r2/aisha-bake.log": {
+   "sha256": "48c5007edde2d75e4cc2b31f05baeefa4aab538847c1e086858e7ada84050d09"
+  },
+  "r2/aisha-id/ss-aisha-r2-id-front.png": {
+   "sha256": "97c1ec03dc026c58123bce94a954e1e47e15b66ae6ae69163c2d5bad4e72159d"
+  },
+  "r2/aisha-id/ss-aisha-r2-id.json": {
+   "sha256": "8cc342bd928b74f7ca17c47e2178a64ffb5f72a7c4dfb426987d8eff8c098db5"
+  },
+  "r2/aisha-lidconform-noshll.glb": {
+   "sha256": "3e5cc96a73c5bc281c747ed0b1e364ba64e8500b704e85143113f7692aeb57c4"
+  },
+  "r2/aisha-lidconform.glb": {
+   "sha256": "a7db0b189994917001383dc8da991e7531f588b9793e070708c6db677cec207c"
+  },
+  "r2/aisha-render/ss-aisha-r2-front.png": {
+   "sha256": "92216ea669f137e8ab722bca7b4fd8d16bd688f9b4e4247de67068c423306088"
+  },
+  "r2/aisha-render/ss-aisha-r2.json": {
+   "sha256": "7969aa0dd633e93dfd15f0c125a4dbbf7b2eb5540fd6499bf5b81314a3d204b3"
+  },
+  "r2/aisha-yaw25/ss-aisha-r2-yaw25-yaw25.png": {
+   "sha256": "16681f29460dbb1cc37d2a4cad5bbcfd17e1758d3b213234bdb3a542fcb636ce"
+  },
+  "r2/aisha-yaw25/ss-aisha-r2-yaw25.json": {
+   "sha256": "071484ede36cdd28cad3b28517518ac8a5161d8ce91022bca2bc99baf3b231b9"
+  },
+  "r2/b2s4-r2-id.variant.json": {
+   "sha256": "181ddabcaa556ec153649ceed158a3ac8d2273784ded32429a3077a1ea22eff9"
+  },
+  "r2/b2s4-r2-yaw25.variant.json": {
+   "sha256": "c09dc9543bdf4c8abd4540ae231d7ba324afa647db9ea502b718fd4d84226f7e"
+  },
+  "r2/b2s4-r2.variant.json": {
+   "sha256": "a19e190877d1efc431097371f4632ff3a99448112d14ab86158ce87f68b60dd8"
+  },
+  "r2/body2-bake.log": {
+   "sha256": "69732d3022fafce493094e14ef471e4512055ac6ffbf3f19dfeba4fb7446390b"
+  },
+  "r2/body2-id/b2s4-r2-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "r2/body2-id/b2s4-r2-id.json": {
+   "sha256": "170f611b7e6c178823386aaa86d3d76f40d1380e708ce89cabf0ca57799e8c69"
+  },
+  "r2/body2-lidconform-noshll.glb": {
+   "sha256": "174e1652fac01b299ab06361a20089fa0e274e41da029b2c1583d478846b5fc7"
+  },
+  "r2/body2-lidconform.glb": {
+   "sha256": "be3550d8ac4157137406da84d7869092b45be85dc8aeb3348bf41eead9d2e353"
+  },
+  "r2/body2-render/b2s4-r2-front.png": {
+   "sha256": "b8292da4b3f262b9daec777c9e6f42d40e97e0805d165512c50cca0729981cae"
+  },
+  "r2/body2-render/b2s4-r2.json": {
+   "sha256": "068a53b549554b26929786c7561843c8b403e8bbbc20cddf0feb724b227f1bc5"
+  },
+  "r2/body2-yaw25/b2s4-r2-yaw25-yaw25.png": {
+   "sha256": "ab5ea2d53c46b4628ca0d19eeec294b6c71e7a5fc817f94777176a8bb2364ffb"
+  },
+  "r2/body2-yaw25/b2s4-r2-yaw25.json": {
+   "sha256": "fa526885bc28e09136317e3ad570cb1fb678fefdc31cb5817fea1eeaf8e0f257"
+  },
+  "r2/ss-aisha-r2-id.variant.json": {
+   "sha256": "0a8d711157b8d5d05a7d92177bbb0c467102832f8e464f1628515e210f1c8c83"
+  },
+  "r2/ss-aisha-r2-yaw25.variant.json": {
+   "sha256": "52b76869fc27c5a8df1b5958c774aae79c9f8b125e33627efc5e0bb3c0c71c13"
+  },
+  "r2/ss-aisha-r2.variant.json": {
+   "sha256": "d227d9d662f53127ca351966140a8e4f6688bbcf77f593fbab6396e511f4f31a"
   }
  },
  "sheet": {

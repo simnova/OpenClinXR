@@ -52,6 +52,7 @@ def side_gate(metrics, catch, pre_iris, pre_cw):
         "irisEuclidVsPre": round(euclid, 3),
         "catchlightPeakL": catch["catchlightPeakL"],
         "catchlightDeltaVsPre": round(catch["catchlightPeakL"] - pre_cw, 3),
+        "nSclera": metrics["nSclera"],
     }
 
 
@@ -147,6 +148,7 @@ for s, stem in (("aisha", "p1/aisha"), ("body2", "p1/body2")):
 m = load(f"{STORE}/p2/aisha-metrics.json"); c = load(f"{STORE}/p2/aisha-catchlight.json")
 po_a = side_gate(m, c, pre_iris["aisha"], pre_cw["aisha"]["catchlightPeakL"])
 w = d90win["aisha"]
+d_out = po_a["D90"] < w[0] or po_a["D90"] > w[1]
 probes = {
     "spareOff": {
         "aisha": sp["aisha"], "body2": sp["body2"],
@@ -156,11 +158,10 @@ probes = {
     },
     "powerOff": {
         "aisha": po_a,
-        "result": "aisha D90 stays in-window with the spare on "
-                  f"({po_a['D90']} in [{w[0]}, {w[1]}]); non-vacuity via iris "
-                  f"({po_a['irisEuclidVsPre']} > {iris_floor['aisha']}), catch-light "
-                  f"(|{po_a['catchlightPeakL']}-{pre_cw['aisha']['catchlightPeakL']}| > {cw_noise['aisha']}) "
-                  f"and M2a ({po_a['M2a']} < {mid['aisha']['M2a']})",
+        "result": "aisha D90 fails with the spare on "
+                  f"({po_a['D90']} outside [{w[0]}, {w[1]}])" if d_out else
+                  "aisha D90 stays in-window with the spare on "
+                  f"({po_a['D90']} in [{w[0]}, {w[1]}]); non-vacuity via iris/CW/M2a",
     },
 }
 
@@ -225,10 +226,11 @@ report = {
         "catchlightMethod": "measure_catchlight.py max 5x5 box mean inside the iris circle on the PRE frame; noise = max change under 1px erode/dilate",
     },
     "diagnosis": {
-        "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified on the r1 GLBs (exporter writes glTF_UV=(u,1-v_blender), so GLB UVs match file-UV): inside-disc verts cluster on the iris cap (124-126 verts/eye, mean axis dist 2.75-2.90mm < 6mm) while unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm). No UV-origin bug; cite /tmp/uv_verify.py numbers in the lane report.",
-        "spareEffect": "the GLB shell alpha-0 disc covers the iris (232 verts, alpha min/med/max 0/0/0 in-disk on r1) yet r1-vs-p1 beauty differs only 0.58 levels inside the iris: the s5-base field already spares the iris (pupil guard + lateral gate + corner rho guard leave p1 in-disk alpha max 0.132, median 0). POST-vs-PRE iris gap (11.7/7.9) is spare-independent.",
-        "catchlightMechanism": "spare-independent too (r1 87.41 vs p1 87.27 on aisha): the shell is a KHR_materials_unlit physical surface 0.3mm above the cornea; the hide-shell control variant crashes the lab readback (m.emissive undefined on the unlit material), so the depth pre-emption hypothesis is unconfirmed by render. No harness change made; recorded as the falsifier mechanism.",
-        "bakeNoise": "same-code bakes vary ~2px in lid aperture (p2 aisha 44.6/42.6 vs r1 46.6/46.3); PRE-vs-p2 outside-iris diff 0.15 levels, so beauty is comparable and the metric gaps dwarf bake noise, but iris/CW clauses sit near the noise scale.",
+        "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified on the r1 GLBs (exporter writes glTF_UV=(u,1-v_blender), so GLB UVs match file-UV): inside-disc verts cluster on the iris cap (124-126 verts/eye, mean axis dist 2.75-2.90mm < 6mm) while unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm). No UV-origin bug. Bake-time EYESHELL_SPARE_CHECK prints the same falsifier per round (active rms ~4mm vs noflip ~9mm).",
+        "idMethod": "ID renders use shell-stripped GLB copies (strip_shell_for_id.py clears the occlusion-shell/tearline mesh slots; all indices stable), because the variant `hide` path crashes the lab readback on the shell's unlit material (no .emissive) and a shell-visible ID contaminates the mask with shell strength (r1 ID keys 4496 vs r2 3580 at full power). Stripped-ID masks recover the PRE/s5 scale (r1 2651/1762 vs PRE 2481/1006 vs s5 2743/1748). This matches the documented intent (shell hidden for the ID pass). No harness change made.",
+        "spareEffect": "the GLB shell alpha-0 disc covers the iris (232 verts, alpha min/med/max 0/0/0 in-disk on r1) yet r1-vs-p1 beauty differs only 0.58 levels inside the iris: the s5-base field already spares the iris (pupil guard + lateral gate + corner rho guard leave p1 in-disk alpha max 0.132, median 0). POST-vs-PRE iris gap (11.8/8.3) is spare-independent.",
+        "catchlightMechanism": "spare-independent too (r1 87.41 vs p1 87.27 on aisha): the shell is a KHR_materials_unlit physical surface 0.3mm above the cornea; the hide-shell control variant crashes the lab readback (unlit material) so the depth pre-emption hypothesis is unconfirmed by render. No harness change made; recorded as the falsifier mechanism.",
+        "bakeNoise": "same-code bakes vary ~2px in lid aperture (p2/r2 L 42.6 vs r1 46.3); PRE-vs-p2 outside-iris diff 0.15 levels, so beauty is comparable and the metric gaps dwarf bake noise, but iris/CW clauses sit near the noise scale.",
     },
     "fix": {
         "files": ["tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py (eyeshell code + call site only)"],
