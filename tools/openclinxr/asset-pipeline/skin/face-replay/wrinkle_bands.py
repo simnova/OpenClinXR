@@ -250,9 +250,9 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post4.png"),
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post5.png"),
                "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post4.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post4", "wrinkle-body2-post4-front.png"),
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post5", "wrinkle-body2-post5-front.png"),
                "aisha": os.path.join(POST_STORE, "post4", "wrinkle-aisha-post4-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
@@ -501,14 +501,14 @@ def run_post():
            "parameters": dstage["parameters"],
            "overrides": ov,
            "solve": {
-               "transfer": ("affine from room-rig probes, handback-2 noise "
+               "transfer": ("affine from room-rig probes, handback-4 noise "
                             "stage (band-limited 0.5tex-1.4mm grain, "
-                            "asymmetric caps, no demean): body2 probeN "
-                            "(g=1,p=3) and aisha probeN (g=1,p=3) in "
-                            "store/skin-wrinkle-scale/probes3/; probeC "
-                            "(g=1,p=0) reused (stage-independent); old "
-                            "bipolar/dot probes retained in probes/ + "
-                            "wrinkletest/ + probes2/ as superseded evidence"),
+                            "asymmetric caps [-3.0,+1.4], no demean, patch "
+                            "detrend 12mm): body2 probeN (g=1,p=3) and "
+                            "aisha probeN (g=1,p=3) in probes3/; probeC "
+                            "(g=1,p=0) reused; old bipolar/dot probes "
+                            "retained in probes/ + wrinkletest/ + probes2/ "
+                            "as superseded evidence"),
                "texel_per_px": ("facecore UV island ~780 texels wide; "
                                 "forehead screen patch ~300-400 px wide -> "
                                 "~2-2.6 tex/px on the forehead; the 1.4 mm "
@@ -518,9 +518,9 @@ def run_post():
                                 "~2-4 px); render transfer measured, not "
                                 "assumed"),
                "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
-                          "G1 targets in log ratio (low-edge past midpoint, "
-                          "no excess overshoot) with G3 headroom from "
-                          "albedo-space region means; POST3 verifies"
+                          "G1 targets (forehead fix rows past midpoint, "
+                          "closer in log, no excess overshoot); POST "
+                          "verifies"
                           % (ov["adult_male_street_casual"]["crease_gain"],
                              ov["adult_male_street_casual"]["pore_gain"],
                              ov["aisha"]["crease_gain"],
@@ -561,6 +561,31 @@ def run_post():
             sp = os.path.join(POST_STORE, f"sheet_{subj}_{region}_pre-post-goal.png")
             strip.save(sp)
             strips.append(sp)
+    # ---- mouth crop PRE|POST|goal, body2 (handback 3 lip-hug evidence) ----
+    mouth_parts = []
+    for tag, p in (("pre", report["pre"]["render_body2"]["path"]),
+                   ("post", POST_RENDER["body2"]),
+                   ("goal", GOAL_BODY2)):
+        an = analyse(p, landmarker)
+        m = an["masks"]["nasolabial"]
+        ys, xs = np.where(m)
+        mouth_parts.append(Image.fromarray(
+            an["rgb"][max(0, ys.min() - 60):ys.max() + 80,
+                      max(0, xs.min() - 120):min(an["rgb"].shape[1], xs.max() + 120)]))
+    mhh = max(im.size[1] for im in mouth_parts)
+    mrow = []
+    for im in mouth_parts:
+        cv = Image.new("RGB", (im.size[0], mhh), (128, 128, 128))
+        cv.paste(im, (0, 0))
+        mrow.append(cv)
+    mstrip = Image.new("RGB", (sum(im.size[0] for im in mrow) + 20, mhh), (0, 0, 0))
+    x = 0
+    for im in mrow:
+        mstrip.paste(im, (x, 0))
+        x += im.size[0] + 10
+    msp = os.path.join(POST_STORE, "sheet_body2_mouth_pre-post-goal.png")
+    mstrip.save(msp)
+    strips.append(msp)
     g4 = {"strips": strips,
           "method": "native room-rig pixels, no upscaling or resampling; "
                     "padded (not scaled) to common height per strip",

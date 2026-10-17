@@ -372,7 +372,7 @@
         "skin_tone_rgb": "card SUBJECT line: warm_medium (0.66, 0.50, 0.40)",
         "lips.ratio": "measurement: S/skins/RESULT.md G2 — pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
-        "beard_shadow.weight": "measurement: card tsk_adb53f2a4f22fd72 G4 polygon re-measure (face_landmark_regions upperlip_skin+chin vs goal on the same S/beard/sweep renders): min max|dLab| at 0.9 (2.38) vs 1.0 (3.41); was 1.0 by box-patch rule (S/aishareal/g4-polygon-sweep.json)",
+        "beard_shadow.weight": "measurement: card tsk_adb53f2a4f22fd72 G4 polygon re-measure (face_landmark_regions upperlip_skin+chin vs goal on the same S/beard/sweep renders): min max|dLab| at 0.9 (2.38) vs 1.0 (3.41); was 1.0 by box-patch rule (S/aishareal/g4-polygon-sweep.json); handback 4 re-check with the vermilion hug (full chain + detail, room rig, portrait): 0.9 -> 13.02 vs 1.0 -> 12.46, min at 1.0; RECOMMENDATION ONLY (recorded, weight stays 0.9 per the frozen IOR station choice)",
         "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.01475->0.01686; dark-biased noise cross-talk compensated by pore_gain)",
         "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 3: p=3.9 affine from POST4 p=3.5 (+0.4 for the 0.0214 fh_p gap with slope headroom); fh_c overshoot stays under cap; POST4-second verifies)"
       }

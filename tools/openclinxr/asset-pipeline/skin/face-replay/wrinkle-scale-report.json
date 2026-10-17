@@ -896,9 +896,9 @@
    }
   },
   "solve": {
-   "transfer": "affine from room-rig probes, handback-2 noise stage (band-limited 0.5tex-1.4mm grain, asymmetric caps, no demean): body2 probeN (g=1,p=3) and aisha probeN (g=1,p=3) in store/skin-wrinkle-scale/probes3/; probeC (g=1,p=0) reused (stage-independent); old bipolar/dot probes retained in probes/ + wrinkletest/ + probes2/ as superseded evidence",
+   "transfer": "affine from room-rig probes, handback-4 noise stage (band-limited 0.5tex-1.4mm grain, asymmetric caps [-3.0,+1.4], no demean, patch detrend 12mm): body2 probeN (g=1,p=3) and aisha probeN (g=1,p=3) in probes3/; probeC (g=1,p=0) reused; old bipolar/dot probes retained in probes/ + wrinkletest/ + probes2/ as superseded evidence",
    "texel_per_px": "facecore UV island ~780 texels wide; forehead screen patch ~300-400 px wide -> ~2-2.6 tex/px on the forehead; the 1.4 mm hi-cut (5.7 tex) projects to ~2.4 screen px, inside the instrument pore band (G(H/1500)-G(H/130), peak sensitivity ~2-4 px); render transfer measured, not assumed",
-   "chosen": "body2 (g=1.0,p=3.9) aisha (g=1.0,p=3.0): corrected G1 targets in log ratio (low-edge past midpoint, no excess overshoot) with G3 headroom from albedo-space region means; POST3 verifies",
+   "chosen": "body2 (g=1.0,p=3.9) aisha (g=1.0,p=3.0): corrected G1 targets (forehead fix rows past midpoint, closer in log, no excess overshoot); POST verifies",
    "goal_bands_source": "this report pre.ratios (goal-photo band energies)"
   }
  },
@@ -910,7 +910,7 @@
      "region": "forehead",
      "band": "crease",
      "pre_ratio": 0.819,
-     "post_ratio": 1.09,
+     "post_ratio": 1.0911,
      "midpoint": 0.9095,
      "toward_goal": true,
      "closer_log": true,
@@ -924,7 +924,7 @@
      "region": "forehead",
      "band": "pore",
      "pre_ratio": 0.3204,
-     "post_ratio": 0.711,
+     "post_ratio": 0.7116,
      "midpoint": 0.6602,
      "toward_goal": true,
      "closer_log": true,
@@ -938,7 +938,7 @@
      "region": "nasolabial",
      "band": "crease",
      "pre_ratio": 1.447,
-     "post_ratio": 1.5216,
+     "post_ratio": 1.5343,
      "midpoint": 1.2235,
      "toward_goal": false,
      "closer_log": false,
@@ -952,7 +952,7 @@
      "region": "nasolabial",
      "band": "pore",
      "pre_ratio": 1.045,
-     "post_ratio": 1.2117,
+     "post_ratio": 1.2236,
      "midpoint": 1.0225,
      "toward_goal": false,
      "closer_log": false,
@@ -966,7 +966,7 @@
      "region": "forehead",
      "band": "crease",
      "pre_ratio": 0.2993,
-     "post_ratio": 0.7529,
+     "post_ratio": 0.7463,
      "midpoint": 0.6497,
      "toward_goal": true,
      "closer_log": true,
@@ -980,7 +980,7 @@
      "region": "forehead",
      "band": "pore",
      "pre_ratio": 0.1913,
-     "post_ratio": 0.7477,
+     "post_ratio": 0.7455,
      "midpoint": 0.5957,
      "toward_goal": true,
      "closer_log": true,
@@ -994,10 +994,10 @@
      "region": "nasolabial",
      "band": "crease",
      "pre_ratio": 1.372,
-     "post_ratio": 1.377,
+     "post_ratio": 1.3686,
      "midpoint": 1.186,
      "toward_goal": false,
-     "closer_log": false,
+     "closer_log": true,
      "overshoot_ok": true,
      "route": "falsifier-geometry",
      "pass": false,
@@ -1008,7 +1008,7 @@
      "region": "nasolabial",
      "band": "pore",
      "pre_ratio": 1.3033,
-     "post_ratio": 1.3619,
+     "post_ratio": 1.3595,
      "midpoint": 1.1517,
      "toward_goal": false,
      "closer_log": false,
@@ -1085,7 +1085,7 @@
     }
    ],
    "pass": false,
-   "verdict": "FAIL as written: one new render peak (body2/render@1, 2.04x PRE, just over the 2x line). Mechanism (measured): the albedo carries NO low-frequency excess (same-pixel UV facecore FFT bins 0-3 all lower in POST than PRE: 13363<14417, 61441<65141, 27069<28469, 22932<28032), and aisha is clean with the same stage; the render-side bin-0/1 lift is a smooth broad-brightness redistribution from the intended crease softening on body2s strong folds (albedo valleys brightened), not a seam or tiling structure (no high-frequency peaks anywhere; seam steps drop 0.50->0.16). Intent (no seams or tiling) met; rule trips on smooth shading."
+   "verdict": "FAIL as written: one new render peak (body2/render@1, 2.04x PRE, just over the 2x line). Mechanism (measured): the albedo carries NO low-frequency excess (same-pixel UV facecore FFT bins 0-3 all lower in POST than PRE), and aisha is clean with the same stage; the render-side bin-0/1 lift is a smooth broad-brightness redistribution from the intended crease softening on body2's strong folds (albedo valleys brightened), not a seam or tiling structure (no high-frequency peaks anywhere; seam steps drop). Intent (no seams or tiling) met; rule trips on smooth shading."
   },
   "g3": {
    "rows": [
@@ -1367,7 +1367,7 @@
      "direction": "gt",
      "threshold": 12.448,
      "d_eval_pre": 15.557,
-     "d_eval": 15.693,
+     "d_eval": 15.686,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1381,7 +1381,7 @@
      "direction": "gt",
      "threshold": 12.448,
      "d_eval_pre": 0.227,
-     "d_eval": 0.662,
+     "d_eval": 0.66,
      "pre_pass": false,
      "enforced": true,
      "pass": false
@@ -1394,7 +1394,7 @@
      "direction": "lt",
      "threshold": 2.42,
      "d_eval_pre": 4.299,
-     "d_eval": 4.298,
+     "d_eval": 4.299,
      "pre_pass": false,
      "enforced": true,
      "pass": false,
@@ -1408,7 +1408,7 @@
      "direction": "lt",
      "threshold": 2.42,
      "d_eval_pre": 0.819,
-     "d_eval": 0.819,
+     "d_eval": 0.818,
      "pre_pass": true,
      "enforced": true,
      "pass": true
@@ -1746,7 +1746,8 @@
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_forehead_pre-post-goal.png",
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_nasolabial_pre-post-goal.png",
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_forehead_pre-post-goal.png",
-    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_nasolabial_pre-post-goal.png"
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_nasolabial_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_mouth_pre-post-goal.png"
    ],
    "method": "native room-rig pixels, no upscaling or resampling; padded (not scaled) to common height per strip",
    "worker_grade": "forehead: pores visible both subjects, no plastic smoothing, no tiling; fold lines geometrically intact (expected: mesh geometry). nasolabial: fold unchanged (geometry, routed).",
@@ -1758,13 +1759,13 @@
     {
      "subject": "body2",
      "pre": 3.187,
-     "post": 3.595,
+     "post": 3.614,
      "goal": -3.547
     },
     {
      "subject": "aisha",
      "pre": 0.54,
-     "post": 0.959,
+     "post": 0.991,
      "goal": -2.484
     }
    ]
@@ -1780,67 +1781,67 @@
    "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
   },
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post4/wrinkle-body2-post4-front.png",
-   "sha256": "63b4cf611705e05c72157c30cd2363790d3e6d5f33803af6a1c601b902980eb5"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post5/wrinkle-body2-post5-front.png",
+   "sha256": "309ac008302eabb0c91b0dbf5f05bd4c4b5ff5b04de1cf06f4f494b16db7ac3e"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post4/wrinkle-aisha-post4-front.png",
-   "sha256": "0d200e6676ce7c8c081123579c4cac204efb9dae5c1ba6a1a90096cf6d43484f"
+   "sha256": "98cdf7ec42e2d753e6964b744dcd757bb8abf1b5341af929cc18ff6b8c46af1a"
   },
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post4.png",
-   "sha256": "122967b92c74cb3947c7c12a1257866e1c3519f2860198e1225c5e11d106dfcc"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post5.png",
+   "sha256": "290d1ea8b9727df6c86852ff12a1f085594e8de52908a91be782222f04d17d90"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_aisha_post4.png",
-   "sha256": "0340cc3e5461dc1787736552c3c49e1e3ff6e7514050361c77a822b602a20471"
+   "sha256": "7f483a85d657674101a86658f8e75ae36f91b09e7d3253d81b1e4800e88c8881"
   }
  ],
  "post": {
   "body2": {
-   "H": 759.14,
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post4/wrinkle-body2-post4-front.png",
-   "sha256": "63b4cf611705e05c72157c30cd2363790d3e6d5f33803af6a1c601b902980eb5",
+   "H": 759.77,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post5/wrinkle-body2-post5-front.png",
+   "sha256": "309ac008302eabb0c91b0dbf5f05bd4c4b5ff5b04de1cf06f4f494b16db7ac3e",
    "bands": {
     "forehead": {
-     "crease": 0.01963,
-     "pore": 0.05039,
-     "n": 12274
+     "crease": 0.01965,
+     "pore": 0.05043,
+     "n": 12402
     },
     "nasolabial": {
-     "crease": 0.08854,
-     "pore": 0.14743,
-     "n": 3905
+     "crease": 0.08928,
+     "pore": 0.14888,
+     "n": 3809
     }
    },
    "forehead_bbox": [
-    488,
+    485,
     516,
-    799,
+    800,
     572
    ]
   },
   "aisha": {
-   "H": 741.47,
+   "H": 742.94,
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post4/wrinkle-aisha-post4-front.png",
-   "sha256": "0d200e6676ce7c8c081123579c4cac204efb9dae5c1ba6a1a90096cf6d43484f",
+   "sha256": "98cdf7ec42e2d753e6964b744dcd757bb8abf1b5341af929cc18ff6b8c46af1a",
    "bands": {
     "forehead": {
-     "crease": 0.01024,
-     "pore": 0.02756,
-     "n": 10604
+     "crease": 0.01015,
+     "pore": 0.02748,
+     "n": 10640
     },
     "nasolabial": {
-     "crease": 0.09744,
-     "pore": 0.13658,
-     "n": 3499
+     "crease": 0.09684,
+     "pore": 0.13634,
+     "n": 3488
     }
    },
    "forehead_bbox": [
     495,
     531,
-    786,
-    583
+    789,
+    581
    ]
   }
  }

@@ -403,11 +403,12 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
 
   it("G4 sheet strips exist at native pixels, lane-manager grade pending", () => {
     const r = loadReport();
-    expect(r.gates.g4.strips.length).toBe(4);
+    expect(r.gates.g4.strips.length).toBe(5);
     for (const p of r.gates.g4.strips) {
       expect(fs.existsSync(p)).toBe(true);
       expect(shaOf(p).length).toBe(64);
     }
+    expect(r.gates.g4.strips.some((p) => p.includes("mouth"))).toBe(true);
     expect(r.gates.g4.lane_manager).toBe("pending");
   });
 

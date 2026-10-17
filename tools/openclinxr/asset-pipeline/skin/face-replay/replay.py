@@ -159,7 +159,18 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_beard_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--landmarks", str(derive_out / "landmarks-uv.json")]
-        cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        # Vermilion hug (handback 4): the derive lips mask carries ~3 mm
+        # of margin past the vermilion, leaving a pale ring; the beard
+        # hugs the lipuv hard_up|hard_lo vermilion core instead (same
+        # union detail_bands consumes), with its 0.5 mm hug + 0.5 mm
+        # feather. Aisha (weight 0) is unaffected: identity by copy.
+        from PIL import Image as _PI3
+        import numpy as _np3
+        _lip = _np3.load(str(derive_out / "lipuv.npz"))
+        _verm = (((_lip["hard_up"] > 0) | (_lip["hard_lo"] > 0)) * 255).astype(_np3.uint8)
+        _verm_union = store_dir / "lip-vermilion-union.png"
+        _PI3.fromarray(_verm).save(_verm_union)
+        cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
         cmd += ["--weight", str(params["weight"])]
         cmd += ["--seed", str(params["seed"])]

@@ -163,31 +163,27 @@ def main(argv: list[str] | None = None) -> int:
     for opt in (a.eyes_mask, a.brows_mask):
         if opt is not None:
             hard = hard & ~(load_mask(opt, (h, wpx)) > 0.5)
-    # Lips (vermilion hug, handback 3): the grain meets the lips with no
-    # ring. The derive lips mask carries ~3 mm of margin past the
-    # vermilion (measured albedo a* profile vs mask edge: the derive
-    # lips mask carries ~3 mm of margin), so the
-    # hard exclusion would leave a pale untreated ring. Instead the
+    # Lips (vermilion hug, handback 3+4): the grain meets the lips with
+    # no ring. The derive lips mask carries ~3 mm of margin past the
+    # vermilion (measured albedo a* profile vs mask edge), so the
     # vermilion core (lipuv hard_up|hard_lo union, passed as --lips-mask)
-    # is hugged exactly like beard_shadow.py (LIPS_EXCLUDE_MM 0.5 hug,
-    # LIP_FEATHER_MM 0.5 feather) via its own multiplicative cut.
+    # is hugged with the beard_shadow hug/feather (0.5 mm hug + 0.5 mm
+    # feather). The cut is a BOUNDED smoothstep over exactly
+    # [hug, hug+feather] texels (a gaussian's tails would smear the
+    # transition to ~3x the prescribed width, which is what read as a
+    # halo).
     lips_cut = np.ones((h, wpx), dtype=np.float64)
     lips_support_extra = np.zeros((h, wpx), dtype=bool)
     if a.lips_mask is not None:
         hug_tex = max(float(a.lips_hug_mm) * tpm, 0.0)
-        feather_lips_tex = max(float(a.lips_feather_mm) * tpm, 1.0)
+        feather_tex = max(float(a.lips_feather_mm) * tpm, 0.5)
         verm = load_mask(a.lips_mask, (h, wpx)) > 0.5
-        hug = cv2.dilate(verm.astype(np.uint8),
-                         np.ones((2 * int(round(hug_tex)) + 1,
-                                  2 * int(round(hug_tex)) + 1), np.uint8)) > 0
-        cut = gauss(hug.astype(np.float32), feather_lips_tex)
-        if float(cut.max()) > 0:
-            cut = cut / float(cut.max())
+        dist = cv2.distanceTransform((1 - verm.astype(np.uint8)),
+                                     cv2.DIST_L2, 3)
+        t = np.clip((dist - hug_tex) / feather_tex, 0.0, 1.0)
+        cut = 1.0 - (t * t * (3.0 - 2.0 * t))
         lips_cut = 1.0 - cut
-        lips_support_extra = cv2.dilate(
-            hug.astype(np.uint8),
-            np.ones((2 * int(round(feather_lips_tex)) + 1,
-                     2 * int(round(feather_lips_tex)) + 1), np.uint8)) > 0
+        lips_support_extra = dist <= (hug_tex + feather_tex)
 
     if g == 0.0 and p == 0.0:
         # Identity by construction (fix_lips ratio-1.0 pattern): a PIL
