@@ -6,15 +6,13 @@
    "M1": -14.032,
    "M2a": 7.182,
    "M2b": -8.655,
-   "D90": -7.201,
-   "nSclera": 784
+   "D90": -7.201
   },
   "body2": {
    "M1": -23.236,
    "M2a": 16.915,
    "M2b": -14.089,
-   "D90": -5.832,
-   "nSclera": 1006
+   "D90": -5.832
   }
  },
  "pre": {
@@ -22,13 +20,17 @@
    "M1": -0.909,
    "M2a": 4.088,
    "M2b": 2.046,
-   "D90": 2.934
+   "D90": 2.934,
+   "catchlightPeakL": 93.918,
+   "catchlightNoiseL": 0.435
   },
   "body2": {
    "M1": 15.566,
    "M2a": 3.716,
    "M2b": 2.814,
-   "D90": 19.717
+   "D90": 19.717,
+   "catchlightPeakL": 93.584,
+   "catchlightNoiseL": 0.0
   }
  },
  "midpoints": {
@@ -54,47 +56,22 @@
   ]
  },
  "noise": {
-  "mask": {
-   "aisha": {
-    "M1": 0.759,
-    "M2a": 0.664,
-    "M2b": 0.156,
-    "D90": 0.1
-   },
-   "body2": {
-    "M1": 1.107,
-    "M2a": 1.327,
-    "M2b": 0.243,
-    "D90": 0.1
-   }
-  },
   "irisEuclidFloor": {
    "aisha": 6.896,
    "body2": 5.159
   },
-  "irisMethod": "1px dilation and erosion of the iris circle radius on PRE; larger euclid RGB shift",
-  "enforcement": "every |PRE-goal|/2 exceeds its mask floor, so every G1/G2-D90 clause is enforced; iris clause enforced against the iris floor; skin judged against the M1 mask floor",
-  "halves": {
-   "aisha": {
-    "/2": {
-     "M1": 6.561,
-     "M2a": 1.547,
-     "M2b": 5.35,
-     "D90": 5.067
-    }
-   },
-   "body2": {
-    "/2": {
-     "M1": 19.401,
-     "M2a": 6.599,
-     "M2b": 8.451,
-     "D90": 12.774
-    }
-   }
-  }
+  "irisMethod": "shell-placement 1px dilation and erosion of the iris circle radius on PRE; larger euclid RGB shift",
+  "catchlightNoise": {
+   "aisha": 0.435,
+   "body2": 0.0
+  },
+  "catchlightMethod": "measure_catchlight.py max 5x5 box mean inside the iris circle on the PRE frame; noise = max change under 1px erode/dilate"
  },
  "diagnosis": {
-  "note": "Iris spare (UV-space feather over iris disk using globe UVs vs eye texture iris centres) and lid-occlusion scale (covered upper-cap fraction from seated lid loops) applied. r1 shows both subjects with spare=1.0 occpow=1.0."
+  "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified on the r1 GLBs (exporter writes glTF_UV=(u,1-v_blender), so GLB UVs match file-UV): inside-disc verts cluster on the iris cap (124-126 verts/eye, mean axis dist 2.75-2.90mm < 6mm) while unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm). No UV-origin bug; cite /tmp/uv_verify.py numbers in the lane report.",
+  "spareEffect": "the GLB shell alpha-0 disc covers the iris (232 verts, alpha min/med/max 0/0/0 in-disk on r1) yet r1-vs-p1 beauty differs only 0.58 levels inside the iris: the s5-base field already spares the iris (pupil guard + lateral gate + corner rho guard leave p1 in-disk alpha max 0.132, median 0). POST-vs-PRE iris gap (11.7/7.9) is spare-independent.",
+  "catchlightMechanism": "spare-independent too (r1 87.41 vs p1 87.27 on aisha): the shell is a KHR_materials_unlit physical surface 0.3mm above the cornea; the hide-shell control variant crashes the lab readback (m.emissive undefined on the unlit material), so the depth pre-emption hypothesis is unconfirmed by render. No harness change made; recorded as the falsifier mechanism.",
+  "bakeNoise": "same-code bakes vary ~2px in lid aperture (p2 aisha 44.6/42.6 vs r1 46.6/46.3); PRE-vs-p2 outside-iris diff 0.15 levels, so beauty is comparable and the metric gaps dwarf bake noise, but iris/CW clauses sit near the noise scale."
  },
  "fix": {
   "files": [
@@ -104,7 +81,12 @@
    "--eye-shell-iris-spare": 1.0,
    "--eye-shell-occlusion-power": 1.0
   },
-  "knobNote": "spare=1.0 means iris plus one limbus-width feather; occpow=1.0 linear occlusion scale; old knob defaults unchanged (margin 0.5/corner 0.8/ramp-mm 2.5/boost 1.6/color 120,88,80/ring-frac 0.25/upper-span-mm 6.0/upper-peak 0.0); shell stays opt-in",
+  "knobNote": "new knobs default neutral (spare 0.0, occpow 0.0) so --eye-occlusion-shell alone reproduces main-value bakes byte-stable; the sweep passes them explicitly. Old knob defaults unchanged (margin 0.5/corner 0.8/ramp-mm 2.5/boost 1.6/color 120,88,80/ring-frac 0.25/upper-span-mm 6.0/upper-peak 0.0); shell stays opt-in.",
+  "baseShell": "--eye-occlusion-shell --eye-shell-ring-frac 0.2 --eye-shell-upper-span-mm 3.0 --eye-shell-upper-peak 0.7 (s5 pick pinned explicitly every round; r1 ring-frac not logged, s5 value 0.2 presumed)",
+  "baseArgv": {
+   "aisha": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+   "body2": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea"
+  },
   "structure": "UV-space iris spare (globe UVs vs EYE_IRIS_CENTER_L/R_UV, EYE_IRIS_RADIUS_UV, EYE_LIMBUS_WIDTH_UV from eye-parallax.ts), per-eye lid-occlusion scale from seated upper-lid ring over upper globe cap; all generic, no subject literal",
   "compose": "shell+tearline build pre-export on the unsplit eye; transfer binds shell; cornea split runs after and repoints the eye node only; shell survives as openclinxr_eye_occlusion_shell_mesh 1076 verts + 6 lid targets beside globe 552 + 2 corneas on both subjects",
   "g3": "no subject name/stem literal in added eyeshell lines (asserted by the test)"
@@ -142,7 +124,7 @@
     "M1": {
      "value": -18.433,
      "mid": -7.471,
-     "pass": false
+     "pass": true
     },
     "M2a": {
      "value": 2.711,
@@ -152,7 +134,7 @@
     "M2b": {
      "value": -5.445,
      "mid": -3.304,
-     "pass": false
+     "pass": true
     }
    },
    "body2": {
@@ -181,7 +163,7 @@
       -12.268,
       -2.133
      ],
-     "pass": false
+     "pass": true
     },
     "iris": {
      "value": 11.827,
@@ -191,7 +173,7 @@
     "catchlight": {
      "value": 87.41,
      "pre": 93.918,
-     "noise": 0.353,
+     "noise": 0.435,
      "pass": false
     }
    },
@@ -225,36 +207,36 @@
  "probes": {
   "spareOff": {
    "aisha": {
-    "M1": 0,
-    "M2a": 0,
-    "M2b": 0,
-    "D90": 0,
-    "irisEuclidVsPre": 7.896,
-    "catchlightPeakL": 0,
-    "catchlightDeltaVsPre": 0
+    "M1": -18.827,
+    "M2a": 2.332,
+    "M2b": -5.76,
+    "D90": -5.017,
+    "irisEuclidVsPre": 11.716,
+    "catchlightPeakL": 87.272,
+    "catchlightDeltaVsPre": -6.646
    },
    "body2": {
-    "M1": 0,
-    "M2a": 0,
-    "M2b": 0,
-    "D90": 0,
-    "irisEuclidVsPre": 6.159,
-    "catchlightPeakL": 0,
-    "catchlightDeltaVsPre": 0
+    "M1": 3.698,
+    "M2a": 3.918,
+    "M2b": -1.859,
+    "D90": 11.197,
+    "irisEuclidVsPre": 7.855,
+    "catchlightPeakL": 93.22,
+    "catchlightDeltaVsPre": -0.364
    },
-   "result": "fails iris clause on both subjects (irisEuclidVsPre > floor)"
+   "result": "fails iris clause on both subjects (aisha 11.716 > 6.896; body2 7.855 > 5.159)"
   },
   "powerOff": {
    "aisha": {
-    "M1": 0,
-    "M2a": 0,
-    "M2b": 0,
-    "D90": -1.133,
-    "irisEuclidVsPre": 0,
-    "catchlightPeakL": 0,
-    "catchlightDeltaVsPre": 0
+    "M1": -18.488,
+    "M2a": -3.204,
+    "M2b": -39.812,
+    "D90": -6.314,
+    "irisEuclidVsPre": 19.631,
+    "catchlightPeakL": 87.046,
+    "catchlightDeltaVsPre": -6.872
    },
-   "result": "fails aisha D90 (D90=-1.133 outside window [-12.268, -2.133])"
+   "result": "aisha D90 stays in-window with the spare on (-6.314 in [-12.268, -2.133]); non-vacuity via iris (19.631 > 6.896), catch-light (|87.046-93.918| > 0.435) and M2a (-3.204 < 5.635)"
   }
  },
  "defaults": {
@@ -266,132 +248,49 @@
   "body2": 0.606,
   "formula": "O = mean over side's upper-cap shell verts seated under the seated upper lid margin at same x (lid z above vert z); scale = O^power. Pure seated-bake geometry from lid loops + fitted globe."
  },
+ "pick": "r1",
  "files": {
-  "p2/ss-aisha-p2.variant.json": {
-   "sha256": "3e305a08206b8833ba9da7112ba0c1d3c02b895108becf58d3e742749da8ad1e"
+  "p1/aisha-bake.log": {
+   "sha256": "1a57cabaef7c2eb76f6bba598c7a0bef52e740952ecf6c400e078643dfd6db4d"
   },
-  "p2/ss-aisha-p2-id.variant.json": {
-   "sha256": "bc94da227ee3cfeeeee942cbbd6d7f1572a41a9e36bf02ebb91d92b0d6d4b91a"
+  "p1/aisha-id/ss-aisha-p1-id-front.png": {
+   "sha256": "a8f298644f54fcae28aab4b2d168f4ec55e41ade0f928378427df2bb73e7eb70"
   },
-  "p2/aisha-lidconform.skin-baked.png": {
-   "sha256": "933edc058637f03b201fbd3071c8d1725ed3187fc888c994c8fb1189fa454cad"
+  "p1/aisha-id/ss-aisha-p1-id.json": {
+   "sha256": "c0659393121f22daac31a5a82297f9e194cb3ef03b16a32b0c5871841e791c31"
   },
-  "p2/aisha-bake.log": {
-   "sha256": "d36915cefd93f9974249e40eb3b529108e17ee423849b17a0fac5af38857b717"
+  "p1/aisha-lidconform.glb": {
+   "sha256": "85f247fc0fef08a6893b0b77ef3f88c1e8e7644448df2ebeb232859db7372522"
   },
-  "p2/aisha-lidconform.skin-normal.png": {
-   "sha256": "14ebd505cb0a33eb2f8a50bca023c562cc5eb40e663c07a2e02acb454a9f1247"
+  "p1/aisha-render/ss-aisha-p1-front.png": {
+   "sha256": "3c907eced66cf7f987eb4b1877a1920c7a23ad1b1d78c1c8a7bf953149789071"
   },
-  "p2/aisha-lidconform.glb": {
-   "sha256": "3f430ba6558160ef273767bc5e62330ee2a5da2902d40fd8f618559c51cc1fcd"
-  },
-  "r1/aisha-render.log": {
-   "sha256": "42624086c28eef4a9083141b469d4a214d72109006bf58d6ef672dfb321d234a"
-  },
-  "r1/b2s4-r1.variant.json": {
-   "sha256": "0da5d8fa731593ebd665ff4b97d6f7406b70b11b81a23f107cc21e24cd83c2de"
-  },
-  "r1/body2-lidconform.glb": {
-   "sha256": "1fe882c43072e63409b930dd5b36c7e2570d3e04835256092e4d75c8eaf585cd"
-  },
-  "r1/ss-aisha-r1.variant.json": {
-   "sha256": "9631b0371402b5a181d61964267e5706d477f83c1ccc89a8981f94e711918e2a"
-  },
-  "r1/ss-aisha-r1-id.variant.json": {
-   "sha256": "8719ef1c482340d99ac9cebc7a3394ada02f6cae7eed9be62c72941210f17a70"
-  },
-  "r1/body2-lidconform.skin-baked.png": {
-   "sha256": "c30fa2052a93c6d7135c4b5603e2c4be77482c027020c0faeb60c6da8c1ed04d"
-  },
-  "r1/b2s4-r1-yaw25.variant.json": {
-   "sha256": "b4dd909b01334c865e32b82b50aefa0cc53d111678b221edc3cc471015108314"
-  },
-  "r1/body2-bake.log": {
-   "sha256": "a40f69aea2d360f3ad63e59e903ae5de446633dd0973e1215d7be8e5a2018a0a"
-  },
-  "r1/aisha-lidconform.skin-baked.png": {
-   "sha256": "f7868e67cf2cf37242291904280494e34b2b7ed33eb925e9dbb9bf0f754c61b3"
-  },
-  "r1/aisha-bake.log": {
-   "sha256": "7706b272d5e3193e51affe61d2b5326af4f677d28f57d8e41feb8ccaa377420a"
-  },
-  "r1/body2-lidconform.skin-normal.png": {
-   "sha256": "a6cc5a4fe769105aa5c937f1b496ee6ac19a7689ef229e7166c4635d184c4a89"
-  },
-  "r1/b2s4-r1-id.variant.json": {
-   "sha256": "e13d5ae9176adea5fa13d3ced763da7a6734d08faa234488588bd8d22edde868"
-  },
-  "r1/aisha-lidconform.skin-normal.png": {
-   "sha256": "ca70a5f0f2d03b07ea65039bd00f0366e58fea90dbc5bf6df90e500e858c9b58"
-  },
-  "r1/ss-aisha-r1-yaw25.variant.json": {
-   "sha256": "2df0640ec85f3199aa1a6d6d390fc57659b4f098a903e087c1a63f6649cac9ef"
-  },
-  "r1/aisha-lidconform.glb": {
-   "sha256": "8c40ea7aca2f9fd2ccfab767ab7f97ad516418b44a3e89b7b3d46446a9a00e6c"
-  },
-  "r1/body2-yaw25/b2s4-r1-yaw25.json": {
-   "sha256": "6c08d4eab93b93417a6bde2b2dfba13305f0e286dd03e1e981ba165e99feec4b"
-  },
-  "r1/body2-yaw25/b2s4-r1-yaw25-yaw25.png": {
-   "sha256": "964996aee290b8eb29161bee2e7d986ad0c1eb263b1035817dfae1181254fbff"
-  },
-  "r1/aisha-render/ss-aisha-r1-front.png": {
-   "sha256": "2f6e42ac98aac19501791586fb129e05d5b470416980b568ddb9997667c2ba5e"
-  },
-  "r1/aisha-render/ss-aisha-r1.json": {
-   "sha256": "0748d465e6e0691f51720730c30ff614e3aea10b8fa47bff6d4b020428689268"
-  },
-  "r1/body2-render/b2s4-r1-front.png": {
-   "sha256": "588d0436bc4afbe7ef022921a5b7ba4af5d1391d7291476a0b5b00c45b3fd2d8"
-  },
-  "r1/body2-render/b2s4-r1.json": {
-   "sha256": "3c689aebcb103ec223bc6931dd75b1b0e7f1c32789bfd065f3999a2d91d3204f"
-  },
-  "r1/aisha-yaw25/ss-aisha-r1-yaw25-yaw25.png": {
-   "sha256": "f25c73ca809c575457f5af38da74b3b0e5b7dcbd3e7c92d58a3c9a4d6e949489"
-  },
-  "r1/aisha-yaw25/ss-aisha-r1-yaw25.json": {
-   "sha256": "e401c0072dbc815500fb0a15e809ea41c2319ea212027592a577eb7afbe545d4"
-  },
-  "r1/aisha-id/ss-aisha-r1-id-front.png": {
-   "sha256": "c705b3e76c525243c65325809d461c1d17f4b97a5c80ba24491b7bb485838d55"
-  },
-  "r1/aisha-id/ss-aisha-r1-id.json": {
-   "sha256": "048b2d7b1802f8fbedfe66c6c218db1285c77fb763c001e34be9ad0d3ba7a6ab"
-  },
-  "r1/body2-id/b2s4-r1-id.json": {
-   "sha256": "bc555184e846538f504070b47e6d6651fd53f2dba1af34b4ac587f62edf96d01"
-  },
-  "r1/body2-id/b2s4-r1-id-front.png": {
-   "sha256": "e1be4ef2f1a1a6107492428516c27bd1cb9c0d1f62187d7f9ea49f8d634a0dd7"
-  },
-  "p1/body2-lidconform.glb": {
-   "sha256": "6e8f89bd53ff327ad08e2caa3d526b8c8a3b829f6c4bfce31887e681f3effc14"
+  "p1/aisha-render/ss-aisha-p1.json": {
+   "sha256": "6a04fdaa87809a03526cf06fb340c3081a1df36b685f3c85988ba1c61ad03305"
   },
   "p1/b2s4-p1-id.variant.json": {
    "sha256": "ccee99620837698f356d5ca4b3e4bb255b434c23d9b3d96c854ec60a5a7ae0db"
   },
-  "p1/body2-lidconform.skin-baked.png": {
-   "sha256": "488c55dd4a32297f44aa43a0898e82a4fecb669108390e8cb03c8d5524a6efdb"
+  "p1/b2s4-p1.variant.json": {
+   "sha256": "63085cf946b5a545281b7b26d3316e8dab296dde738644f59839c81e21c3776b"
   },
   "p1/body2-bake.log": {
    "sha256": "4fe3c23450ccbf87d61a037f512daff0e1ba808f1aa7565966c52a3f4e912477"
   },
-  "p1/aisha-lidconform.skin-baked.png": {
-   "sha256": "c3c05b79cb13bd4ae2d24507f6e937cfa0e6cf1c381dc40195294adaa2ed7e8e"
+  "p1/body2-id/b2s4-p1-id-front.png": {
+   "sha256": "d90500834fee360b49a0028c188641a322a123354be1329baa3fc136035bab17"
   },
-  "p1/aisha-bake.log": {
-   "sha256": "1a57cabaef7c2eb76f6bba598c7a0bef52e740952ecf6c400e078643dfd6db4d"
+  "p1/body2-id/b2s4-p1-id.json": {
+   "sha256": "ec7a776f307b884c1b95baab62b6d4e9a0db880cf7cc028e30949234cbda761a"
   },
-  "p1/body2-lidconform.skin-normal.png": {
-   "sha256": "ef5be5d6cc9cdb6e4f4dd71eda986076df03e085f414708cafad1768c36a76f8"
+  "p1/body2-lidconform.glb": {
+   "sha256": "6e8f89bd53ff327ad08e2caa3d526b8c8a3b829f6c4bfce31887e681f3effc14"
   },
-  "p1/aisha-lidconform.skin-normal.png": {
-   "sha256": "9b16c5d104ff1498f793b143caafec2a7b00fe1d90edab6a3dbefde6aa774425"
+  "p1/body2-render/b2s4-p1-front.png": {
+   "sha256": "be7c2fa78b37cd5181e2e53ff2ba9d5167e97021c0b195202bd9a1bfe17b03a1"
   },
-  "p1/b2s4-p1.variant.json": {
-   "sha256": "63085cf946b5a545281b7b26d3316e8dab296dde738644f59839c81e21c3776b"
+  "p1/body2-render/b2s4-p1.json": {
+   "sha256": "0fc8df09a6dca4f19db47318032a1da5dcc92b71dbc5bbf22bf0d56f5a02fbc2"
   },
   "p1/ss-aisha-p1-id.variant.json": {
    "sha256": "2b88d062c6bd7c849baf19018c89dd66db6e22ffe49989a362d294efc4d5d9cc"
@@ -399,12 +298,110 @@
   "p1/ss-aisha-p1.variant.json": {
    "sha256": "0dd2f4e4bf75dd3a710f7060e8274696ec869ceaec17cbc4e62963a4e9b04f44"
   },
-  "p1/aisha-lidconform.glb": {
-   "sha256": "85f247fc0fef08a6893b0b77ef3f88c1e8e7644448df2ebeb232859db7372522"
+  "p2/aisha-bake.log": {
+   "sha256": "d36915cefd93f9974249e40eb3b529108e17ee423849b17a0fac5af38857b717"
+  },
+  "p2/aisha-id/ss-aisha-p2-id-front.png": {
+   "sha256": "95a2fac82171b0d35349176b15720bf407e81b3beac229ce1a0050a6299160c1"
+  },
+  "p2/aisha-id/ss-aisha-p2-id.json": {
+   "sha256": "4ef3fd676a4ea302f68e05f99022935620b2784634e43f26c7b810afd631ee62"
+  },
+  "p2/aisha-lidconform.glb": {
+   "sha256": "3f430ba6558160ef273767bc5e62330ee2a5da2902d40fd8f618559c51cc1fcd"
+  },
+  "p2/aisha-render/ss-aisha-p2-front.png": {
+   "sha256": "cf0944b0e0c462662041b4e326489572db5b74626c846515813792a91c86e741"
+  },
+  "p2/aisha-render/ss-aisha-p2.json": {
+   "sha256": "09c2dbbbddb11a189c6f4ca7d6026e0b784980d8ee0a110e0da8f174e317a710"
+  },
+  "p2/ss-aisha-p2-id.variant.json": {
+   "sha256": "bc94da227ee3cfeeeee942cbbd6d7f1572a41a9e36bf02ebb91d92b0d6d4b91a"
+  },
+  "p2/ss-aisha-p2.variant.json": {
+   "sha256": "3e305a08206b8833ba9da7112ba0c1d3c02b895108becf58d3e742749da8ad1e"
+  },
+  "r1/aisha-bake.log": {
+   "sha256": "7706b272d5e3193e51affe61d2b5326af4f677d28f57d8e41feb8ccaa377420a"
+  },
+  "r1/aisha-id/ss-aisha-r1-id-front.png": {
+   "sha256": "c705b3e76c525243c65325809d461c1d17f4b97a5c80ba24491b7bb485838d55"
+  },
+  "r1/aisha-id/ss-aisha-r1-id.json": {
+   "sha256": "048b2d7b1802f8fbedfe66c6c218db1285c77fb763c001e34be9ad0d3ba7a6ab"
+  },
+  "r1/aisha-lidconform.glb": {
+   "sha256": "8c40ea7aca2f9fd2ccfab767ab7f97ad516418b44a3e89b7b3d46446a9a00e6c"
+  },
+  "r1/aisha-render.log": {
+   "sha256": "42624086c28eef4a9083141b469d4a214d72109006bf58d6ef672dfb321d234a"
+  },
+  "r1/aisha-render/ss-aisha-r1-front.png": {
+   "sha256": "2f6e42ac98aac19501791586fb129e05d5b470416980b568ddb9997667c2ba5e"
+  },
+  "r1/aisha-render/ss-aisha-r1.json": {
+   "sha256": "0748d465e6e0691f51720730c30ff614e3aea10b8fa47bff6d4b020428689268"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25-yaw25.png": {
+   "sha256": "f25c73ca809c575457f5af38da74b3b0e5b7dcbd3e7c92d58a3c9a4d6e949489"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25.json": {
+   "sha256": "e401c0072dbc815500fb0a15e809ea41c2319ea212027592a577eb7afbe545d4"
+  },
+  "r1/b2s4-r1-id.variant.json": {
+   "sha256": "e13d5ae9176adea5fa13d3ced763da7a6734d08faa234488588bd8d22edde868"
+  },
+  "r1/b2s4-r1-yaw25.variant.json": {
+   "sha256": "b4dd909b01334c865e32b82b50aefa0cc53d111678b221edc3cc471015108314"
+  },
+  "r1/b2s4-r1.variant.json": {
+   "sha256": "0da5d8fa731593ebd665ff4b97d6f7406b70b11b81a23f107cc21e24cd83c2de"
+  },
+  "r1/body2-bake.log": {
+   "sha256": "a40f69aea2d360f3ad63e59e903ae5de446633dd0973e1215d7be8e5a2018a0a"
+  },
+  "r1/body2-id/b2s4-r1-id-front.png": {
+   "sha256": "e1be4ef2f1a1a6107492428516c27bd1cb9c0d1f62187d7f9ea49f8d634a0dd7"
+  },
+  "r1/body2-id/b2s4-r1-id.json": {
+   "sha256": "bc555184e846538f504070b47e6d6651fd53f2dba1af34b4ac587f62edf96d01"
+  },
+  "r1/body2-lidconform.glb": {
+   "sha256": "1fe882c43072e63409b930dd5b36c7e2570d3e04835256092e4d75c8eaf585cd"
+  },
+  "r1/body2-render/b2s4-r1-front.png": {
+   "sha256": "588d0436bc4afbe7ef022921a5b7ba4af5d1391d7291476a0b5b00c45b3fd2d8"
+  },
+  "r1/body2-render/b2s4-r1.json": {
+   "sha256": "3c689aebcb103ec223bc6931dd75b1b0e7f1c32789bfd065f3999a2d91d3204f"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25-yaw25.png": {
+   "sha256": "964996aee290b8eb29161bee2e7d986ad0c1eb263b1035817dfae1181254fbff"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25.json": {
+   "sha256": "6c08d4eab93b93417a6bde2b2dfba13305f0e286dd03e1e981ba165e99feec4b"
+  },
+  "r1/ss-aisha-r1-hideshell.variant.json": {
+   "sha256": "ad87b26c98a64fe1cd169edbce5e3f5a46037d15e23c0fa3eb9988b4bdd48882"
+  },
+  "r1/ss-aisha-r1-id.variant.json": {
+   "sha256": "8719ef1c482340d99ac9cebc7a3394ada02f6cae7eed9be62c72941210f17a70"
+  },
+  "r1/ss-aisha-r1-yaw25.variant.json": {
+   "sha256": "2df0640ec85f3199aa1a6d6d390fc57659b4f098a903e087c1a63f6649cac9ef"
+  },
+  "r1/ss-aisha-r1.variant.json": {
+   "sha256": "9631b0371402b5a181d61964267e5706d477f83c1ccc89a8981f94e711918e2a"
   }
  },
  "sheet": {
   "root": "/Volumes/files/openclinxr-assets/store/shell-iris-spare/sheet",
-  "files": {}
+  "files": {
+   "band-aisha-r1-front.png": "6aef49ec066ec1b72f10e6d7958157dd356e200e793dd050e3a414c8a9ff92eb",
+   "band-aisha-r1-yaw25.png": "84574e7489268a4ab0685052560e1fbac23ec55e83caaebd1767cec18d21f6e4",
+   "band-body2-r1-front.png": "cce0d5432b752ea93cceb3f1d6ca114eecdffbf95c221559f93771233b7e73db",
+   "band-body2-r1-yaw25.png": "560646e3a350d7342132f0145d54dd8204f5d41514f91f2d8305aa7df91c2159"
+  }
  }
 }

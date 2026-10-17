@@ -2454,21 +2454,23 @@ def parse_args():
     parser.add_argument(
         "--eye-shell-iris-spare",
         type=float,
-        default=1.0,
+        default=0.0,
         help=(
             "Eyeshell B2 iris spare: UV-space feather over the iris disk in "
             "units of the texture limbus width (1.0 spares the iris plus one "
-            "limbus width; 0.0 disables the spare for ablation probes)."
+            "limbus width; 0.0 disables the spare). Default 0.0 keeps "
+            "main-value shell bakes byte-stable (spare off at defaults)."
         ),
     )
     parser.add_argument(
         "--eye-shell-occlusion-power",
         type=float,
-        default=1.0,
+        default=0.0,
         help=(
             "Eyeshell B2 lid-occlusion scale: per-eye shell strength is the "
-            "covered upper-cap fraction raised to this power (1.0 linear; "
-            "0.0 disables the scale for ablation probes)."
+            "covered upper-cap fraction raised to this power (1.0 linear). "
+            "Default 0.0 disables the scale (O^0 = 1, field untouched) so "
+            "main-value shell bakes stay byte-stable."
         ),
     )
     parser.add_argument(
@@ -3275,9 +3277,16 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
         # numerals come from packages/openclinxr/xr-scene/src/eye-shader/
         # eye-parallax.ts (EYE_IRIS_CENTER_L/R_UV file-UV, three sampling with
         # v=0 at image top; EYE_IRIS_RADIUS_UV 135/1024; EYE_LIMBUS_WIDTH_UV
-        # 30/1024): Blender/glTF UVs flip v, so the centres below are (u,
-        # 1-v). Per-vert UVs are loop-averaged; the spare takes the nearer of
-        # the two disks so no chart-to-group side assumption is needed.
+        # 30/1024). CONVENTION (measured 2026-10-17, CARD tsk_57f4ae74d62739e0):
+        # bpy loop UVs below use v=0 at the image BOTTOM (Blender UV space),
+        # so the centres compared here are (u, 1-v_file). Verified numerically
+        # on the baked r1 GLBs: verts inside the (u,1-v) discs cluster on the
+        # iris cap (124-126 verts/eye, mean axis dist 2.8-2.9mm < 6mm) while the
+        # unflipped discs catch 7-11 scattered sclera verts (axis dist 7.7mm).
+        # (The 5.1 glTF exporter writes glTF_UV=(u,1-v_blender), so exported GLB
+        # UVs match the file-UV numerals directly; the bake reads bpy UVs, so
+        # the bake flips.) Per-vert UVs are loop-averaged; the spare takes the
+        # nearer of the two disks so no chart-to-group side assumption is needed.
         _uv_layer = shell_obj.data.uv_layers.active
         if _uv_layer is None:
             raise RuntimeError("EYESHELL: shell mesh has no UV layer — refusing")
@@ -3410,6 +3419,27 @@ def _eyshell_build(eyes_asset, human, shell_color, shell_margin, shell_corner,
                 a = a * _spare
                 print(f"EYESHELL_SPARE {side} spared={int((_spare <= 0.001).sum())} "
                       f"feather={int(((_spare > 0.001) & (_spare < 0.999)).sum())}")
+                # UV-convention falsifier (bpy loop UVs, v=0 bottom): the same
+                # world-space cap test against the UNFLIPPED file-UV centres.
+                # Right convention: active set is a tight iris cap (rms ~3mm
+                # about its centroid, centroid ~r from the globe centre) and
+                # the falsifier catches a handful of scattered sclera verts
+                # (rms ~8mm). If the falsifier ever clusters tighter, the flip
+                # above is wrong — stop and fix the convention, not the sweep.
+                _IRIS_C_NB = ((299.55 / 1024.0, 724.0 / 1024.0),
+                              (724.65 / 1024.0, 302.72 / 1024.0))
+                _dnb = np.minimum(
+                    np.linalg.norm(_suv - np.asarray(_IRIS_C_NB[0]), axis=1),
+                    np.linalg.norm(_suv - np.asarray(_IRIS_C_NB[1]), axis=1))
+                _in_nb = _dnb <= (_IRIS_R + _feather)
+                _wside = w
+                _in_ac = _ri <= (_IRIS_R + _feather)
+                _rms = lambda _sel: float(np.sqrt(
+                    ((_wside[_sel] - _wside[_sel].mean(axis=0)) ** 2).sum(axis=1).mean())) \
+                    if int(_sel.sum()) >= 3 else -1.0
+                print(f"EYESHELL_SPARE_CHECK {side} active_n={int(_in_ac.sum())} "
+                      f"active_rms_mm={_rms(_in_ac) * 1000.0:.2f} "
+                      f"noflip_n={int(_in_nb.sum())} noflip_rms_mm={_rms(_in_nb) * 1000.0:.2f}")
             # Lid-occlusion scale: the lid overhang blocks key light over the
             # covered fraction of the upper globe cap, so the whole shell
             # field for this eye scales with that fraction. O = mean over the
